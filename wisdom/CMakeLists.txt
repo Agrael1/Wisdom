@@ -1,0 +1,105 @@
+﻿# CMakeList.txt : CMake project for Wisdom, include source and define
+# project specific logic here.
+#
+project(Wisdom)
+
+set(SEVERITY_LEVELS "debug;trace;info;warn;error;critical" CACHE INTERNAL "List of possible severities for logging")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(CURR_LEVEL "debug")
+else()
+	set(CURR_LEVEL "warn")
+endif()
+
+set(LOG_LEVEL ${CURR_LEVEL} CACHE STRING "Wisdom library logging level")
+set_property(CACHE LOG_LEVEL PROPERTY STRINGS ${SEVERITY_LEVELS})
+list(FIND SEVERITY_LEVELS "${CURR_LEVEL}" SEV_INDEX)
+message("[Wisdom] Log Level is set to ${LOG_LEVEL}[${SEV_INDEX}]")
+
+
+find_package(Vulkan)
+add_library(${PROJECT_NAME} STATIC)
+
+
+if(Vulkan_FOUND)
+	message("Vulkan found!")
+	set(WISDOMVK TRUE)
+		target_link_libraries(${PROJECT_NAME} 
+		PUBLIC 
+			Vulkan::Vulkan
+	)
+endif()
+
+if(WIN32)
+	message("Platform Library is DirectX 12")
+	set(WISDOMDX12 TRUE)
+	set(DX12HEADERS 
+		"include/wisdom/dx12/dx12_definitions.h" 
+		"include/wisdom/dx12/dx12_factory.h" 
+		"include/wisdom/dx12/dx12_checks.h" 
+		"include/wisdom/dx12/dx12_info.h" 
+	 "include/wisdom/dx12/dx12_adapter.h")
+	set(DX12SOURCES
+		"src/wisdom/dx12/dx12_checks.cpp"
+		"src/wisdom/dx12/dx12_info.cpp"
+	)
+	target_link_libraries(${PROJECT_NAME} 
+		PUBLIC 
+			WinRT
+			DX12Agility
+			Wil
+			d3d12
+			DXGI
+			DXGUID
+	)
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+	message("Platform Library is Metal")
+    set(WISDOMMTL TRUE)
+endif()
+
+
+set(HEADER_LIST 
+	"include/wisdom/wisdom.h"
+	"include/wisdom/util/log_layer.h" 
+	"include/wisdom/util/flags.h" 
+	"include/wisdom/util/generator.h" 
+	"include/wisdom/global/definitions.h" 
+	"include/wisdom/util/exception.h" 
+	"include/wisdom/api/api_factory.h" 
+	"include/wisdom/api/api_internal.h"
+ "include/wisdom/api/api_adapter.h")
+
+# Add source to this project's executable.
+target_sources(${PROJECT_NAME}
+	PUBLIC FILE_SET HEADERS 
+		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+		FILES ${HEADER_LIST} ${DX12HEADERS}
+	PRIVATE 
+		${DX12SOURCES}
+		"src/x.cpp"
+		"src/wisdom/util/exception.cpp"
+
+)
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
+target_include_directories(${PROJECT_NAME} PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
+)
+set_target_properties(${PROJECT_NAME} 
+	PROPERTIES
+		CXX_STANDARD 23
+)
+target_compile_definitions(${PROJECT_NAME} 
+	PUBLIC 
+		DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
+		WISDOMDX12=$<BOOL:${WISDOMDX12}>
+		WISDOMVK=$<BOOL:${WISDOMVK}>
+		WISDOMMTL=$<BOOL:${WISDOMMTL}>
+		WISDOM_LOG_LEVEL=${SEV_INDEX}
+)
+
+target_install(${PROJECT_NAME})
+# TODO: Add tests.
