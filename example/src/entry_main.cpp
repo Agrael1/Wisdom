@@ -1,14 +1,8 @@
-#include <wisdom/wisdom.h>
+#include <example/app.h>
 #include <iostream>
 
 int main()
 {
-	wis::Factory factory;
-	for (auto&& a : factory.EnumerateAdapters(wis::AdapterPreference::Performance))
-	{
-		std::wcout << a.GetDesc().to_string()<<'\n';
-		//if (device.Initialize(a))break;
-	}
-
+	Test::App a{1920, 1080};
 	return 0;
 }

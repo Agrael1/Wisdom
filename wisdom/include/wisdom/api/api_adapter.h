@@ -23,8 +23,6 @@ namespace wis
 
 	struct AdapterDesc
 	{
-		static inline constexpr uint32_t uid_length = 8;
-
 		std::wstring description;
 		uint32_t vendor_id;
 		uint32_t device_id;
@@ -34,7 +32,7 @@ namespace wis
 		size_t dedicated_video_memory;
 		size_t dedicated_system_memory;
 		size_t shared_system_memory;
-		std::array<uint8_t, uid_length> adapter_id;
+		uint64_t adapter_id;
 
 		AdapterFlags flags = AdapterFlags::None;
 
@@ -53,19 +51,9 @@ namespace wis
 				L"[dedicated video memory]: {}\n"
 				L"[dedicated system memory]: {}\n"
 				L"[shared system memory]: {}\n"
-				L"[adapter id]: {}\n",
-				description, vendor_id, device_id, subsys_id, revision, dedicated_video_memory, dedicated_system_memory, shared_system_memory, GetAdapterID()
+				L"[adapter id]: {:X}\n",
+				description, vendor_id, device_id, subsys_id, revision, dedicated_video_memory, dedicated_system_memory, shared_system_memory, adapter_id
 			);
-		}
-		std::wstring GetAdapterID()const noexcept
-		{
-			std::wstring ws;
-			ws.reserve(uid_length * 3);
-			for (auto i : std::views::reverse(adapter_id))
-			{
-				std::format_to(std::back_inserter(ws), L"{:02X}:", i);
-			}
-			return ws;
 		}
 	};
 }

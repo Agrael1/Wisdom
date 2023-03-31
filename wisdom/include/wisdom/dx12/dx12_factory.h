@@ -3,6 +3,8 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_adapter.h>
+#include <wisdom/dx12/dx12_swapchain.h>
+#include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/util/generator.h>
 
 #include <dxgi1_6.h>
@@ -66,36 +68,38 @@ namespace wis
 			for (auto&& i : gen)
 				co_yield DX12Adapter(i);
 		}
-		//[[nodiscard]]
-		//DX12SwapChain CreateSwapchain(wis::SwapchainOptions options, wis::SurfaceParameters surface, DX12CommandQueue& queue)const
-		//{
-		//	DXGI_SWAP_CHAIN_DESC1 desc
-		//	{
-		//		.Width = options.width,
-		//		.Height = options.height,
-		//		.Format = DXGI_FORMAT(options.format),
-		//		.Stereo = options.stereo,
-		//		.SampleDesc{.Count = 1, .Quality = 0},
-		//		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-		//		.BufferCount = options.frame_count,
-		//		.Scaling = DXGI_SCALING::DXGI_SCALING_STRETCH,
-		//		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
-		//		.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-		//		.Flags = 0
-		//	};
-		//	
-		//	winrt::com_ptr<IDXGISwapChain4> chain;
-		//	switch (surface.type)
-		//	{
-		//	default:
-		//	case SurfaceParameters::Type::Win32:
-		//		chain = SwapChainForWin32(desc, surface.hwnd, queue.GetInternal().GetQueue().get());
-		//	case SurfaceParameters::Type::WinRT:
-		//		chain = SwapChainForCoreWindow(desc, surface.core_window, queue.GetInternal().GetQueue().get());
-		//	}
-		//
-		//	return DX12SwapChain{std::move(chain), options.frame_count};
-		//}
+		[[nodiscard]]
+		DX12SwapChain CreateSwapchain(DX12CommandQueue& queue, wis::SwapchainOptions options, wis::SurfaceParameters surface)const
+		{
+			DXGI_SWAP_CHAIN_DESC1 desc
+			{
+				.Width = options.width,
+				.Height = options.height,
+				.Format = DXGI_FORMAT(options.format),
+				.Stereo = options.stereo,
+				.SampleDesc{.Count = 1, .Quality = 0},
+				.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+				.BufferCount = options.frame_count,
+				.Scaling = DXGI_SCALING::DXGI_SCALING_STRETCH,
+				.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
+				.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
+				.Flags = 0
+			};
+			
+			winrt::com_ptr<IDXGISwapChain4> chain;
+			switch (surface.type)
+			{
+			default:
+			case SurfaceParameters::Type::Win32:
+				chain = SwapChainForWin32(desc, surface.hwnd, queue.GetInternal().GetQueue().get());
+				break;
+			case SurfaceParameters::Type::WinRT:
+				chain = SwapChainForCoreWindow(desc, surface.core_window, queue.GetInternal().GetQueue().get());
+				break;
+			}
+		
+			return DX12SwapChain{std::move(chain), options.frame_count};
+		}
 	public:
 		[[nodiscard]] 
 		auto& GetInternal()const noexcept

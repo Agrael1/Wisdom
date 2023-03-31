@@ -38,7 +38,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_factory.h" 
 		"include/wisdom/dx12/dx12_checks.h" 
 		"include/wisdom/dx12/dx12_info.h" 
-	 "include/wisdom/dx12/dx12_adapter.h")
+	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h")
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"
@@ -69,7 +69,7 @@ set(HEADER_LIST
 	"include/wisdom/util/exception.h" 
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h")
+ "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h")
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}

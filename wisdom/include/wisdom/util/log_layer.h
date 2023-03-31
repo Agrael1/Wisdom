@@ -17,6 +17,15 @@ namespace wis
 		error,
 		critical
 	};
+	constexpr const char* severity_strings[]
+	{
+		"debug",
+		"trace",
+		"info",
+		"warn",
+		"error",
+		"critical"
+	};
 
 	// Create a custom log layer to receive logging from the library
 	struct LogLayer
