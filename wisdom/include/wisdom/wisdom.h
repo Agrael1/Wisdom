@@ -14,6 +14,8 @@ namespace wis
 	using Device = DX12Device;
 	using CommandQueue = DX12CommandQueue;
 	using SwapChain = DX12SwapChain;
+	using CommandList = DX12CommandList;
+	using Fence = DX12Fence;
 	using GraphicsInfo = DX12Info;
 }
 #elif WISDOMMTL  //MAC

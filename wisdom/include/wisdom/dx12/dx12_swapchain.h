@@ -22,7 +22,7 @@ namespace wis
 			:chain(std::move(chain)) {}
 	public:
 		template<class Self>
-		[[nodiscard]] auto GetSwapChain(this Self&& s) {
+		[[nodiscard]] auto GetSwapChain(this Self&& s)noexcept {
 			return s.chain;
 		}
 		[[nodiscard]] 
@@ -36,9 +36,9 @@ namespace wis
 		uint32_t rtv_increment = 0;
 	};
 
-	class DX12SwapChain : Internal<DX12SwapChain>
+	class DX12SwapChain : public QueryInternal<DX12SwapChain>
 	{
-		using intern = Internal<DX12SwapChain>;
+		using intern = QueryInternal<DX12SwapChain>;
 		friend class DX12Factory;
 	public:
 		DX12SwapChain() = default;
@@ -74,12 +74,6 @@ namespace wis
 		uint32_t GetBackBufferIndex()const noexcept
 		{
 			return chain->GetCurrentBackBufferIndex();
-		}
-	public:
-		[[nodiscard]]
-		auto& GetInternal()const noexcept
-		{
-			return static_cast<const intern&>(*this);;
 		}
 	};
 }

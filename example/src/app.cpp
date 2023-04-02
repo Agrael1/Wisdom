@@ -2,7 +2,6 @@
 #include <iostream>
 
 
-
 struct LogProvider : public wis::LogLayer
 {
 	virtual void Log(wis::Severity sev, std::string message, std::source_location sl = std::source_location::current())override 
@@ -31,18 +30,6 @@ Test::App::App(uint32_t width, uint32_t height)
 		wis::SurfaceParameters{
 		wnd.GetHandle()
 	});
+	context = device.CreateCommandList(wis::CommandListType::direct);
+	fence = device.CreateFence();
 }
-//ver::IAsyncAction Test::App::InitializeAsync()
-//{
-//	co_await gfx.InitializeAsync();
-//	co_await gfx.InitializeSwapChainAsync(
-//		{
-//			.width = uint32_t(wnd.GetWidth()),
-//			.height = uint32_t(wnd.GetHeight())
-//		},
-//		ver::SurfaceParameters{
-//			wnd.GetHandle()
-//		}
-//	);
-//
-//}

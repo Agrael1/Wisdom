@@ -16,7 +16,7 @@ namespace wis
 		Internal(winrt::com_ptr<ID3D12CommandQueue> queue)noexcept :queue(std::move(queue)){}
 	public:
 		template<class Self>
-		[[nodiscard]] auto GetQueue(this Self&& s) {
+		[[nodiscard]] auto GetQueue(this Self&& s)noexcept {
 			return s.queue;
 		}
 	protected:
@@ -24,18 +24,13 @@ namespace wis
 	};
 
 
-	class DX12CommandQueue : private Internal<DX12CommandQueue>
+	class DX12CommandQueue : public QueryInternal<DX12CommandQueue>
 	{
-		using intern = Internal<DX12CommandQueue>;
+		using intern = QueryInternal<DX12CommandQueue>;
 	public:
 		DX12CommandQueue() = default;
 		DX12CommandQueue(winrt::com_ptr<ID3D12CommandQueue> queue)noexcept
 			:intern(std::move(queue)){}
 	public:
-		[[nodiscard]]
-		auto& GetInternal()const noexcept
-		{
-			return static_cast<const intern&>(*this);
-		}
 	};
 }

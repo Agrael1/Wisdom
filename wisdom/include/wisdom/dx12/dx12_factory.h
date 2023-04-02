@@ -34,7 +34,7 @@ namespace wis
 	{
 		static constexpr inline bool valid = true;
 	public:
-		static winrt::com_ptr<IDXGIFactory4> GetFactory() {
+		static winrt::com_ptr<IDXGIFactory4> GetFactory()noexcept {
 			return factory;
 		}
 	protected:
@@ -44,7 +44,7 @@ namespace wis
 
 	/// Main Factory class, since we don't need more than one factory it is a static resource
 	/// Not thread safe on creation
-	class DX12Factory final : Internal<DX12Factory>
+	class DX12Factory final : public QueryInternal<DX12Factory>
 	{
 		static inline constexpr uint32_t debug_flag = wis::debug_mode & DXGI_CREATE_FACTORY_DEBUG;
 	public:
@@ -99,12 +99,6 @@ namespace wis
 			}
 		
 			return DX12SwapChain{std::move(chain), options.frame_count};
-		}
-	public:
-		[[nodiscard]] 
-		auto& GetInternal()const noexcept
-		{
-			return static_cast<const Internal<DX12Factory>&>(*this);
 		}
 	private:
 		void EnableDebugLayer() noexcept

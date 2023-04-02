@@ -18,7 +18,7 @@ namespace wis
 			:adapter(std::move(adapter)) {}
 	public:
 		template<class Self>
-		[[nodiscard]] auto GetAdapter(this Self&& s) {
+		[[nodiscard]] auto GetAdapter(this Self&& s)noexcept {
 			return s.adapter;
 		}
 	protected:
@@ -26,9 +26,9 @@ namespace wis
 	};
 
 
-	class DX12Adapter final : Internal<DX12Adapter>
+	class DX12Adapter final : public QueryInternal<DX12Adapter>
 	{
-		using intern = Internal<DX12Adapter>;
+		using intern = QueryInternal<DX12Adapter>;
 	public:
 		DX12Adapter() = default;
 		explicit DX12Adapter(winrt::com_ptr<IDXGIAdapter1> adapter)noexcept
@@ -54,12 +54,6 @@ namespace wis
 				.adapter_id{reinterpret_cast<uint64_t&>(desc.AdapterLuid)},
 				.flags = AdapterFlags(desc.Flags)
 			};
-		}
-	public:
-		[[nodiscard]]
-		auto& GetInternal()const noexcept
-		{
-			return static_cast<const intern&>(*this);
 		}
 	};
 }

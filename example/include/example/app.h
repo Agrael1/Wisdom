@@ -17,5 +17,7 @@ namespace Test
 		wis::Device device;
 		wis::CommandQueue queue;
 		wis::SwapChain swap;
+		wis::CommandList context;
+		wis::Fence fence;
 	};
 }
