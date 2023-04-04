@@ -16,6 +16,7 @@ set_property(CACHE LOG_LEVEL PROPERTY STRINGS ${SEVERITY_LEVELS})
 list(FIND SEVERITY_LEVELS "${CURR_LEVEL}" SEV_INDEX)
 message("[Wisdom] Log Level is set to ${LOG_LEVEL}[${SEV_INDEX}]")
 
+option(runtime_asserts "Turn on/off runtime assertions (turned on might slightly affect performance)" ON)
 
 find_package(Vulkan)
 add_library(${PROJECT_NAME} STATIC)
@@ -38,7 +39,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_factory.h" 
 		"include/wisdom/dx12/dx12_checks.h" 
 		"include/wisdom/dx12/dx12_info.h" 
-	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h" "include/wisdom/dx12/dx12_resource.h" "include/wisdom/dx12/dx12_command_list.h" "include/wisdom/dx12/dx12_fence.h")
+	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h" "include/wisdom/dx12/dx12_resource.h" "include/wisdom/dx12/dx12_command_list.h" "include/wisdom/dx12/dx12_fence.h" "include/wisdom/dx12/dx12_rtv.h")
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"
@@ -69,7 +70,7 @@ set(HEADER_LIST
 	"include/wisdom/util/exception.h" 
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h" "include/wisdom/api/api_command_list.h")
+ "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h" "include/wisdom/api/api_command_list.h" "include/wisdom/api/api_barrier.h" )
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}
@@ -96,9 +97,11 @@ target_compile_definitions(${PROJECT_NAME}
 	PUBLIC 
 		DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
 		WISDOMDX12=$<BOOL:${WISDOMDX12}>
+		RUNTIME_ASSERTS=$<BOOL:${runtime_asserts}>
 		WISDOMVK=$<BOOL:${WISDOMVK}>
 		WISDOMMTL=$<BOOL:${WISDOMMTL}>
 		WISDOM_LOG_LEVEL=${SEV_INDEX}
+		NOMINMAX
 )
 
 target_install(${PROJECT_NAME})

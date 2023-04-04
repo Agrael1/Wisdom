@@ -33,3 +33,47 @@ Test::App::App(uint32_t width, uint32_t height)
 	context = device.CreateCommandList(wis::CommandListType::direct);
 	fence = device.CreateFence();
 }
+
+int Test::App::Start()
+{
+	while (true)
+	{
+		if (const auto a = wnd.ProcessMessages())
+			return (int)a.value();
+
+		Frame();
+	}
+}
+
+void Test::App::Frame()
+{
+	context.Reset();
+	const auto& back = swap.GetBackBuffer();
+	auto rtv = swap.GetBackBufferRTV();
+	constexpr std::array<float, 4> color{0.0f, 0.2f, 0.4f, 1.0f};
+
+	context.ResourceBarrier(wis::TransitionBarrier{
+		.resource = back,
+		.before = wis::ResourceState::present,
+		.after = wis::ResourceState::render_target
+	});
+
+	context.ClearRenderTarget(rtv, color);
+
+	context.ResourceBarrier(wis::TransitionBarrier{
+		.resource = back,
+		.before = wis::ResourceState::render_target,
+		.after = wis::ResourceState::present
+	});
+	context.Close();
+
+
+	queue.ExecuteCommandList(context);
+	swap.Present();
+
+	const UINT64 vfence = fence_value;
+	queue.Signal(fence, vfence);
+	fence_value++;
+
+	fence.Wait(vfence);
+}

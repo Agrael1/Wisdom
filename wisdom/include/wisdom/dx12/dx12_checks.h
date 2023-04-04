@@ -64,4 +64,12 @@ namespace wis
 	}
 
 	inline bool succeded(winrt::hresult hr)noexcept { return check_hresult_nothrow(hr); }
+
+	// light version of check, disabled by compile time switches
+	inline bool succeded_weak(winrt::hresult hr)
+	{
+		if constexpr (!debug_mode || !runtime_asserts)
+			return hr >= 0;
+		return succeded(hr);
+	}
 }

@@ -1,7 +1,9 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
+#include <wisdom/dx12/dx12_command_list.h>
+#include <wisdom/dx12/dx12_definitions.h>
+#include <wisdom/dx12/dx12_fence.h>
 #include <d3d12.h>
-
 
 namespace wis
 {
@@ -32,5 +34,15 @@ namespace wis
 		DX12CommandQueue(winrt::com_ptr<ID3D12CommandQueue> queue)noexcept
 			:intern(std::move(queue)){}
 	public:
+		void ExecuteCommandList(const DX12CommandList& list)
+		{
+			auto cl = list.GetInternal().GetCommandList();
+			ID3D12CommandList** cla = (ID3D12CommandList**)wis::array_view(cl);
+			queue->ExecuteCommandLists(1, cla);
+		}
+		bool Signal(DX12Fence& fence, uint64_t value)
+		{
+			return wis::succeded_weak(queue->Signal(fence.GetInternal().GetFence().get(), value));
+		}
 	};
 }

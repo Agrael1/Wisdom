@@ -10,6 +10,11 @@ namespace wis
 	template<>
 	class Internal<DX12Fence>
 	{
+	public:
+		auto GetFence()const noexcept
+		{
+			return fence;
+		}
 	protected:
 		winrt::com_ptr<ID3D12Fence1> fence;
 		wil::unique_event_nothrow fence_event;
@@ -23,6 +28,22 @@ namespace wis
 		{
 			fence = std::move(xfence);
 			wis::check_hresult(fence_event.create()); // rethrow windows error (nothrow policy)
+		}
+	public:
+		uint64_t GetCompletedValue()const noexcept
+		{
+			return fence->GetCompletedValue();
+		}
+		bool Wait(uint64_t value)const noexcept
+		{
+			return GetCompletedValue() >= value ?
+				true :
+				wis::succeded_weak(fence->SetEventOnCompletion(value, fence_event.get()))
+				&& fence_event.wait();
+		}
+		void Signal(uint64_t value)noexcept
+		{
+			fence->Signal(value);
 		}
 	};
 }

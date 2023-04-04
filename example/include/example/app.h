@@ -8,6 +8,9 @@ namespace Test
 	{
 	public:
 		App(uint32_t width, uint32_t height);
+	public:
+		int Start();
+		void Frame();
 	private:
 		Window wnd;
 
@@ -19,5 +22,7 @@ namespace Test
 		wis::SwapChain swap;
 		wis::CommandList context;
 		wis::Fence fence;
+
+		uint64_t fence_value = 1;
 	};
 }

@@ -9,14 +9,19 @@
 //dx12 
 namespace wis
 {
-	using Factory = DX12Factory;
-	using Adapter = DX12Adapter;
-	using Device = DX12Device;
-	using CommandQueue = DX12CommandQueue;
-	using SwapChain = DX12SwapChain;
-	using CommandList = DX12CommandList;
-	using Fence = DX12Fence;
-	using GraphicsInfo = DX12Info;
+	using Factory = class DX12Factory;
+	using Adapter = class DX12Adapter;
+	using Device = class DX12Device;
+	using CommandQueue = class DX12CommandQueue;
+	using SwapChain = class DX12SwapChain;
+	using CommandList = class DX12CommandList;
+	using Fence = class DX12Fence;
+	using Resource = class DX12Resource;
+	using RenderTargetView = DX12RenderTargetView;
+
+	using GraphicsInfo = class DX12Info;
+
+	using TransitionBarrier = BasicTransitionBarrier<Resource>;
 }
 #elif WISDOMMTL  //MAC
 //metal

@@ -21,6 +21,8 @@ namespace wis
 	template<class T, class U>
 	struct cv_type<volatile T, U>{ using type = volatile U; };
 
+	template<class In, class Out>
+	using cv_type_t = cv_type<In, Out>::type;
 	
 
 	template<class Impl>
