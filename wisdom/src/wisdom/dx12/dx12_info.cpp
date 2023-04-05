@@ -1,6 +1,7 @@
 #include <wisdom/dx12/dx12_info.h>
 #include <dxgi1_6.h>
 #include <d3d12sdklayers.h>
+#include <wisdom/global/definitions.h>
 
 using namespace wis;
 

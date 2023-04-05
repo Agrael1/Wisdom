@@ -29,8 +29,11 @@ namespace wis
 {
 }
 #else
+#include <wisdom/vulkan/vk_factory.h>
+
 //vulkan
 namespace wis
 {
+	using Factory = VKFactory;
 }
 #endif

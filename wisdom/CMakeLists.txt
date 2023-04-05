@@ -14,9 +14,10 @@ endif()
 set(LOG_LEVEL ${CURR_LEVEL} CACHE STRING "Wisdom library logging level")
 set_property(CACHE LOG_LEVEL PROPERTY STRINGS ${SEVERITY_LEVELS})
 list(FIND SEVERITY_LEVELS "${CURR_LEVEL}" SEV_INDEX)
-message("[Wisdom] Log Level is set to ${LOG_LEVEL}[${SEV_INDEX}]")
+message("[Wisdom] Log Level is set to ${LOG_LEVEL} [${SEV_INDEX}]")
 
-option(runtime_asserts "Turn on/off runtime assertions (turned on might slightly affect performance)" ON)
+option(RUNTIME_ASSERTS "Turn on/off runtime assertions (turned on might slightly affect performance)" ON)
+option(FORCE_VULKAN "Forces the default device to be vulkan, instead of platform specific" ON)
 
 find_package(Vulkan)
 add_library(${PROJECT_NAME} STATIC)
@@ -29,11 +30,20 @@ if(Vulkan_FOUND)
 		PUBLIC 
 			Vulkan::Vulkan
 	)
+	set(VKHEADERS
+	
+	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h")
+	set(VKSOURCES
+	
+	 "src/wisdom/vulkan/vk_factory.cpp")
 endif()
+
 
 if(WIN32)
 	message("Platform Library is DirectX 12")
-	set(WISDOMDX12 TRUE)
+	if(NOT FORCE_VULKAN)
+		set(WISDOMDX12 TRUE)
+	endif()
 	set(DX12HEADERS 
 		"include/wisdom/dx12/dx12_definitions.h" 
 		"include/wisdom/dx12/dx12_factory.h" 
@@ -53,11 +63,22 @@ if(WIN32)
 			DXGI
 			DXGUID
 	)
-endif()
-
-if (CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS")
-	message("Platform Library is Metal")
-    set(WISDOMMTL TRUE)
+	target_compile_definitions(${PROJECT_NAME} 
+		PUBLIC 
+			VK_USE_PLATFORM_WIN32_KHR
+	)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT FORCE_VULKAN)
+#	message("Platform Library is Metal")
+#    set(WISDOMMTL TRUE)
+#	target_compile_definitions(${PROJECT_NAME} 
+#		PUBLIC 
+#			VK_USE_PLATFORM_METAL_EXT
+#	)
+else()
+	#	target_compile_definitions(${PROJECT_NAME} 
+	#		PUBLIC 
+	#			VK_USE_PLATFORM_METAL_EXT
+	#	)
 endif()
 
 
@@ -76,9 +97,10 @@ set(HEADER_LIST
 target_sources(${PROJECT_NAME}
 	PUBLIC FILE_SET HEADERS 
 		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-		FILES ${HEADER_LIST} ${DX12HEADERS}
+		FILES ${HEADER_LIST} ${DX12HEADERS} ${VKHEADERS}
 	PRIVATE 
 		${DX12SOURCES}
+		${VKSOURCES}
 		"src/x.cpp"
 		"src/wisdom/util/exception.cpp"
 
@@ -97,7 +119,7 @@ target_compile_definitions(${PROJECT_NAME}
 	PUBLIC 
 		DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
 		WISDOMDX12=$<BOOL:${WISDOMDX12}>
-		RUNTIME_ASSERTS=$<BOOL:${runtime_asserts}>
+		RUNTIME_ASSERTS=$<BOOL:${RUNTIME_ASSERTS}>
 		WISDOMVK=$<BOOL:${WISDOMVK}>
 		WISDOMMTL=$<BOOL:${WISDOMMTL}>
 		WISDOM_LOG_LEVEL=${SEV_INDEX}

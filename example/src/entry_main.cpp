@@ -3,6 +3,6 @@
 
 int main()
 {
-	Test::App a{1920, 1080};
+	Test::App a{320, 280};
 	return a.Start();
 }

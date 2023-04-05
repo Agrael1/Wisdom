@@ -48,11 +48,10 @@ namespace wis
 	{
 		static inline constexpr uint32_t debug_flag = wis::debug_mode & DXGI_CREATE_FACTORY_DEBUG;
 	public:
-		DX12Factory(bool use_preference = true)
+		DX12Factory(const ApplicationInfo& app_info, bool use_preference = true)
 		{
 			if (factory)
 				return;
-
 			EnableDebugLayer();
 			wis::check_hresult(CreateDXGIFactory2(debug_flag,
 				__uuidof(IDXGIFactory4), factory.put_void()));
