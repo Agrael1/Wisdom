@@ -17,7 +17,7 @@ list(FIND SEVERITY_LEVELS "${CURR_LEVEL}" SEV_INDEX)
 message("[Wisdom] Log Level is set to ${LOG_LEVEL} [${SEV_INDEX}]")
 
 option(RUNTIME_ASSERTS "Turn on/off runtime assertions (turned on might slightly affect performance)" ON)
-option(FORCE_VULKAN "Forces the default device to be vulkan, instead of platform specific" ON)
+option(FORCE_VULKAN "Forces the default device to be vulkan, instead of platform specific" OFF)
 
 find_package(Vulkan)
 add_library(${PROJECT_NAME} STATIC)
@@ -32,7 +32,7 @@ if(Vulkan_FOUND)
 	)
 	set(VKHEADERS
 	
-	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h")
+	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h")
 	set(VKSOURCES
 	
 	 "src/wisdom/vulkan/vk_factory.cpp")
@@ -49,7 +49,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_factory.h" 
 		"include/wisdom/dx12/dx12_checks.h" 
 		"include/wisdom/dx12/dx12_info.h" 
-	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h" "include/wisdom/dx12/dx12_resource.h" "include/wisdom/dx12/dx12_command_list.h" "include/wisdom/dx12/dx12_fence.h" "include/wisdom/dx12/dx12_rtv.h")
+	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h" "include/wisdom/dx12/dx12_resource.h" "include/wisdom/dx12/dx12_command_list.h" "include/wisdom/dx12/dx12_fence.h" "include/wisdom/dx12/dx12_rtv.h" "include/wisdom/dx12/dx12_graphics_pipeline.h" "include/wisdom/dx12/dx12_root_signature.h" "include/wisdom/dx12/dx12_shader.h")
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"

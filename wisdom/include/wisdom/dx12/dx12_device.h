@@ -6,6 +6,8 @@
 #include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/dx12/dx12_command_list.h>
 #include <wisdom/dx12/dx12_fence.h>
+#include <wisdom/dx12/dx12_root_signature.h>
+#include <wisdom/dx12/dx12_graphics_pipeline.h>
 #include <d3d12.h>
 #include <d3dx12/d3dx12.h>
 
@@ -82,6 +84,33 @@ namespace wis
 			winrt::com_ptr<ID3D12Fence1> fence;
 			wis::check_hresult(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()));
 			return DX12Fence{ std::move(fence) };
+		}
+
+		[[nodiscard]]
+		DX12RootSignature CreateRootSignature()const
+		{
+			winrt::com_ptr<ID3D12RootSignature> rsig;
+			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc{ 0, nullptr, 0, nullptr,
+				D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+				| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+			};
+
+			winrt::com_ptr<ID3DBlob> signature;
+			winrt::com_ptr<ID3DBlob> error;
+			wis::check_hresult(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, signature.put(), error.put()));
+			wis::check_hresult(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void()));
+			return DX12RootSignature{ std::move(rsig) };
+		}
+
+		[[nodiscard]]
+		DX12GraphicsPipeline CreatePipeline()const
+		{
+			winrt::com_ptr<ID3D12PipelineState> rsig;
+
+
+			return DX12GraphicsPipeline{ std::move(rsig) };
 		}
 	};
 }

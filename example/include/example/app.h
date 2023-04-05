@@ -14,14 +14,14 @@ namespace Test
 	private:
 		Window wnd;
 
-		//wis::GraphicsInfo info;
+		wis::GraphicsInfo info;
 
 		std::optional<wis::Factory> factory;
-		//wis::Device device;
-		//wis::CommandQueue queue;
-		//wis::SwapChain swap;
-		//wis::CommandList context;
-		//wis::Fence fence;
+		wis::Device device;
+		wis::CommandQueue queue;
+		wis::SwapChain swap;
+		wis::CommandList context;
+		wis::Fence fence;
 
 		uint64_t fence_value = 1;
 	};
