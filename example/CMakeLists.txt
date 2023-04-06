@@ -3,6 +3,8 @@
 #
 project(Example)
 
+add_subdirectory("shaders")
+
 # SDK exports
 get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
 configure_file(exports.cpp.in exports.cpp)
@@ -26,6 +28,10 @@ set_target_properties(${PROJECT_NAME}
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+add_dependencies(${PROJECT_NAME}
+    compile_shaders
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

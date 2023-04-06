@@ -5,6 +5,7 @@
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/dx12/dx12_info.h>
+#include <wisdom/dx12/dx12_shader.h>
 
 //dx12 
 namespace wis
@@ -18,6 +19,7 @@ namespace wis
 	using Fence = class DX12Fence;
 	using Resource = class DX12Resource;
 	using RenderTargetView = DX12RenderTargetView;
+	using Shader = DX12Shader;
 
 	using GraphicsInfo = class DX12Info;
 

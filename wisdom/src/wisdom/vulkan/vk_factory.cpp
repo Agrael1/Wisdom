@@ -17,7 +17,6 @@ constexpr wis::Severity SeverityConvert(VkDebugUtilsMessageSeverityFlagBitsEXT m
 	}
 }
 
-
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) 
 {
 	wis::lib_log(SeverityConvert(messageSeverity),
@@ -87,7 +86,7 @@ std::vector<const char*> wis::VKFactory::FoundExtensions() noexcept
 std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 {
 	std::vector<const char*> out;
-	if (debug_mode)
+	if constexpr(debug_mode)
 	{
 		auto layers = vk::enumerateInstanceLayerProperties();
 		std::string debug_str1{"Available Layers:\n"};

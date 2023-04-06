@@ -1,5 +1,7 @@
 #include <example/app.h>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 
 struct LogProvider : public wis::LogLayer
@@ -15,6 +17,18 @@ constexpr wis::ApplicationInfo app_info{
 		.engine_name = "none",
 };
 
+// not WinRT Compatible
+wis::Shader LoadShader(std::filesystem::path p, wis::ShaderType type)
+{
+	std::vector<std::byte> bytecode;
+	std::basic_ifstream<std::byte> t{p, std::ios::binary};
+	t.seekg(0, std::ios::end);
+	size_t size = t.tellg();
+	bytecode.resize(size);
+	t.seekg(0);
+	t.read(&bytecode[0], size);
+	return wis::Shader{ std::move(bytecode), type };
+}
 
 Test::App::App(uint32_t width, uint32_t height)
 	:wnd(width, height, "VTest")
@@ -40,6 +54,9 @@ Test::App::App(uint32_t width, uint32_t height)
 	});
 	context = device.CreateCommandList(wis::CommandListType::direct);
 	fence = device.CreateFence();
+
+	vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
+	ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
 }
 
 int Test::App::Start()
@@ -78,7 +95,7 @@ void Test::App::Frame()
 	
 	queue.ExecuteCommandList(context);
 	swap.Present();
-	
+
 	const UINT64 vfence = fence_value;
 	queue.Signal(fence, vfence);
 	fence_value++;

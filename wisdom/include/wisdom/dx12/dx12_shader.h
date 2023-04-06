@@ -1,7 +1,8 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
-#include <d3d12.h>
-#include <filesystem>
+#include <wisdom/api/api_shader.h>
+#include <vector>
+#include <span>
 
 namespace wis
 {
@@ -11,23 +12,33 @@ namespace wis
 	class Internal<DX12Shader>
 	{
 	public:
-		auto GetShaderBytecode()const noexcept
+		std::span<const std::byte> GetShaderBytecode()const noexcept
 		{
-			return shader;
+			return bytecode;
 		}
 	protected:
-		winrt::com_ptr<ID3DBlob> shader;
+		std::vector<std::byte> bytecode;
 	};
 
 	class DX12Shader : public QueryInternal<DX12Shader>
 	{
 	public:
 		DX12Shader() = default;
-		explicit DX12Shader(winrt::com_ptr<ID3DBlob> xshader)
+		explicit DX12Shader(std::vector<std::byte> xbytecode, ShaderType type)
+			:type(type)
 		{
-			shader = std::move(xshader);
+			bytecode = std::move(xbytecode);
 		}
 	public:
-
+		operator bool()const noexcept
+		{
+			return type != ShaderType::unknown && !bytecode.empty();
+		}
+		auto GetType()const noexcept
+		{
+			return type;
+		}
+	public:
+		ShaderType type = ShaderType::unknown;
 	};
 }

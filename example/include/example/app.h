@@ -23,6 +23,9 @@ namespace Test
 		wis::CommandList context;
 		wis::Fence fence;
 
+		wis::Shader vs;
+		wis::Shader ps;
+
 		uint64_t fence_value = 1;
 	};
 }
