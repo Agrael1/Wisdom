@@ -14,20 +14,20 @@ namespace wis
 	public:
 		std::span<const std::byte> GetShaderBytecode()const noexcept
 		{
-			return bytecode;
+			return bytecode.GetSpan();
 		}
 	protected:
-		std::vector<std::byte> bytecode;
+		wis::shared_blob bytecode;
 	};
 
 	class DX12Shader : public QueryInternal<DX12Shader>
 	{
 	public:
 		DX12Shader() = default;
-		explicit DX12Shader(std::vector<std::byte> xbytecode, ShaderType type)
+		explicit DX12Shader(std::unique_ptr<std::byte[]> xbytecode, size_t size, ShaderType type)
 			:type(type)
 		{
-			bytecode = std::move(xbytecode);
+			bytecode = { std::move(xbytecode), size };
 		}
 	public:
 		operator bool()const noexcept

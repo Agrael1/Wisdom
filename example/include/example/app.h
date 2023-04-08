@@ -26,6 +26,9 @@ namespace Test
 		wis::Shader vs;
 		wis::Shader ps;
 
+		wis::RootSignature root;
+		wis::GraphicsPipeline pipeline;
+
 		uint64_t fence_value = 1;
 	};
 }

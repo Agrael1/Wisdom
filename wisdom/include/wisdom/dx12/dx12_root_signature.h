@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <d3d12.h>
+#include <winrt/base.h>
 
 namespace wis
 {
@@ -10,9 +11,9 @@ namespace wis
 	class Internal<DX12RootSignature>
 	{
 	public:
-		auto GetRootSignature()const noexcept
+		auto* GetRootSignature()const noexcept
 		{
-			return root;
+			return root.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12RootSignature> root;

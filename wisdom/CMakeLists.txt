@@ -49,7 +49,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_factory.h" 
 		"include/wisdom/dx12/dx12_checks.h" 
 		"include/wisdom/dx12/dx12_info.h" 
-	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h" "include/wisdom/dx12/dx12_resource.h" "include/wisdom/dx12/dx12_command_list.h" "include/wisdom/dx12/dx12_fence.h" "include/wisdom/dx12/dx12_rtv.h" "include/wisdom/dx12/dx12_graphics_pipeline.h" "include/wisdom/dx12/dx12_root_signature.h" "include/wisdom/dx12/dx12_shader.h")
+	 "include/wisdom/dx12/dx12_adapter.h" "include/wisdom/dx12/dx12_device.h" "include/wisdom/dx12/dx12_command_queue.h" "include/wisdom/dx12/dx12_swapchain.h" "include/wisdom/dx12/dx12_resource.h" "include/wisdom/dx12/dx12_command_list.h" "include/wisdom/dx12/dx12_fence.h" "include/wisdom/dx12/dx12_rtv.h" "include/wisdom/dx12/dx12_graphics_pipeline.h" "include/wisdom/dx12/dx12_root_signature.h" "include/wisdom/dx12/dx12_shader.h" "include/wisdom/dx12/dx12_state_builder.h")
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"
@@ -91,7 +91,7 @@ set(HEADER_LIST
 	"include/wisdom/util/exception.h" 
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h" "include/wisdom/api/api_command_list.h" "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h")
+ "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h" "include/wisdom/api/api_command_list.h" "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h" "include/wisdom/api/api_data_format.h")
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}

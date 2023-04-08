@@ -20,14 +20,13 @@ constexpr wis::ApplicationInfo app_info{
 // not WinRT Compatible
 wis::Shader LoadShader(std::filesystem::path p, wis::ShaderType type)
 {
-	std::vector<std::byte> bytecode;
 	std::basic_ifstream<std::byte> t{p, std::ios::binary};
 	t.seekg(0, std::ios::end);
 	size_t size = t.tellg();
-	bytecode.resize(size);
+	std::unique_ptr<std::byte[]> bytecode = std::make_unique<std::byte[]>(size);
 	t.seekg(0);
 	t.read(&bytecode[0], size);
-	return wis::Shader{ std::move(bytecode), type };
+	return wis::Shader{ std::move(bytecode), size, type };
 }
 
 Test::App::App(uint32_t width, uint32_t height)
@@ -57,6 +56,19 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
 	ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
+
+	root = device.CreateRootSignature();//empty
+
+	static constexpr std::array<wis::InputLayoutDesc, 2> ia{
+		wis::InputLayoutDesc{ "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
+		wis::InputLayoutDesc{ "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+	};
+
+	wis::GraphicsPipelineDesc desc{root};
+	desc.SetVS(vs);
+	desc.SetPS(ps);
+	desc.SetRenderTarget(wis::DataFormat::b8g8r8a8_unorm, 0);
+	pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
 }
 
 int Test::App::Start()

@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <d3d12.h>
+#include <winrt/base.h>
 
 namespace wis
 {
@@ -18,6 +19,7 @@ namespace wis
 		winrt::com_ptr<ID3D12PipelineState> pipeline;
 	};
 
+
 	class DX12GraphicsPipeline : public QueryInternal<DX12GraphicsPipeline>
 	{
 	public:
@@ -26,7 +28,5 @@ namespace wis
 		{
 			pipeline = std::move(xpipeline);
 		}
-	public:
-
 	};
 }

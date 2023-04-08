@@ -8,8 +8,10 @@
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_root_signature.h>
 #include <wisdom/dx12/dx12_graphics_pipeline.h>
+#include <wisdom/dx12/dx12_state_builder.h>
 #include <d3d12.h>
 #include <d3dx12/d3dx12.h>
+#include <wisdom/api/api_input_layout.h>
 
 namespace wis
 {
@@ -31,6 +33,21 @@ namespace wis
 
 	class DX12Device final: public QueryInternal<DX12Device>
 	{
+		struct PipelineStreamAllocator
+		{
+			static inline constexpr auto allocator_size = 1024;
+			alignas(void*)std::array<std::byte, allocator_size> allocator{};
+			size_t size = 0;
+
+			template<typename T>
+			T& allocate()noexcept
+			{
+				T& x = *reinterpret_cast<T*>(allocator.data() + size);
+				size += sizeof(T);
+				return x;
+			};
+
+		};
 	public:
 		DX12Device() = default;
 		DX12Device(DX12Adapter adapter) {
@@ -105,12 +122,75 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		DX12GraphicsPipeline CreatePipeline()const
+		DX12GraphicsPipeline CreateGraphicsPipeline(DX12GraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const //movable
 		{
-			winrt::com_ptr<ID3D12PipelineState> rsig;
+			winrt::com_ptr<ID3D12PipelineState> state;
+			D3D12_PIPELINE_STATE_STREAM_DESC xdesc{};
+
+			D3D12_INPUT_LAYOUT_DESC iadesc{};
+			iadesc.NumElements = input_layout.size();
+
+			PipelineStreamAllocator ia;
+			for (auto& i : input_layout)
+			{
+				ia.allocate<D3D12_INPUT_ELEMENT_DESC>() = 
+				{
+					.SemanticName = i.semantic_name,
+					.SemanticIndex = i.semantic_index,
+					.Format = DXGI_FORMAT(i.format),
+					.InputSlot = i.input_slot,
+					.AlignedByteOffset = i.aligned_byte_offset,
+					.InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
+					.InstanceDataStepRate = i.instance_data_step_rate
+				};
+			}
+			iadesc.pInputElementDescs = reinterpret_cast<D3D12_INPUT_ELEMENT_DESC*>(ia.allocator.data());
 
 
-			return DX12GraphicsPipeline{ std::move(rsig) };
+			PipelineStreamAllocator psta;
+			psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
+			psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
+
+			if (desc.vs)
+			{
+				auto d = desc.vs.GetInternal().GetShaderBytecode();
+				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_VS>() = { d.data(), d.size() };
+			}
+			if (desc.ps)
+			{
+				auto d = desc.ps.GetInternal().GetShaderBytecode();
+				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_PS>() = { d.data(), d.size() };
+			}
+			if (desc.gs)
+			{
+				auto d = desc.gs.GetInternal().GetShaderBytecode();
+				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_GS>() = { d.data(), d.size() };
+			}
+
+			if (desc.hs)
+			{
+				auto d = desc.hs.GetInternal().GetShaderBytecode();
+				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_HS>() = { d.data(), d.size() };
+			}
+			if (desc.ds)
+			{
+				auto d = desc.ds.GetInternal().GetShaderBytecode();
+				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
+			}
+			if (desc.num_targets)
+			{
+				D3D12_RT_FORMAT_ARRAY rta{
+					.NumRenderTargets = desc.num_targets
+				};
+				std::memcpy(rta.RTFormats, desc.target_formats.data(), desc.target_formats.size() * sizeof(DataFormat));
+				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
+			}
+			xdesc.pPipelineStateSubobjectStream = psta.allocator.data();
+			xdesc.SizeInBytes = psta.size;
+
+
+			wis::check_hresult(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()));
+			return DX12GraphicsPipeline{ std::move(state) };
 		}
 	};
 }

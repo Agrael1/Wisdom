@@ -46,16 +46,14 @@ namespace wis
 	}
 	inline void check_hresult(winrt::hresult hr, std::source_location sl = std::source_location::current())
 	{
-		if (hr >= 0)return;
 		log_dxgi_errors();
+		if (hr >= 0)return;
 		throw wis::hr_exception{ hr, sl };
 	}
 	inline [[nodiscard]] bool check_hresult_nothrow(winrt::hresult hr)noexcept
 	{
-		bool a = hr >= 0;
-		if (a) return true;
 		log_dxgi_errors();
-		return false;
+		return hr >= 0;
 	}
 	inline void check_windows(bool check, std::source_location sl = std::source_location::current())
 	{
