@@ -65,6 +65,7 @@ namespace wis
 			if (slot > 7)return *this;
 			if (target_formats[slot] == DataFormat::unknown)num_targets++;
 			target_formats[slot] = render_target;
+			return *this;
 		}
 
 	private:

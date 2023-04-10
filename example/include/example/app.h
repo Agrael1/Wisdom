@@ -11,6 +11,7 @@ namespace Test
 	public:
 		int Start();
 		void Frame();
+		void WaitForGPU();
 	private:
 		Window wnd;
 
@@ -22,12 +23,16 @@ namespace Test
 		wis::SwapChain swap;
 		wis::CommandList context;
 		wis::Fence fence;
+		wis::ResourceAllocator allocator;
 
 		wis::Shader vs;
 		wis::Shader ps;
 
 		wis::RootSignature root;
-		wis::GraphicsPipeline pipeline;
+		wis::PipelineState pipeline;
+		wis::VertexBufferView vb;
+
+		wis::Resource vertex_buffer;
 
 		uint64_t fence_value = 1;
 	};

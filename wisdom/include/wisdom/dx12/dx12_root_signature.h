@@ -11,13 +11,15 @@ namespace wis
 	class Internal<DX12RootSignature>
 	{
 	public:
-		auto* GetRootSignature()const noexcept
+		ID3D12RootSignature* GetRootSignature()const noexcept
 		{
 			return root.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12RootSignature> root;
 	};
+
+	using DX12RootSignatureView = ID3D12RootSignature*;
 
 	class DX12RootSignature : public QueryInternal<DX12RootSignature>
 	{
@@ -28,6 +30,9 @@ namespace wis
 			root = std::move(xroot);
 		}
 	public:
-
+		operator DX12RootSignatureView()const noexcept
+		{
+			return GetRootSignature();
+		}
 	};
 }

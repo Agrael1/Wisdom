@@ -67,7 +67,7 @@ namespace wis
 				wis::check_hresult(chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void()));
 				device->CreateRenderTargetView(rc.get(), nullptr, rtvHandle);
 				rtvHandle.Offset(1, rtv_increment);
-				render_targets.emplace_back(std::move(rc));
+				render_targets.emplace_back(std::move(rc), nullptr);
 			}
 		}
 	public:

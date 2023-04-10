@@ -68,6 +68,6 @@ namespace wis
 	{
 		if constexpr (!debug_mode || !runtime_asserts)
 			return hr >= 0;
-		return succeded(hr);
+		return check_hresult_nothrow(hr);
 	}
 }

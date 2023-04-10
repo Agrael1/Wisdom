@@ -2,6 +2,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <DirectXMath.h>
 
 
 struct LogProvider : public wis::LogLayer
@@ -28,6 +29,11 @@ wis::Shader LoadShader(std::filesystem::path p, wis::ShaderType type)
 	t.read(&bytecode[0], size);
 	return wis::Shader{ std::move(bytecode), size, type };
 }
+template<class T>
+std::span<std::byte> RawView(T& data)
+{
+	return { (std::byte*)&data, sizeof(T) };
+}
 
 Test::App::App(uint32_t width, uint32_t height)
 	:wnd(width, height, "VTest")
@@ -40,7 +46,11 @@ Test::App::App(uint32_t width, uint32_t height)
 	{
 		if (a.GetDesc().IsSoftware())
 			wis::lib_warn("Loading WARP adapter");
-		if (device.Initialize(a))break;
+		if (device.Initialize(a)) 
+		{ 
+			allocator = { device, a };
+			break;
+		}
 	}
 	
 	queue = device.CreateCommandQueue();
@@ -51,8 +61,8 @@ Test::App::App(uint32_t width, uint32_t height)
 		wis::SurfaceParameters{
 		wnd.GetHandle()
 	});
-	context = device.CreateCommandList(wis::CommandListType::direct);
 	fence = device.CreateFence();
+	context = device.CreateCommandList(wis::CommandListType::direct);
 
 	vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
 	ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
@@ -69,6 +79,38 @@ Test::App::App(uint32_t width, uint32_t height)
 	desc.SetPS(ps);
 	desc.SetRenderTarget(wis::DataFormat::b8g8r8a8_unorm, 0);
 	pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
+
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT4 col;
+	};
+	auto aspect_ratio = float(width) / float(height);
+	Vertex triangleVertices[] =
+	{
+		{ { 0.0f, 0.25f * aspect_ratio , 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+		{ { 0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+		{ { -0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+	};
+
+	vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices));
+	auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
+	upl_vbuf.UpdateSubresource(RawView(triangleVertices));
+
+	context.Reset();
+	context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(triangleVertices));
+	context.ResourceBarrier(wis::TransitionBarrier{
+		.resource = vertex_buffer,
+		.before = wis::ResourceState::copy_dest,
+		.after = wis::ResourceState::vertex_and_constant_buffer
+	});
+	context.Close();
+
+	queue.ExecuteCommandList(context);
+	WaitForGPU();
+
+	vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
+	context.SetPipeline(pipeline);
 }
 
 int Test::App::Start()
@@ -95,22 +137,33 @@ void Test::App::Frame()
 		.after = wis::ResourceState::render_target
 	});
 	
+	context.SetGraphicsRootSignature(root);
+	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
+	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
+	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	context.ClearRenderTarget(rtv, color);
-	
+	context.IASetVertexBuffers({&vb, 1});
+	context.OMSetRenderTargets(std::array{rtv});
+	context.DrawInstanced(3);
+
 	context.ResourceBarrier(wis::TransitionBarrier{
 		.resource = back,
 		.before = wis::ResourceState::render_target,
 		.after = wis::ResourceState::present
 	});
 	context.Close();
-	
-	
+
 	queue.ExecuteCommandList(context);
 	swap.Present();
+	wis::check_context();
+	WaitForGPU();
+}
 
+void Test::App::WaitForGPU()
+{
 	const UINT64 vfence = fence_value;
 	queue.Signal(fence, vfence);
 	fence_value++;
-	
+
 	fence.Wait(vfence);
 }

@@ -25,7 +25,8 @@ if(WIN32)
 		message("NUGET.EXE not found.")
 		message(FATAL_ERROR "Please install this executable, and run CMake again.")
 	endif()
-	
+
+	add_subdirectory("DX12Allocator")
 	add_subdirectory("WinRT")
 	add_subdirectory("DX12Agility")
 	add_subdirectory("Wil")

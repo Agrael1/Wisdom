@@ -36,9 +36,8 @@ namespace wis
 	public:
 		void ExecuteCommandList(const DX12CommandList& list)
 		{
-			auto cl = list.GetInternal().GetCommandList();
-			ID3D12CommandList** cla = (ID3D12CommandList**)wis::array_view(cl);
-			queue->ExecuteCommandLists(1, cla);
+			auto* cl = list.GetInternal().GetCommandList();
+			queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&cl));
 		}
 		bool Signal(DX12Fence& fence, uint64_t value)
 		{

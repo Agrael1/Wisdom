@@ -7,7 +7,7 @@
 #include <wisdom/dx12/dx12_command_list.h>
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_root_signature.h>
-#include <wisdom/dx12/dx12_graphics_pipeline.h>
+#include <wisdom/dx12/dx12_pipeline_state.h>
 #include <wisdom/dx12/dx12_state_builder.h>
 #include <d3d12.h>
 #include <d3dx12/d3dx12.h>
@@ -22,13 +22,14 @@ namespace wis
 	{
 		static constexpr inline bool valid = true;
 	public:
-		template<class Self>
-		[[nodiscard]] auto GetDevice(this Self&& s)noexcept {
-			return s.device;
+		[[nodiscard]] 
+		ID3D12Device10* GetDevice()const noexcept {
+			return device.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12Device10> device{};
 	};
+	using DX12DeviceView = ID3D12Device10*;
 
 
 	class DX12Device final: public QueryInternal<DX12Device>
@@ -50,18 +51,22 @@ namespace wis
 		};
 	public:
 		DX12Device() = default;
-		DX12Device(DX12Adapter adapter) {
-			wis::check_hresult(D3D12CreateDevice(adapter.GetInternal().GetAdapter().get(),
+		DX12Device(DX12AdapterView adapter) {
+			wis::check_hresult(D3D12CreateDevice(adapter,
 				D3D_FEATURE_LEVEL_11_0, __uuidof(*device), device.put_void()));
 		};
 	public:
-		bool Initialize(DX12Adapter adapter)noexcept {
-			return wis::succeded(D3D12CreateDevice(adapter.GetInternal().GetAdapter().get(),
+		bool Initialize(DX12AdapterView adapter)noexcept {
+			return wis::succeded(D3D12CreateDevice(adapter,
 				D3D_FEATURE_LEVEL_11_0, __uuidof(*device), device.put_void()));
 		}
 		explicit operator bool()const noexcept
 		{
 			return bool(device);
+		}
+		operator DX12DeviceView()const noexcept
+		{
+			return GetDevice();
 		}
 	public:
 		[[nodiscard]]
@@ -122,7 +127,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		DX12GraphicsPipeline CreateGraphicsPipeline(DX12GraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const //movable
+		DX12PipelineState CreateGraphicsPipeline(DX12GraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const //movable
 		{
 			winrt::com_ptr<ID3D12PipelineState> state;
 			D3D12_PIPELINE_STATE_STREAM_DESC xdesc{};
@@ -190,7 +195,7 @@ namespace wis
 
 
 			wis::check_hresult(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()));
-			return DX12GraphicsPipeline{ std::move(state) };
+			return DX12PipelineState{ std::move(state) };
 		}
 	};
 }
