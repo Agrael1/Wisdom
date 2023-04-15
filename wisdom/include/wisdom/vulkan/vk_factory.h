@@ -2,9 +2,10 @@
 #include <wisdom/api/api_factory.h>
 #include <wisdom/api/api_internal.h>
 #include <wisdom/util/log_layer.h>
-#include <vulkan/vulkan.hpp>
-#include <unordered_set>
 #include <wisdom/global/definitions.h>
+#include <wisdom/vulkan/vk_shared_handle.h>
+#include <unordered_set>
+#include <wisdom/util/profile.h>
 
 namespace wis
 {
@@ -17,22 +18,18 @@ namespace wis
 	public:
 		Internal()
 		{
-			ref_count++;
+			factory.add_ref();
 		}
 		~Internal()
 		{
-			if (!--ref_count)
-			{
-				vkDestroyInstance(factory, nullptr);
-			}
+			factory.release();
 		}
-		vk::Instance& GetInstance()
+		vk::Instance GetInstance()
 		{
-			return factory;
+			return factory.get();
 		}
 	protected:
-		static inline std::atomic<uint32_t> ref_count{0};
-		static inline vk::Instance factory{};
+		static inline wis::shared_handle<vk::Instance> factory{};
 	};
 
 
@@ -49,7 +46,7 @@ namespace wis
 			if (factory)
 				return;
 
-			wis::lib_log(Severity::debug, "Initializing Instance");
+			wis::lib_info("Initializing Instance");
 			uint32_t version = 0;
 			vkEnumerateInstanceVersion(&version);
 
@@ -80,15 +77,15 @@ namespace wis
 
 			if constexpr (debug_mode)
 			{
-				vk::DebugUtilsMessengerCreateInfoEXT create_instance_debug(
-					vk::DebugUtilsMessengerCreateFlagsEXT(0), 
+				constexpr static vk::DebugUtilsMessengerCreateInfoEXT create_instance_debug(
+					vk::DebugUtilsMessengerCreateFlagsEXT(0),
 					vk::DebugUtilsMessageSeverityFlagsEXT(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT),
 					vk::DebugUtilsMessageTypeFlagsEXT(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
 					VKFactory::debugCallback
 				);
 				create_info.pNext = &create_instance_debug;
 			}
-			
+
 			factory = vk::createInstance(create_info);
 		}
 	private:

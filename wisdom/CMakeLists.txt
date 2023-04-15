@@ -32,7 +32,7 @@ if(Vulkan_FOUND)
 	)
 	set(VKHEADERS
 	
-	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h")
+	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h" )
 	set(VKSOURCES
 	
 	 "src/wisdom/vulkan/vk_factory.cpp")
@@ -104,7 +104,7 @@ set(HEADER_LIST
 	"include/wisdom/util/exception.h" 
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h" "include/wisdom/api/api_command_list.h" "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h" "include/wisdom/api/api_data_format.h" "include/wisdom/api/api_allocator.h")
+ "include/wisdom/api/api_adapter.h" "include/wisdom/api/api_queue.h" "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h" "include/wisdom/api/api_command_list.h" "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h" "include/wisdom/api/api_data_format.h" "include/wisdom/api/api_allocator.h" "include/wisdom/util/profile.h")
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}

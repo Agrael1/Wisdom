@@ -24,7 +24,7 @@ namespace wis
 	{
 	public:
 		DX12Shader() = default;
-		explicit DX12Shader(std::unique_ptr<std::byte[]> xbytecode, size_t size, ShaderType type)
+		explicit DX12Shader(std::shared_ptr<std::byte[]> xbytecode, size_t size, ShaderType type)
 			:type(type)
 		{
 			bytecode = { std::move(xbytecode), size };

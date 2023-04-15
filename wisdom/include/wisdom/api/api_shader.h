@@ -21,7 +21,7 @@ namespace wis
 	{
 	public:
 		shared_blob() = default;
-		shared_blob(std::unique_ptr<std::byte[]> data, size_t size)
+		shared_blob(std::shared_ptr<std::byte[]> data, size_t size)
 			:data(std::move(data)), size(size){}
 	public:
 		std::span<const std::byte> GetSpan()const noexcept
