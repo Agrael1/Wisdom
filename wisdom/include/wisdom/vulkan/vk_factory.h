@@ -28,6 +28,10 @@ namespace wis
 		{
 			return factory.get();
 		}
+		auto GetInstanceHandle()const noexcept
+		{
+			return factory;
+		}
 	protected:
 		static inline wis::shared_handle<vk::Instance> factory{};
 	};

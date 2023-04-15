@@ -125,6 +125,14 @@ namespace wis
 		{
 			control.allocate();
 		}
+		shared_handle(const shared_handle& o)noexcept
+			:handle(o.handle), control(o.control)
+		{}
+		shared_handle(shared_handle&& o)noexcept
+			:handle(o.handle), control(std::move(o.control))
+		{
+			o.handle = nullptr;
+		}
 		shared_handle& operator=(shared_handle&& o)noexcept
 		{
 			release();
