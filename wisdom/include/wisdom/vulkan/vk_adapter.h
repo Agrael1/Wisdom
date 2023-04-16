@@ -39,6 +39,7 @@ namespace wis
 		[[nodiscard]]
 		AdapterDesc GetDesc()const noexcept
 		{
+			using namespace river::flags;
 			vk::PhysicalDeviceProperties2 properties;
 			vk::PhysicalDeviceIDProperties id_props;
 			properties.pNext = &id_props;
@@ -47,10 +48,29 @@ namespace wis
 			auto& desc = properties.properties;
 			auto desc2 = adapter.getMemoryProperties();
 
-			//DXGI_ADAPTER_DESC1 desc;
-			//adapter->GetDesc1(&desc);
-			std::string_view x = desc.deviceName;
+			uint32_t local_mem = 0;
+			uint32_t system_mem = 0;
+			std::span types{desc2.memoryTypes.data(), desc2.memoryTypeCount};
+			for (auto& i : types)
+			{
+				if (i.propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal &&
+					desc2.memoryHeaps[i.heapIndex].flags & vk::MemoryHeapFlagBits::eDeviceLocal)
+				{
+					local_mem = desc2.memoryHeaps[i.heapIndex].size;
+				}
 
+				if (i.propertyFlags & vk::MemoryPropertyFlagBits::eHostCoherent)
+				{
+					system_mem = desc2.memoryHeaps[i.heapIndex].size;
+				}
+				if (system_mem && local_mem)break;
+			}
+
+			uint32_t flag;
+			flag |= AdapterFlags(+AdapterFlags::Remote && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)));
+			flag |= AdapterFlags(+AdapterFlags::Software && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eCpu)));
+
+			std::string_view x = desc.deviceName;
 			return AdapterDesc{
 				.description{x.begin(), x.end()},
 				.vendor_id = desc.vendorID,
@@ -58,11 +78,11 @@ namespace wis
 				.subsys_id = desc.apiVersion,
 				.revision = desc.driverVersion,
 
-				//.dedicated_video_memory = desc2.DedicatedVideoMemory,
-				//.dedicated_system_memory = desc.DedicatedSystemMemory,
-				//.shared_system_memory = desc.SharedSystemMemory,
+				.dedicated_video_memory = local_mem,
+				.dedicated_system_memory = 0,
+				.shared_system_memory = system_mem,
 				.adapter_id{reinterpret_cast<uint64_t&>(id_props.deviceLUID)},
-				//.flags = AdapterFlags(desc.Flags)
+				.flags = AdapterFlags(flag)
 			};
 		}
 

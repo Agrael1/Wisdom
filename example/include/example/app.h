@@ -1,6 +1,7 @@
 #pragma once
 #include <example/window.h>
 #include <wisdom/wisdom.h>
+#include <wisdom/dx12/dx12_factory.h>
 
 namespace Test
 {
@@ -16,6 +17,7 @@ namespace Test
 		Window wnd;
 
 		std::optional<wis::Factory> factory;
+		std::optional<wis::DX12Factory> factory2;
 		//wis::Device device;
 		//wis::CommandQueue queue;
 		//wis::SwapChain swap;
