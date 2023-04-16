@@ -48,8 +48,8 @@ namespace wis
 			auto& desc = properties.properties;
 			auto desc2 = adapter.getMemoryProperties();
 
-			uint32_t local_mem = 0;
-			uint32_t system_mem = 0;
+			uint64_t local_mem = 0;
+			uint64_t system_mem = 0;
 			std::span types{desc2.memoryTypes.data(), desc2.memoryTypeCount};
 			for (auto& i : types)
 			{
@@ -66,9 +66,8 @@ namespace wis
 				if (system_mem && local_mem)break;
 			}
 
-			uint32_t flag;
-			flag |= AdapterFlags(+AdapterFlags::Remote && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)));
-			flag |= AdapterFlags(+AdapterFlags::Software && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eCpu)));
+			AdapterFlags flag{AdapterFlags(+AdapterFlags::Remote && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)))
+			| AdapterFlags(+AdapterFlags::Software && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eCpu))) };
 
 			std::string_view x = desc.deviceName;
 			return AdapterDesc{
@@ -82,7 +81,7 @@ namespace wis
 				.dedicated_system_memory = 0,
 				.shared_system_memory = system_mem,
 				.adapter_id{reinterpret_cast<uint64_t&>(id_props.deviceLUID)},
-				.flags = AdapterFlags(flag)
+				.flags = flag
 			};
 		}
 
