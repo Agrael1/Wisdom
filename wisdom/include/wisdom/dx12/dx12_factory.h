@@ -5,6 +5,7 @@
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_command_queue.h>
+#include <wisdom/dx12/dx12_info.h>
 #include <wisdom/util/generator.h>
 
 #include <dxgi1_6.h>
@@ -164,5 +165,6 @@ namespace wis
 		}
 	private:
 		static inline bool has_preference = false;
+		DX12Info info;
 	};
 }

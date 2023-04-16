@@ -10,14 +10,14 @@
 //dx12 
 namespace wis
 {
-	using Factory = class DX12Factory;
-	using Adapter = class DX12Adapter;
-	using Device = class DX12Device;
-	using CommandQueue = class DX12CommandQueue;
-	using SwapChain = class DX12SwapChain;
-	using CommandList = class DX12CommandList;
-	using Fence = class DX12Fence;
-	using Resource = class DX12Resource;
+	using Factory = DX12Factory;
+	using Adapter = DX12Adapter;
+	using Device = DX12Device;
+	using CommandQueue = DX12CommandQueue;
+	using SwapChain = DX12SwapChain;
+	using CommandList = DX12CommandList;
+	using Fence = DX12Fence;
+	using Resource = DX12Resource;
 	using RenderTargetView = DX12RenderTargetView;
 	using Shader = DX12Shader;
 	using RootSignature = DX12RootSignature;
@@ -25,8 +25,6 @@ namespace wis
 	using ResourceAllocator = DX12ResourceAllocator;
 	using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 	using VertexBufferView = DX12VertexBufferView;
-
-	using GraphicsInfo = class DX12Info;
 
 	using TransitionBarrier = BasicTransitionBarrier<Resource>;
 }
@@ -42,5 +40,6 @@ namespace wis
 namespace wis
 {
 	using Factory = VKFactory;
+	using Adapter = VKAdapter;
 }
 #endif

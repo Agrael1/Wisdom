@@ -2,8 +2,10 @@
 #include <wisdom/api/api_factory.h>
 #include <wisdom/api/api_internal.h>
 #include <wisdom/util/log_layer.h>
+#include <wisdom/util/generator.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_adapter.h>
 #include <unordered_set>
 #include <wisdom/util/profile.h>
 
@@ -22,7 +24,8 @@ namespace wis
 		}
 		~Internal()
 		{
-			factory.release();
+			if(factory.release() == 1)
+				messenger.release();
 		}
 		vk::Instance GetInstance()
 		{
@@ -34,7 +37,43 @@ namespace wis
 		}
 	protected:
 		static inline wis::shared_handle<vk::Instance> factory{};
+		static inline wis::shared_handle<vk::DebugUtilsMessengerEXT> messenger{};
 	};
+
+	inline constexpr uint32_t order_performance(vk::PhysicalDeviceType t)
+	{
+		using enum vk::PhysicalDeviceType;
+		switch (t)
+		{
+		default:
+		case eOther:
+		case eIntegratedGpu:
+			return 3;
+		case eDiscreteGpu:
+			return 4;
+		case eVirtualGpu:
+			return 2;
+		case eCpu:
+			return 1;
+		}
+	}
+	inline constexpr uint32_t order_power(vk::PhysicalDeviceType t)
+	{
+		using enum vk::PhysicalDeviceType;
+		switch (t)
+		{
+		default:
+		case eOther:
+		case eIntegratedGpu:
+			return 4;
+		case eDiscreteGpu:
+			return 3;
+		case eVirtualGpu:
+			return 2;
+		case eCpu:
+			return 1;
+		}
+	}
 
 
 	class VKFactory : public QueryInternal<VKFactory>
@@ -79,18 +118,68 @@ namespace wis
 			create_info.enabledExtensionCount = static_cast<uint32_t>(found_extension.size());
 			create_info.ppEnabledExtensionNames = found_extension.data();
 
+			constexpr static vk::DebugUtilsMessengerCreateInfoEXT create_instance_debug(
+				vk::DebugUtilsMessengerCreateFlagsEXT(0),
+				vk::DebugUtilsMessageSeverityFlagsEXT(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT),
+				vk::DebugUtilsMessageTypeFlagsEXT(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
+				VKFactory::debugCallback
+			);
+
 			if constexpr (debug_mode)
 			{
-				constexpr static vk::DebugUtilsMessengerCreateInfoEXT create_instance_debug(
-					vk::DebugUtilsMessengerCreateFlagsEXT(0),
-					vk::DebugUtilsMessageSeverityFlagsEXT(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT),
-					vk::DebugUtilsMessageTypeFlagsEXT(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
-					VKFactory::debugCallback
-				);
 				create_info.pNext = &create_instance_debug;
 			}
 
 			factory = vk::createInstance(create_info);
+			DynamicLoader::loader = vk::DispatchLoaderDynamic{ factory.get(), vkGetInstanceProcAddr};
+			DynamicLoader::init = true;
+
+			if constexpr (debug_mode)
+			{
+				messenger = { factory->createDebugUtilsMessengerEXT(create_instance_debug, nullptr, DynamicLoader::loader), factory };
+			}
+		}
+	public:
+		[[nodiscard]]
+		wis::generator<VKAdapter> EnumerateAdapters(AdapterPreference preference = AdapterPreference::Performance)const noexcept
+		{
+			auto adapters = factory->enumeratePhysicalDevices();
+
+			if(adapters.size() > 1)
+			switch (preference)
+			{
+			case wis::AdapterPreference::None:
+				break;
+			case wis::AdapterPreference::MinConsumption:
+				std::ranges::sort(adapters, [](vk::PhysicalDevice a, vk::PhysicalDevice b)
+					{
+						auto x = a.getProperties();
+						auto y = b.getProperties();
+
+						if (order_power(x.deviceType) > order_power(y.deviceType))
+							return true;
+						return x.limits.maxMemoryAllocationCount > y.limits.maxMemoryAllocationCount;
+					}
+				);
+				break;
+			case wis::AdapterPreference::Performance:
+				std::ranges::sort(adapters, [](vk::PhysicalDevice a, vk::PhysicalDevice b)
+					{
+						auto x = a.getProperties();
+						auto y = b.getProperties();
+
+						if (order_performance(x.deviceType) > order_performance(y.deviceType))
+							return true;
+						return x.limits.maxMemoryAllocationCount > y.limits.maxMemoryAllocationCount;
+					}
+				);
+				break;
+			default:
+				break;
+			}
+
+			for (auto& a : adapters)
+				co_yield VKAdapter{ a };
 		}
 	private:
 		static std::vector<const char*> FoundExtensions()noexcept;

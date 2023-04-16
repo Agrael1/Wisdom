@@ -32,7 +32,7 @@ if(Vulkan_FOUND)
 	)
 	set(VKHEADERS
 	
-	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h" )
+	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h"  "include/wisdom/vulkan/vk_dynamic_loader.h")
 	set(VKSOURCES
 	
 	 "src/wisdom/vulkan/vk_factory.cpp")

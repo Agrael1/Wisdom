@@ -15,8 +15,6 @@ namespace Test
 	private:
 		Window wnd;
 
-		//wis::GraphicsInfo info;
-
 		std::optional<wis::Factory> factory;
 		//wis::Device device;
 		//wis::CommandQueue queue;

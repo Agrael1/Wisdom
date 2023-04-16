@@ -42,16 +42,20 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	factory.emplace(app_info);
 
-	//for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
-	//{
-	//	if (a.GetDesc().IsSoftware())
-	//		wis::lib_warn("Loading WARP adapter");
+	for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
+	{
+		auto desc = a.GetDesc();
+		if (desc.IsSoftware())
+			wis::lib_warn("Loading WARP adapter");
+
+		std::wcout << desc.to_string();
+
 	//	if (device.Initialize(a)) 
 	//	{ 
 	//		allocator = { device, a };
 	//		break;
 	//	}
-	//}
+	}
 	//
 	//queue = device.CreateCommandQueue();
 	//swap = factory->CreateSwapchain(queue, {

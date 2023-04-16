@@ -1,6 +1,6 @@
 #pragma once
 #include <atomic>
-#include <vulkan/vulkan.hpp>
+#include <wisdom/vulkan/vk_dynamic_loader.h>
 
 
 namespace wis
@@ -35,10 +35,11 @@ namespace wis
 
 
 
-	template<class T>
+	template<class T, class Dispatcher = DynamicLoader>
 	class shared_handle
 	{
 		using parent = parent_of_t<T>;
+		static constexpr inline bool is_dynamic = std::same_as<Dispatcher, DynamicLoader>;
 
 		template<class U>
 		struct shared_header
@@ -71,10 +72,6 @@ namespace wis
 			{
 				o.control = nullptr;
 			}
-			~control_block()
-			{
-				release();
-			}
 			control_block& operator=(control_block&& o)noexcept
 			{
 				control = o.control;
@@ -88,12 +85,19 @@ namespace wis
 				return *this;
 			}
 		public:
+			size_t ref_count()const noexcept
+			{
+				if (!control)return 0;
+				return control->ref_cnt;
+			}
 			size_t add_ref()noexcept
 			{
+				if (!control)return 0;
 				return ++control->ref_cnt;
 			}
 			size_t release()noexcept
 			{
+				if (!control)return 0;
 				auto r = --control->ref_cnt;
 				if (!r)
 				{
@@ -105,8 +109,7 @@ namespace wis
 			void allocate()
 			{
 				control = new shared_header<parent>;
-			}		
-		private:
+			}
 			parent get_parent()noexcept requires has_parent<T>
 			{
 				return control->parent.get();
@@ -118,10 +121,10 @@ namespace wis
 	public:
 		shared_handle() = default;
 		shared_handle(T handle, shared_handle<parent> xparent)requires has_parent<T>
-			:handle(handle), control_block(std::move(xparent))
+			:handle(handle), control(std::move(xparent))
 		{}
 		shared_handle(T handle) requires has_no_parent<T>
-			:handle(handle)
+			: handle(handle)
 		{
 			control.allocate();
 		}
@@ -148,7 +151,10 @@ namespace wis
 			control = o.control;
 			return *this;
 		}
-
+		~shared_handle()
+		{
+			release();
+		}
 	public:
 		template<class Self>
 		auto get(this Self&& s)noexcept
@@ -172,21 +178,20 @@ namespace wis
 		{
 			if (!handle)return 0;
 
-			auto r = control.release();
-			if (!r)internal_destroy();
-			return r;
+			auto r = control.ref_count();
+			if (r == 1)internal_destroy();
+			return control.release();
 		}
 	private:
 		void internal_destroy()noexcept requires has_no_parent<T>
 		{
-			handle.destroy();
+			handle.destroy(nullptr, Dispatcher::loader);
 			handle = nullptr;
 		}
 		void internal_destroy()noexcept
 		{
 			auto p = control.get_parent();
-			p->destroy(handle);
-			p.release();
+			p.destroy(handle, nullptr, Dispatcher::loader);
 			handle = nullptr;
 		}
 	private:
