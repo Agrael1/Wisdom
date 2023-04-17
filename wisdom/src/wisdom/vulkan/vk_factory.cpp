@@ -1,19 +1,7 @@
 #include <wisdom/vulkan/vk_factory.h>
 #include <ranges>
 #include <unordered_map>
-
-struct string_hash {
-	using is_transparent = void;
-	[[nodiscard]] size_t operator()(const char* txt) const {
-		return std::hash<std::string_view>{}(txt);
-	}
-	[[nodiscard]] size_t operator()(std::string_view txt) const {
-		return std::hash<std::string_view>{}(txt);
-	}
-	[[nodiscard]] size_t operator()(const std::string& txt) const {
-		return std::hash<std::string>{}(txt);
-	}
-};
+#include <wisdom/util/misc.h>
 
 struct FactoryData
 {
@@ -77,8 +65,8 @@ private:
 			layers.emplace(i.layerName, i);
 	}
 private:
-	std::unordered_map<std::string, vk::ExtensionProperties, string_hash> extensions;
-	std::unordered_map<std::string, vk::LayerProperties, string_hash> layers;
+	std::unordered_map<std::string, vk::ExtensionProperties, wis::string_hash> extensions;
+	std::unordered_map<std::string, vk::LayerProperties, wis::string_hash> layers;
 };
 
 constexpr inline std::array req_extensions{

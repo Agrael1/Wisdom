@@ -21,17 +21,11 @@ namespace wis
 	};
 	using VKAdapterView = vk::PhysicalDevice;
 
-
-	//AdapterFlags GetFlags()
-	//{
-
-	//}
-
 	class VKAdapter : public QueryInternal<VKAdapter>
 	{
 	public:
 		VKAdapter() = default;
-		VKAdapter(vk::PhysicalDevice adapter)
+		explicit VKAdapter(vk::PhysicalDevice adapter)
 		{
 			this->adapter = adapter;
 		}

@@ -129,4 +129,32 @@ namespace wis
 		sampler_feedback_min_mip_opaque = 189,
 		sampler_feedback_mip_region_used_opaque = 190,
 	};
+
+	struct QueueOptions
+	{
+		enum class Type {
+			direct = 0,
+			bundle = 1,
+			compute = 2,
+			copy = 3,
+			video_decode = 4,
+			video_process = 5,
+			video_encode
+		};
+		enum class Priority {
+			normal = 0,
+			high = 100,
+			global_realtime = 10000
+		};
+		enum class Flags {
+			none = 0,
+		};
+
+		Type type = Type::direct;
+		Priority priority = Priority::normal;
+		Flags flags = Flags::none;
+		uint32_t node_mask = 0;
+	};
+
+
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/dx12/dx12_root_signature.h>
 #include <wisdom/dx12/dx12_shader.h>
-#include <wisdom/api/api_data_format.h>
+#include <wisdom/api/api_common.h>
 
 
 namespace wis

@@ -3,6 +3,7 @@
 #include <string>
 #include <array>
 #include <ranges>
+#include <format>
 
 namespace wis
 {

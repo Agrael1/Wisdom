@@ -2,6 +2,7 @@
 #include <example/window.h>
 #include <wisdom/wisdom.h>
 #include <wisdom/dx12/dx12_factory.h>
+#include <wisdom/dx12/dx12_device.h>
 
 namespace Test
 {
@@ -18,7 +19,8 @@ namespace Test
 
 		std::optional<wis::Factory> factory;
 		std::optional<wis::DX12Factory> factory2;
-		//wis::Device device;
+		wis::Device device;
+		wis::DX12Device device2;
 		//wis::CommandQueue queue;
 		//wis::SwapChain swap;
 		//wis::CommandList context;

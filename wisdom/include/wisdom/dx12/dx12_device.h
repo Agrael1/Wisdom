@@ -1,6 +1,5 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
-#include <wisdom/api/api_queue.h>
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_command_queue.h>

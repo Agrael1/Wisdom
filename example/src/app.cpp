@@ -51,11 +51,11 @@ Test::App::App(uint32_t width, uint32_t height)
 
 		std::wcout << desc.to_string();
 
-	//	if (device.Initialize(a)) 
-	//	{ 
+		if (device2.Initialize(a)) 
+		{ 
 	//		allocator = { device, a };
-	//		break;
-	//	}
+			break;
+		}
 	}
 	for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
 	{
@@ -65,11 +65,11 @@ Test::App::App(uint32_t width, uint32_t height)
 
 		std::wcout << desc.to_string();
 
-	//	if (device.Initialize(a)) 
-	//	{ 
+		if (device.Initialize(a)) 
+		{ 
 	//		allocator = { device, a };
-	//		break;
-	//	}
+			break;
+		}
 	}
 	//
 	//queue = device.CreateCommandQueue();

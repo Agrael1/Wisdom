@@ -3,7 +3,6 @@
 // Select default API
 #if WISDOMDX12
 #include <wisdom/dx12/dx12_factory.h>
-#include <wisdom/dx12/dx12_info.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
 
@@ -35,11 +34,13 @@ namespace wis
 }
 #else
 #include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_device.h>
 
 //vulkan
 namespace wis
 {
 	using Factory = VKFactory;
 	using Adapter = VKAdapter;
+	using Device = VKDevice;
 }
 #endif
