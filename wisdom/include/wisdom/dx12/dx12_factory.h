@@ -35,6 +35,16 @@ namespace wis
 	{
 		static constexpr inline bool valid = true;
 	public:
+		Internal()
+		{
+			if (factory)
+				factory->AddRef();
+		}
+		~Internal()
+		{
+			if (!factory->Release())
+				factory.detach();
+		}
 		static winrt::com_ptr<IDXGIFactory4> GetFactory()noexcept {
 			return factory;
 		}
