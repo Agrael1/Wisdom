@@ -27,9 +27,13 @@ namespace wis
 			if(factory.release() == 1)
 				messenger.release();
 		}
-		vk::Instance GetInstance()
+		static vk::Instance GetInstance()noexcept
 		{
 			return factory.get();
+		}
+		static uint32_t GetApiVer()noexcept
+		{
+			return api_version;
 		}
 		auto GetInstanceHandle()const noexcept
 		{
@@ -38,6 +42,7 @@ namespace wis
 	protected:
 		static inline wis::shared_handle<vk::Instance> factory{};
 		static inline wis::shared_handle<vk::DebugUtilsMessengerEXT> messenger{};
+		static inline uint32_t api_version{};
 	};
 
 	inline constexpr uint32_t order_performance(vk::PhysicalDeviceType t)
@@ -78,6 +83,7 @@ namespace wis
 
 	class VKFactory : public QueryInternal<VKFactory>
 	{
+		friend class VKResourceAllocator;
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -98,7 +104,7 @@ namespace wis
 				VK_API_VERSION_MINOR(version),
 				VK_API_VERSION_PATCH(version))
 			);
-			version &= ~(0xFFFU); //unsigned remove patch from instance for compatibility
+			api_version = version &= ~(0xFFFU); //unsigned remove patch from instance for compatibility
 
 			vk::ApplicationInfo info{
 				app_info.application_name,
@@ -130,13 +136,13 @@ namespace wis
 				create_info.pNext = &create_instance_debug;
 			}
 
-			factory = vk::createInstance(create_info);
+			factory = wis::shared_handle<vk::Instance>{ vk::createInstance(create_info) };
 			DynamicLoader::loader = vk::DispatchLoaderDynamic{ factory.get(), vkGetInstanceProcAddr};
 			DynamicLoader::init = true;
 
 			if constexpr (debug_mode)
 			{
-				messenger = { factory->createDebugUtilsMessengerEXT(create_instance_debug, nullptr, DynamicLoader::loader), factory };
+				messenger = wis::shared_handle<vk::DebugUtilsMessengerEXT>{ factory->createDebugUtilsMessengerEXT(create_instance_debug, nullptr, DynamicLoader::loader), factory };
 			}
 		}
 	public:

@@ -2,7 +2,7 @@
 #include <example/window.h>
 #include <wisdom/wisdom.h>
 #include <wisdom/dx12/dx12_factory.h>
-#include <wisdom/dx12/dx12_device.h>
+#include <wisdom/dx12/dx12_allocator.h>
 
 namespace Test
 {
@@ -19,13 +19,16 @@ namespace Test
 
 		std::optional<wis::Factory> factory;
 		std::optional<wis::DX12Factory> factory2;
+
 		wis::Device device;
 		wis::DX12Device device2;
+
 		//wis::CommandQueue queue;
 		//wis::SwapChain swap;
 		//wis::CommandList context;
 		//wis::Fence fence;
-		//wis::ResourceAllocator allocator;
+		wis::ResourceAllocator allocator;
+		wis::DX12ResourceAllocator allocator2;
 		//
 		//wis::Shader vs;
 		//wis::Shader ps;

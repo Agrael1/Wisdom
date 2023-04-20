@@ -53,10 +53,11 @@ Test::App::App(uint32_t width, uint32_t height)
 
 		if (device2.Initialize(a)) 
 		{ 
-	//		allocator = { device, a };
+			allocator2 = { device2, a };
 			break;
 		}
 	}
+
 	for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
 	{
 		auto desc = a.GetDesc();
@@ -67,11 +68,11 @@ Test::App::App(uint32_t width, uint32_t height)
 
 		if (device.Initialize(a)) 
 		{ 
-	//		allocator = { device, a };
+			allocator = { device, a };
 			break;
 		}
 	}
-	//
+	
 	//queue = device.CreateCommandQueue();
 	//swap = factory->CreateSwapchain(queue, {
 	//		.width = uint32_t(wnd.GetWidth()),

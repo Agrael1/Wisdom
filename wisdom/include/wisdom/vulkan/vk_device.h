@@ -25,6 +25,8 @@ namespace wis
 		wis::shared_handle<vk::Device> device;
 	};
 
+	using VKDeviceView = wis::shared_handle<vk::Device>;
+
 	class VKDevice : public QueryInternal<VKDevice>
 	{
 		static inline constexpr const auto max_queue_count = 4;
@@ -41,6 +43,10 @@ namespace wis
 			Initialize(adapter);
 		}
 	public:
+		operator VKDeviceView()const noexcept
+		{
+			return GetDeviceHandle();
+		}
 		bool Initialize(VKAdapterView adapter)
 		{
 			auto [families, count] = QueueFamilies(adapter);
@@ -155,12 +161,11 @@ namespace wis
 			raytracing_pipeline_feature.rayTraversalPrimitiveCulling = ray_query_supported;
 			add_extension(rayquery_pipeline_feature);
 
-			vk::DeviceCreateInfo desc
-			{
+			vk::DeviceCreateInfo desc{
 				{}, count, queue_infos.data(), 0, nullptr, e_cnt, exts.data(),nullptr, device_create_info_next
 			};
 
-			device = adapter.createDevice(desc);
+			device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
 			return device;
 		}
 	private:

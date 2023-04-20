@@ -1,6 +1,5 @@
 #pragma once
 #include <wisdom/dx12/dx12_device.h>
-#include <wisdom/dx12/dx12_adapter.h>
 #include <D3D12MemAlloc.h>
 
 namespace wis
@@ -33,7 +32,7 @@ namespace wis
 				.pAllocationCallbacks = nullptr,
 				.pAdapter = adapter
 			};
-			D3D12MA::CreateAllocator(&desc, allocator.put());
+			wis::check_hresult(D3D12MA::CreateAllocator(&desc, allocator.put()));
 		}
 	public:
 		[[nodiscard]]

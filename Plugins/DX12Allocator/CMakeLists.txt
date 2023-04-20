@@ -19,6 +19,12 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         ${dxma_SOURCES}/src/D3D12MemAlloc.cpp
 )
+if (MSVC)
+    # Provides MSVC users nicer debugging support
+    target_sources(${PROJECT_NAME} PRIVATE ${dxma_SOURCES}/src/D3D12MemAlloc.natvis)
+endif()
+
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC 
         $<BUILD_INTERFACE:${dxma_SOURCES}/include>

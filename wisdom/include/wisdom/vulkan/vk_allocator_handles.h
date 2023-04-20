@@ -1,45 +1,13 @@
 #pragma once
-#include <atomic>
-#include <wisdom/vulkan/vk_dynamic_loader.h>
-
+#include <wisdom/vulkan/vk_shared_handle.h>
+#include <vk_mem_alloc.hpp>
 
 namespace wis
 {
-	template<class T>
-	using default_vk_deleter = typename vk::UniqueHandleTraits<T, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE>::deleter;
-
-	template<class T>
-	concept has_no_parent = std::same_as<default_vk_deleter<T>,
-		default_vk_deleter<vk::Instance>>;
-
-	template<class T>
-	concept has_parent = !has_no_parent<T>;
-
-	template<class T>
-	struct parent_of
-	{
-		using parent = decltype(std::declval<default_vk_deleter<T>>().getOwner());
-	};
-	template<class T> requires has_no_parent<T>
-	struct parent_of<T>
-	{
-		using parent = vk::NoParent;
-	};
 	template<>
-	struct parent_of<vk::NoParent>
+	class shared_handle<vma::Allocator>
 	{
-		using parent = vk::NoParent;
-	};
-	template<class T>
-	using parent_of_t = typename parent_of<T>::parent;
-
-
-
-	template<class T, class Dispatcher = DynamicLoader>
-	class shared_handle
-	{
-		using parent = parent_of_t<T>;
-		static constexpr inline bool is_dynamic = std::same_as<Dispatcher, DynamicLoader>;
+		using parent = vk::Device;
 
 		template<class U>
 		struct shared_header
@@ -57,7 +25,7 @@ namespace wis
 		{
 		public:
 			control_block() = default;
-			control_block(shared_handle<parent> xparent)requires has_parent<T>
+			control_block(shared_handle<parent> xparent)
 			{
 				allocate();
 				control->parent = std::move(xparent);
@@ -110,7 +78,7 @@ namespace wis
 			{
 				control = new shared_header<parent>;
 			}
-			parent get_parent()noexcept requires has_parent<T>
+			parent get_parent()noexcept
 			{
 				return control->parent.get();
 			}
@@ -120,14 +88,9 @@ namespace wis
 
 	public:
 		shared_handle() = default;
-		explicit shared_handle(T handle, shared_handle<parent> xparent)requires has_parent<T>
+		explicit shared_handle(vma::Allocator handle, shared_handle<parent> xparent)
 			:handle(handle), control(std::move(xparent))
 		{}
-		explicit shared_handle(T handle) requires has_no_parent<T>
-			: handle(handle)
-		{
-			control.allocate();
-		}
 		shared_handle(const shared_handle& o)noexcept
 			:handle(o.handle), control(o.control)
 		{}
@@ -188,21 +151,13 @@ namespace wis
 			return control.release();
 		}
 	private:
-		void internal_destroy()noexcept requires has_no_parent<T>
-		{
-			handle.destroy(nullptr, Dispatcher::loader);
-			handle = nullptr;
-		}
 		void internal_destroy()noexcept
 		{
-			auto p = control.get_parent();
-			p.destroy(handle, nullptr, Dispatcher::loader);
+			handle.destroy();
 			handle = nullptr;
 		}
 	private:
 		control_block control{};
-		T handle = nullptr;
+		vma::Allocator handle = nullptr;
 	};
-
 }
-
