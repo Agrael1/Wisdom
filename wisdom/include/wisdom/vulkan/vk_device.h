@@ -1,6 +1,8 @@
 #pragma once
-#include <wisdom/api/api_internal.h>
+#include <wisdom/api/api_common.h>
 #include <wisdom/vulkan/vk_adapter.h>
+#include <wisdom/vulkan/vk_fence.h>
+#include <wisdom/vulkan/vk_command_queue.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <unordered_set>
@@ -26,6 +28,7 @@ namespace wis
 	};
 
 	using VKDeviceView = wis::shared_handle<vk::Device>;
+
 
 	class VKDevice : public QueryInternal<VKDevice>
 	{
@@ -168,6 +171,28 @@ namespace wis
 			device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
 			return device;
 		}
+	public:
+
+		[[nodiscard]]
+		VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})const
+		{
+			return{};
+		}
+		[[nodiscard]]
+		VKFence CreateFence()const
+		{
+			vk::SemaphoreTypeCreateInfo timeline_desc
+			{
+				vk::SemaphoreType::eTimeline,
+				0
+			};
+			vk::SemaphoreCreateInfo desc
+			{
+				{}, & timeline_desc
+			};
+			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
+		}
+
 	private:
 		[[nodiscard]]
 		static std::pair<std::array<QueueInfo, max_queue_count>, uint32_t> QueueFamilies(VKAdapterView adapter)noexcept

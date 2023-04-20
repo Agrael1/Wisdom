@@ -187,6 +187,10 @@ namespace wis
 			if (r == 1)internal_destroy();
 			return control.release();
 		}
+		parent get_parent()noexcept requires has_parent<T>
+		{
+			return control->parent.get();
+		}
 	private:
 		void internal_destroy()noexcept requires has_no_parent<T>
 		{

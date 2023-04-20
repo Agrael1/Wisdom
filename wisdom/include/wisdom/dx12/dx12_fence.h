@@ -2,6 +2,7 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wil/resource.h>
+#include <d3d12.h>
 
 namespace wis
 {

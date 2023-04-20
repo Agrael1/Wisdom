@@ -26,7 +26,8 @@ namespace Test
 		//wis::CommandQueue queue;
 		//wis::SwapChain swap;
 		//wis::CommandList context;
-		//wis::Fence fence;
+		wis::Fence fence;
+		wis::DX12Fence fence2;
 		wis::ResourceAllocator allocator;
 		wis::DX12ResourceAllocator allocator2;
 		//

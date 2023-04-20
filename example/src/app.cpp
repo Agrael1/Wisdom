@@ -81,7 +81,8 @@ Test::App::App(uint32_t width, uint32_t height)
 	//	wis::SurfaceParameters{
 	//	wnd.GetHandle()
 	//});
-	//fence = device.CreateFence();
+	fence = device.CreateFence();
+	fence2 = device2.CreateFence();
 	//context = device.CreateCommandList(wis::CommandListType::direct);
 	//
 	//vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
