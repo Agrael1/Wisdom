@@ -39,9 +39,9 @@ namespace wis
 			auto* cl = list.GetInternal().GetCommandList();
 			queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&cl));
 		}
-		bool Signal(DX12Fence& fence, uint64_t value)
+		bool Signal(DX12FenceView fence, uint64_t value)
 		{
-			return wis::succeded_weak(queue->Signal(fence.GetInternal().GetFence().get(), value));
+			return wis::succeded_weak(queue->Signal(fence, value));
 		}
 	};
 }

@@ -43,6 +43,7 @@ namespace wis
 	using Factory = VKFactory;
 	using Adapter = VKAdapter;
 	using Device = VKDevice;
+	using CommandQueue = VKCommandQueue;
 	using Fence = VKFence;
 	using ResourceAllocator = VKResourceAllocator;
 }

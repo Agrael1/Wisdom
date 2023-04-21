@@ -12,14 +12,15 @@ namespace wis
 	class Internal<DX12Fence>
 	{
 	public:
-		auto GetFence()const noexcept
+		auto* GetFence()const noexcept
 		{
-			return fence;
+			return fence.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12Fence1> fence;
 		wil::unique_event_nothrow fence_event;
 	};
+	using DX12FenceView = ID3D12Fence1*;
 
 	class DX12Fence : public QueryInternal<DX12Fence>
 	{
@@ -29,6 +30,10 @@ namespace wis
 		{
 			fence = std::move(xfence);
 			wis::check_hresult(fence_event.create()); // rethrow windows error (nothrow policy)
+		}
+		operator DX12FenceView()const noexcept
+		{
+			return GetFence();
 		}
 	public:
 		uint64_t GetCompletedValue()const noexcept

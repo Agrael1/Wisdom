@@ -7,10 +7,12 @@
 #include <wisdom/util/misc.h>
 #include <unordered_set>
 #include <wisdom/global/definitions.h>
+#include <bitset>
 
 namespace wis
 {
 	class VKDevice;
+
 	template<>
 	class Internal<VKDevice>
 	{
@@ -32,13 +34,97 @@ namespace wis
 
 	class VKDevice : public QueryInternal<VKDevice>
 	{
-		static inline constexpr const auto max_queue_count = 4;
+		static inline constexpr const auto max_count = 4;
 		static inline constexpr const auto max_ext_count = 16;
 		struct QueueInfo
 		{
 			uint32_t index;
 			uint32_t count;
 		};
+		struct QueueFormat
+		{
+			uint16_t queue_flags = 0;
+			uint8_t count = 0;
+			uint8_t family_index = 0;
+			uint8_t last = 0;
+		public:
+			uint8_t GetNextInLine()noexcept
+			{
+				return std::exchange(last, (last + 1) % count);
+			}
+			bool Empty()const noexcept
+			{
+				return !count;
+			}
+		};
+		enum class QueueTypes : uint8_t
+		{
+			graphics,
+			compute,
+			copy,
+			video_decode
+		};
+		struct QueueResidency
+		{
+			static constexpr size_t QueueIndex(QueueOptions::Type type)
+			{
+				switch (type)
+				{
+				case wis::QueueOptions::Type::compute:
+					return +QueueTypes::compute;
+				case wis::QueueOptions::Type::copy:
+					return +QueueTypes::copy;
+				case wis::QueueOptions::Type::video_decode:
+					return +QueueTypes::video_decode;
+				}
+				return 0;
+			}
+			static constexpr size_t QueueFlag(QueueTypes type)
+			{
+				using enum vk::QueueFlagBits;
+				switch (type)
+				{
+				case wis::VKDevice::QueueTypes::copy:
+					return +eTransfer;
+				case wis::VKDevice::QueueTypes::compute:
+					return +eCompute;
+				case wis::VKDevice::QueueTypes::graphics:
+					return +eGraphics;
+				case wis::VKDevice::QueueTypes::video_decode:
+					return +eVideoDecodeKHR;
+				default:
+					return 0;
+				}
+			}
+		public:
+			QueueFormat* GetOfType(QueueOptions::Type type)
+			{
+				auto idx = QueueIndex(type);
+				auto* q = &available_queues[idx];
+
+				if (!q->count)
+				{
+					idx = FindResembling(QueueTypes(idx));
+					if (idx == -1)return nullptr;
+					q = &available_queues[idx];
+				}
+				return q;
+			}
+			int32_t FindResembling(QueueTypes type)
+			{
+				for (size_t i = 0; i < max_count; i++)
+				{
+					auto& r = available_queues[i];
+					if (r.queue_flags & QueueFlag(type))
+						return i;
+				}
+				return -1;
+			}
+		public:
+			std::array<QueueFormat, max_count> available_queues{};
+		};
+
+
 	public:
 		VKDevice() = default;
 		explicit VKDevice(VKAdapterView adapter)
@@ -52,17 +138,21 @@ namespace wis
 		}
 		bool Initialize(VKAdapterView adapter)
 		{
-			auto [families, count] = QueueFamilies(adapter);
-			std::array<vk::DeviceQueueCreateInfo, max_queue_count> queue_infos{};
-			size_t queue_info_size = 0;
+			GetQueueFamilies(adapter);
+			std::array<vk::DeviceQueueCreateInfo, max_count> queue_infos{};
+			size_t queue_count = 0;
 
 			constexpr static float queue_priority = 1.0f;
-			for (queue_info_size = 0; queue_info_size < count; queue_info_size++)
+			for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++)
 			{
 				auto& q_info = queue_infos[queue_info_size];
-				q_info.queueFamilyIndex = families[queue_info_size].index;
+				auto q = queues.available_queues[queue_info_size];
+				if (!q.count)continue;
+
+				q_info.queueFamilyIndex = q.family_index;
 				q_info.queueCount = 1; //hard wired for now
 				q_info.pQueuePriorities = &queue_priority;
+				queue_count++;
 			}
 
 			auto [exts, e_cnt] = RequestExtensions(adapter);
@@ -165,26 +255,34 @@ namespace wis
 			add_extension(rayquery_pipeline_feature);
 
 			vk::DeviceCreateInfo desc{
-				{}, count, queue_infos.data(), 0, nullptr, e_cnt, exts.data(),nullptr, device_create_info_next
+				{}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, e_cnt, exts.data(), nullptr, device_create_info_next
 			};
 
 			device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
 			return device;
 		}
 	public:
-
 		[[nodiscard]]
-		VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})const
+		VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})
 		{
-			return{};
+			auto* queue = queues.GetOfType(options.type);
+			if (!queue)return{};
+
+			vk::DeviceQueueInfo2 info{
+				{},
+				queue->family_index,
+				queue->GetNextInLine()
+			};
+			return VKCommandQueue{ device->getQueue2(info) };
 		}
+
 		[[nodiscard]]
 		VKFence CreateFence()const
 		{
 			vk::SemaphoreTypeCreateInfo timeline_desc
 			{
 				vk::SemaphoreType::eTimeline,
-				0
+					0
 			};
 			vk::SemaphoreCreateInfo desc
 			{
@@ -194,43 +292,53 @@ namespace wis
 		}
 
 	private:
-		[[nodiscard]]
-		static std::pair<std::array<QueueInfo, max_queue_count>, uint32_t> QueueFamilies(VKAdapterView adapter)noexcept
+		void GetQueueFamilies(VKAdapterView adapter)noexcept
 		{
 			using namespace river::flags;
 			auto family_props = adapter.getQueueFamilyProperties();
 			wis::lib_info(std::format("The system supports {} queue families", family_props.size()));
-			std::array<QueueInfo, max_queue_count> queue_types{};
-			uint32_t size = 0;
 
-
-			//load all queues
-			for (uint32_t i = 0; i < family_props.size(); i++)
+			for (uint8_t i = 0; i < family_props.size(); i++)
 			{
 				using enum vk::QueueFlagBits;
 				auto& family = family_props[i];
-				if ((family.queueFlags & eGraphics) == eGraphics && queue_types[0].count == 0)
+				if ((family.queueFlags & eGraphics) == eGraphics && queues.available_queues[+QueueTypes::graphics].Empty())
 				{
-					queue_types[size++] = { .index = i, .count = family.queueCount };
+					queues.available_queues[+QueueTypes::graphics] = {
+						.queue_flags = uint16_t(uint32_t(family.queueFlags)),
+						.count = uint8_t(family.queueCount),
+						.family_index = i,
+					};
 					continue;
 				}
-				if ((family.queueFlags & eCompute) == eCompute && queue_types[1].count == 0)
+				if ((family.queueFlags & eCompute) == eCompute && queues.available_queues[+QueueTypes::compute].Empty())
 				{
-					queue_types[size++] = { .index = i, .count = family.queueCount };
+					queues.available_queues[+QueueTypes::compute] = {
+						.queue_flags = uint16_t(uint32_t(family.queueFlags)),
+						.count = uint8_t(family.queueCount),
+						.family_index = i,
+					};
 					continue;
 				}
-				if ((family.queueFlags & eVideoDecodeKHR) == eVideoDecodeKHR && queue_types[3].count == 0)
+				if ((family.queueFlags & eVideoDecodeKHR) == eVideoDecodeKHR && queues.available_queues[+QueueTypes::video_decode].Empty())
 				{
-					queue_types[size++] = { .index = i, .count = family.queueCount };
+					queues.available_queues[+QueueTypes::video_decode] = {
+						.queue_flags = uint16_t(uint32_t(family.queueFlags)),
+						.count = uint8_t(family.queueCount),
+						.family_index = i,
+					};
 					continue;
 				}
-				if ((family.queueFlags & eTransfer) == eTransfer && queue_types[2].count == 0)
+				if ((family.queueFlags & eTransfer) == eTransfer && queues.available_queues[+QueueTypes::copy].Empty())
 				{
-					queue_types[size++] = { .index = i, .count = family.queueCount };
+					queues.available_queues[+QueueTypes::copy] = {
+						.queue_flags = uint16_t(uint32_t(family.queueFlags)),
+						.count = uint8_t(family.queueCount),
+						.family_index = i,
+					};
 					continue;
 				}
 			}
-			return { queue_types,size };
 		}
 
 		[[nodiscard]]
@@ -294,6 +402,7 @@ namespace wis
 			return { avail_exts, size };
 		}
 	private:
+		QueueResidency queues{};
 		bool vrs_supported : 1 = false;
 		bool mesh_shader_supported : 1 = false;
 		bool ray_tracing_supported : 1 = false;

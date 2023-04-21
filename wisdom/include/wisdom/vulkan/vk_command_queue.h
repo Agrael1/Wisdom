@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
+#include <wisdom/vulkan/vk_fence.h>
 
 
 namespace wis
@@ -11,9 +12,15 @@ namespace wis
 	{
 		static constexpr inline bool valid = true;
 	public:
-
+		Internal() = default;
+		Internal(vk::Queue queue):queue(queue){}
+	public:
+		auto GetQueue()const noexcept
+		{
+			return queue;
+		}
 	protected:
-
+		vk::Queue queue;
 	};
 
 
@@ -22,15 +29,28 @@ namespace wis
 		using intern = QueryInternal<VKCommandQueue>;
 	public:
 		VKCommandQueue() = default;
-		explicit VKCommandQueue(bool)noexcept{}
+		explicit VKCommandQueue(vk::Queue queue)
+		:QueryInternal(queue){}
 	public:
 		void ExecuteCommandList()
 		{
 
 		}
-		bool Signal()
+		bool Signal(VKFenceView fence, uint64_t value)
 		{
+			vk::TimelineSemaphoreSubmitInfo submit
+			{
+				1,&fence.second,1,&value
+			};
 
+			vk::SubmitInfo info
+			{
+				0, nullptr,
+				nullptr, 0u,nullptr,
+				1, &fence.first,
+				&submit
+			};
+			return wis::succeded(queue.submit(1, &info, nullptr));
 		}
 	};
 }

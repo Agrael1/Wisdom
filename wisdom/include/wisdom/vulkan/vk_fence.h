@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_checks.h>
 
 namespace wis
 {
@@ -12,15 +13,18 @@ namespace wis
 	public:
 		Internal() = default;
 		Internal(wis::shared_handle<vk::Semaphore> fence)
-			:fence(std::move(fence)){}
+			:fence(std::move(fence)), device(this->fence.get_parent()){ }
 	public:
-		vk::Semaphore GetFence()const
+		vk::Semaphore GetFence()const noexcept
 		{
 			return fence.get();
 		}
 	protected:
 		wis::shared_handle<vk::Semaphore> fence;
+		vk::Device device; //little overhead for better performance
 	};
+
+	using VKFenceView = std::pair<vk::Semaphore, uint64_t>;
 
 	class VKFence : public QueryInternal<VKFence>
 	{
@@ -29,28 +33,32 @@ namespace wis
 		explicit VKFence(wis::shared_handle<vk::Semaphore> fence)
 			:QueryInternal(std::move(fence))
 		{}
+		operator VKFenceView()const noexcept
+		{
+			return { GetFence(), GetCompletedValue() };
+		}
 	public:
 		uint64_t GetCompletedValue()const noexcept
 		{
-			//return fence->GetCompletedValue();
+			return device.getSemaphoreCounterValue(fence.get());
 		}
 		bool Wait(uint64_t value)const noexcept
 		{
-			//return GetCompletedValue() >= value ?
-			//	true :
-			//	wis::succeded_weak(fence->SetEventOnCompletion(value, fence_event.get()))
-			//	&& fence_event.wait();
+			if (GetCompletedValue() >= value)
+				return true;
+
+			auto s = fence.get();
+			vk::SemaphoreWaitInfo waitInfo{{}, 1, & s, & value};
+			return succeded(device.waitSemaphores(waitInfo, std::numeric_limits<uint64_t>::max()));
 		}
 		void Signal(uint64_t value)noexcept
 		{
-			VkSemaphoreSignalInfo signalInfo
+			vk::SemaphoreSignalInfo signalInfo
 			{
-				.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO,
-				.pNext = nullptr,
-				.semaphore = fence.get(),
-				.value = value
+				fence.get(),
+				value
 			};
-			vkSignalSemaphore(fence.get_parent(), &signalInfo);
+			std::ignore = device.signalSemaphore(&signalInfo);
 		}
 	};
 }

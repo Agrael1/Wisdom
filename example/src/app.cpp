@@ -73,7 +73,8 @@ Test::App::App(uint32_t width, uint32_t height)
 		}
 	}
 	
-	//queue = device.CreateCommandQueue();
+	queue = device.CreateCommandQueue();
+	queue2 = device2.CreateCommandQueue();
 	//swap = factory->CreateSwapchain(queue, {
 	//		.width = uint32_t(wnd.GetWidth()),
 	//		.height = uint32_t(wnd.GetHeight())
@@ -176,15 +177,22 @@ void Test::App::Frame()
 	//
 	//queue.ExecuteCommandList(context);
 	//swap.Present();
-	//wis::check_context();
-	//WaitForGPU();
+	WaitForGPU();
+	WaitForGPU2();
 }
 
 void Test::App::WaitForGPU()
 {
-	//const UINT64 vfence = fence_value;
-	//queue.Signal(fence, vfence);
-	//fence_value++;
-	//
-	//fence.Wait(vfence);
+	const uint64_t vfence = fence_value;
+	queue.Signal(fence, vfence);
+	fence_value++;
+	fence.Wait(vfence);
+}
+
+void Test::App::WaitForGPU2()
+{
+	const uint64_t vfence = fence_value2;
+	queue2.Signal(fence2, vfence);
+	fence_value2++;
+	fence2.Wait(vfence);
 }

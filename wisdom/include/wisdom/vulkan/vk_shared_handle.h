@@ -189,7 +189,7 @@ namespace wis
 		}
 		parent get_parent()noexcept requires has_parent<T>
 		{
-			return control->parent.get();
+			return control.get_parent();
 		}
 	private:
 		void internal_destroy()noexcept requires has_no_parent<T>

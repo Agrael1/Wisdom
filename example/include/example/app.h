@@ -14,6 +14,7 @@ namespace Test
 		int Start();
 		void Frame();
 		void WaitForGPU();
+		void WaitForGPU2();
 	private:
 		Window wnd;
 
@@ -23,7 +24,8 @@ namespace Test
 		wis::Device device;
 		wis::DX12Device device2;
 
-		//wis::CommandQueue queue;
+		wis::CommandQueue queue;
+		wis::DX12CommandQueue queue2;
 		//wis::SwapChain swap;
 		//wis::CommandList context;
 		wis::Fence fence;
@@ -41,5 +43,6 @@ namespace Test
 		//wis::Resource vertex_buffer;
 
 		uint64_t fence_value = 1;
+		uint64_t fence_value2 = 1;
 	};
 }
