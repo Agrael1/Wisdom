@@ -22,7 +22,7 @@ namespace wis
 	protected:
 		vk::Queue queue;
 	};
-
+	using VKCommandQueueView = vk::Queue;
 
 	class VKCommandQueue : public QueryInternal<VKCommandQueue>
 	{
@@ -31,6 +31,10 @@ namespace wis
 		VKCommandQueue() = default;
 		explicit VKCommandQueue(vk::Queue queue)
 		:QueryInternal(queue){}
+		operator VKCommandQueueView()const noexcept
+		{
+			return queue;
+		}
 	public:
 		void ExecuteCommandList()
 		{
@@ -40,7 +44,7 @@ namespace wis
 		{
 			vk::TimelineSemaphoreSubmitInfo submit
 			{
-				1,&fence.second,1,&value
+				0,nullptr,1,&value
 			};
 
 			vk::SubmitInfo info

@@ -26,7 +26,11 @@ namespace Test
 
 		wis::CommandQueue queue;
 		wis::DX12CommandQueue queue2;
-		//wis::SwapChain swap;
+
+		wis::SwapChain swap;
+		wis::DX12SwapChain swap2;
+
+
 		//wis::CommandList context;
 		wis::Fence fence;
 		wis::DX12Fence fence2;

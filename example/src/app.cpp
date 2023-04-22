@@ -75,13 +75,24 @@ Test::App::App(uint32_t width, uint32_t height)
 	
 	queue = device.CreateCommandQueue();
 	queue2 = device2.CreateCommandQueue();
-	//swap = factory->CreateSwapchain(queue, {
-	//		.width = uint32_t(wnd.GetWidth()),
-	//		.height = uint32_t(wnd.GetHeight())
-	//	},
-	//	wis::SurfaceParameters{
-	//	wnd.GetHandle()
-	//});
+
+	swap = device.CreateSwapchain(queue, {
+			.width = uint32_t(wnd.GetWidth()),
+			.height = uint32_t(wnd.GetHeight())
+		},
+		wis::SurfaceParameters{
+		wnd.GetHandle()
+	});
+	
+	swap2 = device2.CreateSwapchain(queue2, {
+			.width = uint32_t(wnd.GetWidth()),
+			.height = uint32_t(wnd.GetHeight())
+		},
+		wis::SurfaceParameters{
+		wnd.GetHandle()
+	});
+
+
 	fence = device.CreateFence();
 	fence2 = device2.CreateFence();
 	//context = device.CreateCommandList(wis::CommandListType::direct);

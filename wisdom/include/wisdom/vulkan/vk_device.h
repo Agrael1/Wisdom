@@ -2,6 +2,9 @@
 #include <wisdom/api/api_common.h>
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_fence.h>
+#include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_swapchain.h>
+#include <wisdom/vulkan/vk_format.h>
 #include <wisdom/vulkan/vk_command_queue.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
@@ -21,12 +24,17 @@ namespace wis
 		{
 			return device.get();
 		}
+		vk::PhysicalDevice GetAdapter()const noexcept
+		{
+			return adapter;
+		}
 		wis::shared_handle<vk::Device> GetDeviceHandle()const noexcept
 		{
 			return device;
 		}
 	protected:
 		wis::shared_handle<vk::Device> device;
+		vk::PhysicalDevice adapter;
 	};
 
 	using VKDeviceView = wis::shared_handle<vk::Device>;
@@ -138,6 +146,7 @@ namespace wis
 		}
 		bool Initialize(VKAdapterView adapter)
 		{
+			this->adapter = adapter;
 			GetQueueFamilies(adapter);
 			std::array<vk::DeviceQueueCreateInfo, max_count> queue_infos{};
 			size_t queue_count = 0;
@@ -270,8 +279,8 @@ namespace wis
 
 			vk::DeviceQueueInfo2 info{
 				{},
-				queue->family_index,
-				queue->GetNextInLine()
+					queue->family_index,
+					queue->GetNextInLine()
 			};
 			return VKCommandQueue{ device->getQueue2(info) };
 		}
@@ -289,6 +298,65 @@ namespace wis
 				{}, & timeline_desc
 			};
 			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
+		}
+
+		[[nodiscard]]
+		VKSwapChain CreateSwapchain(VKCommandQueueView, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync = false)const
+		{
+			if (xsurface.IsWinRT())return{}; // Bail out, no support for UWP from Vulkan
+
+			auto instance = VKFactory::Internal::GetInstanceHandle();
+
+#if defined(_WIN32)
+			vk::Win32SurfaceCreateInfoKHR surface_desc = {};
+			surface_desc.hinstance = GetModuleHandle(nullptr);
+			surface_desc.hwnd = xsurface.hwnd;
+			vk::UniqueSurfaceKHR surface {instance->createWin32SurfaceKHRUnique(surface_desc)};
+#elif defined(__APPLE__)
+			vk::MetalSurfaceCreateInfoEXT surface_desc = {};
+			//surface_desc.pLayer = (__bridge CAMetalLayer*)window;
+			vk::UniqueSurfaceKHR surface {instance.createMetalSurfaceEXTUnique(surface_desc)};
+#else
+			vk::XcbSurfaceCreateInfoKHR surface_desc = {};
+			//surface_desc.setConnection(XGetXCBConnection(XOpenDisplay(nullptr)));
+			//surface_desc.setWindow((ptrdiff_t)window);
+			vk::UniqueSurfaceKHR surface{instance.createXcbSurfaceKHRUnique(surface_desc)};
+#endif
+			int32_t present_queue = -1;
+			for (uint16_t i = 0; i < max_count; i++)
+			{
+				auto& x = queues.available_queues[i];
+				if (x.Empty())continue;
+
+				if (adapter.getSurfaceSupportKHR(x.family_index, surface.get())) {
+					present_queue = i; break;
+				}
+			}
+			if (present_queue == -1)
+				return{}; //Presentation is not supported
+
+
+			auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
+			auto format = std::ranges::find_if(surface_formats, [=](const vk::SurfaceFormatKHR& fmt) {return fmt.format == map_format(options.format); });
+			if (format == surface_formats.end() || format->format == vk::Format::eUndefined)
+				return{}; //Format specified is not supported
+
+			auto cap = adapter.getSurfaceCapabilitiesKHR(surface.get());
+
+			vk::SwapchainCreateInfoKHR desc
+			{
+				vk::SwapchainCreateFlagBitsKHR{}, surface.get(),
+					options.frame_count, format->format, format->colorSpace,
+					vk::Extent2D{ options.width, options.height },
+					options.stereo&& cap.maxImageArrayLayers > 1 ? 2, 1, // Stereo support!
+					vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
+					vk::SharingMode::eExclusive, 0u, nullptr,
+					vk::SurfaceTransformFlagBitsKHR::eIdentity,
+					vk::CompositeAlphaFlagBitsKHR::eOpaque,
+					GetPresentMode(surface.get(), vsync), true
+			};
+
+			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device} };
 		}
 
 	private:
@@ -400,6 +468,19 @@ namespace wis
 			}
 
 			return { avail_exts, size };
+		}
+
+		[[nodiscard]]
+		vk::PresentModeKHR GetPresentMode(vk::SurfaceKHR surface, bool vsync)const noexcept
+		{
+			using enum vk::PresentModeKHR;
+			auto modes = adapter.getSurfacePresentModesKHR(surface);
+			return vsync ?
+				std::ranges::count(modes, eFifoRelaxed) ?
+				eFifoRelaxed : eFifo
+				:
+				std::ranges::count(modes, eMailbox) ?
+				eMailbox : eImmediate;
 		}
 	private:
 		QueueResidency queues{};

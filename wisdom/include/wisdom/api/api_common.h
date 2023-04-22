@@ -155,6 +155,4 @@ namespace wis
 		Flags flags = Flags::none;
 		uint32_t node_mask = 0;
 	};
-
-
 }

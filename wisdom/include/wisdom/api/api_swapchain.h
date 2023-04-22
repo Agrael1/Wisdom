@@ -27,6 +27,10 @@ namespace wis
         explicit SurfaceParameters(IUnknown* core_window)
             :type(Type::WinRT), core_window(core_window)
         {}
+        bool IsWinRT()const noexcept
+        {
+            return type == Type::WinRT;
+        }
     public:
         Type type;
         union

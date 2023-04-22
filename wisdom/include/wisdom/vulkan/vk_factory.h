@@ -6,8 +6,10 @@
 #include <wisdom/global/definitions.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
 #include <wisdom/vulkan/vk_adapter.h>
+#include <wisdom/vulkan/vk_swapchain.h>
 #include <unordered_set>
 #include <wisdom/util/profile.h>
+
 
 namespace wis
 {
@@ -35,7 +37,7 @@ namespace wis
 		{
 			return api_version;
 		}
-		auto GetInstanceHandle()const noexcept
+		static auto GetInstanceHandle()noexcept
 		{
 			return factory;
 		}
@@ -84,6 +86,7 @@ namespace wis
 	class VKFactory : public QueryInternal<VKFactory>
 	{
 		friend class VKResourceAllocator;
+		friend class VKDevice;
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,

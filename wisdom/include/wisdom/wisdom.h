@@ -33,7 +33,6 @@ namespace wis
 {
 }
 #else
-#include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_allocator.h>
 
@@ -44,6 +43,7 @@ namespace wis
 	using Adapter = VKAdapter;
 	using Device = VKDevice;
 	using CommandQueue = VKCommandQueue;
+	using SwapChain = VKSwapChain;
 	using Fence = VKFence;
 	using ResourceAllocator = VKResourceAllocator;
 }
