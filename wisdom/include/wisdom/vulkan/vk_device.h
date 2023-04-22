@@ -51,19 +51,27 @@ namespace wis
 		};
 		struct QueueFormat
 		{
-			uint16_t queue_flags = 0;
-			uint8_t count = 0;
-			uint8_t family_index = 0;
-			uint8_t last = 0;
 		public:
-			uint8_t GetNextInLine()noexcept
+			QueueFormat& operator=(QueueFormat&& o)
 			{
-				return std::exchange(last, (last + 1) % count);
+				queue_flags = o.queue_flags;
+				count = o.count;
+				family_index = o.family_index;
+			}
+		public:
+			uint8_t GetNextInLine()const noexcept
+			{
+				return last.exchange((last + 1) % count);
 			}
 			bool Empty()const noexcept
 			{
 				return !count;
 			}
+		public:
+			uint16_t queue_flags = 0;
+			uint8_t count = 0;
+			uint8_t family_index = 0;
+			mutable std::atomic<uint8_t> last{0};
 		};
 		enum class QueueTypes : uint8_t
 		{
@@ -155,7 +163,7 @@ namespace wis
 			for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++)
 			{
 				auto& q_info = queue_infos[queue_info_size];
-				auto q = queues.available_queues[queue_info_size];
+				auto& q = queues.available_queues[queue_info_size];
 				if (!q.count)continue;
 
 				q_info.queueFamilyIndex = q.family_index;
@@ -341,6 +349,14 @@ namespace wis
 				return{}; //Presentation is not supported
 			}
 
+			auto& queue = queues.available_queues[present_queue];
+			vk::DeviceQueueInfo2 info{
+				{},
+				queue.family_index,
+				queue.GetNextInLine()
+			};
+			vk::Queue qpresent_queue = device->getQueue2(info);
+			
 
 			auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
 			auto format = std::ranges::find_if(surface_formats, 
@@ -372,7 +388,7 @@ namespace wis
 					GetPresentMode(surface.get(), vsync), true,nullptr
 			};
 
-			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface) };
+			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), qpresent_queue };
 		}
 
 	private:
