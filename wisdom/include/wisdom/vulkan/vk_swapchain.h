@@ -14,8 +14,8 @@ namespace wis
 		static constexpr inline bool valid = true;
 	public:
 		Internal() = default;
-		Internal(wis::shared_handle<vk::SwapchainKHR> swap)
-			:swap(std::move(swap)){}
+		Internal(wis::shared_handle<vk::SwapchainKHR> swap, vk::UniqueSurfaceKHR surface)
+			:swap(std::move(swap)), surface(std::move(surface)){}
 	public:
 		vk::SwapchainKHR GetSwapchain()const noexcept
 		{
@@ -26,16 +26,16 @@ namespace wis
 			return surface.get();
 		}
 	protected:
-		wis::shared_handle<vk::SwapchainKHR> swap;
 		vk::UniqueSurfaceKHR surface;
+		wis::shared_handle<vk::SwapchainKHR> swap;
 	};
 
 	class VKSwapChain : public QueryInternal<VKSwapChain>
 	{
 	public:
 		VKSwapChain() = default;
-		explicit VKSwapChain(wis::shared_handle<vk::SwapchainKHR> swap)
-			:QueryInternal(std::move(swap))
+		explicit VKSwapChain(wis::shared_handle<vk::SwapchainKHR> swap, vk::UniqueSurfaceKHR surface)
+			:QueryInternal(std::move(swap), std::move(surface))
 		{
 			
 		}

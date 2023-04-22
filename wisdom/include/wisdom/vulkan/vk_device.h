@@ -312,14 +312,17 @@ namespace wis
 			surface_desc.hinstance = GetModuleHandle(nullptr);
 			surface_desc.hwnd = xsurface.hwnd;
 			vk::UniqueSurfaceKHR surface {instance->createWin32SurfaceKHRUnique(surface_desc)};
+			wis::lib_info("Initializing Win32 Surface");
 #elif defined(__APPLE__)
 			vk::MetalSurfaceCreateInfoEXT surface_desc = {};
 			//surface_desc.pLayer = (__bridge CAMetalLayer*)window;
 			vk::UniqueSurfaceKHR surface {instance.createMetalSurfaceEXTUnique(surface_desc)};
+			wis::lib_info("Initializing Metal Surface");
 #else
 			vk::XcbSurfaceCreateInfoKHR surface_desc = {};
 			//surface_desc.setConnection(XGetXCBConnection(XOpenDisplay(nullptr)));
 			//surface_desc.setWindow((ptrdiff_t)window);
+			wis::lib_info("Initializing XCB Surface");
 			vk::UniqueSurfaceKHR surface{instance.createXcbSurfaceKHRUnique(surface_desc)};
 #endif
 			int32_t present_queue = -1;
@@ -329,34 +332,47 @@ namespace wis
 				if (x.Empty())continue;
 
 				if (adapter.getSurfaceSupportKHR(x.family_index, surface.get())) {
-					present_queue = i; break;
+					present_queue = i; lib_info(std::format("Present queue {} selected", i)); break;
 				}
 			}
 			if (present_queue == -1)
+			{
+				lib_error("None of the queues support presenting to the surface");
 				return{}; //Presentation is not supported
+			}
 
 
 			auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
-			auto format = std::ranges::find_if(surface_formats, [=](const vk::SurfaceFormatKHR& fmt) {return fmt.format == map_format(options.format); });
+			auto format = std::ranges::find_if(surface_formats, 
+				[=](const vk::SurfaceFormatKHR& fmt) 
+				{
+					return fmt.format == map_format(options.format); 
+				});
 			if (format == surface_formats.end() || format->format == vk::Format::eUndefined)
+			{
+				lib_error(std::format("Supplied format {} is not supported by surface", data_format_strings[+options.format]));
 				return{}; //Format specified is not supported
+			}
 
 			auto cap = adapter.getSurfaceCapabilitiesKHR(surface.get());
+			bool stereo = cap.maxImageArrayLayers > 1;
+			if (options.stereo && stereo)
+				lib_info(std::format("Stereo mode is ativated"));
 
 			vk::SwapchainCreateInfoKHR desc
 			{
 				vk::SwapchainCreateFlagBitsKHR{}, surface.get(),
 					options.frame_count, format->format, format->colorSpace,
 					vk::Extent2D{ options.width, options.height },
-					options.stereo&& cap.maxImageArrayLayers > 1 ? 2, 1, // Stereo support!
+					options.stereo && stereo ? 2u : 1u,
 					vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
 					vk::SharingMode::eExclusive, 0u, nullptr,
 					vk::SurfaceTransformFlagBitsKHR::eIdentity,
 					vk::CompositeAlphaFlagBitsKHR::eOpaque,
-					GetPresentMode(surface.get(), vsync), true
+					GetPresentMode(surface.get(), vsync), true,nullptr
 			};
 
-			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device} };
+			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface) };
 		}
 
 	private:
@@ -377,6 +393,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
+					wis::lib_info(std::format("\tDedicated Graphics queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eCompute) == eCompute && queues.available_queues[+QueueTypes::compute].Empty())
@@ -386,6 +403,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
+					wis::lib_info(std::format("\tDedicated Compute queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eVideoDecodeKHR) == eVideoDecodeKHR && queues.available_queues[+QueueTypes::video_decode].Empty())
@@ -395,6 +413,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
+					wis::lib_info(std::format("\tDedicated Video Decode queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eTransfer) == eTransfer && queues.available_queues[+QueueTypes::copy].Empty())
@@ -404,6 +423,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
+					wis::lib_info(std::format("\tDedicated Data Transfer queues: {}", family.queueCount));
 					continue;
 				}
 			}
@@ -414,21 +434,21 @@ namespace wis
 		{
 			constexpr static std::array req_extension{
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-					VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
-					VK_KHR_RAY_QUERY_EXTENSION_NAME,
-					VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-					VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
-					VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-					VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-					VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-					VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-					VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
-					VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
-					VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-					VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-					VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-					VK_NV_MESH_SHADER_EXTENSION_NAME,
-					VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+				VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+				VK_KHR_RAY_QUERY_EXTENSION_NAME,
+				VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+				VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+				VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+				VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+				VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+				VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+				VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+				VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+				VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+				VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+				VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+				VK_NV_MESH_SHADER_EXTENSION_NAME,
+				VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
 			};
 
 
