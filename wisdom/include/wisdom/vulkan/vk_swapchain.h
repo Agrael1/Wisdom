@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_swapchain.h>
+#include <wisdom/vulkan/vk_checks.h>
 
 
 namespace wis
@@ -68,7 +69,10 @@ namespace wis
 
 		bool Present()noexcept
 		{
+			vk::PresentInfoKHR present_info{
 			
+			};
+			return wis::succeded(present_queue.presentKHR(present_info));
 		}
 	private:
 		
