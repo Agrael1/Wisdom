@@ -44,7 +44,8 @@ namespace Test
 		//wis::PipelineState pipeline;
 		//wis::VertexBufferView vb;
 		//
-		//wis::Resource vertex_buffer;
+		wis::Resource vertex_buffer;
+		wis::DX12Resource vertex_buffer2;
 
 		uint64_t fence_value = 1;
 		uint64_t fence_value2 = 1;

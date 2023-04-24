@@ -30,6 +30,7 @@ namespace wis
 		vk::UniqueSurfaceKHR surface;
 		wis::shared_handle<vk::SwapchainKHR> swap;
 		vk::Queue present_queue;
+		uint32_t present_index = 0;
 	};
 
 	class VKSwapChain : public QueryInternal<VKSwapChain>
@@ -44,7 +45,7 @@ namespace wis
 	public:
 		[[nodiscard]] uint32_t GetBackBufferIndex()const noexcept
 		{
-
+			return present_index;
 		}
 		template<class Self>
 		[[nodiscard]] auto GetRenderTargets(this Self&& s)noexcept
@@ -67,10 +68,13 @@ namespace wis
 			
 		}
 
+		// The API does not wait until the execution ended,
+		// The caller must ensure correct execution (DX12 compatibility)
 		bool Present()noexcept
 		{
+			auto x = swap.get();
 			vk::PresentInfoKHR present_info{
-			
+				0,nullptr, 1, &x, &present_index, nullptr
 			};
 			return wis::succeded(present_queue.presentKHR(present_info));
 		}

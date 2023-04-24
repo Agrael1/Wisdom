@@ -45,6 +45,7 @@ namespace wis
 	using CommandQueue = VKCommandQueue;
 	using SwapChain = VKSwapChain;
 	using Fence = VKFence;
+	using Resource = VKResource;
 	using ResourceAllocator = VKResourceAllocator;
 }
 #endif

@@ -112,21 +112,23 @@ Test::App::App(uint32_t width, uint32_t height)
 	//desc.SetPS(ps);
 	//desc.SetRenderTarget(wis::DataFormat::b8g8r8a8_unorm, 0);
 	//pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
-	//
-	//struct Vertex
-	//{
-	//	DirectX::XMFLOAT3 pos;
-	//	DirectX::XMFLOAT4 col;
-	//};
-	//auto aspect_ratio = float(width) / float(height);
-	//Vertex triangleVertices[] =
-	//{
-	//	{ { 0.0f, 0.25f * aspect_ratio , 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-	//	{ { 0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-	//	{ { -0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-	//};
-	//
-	//vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices));
+
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT4 col;
+	};
+	auto aspect_ratio = float(width) / float(height);
+	Vertex triangleVertices[] =
+	{
+		{ { 0.0f, 0.25f * aspect_ratio , 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+		{ { 0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+		{ { -0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+	};
+	
+	vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices));
+	vertex_buffer2 = allocator2.CreatePersistentBuffer(sizeof(triangleVertices));
+
 	//auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
 	//upl_vbuf.UpdateSubresource(RawView(triangleVertices));
 	//
@@ -187,7 +189,10 @@ void Test::App::Frame()
 	//context.Close();
 	//
 	//queue.ExecuteCommandList(context);
-	//swap.Present();
+
+	swap.Present();
+	swap2.Present();
+
 	WaitForGPU();
 	WaitForGPU2();
 }

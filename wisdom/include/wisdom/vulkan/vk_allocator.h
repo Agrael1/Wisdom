@@ -2,6 +2,7 @@
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
+#include <wisdom/vulkan/vk_resource.h>
 
 namespace wis
 {
@@ -47,6 +48,19 @@ namespace wis
 			allocator = wis::shared_handle<vma::Allocator>{ al, std::move(device) };
 		}
 	public:
+		[[nodiscard]]
+		VKResource CreatePersistentBuffer(size_t size)
+		{
+			vk::BufferCreateInfo desc{
+				{}, size, vk::BufferUsageFlagBits::eTransferDst,
+				vk::SharingMode::eConcurrent, 0, nullptr, nullptr
+			};
 
+			vma::AllocationCreateInfo alloc{
+				{}, vma::MemoryUsage::eAuto
+			};
+			auto[a,b] = allocator->createBuffer(desc, alloc);
+			return VKResource{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
+		}
 	};
 }
