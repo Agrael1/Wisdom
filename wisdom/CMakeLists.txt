@@ -32,7 +32,7 @@ if(Vulkan_FOUND)
 	)
 	set(VKHEADERS
 	
-	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h"  "include/wisdom/vulkan/vk_dynamic_loader.h" "include/wisdom/vulkan/vk_device.h" "include/wisdom/vulkan/vk_allocator.h"  "include/wisdom/vulkan/vk_allocator_handles.h" "include/wisdom/vulkan/vk_command_queue.h" "include/wisdom/vulkan/vk_fence.h" "include/wisdom/vulkan/vk_checks.h" "include/wisdom/vulkan/vk_swapchain.h" "include/wisdom/vulkan/vk_format.h" "include/wisdom/vulkan/vk_resource.h")
+	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h"  "include/wisdom/vulkan/vk_dynamic_loader.h" "include/wisdom/vulkan/vk_device.h" "include/wisdom/vulkan/vk_allocator.h"  "include/wisdom/vulkan/vk_allocator_handles.h" "include/wisdom/vulkan/vk_command_queue.h" "include/wisdom/vulkan/vk_fence.h" "include/wisdom/vulkan/vk_checks.h" "include/wisdom/vulkan/vk_swapchain.h" "include/wisdom/vulkan/vk_format.h" "include/wisdom/vulkan/vk_resource.h" "include/wisdom/vulkan/vk_rtv.h")
 	set(VKSOURCES
 	
 	 "src/wisdom/vulkan/vk_factory.cpp" )

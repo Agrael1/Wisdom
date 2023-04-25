@@ -2,6 +2,8 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_swapchain.h>
 #include <wisdom/vulkan/vk_checks.h>
+#include <wisdom/vulkan/vk_rtv.h>
+#include <wisdom/vulkan/vk_resource.h>
 
 
 namespace wis
@@ -15,8 +17,8 @@ namespace wis
 		static constexpr inline bool valid = true;
 	public:
 		Internal() = default;
-		Internal(wis::shared_handle<vk::SwapchainKHR> swap, vk::UniqueSurfaceKHR surface, vk::Queue present_queue)
-			:swap(std::move(swap)), surface(std::move(surface)), present_queue(present_queue){}
+		Internal(wis::shared_handle<vk::SwapchainKHR> swap, vk::UniqueSurfaceKHR surface, vk::Queue graphics_queue, vk::Queue present_queue, vk::Format format)
+			:swap(std::move(swap)), surface(std::move(surface)), present_queue(present_queue), format(format), device(swap.get_parent_handle()) {}
 	public:
 		vk::SwapchainKHR GetSwapchain()const noexcept
 		{
@@ -27,58 +29,84 @@ namespace wis
 			return surface.get();
 		}
 	protected:
-		vk::UniqueSurfaceKHR surface;
+		vk::UniqueSurfaceKHR surface; //order mandated
+
+		wis::shared_handle<vk::Device> device;
 		wis::shared_handle<vk::SwapchainKHR> swap;
+
+		vk::Queue graphics_queue;
 		vk::Queue present_queue;
-		uint32_t present_index = 0;
+		vk::Format format;
+
+		mutable uint32_t present_index = 0;
 	};
 
 	class VKSwapChain : public QueryInternal<VKSwapChain>
 	{
 	public:
 		VKSwapChain() = default;
-		explicit VKSwapChain(wis::shared_handle<vk::SwapchainKHR> swap, vk::UniqueSurfaceKHR surface, vk::Queue present_queue)
-			:QueryInternal(std::move(swap), std::move(surface), present_queue)
+		explicit VKSwapChain(wis::shared_handle<vk::SwapchainKHR> xswap,
+			vk::UniqueSurfaceKHR surface,
+			vk::Queue graphics_queue,
+			vk::Queue present_queue,
+			vk::Format format, uint32_t layers = 1)
+			:QueryInternal(std::move(xswap), std::move(surface), graphics_queue, present_queue, format)
 		{
-			
+			auto xback_buffers = device->getSwapchainImagesKHR(swap.get());
+			back_buffers.reserve(xback_buffers.size());
+			for (auto& i : xback_buffers)
+			{
+				back_buffers.emplace_back(
+					wis::shared_handle<vk::Image>{i, swap.get_parent_handle()});
+			}
+		}
+		VKSwapChain(VKSwapChain&&)noexcept = default;
+		VKSwapChain& operator=(VKSwapChain&&)noexcept = default;
+		~VKSwapChain()
+		{
+			// inconsistency on Vulkan side, images from swapchain are not deleted
+			for (auto& i : back_buffers)
+				i.GetInternal().buffer.unsafe_detach();
 		}
 	public:
-		[[nodiscard]] uint32_t GetBackBufferIndex()const noexcept
+		[[nodiscard]] uint32_t GetNextIndex()const noexcept
 		{
-			return present_index;
+			return present_index = device->acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max()).value;
 		}
-		template<class Self>
-		[[nodiscard]] auto GetRenderTargets(this Self&& s)noexcept
+		[[nodiscard]] 
+		std::span<const VKTexture> GetRenderTargets()const noexcept
+		{
+			return back_buffers;
+		}
+
+		[[nodiscard]] 
+		auto GetBackBuffer()const noexcept
+		{
+			return back_buffers[present_index];
+		}
+
+		// under the question
+		[[nodiscard]]
+		VKRenderTargetView GetRTV(size_t frame)const noexcept
 		{
 
 		}
-		template<class Self>
-		[[nodiscard]] auto& GetBackBuffer(this Self&& s)noexcept
-		{
-			
-		}
 		[[nodiscard]]
-		auto GetRTV(size_t frame)const noexcept
-		{
-			
-		}
-		[[nodiscard]]
-		auto GetBackBufferRTV()const noexcept
+		VKRenderTargetView GetBackBufferRTV()const noexcept
 		{
 			
 		}
 
-		// The API does not wait until the execution ended,
-		// The caller must ensure correct execution (DX12 compatibility)
 		bool Present()noexcept
 		{
+
 			auto x = swap.get();
 			vk::PresentInfoKHR present_info{
-				0,nullptr, 1, &x, &present_index, nullptr
+				0, nullptr, 1, & x, &present_index, nullptr
 			};
 			return wis::succeded(present_queue.presentKHR(present_info));
 		}
 	private:
-		
+		std::vector<VKTexture> back_buffers;
 	};
 }

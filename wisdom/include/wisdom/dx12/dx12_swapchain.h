@@ -71,7 +71,7 @@ namespace wis
 			}
 		}
 	public:
-		[[nodiscard]] uint32_t GetBackBufferIndex()const noexcept
+		[[nodiscard]] uint32_t GetNextIndex()const noexcept
 		{
 			return chain->GetCurrentBackBufferIndex();
 		}
@@ -97,7 +97,7 @@ namespace wis
 		[[nodiscard]]
 		DX12RenderTargetView GetBackBufferRTV()const noexcept
 		{
-			return GetRTV(GetBackBufferIndex());
+			return GetRTV(GetNextIndex());
 		}
 
 		bool Present()noexcept

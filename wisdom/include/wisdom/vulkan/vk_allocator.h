@@ -49,7 +49,7 @@ namespace wis
 		}
 	public:
 		[[nodiscard]]
-		VKResource CreatePersistentBuffer(size_t size)
+		VKBuffer CreatePersistentBuffer(size_t size)
 		{
 			vk::BufferCreateInfo desc{
 				{}, size, vk::BufferUsageFlagBits::eTransferDst,
@@ -60,7 +60,7 @@ namespace wis
 				{}, vma::MemoryUsage::eAuto
 			};
 			auto[a,b] = allocator->createBuffer(desc, alloc);
-			return VKResource{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
+			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
 		}
 	};
 }

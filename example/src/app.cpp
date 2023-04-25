@@ -162,7 +162,7 @@ int Test::App::Start()
 void Test::App::Frame()
 {
 	//context.Reset();
-	//const auto& back = swap.GetBackBuffer();
+	auto back = swap.GetBackBuffer();
 	//auto rtv = swap.GetBackBufferRTV();
 	//constexpr std::array<float, 4> color{0.0f, 0.2f, 0.4f, 1.0f};
 	//

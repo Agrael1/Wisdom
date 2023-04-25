@@ -52,11 +52,12 @@ namespace wis
 		struct QueueFormat
 		{
 		public:
-			QueueFormat& operator=(QueueFormat&& o)
+			QueueFormat& operator=(QueueFormat&& o)noexcept
 			{
 				queue_flags = o.queue_flags;
 				count = o.count;
 				family_index = o.family_index;
+				return *this;
 			}
 		public:
 			uint8_t GetNextInLine()const noexcept
@@ -159,7 +160,13 @@ namespace wis
 			std::array<vk::DeviceQueueCreateInfo, max_count> queue_infos{};
 			size_t queue_count = 0;
 
-			constexpr static float queue_priority = 1.0f;
+			constexpr static auto priorities = []() {
+				std::array<float, 64> priorities{};
+				priorities.fill(1.0f);
+				return priorities;
+			}();
+			
+
 			for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++)
 			{
 				auto& q_info = queue_infos[queue_info_size];
@@ -167,8 +174,8 @@ namespace wis
 				if (!q.count)continue;
 
 				q_info.queueFamilyIndex = q.family_index;
-				q_info.queueCount = 1; //hard wired for now
-				q_info.pQueuePriorities = &queue_priority;
+				q_info.queueCount = q.count; //hard wired for now
+				q_info.pQueuePriorities = priorities.data();
 				queue_count++;
 			}
 
@@ -309,7 +316,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		VKSwapChain CreateSwapchain(VKCommandQueueView, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync = false)const
+		VKSwapChain CreateSwapchain(VKCommandQueueView render_queue, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync = false)const
 		{
 			if (xsurface.IsWinRT())return{}; // Bail out, no support for UWP from Vulkan
 
@@ -375,12 +382,14 @@ namespace wis
 			if (options.stereo && stereo)
 				lib_info(std::format("Stereo mode is ativated"));
 
+			uint32_t layers = options.stereo && stereo ? 2u : 1u;
+
 			vk::SwapchainCreateInfoKHR desc
 			{
 				vk::SwapchainCreateFlagBitsKHR{}, surface.get(),
 					options.frame_count, format->format, format->colorSpace,
 					vk::Extent2D{ options.width, options.height },
-					options.stereo && stereo ? 2u : 1u,
+					layers,
 					vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
 					vk::SharingMode::eExclusive, 0u, nullptr,
 					vk::SurfaceTransformFlagBitsKHR::eIdentity,
@@ -388,7 +397,7 @@ namespace wis
 					GetPresentMode(surface.get(), vsync), true,nullptr
 			};
 
-			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), qpresent_queue };
+			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, qpresent_queue, format->format, layers };
 		}
 
 	private:

@@ -114,6 +114,10 @@ namespace wis
 			{
 				return control->parent.get();
 			}
+			auto get_parent_handle()noexcept requires has_parent<T>
+			{
+				return control->parent;
+			}
 		private:
 			shared_header<parent>* control;
 		};
@@ -161,10 +165,9 @@ namespace wis
 		{
 			return s.handle;
 		}
-		template<class Self>
-		auto* put(this Self&& s)noexcept
+		auto unsafe_detach()noexcept
 		{
-			return &s.handle;
+			return std::exchange(handle, nullptr);
 		}
 		operator bool()const noexcept
 		{
@@ -190,6 +193,10 @@ namespace wis
 		parent get_parent()noexcept requires has_parent<T>
 		{
 			return control.get_parent();
+		}
+		auto get_parent_handle()noexcept requires has_parent<T>
+		{
+			return control.get_parent_handle();
 		}
 	private:
 		void internal_destroy()noexcept requires has_no_parent<T>
