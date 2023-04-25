@@ -41,22 +41,6 @@ Test::App::App(uint32_t width, uint32_t height)
 	wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
 	factory.emplace(app_info);
-	factory2.emplace(app_info);
-
-	for (auto&& a : factory2->EnumerateAdapters(wis::AdapterPreference::Performance))
-	{
-		auto desc = a.GetDesc();
-		if (desc.IsSoftware())
-			wis::lib_warn("Loading WARP adapter");
-
-		std::wcout << desc.to_string();
-
-		if (device2.Initialize(a)) 
-		{ 
-			allocator2 = { device2, a };
-			break;
-		}
-	}
 
 	for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
 	{
@@ -74,17 +58,8 @@ Test::App::App(uint32_t width, uint32_t height)
 	}
 	
 	queue = device.CreateCommandQueue();
-	queue2 = device2.CreateCommandQueue();
 
 	swap = device.CreateSwapchain(queue, {
-			.width = uint32_t(wnd.GetWidth()),
-			.height = uint32_t(wnd.GetHeight())
-		},
-		wis::SurfaceParameters{
-		wnd.GetHandle()
-	});
-	
-	swap2 = device2.CreateSwapchain(queue2, {
 			.width = uint32_t(wnd.GetWidth()),
 			.height = uint32_t(wnd.GetHeight())
 		},
@@ -94,8 +69,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
 
 	fence = device.CreateFence();
-	fence2 = device2.CreateFence();
-	//context = device.CreateCommandList(wis::CommandListType::direct);
+	context = device.CreateCommandList(wis::QueueType::direct);
 	//
 	//vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
 	//ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
@@ -127,7 +101,6 @@ Test::App::App(uint32_t width, uint32_t height)
 	};
 	
 	vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices));
-	vertex_buffer2 = allocator2.CreatePersistentBuffer(sizeof(triangleVertices));
 
 	//auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
 	//upl_vbuf.UpdateSubresource(RawView(triangleVertices));
@@ -191,10 +164,8 @@ void Test::App::Frame()
 	//queue.ExecuteCommandList(context);
 
 	swap.Present();
-	swap2.Present();
 
 	WaitForGPU();
-	WaitForGPU2();
 }
 
 void Test::App::WaitForGPU()
@@ -203,12 +174,4 @@ void Test::App::WaitForGPU()
 	queue.Signal(fence, vfence);
 	fence_value++;
 	fence.Wait(vfence);
-}
-
-void Test::App::WaitForGPU2()
-{
-	const uint64_t vfence = fence_value2;
-	queue2.Signal(fence2, vfence);
-	fence_value2++;
-	fence2.Wait(vfence);
 }

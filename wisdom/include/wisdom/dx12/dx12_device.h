@@ -120,7 +120,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		DX12CommandList CreateCommandList(CommandListType list_type)const
+		DX12CommandList CreateCommandList(QueueType list_type)const
 		{
 			D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(list_type);
 			winrt::com_ptr<ID3D12CommandAllocator> xallocator;

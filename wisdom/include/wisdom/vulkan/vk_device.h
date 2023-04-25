@@ -5,6 +5,7 @@
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_format.h>
+#include <wisdom/vulkan/vk_command_list.h>
 #include <wisdom/vulkan/vk_command_queue.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
@@ -83,15 +84,15 @@ namespace wis
 		};
 		struct QueueResidency
 		{
-			static constexpr size_t QueueIndex(QueueOptions::Type type)
+			static constexpr size_t QueueIndex(QueueType type)
 			{
 				switch (type)
 				{
-				case wis::QueueOptions::Type::compute:
+				case wis::QueueType::compute:
 					return +QueueTypes::compute;
-				case wis::QueueOptions::Type::copy:
+				case wis::QueueType::copy:
 					return +QueueTypes::copy;
-				case wis::QueueOptions::Type::video_decode:
+				case wis::QueueType::video_decode:
 					return +QueueTypes::video_decode;
 				}
 				return 0;
@@ -114,7 +115,7 @@ namespace wis
 				}
 			}
 		public:
-			QueueFormat* GetOfType(QueueOptions::Type type)
+			const QueueFormat* GetOfType(QueueType type)const
 			{
 				auto idx = QueueIndex(type);
 				auto* q = &available_queues[idx];
@@ -127,7 +128,7 @@ namespace wis
 				}
 				return q;
 			}
-			int32_t FindResembling(QueueTypes type)
+			int32_t FindResembling(QueueTypes type)const
 			{
 				for (size_t i = 0; i < max_count; i++)
 				{
@@ -287,35 +288,6 @@ namespace wis
 		}
 	public:
 		[[nodiscard]]
-		VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})
-		{
-			auto* queue = queues.GetOfType(options.type);
-			if (!queue)return{};
-
-			vk::DeviceQueueInfo2 info{
-				{},
-					queue->family_index,
-					queue->GetNextInLine()
-			};
-			return VKCommandQueue{ device->getQueue2(info) };
-		}
-
-		[[nodiscard]]
-		VKFence CreateFence()const
-		{
-			vk::SemaphoreTypeCreateInfo timeline_desc
-			{
-				vk::SemaphoreType::eTimeline,
-					0
-			};
-			vk::SemaphoreCreateInfo desc
-			{
-				{}, & timeline_desc
-			};
-			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
-		}
-
-		[[nodiscard]]
 		VKSwapChain CreateSwapchain(VKCommandQueueView render_queue, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync = false)const
 		{
 			if (xsurface.IsWinRT())return{}; // Bail out, no support for UWP from Vulkan
@@ -359,17 +331,17 @@ namespace wis
 			auto& queue = queues.available_queues[present_queue];
 			vk::DeviceQueueInfo2 info{
 				{},
-				queue.family_index,
-				queue.GetNextInLine()
+					queue.family_index,
+					queue.GetNextInLine()
 			};
 			vk::Queue qpresent_queue = device->getQueue2(info);
-			
+
 
 			auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
-			auto format = std::ranges::find_if(surface_formats, 
-				[=](const vk::SurfaceFormatKHR& fmt) 
+			auto format = std::ranges::find_if(surface_formats,
+				[=](const vk::SurfaceFormatKHR& fmt)
 				{
-					return fmt.format == map_format(options.format); 
+					return fmt.format == map_format(options.format);
 				});
 			if (format == surface_formats.end() || format->format == vk::Format::eUndefined)
 			{
@@ -394,11 +366,59 @@ namespace wis
 					vk::SharingMode::eExclusive, 0u, nullptr,
 					vk::SurfaceTransformFlagBitsKHR::eIdentity,
 					vk::CompositeAlphaFlagBitsKHR::eOpaque,
-					GetPresentMode(surface.get(), vsync), true,nullptr
+					GetPresentMode(surface.get(), vsync), true, nullptr
 			};
 
 			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, qpresent_queue, format->format, layers };
 		}
+
+		[[nodiscard]]
+		VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})
+		{
+			auto* queue = queues.GetOfType(options.type);
+			if (!queue)return{};
+
+			vk::DeviceQueueInfo2 info{
+				{},
+					queue->family_index,
+					queue->GetNextInLine()
+			};
+			return VKCommandQueue{ device->getQueue2(info) };
+		}
+
+		[[nodiscard]]
+		VKCommandList CreateCommandList(QueueType list_type)const
+		{
+			vk::CommandPoolCreateInfo cmd_pool_create_info{
+				vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+				queues.GetOfType(list_type)->family_index
+			};
+			auto ca = device->createCommandPool(cmd_pool_create_info);//allocator
+
+			vk::CommandBufferAllocateInfo cmd_buf_alloc_info{
+				ca, vk::CommandBufferLevel::ePrimary, 1
+			};			
+
+			return VKCommandList{ wis::shared_handle<vk::CommandPool>{ca, device},
+				vk::CommandBuffer{device->allocateCommandBuffers(cmd_buf_alloc_info).at(0)} };
+		}
+
+		[[nodiscard]]
+		VKFence CreateFence()const
+		{
+			vk::SemaphoreTypeCreateInfo timeline_desc
+			{
+				vk::SemaphoreType::eTimeline,
+					0
+			};
+			vk::SemaphoreCreateInfo desc
+			{
+				{}, & timeline_desc
+			};
+			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
+		}
+
+
 
 	private:
 		void GetQueueFamilies(VKAdapterView adapter)noexcept

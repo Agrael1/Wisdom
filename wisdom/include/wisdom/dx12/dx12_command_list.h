@@ -1,6 +1,5 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
-#include <wisdom/api/api_command_list.h>
 #include <wisdom/api/api_barrier.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_rtv.h>
@@ -9,6 +8,7 @@
 #include <wisdom/dx12/dx12_root_signature.h>
 #include <d3d12.h>
 #include <span>
+#include <wisdom/api/api_common.h>
 
 
 namespace wis
@@ -119,16 +119,16 @@ namespace wis
 			command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 		}
 	private:
-		void TransitionBarrier(BasicTransitionBarrier<DX12Resource>&& barrier)noexcept
-		{
-			auto b = CD3DX12_RESOURCE_BARRIER::Transition(
-				barrier.resource.GetInternal().GetResource(), 
-				D3D12_RESOURCE_STATES(barrier.before), 
-				D3D12_RESOURCE_STATES(barrier.after),
-				barrier.subresource, D3D12_RESOURCE_BARRIER_FLAGS(barrier.flags)
-				);
-			command_list->ResourceBarrier(1, &b);
-		}
+		//void TransitionBarrier(BasicTransitionBarrier<DX12Resource>&& barrier)noexcept
+		//{
+		//	auto b = CD3DX12_RESOURCE_BARRIER::Transition(
+		//		barrier.resource.GetInternal().GetResource(), 
+		//		D3D12_RESOURCE_STATES(barrier.before), 
+		//		D3D12_RESOURCE_STATES(barrier.after),
+		//		barrier.subresource, D3D12_RESOURCE_BARRIER_FLAGS(barrier.flags)
+		//		);
+		//	command_list->ResourceBarrier(1, &b);
+		//}
 	private:
 		bool closed = true;
 	};

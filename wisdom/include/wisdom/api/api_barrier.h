@@ -55,8 +55,6 @@ namespace wis
 	{
 		BarrierFlags flags = BarrierFlags::none;
 		uint32_t subresource = std::numeric_limits<uint32_t>::max();
-		const Resource& resource;
-
 		ResourceState before;
 		ResourceState after;
 	};

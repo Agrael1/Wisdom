@@ -44,6 +44,7 @@ namespace wis
 	using Device = VKDevice;
 	using CommandQueue = VKCommandQueue;
 	using SwapChain = VKSwapChain;
+	using CommandList = VKCommandList;
 	using Fence = VKFence;
 	using Resource = VKBuffer;
 	using ResourceAllocator = VKResourceAllocator;
