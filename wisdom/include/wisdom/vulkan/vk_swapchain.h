@@ -18,7 +18,16 @@ namespace wis
 	public:
 		Internal() = default;
 		Internal(wis::shared_handle<vk::SwapchainKHR> swap, vk::UniqueSurfaceKHR surface, vk::Queue graphics_queue, vk::Queue present_queue, vk::Format format)
-			:swap(std::move(swap)), surface(std::move(surface)), present_queue(present_queue), format(format), device(swap.get_parent_handle()) {}
+			:swap(std::move(swap))
+			, surface(std::move(surface))
+			, present_queue(present_queue)
+			, graphics_queue(graphics_queue)
+			, format(format)
+			, device(swap.get_parent_handle())
+		{
+			graphics_semaphore = device->createSemaphoreUnique({});
+			present_semaphore = device->createSemaphoreUnique({});
+		}
 	public:
 		vk::SwapchainKHR GetSwapchain()const noexcept
 		{
@@ -38,6 +47,10 @@ namespace wis
 		vk::Queue present_queue;
 		vk::Format format;
 
+		vk::UniqueSemaphore graphics_semaphore;
+		vk::UniqueSemaphore present_semaphore;
+
+		mutable uint32_t current_index = 0;
 		mutable uint32_t present_index = 0;
 	};
 
@@ -59,6 +72,8 @@ namespace wis
 				back_buffers.emplace_back(
 					wis::shared_handle<vk::Image>{i, swap.get_parent_handle()});
 			}
+
+			AquireNextIndex();
 		}
 		VKSwapChain(VKSwapChain&&)noexcept = default;
 		VKSwapChain& operator=(VKSwapChain&&)noexcept = default;
@@ -71,7 +86,7 @@ namespace wis
 	public:
 		[[nodiscard]] uint32_t GetNextIndex()const noexcept
 		{
-			return present_index = device->acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max()).value;
+			return present_index;
 		}
 		[[nodiscard]] 
 		std::span<const VKTexture> GetRenderTargets()const noexcept
@@ -99,12 +114,32 @@ namespace wis
 
 		bool Present()noexcept
 		{
+			vk::Semaphore a = graphics_semaphore.get();
+			vk::SubmitInfo desc{
+				0u, nullptr, nullptr, 0u, nullptr, 1u, &a
+			};
+			graphics_queue.submit(desc); //finish all the work on graphics queue
 
 			auto x = swap.get();
 			vk::PresentInfoKHR present_info{
-				0, nullptr, 1, & x, &present_index, nullptr
+				1, &a, 1, & x, &present_index, nullptr
 			};
-			return wis::succeded(present_queue.presentKHR(present_info));
+			bool s = wis::succeded(present_queue.presentKHR(present_info));
+			AquireNextIndex();
+			return s;
+		}
+	private:
+		void AquireNextIndex()
+		{
+			present_index = device->acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max(), present_semaphore.get()).value;
+
+			vk::SubmitInfo signal_submit_info = {};
+			signal_submit_info.pNext = nullptr;
+			signal_submit_info.waitSemaphoreCount = 1;
+			signal_submit_info.pWaitSemaphores = &present_semaphore.get();
+			vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eTransfer;
+			signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
+			present_queue.submit(1, &signal_submit_info, {});
 		}
 	private:
 		std::vector<VKTexture> back_buffers;
