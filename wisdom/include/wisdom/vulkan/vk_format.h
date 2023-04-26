@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/api/api_common.h>
+#include <wisdom/api/api_barrier.h>
 #include <wisdom/util/flags.h>
 #include <vulkan/vulkan.hpp>
 
@@ -150,5 +151,67 @@ namespace wis
 	{
 		using namespace river::flags;
 		return vk_format_map[+df];
+	}
+
+	inline constexpr vk::ImageAspectFlags aspect_flags(vk::Format format)
+	{
+		switch (format)
+		{
+		case vk::Format::eD32SfloatS8Uint:
+		case vk::Format::eD24UnormS8Uint:
+		case vk::Format::eD16UnormS8Uint:
+			return vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
+		case vk::Format::eD16Unorm:
+		case vk::Format::eD32Sfloat:
+		case vk::Format::eX8D24UnormPack32:
+			return vk::ImageAspectFlagBits::eDepth;
+		case vk::Format::eS8Uint:
+			return vk::ImageAspectFlagBits::eStencil;
+		default:
+			return vk::ImageAspectFlagBits::eColor;
+		}
+	}
+
+
+	inline constexpr vk::ImageLayout convert_state(ResourceState state)
+	{
+		using enum wis::ResourceState;
+		using enum vk::ImageLayout;
+		switch (state)
+		{
+		default:
+		case undefined:
+			return eUndefined;
+		case common:
+			return eGeneral;
+		case render_target:
+			return ePresentSrcKHR;
+		case depth_write:
+			return eDepthStencilAttachmentOptimal;
+		case depth_read:
+			return eDepthStencilReadOnlyOptimal;
+		case non_pixel_shader_resource:
+		case pixel_shader_resource:
+		case all_shader_resource:
+			return eShaderReadOnlyOptimal;
+		case copy_dest:
+			return eTransferDstOptimal;
+		case copy_source:
+			return eTransferSrcOptimal;
+		case shading_rate_source:
+			return eFragmentShadingRateAttachmentOptimalKHR;
+		//case video_decode_read:
+		//	return;
+		//case video_decode_write:
+		//	return;
+		//case video_process_read:
+		//	return;
+		//case video_process_write:
+		//	return;
+		//case video_encode_read:
+		//	return;
+		//case video_encode_write:
+		//	return;
+		}
 	}
 }

@@ -76,7 +76,7 @@ namespace wis
 			return chain->GetCurrentBackBufferIndex();
 		}
 		template<class Self>
-		[[nodiscard]] std::span<wis::cv_type_t<Self, DX12Resource>> GetRenderTargets(this Self&& s)noexcept
+		[[nodiscard]] std::span<wis::cv_type_t<Self, DX12Buffer>> GetRenderTargets(this Self&& s)noexcept
 		{
 			return s.render_targets;
 		}
@@ -105,6 +105,6 @@ namespace wis
 			return wis::succeded_weak(chain->Present(1, 0));
 		}
 	private:
-		std::vector<DX12Resource> render_targets{};
+		std::vector<DX12Buffer> render_targets{};
 	};
 }

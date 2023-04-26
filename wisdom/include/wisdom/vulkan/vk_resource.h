@@ -54,8 +54,8 @@ namespace wis
 		friend class VKSwapChain;
 	public:
 		Internal() = default;
-		Internal(wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation)
-			:buffer(std::move(buffer)), allocation(std::move(allocation)) {}
+		Internal(wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation, vk::Format format)
+			:buffer(std::move(buffer)), allocation(std::move(allocation)), format(format) {}
 	public:
 		auto GetResource()const noexcept
 		{
@@ -64,20 +64,21 @@ namespace wis
 	protected:
 		wis::shared_handle<vma::Allocation> allocation; //order mandated
 		wis::shared_handle<vk::Image> buffer;
+		vk::Format format;
 	};
 
-	using VKTextureView = vk::Image;
+	using VKTextureView = struct { vk::Image image; vk::Format format; };
 
 	class VKTexture : public QueryInternal<VKTexture>
 	{
 	public:
 		VKTexture() = default;
-		explicit VKTexture(wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation = {})
-			:QueryInternal(std::move(buffer), std::move(allocation))
+		explicit VKTexture(vk::Format format, wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation = {})
+			:QueryInternal(std::move(buffer), std::move(allocation), format)
 		{}
 		operator VKTextureView()const noexcept
 		{
-			return GetResource();
+			return { GetResource(), format };
 		}
 	public:
 		//[[nodiscard]]

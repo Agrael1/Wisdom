@@ -67,12 +67,15 @@ namespace wis
 			return closed = wis::succeded_weak(command_list->Close());
 		}
 
-		// TODO: span<barriers>, barrier multitype
-		template<BarrierType ty>
-		void ResourceBarrier(ResourceBarrier<ty, DX12Resource>&& barrier)noexcept
+		// TODO: span<barriers>
+		void ResourceBarrier(ResourceBarrier barrier, DX12BufferView resource)noexcept
 		{
-			if constexpr (ty == BarrierType::transition)
-				return TransitionBarrier(std::forward<wis::ResourceBarrier<ty, DX12Resource>>(barrier));
+			std::vector<CD3DX12_RESOURCE_BARRIER> rb;
+			if (barrier.type == BarrierType::transition)
+				rb = TransitionBarrier(barrier, resource);
+
+			if (rb.empty())return;
+			command_list->ResourceBarrier(rb.size(), rb.data());
 		}
 
 		void ClearRenderTarget(DX12RenderTargetView rtv, std::span<const float, 4> color)noexcept
@@ -80,7 +83,7 @@ namespace wis
 			command_list->ClearRenderTargetView(rtv.GetInternal().GetHandle(), color.data(), 0, nullptr);
 		}
 
-		void CopyBuffer(DX12ResourceView source, DX12ResourceView destination, size_t data_size)noexcept
+		void CopyBuffer(DX12BufferView source, DX12BufferView destination, size_t data_size)noexcept
 		{
 			command_list->CopyBufferRegion(destination, 0, source, 0, data_size);
 		}
@@ -119,16 +122,32 @@ namespace wis
 			command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 		}
 	private:
-		//void TransitionBarrier(BasicTransitionBarrier<DX12Resource>&& barrier)noexcept
-		//{
-		//	auto b = CD3DX12_RESOURCE_BARRIER::Transition(
-		//		barrier.resource.GetInternal().GetResource(), 
-		//		D3D12_RESOURCE_STATES(barrier.before), 
-		//		D3D12_RESOURCE_STATES(barrier.after),
-		//		barrier.subresource, D3D12_RESOURCE_BARRIER_FLAGS(barrier.flags)
-		//		);
-		//	command_list->ResourceBarrier(1, &b);
-		//}
+		std::vector<CD3DX12_RESOURCE_BARRIER> TransitionBarrier(wis::ResourceBarrier barrier, DX12BufferView resource)noexcept
+		{
+			if (barrier.before == barrier.after)return{};
+
+			std::vector<CD3DX12_RESOURCE_BARRIER> barriers;
+			auto desc = resource->GetDesc();
+			auto before = D3D12_RESOURCE_STATES(barrier.before);
+			auto after = D3D12_RESOURCE_STATES(barrier.after);
+			auto flags = D3D12_RESOURCE_BARRIER_FLAGS(barrier.flags);
+
+			if (barrier.base_mip_level == 0 && barrier.level_count == desc.MipLevels &&
+				barrier.base_array_layer == 0 && barrier.layer_count == desc.DepthOrArraySize)
+			{
+				barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, flags));
+				return barriers;
+			}
+
+			for (uint32_t i = barrier.base_mip_level; i < barrier.base_mip_level + barrier.level_count; ++i)
+				for (uint32_t j = barrier.base_array_layer; j < barrier.base_array_layer + barrier.layer_count; ++j)
+				{
+					uint32_t subresource = i + j * desc.MipLevels;
+					barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after, subresource, flags));
+				}
+
+			return barriers;
+		}
 	private:
 		bool closed = true;
 	};

@@ -15,7 +15,7 @@ if(NOT PLUGINS_LOADED)
 	
 	FetchContent_Declare(
 	  vkmahpp
-	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+	  GIT_REPOSITORY https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
 	  GIT_TAG origin/master
 	  GIT_SUBMODULES "include"
 	)

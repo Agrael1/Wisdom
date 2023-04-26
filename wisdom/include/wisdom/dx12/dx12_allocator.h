@@ -36,7 +36,7 @@ namespace wis
 		}
 	public:
 		[[nodiscard]]
-		DX12Resource CreatePersistentBuffer(size_t size)
+		DX12Buffer CreatePersistentBuffer(size_t size)
 		{
 			winrt::com_ptr<ID3D12Resource> rc;
 			winrt::com_ptr<D3D12MA::Allocation> al;
@@ -48,10 +48,10 @@ namespace wis
 				D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
 				al.put(), __uuidof(*rc), rc.put_void());
 
-			return DX12Resource{ std::move(rc), std::move(al)};
+			return DX12Buffer{ std::move(rc), std::move(al)};
 		}
 		[[nodiscard]]
-		DX12Resource CreateUploadBuffer(size_t size)
+		DX12Buffer CreateUploadBuffer(size_t size)
 		{
 			winrt::com_ptr<ID3D12Resource> rc;
 			winrt::com_ptr<D3D12MA::Allocation> al;
@@ -63,7 +63,7 @@ namespace wis
 				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 				al.put(), __uuidof(*rc), rc.put_void());
 
-			return DX12Resource{ std::move(rc), std::move(al)};
+			return DX12Buffer{ std::move(rc), std::move(al)};
 		}
 	};
 }

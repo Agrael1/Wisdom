@@ -8,10 +8,10 @@
 
 namespace wis
 {
-	class DX12Resource;
+	class DX12Buffer;
 
 	template<>
-	class Internal<DX12Resource>
+	class Internal<DX12Buffer>
 	{
 	public:
 		[[nodiscard]]
@@ -24,18 +24,18 @@ namespace wis
 		winrt::com_ptr<D3D12MA::Allocation> allocation{};
 	};
 
-	using DX12ResourceView = ID3D12Resource*;
+	using DX12BufferView = ID3D12Resource*;
 
-	class DX12Resource : public QueryInternal<DX12Resource>
+	class DX12Buffer : public QueryInternal<DX12Buffer>
 	{
 	public:
-		DX12Resource() = default;
-		explicit DX12Resource(winrt::com_ptr<ID3D12Resource> rc, winrt::com_ptr<D3D12MA::Allocation> al)
+		DX12Buffer() = default;
+		explicit DX12Buffer(winrt::com_ptr<ID3D12Resource> rc, winrt::com_ptr<D3D12MA::Allocation> al)
 		{
 			resource = std::move(rc);
 			allocation = std::move(al);
 		}
-		operator DX12ResourceView()const noexcept
+		operator DX12BufferView()const noexcept
 		{
 			return GetResource();
 		}

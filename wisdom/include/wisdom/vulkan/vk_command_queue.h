@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_fence.h>
+#include <wisdom/vulkan/vk_command_list.h>
 
 
 namespace wis
@@ -36,9 +37,16 @@ namespace wis
 			return queue;
 		}
 	public:
-		void ExecuteCommandList()
+		void ExecuteCommandList(VKCommandListView command_list)
 		{
+			vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eAllCommands;
 
+			vk::SubmitInfo submit_info = {};
+			submit_info.commandBufferCount = 1;
+			submit_info.pCommandBuffers = &command_list;
+			submit_info.pWaitDstStageMask = &wait_dst_stage_mask;
+
+			queue.submit(submit_info);
 		}
 		bool Signal(VKFenceView fence, uint64_t value)
 		{
@@ -51,7 +59,7 @@ namespace wis
 			{
 				0, nullptr,
 				nullptr, 0u,nullptr,
-				1, &fence.first,
+				1, &fence,
 				&submit
 			};
 			return wis::succeded(queue.submit(1, &info, nullptr));

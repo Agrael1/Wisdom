@@ -70,7 +70,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	fence = device.CreateFence();
 	context = device.CreateCommandList(wis::QueueType::direct);
-	//
+	
 	//vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
 	//ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
 	//
@@ -115,7 +115,7 @@ Test::App::App(uint32_t width, uint32_t height)
 	//context.Close();
 	//
 	//queue.ExecuteCommandList(context);
-	//WaitForGPU();
+	WaitForGPU();
 	//
 	//vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
 	//context.SetPipeline(pipeline);

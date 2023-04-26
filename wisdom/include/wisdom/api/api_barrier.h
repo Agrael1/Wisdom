@@ -42,23 +42,20 @@ namespace wis
 		video_process_read = 0x40000,
 		video_process_write = 0x80000,
 		video_encode_read = 0x200000,
-		video_encode_write = 0x800000
+		video_encode_write = 0x800000,
+		undefined = -1
 	};
 
 
-
-	template<BarrierType type, class Resource>
-	struct ResourceBarrier;
-
-	template<class Resource>
-	struct ResourceBarrier<BarrierType::transition, Resource>
+	struct ResourceBarrier
 	{
+		BarrierType type;
 		BarrierFlags flags = BarrierFlags::none;
-		uint32_t subresource = std::numeric_limits<uint32_t>::max();
 		ResourceState before;
 		ResourceState after;
+		uint32_t base_mip_level = 0;
+		uint32_t level_count = 1;
+		uint32_t base_array_layer = 0;
+		uint32_t layer_count = 1;
 	};
-
-	template<class Resource>
-	using BasicTransitionBarrier = ResourceBarrier<BarrierType::transition, Resource>;
 }

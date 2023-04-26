@@ -24,7 +24,7 @@ namespace wis
 		vk::Device device; //little overhead for better performance
 	};
 
-	using VKFenceView = std::pair<vk::Semaphore, uint64_t>;
+	using VKFenceView = vk::Semaphore;
 
 	class VKFence : public QueryInternal<VKFence>
 	{
@@ -35,7 +35,7 @@ namespace wis
 		{}
 		operator VKFenceView()const noexcept
 		{
-			return { GetFence(), GetCompletedValue() };
+			return GetFence();
 		}
 	public:
 		uint64_t GetCompletedValue()const noexcept

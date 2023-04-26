@@ -53,7 +53,7 @@ namespace wis
 		{
 			vk::BufferCreateInfo desc{
 				{}, size, vk::BufferUsageFlagBits::eTransferDst,
-				vk::SharingMode::eConcurrent, 0, nullptr, nullptr
+				vk::SharingMode::eExclusive, 0, nullptr, nullptr
 			};
 
 			vma::AllocationCreateInfo alloc{

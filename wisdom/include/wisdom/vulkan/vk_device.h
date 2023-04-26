@@ -369,7 +369,7 @@ namespace wis
 					GetPresentMode(surface.get(), vsync), true, nullptr
 			};
 
-			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, qpresent_queue, format->format, layers };
+			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, VKCommandQueue{qpresent_queue}, CreateCommandList(QueueType::direct), format->format, layers };
 		}
 
 		[[nodiscard]]
@@ -417,9 +417,6 @@ namespace wis
 			};
 			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
 		}
-
-
-
 	private:
 		void GetQueueFamilies(VKAdapterView adapter)noexcept
 		{

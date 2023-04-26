@@ -3,7 +3,8 @@
 #include <wisdom/api/api_swapchain.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/vulkan/vk_rtv.h>
-#include <wisdom/vulkan/vk_resource.h>
+#include <wisdom/vulkan/vk_command_list.h>
+#include <wisdom/vulkan/vk_command_queue.h>
 
 
 namespace wis
@@ -50,7 +51,6 @@ namespace wis
 		vk::UniqueSemaphore graphics_semaphore;
 		vk::UniqueSemaphore present_semaphore;
 
-		mutable uint32_t current_index = 0;
 		mutable uint32_t present_index = 0;
 	};
 
@@ -61,17 +61,25 @@ namespace wis
 		explicit VKSwapChain(wis::shared_handle<vk::SwapchainKHR> xswap,
 			vk::UniqueSurfaceKHR surface,
 			vk::Queue graphics_queue,
-			vk::Queue present_queue,
+			VKCommandQueue present_queue,
+			VKCommandList initialization,
 			vk::Format format, uint32_t layers = 1)
 			:QueryInternal(std::move(xswap), std::move(surface), graphics_queue, present_queue, format)
 		{
+			initialization.Reset();
 			auto xback_buffers = device->getSwapchainImagesKHR(swap.get());
 			back_buffers.reserve(xback_buffers.size());
 			for (auto& i : xback_buffers)
 			{
 				back_buffers.emplace_back(
-					wis::shared_handle<vk::Image>{i, swap.get_parent_handle()});
+					format, wis::shared_handle<vk::Image>{i, swap.get_parent_handle()});
+				initialization.ResourceBarrier({ .before = ResourceState::undefined, .after = ResourceState::render_target }, { i, format });
 			}
+			initialization.Close();
+			present_queue.ExecuteCommandList(initialization);
+
+			
+			present_queue.GetInternal().GetQueue().waitIdle();
 
 			AquireNextIndex();
 		}
@@ -88,13 +96,13 @@ namespace wis
 		{
 			return present_index;
 		}
-		[[nodiscard]] 
+		[[nodiscard]]
 		std::span<const VKTexture> GetRenderTargets()const noexcept
 		{
 			return back_buffers;
 		}
 
-		[[nodiscard]] 
+		[[nodiscard]]
 		auto GetBackBuffer()const noexcept
 		{
 			return back_buffers[present_index];
@@ -109,27 +117,27 @@ namespace wis
 		[[nodiscard]]
 		VKRenderTargetView GetBackBufferRTV()const noexcept
 		{
-			
+
 		}
 
 		bool Present()noexcept
 		{
 			vk::Semaphore a = graphics_semaphore.get();
 			vk::SubmitInfo desc{
-				0u, nullptr, nullptr, 0u, nullptr, 1u, &a
+				0u, nullptr, nullptr, 0u, nullptr, 1u, & a
 			};
 			graphics_queue.submit(desc); //finish all the work on graphics queue
 
 			auto x = swap.get();
 			vk::PresentInfoKHR present_info{
-				1, &a, 1, & x, &present_index, nullptr
+				1, & a, 1, & x, & present_index, nullptr
 			};
-			bool s = wis::succeded(present_queue.presentKHR(present_info));
-			AquireNextIndex();
-			return s;
+
+			return wis::succeded(present_queue.presentKHR(present_info)) &&
+				AquireNextIndex();
 		}
 	private:
-		void AquireNextIndex()
+		bool AquireNextIndex()
 		{
 			present_index = device->acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max(), present_semaphore.get()).value;
 
@@ -139,7 +147,7 @@ namespace wis
 			signal_submit_info.pWaitSemaphores = &present_semaphore.get();
 			vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eTransfer;
 			signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
-			present_queue.submit(1, &signal_submit_info, {});
+			return wis::succeded(present_queue.submit(1, &signal_submit_info, {}));
 		}
 	private:
 		std::vector<VKTexture> back_buffers;
