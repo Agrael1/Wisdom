@@ -32,7 +32,7 @@ if(Vulkan_FOUND)
 	)
 	set(VKHEADERS
 	
-	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h"  "include/wisdom/vulkan/vk_dynamic_loader.h" "include/wisdom/vulkan/vk_device.h" "include/wisdom/vulkan/vk_allocator.h"  "include/wisdom/vulkan/vk_allocator_handles.h" "include/wisdom/vulkan/vk_command_queue.h" "include/wisdom/vulkan/vk_fence.h" "include/wisdom/vulkan/vk_checks.h" "include/wisdom/vulkan/vk_swapchain.h" "include/wisdom/vulkan/vk_format.h" "include/wisdom/vulkan/vk_resource.h" "include/wisdom/vulkan/vk_rtv.h" "include/wisdom/vulkan/vk_command_list.h")
+	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h"  "include/wisdom/vulkan/vk_dynamic_loader.h" "include/wisdom/vulkan/vk_device.h" "include/wisdom/vulkan/vk_allocator.h"  "include/wisdom/vulkan/vk_allocator_handles.h" "include/wisdom/vulkan/vk_command_queue.h" "include/wisdom/vulkan/vk_fence.h" "include/wisdom/vulkan/vk_checks.h" "include/wisdom/vulkan/vk_swapchain.h" "include/wisdom/vulkan/vk_format.h" "include/wisdom/vulkan/vk_resource.h" "include/wisdom/vulkan/vk_rtv.h" "include/wisdom/vulkan/vk_command_list.h" "include/wisdom/vulkan/vk_render_pass.h" "include/wisdom/vulkan/vk_pipeline_state.h")
 	set(VKSOURCES
 	
 	 "src/wisdom/vulkan/vk_factory.cpp" )
@@ -61,7 +61,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_root_signature.h" 
 		"include/wisdom/dx12/dx12_shader.h" 
 		"include/wisdom/dx12/dx12_allocator.h" 
-		"include/wisdom/dx12/dx12_state_builder.h" "include/wisdom/dx12/dx12_buffer_views.h")
+		"include/wisdom/dx12/dx12_state_builder.h" "include/wisdom/dx12/dx12_buffer_views.h" "include/wisdom/dx12/dx12_render_pass.h" "include/wisdom/dx12/dx12_format.h")
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"
@@ -105,7 +105,7 @@ set(HEADER_LIST
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_barrier.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h"  "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h"  "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h"   "include/wisdom/util/profile.h"  "include/wisdom/api/api_common.h" "include/wisdom/util/misc.h")
+ "include/wisdom/api/api_adapter.h"  "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h"  "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h"   "include/wisdom/util/profile.h"  "include/wisdom/api/api_common.h" "include/wisdom/util/misc.h" "include/wisdom/api/api_render_pass.h")
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}

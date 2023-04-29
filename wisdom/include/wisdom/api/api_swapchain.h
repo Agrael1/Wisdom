@@ -6,10 +6,11 @@ namespace wis
 {
 	struct SwapchainOptions
 	{
+        constexpr static inline auto default_format = DataFormat::b8g8r8a8_unorm;
 		uint32_t width = 1280;
 		uint32_t height = 720;
 		uint32_t frame_count = 2;
-        DataFormat format = DataFormat::b8g8r8a8_unorm;
+        DataFormat format = default_format;
         bool stereo = false;
 	};
 

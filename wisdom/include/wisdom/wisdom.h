@@ -24,6 +24,7 @@ namespace wis
 	using ResourceAllocator = DX12ResourceAllocator;
 	using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 	using VertexBufferView = DX12VertexBufferView;
+	using RenderPass = DX12RenderPass;
 }
 #elif WISDOMMTL  //MAC
 //metal
@@ -46,5 +47,6 @@ namespace wis
 	using Fence = VKFence;
 	using Resource = VKBuffer;
 	using ResourceAllocator = VKResourceAllocator;
+	using RenderPass = VKRenderPass;
 }
 #endif

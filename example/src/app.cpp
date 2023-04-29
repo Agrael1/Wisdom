@@ -70,17 +70,23 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	fence = device.CreateFence();
 	context = device.CreateCommandList(wis::QueueType::direct);
+
+	wis::ColorAttachment cas{
+		.format = wis::SwapchainOptions::default_format,
+	};
+
+	render_pass = device.CreateRenderPass({ &cas,1 });
 	
 	//vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
 	//ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
 	//
 	//root = device.CreateRootSignature();//empty
-	//
-	//static constexpr std::array<wis::InputLayoutDesc, 2> ia{
-	//	wis::InputLayoutDesc{ "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
-	//	wis::InputLayoutDesc{ "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
-	//};
-	//
+	
+	static constexpr std::array<wis::InputLayoutDesc, 2> ia{
+		wis::InputLayoutDesc{ "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
+		wis::InputLayoutDesc{ "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+	};
+	
 	//wis::GraphicsPipelineDesc desc{root};
 	//desc.SetVS(vs);
 	//desc.SetPS(ps);
@@ -115,7 +121,7 @@ Test::App::App(uint32_t width, uint32_t height)
 	//context.Close();
 	//
 	//queue.ExecuteCommandList(context);
-	WaitForGPU();
+	//WaitForGPU();
 	//
 	//vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
 	//context.SetPipeline(pipeline);
@@ -134,34 +140,31 @@ int Test::App::Start()
 
 void Test::App::Frame()
 {
-	//context.Reset();
+	context.Reset();
 	auto back = swap.GetBackBuffer();
 	//auto rtv = swap.GetBackBufferRTV();
-	//constexpr std::array<float, 4> color{0.0f, 0.2f, 0.4f, 1.0f};
-	//
-	//context.ResourceBarrier(wis::TransitionBarrier{
-	//	.resource = back,
-	//	.before = wis::ResourceState::present,
-	//	.after = wis::ResourceState::render_target
-	//});
-	//
+	constexpr std::array<float, 4> color{0.0f, 0.2f, 0.4f, 1.0f};
+	
+	context.ResourceBarrier({
+		.before = wis::ResourceState::present,
+		.after = wis::ResourceState::render_target
+	}, back);
+	
 	//context.SetGraphicsRootSignature(root);
-	//context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
-	//context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
+	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
+	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
 	//context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	//context.ClearRenderTarget(rtv, color);
 	//context.IASetVertexBuffers({&vb, 1});
 	//context.OMSetRenderTargets(std::array{rtv});
 	//context.DrawInstanced(3);
-	//
-	//context.ResourceBarrier(wis::TransitionBarrier{
-	//	.resource = back,
-	//	.before = wis::ResourceState::render_target,
-	//	.after = wis::ResourceState::present
-	//});
-	//context.Close();
-	//
-	//queue.ExecuteCommandList(context);
+	
+	context.ResourceBarrier({
+		.before = wis::ResourceState::render_target,
+		.after = wis::ResourceState::present
+	}, back);
+	context.Close();
+	queue.ExecuteCommandList(context);
 
 	swap.Present();
 

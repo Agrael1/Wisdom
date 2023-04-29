@@ -4,15 +4,18 @@
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_factory.h>
+#include <wisdom/dx12/dx12_format.h>
 #include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/dx12/dx12_command_list.h>
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_root_signature.h>
+#include <wisdom/dx12/dx12_render_pass.h>
 #include <wisdom/dx12/dx12_pipeline_state.h>
 #include <wisdom/dx12/dx12_state_builder.h>
 #include <d3d12.h>
 #include <d3dx12/d3dx12.h>
 #include <wisdom/api/api_input_layout.h>
+#include <wisdom/api/api_render_pass.h>
 
 namespace wis
 {
@@ -23,7 +26,7 @@ namespace wis
 	{
 		static constexpr inline bool valid = true;
 	public:
-		[[nodiscard]] 
+		[[nodiscard]]
 		ID3D12Device10* GetDevice()const noexcept {
 			return device.get();
 		}
@@ -33,7 +36,7 @@ namespace wis
 	using DX12DeviceView = ID3D12Device10*;
 
 
-	class DX12Device final: public QueryInternal<DX12Device>
+	class DX12Device final : public QueryInternal<DX12Device>
 	{
 		struct PipelineStreamAllocator
 		{
@@ -173,7 +176,7 @@ namespace wis
 			PipelineStreamAllocator ia;
 			for (auto& i : input_layout)
 			{
-				ia.allocate<D3D12_INPUT_ELEMENT_DESC>() = 
+				ia.allocate<D3D12_INPUT_ELEMENT_DESC>() =
 				{
 					.SemanticName = i.semantic_name,
 					.SemanticIndex = i.semantic_index,
@@ -231,6 +234,40 @@ namespace wis
 
 			wis::check_hresult(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()));
 			return DX12PipelineState{ std::move(state) };
+		}
+
+		[[nodiscard]]
+		DX12RenderPass CreateRenderPass(std::span<ColorAttachment> rtv_descs,
+			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
+			SampleCount samples = SampleCount::s1,
+			DataFormat vrs_format = DataFormat::unknown)const
+		{
+			std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> om_rtv;
+			om_rtv.reserve(rtv_descs.size());
+
+			for (auto& x : rtv_descs)
+			{
+				D3D12_RENDER_PASS_BEGINNING_ACCESS begin
+				{
+					.Type = convert_dx(x.load)
+				};
+				D3D12_RENDER_PASS_ENDING_ACCESS end
+				{
+					.Type = convert_dx(x.store)
+				};
+				om_rtv.push_back({ 0, begin, end });
+			}
+
+			if (dsv_desc.format == DataFormat::unknown)
+				return DX12RenderPass{ std::move(om_rtv) };
+
+
+			D3D12_RENDER_PASS_BEGINNING_ACCESS depth_begin{ convert_dx(dsv_desc.depth_load), {} };
+			D3D12_RENDER_PASS_ENDING_ACCESS depth_end{ convert_dx(dsv_desc.depth_store), {} };
+			D3D12_RENDER_PASS_BEGINNING_ACCESS stencil_begin{ convert_dx(dsv_desc.stencil_load), {} };
+			D3D12_RENDER_PASS_ENDING_ACCESS stencil_end{ convert_dx(dsv_desc.stencil_store), {} };
+
+			return DX12RenderPass{ std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
 		}
 	};
 }

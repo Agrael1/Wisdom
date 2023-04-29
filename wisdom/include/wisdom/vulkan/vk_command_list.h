@@ -94,6 +94,7 @@ namespace wis
 
 		}
 
+
 		//void ClearRenderTarget(DX12RenderTargetView rtv, std::span<const float, 4> color)noexcept
 		//{
 		//	command_list->ClearRenderTargetView(rtv.GetInternal().GetHandle(), color.data(), 0, nullptr);
@@ -109,14 +110,26 @@ namespace wis
 		//	command_list->SetGraphicsRootSignature(root);
 		//}
 		//
-		//void RSSetViewport(Viewport vp)noexcept
-		//{
-		//	command_list->RSSetViewports(1, (D3D12_VIEWPORT*)&vp);
-		//}
-		//void RSSetScissorRect(ScissorRect rect)noexcept
-		//{
-		//	command_list->RSSetScissorRects(1, (D3D12_RECT*)&rect);
-		//}
+		void RSSetViewport(Viewport vp)noexcept
+		{
+			vk::Viewport viewport;
+			viewport.x = vp.top_leftx;
+			viewport.y = vp.top_lefty;
+			viewport.width = vp.width;
+			viewport.height = -vp.height;
+			viewport.minDepth = vp.min_depth;
+			viewport.maxDepth = vp.max_depth;
+			command_list.setViewport(0, 1, &viewport);
+		}
+		void RSSetScissorRect(ScissorRect srect)noexcept
+		{
+			vk::Rect2D rect;
+			rect.offset.x = srect.left;
+			rect.offset.y = srect.top;
+			rect.extent.width = srect.right;
+			rect.extent.height = srect.bottom;
+			command_list.setScissor(0, 1, &rect);
+		}
 		//void IASetPrimitiveTopology(PrimitiveTopology vp)noexcept
 		//{
 		//	command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY(vp));

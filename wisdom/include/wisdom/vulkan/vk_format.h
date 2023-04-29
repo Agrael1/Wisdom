@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_common.h>
 #include <wisdom/api/api_barrier.h>
+#include <wisdom/api/api_render_pass.h>
 #include <wisdom/util/flags.h>
 #include <vulkan/vulkan.hpp>
 
@@ -147,7 +148,7 @@ namespace wis
 		vk::Format::eUndefined,//sampler_feedback_mip_region_used_opaque = 190,
 	};
 
-	inline constexpr vk::Format map_format(wis::DataFormat df)
+	inline constexpr vk::Format vk_format(wis::DataFormat df)
 	{
 		using namespace river::flags;
 		return vk_format_map[+df];
@@ -171,7 +172,6 @@ namespace wis
 			return vk::ImageAspectFlagBits::eColor;
 		}
 	}
-
 
 	inline constexpr vk::ImageLayout convert_state(ResourceState state)
 	{
@@ -200,18 +200,52 @@ namespace wis
 			return eTransferSrcOptimal;
 		case shading_rate_source:
 			return eFragmentShadingRateAttachmentOptimalKHR;
-		//case video_decode_read:
-		//	return;
-		//case video_decode_write:
-		//	return;
-		//case video_process_read:
-		//	return;
-		//case video_process_write:
-		//	return;
-		//case video_encode_read:
-		//	return;
-		//case video_encode_write:
-		//	return;
+			//case video_decode_read:
+			//	return;
+			//case video_decode_write:
+			//	return;
+			//case video_process_read:
+			//	return;
+			//case video_process_write:
+			//	return;
+			//case video_encode_read:
+			//	return;
+			//case video_encode_write:
+			//	return;
 		}
 	}
+	inline constexpr vk::ImageLayout convert(ResourceState state)
+	{
+		return convert_state(state);
+	}
+	inline constexpr vk::AttachmentLoadOp convert(PassLoadOperation state)
+	{
+		switch (state)
+		{
+		case PassLoadOperation::load:
+			return vk::AttachmentLoadOp::eLoad;
+		case PassLoadOperation::clear:
+			return vk::AttachmentLoadOp::eClear;
+		case PassLoadOperation::discard:
+			return vk::AttachmentLoadOp::eDontCare;
+		}
+		assert(false);
+		return vk::AttachmentLoadOp::eLoad;
+	}
+	inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
+	{
+		switch (state)
+		{
+		case PassStoreOperation::store:
+			return vk::AttachmentStoreOp::eStore;
+		case PassStoreOperation::discard:
+			return vk::AttachmentStoreOp::eDontCare;
+		}
+		assert(false);
+		return vk::AttachmentStoreOp::eStore;
+	}
+
+
+
+
 }

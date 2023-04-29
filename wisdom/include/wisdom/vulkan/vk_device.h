@@ -1,12 +1,12 @@
 #pragma once
-#include <wisdom/api/api_common.h>
+#include <wisdom/api/api_render_pass.h>
+#include <wisdom/api/api_input_layout.h>
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_swapchain.h>
-#include <wisdom/vulkan/vk_format.h>
-#include <wisdom/vulkan/vk_command_list.h>
-#include <wisdom/vulkan/vk_command_queue.h>
+#include <wisdom/vulkan/vk_pipeline_state.h>
+#include <wisdom/vulkan/vk_render_pass.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <unordered_set>
@@ -166,7 +166,7 @@ namespace wis
 				priorities.fill(1.0f);
 				return priorities;
 			}();
-			
+
 
 			for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++)
 			{
@@ -341,7 +341,7 @@ namespace wis
 			auto format = std::ranges::find_if(surface_formats,
 				[=](const vk::SurfaceFormatKHR& fmt)
 				{
-					return fmt.format == map_format(options.format);
+					return fmt.format == vk_format(options.format);
 				});
 			if (format == surface_formats.end() || format->format == vk::Format::eUndefined)
 			{
@@ -391,13 +391,13 @@ namespace wis
 		{
 			vk::CommandPoolCreateInfo cmd_pool_create_info{
 				vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-				queues.GetOfType(list_type)->family_index
+					queues.GetOfType(list_type)->family_index
 			};
 			auto ca = device->createCommandPool(cmd_pool_create_info);//allocator
 
 			vk::CommandBufferAllocateInfo cmd_buf_alloc_info{
 				ca, vk::CommandBufferLevel::ePrimary, 1
-			};			
+			};
 
 			return VKCommandList{ wis::shared_handle<vk::CommandPool>{ca, device},
 				vk::CommandBuffer{device->allocateCommandBuffers(cmd_buf_alloc_info).at(0)} };
@@ -416,6 +416,122 @@ namespace wis
 				{}, & timeline_desc
 			};
 			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
+		}
+
+		[[nodiscard]]
+		VKRenderPass CreateRenderPass(std::span<ColorAttachment> rtv_descs,
+			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
+			SampleCount samples = SampleCount::s1,
+			DataFormat vrs_format = DataFormat::unknown)const
+		{
+			std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions;
+			std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references;
+			size_t size = 0;
+
+			for (auto& i : rtv_descs)
+			{
+				auto& desc = attachment_descriptions[size];
+				auto& ref = attachment_references[size++];
+				if (i.format == DataFormat::unknown)
+				{
+					ref.attachment = VK_ATTACHMENT_UNUSED;
+					continue;
+				}
+
+				desc.format = vk_format(i.format);
+				desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
+				desc.loadOp = convert(i.load);
+				desc.storeOp = convert(i.store);
+				desc.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+				desc.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
+
+				ref.attachment = size - 1;
+				ref.layout = vk::ImageLayout::eColorAttachmentOptimal;
+				if (size == 8)break;
+			}
+
+			vk::SubpassDescription2 sub_pass;
+			sub_pass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+			sub_pass.colorAttachmentCount = size;
+			sub_pass.pColorAttachments = attachment_references.data();
+
+			vk::AttachmentReference2 depth_reference;
+			if (dsv_desc.format != DataFormat::unknown)
+			{
+				auto& desc = attachment_descriptions[size];
+				auto& ref = attachment_references[size++];
+				if (dsv_desc.format == DataFormat::unknown)
+				{
+					ref.attachment = VK_ATTACHMENT_UNUSED;
+				}
+				else
+				{
+					desc.format = vk_format(dsv_desc.format);
+					desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
+					desc.loadOp = convert(dsv_desc.depth_load);
+					desc.storeOp = convert(dsv_desc.depth_store);
+					desc.initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+					desc.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+					desc.stencilLoadOp = convert(dsv_desc.stencil_load);
+					desc.stencilStoreOp = convert(dsv_desc.stencil_store);
+
+					ref.attachment = size - 1;
+					ref.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+				}
+				sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
+			}
+
+			vk::AttachmentReference2 shading_rate_image_attachment_reference;
+			vk::FragmentShadingRateAttachmentInfoKHR fragment_shading_rate_attachment_info;
+			fragment_shading_rate_attachment_info.pFragmentShadingRateAttachment = &shading_rate_image_attachment_reference;
+
+			if (vrs_format != DataFormat::unknown && vrs_supported)
+			{
+				auto& desc = attachment_descriptions[size];
+				auto& ref = attachment_references[size++];
+
+				desc.format = vk_format(vrs_format);
+				desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
+				desc.loadOp = vk::AttachmentLoadOp::eLoad;
+				desc.storeOp = vk::AttachmentStoreOp::eStore;
+				desc.initialLayout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+				desc.finalLayout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+
+				ref.attachment = size - 1;
+				ref.layout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+
+				sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
+
+				vk::PhysicalDeviceFragmentShadingRatePropertiesKHR shading_rate_image_properties;
+				vk::PhysicalDeviceProperties2 device_props2;
+				device_props2.pNext = &shading_rate_image_properties;
+				adapter.getProperties2(&device_props2);
+				auto vrs_size = shading_rate_image_properties.maxFragmentShadingRateAttachmentTexelSize.width;
+
+				fragment_shading_rate_attachment_info.shadingRateAttachmentTexelSize.width = vrs_size;
+				fragment_shading_rate_attachment_info.shadingRateAttachmentTexelSize.height = vrs_size;
+				sub_pass.pNext = &fragment_shading_rate_attachment_info;
+			}
+
+			vk::RenderPassCreateInfo2 render_pass_info;
+			render_pass_info.attachmentCount = size;
+			render_pass_info.pAttachments = attachment_descriptions.data();
+			render_pass_info.subpassCount = 1;
+			render_pass_info.pSubpasses = &sub_pass;
+
+			return VKRenderPass{ wis::shared_handle<vk::RenderPass>{device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device} };
+		}
+
+		[[nodiscard]]
+		VKPipelineState CreateGraphicsPipeline(std::span<const InputLayoutDesc> input_layout)const
+		{
+			vk::PipelineVertexInputStateCreateInfo ia{
+
+			};
+			vk::GraphicsPipelineCreateInfo desc{
+
+			};
+			return VKPipelineState{ wis::shared_handle<vk::Pipeline>{device->createGraphicsPipeline(nullptr, desc).value, device} };
 		}
 	private:
 		void GetQueueFamilies(VKAdapterView adapter)noexcept
@@ -476,21 +592,21 @@ namespace wis
 		{
 			constexpr static std::array req_extension{
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-				VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
-				VK_KHR_RAY_QUERY_EXTENSION_NAME,
-				VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-				VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
-				VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-				VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-				VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-				VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-				VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
-				VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
-				VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-				VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-				VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-				VK_NV_MESH_SHADER_EXTENSION_NAME,
-				VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+					VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+					VK_KHR_RAY_QUERY_EXTENSION_NAME,
+					VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+					VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+					VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+					VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+					VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+					VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+					VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+					VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+					VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+					VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+					VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+					VK_NV_MESH_SHADER_EXTENSION_NAME,
+					VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
 			};
 
 
