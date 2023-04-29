@@ -175,43 +175,20 @@ namespace wis
 
 	inline constexpr vk::ImageLayout convert_state(ResourceState state)
 	{
-		using enum wis::ResourceState;
-		using enum vk::ImageLayout;
-		switch (state)
-		{
+		switch (state) {
 		default:
-		case undefined:
-			return eUndefined;
-		case common:
-			return eGeneral;
-		case render_target:
-			return ePresentSrcKHR;
-		case depth_write:
-			return eDepthStencilAttachmentOptimal;
-		case depth_read:
-			return eDepthStencilReadOnlyOptimal;
-		case non_pixel_shader_resource:
-		case pixel_shader_resource:
-		case all_shader_resource:
-			return eShaderReadOnlyOptimal;
-		case copy_dest:
-			return eTransferDstOptimal;
-		case copy_source:
-			return eTransferSrcOptimal;
-		case shading_rate_source:
-			return eFragmentShadingRateAttachmentOptimalKHR;
-			//case video_decode_read:
-			//	return;
-			//case video_decode_write:
-			//	return;
-			//case video_process_read:
-			//	return;
-			//case video_process_write:
-			//	return;
-			//case video_encode_read:
-			//	return;
-			//case video_encode_write:
-			//	return;
+		case wis::ResourceState::common: return vk::ImageLayout::eGeneral;
+		case wis::ResourceState::render_target: return vk::ImageLayout::eColorAttachmentOptimal;
+		case wis::ResourceState::unordered_access: return vk::ImageLayout::eGeneral;
+		case wis::ResourceState::depthstencil_write: return vk::ImageLayout::eDepthStencilAttachmentOptimal;
+		case wis::ResourceState::depthstencil_read: return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+		case wis::ResourceState::non_pixel_shader_resource: return vk::ImageLayout::eShaderReadOnlyOptimal;
+		case wis::ResourceState::pixel_shader_resource: return vk::ImageLayout::eShaderReadOnlyOptimal;
+		case wis::ResourceState::copy_dest: return vk::ImageLayout::eTransferDstOptimal;
+		case wis::ResourceState::copy_source: return vk::ImageLayout::eTransferSrcOptimal;
+		case wis::ResourceState::shading_rate_source: return vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+		case wis::ResourceState::present: return vk::ImageLayout::ePresentSrcKHR;
+		case wis::ResourceState::undefined: return vk::ImageLayout::eUndefined;
 		}
 	}
 	inline constexpr vk::ImageLayout convert(ResourceState state)

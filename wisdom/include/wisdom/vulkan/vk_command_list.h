@@ -74,7 +74,7 @@ namespace wis
 		{
 			if (closed)return closed;
 			command_list.end();
-			return true;
+			return closed = true;
 		}
 
 

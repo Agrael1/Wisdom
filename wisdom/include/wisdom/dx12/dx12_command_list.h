@@ -67,15 +67,25 @@ namespace wis
 			return closed = wis::succeded_weak(command_list->Close());
 		}
 
-		// TODO: span<barriers>
+		[[deprecated]]
 		void ResourceBarrier(ResourceBarrier barrier, DX12BufferView resource)noexcept
 		{
 			std::vector<CD3DX12_RESOURCE_BARRIER> rb;
 			if (barrier.type == BarrierType::transition)
 				rb = TransitionBarrier(barrier, resource);
-
+		
 			if (rb.empty())return;
 			command_list->ResourceBarrier(rb.size(), rb.data());
+		}
+
+
+		void TextureBarrier(std::initializer_list<std::pair<wis::ResourceBarrier, DX12BufferView>> barriers)noexcept //strengthened
+		{
+			return TextureBarrier(std::span{barriers.begin(), barriers.size()});
+		}
+		void TextureBarrier(std::span<const std::pair<wis::ResourceBarrier, DX12BufferView>> barriers)noexcept
+		{
+
 		}
 
 		void ClearRenderTarget(DX12RenderTargetView rtv, std::span<const float, 4> color)noexcept
