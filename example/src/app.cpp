@@ -19,16 +19,23 @@ constexpr wis::ApplicationInfo app_info{
 };
 
 // not WinRT Compatible
-//wis::Shader LoadShader(std::filesystem::path p, wis::ShaderType type)
-//{
-//	std::basic_ifstream<std::byte> t{p, std::ios::binary};
-//	t.seekg(0, std::ios::end);
-//	size_t size = t.tellg();
-//	std::shared_ptr<std::byte[]> bytecode = std::make_shared<std::byte[]>(size);
-//	t.seekg(0);
-//	t.read(&bytecode[0], size);
-//	return wis::Shader{ std::move(bytecode), size, type };
-//}
+template<class ShaderTy>
+ShaderTy LoadShader(std::filesystem::path p, wis::ShaderType type)
+{
+	if constexpr (ShaderTy::language == wis::ShaderLang::dxil)
+		p.append(u".cso");
+	else if constexpr (ShaderTy::language == wis::ShaderLang::spirv)
+		p.append(u".spv");
+
+	std::basic_ifstream<typename ShaderTy::DataType> t{p, std::ios::binary};
+	t.seekg(0, std::ios::end);
+	size_t size = t.tellg();
+	std::shared_ptr<typename ShaderTy::DataType[]> bytecode = std::make_shared<typename ShaderTy::DataType[]>(size);
+	t.seekg(0);
+	t.read(&bytecode[0], size);
+	return ShaderTy{ std::move(bytecode), size, type };
+}
+
 template<class T>
 std::span<std::byte> RawView(T& data)
 {
@@ -77,9 +84,9 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	render_pass = device.CreateRenderPass({ &cas,1 });
 	
-	//vs = LoadShader("shaders/example.vs.cso", wis::ShaderType::vertex);
-	//ps = LoadShader("shaders/example.ps.cso", wis::ShaderType::pixel);
-	//
+	vs = LoadShader<wis::Shader>("shaders/example.vs", wis::ShaderType::vertex);
+	ps = LoadShader<wis::Shader>("shaders/example.ps", wis::ShaderType::pixel);
+	
 	//root = device.CreateRootSignature();//empty
 	
 	static constexpr std::array<wis::InputLayoutDesc, 2> ia{

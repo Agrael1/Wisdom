@@ -34,6 +34,7 @@ namespace wis
 #else
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_allocator.h>
+#include <wisdom/vulkan/vk_state_builder.h>
 
 //vulkan
 namespace wis
@@ -46,7 +47,9 @@ namespace wis
 	using CommandList = VKCommandList;
 	using Fence = VKFence;
 	using Resource = VKBuffer;
+	using Shader = VKShader;
 	using ResourceAllocator = VKResourceAllocator;
+	using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 	using RenderPass = VKRenderPass;
 }
 #endif

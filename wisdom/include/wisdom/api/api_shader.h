@@ -4,6 +4,12 @@
 
 namespace wis
 {
+	enum class ShaderLang
+	{
+		dxil,
+		spirv
+	};
+
 	enum class ShaderType
 	{
 		unknown,
@@ -17,14 +23,15 @@ namespace wis
 		compute
 	};
 
+	template<typename DataTy>
 	struct shared_blob
 	{
 	public:
 		shared_blob() = default;
-		shared_blob(std::shared_ptr<std::byte[]> data, size_t size)
+		shared_blob(std::shared_ptr<const DataTy[]> data, size_t size)
 			:data(std::move(data)), size(size){}
 	public:
-		std::span<const std::byte> GetSpan()const noexcept
+		std::span<const DataTy> GetSpan()const noexcept
 		{
 			return { data.get(), size };
 		}
@@ -33,7 +40,7 @@ namespace wis
 			return size == 0;
 		}
 	private:
-		std::shared_ptr<std::byte[]> data;
+		std::shared_ptr<const DataTy[]> data;
 		size_t size = 0;
 	};
 }

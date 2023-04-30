@@ -6,28 +6,28 @@
 
 namespace wis
 {
-	class DX12Shader;
+	class VKShader;
 
 	template<>
-	class Internal<DX12Shader>
+	class Internal<VKShader>
 	{
 	public:
-		std::span<const std::byte> GetShaderBytecode()const noexcept
+		std::span<const uint32_t> GetShaderBytecode()const noexcept
 		{
 			return bytecode.GetSpan();
 		}
 	protected:
-		wis::shared_blob<std::byte> bytecode;
+		wis::shared_blob<uint32_t> bytecode;
 	};
 
-	class DX12Shader : public QueryInternal<DX12Shader>
+	class VKShader : public QueryInternal<VKShader>
 	{
 	public:
-		using DataType = std::byte;
-		static constexpr inline ShaderLang language = ShaderLang::dxil;
+		using DataType = uint32_t;
+		static constexpr inline ShaderLang language = ShaderLang::spirv;
 	public:
-		DX12Shader() = default;
-		explicit DX12Shader(std::shared_ptr<DataType[]> xbytecode, size_t size, ShaderType type)
+		VKShader() = default;
+		explicit VKShader(std::shared_ptr<DataType[]> xbytecode, size_t size, ShaderType type)
 			:type(type)
 		{
 			bytecode = { std::move(xbytecode), size };

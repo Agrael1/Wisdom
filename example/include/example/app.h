@@ -26,10 +26,10 @@ namespace Test
 		wis::CommandList context;
 		wis::Fence fence;
 		wis::ResourceAllocator allocator;
-		//
-		//wis::Shader vs;
-		//wis::Shader ps;
-		//
+		
+		wis::Shader vs;
+		wis::Shader ps;
+		
 		//wis::RootSignature root;
 		//wis::PipelineState pipeline;
 		//wis::VertexBufferView vb;
