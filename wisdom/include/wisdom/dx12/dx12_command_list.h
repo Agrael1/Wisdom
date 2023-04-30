@@ -3,6 +3,7 @@
 #include <wisdom/api/api_barrier.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_rtv.h>
+#include <wisdom/dx12/dx12_format.h>
 #include <wisdom/dx12/dx12_resource.h>
 #include <wisdom/dx12/dx12_pipeline_state.h>
 #include <wisdom/dx12/dx12_root_signature.h>
@@ -67,26 +68,32 @@ namespace wis
 			return closed = wis::succeded_weak(command_list->Close());
 		}
 
-		[[deprecated]]
-		void ResourceBarrier(ResourceBarrier barrier, DX12BufferView resource)noexcept
+
+		//void TextureBarrier(std::initializer_list<std::pair<wis::TextureBarrier, DX12BufferView>> barriers)noexcept //strengthened
+		//{
+		//	return TextureBarrier(std::span{barriers.begin(), barriers.size()});
+		//}
+		//void TextureBarrier(std::span<const std::pair<wis::TextureBarrier, DX12BufferView>> barriers)noexcept
+		//{
+		//
+		//}
+		void TextureBarrier(wis::TextureBarrier barrier, DX12BufferView texture)noexcept
 		{
-			std::vector<CD3DX12_RESOURCE_BARRIER> rb;
-			if (barrier.type == BarrierType::transition)
-				rb = TransitionBarrier(barrier, resource);
-		
-			if (rb.empty())return;
-			command_list->ResourceBarrier(rb.size(), rb.data());
+			CD3DX12_TEXTURE_BARRIER tb
+			{
+				D3D12_BARRIER_SYNC_ALL, 
+				D3D12_BARRIER_SYNC_ALL,
+				convert_dx(barrier.access_before),
+				convert_dx(barrier.access_after),
+				convert_dx(barrier.state_before),
+				convert_dx(barrier.state_after),
+				texture,
+				CD3DX12_BARRIER_SUBRESOURCE_RANGE(barrier.base_mip_level, barrier.level_count, barrier.base_array_layer, barrier.layer_count)
+			};
+			CD3DX12_BARRIER_GROUP bg{ 1, &tb };
+			command_list->Barrier(1, &bg);
 		}
 
-
-		void TextureBarrier(std::initializer_list<std::pair<wis::ResourceBarrier, DX12BufferView>> barriers)noexcept //strengthened
-		{
-			return TextureBarrier(std::span{barriers.begin(), barriers.size()});
-		}
-		void TextureBarrier(std::span<const std::pair<wis::ResourceBarrier, DX12BufferView>> barriers)noexcept
-		{
-
-		}
 
 		void ClearRenderTarget(DX12RenderTargetView rtv, std::span<const float, 4> color)noexcept
 		{
@@ -130,33 +137,6 @@ namespace wis
 			uint32_t StartInstanceLocation = 0)noexcept
 		{
 			command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
-		}
-	private:
-		std::vector<CD3DX12_RESOURCE_BARRIER> TransitionBarrier(wis::ResourceBarrier barrier, DX12BufferView resource)noexcept
-		{
-			if (barrier.before == barrier.after)return{};
-
-			std::vector<CD3DX12_RESOURCE_BARRIER> barriers;
-			auto desc = resource->GetDesc();
-			auto before = D3D12_RESOURCE_STATES(barrier.before);
-			auto after = D3D12_RESOURCE_STATES(barrier.after);
-			auto flags = D3D12_RESOURCE_BARRIER_FLAGS(barrier.flags);
-
-			if (barrier.base_mip_level == 0 && barrier.level_count == desc.MipLevels &&
-				barrier.base_array_layer == 0 && barrier.layer_count == desc.DepthOrArraySize)
-			{
-				barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, flags));
-				return barriers;
-			}
-
-			for (uint32_t i = barrier.base_mip_level; i < barrier.base_mip_level + barrier.level_count; ++i)
-				for (uint32_t j = barrier.base_array_layer; j < barrier.base_array_layer + barrier.layer_count; ++j)
-				{
-					uint32_t subresource = i + j * desc.MipLevels;
-					barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after, subresource, flags));
-				}
-
-			return barriers;
 		}
 	private:
 		bool closed = true;

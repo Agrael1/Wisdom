@@ -78,20 +78,48 @@ namespace wis
 		}
 
 
-		void ResourceBarrier(ResourceBarrier barrier, VKTextureView texture)noexcept
+		//void TextureBarrier(std::initializer_list<std::pair<wis::TextureBarrier, VKTextureView>> barriers)noexcept //strengthened
+		//{
+		//	return TextureBarrier(std::span{barriers.begin(), barriers.size()});
+		//}
+		//void TextureBarrier(std::span<const std::pair<wis::TextureBarrier, VKTextureView>> barriers)noexcept
+		//{
+		//
+		//}
+		void TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture)noexcept
 		{
-			std::optional<vk::ImageMemoryBarrier> imb;
-			if (barrier.type == BarrierType::transition)
-				imb = TransitionBarrier(barrier, texture);
+			vk::ImageLayout vk_state_before = convert_vk(barrier.state_before);
+			vk::ImageLayout vk_state_after = convert_vk(barrier.state_after);
 
-			if (!imb)return;
+			auto acc_before = convert_vk(barrier.access_before);
+			auto acc_after = convert_vk(barrier.access_after);
+
+			if (!texture.image || (vk_state_before == vk_state_after && acc_before == acc_after))
+				return;
+
+			vk::ImageMemoryBarrier image_memory_barrier
+			{
+				acc_before,
+					acc_after,
+					vk_state_before,
+					vk_state_after,
+					VK_QUEUE_FAMILY_IGNORED,
+					VK_QUEUE_FAMILY_IGNORED,
+					texture.image,
+					vk::ImageSubresourceRange{
+						aspect_flags(texture.format),
+						barrier.base_mip_level,
+						barrier.level_count,
+						barrier.base_array_layer,
+						barrier.layer_count
+					}
+			};
 			command_list.pipelineBarrier(
 				vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
 				vk::DependencyFlagBits::eByRegion,
 				0, nullptr,
 				0, nullptr,
-				1, &imb.value());
-
+				1, &image_memory_barrier);
 		}
 
 
@@ -150,127 +178,6 @@ namespace wis
 		//{
 		//	command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 		//}
-	private:
-		std::optional<vk::ImageMemoryBarrier> TransitionBarrier(wis::ResourceBarrier barrier, VKTextureView texture)noexcept
-		{
-			vk::ImageLayout vk_state_before = convert_state(barrier.before);
-			vk::ImageLayout vk_state_after = convert_state(barrier.after);
-
-			if (!texture.image || barrier.before == barrier.after)
-				return{};
-
-
-			vk::ImageMemoryBarrier image_memory_barrier;
-			image_memory_barrier.oldLayout = vk_state_before;
-			image_memory_barrier.newLayout = vk_state_after;
-			image_memory_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			image_memory_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			image_memory_barrier.image = texture.image;
-
-			vk::ImageSubresourceRange& range = image_memory_barrier.subresourceRange;
-			range.aspectMask = aspect_flags(texture.format);
-			range.baseMipLevel = barrier.base_mip_level;
-			range.levelCount = barrier.level_count;
-			range.baseArrayLayer = barrier.base_array_layer;
-			range.layerCount = barrier.layer_count;
-
-			// Source layouts (old)
-			// Source access mask controls actions that have to be finished on the old layout
-			// before it will be transitioned to the new layout
-			switch (image_memory_barrier.oldLayout)
-			{
-			case vk::ImageLayout::eUndefined:
-				// Image layout is undefined (or does not matter)
-				// Only valid as initial layout
-				// No flags required, listed only for completeness
-				image_memory_barrier.srcAccessMask = {};
-				break;
-			case vk::ImageLayout::ePreinitialized:
-				// Image is preinitialized
-				// Only valid as initial layout for linear images, preserves memory contents
-				// Make sure host writes have been finished
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
-				break;
-			case vk::ImageLayout::eColorAttachmentOptimal:
-				// Image is a color attachment
-				// Make sure any writes to the color buffer have been finished
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-				break;
-			case vk::ImageLayout::eDepthAttachmentOptimal:
-				// Image is a depth/stencil attachment
-				// Make sure any writes to the depth/stencil buffer have been finished
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-				break;
-			case vk::ImageLayout::eTransferSrcOptimal:
-				// Image is a transfer source 
-				// Make sure any reads from the image have been finished
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
-				break;
-			case vk::ImageLayout::eTransferDstOptimal:
-				// Image is a transfer destination
-				// Make sure any writes to the image have been finished
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-				break;
-
-			case vk::ImageLayout::eShaderReadOnlyOptimal:
-				// Image is read by a shader
-				// Make sure any shader reads from the image have been finished
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
-				break;
-			case vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR:
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR;
-			default:
-				// Other source layouts aren't handled (yet)
-				break;
-			}
-
-			// Target layouts (new)
-			// Destination access mask controls the dependency for the new image layout
-			switch (image_memory_barrier.newLayout)
-			{
-			case vk::ImageLayout::eTransferDstOptimal:
-				// Image will be used as a transfer destination
-				// Make sure any writes to the image have been finished
-				image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-				break;
-
-			case vk::ImageLayout::eTransferSrcOptimal:
-				// Image will be used as a transfer source
-				// Make sure any reads from the image have been finished
-				image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
-				break;
-
-			case vk::ImageLayout::eColorAttachmentOptimal:
-				// Image will be used as a color attachment
-				// Make sure any writes to the color buffer have been finished
-				image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-				break;
-
-			case vk::ImageLayout::eDepthAttachmentOptimal:
-				// Image layout will be used as a depth/stencil attachment
-				// Make sure any writes to depth/stencil buffer have been finished
-				image_memory_barrier.dstAccessMask = image_memory_barrier.dstAccessMask | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-				break;
-
-			case vk::ImageLayout::eShaderReadOnlyOptimal:
-				// Image will be read in a shader (sampler, input attachment)
-				// Make sure any writes to the image have been finished
-				if (!image_memory_barrier.srcAccessMask)
-				{
-					image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eTransferWrite;
-				}
-				image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-				break;
-			case vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR:
-				image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR;
-				break;
-			default:
-				// Other source layouts aren't handled (yet)
-				break;
-			}
-
-			return image_memory_barrier;
-		}
 	private:
 		bool closed = true;
 	};

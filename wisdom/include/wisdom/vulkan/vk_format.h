@@ -173,28 +173,72 @@ namespace wis
 		}
 	}
 
-	inline constexpr vk::ImageLayout convert_state(ResourceState state)
+
+	inline constexpr vk::ImageLayout convert_vk(TextureState state)
 	{
-		switch (state) {
+		using enum vk::ImageLayout;
+		using enum TextureState;
+		switch (state)
+		{
+		case Undefined:
+			return eUndefined;
 		default:
-		case wis::ResourceState::common: return vk::ImageLayout::eGeneral;
-		case wis::ResourceState::render_target: return vk::ImageLayout::eColorAttachmentOptimal;
-		case wis::ResourceState::unordered_access: return vk::ImageLayout::eGeneral;
-		case wis::ResourceState::depthstencil_write: return vk::ImageLayout::eDepthStencilAttachmentOptimal;
-		case wis::ResourceState::depthstencil_read: return vk::ImageLayout::eDepthStencilReadOnlyOptimal;
-		case wis::ResourceState::non_pixel_shader_resource: return vk::ImageLayout::eShaderReadOnlyOptimal;
-		case wis::ResourceState::pixel_shader_resource: return vk::ImageLayout::eShaderReadOnlyOptimal;
-		case wis::ResourceState::copy_dest: return vk::ImageLayout::eTransferDstOptimal;
-		case wis::ResourceState::copy_source: return vk::ImageLayout::eTransferSrcOptimal;
-		case wis::ResourceState::shading_rate_source: return vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
-		case wis::ResourceState::present: return vk::ImageLayout::ePresentSrcKHR;
-		case wis::ResourceState::undefined: return vk::ImageLayout::eUndefined;
+		case Common:
+			return eGeneral;
+		case Read:
+			return eReadOnlyOptimal;
+		case RenderTarget:
+			return eColorAttachmentOptimal;
+		case DepthWrite:
+			return eDepthStencilAttachmentOptimal;
+		case DepthRead:
+			return eDepthStencilReadOnlyOptimal;
+		case ShaderResource:
+			return eShaderReadOnlyOptimal;
+		case CopySrc:
+			return eTransferSrcOptimal;
+		case CopyDst:
+			return eTransferDstOptimal;
+		case VRSSource:
+			return eFragmentShadingRateAttachmentOptimalKHR;
+		case VideoDecodeRead:
+			return eVideoDecodeSrcKHR;
+		case VideoDecodeWrite:
+			return eVideoDecodeDstKHR;
+		//case VideoEncodeRead:
+		//	return eVideoEncodeSrcKHR;
+		//case VideoEncodeWrite:
+		//	return eVideoEncodeDstKHR;
+		case Present:
+			return ePresentSrcKHR;
 		}
 	}
-	inline constexpr vk::ImageLayout convert(ResourceState state)
+	inline constexpr vk::AccessFlags convert_vk(ResourceAccess access)
 	{
-		return convert_state(state);
+		using namespace river::flags;
+		uint32_t result{};
+		if (access == ResourceAccess::Common)return vk::AccessFlags(vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
+		if (access & ResourceAccess::VertexBuffer)result |= VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+		if (access & ResourceAccess::ConstantBuffer)result |= VK_ACCESS_UNIFORM_READ_BIT;
+		if (access & ResourceAccess::IndexBuffer)result |= VK_ACCESS_INDEX_READ_BIT;
+		if (access & ResourceAccess::RenderTarget)result |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		if (access & ResourceAccess::UnorderedAccess)result |= VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+		if (access & ResourceAccess::DepthWrite)result |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		if (access & ResourceAccess::DepthRead)result |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+		if (access & ResourceAccess::ShaderResource)result |= VK_ACCESS_SHADER_READ_BIT;
+		if (access & ResourceAccess::TransformFeedback)result |= VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
+		if (access & ResourceAccess::IndirectCommandRead)result |= VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+		if (access & ResourceAccess::CopySource)result |= VK_ACCESS_TRANSFER_READ_BIT;
+		if (access & ResourceAccess::CopyDest)result |= VK_ACCESS_TRANSFER_WRITE_BIT;
+		if (access & ResourceAccess::RayTracingRead)result |= VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+		if (access & ResourceAccess::RayTracingWrite)result |= VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+		if (access & ResourceAccess::VRSSource)result |= VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
+		if (access & ResourceAccess::NoAccess)result |= VK_ACCESS_NONE;
+		return vk::AccessFlags(result);
 	}
+	
+
+
 	inline constexpr vk::AttachmentLoadOp convert(PassLoadOperation state)
 	{
 		switch (state)

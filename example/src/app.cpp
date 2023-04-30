@@ -115,8 +115,8 @@ Test::App::App(uint32_t width, uint32_t height)
 	//context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(triangleVertices));
 	//context.ResourceBarrier(wis::TransitionBarrier{
 	//	.resource = vertex_buffer,
-	//	.before = wis::ResourceState::copy_dest,
-	//	.after = wis::ResourceState::vertex_and_constant_buffer
+	//	.before = wis::TextureState::copy_dest,
+	//	.after = wis::TextureState::vertex_and_constant_buffer
 	//});
 	//context.Close();
 	//
@@ -145,9 +145,11 @@ void Test::App::Frame()
 	//auto rtv = swap.GetBackBufferRTV();
 	constexpr std::array<float, 4> color{0.0f, 0.2f, 0.4f, 1.0f};
 	
-	context.ResourceBarrier({
-		.before = wis::ResourceState::present,
-		.after = wis::ResourceState::render_target
+	context.TextureBarrier({
+		.state_before = wis::TextureState::Present,
+		.state_after = wis::TextureState::RenderTarget,
+		.access_before = wis::ResourceAccess::Common,
+		.access_after = wis::ResourceAccess::RenderTarget
 	}, back);
 	
 	//context.SetGraphicsRootSignature(root);
@@ -159,9 +161,11 @@ void Test::App::Frame()
 	//context.OMSetRenderTargets(std::array{rtv});
 	//context.DrawInstanced(3);
 	
-	context.ResourceBarrier({
-		.before = wis::ResourceState::render_target,
-		.after = wis::ResourceState::present
+	context.TextureBarrier({
+		.state_before = wis::TextureState::RenderTarget,
+		.state_after = wis::TextureState::Present,
+		.access_before = wis::ResourceAccess::RenderTarget,
+		.access_after = wis::ResourceAccess::Common,
 	}, back);
 	context.Close();
 	queue.ExecuteCommandList(context);

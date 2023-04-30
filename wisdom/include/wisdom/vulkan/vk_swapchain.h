@@ -46,7 +46,7 @@ namespace wis
 
 		vk::Queue graphics_queue;
 		vk::Queue present_queue;
-		vk::Format format;
+		vk::Format format = vk::Format::eB8G8R8A8Unorm;
 
 		vk::UniqueSemaphore graphics_semaphore;
 		vk::UniqueSemaphore present_semaphore;
@@ -73,7 +73,14 @@ namespace wis
 			{
 				back_buffers.emplace_back(
 					format, wis::shared_handle<vk::Image>{i, swap.get_parent_handle()});
-				initialization.ResourceBarrier({ .before = ResourceState::undefined, .after = ResourceState::render_target }, { i, format });
+				initialization.TextureBarrier(
+					{
+						.state_before = TextureState::Undefined,
+						.state_after = TextureState::Present,
+						.access_before = ResourceAccess::NoAccess,
+						.access_after = ResourceAccess::Common,
+					},
+					{ i, format });
 			}
 			initialization.Close();
 			present_queue.ExecuteCommandList(initialization);
