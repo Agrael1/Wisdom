@@ -105,7 +105,7 @@ set(HEADER_LIST
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_barrier.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h"  "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h"  "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h"   "include/wisdom/util/profile.h"  "include/wisdom/api/api_common.h" "include/wisdom/util/misc.h" "include/wisdom/api/api_render_pass.h")
+ "include/wisdom/api/api_adapter.h"  "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h"  "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h"   "include/wisdom/util/profile.h"  "include/wisdom/api/api_common.h" "include/wisdom/util/misc.h" "include/wisdom/api/api_render_pass.h" "include/wisdom/util/small_allocator.h")
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}

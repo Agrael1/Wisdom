@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <wisdom/global/definitions.h>
 #include <bitset>
+#include <wisdom/util/small_allocator.h>
 
 namespace wis
 {
@@ -525,8 +526,17 @@ namespace wis
 		[[nodiscard]]
 		VKPipelineState CreateGraphicsPipeline(std::span<const InputLayoutDesc> input_layout)const
 		{
-			vk::PipelineVertexInputStateCreateInfo ia{
+			wis::uniform_allocator<vk::VertexInputBindingDescription, 16> bindings;
+			wis::uniform_allocator<vk::VertexInputAttributeDescription, 16> attributes;
 
+
+
+			vk::PipelineVertexInputStateCreateInfo ia{
+				vk::PipelineVertexInputStateCreateFlagBits{},
+				uint32_t(bindings.size()),
+				bindings.get(),
+				uint32_t(attributes.size()),
+				attributes.get()
 			};
 			vk::GraphicsPipelineCreateInfo desc{
 

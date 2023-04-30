@@ -12,6 +12,7 @@ namespace wis
 
 	struct InputLayoutDesc
 	{
+		uint32_t vk_layout;
 		const char* semantic_name;
 		uint32_t semantic_index = 0u;
 		DataFormat format;

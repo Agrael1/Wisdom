@@ -90,8 +90,8 @@ Test::App::App(uint32_t width, uint32_t height)
 	//root = device.CreateRootSignature();//empty
 	
 	static constexpr std::array<wis::InputLayoutDesc, 2> ia{
-		wis::InputLayoutDesc{ "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
-		wis::InputLayoutDesc{ "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+		wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
+		wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
 	};
 	
 	//wis::GraphicsPipelineDesc desc{root};

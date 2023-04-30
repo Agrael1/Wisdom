@@ -16,6 +16,7 @@
 #include <d3dx12/d3dx12.h>
 #include <wisdom/api/api_input_layout.h>
 #include <wisdom/api/api_render_pass.h>
+#include <wisdom/util/small_allocator.h>
 
 namespace wis
 {
@@ -38,21 +39,6 @@ namespace wis
 
 	class DX12Device final : public QueryInternal<DX12Device>
 	{
-		struct PipelineStreamAllocator
-		{
-			static inline constexpr auto allocator_size = 1024;
-			alignas(void*)std::array<std::byte, allocator_size> allocator{};
-			size_t size = 0;
-
-			template<typename T>
-			T& allocate()noexcept
-			{
-				T& x = *reinterpret_cast<T*>(allocator.data() + size);
-				size += sizeof(T);
-				return x;
-			};
-
-		};
 	public:
 		DX12Device() = default;
 		DX12Device(DX12AdapterView adapter) {
@@ -173,10 +159,10 @@ namespace wis
 			D3D12_INPUT_LAYOUT_DESC iadesc{};
 			iadesc.NumElements = input_layout.size();
 
-			PipelineStreamAllocator ia;
+			uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
 			for (auto& i : input_layout)
 			{
-				ia.allocate<D3D12_INPUT_ELEMENT_DESC>() =
+				ia.allocate() =
 				{
 					.SemanticName = i.semantic_name,
 					.SemanticIndex = i.semantic_index,
@@ -187,10 +173,10 @@ namespace wis
 					.InstanceDataStepRate = i.instance_data_step_rate
 				};
 			}
-			iadesc.pInputElementDescs = reinterpret_cast<D3D12_INPUT_ELEMENT_DESC*>(ia.allocator.data());
+			iadesc.pInputElementDescs = ia.get();
 
 
-			PipelineStreamAllocator psta;
+			stack_allocator psta;
 			psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
 			psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
 
@@ -228,8 +214,8 @@ namespace wis
 				std::memcpy(rta.RTFormats, desc.target_formats.data(), desc.target_formats.size() * sizeof(DataFormat));
 				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
 			}
-			xdesc.pPipelineStateSubobjectStream = psta.allocator.data();
-			xdesc.SizeInBytes = psta.size;
+			xdesc.pPipelineStateSubobjectStream = psta.get<void>();
+			xdesc.SizeInBytes = psta.size_bytes();
 
 
 			wis::check_hresult(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()));
