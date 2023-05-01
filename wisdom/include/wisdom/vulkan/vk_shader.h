@@ -1,8 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_shader.h>
-#include <vector>
-#include <span>
+#include <wisdom/vulkan/vk_shared_handle.h>
 
 namespace wis
 {
@@ -12,12 +11,15 @@ namespace wis
 	class Internal<VKShader>
 	{
 	public:
-		std::span<const uint32_t> GetShaderBytecode()const noexcept
+		Internal() = default;
+		Internal(wis::shared_handle<vk::ShaderModule> module):module(std::move(module)) {};
+	public:
+		auto GetShaderModule()const noexcept
 		{
-			return bytecode.GetSpan();
+			return module.get();
 		}
 	protected:
-		wis::shared_blob<uint32_t> bytecode;
+		wis::shared_handle<vk::ShaderModule> module;
 	};
 
 	class VKShader : public QueryInternal<VKShader>
@@ -27,15 +29,13 @@ namespace wis
 		static constexpr inline ShaderLang language = ShaderLang::spirv;
 	public:
 		VKShader() = default;
-		explicit VKShader(std::shared_ptr<DataType[]> xbytecode, size_t size, ShaderType type)
-			:type(type)
-		{
-			bytecode = { std::move(xbytecode), size };
-		}
+		explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type)
+			:QueryInternal(std::move(module)), type(type)
+		{}
 	public:
 		operator bool()const noexcept
 		{
-			return type != ShaderType::unknown && !bytecode.empty();
+			return type != ShaderType::unknown && module;
 		}
 		auto GetType()const noexcept
 		{

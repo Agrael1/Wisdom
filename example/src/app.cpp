@@ -20,7 +20,7 @@ constexpr wis::ApplicationInfo app_info{
 
 // not WinRT Compatible
 template<class ShaderTy>
-ShaderTy LoadShader(std::filesystem::path p, wis::ShaderType type)
+auto LoadShader(std::filesystem::path p)
 {
 	if constexpr (ShaderTy::language == wis::ShaderLang::dxil)
 		p.append(u".cso");
@@ -30,10 +30,10 @@ ShaderTy LoadShader(std::filesystem::path p, wis::ShaderType type)
 	std::basic_ifstream<typename ShaderTy::DataType> t{p, std::ios::binary};
 	t.seekg(0, std::ios::end);
 	size_t size = t.tellg();
-	std::shared_ptr<typename ShaderTy::DataType[]> bytecode = std::make_shared<typename ShaderTy::DataType[]>(size);
+	wis::shared_blob<typename ShaderTy::DataType> ret{size};
 	t.seekg(0);
-	t.read(&bytecode[0], size);
-	return ShaderTy{ std::move(bytecode), size, type };
+	t.read(ret.data(), size);
+	return ret;
 }
 
 template<class T>
@@ -84,8 +84,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	render_pass = device.CreateRenderPass({ &cas,1 });
 	
-	vs = LoadShader<wis::Shader>("shaders/example.vs", wis::ShaderType::vertex);
-	ps = LoadShader<wis::Shader>("shaders/example.ps", wis::ShaderType::pixel);
+	vs = device.CreateShader(LoadShader<wis::Shader>("shaders/example.vs"), wis::ShaderType::vertex);
+	ps = device.CreateShader(LoadShader<wis::Shader>("shaders/example.ps"), wis::ShaderType::pixel);
 	
 	//root = device.CreateRootSignature();//empty
 	

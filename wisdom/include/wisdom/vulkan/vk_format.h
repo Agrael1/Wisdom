@@ -174,6 +174,10 @@ namespace wis
 	}
 
 
+	inline constexpr vk::Format convert_vk(wis::DataFormat df)
+	{
+		return vk_format(df);
+	}
 	inline constexpr vk::ImageLayout convert_vk(TextureState state)
 	{
 		using enum vk::ImageLayout;

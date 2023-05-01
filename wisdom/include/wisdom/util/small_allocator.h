@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include <array>
+#include <bitset>
 
 namespace wis
 {
@@ -56,9 +57,19 @@ namespace wis
 		{
 			return allocator.data();
 		}
+		template<class Self>
+		decltype(auto) at(this Self&& s, size_t n)noexcept
+		{
+			return s.allocator[n];
+		}
 		size_t size()const noexcept
 		{
 			return rsize;
+		}
+		void compress_free(std::bitset<max_size> map)noexcept
+		{
+			for (size_t i = rsize; i < max_size; i++)
+				if (map[i])allocator[rsize++] = allocator[i];
 		}
 	private:
 		alignas(void*)std::array<T, max_size> allocator{};

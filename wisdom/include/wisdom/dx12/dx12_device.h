@@ -223,6 +223,12 @@ namespace wis
 		}
 
 		[[nodiscard]]
+		DX12Shader CreateShader(shared_blob<std::byte> blob, ShaderType type)const noexcept
+		{
+			return DX12Shader{ std::move(blob), type };
+		}
+
+		[[nodiscard]]
 		DX12RenderPass CreateRenderPass(std::span<ColorAttachment> rtv_descs,
 			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
 			SampleCount samples = SampleCount::s1,

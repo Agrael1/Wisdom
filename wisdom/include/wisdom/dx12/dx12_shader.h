@@ -1,7 +1,6 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_shader.h>
-#include <vector>
 #include <span>
 
 namespace wis
@@ -11,6 +10,9 @@ namespace wis
 	template<>
 	class Internal<DX12Shader>
 	{
+	public:
+		Internal() = default;
+		Internal(shared_blob<std::byte> blob) :bytecode(std::move(blob)) {};
 	public:
 		std::span<const std::byte> GetShaderBytecode()const noexcept
 		{
@@ -27,11 +29,9 @@ namespace wis
 		static constexpr inline ShaderLang language = ShaderLang::dxil;
 	public:
 		DX12Shader() = default;
-		explicit DX12Shader(std::shared_ptr<DataType[]> xbytecode, size_t size, ShaderType type)
-			:type(type)
-		{
-			bytecode = { std::move(xbytecode), size };
-		}
+		explicit DX12Shader(shared_blob<std::byte> blob, ShaderType type)
+			:QueryInternal(std::move(blob)), type(type)
+		{}
 	public:
 		operator bool()const noexcept
 		{

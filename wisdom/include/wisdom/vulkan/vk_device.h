@@ -7,6 +7,7 @@
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_pipeline_state.h>
 #include <wisdom/vulkan/vk_render_pass.h>
+#include <wisdom/vulkan/vk_state_builder.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <unordered_set>
@@ -524,25 +525,61 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		VKPipelineState CreateGraphicsPipeline(std::span<const InputLayoutDesc> input_layout)const
+		VKPipelineState CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const
 		{
-			wis::uniform_allocator<vk::VertexInputBindingDescription, 16> bindings;
-			wis::uniform_allocator<vk::VertexInputAttributeDescription, 16> attributes;
+			std::bitset<max_vertex_bindings> binding_map;
+			wis::uniform_allocator<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
+			wis::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * 16> attributes;
 
+			wis::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
+			FillShaderStages(desc, shader_stages);
 
-
+			for (auto& i : input_layout)
+			{
+				auto& b = bindings.at(i.input_slot);
+				if (!binding_map[i.input_slot])
+				{
+					b.inputRate = vk::VertexInputRate(i.input_slot_class);
+					b.binding = i.input_slot;
+					b.stride = 16; // we don't care abot stride, since we bind dynamic vertex buffers
+					binding_map.set(i.input_slot);
+				}
+				auto& at = attributes.allocate();
+				at.binding = i.input_slot;
+				at.format = convert_vk(i.format);
+				at.location = i.location;
+				at.offset = i.aligned_byte_offset;
+			}
+			bindings.compress_free(binding_map);
 			vk::PipelineVertexInputStateCreateInfo ia{
 				vk::PipelineVertexInputStateCreateFlagBits{},
-				uint32_t(bindings.size()),
-				bindings.get(),
-				uint32_t(attributes.size()),
-				attributes.get()
+					uint32_t(bindings.size()),
+					bindings.get(),
+					uint32_t(attributes.size()),
+					attributes.get()
 			};
-			vk::GraphicsPipelineCreateInfo desc{
 
+
+			vk::GraphicsPipelineCreateInfo pipeline_desc{
+				vk::PipelineCreateFlags{},
+					uint32_t(shader_stages.size()),
+					shader_stages.get(), &ia
 			};
-			return VKPipelineState{ wis::shared_handle<vk::Pipeline>{device->createGraphicsPipeline(nullptr, desc).value, device} };
+			return VKPipelineState{ wis::shared_handle<vk::Pipeline>{device->createGraphicsPipeline(nullptr, pipeline_desc).value, device} };
 		}
+
+		[[nodiscard]]
+		VKShader CreateShader(wis::shared_blob<uint32_t> blob, ShaderType type)const
+		{
+			vk::ShaderModuleCreateInfo desc
+			{
+				vk::ShaderModuleCreateFlags{},
+					blob.size(),
+					blob.data()
+			};
+			return VKShader{ wis::shared_handle<vk::ShaderModule>{device->createShaderModule(desc), device}, type };
+		}
+
 	private:
 		void GetQueueFamilies(VKAdapterView adapter)noexcept
 		{
@@ -615,6 +652,7 @@ namespace wis
 					VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 					VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
 					VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+					VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
 					VK_NV_MESH_SHADER_EXTENSION_NAME,
 					VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
 			};
@@ -669,6 +707,41 @@ namespace wis
 				:
 				std::ranges::count(modes, eMailbox) ?
 				eMailbox : eImmediate;
+		}
+
+
+		void FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages)const noexcept
+		{
+			if (desc.vs)
+			{
+				auto& vs = shader_stages.allocate();
+				vs.stage = vk::ShaderStageFlagBits::eVertex;
+				vs.module = desc.vs.GetInternal().GetShaderModule();
+			}
+			if (desc.ps)
+			{
+				auto& vs = shader_stages.allocate();
+				vs.stage = vk::ShaderStageFlagBits::eFragment;
+				vs.module = desc.vs.GetInternal().GetShaderModule();
+			}
+			if (desc.gs)
+			{
+				auto& vs = shader_stages.allocate();
+				vs.stage = vk::ShaderStageFlagBits::eGeometry;
+				vs.module = desc.vs.GetInternal().GetShaderModule();
+			}
+			if (desc.hs)
+			{
+				auto& vs = shader_stages.allocate();
+				vs.stage = vk::ShaderStageFlagBits::eTessellationControl;
+				vs.module = desc.vs.GetInternal().GetShaderModule();
+			}
+			if (desc.ds)
+			{
+				auto& vs = shader_stages.allocate();
+				vs.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
+				vs.module = desc.vs.GetInternal().GetShaderModule();
+			}
 		}
 	private:
 		QueueResidency queues{};
