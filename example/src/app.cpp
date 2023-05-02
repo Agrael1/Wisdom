@@ -23,9 +23,9 @@ template<class ShaderTy>
 auto LoadShader(std::filesystem::path p)
 {
 	if constexpr (ShaderTy::language == wis::ShaderLang::dxil)
-		p.append(u".cso");
+		p+=u".cso";
 	else if constexpr (ShaderTy::language == wis::ShaderLang::spirv)
-		p.append(u".spv");
+		p+=u".spv";
 
 	std::basic_ifstream<typename ShaderTy::DataType> t{p, std::ios::binary};
 	t.seekg(0, std::ios::end);

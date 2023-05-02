@@ -33,6 +33,7 @@ if(WIN32)
 endif()
 
 add_subdirectory("VKAllocator")
+add_subdirectory("DXC")
 
 
 ##add_subdirectory("imgui")
