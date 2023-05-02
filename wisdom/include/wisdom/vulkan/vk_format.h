@@ -257,6 +257,35 @@ namespace wis
 		assert(false);
 		return vk::AttachmentLoadOp::eLoad;
 	}
+	inline constexpr vk::PrimitiveTopology convert(wis::PrimitiveTopology topology)
+	{
+		using enum vk::PrimitiveTopology;
+		switch (topology)
+		{
+		default:
+		case wis::PrimitiveTopology::undefined:
+		case wis::PrimitiveTopology::trianglelist:
+			return eTriangleList;
+		case wis::PrimitiveTopology::pointlist:
+			return ePointList;
+		case wis::PrimitiveTopology::linelist:
+			return eLineList;
+		case wis::PrimitiveTopology::linestrip:
+			return eLineStrip;
+		case wis::PrimitiveTopology::trianglestrip:
+			return eTriangleStrip;
+		case wis::PrimitiveTopology::trianglefan:
+			return eTriangleFan;
+		case wis::PrimitiveTopology::linelist_adj:
+			return eLineListWithAdjacency;
+		case wis::PrimitiveTopology::linestrip_adj:
+			return eLineStripWithAdjacency;
+		case wis::PrimitiveTopology::trianglelist_adj:
+			return eTriangleListWithAdjacency;
+		case wis::PrimitiveTopology::trianglestrip_adj:
+			return eTriangleListWithAdjacency;
+		}
+	}
 	inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
 	{
 		switch (state)

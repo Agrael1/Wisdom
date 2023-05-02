@@ -87,16 +87,16 @@ Test::App::App(uint32_t width, uint32_t height)
 	vs = device.CreateShader(LoadShader<wis::Shader>("shaders/example.vs"), wis::ShaderType::vertex);
 	ps = device.CreateShader(LoadShader<wis::Shader>("shaders/example.ps"), wis::ShaderType::pixel);
 	
-	//root = device.CreateRootSignature();//empty
+	root = device.CreateRootSignature();//empty
 	
 	static constexpr std::array<wis::InputLayoutDesc, 2> ia{
 		wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
 		wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
 	};
 	
-	//wis::GraphicsPipelineDesc desc{root};
-	//desc.SetVS(vs);
-	//desc.SetPS(ps);
+	wis::GraphicsPipelineDesc desc{root};
+	desc.SetVS(vs);
+	desc.SetPS(ps);
 	//desc.SetRenderTarget(wis::DataFormat::b8g8r8a8_unorm, 0);
 	//pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
 
@@ -158,10 +158,10 @@ void Test::App::Frame()
 		.access_after = wis::ResourceAccess::RenderTarget
 	}, back);
 	
-	//context.SetGraphicsRootSignature(root);
+	context.SetGraphicsRootSignature(root);
 	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
 	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
-	//context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
+	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	//context.ClearRenderTarget(rtv, color);
 	//context.IASetVertexBuffers({&vb, 1});
 	//context.OMSetRenderTargets(std::array{rtv});

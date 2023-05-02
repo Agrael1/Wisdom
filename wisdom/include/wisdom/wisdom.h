@@ -48,6 +48,7 @@ namespace wis
 	using Fence = VKFence;
 	using Resource = VKBuffer;
 	using Shader = VKShader;
+	using RootSignature = VKRootSignature;
 	using ResourceAllocator = VKResourceAllocator;
 	using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 	using RenderPass = VKRenderPass;

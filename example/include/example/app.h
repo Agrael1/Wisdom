@@ -30,7 +30,7 @@ namespace Test
 		wis::Shader vs;
 		wis::Shader ps;
 		
-		//wis::RootSignature root;
+		wis::RootSignature root;
 		//wis::PipelineState pipeline;
 		//wis::VertexBufferView vb;
 		//

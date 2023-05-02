@@ -8,6 +8,7 @@
 #include <wisdom/vulkan/vk_pipeline_state.h>
 #include <wisdom/vulkan/vk_render_pass.h>
 #include <wisdom/vulkan/vk_state_builder.h>
+#include <wisdom/vulkan/vk_root_signature.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <unordered_set>
@@ -525,6 +526,16 @@ namespace wis
 		}
 
 		[[nodiscard]]
+		VKRootSignature CreateRootSignature()const
+		{
+			vk::PipelineLayoutCreateInfo pipeline_layout_info
+			{
+				//empty for now
+			};
+			return VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{device->createPipelineLayout(pipeline_layout_info), device} };
+		}
+
+		[[nodiscard]]
 		VKPipelineState CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const
 		{
 			std::bitset<max_vertex_bindings> binding_map;
@@ -560,11 +571,38 @@ namespace wis
 			};
 
 
-			vk::GraphicsPipelineCreateInfo pipeline_desc{
-				vk::PipelineCreateFlags{},
-					uint32_t(shader_stages.size()),
-					shader_stages.get(), &ia
+			vk::PipelineViewportStateCreateInfo viewport_state;
+			viewport_state.viewportCount = 1;
+			viewport_state.scissorCount = 1;
+
+			wis::uniform_allocator<vk::DynamicState> dynamic_state_enables;
+			dynamic_state_enables.allocate() = vk::DynamicState::eViewport;
+			dynamic_state_enables.allocate() = vk::DynamicState::eScissor;
+			dynamic_state_enables.allocate() = vk::DynamicState::ePrimitiveTopology;
+			if (vrs_supported)
+				dynamic_state_enables.allocate() = vk::DynamicState::eFragmentShadingRateKHR;
+			
+			vk::PipelineDynamicStateCreateInfo dss
+			{
+				{}, uint32_t(dynamic_state_enables.size()),
+					dynamic_state_enables.get()
 			};
+
+
+
+			vk::GraphicsPipelineCreateInfo pipeline_desc;
+			pipeline_desc.stageCount = uint32_t(shader_stages.size());
+			pipeline_desc.pStages = shader_stages.get();
+			pipeline_desc.pVertexInputState = &ia;
+			pipeline_desc.pViewportState = &viewport_state;
+			pipeline_desc.pDynamicState = &dss;
+			//	nullptr, //dynamic
+			//	nullptr, nullptr,
+			//	nullptr, //TODO: Rasterizer!!!
+			//	nullptr, //TODO: Multisampling!!!
+			//	nullptr, //TODO: Colorblend!!!
+			
+
 			return VKPipelineState{ wis::shared_handle<vk::Pipeline>{device->createGraphicsPipeline(nullptr, pipeline_desc).value, device} };
 		}
 

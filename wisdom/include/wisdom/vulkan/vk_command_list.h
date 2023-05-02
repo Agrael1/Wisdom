@@ -2,6 +2,7 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_barrier.h>
 #include <wisdom/vulkan/vk_resource.h>
+#include <wisdom/vulkan/vk_root_signature.h>
 #include <wisdom/vulkan/vk_format.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <span>
@@ -147,12 +148,12 @@ namespace wis
 			}; // size
 			command_list.copyBuffer(source, destination, bufCopy);
 		}
-		//
-		//void SetGraphicsRootSignature(DX12RootSignatureView root)noexcept
-		//{
-		//	command_list->SetGraphicsRootSignature(root);
-		//}
-		//
+		
+		void SetGraphicsRootSignature(VKRootSignatureView root)noexcept
+		{
+			//do nothing
+		}
+		
 		void RSSetViewport(Viewport vp)noexcept
 		{
 			vk::Viewport viewport;
@@ -173,10 +174,10 @@ namespace wis
 			rect.extent.height = srect.bottom;
 			command_list.setScissor(0, 1, &rect);
 		}
-		//void IASetPrimitiveTopology(PrimitiveTopology vp)noexcept
-		//{
-		//	command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY(vp));
-		//}
+		void IASetPrimitiveTopology(PrimitiveTopology topology)noexcept
+		{
+			command_list.setPrimitiveTopology(convert(topology)); //TODO: PatchList
+		}
 		//void IASetVertexBuffers(std::span<const DX12VertexBufferView> resources, uint32_t start_slot = 0)noexcept
 		//{
 		//	command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());

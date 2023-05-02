@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/vulkan/vk_shader.h>
+#include <wisdom/vulkan/vk_root_signature.h>
 
 namespace wis
 {
@@ -7,9 +8,9 @@ namespace wis
 	{
 		friend class VKDevice;
 	public:
-		//VKGraphicsPipelineDesc(VKRootSignature sig)noexcept
-		//	:sig(std::move(sig))
-		//{}
+		VKGraphicsPipelineDesc(VKRootSignature sig)noexcept
+			:sig(std::move(sig))
+		{}
 	public:
 		VKGraphicsPipelineDesc& SetVS(VKShader vs)noexcept
 		{
@@ -66,7 +67,7 @@ namespace wis
 		//}
 
 	private:
-		//VKRootSignature sig;
+		VKRootSignature sig;
 		VKShader vs;
 		VKShader ps;
 		VKShader gs;
