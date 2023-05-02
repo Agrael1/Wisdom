@@ -30,7 +30,7 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs})
     endif()
 
     add_custom_command(TARGET compile_shaders
-        COMMAND ${dxc_EXECUTABLE} -Emain /T${shadertype}_6_5 $<IF:$<CONFIG:DEBUG>,/Od,/O3> -spirv -fspv-target-env=vulkan1.2 /I${CMAKE_CURRENT_SOURCE_DIR}/headers /Zi /Fo ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.spv ${FILE}
+        COMMAND ${dxc_EXECUTABLE} -Emain /T${shadertype}_6_1 $<IF:$<CONFIG:DEBUG>,/Od,/O3> -spirv -fspv-target-env=vulkan1.3 /I${CMAKE_CURRENT_SOURCE_DIR}/headers /Zi /Fo ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.spv ${FILE}
         MAIN_DEPENDENCY ${FILE}
         COMMENT "SPV ${FILE}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

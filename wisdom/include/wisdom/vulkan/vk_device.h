@@ -607,13 +607,13 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		VKShader CreateShader(wis::shared_blob<uint32_t> blob, ShaderType type)const
+		VKShader CreateShader(wis::shared_blob<std::byte> blob, ShaderType type)const
 		{
 			vk::ShaderModuleCreateInfo desc
 			{
 				vk::ShaderModuleCreateFlags{},
 					blob.size(),
-					blob.data()
+					(uint32_t*)blob.data()
 			};
 			return VKShader{ wis::shared_handle<vk::ShaderModule>{device->createShaderModule(desc), device}, type };
 		}
