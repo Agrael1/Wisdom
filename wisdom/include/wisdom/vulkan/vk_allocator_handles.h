@@ -234,7 +234,7 @@ namespace wis
 			{
 				control = new shared_header;
 			}
-			parent get_parent()noexcept
+			parent get_parent()const noexcept
 			{
 				return control->parent.get();
 			}
@@ -305,6 +305,10 @@ namespace wis
 			auto r = control.ref_count();
 			if (r == 1)internal_destroy();
 			return control.release();
+		}
+		auto get_parent()const noexcept
+		{
+			return control.get_parent();
 		}
 	private:
 		void internal_destroy()noexcept

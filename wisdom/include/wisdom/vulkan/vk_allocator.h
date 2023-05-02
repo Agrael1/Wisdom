@@ -62,5 +62,21 @@ namespace wis
 			auto[a,b] = allocator->createBuffer(desc, alloc);
 			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
 		}
+
+		[[nodiscard]]
+		VKBuffer CreateUploadBuffer(size_t size)
+		{
+			vk::BufferCreateInfo desc{
+				vk::BufferCreateFlags{}, size, vk::BufferUsageFlagBits::eTransferSrc,
+					vk::SharingMode::eExclusive, 0, nullptr, nullptr
+			};
+			vma::AllocationCreateInfo alloc{
+				vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto,
+					vk::MemoryPropertyFlagBits::eHostCoherent //ensure mapping does not need to be flushed
+			};
+
+			auto [a, b] = allocator->createBuffer(desc, alloc);
+			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
+		}
 	};
 }

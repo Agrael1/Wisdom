@@ -4,6 +4,7 @@
 #include <wisdom/dx12/dx12_buffer_views.h>
 #include <d3dx12/d3dx12.h>
 #include <D3D12MemAlloc.h>
+#include <winrt/base.h>
 #include <span>
 
 namespace wis
@@ -40,14 +41,14 @@ namespace wis
 			return GetResource();
 		}
 	public:
-		bool UpdateSubresource(std::span<const std::byte> data, uint32_t subresource = 0)
+		bool UpdateSubresource(std::span<const std::byte> data)
 		{
 			void* bytes = nullptr;
-			if (!wis::succeded_weak(resource->Map(subresource, nullptr, &bytes)))
+			if (!wis::succeded_weak(resource->Map(0, nullptr, &bytes)))
 				return false;			
 			
 			std::copy(data.data(), data.data() + data.size(), (std::byte*)bytes);
-			resource->Unmap(subresource, nullptr);
+			resource->Unmap(0, nullptr);
 			return true;
 		}
 		[[nodiscard]]

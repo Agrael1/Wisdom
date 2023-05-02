@@ -69,14 +69,19 @@ namespace wis
 		}
 
 
-		//void TextureBarrier(std::initializer_list<std::pair<wis::TextureBarrier, DX12BufferView>> barriers)noexcept //strengthened
-		//{
-		//	return TextureBarrier(std::span{barriers.begin(), barriers.size()});
-		//}
-		//void TextureBarrier(std::span<const std::pair<wis::TextureBarrier, DX12BufferView>> barriers)noexcept
-		//{
-		//
-		//}
+		void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer)noexcept
+		{
+			CD3DX12_BUFFER_BARRIER bb
+			{
+				D3D12_BARRIER_SYNC_ALL,
+				D3D12_BARRIER_SYNC_ALL,
+				convert_dx(barrier.access_before),
+				convert_dx(barrier.access_after),
+				buffer
+			};
+			CD3DX12_BARRIER_GROUP bg{ 1, &bb };
+			command_list->Barrier(1, &bg);
+		}
 		void TextureBarrier(wis::TextureBarrier barrier, DX12BufferView texture)noexcept
 		{
 			CD3DX12_TEXTURE_BARRIER tb

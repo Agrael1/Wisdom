@@ -55,4 +55,10 @@ namespace wis
 		uint32_t base_array_layer = 0;
 		uint32_t layer_count = 1;
 	};
+
+	struct BufferBarrier
+	{
+		ResourceAccess access_before;
+		ResourceAccess access_after;
+	};
 }

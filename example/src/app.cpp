@@ -115,21 +115,20 @@ Test::App::App(uint32_t width, uint32_t height)
 	
 	vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices));
 
-	//auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
-	//upl_vbuf.UpdateSubresource(RawView(triangleVertices));
-	//
-	//context.Reset();
-	//context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(triangleVertices));
-	//context.ResourceBarrier(wis::TransitionBarrier{
-	//	.resource = vertex_buffer,
-	//	.before = wis::TextureState::copy_dest,
-	//	.after = wis::TextureState::vertex_and_constant_buffer
-	//});
-	//context.Close();
-	//
-	//queue.ExecuteCommandList(context);
-	//WaitForGPU();
-	//
+	auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
+	upl_vbuf.UpdateSubresource(RawView(triangleVertices));
+	
+	context.Reset();
+	context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(triangleVertices));
+	context.BufferBarrier({
+		.access_before = wis::ResourceAccess::CopyDest,
+		.access_after = wis::ResourceAccess::VertexBuffer
+	}, vertex_buffer);
+	context.Close();
+	
+	queue.ExecuteCommandList(context);
+	WaitForGPU();
+	
 	//vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
 	//context.SetPipeline(pipeline);
 }

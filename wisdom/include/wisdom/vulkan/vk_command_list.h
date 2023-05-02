@@ -78,14 +78,24 @@ namespace wis
 		}
 
 
-		//void TextureBarrier(std::initializer_list<std::pair<wis::TextureBarrier, VKTextureView>> barriers)noexcept //strengthened
-		//{
-		//	return TextureBarrier(std::span{barriers.begin(), barriers.size()});
-		//}
-		//void TextureBarrier(std::span<const std::pair<wis::TextureBarrier, VKTextureView>> barriers)noexcept
-		//{
-		//
-		//}
+		void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer)noexcept
+		{
+			auto acc_before = convert_vk(barrier.access_before);
+			auto acc_after = convert_vk(barrier.access_after);
+
+			if (!buffer || acc_before == acc_after)
+				return;
+
+			vk::BufferMemoryBarrier desc
+			{
+				acc_before, acc_after, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, buffer, 0, VK_WHOLE_SIZE
+			};
+			command_list.pipelineBarrier(
+				vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
+				vk::DependencyFlagBits::eByRegion,
+				0, nullptr,
+				1, &desc, 0, nullptr);
+		}
 		void TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture)noexcept
 		{
 			vk::ImageLayout vk_state_before = convert_vk(barrier.state_before);
@@ -128,10 +138,15 @@ namespace wis
 		//	command_list->ClearRenderTargetView(rtv.GetInternal().GetHandle(), color.data(), 0, nullptr);
 		//}
 		//
-		//void CopyBuffer(DX12ResourceView source, DX12ResourceView destination, size_t data_size)noexcept
-		//{
-		//	command_list->CopyBufferRegion(destination, 0, source, 0, data_size);
-		//}
+		void CopyBuffer(VKBufferView source, VKBufferView destination, size_t data_size)noexcept
+		{
+			vk::BufferCopy bufCopy{
+				0, // srcOffset
+				0, // dstOffset,
+				data_size
+			}; // size
+			command_list.copyBuffer(source, destination, bufCopy);
+		}
 		//
 		//void SetGraphicsRootSignature(DX12RootSignatureView root)noexcept
 		//{

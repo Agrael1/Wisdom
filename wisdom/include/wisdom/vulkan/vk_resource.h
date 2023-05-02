@@ -12,7 +12,7 @@ namespace wis
 	public:
 		Internal() = default;
 		Internal(wis::shared_handle<vk::Buffer> buffer, wis::shared_handle<vma::Allocation> allocation)
-			:buffer(std::move(buffer)), allocation(std::move(allocation)){}
+			:buffer(std::move(buffer)), allocation(std::move(allocation)) {}
 	public:
 		auto GetResource()const noexcept
 		{
@@ -37,6 +37,19 @@ namespace wis
 			return GetResource();
 		}
 	public:
+		bool UpdateSubresource(std::span<const std::byte> data)
+		{
+			auto vma = allocation.get_parent();
+			auto al = allocation.get();
+			auto* mem = vma.mapMemory(al);
+			if (!mem)return false;
+
+			auto al_size = vma.getAllocationInfo(al).size;
+			auto data_size = data.size();
+			std::memcpy(mem, data.data(), data_size > al_size ? al_size : data_size);
+			vma.unmapMemory(al);
+			return true;
+		}
 		//[[nodiscard]]
 		//DX12VertexBufferView GetVertexBufferView(uint32_t byte_stride)
 		//{
