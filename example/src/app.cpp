@@ -93,12 +93,12 @@ Test::App::App(uint32_t width, uint32_t height)
 		wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
 		wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
 	};
-	
+
 	wis::GraphicsPipelineDesc desc{root};
 	desc.SetVS(vs);
 	desc.SetPS(ps);
-	//desc.SetRenderTarget(wis::DataFormat::b8g8r8a8_unorm, 0);
-	//pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
+	desc.SetRenderPass(render_pass);
+	pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
 
 	struct Vertex
 	{
@@ -130,7 +130,7 @@ Test::App::App(uint32_t width, uint32_t height)
 	WaitForGPU();
 	
 	//vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
-	//context.SetPipeline(pipeline);
+	context.SetPipeline(pipeline);
 }
 
 int Test::App::Start()

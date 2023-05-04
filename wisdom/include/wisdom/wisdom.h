@@ -49,6 +49,7 @@ namespace wis
 	using Resource = VKBuffer;
 	using Shader = VKShader;
 	using RootSignature = VKRootSignature;
+	using PipelineState = VKPipelineState;
 	using ResourceAllocator = VKResourceAllocator;
 	using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 	using RenderPass = VKRenderPass;

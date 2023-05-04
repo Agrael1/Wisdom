@@ -206,12 +206,12 @@ namespace wis
 				auto d = desc.ds.GetInternal().GetShaderBytecode();
 				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
 			}
-			if (desc.num_targets)
+			if (desc.target_formats.size())
 			{
 				D3D12_RT_FORMAT_ARRAY rta{
-					.NumRenderTargets = desc.num_targets
+					.NumRenderTargets = desc.target_formats.size()
 				};
-				std::memcpy(rta.RTFormats, desc.target_formats.data(), desc.target_formats.size() * sizeof(DataFormat));
+				std::memcpy(rta.RTFormats, desc.target_formats.get(), desc.target_formats.size() * sizeof(DataFormat));
 				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
 			}
 			xdesc.pPipelineStateSubobjectStream = psta.get<void>();
@@ -250,8 +250,12 @@ namespace wis
 				om_rtv.push_back({ 0, begin, end });
 			}
 
+			wis::uniform_allocator<DataFormat, max_render_targets> a;
+			for (auto& i : rtv_descs)
+				a.allocate() = i.format;
+
 			if (dsv_desc.format == DataFormat::unknown)
-				return DX12RenderPass{ std::move(om_rtv) };
+				return DX12RenderPass{ a, std::move(om_rtv) };
 
 
 			D3D12_RENDER_PASS_BEGINNING_ACCESS depth_begin{ convert_dx(dsv_desc.depth_load), {} };
@@ -259,7 +263,7 @@ namespace wis
 			D3D12_RENDER_PASS_BEGINNING_ACCESS stencil_begin{ convert_dx(dsv_desc.stencil_load), {} };
 			D3D12_RENDER_PASS_ENDING_ACCESS stencil_end{ convert_dx(dsv_desc.stencil_store), {} };
 
-			return DX12RenderPass{ std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
+			return DX12RenderPass{a, std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
 		}
 	};
 }

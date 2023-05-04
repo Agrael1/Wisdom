@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/vulkan/vk_shader.h>
 #include <wisdom/vulkan/vk_root_signature.h>
+#include <wisdom/vulkan/vk_render_pass.h>
 
 namespace wis
 {
@@ -52,20 +53,11 @@ namespace wis
 			}
 			return *this;
 		}
-		//VKGraphicsPipelineDesc& SetRenderTargets(std::span<const DataFormat> xtarget_formats)noexcept
-		//{
-		//	for (size_t i = 0; i < target_formats.size() && i < 8; i++)
-		//		target_formats[i] = xtarget_formats[i];
-		//	return *this;
-		//}
-		//VKGraphicsPipelineDesc& SetRenderTarget(DataFormat render_target, uint8_t slot)noexcept
-		//{
-		//	if (slot > 7)return *this;
-		//	if (target_formats[slot] == DataFormat::unknown)num_targets++;
-		//	target_formats[slot] = render_target;
-		//	return *this;
-		//}
-
+		VKGraphicsPipelineDesc& SetRenderPass(VKRenderPass pass)noexcept
+		{
+			pass = std::move(pass);
+			return *this;
+		}
 	private:
 		VKRootSignature sig;
 		VKShader vs;
@@ -73,8 +65,6 @@ namespace wis
 		VKShader gs;
 		VKShader hs;
 		VKShader ds;
-
-		uint32_t num_targets = 0;
-		//std::array<DataFormat, 8> target_formats{};
+		VKRenderPass pass;
 	};
 }

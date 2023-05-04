@@ -31,9 +31,9 @@ namespace Test
 		wis::Shader ps;
 		
 		wis::RootSignature root;
-		//wis::PipelineState pipeline;
+		wis::PipelineState pipeline;
 		//wis::VertexBufferView vb;
-		//
+		
 		wis::Resource vertex_buffer;
 		wis::RenderPass render_pass;
 		uint64_t fence_value = 1;

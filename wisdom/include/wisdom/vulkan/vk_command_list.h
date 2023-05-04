@@ -5,6 +5,7 @@
 #include <wisdom/vulkan/vk_root_signature.h>
 #include <wisdom/vulkan/vk_format.h>
 #include <wisdom/vulkan/vk_checks.h>
+#include <wisdom/vulkan/vk_pipeline_state.h>
 #include <span>
 
 
@@ -35,6 +36,7 @@ namespace wis
 	protected:
 		wis::shared_handle<vk::CommandPool> allocator;
 		vk::CommandBuffer command_list;
+		VKPipelineState pipeline; //shared
 		//winrt::com_ptr<ID3D12PipelineState> pipeline;
 	};
 
@@ -54,10 +56,10 @@ namespace wis
 			return command_list;
 		}
 	public:
-		//void SetPipeline(DX12PipelineStateView xpipeline)noexcept
-		//{
-		//	pipeline.copy_from(xpipeline);
-		//}
+		void SetPipeline(VKPipelineState xpipeline)noexcept
+		{
+			pipeline = xpipeline;
+		}
 		bool Reset()noexcept
 		{
 			Close();
@@ -65,6 +67,7 @@ namespace wis
 			vk::CommandBufferBeginInfo desc{};
 			closed = false;
 			command_list.begin(desc);
+			command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().GetPipeline());
 			return !closed;
 		}
 		[[nodiscard]] bool IsClosed()const noexcept
@@ -151,7 +154,8 @@ namespace wis
 		
 		void SetGraphicsRootSignature(VKRootSignatureView root)noexcept
 		{
-			//do nothing
+			command_list.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+				root, 0, {}, {});
 		}
 		
 		void RSSetViewport(Viewport vp)noexcept

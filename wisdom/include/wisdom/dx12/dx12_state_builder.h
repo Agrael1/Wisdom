@@ -1,7 +1,9 @@
 #pragma once
 #include <wisdom/dx12/dx12_root_signature.h>
 #include <wisdom/dx12/dx12_shader.h>
+#include <wisdom/dx12/dx12_render_pass.h>
 #include <wisdom/api/api_common.h>
+#include <wisdom/util/small_allocator.h>
 
 
 namespace wis
@@ -54,17 +56,9 @@ namespace wis
 			}
 			return *this;
 		}
-		DX12GraphicsPipelineDesc& SetRenderTargets(std::span<const DataFormat> xtarget_formats)noexcept
+		DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPass pass)noexcept
 		{
-			for (size_t i = 0; i < target_formats.size() && i < 8; i++)
-				target_formats[i] = xtarget_formats[i];
-			return *this;
-		}
-		DX12GraphicsPipelineDesc& SetRenderTarget(DataFormat render_target, uint8_t slot)noexcept
-		{
-			if (slot > 7)return *this;
-			if (target_formats[slot] == DataFormat::unknown)num_targets++;
-			target_formats[slot] = render_target;
+			target_formats = pass.GetInternal().GetTargetFormats();
 			return *this;
 		}
 
@@ -76,8 +70,7 @@ namespace wis
 		DX12Shader hs;
 		DX12Shader ds;
 
-		uint32_t num_targets = 0;
-		std::array<DataFormat, 8> target_formats{};
+		wis::uniform_allocator<DataFormat, max_render_targets> target_formats;
 	};
 
 	// TODO: Mesh and Compute pipelines

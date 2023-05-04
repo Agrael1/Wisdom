@@ -592,10 +592,13 @@ namespace wis
 
 			vk::GraphicsPipelineCreateInfo pipeline_desc;
 			pipeline_desc.stageCount = uint32_t(shader_stages.size());
+			pipeline_desc.layout = desc.sig;
+			pipeline_desc.renderPass = desc.pass.GetInternal().GetRenderPass();
 			pipeline_desc.pStages = shader_stages.get();
 			pipeline_desc.pVertexInputState = &ia;
 			pipeline_desc.pViewportState = &viewport_state;
 			pipeline_desc.pDynamicState = &dss;
+
 			//	nullptr, //dynamic
 			//	nullptr, nullptr,
 			//	nullptr, //TODO: Rasterizer!!!

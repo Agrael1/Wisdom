@@ -43,8 +43,6 @@ namespace wis
 	{
 	public:
 		uniform_allocator() = default;
-		uniform_allocator(const uniform_allocator&) = delete;
-		uniform_allocator(uniform_allocator&&) = delete;
 	public:
 		T& allocate()noexcept
 		{
