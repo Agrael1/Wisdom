@@ -129,7 +129,7 @@ Test::App::App(uint32_t width, uint32_t height)
 	queue.ExecuteCommandList(context);
 	WaitForGPU();
 	
-	//vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
+	vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
 	context.SetPipeline(pipeline);
 }
 
@@ -163,7 +163,7 @@ void Test::App::Frame()
 	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	//context.ClearRenderTarget(rtv, color);
-	//context.IASetVertexBuffers({&vb, 1});
+	context.IASetVertexBuffers({&vb, 1});
 	//context.OMSetRenderTargets(std::array{rtv});
 	//context.DrawInstanced(3);
 	

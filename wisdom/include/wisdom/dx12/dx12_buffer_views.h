@@ -1,6 +1,5 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
-#include <wisdom/dx12/dx12_resource.h>
 #include <d3d12.h>
 
 namespace wis

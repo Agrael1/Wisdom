@@ -52,6 +52,7 @@ namespace wis
 	using PipelineState = VKPipelineState;
 	using ResourceAllocator = VKResourceAllocator;
 	using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
+	using VertexBufferView = VKVertexBufferView;
 	using RenderPass = VKRenderPass;
 }
 #endif

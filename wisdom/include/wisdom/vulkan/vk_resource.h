@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
+#include <wisdom/vulkan/vk_buffer_views.h>
 
 namespace wis
 {
@@ -50,11 +51,11 @@ namespace wis
 			vma.unmapMemory(al);
 			return true;
 		}
-		//[[nodiscard]]
-		//DX12VertexBufferView GetVertexBufferView(uint32_t byte_stride)
-		//{
-		//	return DX12VertexBufferView{ D3D12_VERTEX_BUFFER_VIEW{resource->GetGPUVirtualAddress(), uint32_t(resource->GetDesc().Width), byte_stride} };
-		//}
+		[[nodiscard]]
+		VKVertexBufferView GetVertexBufferView(uint32_t byte_stride)
+		{
+			return VKVertexBufferView{ buffer.get(), allocation.get_parent().getAllocationInfo(allocation.get()).size, byte_stride };
+		}
 	};
 
 

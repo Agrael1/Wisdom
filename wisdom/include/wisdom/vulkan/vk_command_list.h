@@ -7,6 +7,7 @@
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/vulkan/vk_pipeline_state.h>
 #include <span>
+#include <wisdom/util/small_allocator.h>
 
 
 namespace wis
@@ -136,12 +137,6 @@ namespace wis
 				1, &image_memory_barrier);
 		}
 
-
-		//void ClearRenderTarget(DX12RenderTargetView rtv, std::span<const float, 4> color)noexcept
-		//{
-		//	command_list->ClearRenderTargetView(rtv.GetInternal().GetHandle(), color.data(), 0, nullptr);
-		//}
-		//
 		void CopyBuffer(VKBufferView source, VKBufferView destination, size_t data_size)noexcept
 		{
 			vk::BufferCopy bufCopy{
@@ -182,11 +177,28 @@ namespace wis
 		{
 			command_list.setPrimitiveTopology(convert(topology)); //TODO: PatchList
 		}
-		//void IASetVertexBuffers(std::span<const DX12VertexBufferView> resources, uint32_t start_slot = 0)noexcept
-		//{
-		//	command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
-		//}
-		//
+		//max 16 buffers
+		void IASetVertexBuffers(std::span<const VKVertexBufferView> resources, uint32_t start_slot = 0)noexcept
+		{
+			assert(resources.size() <= 16);
+			std::array<vk::Buffer, 16> buffers{};
+			std::array<uint32_t, 16> strides{};
+			std::array<uint32_t, 16> sizes{};
+			constexpr static std::array<uint32_t, 16> offsets{};
+
+			for (size_t i = 0; i < resources.size(); i++)
+			{
+				auto& ii = resources[i].GetInternal();
+
+				buffers[i] = ii.GetBufferWeak();
+				sizes[i] = ii.SizeBytes();
+				strides[i] = ii.StrideBytes();
+			}
+
+
+			command_list.bindVertexBuffers2(start_slot, buffers.size(),buffers.get(),)
+			//command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
+		}
 		//void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
 		//{
 		//	command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
