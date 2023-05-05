@@ -56,7 +56,7 @@ namespace wis
 			}
 			return *this;
 		}
-		DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPass pass)noexcept
+		DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPassView pass)noexcept
 		{
 			target_formats = pass.GetInternal().GetTargetFormats();
 			return *this;

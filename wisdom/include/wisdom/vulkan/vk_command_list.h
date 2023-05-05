@@ -6,6 +6,7 @@
 #include <wisdom/vulkan/vk_format.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/vulkan/vk_pipeline_state.h>
+#include <wisdom/vulkan/vk_render_pass.h>
 #include <span>
 #include <wisdom/util/small_allocator.h>
 
@@ -121,13 +122,7 @@ namespace wis
 					VK_QUEUE_FAMILY_IGNORED,
 					VK_QUEUE_FAMILY_IGNORED,
 					texture.image,
-					vk::ImageSubresourceRange{
-						aspect_flags(texture.format),
-						barrier.base_mip_level,
-						barrier.level_count,
-						barrier.base_array_layer,
-						barrier.layer_count
-					}
+					convert_vk(barrier.range, texture.format)
 			};
 			command_list.pipelineBarrier(
 				vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
@@ -182,9 +177,9 @@ namespace wis
 		{
 			assert(resources.size() <= 16);
 			std::array<vk::Buffer, 16> buffers{};
-			std::array<uint32_t, 16> strides{};
-			std::array<uint32_t, 16> sizes{};
-			constexpr static std::array<uint32_t, 16> offsets{};
+			std::array<vk::DeviceSize, 16> strides{};
+			std::array<vk::DeviceSize, 16> sizes{};
+			constexpr static std::array<vk::DeviceSize, 16> offsets{};
 
 			for (size_t i = 0; i < resources.size(); i++)
 			{
@@ -195,9 +190,36 @@ namespace wis
 				strides[i] = ii.StrideBytes();
 			}
 
-
-			command_list.bindVertexBuffers2(start_slot, buffers.size(),buffers.get(),)
-			//command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
+			command_list.bindVertexBuffers2(start_slot, uint32_t(resources.size()), buffers.data(), offsets.data(), sizes.data(), strides.data());
+		}
+		void BeginRenderPass(wis::VKRenderPassView rp)
+		{
+			vk::RenderPassBeginInfo render_pass_info{
+				rp
+			};
+			//render_pass_info.renderPass = vk_render_pass.GetRenderPass();
+			//render_pass_info.framebuffer = vk_framebuffer.GetFramebuffer();
+			//render_pass_info.renderArea.extent = vk_framebuffer.GetExtent();
+			//std::vector<vk::ClearValue> clear_values;
+			//for (size_t i = 0; i < clear_desc.colors.size(); ++i)
+			//{
+			//	auto& clear_value = clear_values.emplace_back();
+			//	clear_value.color.float32[0] = clear_desc.colors[i].r;
+			//	clear_value.color.float32[1] = clear_desc.colors[i].g;
+			//	clear_value.color.float32[2] = clear_desc.colors[i].b;
+			//	clear_value.color.float32[3] = clear_desc.colors[i].a;
+			//}
+			//clear_values.resize(vk_render_pass.GetDesc().colors.size());
+			//if (vk_render_pass.GetDesc().depth_stencil.format != gli::FORMAT_UNDEFINED)
+			//{
+			//	vk::ClearValue clear_value = {};
+			//	clear_value.depthStencil.depth = clear_desc.depth;
+			//	clear_value.depthStencil.stencil = clear_desc.stencil;
+			//	clear_values.emplace_back(clear_value);
+			//}
+			//render_pass_info.clearValueCount = clear_values.size();
+			//render_pass_info.pClearValues = clear_values.data();
+			command_list.beginRenderPass(render_pass_info, vk::SubpassContents::eInline);
 		}
 		//void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
 		//{

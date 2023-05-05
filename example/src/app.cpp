@@ -155,14 +155,14 @@ void Test::App::Frame()
 		.state_before = wis::TextureState::Present,
 		.state_after = wis::TextureState::RenderTarget,
 		.access_before = wis::ResourceAccess::Common,
-		.access_after = wis::ResourceAccess::RenderTarget
+		.access_after = wis::ResourceAccess::RenderTarget,
+		.range = wis::EntireTexture
 	}, back);
 	
 	context.SetGraphicsRootSignature(root);
 	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
 	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
-	//context.ClearRenderTarget(rtv, color);
 	context.IASetVertexBuffers({&vb, 1});
 	//context.OMSetRenderTargets(std::array{rtv});
 	//context.DrawInstanced(3);
@@ -172,6 +172,7 @@ void Test::App::Frame()
 		.state_after = wis::TextureState::Present,
 		.access_before = wis::ResourceAccess::RenderTarget,
 		.access_after = wis::ResourceAccess::Common,
+		.range = wis::EntireTexture
 	}, back);
 	context.Close();
 	queue.ExecuteCommandList(context);

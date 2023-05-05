@@ -240,7 +240,16 @@ namespace wis
 		if (access & ResourceAccess::NoAccess)result |= VK_ACCESS_NONE;
 		return vk::AccessFlags(result);
 	}
-	
+	inline constexpr vk::ImageSubresourceRange convert_vk(wis::SubresourceRange range, vk::Format format)
+	{
+		return 	vk::ImageSubresourceRange{
+			aspect_flags(format),
+				range.base_mip,
+				range.extent_mips,
+				range.base_layer,
+				range.extent_layers
+		};
+	}
 
 
 	inline constexpr vk::AttachmentLoadOp convert(PassLoadOperation state)

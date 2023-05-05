@@ -581,7 +581,7 @@ namespace wis
 			dynamic_state_enables.allocate() = vk::DynamicState::ePrimitiveTopology;
 			if (vrs_supported)
 				dynamic_state_enables.allocate() = vk::DynamicState::eFragmentShadingRateKHR;
-			
+
 			vk::PipelineDynamicStateCreateInfo dss
 			{
 				{}, uint32_t(dynamic_state_enables.size()),
@@ -604,7 +604,7 @@ namespace wis
 			//	nullptr, //TODO: Rasterizer!!!
 			//	nullptr, //TODO: Multisampling!!!
 			//	nullptr, //TODO: Colorblend!!!
-			
+
 
 			return VKPipelineState{ wis::shared_handle<vk::Pipeline>{device->createGraphicsPipeline(nullptr, pipeline_desc).value, device} };
 		}
@@ -620,6 +620,18 @@ namespace wis
 			};
 			return VKShader{ wis::shared_handle<vk::ShaderModule>{device->createShaderModule(desc), device}, type };
 		}
+
+		auto CreateRenderTargetView(VKTextureView texture, SubresourceRange range = wis::EntireTexture)const
+		{
+			vk::ImageViewCreateInfo desc{
+				vk::ImageViewCreateFlags{},
+					texture.image, vk::ImageViewType::e2DArray,
+					texture.format, {},
+					convert_vk(range, texture.format)
+			};
+			device->createImageView(desc);
+		}
+
 
 	private:
 		void GetQueueFamilies(VKAdapterView adapter)noexcept

@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include <wisdom/api/api_common.h>
 
 namespace wis
 {
@@ -49,11 +49,7 @@ namespace wis
 		TextureState state_after;
 		ResourceAccess access_before;
 		ResourceAccess access_after;
-
-		uint32_t base_mip_level = 0;
-		uint32_t level_count = 1;
-		uint32_t base_array_layer = 0;
-		uint32_t layer_count = 1;
+		SubresourceRange range{};
 	};
 
 	struct BufferBarrier

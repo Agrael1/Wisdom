@@ -25,6 +25,8 @@ namespace wis
 	template<>
 	class Internal<DX12Device>
 	{
+	protected:
+		static inline constexpr auto heap_size = 128u;
 		static constexpr inline bool valid = true;
 	public:
 		[[nodiscard]]
@@ -33,6 +35,10 @@ namespace wis
 		}
 	protected:
 		winrt::com_ptr<ID3D12Device10> device{};
+
+		winrt::com_ptr<ID3D12DescriptorHeap> rtv_heap{};
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_start;
+		uint32_t rtv_increment = 0;
 	};
 	using DX12DeviceView = ID3D12Device10*;
 
@@ -42,13 +48,22 @@ namespace wis
 	public:
 		DX12Device() = default;
 		DX12Device(DX12AdapterView adapter) {
-			wis::check_hresult(D3D12CreateDevice(adapter,
-				D3D_FEATURE_LEVEL_11_0, __uuidof(*device), device.put_void()));
+			Initialize(adapter);
 		};
 	public:
 		bool Initialize(DX12AdapterView adapter)noexcept {
-			return wis::succeded(D3D12CreateDevice(adapter,
-				D3D_FEATURE_LEVEL_11_0, __uuidof(*device), device.put_void()));
+			if (!wis::succeded(D3D12CreateDevice(adapter,
+				D3D_FEATURE_LEVEL_11_0, __uuidof(*device), device.put_void())))
+				return false;
+
+			// Describe and create a render target view (RTV) descriptor heap.
+			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+			rtvHeapDesc.NumDescriptors = heap_size;
+			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			wis::check_hresult(device->CreateDescriptorHeap(&rtvHeapDesc, __uuidof(*rtv_heap), rtv_heap.put_void()));
+			rtv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
 		}
 		explicit operator bool()const noexcept
 		{
@@ -90,7 +105,7 @@ namespace wis
 				break;
 			}
 
-			return DX12SwapChain{ std::move(chain), options.frame_count };
+			return DX12SwapChain{ std::move(chain) ,options.frame_count };
 		}
 
 		[[nodiscard]]
@@ -209,7 +224,7 @@ namespace wis
 			if (desc.target_formats.size())
 			{
 				D3D12_RT_FORMAT_ARRAY rta{
-					.NumRenderTargets = desc.target_formats.size()
+					.NumRenderTargets = uint32_t(desc.target_formats.size())
 				};
 				std::memcpy(rta.RTFormats, desc.target_formats.get(), desc.target_formats.size() * sizeof(DataFormat));
 				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
@@ -263,7 +278,16 @@ namespace wis
 			D3D12_RENDER_PASS_BEGINNING_ACCESS stencil_begin{ convert_dx(dsv_desc.stencil_load), {} };
 			D3D12_RENDER_PASS_ENDING_ACCESS stencil_end{ convert_dx(dsv_desc.stencil_store), {} };
 
-			return DX12RenderPass{a, std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
+			return DX12RenderPass{ a, std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
+		}
+
+		[[nodiescard]] //TODO:finish
+		DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture)
+		{
+			device->CreateRenderTargetView(texture, nullptr, rtv_start);
+			DX12RenderTargetView rtvm{ rtv_start };
+			rtv_start.Offset(1, rtv_increment);
+			return rtvm;
 		}
 	};
 }

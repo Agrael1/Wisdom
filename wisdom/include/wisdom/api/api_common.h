@@ -346,4 +346,14 @@ namespace wis
 		Flags flags = Flags::none;
 		uint32_t node_mask = 0;
 	};
+
+	struct SubresourceRange
+	{
+		static constexpr inline uint32_t whole = ~0u;
+		uint32_t base_mip = 0;
+		uint32_t extent_mips = 1;
+		uint32_t base_layer = 0;
+		uint32_t extent_layers = 1;
+	};
+	constexpr inline SubresourceRange EntireTexture{0, SubresourceRange::whole, 0, SubresourceRange::whole };
 }

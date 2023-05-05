@@ -115,18 +115,6 @@ namespace wis
 			return back_buffers[present_index];
 		}
 
-		// under the question
-		[[nodiscard]]
-		VKRenderTargetView GetRTV(size_t frame)const noexcept
-		{
-
-		}
-		[[nodiscard]]
-		VKRenderTargetView GetBackBufferRTV()const noexcept
-		{
-
-		}
-
 		bool Present()noexcept
 		{
 			vk::Semaphore a = graphics_semaphore.get();

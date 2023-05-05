@@ -57,4 +57,23 @@ namespace wis
 			return DX12VertexBufferView{ D3D12_VERTEX_BUFFER_VIEW{resource->GetGPUVirtualAddress(), uint32_t(resource->GetDesc().Width), byte_stride}};
 		}
 	};
+	
+
+	using DX12TextureView = ID3D12Resource*;
+	class DX12Texture : public QueryInternal<DX12Buffer>
+	{
+	public:
+		DX12Texture() = default;
+		explicit DX12Texture(winrt::com_ptr<ID3D12Resource> rc, winrt::com_ptr<D3D12MA::Allocation> al)
+		{
+			resource = std::move(rc);
+			allocation = std::move(al);
+		}
+		operator DX12TextureView()const noexcept
+		{
+			return GetResource();
+		}
+	};
+
+
 }

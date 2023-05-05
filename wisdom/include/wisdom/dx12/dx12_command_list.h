@@ -7,6 +7,7 @@
 #include <wisdom/dx12/dx12_resource.h>
 #include <wisdom/dx12/dx12_pipeline_state.h>
 #include <wisdom/dx12/dx12_root_signature.h>
+#include <wisdom/dx12/dx12_render_pass.h>
 #include <d3d12.h>
 #include <span>
 #include <wisdom/api/api_common.h>
@@ -82,8 +83,9 @@ namespace wis
 			CD3DX12_BARRIER_GROUP bg{ 1, &bb };
 			command_list->Barrier(1, &bg);
 		}
-		void TextureBarrier(wis::TextureBarrier barrier, DX12BufferView texture)noexcept
+		void TextureBarrier(wis::TextureBarrier barrier, DX12TextureView texture)noexcept
 		{
+			auto r = barrier.range;
 			CD3DX12_TEXTURE_BARRIER tb
 			{
 				D3D12_BARRIER_SYNC_ALL, 
@@ -93,16 +95,11 @@ namespace wis
 				convert_dx(barrier.state_before),
 				convert_dx(barrier.state_after),
 				texture,
-				CD3DX12_BARRIER_SUBRESOURCE_RANGE(barrier.base_mip_level, barrier.level_count, barrier.base_array_layer, barrier.layer_count)
+				r.extent_mips == r.whole? CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.whole):
+				CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.base_mip, r.extent_mips, r.base_layer, r.extent_layers)
 			};
 			CD3DX12_BARRIER_GROUP bg{ 1, &tb };
 			command_list->Barrier(1, &bg);
-		}
-
-
-		void ClearRenderTarget(DX12RenderTargetView rtv, std::span<const float, 4> color)noexcept
-		{
-			command_list->ClearRenderTargetView(rtv.GetInternal().GetHandle(), color.data(), 0, nullptr);
 		}
 
 		void CopyBuffer(DX12BufferView source, DX12BufferView destination, size_t data_size)noexcept
@@ -130,6 +127,14 @@ namespace wis
 		void IASetVertexBuffers(std::span<const DX12VertexBufferView> resources, uint32_t start_slot = 0)noexcept
 		{
 			command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
+		}
+
+		//TODO: fill framebuffer
+		void BeginRenderPass(DX12RenderPassView pass)
+		{
+			auto& i = pass.GetInternal();
+			auto rts = i.GetRTDescs();
+			command_list->BeginRenderPass(rts.size(), rts.data(), i.GetDSDesc(), D3D12_RENDER_PASS_FLAG_NONE);
 		}
 
 		void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept

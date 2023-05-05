@@ -22,15 +22,19 @@ namespace wis
 		wis::shared_handle<vk::RenderPass> rp;
 	};
 
+	using VKRenderPassView = vk::RenderPass;
+
 	class VKRenderPass : public QueryInternal<VKRenderPass>
 	{
 	public:
 		VKRenderPass() = default;
 		explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp)
 			:QueryInternal(std::move(rp))
-		{
-
-		};
+		{}
 	public:
+		operator VKRenderPassView()const noexcept
+		{
+			return GetRenderPass();
+		}
 	};
 }

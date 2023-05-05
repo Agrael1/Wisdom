@@ -41,6 +41,8 @@ namespace wis
 		mutable std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc;
 	};
 
+	using DX12RenderPassView = const DX12RenderPass&; //rp is too large
+
 	class DX12RenderPass : public QueryInternal<DX12RenderPass>
 	{
 	public:
