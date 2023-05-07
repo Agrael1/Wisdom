@@ -356,4 +356,24 @@ namespace wis
 		uint32_t extent_layers = 1;
 	};
 	constexpr inline SubresourceRange EntireTexture{0, SubresourceRange::whole, 0, SubresourceRange::whole };
+
+
+	enum class TextureType
+	{
+		T1D = 2,
+		T1DARRAY = 3,
+		T2D = 4,
+		T2DARRAY = 5,
+		T2DMS = 6,
+		T2DMSARRAY = 7,
+		T3D = 8
+	};
+	struct RenderSelector
+	{
+		TextureType type = TextureType::T2DARRAY;
+		uint32_t mip = 0;
+		uint32_t base_layer = 0;
+		uint32_t extent_layers = 1;
+	};
+
 }

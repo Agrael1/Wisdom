@@ -281,10 +281,21 @@ namespace wis
 			return DX12RenderPass{ a, std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
 		}
 
-		[[nodiescard]] //TODO:finish
-		DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture)
+		[[nodiescard]] //TODO: other formats, better allocator
+		DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture, RenderSelector range = {})
 		{
-			device->CreateRenderTargetView(texture, nullptr, rtv_start);
+			D3D12_RENDER_TARGET_VIEW_DESC desc
+			{
+				.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN,
+				.ViewDimension = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
+				.Texture2DArray{
+				.MipSlice = range.mip,
+					.FirstArraySlice = range.base_layer,
+					.ArraySize = range.extent_layers,
+					.PlaneSlice = 0
+				}
+			};
+			device->CreateRenderTargetView(texture, &desc, rtv_start);
 			DX12RenderTargetView rtvm{ rtv_start };
 			rtv_start.Offset(1, rtv_increment);
 			return rtvm;

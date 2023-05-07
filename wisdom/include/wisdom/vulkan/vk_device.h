@@ -427,8 +427,10 @@ namespace wis
 			SampleCount samples = SampleCount::s1,
 			DataFormat vrs_format = DataFormat::unknown)const
 		{
-			std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions;
-			std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references;
+			std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions{};
+			std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references{};
+			wis::uniform_allocator<vk::FramebufferAttachmentImageInfo, max_render_targets + 2> image_md;
+
 			size_t size = 0;
 
 			for (auto& i : rtv_descs)
@@ -450,6 +452,11 @@ namespace wis
 
 				ref.attachment = size - 1;
 				ref.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+
+				image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment,
+					i.width, i.height, i.array_levels, 1u, & desc.format);
+
 				if (size == 8)break;
 			}
 
@@ -463,24 +470,24 @@ namespace wis
 			{
 				auto& desc = attachment_descriptions[size];
 				auto& ref = attachment_references[size++];
-				if (dsv_desc.format == DataFormat::unknown)
-				{
-					ref.attachment = VK_ATTACHMENT_UNUSED;
-				}
-				else
-				{
-					desc.format = vk_format(dsv_desc.format);
-					desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
-					desc.loadOp = convert(dsv_desc.depth_load);
-					desc.storeOp = convert(dsv_desc.depth_store);
-					desc.initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-					desc.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-					desc.stencilLoadOp = convert(dsv_desc.stencil_load);
-					desc.stencilStoreOp = convert(dsv_desc.stencil_store);
 
-					ref.attachment = size - 1;
-					ref.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-				}
+				desc.format = vk_format(dsv_desc.format);
+				desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
+				desc.loadOp = convert(dsv_desc.depth_load);
+				desc.storeOp = convert(dsv_desc.depth_store);
+				desc.initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+				desc.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+				desc.stencilLoadOp = convert(dsv_desc.stencil_load);
+				desc.stencilStoreOp = convert(dsv_desc.stencil_store);
+
+				ref.attachment = size - 1;
+				ref.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+				image_md.allocate(
+					vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eDepthStencilAttachment,
+					dsv_desc.width, dsv_desc.height, 1u, 1u, & desc.format
+				);
+
 				sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
 			}
 
@@ -522,7 +529,20 @@ namespace wis
 			render_pass_info.subpassCount = 1;
 			render_pass_info.pSubpasses = &sub_pass;
 
-			return VKRenderPass{ wis::shared_handle<vk::RenderPass>{device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device} };
+
+			vk::FramebufferAttachmentsCreateInfo attachments_create_info;
+			attachments_create_info.attachmentImageInfoCount = image_md.size();
+			attachments_create_info.pAttachmentImageInfos = image_md.get();
+
+			vk::FramebufferCreateInfo desc{
+				vk::FramebufferCreateFlagBits::eImageless
+			};
+			desc.pNext = &attachments_create_info;
+
+			return VKRenderPass{ 
+				wis::shared_handle<vk::RenderPass>{device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device},
+				wis::shared_handle<vk::Framebuffer>{device->createFramebuffer(desc), device}
+			};
 		}
 
 		[[nodiscard]]
@@ -621,17 +641,20 @@ namespace wis
 			return VKShader{ wis::shared_handle<vk::ShaderModule>{device->createShaderModule(desc), device}, type };
 		}
 
-		auto CreateRenderTargetView(VKTextureView texture, SubresourceRange range = wis::EntireTexture)const
+		auto CreateRenderTargetView(VKTextureView texture, RenderSelector range = {})const
 		{
 			vk::ImageViewCreateInfo desc{
 				vk::ImageViewCreateFlags{},
 					texture.image, vk::ImageViewType::e2DArray,
 					texture.format, {},
-					convert_vk(range, texture.format)
+					vk::ImageSubresourceRange{
+					aspect_flags(texture.format),
+						range.mip, 1u,
+						range.base_layer, range.extent_layers,
+				}
 			};
-			device->createImageView(desc);
+			return VKRenderTargetView{ wis::shared_handle{device->createImageView(desc), device} };
 		}
-
 
 	private:
 		void GetQueueFamilies(VKAdapterView adapter)noexcept

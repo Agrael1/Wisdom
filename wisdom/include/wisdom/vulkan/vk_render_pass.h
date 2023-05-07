@@ -11,8 +11,8 @@ namespace wis
 	{
 	public:
 		Internal() = default;
-		Internal(wis::shared_handle<vk::RenderPass> rp)
-			:rp(std::move(rp)){}
+		Internal(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame)
+			:rp(std::move(rp)), frame(std::move(frame)){}
 	public:
 		auto GetRenderPass()const noexcept
 		{
@@ -20,6 +20,7 @@ namespace wis
 		}
 	private:
 		wis::shared_handle<vk::RenderPass> rp;
+		wis::shared_handle<vk::Framebuffer> frame;
 	};
 
 	using VKRenderPassView = vk::RenderPass;
@@ -28,8 +29,8 @@ namespace wis
 	{
 	public:
 		VKRenderPass() = default;
-		explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp)
-			:QueryInternal(std::move(rp))
+		explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame)
+			:QueryInternal(std::move(rp), std::move(frame))
 		{}
 	public:
 		operator VKRenderPassView()const noexcept

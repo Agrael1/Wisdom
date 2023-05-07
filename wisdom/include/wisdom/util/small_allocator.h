@@ -44,9 +44,10 @@ namespace wis
 	public:
 		uniform_allocator() = default;
 	public:
-		T& allocate()noexcept
+		template<typename ...Args>
+		T& allocate(Args&&... args)noexcept
 		{
-			T* x = allocator.data() + rsize;
+			T* x = new(allocator.data() + rsize)T(std::forward<Args>(args)...);
 			rsize++;
 			assert(rsize <= max_size);
 			return *x;

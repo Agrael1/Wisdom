@@ -81,7 +81,7 @@ namespace wis
 		vk::Format format;
 	};
 
-	using VKTextureView = struct { vk::Image image; vk::Format format; };
+	using VKTextureView = struct { vk::Image image; vk::Format format; uint32_t width; uint32_t height;	};
 
 	class VKTexture : public QueryInternal<VKTexture>
 	{
@@ -92,13 +92,15 @@ namespace wis
 		{}
 		operator VKTextureView()const noexcept
 		{
-			return { GetResource(), format };
+			return { GetResource(), format, width, height };
 		}
 	public:
-		//[[nodiscard]]
-		//DX12VertexBufferView GetVertexBufferView(uint32_t byte_stride)
-		//{
-		//	return DX12VertexBufferView{ D3D12_VERTEX_BUFFER_VIEW{resource->GetGPUVirtualAddress(), uint32_t(resource->GetDesc().Width), byte_stride} };
-		//}
+		std::pair<uint32_t, uint32_t> GetSize()const noexcept
+		{
+			return{ width, height };
+		}
+	protected:
+		uint32_t width;
+		uint32_t height;
 	};
 }
