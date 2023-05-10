@@ -31,8 +31,6 @@ namespace wis
 		DataFormat format = DataFormat::unknown;
 		PassLoadOperation load = PassLoadOperation::load;
 		PassStoreOperation store = PassStoreOperation::store;
-		uint32_t width;
-		uint32_t height;
 		uint32_t array_levels = 1;
 	};
 
@@ -43,8 +41,6 @@ namespace wis
 		PassStoreOperation depth_store = PassStoreOperation::store;
 		PassLoadOperation stencil_load = PassLoadOperation::load;
 		PassStoreOperation stencil_store = PassStoreOperation::store;
-		uint32_t width;
-		uint32_t height;
 	};
 
 	

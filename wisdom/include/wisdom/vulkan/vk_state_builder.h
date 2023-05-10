@@ -55,7 +55,7 @@ namespace wis
 		}
 		VKGraphicsPipelineDesc& SetRenderPass(VKRenderPass pass)noexcept
 		{
-			pass = std::move(pass);
+			this->pass = std::move(pass);
 			return *this;
 		}
 	private:

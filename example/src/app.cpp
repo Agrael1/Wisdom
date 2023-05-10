@@ -82,7 +82,7 @@ Test::App::App(uint32_t width, uint32_t height)
 		.format = wis::SwapchainOptions::default_format,
 	};
 
-	render_pass = device.CreateRenderPass({ &cas,1 });
+	render_pass = device.CreateRenderPass({width, height}, {&cas,1});
 	
 	vs = device.CreateShader(LoadShader<wis::Shader>("shaders/example.vs"), wis::ShaderType::vertex);
 	ps = device.CreateShader(LoadShader<wis::Shader>("shaders/example.ps"), wis::ShaderType::pixel);
@@ -113,7 +113,7 @@ Test::App::App(uint32_t width, uint32_t height)
 		{ { -0.25f, -0.25f * aspect_ratio , 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
 	};
 	
-	vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices));
+	vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
 
 	auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
 	upl_vbuf.UpdateSubresource(RawView(triangleVertices));

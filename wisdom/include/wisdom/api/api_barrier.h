@@ -42,6 +42,13 @@ namespace wis
 		NoAccess = 0x80000000 //VK_ACCESS_NONE
 	};
 
+	enum class BufferFlags : uint32_t
+	{
+		None = 0,
+		ConstantBuffer = 0x10, //VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+		VertexBuffer = 0x80, //VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+	};
+
 	//Basic texture barrier TODO: advanced sync
 	struct TextureBarrier
 	{

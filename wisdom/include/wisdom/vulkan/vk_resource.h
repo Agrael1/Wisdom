@@ -12,16 +12,25 @@ namespace wis
 	{
 	public:
 		Internal() = default;
-		Internal(wis::shared_handle<vk::Buffer> buffer, wis::shared_handle<vma::Allocation> allocation)
-			:buffer(std::move(buffer)), allocation(std::move(allocation)) {}
+		Internal(wis::shared_handle<vk::Buffer> buffer, wis::shared_handle<vma::Allocation> allocation, vk::DeviceSize size)
+			:buffer(std::move(buffer)), allocation(std::move(allocation)), size(size) {}
 	public:
 		auto GetResource()const noexcept
 		{
 			return buffer.get();
 		}
+		auto GetAllocation()const noexcept
+		{
+			return allocation.get();
+		}
+		auto GetSize()const noexcept
+		{
+			return size;
+		}
 	protected:
 		wis::shared_handle<vma::Allocation> allocation; //order mandated
 		wis::shared_handle<vk::Buffer> buffer;
+		vk::DeviceSize size = 0u;
 	};
 
 	using VKBufferView = vk::Buffer;
@@ -30,31 +39,30 @@ namespace wis
 	{
 	public:
 		VKBuffer() = default;
-		explicit VKBuffer(wis::shared_handle<vk::Buffer> buffer, wis::shared_handle<vma::Allocation> allocation)
-			:QueryInternal(std::move(buffer), std::move(allocation))
+		explicit VKBuffer(wis::shared_handle<vk::Buffer> buffer, wis::shared_handle<vma::Allocation> allocation, size_t size)
+			:QueryInternal(std::move(buffer), std::move(allocation), size)
 		{}
 		operator VKBufferView()const noexcept
 		{
 			return GetResource();
 		}
 	public:
-		bool UpdateSubresource(std::span<const std::byte> data)
+		bool UpdateSubresource(std::span<const std::byte> data)noexcept
 		{
 			auto vma = allocation.get_parent();
 			auto al = allocation.get();
 			auto* mem = vma.mapMemory(al);
 			if (!mem)return false;
 
-			auto al_size = vma.getAllocationInfo(al).size;
 			auto data_size = data.size();
-			std::memcpy(mem, data.data(), data_size > al_size ? al_size : data_size);
+			std::memcpy(mem, data.data(), data_size > size ? size : data_size);
 			vma.unmapMemory(al);
 			return true;
 		}
 		[[nodiscard]]
-		VKVertexBufferView GetVertexBufferView(uint32_t byte_stride)
+		VKVertexBufferView GetVertexBufferView(uint32_t byte_stride)const noexcept
 		{
-			return VKVertexBufferView{ buffer.get(), allocation.get_parent().getAllocationInfo(allocation.get()).size, byte_stride };
+			return VKVertexBufferView{ buffer.get(), size, byte_stride };
 		}
 	};
 
@@ -81,7 +89,7 @@ namespace wis
 		vk::Format format;
 	};
 
-	using VKTextureView = struct { vk::Image image; vk::Format format; uint32_t width; uint32_t height;	};
+	using VKTextureView = struct { vk::Image image; vk::Format format; };
 
 	class VKTexture : public QueryInternal<VKTexture>
 	{
@@ -92,15 +100,7 @@ namespace wis
 		{}
 		operator VKTextureView()const noexcept
 		{
-			return { GetResource(), format, width, height };
+			return { GetResource(), format };
 		}
-	public:
-		std::pair<uint32_t, uint32_t> GetSize()const noexcept
-		{
-			return{ width, height };
-		}
-	protected:
-		uint32_t width;
-		uint32_t height;
 	};
 }

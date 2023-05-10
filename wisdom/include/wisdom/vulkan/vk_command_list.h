@@ -69,7 +69,8 @@ namespace wis
 			vk::CommandBufferBeginInfo desc{};
 			closed = false;
 			command_list.begin(desc);
-			command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().GetPipeline());
+			if(pipeline)
+				command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().GetPipeline());
 			return !closed;
 		}
 		[[nodiscard]] bool IsClosed()const noexcept
@@ -144,8 +145,8 @@ namespace wis
 		
 		void SetGraphicsRootSignature(VKRootSignatureView root)noexcept
 		{
-			command_list.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-				root, 0, {}, {});
+			//command_list.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+			//	root, 0, {}, {});
 		}
 		
 		void RSSetViewport(Viewport vp)noexcept
@@ -172,6 +173,7 @@ namespace wis
 		{
 			command_list.setPrimitiveTopology(convert(topology)); //TODO: PatchList
 		}
+
 		//max 16 buffers
 		void IASetVertexBuffers(std::span<const VKVertexBufferView> resources, uint32_t start_slot = 0)noexcept
 		{
@@ -194,8 +196,12 @@ namespace wis
 		}
 		void BeginRenderPass(wis::VKRenderPassView rp)
 		{
+			vk::RenderPassAttachmentBeginInfo attachment_begin_info
+			{
+
+			};
 			vk::RenderPassBeginInfo render_pass_info{
-				rp
+				rp.pass,rp.frame,
 			};
 			//render_pass_info.renderPass = vk_render_pass.GetRenderPass();
 			//render_pass_info.framebuffer = vk_framebuffer.GetFramebuffer();

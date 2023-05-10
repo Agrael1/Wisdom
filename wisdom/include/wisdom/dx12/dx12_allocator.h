@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/dx12/dx12_device.h>
 #include <D3D12MemAlloc.h>
+#include <wisdom/api/api_barrier.h>
 
 namespace wis
 {
@@ -36,16 +37,22 @@ namespace wis
 		}
 	public:
 		[[nodiscard]]
-		DX12Buffer CreatePersistentBuffer(size_t size)
+		DX12Buffer CreatePersistentBuffer(size_t size, BufferFlags flags = BufferFlags::None)
 		{
+			using namespace river::flags;
 			winrt::com_ptr<ID3D12Resource> rc;
 			winrt::com_ptr<D3D12MA::Allocation> al;
-			auto desc = CD3DX12_RESOURCE_DESC::Buffer(size);
+			auto desc = CD3DX12_RESOURCE_DESC1::Buffer(size);
 			D3D12MA::ALLOCATION_DESC all_desc = {};
 			all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
-			allocator->CreateResource(&all_desc, &desc,
-				D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+			D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
+
+			if(flags & BufferFlags::VertexBuffer || flags & BufferFlags::ConstantBuffer)
+				state |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+
+			allocator->CreateResource2(&all_desc, &desc,
+				state, nullptr,
 				al.put(), __uuidof(*rc), rc.put_void());
 
 			return DX12Buffer{ std::move(rc), std::move(al)};

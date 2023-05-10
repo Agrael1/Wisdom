@@ -376,4 +376,12 @@ namespace wis
 		uint32_t extent_layers = 1;
 	};
 
+
+	/// Size of a texture in pixels
+	struct Size2D
+	{
+		Size2D(uint32_t w, uint32_t h) : width(w), height(h) {}
+		uint32_t width; //< Width of the texture in pixels
+		uint32_t height; //< Height of the texture in pixels
+	};
 }

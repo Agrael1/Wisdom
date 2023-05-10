@@ -46,8 +46,27 @@ namespace wis
 
 	class VKDevice : public QueryInternal<VKDevice>
 	{
+		constexpr static inline std::array required_extensions{
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+			VK_KHR_RAY_QUERY_EXTENSION_NAME,
+			VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+			VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+			VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+			VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+			VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+			VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+			VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME,
+			VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+			VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
+			VK_NV_MESH_SHADER_EXTENSION_NAME,
+			VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+		};
 		static inline constexpr const auto max_count = 4;
-		static inline constexpr const auto max_ext_count = 16;
 		struct QueueInfo
 		{
 			uint32_t index;
@@ -183,7 +202,7 @@ namespace wis
 				queue_count++;
 			}
 
-			auto [exts, e_cnt] = RequestExtensions(adapter);
+			auto exts = RequestExtensions(adapter);
 
 			void* device_create_info_next = nullptr;
 			auto add_extension = [&](auto& extension)
@@ -263,6 +282,7 @@ namespace wis
 			device_vulkan12_features.timelineSemaphore = true;
 			device_vulkan12_features.runtimeDescriptorArray = true;
 			device_vulkan12_features.descriptorBindingVariableDescriptorCount = true;
+			device_vulkan12_features.imagelessFramebuffer = true;
 			add_extension(device_vulkan12_features);
 
 			vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
@@ -283,7 +303,7 @@ namespace wis
 			add_extension(rayquery_pipeline_feature);
 
 			vk::DeviceCreateInfo desc{
-				{}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, e_cnt, exts.data(), nullptr, device_create_info_next
+				{}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, uint32_t(exts.size()), exts.data(), nullptr, device_create_info_next
 			};
 
 			device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
@@ -422,7 +442,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		VKRenderPass CreateRenderPass(std::span<ColorAttachment> rtv_descs,
+		VKRenderPass CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,
 			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
 			SampleCount samples = SampleCount::s1,
 			DataFormat vrs_format = DataFormat::unknown)const
@@ -455,7 +475,7 @@ namespace wis
 
 
 				image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment,
-					i.width, i.height, i.array_levels, 1u, & desc.format);
+					frame_size.width, frame_size.height, i.array_levels, 1u, & desc.format);
 
 				if (size == 8)break;
 			}
@@ -485,7 +505,7 @@ namespace wis
 
 				image_md.allocate(
 					vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eDepthStencilAttachment,
-					dsv_desc.width, dsv_desc.height, 1u, 1u, & desc.format
+					frame_size.width, frame_size.height, 1u, 1u, & desc.format
 				);
 
 				sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
@@ -528,19 +548,20 @@ namespace wis
 			render_pass_info.pAttachments = attachment_descriptions.data();
 			render_pass_info.subpassCount = 1;
 			render_pass_info.pSubpasses = &sub_pass;
+			auto rp = wis::shared_handle{ device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device };
 
 
 			vk::FramebufferAttachmentsCreateInfo attachments_create_info;
 			attachments_create_info.attachmentImageInfoCount = image_md.size();
-			attachments_create_info.pAttachmentImageInfos = image_md.get();
+			attachments_create_info.pAttachmentImageInfos = image_md.data();
 
 			vk::FramebufferCreateInfo desc{
-				vk::FramebufferCreateFlagBits::eImageless
+				vk::FramebufferCreateFlagBits::eImageless,
+					rp.get(), uint32_t(image_md.size()), nullptr, frame_size.width, frame_size.height, 1, & attachments_create_info
 			};
-			desc.pNext = &attachments_create_info;
 
 			return VKRenderPass{ 
-				wis::shared_handle<vk::RenderPass>{device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device},
+				std::move(rp),
 				wis::shared_handle<vk::Framebuffer>{device->createFramebuffer(desc), device}
 			};
 		}
@@ -558,13 +579,13 @@ namespace wis
 		[[nodiscard]]
 		VKPipelineState CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const
 		{
-			std::bitset<max_vertex_bindings> binding_map;
 			wis::uniform_allocator<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
 			wis::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * 16> attributes;
 
 			wis::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
 			FillShaderStages(desc, shader_stages);
 
+			std::bitset<max_vertex_bindings> binding_map;
 			for (auto& i : input_layout)
 			{
 				auto& b = bindings.at(i.input_slot);
@@ -595,7 +616,36 @@ namespace wis
 			viewport_state.viewportCount = 1;
 			viewport_state.scissorCount = 1;
 
-			wis::uniform_allocator<vk::DynamicState> dynamic_state_enables;
+			vk::PipelineRasterizationStateCreateInfo rasterizer
+			{
+				vk::PipelineRasterizationStateCreateFlags{},
+					false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise,
+					false, 0.0f, 0.0f, 0.0f, 1.0f
+			};
+
+			vk::PipelineColorBlendAttachmentState color_blend_attachment{ // 1 for now, TODO: proper blending
+					false, // disabled
+					vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
+					vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+					vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+			};
+			vk::PipelineColorBlendStateCreateInfo color_blending{
+				vk::PipelineColorBlendStateCreateFlags{},
+					false, vk::LogicOp::eCopy,
+					1, &color_blend_attachment,
+					{ 0.0f, 0.0f, 0.0f, 0.0f }
+			};
+
+			vk::PipelineMultisampleStateCreateInfo multisampling {};
+			multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+			multisampling.sampleShadingEnable = false;
+
+			vk::PipelineInputAssemblyStateCreateInfo input_assembly{
+				vk::PipelineInputAssemblyStateCreateFlags{},
+					vk::PrimitiveTopology::eTriangleList, false
+			};
+
+			wis::uniform_allocator<vk::DynamicState, 4> dynamic_state_enables;
 			dynamic_state_enables.allocate() = vk::DynamicState::eViewport;
 			dynamic_state_enables.allocate() = vk::DynamicState::eScissor;
 			dynamic_state_enables.allocate() = vk::DynamicState::ePrimitiveTopology;
@@ -608,22 +658,23 @@ namespace wis
 					dynamic_state_enables.get()
 			};
 
-
-
-			vk::GraphicsPipelineCreateInfo pipeline_desc;
-			pipeline_desc.stageCount = uint32_t(shader_stages.size());
-			pipeline_desc.layout = desc.sig;
-			pipeline_desc.renderPass = desc.pass.GetInternal().GetRenderPass();
-			pipeline_desc.pStages = shader_stages.get();
-			pipeline_desc.pVertexInputState = &ia;
-			pipeline_desc.pViewportState = &viewport_state;
-			pipeline_desc.pDynamicState = &dss;
-
-			//	nullptr, //dynamic
-			//	nullptr, nullptr,
-			//	nullptr, //TODO: Rasterizer!!!
-			//	nullptr, //TODO: Multisampling!!!
-			//	nullptr, //TODO: Colorblend!!!
+			vk::GraphicsPipelineCreateInfo pipeline_desc
+			{
+				vk::PipelineCreateFlags{},
+					uint32_t(shader_stages.size()),
+					shader_stages.data(), // shader stages
+					&ia, // vertex input
+					&input_assembly, // input assembly
+					nullptr, // tessellation
+					&viewport_state, // viewport
+					&rasterizer, // rasterizer
+					&multisampling, // multisampling
+					nullptr, // depth stencil
+					&color_blending, // color blending
+					&dss, // dynamic state
+					desc.sig, // pipeline layout
+					desc.pass.GetInternal().GetRenderPass(), // render pass					
+			};
 
 
 			return VKPipelineState{ wis::shared_handle<vk::Pipeline>{device->createGraphicsPipeline(nullptr, pipeline_desc).value, device} };
@@ -711,29 +762,8 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		std::pair<std::array<const char*, max_ext_count>, uint32_t> RequestExtensions(VKAdapterView adapter)noexcept
+		wis::uniform_allocator<const char*, required_extensions.size()> RequestExtensions(VKAdapterView adapter)noexcept
 		{
-			constexpr static std::array req_extension{
-				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-					VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
-					VK_KHR_RAY_QUERY_EXTENSION_NAME,
-					VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-					VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
-					VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-					VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-					VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-					VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-					VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
-					VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
-					VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-					VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-					VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-					VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
-					VK_NV_MESH_SHADER_EXTENSION_NAME,
-					VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
-			};
-
-
 			auto extensions = adapter.enumerateDeviceExtensionProperties();
 			std::unordered_set<std::string_view, wis::string_hash> ext_set;
 			ext_set.reserve(extensions.size());
@@ -741,13 +771,12 @@ namespace wis
 			for (const auto& e : extensions)
 				ext_set.emplace(e.extensionName.data());
 
-			std::array<const char*, max_ext_count> avail_exts{};
-			uint32_t size = 0;
+			wis::uniform_allocator<const char*, required_extensions.size()> avail_exts{};
 
-			for (auto* i : req_extension)
+			for (auto* i : required_extensions)
 			{
 				if (!ext_set.contains(i))continue;
-				avail_exts[size++] = i;
+				avail_exts.allocate(i);
 
 				if (i == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME)
 					vrs_supported = true;
@@ -764,12 +793,11 @@ namespace wis
 			if constexpr (wis::debug_mode)
 			{
 				wis::lib_info("Active Device Extensions:");
-				std::ranges::for_each_n(avail_exts.begin(), size, [](const char* s) {
-					wis::lib_info(std::format("\t{}", s));
-					});
+				for (auto& i : avail_exts)
+					wis::lib_info(std::format("\t{}", i));
 			}
 
-			return { avail_exts, size };
+			return avail_exts;
 		}
 
 		[[nodiscard]]
@@ -793,30 +821,35 @@ namespace wis
 				auto& vs = shader_stages.allocate();
 				vs.stage = vk::ShaderStageFlagBits::eVertex;
 				vs.module = desc.vs.GetInternal().GetShaderModule();
+				vs.pName = "main";
 			}
 			if (desc.ps)
 			{
 				auto& vs = shader_stages.allocate();
 				vs.stage = vk::ShaderStageFlagBits::eFragment;
-				vs.module = desc.vs.GetInternal().GetShaderModule();
+				vs.module = desc.ps.GetInternal().GetShaderModule();
+				vs.pName = "main";
 			}
 			if (desc.gs)
 			{
 				auto& vs = shader_stages.allocate();
 				vs.stage = vk::ShaderStageFlagBits::eGeometry;
-				vs.module = desc.vs.GetInternal().GetShaderModule();
+				vs.module = desc.gs.GetInternal().GetShaderModule();
+				vs.pName = "main";
 			}
 			if (desc.hs)
 			{
 				auto& vs = shader_stages.allocate();
 				vs.stage = vk::ShaderStageFlagBits::eTessellationControl;
-				vs.module = desc.vs.GetInternal().GetShaderModule();
+				vs.module = desc.hs.GetInternal().GetShaderModule();
+				vs.pName = "main";
 			}
 			if (desc.ds)
 			{
 				auto& vs = shader_stages.allocate();
 				vs.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
-				vs.module = desc.vs.GetInternal().GetShaderModule();
+				vs.module = desc.ds.GetInternal().GetShaderModule();
+				vs.pName = "main";
 			}
 		}
 	private:

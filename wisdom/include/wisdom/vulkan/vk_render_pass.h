@@ -18,12 +18,16 @@ namespace wis
 		{
 			return rp.get();
 		}
+		auto GetFramebuffer()const noexcept
+		{
+			return frame.get();
+		}
 	private:
 		wis::shared_handle<vk::RenderPass> rp;
 		wis::shared_handle<vk::Framebuffer> frame;
 	};
 
-	using VKRenderPassView = vk::RenderPass;
+	using VKRenderPassView = struct { vk::RenderPass pass; vk::Framebuffer frame; };
 
 	class VKRenderPass : public QueryInternal<VKRenderPass>
 	{
@@ -35,7 +39,7 @@ namespace wis
 	public:
 		operator VKRenderPassView()const noexcept
 		{
-			return GetRenderPass();
+			return { GetRenderPass(), GetFramebuffer() };
 		}
 	};
 }

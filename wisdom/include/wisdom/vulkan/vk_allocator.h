@@ -49,18 +49,16 @@ namespace wis
 		}
 	public:
 		[[nodiscard]]
-		VKBuffer CreatePersistentBuffer(size_t size)
+		VKBuffer CreatePersistentBuffer(size_t size, BufferFlags flags = BufferFlags::None)
 		{
 			vk::BufferCreateInfo desc{
-				{}, size, vk::BufferUsageFlagBits::eTransferDst,
+				{}, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits(flags),
 				vk::SharingMode::eExclusive, 0, nullptr, nullptr
 			};
-
 			vma::AllocationCreateInfo alloc{
 				{}, vma::MemoryUsage::eAuto
 			};
-			auto[a,b] = allocator->createBuffer(desc, alloc);
-			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
+			return CreateBuffer(desc, alloc);
 		}
 
 		[[nodiscard]]
@@ -75,8 +73,14 @@ namespace wis
 					vk::MemoryPropertyFlagBits::eHostCoherent //ensure mapping does not need to be flushed
 			};
 
-			auto [a, b] = allocator->createBuffer(desc, alloc);
-			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator} };
+			return CreateBuffer(desc, alloc);
+		}
+	private:
+		[[nodiscard]]
+		VKBuffer CreateBuffer(const vk::BufferCreateInfo& desc, const vma::AllocationCreateInfo &alloc_desc)
+		{
+			auto [a, b] = allocator->createBuffer(desc, alloc_desc);
+			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_device_handle()}, wis::shared_handle<vma::Allocation>{b, allocator}, desc.size };
 		}
 	};
 }

@@ -34,6 +34,10 @@ namespace wis
 		{
 			return GetPipeline();
 		}
+		operator bool()const noexcept
+		{
+			return bool(GetPipeline());
+		}
 	};
 
 }
