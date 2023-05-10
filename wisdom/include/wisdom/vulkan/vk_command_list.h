@@ -155,7 +155,7 @@ namespace wis
 		{
 			vk::Viewport viewport;
 			viewport.x = vp.top_leftx;
-			viewport.y = vp.top_lefty;
+			viewport.y = vp.top_lefty + vp.height;
 			viewport.width = vp.width;
 			viewport.height = -vp.height;
 			viewport.minDepth = vp.min_depth;

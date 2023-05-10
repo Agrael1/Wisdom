@@ -153,10 +153,6 @@ void Test::App::Frame()
 {
 	context.Reset();
 	auto back = swap.GetBackBuffer();
-	constexpr wis::ColorClear color{0.0f, 0.2f, 0.4f, 1.0f};
-	std::array<std::pair<wis::RenderTargetView, wis::ColorClear>, 1> rtvsx{
-		std::pair{rtvs[swap.GetNextIndex()], color}
-	};
 	
 	context.TextureBarrier({
 		.state_before = wis::TextureState::Present,
@@ -166,6 +162,11 @@ void Test::App::Frame()
 		.range = wis::EntireTexture
 	}, back);
 	
+	constexpr wis::ColorClear color{0.0f, 0.2f, 0.4f, 1.0f};
+	std::array<std::pair<wis::RenderTargetView, wis::ColorClear>, 1> rtvsx{
+		std::pair{rtvs[swap.GetNextIndex()], color}
+	};
+
 	context.SetGraphicsRootSignature(root);
 	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
 	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });

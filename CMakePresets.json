@@ -30,6 +30,19 @@
             }
         },
         {
+            "name": "x64-debug-vs",
+            "displayName": "x64 Debug",
+            "inherits": "windows-base",
+            "generator": "Visual Studio 17 2022",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
             "name": "x64-release",
             "displayName": "x64 Release",
             "inherits": "x64-debug",

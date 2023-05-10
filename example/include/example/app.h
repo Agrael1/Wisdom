@@ -10,6 +10,10 @@ namespace Test
 	{
 	public:
 		App(uint32_t width, uint32_t height);
+		~App()
+		{
+			WaitForGPU();
+		}
 	public:
 		int Start();
 		void Frame();
