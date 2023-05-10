@@ -474,7 +474,7 @@ namespace wis
 				ref.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
 
-				image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment,
+				image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
 					frame_size.width, frame_size.height, i.array_levels, 1u, & desc.format);
 
 				if (size == 8)break;
@@ -562,7 +562,8 @@ namespace wis
 
 			return VKRenderPass{ 
 				std::move(rp),
-				wis::shared_handle<vk::Framebuffer>{device->createFramebuffer(desc), device}
+				wis::shared_handle<vk::Framebuffer>{device->createFramebuffer(desc), device},
+				frame_size
 			};
 		}
 
@@ -619,7 +620,7 @@ namespace wis
 			vk::PipelineRasterizationStateCreateInfo rasterizer
 			{
 				vk::PipelineRasterizationStateCreateFlags{},
-					false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise,
+					false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eClockwise,
 					false, 0.0f, 0.0f, 0.0f, 1.0f
 			};
 
@@ -645,12 +646,13 @@ namespace wis
 					vk::PrimitiveTopology::eTriangleList, false
 			};
 
-			wis::uniform_allocator<vk::DynamicState, 4> dynamic_state_enables;
-			dynamic_state_enables.allocate() = vk::DynamicState::eViewport;
-			dynamic_state_enables.allocate() = vk::DynamicState::eScissor;
-			dynamic_state_enables.allocate() = vk::DynamicState::ePrimitiveTopology;
+			wis::uniform_allocator<vk::DynamicState, 5> dynamic_state_enables;
+			dynamic_state_enables.allocate(vk::DynamicState::eViewport);
+			dynamic_state_enables.allocate(vk::DynamicState::eScissor);
+			dynamic_state_enables.allocate(vk::DynamicState::ePrimitiveTopology);
+			dynamic_state_enables.allocate(vk::DynamicState::eVertexInputBindingStride);
 			if (vrs_supported)
-				dynamic_state_enables.allocate() = vk::DynamicState::eFragmentShadingRateKHR;
+				dynamic_state_enables.allocate(vk::DynamicState::eFragmentShadingRateKHR);
 
 			vk::PipelineDynamicStateCreateInfo dss
 			{

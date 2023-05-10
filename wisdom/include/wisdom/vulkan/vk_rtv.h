@@ -10,6 +10,7 @@ namespace wis
 	class Internal<VKRenderTargetView>
 	{
 	public:
+		Internal() = default;
 		Internal(wis::shared_handle<vk::ImageView> view)
 			:view(std::move(view))
 		{}
@@ -18,7 +19,7 @@ namespace wis
 		{
 			return view;
 		}
-		auto GetView()const noexcept
+		auto GetImageView()const noexcept
 		{
 			return view.get();
 		}

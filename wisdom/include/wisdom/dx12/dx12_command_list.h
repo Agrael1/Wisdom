@@ -10,6 +10,7 @@
 #include <wisdom/dx12/dx12_render_pass.h>
 #include <d3d12.h>
 #include <span>
+#include <ranges>
 #include <wisdom/api/api_common.h>
 
 
@@ -130,11 +131,26 @@ namespace wis
 		}
 
 		//TODO: fill framebuffer
-		void BeginRenderPass(DX12RenderPassView pass)
+		void BeginRenderPass(DX12RenderPassView pass, 
+			std::span<const std::pair< DX12RenderTargetView, ColorClear>> render_targets
+		)noexcept
 		{
 			auto& i = pass.GetInternal();
 			auto rts = i.GetRTDescs();
+			for (size_t i = 0; i < rts.size(); i++)
+			{
+				rts[i].cpuDescriptor = render_targets[i].first.GetInternal().GetHandle();
+				rts[i].BeginningAccess.Clear.ClearValue.Color[0] = render_targets[i].second[0];
+				rts[i].BeginningAccess.Clear.ClearValue.Color[1] = render_targets[i].second[1];
+				rts[i].BeginningAccess.Clear.ClearValue.Color[2] = render_targets[i].second[2];
+				rts[i].BeginningAccess.Clear.ClearValue.Color[3] = render_targets[i].second[3];
+			}
+			//TODO: Depth stencil
 			command_list->BeginRenderPass(rts.size(), rts.data(), i.GetDSDesc(), D3D12_RENDER_PASS_FLAG_NONE);
+		}
+		void EndRenderPass()noexcept
+		{
+			command_list->EndRenderPass();
 		}
 
 		void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept

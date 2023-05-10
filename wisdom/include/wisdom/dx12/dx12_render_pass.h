@@ -21,7 +21,7 @@ namespace wis
 			:target_formats(target_formats), rt_descs(std::move(rt_descs)), ds_desc(std::move(ds_desc))
 		{}
 	public:
-		std::span<const D3D12_RENDER_PASS_RENDER_TARGET_DESC> GetRTDescs()const noexcept{
+		std::span<D3D12_RENDER_PASS_RENDER_TARGET_DESC> GetRTDescs()const noexcept{
 			return rt_descs;
 		}
 		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* GetDSDesc()const noexcept {

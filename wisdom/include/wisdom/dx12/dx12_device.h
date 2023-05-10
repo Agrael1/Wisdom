@@ -64,6 +64,7 @@ namespace wis
 			wis::check_hresult(device->CreateDescriptorHeap(&rtvHeapDesc, __uuidof(*rtv_heap), rtv_heap.put_void()));
 			rtv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 			rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
+			return true;
 		}
 		explicit operator bool()const noexcept
 		{
@@ -244,7 +245,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		DX12RenderPass CreateRenderPass(std::span<ColorAttachment> rtv_descs,
+		DX12RenderPass CreateRenderPass(wis::Size2D, std::span<ColorAttachment> rtv_descs,
 			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
 			SampleCount samples = SampleCount::s1,
 			DataFormat vrs_format = DataFormat::unknown)const

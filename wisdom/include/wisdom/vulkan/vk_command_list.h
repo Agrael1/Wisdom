@@ -1,12 +1,14 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_barrier.h>
+#include <wisdom/global/definitions.h>
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_root_signature.h>
 #include <wisdom/vulkan/vk_format.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/vulkan/vk_pipeline_state.h>
 #include <wisdom/vulkan/vk_render_pass.h>
+#include <wisdom/vulkan/vk_rtv.h>
 #include <span>
 #include <wisdom/util/small_allocator.h>
 
@@ -194,50 +196,39 @@ namespace wis
 
 			command_list.bindVertexBuffers2(start_slot, uint32_t(resources.size()), buffers.data(), offsets.data(), sizes.data(), strides.data());
 		}
-		void BeginRenderPass(wis::VKRenderPassView rp)
+		
+		void BeginRenderPass(wis::VKRenderPassView rp, 
+			std::span<const std::pair<VKRenderTargetView, ColorClear>> render_targets)noexcept
 		{
+			wis::uniform_allocator<vk::ImageView, max_render_targets> image_views;
+			wis::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
+			for (auto& i : render_targets)
+			{
+				image_views.allocate(i.first.GetInternal().GetImageView());
+				image_clear.allocate().setColor(i.second);
+			}
+
 			vk::RenderPassAttachmentBeginInfo attachment_begin_info
 			{
-
+				uint32_t(render_targets.size()),
+				image_views.data()
 			};
 			vk::RenderPassBeginInfo render_pass_info{
-				rp.pass,rp.frame,
+				rp.pass, rp.frame, vk::Rect2D{{0,0},{rp.frame_size.width, rp.frame_size.height }}, uint32_t(image_clear.size()), image_clear.data(),&attachment_begin_info
 			};
-			//render_pass_info.renderPass = vk_render_pass.GetRenderPass();
-			//render_pass_info.framebuffer = vk_framebuffer.GetFramebuffer();
-			//render_pass_info.renderArea.extent = vk_framebuffer.GetExtent();
-			//std::vector<vk::ClearValue> clear_values;
-			//for (size_t i = 0; i < clear_desc.colors.size(); ++i)
-			//{
-			//	auto& clear_value = clear_values.emplace_back();
-			//	clear_value.color.float32[0] = clear_desc.colors[i].r;
-			//	clear_value.color.float32[1] = clear_desc.colors[i].g;
-			//	clear_value.color.float32[2] = clear_desc.colors[i].b;
-			//	clear_value.color.float32[3] = clear_desc.colors[i].a;
-			//}
-			//clear_values.resize(vk_render_pass.GetDesc().colors.size());
-			//if (vk_render_pass.GetDesc().depth_stencil.format != gli::FORMAT_UNDEFINED)
-			//{
-			//	vk::ClearValue clear_value = {};
-			//	clear_value.depthStencil.depth = clear_desc.depth;
-			//	clear_value.depthStencil.stencil = clear_desc.stencil;
-			//	clear_values.emplace_back(clear_value);
-			//}
-			//render_pass_info.clearValueCount = clear_values.size();
-			//render_pass_info.pClearValues = clear_values.data();
 			command_list.beginRenderPass(render_pass_info, vk::SubpassContents::eInline);
 		}
-		//void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
-		//{
-		//	command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
-		//}
-		//void DrawInstanced(uint32_t VertexCountPerInstance,
-		//	uint32_t InstanceCount = 1,
-		//	uint32_t StartVertexLocation = 0,
-		//	uint32_t StartInstanceLocation = 0)noexcept
-		//{
-		//	command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
-		//}
+		void EndRenderPass()noexcept
+		{
+			command_list.endRenderPass();
+		}
+		void DrawInstanced(uint32_t VertexCountPerInstance,
+			uint32_t InstanceCount = 1,
+			uint32_t StartVertexLocation = 0,
+			uint32_t StartInstanceLocation = 0)noexcept
+		{
+			command_list.draw(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
+		}
 	private:
 		bool closed = true;
 	};

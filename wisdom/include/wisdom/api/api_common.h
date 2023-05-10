@@ -384,4 +384,7 @@ namespace wis
 		uint32_t width; //< Width of the texture in pixels
 		uint32_t height; //< Height of the texture in pixels
 	};
+
+	using ColorClear = std::array<float, 4>;
+	using DepthClear = float;
 }

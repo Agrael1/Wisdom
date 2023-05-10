@@ -47,6 +47,7 @@ namespace wis
 	using CommandList = VKCommandList;
 	using Fence = VKFence;
 	using Resource = VKBuffer;
+	using RenderTargetView = VKRenderTargetView;
 	using Shader = VKShader;
 	using RootSignature = VKRootSignature;
 	using PipelineState = VKPipelineState;

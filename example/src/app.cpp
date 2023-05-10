@@ -80,6 +80,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	wis::ColorAttachment cas{
 		.format = wis::SwapchainOptions::default_format,
+			.load = wis::PassLoadOperation::clear,
 	};
 
 	render_pass = device.CreateRenderPass({width, height}, {&cas,1});
@@ -131,6 +132,10 @@ Test::App::App(uint32_t width, uint32_t height)
 	
 	vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
 	context.SetPipeline(pipeline);
+
+	auto x = swap.GetRenderTargets();
+	for (size_t i = 0; i < x.size(); i++)
+		rtvs[i] = device.CreateRenderTargetView(x[i]);
 }
 
 int Test::App::Start()
@@ -148,8 +153,10 @@ void Test::App::Frame()
 {
 	context.Reset();
 	auto back = swap.GetBackBuffer();
-	//auto rtv = swap.GetBackBufferRTV();
-	constexpr std::array<float, 4> color{0.0f, 0.2f, 0.4f, 1.0f};
+	constexpr wis::ColorClear color{0.0f, 0.2f, 0.4f, 1.0f};
+	std::array<std::pair<wis::RenderTargetView, wis::ColorClear>, 1> rtvsx{
+		std::pair{rtvs[swap.GetNextIndex()], color}
+	};
 	
 	context.TextureBarrier({
 		.state_before = wis::TextureState::Present,
@@ -163,9 +170,11 @@ void Test::App::Frame()
 	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
 	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
-	context.IASetVertexBuffers({&vb, 1});
-	//context.OMSetRenderTargets(std::array{rtv});
-	//context.DrawInstanced(3);
+	context.IASetVertexBuffers({ &vb, 1 });
+
+	context.BeginRenderPass(render_pass, rtvsx);
+	context.DrawInstanced(3);
+	context.EndRenderPass();
 	
 	context.TextureBarrier({
 		.state_before = wis::TextureState::RenderTarget,
