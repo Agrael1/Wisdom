@@ -32,7 +32,12 @@ if(WIN32)
 	add_subdirectory("Wil")
 endif()
 
-add_subdirectory("VKAllocator")
+find_package(Vulkan)
+
+if(Vulkan_FOUND)
+	add_subdirectory("VKAllocator")
+endif()
+
 add_subdirectory("DXC")
 
 

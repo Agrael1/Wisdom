@@ -7,11 +7,8 @@ if(NOT PLUGINS_LOADED)
       GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
       GIT_TAG origin/master
     )
-    FetchContent_GetProperties(dxma)
-    if(NOT dxma_POPULATED)
-      FetchContent_Populate(dxma)
-    endif()
-        set(dxma_SOURCES ${dxma_SOURCE_DIR} CACHE INTERNAL "")
+    FetchContent_MakeAvailable(dxma)
+    set(dxma_SOURCES ${dxma_SOURCE_DIR} CACHE INTERNAL "")
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${dxma_SOURCES}/include/D3D12MemAlloc.h)
