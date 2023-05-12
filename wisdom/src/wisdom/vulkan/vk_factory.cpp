@@ -108,8 +108,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessage
 	wis::lib_log(SeverityConvert(messageSeverity),
 		std::format(
 			"\n[Validation layer]: {}\n [Message]:{}"
-			, pCallbackData->pMessageIdName, pCallbackData->pMessage
-
+			, pCallbackData->pMessageIdName? pCallbackData->pMessageIdName:"", pCallbackData->pMessage
 		));
 	return false;
 }

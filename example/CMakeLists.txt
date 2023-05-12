@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : CMake project for Wisdom, include source and define
 # project specific logic here.
 #
-project(Example)
+project(ExampleVK)
 
 add_subdirectory("shaders")
 
@@ -31,7 +31,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 add_dependencies(${PROJECT_NAME}
-    compile_shaders
+    compile_shaders_vk
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

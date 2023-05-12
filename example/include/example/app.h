@@ -1,8 +1,7 @@
 #pragma once
 #include <example/window.h>
+//#define WFORCEVK
 #include <wisdom/wisdom.h>
-#include <wisdom/dx12/dx12_factory.h>
-#include <wisdom/dx12/dx12_allocator.h>
 
 namespace Test
 {

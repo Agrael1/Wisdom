@@ -289,18 +289,18 @@ namespace wis
 			fragment_shading_rate_features.attachmentFragmentShadingRate = vrs_supported;
 			add_extension(fragment_shading_rate_features);
 
-			vk::PhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline_feature;
-			raytracing_pipeline_feature.rayTracingPipeline = ray_tracing_supported;
-			add_extension(raytracing_pipeline_feature);
-
-			vk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_feature;
-			acceleration_structure_feature.accelerationStructure = ray_tracing_supported;
-			add_extension(acceleration_structure_feature);
-
-			vk::PhysicalDeviceRayQueryFeaturesKHR rayquery_pipeline_feature;
-			rayquery_pipeline_feature.rayQuery = ray_query_supported;
-			raytracing_pipeline_feature.rayTraversalPrimitiveCulling = ray_query_supported;
-			add_extension(rayquery_pipeline_feature);
+			//vk::PhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline_feature;
+			//raytracing_pipeline_feature.rayTracingPipeline = ray_tracing_supported;
+			//add_extension(raytracing_pipeline_feature);
+			//
+			//vk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_feature;
+			//acceleration_structure_feature.accelerationStructure = ray_tracing_supported;
+			//add_extension(acceleration_structure_feature);
+			//
+			//vk::PhysicalDeviceRayQueryFeaturesKHR rayquery_pipeline_feature;
+			//rayquery_pipeline_feature.rayQuery = ray_query_supported;
+			//raytracing_pipeline_feature.rayTraversalPrimitiveCulling = ray_query_supported;
+			//add_extension(rayquery_pipeline_feature);
 
 			vk::DeviceCreateInfo desc{
 				{}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, uint32_t(exts.size()), exts.data(), nullptr, device_create_info_next

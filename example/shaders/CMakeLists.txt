@@ -1,6 +1,6 @@
-project(shaders)
+project(shaders_vk)
 
-add_custom_target(compile_shaders)
+add_custom_target(compile_shaders_vk)
 
 
 file(GLOB_RECURSE vs "${CMAKE_CURRENT_SOURCE_DIR}/*/*.vs.hlsl")
@@ -21,7 +21,7 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs})
     get_source_file_property(shadertype ${FILE} ShaderType)
 
     if(WIN32)
-        add_custom_command(TARGET compile_shaders
+        add_custom_command(TARGET compile_shaders_vk
             COMMAND ${dxc_EXECUTABLE} -Emain /T${shadertype}_6_5 $<IF:$<CONFIG:DEBUG>,/Od,/O3> /I${CMAKE_CURRENT_SOURCE_DIR}/headers /Zi /Fo ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.cso /Fd ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.pdb ${FILE}
             MAIN_DEPENDENCY ${FILE}
             COMMENT "HLSL ${FILE}"
@@ -29,7 +29,7 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs})
             VERBATIM)
     endif()
 
-    add_custom_command(TARGET compile_shaders
+    add_custom_command(TARGET compile_shaders_vk
         COMMAND ${dxc_EXECUTABLE} -Emain /T${shadertype}_6_1 $<IF:$<CONFIG:DEBUG>,/Od,/O3> -spirv -fspv-target-env=vulkan1.3 /I${CMAKE_CURRENT_SOURCE_DIR}/headers /Zi /Fo ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.spv ${FILE}
         MAIN_DEPENDENCY ${FILE}
         COMMENT "SPV ${FILE}"
@@ -39,5 +39,5 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs})
 endforeach(FILE)
 
 add_dependencies(${PROJECT_NAME}
-    compile_shaders
+    compile_shaders_vk
 )

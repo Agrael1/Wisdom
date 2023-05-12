@@ -179,16 +179,16 @@ void Test::App::Frame()
 		std::pair{rtvs2[swap.GetNextIndex()], color2}
 	};
 	
-	//context.SetGraphicsRootSignature(root);
-	//context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
-	//context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
-	//context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
-	//context.IASetVertexBuffers({ &vb, 1 });
-	//
-	context.BeginRenderPass(render_pass, rtvsx);
-	//context.DrawInstanced(3);
-	context.EndRenderPass();
+	context.SetGraphicsRootSignature(root);
+	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
+	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
+	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
+	context.IASetVertexBuffers({ &vb, 1 });
 	
+	context.BeginRenderPass(render_pass, rtvsx);
+	context.DrawInstanced(3);
+	context.EndRenderPass();
+
 	context.TextureBarrier({
 		.state_before = wis::TextureState::RenderTarget,
 		.state_after = wis::TextureState::Present,

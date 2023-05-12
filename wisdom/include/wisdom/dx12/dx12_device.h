@@ -86,7 +86,7 @@ namespace wis
 				.Format = DXGI_FORMAT(options.format),
 				.Stereo = DX12Factory::GetFactory()->IsWindowedStereoEnabled() && options.stereo,
 				.SampleDesc{.Count = 1, .Quality = 0},
-				.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+				.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_BACK_BUFFER,
 				.BufferCount = options.frame_count,
 				.Scaling = DXGI_SCALING::DXGI_SCALING_STRETCH,
 				.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
