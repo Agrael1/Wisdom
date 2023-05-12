@@ -75,7 +75,6 @@ Test::App::App(uint32_t width, uint32_t height)
 		wnd.GetHandle()
 	});
 
-
 	fence = device.CreateFence();
 	context = device.CreateCommandList(wis::QueueType::direct);
 
@@ -84,7 +83,7 @@ Test::App::App(uint32_t width, uint32_t height)
 			.format = wis::SwapchainOptions::default_format,
 				.load = wis::PassLoadOperation::clear
 		},
-			wis::ColorAttachment {
+		wis::ColorAttachment {
 			.format = wis::SwapchainOptions::default_format,
 				.load = wis::PassLoadOperation::clear
 		}
@@ -174,7 +173,7 @@ void Test::App::Frame()
 
 	constexpr wis::ColorClear color{0.0f, 0.2f, 0.4f, 1.0f};
 	constexpr wis::ColorClear color2{1.0f, 0.2f, 0.4f, 1.0f};
-	std::array<std::pair<wis::RenderTargetView, wis::ColorClear>, 2> rtvsx{
+	std::array rtvsx{
 		std::pair{rtvs[swap.GetNextIndex()], color},
 		std::pair{rtvs2[swap.GetNextIndex()], color2}
 	};

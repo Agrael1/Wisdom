@@ -53,7 +53,7 @@ namespace wis
 	public:
 		bool Initialize(DX12AdapterView adapter)noexcept {
 			if (!wis::succeded(D3D12CreateDevice(adapter,
-				D3D_FEATURE_LEVEL_11_0, __uuidof(*device), device.put_void())))
+				D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
 				return false;
 
 			// Describe and create a render target view (RTV) descriptor heap.
@@ -132,7 +132,7 @@ namespace wis
 			winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list;
 
 			wis::check_hresult(device->CreateCommandAllocator(clty, __uuidof(*xallocator), xallocator.put_void()));
-			wis::check_hresult(device->CreateCommandList1(0, clty, D3D12_COMMAND_LIST_FLAG_NONE, __uuidof(*xcommand_list), xcommand_list.put_void()));
+			wis::check_hresult(device->CreateCommandList1(0, clty, D3D12_COMMAND_LIST_FLAG_NONE, __uuidof(ID3D12GraphicsCommandList7), xcommand_list.put_void()));
 
 			return DX12CommandList{
 				std::move(xallocator),
