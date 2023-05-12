@@ -11,12 +11,11 @@ if(NOT PLUGINS_LOADED)
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ""
     )
-    FetchContent_GetProperties(wil)
-    #if(NOT wil_POPULATED)
-    #  set(WIL_BUILD_PACKAGING OFF)
-    #  set(WIL_BUILD_TESTS OFF)
-    #  FetchContent_Populate(wil)
-    #endif()
+     set(WIL_BUILD_PACKAGING OFF)
+     set(WIL_BUILD_TESTS OFF)
+
+    FetchContent_MakeAvailable(wil)
+    
 
     set(wil_SOURCES ${wil_SOURCE_DIR} CACHE INTERNAL "")
 endif()

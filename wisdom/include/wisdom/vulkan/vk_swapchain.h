@@ -79,6 +79,7 @@ namespace wis
 						.state_after = TextureState::Present,
 						.access_before = ResourceAccess::NoAccess,
 						.access_after = ResourceAccess::Common,
+						.range = wis::EntireTexture
 					},
 					{ i, format });
 			}
