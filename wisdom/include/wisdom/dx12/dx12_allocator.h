@@ -48,9 +48,6 @@ namespace wis
 
 			D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
 
-			if(flags & BufferFlags::VertexBuffer || flags & BufferFlags::ConstantBuffer)
-				state |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-
 			allocator->CreateResource2(&all_desc, &desc,
 				state, nullptr,
 				al.put(), __uuidof(*rc), rc.put_void());

@@ -391,7 +391,7 @@ namespace wis
 					vk::CompositeAlphaFlagBitsKHR::eOpaque,
 					GetPresentMode(surface.get(), vsync), true, nullptr
 			};
-
+			
 			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, VKCommandQueue{qpresent_queue}, CreateCommandList(QueueType::direct), format->format, layers };
 		}
 

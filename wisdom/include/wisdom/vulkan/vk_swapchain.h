@@ -133,7 +133,7 @@ namespace wis
 				AquireNextIndex();
 		}
 	private:
-		bool AquireNextIndex()
+		bool AquireNextIndex()noexcept
 		{
 			present_index = device->acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max(), present_semaphore.get()).value;
 
