@@ -1,7 +1,8 @@
 #pragma once
 
 // Select default API
-#if WISDOMDX12
+
+#if WISDOMDX12 && !defined(WFORCEVK)
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>

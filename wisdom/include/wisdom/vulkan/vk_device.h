@@ -624,16 +624,23 @@ namespace wis
 					false, 0.0f, 0.0f, 0.0f, 1.0f
 			};
 
-			vk::PipelineColorBlendAttachmentState color_blend_attachment{ // 1 for now, TODO: proper blending
-					false, // disabled
+			vk::PipelineColorBlendAttachmentState color_blend_attachment[2]{ // 1 for now, TODO: proper blending
+				vk::PipelineColorBlendAttachmentState{false, // disabled
 					vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
 					vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
 					vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+					},
+				vk::PipelineColorBlendAttachmentState{false, // disabled
+					vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
+					vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+					vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+					},
+
 			};
 			vk::PipelineColorBlendStateCreateInfo color_blending{
 				vk::PipelineColorBlendStateCreateFlags{},
 					false, vk::LogicOp::eCopy,
-					1, &color_blend_attachment,
+					2, color_blend_attachment,
 					{ 0.0f, 0.0f, 0.0f, 0.0f }
 			};
 
