@@ -38,6 +38,7 @@ namespace Test
 		wis::PipelineState pipeline;
 		wis::VertexBufferView vb;
 		wis::RenderTargetView rtvs[2];
+		wis::RenderTargetView rtvs2[2];
 		
 		wis::Resource vertex_buffer;
 		wis::RenderPass render_pass;

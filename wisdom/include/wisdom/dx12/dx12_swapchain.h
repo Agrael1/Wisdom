@@ -68,7 +68,7 @@ namespace wis
 
 		bool Present()noexcept
 		{
-			return wis::succeded_weak(chain->Present(1, 0));
+			return wis::succeded_weak(chain->Present(0, 0));
 		}
 	private:
 		std::vector<DX12Buffer> render_targets{};

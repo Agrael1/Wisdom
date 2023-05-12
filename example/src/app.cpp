@@ -68,7 +68,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	swap = device.CreateSwapchain(queue, {
 			.width = uint32_t(wnd.GetWidth()),
-			.height = uint32_t(wnd.GetHeight())
+			.height = uint32_t(wnd.GetHeight()),
+			.stereo = true
 		},
 		wis::SurfaceParameters{
 		wnd.GetHandle()
@@ -78,12 +79,18 @@ Test::App::App(uint32_t width, uint32_t height)
 	fence = device.CreateFence();
 	context = device.CreateCommandList(wis::QueueType::direct);
 
-	wis::ColorAttachment cas{
-		.format = wis::SwapchainOptions::default_format,
-			.load = wis::PassLoadOperation::clear,
+	std::array cas2{
+		wis::ColorAttachment {
+			.format = wis::SwapchainOptions::default_format,
+				.load = wis::PassLoadOperation::clear
+		},
+			wis::ColorAttachment {
+			.format = wis::SwapchainOptions::default_format,
+				.load = wis::PassLoadOperation::clear
+		}
 	};
 
-	render_pass = device.CreateRenderPass({width, height}, {&cas,1});
+	render_pass = device.CreateRenderPass({width, height}, cas2);
 	
 	vs = device.CreateShader(LoadShader<wis::Shader>("shaders/example.vs"), wis::ShaderType::vertex);
 	ps = device.CreateShader(LoadShader<wis::Shader>("shaders/example.ps"), wis::ShaderType::pixel);
@@ -135,7 +142,10 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	auto x = swap.GetRenderTargets();
 	for (size_t i = 0; i < x.size(); i++)
+	{
 		rtvs[i] = device.CreateRenderTargetView(x[i]);
+		rtvs2[i] = device.CreateRenderTargetView(x[i], {.base_layer = 1});
+	}
 }
 
 int Test::App::Start()
@@ -161,20 +171,22 @@ void Test::App::Frame()
 		.access_after = wis::ResourceAccess::RenderTarget,
 		.range = wis::EntireTexture
 	}, back);
-	
+
 	constexpr wis::ColorClear color{0.0f, 0.2f, 0.4f, 1.0f};
-	std::array<std::pair<wis::RenderTargetView, wis::ColorClear>, 1> rtvsx{
-		std::pair{rtvs[swap.GetNextIndex()], color}
+	constexpr wis::ColorClear color2{1.0f, 0.2f, 0.4f, 1.0f};
+	std::array<std::pair<wis::RenderTargetView, wis::ColorClear>, 2> rtvsx{
+		std::pair{rtvs[swap.GetNextIndex()], color},
+		std::pair{rtvs2[swap.GetNextIndex()], color2}
 	};
-
-	context.SetGraphicsRootSignature(root);
-	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
-	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
-	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
-	context.IASetVertexBuffers({ &vb, 1 });
-
+	
+	//context.SetGraphicsRootSignature(root);
+	//context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
+	//context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
+	//context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
+	//context.IASetVertexBuffers({ &vb, 1 });
+	//
 	context.BeginRenderPass(render_pass, rtvsx);
-	context.DrawInstanced(3);
+	//context.DrawInstanced(3);
 	context.EndRenderPass();
 	
 	context.TextureBarrier({
