@@ -38,9 +38,9 @@ Right now the build works only on Windows, but others will be available soon.
 # System Requirements
 
 **Windows:**
-
 - Windows 10/11
 - DirectX 12 capable video card
+Tested on MSVC v143, Visual Studio 2022
 
 for Vulkan:
 - Vulkan 1.3.x+
