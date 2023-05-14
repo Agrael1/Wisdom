@@ -31,15 +31,19 @@ Right now the build works only on Windows, but others will be available soon.
 
 # CMake Options
 
-- `FORCE_VULKAN=OFF` if set ON forces base types to be Vulkan, useful for debugging Vulkan extensions 
-- `RUNTIME_ASSERTS=ON` enable/disable runtime validation checks from compile time
-- others coming soon...
+- `WISDOM_LOG_LEVEL=debug/warn` set the log level for the library, values are `debug,trace,info,warn,error,critical` log calls under current level are not compiled
+- `WISDOM_RUNTIME_ASSERTS=ON` enable/disable runtime validation checks from compile time
+- `WISDOM_FORCE_VULKAN=OFF` if set ON forces base types to be Vulkan, useful for debugging Vulkan extensions
+- `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation 
+- `WISDOM_BUILD_TESTS=ON` enable/disable test compilation 
 
 # System Requirements
 
 **Windows:**
 - Windows 10/11
 - DirectX 12 capable video card
+- CMake 3.22+ (several features are 3.25+, but they are not mandatory)
+
 Tested on MSVC v143, Visual Studio 2022
 
 for Vulkan:

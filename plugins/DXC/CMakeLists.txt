@@ -5,6 +5,7 @@ cmake_policy(SET CMP0135 NEW)
 if(NOT PLUGINS_LOADED)
     message("Loading DXC...")
 
+    # Download latest DXC from AppVeyor
     if(WIN32)
         set(DXC_FILE https://ci.appveyor.com/api/projects/dnovillo/directxshadercompiler/artifacts/build%2FRelease%2Fdxc-artifacts.zip?branch=main&pr=false&job=image%3A%20Visual%20Studio%202022)
     else()

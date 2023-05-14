@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.22)
-
 project(WinRT)
 
 if(NOT PLUGINS_LOADED)
