@@ -1,6 +1,6 @@
 # Wisdom
 
-**Low-level thin Graphics API layer**
+**Low-level thin Graphics API layer for high perfrormance and better coding experience**
 
 # Why?
 
@@ -29,8 +29,26 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 
 Right now the build works only on Windows, but others will be available soon.
 
+# CMake Options
+
+- `FORCE_VULKAN=OFF` if set ON forces base types to be Vulkan, useful for debugging Vulkan extensions 
+- `RUNTIME_ASSERTS=ON` enable/disable runtime validation checks from compile time
+- others coming soon...
+
+# System Requirements
+
+**Windows:**
+
+- Windows 10/11
+- DirectX 12 capable video card
+
+for Vulkan:
+- Vulkan 1.3.x+
+
+**Linux**
+- TBD...
+
 # Roadmap and tasks
 
-The project has trello page. Further directions are appreciated.
-https://trello.com/b/qjrv97Bc/wisdom-veritas
-
+The project has trello page. https://trello.com/b/qjrv97Bc/wisdom-veritas
+Suggestions are appreciated.
