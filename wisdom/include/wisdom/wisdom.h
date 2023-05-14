@@ -1,6 +1,7 @@
 #pragma once
 
 // Select default API
+// Override with WFORCEVK
 
 #if WISDOMDX12 && !defined(WFORCEVK)
 #include <wisdom/dx12/dx12_factory.h>

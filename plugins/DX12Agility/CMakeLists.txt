@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.22)
-
 project(DX12Agility)
 
 if(NOT PLUGINS_LOADED)
@@ -9,6 +7,7 @@ if(NOT PLUGINS_LOADED)
     string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)$"
        VERSION_MATCH ${DXA_DIR})
 
+    message("Agility version: ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
     set(VERSION_MINOR ${CMAKE_MATCH_2} CACHE INTERNAL "")
 endif()
 

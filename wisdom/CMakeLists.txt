@@ -1,27 +1,8 @@
-﻿# CMakeList.txt : CMake project for Wisdom, include source and define
-# project specific logic here.
-#
+﻿# CMakeList.txt : CMake project for Wisdom
 project(Wisdom)
-
-set(SEVERITY_LEVELS "debug;trace;info;warn;error;critical" CACHE INTERNAL "List of possible severities for logging")
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(CURR_LEVEL "debug")
-else()
-	set(CURR_LEVEL "warn")
-endif()
-
-set(LOG_LEVEL ${CURR_LEVEL} CACHE STRING "Wisdom library logging level")
-set_property(CACHE LOG_LEVEL PROPERTY STRINGS ${SEVERITY_LEVELS})
-list(FIND SEVERITY_LEVELS "${CURR_LEVEL}" SEV_INDEX)
-message("[Wisdom] Log Level is set to ${LOG_LEVEL} [${SEV_INDEX}]")
-
-option(RUNTIME_ASSERTS "Turn on/off runtime assertions (turned on might slightly affect performance)" ON)
-option(FORCE_VULKAN "Forces the default device to be vulkan, instead of platform specific" OFF)
 
 find_package(Vulkan)
 add_library(${PROJECT_NAME} STATIC)
-
 
 if(Vulkan_FOUND)
 	message("Vulkan found!")
@@ -81,12 +62,13 @@ if(WIN32)
 			VK_USE_PLATFORM_WIN32_KHR
 	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT FORCE_VULKAN)
-#	message("Platform Library is Metal")
-#    set(WISDOMMTL TRUE)
-#	target_compile_definitions(${PROJECT_NAME} 
-#		PUBLIC 
-#			VK_USE_PLATFORM_METAL_EXT
-#	)
+	message("Platform Library is Metal")
+	set(WISDOMMTL TRUE)
+	target_compile_definitions(${PROJECT_NAME} 
+		PUBLIC 
+			VK_USE_PLATFORM_METAL_EXT
+	)
+	message(FATAL_ERROR "Metal is not implemented")
 else()
 	#	target_compile_definitions(${PROJECT_NAME} 
 	#		PUBLIC 
@@ -141,4 +123,3 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 target_install(${PROJECT_NAME})
-# TODO: Add tests.
