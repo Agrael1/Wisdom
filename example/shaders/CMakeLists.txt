@@ -22,19 +22,19 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs})
 
     if(WIN32)
         add_custom_command(TARGET compile_shaders_vk
-            COMMAND "${dxc_EXECUTABLE}" -Emain -T${shadertype}_6_5 -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -I"${CMAKE_CURRENT_SOURCE_DIR}/headers" -Fo"${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.cso" -Fd"${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.pdb" "${FILE}"
+            COMMAND "${dxc_EXECUTABLE}" -Emain -T${shadertype}_6_5 -Zi -Vd $<IF:$<CONFIG:DEBUG>,-Od,-O3> -I"${CMAKE_CURRENT_SOURCE_DIR}/headers" -Fo"${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.cso" -Fd"${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.pdb" "${FILE}"
             MAIN_DEPENDENCY ${FILE}
             COMMENT "HLSL ${FILE}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
     endif()
 
-    #add_custom_command(TARGET compile_shaders_vk
-    #    COMMAND ${dxc_EXECUTABLE} -Emain -T${shadertype}_6_1 -Zi $<IF:$<CONFIG:DEBUG>,/Od,/O3> -spirv -fspv-target-env=vulkan1.3 /I${CMAKE_CURRENT_SOURCE_DIR}/headers /Fo ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.spv ${FILE}
-    #    MAIN_DEPENDENCY ${FILE}
-    #    COMMENT "SPV ${FILE}"
-    #    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    #    VERBATIM)
+    add_custom_command(TARGET compile_shaders_vk
+        COMMAND ${dxc_EXECUTABLE} -Emain -T${shadertype}_6_1 -Zi -Vd $<IF:$<CONFIG:DEBUG>,/Od,/O3> -spirv -fspv-target-env=vulkan1.3 -I"${CMAKE_CURRENT_SOURCE_DIR}/headers" -Fo"${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.spv" "${FILE}"
+        MAIN_DEPENDENCY ${FILE}
+        COMMENT "SPV ${FILE}"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        VERBATIM)
 
 endforeach(FILE)
 
