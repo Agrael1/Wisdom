@@ -1,5 +1,7 @@
 # Wisdom
+
 ![CMake Windows](https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg)
+
 **Low-level thin Graphics API layer for high perfrormance and better coding experience**
 
 # Why?
