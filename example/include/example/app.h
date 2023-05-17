@@ -1,6 +1,5 @@
 #pragma once
 #include <example/window.h>
-//#define WFORCEVK
 #include <wisdom/wisdom.h>
 
 namespace Test
