@@ -1,5 +1,3 @@
-project(shaders_vk)
-
 add_custom_target(compile_shaders_vk)
 
 
@@ -14,8 +12,9 @@ set_source_files_properties(${ps} PROPERTIES ShaderType "ps")
 set_source_files_properties(${ds} PROPERTIES ShaderType "ds")
 set_source_files_properties(${hs} PROPERTIES ShaderType "hs")
 set_source_files_properties(${hs} PROPERTIES ShaderType "gs")
-    
-add_library(${PROJECT_NAME} INTERFACE)
+   
+message("Files are in ${CMAKE_CURRENT_BINARY_DIR}")
+
 foreach(FILE ${vs} ${ps} ${ds} ${hs})
     get_filename_component(FILE_WE ${FILE} NAME_WLE)
     get_source_file_property(shadertype ${FILE} ShaderType)
@@ -35,9 +34,6 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs})
         COMMENT "SPV ${FILE}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)
-
 endforeach(FILE)
 
-add_dependencies(${PROJECT_NAME}
-    compile_shaders_vk
-)
+set(SHADER_DIR ${CMAKE_CURRENT_BINARY_DIR})

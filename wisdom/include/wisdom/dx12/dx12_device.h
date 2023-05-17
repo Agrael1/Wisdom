@@ -106,7 +106,7 @@ namespace wis
 				break;
 			}
 
-			return DX12SwapChain{ std::move(chain) ,options.frame_count };
+			return DX12SwapChain{ std::move(chain) ,options.frame_count, bool(desc.Stereo) };
 		}
 
 		[[nodiscard]]

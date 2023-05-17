@@ -89,11 +89,11 @@ Test::App::App(uint32_t width, uint32_t height)
 				.load = wis::PassLoadOperation::clear
 		}
 	};
-
-	render_pass = device.CreateRenderPass({width, height}, cas2);
 	
-	vs = device.CreateShader(LoadShader<wis::Shader>("shaders/example.vs"), wis::ShaderType::vertex);
-	ps = device.CreateShader(LoadShader<wis::Shader>("shaders/example.ps"), wis::ShaderType::pixel);
+	render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), swap.StereoSupported() + 1u});
+	
+	vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
+	ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
 	
 	root = device.CreateRootSignature();//empty
 	
@@ -144,7 +144,8 @@ Test::App::App(uint32_t width, uint32_t height)
 	for (size_t i = 0; i < x.size(); i++)
 	{
 		rtvs[i] = device.CreateRenderTargetView(x[i]);
-		rtvs2[i] = device.CreateRenderTargetView(x[i], {.base_layer = 1});
+		if(swap.StereoSupported())
+			rtvs2[i] = device.CreateRenderTargetView(x[i], {.base_layer = 1});
 	}
 }
 
@@ -185,7 +186,7 @@ void Test::App::Frame()
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	context.IASetVertexBuffers({ &vb, 1 });
 	
-	context.BeginRenderPass(render_pass, rtvsx);
+	context.BeginRenderPass(render_pass, { rtvsx.data(), swap.StereoSupported() + 1u });
 	context.DrawInstanced(3);
 	context.EndRenderPass();
 

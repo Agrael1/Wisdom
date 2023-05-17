@@ -36,8 +36,8 @@ namespace wis
 		friend class DX12Factory;
 	public:
 		DX12SwapChain() = default;
-		explicit DX12SwapChain(winrt::com_ptr<IDXGISwapChain4> xchain, uint32_t frame_count)
-			:QueryInternal(std::move(xchain))
+		explicit DX12SwapChain(winrt::com_ptr<IDXGISwapChain4> xchain, uint32_t frame_count, bool stereo)
+			:QueryInternal(std::move(xchain)), stereo(stereo)
 		{
 			winrt::com_ptr<ID3D12Device> device;
 			chain->GetDevice(__uuidof(ID3D12Device), device.put_void());
@@ -49,19 +49,23 @@ namespace wis
 				wis::check_hresult(chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void()));
 				render_targets.emplace_back(std::move(rc), nullptr);
 			}
+			
 		}
 	public:
-		[[nodiscard]] uint32_t GetNextIndex()const noexcept
+		[[nodiscard]] 
+		uint32_t GetNextIndex()const noexcept
 		{
 			return chain->GetCurrentBackBufferIndex();
 		}
 		template<class Self>
-		[[nodiscard]] std::span<wis::cv_type_t<Self, DX12Buffer>> GetRenderTargets(this Self&& s)noexcept
+		[[nodiscard]] 
+		std::span<wis::cv_type_t<Self, DX12Buffer>> GetRenderTargets(this Self&& s)noexcept
 		{
 			return s.render_targets;
 		}
 		template<class Self>
-		[[nodiscard]] auto& GetBackBuffer(this Self&& s)noexcept
+		[[nodiscard]] 
+		auto& GetBackBuffer(this Self&& s)noexcept
 		{
 			return s.render_targets[s.chain->GetCurrentBackBufferIndex()];
 		}
@@ -70,7 +74,13 @@ namespace wis
 		{
 			return wis::succeded_weak(chain->Present(0, 0));
 		}
+		[[nodiscard]] 
+		bool StereoSupported()const noexcept
+		{
+			return stereo;
+		}
 	private:
 		std::vector<DX12Buffer> render_targets{};
+		bool stereo = false;
 	};
 }
