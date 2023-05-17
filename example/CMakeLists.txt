@@ -3,6 +3,7 @@
 #
 project(ExampleVK)
 
+set(SHADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 add_subdirectory("shaders")
 
 # SDK exports
@@ -29,6 +30,7 @@ set_target_properties(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+target_compile_definitions(${PROJECT_NAME} PUBLIC SHADER_DIR="${SHADER_DIR}")
 
 add_dependencies(${PROJECT_NAME}
     compile_shaders_vk

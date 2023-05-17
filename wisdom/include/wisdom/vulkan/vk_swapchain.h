@@ -50,8 +50,6 @@ namespace wis
 
 		vk::UniqueSemaphore graphics_semaphore;
 		vk::UniqueSemaphore present_semaphore;
-
-		mutable uint32_t present_index = 0;
 	};
 
 	class VKSwapChain : public QueryInternal<VKSwapChain>
@@ -63,8 +61,8 @@ namespace wis
 			vk::Queue graphics_queue,
 			VKCommandQueue present_queue,
 			VKCommandList initialization,
-			vk::Format format, uint32_t layers = 1)
-			:QueryInternal(std::move(xswap), std::move(surface), graphics_queue, present_queue, format)
+			vk::Format format, bool stereo, uint32_t layers = 1)
+			:QueryInternal(std::move(xswap), std::move(surface), graphics_queue, present_queue, format), stereo(stereo)
 		{
 			initialization.Reset();
 			auto xback_buffers = device->getSwapchainImagesKHR(swap.get());
@@ -132,6 +130,12 @@ namespace wis
 			return wis::succeded(present_queue.presentKHR(present_info)) &&
 				AquireNextIndex();
 		}
+
+		[[nodiscard]]
+		bool StereoSupported()const noexcept
+		{
+			return stereo;
+		}
 	private:
 		bool AquireNextIndex()noexcept
 		{
@@ -147,5 +151,7 @@ namespace wis
 		}
 	private:
 		std::vector<VKTexture> back_buffers;
+		mutable uint32_t present_index = 0;
+		bool stereo = false;
 	};
 }

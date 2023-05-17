@@ -42,7 +42,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_root_signature.h" 
 		"include/wisdom/dx12/dx12_shader.h" 
 		"include/wisdom/dx12/dx12_allocator.h" 
-		"include/wisdom/dx12/dx12_state_builder.h" "include/wisdom/dx12/dx12_buffer_views.h" "include/wisdom/dx12/dx12_render_pass.h" "include/wisdom/dx12/dx12_format.h")
+		"include/wisdom/dx12/dx12_state_builder.h" "include/wisdom/dx12/dx12_buffer_views.h" "include/wisdom/dx12/dx12_render_pass.h" "include/wisdom/dx12/dx12_format.h" )
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"

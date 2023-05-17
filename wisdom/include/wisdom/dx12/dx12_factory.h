@@ -58,6 +58,7 @@ namespace wis
 	class DX12Factory final : public QueryInternal<DX12Factory>
 	{
 		friend class DX12Device;
+		friend class DX12Surface;
 		static inline constexpr uint32_t debug_flag = wis::debug_mode & DXGI_CREATE_FACTORY_DEBUG;
 	public:
 		DX12Factory(const ApplicationInfo& app_info, bool use_preference = true)

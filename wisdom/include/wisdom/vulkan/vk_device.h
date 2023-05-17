@@ -392,7 +392,7 @@ namespace wis
 					GetPresentMode(surface.get(), vsync), true, nullptr
 			};
 			
-			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, VKCommandQueue{qpresent_queue}, CreateCommandList(QueueType::direct), format->format, layers };
+			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, VKCommandQueue{qpresent_queue}, CreateCommandList(QueueType::direct), format->format, stereo, layers };
 		}
 
 		[[nodiscard]]
@@ -819,7 +819,6 @@ namespace wis
 				eFifoRelaxed : eFifo
 				: eImmediate;
 		}
-
 
 		void FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages)const noexcept
 		{
