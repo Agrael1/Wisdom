@@ -9,6 +9,7 @@
 
 #include <dxgi1_6.h>
 #include <d3d12.h>
+#include <d3d11.h> // fix for stereo swapchain
 
 
 namespace wis
@@ -78,6 +79,11 @@ namespace wis
 			for (auto&& i : gen)
 				co_yield DX12Adapter(i);
 		}
+	public:
+		static auto GetFactory()noexcept
+		{
+			return factory;
+		}
 	private:
 		void EnableDebugLayer() noexcept
 		{
@@ -115,9 +121,36 @@ namespace wis
 				co_yield std::move(adapter);
 		}
 
+		static auto CreateD3D11Device() noexcept
+		{
+			constexpr D3D_FEATURE_LEVEL featureLevels[]
+			{
+				D3D_FEATURE_LEVEL_11_1,
+				D3D_FEATURE_LEVEL_11_0,
+				D3D_FEATURE_LEVEL_10_1
+			};
+
+			winrt::com_ptr<ID3D11Device> device11;
+			D3D11CreateDevice(nullptr,
+				D3D_DRIVER_TYPE_HARDWARE,
+				nullptr, 0,
+				featureLevels, 3, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
+			return device11;
+		}
 		static winrt::com_ptr<IDXGISwapChain4> SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue)
 		{
 			winrt::com_ptr<IDXGISwapChain1> swap;
+			if (desc.Stereo) //until microsoft fixes this
+			{
+				wis::check_hresult(factory->CreateSwapChainForCoreWindow(
+					CreateD3D11Device().get(),
+					core_window,
+					&desc,
+					nullptr,
+					swap.put()
+				));
+			}
+
 			wis::check_hresult(factory->CreateSwapChainForCoreWindow(
 				queue,        // Swap chain needs the queue so that it can force a flush on it.
 				core_window,
@@ -130,6 +163,17 @@ namespace wis
 		static winrt::com_ptr<IDXGISwapChain4> SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue)
 		{
 			winrt::com_ptr<IDXGISwapChain1> swap;
+			if (desc.Stereo) //until microsoft fixes this
+			{
+				wis::check_hresult(factory->CreateSwapChainForHwnd(
+					CreateD3D11Device().get(),        // Swap chain needs the queue so that it can force a flush on it.
+					hwnd,
+					&desc,
+					nullptr,
+					nullptr,
+					swap.put()
+				));
+			}
 
 			wis::check_hresult(factory->CreateSwapChainForHwnd(
 				queue,        // Swap chain needs the queue so that it can force a flush on it.

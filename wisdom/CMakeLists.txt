@@ -54,6 +54,7 @@ if(WIN32)
 			DX12Allocator
 			Wil
 			d3d12
+			d3d11
 			DXGI
 			DXGUID
 	)

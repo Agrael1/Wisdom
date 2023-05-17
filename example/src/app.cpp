@@ -52,12 +52,13 @@ Test::App::App(uint32_t width, uint32_t height)
 	for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
 	{
 		auto desc = a.GetDesc();
+
 		if (desc.IsSoftware())
 			wis::lib_warn("Loading WARP adapter");
 
 		std::wcout << desc.to_string();
 
-		if (device.Initialize(a)) 
+		if (device.Initialize(a))
 		{ 
 			allocator = { device, a };
 			break;
