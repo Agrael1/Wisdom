@@ -817,9 +817,7 @@ namespace wis
 			return vsync ?
 				std::ranges::count(modes, eFifoRelaxed) ?
 				eFifoRelaxed : eFifo
-				:
-				std::ranges::count(modes, eMailbox) ?
-				eMailbox : eImmediate;
+				: eImmediate;
 		}
 
 
