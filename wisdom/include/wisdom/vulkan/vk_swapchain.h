@@ -93,6 +93,7 @@ namespace wis
 		VKSwapChain& operator=(VKSwapChain&&)noexcept = default;
 		~VKSwapChain()
 		{
+			ReleaseSemaphore();
 			// inconsistency on Vulkan side, images from swapchain are not deleted
 			for (auto& i : back_buffers)
 				i.GetInternal().buffer.unsafe_detach();
@@ -148,6 +149,16 @@ namespace wis
 			vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eTransfer;
 			signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
 			return wis::succeded(present_queue.submit(1, &signal_submit_info, {}));
+		}
+		void ReleaseSemaphore()noexcept
+		{
+			if (!present_semaphore)return;
+			vk::SubmitInfo signal_submit_info = {};
+			signal_submit_info.pNext = nullptr;
+			signal_submit_info.signalSemaphoreCount = 1;
+			signal_submit_info.pSignalSemaphores = &present_semaphore.get();
+			wis::succeded(present_queue.submit(1, &signal_submit_info, {}));
+			present_queue.waitIdle();
 		}
 	private:
 		std::vector<VKTexture> back_buffers;
