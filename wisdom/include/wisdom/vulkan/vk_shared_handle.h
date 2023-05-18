@@ -167,6 +167,7 @@ namespace wis
 		}
 		auto unsafe_detach()noexcept
 		{
+			control.release();
 			return std::exchange(handle, nullptr);
 		}
 		operator bool()const noexcept
