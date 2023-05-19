@@ -1,5 +1,5 @@
 #pragma once
-#include <format>
+#include <wisdom/bridge/format.h>
 
 #if defined(_WIN32) && WISDOMDX12
 #include <wisdom/dx12/dx12_definitions.h>

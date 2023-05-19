@@ -2,7 +2,7 @@
 #include <wisdom/api/api_factory.h>
 #include <wisdom/api/api_internal.h>
 #include <wisdom/util/log_layer.h>
-#include <wisdom/util/generator.h>
+#include <wisdom/bridge/generator.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
 #include <wisdom/vulkan/vk_adapter.h>
@@ -102,7 +102,7 @@ namespace wis
 			uint32_t version = 0;
 			vkEnumerateInstanceVersion(&version);
 
-			wis::lib_log(Severity::info, std::format("Vulkan ver: {}.{}.{}",
+			wis::lib_log(Severity::info, wis::format("Vulkan ver: {}.{}.{}",
 				VK_API_VERSION_MAJOR(version),
 				VK_API_VERSION_MINOR(version),
 				VK_API_VERSION_PATCH(version))

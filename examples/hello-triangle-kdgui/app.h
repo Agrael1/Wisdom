@@ -1,9 +1,7 @@
 #pragma once
-#include <KDGui/gui_application.h>
 #include <wisdom/wisdom.h>
-
-
-class Window;
+#include "window.h"
+#include <optional>
 
 namespace Test {
 	class App
@@ -17,8 +15,8 @@ namespace Test {
 		void Frame();
 		void WaitForGPU();
 	private:
-		KDGui::GuiApplication app;
-		Window* wnd;
+		XApp app;
+		Window wnd;
 
 		std::optional<wis::Factory> factory;
 

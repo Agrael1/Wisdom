@@ -1,20 +1,17 @@
 project(hello-triangle-kdgui)
 
-
+#set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 include(FetchContent)
 
-#if(NOT KDGUI_LOADED)
-	FetchContent_Declare(
-		kdgui
-		GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
-		GIT_TAG        master
-	)
-	set(BUILD_SHARED_LIBS OFF)
-	set(KDUTILS_BUILD_TESTS OFF)
-	FetchContent_MakeAvailable(kdgui)
-	
-	set(KDGUI_LOADED TRUE CACHE BOOL "KDGUI Loaded switch")
-#endif()
+FetchContent_Declare(
+	kdgui
+	GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
+	GIT_TAG        master
+)
+set(BUILD_SHARED_LIBS OFF)
+set(KDUTILS_BUILD_TESTS OFF)
+#set(SPDLOG_FMT_EXTERNAL ON)
+FetchContent_MakeAvailable(kdgui)
 
 
 
@@ -29,7 +26,7 @@ endif()
 
 target_link_libraries(
 	${PROJECT_NAME}
-		PUBLIC Wisdom KDFoundation KDGui
+		PUBLIC Wisdom PRIVATE KDFoundation KDGui
 )
 set_target_properties(${PROJECT_NAME}
     PROPERTIES

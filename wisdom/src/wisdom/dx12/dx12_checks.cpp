@@ -24,7 +24,7 @@ winrt::hresult wis::last_windows_error()noexcept
 }
 
 //Window Exception
-wis::hr_exception::hr_exception(winrt::hresult hr, std::source_location sl)
+wis::hr_exception::hr_exception(winrt::hresult hr, wis::source_location sl)
 	:exception(sl, false), hResult(hr)
 {
 	log();
@@ -45,7 +45,7 @@ const char* wis::hr_exception::what() const noexcept
 {
 	if (whatBuffer.empty())
 	{
-		whatBuffer = std::format(
+		whatBuffer = wis::format(
 			"{}\n[Error Code]: 0x{:08X}({})\n"
 			"[Description]: {}\n{}",
 			type(), (unsigned long)error_code(), (unsigned long)error_code(),

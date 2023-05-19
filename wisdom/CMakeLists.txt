@@ -100,7 +100,7 @@ set(HEADER_LIST
 	"include/wisdom/wisdom.h"
 	"include/wisdom/util/log_layer.h" 
 	"include/wisdom/util/flags.h" 
-	"include/wisdom/util/generator.h" 
+	"include/wisdom/bridge/generator.h" 
 	"include/wisdom/global/definitions.h" 
 	"include/wisdom/util/exception.h" 
 	"include/wisdom/api/api_factory.h" 
@@ -118,7 +118,8 @@ set(HEADER_LIST
 	"include/wisdom/util/misc.h"
 	"include/wisdom/api/api_render_pass.h"
 	"include/wisdom/util/small_allocator.h"
-)
+	"include/wisdom/bridge/format.h"
+ "include/wisdom/bridge/source_location.h")
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}
@@ -151,14 +152,6 @@ target_compile_definitions(${PROJECT_NAME}
 		NOMINMAX
 )
 
-#Clang
-#if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-#  set_target_properties(${PROJECT_NAME} 
-#	PROPERTIES
-#		CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-library"
-#)
-#endif()
-
 
 if (WIN32)
 	if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
@@ -170,6 +163,11 @@ elseif (APPLE)
 elseif (UNIX AND NOT APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_LINUX)
 endif ()
+
+if(WISDOM_USE_FMT)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_USE_FMT)
+	target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
+endif()
 
 
 target_install(${PROJECT_NAME})

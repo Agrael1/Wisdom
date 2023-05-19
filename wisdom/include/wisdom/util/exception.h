@@ -1,20 +1,20 @@
 #pragma once
 #include <exception>
-#include <format>
-#include <source_location>
+#include <wisdom/bridge/format.h>
+#include <wisdom/bridge/source_location.h>
 
 namespace wis
 {
 	class exception :std::exception
 	{
 	public:
-		exception(std::source_location sl = std::source_location::current(), bool write = true)noexcept;
+		exception(wis::source_location sl = wis::source_location::current(), bool write = true)noexcept;
 	public:
 		void log();
 		const char* what()const noexcept override
 		{
 			if (whatBuffer.empty())
-				whatBuffer = std::format("{}\n{}", type(), origin());
+				whatBuffer = wis::format("{}\n{}", type(), origin());
 			return whatBuffer.c_str();
 		}
 		virtual std::string_view type()const noexcept
@@ -35,10 +35,10 @@ namespace wis
 		}
 		std::string origin()const noexcept
 		{
-			return std::format("[File]: {}\n[Line]: {}\n[Function]: {}", file(), line(), function());
+			return wis::format("[File]: {}\n[Line]: {}\n[Function]: {}", file(), line(), function());
 		}
 	private:
-		std::source_location sl;
+		wis::source_location sl;
 	protected:
 		mutable std::string whatBuffer;
 	};

@@ -38,6 +38,8 @@ Right now the build works only on Windows, but others will be available soon.
 - `WISDOM_FORCE_VULKAN=OFF` if set ON forces base types to be Vulkan, useful for debugging Vulkan extensions
 - `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation 
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation 
+- `WISDOM_USE_FMT=ON/OFF` use fmt instead of std::format (ON for Linux build for GCC<13 and Clang<16)
+ 
 
 # System Requirements
 

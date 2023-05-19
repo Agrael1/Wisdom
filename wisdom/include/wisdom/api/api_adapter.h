@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/util/flags.h>
-#include <format>
+#include <wisdom/bridge/format.h>
 
 
 namespace wis
@@ -40,7 +40,7 @@ namespace wis
 		}
 		std::wstring to_string()const noexcept
 		{
-			return std::format(
+			return wis::format(
 				L"[description]: {}\n"
 				L"[vendor id]: 0x{:X}\n"
 				L"[device id]: 0x{:X}\n"

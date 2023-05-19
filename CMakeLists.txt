@@ -25,9 +25,17 @@ option(WISDOM_FORCE_VULKAN "Forces the default device to be vulkan, instead of p
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ON)
 option(WISDOM_BUILD_TESTS "Build the tests." ON)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-library -stdlib=libc++")
+#test//remove
+set(WISDOM_USE_FMT ON)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13"
+    OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "16")
+	option(WISDOM_USE_FMT "Build Wisdom with fmtlib" ON)
+else()
+	option(WISDOM_USE_FMT "Build Wisdom with fmtlib" OFF)
 endif()
+
+
 
 
 # Additional CMake functions.

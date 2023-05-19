@@ -9,20 +9,38 @@
 */
 
 #pragma once
-
-#include <KDGui/window.h>
 #include <wisdom/api/api_swapchain.h>
-
-namespace KDGpu {
-	class Instance;
-}
+#include <memory>
 
 
-class Window : public KDGui::Window
+class WindowP;
+class Window
 {
+	friend class XApp;
+private:
+	Window(uint32_t width, uint32_t height, WindowP* p);
 public:
-	Window(uint32_t width, uint32_t height);
+	~Window();
 public:
+	bool visible()const noexcept;
+	uint32_t width()const noexcept;
+	uint32_t height()const noexcept;
 	wis::SurfaceParameters GetSurfaceOptions()const noexcept;
 	//KDGpu::Surface createSurface(KDGpu::Instance& instance);
+private:
+	WindowP* p;
 };
+
+class XAppP;
+class XApp
+{
+public:
+	XApp();
+	~XApp();
+public:
+	void ProcessEvents();
+	Window createWindow(uint32_t width, uint32_t height);
+private:
+	std::unique_ptr<XAppP> p;
+};
+

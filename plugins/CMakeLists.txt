@@ -1,5 +1,18 @@
 include(FetchContent)
 
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
+if(WISDOM_USE_FMT)
+	message("Loading fmtlib...")
+    FetchContent_Declare(
+		fmt
+		GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+		GIT_TAG origin/master
+    )
+    FetchContent_MakeAvailable(fmt)
+endif()
+
+
 # Win32 plugins
 if(WIN32)
 	find_program(NUGET_EXE NAMES nuget PATHS ${CMAKE_SOURCE_DIR}/Plugins/NuGet)

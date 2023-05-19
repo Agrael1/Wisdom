@@ -11,8 +11,8 @@ if(NOT PLUGINS_LOADED)
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ""
     )
-     set(WIL_BUILD_PACKAGING OFF)
-     set(WIL_BUILD_TESTS OFF)
+    set(WIL_BUILD_PACKAGING OFF)
+    set(WIL_BUILD_TESTS OFF)
 
     FetchContent_MakeAvailable(wil)
     

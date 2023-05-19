@@ -60,11 +60,15 @@ namespace wis
 		{
 			return allocator.data();
 		}
-		template<class Self>
-		decltype(auto) at(this Self&& s, size_t n)noexcept
+		decltype(auto) at(size_t n)noexcept
 		{
-			return s.allocator[n];
+			return allocator.at(n);
 		}
+		decltype(auto) at(size_t n)const noexcept
+		{
+			return allocator.at(n);
+		}
+
 		size_t size()const noexcept
 		{
 			return rsize;
@@ -74,15 +78,23 @@ namespace wis
 			for (size_t i = rsize; i < max_size; i++)
 				if (map[i])allocator[rsize++] = allocator[i];
 		}
-		template<class Self>
-		decltype(auto) begin(this Self&& s)
+
+		decltype(auto) begin()
 		{
-			return s.allocator.begin();
+			return allocator.begin();
 		}
-		template<class Self>
-		decltype(auto) end(this Self&& s)
+		decltype(auto) begin()const
 		{
-			return s.allocator.begin() + s.rsize;
+			return allocator.begin();
+		}
+
+		decltype(auto) end()
+		{
+			return allocator.begin() + rsize;
+		}
+		decltype(auto) end()const
+		{
+			return allocator.begin() + rsize;
 		}
 	private:
 		alignas(void*)std::array<T, max_size> allocator{};

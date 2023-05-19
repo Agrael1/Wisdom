@@ -117,15 +117,13 @@ namespace wis
 			release();
 		}
 	public:
-		template<class Self>
-		auto get(this Self&& s)noexcept
+		auto get()const noexcept
 		{
-			return s.handle;
+			return handle;
 		}
-		template<class Self>
-		auto* put(this Self&& s)noexcept
+		auto* put()noexcept
 		{
-			return &s.handle;
+			return &handle;
 		}
 		operator bool()const noexcept
 		{
@@ -275,15 +273,13 @@ namespace wis
 			release();
 		}
 	public:
-		template<class Self>
-		auto get(this Self&& s)noexcept
+		auto get()const noexcept
 		{
-			return s.handle;
+			return handle;
 		}
-		template<class Self>
-		auto* put(this Self&& s)noexcept
+		auto* put()noexcept
 		{
-			return &s.handle;
+			return &handle;
 		}
 		operator bool()const noexcept
 		{

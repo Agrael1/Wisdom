@@ -1,15 +1,14 @@
+#include "app.h"
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-#include "window.h"
-#include "app.h"
 
 
 struct LogProvider : public wis::LogLayer
 {
-	virtual void Log(wis::Severity sev, std::string message, std::source_location sl = std::source_location::current())override
+	virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current())override
 	{
-		std::cout << std::format("[{}]: {}\n", wis::severity_strings[+sev], message);
+		std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
 	};
 };
 
@@ -43,9 +42,8 @@ std::span<std::byte> RawView(T& data)
 }
 
 Test::App::App(uint32_t width, uint32_t height)
+	:wnd(app.createWindow(width, height))
 {
-	wnd = app.createChild<Window>(width, height);
-
 	wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
 	factory.emplace(app_info);
@@ -72,7 +70,7 @@ Test::App::App(uint32_t width, uint32_t height)
 			.width = uint32_t(width),
 			.height = uint32_t(height),
 			.stereo = true
-		},wnd->GetSurfaceOptions());
+		},wnd.GetSurfaceOptions());
 
 	fence = device.CreateFence();
 	context = device.CreateCommandList(wis::QueueType::direct);
@@ -148,14 +146,14 @@ Test::App::App(uint32_t width, uint32_t height)
 }
 Test::App::~App()
 {
-	wnd->destroy();
+	WaitForGPU();
 }
 int Test::App::Start()
 {
 	while (true)
 	{
-		app.processEvents();
-		if (!wnd->visible.get())
+		app.ProcessEvents();
+		if (!wnd.visible())
 			return 0;
 		//Process Events
 
@@ -183,8 +181,8 @@ void Test::App::Frame()
 	};
 
 	context.SetGraphicsRootSignature(root);
-	context.RSSetViewport({ .width = float(wnd->width.get()), .height = float(wnd->height.get()) });
-	context.RSSetScissorRect({ .right = long(wnd->width.get()), .bottom = long(wnd->height.get()) });
+	context.RSSetViewport({ .width = float(wnd.width()), .height = float(wnd.height()) });
+	context.RSSetScissorRect({ .right = long(wnd.width()), .bottom = long(wnd.height()) });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	context.IASetVertexBuffers({ &vb, 1 });
 

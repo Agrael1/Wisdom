@@ -342,7 +342,7 @@ namespace wis
 				if (x.Empty())continue;
 
 				if (adapter.getSurfaceSupportKHR(x.family_index, surface.get())) {
-					present_queue = i; lib_info(std::format("Present queue {} selected", i)); break;
+					present_queue = i; lib_info(wis::format("Present queue {} selected", i)); break;
 				}
 			}
 			if (present_queue == -1)
@@ -368,14 +368,14 @@ namespace wis
 				});
 			if (format == surface_formats.end() || format->format == vk::Format::eUndefined)
 			{
-				lib_error(std::format("Supplied format {} is not supported by surface", data_format_strings[+options.format]));
+				lib_error(wis::format("Supplied format {} is not supported by surface", data_format_strings[+options.format]));
 				return{}; //Format specified is not supported
 			}
 
 			auto cap = adapter.getSurfaceCapabilitiesKHR(surface.get());
 			bool stereo = cap.maxImageArrayLayers > 1;
 			if (options.stereo && stereo)
-				lib_info(std::format("Stereo mode is ativated"));
+				lib_info(wis::format("Stereo mode is ativated"));
 
 			uint32_t layers = options.stereo && stereo ? 2u : 1u;
 
@@ -721,7 +721,7 @@ namespace wis
 		{
 			using namespace river::flags;
 			auto family_props = adapter.getQueueFamilyProperties();
-			wis::lib_info(std::format("The system supports {} queue families", family_props.size()));
+			wis::lib_info(wis::format("The system supports {} queue families", family_props.size()));
 
 			for (uint8_t i = 0; i < family_props.size(); i++)
 			{
@@ -734,7 +734,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Graphics queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Graphics queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eCompute) == eCompute && queues.available_queues[+QueueTypes::compute].Empty())
@@ -744,7 +744,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Compute queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Compute queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eVideoDecodeKHR) == eVideoDecodeKHR && queues.available_queues[+QueueTypes::video_decode].Empty())
@@ -754,7 +754,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Video Decode queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Video Decode queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eTransfer) == eTransfer && queues.available_queues[+QueueTypes::copy].Empty())
@@ -764,7 +764,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Data Transfer queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Data Transfer queues: {}", family.queueCount));
 					continue;
 				}
 			}
@@ -803,7 +803,7 @@ namespace wis
 			{
 				wis::lib_info("Active Device Extensions:");
 				for (auto& i : avail_exts)
-					wis::lib_info(std::format("\t{}", i));
+					wis::lib_info(wis::format("\t{}", i));
 			}
 
 			return avail_exts;

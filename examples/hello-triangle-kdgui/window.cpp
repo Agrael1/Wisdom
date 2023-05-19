@@ -11,7 +11,7 @@
 #include "window.h"
 
 #include <KDFoundation/config.h> // for KD_PLATFORM
-#include <KDFoundation/core_application.h>
+#include <KDGui/gui_application.h>
 
 #if defined(KD_PLATFORM_WIN32)
 #include <KDGui/platform/win32/win32_platform_window.h>
@@ -23,33 +23,82 @@
 extern CAMetalLayer* createMetalLayer(KDGui::Window* window);
 #endif
 
+#include <KDGui/window.h>
+#include <KDGui/gui_application.h>
 
-Window::Window(uint32_t width, uint32_t height)
-	: KDGui::Window()
+class WindowP : public KDGui::Window
 {
-	this->width = 1920;
-	this->height = 1080;
-	visible = true;
+	
+};
+
+
+Window::Window(uint32_t width, uint32_t height, WindowP* p)
+	: p(p)
+{
+	p->width = 1920;
+	p->height = 1080;
+	p->visible = true;
+}
+Window::~Window()
+{
+	p->destroy();
 }
 
+uint32_t Window::width() const noexcept
+{
+	return p->width.get();
+}
+uint32_t Window::height() const noexcept
+{
+	return p->height.get();
+}
 
 wis::SurfaceParameters Window::GetSurfaceOptions()const noexcept
 {
 #if defined(KD_PLATFORM_WIN32)
-	auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow*>(platformWindow());
+	auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow*>(p->platformWindow());
 	return wis::SurfaceParameters{
 		win32Window->handle()
 	};
 #elif defined(KD_PLATFORM_LINUX)
-	auto xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(platformWindow());
+	auto xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
 	return wis::SurfaceParameters{
 		xcbWindow->connection(),
 		xcbWindow->handle()
 	};
 #elif defined(KD_PLATFORM_MACOS)
-	return KDGpu::SurfaceOptions{
+	return wis::SurfaceParameters{
 		.layer = createMetalLayer(this)
 	};
 #endif
 	return {};
+}
+bool Window::visible() const noexcept
+{
+	return p->visible.get();
+}
+
+
+class XAppP
+{
+public:
+	KDGui::GuiApplication app;
+};
+
+XApp::XApp()
+	:p(new XAppP())
+{
+}
+XApp::~XApp()
+{
+}
+
+
+void XApp::ProcessEvents()
+{
+	p->app.processEvents();
+}
+Window XApp::createWindow(uint32_t width, uint32_t height)
+{
+	return Window(width, height, p->app.createChild<WindowP>());
 }

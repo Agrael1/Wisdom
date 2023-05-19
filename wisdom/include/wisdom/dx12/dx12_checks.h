@@ -8,7 +8,7 @@ namespace wis
 	class hr_exception :public wis::exception
 	{
 	public:
-		hr_exception(winrt::hresult hr, std::source_location sl = std::source_location::current());
+		hr_exception(winrt::hresult hr, wis::source_location sl = wis::source_location::current());
 	public:
 		const char* what() const noexcept override;
 		std::string_view type()const noexcept override
@@ -31,20 +31,20 @@ namespace wis
 	winrt::hresult last_windows_error() noexcept;
 
 
-	inline void check_context(std::source_location sl = std::source_location::current())
+	inline void check_context(wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (debug_mode)
 			if (log_dxgi_errors())
 				throw wis::exception{ sl };
 	}
 
-	inline void check_bool(bool check, std::source_location sl = std::source_location::current())
+	inline void check_bool(bool check, wis::source_location sl = wis::source_location::current())
 	{
 		if (check)return;
 		log_dxgi_errors();
 		throw wis::exception{ sl };
 	}
-	inline void check_hresult(winrt::hresult hr, std::source_location sl = std::source_location::current())
+	inline void check_hresult(winrt::hresult hr, wis::source_location sl = wis::source_location::current())
 	{
 		log_dxgi_errors();
 		if (hr >= 0)return;
@@ -55,7 +55,7 @@ namespace wis
 		log_dxgi_errors();
 		return hr >= 0;
 	}
-	inline void check_windows(bool check, std::source_location sl = std::source_location::current())
+	inline void check_windows(bool check, wis::source_location sl = wis::source_location::current())
 	{
 		if (check)return;
 		throw wis::hr_exception{ last_windows_error(), sl };

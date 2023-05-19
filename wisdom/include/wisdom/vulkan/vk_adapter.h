@@ -2,6 +2,7 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
 #include <wisdom/api/api_adapter.h>
+#include <span>
 
 namespace wis
 {
