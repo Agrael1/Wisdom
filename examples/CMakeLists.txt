@@ -1,0 +1,10 @@
+add_subdirectory(shaders)
+if(WIN32)
+	add_subdirectory(hello-triangle-win32)
+	add_subdirectory(hello-triangle-winrt)
+endif()
+
+find_package(Vulkan)
+if(Vulkan_FOUND)
+	add_subdirectory(hello-triangle-kdgui)
+endif()

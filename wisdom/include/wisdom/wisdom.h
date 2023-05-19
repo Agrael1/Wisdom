@@ -3,12 +3,32 @@
 // Select default API
 // Override with WFORCEVK
 
-#if WISDOMDX12 && !defined(WFORCEVK)
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP&& _WIN32&& __cplusplus_winrt, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS&& _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX&& __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+#if defined(WISDOM_VULKAN_FOUND) && defined(WFORCEVK) 
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+
+
+
+#if WISDOMDX12 && !FORCEVK_SWITCH
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
 
-//dx12 
+//dx12
 namespace wis
 {
 	using Factory = DX12Factory;
@@ -28,12 +48,12 @@ namespace wis
 	using VertexBufferView = DX12VertexBufferView;
 	using RenderPass = DX12RenderPass;
 }
-#elif WISDOMMTL  //MAC
+#elif WISDOMMTL && !FORCEVK_SWITCH //MAC
 //metal
 namespace wis
 {
 }
-#else
+#elif WISDOM_VULKAN_FOUND
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vulkan/vk_state_builder.h>
@@ -58,4 +78,6 @@ namespace wis
 	using VertexBufferView = VKVertexBufferView;
 	using RenderPass = VKRenderPass;
 }
+#else
+#error "No API selected"
 #endif

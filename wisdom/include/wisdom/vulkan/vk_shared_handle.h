@@ -160,10 +160,9 @@ namespace wis
 			release();
 		}
 	public:
-		template<class Self>
-		auto get(this Self&& s)noexcept
+		auto get()const noexcept
 		{
-			return s.handle;
+			return handle;
 		}
 		auto unsafe_detach()noexcept
 		{

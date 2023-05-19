@@ -1,22 +1,47 @@
 ﻿# CMakeList.txt : CMake project for Wisdom
 project(Wisdom)
 
+
 find_package(Vulkan)
 add_library(${PROJECT_NAME} STATIC)
 
 if(Vulkan_FOUND)
 	message("Vulkan found!")
 	set(WISDOMVK TRUE)
-		target_link_libraries(${PROJECT_NAME} 
+
+	target_link_libraries(${PROJECT_NAME} 
 		PUBLIC
 			VKAllocator
 	)
+
 	set(VKHEADERS
-	
-	 "include/wisdom/vulkan/vk_factory.h" "include/wisdom/vulkan/vk_definitions.h" "include/wisdom/vulkan/vk_adapter.h" "include/wisdom/vulkan/vk_shared_handle.h"  "include/wisdom/vulkan/vk_dynamic_loader.h" "include/wisdom/vulkan/vk_device.h" "include/wisdom/vulkan/vk_allocator.h"  "include/wisdom/vulkan/vk_allocator_handles.h" "include/wisdom/vulkan/vk_command_queue.h" "include/wisdom/vulkan/vk_fence.h" "include/wisdom/vulkan/vk_checks.h" "include/wisdom/vulkan/vk_swapchain.h" "include/wisdom/vulkan/vk_format.h" "include/wisdom/vulkan/vk_resource.h" "include/wisdom/vulkan/vk_rtv.h" "include/wisdom/vulkan/vk_command_list.h" "include/wisdom/vulkan/vk_render_pass.h" "include/wisdom/vulkan/vk_pipeline_state.h" "include/wisdom/vulkan/vk_state_builder.h" "include/wisdom/vulkan/vk_shader.h" "include/wisdom/vulkan/vk_root_signature.h" "include/wisdom/vulkan/vk_buffer_views.h")
+		"include/wisdom/vulkan/vk_factory.h" 
+		"include/wisdom/vulkan/vk_definitions.h"
+		"include/wisdom/vulkan/vk_adapter.h"
+		"include/wisdom/vulkan/vk_shared_handle.h"
+		"include/wisdom/vulkan/vk_dynamic_loader.h"
+		"include/wisdom/vulkan/vk_device.h"
+		"include/wisdom/vulkan/vk_allocator.h"
+		"include/wisdom/vulkan/vk_allocator_handles.h"
+		"include/wisdom/vulkan/vk_command_queue.h"
+		"include/wisdom/vulkan/vk_fence.h"
+		"include/wisdom/vulkan/vk_checks.h"
+		"include/wisdom/vulkan/vk_swapchain.h"
+		"include/wisdom/vulkan/vk_format.h"
+		"include/wisdom/vulkan/vk_resource.h"
+		"include/wisdom/vulkan/vk_rtv.h"
+		"include/wisdom/vulkan/vk_command_list.h"
+		"include/wisdom/vulkan/vk_render_pass.h"
+		"include/wisdom/vulkan/vk_pipeline_state.h"
+		"include/wisdom/vulkan/vk_state_builder.h"
+		"include/wisdom/vulkan/vk_shader.h"
+		"include/wisdom/vulkan/vk_root_signature.h"
+		"include/wisdom/vulkan/vk_buffer_views.h"
+	)
 	set(VKSOURCES
-	
-	 "src/wisdom/vulkan/vk_factory.cpp" )
+		"src/wisdom/vulkan/vk_factory.cpp" 
+	)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
 endif()
 
 
@@ -42,7 +67,11 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_root_signature.h" 
 		"include/wisdom/dx12/dx12_shader.h" 
 		"include/wisdom/dx12/dx12_allocator.h" 
-		"include/wisdom/dx12/dx12_state_builder.h" "include/wisdom/dx12/dx12_buffer_views.h" "include/wisdom/dx12/dx12_render_pass.h" "include/wisdom/dx12/dx12_format.h" )
+		"include/wisdom/dx12/dx12_state_builder.h"
+		"include/wisdom/dx12/dx12_buffer_views.h"
+		"include/wisdom/dx12/dx12_render_pass.h"
+		"include/wisdom/dx12/dx12_format.h" 
+	)
 	set(DX12SOURCES
 		"src/wisdom/dx12/dx12_checks.cpp"
 		"src/wisdom/dx12/dx12_info.cpp"
@@ -58,23 +87,12 @@ if(WIN32)
 			DXGI
 			DXGUID
 	)
-	target_compile_definitions(${PROJECT_NAME} 
-		PUBLIC 
-			VK_USE_PLATFORM_WIN32_KHR
-	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT FORCE_VULKAN)
 	message("Platform Library is Metal")
 	set(WISDOMMTL TRUE)
-	target_compile_definitions(${PROJECT_NAME} 
-		PUBLIC 
-			VK_USE_PLATFORM_METAL_EXT
-	)
 	message(FATAL_ERROR "Metal is not implemented")
 else()
-	#	target_compile_definitions(${PROJECT_NAME} 
-	#		PUBLIC 
-	#			VK_USE_PLATFORM_METAL_EXT
-	#	)
+
 endif()
 
 
@@ -88,7 +106,19 @@ set(HEADER_LIST
 	"include/wisdom/api/api_factory.h" 
 	"include/wisdom/api/api_barrier.h" 
 	"include/wisdom/api/api_internal.h"
- "include/wisdom/api/api_adapter.h"  "include/wisdom/api/api_swapchain.h" "include/wisdom/util/winsetup.h"  "include/wisdom/api/api_barrier.h"  "include/wisdom/shader_compiler.h" "include/wisdom/api/api_shader.h"  "include/wisdom/api/api_input_layout.h"   "include/wisdom/util/profile.h"  "include/wisdom/api/api_common.h" "include/wisdom/util/misc.h" "include/wisdom/api/api_render_pass.h" "include/wisdom/util/small_allocator.h")
+	"include/wisdom/api/api_adapter.h"
+	"include/wisdom/api/api_swapchain.h"
+	"include/wisdom/util/winsetup.h"
+	"include/wisdom/api/api_barrier.h"
+	"include/wisdom/shader_compiler.h"
+	"include/wisdom/api/api_shader.h"
+	"include/wisdom/api/api_input_layout.h"
+	"include/wisdom/util/profile.h"
+	"include/wisdom/api/api_common.h"
+	"include/wisdom/util/misc.h"
+	"include/wisdom/api/api_render_pass.h"
+	"include/wisdom/util/small_allocator.h"
+)
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}
@@ -98,9 +128,7 @@ target_sources(${PROJECT_NAME}
 	PRIVATE 
 		${DX12SOURCES}
 		${VKSOURCES}
-		"src/x.cpp"
 		"src/wisdom/util/exception.cpp"
-
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
@@ -122,5 +150,26 @@ target_compile_definitions(${PROJECT_NAME}
 		WISDOM_LOG_LEVEL=${SEV_INDEX}
 		NOMINMAX
 )
+
+#Clang
+#if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#  set_target_properties(${PROJECT_NAME} 
+#	PROPERTIES
+#		CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-library"
+#)
+#endif()
+
+
+if (WIN32)
+	if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+		target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_UWP)
+	endif()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_WINDOWS VK_USE_PLATFORM_WIN32_KHR)
+elseif (APPLE)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_MAC VK_USE_PLATFORM_METAL_EXT)
+elseif (UNIX AND NOT APPLE)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_LINUX)
+endif ()
+
 
 target_install(${PROJECT_NAME})

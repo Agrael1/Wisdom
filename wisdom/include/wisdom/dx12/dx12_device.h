@@ -101,11 +101,12 @@ namespace wis
 			case SurfaceParameters::Type::Win32:
 				chain = DX12Factory::SwapChainForWin32(desc, surface.hwnd, queue);
 				break;
+#ifdef WISDOM_UWP
 			case SurfaceParameters::Type::WinRT:
 				chain = DX12Factory::SwapChainForCoreWindow(desc, surface.core_window, queue);
 				break;
+#endif
 			}
-
 			return DX12SwapChain{ std::move(chain) ,options.frame_count, bool(desc.Stereo) };
 		}
 

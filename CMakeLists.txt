@@ -22,10 +22,12 @@ message("[Wisdom] Log Level is set to ${LOG_LEVEL} [${SEV_INDEX}]")
 
 option(WISDOM_RUNTIME_ASSERTS "Turn on/off runtime assertions (turned on might slightly affect performance)" ON)
 option(WISDOM_FORCE_VULKAN "Forces the default device to be vulkan, instead of platform specific" OFF)
-option(WISDOM_BUILD_EXAMPLE "Build the example project." ON)
+option(WISDOM_BUILD_EXAMPLES "Build the example project." ON)
 option(WISDOM_BUILD_TESTS "Build the tests." ON)
 
-
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-library -stdlib=libc++")
+endif()
 
 
 # Additional CMake functions.
@@ -35,8 +37,8 @@ include(Misc.cmake)
 add_subdirectory ("plugins")
 add_subdirectory ("wisdom")
 
-if(WISDOM_BUILD_EXAMPLE)
-	add_subdirectory ("example")
+if(WISDOM_BUILD_EXAMPLES)
+	add_subdirectory ("examples")
 endif()
 
 if(WISDOM_BUILD_TESTS)
