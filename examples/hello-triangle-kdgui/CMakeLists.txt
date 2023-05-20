@@ -1,8 +1,5 @@
 project(hello-triangle-kdgui)
 
-#set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-include(FetchContent)
-
 FetchContent_Declare(
 	kdgui
 	GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
@@ -10,7 +7,6 @@ FetchContent_Declare(
 )
 set(BUILD_SHARED_LIBS OFF)
 set(KDUTILS_BUILD_TESTS OFF)
-#set(SPDLOG_FMT_EXTERNAL ON)
 FetchContent_MakeAvailable(kdgui)
 
 
@@ -26,17 +22,25 @@ endif()
 
 target_link_libraries(
 	${PROJECT_NAME}
-		PUBLIC Wisdom PRIVATE KDFoundation KDGui
+		PUBLIC Wisdom glm::glm PRIVATE KDFoundation KDGui
 )
 set_target_properties(${PROJECT_NAME}
     PROPERTIES
         CXX_STANDARD 23
 )
+target_compile_definitions(${PROJECT_NAME} 
+	PUBLIC 
+		SHADER_DIR="${SHADER_DIR}"
+		GLM_FORCE_SIMD_AVX2
+		GLM_FORCE_ALIGNED_GENTYPES
+)
 
-#target_include_directories(${PROJECT_NAME} PUBLIC
-#	${CMAKE_CURRENT_SOURCE_DIR}/include
-#)
-target_compile_definitions(${PROJECT_NAME} PUBLIC SHADER_DIR="${SHADER_DIR}")
+if(UNIX)
+	target_link_options(${PROJECT_NAME} 
+		PRIVATE 
+			"-lm"
+	)
+endif()
 
 add_dependencies(${PROJECT_NAME}
     compile_shaders_kd

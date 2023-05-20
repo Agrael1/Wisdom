@@ -7,11 +7,11 @@ namespace wis
 	template<>
 	class shared_handle<vma::Allocator>
 	{
-		using parent = vk::Device;
+		using xparent = vk::Device;
 
 		struct shared_header
 		{
-			shared_handle<parent> parent{};
+			shared_handle<xparent> parent{};
 			std::atomic_size_t ref_cnt{1};
 		};
 
@@ -19,7 +19,7 @@ namespace wis
 		{
 		public:
 			control_block() = default;
-			control_block(shared_handle<parent> xparent)
+			control_block(shared_handle<xparent> xparent)
 			{
 				allocate();
 				control->parent = std::move(xparent);
@@ -72,11 +72,11 @@ namespace wis
 			{
 				control = new shared_header;
 			}
-			parent get_parent()noexcept
+			xparent get_parent()noexcept
 			{
 				return control->parent.get();
 			}
-			shared_handle<parent> get_parent_handle()const
+			shared_handle<xparent> get_parent_handle()const
 			{
 				return control->parent;
 			}
@@ -86,7 +86,7 @@ namespace wis
 
 	public:
 		shared_handle() = default;
-		explicit shared_handle(vma::Allocator handle, shared_handle<parent> xparent)
+		explicit shared_handle(vma::Allocator handle, shared_handle<xparent> xparent)
 			:handle(handle), control(std::move(xparent))
 		{}
 		shared_handle(const shared_handle& o)noexcept
@@ -146,7 +146,7 @@ namespace wis
 			if (r == 1)internal_destroy();
 			return control.release();
 		}
-		shared_handle<parent> get_device_handle()const
+		shared_handle<xparent> get_device_handle()const
 		{
 			return control.get_parent_handle();
 		}
@@ -167,11 +167,11 @@ namespace wis
 	template<>
 	class shared_handle<vma::Allocation>
 	{
-		using parent = vma::Allocator;
+		using xparent = vma::Allocator;
 
 		struct shared_header
 		{
-			shared_handle<parent> parent{};
+			shared_handle<xparent> parent{};
 			std::atomic_size_t ref_cnt{1};
 		};
 
@@ -179,7 +179,7 @@ namespace wis
 		{
 		public:
 			control_block() = default;
-			control_block(shared_handle<parent> xparent)
+			control_block(shared_handle<xparent> xparent)
 			{
 				allocate();
 				control->parent = std::move(xparent);
@@ -232,7 +232,7 @@ namespace wis
 			{
 				control = new shared_header;
 			}
-			parent get_parent()const noexcept
+			xparent get_parent()const noexcept
 			{
 				return control->parent.get();
 			}
@@ -242,7 +242,7 @@ namespace wis
 
 	public:
 		shared_handle() = default;
-		explicit shared_handle(vma::Allocation handle, shared_handle<parent> xparent)
+		explicit shared_handle(vma::Allocation handle, shared_handle<xparent> xparent)
 			:handle(handle), control(std::move(xparent))
 		{}
 		shared_handle(const shared_handle& o)noexcept

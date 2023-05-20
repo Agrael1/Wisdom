@@ -2,6 +2,8 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 
 
 struct LogProvider : public wis::LogLayer
@@ -106,8 +108,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
 	struct Vertex
 	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT4 col;
+		glm::vec3 pos;
+		glm::vec4 col;
 	};
 	auto aspect_ratio = float(width) / float(height);
 	Vertex triangleVertices[] =

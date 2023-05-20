@@ -221,7 +221,7 @@ namespace wis
 	{
 		using namespace river::flags;
 		uint32_t result{};
-		if (access == ResourceAccess::Common)return vk::AccessFlags(vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
+		if (access == ResourceAccess::Common)return vk::AccessFlags(+vk::AccessFlagBits::eMemoryRead | +vk::AccessFlagBits::eMemoryWrite);
 		if (access & ResourceAccess::VertexBuffer)result |= VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 		if (access & ResourceAccess::ConstantBuffer)result |= VK_ACCESS_UNIFORM_READ_BIT;
 		if (access & ResourceAccess::IndexBuffer)result |= VK_ACCESS_INDEX_READ_BIT;

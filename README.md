@@ -46,12 +46,12 @@ Right now the build works only on Windows, but others will be available soon.
 **Windows:**
 - Windows 10/11
 - DirectX 12 capable video card
-- CMake 3.22+ (several features are 3.25+, but they are not mandatory)
+- CMake 3.25+
 
 Tested on MSVC v143, Visual Studio 2022
 
 for Vulkan:
-- Vulkan 1.3.x+
+- Vulkan 1.3.243+
 
 **Linux**
 - TBD...

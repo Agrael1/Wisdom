@@ -161,7 +161,7 @@ if (WIN32)
 elseif (APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_MAC VK_USE_PLATFORM_METAL_EXT)
 elseif (UNIX AND NOT APPLE)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_LINUX)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_LINUX VK_USE_PLATFORM_XCB_KHR)
 endif ()
 
 if(WISDOM_USE_FMT)

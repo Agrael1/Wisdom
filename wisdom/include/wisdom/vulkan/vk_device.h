@@ -116,8 +116,9 @@ namespace wis
 					return +QueueTypes::copy;
 				case wis::QueueType::video_decode:
 					return +QueueTypes::video_decode;
+				default:
+					return +QueueTypes::graphics;
 				}
-				return 0;
 			}
 			static constexpr size_t QueueFlag(QueueTypes type)
 			{
@@ -326,14 +327,14 @@ namespace wis
 #elif defined(WISDOM_MACOS)
 			vk::MetalSurfaceCreateInfoEXT surface_desc = {};
 			//surface_desc.pLayer = (__bridge CAMetalLayer*)window;
-			vk::UniqueSurfaceKHR surface{ instance.createMetalSurfaceEXTUnique(surface_desc) };
+			vk::UniqueSurfaceKHR surface{ instance->createMetalSurfaceEXTUnique(surface_desc) };
 			wis::lib_info("Initializing Metal Surface");
 #elif defined(WISDOM_LINUX)
 			vk::XcbSurfaceCreateInfoKHR surface_desc = {};
 			surface_desc.setConnection(xsurface.x11.connection);
 			surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
 			wis::lib_info("Initializing XCB Surface");
-			vk::UniqueSurfaceKHR surface{ instance.createXcbSurfaceKHRUnique(surface_desc) };
+			vk::UniqueSurfaceKHR surface{ instance->createXcbSurfaceKHRUnique(surface_desc) };
 #endif
 			int32_t present_queue = -1;
 			for (uint16_t i = 0; i < max_count; i++)
@@ -787,15 +788,15 @@ namespace wis
 				if (!ext_set.contains(i))continue;
 				avail_exts.allocate(i);
 
-				if (i == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME)
+				if (i == std::string_view(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME))
 					vrs_supported = true;
-				else if (i == VK_NV_MESH_SHADER_EXTENSION_NAME)
+				else if (i == std::string_view(VK_NV_MESH_SHADER_EXTENSION_NAME))
 					mesh_shader_supported = true;
-				else if (i == VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME)
+				else if (i == std::string_view(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
 					ray_tracing_supported = true;
-				else if (i == VK_KHR_RAY_QUERY_EXTENSION_NAME)
+				else if (i == std::string_view(VK_KHR_RAY_QUERY_EXTENSION_NAME))
 					ray_query_supported = true;
-				else if (i == VK_KHR_DRAW_INDIRECT_COUNT_EXTENSION_NAME)
+				else if (i == std::string_view(VK_KHR_DRAW_INDIRECT_COUNT_EXTENSION_NAME))
 					draw_indirect_supported = true;
 			}
 
