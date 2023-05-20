@@ -28,12 +28,12 @@ auto LoadShader(std::filesystem::path p)
 	else if constexpr (ShaderTy::language == wis::ShaderLang::spirv)
 		p += ".spv";
 
-	std::basic_ifstream<std::byte> t{ p, std::ios::binary };
+	std::ifstream t{ p, std::ios::binary };
 	t.seekg(0, std::ios::end);
 	size_t size = t.tellg();
 	wis::shared_blob<std::byte> ret{ size };
 	t.seekg(0);
-	t.read(ret.data(), size);
+	t.read(reinterpret_cast<char*>(ret.data()), size);
 	return ret;
 }
 
