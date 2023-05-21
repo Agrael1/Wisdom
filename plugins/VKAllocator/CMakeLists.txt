@@ -26,7 +26,6 @@ if(NOT PLUGINS_LOADED)
 	set(vkmahpp_SOURCES ${vkmahpp_SOURCE_DIR} CACHE INTERNAL "")
 endif()
 
-find_package(Vulkan REQUIRED)
 
 add_library(${PROJECT_NAME} STATIC ${vkma_SOURCES}/include/vk_mem_alloc.h)
 target_sources(${PROJECT_NAME}        

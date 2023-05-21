@@ -6,7 +6,7 @@ namespace wis
 	template<class Impl>
 	class Internal
 	{
-		static_assert(requires{Internal<Impl>::valid; }, "Internal class may be used only by explicit api types");
+		//static_assert(requires{Internal<Impl>::valid; }, "Internal class may be used only by explicit api types");
 	};
 
 	template<class T, class U>
@@ -22,7 +22,7 @@ namespace wis
 	struct cv_type<volatile T, U>{ using type = volatile U; };
 
 	template<class In, class Out>
-	using cv_type_t = cv_type<In, Out>::type;
+	using cv_type_t = typename cv_type<In, Out>::type;
 	
 
 	template<class Impl>
@@ -31,11 +31,10 @@ namespace wis
 	public:
 		using Internal<Impl>::Internal;
 	public:
-		template<class Self>
-		[[nodiscard]] auto& GetInternal(this Self&& s)
+		[[nodiscard]] 
+		const Internal<Impl>& GetInternal()const
 		{
-			return static_cast<cv_type<std::remove_reference_t<Self>, Internal<Impl>>::type&>(s);
+			return *this;
 		}
 	};
-
 }

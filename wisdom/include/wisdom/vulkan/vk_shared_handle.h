@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 #include <atomic>
 #include <wisdom/vulkan/vk_dynamic_loader.h>
 
@@ -33,25 +34,28 @@ namespace wis
 	template<class T>
 	using parent_of_t = typename parent_of<T>::parent;
 
-
-
 	template<class T, class Dispatcher = DynamicLoader>
+	class shared_handle;
+
+	template<class U>
+	struct shared_header
+	{
+		shared_handle<U> parent{};
+		std::atomic_size_t ref_cnt{ 1 };
+	};
+	template<>
+	struct shared_header<vk::NoParent>
+	{
+		std::atomic_size_t ref_cnt{ 1 };
+	};
+
+
+
+	template<class T, class Dispatcher>
 	class shared_handle
 	{
 		using parent = parent_of_t<T>;
 		static constexpr inline bool is_dynamic = std::same_as<Dispatcher, DynamicLoader>;
-
-		template<class U>
-		struct shared_header
-		{
-			shared_handle<parent> parent{};
-			std::atomic_size_t ref_cnt{1};
-		};
-		template<>
-		struct shared_header<vk::NoParent>
-		{
-			std::atomic_size_t ref_cnt{1};
-		};
 
 		struct control_block
 		{
@@ -160,10 +164,9 @@ namespace wis
 			release();
 		}
 	public:
-		template<class Self>
-		auto get(this Self&& s)noexcept
+		auto get()const noexcept
 		{
-			return s.handle;
+			return handle;
 		}
 		auto unsafe_detach()noexcept
 		{

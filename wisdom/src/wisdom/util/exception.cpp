@@ -1,7 +1,7 @@
 #include <wisdom/util/exception.h>
 #include <wisdom/util/log_layer.h>
 
-wis::exception::exception(std::source_location sl, bool write) noexcept
+wis::exception::exception(wis::source_location sl, bool write) noexcept
 	:sl(std::move(sl))
 {
 	if (write)log();

@@ -96,7 +96,11 @@ namespace wis
 			ReleaseSemaphore();
 			// inconsistency on Vulkan side, images from swapchain are not deleted
 			for (auto& i : back_buffers)
-				i.GetInternal().buffer.unsafe_detach();
+			{
+				// the state is immutable, but we can use copy to detach
+				auto cpy{ i.GetInternal().buffer };
+				cpy.unsafe_detach();
+			}
 		}
 	public:
 		[[nodiscard]] uint32_t GetNextIndex()const noexcept

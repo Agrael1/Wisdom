@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/util/flags.h>
 #include <memory>
-#include <source_location>
+#include <wisdom/bridge/source_location.h>
 #include <string>
 
 namespace wis
@@ -31,7 +31,7 @@ namespace wis
 	struct LogLayer
 	{
 		virtual ~LogLayer() = default;
-		virtual void Log(Severity sev, std::string message, std::source_location sl = std::source_location::current()) {};
+		virtual void Log(Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) {};
 	};
 
 
@@ -63,7 +63,7 @@ namespace wis
 
 	namespace
 	{
-		inline void lib_log_internal(Severity sev, std::string message, std::source_location sl = std::source_location::current())
+		inline void lib_log_internal(Severity sev, std::string message, wis::source_location sl = wis::source_location::current())
 		{
 			if (auto log_ptr = LibLogger::Get())
 				log_ptr->Log(sev, std::move(message), sl);
@@ -72,38 +72,38 @@ namespace wis
 
 
 	// Compile time resolved loggong for library
-	inline void lib_debug(std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_debug(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::debug)
 			lib_log_internal(Severity::debug, std::move(message), sl);
 	}
-	inline void lib_trace(std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_trace(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::trace)
 			lib_log_internal(Severity::trace, std::move(message), sl);
 	}
-	inline void lib_info(std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_info(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::info)
 			lib_log_internal(Severity::info, std::move(message), sl);
 	}
-	inline void lib_warn(std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_warn(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::warn)
 			lib_log_internal(Severity::warn, std::move(message), sl);
 	}
-	inline void lib_error(std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_error(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::error)
 			lib_log_internal(Severity::error, std::move(message), sl);
 	}
-	inline void lib_critical(std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_critical(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::critical)
 			lib_log_internal(Severity::critical, std::move(message), sl);
 	}
 
-	inline void lib_log(Severity sev, std::string message, std::source_location sl = std::source_location::current())
+	inline void lib_log(Severity sev, std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		switch (sev) {
 		case Severity::debug:

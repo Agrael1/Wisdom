@@ -63,11 +63,11 @@ namespace wis
 		{
 			return s.render_targets;
 		}
-		template<class Self>
+
 		[[nodiscard]] 
-		auto& GetBackBuffer(this Self&& s)noexcept
+		DX12BufferView GetBackBuffer()const noexcept
 		{
-			return s.render_targets[s.chain->GetCurrentBackBufferIndex()];
+			return render_targets[chain->GetCurrentBackBufferIndex()];
 		}
 
 		bool Present()noexcept

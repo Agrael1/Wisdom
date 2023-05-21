@@ -95,7 +95,7 @@ namespace wis
 			uint16_t queue_flags = 0;
 			uint8_t count = 0;
 			uint8_t family_index = 0;
-			mutable std::atomic<uint8_t> last{0};
+			mutable std::atomic<uint8_t> last{ 0 };
 		};
 		enum class QueueTypes : uint8_t
 		{
@@ -116,21 +116,22 @@ namespace wis
 					return +QueueTypes::copy;
 				case wis::QueueType::video_decode:
 					return +QueueTypes::video_decode;
+				default:
+					return +QueueTypes::graphics;
 				}
-				return 0;
 			}
 			static constexpr size_t QueueFlag(QueueTypes type)
 			{
 				using enum vk::QueueFlagBits;
 				switch (type)
 				{
-				case wis::VKDevice::QueueTypes::copy:
+				case QueueTypes::copy:
 					return +eTransfer;
-				case wis::VKDevice::QueueTypes::compute:
+				case QueueTypes::compute:
 					return +eCompute;
-				case wis::VKDevice::QueueTypes::graphics:
+				case QueueTypes::graphics:
 					return +eGraphics;
-				case wis::VKDevice::QueueTypes::video_decode:
+				case QueueTypes::video_decode:
 					return +eVideoDecodeKHR;
 				default:
 					return 0;
@@ -187,127 +188,127 @@ namespace wis
 				std::array<float, 64> priorities{};
 				priorities.fill(1.0f);
 				return priorities;
-			}();
+				}();
 
 
-			for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++)
-			{
-				auto& q_info = queue_infos[queue_info_size];
-				auto& q = queues.available_queues[queue_info_size];
-				if (!q.count)continue;
+				for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++)
+				{
+					auto& q_info = queue_infos[queue_info_size];
+					auto& q = queues.available_queues[queue_info_size];
+					if (!q.count)continue;
 
-				q_info.queueFamilyIndex = q.family_index;
-				q_info.queueCount = q.count; //hard wired for now
-				q_info.pQueuePriorities = priorities.data();
-				queue_count++;
-			}
+					q_info.queueFamilyIndex = q.family_index;
+					q_info.queueCount = q.count; //hard wired for now
+					q_info.pQueuePriorities = priorities.data();
+					queue_count++;
+				}
 
-			auto exts = RequestExtensions(adapter);
+				auto exts = RequestExtensions(adapter);
 
-			void* device_create_info_next = nullptr;
-			auto add_extension = [&](auto& extension)
-			{
-				extension.pNext = device_create_info_next;
-				device_create_info_next = &extension;
-			};
+				void* device_create_info_next = nullptr;
+				auto add_extension = [&](auto& extension)
+					{
+						extension.pNext = device_create_info_next;
+						device_create_info_next = &extension;
+					};
 
-			auto physical_device_features = adapter.getFeatures();
-			vk::PhysicalDeviceFeatures2 device_features;
-			{
-				device_features.features.robustBufferAccess = physical_device_features.robustBufferAccess;
-				device_features.features.fullDrawIndexUint32 = physical_device_features.fullDrawIndexUint32;
-				device_features.features.imageCubeArray = physical_device_features.imageCubeArray;
-				device_features.features.independentBlend = physical_device_features.independentBlend;
-				device_features.features.geometryShader = physical_device_features.geometryShader;
-				device_features.features.tessellationShader = physical_device_features.tessellationShader;
-				device_features.features.sampleRateShading = physical_device_features.sampleRateShading;
-				device_features.features.dualSrcBlend = physical_device_features.dualSrcBlend;
-				device_features.features.logicOp = physical_device_features.logicOp;
-				device_features.features.multiDrawIndirect = physical_device_features.multiDrawIndirect;
-				device_features.features.drawIndirectFirstInstance = physical_device_features.drawIndirectFirstInstance;
-				device_features.features.depthClamp = physical_device_features.depthClamp;
-				device_features.features.depthBiasClamp = physical_device_features.depthBiasClamp;
-				device_features.features.fillModeNonSolid = physical_device_features.fillModeNonSolid;
-				device_features.features.depthBounds = physical_device_features.depthBounds;
-				device_features.features.wideLines = physical_device_features.wideLines;
-				device_features.features.largePoints = physical_device_features.largePoints;
-				device_features.features.alphaToOne = physical_device_features.alphaToOne;
-				device_features.features.multiViewport = physical_device_features.multiViewport;
-				device_features.features.samplerAnisotropy = physical_device_features.samplerAnisotropy;
-				device_features.features.textureCompressionETC2 = physical_device_features.textureCompressionETC2;
-				device_features.features.textureCompressionASTC_LDR = physical_device_features.textureCompressionASTC_LDR;
-				device_features.features.textureCompressionBC = physical_device_features.textureCompressionBC;
-				device_features.features.occlusionQueryPrecise = physical_device_features.occlusionQueryPrecise;
-				device_features.features.pipelineStatisticsQuery = physical_device_features.pipelineStatisticsQuery;
-				device_features.features.vertexPipelineStoresAndAtomics = physical_device_features.vertexPipelineStoresAndAtomics;
-				device_features.features.fragmentStoresAndAtomics = physical_device_features.fragmentStoresAndAtomics;
-				device_features.features.shaderTessellationAndGeometryPointSize = physical_device_features.shaderTessellationAndGeometryPointSize;
-				device_features.features.shaderImageGatherExtended = physical_device_features.shaderImageGatherExtended;
-				device_features.features.shaderStorageImageExtendedFormats = physical_device_features.shaderStorageImageExtendedFormats;
-				device_features.features.shaderStorageImageMultisample = physical_device_features.shaderStorageImageMultisample;
-				device_features.features.shaderStorageImageReadWithoutFormat = physical_device_features.shaderStorageImageReadWithoutFormat;
-				device_features.features.shaderStorageImageWriteWithoutFormat = physical_device_features.shaderStorageImageWriteWithoutFormat;
-				device_features.features.shaderUniformBufferArrayDynamicIndexing = physical_device_features.shaderUniformBufferArrayDynamicIndexing;
-				device_features.features.shaderSampledImageArrayDynamicIndexing = physical_device_features.shaderSampledImageArrayDynamicIndexing;
-				device_features.features.shaderStorageBufferArrayDynamicIndexing = physical_device_features.shaderStorageBufferArrayDynamicIndexing;
-				device_features.features.shaderStorageImageArrayDynamicIndexing = physical_device_features.shaderStorageImageArrayDynamicIndexing;
-				device_features.features.shaderClipDistance = physical_device_features.shaderClipDistance;
-				device_features.features.shaderCullDistance = physical_device_features.shaderCullDistance;
-				device_features.features.shaderFloat64 = physical_device_features.shaderFloat64;
-				device_features.features.shaderInt64 = physical_device_features.shaderInt64;
-				device_features.features.shaderInt16 = physical_device_features.shaderInt16;
-				device_features.features.shaderResourceResidency = physical_device_features.shaderResourceResidency;
-				device_features.features.shaderResourceMinLod = physical_device_features.shaderResourceMinLod;
-				device_features.features.sparseBinding = physical_device_features.sparseBinding;
-				device_features.features.sparseResidencyBuffer = physical_device_features.sparseResidencyBuffer;
-				device_features.features.sparseResidencyImage2D = physical_device_features.sparseResidencyImage2D;
-				device_features.features.sparseResidencyImage3D = physical_device_features.sparseResidencyImage3D;
-				device_features.features.sparseResidency2Samples = physical_device_features.sparseResidency2Samples;
-				device_features.features.sparseResidency4Samples = physical_device_features.sparseResidency4Samples;
-				device_features.features.sparseResidency8Samples = physical_device_features.sparseResidency8Samples;
-				device_features.features.sparseResidency16Samples = physical_device_features.sparseResidency16Samples;
-				device_features.features.sparseResidencyAliased = physical_device_features.sparseResidencyAliased;
-				device_features.features.variableMultisampleRate = physical_device_features.variableMultisampleRate;
-				device_features.features.inheritedQueries = physical_device_features.inheritedQueries;
-			}
-			add_extension(device_features);
+				auto physical_device_features = adapter.getFeatures();
+				vk::PhysicalDeviceFeatures2 device_features;
+				{
+					device_features.features.robustBufferAccess = physical_device_features.robustBufferAccess;
+					device_features.features.fullDrawIndexUint32 = physical_device_features.fullDrawIndexUint32;
+					device_features.features.imageCubeArray = physical_device_features.imageCubeArray;
+					device_features.features.independentBlend = physical_device_features.independentBlend;
+					device_features.features.geometryShader = physical_device_features.geometryShader;
+					device_features.features.tessellationShader = physical_device_features.tessellationShader;
+					device_features.features.sampleRateShading = physical_device_features.sampleRateShading;
+					device_features.features.dualSrcBlend = physical_device_features.dualSrcBlend;
+					device_features.features.logicOp = physical_device_features.logicOp;
+					device_features.features.multiDrawIndirect = physical_device_features.multiDrawIndirect;
+					device_features.features.drawIndirectFirstInstance = physical_device_features.drawIndirectFirstInstance;
+					device_features.features.depthClamp = physical_device_features.depthClamp;
+					device_features.features.depthBiasClamp = physical_device_features.depthBiasClamp;
+					device_features.features.fillModeNonSolid = physical_device_features.fillModeNonSolid;
+					device_features.features.depthBounds = physical_device_features.depthBounds;
+					device_features.features.wideLines = physical_device_features.wideLines;
+					device_features.features.largePoints = physical_device_features.largePoints;
+					device_features.features.alphaToOne = physical_device_features.alphaToOne;
+					device_features.features.multiViewport = physical_device_features.multiViewport;
+					device_features.features.samplerAnisotropy = physical_device_features.samplerAnisotropy;
+					device_features.features.textureCompressionETC2 = physical_device_features.textureCompressionETC2;
+					device_features.features.textureCompressionASTC_LDR = physical_device_features.textureCompressionASTC_LDR;
+					device_features.features.textureCompressionBC = physical_device_features.textureCompressionBC;
+					device_features.features.occlusionQueryPrecise = physical_device_features.occlusionQueryPrecise;
+					device_features.features.pipelineStatisticsQuery = physical_device_features.pipelineStatisticsQuery;
+					device_features.features.vertexPipelineStoresAndAtomics = physical_device_features.vertexPipelineStoresAndAtomics;
+					device_features.features.fragmentStoresAndAtomics = physical_device_features.fragmentStoresAndAtomics;
+					device_features.features.shaderTessellationAndGeometryPointSize = physical_device_features.shaderTessellationAndGeometryPointSize;
+					device_features.features.shaderImageGatherExtended = physical_device_features.shaderImageGatherExtended;
+					device_features.features.shaderStorageImageExtendedFormats = physical_device_features.shaderStorageImageExtendedFormats;
+					device_features.features.shaderStorageImageMultisample = physical_device_features.shaderStorageImageMultisample;
+					device_features.features.shaderStorageImageReadWithoutFormat = physical_device_features.shaderStorageImageReadWithoutFormat;
+					device_features.features.shaderStorageImageWriteWithoutFormat = physical_device_features.shaderStorageImageWriteWithoutFormat;
+					device_features.features.shaderUniformBufferArrayDynamicIndexing = physical_device_features.shaderUniformBufferArrayDynamicIndexing;
+					device_features.features.shaderSampledImageArrayDynamicIndexing = physical_device_features.shaderSampledImageArrayDynamicIndexing;
+					device_features.features.shaderStorageBufferArrayDynamicIndexing = physical_device_features.shaderStorageBufferArrayDynamicIndexing;
+					device_features.features.shaderStorageImageArrayDynamicIndexing = physical_device_features.shaderStorageImageArrayDynamicIndexing;
+					device_features.features.shaderClipDistance = physical_device_features.shaderClipDistance;
+					device_features.features.shaderCullDistance = physical_device_features.shaderCullDistance;
+					device_features.features.shaderFloat64 = physical_device_features.shaderFloat64;
+					device_features.features.shaderInt64 = physical_device_features.shaderInt64;
+					device_features.features.shaderInt16 = physical_device_features.shaderInt16;
+					device_features.features.shaderResourceResidency = physical_device_features.shaderResourceResidency;
+					device_features.features.shaderResourceMinLod = physical_device_features.shaderResourceMinLod;
+					device_features.features.sparseBinding = physical_device_features.sparseBinding;
+					device_features.features.sparseResidencyBuffer = physical_device_features.sparseResidencyBuffer;
+					device_features.features.sparseResidencyImage2D = physical_device_features.sparseResidencyImage2D;
+					device_features.features.sparseResidencyImage3D = physical_device_features.sparseResidencyImage3D;
+					device_features.features.sparseResidency2Samples = physical_device_features.sparseResidency2Samples;
+					device_features.features.sparseResidency4Samples = physical_device_features.sparseResidency4Samples;
+					device_features.features.sparseResidency8Samples = physical_device_features.sparseResidency8Samples;
+					device_features.features.sparseResidency16Samples = physical_device_features.sparseResidency16Samples;
+					device_features.features.sparseResidencyAliased = physical_device_features.sparseResidencyAliased;
+					device_features.features.variableMultisampleRate = physical_device_features.variableMultisampleRate;
+					device_features.features.inheritedQueries = physical_device_features.inheritedQueries;
+				}
+				add_extension(device_features);
 
-			vk::PhysicalDeviceSynchronization2Features sync2;
-			sync2.synchronization2 = true;
-			add_extension(sync2);
+				vk::PhysicalDeviceSynchronization2Features sync2;
+				sync2.synchronization2 = true;
+				add_extension(sync2);
 
-			vk::PhysicalDeviceVulkan12Features device_vulkan12_features;
-			device_vulkan12_features.drawIndirectCount = draw_indirect_supported;
-			device_vulkan12_features.bufferDeviceAddress = true;
-			device_vulkan12_features.timelineSemaphore = true;
-			device_vulkan12_features.runtimeDescriptorArray = true;
-			device_vulkan12_features.descriptorBindingVariableDescriptorCount = true;
-			device_vulkan12_features.imagelessFramebuffer = true;
-			add_extension(device_vulkan12_features);
+				vk::PhysicalDeviceVulkan12Features device_vulkan12_features;
+				device_vulkan12_features.drawIndirectCount = draw_indirect_supported;
+				device_vulkan12_features.bufferDeviceAddress = true;
+				device_vulkan12_features.timelineSemaphore = true;
+				device_vulkan12_features.runtimeDescriptorArray = true;
+				device_vulkan12_features.descriptorBindingVariableDescriptorCount = true;
+				device_vulkan12_features.imagelessFramebuffer = true;
+				add_extension(device_vulkan12_features);
 
-			vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
-			fragment_shading_rate_features.attachmentFragmentShadingRate = vrs_supported;
-			add_extension(fragment_shading_rate_features);
+				vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
+				fragment_shading_rate_features.attachmentFragmentShadingRate = vrs_supported;
+				add_extension(fragment_shading_rate_features);
 
-			//vk::PhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline_feature;
-			//raytracing_pipeline_feature.rayTracingPipeline = ray_tracing_supported;
-			//add_extension(raytracing_pipeline_feature);
-			//
-			//vk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_feature;
-			//acceleration_structure_feature.accelerationStructure = ray_tracing_supported;
-			//add_extension(acceleration_structure_feature);
-			//
-			//vk::PhysicalDeviceRayQueryFeaturesKHR rayquery_pipeline_feature;
-			//rayquery_pipeline_feature.rayQuery = ray_query_supported;
-			//raytracing_pipeline_feature.rayTraversalPrimitiveCulling = ray_query_supported;
-			//add_extension(rayquery_pipeline_feature);
+				//vk::PhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline_feature;
+				//raytracing_pipeline_feature.rayTracingPipeline = ray_tracing_supported;
+				//add_extension(raytracing_pipeline_feature);
+				//
+				//vk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_feature;
+				//acceleration_structure_feature.accelerationStructure = ray_tracing_supported;
+				//add_extension(acceleration_structure_feature);
+				//
+				//vk::PhysicalDeviceRayQueryFeaturesKHR rayquery_pipeline_feature;
+				//rayquery_pipeline_feature.rayQuery = ray_query_supported;
+				//raytracing_pipeline_feature.rayTraversalPrimitiveCulling = ray_query_supported;
+				//add_extension(rayquery_pipeline_feature);
 
-			vk::DeviceCreateInfo desc{
-				{}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, uint32_t(exts.size()), exts.data(), nullptr, device_create_info_next
-			};
+				vk::DeviceCreateInfo desc{
+					{}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, uint32_t(exts.size()), exts.data(), nullptr, device_create_info_next
+				};
 
-			device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
-			return device;
+				device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
+				return device;
 		}
 	public:
 		[[nodiscard]]
@@ -317,23 +318,23 @@ namespace wis
 
 			auto instance = VKFactory::Internal::GetInstanceHandle();
 
-#if defined(_WIN32)
-			vk::Win32SurfaceCreateInfoKHR surface_desc = {};
-			surface_desc.hinstance = GetModuleHandle(nullptr);
-			surface_desc.hwnd = xsurface.hwnd;
-			vk::UniqueSurfaceKHR surface {instance->createWin32SurfaceKHRUnique(surface_desc)};
+#if defined(WISDOM_WINDOWS)
+			vk::Win32SurfaceCreateInfoKHR surface_desc{
+				{}, GetModuleHandle(nullptr), xsurface.hwnd
+			};
 			wis::lib_info("Initializing Win32 Surface");
-#elif defined(__APPLE__)
+			vk::UniqueSurfaceKHR surface{ instance->createWin32SurfaceKHRUnique(surface_desc) };
+#elif defined(WISDOM_MACOS)
 			vk::MetalSurfaceCreateInfoEXT surface_desc = {};
 			//surface_desc.pLayer = (__bridge CAMetalLayer*)window;
-			vk::UniqueSurfaceKHR surface {instance.createMetalSurfaceEXTUnique(surface_desc)};
+			vk::UniqueSurfaceKHR surface{ instance->createMetalSurfaceEXTUnique(surface_desc) };
 			wis::lib_info("Initializing Metal Surface");
-#else
+#elif defined(WISDOM_LINUX)
 			vk::XcbSurfaceCreateInfoKHR surface_desc = {};
-			//surface_desc.setConnection(XGetXCBConnection(XOpenDisplay(nullptr)));
-			//surface_desc.setWindow((ptrdiff_t)window);
+			surface_desc.setConnection(xsurface.x11.connection);
+			surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
 			wis::lib_info("Initializing XCB Surface");
-			vk::UniqueSurfaceKHR surface{instance.createXcbSurfaceKHRUnique(surface_desc)};
+			vk::UniqueSurfaceKHR surface{ instance->createXcbSurfaceKHRUnique(surface_desc) };
 #endif
 			int32_t present_queue = -1;
 			for (uint16_t i = 0; i < max_count; i++)
@@ -342,7 +343,7 @@ namespace wis
 				if (x.Empty())continue;
 
 				if (adapter.getSurfaceSupportKHR(x.family_index, surface.get())) {
-					present_queue = i; lib_info(std::format("Present queue {} selected", i)); break;
+					present_queue = i; lib_info(wis::format("Present queue {} selected", i)); break;
 				}
 			}
 			if (present_queue == -1)
@@ -368,14 +369,14 @@ namespace wis
 				});
 			if (format == surface_formats.end() || format->format == vk::Format::eUndefined)
 			{
-				lib_error(std::format("Supplied format {} is not supported by surface", data_format_strings[+options.format]));
+				lib_error(wis::format("Supplied format {} is not supported by surface", data_format_strings[+options.format]));
 				return{}; //Format specified is not supported
 			}
 
 			auto cap = adapter.getSurfaceCapabilitiesKHR(surface.get());
 			bool stereo = cap.maxImageArrayLayers > 1;
 			if (options.stereo && stereo)
-				lib_info(std::format("Stereo mode is ativated"));
+				lib_info(wis::format("Stereo mode is ativated"));
 
 			uint32_t layers = options.stereo && stereo ? 2u : 1u;
 
@@ -391,7 +392,7 @@ namespace wis
 					vk::CompositeAlphaFlagBitsKHR::eOpaque,
 					GetPresentMode(surface.get(), vsync), true, nullptr
 			};
-			
+
 			return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, VKCommandQueue{qpresent_queue}, CreateCommandList(QueueType::direct), format->format, stereo, layers };
 		}
 
@@ -436,7 +437,7 @@ namespace wis
 			};
 			vk::SemaphoreCreateInfo desc
 			{
-				{}, & timeline_desc
+				{}, &timeline_desc
 			};
 			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
 		}
@@ -475,7 +476,7 @@ namespace wis
 
 
 				image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
-					frame_size.width, frame_size.height, i.array_levels, 1u, & desc.format);
+					frame_size.width, frame_size.height, i.array_levels, 1u, &desc.format);
 
 				if (size == 8)break;
 			}
@@ -505,7 +506,7 @@ namespace wis
 
 				image_md.allocate(
 					vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eDepthStencilAttachment,
-					frame_size.width, frame_size.height, 1u, 1u, & desc.format
+					frame_size.width, frame_size.height, 1u, 1u, &desc.format
 				);
 
 				sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
@@ -557,10 +558,10 @@ namespace wis
 
 			vk::FramebufferCreateInfo desc{
 				vk::FramebufferCreateFlagBits::eImageless,
-					rp.get(), uint32_t(image_md.size()), nullptr, frame_size.width, frame_size.height, 1, & attachments_create_info
+					rp.get(), uint32_t(image_md.size()), nullptr, frame_size.width, frame_size.height, 1, &attachments_create_info
 			};
 
-			return VKRenderPass{ 
+			return VKRenderPass{
 				std::move(rp),
 				wis::shared_handle<vk::Framebuffer>{device->createFramebuffer(desc), device},
 				frame_size
@@ -644,7 +645,7 @@ namespace wis
 					{ 0.0f, 0.0f, 0.0f, 0.0f }
 			};
 
-			vk::PipelineMultisampleStateCreateInfo multisampling {};
+			vk::PipelineMultisampleStateCreateInfo multisampling{};
 			multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 			multisampling.sampleShadingEnable = false;
 
@@ -721,7 +722,7 @@ namespace wis
 		{
 			using namespace river::flags;
 			auto family_props = adapter.getQueueFamilyProperties();
-			wis::lib_info(std::format("The system supports {} queue families", family_props.size()));
+			wis::lib_info(wis::format("The system supports {} queue families", family_props.size()));
 
 			for (uint8_t i = 0; i < family_props.size(); i++)
 			{
@@ -734,7 +735,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Graphics queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Graphics queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eCompute) == eCompute && queues.available_queues[+QueueTypes::compute].Empty())
@@ -744,7 +745,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Compute queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Compute queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eVideoDecodeKHR) == eVideoDecodeKHR && queues.available_queues[+QueueTypes::video_decode].Empty())
@@ -754,7 +755,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Video Decode queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Video Decode queues: {}", family.queueCount));
 					continue;
 				}
 				if ((family.queueFlags & eTransfer) == eTransfer && queues.available_queues[+QueueTypes::copy].Empty())
@@ -764,7 +765,7 @@ namespace wis
 						.count = uint8_t(family.queueCount),
 						.family_index = i,
 					};
-					wis::lib_info(std::format("\tDedicated Data Transfer queues: {}", family.queueCount));
+					wis::lib_info(wis::format("\tDedicated Data Transfer queues: {}", family.queueCount));
 					continue;
 				}
 			}
@@ -787,15 +788,15 @@ namespace wis
 				if (!ext_set.contains(i))continue;
 				avail_exts.allocate(i);
 
-				if (i == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME)
+				if (i == std::string_view(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME))
 					vrs_supported = true;
-				else if (i == VK_NV_MESH_SHADER_EXTENSION_NAME)
+				else if (i == std::string_view(VK_NV_MESH_SHADER_EXTENSION_NAME))
 					mesh_shader_supported = true;
-				else if (i == VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME)
+				else if (i == std::string_view(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
 					ray_tracing_supported = true;
-				else if (i == VK_KHR_RAY_QUERY_EXTENSION_NAME)
+				else if (i == std::string_view(VK_KHR_RAY_QUERY_EXTENSION_NAME))
 					ray_query_supported = true;
-				else if (i == VK_KHR_DRAW_INDIRECT_COUNT_EXTENSION_NAME)
+				else if (i == std::string_view(VK_KHR_DRAW_INDIRECT_COUNT_EXTENSION_NAME))
 					draw_indirect_supported = true;
 			}
 
@@ -803,7 +804,7 @@ namespace wis
 			{
 				wis::lib_info("Active Device Extensions:");
 				for (auto& i : avail_exts)
-					wis::lib_info(std::format("\t{}", i));
+					wis::lib_info(wis::format("\t{}", i));
 			}
 
 			return avail_exts;

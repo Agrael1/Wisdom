@@ -19,6 +19,9 @@ if(NOT PLUGINS_LOADED)
       URL ${DXC_FILE}
     )
     FetchContent_MakeAvailable(dxc)
-
-    set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc.exe CACHE INTERNAL "")
+    if(WIN32)
+        set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc.exe CACHE INTERNAL "")
+    else()
+        set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc CACHE INTERNAL "")
+    endif()
 endif()

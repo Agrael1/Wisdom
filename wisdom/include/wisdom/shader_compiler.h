@@ -39,7 +39,7 @@
 //			IDxcBlob* blob = nullptr;
 //			if constexpr (std::is_same_v<ShaderTy, DX12Shader>)
 //			{
-//				blob = CompileToDXIL(code, std::format(L"{}s_{}_{}", dx_shader[uint32_t(type)], version.first, version.second));
+//				blob = CompileToDXIL(code, wis::format(L"{}s_{}_{}", dx_shader[uint32_t(type)], version.first, version.second));
 //				std::vector<std::byte> x{(std::byte*)blob->GetBufferPointer(), (std::byte*)blob->GetBufferPointer() + blob->GetBufferSize()};
 //				blob->Release();
 //				return ShaderTy{ std::move(x), type };

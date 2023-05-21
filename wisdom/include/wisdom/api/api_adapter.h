@@ -1,9 +1,7 @@
 #pragma once
 #include <wisdom/util/flags.h>
-#include <string>
-#include <array>
-#include <ranges>
-#include <format>
+#include <wisdom/bridge/format.h>
+
 
 namespace wis
 {
@@ -18,7 +16,6 @@ namespace wis
 		SUPPORT_MONITORED_FENCES = 8,
 		SUPPORT_NON_MONITORED_FENCES = 0x10,
 		KEYED_MUTEX_CONFORMANCE = 0x20,
-		FORCE_DWORD = 0xffffffff
 	};
 
 
@@ -43,7 +40,7 @@ namespace wis
 		}
 		std::wstring to_string()const noexcept
 		{
-			return std::format(
+			return wis::format(
 				L"[description]: {}\n"
 				L"[vendor id]: 0x{:X}\n"
 				L"[device id]: 0x{:X}\n"

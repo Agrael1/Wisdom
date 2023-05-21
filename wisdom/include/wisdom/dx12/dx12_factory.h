@@ -5,7 +5,7 @@
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/dx12/dx12_info.h>
-#include <wisdom/util/generator.h>
+#include <wisdom/bridge/generator.h>
 
 #include <dxgi1_6.h>
 #include <d3d12.h>

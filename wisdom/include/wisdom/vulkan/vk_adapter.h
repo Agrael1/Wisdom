@@ -2,6 +2,7 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
 #include <wisdom/api/api_adapter.h>
+#include <span>
 
 namespace wis
 {
@@ -74,7 +75,7 @@ namespace wis
 				.dedicated_video_memory = local_mem,
 				.dedicated_system_memory = 0,
 				.shared_system_memory = system_mem,
-				.adapter_id{reinterpret_cast<uint64_t&>(id_props.deviceLUID)},
+				.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID),
 				.flags = flag
 			};
 		}

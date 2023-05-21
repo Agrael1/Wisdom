@@ -38,22 +38,31 @@ namespace wis
 			this->xsize = size;
 			xdata = std::make_shared_for_overwrite<DataTy[]>(size);
 		}
-		template<class Self>
-		cv_type_t<Self, DataTy>* data(this Self s)noexcept
+		const DataTy* data()const noexcept
 		{
-			return s.xdata.get();
+			return xdata.get();
+		}
+		DataTy* data()noexcept
+		{
+			return xdata.get();
 		}
 
-		template<class Self>
-		cv_type_t<Self, DataTy>* begin(this Self s)noexcept
+		const DataTy* begin()const noexcept
 		{
-			return s.data();
+			return data();
+		}
+		DataTy* begin()noexcept
+		{
+			return data();
 		}
 
-		template<class Self>
-		cv_type_t<Self, DataTy>* end(this Self s)noexcept
+		const DataTy* end()const noexcept
 		{
-			return s.data()+s.xsize;
+			return data()+xsize;
+		}
+		DataTy* end()noexcept
+		{
+			return data()+xsize;
 		}
 		size_t size()const noexcept
 		{

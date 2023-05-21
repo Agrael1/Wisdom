@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/util/log_layer.h>
 #include <chrono>
-#include <format>
+#include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 
 namespace wis
@@ -31,7 +31,7 @@ namespace wis
 		}
 		~scoped_timer()
 		{
-			std::printf("%s", std::format("{}\n", t.stop()).c_str());
+			std::printf("%s", wis::format("{}\n", t.stop()).c_str());
 		}
 	private:
 		timer t;
@@ -51,7 +51,7 @@ namespace wis
 		}
 		~scoped_profiler_p()
 		{
-			wis::lib_info(std::format("{}: {}", message, t.stop()));
+			wis::lib_info(wis::format("{}: {}", message, t.stop()));
 		}
 	private:
 		wis::timer t;

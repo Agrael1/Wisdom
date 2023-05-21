@@ -11,8 +11,7 @@ namespace wis
 		Performance //< Order: Discrete, Integrated
 	};
 
-	//used only for vulkan
-	// TODO: add layers and extensions
+	// used only for vulkan
 	struct ApplicationInfo
 	{
 	public:
