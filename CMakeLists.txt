@@ -1,8 +1,6 @@
 ﻿# CMakeList.txt : Top-level CMake project file
 cmake_minimum_required (VERSION 3.25)
 
-message(${CMAKE_SYSTEM_VERSION})
-
 project ("Wisdom")
 
 # Enable Hot Reload for MSVC compilers if supported.

@@ -12,8 +12,6 @@ set_source_files_properties(${ps} PROPERTIES ShaderType "ps")
 set_source_files_properties(${ds} PROPERTIES ShaderType "ds")
 set_source_files_properties(${hs} PROPERTIES ShaderType "hs")
 set_source_files_properties(${gs} PROPERTIES ShaderType "gs")
-   
-message("Files are in ${CMAKE_CURRENT_BINARY_DIR}")
 
 foreach(FILE ${vs} ${ps} ${ds} ${hs} ${gs})
     get_filename_component(FILE_WE ${FILE} NAME_WLE)
