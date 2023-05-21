@@ -1,17 +1,16 @@
 ﻿# CMakeList.txt : CMake project for Wisdom
 project(Wisdom)
 
-
-find_package(Vulkan)
 add_library(${PROJECT_NAME} STATIC)
 
-if(Vulkan_FOUND)
+
+# All Vulkan Sources are disabled on UWP
+if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	message("Vulkan found!")
 	set(WISDOMVK TRUE)
 
 	target_link_libraries(${PROJECT_NAME} 
-		PUBLIC
-			VKAllocator
+		PUBLIC VKAllocator
 	)
 
 	set(VKHEADERS
@@ -45,11 +44,10 @@ if(Vulkan_FOUND)
 endif()
 
 
-if(WIN32)
+if(WIN32 AND NOT WISDOM_FORCE_VULKAN)
 	message("Platform Library is DirectX 12")
-	if(NOT FORCE_VULKAN)
-		set(WISDOMDX12 TRUE)
-	endif()
+
+	set(WISDOMDX12 TRUE)
 	set(DX12HEADERS 
 		"include/wisdom/dx12/dx12_definitions.h" 
 		"include/wisdom/dx12/dx12_factory.h" 
@@ -87,7 +85,7 @@ if(WIN32)
 			DXGI
 			DXGUID
 	)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT FORCE_VULKAN)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT WISDOM_FORCE_VULKAN)
 	message("Platform Library is Metal")
 	set(WISDOMMTL TRUE)
 	message(FATAL_ERROR "Metal is not implemented")
@@ -119,7 +117,8 @@ set(HEADER_LIST
 	"include/wisdom/api/api_render_pass.h"
 	"include/wisdom/util/small_allocator.h"
 	"include/wisdom/bridge/format.h"
- "include/wisdom/bridge/source_location.h")
+	"include/wisdom/bridge/source_location.h"
+)
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}
@@ -144,8 +143,8 @@ set_target_properties(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME} 
 	PUBLIC 
 		DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
-		WISDOMDX12=$<BOOL:${WISDOMDX12}>
 		RUNTIME_ASSERTS=$<BOOL:${RUNTIME_ASSERTS}>
+		WISDOMDX12=$<BOOL:${WISDOMDX12}>
 		WISDOMVK=$<BOOL:${WISDOMVK}>
 		WISDOMMTL=$<BOOL:${WISDOMMTL}>
 		WISDOM_LOG_LEVEL=${SEV_INDEX}
@@ -154,7 +153,7 @@ target_compile_definitions(${PROJECT_NAME}
 
 
 if (WIN32)
-	if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+	if(WINDOWS_STORE)
 		target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_UWP)
 	endif()
     target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_WINDOWS VK_USE_PLATFORM_WIN32_KHR)

@@ -78,11 +78,3 @@ set(UWP_MIN_CRT_VERSION 14.0.30704.0)
 configure_file(package.appxmanifest package.appxmanifest @ONLY)
 
 
-
-add_custom_command(
-  TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/assets
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets
-)
-

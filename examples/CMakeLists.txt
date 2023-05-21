@@ -13,6 +13,7 @@ FetchContent_MakeAvailable(glm)
 
 
 add_subdirectory(shaders)
+
 if(WIN32 AND NOT WINDOWS_STORE)
 	add_subdirectory(hello-triangle-win32)
 endif()

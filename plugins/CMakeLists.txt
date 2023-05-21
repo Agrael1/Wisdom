@@ -30,7 +30,8 @@ endif()
 
 find_package(Vulkan)
 
-if(Vulkan_FOUND)
+# UWP not supported
+if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	add_subdirectory("VKAllocator")
 endif()
 

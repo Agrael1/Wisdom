@@ -9,7 +9,7 @@ static_assert(WISDOM_UWP&& _WIN32, "Platform error");
 
 #ifdef WISDOM_WINDOWS
 static_assert(WISDOM_WINDOWS&& _WIN32, "Platform error");
-#endif // WISDOM_UWP
+#endif // WISDOM_WINDOWS
 
 #ifdef WISDOM_LINUX
 static_assert(WISDOM_LINUX&& __linux__, "Platform error");

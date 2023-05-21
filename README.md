@@ -19,26 +19,25 @@ The API is designed for game-ready and heavy computations use. It is done in low
 The API is structured like this:
  - The basic types are defined, depending on platform of choice. They are **Factory**, **Adapter**, **Device** etc. They are directly implemented, this eliminates memory indirection and potential cache misses.
  - The the platform is selected the most suitable to the system: Windows - DirectX 12, MacOS - Metal __[TBD]__
+ - You can override the platform selection with `WISDOM_FORCE_VULKAN` option on CMake configuration or by using `WFORCEVK` define in your code. This will force the library to use Vulkan as a base API. This is useful for debugging Vulkan extensions.
  - All calls are done directly, without usage of interfaces/virtual functions. This eliminates call indirection and the projection is direct as if you wrote the code directly inside your functions.
  - Underlying accessibility, all of the internals are accessible using `GetInternal()` and can be used to bridge functionality or to create extensions. All the internal state is immutable for the stability of work between library and extensions. However it's not advised to use internal state directly, since it is platform dependent.
 
-Vulkan is compiled on compatible systems and used as default only if there is no other alternative. Vulkan can still be used under supported operating system with explicit types `wis::VKFactory`, `wis::VKDevice` etc. Vulkan can also be manually selected upon build with `FORCE_VULKAN` option on CMake configuration.
+Vulkan is compiled on compatible systems and used as default only if there is no other alternative. Vulkan can still be used under supported operating system with explicit types `wis::VKFactory`, `wis::VKDevice` etc.
 
 # Build
 
 This is a CMake project, all the plugins are ensured to download beforehand, so it's enough to just configure the project, everything is going to be downloaded with respect to platform.
 The later reconfigurations are not reloading the plugins for easy expansion of the library, but if the plugin reload is required, the cache deletion should be done, or change `PLUGINS_LOADED` CMakeCache entry to `FALSE`.
 
-Right now the build works only on Windows, but others will be available soon.
-
 # CMake Options
 
 - `WISDOM_LOG_LEVEL=debug/warn` set the log level for the library, values are `debug,trace,info,warn,error,critical` log calls under current level are not compiled
 - `WISDOM_RUNTIME_ASSERTS=ON` enable/disable runtime validation checks from compile time
-- `WISDOM_FORCE_VULKAN=OFF` if set ON forces base types to be Vulkan, useful for debugging Vulkan extensions
+- `WISDOM_FORCE_VULKAN=OFF` if set `ON` forces base types to be Vulkan, useful for debugging Vulkan extensions
 - `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation 
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation 
-- `WISDOM_USE_FMT=ON/OFF` use fmt instead of std::format (ON for Linux build for GCC<13 and Clang<16)
+- `WISDOM_USE_FMT=ON/OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
  
 
 # System Requirements
@@ -56,7 +55,7 @@ for Vulkan:
 **Windows Store:**
 
 To Compile for Windows Store, the following requirements are needed:
-- CMakeSettings: -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Debug/Release/RelWithDebInfo/MinSizeRel
+- CMakeSettings: `-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Debug/Release/RelWithDebInfo/MinSizeRel`
 - Windows 10 SDK 10.0.19041.0+
 - Visual Studio Generator, tested on Visual Studio 2022 (v143) - Ninja generator is not supported
 - Installed UWP SDK
@@ -65,7 +64,7 @@ To launch a project find generated .sln in build `out/build/{BuildName}/examples
 
 After the first launch, the project can be launched from the Start Menu.
 
-This type of project does not support Vulkan, since Vulkan does not support UWP surface.
+This type of project does not support Vulkan, since Vulkan does not have UWP surface.
 
 **Linux**
 
@@ -73,7 +72,7 @@ This type of project does not support Vulkan, since Vulkan does not support UWP 
 - GCC 12+ or Clang 15+ Tested on GCC 12.0.1
 - Vulkan 1.3.2xx+ for dynamic vertex buffers and some latest features
 
-KDUils need some packages to be installed:
+KDUils for the example need some packages to be installed:
 `sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols`
 
 Visit https://github.com/KDAB/KDUtils to see more details.
