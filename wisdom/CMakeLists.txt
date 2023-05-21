@@ -3,7 +3,7 @@ project(Wisdom)
 
 add_library(${PROJECT_NAME} STATIC)
 
-
+find_package(Vulkan)
 # All Vulkan Sources are disabled on UWP
 if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	message("Vulkan found!")
