@@ -13,12 +13,17 @@ FetchContent_MakeAvailable(glm)
 
 
 add_subdirectory(shaders)
-if(WIN32)
+if(WIN32 AND NOT WINDOWS_STORE)
 	add_subdirectory(hello-triangle-win32)
+endif()
+
+if(WINDOWS_STORE)
 	add_subdirectory(hello-triangle-winrt)
 endif()
 
-find_package(Vulkan)
-if(Vulkan_FOUND)
-	add_subdirectory(hello-triangle-kdgui)
+if(UNIX)
+	find_package(Vulkan)
+	if(Vulkan_FOUND)
+		add_subdirectory(hello-triangle-kdgui)
+	endif()
 endif()

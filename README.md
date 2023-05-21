@@ -51,10 +51,35 @@ Right now the build works only on Windows, but others will be available soon.
 Tested on MSVC v143, Visual Studio 2022
 
 for Vulkan:
-- Vulkan 1.3.243+
+- Vulkan 1.3.2xx+ 
+ 
+**Windows Store:**
+
+To Compile for Windows Store, the following requirements are needed:
+- CMakeSettings: -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Debug/Release/RelWithDebInfo/MinSizeRel
+- Windows 10 SDK 10.0.19041.0+
+- Visual Studio Generator, tested on Visual Studio 2022 (v143) - Ninja generator is not supported
+- Installed UWP SDK
+
+To launch a project find generated .sln in build `out/build/{BuildName}/examples/hello-triangle-winrt` folder and launch it with Visual Studio. This is due to deployment requirements of UWP applications, which is performed with Visual Studio.
+
+After the first launch, the project can be launched from the Start Menu.
+
+This type of project does not support Vulkan, since Vulkan does not support UWP surface.
 
 **Linux**
-- TBD...
+
+- CMake 3.25+
+- GCC 12+ or Clang 15+ Tested on GCC 12.0.1
+- Vulkan 1.3.2xx+ for dynamic vertex buffers and some latest features
+
+KDUils need some packages to be installed:
+`sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols`
+
+Visit https://github.com/KDAB/KDUtils to see more details.
+
+**MacOS**
+- TBD... When I get my hands on a Mac
 
 # Roadmap and tasks
 

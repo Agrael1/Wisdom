@@ -41,7 +41,7 @@ Window::WindowClass Window::WindowClass::wndClass;
 Window::WindowClass::WindowClass() noexcept
 	:hInst(GetModuleHandle(nullptr))
 {
-	WNDCLASSEX wcWindow = { 0 };
+	WNDCLASSEXA wcWindow = { 0 };
 	wcWindow.cbSize = sizeof(wcWindow);
 	wcWindow.style = CS_OWNDC;
 	wcWindow.lpfnWndProc = HandleMsgSetup;
@@ -51,14 +51,14 @@ Window::WindowClass::WindowClass() noexcept
 	wcWindow.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcWindow.hIcon = LoadIcon(wcWindow.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wcWindow.hbrBackground = nullptr;
-	wcWindow.lpszMenuName = MAKEINTRESOURCE(IDR_MENU1);
+	wcWindow.lpszMenuName = MAKEINTRESOURCEA(IDR_MENU1);
 	wcWindow.hIconSm = nullptr;
 	wcWindow.lpszClassName = GetName();
 	RegisterClassExA(&wcWindow);
 }
 Window::WindowClass::~WindowClass()
 {
-	UnregisterClass(wndClassName, GetInstance());
+	UnregisterClassA(wndClassName, GetInstance());
 }
 const char* Window::WindowClass::GetName() noexcept
 {
@@ -136,7 +136,7 @@ void Window::ChangeToFullScreen()
 
 void Window::SetTitle(std::string_view title)
 {
-	wis::check_windows(SetWindowText(hWnd.get(), title.data()));
+	wis::check_windows(SetWindowTextA(hWnd.get(), title.data()));
 }
 
 void Window::EnableLoading() 

@@ -4,7 +4,7 @@
 // Override with WFORCEVK
 
 #ifdef WISDOM_UWP
-static_assert(WISDOM_UWP&& _WIN32&& __cplusplus_winrt, "Platform error");
+static_assert(WISDOM_UWP&& _WIN32, "Platform error");
 #endif // WISDOM_UWP
 
 #ifdef WISDOM_WINDOWS
