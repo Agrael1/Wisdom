@@ -31,8 +31,7 @@ wis::hr_exception::hr_exception(winrt::hresult hr, wis::source_location sl)
 }
 std::string wis::hr_exception::description() const noexcept
 {
-	winrt::hstring errorMessage = winrt::to_hstring(hResult);
-	return std::string(errorMessage.begin(), errorMessage.end());
+	return winrt::to_string(winrt::to_hstring(hResult));
 
 	//wil::unique_hlocal_ansistring msgBuf;
 	//DWORD nMsgLen = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |

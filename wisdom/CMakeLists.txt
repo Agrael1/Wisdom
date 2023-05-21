@@ -44,7 +44,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 endif()
 
 
-if(WIN32 AND NOT WISDOM_FORCE_VULKAN)
+if(WIN32)
 	message("Platform Library is DirectX 12")
 
 	set(WISDOMDX12 TRUE)
@@ -92,7 +92,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND
 else()
 
 endif()
-
 
 set(HEADER_LIST 
 	"include/wisdom/wisdom.h"
@@ -151,6 +150,9 @@ target_compile_definitions(${PROJECT_NAME}
 		NOMINMAX
 )
 
+if(WISDOM_FORCE_VULKAN)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_FORCE_VULKAN)
+endif()
 
 if (WIN32)
 	if(WINDOWS_STORE)

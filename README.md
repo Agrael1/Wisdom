@@ -2,7 +2,7 @@
 
 ![CMake Windows](https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg)
 
-**Low-level thin Graphics API layer for high perfrormance and better coding experience**
+**Low-level thin Graphics API layer. Easy to learn, easy to extend, high performance enabled, multiplatform!**
 
 # Why?
 
@@ -19,11 +19,18 @@ The API is designed for game-ready and heavy computations use. It is done in low
 The API is structured like this:
  - The basic types are defined, depending on platform of choice. They are **Factory**, **Adapter**, **Device** etc. They are directly implemented, this eliminates memory indirection and potential cache misses.
  - The the platform is selected the most suitable to the system: Windows - DirectX 12, MacOS - Metal __[TBD]__
- - You can override the platform selection with `WISDOM_FORCE_VULKAN` option on CMake configuration or by using `WFORCEVK` define in your code. This will force the library to use Vulkan as a base API. This is useful for debugging Vulkan extensions.
+ - You can override the platform selection with `WISDOM_FORCE_VULKAN` option on CMake configuration. This will force the library to use Vulkan as a base API. This is useful for debugging Vulkan extensions.
  - All calls are done directly, without usage of interfaces/virtual functions. This eliminates call indirection and the projection is direct as if you wrote the code directly inside your functions.
  - Underlying accessibility, all of the internals are accessible using `GetInternal()` and can be used to bridge functionality or to create extensions. All the internal state is immutable for the stability of work between library and extensions. However it's not advised to use internal state directly, since it is platform dependent.
 
 Vulkan is compiled on compatible systems and used as default only if there is no other alternative. Vulkan can still be used under supported operating system with explicit types `wis::VKFactory`, `wis::VKDevice` etc.
+
+# Platforms
+
+Supported platforms are:
+- Windows API (Win32) - DirectX 12 and Vulkan
+- Windows Store (UWP) - Microsoft Store certified applications. DirectX 12 only. 
+- Linux (X11) (Wayland to be implemented) - Vulkan only
 
 # Build
 
@@ -38,7 +45,7 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 - `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation 
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation 
 - `WISDOM_USE_FMT=ON/OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
- 
+
 
 # System Requirements
 

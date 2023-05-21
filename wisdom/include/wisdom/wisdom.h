@@ -1,7 +1,7 @@
 #pragma once
 
 // Select default API
-// Override with WFORCEVK
+// Override with WISDOM_FORCE_VULKAN
 
 #ifdef WISDOM_UWP
 static_assert(WISDOM_UWP&& _WIN32, "Platform error");
@@ -15,7 +15,7 @@ static_assert(WISDOM_WINDOWS&& _WIN32, "Platform error");
 static_assert(WISDOM_LINUX&& __linux__, "Platform error");
 #endif // WISDOM_LINUX
 
-#if defined(WISDOM_VULKAN_FOUND) && defined(WFORCEVK) 
+#if defined(WISDOM_VULKAN_FOUND) && defined(WISDOM_FORCE_VULKAN) 
 #define FORCEVK_SWITCH 1
 #else
 #define FORCEVK_SWITCH 0
