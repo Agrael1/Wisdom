@@ -49,8 +49,6 @@ namespace wis
 		std::atomic_size_t ref_cnt{ 1 };
 	};
 
-
-
 	template<class T, class Dispatcher>
 	class shared_handle
 	{
@@ -123,7 +121,7 @@ namespace wis
 				return control->parent;
 			}
 		private:
-			shared_header<parent>* control;
+			shared_header<parent>* control = nullptr;
 		};
 
 	public:
@@ -219,5 +217,173 @@ namespace wis
 		T handle = nullptr;
 	};
 
+
+
+	struct shared_header_image :shared_header<parent_of_t<vk::Image>>
+	{
+		bool swapchain_owned = false;
+	};
+
+	// shared_handle for image
+	template<class Dispatcher>
+	class shared_handle<vk::Image, Dispatcher>
+	{
+		using parent = parent_of_t<vk::Image>;
+		static constexpr inline bool is_dynamic = std::same_as<Dispatcher, DynamicLoader>;
+
+		struct control_block
+		{
+		public:
+			control_block() = default;
+			control_block(shared_handle<parent> xparent, bool swapchain_owned)
+			{
+				allocate();
+				control->parent = std::move(xparent);
+				control->swapchain_owned = swapchain_owned;
+			}
+			control_block(const control_block& o)
+				:control(o.control)
+			{
+				add_ref();
+			}
+			control_block(control_block&& o)noexcept
+				:control(o.control)
+			{
+				o.control = nullptr;
+			}
+			control_block& operator=(control_block&& o)noexcept
+			{
+				control = o.control;
+				o.control = nullptr;
+				return *this;
+			}
+			control_block& operator=(const control_block& o)noexcept
+			{
+				control = o.control;
+				add_ref();
+				return *this;
+			}
+		public:
+			size_t ref_count()const noexcept
+			{
+				if (!control)return 0;
+				return control->ref_cnt;
+			}
+			size_t add_ref()noexcept
+			{
+				if (!control)return 0;
+				return ++control->ref_cnt;
+			}
+			size_t release()noexcept
+			{
+				if (!control)return 0;
+				auto r = --control->ref_cnt;
+				if (!r)
+				{
+					delete control;
+					control = nullptr;
+				}
+				return r;
+			}
+			void allocate()
+			{
+				control = new shared_header_image;
+			}
+			parent get_parent()noexcept
+			{
+				return control->parent.get();
+			}
+			auto get_parent_handle()noexcept
+			{
+				return control->parent;
+			}
+			bool swapchain_owned()const noexcept
+			{
+				return control->swapchain_owned;
+			}
+		private:
+			shared_header_image* control = nullptr;
+		};
+
+	public:
+		shared_handle() = default;
+		explicit shared_handle(vk::Image handle, shared_handle<parent> xparent, bool swapchain_owned = false)
+			:handle(handle), control(std::move(xparent), swapchain_owned)
+		{}
+		shared_handle(const shared_handle& o)noexcept
+			:handle(o.handle), control(o.control)
+		{}
+		shared_handle(shared_handle&& o)noexcept
+			:handle(o.handle), control(std::move(o.control))
+		{
+			o.handle = nullptr;
+		}
+		shared_handle& operator=(shared_handle&& o)noexcept
+		{
+			release();
+			handle = o.handle;
+			control = std::move(o.control);
+			o.handle = nullptr;
+			return *this;
+		}
+		shared_handle& operator=(const shared_handle& o)noexcept
+		{
+			release();
+			handle = o.handle;
+			control = o.control;
+			return *this;
+		}
+		~shared_handle()
+		{
+			release();
+		}
+	public:
+		auto get()const noexcept
+		{
+			return handle;
+		}
+		operator bool()const noexcept
+		{
+			return bool(handle);
+		}
+		auto* operator->()const noexcept
+		{
+			return &handle;
+		}
+		size_t add_ref()noexcept
+		{
+			if (!handle)return 0;
+			return control.add_ref();
+		}
+		size_t release()noexcept
+		{
+			if (!handle)return 0;
+
+			auto r = control.ref_count();
+			if (r == 1)internal_destroy();
+			return control.release();
+		}
+		parent get_parent()noexcept
+		{
+			return control.get_parent();
+		}
+		auto get_parent_handle()noexcept
+		{
+			return control.get_parent_handle();
+		}
+	private:
+		void internal_destroy()noexcept
+		{
+			if (!control.swapchain_owned())
+			{
+				auto p = control.get_parent();
+				p.destroy(handle, nullptr, Dispatcher::loader);
+			}
+			handle = nullptr;
+		}
+	private:
+		control_block control{};
+		vk::Image handle = nullptr;
+	};
 }
 
