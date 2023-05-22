@@ -70,7 +70,7 @@ namespace wis
 			for (auto& i : xback_buffers)
 			{
 				back_buffers.emplace_back(
-					format, wis::shared_handle<vk::Image>{i, swap.get_parent_handle()});
+					format, wis::shared_handle<vk::Image>{i, swap.get_parent_handle(), true});
 				initialization.TextureBarrier(
 					{
 						.state_before = TextureState::Undefined,
@@ -94,13 +94,6 @@ namespace wis
 		~VKSwapChain()
 		{
 			ReleaseSemaphore();
-			// inconsistency on Vulkan side, images from swapchain are not deleted
-			for (auto& i : back_buffers)
-			{
-				// the state is immutable, but we can use copy to detach
-				auto cpy{ i.GetInternal().buffer };
-				cpy.unsafe_detach();
-			}
 		}
 	public:
 		[[nodiscard]] uint32_t GetNextIndex()const noexcept

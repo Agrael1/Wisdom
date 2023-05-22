@@ -22,9 +22,9 @@ if(WINDOWS_STORE)
 	add_subdirectory(hello-triangle-winrt)
 endif()
 
-if(UNIX)
+
 	find_package(Vulkan)
 	if(Vulkan_FOUND)
 		add_subdirectory(hello-triangle-kdgui)
 	endif()
-endif()
+
