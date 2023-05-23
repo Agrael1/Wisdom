@@ -36,7 +36,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_shader.h"
 		"include/wisdom/vulkan/vk_root_signature.h"
 		"include/wisdom/vulkan/vk_buffer_views.h"
-	)
+	 "include/wisdom/vulkan/vk_xshared_handle.h")
 	set(VKSOURCES
 		"src/wisdom/vulkan/vk_factory.cpp" 
 	)
