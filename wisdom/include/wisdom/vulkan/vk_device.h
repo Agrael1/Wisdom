@@ -581,7 +581,7 @@ namespace wis
 		[[nodiscard]]
 		VKPipelineState CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const
 		{
-			wis::internals::uniform_allocator<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
+			std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
 			wis::internals::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * 16> attributes;
 
 			wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
@@ -595,7 +595,7 @@ namespace wis
 				{
 					b.inputRate = vk::VertexInputRate(i.input_slot_class);
 					b.binding = i.input_slot;
-					b.stride = 16; // we don't care abot stride, since we bind dynamic vertex buffers
+					b.stride = 0; // we don't care abot stride, since we bind dynamic vertex buffers
 					binding_map.set(i.input_slot);
 				}
 				auto& at = attributes.allocate();
@@ -605,9 +605,15 @@ namespace wis
 				at.offset = i.aligned_byte_offset;
 			}
 
+			// remove empty bindings and compact the array
+			size_t rsize = 0;
+			for (size_t i = rsize; i < max_vertex_bindings; i++)
+				if (binding_map[i])bindings[rsize++] = bindings[i];
+
+
 			vk::PipelineVertexInputStateCreateInfo ia{
 				vk::PipelineVertexInputStateCreateFlagBits{},
-					uint32_t(bindings.size()),
+					uint32_t(rsize),
 					bindings.data(),
 					uint32_t(attributes.size()),
 					attributes.data()
