@@ -15,7 +15,7 @@ namespace wis
 	{
 	public:
 		Internal() = default;
-		Internal(wis::uniform_allocator<DataFormat, max_render_targets> target_formats, 
+		Internal(wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats, 
 			std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs, 
 			std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc)
 			:target_formats(target_formats), rt_descs(std::move(rt_descs)), ds_desc(std::move(ds_desc))
@@ -27,16 +27,16 @@ namespace wis
 		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* GetDSDesc()const noexcept {
 			return ds_desc.has_value() ? &ds_desc.value() : nullptr;
 		}
-		const wis::uniform_allocator<DataFormat, max_render_targets> GetTargetFormats()const noexcept
+		const wis::internals::uniform_allocator<DataFormat, max_render_targets> GetTargetFormats()const noexcept
 		{
 			return target_formats;
 		}
 		std::span<const DataFormat> GetTargetFormatSpan()const noexcept
 		{
-			return { target_formats.get(), target_formats.size() };
+			return { target_formats.data(), target_formats.size() };
 		}
 	private:
-		wis::uniform_allocator<DataFormat, max_render_targets> target_formats;
+		wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats;
 		mutable std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
 		mutable std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc;
 	};
@@ -47,7 +47,7 @@ namespace wis
 	{
 	public:
 		DX12RenderPass() = default;
-		explicit DX12RenderPass(wis::uniform_allocator<DataFormat, max_render_targets> target_formats,
+		explicit DX12RenderPass(wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats,
 			std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs, 
 			std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc = {})
 			:QueryInternal(target_formats, std::move(rt_descs), std::move(ds_desc))

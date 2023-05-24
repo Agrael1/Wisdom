@@ -200,8 +200,8 @@ namespace wis
 		void BeginRenderPass(wis::VKRenderPassView rp, 
 			std::span<const std::pair<VKRenderTargetView, ColorClear>> render_targets)noexcept
 		{
-			wis::uniform_allocator<vk::ImageView, max_render_targets> image_views;
-			wis::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
+			wis::internals::uniform_allocator<vk::ImageView, max_render_targets> image_views;
+			wis::internals::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
 			for (auto& i : render_targets)
 			{
 				image_views.allocate(i.first.GetInternal().GetImageView());

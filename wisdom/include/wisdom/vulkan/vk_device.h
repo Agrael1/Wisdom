@@ -450,7 +450,7 @@ namespace wis
 		{
 			std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions{};
 			std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references{};
-			wis::uniform_allocator<vk::FramebufferAttachmentImageInfo, max_render_targets + 2> image_md;
+			wis::internals::uniform_allocator<vk::FramebufferAttachmentImageInfo, max_render_targets + 2> image_md;
 
 			size_t size = 0;
 
@@ -581,10 +581,10 @@ namespace wis
 		[[nodiscard]]
 		VKPipelineState CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const
 		{
-			wis::uniform_allocator<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
-			wis::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * 16> attributes;
+			wis::internals::uniform_allocator<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
+			wis::internals::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * 16> attributes;
 
-			wis::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
+			wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
 			FillShaderStages(desc, shader_stages);
 
 			std::bitset<max_vertex_bindings> binding_map;
@@ -604,13 +604,13 @@ namespace wis
 				at.location = i.location;
 				at.offset = i.aligned_byte_offset;
 			}
-			bindings.compress_free(binding_map);
+
 			vk::PipelineVertexInputStateCreateInfo ia{
 				vk::PipelineVertexInputStateCreateFlagBits{},
 					uint32_t(bindings.size()),
-					bindings.get(),
+					bindings.data(),
 					uint32_t(attributes.size()),
-					attributes.get()
+					attributes.data()
 			};
 
 
@@ -654,7 +654,7 @@ namespace wis
 					vk::PrimitiveTopology::eTriangleList, false
 			};
 
-			wis::uniform_allocator<vk::DynamicState, 5> dynamic_state_enables;
+			wis::internals::uniform_allocator<vk::DynamicState, 5> dynamic_state_enables;
 			dynamic_state_enables.allocate(vk::DynamicState::eViewport);
 			dynamic_state_enables.allocate(vk::DynamicState::eScissor);
 			dynamic_state_enables.allocate(vk::DynamicState::ePrimitiveTopology);
@@ -665,7 +665,7 @@ namespace wis
 			vk::PipelineDynamicStateCreateInfo dss
 			{
 				{}, uint32_t(dynamic_state_enables.size()),
-					dynamic_state_enables.get()
+					dynamic_state_enables.data()
 			};
 
 			vk::GraphicsPipelineCreateInfo pipeline_desc
@@ -772,7 +772,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		wis::uniform_allocator<const char*, required_extensions.size()> RequestExtensions(VKAdapterView adapter)noexcept
+		wis::internals::uniform_allocator<const char*, required_extensions.size()> RequestExtensions(VKAdapterView adapter)noexcept
 		{
 			auto extensions = adapter.enumerateDeviceExtensionProperties();
 			std::unordered_set<std::string_view, wis::string_hash> ext_set;
@@ -781,7 +781,7 @@ namespace wis
 			for (const auto& e : extensions)
 				ext_set.emplace(e.extensionName.data());
 
-			wis::uniform_allocator<const char*, required_extensions.size()> avail_exts{};
+			wis::internals::uniform_allocator<const char*, required_extensions.size()> avail_exts{};
 
 			for (auto* i : required_extensions)
 			{
@@ -821,7 +821,7 @@ namespace wis
 				: eImmediate;
 		}
 
-		void FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages)const noexcept
+		void FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages)const noexcept
 		{
 			if (desc.vs)
 			{
