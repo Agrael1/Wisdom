@@ -176,10 +176,10 @@ namespace wis
 			D3D12_INPUT_LAYOUT_DESC iadesc{};
 			iadesc.NumElements = input_layout.size();
 
-			uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
+			wis::internals::uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
 			for (auto& i : input_layout)
 			{
-				ia.allocate() =
+				ia.allocate(D3D12_INPUT_ELEMENT_DESC
 				{
 					.SemanticName = i.semantic_name,
 					.SemanticIndex = i.semantic_index,
@@ -188,12 +188,12 @@ namespace wis
 					.AlignedByteOffset = i.aligned_byte_offset,
 					.InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
 					.InstanceDataStepRate = i.instance_data_step_rate
-				};
+				});
 			}
-			iadesc.pInputElementDescs = ia.get();
+			iadesc.pInputElementDescs = ia.data();
 
 
-			stack_allocator psta;
+			internals::memory_pool psta;
 			psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
 			psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
 
@@ -228,10 +228,10 @@ namespace wis
 				D3D12_RT_FORMAT_ARRAY rta{
 					.NumRenderTargets = uint32_t(desc.target_formats.size())
 				};
-				std::memcpy(rta.RTFormats, desc.target_formats.get(), desc.target_formats.size() * sizeof(DataFormat));
+				std::memcpy(rta.RTFormats, desc.target_formats.data(), desc.target_formats.size() * sizeof(DataFormat));
 				psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
 			}
-			xdesc.pPipelineStateSubobjectStream = psta.get<void>();
+			xdesc.pPipelineStateSubobjectStream = psta.data<void>();
 			xdesc.SizeInBytes = psta.size_bytes();
 
 
@@ -267,7 +267,7 @@ namespace wis
 				om_rtv.push_back({ 0, begin, end });
 			}
 
-			wis::uniform_allocator<DataFormat, max_render_targets> a;
+			wis::internals::uniform_allocator<DataFormat, max_render_targets> a;
 			for (auto& i : rtv_descs)
 				a.allocate() = i.format;
 

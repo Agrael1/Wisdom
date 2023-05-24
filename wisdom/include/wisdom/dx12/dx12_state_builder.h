@@ -70,7 +70,7 @@ namespace wis
 		DX12Shader hs;
 		DX12Shader ds;
 
-		wis::uniform_allocator<DataFormat, max_render_targets> target_formats;
+		wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats;
 	};
 
 	// TODO: Mesh and Compute pipelines
