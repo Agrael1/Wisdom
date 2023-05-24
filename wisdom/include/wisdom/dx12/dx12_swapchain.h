@@ -57,11 +57,10 @@ namespace wis
 		{
 			return chain->GetCurrentBackBufferIndex();
 		}
-		template<class Self>
 		[[nodiscard]] 
-		std::span<wis::cv_type_t<Self, DX12Buffer>> GetRenderTargets(this Self&& s)noexcept
+		std::span<const DX12Buffer> GetRenderTargets()const noexcept
 		{
-			return s.render_targets;
+			return render_targets;
 		}
 
 		[[nodiscard]] 

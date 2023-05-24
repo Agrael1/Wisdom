@@ -240,7 +240,7 @@ namespace wis
 		}
 
 		[[nodiscard]]
-		DX12Shader CreateShader(shared_blob<std::byte> blob, ShaderType type)const noexcept
+		DX12Shader CreateShader(shared_blob blob, ShaderType type)const noexcept
 		{
 			return DX12Shader{ std::move(blob), type };
 		}

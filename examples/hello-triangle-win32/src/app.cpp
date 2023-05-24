@@ -27,12 +27,12 @@ auto LoadShader(std::filesystem::path p)
 	else if constexpr (ShaderTy::language == wis::ShaderLang::spirv)
 		p+=u".spv";
 
-	std::basic_ifstream<std::byte> t{p, std::ios::binary};
+	std::ifstream t{p, std::ios::binary};
 	t.seekg(0, std::ios::end);
 	size_t size = t.tellg();
-	wis::shared_blob<std::byte> ret{size};
+	wis::shared_blob ret{size};
 	t.seekg(0);
-	t.read(ret.data(), size);
+	t.read(ret.data<char>(), size);
 	return ret;
 }
 
@@ -56,7 +56,7 @@ Test::App::App(uint32_t width, uint32_t height)
 		if (desc.IsSoftware())
 			wis::lib_warn("Loading WARP adapter");
 
-		std::wcout << desc.to_string();
+		std::cout << desc.to_string();
 
 		if (device.Initialize(a))
 		{ 
@@ -67,10 +67,12 @@ Test::App::App(uint32_t width, uint32_t height)
 	
 	queue = device.CreateCommandQueue();
 
-	swap = device.CreateSwapchain(queue, {
-			.width = uint32_t(wnd.GetWidth()),
-			.height = uint32_t(wnd.GetHeight()),
-			.stereo = true
+	swap = device.CreateSwapchain(queue, wis::SwapchainOptions{
+			uint32_t(wnd.GetWidth()),
+			uint32_t(wnd.GetHeight()),
+			wis::SwapchainOptions::default_frames,
+			wis::SwapchainOptions::default_format,
+			true
 		},
 		wis::SurfaceParameters{
 		wnd.GetHandle()
@@ -170,7 +172,6 @@ void Test::App::Frame()
 		.state_after = wis::TextureState::RenderTarget,
 		.access_before = wis::ResourceAccess::Common,
 		.access_after = wis::ResourceAccess::RenderTarget,
-		.range = wis::EntireTexture
 	}, back);
 
 	constexpr wis::ColorClear color{0.0f, 0.2f, 0.4f, 1.0f};
@@ -181,8 +182,8 @@ void Test::App::Frame()
 	};
 	
 	context.SetGraphicsRootSignature(root);
-	context.RSSetViewport({ .width = float(wnd.GetWidth()), .height = float(wnd.GetHeight()) });
-	context.RSSetScissorRect({ .right = wnd.GetWidth(), .bottom = wnd.GetHeight() });
+	context.RSSetViewport({ float(wnd.GetWidth()),float(wnd.GetHeight()) });
+	context.RSSetScissorRect({ wnd.GetWidth(), wnd.GetHeight() });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
 	context.IASetVertexBuffers({ &vb, 1 });
 	
@@ -195,7 +196,6 @@ void Test::App::Frame()
 		.state_after = wis::TextureState::Present,
 		.access_before = wis::ResourceAccess::RenderTarget,
 		.access_after = wis::ResourceAccess::Common,
-		.range = wis::EntireTexture
 	}, back);
 	context.Close();
 	queue.ExecuteCommandList(context);

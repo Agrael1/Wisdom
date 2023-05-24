@@ -42,7 +42,7 @@ namespace wis
 			adapter->GetDesc1(&desc);
 
 			return AdapterDesc{
-				.description{desc.Description},
+				.description {winrt::to_string(desc.Description)},
 				.vendor_id = desc.VendorId,
 				.device_id = desc.DeviceId,
 				.subsys_id = desc.SubSysId,

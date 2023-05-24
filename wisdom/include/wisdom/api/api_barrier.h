@@ -3,6 +3,7 @@
 
 namespace wis
 {
+	/// @brief Texture state layout
 	enum class TextureState : uint32_t
 	{
 		Undefined = 0xffffffff, //VK_IMAGE_LAYOUT_UNDEFINED 
@@ -21,6 +22,8 @@ namespace wis
 		VideoEncodeWrite = 17, //VK_IMAGE_LAYOUT_VIDEO_ENCODE_DST_KHR 
 		Present = 100,//VK_IMAGE_LAYOUT_PRESENT_SRC_KHR 
 	};
+
+	/// @brief Resource access layout
 	enum class ResourceAccess : uint32_t
 	{
 		Common = 0, //VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT 
@@ -42,6 +45,7 @@ namespace wis
 		NoAccess = 0x80000000 //VK_ACCESS_NONE
 	};
 
+	/// @brief Buffer usage flags, TODO: add more
 	enum class BufferFlags : uint32_t
 	{
 		None = 0,
@@ -49,19 +53,20 @@ namespace wis
 		VertexBuffer = 0x80, //VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
 	};
 
-	//Basic texture barrier TODO: advanced sync
+	/// @brief Basic texture barrier w/o synchronization
 	struct TextureBarrier
 	{
-		TextureState state_before;
-		TextureState state_after;
-		ResourceAccess access_before;
-		ResourceAccess access_after;
-		SubresourceRange range{};
+		TextureState state_before; //< State before the barrier
+		TextureState state_after; //< State after the barrier
+		ResourceAccess access_before; //< Access before the barrier
+		ResourceAccess access_after; //< Access after the barrier
+		SubresourceRange range{}; //< Subresource range to apply the barrier to
 	};
 
+	/// @brief Basic buffer barrier w/o synchronization
 	struct BufferBarrier
 	{
-		ResourceAccess access_before;
-		ResourceAccess access_after;
+		ResourceAccess access_before; //< Access before the barrier
+		ResourceAccess access_after; //< Access after the barrier
 	};
 }
