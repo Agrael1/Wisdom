@@ -16,15 +16,16 @@ namespace wis
 			return allocator.get();
 		}
 	protected:
-		//clunky
 		winrt::com_ptr<D3D12MA::Allocator> allocator;
 	};
 
+
+	/// @brief Resource allocator for DX12
 	class DX12ResourceAllocator : public QueryInternal<DX12ResourceAllocator>
 	{
 	public:
 		DX12ResourceAllocator() = default;
-		DX12ResourceAllocator(DX12DeviceView device, DX12AdapterView adapter)
+		explicit DX12ResourceAllocator(DX12DeviceView device, DX12AdapterView adapter)
 		{
 			D3D12MA::ALLOCATOR_DESC desc{
 				.Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
@@ -36,8 +37,12 @@ namespace wis
 			wis::check_hresult(D3D12MA::CreateAllocator(&desc, allocator.put()));
 		}
 	public:
+		/// @brief Create a buffer that is persistently mapped to the GPU
+		/// @param size Size of the buffer
+		/// @param flags Type of buffer
+		/// @return Buffer object
 		[[nodiscard]]
-		DX12Buffer CreatePersistentBuffer(size_t size, BufferFlags flags = BufferFlags::None)
+		DX12Buffer CreatePersistentBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None)
 		{
 			using namespace river::flags;
 			winrt::com_ptr<ID3D12Resource> rc;
@@ -54,6 +59,10 @@ namespace wis
 
 			return DX12Buffer{ std::move(rc), std::move(al)};
 		}
+
+		/// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
+		/// @param size Size of the buffer
+		/// @return Buffer object
 		[[nodiscard]]
 		DX12Buffer CreateUploadBuffer(size_t size)
 		{

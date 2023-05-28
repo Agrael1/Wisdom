@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_common.h>
 
+// TODO: Refactor
 namespace wis
 {
 	enum class PassLoadOperation : uint8_t

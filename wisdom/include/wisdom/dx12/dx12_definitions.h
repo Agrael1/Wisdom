@@ -7,30 +7,13 @@
 
 namespace wis
 {
+	/// @brief Get the array view of com_ptr
+	/// @tparam C Type of the com_ptr, deduced from the argument
+	/// @param self Pointer
+	/// @return Array view of the pointer
 	template<class C>
 	[[nodiscard]] inline auto** array_view(winrt::com_ptr<C>& self)
 	{
 		return reinterpret_cast<C**>(&self);
 	}
-
-
-	template<class T, size_t size> requires std::derived_from<T, IUnknown>
-	class com_array : public std::array<winrt::com_ptr<T>, size>
-	{
-	public:
-		[[nodiscard]] T** get_view()const
-		{
-			return reinterpret_cast<T**>(this->data());
-		}
-	};
-
-	template<class T> requires std::derived_from<T, IUnknown>
-	class com_vector : public std::vector<winrt::com_ptr<T>>
-	{
-	public:
-		[[nodiscard]] T** get_view()const
-		{
-			return reinterpret_cast<T**>(this->data());
-		}
-	};
 }

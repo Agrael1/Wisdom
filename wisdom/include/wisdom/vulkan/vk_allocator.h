@@ -20,7 +20,7 @@ namespace wis
 		wis::shared_handle<vma::Allocator> allocator;
 	};
 
-	//move only
+	/// @brief Resource allocator for Vulkan
 	class VKResourceAllocator : public QueryInternal<VKResourceAllocator>
 	{
 	public:
@@ -48,6 +48,10 @@ namespace wis
 			allocator = wis::shared_handle<vma::Allocator>{ al, std::move(device) };
 		}
 	public:
+		/// @brief Create a buffer that is persistently mapped to the GPU
+		/// @param size Size of the buffer
+		/// @param flags Type of buffer
+		/// @return Buffer object
 		[[nodiscard]]
 		VKBuffer CreatePersistentBuffer(size_t size, BufferFlags flags = BufferFlags::None)
 		{
@@ -61,6 +65,9 @@ namespace wis
 			return CreateBuffer(desc, alloc);
 		}
 
+		/// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
+		/// @param size Size of the buffer
+		/// @return Buffer object
 		[[nodiscard]]
 		VKBuffer CreateUploadBuffer(size_t size)
 		{

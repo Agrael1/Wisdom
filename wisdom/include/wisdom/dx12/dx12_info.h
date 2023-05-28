@@ -6,12 +6,14 @@
 
 namespace wis
 {
+	/// @brief Message struct for debug and error messages
 	struct DXGIMessage
 	{
-		Severity severity;
-		std::string description;
+		Severity severity; //< Severity of the message
+		std::string description; //< Description of the message
 	};
 
+	/// @brief Information queue for debug and error messages 
 	class DX12Info
 	{
 	public:

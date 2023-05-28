@@ -11,7 +11,7 @@ namespace wis
 		Performance //< Order: Discrete, Integrated
 	};
 
-	// used only for vulkan
+	/// @brief Application info, used only for debug purposes in Vulkan
 	struct ApplicationInfo
 	{
 	public:

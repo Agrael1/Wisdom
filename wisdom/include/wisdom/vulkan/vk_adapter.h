@@ -22,6 +22,8 @@ namespace wis
 	};
 	using VKAdapterView = vk::PhysicalDevice;
 
+
+	/// @brief Vulkan physcial adapter
 	class VKAdapter : public QueryInternal<VKAdapter>
 	{
 	public:
@@ -30,7 +32,18 @@ namespace wis
 		{
 			this->adapter = adapter;
 		}
+
+		/// @brief Get the adapter internal view
+		/// @return Adapter internal view
+		/// @note Do not use the contents of a view directly unless you know what you are doing
+		operator VKAdapterView()const noexcept
+		{
+			return GetAdapter();
+		}
 	public:
+		/// @brief Get the adapter description
+		/// @return Adapter Description
+		/// @note This function is thread safe
 		[[nodiscard]]
 		AdapterDesc GetDesc()const noexcept
 		{
@@ -45,7 +58,7 @@ namespace wis
 
 			uint64_t local_mem = 0;
 			uint64_t system_mem = 0;
-			std::span types{desc2.memoryTypes.data(), desc2.memoryTypeCount};
+			std::span types{ desc2.memoryTypes.data(), desc2.memoryTypeCount };
 			for (auto& i : types)
 			{
 				if (i.propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal &&
@@ -61,7 +74,7 @@ namespace wis
 				if (system_mem && local_mem)break;
 			}
 
-			AdapterFlags flag{AdapterFlags(+AdapterFlags::Remote && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)))
+			AdapterFlags flag{ AdapterFlags(+AdapterFlags::Remote && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)))
 			| AdapterFlags(+AdapterFlags::Software && (uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eCpu))) };
 
 			std::string_view x = desc.deviceName;
@@ -78,11 +91,6 @@ namespace wis
 				.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID),
 				.flags = flag
 			};
-		}
-
-		operator VKAdapterView()const noexcept
-		{
-			return GetAdapter();
 		}
 	};
 }

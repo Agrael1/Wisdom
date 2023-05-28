@@ -23,6 +23,8 @@ namespace wis
 
 	using VKPipelineStateView = vk::Pipeline;
 
+
+	/// @brief Pipeline state object
 	class VKPipelineState : public QueryInternal<VKPipelineState>
 	{
 	public:

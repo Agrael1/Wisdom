@@ -1,36 +1,25 @@
 #pragma once
-#include <type_traits>
 
 namespace wis
 {
+	/// @brief Template class for internal implementation
+	/// @tparam Impl Implementation class type
 	template<class Impl>
 	class Internal
-	{
-		//static_assert(requires{Internal<Impl>::valid; }, "Internal class may be used only by explicit api types");
-	};
+	{};
 
-	template<class T, class U>
-	struct cv_type { using type = U; };
 
-	template<class T, class U>
-	struct cv_type<const T, U>{ using type = const U; };
-
-	template<class T, class U>
-	struct cv_type<const volatile T, U>{ using type = const volatile U; };
-
-	template<class T, class U>
-	struct cv_type<volatile T, U>{ using type = volatile U; };
-
-	template<class In, class Out>
-	using cv_type_t = typename cv_type<In, Out>::type;
-	
-
+	/// @brief QueryInternal class for querying the internal implementation 
+	/// @tparam Impl Implementation class type, passed to Internal
 	template<class Impl>
 	class QueryInternal : protected Internal<Impl>
 	{
 	public:
+		using base = QueryInternal<Impl>;
 		using Internal<Impl>::Internal;
 	public:
+		/// @brief Get the immutable internal implementation
+		/// @return Const reference to the internal implementation
 		[[nodiscard]] 
 		const Internal<Impl>& GetInternal()const
 		{

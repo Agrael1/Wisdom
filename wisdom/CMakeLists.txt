@@ -1,6 +1,8 @@
 ﻿# CMakeList.txt : CMake project for Wisdom
 project(Wisdom)
 
+include(cmake/documentation.cmake)
+
 add_library(${PROJECT_NAME} STATIC)
 
 find_package(Vulkan)
@@ -117,7 +119,10 @@ set(HEADER_LIST
 	"include/wisdom/util/small_allocator.h"
 	"include/wisdom/bridge/format.h"
 	"include/wisdom/bridge/source_location.h"
-)
+ )
+
+
+
 
 # Add source to this project's executable.
 target_sources(${PROJECT_NAME}

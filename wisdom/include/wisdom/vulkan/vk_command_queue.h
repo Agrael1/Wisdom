@@ -25,18 +25,21 @@ namespace wis
 	};
 	using VKCommandQueueView = vk::Queue;
 
+	/// @brief A command queue is used to submit command lists to the GPU.
 	class VKCommandQueue : public QueryInternal<VKCommandQueue>
 	{
 		using intern = QueryInternal<VKCommandQueue>;
 	public:
 		VKCommandQueue() = default;
 		explicit VKCommandQueue(vk::Queue queue)
-		:QueryInternal(queue){}
+			:QueryInternal(queue){}
 		operator VKCommandQueueView()const noexcept
 		{
 			return queue;
 		}
 	public:
+		/// @brief Execute a command list on the GPU.
+		/// @param list List to execute.
 		void ExecuteCommandList(VKCommandListView command_list)
 		{
 			vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eAllCommands;
@@ -48,6 +51,11 @@ namespace wis
 
 			queue.submit(submit_info);
 		}
+
+		/// @brief Signal a fence with some value.
+		/// @param fence Fence to signal.
+		/// @param value Value to signal with.
+		/// @return true if call succeeded.
 		bool Signal(VKFenceView fence, uint64_t value)
 		{
 			vk::TimelineSemaphoreSubmitInfo submit

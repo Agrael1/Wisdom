@@ -38,10 +38,16 @@ namespace wis
 			return GetFence();
 		}
 	public:
+		/// @brief Get the current value of the fence.
+		/// @return Value of the fence.
 		uint64_t GetCompletedValue()const noexcept
 		{
 			return device.getSemaphoreCounterValue(fence.get());
 		}
+
+		/// @brief Wait for the fence to reach a certain value.
+		/// @param value Value to wait for.
+		/// @return Boolean indicating whether the fence reached the value.
 		bool Wait(uint64_t value)const noexcept
 		{
 			if (GetCompletedValue() >= value)
@@ -51,6 +57,9 @@ namespace wis
 			vk::SemaphoreWaitInfo waitInfo{{}, 1, & s, & value};
 			return succeded(device.waitSemaphores(waitInfo, std::numeric_limits<uint64_t>::max()));
 		}
+
+		/// @brief Signal the fence from CPU.
+		/// @param value Value to signal.
 		void Signal(uint64_t value)noexcept
 		{
 			vk::SemaphoreSignalInfo signalInfo

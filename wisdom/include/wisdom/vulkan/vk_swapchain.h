@@ -77,7 +77,6 @@ namespace wis
 						.state_after = TextureState::Present,
 						.access_before = ResourceAccess::NoAccess,
 						.access_after = ResourceAccess::Common,
-						.range = wis::EntireTexture
 					},
 					{ i, format });
 			}
@@ -96,22 +95,31 @@ namespace wis
 			ReleaseSemaphore();
 		}
 	public:
+		/// @brief Get the current image index in the swapchain
+		/// @return Index of the current image
 		[[nodiscard]] uint32_t GetNextIndex()const noexcept
 		{
 			return present_index;
 		}
+
+		/// @brief Get all the render targets in the swapchain
+		/// @return Span of render targets
 		[[nodiscard]]
 		std::span<const VKTexture> GetRenderTargets()const noexcept
 		{
 			return back_buffers;
 		}
 
+		/// @brief Get the current render target in the swapchain
+		/// @return Buffer view of the current render target TODO: Make a texture view
 		[[nodiscard]]
 		auto GetBackBuffer()const noexcept
 		{
 			return back_buffers[present_index];
 		}
 
+		/// @brief Present the swapchain
+		/// @return true if succeeded
 		bool Present()noexcept
 		{
 			vk::Semaphore a = graphics_semaphore.get();
@@ -129,6 +137,8 @@ namespace wis
 				AquireNextIndex();
 		}
 
+		/// @brief Check if stereo is supported
+		/// @return true if stereo is supported
 		[[nodiscard]]
 		bool StereoSupported()const noexcept
 		{
@@ -158,8 +168,8 @@ namespace wis
 			present_queue.waitIdle();
 		}
 	private:
-		std::vector<VKTexture> back_buffers;
-		mutable uint32_t present_index = 0;
-		bool stereo = false;
+		std::vector<VKTexture> back_buffers; //< Render targets
+		mutable uint32_t present_index = 0; //< Current render target index
+		bool stereo = false; //< True if stereo is supported by the swapchain
 	};
 }

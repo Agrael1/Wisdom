@@ -12,16 +12,18 @@ namespace wis
 	{
 	public:
 		Internal() = default;
-		Internal(shared_blob<std::byte> blob) :bytecode(std::move(blob)) {};
+		Internal(shared_blob blob) :bytecode(std::move(blob)) {};
 	public:
 		std::span<const std::byte> GetShaderBytecode()const noexcept
 		{
-			return bytecode.GetSpan();
+			return bytecode.span<std::byte>();
 		}
 	protected:
-		wis::shared_blob<std::byte> bytecode;
+		wis::shared_blob bytecode;
 	};
 
+
+	/// @brief Shader object
 	class DX12Shader : public QueryInternal<DX12Shader>
 	{
 	public:
@@ -29,7 +31,7 @@ namespace wis
 		static constexpr inline ShaderLang language = ShaderLang::dxil;
 	public:
 		DX12Shader() = default;
-		explicit DX12Shader(shared_blob<std::byte> blob, ShaderType type)
+		explicit DX12Shader(shared_blob blob, ShaderType type)
 			:QueryInternal(std::move(blob)), type(type)
 		{}
 	public:
@@ -37,6 +39,10 @@ namespace wis
 		{
 			return type != ShaderType::unknown && !bytecode.empty();
 		}
+
+		/// @brief Type of shader e.g vertex, fragment, compute
+		/// @return shader type
+		[[nodiscard]]
 		auto GetType()const noexcept
 		{
 			return type;

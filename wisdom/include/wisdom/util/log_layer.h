@@ -27,7 +27,7 @@ namespace wis
 		"critical"
 	};
 
-	// Create a custom log layer to receive logging from the library
+	/// @brief Create a custom log layer to receive logging from the library
 	struct LogLayer
 	{
 		virtual ~LogLayer() = default;
@@ -35,10 +35,18 @@ namespace wis
 	};
 
 
-
+	/// @brief Set the log layer for the library
 	class LibLogger
 	{
+		LibLogger() = default;
+		LibLogger(const LibLogger&) = delete;
+		LibLogger(LibLogger&&) = delete;
+		LibLogger& operator=(const LibLogger&) = delete;
+		LibLogger& operator=(LibLogger&&) = delete;
+		~LibLogger() = default;
 	public:
+		/// @brief Instance of the library logger
+		/// @return Instance of the library logger
 		[[nodiscard]]
 		static LibLogger& Instance()
 		{
@@ -46,11 +54,15 @@ namespace wis
 			return log;
 		}
 	public:
+		/// @brief Set the log layer for the library
+		/// @param log Log layer
 		static void SetLogLayer(std::shared_ptr<LogLayer> log)noexcept
 		{
 			Instance().log = std::move(log);
 		}
 
+		/// @brief Get the log layer for the library
+		/// @return Log layer
 		[[nodiscard]]
 		static auto* Get()noexcept
 		{
@@ -72,37 +84,65 @@ namespace wis
 
 
 	// Compile time resolved loggong for library
+
+	/// @brief Debug, this should be used for debugging purposes only
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_debug(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::debug)
 			lib_log_internal(Severity::debug, std::move(message), sl);
 	}
+
+	/// @brief Trace, this should be used for very detailed information
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_trace(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::trace)
 			lib_log_internal(Severity::trace, std::move(message), sl);
 	}
+
+	/// @brief Information, this should be used for general information
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_info(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::info)
 			lib_log_internal(Severity::info, std::move(message), sl);
 	}
+
+	/// @brief Log a warning message to the library log layer
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_warn(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::warn)
 			lib_log_internal(Severity::warn, std::move(message), sl);
 	}
+
+	/// @brief Error, this should be used when the library is in a recoverable state
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_error(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::error)
 			lib_log_internal(Severity::error, std::move(message), sl);
 	}
+
+	/// @brief Critical error, this should be used when the library is in an unrecoverable state
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_critical(std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		if constexpr (WISDOM_LOG_LEVEL <= +Severity::critical)
 			lib_log_internal(Severity::critical, std::move(message), sl);
 	}
 
+	/// @brief Log a message to the library log layer
+	/// @param sev Severity of the message
+	/// @param message Message text
+	/// @param sl Source location of the message
 	inline void lib_log(Severity sev, std::string message, wis::source_location sl = wis::source_location::current())
 	{
 		switch (sev) {

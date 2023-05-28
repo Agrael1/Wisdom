@@ -43,6 +43,7 @@ namespace wis
 
 	using DX12RenderPassView = const DX12RenderPass&; //rp is too large
 
+	// TODO: better RenderPass
 	class DX12RenderPass : public QueryInternal<DX12RenderPass>
 	{
 	public:

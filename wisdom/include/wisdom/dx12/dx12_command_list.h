@@ -40,6 +40,8 @@ namespace wis
 		winrt::com_ptr<ID3D12PipelineState> pipeline;
 	};
 
+
+	/// @brief A command list that can be executed by the GPU.
 	class DX12CommandList : public QueryInternal<DX12CommandList>
 	{
 	public:
@@ -51,31 +53,46 @@ namespace wis
 			command_list = std::move(xcommand_list);
 		}
 	public:
+		/// @brief Bind a pipeline state to the command list.
+		/// @param xpipeline Pipeline state to bind.
 		void SetPipeline(DX12PipelineStateView xpipeline)noexcept
 		{
 			pipeline.copy_from(xpipeline);
 		}
+
+		/// @brief Reset the command list.
+		/// @return True if the command list is ready to be used, false otherwise.
 		bool Reset()noexcept
 		{
 			return closed = !(wis::succeded_weak(allocator->Reset())
 				&& wis::succeded_weak(command_list->Reset(allocator.get(), pipeline.get())));
 		}
-		[[nodiscard]] bool IsClosed()const noexcept
+
+		/// @brief Check if the command list is closed.
+		/// @return true if the command list is closed, false otherwise.
+		[[nodiscard]] 
+		bool IsClosed()const noexcept
 		{
 			return closed;
 		}
+
+		/// @brief Close the command list.
+		/// If the command list is already closed, this function does nothing.
+		/// @return True if the command list was closed successfully, false otherwise.
 		bool Close()noexcept
 		{
 			if (closed)return closed;
 			return closed = wis::succeded_weak(command_list->Close());
 		}
 
-
+		/// @brief Set a barrirer on a buffer to perform a transition.
+		/// @param barrier Barrier description.
+		/// @param buffer Buffer to set the barrier on.
 		void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer)noexcept
 		{
 			CD3DX12_BUFFER_BARRIER bb
 			{
-				D3D12_BARRIER_SYNC_ALL,
+				D3D12_BARRIER_SYNC_ALL, //TODO: Better sync
 				D3D12_BARRIER_SYNC_ALL,
 				convert_dx(barrier.access_before),
 				convert_dx(barrier.access_after),
@@ -84,6 +101,10 @@ namespace wis
 			CD3DX12_BARRIER_GROUP bg{ 1, &bb };
 			command_list->Barrier(1, &bg);
 		}
+
+		/// @brief Set a barrier on a texture to perform a transition.
+		/// @param barrier Barrier description.
+		/// @param texture Texture to set the barrier on.
 		void TextureBarrier(wis::TextureBarrier barrier, DX12TextureView texture)noexcept
 		{
 			auto r = barrier.range;
@@ -103,34 +124,59 @@ namespace wis
 			command_list->Barrier(1, &bg);
 		}
 
+		/// @brief Copy data from one buffer to another on GPU.
+		/// Function does not check if the buffers are compatible, neither does it check if the data sizes are within the buffer sizes.
+		/// This is done to allow for more flexibility and performance.
+		/// @param source Source buffer.
+		/// @param destination Destination buffer.
+		/// @param data_size Size of the data to copy.
 		void CopyBuffer(DX12BufferView source, DX12BufferView destination, size_t data_size)noexcept
 		{
 			command_list->CopyBufferRegion(destination, 0, source, 0, data_size);
 		}
 
+		/// @brief Sets the root signature for the command list.
+		/// @param root Root signature to set.
 		void SetGraphicsRootSignature(DX12RootSignatureView root)noexcept
 		{
 			command_list->SetGraphicsRootSignature(root);
 		}
 
+		/// @brief Set viewport for the command list.
+		/// @param vp Viewport to set.
 		void RSSetViewport(Viewport vp)noexcept
 		{
 			command_list->RSSetViewports(1, (D3D12_VIEWPORT*)&vp);
 		}
+
+		/// @brief Sets the scissor rectangle for the command list.
+		/// @param rect Scissor rectangle to set.
 		void RSSetScissorRect(ScissorRect rect)noexcept
 		{
 			command_list->RSSetScissorRects(1, (D3D12_RECT*)&rect);
 		}
+
+		/// @brief Sets the primitive topology.
+		/// @param vp Primitive topology to set.
 		void IASetPrimitiveTopology(PrimitiveTopology vp)noexcept
 		{
 			command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY(vp));
 		}
+
+
+		/// @brief Binds vertex buffers to the command list.
+		/// max 16 buffers can be bound.
+		/// @param resources Vertex buffers to bind.
+		/// @param start_slot Offset to start binding from.
 		void IASetVertexBuffers(std::span<const DX12VertexBufferView> resources, uint32_t start_slot = 0)noexcept
 		{
 			command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
 		}
 
-		//TODO: fill framebuffer
+
+		/// @brief Start a render pass.
+		/// @param pass Pass description.
+		/// @param render_targets Render targets to bind with colors to clear them with.
 		void BeginRenderPass(DX12RenderPassView pass, 
 			std::span<const std::pair< DX12RenderTargetView, ColorClear>> render_targets
 		)noexcept
@@ -148,15 +194,26 @@ namespace wis
 			//TODO: Depth stencil
 			command_list->BeginRenderPass(rts.size(), rts.data(), i.GetDSDesc(), D3D12_RENDER_PASS_FLAG_NONE);
 		}
+
+		/// @brief Ends the render pass.
 		void EndRenderPass()noexcept
 		{
 			command_list->EndRenderPass();
 		}
 
-		void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
+		/// @brief Sets render targets for the command list. Only valid for DX12 command lists.
+		/// @param rtvs Render targets to set.
+		/// @param dsv Depth stencil target to set. (optional, unused)
+		void OMSetRenderTargetsDX(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
 		{
 			command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
 		}
+
+		/// @brief Draws instanced primitives, without indices.
+		/// @param VertexCountPerInstance Vertex count per single instance.
+		/// @param InstanceCount Count of instances to draw.
+		/// @param StartVertexLocation Start vertex location.
+		/// @param StartInstanceLocation Start instance location.
 		void DrawInstanced(uint32_t VertexCountPerInstance,
 			uint32_t InstanceCount = 1,
 			uint32_t StartVertexLocation = 0,
