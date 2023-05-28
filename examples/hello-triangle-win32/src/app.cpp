@@ -60,7 +60,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
 		if (device.Initialize(a))
 		{ 
-			allocator = { device, a };
+			allocator = wis::ResourceAllocator{ device, a };
 			break;
 		}
 	}

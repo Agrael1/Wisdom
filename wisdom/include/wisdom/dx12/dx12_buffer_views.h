@@ -10,6 +10,9 @@ namespace wis
 	class Internal<DX12VertexBufferView>
 	{
 	public:
+		Internal() = default;
+		Internal(D3D12_VERTEX_BUFFER_VIEW view) :view(view) {}
+	public:
 		D3D12_VERTEX_BUFFER_VIEW GetView()const noexcept
 		{
 			return view;
@@ -18,15 +21,16 @@ namespace wis
 		D3D12_VERTEX_BUFFER_VIEW view;
 	};
 
-
+	/// @brief Vertex buffer view
 	class DX12VertexBufferView : public QueryInternal<DX12VertexBufferView>
 	{
 	public:
 		DX12VertexBufferView() = default;
 		explicit DX12VertexBufferView(D3D12_VERTEX_BUFFER_VIEW xhandle)
-		{
-			view = xhandle;
-		}
+			:base(xhandle) {}
+	public:
+		/// @brief Get the view
+		/// @note This function is only available in the internal API
 		operator D3D12_VERTEX_BUFFER_VIEW()const noexcept
 		{
 			return view;

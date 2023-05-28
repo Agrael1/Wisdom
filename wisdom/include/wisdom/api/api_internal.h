@@ -15,6 +15,7 @@ namespace wis
 	class QueryInternal : protected Internal<Impl>
 	{
 	public:
+		using base = QueryInternal<Impl>;
 		using Internal<Impl>::Internal;
 	public:
 		/// @brief Get the immutable internal implementation

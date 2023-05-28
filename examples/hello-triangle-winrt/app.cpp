@@ -65,7 +65,7 @@ void Test::App::Initialize(IUnknown* core_window, uint32_t xwidth, uint32_t xhei
 
 		if (device.Initialize(a))
 		{
-			allocator = { device, a };
+			allocator = wis::ResourceAllocator{ device, a };
 			break;
 		}
 	}

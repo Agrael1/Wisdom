@@ -117,7 +117,7 @@ set(HEADER_LIST
 	"include/wisdom/util/small_allocator.h"
 	"include/wisdom/bridge/format.h"
 	"include/wisdom/bridge/source_location.h"
-)
+ )
 
 
 
