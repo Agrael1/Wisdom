@@ -30,6 +30,8 @@ namespace wis
 
 	using VKRenderPassView = struct { vk::RenderPass pass; vk::Framebuffer frame; Size2D frame_size; };
 
+
+	// TODO: Dynamic rendering
 	class VKRenderPass : public QueryInternal<VKRenderPass>
 	{
 	public:

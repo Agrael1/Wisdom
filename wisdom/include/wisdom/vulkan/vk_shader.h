@@ -22,6 +22,7 @@ namespace wis
 		wis::shared_handle<vk::ShaderModule> module;
 	};
 
+	/// @brief Shader object
 	class VKShader : public QueryInternal<VKShader>
 	{
 	public:
@@ -37,6 +38,9 @@ namespace wis
 		{
 			return type != ShaderType::unknown && module;
 		}
+		/// @brief Get shader type e.g. vertex, fragment
+		/// @return Type of shader
+		[[nodiscard]]
 		auto GetType()const noexcept
 		{
 			return type;

@@ -61,7 +61,7 @@ namespace wis
 		}
 
 		/// @brief Reset the command list.
-		/// @return Boolean indicating whether the command list was reset successfully.
+		/// @return True if the command list is ready to be used, false otherwise.
 		bool Reset()noexcept
 		{
 			return closed = !(wis::succeded_weak(allocator->Reset())
@@ -165,6 +165,7 @@ namespace wis
 
 
 		/// @brief Binds vertex buffers to the command list.
+		/// max 16 buffers can be bound.
 		/// @param resources Vertex buffers to bind.
 		/// @param start_slot Offset to start binding from.
 		void IASetVertexBuffers(std::span<const DX12VertexBufferView> resources, uint32_t start_slot = 0)noexcept
@@ -203,8 +204,7 @@ namespace wis
 		/// @brief Sets render targets for the command list. Only valid for DX12 command lists.
 		/// @param rtvs Render targets to set.
 		/// @param dsv Depth stencil target to set. (optional, unused)
-		[[deprecated]]
-		void OMSetRenderTargets(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
+		void OMSetRenderTargetsDX(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr)noexcept
 		{
 			command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
 		}

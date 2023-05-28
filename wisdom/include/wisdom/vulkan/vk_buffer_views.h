@@ -35,7 +35,7 @@ namespace wis
 		vk::DeviceSize stride_bytes;
 	};
 
-
+	/// @brief Vertex buffer view
 	class VKVertexBufferView : public QueryInternal<VKVertexBufferView>
 	{
 	public:

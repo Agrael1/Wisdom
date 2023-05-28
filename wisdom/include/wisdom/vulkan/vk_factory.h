@@ -93,7 +93,7 @@ namespace wis
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			void* pUserData);
 	public:
-		VKFactory(const ApplicationInfo& app_info)
+		VKFactory(const ApplicationInfo& app_info, [[maybe_unused]] bool unused = true)
 		{
 			if (factory)
 				return;
@@ -149,6 +149,9 @@ namespace wis
 			}
 		}
 	public:
+		/// @brief Enumerates all adapters on the system
+		/// @param preference Preference to use when enumerating adapters, changes the order of the adapters
+		/// @return coroutine that yields DX12Adapter
 		[[nodiscard]]
 		wis::generator<VKAdapter> EnumerateAdapters(AdapterPreference preference = AdapterPreference::Performance)const noexcept
 		{

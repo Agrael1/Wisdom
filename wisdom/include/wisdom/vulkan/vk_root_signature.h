@@ -23,6 +23,7 @@ namespace wis
 
 	using VKRootSignatureView = vk::PipelineLayout;
 
+	/// @brief Root signature
 	class VKRootSignature : public QueryInternal<VKRootSignature>
 	{
 	public:

@@ -7,17 +7,28 @@ project ("Wisdom")
 set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
 
 
-set(SEVERITY_LEVELS "debug;trace;info;warn;error;critical" CACHE INTERNAL "List of possible severities for logging")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(CURR_LEVEL "debug")
 else()
 	set(CURR_LEVEL "warn")
 endif()
 
+# Build type
+set(DEF_BUILD "static" CACHE INTERNAL "Default build type for library")
+set(BUILD_TYPES "header;static;module" CACHE INTERNAL "List of possible build types for library")
+set(WISDOM_BUILD_TYPE ${DEF_BUILD} CACHE STRING "Wisdom library build type")
+set_property(CACHE WISDOM_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
+list(FIND BUILD_TYPES ${WISDOM_BUILD_TYPE} BUILD_INDEX)
+message("[Wisdom] Build is ${WISDOM_BUILD_TYPE} [${BUILD_INDEX}]")
+
+# Log level
 set(WISDOM_LOG_LEVEL ${CURR_LEVEL} CACHE STRING "Wisdom library logging level")
+set(SEVERITY_LEVELS "debug;trace;info;warn;error;critical" CACHE INTERNAL "List of possible severities for logging")
 set_property(CACHE WISDOM_LOG_LEVEL PROPERTY STRINGS ${SEVERITY_LEVELS})
-list(FIND SEVERITY_LEVELS "${CURR_LEVEL}" SEV_INDEX)
-message("[Wisdom] Log Level is set to ${LOG_LEVEL} [${SEV_INDEX}]")
+list(FIND SEVERITY_LEVELS ${WISDOM_LOG_LEVEL} SEV_INDEX)
+message("[Wisdom] Log Level is set to ${WISDOM_LOG_LEVEL} [${SEV_INDEX}]")
+
+
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 	set(WTOP ON)
