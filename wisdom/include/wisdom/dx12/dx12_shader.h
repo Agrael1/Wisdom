@@ -23,7 +23,7 @@ namespace wis
 	};
 
 
-
+	/// @brief Shader object
 	class DX12Shader : public QueryInternal<DX12Shader>
 	{
 	public:
@@ -39,6 +39,10 @@ namespace wis
 		{
 			return type != ShaderType::unknown && !bytecode.empty();
 		}
+
+		/// @brief Type of shader e.g vertex, fragment, compute
+		/// @return shader type
+		[[nodiscard]]
 		auto GetType()const noexcept
 		{
 			return type;

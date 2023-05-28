@@ -18,9 +18,10 @@ namespace wis
 	protected:
 		winrt::com_ptr<ID3D12PipelineState> pipeline;
 	};
-
 	using DX12PipelineStateView = ID3D12PipelineState*;
 
+
+	/// @brief Pipeline state object, holds the state of the pipeline
 	class DX12PipelineState : public QueryInternal<DX12PipelineState>
 	{
 	public:

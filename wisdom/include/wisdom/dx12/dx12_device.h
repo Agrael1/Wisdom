@@ -43,6 +43,7 @@ namespace wis
 	using DX12DeviceView = ID3D12Device10*;
 
 
+	/// @brief A DX12 device
 	class DX12Device final : public QueryInternal<DX12Device>
 	{
 	public:
@@ -51,6 +52,9 @@ namespace wis
 			Initialize(adapter);
 		};
 	public:
+		/// @brief Initialize the device
+		/// @param adapter The adapter to use
+		/// @return true if the device was initialized successfully
 		bool Initialize(DX12AdapterView adapter)noexcept {
 			if (!wis::succeded(D3D12CreateDevice(adapter,
 				D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
@@ -76,6 +80,11 @@ namespace wis
 		}
 	public:
 
+		/// @brief Create a swapchain
+		/// @param queue The queue to use
+		/// @param options The options to use
+		/// @param surface The surface to use
+		/// @return The created swapchain
 		[[nodiscard]]
 		DX12SwapChain CreateSwapchain(DX12CommandQueueView queue, wis::SwapchainOptions options, wis::SurfaceParameters surface)const
 		{
@@ -110,6 +119,9 @@ namespace wis
 			return DX12SwapChain{ std::move(chain) ,options.frame_count, bool(desc.Stereo) };
 		}
 
+		/// @brief Create a command queue
+		/// @param options The options to use
+		/// @return The created command queue
 		[[nodiscard]]
 		DX12CommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})const
 		{
@@ -125,6 +137,9 @@ namespace wis
 			return { std::move(queue) };
 		}
 
+		/// @brief Create a command list
+		/// @param list_type The type of list to create
+		/// @return The created command list
 		[[nodiscard]]
 		DX12CommandList CreateCommandList(QueueType list_type)const
 		{
@@ -141,6 +156,7 @@ namespace wis
 			};
 		}
 
+		/// @brief Create a fence
 		[[nodiscard]]
 		DX12Fence CreateFence()const
 		{
@@ -149,6 +165,7 @@ namespace wis
 			return DX12Fence{ std::move(fence) };
 		}
 
+		/// @brief Create a root signature (empty)
 		[[nodiscard]]
 		DX12RootSignature CreateRootSignature()const
 		{
@@ -167,6 +184,7 @@ namespace wis
 			return DX12RootSignature{ std::move(rsig) };
 		}
 
+		/// @brief Create a graphics pipeline
 		[[nodiscard]]
 		DX12PipelineState CreateGraphicsPipeline(DX12GraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const //movable
 		{
@@ -180,15 +198,15 @@ namespace wis
 			for (auto& i : input_layout)
 			{
 				ia.allocate(D3D12_INPUT_ELEMENT_DESC
-				{
-					.SemanticName = i.semantic_name,
-					.SemanticIndex = i.semantic_index,
-					.Format = DXGI_FORMAT(i.format),
-					.InputSlot = i.input_slot,
-					.AlignedByteOffset = i.aligned_byte_offset,
-					.InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
-					.InstanceDataStepRate = i.instance_data_step_rate
-				});
+					{
+						.SemanticName = i.semantic_name,
+						.SemanticIndex = i.semantic_index,
+						.Format = DXGI_FORMAT(i.format),
+						.InputSlot = i.input_slot,
+						.AlignedByteOffset = i.aligned_byte_offset,
+						.InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
+						.InstanceDataStepRate = i.instance_data_step_rate
+					});
 			}
 			iadesc.pInputElementDescs = ia.data();
 
@@ -239,12 +257,20 @@ namespace wis
 			return DX12PipelineState{ std::move(state) };
 		}
 
+		/// @brief Create a shader
+		/// @param blob The shader blob
+		/// @param type The shader type
 		[[nodiscard]]
 		DX12Shader CreateShader(shared_blob blob, ShaderType type)const noexcept
 		{
 			return DX12Shader{ std::move(blob), type };
 		}
 
+		/// @brief Create a render pass
+		/// @param rtv_descs The render target descriptions
+		/// @param dsv_desc The depth stencil description
+		/// @param samples The sample count
+		/// @param vrs_format The variable rate shading format
 		[[nodiscard]]
 		DX12RenderPass CreateRenderPass(wis::Size2D, std::span<ColorAttachment> rtv_descs,
 			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
@@ -283,7 +309,11 @@ namespace wis
 			return DX12RenderPass{ a, std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
 		}
 
-		[[nodiescard]] //TODO: other formats, better allocator
+		//TODO: other formats, better allocator
+		/// @brief Create a render target view
+		/// @param texture The texture to create the view for
+		/// @param range The range of the view
+		[[nodiescard]]
 		DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture, RenderSelector range = {})
 		{
 			D3D12_RENDER_TARGET_VIEW_DESC desc

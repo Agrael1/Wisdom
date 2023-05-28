@@ -36,6 +36,14 @@ namespace wis
 		explicit DX12Adapter(winrt::com_ptr<IDXGIAdapter1> adapter)noexcept
 			:QueryInternal(std::move(adapter))
 		{}
+
+		/// @brief Get the adapter internal view
+		/// @return Adapter internal view
+		/// @note Do not use the contents of a view directly unless you know what you are doing
+		operator DX12AdapterView()const noexcept
+		{
+			return GetAdapter();
+		}
 	public:
 
 		/// @brief Get the adapter description
@@ -60,14 +68,6 @@ namespace wis
 				.adapter_id{reinterpret_cast<uint64_t&>(desc.AdapterLuid)},
 				.flags = AdapterFlags(desc.Flags)
 			};
-		}
-
-		/// @brief Get the adapter internal view
-		/// @return Adapter internal view
-		/// @note Do not use the contents of a view directly unless you know what you are doing
-		operator DX12AdapterView()const noexcept
-		{
-			return GetAdapter();
 		}
 	};
 }

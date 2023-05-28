@@ -22,6 +22,8 @@ namespace wis
 	};
 	using DX12FenceView = ID3D12Fence1*;
 
+
+	/// @brief A fence is a synchronization primitive that allows the CPU to wait for the GPU to finish rendering a frame.
 	class DX12Fence : public QueryInternal<DX12Fence>
 	{
 	public:
@@ -36,10 +38,16 @@ namespace wis
 			return GetFence();
 		}
 	public:
+		/// @brief Get the current value of the fence.
+		/// @return Value of the fence.
 		uint64_t GetCompletedValue()const noexcept
 		{
 			return fence->GetCompletedValue();
 		}
+
+		/// @brief Wait for the fence to reach a certain value.
+		/// @param value Value to wait for.
+		/// @return Boolean indicating whether the fence reached the value.
 		bool Wait(uint64_t value)const noexcept
 		{
 			return GetCompletedValue() >= value ?
@@ -47,6 +55,9 @@ namespace wis
 				wis::succeded_weak(fence->SetEventOnCompletion(value, fence_event.get()))
 				&& fence_event.wait();
 		}
+
+		/// @brief Signal the fence from CPU.
+		/// @param value Value to signal.
 		void Signal(uint64_t value)noexcept
 		{
 			fence->Signal(value);

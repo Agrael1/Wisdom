@@ -26,6 +26,8 @@ namespace wis
 
 	using DX12CommandQueueView = ID3D12CommandQueue*;
 
+
+	/// @brief A command queue is used to submit command lists to the GPU.
 	class DX12CommandQueue : public QueryInternal<DX12CommandQueue>
 	{
 		using intern = QueryInternal<DX12CommandQueue>;
@@ -37,11 +39,19 @@ namespace wis
 			return GetQueue();
 		}
 	public:
+
+		/// @brief Execute a command list on the GPU.
+		/// @param list List to execute.
 		void ExecuteCommandList(const DX12CommandList& list)noexcept
 		{
 			auto* cl = list.GetInternal().GetCommandList();
 			queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&cl));
 		}
+
+		/// @brief Signal a fence with some value.
+		/// @param fence Fence to signal.
+		/// @param value Value to signal with.
+		/// @return true if call succeeded.
 		bool Signal(DX12FenceView fence, uint64_t value)noexcept
 		{
 			return wis::succeded_weak(queue->Signal(fence, value));

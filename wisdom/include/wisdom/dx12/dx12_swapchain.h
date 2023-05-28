@@ -31,6 +31,8 @@ namespace wis
 		winrt::com_ptr<IDXGISwapChain4> chain{};
 	};
 
+
+	/// @brief SwapChain implementation for DX12
 	class DX12SwapChain : public QueryInternal<DX12SwapChain>
 	{
 		friend class DX12Factory;
@@ -52,34 +54,46 @@ namespace wis
 			
 		}
 	public:
-		[[nodiscard]] 
-		uint32_t GetNextIndex()const noexcept
+
+		/// @brief Get the current image index in the swapchain
+		/// @return Index of the current image
+		[[nodiscard]] uint32_t GetNextIndex()const noexcept
 		{
 			return chain->GetCurrentBackBufferIndex();
 		}
+
+		/// @brief Get all the render targets in the swapchain
+		/// @return Span of render targets
 		[[nodiscard]] 
 		std::span<const DX12Buffer> GetRenderTargets()const noexcept
 		{
 			return render_targets;
 		}
 
+		/// @brief Get the current render target in the swapchain
+		/// @return Buffer view of the current render target TODO: Make a texture view
 		[[nodiscard]] 
 		DX12BufferView GetBackBuffer()const noexcept
 		{
 			return render_targets[chain->GetCurrentBackBufferIndex()];
 		}
 
+		/// @brief Present the swapchain
+		/// @return true if succeeded
 		bool Present()noexcept
 		{
 			return wis::succeded_weak(chain->Present(0, 0));
 		}
+
+		/// @brief Check if stereo is supported
+		/// @return true if stereo is supported
 		[[nodiscard]] 
 		bool StereoSupported()const noexcept
 		{
 			return stereo;
 		}
 	private:
-		std::vector<DX12Buffer> render_targets{};
-		bool stereo = false;
+		std::vector<DX12Buffer> render_targets{}; //< Render targets
+		bool stereo = false; //< Stereo support
 	};
 }
