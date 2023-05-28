@@ -40,6 +40,7 @@ option(WISDOM_RUNTIME_ASSERTS "Turn on/off runtime assertions (turned on might s
 option(WISDOM_FORCE_VULKAN "Forces the default device to be vulkan, instead of platform specific" OFF)
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
+option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
 
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13"

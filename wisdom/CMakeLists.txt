@@ -1,6 +1,8 @@
 ﻿# CMakeList.txt : CMake project for Wisdom
 project(Wisdom)
 
+include(cmake/documentation.cmake)
+
 add_library(${PROJECT_NAME} STATIC)
 
 find_package(Vulkan)
