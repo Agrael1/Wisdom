@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/dx12/dx12_views.h>
 #include <wil/resource.h>
 #include <d3d12.h>
 
@@ -12,15 +13,21 @@ namespace wis
 	class Internal<DX12Fence>
 	{
 	public:
-		auto* GetFence()const noexcept
+		Internal() = default;
+		Internal(winrt::com_ptr<ID3D12Fence1> fence) 
+			: fence(std::move(fence))
 		{
+			wis::check_hresult(fence_event.create()); // rethrow windows error (nothrow policy)
+		}
+	public:
+		[[nodiscard]]
+		auto* GetFence()const noexcept {
 			return fence.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12Fence1> fence;
 		wil::unique_event_nothrow fence_event;
 	};
-	using DX12FenceView = ID3D12Fence1*;
 
 
 	/// @brief A fence is a synchronization primitive that allows the CPU to wait for the GPU to finish rendering a frame.
@@ -28,13 +35,9 @@ namespace wis
 	{
 	public:
 		DX12Fence() = default;
-		explicit DX12Fence(winrt::com_ptr<ID3D12Fence1> xfence)
-		{
-			fence = std::move(xfence);
-			wis::check_hresult(fence_event.create()); // rethrow windows error (nothrow policy)
-		}
-		operator DX12FenceView()const noexcept
-		{
+		explicit DX12Fence(winrt::com_ptr<ID3D12Fence1> xfence)noexcept
+			: QueryInternal(std::move(xfence)){}
+		operator DX12FenceView()const noexcept{
 			return GetFence();
 		}
 	public:

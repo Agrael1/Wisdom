@@ -1,13 +1,9 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_swapchain.h>
-#include <wisdom/dx12/dx12_checks.h>
-#include <wisdom/dx12/dx12_rtv.h>
 #include <wisdom/dx12/dx12_resource.h>
+#include <dxgi1_5.h>
 
-#include <dxgi1_6.h>
-#include <d3dx12/d3dx12.h>
-#include <span>
 
 namespace wis
 {
@@ -23,9 +19,8 @@ namespace wis
 		Internal(winrt::com_ptr<IDXGISwapChain4> chain)
 			:chain(std::move(chain)){}
 	public:
-		template<class Self>
-		[[nodiscard]] auto GetSwapChain(this Self&& s)noexcept {
-			return s.chain;
+		[[nodiscard]] IDXGISwapChain4* GetSwapChain()const noexcept {
+			return chain.get();
 		}
 	protected:
 		winrt::com_ptr<IDXGISwapChain4> chain{};
@@ -51,7 +46,6 @@ namespace wis
 				wis::check_hresult(chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void()));
 				render_targets.emplace_back(std::move(rc), nullptr);
 			}
-			
 		}
 	public:
 
@@ -64,16 +58,14 @@ namespace wis
 
 		/// @brief Get all the render targets in the swapchain
 		/// @return Span of render targets
-		[[nodiscard]] 
-		std::span<const DX12Buffer> GetRenderTargets()const noexcept
+		[[nodiscard]] std::span<const DX12Buffer> GetRenderTargets()const noexcept
 		{
 			return render_targets;
 		}
 
 		/// @brief Get the current render target in the swapchain
 		/// @return Buffer view of the current render target TODO: Make a texture view
-		[[nodiscard]] 
-		DX12BufferView GetBackBuffer()const noexcept
+		[[nodiscard]] DX12BufferView GetBackBuffer()const noexcept
 		{
 			return render_targets[chain->GetCurrentBackBufferIndex()];
 		}
@@ -87,8 +79,7 @@ namespace wis
 
 		/// @brief Check if stereo is supported
 		/// @return true if stereo is supported
-		[[nodiscard]] 
-		bool StereoSupported()const noexcept
+		[[nodiscard]] bool StereoSupported()const noexcept
 		{
 			return stereo;
 		}

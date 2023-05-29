@@ -13,8 +13,7 @@ namespace wis
 		Internal() = default;
 		Internal(D3D12_VERTEX_BUFFER_VIEW view) :view(view) {}
 	public:
-		D3D12_VERTEX_BUFFER_VIEW GetView()const noexcept
-		{
+		[[nodiscard]] D3D12_VERTEX_BUFFER_VIEW GetView()const noexcept{
 			return view;
 		}
 	protected:
@@ -31,8 +30,7 @@ namespace wis
 	public:
 		/// @brief Get the view
 		/// @note This function is only available in the internal API
-		operator D3D12_VERTEX_BUFFER_VIEW()const noexcept
-		{
+		operator D3D12_VERTEX_BUFFER_VIEW()const noexcept{
 			return view;
 		}
 	};

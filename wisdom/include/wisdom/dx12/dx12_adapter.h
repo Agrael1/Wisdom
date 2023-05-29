@@ -1,14 +1,17 @@
 #pragma once
+#include <wisdom/global/definitions.h>
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_adapter.h>
+#include <wisdom/dx12/dx12_views.h>
 
 #include <winrt/base.h>
-#include <dxgi1_6.h>
+#include <dxgi.h>
+
+
 
 namespace wis
 {
 	class DX12Adapter;
-
 
 	template<>
 	class Internal<DX12Adapter>
@@ -18,14 +21,12 @@ namespace wis
 		Internal(winrt::com_ptr<IDXGIAdapter1> adapter)noexcept
 			:adapter(std::move(adapter)) {}
 	public:
-		[[nodiscard]] 
-		IDXGIAdapter1* GetAdapter()const noexcept {
+		[[nodiscard]]IDXGIAdapter1* GetAdapter()const noexcept {
 			return adapter.get();
 		}
 	protected:
 		winrt::com_ptr<IDXGIAdapter1> adapter;
 	};
-	using DX12AdapterView = IDXGIAdapter1*;
 
 
 	/// @brief DX12 physical adapter
@@ -36,12 +37,7 @@ namespace wis
 		explicit DX12Adapter(winrt::com_ptr<IDXGIAdapter1> adapter)noexcept
 			:QueryInternal(std::move(adapter))
 		{}
-
-		/// @brief Get the adapter internal view
-		/// @return Adapter internal view
-		/// @note Do not use the contents of a view directly unless you know what you are doing
-		operator DX12AdapterView()const noexcept
-		{
+		operator DX12AdapterView()const noexcept{
 			return GetAdapter();
 		}
 	public:
@@ -49,25 +45,10 @@ namespace wis
 		/// @brief Get the adapter description
 		/// @return Adapter Description
 		/// @note This function is thread safe
-		[[nodiscard]]
-		AdapterDesc GetDesc()const noexcept
-		{
-			DXGI_ADAPTER_DESC1 desc;
-			adapter->GetDesc1(&desc);
-
-			return AdapterDesc{
-				.description {winrt::to_string(desc.Description)},
-				.vendor_id = desc.VendorId,
-				.device_id = desc.DeviceId,
-				.subsys_id = desc.SubSysId,
-				.revision = desc.Revision,
-
-				.dedicated_video_memory = desc.DedicatedVideoMemory,
-				.dedicated_system_memory = desc.DedicatedSystemMemory,
-				.shared_system_memory = desc.SharedSystemMemory,
-				.adapter_id{reinterpret_cast<uint64_t&>(desc.AdapterLuid)},
-				.flags = AdapterFlags(desc.Flags)
-			};
-		}
+		WIS_INLINE [[nodiscard]]AdapterDesc GetDesc()const noexcept;
 	};
 }
+
+#if defined(WISDOM_HEADER_ONLY)
+#include "impl/dx12_adapter.inl"
+#endif

@@ -45,49 +45,9 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
 endif()
 
+include(cmake/dx12.cmake)
 
-if(WIN32)
-	message("Platform Library is DirectX 12")
-
-	set(WISDOMDX12 TRUE)
-	set(DX12HEADERS 
-		"include/wisdom/dx12/dx12_definitions.h" 
-		"include/wisdom/dx12/dx12_factory.h" 
-		"include/wisdom/dx12/dx12_checks.h" 
-		"include/wisdom/dx12/dx12_info.h" 
-		"include/wisdom/dx12/dx12_adapter.h" 
-		"include/wisdom/dx12/dx12_device.h" 
-		"include/wisdom/dx12/dx12_command_queue.h" 
-		"include/wisdom/dx12/dx12_swapchain.h" 
-		"include/wisdom/dx12/dx12_resource.h" 
-		"include/wisdom/dx12/dx12_command_list.h" 
-		"include/wisdom/dx12/dx12_fence.h" 
-		"include/wisdom/dx12/dx12_rtv.h" 
-		"include/wisdom/dx12/dx12_pipeline_state.h" 
-		"include/wisdom/dx12/dx12_root_signature.h" 
-		"include/wisdom/dx12/dx12_shader.h" 
-		"include/wisdom/dx12/dx12_allocator.h" 
-		"include/wisdom/dx12/dx12_state_builder.h"
-		"include/wisdom/dx12/dx12_buffer_views.h"
-		"include/wisdom/dx12/dx12_render_pass.h"
-		"include/wisdom/dx12/dx12_format.h" 
-	)
-	set(DX12SOURCES
-		"src/wisdom/dx12/dx12_checks.cpp"
-		"src/wisdom/dx12/dx12_info.cpp"
-	)
-	target_link_libraries(${PROJECT_NAME} 
-		PUBLIC 
-			WinRT
-			DX12Agility
-			DX12Allocator
-			Wil
-			d3d12
-			d3d11
-			DXGI
-			DXGUID
-	)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT WISDOM_FORCE_VULKAN)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT WISDOM_FORCE_VULKAN)
 	message("Platform Library is Metal")
 	set(WISDOMMTL TRUE)
 	message(FATAL_ERROR "Metal is not implemented")
@@ -128,9 +88,8 @@ set(HEADER_LIST
 target_sources(${PROJECT_NAME}
 	PUBLIC FILE_SET HEADERS 
 		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-		FILES ${HEADER_LIST} ${DX12HEADERS} ${VKHEADERS}
-	PRIVATE 
-		${DX12SOURCES}
+		FILES ${HEADER_LIST} ${VKHEADERS}
+	PRIVATE
 		${VKSOURCES}
 		"src/wisdom/util/exception.cpp"
 )
@@ -155,16 +114,14 @@ target_compile_definitions(${PROJECT_NAME}
 		NOMINMAX
 )
 
+if(WISDOM_BUILD_TYPE STREQUAL "headers")
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY)
+endif()
 if(WISDOM_FORCE_VULKAN)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_FORCE_VULKAN)
 endif()
 
-if (WIN32)
-	if(WINDOWS_STORE)
-		target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_UWP)
-	endif()
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_WINDOWS VK_USE_PLATFORM_WIN32_KHR)
-elseif (APPLE)
+if (APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_MAC VK_USE_PLATFORM_METAL_EXT)
 elseif (UNIX AND NOT APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_LINUX VK_USE_PLATFORM_XCB_KHR)

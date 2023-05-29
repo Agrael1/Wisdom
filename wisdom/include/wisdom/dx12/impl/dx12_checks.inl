@@ -1,4 +1,3 @@
-#include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_info.h>
 #include <wil/resource.h>
 
@@ -32,16 +31,6 @@ wis::hr_exception::hr_exception(winrt::hresult hr, wis::source_location sl)
 std::string wis::hr_exception::description() const noexcept
 {
 	return winrt::to_string(winrt::to_hstring(hResult));
-
-	//wil::unique_hlocal_ansistring msgBuf;
-	//DWORD nMsgLen = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-	//	FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(msgBuf.put()),
-	//	0, nullptr);
-	//
-	//if (nMsgLen == 0)
-	//	return "Unknown error";
-	//std::string errorString = msgBuf.get();
-	//return errorString;
 }
 const char* wis::hr_exception::what() const noexcept
 {

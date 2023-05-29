@@ -1,9 +1,12 @@
 #pragma once
-#include <wisdom/api/api_internal.h>
-#include <d3d12.h>
-#include <wisdom/util/small_allocator.h>
-#include <wisdom/api/api_common.h>
 #include <wisdom/global/definitions.h>
+#include <wisdom/api/api_internal.h>
+#include <wisdom/api/api_common.h>
+#include <wisdom/util/small_allocator.h>
+#include <d3d12.h>
+#include <optional>
+#include <span>
+#include <vector>
 
 
 namespace wis

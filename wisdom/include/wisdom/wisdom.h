@@ -27,6 +27,7 @@ static_assert(WISDOM_LINUX&& __linux__, "Platform error");
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
+#include <wisdom/dx12/dx12_device.h>
 
 //dx12
 namespace wis

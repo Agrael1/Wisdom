@@ -1,12 +1,12 @@
 #pragma once
+#include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
-#include <vector>
 #include <winrt/base.h>
 #include <dxgidebug.h>
 
 namespace wis
 {
-	/// @brief Message struct for debug and error messages
+	/// @brief Message struct for debug and error messagesW
 	struct DXGIMessage
 	{
 		Severity severity; //< Severity of the message
@@ -17,14 +17,18 @@ namespace wis
 	class DX12Info
 	{
 	public:
-		DX12Info();
-		~DX12Info();
+		WIS_INLINE DX12Info();
+		WIS_INLINE ~DX12Info();
 		DX12Info(const DX12Info&) = delete;
 		DX12Info& operator=(const DX12Info&) = delete;
 	public:
-		[[nodiscard]] static uint64_t GetNumMessages()noexcept;
-		[[nodiscard]] static std::vector<DXGIMessage> GetMessages()noexcept;
+		WIS_INLINE [[nodiscard]] static uint64_t GetNumMessages()noexcept;
+		WIS_INLINE [[nodiscard]] static std::vector<DXGIMessage> GetMessages()noexcept;
 	private:
-		static winrt::com_ptr<IDXGIInfoQueue> info_queue;
+		static inline winrt::com_ptr<IDXGIInfoQueue> info_queue{};
 	};
 }
+
+#if defined(WISDOM_HEADER_ONLY)
+#include "impl/dx12_info.inl"
+#endif

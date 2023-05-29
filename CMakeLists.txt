@@ -15,7 +15,7 @@ endif()
 
 # Build type
 set(DEF_BUILD "static" CACHE INTERNAL "Default build type for library")
-set(BUILD_TYPES "header;static;module" CACHE INTERNAL "List of possible build types for library")
+set(BUILD_TYPES "headers;static;module" CACHE INTERNAL "List of possible build types for library")
 set(WISDOM_BUILD_TYPE ${DEF_BUILD} CACHE STRING "Wisdom library build type")
 set_property(CACHE WISDOM_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
 list(FIND BUILD_TYPES ${WISDOM_BUILD_TYPE} BUILD_INDEX)

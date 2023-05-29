@@ -8,9 +8,9 @@ namespace wis
 	class hr_exception :public wis::exception
 	{
 	public:
-		hr_exception(winrt::hresult hr, wis::source_location sl = wis::source_location::current());
+		WIS_INLINE hr_exception(winrt::hresult hr, wis::source_location sl = wis::source_location::current());
 	public:
-		const char* what() const noexcept override;
+		WIS_INLINE const char* what() const noexcept override;
 		std::string_view type()const noexcept override
 		{
 			return "Vertas Window Exception";
@@ -19,7 +19,7 @@ namespace wis
 		{
 			return hResult;
 		}
-		std::string description() const noexcept;
+		WIS_INLINE std::string description() const noexcept;
 	private:
 		winrt::hresult hResult;
 	};
@@ -28,11 +28,11 @@ namespace wis
 
 	/// @brief Log any errors in the current context
 	/// @return true if there were any errors
-	bool log_dxgi_errors()noexcept;
+	WIS_INLINE bool log_dxgi_errors()noexcept;
 
 	/// @brief Get the last windows error
 	/// @return HRESULT of the last windows error
-	winrt::hresult last_windows_error() noexcept;
+	WIS_INLINE winrt::hresult last_windows_error() noexcept;
 
 	/// @brief Chaeck if there are any errors in the current context, logging any errors
 	/// @param sl Source location
@@ -97,3 +97,7 @@ namespace wis
 		return check_hresult_nothrow(hr);
 	}
 }
+
+#if defined(WISDOM_HEADER_ONLY)
+#include "impl/dx12_checks.inl"
+#endif

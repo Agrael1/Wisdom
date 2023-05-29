@@ -1,17 +1,10 @@
 #pragma once
-#include <wisdom/api/api_internal.h>
-#include <wisdom/api/api_barrier.h>
-#include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_rtv.h>
 #include <wisdom/dx12/dx12_format.h>
-#include <wisdom/dx12/dx12_resource.h>
-#include <wisdom/dx12/dx12_pipeline_state.h>
-#include <wisdom/dx12/dx12_root_signature.h>
+#include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/dx12/dx12_buffer_views.h>
 #include <wisdom/dx12/dx12_render_pass.h>
-#include <d3d12.h>
-#include <span>
-#include <ranges>
-#include <wisdom/api/api_common.h>
+#include <wisdom/dx12/dx12_pipeline_state.h>
 
 
 namespace wis
@@ -22,22 +15,21 @@ namespace wis
 	class Internal<DX12CommandList>
 	{
 	public:
-		ID3D12GraphicsCommandList9* GetCommandList()const noexcept
-		{
+		Internal() = default;
+		Internal(winrt::com_ptr<ID3D12CommandAllocator> xallocator,
+			winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list)
+			:allocator(std::move(xallocator)), command_list(std::move(xcommand_list))
+		{}
+	public:
+		[[nodiscard]] ID3D12GraphicsCommandList9* GetCommandList()const noexcept {
 			return command_list.get();
 		}
-		ID3D12CommandAllocator* GetCommandAllocator()const noexcept
-		{
+		[[nodiscard]] ID3D12CommandAllocator* GetCommandAllocator()const noexcept {
 			return allocator.get();
-		}
-		ID3D12PipelineState* GetBoundState()const noexcept
-		{
-			return pipeline.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12CommandAllocator> allocator;
 		winrt::com_ptr<ID3D12GraphicsCommandList9> command_list;
-		winrt::com_ptr<ID3D12PipelineState> pipeline;
 	};
 
 
@@ -48,29 +40,33 @@ namespace wis
 		DX12CommandList() = default;
 		explicit DX12CommandList(winrt::com_ptr<ID3D12CommandAllocator> xallocator,
 			winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list)
-		{
-			allocator = std::move(xallocator);
-			command_list = std::move(xcommand_list);
+			:QueryInternal(std::move(xallocator), std::move(xcommand_list))
+		{}
+		operator bool()const noexcept {
+			return command_list && allocator;
+		}
+		operator DX12CommandListView ()const noexcept {
+			return command_list.get();
 		}
 	public:
 		/// @brief Bind a pipeline state to the command list.
 		/// @param xpipeline Pipeline state to bind.
-		void SetPipeline(DX12PipelineStateView xpipeline)noexcept
-		{
-			pipeline.copy_from(xpipeline);
+		void SetPipeline(DX12PipelineState xpipeline)noexcept{
+			pipeline_state = std::move(xpipeline);
 		}
+
 
 		/// @brief Reset the command list.
 		/// @return True if the command list is ready to be used, false otherwise.
 		bool Reset()noexcept
 		{
 			return closed = !(wis::succeded_weak(allocator->Reset())
-				&& wis::succeded_weak(command_list->Reset(allocator.get(), pipeline.get())));
+				&& wis::succeded_weak(command_list->Reset(allocator.get(), pipeline_state.GetInternal().GetPipeline())));
 		}
 
 		/// @brief Check if the command list is closed.
 		/// @return true if the command list is closed, false otherwise.
-		[[nodiscard]] 
+		[[nodiscard]]
 		bool IsClosed()const noexcept
 		{
 			return closed;
@@ -110,14 +106,14 @@ namespace wis
 			auto r = barrier.range;
 			CD3DX12_TEXTURE_BARRIER tb
 			{
-				D3D12_BARRIER_SYNC_ALL, 
+				D3D12_BARRIER_SYNC_ALL,
 				D3D12_BARRIER_SYNC_ALL,
 				convert_dx(barrier.access_before),
 				convert_dx(barrier.access_after),
 				convert_dx(barrier.state_before),
 				convert_dx(barrier.state_after),
 				texture,
-				r.extent_mips == r.whole? CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.whole):
+				r.extent_mips == r.whole ? CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.whole) :
 				CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.base_mip, r.extent_mips, r.base_layer, r.extent_layers)
 			};
 			CD3DX12_BARRIER_GROUP bg{ 1, &tb };
@@ -177,7 +173,7 @@ namespace wis
 		/// @brief Start a render pass.
 		/// @param pass Pass description.
 		/// @param render_targets Render targets to bind with colors to clear them with.
-		void BeginRenderPass(DX12RenderPassView pass, 
+		void BeginRenderPass(DX12RenderPassView pass,
 			std::span<const std::pair< DX12RenderTargetView, ColorClear>> render_targets
 		)noexcept
 		{
@@ -222,6 +218,7 @@ namespace wis
 			command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 		}
 	private:
+		DX12PipelineState pipeline_state{};
 		bool closed = true;
 	};
 }

@@ -1,8 +1,7 @@
 #pragma once
 #include <wisdom/api/api_internal.h>
-#include <wisdom/dx12/dx12_command_list.h>
-#include <wisdom/dx12/dx12_definitions.h>
-#include <wisdom/dx12/dx12_fence.h>
+#include <wisdom/dx12/dx12_views.h>
+#include <wisdom/dx12/dx12_checks.h>
 #include <d3d12.h>
 
 namespace wis
@@ -12,19 +11,16 @@ namespace wis
 	template<>
 	class Internal<DX12CommandQueue>
 	{
-		static constexpr inline bool valid = true;
 	public:
 		Internal() = default;
 		Internal(winrt::com_ptr<ID3D12CommandQueue> queue)noexcept :queue(std::move(queue)){}
 	public:
-		ID3D12CommandQueue* GetQueue()const noexcept {
+		[[nodiscard]] ID3D12CommandQueue* GetQueue()const noexcept {
 			return queue.get();
 		}
 	protected:
 		winrt::com_ptr<ID3D12CommandQueue> queue{};
 	};
-
-	using DX12CommandQueueView = ID3D12CommandQueue*;
 
 
 	/// @brief A command queue is used to submit command lists to the GPU.
@@ -33,7 +29,7 @@ namespace wis
 		using intern = QueryInternal<DX12CommandQueue>;
 	public:
 		DX12CommandQueue() = default;
-		DX12CommandQueue(winrt::com_ptr<ID3D12CommandQueue> queue)noexcept
+		explicit DX12CommandQueue(winrt::com_ptr<ID3D12CommandQueue> queue)noexcept
 			:intern(std::move(queue)){}
 		operator DX12CommandQueueView()const noexcept{
 			return GetQueue();
@@ -42,10 +38,9 @@ namespace wis
 
 		/// @brief Execute a command list on the GPU.
 		/// @param list List to execute.
-		void ExecuteCommandList(const DX12CommandList& list)noexcept
+		void ExecuteCommandList(DX12CommandListView list)noexcept
 		{
-			auto* cl = list.GetInternal().GetCommandList();
-			queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&cl));
+			queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&list));
 		}
 
 		/// @brief Signal a fence with some value.
