@@ -1,8 +1,6 @@
 module;
 #pragma warning(disable: 5244) //includes are interop, and not a mistake
 #define WISDOM_MODULES
-export module wisdom;
+export module wisdom.vk;
 
-export import wisdom.api;
-
-#include <wisdom/wisdom.h>
+import wisdom.api;

@@ -14,7 +14,7 @@ module;
 #define WISDOM_MODULES
 export module wisdom.dx12;
 
-export import wisdom.api;
+import wisdom.api;
 
 #include <wisdom/dx12/dx12_format.h>
 #include <wisdom/dx12/dx12_views.h>

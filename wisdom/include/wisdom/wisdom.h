@@ -24,13 +24,16 @@ static_assert(WISDOM_LINUX&& __linux__, "Platform error");
 
 
 #if WISDOMDX12 && !FORCEVK_SWITCH
+#ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
 #include <wisdom/dx12/dx12_device.h>
-
+#else
+import wisdom.dx12;
+#endif // WISDOMDX12 && !FORCEVK_SWITCH
 //dx12
-namespace wis
+WIS_EXPORT namespace wis
 {
 	using Factory = DX12Factory;
 	using Adapter = DX12Adapter;
@@ -51,16 +54,20 @@ namespace wis
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH //MAC
 //metal
-namespace wis
+WIS_EXPORT namespace wis
 {
 }
 #elif WISDOM_VULKAN_FOUND
+#ifndef WISDOM_MODULES
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vulkan/vk_state_builder.h>
+#else
+import wisdom.vk;
+#endif // !WISDOM_MODULES
 
 //vulkan
-namespace wis
+WIS_EXPORT namespace wis
 {
 	using Factory = VKFactory;
 	using Adapter = VKAdapter;

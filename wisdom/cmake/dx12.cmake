@@ -60,7 +60,7 @@ if(WIN32)
 		PUBLIC FILE_SET CXX_MODULES 
 			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
 			FILES "modules/dx12.ixx"
-		 "modules/api.ixx")
+		)
 	endif()
 
 	if(WINDOWS_STORE)

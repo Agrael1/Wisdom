@@ -5,55 +5,17 @@ include(cmake/documentation.cmake)
 
 add_library(${PROJECT_NAME} STATIC)
 
-find_package(Vulkan)
-# All Vulkan Sources are disabled on UWP
-if(Vulkan_FOUND AND NOT WINDOWS_STORE)
-	message("Vulkan found!")
-	set(WISDOMVK TRUE)
-
-	target_link_libraries(${PROJECT_NAME} 
-		PUBLIC VKAllocator
-	)
-
-	set(VKHEADERS
-		"include/wisdom/vulkan/vk_factory.h" 
-		"include/wisdom/vulkan/vk_definitions.h"
-		"include/wisdom/vulkan/vk_adapter.h"
-		"include/wisdom/vulkan/vk_shared_handle.h"
-		"include/wisdom/vulkan/vk_dynamic_loader.h"
-		"include/wisdom/vulkan/vk_device.h"
-		"include/wisdom/vulkan/vk_allocator.h"
-		"include/wisdom/vulkan/vk_allocator_handles.h"
-		"include/wisdom/vulkan/vk_command_queue.h"
-		"include/wisdom/vulkan/vk_fence.h"
-		"include/wisdom/vulkan/vk_checks.h"
-		"include/wisdom/vulkan/vk_swapchain.h"
-		"include/wisdom/vulkan/vk_format.h"
-		"include/wisdom/vulkan/vk_resource.h"
-		"include/wisdom/vulkan/vk_rtv.h"
-		"include/wisdom/vulkan/vk_command_list.h"
-		"include/wisdom/vulkan/vk_render_pass.h"
-		"include/wisdom/vulkan/vk_pipeline_state.h"
-		"include/wisdom/vulkan/vk_state_builder.h"
-		"include/wisdom/vulkan/vk_shader.h"
-		"include/wisdom/vulkan/vk_root_signature.h"
-		"include/wisdom/vulkan/vk_buffer_views.h"
-	 "include/wisdom/vulkan/vk_xshared_handle.h")
-	set(VKSOURCES
-		"src/wisdom/vulkan/vk_factory.cpp" 
-	)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
-endif()
-
+#load dx12 and vulkan
 include(cmake/dx12.cmake)
+include(cmake/vulkan.cmake)
+
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT WISDOM_FORCE_VULKAN)
 	message("Platform Library is Metal")
 	set(WISDOMMTL TRUE)
 	message(FATAL_ERROR "Metal is not implemented")
-else()
-
 endif()
+
 
 set(HEADER_LIST 
 	"include/wisdom/wisdom.h"
@@ -88,10 +50,15 @@ set(HEADER_LIST
 target_sources(${PROJECT_NAME}
 	PUBLIC FILE_SET HEADERS 
 		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-		FILES ${HEADER_LIST} ${VKHEADERS}
-	PRIVATE
-		${VKSOURCES}
+		FILES ${HEADER_LIST}
 )
+
+if(WISDOM_BUILD_TYPE STREQUAL "modules")
+		target_sources(${PROJECT_NAME}
+		PUBLIC FILE_SET CXX_MODULES 
+			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
+			FILES "modules/api.ixx")
+endif()
 
 #target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
 target_include_directories(${PROJECT_NAME} PUBLIC
