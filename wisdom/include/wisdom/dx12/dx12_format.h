@@ -1,7 +1,9 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_render_pass.h>
 #include <wisdom/api/api_barrier.h>
 #include <d3d12.h>
+#endif
 
 namespace wis
 {

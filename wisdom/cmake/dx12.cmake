@@ -38,7 +38,6 @@ if(WIN32)
 			WinRT
 			DX12Agility
 			DX12Allocator
-			Wil
 			d3d12
 			d3d11
 			DXGI
@@ -51,11 +50,17 @@ if(WIN32)
 		FILES ${DX12HEADERS} ${DX12INL}
 	)
 
-	if(NOT WISDOM_BUILD_TYPE STREQUAL "headers")
+	if(WISDOM_BUILD_TYPE STREQUAL "static")
 		target_sources(${PROJECT_NAME}
 		PRIVATE 
 			"src/wisdom/dx12.cpp"
 		)
+	elseif(WISDOM_BUILD_TYPE STREQUAL "modules")
+		target_sources(${PROJECT_NAME}
+		PUBLIC FILE_SET CXX_MODULES 
+			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
+			FILES "modules/dx12.ixx"
+		 "modules/api.ixx")
 	endif()
 
 	if(WINDOWS_STORE)

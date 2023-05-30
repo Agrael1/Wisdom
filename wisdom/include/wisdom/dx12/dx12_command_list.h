@@ -1,13 +1,14 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_rtv.h>
 #include <wisdom/dx12/dx12_format.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_buffer_views.h>
 #include <wisdom/dx12/dx12_render_pass.h>
 #include <wisdom/dx12/dx12_pipeline_state.h>
+#endif
 
-
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12CommandList;
 

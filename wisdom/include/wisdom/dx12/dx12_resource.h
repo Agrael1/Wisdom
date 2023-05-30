@@ -1,4 +1,5 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/dx12/dx12_buffer_views.h>
@@ -6,8 +7,9 @@
 
 #include <winrt/base.h>
 #include <span>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12Buffer;
 

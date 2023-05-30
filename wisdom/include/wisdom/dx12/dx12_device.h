@@ -1,12 +1,14 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/dx12/dx12_command_list.h>
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_state_builder.h>
 #include <wisdom/api/api_input_layout.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12Device;
 

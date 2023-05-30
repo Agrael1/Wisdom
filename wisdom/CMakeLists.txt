@@ -67,7 +67,7 @@ set(HEADER_LIST
 	"include/wisdom/api/api_internal.h"
 	"include/wisdom/api/api_adapter.h"
 	"include/wisdom/api/api_swapchain.h"
-	"include/wisdom/util/winsetup.h"
+	
 	"include/wisdom/api/api_barrier.h"
 	"include/wisdom/shader_compiler.h"
 	"include/wisdom/api/api_shader.h"
@@ -91,10 +91,9 @@ target_sources(${PROJECT_NAME}
 		FILES ${HEADER_LIST} ${VKHEADERS}
 	PRIVATE
 		${VKSOURCES}
-		"src/wisdom/util/exception.cpp"
 )
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
+#target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
 target_include_directories(${PROJECT_NAME} PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
@@ -115,8 +114,17 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 if(WISDOM_BUILD_TYPE STREQUAL "headers")
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY WIS_EXPORT=;)# hack, because cmake does not allow empty definitions
+elseif(WISDOM_BUILD_TYPE STREQUAL "modules")
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=export WISDOM_HEADER_ONLY)
+	target_sources(${PROJECT_NAME}
+		PUBLIC FILE_SET CXX_MODULES 
+			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
+			FILES "modules/wisdom.ixx"
+	)
 endif()
+
+
 if(WISDOM_FORCE_VULKAN)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_FORCE_VULKAN)
 endif()

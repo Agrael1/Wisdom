@@ -1,6 +1,6 @@
 #pragma once
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	/// @brief Template class for internal implementation
 	/// @tparam Impl Implementation class type

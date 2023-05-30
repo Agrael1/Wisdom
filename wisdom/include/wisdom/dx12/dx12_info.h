@@ -1,8 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
 #include <winrt/base.h>
 #include <dxgidebug.h>
+#endif // !WISDOM_MODULES
+
 
 namespace wis
 {

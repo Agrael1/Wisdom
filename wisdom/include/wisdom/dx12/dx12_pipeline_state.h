@@ -1,10 +1,12 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <d3d12.h>
 #include <winrt/base.h>
+#endif // !WISDOM_MODULES
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12PipelineState;
 

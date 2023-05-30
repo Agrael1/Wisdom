@@ -1,6 +1,6 @@
+#ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_info.h>
-#include <wil/resource.h>
-
+#endif
 
 bool wis::log_dxgi_errors()noexcept
 {

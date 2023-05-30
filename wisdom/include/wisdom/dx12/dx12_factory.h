@@ -1,13 +1,15 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_factory.h>
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_info.h>
 #include <wisdom/bridge/generator.h>
 
 #include <dxgi1_6.h>
+#endif
 
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12Factory;
 

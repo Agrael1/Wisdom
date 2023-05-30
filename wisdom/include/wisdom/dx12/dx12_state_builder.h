@@ -1,12 +1,14 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_root_signature.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_render_pass.h>
 #include <wisdom/api/api_common.h>
 #include <wisdom/util/small_allocator.h>
+#endif
 
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12GraphicsPipelineDesc
 	{

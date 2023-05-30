@@ -7,6 +7,10 @@
 #define WIS_INLINE			// if not header only, don't inline anything
 #endif
 
+#ifndef WIS_EXPORT
+#define WIS_EXPORT
+#endif // !WIS_EXPORT
+
 
 namespace wis
 {

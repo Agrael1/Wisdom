@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/exception.h>
 #include <winrt/base.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class hr_exception :public wis::exception
 	{

@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_barrier.h>
 #include <wisdom/dx12/dx12_resource.h>
 #include <D3D12MemAlloc.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12ResourceAllocator;
 

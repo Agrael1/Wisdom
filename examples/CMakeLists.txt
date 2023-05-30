@@ -13,6 +13,7 @@ FetchContent_MakeAvailable(glm)
 add_subdirectory(shaders)
 
 find_package(Vulkan)
+
 if(WINDOWS_STORE)
 	add_subdirectory(hello-triangle-winrt)
 else()
@@ -21,6 +22,9 @@ else()
 	endif()
 	if(Vulkan_FOUND)
 		add_subdirectory(hello-triangle-kdgui)
+		if(WISDOM_BUILD_TYPE STREQUAL "modules")
+			add_subdirectory(hello-triangle-modules)
+		endif()
 	endif()
 endif()
 

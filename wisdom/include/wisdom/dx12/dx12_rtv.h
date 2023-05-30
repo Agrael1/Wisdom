@@ -1,8 +1,10 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <d3dx12/d3dx12.h>
+#endif // !WISDOM_MODULES
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12RenderTargetView;
 

@@ -19,8 +19,9 @@ SOFTWARE.
 */
 
 #pragma once
-
+#ifndef WISDOM_MODULES
 #include <type_traits>
+#endif
 
 namespace river::flags {
     template <typename T>

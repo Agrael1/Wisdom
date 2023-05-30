@@ -1,6 +1,7 @@
+#ifndef WISDOM_MODULES
 #include <dxgi1_6.h>
 #include <d3d12sdklayers.h>
-
+#endif
 
 inline constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev)noexcept
 {

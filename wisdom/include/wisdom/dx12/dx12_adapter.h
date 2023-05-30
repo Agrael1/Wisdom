@@ -1,4 +1,5 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/global/definitions.h>
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_adapter.h>
@@ -6,10 +7,10 @@
 
 #include <winrt/base.h>
 #include <dxgi.h>
+#endif // !WISDOM_MODULES
 
 
-
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12Adapter;
 

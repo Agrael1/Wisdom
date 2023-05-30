@@ -1,5 +1,7 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <string>
+#endif
 
 namespace wis
 {

@@ -1,4 +1,5 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/global/definitions.h>
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_common.h>
@@ -7,9 +8,10 @@
 #include <optional>
 #include <span>
 #include <vector>
+#endif
 
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12RenderPass;
 

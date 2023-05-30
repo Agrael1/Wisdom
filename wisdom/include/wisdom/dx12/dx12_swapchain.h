@@ -1,11 +1,13 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_swapchain.h>
 #include <wisdom/dx12/dx12_resource.h>
 #include <dxgi1_5.h>
+#endif
 
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12SwapChain;
 

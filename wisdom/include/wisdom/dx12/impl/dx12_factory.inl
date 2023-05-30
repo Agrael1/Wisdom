@@ -1,5 +1,7 @@
+#ifndef WISDOM_MODULES
 #include <d3d11.h> // fix for stereo swapchain
 #include <wisdom/dx12/dx12_checks.h>
+#endif
 
 inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref)
 {

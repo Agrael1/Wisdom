@@ -15,7 +15,7 @@ endif()
 
 # Build type
 set(DEF_BUILD "static" CACHE INTERNAL "Default build type for library")
-set(BUILD_TYPES "headers;static;module" CACHE INTERNAL "List of possible build types for library")
+set(BUILD_TYPES "headers;static;modules" CACHE INTERNAL "List of possible build types for library")
 set(WISDOM_BUILD_TYPE ${DEF_BUILD} CACHE STRING "Wisdom library build type")
 set_property(CACHE WISDOM_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
 list(FIND BUILD_TYPES ${WISDOM_BUILD_TYPE} BUILD_INDEX)
@@ -50,7 +50,15 @@ else()
 	option(WISDOM_USE_FMT "Build Wisdom with fmtlib" OFF)
 endif()
 
-
+if(WISDOM_BUILD_TYPE STREQUAL "modules")
+	message(WARNING "WARNING: modules are at beta support, use this build mode at your own risk.")
+	if(CMAKE_MINOR_VERSION EQUAL 25)
+		set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "3c375311-a3c9-4396-a187-3227ef642046")
+	else()
+		set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+	endif()
+	set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
+endif()
 
 
 # Additional CMake functions.

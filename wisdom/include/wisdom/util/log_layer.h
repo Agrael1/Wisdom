@@ -1,10 +1,12 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/util/flags.h>
 #include <memory>
 #include <wisdom/bridge/source_location.h>
 #include <string>
+#endif // !WISDOM_MODULES
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	using river::flags::operator+;
 
@@ -73,14 +75,13 @@ namespace wis
 	};
 
 
-	namespace
+
+	inline void lib_log_internal(Severity sev, std::string message, wis::source_location sl = wis::source_location::current())
 	{
-		inline void lib_log_internal(Severity sev, std::string message, wis::source_location sl = wis::source_location::current())
-		{
-			if (auto log_ptr = LibLogger::Get())
-				log_ptr->Log(sev, std::move(message), sl);
-		}
+		if (auto log_ptr = LibLogger::Get())
+			log_ptr->Log(sev, std::move(message), sl);
 	}
+
 
 
 	// Compile time resolved loggong for library

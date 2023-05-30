@@ -2,7 +2,8 @@
 #include <memory>
 #include <span>
 
-namespace wis
+
+WIS_EXPORT namespace wis
 {
 	/// @brief Shader intermediate language
 	enum class ShaderLang

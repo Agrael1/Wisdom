@@ -1,8 +1,10 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <d3d12.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12VertexBufferView;
 
