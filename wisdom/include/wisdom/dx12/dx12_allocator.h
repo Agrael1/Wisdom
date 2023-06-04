@@ -33,13 +33,13 @@ WIS_EXPORT namespace wis
 		/// @param size Size of the buffer
 		/// @param flags Type of buffer
 		/// @return Buffer object
-		WIS_INLINE [[nodiscard]] DX12Buffer CreatePersistentBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None);
+		[[nodiscard]] WIS_INLINE DX12Buffer CreatePersistentBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None);
 
 
 		/// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
 		/// @param size Size of the buffer
 		/// @return Buffer object
-		WIS_INLINE [[nodiscard]] DX12Buffer CreateUploadBuffer(size_t size);
+		[[nodiscard]] WIS_INLINE DX12Buffer CreateUploadBuffer(size_t size);
 	};
 }
 

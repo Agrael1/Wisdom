@@ -180,7 +180,7 @@ WIS_EXPORT namespace wis
 		}
 		WIS_INLINE bool Initialize(VKAdapterView adapter);
 	public:
-		WIS_INLINE [[nodiscard]]
+		[[nodiscard]] WIS_INLINE
 			VKSwapChain CreateSwapchain(
 				VKCommandQueueView render_queue, 
 				wis::SwapchainOptions options, 
@@ -233,7 +233,7 @@ WIS_EXPORT namespace wis
 			return VKFence{ wis::shared_handle<vk::Semaphore>{device->createSemaphore(desc), device} };
 		}
 
-		WIS_INLINE [[nodiscard]]
+		[[nodiscard]] WIS_INLINE
 		VKRenderPass CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,
 			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
 			SampleCount samples = SampleCount::s1,
@@ -249,7 +249,7 @@ WIS_EXPORT namespace wis
 			return VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{device->createPipelineLayout(pipeline_layout_info), device} };
 		}
 
-		WIS_INLINE [[nodiscard]]
+		[[nodiscard]] WIS_INLINE 
 		VKPipelineState CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout)const;
 
 		[[nodiscard]]
@@ -268,16 +268,16 @@ WIS_EXPORT namespace wis
 		/// @param texture The texture to create the view for
 		/// @param range Select the subresource range to create the view for
 		/// @return View object
-		WIS_INLINE [[nodiscard]] VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {})const;
+		[[nodiscard]] WIS_INLINE  VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {})const;
 
 	private:
 		WIS_INLINE void GetQueueFamilies(VKAdapterView adapter)noexcept;
 
-		WIS_INLINE [[nodiscard]]
+		[[nodiscard]] WIS_INLINE 
 		wis::internals::uniform_allocator<const char*, required_extensions.size()> 
 			RequestExtensions(VKAdapterView adapter)noexcept;
 
-		WIS_INLINE [[nodiscard]]
+		[[nodiscard]] WIS_INLINE 
 			vk::PresentModeKHR GetPresentMode(vk::SurfaceKHR surface, bool vsync)const noexcept;
 
 		WIS_INLINE void FillShaderStages(

@@ -52,6 +52,8 @@ target_sources(${PROJECT_NAME}
 	PUBLIC FILE_SET HEADERS 
 		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 		FILES ${HEADER_LIST}
+	PRIVATE
+	"src/wisdom/empty.cpp"
 )
 
 if(WISDOM_BUILD_TYPE STREQUAL "modules")

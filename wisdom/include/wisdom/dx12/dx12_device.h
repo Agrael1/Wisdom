@@ -57,7 +57,7 @@ WIS_EXPORT namespace wis
 		/// @param options The options to use
 		/// @param surface The surface to use
 		/// @return The created swapchain
-		WIS_INLINE [[nodiscard]] DX12SwapChain CreateSwapchain(
+		[[nodiscard]] WIS_INLINE DX12SwapChain CreateSwapchain(
 			DX12CommandQueueView queue, 
 			wis::SwapchainOptions options, 
 			wis::SurfaceParameters surface)const;
@@ -65,29 +65,29 @@ WIS_EXPORT namespace wis
 		/// @brief Create a command queue
 		/// @param options The options to use
 		/// @return The created command queue
-		WIS_INLINE [[nodiscard]] DX12CommandQueue
+		[[nodiscard]] WIS_INLINE DX12CommandQueue
 			CreateCommandQueue(QueueOptions options = QueueOptions{})const;
 
 		/// @brief Create a command list
 		/// @param list_type The type of list to create
 		/// @return The created command list
-		WIS_INLINE [[nodiscard]] DX12CommandList CreateCommandList(QueueType list_type)const;
+		[[nodiscard]] WIS_INLINE DX12CommandList CreateCommandList(QueueType list_type)const;
 
 		/// @brief Create a fence
-		WIS_INLINE [[nodiscard]] DX12Fence CreateFence()const;
+		[[nodiscard]] WIS_INLINE DX12Fence CreateFence()const;
 
 		/// @brief Create a root signature (empty)
-		WIS_INLINE [[nodiscard]] DX12RootSignature CreateRootSignature()const;
+		[[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature()const;
 
 		/// @brief Create a graphics pipeline
-		WIS_INLINE [[nodiscard]] DX12PipelineState CreateGraphicsPipeline(
+		[[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
 			DX12GraphicsPipelineDesc desc,
 			std::span<const InputLayoutDesc> input_layout)const;
 
 		/// @brief Create a shader
 		/// @param blob The shader blob
 		/// @param type The shader type
-		[[nodiscard]]DX12Shader CreateShader(shared_blob blob, ShaderType type)const noexcept{
+		[[nodiscard]] DX12Shader CreateShader(shared_blob blob, ShaderType type)const noexcept{
 			return DX12Shader{ std::move(blob), type };
 		}
 
@@ -96,7 +96,7 @@ WIS_EXPORT namespace wis
 		/// @param dsv_desc The depth stencil description
 		/// @param samples The sample count
 		/// @param vrs_format The variable rate shading format
-		WIS_INLINE [[nodiscard]] DX12RenderPass CreateRenderPass(
+		[[nodiscard]] WIS_INLINE DX12RenderPass CreateRenderPass(
 			wis::Size2D,
 			std::span<ColorAttachment> rtv_descs,
 			DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
@@ -108,7 +108,7 @@ WIS_EXPORT namespace wis
 		/// @brief Create a render target view
 		/// @param texture The texture to create the view for
 		/// @param range The range of the view
-		WIS_INLINE [[nodiscard]] DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture, RenderSelector range = {});
+		[[nodiscard]] WIS_INLINE DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture, RenderSelector range = {});
 	};
 }
 

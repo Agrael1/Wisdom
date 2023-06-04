@@ -48,7 +48,7 @@ WIS_EXPORT namespace wis
 		/// @brief Get the adapter description
 		/// @return Adapter Description
 		/// @note This function is thread safe
-		WIS_INLINE [[nodiscard]] AdapterDesc GetDesc()const noexcept;
+		[[nodiscard]] WIS_INLINE AdapterDesc GetDesc()const noexcept;
 	};
 }
 

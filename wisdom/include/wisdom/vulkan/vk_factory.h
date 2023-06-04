@@ -62,7 +62,7 @@ WIS_EXPORT namespace wis
 		/// @brief Enumerates all adapters on the system
 		/// @param preference Preference to use when enumerating adapters, changes the order of the adapters
 		/// @return coroutine that yields VKAdapter
-		WIS_INLINE [[nodiscard]] wis::generator<VKAdapter> 
+		[[nodiscard]] WIS_INLINE wis::generator<VKAdapter>
 			EnumerateAdapters(AdapterPreference preference = AdapterPreference::Performance)const noexcept;
 	private:
 		static std::vector<const char*> FoundExtensions()noexcept;
