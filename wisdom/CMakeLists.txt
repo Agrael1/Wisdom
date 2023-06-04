@@ -3,7 +3,11 @@ project(Wisdom)
 
 include(cmake/documentation.cmake)
 
-add_library(${PROJECT_NAME} STATIC)
+if(WISDOM_BUILD_TYPE STREQUAL "headers")
+	add_library(${PROJECT_NAME} INTERFACE)
+else()
+	add_library(${PROJECT_NAME} STATIC)
+endif()
 
 #load dx12 and vulkan
 include(cmake/dx12.cmake)
@@ -80,15 +84,19 @@ target_compile_definitions(${PROJECT_NAME}
 		NOMINMAX
 )
 
-if(WISDOM_BUILD_TYPE STREQUAL "headers")
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY WIS_EXPORT=;)# hack, because cmake does not allow empty definitions
-elseif(WISDOM_BUILD_TYPE STREQUAL "modules")
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=export WISDOM_HEADER_ONLY)
+if(WISDOM_BUILD_TYPE STREQUAL "modules")
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=export WISDOM_HEADER_ONLY WIS_INLINE=inline)
 	target_sources(${PROJECT_NAME}
 		PUBLIC FILE_SET CXX_MODULES 
 			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
 			FILES "modules/wisdom.ixx"
 	)
+else()
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=; WIS_INLINE=;)
+endif()
+
+if(WISDOM_BUILD_TYPE STREQUAL "headers")
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY WIS_EXPORT=; WIS_INLINE=inline)# hack, because cmake does not allow empty definitions
 endif()
 
 

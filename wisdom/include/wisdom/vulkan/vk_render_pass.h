@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_common.h>
-#include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_views.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKRenderPass;
 
@@ -28,7 +30,6 @@ namespace wis
 		wis::shared_handle<vk::Framebuffer> frame;
 	};
 
-	using VKRenderPassView = struct { vk::RenderPass pass; vk::Framebuffer frame; Size2D frame_size; };
 
 
 	// TODO: Dynamic rendering

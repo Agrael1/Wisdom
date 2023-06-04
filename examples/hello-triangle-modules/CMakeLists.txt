@@ -1,4 +1,4 @@
-project(hello-triangle-kdgui)
+project(hello-triangle-modules)
 
 FetchContent_Declare(
 	kdgui

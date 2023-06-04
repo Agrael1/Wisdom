@@ -1,8 +1,10 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
-#include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_views.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKRootSignature;
 
@@ -21,7 +23,6 @@ namespace wis
 		wis::shared_handle<vk::PipelineLayout> root;
 	};
 
-	using VKRootSignatureView = vk::PipelineLayout;
 
 	/// @brief Root signature
 	class VKRootSignature : public QueryInternal<VKRootSignature>

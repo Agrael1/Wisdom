@@ -1,17 +1,6 @@
 #pragma once
 #define noxnd noexcept(!DEBUG_MODE)
 
-#if defined(WISDOM_HEADER_ONLY)
-#define WIS_INLINE inline	// if header only, inline everything
-#else
-#define WIS_INLINE			// if not header only, don't inline anything
-#endif
-
-#ifndef WIS_EXPORT
-#define WIS_EXPORT
-#endif // !WIS_EXPORT
-
-
 namespace wis
 {
 	inline constexpr const bool debug_mode = DEBUG_MODE;

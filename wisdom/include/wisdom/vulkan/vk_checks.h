@@ -1,5 +1,7 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <vulkan/vulkan.hpp>
+#endif
 
 namespace wis
 {

@@ -29,8 +29,6 @@ static_assert(WISDOM_LINUX&& __linux__, "Platform error");
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
 #include <wisdom/dx12/dx12_device.h>
-#else
-import wisdom.dx12;
 #endif // WISDOMDX12 && !FORCEVK_SWITCH
 //dx12
 WIS_EXPORT namespace wis
@@ -62,8 +60,6 @@ WIS_EXPORT namespace wis
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vulkan/vk_state_builder.h>
-#else
-import wisdom.vk;
 #endif // !WISDOM_MODULES
 
 //vulkan

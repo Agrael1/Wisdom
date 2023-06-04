@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/vulkan/vk_shader.h>
 #include <wisdom/vulkan/vk_root_signature.h>
 #include <wisdom/vulkan/vk_render_pass.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKGraphicsPipelineDesc
 	{

@@ -1,10 +1,13 @@
 #pragma once
-#include <wisdom/vulkan/vk_device.h>
-#include <wisdom/vulkan/vk_factory.h>
+#ifndef WISDOM_MODULES
+#include <wisdom/api/api_barrier.h>
+#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
 #include <wisdom/vulkan/vk_resource.h>
+#endif // !WISDOM_MODULES
 
-namespace wis
+
+WIS_EXPORT namespace wis
 {
 	class VKResourceAllocator;
 
@@ -12,6 +15,7 @@ namespace wis
 	class Internal<VKResourceAllocator>
 	{
 	public:
+		[[nodiscard]]
 		VmaAllocator GetAllocator()const noexcept
 		{
 			return allocator.get();
@@ -25,28 +29,7 @@ namespace wis
 	{
 	public:
 		VKResourceAllocator() = default;
-		VKResourceAllocator(VKDeviceView device, VKAdapterView adapter)
-		{
-			vma::AllocatorCreateInfo allocatorInfo
-			{
-				vma::AllocatorCreateFlags(0),
-				adapter,
-				device.get(),
-				0,
-				nullptr,
-				nullptr,
-				nullptr,
-				nullptr,
-				VKFactory::GetInstance(),
-				VKFactory::GetApiVer()
-			};
-
-			vma::Allocator al;
-			[[maybe_unused]]
-			auto res = vma::createAllocator(&allocatorInfo, &al);
-
-			allocator = wis::shared_handle<vma::Allocator>{ al, std::move(device) };
-		}
+		WIS_INLINE VKResourceAllocator(VKDeviceView device, VKAdapterView adapter);
 	public:
 		/// @brief Create a buffer that is persistently mapped to the GPU
 		/// @param size Size of the buffer
@@ -91,3 +74,7 @@ namespace wis
 		}
 	};
 }
+
+#if defined(WISDOM_HEADER_ONLY)
+#include "impl/vk_allocator.inl"
+#endif

@@ -4,5 +4,10 @@ module;
 export module wisdom;
 
 export import wisdom.api;
+export import wisdom.dx12;
+
+#if defined(WISDOM_VULKAN_FOUND)
+export import wisdom.vk;
+#endif
 
 #include <wisdom/wisdom.h>

@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_shader.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
-
-namespace wis
+#endif
+	
+WIS_EXPORT namespace wis
 {
 	class VKShader;
 
