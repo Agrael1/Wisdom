@@ -48,7 +48,7 @@ WIS_EXPORT namespace wis
 	{
 		friend class VKResourceAllocator;
 		friend class VKDevice;
-		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+		static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -65,8 +65,8 @@ WIS_EXPORT namespace wis
 		[[nodiscard]] WIS_INLINE wis::generator<VKAdapter>
 			EnumerateAdapters(AdapterPreference preference = AdapterPreference::Performance)const noexcept;
 	private:
-		static std::vector<const char*> FoundExtensions()noexcept;
-		static std::vector<const char*> FoundLayers()noexcept;
+		static WIS_INLINE std::vector<const char*> FoundExtensions()noexcept;
+		static WIS_INLINE std::vector<const char*> FoundLayers()noexcept;
 	};
 }
 
