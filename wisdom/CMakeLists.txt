@@ -3,11 +3,8 @@ project(Wisdom)
 
 include(cmake/documentation.cmake)
 
-if(WISDOM_BUILD_TYPE STREQUAL "headers")
-	add_library(${PROJECT_NAME} INTERFACE)
-else()
-	add_library(${PROJECT_NAME} STATIC)
-endif()
+add_library(${PROJECT_NAME} STATIC)
+
 
 #load dx12 and vulkan
 include(cmake/dx12.cmake)
