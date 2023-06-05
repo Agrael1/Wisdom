@@ -175,7 +175,7 @@ WIS_EXPORT namespace wis
 		/// @param pass Pass description.
 		/// @param render_targets Render targets to bind with colors to clear them with.
 		void BeginRenderPass(DX12RenderPassView pass,
-			std::span<const std::pair< DX12RenderTargetView, ColorClear>> render_targets
+			std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets
 		)noexcept
 		{
 			auto& i = pass.GetInternal();

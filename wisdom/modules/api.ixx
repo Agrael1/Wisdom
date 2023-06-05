@@ -18,6 +18,7 @@ module;
 #define WISDOM_MODULES
 export module wisdom.api;
 
+#include <wisdom/global/definitions.h>
 #include <wisdom/util/flags.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/exception.h>

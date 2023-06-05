@@ -1,5 +1,5 @@
 module;
-#include <compare>
+#define VULKAN_HPP_NO_SPACESHIP_OPERATOR
 #include <ranges>
 #include <bitset>
 #include <unordered_map>

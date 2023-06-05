@@ -9,7 +9,7 @@ struct ID3D12GraphicsCommandList9;
 struct ID3D12Resource;
 struct ID3D12RootSignature;
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	using DX12AdapterView = IDXGIAdapter1*;
 	using DX12DeviceView = ID3D12Device10*;

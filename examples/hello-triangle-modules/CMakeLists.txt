@@ -17,8 +17,7 @@ add_executable(${PROJECT_NAME}
 
 target_sources(${PROJECT_NAME}
 PUBLIC FILE_SET CXX_MODULES 
-	FILES "app.ixx"
- "window.ixx")
+	FILES "window.ixx" "app.ixx")
 
 if(WIN32)
 	include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Functions.cmake)

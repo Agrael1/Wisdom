@@ -1,8 +1,14 @@
 module;
+#if !defined(WISDOM_WINDOWS) || defined(WISDOM_VULKAN_FOUND) && defined(WISDOM_FORCE_VULKAN) 
+#include <vulkan/vulkan.hpp>
+#endif
+
 #include <optional>
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <array>
+#include <span>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 export module app;
@@ -10,52 +16,50 @@ export module app;
 import wisdom;
 import window;
 
-export namespace Test {
-	class App
-	{
-	public:
-		App(uint32_t width, uint32_t height);
-		~App();
-	public:
-		int Start();
-	private:
-		void Frame();
-		void WaitForGPU();
-	private:
-		XApp app;
-		Window wnd;
 
-		std::optional<wis::Factory> factory;
+export class App
+{
+public:
+	App(uint32_t width, uint32_t height);
+	~App();
+public:
+	int Start();
+private:
+	void Frame();
+	void WaitForGPU();
+private:
+	XApp app;
+	Window wnd;
 
-		wis::Device device;
-		wis::CommandQueue queue;
-		wis::SwapChain swap;
+	std::optional<wis::Factory> factory;
 
-		wis::CommandList context;
-		wis::Fence fence;
-		wis::ResourceAllocator allocator;
+	wis::Device device;
+	wis::CommandQueue queue;
+	wis::SwapChain swap;
 
-		wis::Shader vs;
-		wis::Shader ps;
+	wis::CommandList context;
+	wis::Fence fence;
+	wis::ResourceAllocator allocator;
 
-		wis::RootSignature root;
-		wis::PipelineState pipeline;
-		wis::VertexBufferView vb;
-		wis::RenderTargetView rtvs[2];
-		wis::RenderTargetView rtvs2[2];
+	wis::Shader vs;
+	wis::Shader ps;
 
-		wis::Resource vertex_buffer;
-		wis::RenderPass render_pass;
-		uint64_t fence_value = 1;
-	};
-}
+	wis::RootSignature root;
+	wis::PipelineState pipeline;
+	wis::VertexBufferView vb;
+	wis::RenderTargetView rtvs[2];
+	wis::RenderTargetView rtvs2[2];
 
+	wis::Resource vertex_buffer;
+	wis::RenderPass render_pass;
+	uint64_t fence_value = 1;
+};
 
 struct LogProvider : public wis::LogLayer
 {
 	virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current())override
 	{
-		std::cout << wis::format("[{}]: {}\n", uint32_t(sev), message);
+		std::cout << wis::format("[{}]: {}\n", wis::severity_strings[uint32_t(sev)], message);
 	};
 };
 
@@ -88,14 +92,14 @@ std::span<std::byte> RawView(T& data)
 	return { (std::byte*)&data, sizeof(T) };
 }
 
-Test::App::App(uint32_t width, uint32_t height)
+
+App::App(uint32_t width, uint32_t height)
 	:wnd(app.createWindow(width, height))
 {
 	wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
 	factory.emplace(app_info);
-	auto a = *factory->EnumerateAdapters(wis::AdapterPreference::Performance).begin();
-	//for (auto&& a : )
+	for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance))
 	{
 		auto desc = a.GetDesc();
 
@@ -107,7 +111,7 @@ Test::App::App(uint32_t width, uint32_t height)
 		if (device.Initialize(a))
 		{
 			allocator = wis::ResourceAllocator{ device, a };
-			//break;
+			break;
 		}
 	}
 
@@ -193,11 +197,12 @@ Test::App::App(uint32_t width, uint32_t height)
 			rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
 	}
 }
-Test::App::~App()
+App::~App()
 {
 	WaitForGPU();
 }
-int Test::App::Start()
+
+int App::Start()
 {
 	while (true)
 	{
@@ -209,7 +214,7 @@ int Test::App::Start()
 		Frame();
 	}
 }
-void Test::App::Frame()
+void App::Frame()
 {
 	context.Reset();
 	auto back = swap.GetBackBuffer();
@@ -253,7 +258,7 @@ void Test::App::Frame()
 }
 
 
-void Test::App::WaitForGPU()
+void App::WaitForGPU()
 {
 	const uint64_t vfence = fence_value;
 	queue.Signal(fence, vfence);

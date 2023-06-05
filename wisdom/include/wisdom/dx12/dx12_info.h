@@ -7,7 +7,7 @@
 #endif // !WISDOM_MODULES
 
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	/// @brief Message struct for debug and error messagesW
 	struct DXGIMessage

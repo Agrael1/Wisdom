@@ -84,7 +84,7 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 if(WISDOM_BUILD_TYPE STREQUAL "modules")
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=export WISDOM_HEADER_ONLY WIS_INLINE=inline)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=export WISDOM_HEADER_ONLY WIS_INLINE=;)
 	target_sources(${PROJECT_NAME}
 		PUBLIC FILE_SET CXX_MODULES 
 			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules

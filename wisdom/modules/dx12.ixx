@@ -1,14 +1,15 @@
 module;
+#include <dxgi1_6.h>
 #include <d3d12.h>
 #include <d3d11.h>
 #include <d3d12sdklayers.h>
 #include <d3dx12/d3dx12.h>
-#include <dxgi1_6.h>
 #include <dxgidebug.h>
-#include <winrt/base.h>
 #include <wisdom/global/definitions.h>
 #include <D3D12MemAlloc.h>
 #include <span>
+#include <array>
+#include <winrt/base.h>
 
 #pragma warning(disable: 5244) //includes are interop, and not a mistake
 #define WISDOM_MODULES

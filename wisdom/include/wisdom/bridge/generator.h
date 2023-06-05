@@ -1,21 +1,21 @@
 #pragma once
 
-#if __has_include(<generator>)
-#include <generator>
-namespace wis {
-	using std::generator;
-}
-#elif __has_include(<experimental/generator>)
-#include <experimental/generator>
-namespace wis {
-	using std::experimental::generator;
-}
-#elif __has_include(<cppcoro/generator>)
-#include <cppcoro/generator>
-namespace wis {
-	using cppcoro::generator;
-}
-#else
+//#if __has_include(<generator>)
+//#include <generator>
+//namespace wis {
+//	using std::generator;
+//}
+//#elif __has_include(<experimental/generator>)
+//#include <experimental/generator>
+//namespace wis {
+//	using std::experimental::generator;
+//}
+//#elif __has_include(<cppcoro/generator>)
+//#include <cppcoro/generator>
+//namespace wis {
+//	using cppcoro::generator;
+//}
+//#else
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Lewis Baker
 // Licenced under MIT license. See LICENSE.txt for details.
@@ -276,4 +276,4 @@ namespace wis
 {
 	using cppcoro::generator;
 }
-#endif
+//#endif

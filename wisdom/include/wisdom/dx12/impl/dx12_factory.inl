@@ -24,9 +24,10 @@ wis::DX12Factory::DX12Factory(const ApplicationInfo& app_info, bool use_preferen
 	EnableDebugLayer();
 	wis::check_hresult(CreateDXGIFactory2(debug_flag,
 		__uuidof(IDXGIFactory4), factory.put_void()));
-
+	
 	// TODO: consider constexpr
-	has_preference = bool(factory.as<IDXGIFactory6>()) && use_preference;
+
+	has_preference = bool(factory.try_as<IDXGIFactory6>()) && use_preference;
 }
 
 wis::generator<wis::DX12Adapter> wis::DX12Factory::EnumerateAdapters(wis::AdapterPreference preference)const noexcept
@@ -43,7 +44,7 @@ void wis::DX12Factory::EnableDebugLayer() noexcept
 		if (wis::succeded(D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
 			debugController->EnableDebugLayer();
 
-		if (auto d1 = debugController.as<ID3D12Debug1>())
+		if (auto d1 = debugController.try_as<ID3D12Debug1>())
 			d1->SetEnableGPUBasedValidation(true);
 	}
 }
@@ -52,7 +53,7 @@ wis::generator<winrt::com_ptr<IDXGIAdapter1>>
 wis::DX12Factory::AdaptersByGPUPreference(DXGI_GPU_PREFERENCE preference)const noexcept
 {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
-	auto factory6 = factory.as<IDXGIFactory6>();
+	auto factory6 = factory.try_as<IDXGIFactory6>();
 	uint32_t index = 0;
 
 	while (wis::succeded_weak(factory6->EnumAdapterByGpuPreference(index++,
@@ -112,7 +113,7 @@ wis::DX12Factory::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnk
 		nullptr,
 		swap.put()
 	));
-	return swap.as<IDXGISwapChain4>();
+	return swap.try_as<IDXGISwapChain4>();
 }
 
 winrt::com_ptr<IDXGISwapChain4>
@@ -139,5 +140,5 @@ wis::DX12Factory::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd
 		nullptr,
 		swap.put()
 	));
-	return swap.as<IDXGISwapChain4>();
+	return swap.try_as<IDXGISwapChain4>();
 }

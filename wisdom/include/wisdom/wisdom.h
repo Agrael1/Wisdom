@@ -24,12 +24,14 @@ static_assert(WISDOM_LINUX&& __linux__, "Platform error");
 
 
 #if WISDOMDX12 && !FORCEVK_SWITCH
+
 #ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
 #include <wisdom/dx12/dx12_device.h>
 #endif // WISDOMDX12 && !FORCEVK_SWITCH
+
 //dx12
 WIS_EXPORT namespace wis
 {
