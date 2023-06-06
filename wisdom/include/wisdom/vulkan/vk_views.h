@@ -9,11 +9,11 @@ WIS_EXPORT namespace wis
 	using VKAdapterView = vk::PhysicalDevice;
 	using VKDeviceView = wis::shared_handle<vk::Device>;
 	using VKBufferView = vk::Buffer;
-	using VKTextureView = struct { vk::Image image; vk::Format format; };
+	using VKTextureView = struct VKTextureView{ vk::Image image; vk::Format format; };
 	using VKFenceView = vk::Semaphore;
 	using VKCommandQueueView = vk::Queue;
 	using VKCommandListView = vk::CommandBuffer;
 	using VKPipelineStateView = vk::Pipeline;
 	using VKRootSignatureView = vk::PipelineLayout;
-	using VKRenderPassView = struct { vk::RenderPass pass; vk::Framebuffer frame; Size2D frame_size; };
+	using VKRenderPassView = struct VKRenderPassView{ vk::RenderPass pass; vk::Framebuffer frame; Size2D frame_size; };
 }
