@@ -1,8 +1,10 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
+#include <vulkan/vulkan.hpp>
+#endif
 
-
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKVertexBufferView;
 

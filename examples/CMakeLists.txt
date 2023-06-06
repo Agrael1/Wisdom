@@ -13,7 +13,10 @@ FetchContent_MakeAvailable(glm)
 add_subdirectory(shaders)
 
 find_package(Vulkan)
-if(WINDOWS_STORE)
+
+if(WISDOM_BUILD_TYPE STREQUAL "modules")
+			add_subdirectory(hello-triangle-modules)
+elseif(WINDOWS_STORE)
 	add_subdirectory(hello-triangle-winrt)
 else()
 	if(WIN32)

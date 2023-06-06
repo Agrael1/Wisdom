@@ -1,9 +1,12 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
 #include <wisdom/vulkan/vk_buffer_views.h>
+#include <wisdom/vulkan/vk_views.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKBuffer;
 
@@ -33,7 +36,6 @@ namespace wis
 		vk::DeviceSize size = 0u;
 	};
 
-	using VKBufferView = vk::Buffer;
 
 	class VKBuffer : public QueryInternal<VKBuffer>
 	{
@@ -73,7 +75,6 @@ namespace wis
 	template<>
 	class Internal<VKTexture>
 	{
-		friend class VKSwapChain;
 	public:
 		Internal() = default;
 		Internal(wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation, vk::Format format)
@@ -89,7 +90,6 @@ namespace wis
 		vk::Format format;
 	};
 
-	using VKTextureView = struct { vk::Image image; vk::Format format; };
 
 	class VKTexture : public QueryInternal<VKTexture>
 	{

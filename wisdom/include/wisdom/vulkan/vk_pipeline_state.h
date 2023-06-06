@@ -1,8 +1,10 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
-#include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_views.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKPipelineState;
 
@@ -21,7 +23,6 @@ namespace wis
 		wis::shared_handle<vk::Pipeline> pipeline;
 	};
 
-	using VKPipelineStateView = vk::Pipeline;
 
 
 	/// @brief Pipeline state object

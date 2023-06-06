@@ -1,7 +1,9 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <cstdint>
+#endif // !WISDOM_MODULES
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	/// @brief Enumeration specifying Adapter query ordering
 	enum class AdapterPreference

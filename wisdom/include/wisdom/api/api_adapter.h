@@ -1,9 +1,12 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/util/flags.h>
 #include <wisdom/bridge/format.h>
+#endif // !WISDOM_MODULES
 
 
-namespace wis
+
+WIS_EXPORT namespace wis
 {
 	/// @brief Adapter flags used to describe the adapter properties
 	enum class AdapterFlags : uint32_t

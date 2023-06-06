@@ -1,8 +1,9 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/vulkan/vk_xshared_handle.h>
+#endif
 
-
-namespace wis
+WIS_EXPORT namespace wis
 {
 	template<class HandleType, class Dispatcher>
 	class shared_handle : public shared_handle_base<HandleType, shared_handle<HandleType, Dispatcher>, basic_control_block<HandleType>>

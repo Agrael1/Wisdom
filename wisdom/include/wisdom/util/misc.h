@@ -1,7 +1,9 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <string>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	struct string_hash {
 		using is_transparent = void;

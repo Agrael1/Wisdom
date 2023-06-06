@@ -1,8 +1,10 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <string_view>
 #include <array>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	/// @brief Enum class for the different types of data formats that can be used in a texture, input layout, etc.
 	/// @note This enum class is based on the DXGI_FORMAT enum class from the DirectX API.

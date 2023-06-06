@@ -1,16 +1,11 @@
-#include <wisdom/dx12/dx12_info.h>
+#ifndef WISDOM_MODULES
 #include <dxgi1_6.h>
 #include <d3d12sdklayers.h>
-#include <wisdom/global/definitions.h>
+#endif
 
-using namespace wis;
-
-
-winrt::com_ptr<IDXGIInfoQueue> DX12Info::info_queue{};
-
-constexpr Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev)noexcept
+inline constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev)noexcept
 {
-	using enum Severity;
+	using enum wis::Severity;
 	switch (sev)
 	{
 	default:
@@ -28,7 +23,7 @@ constexpr Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev)noexcept
 }
 
 
-DX12Info::DX12Info()
+wis::DX12Info::DX12Info()
 {
 	winrt::check_hresult(DXGIGetDebugInterface1(0, __uuidof(IDXGIInfoQueue), info_queue.put_void()));
 
@@ -46,16 +41,16 @@ DX12Info::DX12Info()
 		}
 	}
 }
-DX12Info::~DX12Info()
+wis::DX12Info::~DX12Info()
 {
 	info_queue = nullptr;
 }
-uint64_t DX12Info::GetNumMessages()noexcept
+uint64_t wis::DX12Info::GetNumMessages()noexcept
 {
 	if (!info_queue)return 0;
 	return info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL);
 }
-std::vector<DXGIMessage> DX12Info::GetMessages()noexcept
+std::vector<wis::DXGIMessage> wis::DX12Info::GetMessages()noexcept
 {
 	if (!info_queue)return {};
 	std::vector<DXGIMessage> messages;

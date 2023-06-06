@@ -1,8 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/vulkan/vk_shared_handle.h>
 #include <vk_mem_alloc.hpp>
+#endif // !WISDOM_MODULES
 
-namespace wis
+
+WIS_EXPORT namespace wis
 {
 	template<>
 	struct parent_of<vma::Allocator>

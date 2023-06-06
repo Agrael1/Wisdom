@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
-#include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKFence;
 
@@ -24,7 +26,6 @@ namespace wis
 		vk::Device device; //little overhead for better performance
 	};
 
-	using VKFenceView = vk::Semaphore;
 
 	class VKFence : public QueryInternal<VKFence>
 	{

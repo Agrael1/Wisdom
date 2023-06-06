@@ -1,12 +1,17 @@
 #pragma once
-#include <wisdom/api/api_internal.h>
-#include <d3d12.h>
-#include <wisdom/util/small_allocator.h>
-#include <wisdom/api/api_common.h>
+#ifndef WISDOM_MODULES
 #include <wisdom/global/definitions.h>
+#include <wisdom/api/api_internal.h>
+#include <wisdom/api/api_common.h>
+#include <wisdom/util/small_allocator.h>
+#include <d3d12.h>
+#include <optional>
+#include <span>
+#include <vector>
+#endif
 
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class DX12RenderPass;
 

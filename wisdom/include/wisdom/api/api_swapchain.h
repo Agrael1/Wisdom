@@ -1,7 +1,8 @@
 #pragma once
+#ifndef WISDOM_MODULES
 
 #ifdef WISDOM_WINDOWS
-#include <wisdom/util/winsetup.h>
+#include <Windows.h>
 #endif // WISDOM_WINDOWS
 #ifdef WISDOM_LINUX
 #include <xcb/xproto.h>
@@ -9,8 +10,10 @@
 
 #include <wisdom/api/api_common.h>
 
+#endif // !WISDOM_MODULES
 
-namespace wis
+
+WIS_EXPORT namespace wis
 {
 	/// @brief Describes the format of a texture used to present to the screen.
 	struct SwapchainOptions

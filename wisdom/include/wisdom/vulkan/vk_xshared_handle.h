@@ -1,8 +1,9 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/vulkan/vk_dynamic_loader.h>
 #include <utility>
 #include <atomic>
-
+#endif
 
 namespace wis
 {

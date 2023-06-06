@@ -1,9 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <cassert>
 #include <array>
 #include <bitset>
+#endif // !WISDOM_MODULES
 
-namespace wis::internals
+WIS_EXPORT namespace wis::internals
 {
 	/// @brief Default size of the stack allocator
 	inline constexpr auto allocator_size = 1024u;

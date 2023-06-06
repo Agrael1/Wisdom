@@ -1,16 +1,28 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <exception>
 #include <wisdom/bridge/format.h>
 #include <wisdom/bridge/source_location.h>
+#include <wisdom/util/log_layer.h>
+#endif // !WISDOM_MODULES
 
-namespace wis
+
+WIS_EXPORT namespace wis
 {
 	class exception :std::exception
 	{
 	public:
-		exception(wis::source_location sl = wis::source_location::current(), bool write = true)noexcept;
+		exception(wis::source_location sl = wis::source_location::current(), bool write = true)noexcept
+			:sl(std::move(sl))
+		{
+			if (write)log();
+		}
+
 	public:
-		void log();
+		void log()const noexcept
+		{
+			wis::lib_critical(what());
+		}
 		const char* what()const noexcept override
 		{
 			if (whatBuffer.empty())

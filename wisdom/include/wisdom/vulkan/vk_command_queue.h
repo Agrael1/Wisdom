@@ -1,10 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
-#include <wisdom/vulkan/vk_fence.h>
-#include <wisdom/vulkan/vk_command_list.h>
+#include <wisdom/vulkan/vk_views.h>
+#include <wisdom/vulkan/vk_checks.h>
+#endif
 
-
-namespace wis
+WIS_EXPORT namespace wis
 {
 	class VKCommandQueue;
 
@@ -23,12 +24,10 @@ namespace wis
 	protected:
 		vk::Queue queue;
 	};
-	using VKCommandQueueView = vk::Queue;
 
 	/// @brief A command queue is used to submit command lists to the GPU.
 	class VKCommandQueue : public QueryInternal<VKCommandQueue>
 	{
-		using intern = QueryInternal<VKCommandQueue>;
 	public:
 		VKCommandQueue() = default;
 		explicit VKCommandQueue(vk::Queue queue)

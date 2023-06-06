@@ -1,7 +1,9 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <wisdom/api/api_common.h>
+#endif
 
-namespace wis
+WIS_EXPORT namespace wis
 {
 	/// @brief Texture state layout
 	enum class TextureState : uint32_t

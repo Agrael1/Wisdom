@@ -1,4 +1,5 @@
 #pragma once
+#error aaaaa
 #include <wisdom/global/definitions.h>
 #include <d3dx12/d3dx12.h>
 #include <winrt/base.h>
