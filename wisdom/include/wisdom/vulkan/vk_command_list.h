@@ -5,6 +5,7 @@
 #include <wisdom/api/api_barrier.h>
 #include <wisdom/vulkan/vk_buffer_views.h>
 #include <wisdom/vulkan/vk_rtv.h>
+#include <span>
 #endif
 
 

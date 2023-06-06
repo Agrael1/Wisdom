@@ -364,3 +364,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /CMakeSettings.json
 *.idb
+.vscode/settings.json
