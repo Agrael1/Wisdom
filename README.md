@@ -25,6 +25,8 @@ The API is structured like this:
 
 Vulkan is compiled on compatible systems and used as default only if there is no other alternative. Vulkan can still be used under supported operating system with explicit types `wis::VKFactory`, `wis::VKDevice` etc.
 
+![Changelog](https://github.com/Agrael1/Wisdom/Changelog.md)
+
 # Platforms
 
 Supported platforms are:
@@ -98,7 +100,7 @@ Visit https://github.com/KDAB/KDUtils to see more details.
 **MacOS**
 - TBD... When I get my hands on a Mac
 
-# Roadmap and tasks
+# Roadmap
 
 The project has trello page. https://trello.com/b/qjrv97Bc/wisdom-veritas
 Suggestions are appreciated.
