@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : Top-level CMake project file
 cmake_minimum_required (VERSION 3.25)
 
-project ("Wisdom")
+project ("Wisdom" VERSION 0.1.0)
 
 # Enable Hot Reload for MSVC compilers if supported.
 set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
@@ -59,6 +59,8 @@ if(WISDOM_BUILD_TYPE STREQUAL "modules")
 	endif()
 	set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 endif()
+
+set(WISDOM_VERSION "v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
 
 
 # Additional CMake functions.
