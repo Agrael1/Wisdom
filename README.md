@@ -45,7 +45,8 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 - `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation 
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation 
 - `WISDOM_USE_FMT=ON/OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
-- `WISDOM_BUILD_TYPE=headers/static/modules` build type, `headers` makes header only library, `static` builds static library, `modules` builds modules, default is `static`- `WISDOM_BUILD_DOCS=ON/OFF` build documentation with Doxygen, default is dependent on wether you are building the library as a top project (ON) or as a part/dep for other (OFF)
+- `WISDOM_BUILD_TYPE=headers/static/modules` build type, `headers` makes header only library, `static` builds static library, `modules` builds modules, default is `static`
+- `WISDOM_BUILD_DOCS=ON/OFF` build documentation with Doxygen, default is dependent on wether you are building the library as a top project (ON) or as a part/dep for other (OFF)
 
 # Consumption
 
