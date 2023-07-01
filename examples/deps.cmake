@@ -1,7 +1,3 @@
-cmake_minimum_required (VERSION 3.22)
-
-project(Wil)
-
 if(NOT PLUGINS_LOADED)
     message("Loading WIL...")
     FetchContent_Declare(
@@ -20,11 +16,11 @@ if(NOT PLUGINS_LOADED)
     set(wil_SOURCES ${wil_SOURCE_DIR} CACHE INTERNAL "")
 endif()
 
-add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} SYSTEM BEFORE 
+add_library(wil INTERFACE)
+target_include_directories(wil SYSTEM BEFORE 
     INTERFACE         
         $<BUILD_INTERFACE:${wil_SOURCES}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-target_install_interface(${PROJECT_NAME})
+target_install_interface(wil)
