@@ -4,6 +4,7 @@
 project(Example)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Functions.cmake)
+include(deps.cmake)
 
 
 # Add source to this project's executable.

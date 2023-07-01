@@ -24,7 +24,7 @@ if(WIN32)
 	add_subdirectory("DX12Allocator")
 	add_subdirectory("WinRT")
 	add_subdirectory("DX12Agility")
-	add_subdirectory("Wil")
+	#add_subdirectory("Wil")
 endif()
 
 
