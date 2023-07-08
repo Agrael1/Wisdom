@@ -15,6 +15,8 @@ namespace Test
 	public:
 		int Start();
 		void Frame();
+		void ProcessEvent(Event e);
+		void OnResize(uint32_t width, uint32_t height);
 		void WaitForGPU();
 	private:
 		Window wnd;

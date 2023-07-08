@@ -1,6 +1,7 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
+//#include "../vk_device.h"
 
 bool wis::VKDevice::Initialize(VKAdapterView adapter)
 {
@@ -204,6 +205,8 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 
 	uint32_t layers = options.stereo && stereo ? 2u : 1u;
 
+	auto present_mode = GetPresentMode(surface.get(), vsync);
+
 	vk::SwapchainCreateInfoKHR desc
 	{
 		vk::SwapchainCreateFlagBitsKHR{}, surface.get(),
@@ -214,10 +217,19 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 			vk::SharingMode::eExclusive, 0u, nullptr,
 			vk::SurfaceTransformFlagBitsKHR::eIdentity,
 			vk::CompositeAlphaFlagBitsKHR::eOpaque,
-			GetPresentMode(surface.get(), vsync), true, nullptr
+			present_mode, true, nullptr
 	};
-
-	return VKSwapChain{ wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device}, std::move(surface), render_queue, VKCommandQueue{qpresent_queue}, CreateCommandList(QueueType::direct), format->format, stereo, layers };
+	
+	return VKSwapChain{ SwapChainDesc {
+		wis::shared_handle<vk::SwapchainKHR>{device->createSwapchainKHR(desc), device},
+		std::move(surface),
+		render_queue,
+		VKCommandQueue{qpresent_queue},
+		CreateCommandList(QueueType::direct),
+		*format,
+		present_mode,
+		stereo
+	} };
 }
 
 wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,

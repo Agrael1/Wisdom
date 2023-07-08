@@ -1,36 +1,12 @@
 //#include <wisdom/vulkan/vk_swapchain.h>
 
-wis::VKSwapChain::VKSwapChain(wis::shared_handle<vk::SwapchainKHR> xswap,
-	vk::UniqueSurfaceKHR surface,
-	vk::Queue graphics_queue,
-	VKCommandQueue present_queue,
-	VKCommandList initialization,
-	vk::Format format, bool stereo, uint32_t layers)
-	:QueryInternal(std::move(xswap), std::move(surface), graphics_queue, present_queue, format), stereo(stereo)
+wis::VKSwapChain::VKSwapChain(SwapChainDesc desc)
+	:QueryInternal(std::move(desc.xswap), std::move(desc.surface), desc.graphics_queue, desc.format, desc.present_mode)
+	, stereo(desc.stereo)
+	, present_queue(std::move(desc.present_queue))
+	,initialization(std::move(desc.initialization))
 {
-	initialization.Reset();
-	auto xback_buffers = device->getSwapchainImagesKHR(swap.get());
-	back_buffers.reserve(xback_buffers.size());
-	for (auto& i : xback_buffers)
-	{
-		back_buffers.emplace_back(
-			format, wis::shared_handle<vk::Image>{i, swap.get_parent_handle(), true});
-		initialization.TextureBarrier(
-			{
-				.state_before = TextureState::Undefined,
-				.state_after = TextureState::Present,
-				.access_before = ResourceAccess::NoAccess,
-				.access_after = ResourceAccess::Common,
-			},
-			{ i, format });
-	}
-	initialization.Close();
-	present_queue.ExecuteCommandList(initialization);
-
-
-	present_queue.GetInternal().GetQueue().waitIdle();
-
-	AquireNextIndex();
+	CreateImages();
 }
 
 bool wis::VKSwapChain::Present()noexcept
@@ -46,7 +22,7 @@ bool wis::VKSwapChain::Present()noexcept
 		1, &a, 1, &x, &present_index, nullptr
 	};
 
-	return wis::succeded(present_queue.presentKHR(present_info)) &&
+	return wis::succeded(present_queue.GetInternal().GetQueue().presentKHR(present_info)) &&
 		AquireNextIndex();
 }
 
@@ -60,16 +36,18 @@ bool wis::VKSwapChain::AquireNextIndex()noexcept
 	signal_submit_info.pWaitSemaphores = &present_semaphore.get();
 	vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eTransfer;
 	signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
-	return wis::succeded(present_queue.submit(1, &signal_submit_info, {}));
+	return wis::succeded(present_queue.GetInternal().GetQueue().submit(1, &signal_submit_info, {}));
 }
 
 void wis::VKSwapChain::ReleaseSemaphore()noexcept
 {
 	if (!present_semaphore)return;
+	auto queue = present_queue.GetInternal().GetQueue();
+
 	vk::SubmitInfo signal_submit_info = {};
 	signal_submit_info.pNext = nullptr;
 	signal_submit_info.signalSemaphoreCount = 1;
 	signal_submit_info.pSignalSemaphores = &present_semaphore.get();
-	wis::succeded(present_queue.submit(1, &signal_submit_info, {}));
-	present_queue.waitIdle();
+	wis::succeded(queue.submit(1, &signal_submit_info, {}));
+	queue.waitIdle();
 }

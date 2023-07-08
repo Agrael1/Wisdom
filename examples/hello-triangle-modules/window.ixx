@@ -32,7 +32,6 @@ public:
 	uint32_t width()const noexcept;
 	uint32_t height()const noexcept;
 	wis::SurfaceParameters GetSurfaceOptions()const noexcept;
-	//KDGpu::Surface createSurface(KDGpu::Instance& instance);
 private:
 	WindowP* p;
 };
