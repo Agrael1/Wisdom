@@ -38,9 +38,6 @@ WIS_EXPORT namespace wis
 		explicit DX12SwapChain(winrt::com_ptr<IDXGISwapChain4> xchain, uint32_t frame_count, bool stereo)
 			:QueryInternal(std::move(xchain)), stereo(stereo)
 		{
-			winrt::com_ptr<ID3D12Device> device;
-			chain->GetDevice(__uuidof(ID3D12Device), device.put_void());
-
 			render_targets.reserve(frame_count);
 			for (uint32_t n = 0; n < frame_count; n++)
 			{
@@ -84,6 +81,26 @@ WIS_EXPORT namespace wis
 		[[nodiscard]] bool StereoSupported()const noexcept
 		{
 			return stereo;
+		}
+
+		/// @brief Resize the swapchain
+		/// For the method to succeed, all swapchain buffers must be released first
+		/// @param width New width
+		/// @param height New height
+		/// @return true if succeeded
+		[[nodiscard]] bool Resize(uint32_t width, uint32_t height)noexcept
+		{
+			size_t current_size = render_targets.size();
+			render_targets.clear(); //release all resources
+			if (!wis::succeded(chain->ResizeBuffers(current_size, width, height, DXGI_FORMAT_UNKNOWN, 0)))
+				return false;
+
+			for (uint32_t n = 0; n < current_size; n++)
+			{
+				winrt::com_ptr<ID3D12Resource> rc;
+				wis::check_hresult(chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void()));
+				render_targets.emplace_back(std::move(rc), nullptr);
+			}
 		}
 	private:
 		std::vector<DX12Buffer> render_targets{}; //< Render targets
