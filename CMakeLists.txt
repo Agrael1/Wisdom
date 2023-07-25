@@ -65,6 +65,7 @@ set(WISDOM_VERSION "v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
 
 # Additional CMake functions.
 include(Misc.cmake)
+include(cmake/Functions.cmake)
 
 # Include sub-projects.
 add_subdirectory ("plugins")
