@@ -5,7 +5,7 @@ if(NOT PLUGINS_LOADED)
 	FetchContent_Declare(
 	  vkma
 	  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-	  GIT_TAG origin/master
+	  GIT_TAG 3cb5470faabaf1c1ab7b60828ad8f33f22be0424
 	)
 	FetchContent_GetProperties(vkma)
 	if(NOT vkma_POPULATED)

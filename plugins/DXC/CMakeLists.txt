@@ -2,7 +2,7 @@ project(DXC)
 
 cmake_policy(SET CMP0135 NEW)
 
-if(NOT PLUGINS_LOADED)
+if((NOT PLUGINS_LOADED) AND (NOT WISDOM_USE_SYSTEM_DXC))
     message("Loading DXC...")
 
     # Download latest DXC from AppVeyor
@@ -24,4 +24,6 @@ if(NOT PLUGINS_LOADED)
     else()
         set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc CACHE INTERNAL "")
     endif()
+elseif(WISDOM_USE_SYSTEM_DXC)
+    set(dxc_EXECUTABLE "dxc" CACHE INTERNAL "")
 endif()
