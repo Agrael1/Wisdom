@@ -1,12 +1,8 @@
-project(hello-triangle-modules)
+project(uniform-buffers-kdgui)
 
 add_executable(${PROJECT_NAME}
-	entry_main.cpp 
- )
-
-target_sources(${PROJECT_NAME}
-PUBLIC FILE_SET CXX_MODULES 
-	FILES "window.ixx" "app.ixx")
+	entry_main.cpp "window.h"
+ "window.cpp" "app.h" "app.cpp")
 
 if(WIN32)
 	include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Functions.cmake)
