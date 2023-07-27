@@ -41,6 +41,7 @@ option(WISDOM_FORCE_VULKAN "Forces the default device to be vulkan, instead of p
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
+option(WISDOM_USE_SYSTEM_DXC "Use dxc from PATH" OFF)
 
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13"

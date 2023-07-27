@@ -3,12 +3,16 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 include(FetchContent)
 
 # math library
-FetchContent_Declare(
-	glm
-	GIT_REPOSITORY https://github.com/g-truc/glm.git
-	GIT_TAG        master
-)
-FetchContent_MakeAvailable(glm)
+find_package(glm QUIET)
+
+if (NOT glm_FOUND)
+    FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG        master
+    )
+    FetchContent_MakeAvailable(glm)
+endif()
 
 
 

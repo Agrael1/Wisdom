@@ -1,15 +1,20 @@
 project(hello-triangle-kdgui)
 
-FetchContent_Declare(
-	kdgui
-	GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
-	GIT_TAG        master
-)
 set(BUILD_SHARED_LIBS OFF)
 set(KDUTILS_BUILD_TESTS OFF)
-FetchContent_MakeAvailable(kdgui)
 
+find_package(KDUtils CONFIG)
+if(NOT KDUtils_FOUND)
+    FetchContent_Declare(
+        KDUtils
+        GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
+        GIT_TAG        master
+    )
+    FetchContent_MakeAvailable(KDUtils)
+endif()
 
+find_package(KDFoundation CONFIG)
+find_package(KDGui CONFIG)
 
 add_executable(${PROJECT_NAME}
 	entry_main.cpp "window.h"
