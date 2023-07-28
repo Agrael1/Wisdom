@@ -17,7 +17,7 @@ if(NOT PLUGINS_LOADED)
 	  vkmahpp
 	  GIT_REPOSITORY https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
 	  GIT_TAG origin/master
-      GIT_SUBMODULES "VulkanMemoryAllocator" "Vulkan-Hpp"
+      GIT_SUBMODULES "include"
 	)
 	FetchContent_GetProperties(vkmahpp)
 	if(NOT vkmahpp_POPULATED)
@@ -34,13 +34,6 @@ target_sources(${PROJECT_NAME}
 		${vkma_SOURCES}/src/VmaUsage.cpp
 		${vkma_SOURCES}/src/VmaUsage.h
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # TODO: find a better way to do this
-    # TODO: find ANY way to do this
-    add_compile_definitions(VK_USE_PLATFORM_WAYLAND_KHR)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE VK_USE_PLATFORM_WAYLAND_KHR)
-endif()
 
 if (MSVC)
 	# Provides MSVC users nicer debugging support

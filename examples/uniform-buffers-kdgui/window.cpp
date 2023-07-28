@@ -63,16 +63,10 @@ wis::SurfaceParameters Window::GetSurfaceOptions() const noexcept
 #elif defined(KD_PLATFORM_LINUX)
     if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
         auto waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow *>(p->platformWindow());
-        return wis::SurfaceParameters{
-            waylandWindow->display(),
-            waylandWindow->surface()
-        };
+        return wis::SurfaceParameters(waylandWindow->display(), waylandWindow->surface());
     } else {
         auto xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow *>(p->platformWindow());
-        return wis::SurfaceParameters{
-            xcbWindow->connection(),
-            xcbWindow->handle()
-        };
+        return wis::SurfaceParameters(xcbWindow->connection(), xcbWindow->handle());
     }
 #elif defined(KD_PLATFORM_MACOS)
     return wis::SurfaceParameters{

@@ -63,6 +63,12 @@ endif()
 
 set(WISDOM_VERSION "v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
 
+# TODO: find a better way to do this (only required by vulkan-hpp) and make
+# wayland support a build option
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_compile_definitions(VK_USE_PLATFORM_WAYLAND_KHR)
+endif()
+
 
 # Additional CMake functions.
 include(Misc.cmake)
