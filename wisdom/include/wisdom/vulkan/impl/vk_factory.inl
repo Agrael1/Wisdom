@@ -1,5 +1,5 @@
 #ifndef WISDOM_MODULES
-//#include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_factory.h>
 #include <ranges>
 #include <unordered_map>
 #include <wisdom/util/misc.h>
@@ -81,12 +81,16 @@ namespace
 		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 	#if defined(VK_USE_PLATFORM_WIN32_KHR)
 		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-	#elif defined(VK_USE_PLATFORM_XCB_KHR)
-		VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 	#elif defined(VK_USE_PLATFORM_METAL_EXT)
 		VK_EXT_METAL_SURFACE_EXTENSION_NAME,
 		VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 	#endif
+    #if defined(VK_USE_PLATFORM_XCB_KHR)
+		VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    #endif
+    #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+		VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    #endif
 	#if DEBUG_MODE
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 		VK_EXT_DEBUG_UTILS_EXTENSION_NAME

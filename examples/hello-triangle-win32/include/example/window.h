@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include <optional>
 #include <array>
+#include <type_traits>
 
 namespace ver
 {
@@ -18,7 +19,7 @@ enum class Event : uint8_t
 	Play,
 	Count
 };
-constexpr inline auto operator+(Event e) { return std::to_underlying(e); }
+constexpr inline auto operator+(Event e) { return static_cast<std::underlying_type<Event>::type>(e); }
 
 struct EventSet
 {

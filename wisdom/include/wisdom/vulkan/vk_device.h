@@ -286,7 +286,7 @@ WIS_EXPORT namespace wis
 		)const noexcept;
 	private:
 		QueueResidency queues{};
-		bool vrs_supported : 1 = false;
+		// bool vrs_supported : 1 = false;
 		bool mesh_shader_supported : 1 = false;
 		bool ray_tracing_supported : 1 = false;
 		bool ray_query_supported : 1 = false;

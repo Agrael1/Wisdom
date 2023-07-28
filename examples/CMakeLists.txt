@@ -14,14 +14,31 @@ if (NOT glm_FOUND)
     FetchContent_MakeAvailable(glm)
 endif()
 
+# windows store example does not need kdutils
+if (NOT WINDOWS_STORE)
+    set(BUILD_SHARED_LIBS OFF)
+    set(KDUTILS_BUILD_TESTS OFF)
 
+    find_package(KDUtils CONFIG)
+    if(NOT KDUtils_FOUND)
+        FetchContent_Declare(
+            KDUtils
+            GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
+            GIT_TAG        master
+        )
+        FetchContent_MakeAvailable(KDUtils)
+    endif()
+
+    find_package(KDFoundation CONFIG)
+    find_package(KDGui CONFIG)
+endif()
 
 add_subdirectory(shaders)
 
 find_package(Vulkan)
 
 if(WISDOM_BUILD_TYPE STREQUAL "modules")
-			add_subdirectory(hello-triangle-modules)
+	add_subdirectory(hello-triangle-modules)
 elseif(WINDOWS_STORE)
 	add_subdirectory(hello-triangle-winrt)
 else()
@@ -30,6 +47,7 @@ else()
 	endif()
 	if(Vulkan_FOUND)
 		add_subdirectory(hello-triangle-kdgui)
+		add_subdirectory(uniform-buffers-kdgui)
 	endif()
 endif()
 

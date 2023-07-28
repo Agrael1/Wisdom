@@ -29,6 +29,6 @@ target_include_directories(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
     	PROPERTIES
-		    CXX_STANDARD 23
+		    CXX_STANDARD 20
 )
 target_install(${PROJECT_NAME})
