@@ -51,6 +51,7 @@ WIS_EXPORT namespace wis
 	using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 	using VertexBufferView = DX12VertexBufferView;
 	using RenderPass = DX12RenderPass;
+	using DescriptorHeap = DX12DescriptorHeap;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH //MAC
 //metal
@@ -83,6 +84,7 @@ WIS_EXPORT namespace wis
 	using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 	using VertexBufferView = VKVertexBufferView;
 	using RenderPass = VKRenderPass;
+	using DescriptorHeap = VKDescriptorHeap;
 }
 #else
 #error "No API selected"
