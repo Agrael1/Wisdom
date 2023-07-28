@@ -24,7 +24,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_render_pass.h"
 		"include/wisdom/dx12/dx12_format.h" 
 		"include/wisdom/dx12/dx12_views.h"
-	)
+		"include/wisdom/dx12/dx12_descriptor_heap.h")
 	set(DX12INL
 		"include/wisdom/dx12/impl/dx12_adapter.inl"
 		"include/wisdom/dx12/impl/dx12_allocator.inl"

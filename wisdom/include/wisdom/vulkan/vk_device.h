@@ -11,6 +11,7 @@
 #include <wisdom/vulkan/vk_render_pass.h>
 #include <wisdom/vulkan/vk_state_builder.h>
 #include <wisdom/vulkan/vk_root_signature.h>
+#include <wisdom/vulkan/vk_descriptor_heap.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/global/definitions.h>
@@ -239,6 +240,14 @@ WIS_EXPORT namespace wis
 			SampleCount samples = SampleCount::s1,
 			DataFormat vrs_format = DataFormat::unknown)const;
 
+		void CreateDescriptorSetLayout(uint32_t binding)const
+		{
+			//vk::DescriptorSetLayoutBinding layout_binding{
+			//	binding, vk::DescriptorType::eUniformBufferDynamic,
+			//		vk::ShaderStageFlagBits::eVertex, 0, nullptr
+			//};
+		}
+
 		[[nodiscard]]
 		VKRootSignature CreateRootSignature()const
 		{
@@ -269,6 +278,20 @@ WIS_EXPORT namespace wis
 		/// @param range Select the subresource range to create the view for
 		/// @return View object
 		[[nodiscard]] WIS_INLINE  VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {})const;
+
+		//TODO:Comment
+		[[nodiscard]] VKDescriptorHeap CreateDescriptorHeap(uint32_t num_descs)const
+		{
+			//TODO: other types
+			vk::DescriptorPoolSize size_desc{
+				vk::DescriptorType::eUniformBufferDynamic, num_descs
+			};
+			vk::DescriptorPoolCreateInfo pool_desc{
+				vk::DescriptorPoolCreateFlags{}, num_descs, 1u, & size_desc
+			};
+			wis::shared_handle pool{device->createDescriptorPool(pool_desc), device};
+			return VKDescriptorHeap{ std::move(pool) };
+		}
 
 	private:
 		WIS_INLINE void GetQueueFamilies(VKAdapterView adapter)noexcept;
