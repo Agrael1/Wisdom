@@ -23,6 +23,10 @@ WIS_EXPORT namespace wis
 		wis::shared_handle<vk::DescriptorPool> pool;
 	};
 
+	using VKDescriptorSet = vk::DescriptorSet;
+	using VKDescriptorLayout = vk::DescriptorSetLayout;
+	using VKDescriptorHeapView = vk::DescriptorPool;
+
 	/// @brief Descriptor Heap object
 	class VKDescriptorHeap : public QueryInternal<VKDescriptorHeap>
 	{
@@ -34,6 +38,25 @@ WIS_EXPORT namespace wis
 		operator bool()const noexcept
 		{
 			return bool(pool);
+		}
+		operator VKDescriptorHeapView()const noexcept
+		{
+			return GetDescriptorPool();
+		}
+	public:
+		std::vector<VKDescriptorSet> AllocateDescriptorSets(std::span<VKDescriptorLayout> layouts)
+		{
+			vk::DescriptorSetAllocateInfo alloc_info{
+				pool.get(), uint32_t(layouts.size()), layouts.data()
+			};
+			return pool.get_parent().allocateDescriptorSets(alloc_info);
+		}
+		VKDescriptorSet AllocateDescriptorSet(VKDescriptorLayout layout)
+		{
+			vk::DescriptorSetAllocateInfo alloc_info{
+				pool.get(), 1u, &layout
+			};
+			return pool.get_parent().allocateDescriptorSets(alloc_info)[0];
 		}
 	};
 }

@@ -149,6 +149,7 @@ Test::App::App(uint32_t width, uint32_t height)
 	}
 
 	uniforms = device.CreateDescriptorHeap(1u);
+	device.CreateDescriptorSetLayout(0);
 
 }
 Test::App::~App()

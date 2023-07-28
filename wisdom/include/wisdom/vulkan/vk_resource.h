@@ -60,6 +60,8 @@ WIS_EXPORT namespace wis
 			std::memcpy(mem, data.data(), data_size > size ? size : data_size);
 			vma.unmapMemory(al);
 			return true;
+
+			
 		}
 		[[nodiscard]]
 		VKVertexBufferView GetVertexBufferView(uint32_t byte_stride)const noexcept
