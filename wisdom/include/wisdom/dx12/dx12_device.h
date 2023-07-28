@@ -25,10 +25,7 @@ WIS_EXPORT namespace wis
 		}
 	protected:
 		winrt::com_ptr<ID3D12Device10> device{};
-
-		winrt::com_ptr<ID3D12DescriptorHeap> rtv_heap{};
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_start;
-		uint32_t rtv_increment = 0;
+		DX12DescriptorHeap rtv_heap;
 	};
 
 
@@ -77,6 +74,22 @@ WIS_EXPORT namespace wis
 		/// @brief Create a fence
 		[[nodiscard]] WIS_INLINE DX12Fence CreateFence()const;
 
+		//TODO: comment
+		[[nodiscard]] CD3DX12_DESCRIPTOR_RANGE1 CreateDescriptorSetLayout(uint32_t binding, uint32_t count = 1u)const
+		{
+			CD3DX12_DESCRIPTOR_RANGE1 range;
+			range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, count, binding);
+			return range;
+		}
+
+		void WriteConstantBufferView(DX12DescriptorSet set, DX12BufferView buffer, uint32_t size)const
+		{
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+			cbvDesc.BufferLocation = buffer->GetGPUVirtualAddress();
+			cbvDesc.SizeInBytes = size;
+			device->CreateConstantBufferView(&cbvDesc, set);
+		}
+
 		/// @brief Create a root signature (empty)
 		[[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature()const;
 
@@ -123,8 +136,8 @@ WIS_EXPORT namespace wis
 			};
 
 			winrt::com_ptr<ID3D12DescriptorHeap> heap;
-			device->CreateDescriptorHeap(&desc, __uuidof(*heap), heap.put_void());
-			return DX12DescriptorHeap{std::move(heap)};
+			wis::check_hresult(device->CreateDescriptorHeap(&desc, __uuidof(*heap), heap.put_void()));
+			return DX12DescriptorHeap{std::move(heap), device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)};
 		}
 	};
 }

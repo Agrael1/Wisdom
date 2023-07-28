@@ -240,12 +240,38 @@ WIS_EXPORT namespace wis
 			SampleCount samples = SampleCount::s1,
 			DataFormat vrs_format = DataFormat::unknown)const;
 
-		void CreateDescriptorSetLayout(uint32_t binding)const
+		[[nodiscard]]
+		vk::UniqueDescriptorSetLayout CreateDescriptorSetLayout(uint32_t binding, uint32_t count = 1u)const
 		{
-			//vk::DescriptorSetLayoutBinding layout_binding{
-			//	binding, vk::DescriptorType::eUniformBufferDynamic,
-			//		vk::ShaderStageFlagBits::eVertex, 0, nullptr
+			vk::DescriptorSetLayoutBinding layout_binding{
+				binding, vk::DescriptorType::eUniformBufferDynamic, count,
+					vk::ShaderStageFlagBits::eVertex, nullptr
+			};
+
+			vk::DescriptorSetLayoutCreateInfo desc{
+				{}, 1u, &layout_binding
+			};
+			return device->createDescriptorSetLayoutUnique(desc);
+		}
+
+		void WriteConstantBufferView(VKDescriptorSet set, VKBufferView buffer, uint32_t size)const
+		{
+			//vk::WriteDescriptorSet desc{
+			//	set, 
 			//};
+			//VkWriteDescriptorSet writeDescriptorSet = {};
+			//
+			//// Write the descriptor of the uniform buffer.
+			//// We need to pass the descriptor set where it is store and 
+			//// the binding point associated with descriptor in the descriptor set.
+			//writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			//writeDescriptorSet.dstSet = m_sampleParams.DescriptorSet.Handle;
+			//writeDescriptorSet.descriptorCount = 1;
+			//writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			//writeDescriptorSet.pBufferInfo = &m_sampleParams.HostVisibleBuffer.Descriptor;
+			//writeDescriptorSet.dstBinding = 0;
+			//
+			//vkUpdateDescriptorSets(m_vulkanParams.Device, 1, &writeDescriptorSet, 0, nullptr);
 		}
 
 		[[nodiscard]]

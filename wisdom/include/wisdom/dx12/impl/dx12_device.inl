@@ -5,14 +5,17 @@ bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter)noexcept
 		D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
 		return false;
 
-	// Describe and create a render target view (RTV) descriptor heap.
-	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-	rtvHeapDesc.NumDescriptors = heap_size;
-	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	wis::check_hresult(device->CreateDescriptorHeap(&rtvHeapDesc, __uuidof(*rtv_heap), rtv_heap.put_void()));
-	rtv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
+
+	D3D12_DESCRIPTOR_HEAP_DESC desc{
+	.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+	.NumDescriptors = heap_size,
+	.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+	.NodeMask = 0u
+	};
+
+	winrt::com_ptr<ID3D12DescriptorHeap> heap;
+	wis::check_hresult(device->CreateDescriptorHeap(&desc, __uuidof(*heap), heap.put_void()));
+	rtv_heap = DX12DescriptorHeap{ std::move(heap), device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV) };
 	return true;
 }
 
@@ -230,8 +233,8 @@ wis::DX12RenderTargetView wis::DX12Device::CreateRenderTargetView(DX12TextureVie
 			.PlaneSlice = 0
 		}
 	};
-	device->CreateRenderTargetView(texture, &desc, rtv_start);
-	DX12RenderTargetView rtvm{ rtv_start };
-	rtv_start.Offset(1, rtv_increment);
-	return rtvm;
+
+	auto set = rtv_heap.AllocateDescriptorSet({});
+	device->CreateRenderTargetView(texture, &desc, set);
+	return DX12RenderTargetView { CD3DX12_CPU_DESCRIPTOR_HANDLE{set} };
 }
