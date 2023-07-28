@@ -8,6 +8,8 @@ module;
 #endif
 #if defined(KD_PLATFORM_LINUX)
 #include <KDGui/platform/linux/xcb/linux_xcb_platform_window.h>
+#include <KDGui/platform/linux/wayland/linux_wayland_platform_window.h>
+#include <KDGui/platform/linux/wayland/linux_wayland_platform_integration.h>
 #endif
 #if defined(KD_PLATFORM_MACOS)
 extern CAMetalLayer* createMetalLayer(KDGui::Window* window);
@@ -86,11 +88,21 @@ wis::SurfaceParameters Window::GetSurfaceOptions()const noexcept
 		win32Window->handle()
 	};
 #elif defined(KD_PLATFORM_LINUX)
-	auto xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
-	return wis::SurfaceParameters{
-		xcbWindow->connection(),
-		xcbWindow->handle()
-	};
+    if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
+        auto *platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
+        auto *waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration *>(platformIntegration);
+        auto waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow *>(p->platformWindow());
+        return wis::SurfaceParameters{
+            waylandPlatformIntegration->display(),
+            waylandWindow->surface(),
+        };
+    } else {
+        auto *xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow *>(p->platformWindow());
+        return wis::SurfaceParameters{
+            xcbWindow->connection(),
+            xcbWindow->handle(),
+        };
+    }
 #elif defined(KD_PLATFORM_MACOS)
 	return wis::SurfaceParameters{
 		.layer = createMetalLayer(this)
