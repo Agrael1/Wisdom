@@ -112,9 +112,9 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
 		device_vulkan12_features.imagelessFramebuffer = true;
 		add_extension(device_vulkan12_features);
 
-		vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
-		fragment_shading_rate_features.attachmentFragmentShadingRate = vrs_supported;
-		add_extension(fragment_shading_rate_features);
+		// vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
+		// fragment_shading_rate_features.attachmentFragmentShadingRate = vrs_supported;
+		// add_extension(fragment_shading_rate_features);
 
 		//vk::PhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline_feature;
 		//raytracing_pipeline_feature.rayTracingPipeline = ray_tracing_supported;
@@ -139,7 +139,8 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
 
 wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync)const
 {
-	if (xsurface.IsWinRT())return{}; // Bail out, no support for UWP from Vulkan
+    using Type = wis::SurfaceParameters::Type;
+	if (xsurface.type == Type::WinRT)return{}; // Bail out, no support for UWP from Vulkan
 
 	auto instance = VKFactory::Internal::GetInstanceHandle();
 
@@ -155,11 +156,22 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 	vk::UniqueSurfaceKHR surface{ instance->createMetalSurfaceEXTUnique(surface_desc) };
 	wis::lib_info("Initializing Metal Surface");
 #elif defined(WISDOM_LINUX)
-	vk::XcbSurfaceCreateInfoKHR surface_desc = {};
-	surface_desc.setConnection(xsurface.x11.connection);
-	surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
-	wis::lib_info("Initializing XCB Surface");
-	vk::UniqueSurfaceKHR surface{ instance->createXcbSurfaceKHRUnique(surface_desc) };
+    std::optional<vk::UniqueSurfaceKHR> opt_surface;
+    if (xsurface.type == Type::X11) {
+        vk::XcbSurfaceCreateInfoKHR surface_desc = {};
+        surface_desc.setConnection(xsurface.x11.connection);
+        surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
+	    wis::lib_info("Initializing XCB Surface");
+        opt_surface.emplace(instance->createXcbSurfaceKHRUnique(surface_desc));
+    } else {
+        assert(xsurface.type == Type::Wayland);
+        vk::WaylandSurfaceCreateInfoKHR surface_desc = {};
+        surface_desc.setDisplay(xsurface.wayland.display);
+        surface_desc.setSurface(xsurface.wayland.surface);
+	    wis::lib_info("Initializing Wayland Surface");
+        opt_surface.emplace(instance->createWaylandSurfaceKHRUnique(surface_desc));
+    }
+	vk::UniqueSurfaceKHR surface(std::move(opt_surface.value()));
 #endif
 	int32_t present_queue = -1;
 	for (uint16_t i = 0; i < max_count; i++)
@@ -305,33 +317,33 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<C
 	vk::FragmentShadingRateAttachmentInfoKHR fragment_shading_rate_attachment_info;
 	fragment_shading_rate_attachment_info.pFragmentShadingRateAttachment = &shading_rate_image_attachment_reference;
 
-	if (vrs_format != DataFormat::unknown && vrs_supported)
-	{
-		auto& desc = attachment_descriptions[size];
-		auto& ref = attachment_references[size++];
+	// if (vrs_format != DataFormat::unknown && vrs_supported)
+	// {
+	// 	auto& desc = attachment_descriptions[size];
+	// 	auto& ref = attachment_references[size++];
 
-		desc.format = vk_format(vrs_format);
-		desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
-		desc.loadOp = vk::AttachmentLoadOp::eLoad;
-		desc.storeOp = vk::AttachmentStoreOp::eStore;
-		desc.initialLayout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
-		desc.finalLayout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+	// 	desc.format = vk_format(vrs_format);
+	// 	desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
+	// 	desc.loadOp = vk::AttachmentLoadOp::eLoad;
+	// 	desc.storeOp = vk::AttachmentStoreOp::eStore;
+	// 	desc.initialLayout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+	// 	desc.finalLayout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
 
-		ref.attachment = size - 1;
-		ref.layout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
+	// 	ref.attachment = size - 1;
+	// 	ref.layout = vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR;
 
-		sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
+	// 	sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
 
-		vk::PhysicalDeviceFragmentShadingRatePropertiesKHR shading_rate_image_properties;
-		vk::PhysicalDeviceProperties2 device_props2;
-		device_props2.pNext = &shading_rate_image_properties;
-		adapter.getProperties2(&device_props2);
-		auto vrs_size = shading_rate_image_properties.maxFragmentShadingRateAttachmentTexelSize.width;
+	// 	vk::PhysicalDeviceFragmentShadingRatePropertiesKHR shading_rate_image_properties;
+	// 	vk::PhysicalDeviceProperties2 device_props2;
+	// 	device_props2.pNext = &shading_rate_image_properties;
+	// 	adapter.getProperties2(&device_props2);
+	// 	auto vrs_size = shading_rate_image_properties.maxFragmentShadingRateAttachmentTexelSize.width;
 
-		fragment_shading_rate_attachment_info.shadingRateAttachmentTexelSize.width = vrs_size;
-		fragment_shading_rate_attachment_info.shadingRateAttachmentTexelSize.height = vrs_size;
-		sub_pass.pNext = &fragment_shading_rate_attachment_info;
-	}
+	// 	fragment_shading_rate_attachment_info.shadingRateAttachmentTexelSize.width = vrs_size;
+	// 	fragment_shading_rate_attachment_info.shadingRateAttachmentTexelSize.height = vrs_size;
+	// 	sub_pass.pNext = &fragment_shading_rate_attachment_info;
+	// }
 
 	vk::RenderPassCreateInfo2 render_pass_info;
 	render_pass_info.attachmentCount = size;
@@ -443,8 +455,8 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(wis::VKGraphicsPipeli
 	dynamic_state_enables.allocate(vk::DynamicState::eScissor);
 	dynamic_state_enables.allocate(vk::DynamicState::ePrimitiveTopology);
 	dynamic_state_enables.allocate(vk::DynamicState::eVertexInputBindingStride);
-	if (vrs_supported)
-		dynamic_state_enables.allocate(vk::DynamicState::eFragmentShadingRateKHR);
+	// if (vrs_supported)
+	// 	dynamic_state_enables.allocate(vk::DynamicState::eFragmentShadingRateKHR);
 
 	vk::PipelineDynamicStateCreateInfo dss
 	{
@@ -563,9 +575,10 @@ wis::VKDevice::RequestExtensions(VKAdapterView adapter)noexcept
 		if (!ext_set.contains(i))continue;
 		avail_exts.allocate(i);
 
-		if (i == std::string_view(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME))
-			vrs_supported = true;
-		else if (i == std::string_view(VK_NV_MESH_SHADER_EXTENSION_NAME))
+		// if (i == std::string_view(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME))
+		// 	vrs_supported = true;
+		// else
+        if (i == std::string_view(VK_NV_MESH_SHADER_EXTENSION_NAME))
 			mesh_shader_supported = true;
 		else if (i == std::string_view(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
 			ray_tracing_supported = true;

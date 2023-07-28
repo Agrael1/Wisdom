@@ -12,17 +12,18 @@ if(NOT PLUGINS_LOADED)
 	  FetchContent_Populate(vkma)
 	endif()
 	set(vkma_SOURCES ${vkma_SOURCE_DIR} CACHE INTERNAL "")
-	
+
 	FetchContent_Declare(
 	  vkmahpp
 	  GIT_REPOSITORY https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
 	  GIT_TAG origin/master
-	  GIT_SUBMODULES "include"
+      GIT_SUBMODULES "VulkanMemoryAllocator" "Vulkan-Hpp"
 	)
 	FetchContent_GetProperties(vkmahpp)
 	if(NOT vkmahpp_POPULATED)
 	  FetchContent_Populate(vkmahpp)
 	endif()
+
 	set(vkmahpp_SOURCES ${vkmahpp_SOURCE_DIR} CACHE INTERNAL "")
 endif()
 
@@ -33,6 +34,14 @@ target_sources(${PROJECT_NAME}
 		${vkma_SOURCES}/src/VmaUsage.cpp
 		${vkma_SOURCES}/src/VmaUsage.h
 )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # TODO: find a better way to do this
+    # TODO: find ANY way to do this
+    add_compile_definitions(VK_USE_PLATFORM_WAYLAND_KHR)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE VK_USE_PLATFORM_WAYLAND_KHR)
+endif()
+
 if (MSVC)
 	# Provides MSVC users nicer debugging support
 	target_sources(${PROJECT_NAME} PRIVATE ${vkma_SOURCES}/src/vk_mem_alloc.natvis)

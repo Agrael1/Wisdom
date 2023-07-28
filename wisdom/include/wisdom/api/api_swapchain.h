@@ -6,6 +6,8 @@
 #endif // WISDOM_WINDOWS
 #ifdef WISDOM_LINUX
 #include <xcb/xproto.h>
+struct wl_display;
+struct wl_surface;
 #endif // WISDOM_LINUX
 
 #include <wisdom/api/api_common.h>
@@ -53,6 +55,7 @@ WIS_EXPORT namespace wis
 			WinRT,
 			X11,
 			Metal,
+            Wayland
 		};
 	public:
 		SurfaceParameters() = default;
@@ -77,6 +80,13 @@ WIS_EXPORT namespace wis
 		explicit SurfaceParameters(xcb_connection_t* connection, xcb_window_t window)
 			:type(Type::X11), x11{ connection, window }
 		{}
+        
+        /// @brief Create a surface parameters struct for a wayland window.
+        /// @param display wayland display handle
+        /// @param surface wayland surface handle
+        explicit SurfaceParameters(wl_display* display,  wl_surface* surface)
+			:type(Type::Wayland), wayland{ display, surface }
+		{}
 #endif
 #if WISDOM_MACOS
 		/// @brief Create a surface parameters for a Metal layer.
@@ -85,14 +95,6 @@ WIS_EXPORT namespace wis
 			:type(Type::Metal), layer(layer)
 		{}
 #endif
-	public:
-		/// @brief Check if the surface is WinRT CoreWindow.
-		/// @return true if the surface is WinRT CoreWindow.
-		[[nodiscard]]
-		bool IsWinRT()const noexcept
-		{
-			return type == Type::WinRT;
-		}
 	public:
 		Type type = Type::None; //< Type of the surface.
 		union
@@ -109,6 +111,10 @@ WIS_EXPORT namespace wis
 				xcb_connection_t* connection; //< X11 connection.
 				xcb_window_t window; //< X11 window handle.
 		}x11; //< X11 window.
+            struct {
+                wl_display* display;
+                wl_surface* surface;
+            } wayland;
 #endif // WISDOM_LINUX
 #if WISDOM_MACOS
 			CAMetalLayer* layer; //< Metal layer.
