@@ -2,7 +2,20 @@ project(DXC)
 
 cmake_policy(SET CMP0135 NEW)
 
-if((NOT PLUGINS_LOADED) AND (NOT WISDOM_USE_SYSTEM_DXC))
+
+if(WISDOM_USE_SYSTEM_DXC)
+    if(NOT Vulkan_dxc_EXECUTABLE)
+    set(Vulkan_dxc_EXECUTABLE "dxc" CACHE INTERNAL "")
+    endif()
+    
+    find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE})
+    if(DXCOMPILER)
+        message("Found DXC...")
+    	set(dxc_EXECUTABLE ${DXCOMPILER} CACHE INTERNAL "")
+    elseif(WISDOM_USE_SYSTEM_DXC)
+        set(dxc_EXECUTABLE "dxc" CACHE INTERNAL "")
+    endif()
+elseif((NOT PLUGINS_LOADED) AND (NOT WISDOM_USE_SYSTEM_DXC) AND (NOT dxc_EXECUTABLE))
     message("Loading DXC...")
 
     # Download latest DXC from AppVeyor
@@ -24,6 +37,4 @@ if((NOT PLUGINS_LOADED) AND (NOT WISDOM_USE_SYSTEM_DXC))
     else()
         set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc CACHE INTERNAL "")
     endif()
-elseif(WISDOM_USE_SYSTEM_DXC)
-    set(dxc_EXECUTABLE "dxc" CACHE INTERNAL "")
 endif()

@@ -6,57 +6,62 @@
 
 WIS_EXPORT namespace wis
 {
-	class VKDescriptorHeap;
+    class VKDescriptorHeap;
 
-	template<>
-	class Internal<VKDescriptorHeap>
-	{
-	public:
-		Internal() = default;
-		Internal(wis::shared_handle<vk::DescriptorPool> pool) :pool(std::move(pool)) {};
-	public:
-		auto GetDescriptorPool()const noexcept
-		{
-			return pool.get();
-		}
-	protected:
-		wis::shared_handle<vk::DescriptorPool> pool;
-	};
+    template<>
+    class Internal<VKDescriptorHeap>
+    {
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::DescriptorPool> pool)
+            : pool(std::move(pool)){};
 
-	using VKDescriptorSet = vk::DescriptorSet;
-	using VKDescriptorLayout = vk::DescriptorSetLayout;
-	using VKDescriptorHeapView = vk::DescriptorPool;
+    public:
+        auto GetDescriptorPool() const noexcept
+        {
+            return pool.get();
+        }
 
-	/// @brief Descriptor Heap object
-	class VKDescriptorHeap : public QueryInternal<VKDescriptorHeap>
-	{
-	public:
-		VKDescriptorHeap() = default;
-		explicit VKDescriptorHeap(wis::shared_handle<vk::DescriptorPool> pool)
-			:QueryInternal(std::move(pool))
-		{}
-		operator bool()const noexcept
-		{
-			return bool(pool);
-		}
-		operator VKDescriptorHeapView()const noexcept
-		{
-			return GetDescriptorPool();
-		}
-	public:
-		std::vector<VKDescriptorSet> AllocateDescriptorSets(std::span<VKDescriptorLayout> layouts)
-		{
-			vk::DescriptorSetAllocateInfo alloc_info{
-				pool.get(), uint32_t(layouts.size()), layouts.data()
-			};
-			return pool.get_parent().allocateDescriptorSets(alloc_info);
-		}
-		VKDescriptorSet AllocateDescriptorSet(VKDescriptorLayout layout)
-		{
-			vk::DescriptorSetAllocateInfo alloc_info{
-				pool.get(), 1u, &layout
-			};
-			return pool.get_parent().allocateDescriptorSets(alloc_info)[0];
-		}
-	};
+    protected:
+        wis::shared_handle<vk::DescriptorPool> pool;
+    };
+
+    using VKDescriptorSet = vk::DescriptorSet;
+    using VKDescriptorLayout = vk::DescriptorSetLayout;
+    using VKDescriptorHeapView = vk::DescriptorPool;
+
+    /// @brief Descriptor Heap object
+    class VKDescriptorHeap : public QueryInternal<VKDescriptorHeap>
+    {
+    public:
+        VKDescriptorHeap() = default;
+        explicit VKDescriptorHeap(wis::shared_handle<vk::DescriptorPool> pool)
+            : QueryInternal(std::move(pool))
+        {
+        }
+        operator bool() const noexcept
+        {
+            return bool(pool);
+        }
+        operator VKDescriptorHeapView() const noexcept
+        {
+            return GetDescriptorPool();
+        }
+
+    public:
+        std::vector<VKDescriptorSet> AllocateDescriptorSets(std::span<VKDescriptorLayout> layouts)
+        {
+            vk::DescriptorSetAllocateInfo alloc_info{
+                pool.get(), uint32_t(layouts.size()), layouts.data()
+            };
+            return pool.getParent()->allocateDescriptorSets(alloc_info);
+        }
+        VKDescriptorSet AllocateDescriptorSet(VKDescriptorLayout layout)
+        {
+            vk::DescriptorSetAllocateInfo alloc_info{
+                pool.get(), 1u, &layout
+            };
+            return pool.getParent()->allocateDescriptorSets(alloc_info)[0];
+        }
+    };
 }

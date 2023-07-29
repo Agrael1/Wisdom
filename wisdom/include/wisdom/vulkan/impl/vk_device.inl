@@ -1,7 +1,7 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
-//#include "../vk_device.h"
+// #include "../vk_device.h"
 
 bool wis::VKDevice::Initialize(VKAdapterView adapter)
 {
@@ -109,6 +109,10 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
     device_vulkan12_features.descriptorBindingVariableDescriptorCount = true;
     device_vulkan12_features.imagelessFramebuffer = true;
     add_extension(device_vulkan12_features);
+
+    vk::PhysicalDeviceMutableDescriptorTypeFeaturesVALVE mutable_descriptor_type_features;
+    mutable_descriptor_type_features.mutableDescriptorType = true;
+    add_extension(mutable_descriptor_type_features);
 
     // vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
     // fragment_shading_rate_features.attachmentFragmentShadingRate = vrs_supported;
@@ -551,10 +555,9 @@ wis::VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
             continue;
         avail_exts.allocate(i);
 
-        // if (i == std::string_view(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME))
-        // 	vrs_supported = true;
-        // else
-        if (i == std::string_view(VK_NV_MESH_SHADER_EXTENSION_NAME))
+        if (i == std::string_view(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME))
+            vrs_supported = true;
+        else if (i == std::string_view(VK_NV_MESH_SHADER_EXTENSION_NAME))
             mesh_shader_supported = true;
         else if (i == std::string_view(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME))
             ray_tracing_supported = true;

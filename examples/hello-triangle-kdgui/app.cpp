@@ -148,9 +148,7 @@ Test::App::App(uint32_t width, uint32_t height)
 			rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
 	}
 
-	uniforms = device.CreateDescriptorHeap(1u);
-	device.CreateDescriptorSetLayout(0);
-
+	uniforms = device.CreateDescriptorHeap(1u, wis::PoolType::CBV_SRV_UAV);
 }
 Test::App::~App()
 {
