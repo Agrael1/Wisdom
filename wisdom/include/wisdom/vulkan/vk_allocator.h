@@ -70,7 +70,7 @@ WIS_EXPORT namespace wis
 		VKBuffer CreateBuffer(const vk::BufferCreateInfo& desc, const vma::AllocationCreateInfo &alloc_desc)
 		{
 			auto [a, b] = allocator->createBuffer(desc, alloc_desc);
-			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.get_parent_handle()}, wis::shared_handle<vma::Allocation>{b, allocator}, desc.size };
+			return VKBuffer{ wis::shared_handle<vk::Buffer>{a, allocator.getParent()}, wis::shared_handle<vma::Allocation>{b, allocator}, desc.size };
 		}
 	};
 }

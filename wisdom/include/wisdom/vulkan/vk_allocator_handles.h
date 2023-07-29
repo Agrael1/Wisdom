@@ -4,62 +4,67 @@
 #include <vk_mem_alloc.hpp>
 #endif // !WISDOM_MODULES
 
-
 WIS_EXPORT namespace wis
 {
-	template<>
-	struct parent_of<vma::Allocator>
-	{
-		using parent = vk::Device;
-	};
+    struct AllocatorHeader {
+        vk::SharedDevice device;
+    };
 
-	template<>
-	struct parent_of<vma::Allocation>
-	{
-		using parent = vma::Allocator;
-	};
+    template<>
+    class shared_handle<vma::Allocator> : public vk::SharedHandleBase<vma::Allocator, AllocatorHeader, shared_handle<vma::Allocator>>
+    {
+        using base = vk::SharedHandleBase<vma::Allocator, AllocatorHeader, shared_handle<vma::Allocator>>;
+        using base::m_control;
+        friend base;
 
-	template<class Dispatcher>
-	class shared_handle<vma::Allocator, Dispatcher> : public shared_handle_base<vma::Allocator, shared_handle<vma::Allocator, Dispatcher>, basic_control_block<vma::Allocator>>
-	{
-		using base = shared_handle_base<vma::Allocator, shared_handle<vma::Allocator, Dispatcher>, basic_control_block<vma::Allocator>>;
-		using base::handle;
-		using base::control;
-		friend base;
-	public:
-		shared_handle() = default;
-		explicit shared_handle(vma::Allocator handle, shared_handle<vk::Device, Dispatcher> xparent)
-			:base(handle, std::move(xparent))
-		{
-		}
-	private:
-		void internal_destroy()noexcept
-		{
-			handle.destroy();
-			handle = nullptr;
-		}
-	};
+    public:
+        shared_handle() = default;
+        explicit shared_handle(vma::Allocator handle, vk::SharedDevice parent)
+            : base(handle, AllocatorHeader{ std::move(parent) })
+        {
+        }
 
-	template<class Dispatcher>
-	class shared_handle<vma::Allocation, Dispatcher> : public shared_handle_base<vma::Allocation, shared_handle<vma::Allocation, Dispatcher>, basic_control_block<vma::Allocation>>
-	{
-		using base = shared_handle_base<vma::Allocation, shared_handle<vma::Allocation, Dispatcher>, basic_control_block<vma::Allocation>>;
-		using base::handle;
-		using base::control;
-		friend base;
-	public:
-		shared_handle() = default;
-		explicit shared_handle(vma::Allocation handle, shared_handle<vma::Allocator, Dispatcher> xparent)
-			:base(handle, std::move(xparent))
-		{
-		}
-	private:
-		void internal_destroy()noexcept
-		{
-			control.get_parent().freeMemory(
-				handle
-			);
-			handle = nullptr;
-		}
-	};
+        const auto &getParent() const noexcept
+        {
+            return getHeader().device;
+        }
+
+    protected:
+        static void internalDestroy(const AllocatorHeader &control, vma::Allocator handle) noexcept
+        {
+            handle.destroy();
+        }
+    };
+
+    struct AllocationHeader {
+        shared_handle<vma::Allocator> allocator;
+    };
+
+    template<>
+    class shared_handle<vma::Allocation> : public vk::SharedHandleBase<vma::Allocation, AllocationHeader, shared_handle<vma::Allocation>>
+    {
+        using base = vk::SharedHandleBase<vma::Allocation, AllocationHeader, shared_handle<vma::Allocation>>;
+        using base::m_control;
+        using base::m_handle;
+        friend base;
+
+    public:
+        shared_handle() = default;
+        explicit shared_handle(vma::Allocation handle, shared_handle<vma::Allocator> parent)
+            : base(handle, AllocationHeader{ std::move(parent) })
+        {
+        }
+
+    public:
+        const auto &getAllocator() const noexcept
+        {
+            return m_control->m_header.allocator;
+        }
+
+    protected:
+        static void internalDestroy(const AllocationHeader &control, vma::Allocation handle) noexcept
+        {
+            control.allocator->freeMemory(handle);
+        }
+    };
 }

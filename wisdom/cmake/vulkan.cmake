@@ -5,7 +5,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	set(WISDOMVK TRUE)
 
 	target_link_libraries(${PROJECT_NAME} 
-		PUBLIC VKAllocator
+		PUBLIC VKAllocator 
 	)
 
 	set(VKHEADERS

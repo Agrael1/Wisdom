@@ -51,7 +51,7 @@ WIS_EXPORT namespace wis
 	public:
 		bool UpdateSubresource(std::span<const std::byte> data)noexcept
 		{
-			auto vma = allocation.get_parent();
+			auto vma = allocation.getAllocator().get();
 			auto al = allocation.get();
 			auto* mem = vma.mapMemory(al);
 			if (!mem)return false;

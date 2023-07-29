@@ -1,10 +1,16 @@
 //#include <wisdom/vulkan/vk_swapchain.h>
 
-wis::VKSwapChain::VKSwapChain(SwapChainDesc desc)
-	:QueryInternal(std::move(desc.xswap), std::move(desc.surface), desc.graphics_queue, desc.format, desc.present_mode)
-	, stereo(desc.stereo)
-	, present_queue(std::move(desc.present_queue))
-	,initialization(std::move(desc.initialization))
+wis::VKSwapChain::VKSwapChain(wis::shared_handle<vk::SwapchainKHR> swap,
+                              vk::Queue graphics_queue,
+                              VKCommandQueue present_queue,
+                              VKCommandList initialization,
+                              vk::SurfaceFormatKHR format,
+                              vk::PresentModeKHR present_mode,
+                              bool stereo)
+	:QueryInternal(std::move(swap), graphics_queue, format, present_mode)
+	, stereo(stereo)
+	, present_queue(std::move(present_queue))
+	,initialization(std::move(initialization))
 {
 	CreateImages();
 }
@@ -28,7 +34,7 @@ bool wis::VKSwapChain::Present()noexcept
 
 bool wis::VKSwapChain::AquireNextIndex()noexcept
 {
-	present_index = device->acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max(), present_semaphore.get()).value;
+	present_index = device.acquireNextImageKHR(swap.get(), std::numeric_limits<uint64_t>::max(), present_semaphore.get()).value;
 
 	vk::SubmitInfo signal_submit_info = {};
 	signal_submit_info.pNext = nullptr;
