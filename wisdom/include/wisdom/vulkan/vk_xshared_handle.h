@@ -1,6 +1,7 @@
 #pragma once
 #ifndef WISDOM_MODULES
 #include <vulkan/vulkan.hpp>
+#include <atomic>
 #endif
 
 #if VK_HEADER_VERSION < 257
