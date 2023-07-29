@@ -32,7 +32,6 @@ find_package(Vulkan)
 
 # UWP not supported
 if(Vulkan_FOUND AND NOT WINDOWS_STORE)
-    add_subdirectory("VKHpp")
 	add_subdirectory("VKAllocator")
 endif()
 

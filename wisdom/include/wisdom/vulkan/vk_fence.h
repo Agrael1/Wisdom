@@ -15,7 +15,7 @@ WIS_EXPORT namespace wis
 	public:
 		Internal() = default;
 		Internal(wis::shared_handle<vk::Semaphore> fence)
-			:fence(std::move(fence)), device(this->fence.get_parent()){ }
+			:fence(std::move(fence)), device(this->fence.getParent().get()){ }
 	public:
 		vk::Semaphore GetFence()const noexcept
 		{
