@@ -32,7 +32,7 @@ Vulkan is compiled on compatible systems and used as default only if there is no
 Supported platforms are:
 - Windows API (Win32) - DirectX 12 and Vulkan
 - Windows Store (UWP) - Microsoft Store certified applications. DirectX 12 only. 
-- Linux (X11) (Wayland to be implemented) - Vulkan only
+- Linux (X11 and Wayland) - Vulkan only
 
 # Build
 
@@ -43,6 +43,7 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 
 - `WISDOM_LOG_LEVEL=debug/warn` set the log level for the library, values are `debug,trace,info,warn,error,critical` log calls under current level are not compiled
 - `WISDOM_RUNTIME_ASSERTS=ON` enable/disable runtime validation checks from compile time
+- `WISDOM_USE_SYSTEM_DXC=OFF` use system DXC compiler instead of the one provided with the library (default uses the one provided)
 - `WISDOM_FORCE_VULKAN=OFF` if set `ON` forces base types to be Vulkan, useful for debugging Vulkan extensions
 - `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation 
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation 

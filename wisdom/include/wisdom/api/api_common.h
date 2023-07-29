@@ -429,9 +429,26 @@ WIS_EXPORT namespace wis
         T3D = 8
     };
 
+    /// @brief Structure for selecting a DescriptorHeap type
     enum class PoolType {
         CBV_SRV_UAV = 0,
         SAMPLER = 1,
+    };
+
+    enum class ShaderStage {
+        vertex = 1, // VK_SHADER_STAGE_VERTEX_BIT,
+        hull = 2, // VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT,
+        domain = 4, // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
+        geometry = 8, // VK_SHADER_STAGE_GEOMETRY_BIT,
+        pixel = 16, // VK_SHADER_STAGE_FRAGMENT_BIT,
+        compute = 32, // VK_SHADER_STAGE_COMPUTE_BIT,
+        all_graphics = 31, // VK_SHADER_STAGE_ALL_GRAPHICS,
+        all = 0x7FFFFFFF, // VK_SHADER_STAGE_ALL,
+    };
+
+    struct BindingDescriptor {
+        uint32_t binding = 0;
+        ShaderStage stages = ShaderStage::all;
     };
 
     // TODO: Add support for cubemaps

@@ -131,6 +131,16 @@ Test::App::App(uint32_t width, uint32_t height)
         if (swap.StereoSupported())
             rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
     }
+
+    constants_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
+    constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
+    std::array<wis::BindingDescriptor, 1> bindings{
+        wis::BindingDescriptor{
+                .binding = 0,
+                .stages = wis::ShaderStage::vertex,
+        }
+    };
+    constants_set = constants_heap.AllocateDescriptorSet(bindings);
 }
 Test::App::~App()
 {

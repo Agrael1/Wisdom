@@ -42,7 +42,7 @@ WIS_EXPORT namespace wis
 	using SwapChain = DX12SwapChain;
 	using CommandList = DX12CommandList;
 	using Fence = DX12Fence;
-	using Resource = DX12Buffer;
+	using Buffer = DX12Buffer;
 	using RenderTargetView = DX12RenderTargetView;
 	using Shader = DX12Shader;
 	using RootSignature = DX12RootSignature;
@@ -52,6 +52,7 @@ WIS_EXPORT namespace wis
 	using VertexBufferView = DX12VertexBufferView;
 	using RenderPass = DX12RenderPass;
 	using DescriptorHeap = DX12DescriptorHeap;
+	using DescriptorSet = DX12DescriptorSet;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH //MAC
 //metal
@@ -75,7 +76,7 @@ WIS_EXPORT namespace wis
 	using SwapChain = VKSwapChain;
 	using CommandList = VKCommandList;
 	using Fence = VKFence;
-	using Resource = VKBuffer;
+	using Buffer = VKBuffer;
 	using RenderTargetView = VKRenderTargetView;
 	using Shader = VKShader;
 	using RootSignature = VKRootSignature;
@@ -85,6 +86,7 @@ WIS_EXPORT namespace wis
 	using VertexBufferView = VKVertexBufferView;
 	using RenderPass = VKRenderPass;
 	using DescriptorHeap = VKDescriptorHeap;
+	using DescriptorSet = VKDescriptorSet;
 }
 #else
 #error "No API selected"

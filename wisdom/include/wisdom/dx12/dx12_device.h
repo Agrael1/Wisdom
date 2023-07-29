@@ -28,7 +28,9 @@ WIS_EXPORT namespace wis
 
     protected:
         winrt::com_ptr<ID3D12Device10> device{};
-        DX12DescriptorHeap rtv_heap;
+        winrt::com_ptr<ID3D12DescriptorHeap> rtv_heap{};
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_start;
+        uint32_t rtv_increment = 0;
     };
 
     /// @brief A DX12 device

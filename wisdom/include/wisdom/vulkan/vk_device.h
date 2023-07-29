@@ -239,9 +239,7 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] VKRootSignature CreateRootSignature() const
         {
-            vk::PipelineLayoutCreateInfo pipeline_layout_info{
-                // empty for now
-            };
+            vk::PipelineLayoutCreateInfo pipeline_layout_info{};
             return VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{ device->createPipelineLayout(pipeline_layout_info), device } };
         }
 

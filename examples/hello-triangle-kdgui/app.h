@@ -39,7 +39,7 @@ namespace Test {
 		wis::RenderTargetView rtvs[2];
 		wis::RenderTargetView rtvs2[2];
 
-		wis::Resource vertex_buffer;
+		wis::Buffer vertex_buffer;
 		wis::RenderPass render_pass;
 		uint64_t fence_value = 1;
 	};

@@ -2,6 +2,7 @@
 #include <wisdom/wisdom.h>
 #include "window.h"
 #include <optional>
+#include <glm/vec4.hpp>
 
 namespace Test {
 class App
@@ -31,6 +32,10 @@ private:
     wis::Fence fence;
     wis::ResourceAllocator allocator;
 
+    wis::DescriptorHeap constants_heap;
+    wis::Buffer constant_buffer;
+    wis::DescriptorSet constants_set;
+
     wis::Shader vs;
     wis::Shader ps;
 
@@ -40,8 +45,14 @@ private:
     wis::RenderTargetView rtvs[2];
     wis::RenderTargetView rtvs2[2];
 
-    wis::Resource vertex_buffer;
+    wis::Buffer vertex_buffer;
     wis::RenderPass render_pass;
     uint64_t fence_value = 1;
+
+private:
+    struct SceneConstantBuffer {
+        glm::vec4 offset;
+        float padding[60]; // Padding so the constant buffer is 256-byte aligned.
+    };
 };
 } // namespace Test
