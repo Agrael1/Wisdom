@@ -153,20 +153,19 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
     static_assert(false, "No Mac is implemented");
 #elif defined(WISDOM_LINUX)
     wis::shared_handle<vk::SurfaceKHR> surface;
-    std::optional<vk::UniqueSurfaceKHR> opt_surface;
     if (xsurface.type == Type::X11) {
         vk::XcbSurfaceCreateInfoKHR surface_desc = {};
         surface_desc.setConnection(xsurface.x11.connection);
         surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
         wis::lib_info("Initializing XCB Surface");
-        surface = wis::shared_handle<vk::SurfaceKHR>{ instance->createXcbSurfaceKHRUnique(surface_desc), instance };
+        surface = wis::shared_handle<vk::SurfaceKHR>{ instance->createXcbSurfaceKHR(surface_desc), instance };
     } else {
         assert(xsurface.type == Type::Wayland);
         vk::WaylandSurfaceCreateInfoKHR surface_desc = {};
         surface_desc.setDisplay(xsurface.wayland.display);
         surface_desc.setSurface(xsurface.wayland.surface);
         wis::lib_info("Initializing Wayland Surface");
-        surface = wis::shared_handle<vk::SurfaceKHR>{ instance->createWaylandSurfaceKHRUnique(surface_desc), instance };
+        surface = wis::shared_handle<vk::SurfaceKHR>{ instance->createWaylandSurfaceKHR(surface_desc), instance };
     }
 #endif
     int32_t present_queue = -1;
