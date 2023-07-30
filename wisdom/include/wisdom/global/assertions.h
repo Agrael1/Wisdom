@@ -7,7 +7,7 @@
 
 namespace wis {
 
-class message_exception : public wis::exception
+WIS_EXPORT class message_exception : public wis::exception
 {
 public:
     message_exception(std::string message, wis::source_location sl = wis::source_location::current())
@@ -47,7 +47,7 @@ private:
 
 
 #define WIS_ASSERT(b, message) ::wis::assert_debug(b, #b + message)
-WIS_INLINE void assert_debug(bool b, std::string_view message, wis::source_location sl = wis::source_location::current())noexcept
+inline void assert_debug(bool b, std::string_view message, wis::source_location sl = wis::source_location::current())noexcept
 {
     if constexpr (wis::debug_mode || wis::runtime_asserts)
         if (!b)
