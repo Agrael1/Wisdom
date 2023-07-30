@@ -166,7 +166,10 @@ WIS_EXPORT namespace wis
         {
             command_list.draw(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
         }
-
+        void SetGraphicsDescriptorSet(VKRootSignatureView root) noexcept
+        {
+			//nothing tbd
+		}
         void SetGraphicsDescriptorSet(VKRootSignatureView root, uint32_t RootParameterIndex, VKDescriptorSetBindView heap) noexcept
         {
             command_list.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, root, RootParameterIndex, 1, &heap, 0, nullptr);

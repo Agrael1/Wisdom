@@ -218,7 +218,10 @@ WIS_EXPORT namespace wis
         {
             command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
         }
-
+        void SetGraphicsDescriptorSet(DX12RootSignatureView root) noexcept
+        {
+            command_list->SetGraphicsRootSignature(root);
+        }
         void SetGraphicsDescriptorSet(DX12RootSignatureView root, uint32_t RootParameterIndex, DX12DescriptorSetBindView heap) noexcept
         {
             command_list->SetGraphicsRootSignature(root);

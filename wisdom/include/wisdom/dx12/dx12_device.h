@@ -85,7 +85,7 @@ WIS_EXPORT namespace wis
         [[nodiscard]] WIS_INLINE DX12Fence CreateFence() const;
 
         /// @brief Create a root signature (empty)
-        [[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts) const;
+        [[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts = {}) const;
 
         /// @brief Create a graphics pipeline
         [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(

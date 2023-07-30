@@ -80,7 +80,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), swap.StereoSupported() + 1u });
 
-    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
+    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.cb.vs"), wis::ShaderType::vertex);
     ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
 
     constants_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);

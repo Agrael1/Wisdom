@@ -233,7 +233,7 @@ void App::Frame()
 		std::pair{rtvs2[swap.GetNextIndex()], color2}
 	};
 
-	context.SetGraphicsRootSignature(root);
+	context.SetGraphicsDescriptorSet(root);
 	context.RSSetViewport({ float(wnd.width()), float(wnd.height()) });
 	context.RSSetScissorRect({ long(wnd.width()), long(wnd.height()) });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);

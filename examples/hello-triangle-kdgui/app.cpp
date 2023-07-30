@@ -95,7 +95,7 @@ Test::App::App(uint32_t width, uint32_t height)
 	vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
 	ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
 
-	root = device.CreateRootSignature();//empty
+	root = device.CreateRootSignature({});//empty
 
 	static constexpr std::array<wis::InputLayoutDesc, 2> ia{
 		wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
@@ -147,8 +147,6 @@ Test::App::App(uint32_t width, uint32_t height)
 		if (swap.StereoSupported())
 			rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
 	}
-
-	uniforms = device.CreateDescriptorHeap(1u, wis::PoolType::CBV_SRV_UAV);
 }
 Test::App::~App()
 {
@@ -185,7 +183,7 @@ void Test::App::Frame()
 		std::pair{rtvs2[swap.GetNextIndex()], color2}
 	};
 
-	context.SetGraphicsRootSignature(root);
+	context.SetGraphicsDescriptorSet(root);
 	context.RSSetViewport({ float(wnd.width()), float(wnd.height()) });
 	context.RSSetScissorRect({ long(wnd.width()), long(wnd.height()) });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
