@@ -54,5 +54,6 @@ private:
         glm::vec4 offset;
         float padding[60]; // Padding so the constant buffer is 256-byte aligned.
     } buffer{};
+    std::span<std::byte> mapped_buffer;
 };
 } // namespace Test

@@ -87,6 +87,8 @@ Test::App::App(uint32_t width, uint32_t height)
     constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
     buffer.offset.x = 0.0f;
     constant_buffer.UpdateSubresource(RawView(buffer));
+    mapped_buffer = constant_buffer.MapMemory();
+
 
     std::array<wis::BindingDescriptor, 1> bindings{
         wis::BindingDescriptor{
@@ -169,6 +171,9 @@ void Test::App::Frame()
     auto back = swap.GetBackBuffer();
 
     buffer.offset.x += 0.0005f;
+    float* mapped = reinterpret_cast<float*>(mapped_buffer.data());
+    mapped[0] = buffer.offset.x;
+
     constant_buffer.UpdateSubresource(RawView(buffer));
 
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
