@@ -47,9 +47,10 @@ private:
 
 
 #define WIS_ASSERT(b, message) ::wis::assert_debug(b, #b + message)
-WIS_INLINE void assert_debug(bool b, std::string message, wis::source_location sl = wis::source_location::current())noexcept
+WIS_INLINE void assert_debug(bool b, std::string_view message, wis::source_location sl = wis::source_location::current())noexcept
 {
     if constexpr (wis::debug_mode || wis::runtime_asserts)
-        if (!b) throw wis::message_exception(message, sl);
+        if (!b)
+            throw wis::message_exception(std::string{ message }, sl);
 }
 } // namespace wis

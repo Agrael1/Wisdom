@@ -7,6 +7,8 @@
 #include <wisdom/dx12/dx12_descriptor_heap.h>
 #include <wisdom/dx12/dx12_state_builder.h>
 #include <wisdom/api/api_input_layout.h>
+#include <wisdom/global/assertions.h>
+#include <wisdom/util/small_allocator.h>
 #endif
 
 WIS_EXPORT namespace wis
@@ -83,7 +85,7 @@ WIS_EXPORT namespace wis
         [[nodiscard]] WIS_INLINE DX12Fence CreateFence() const;
 
         /// @brief Create a root signature (empty)
-        [[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature() const;
+        [[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts) const;
 
         /// @brief Create a graphics pipeline
         [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
@@ -129,6 +131,36 @@ WIS_EXPORT namespace wis
             winrt::com_ptr<ID3D12DescriptorHeap> heap;
             wis::check_hresult(device->CreateDescriptorHeap(&desc, __uuidof(*heap), heap.put_void()));
             return DX12DescriptorHeap{ std::move(heap), device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE(type)) };
+        }
+
+        [[nodiscard]] DX12DescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
+        {
+            std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
+
+            for (auto &desc : descs) {
+                auto &range = ranges.emplace_back();
+                range.Init(D3D12_DESCRIPTOR_RANGE_TYPE(desc.type), desc.count, desc.binding, 0);
+            }
+            return DX12DescriptorSetLayout{ std::move(ranges) };
+        }
+
+        void CreateConstantBufferView(DX12BufferView buffer, uint32_t size, DX12DescriptorSetView set, DX12DescriptorSetLayoutView layout, uint32_t binding = 0) const
+        {
+            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+            cbvDesc.BufferLocation = buffer->GetGPUVirtualAddress();
+            cbvDesc.SizeInBytes = size;
+            auto it = std::ranges::find_if(layout, [binding](auto &range) {
+                return range.BaseShaderRegister == binding;
+            });
+            if (it == layout.end())
+                return;
+            size_t index = std::distance(layout.begin(), it);
+            auto begin = std::get<0>(set);
+            auto end = std::get<1>(set);
+            auto increment = std::get<2>(set);
+            auto handle = begin.Offset(index, increment);
+            wis::assert_debug(handle.ptr < end.ptr, wis::format("Handle for constant buffer {} is out of range", index));
+            device->CreateConstantBufferView(&cbvDesc, handle);
         }
     };
 }

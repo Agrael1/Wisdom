@@ -8,20 +8,19 @@
 
 WIS_EXPORT namespace wis
 {
-    class VKDescriptorSet;
+    class VKDescriptorSetLayout;
+
+    using VKDescriptorSetLayoutView = vk::DescriptorSetLayout;
+
     template<>
-    class Internal<VKDescriptorSet>
+    class Internal<VKDescriptorSetLayout>
     {
     public:
         Internal() = default;
-        Internal(wis::shared_handle<vk::DescriptorSetLayout> layout, wis::shared_handle<vk::DescriptorSet> set)
-            : layout(std::move(layout)), set(std::move(set)){};
+        Internal(wis::shared_handle<vk::DescriptorSetLayout> layout)
+            : layout(std::move(layout)){};
 
     public:
-        auto GetDescriptorSet() const noexcept
-        {
-            return set.get();
-        }
         auto GetDescriptorSetLayout() const noexcept
         {
             return layout.get();
@@ -29,20 +28,46 @@ WIS_EXPORT namespace wis
 
     protected:
         wis::shared_handle<vk::DescriptorSetLayout> layout;
+    };
+
+    class VKDescriptorSetLayout : public QueryInternal<VKDescriptorSetLayout>
+    {
+    public:
+        using QueryInternal::QueryInternal;
+        operator VKDescriptorSetLayoutView() const noexcept
+		{
+			return GetDescriptorSetLayout();
+		}
+    };
+
+    class VKDescriptorSet;
+
+
+    template<>
+    class Internal<VKDescriptorSet>
+    {
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::DescriptorSet> set)
+            : set(std::move(set)){};
+
+    public:
+        [[nodiscard]] auto GetDescriptorSet() const noexcept
+        {
+            return set.get();
+        }
+
+    protected:
         wis::shared_handle<vk::DescriptorSet> set;
     };
 
     class VKDescriptorSet : public QueryInternal<VKDescriptorSet>
     {
     public:
-        VKDescriptorSet() = default;
-        explicit VKDescriptorSet(wis::shared_handle<vk::DescriptorSetLayout> layout, wis::shared_handle<vk::DescriptorSet> set)
-            : QueryInternal(std::move(layout), std::move(set))
+        using QueryInternal::QueryInternal;
+        operator VKDescriptorSetView() const noexcept
         {
-        }
-        operator bool() const noexcept
-        {
-            return bool(set) && bool(layout);
+            return GetDescriptorSet();
         }
     };
 
@@ -87,52 +112,15 @@ WIS_EXPORT namespace wis
         }
 
     public:
-        VKDescriptorSet AllocateDescriptorSet(std::span<BindingDescriptor> bindings)
+        VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)
         {
             auto &device = pool.getParent();
-            constexpr static vk::DescriptorType cbvSrvUavTypes[] = {
-                vk::DescriptorType::eSampledImage,
-                vk::DescriptorType::eStorageImage,
-                vk::DescriptorType::eUniformTexelBuffer,
-                vk::DescriptorType::eStorageTexelBuffer,
-                vk::DescriptorType::eUniformBuffer,
-                vk::DescriptorType::eStorageBuffer,
-                // vk::DescriptorType::eAccelerationStructureKHR /* Need to check support if this is desired. */
-            };
 
-            constexpr static vk::MutableDescriptorTypeListVALVE cbvSrvUavTypeList{
-                sizeof(cbvSrvUavTypes) / sizeof(VkDescriptorType),
-                cbvSrvUavTypes
-            };
-
-            constexpr static vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
-                1u,
-                &cbvSrvUavTypeList
-            };
-
-            wis::internals::uniform_allocator<vk::DescriptorSetLayoutBinding, 16> binding_allocator;
-            for (auto binding : bindings) {
-                binding_allocator.allocate(vk::DescriptorSetLayoutBinding{
-                        binding.binding,
-                        vk::DescriptorType::eMutableVALVE,
-                        1u,
-                        vk::ShaderStageFlagBits(binding.stages),
-                });
-            }
-
-            vk::DescriptorSetLayoutCreateInfo createInfo{
-                {}, uint32_t(binding_allocator.size()), binding_allocator.data(), &mutableTypeInfo
-            };
-            shared_handle<vk::DescriptorSetLayout> layout{
-                device->createDescriptorSetLayout(createInfo), device
-            };
-
-            auto lay = layout.get();
             vk::DescriptorSetAllocateInfo alloc_info{
-                pool.get(), 1u, &lay
+                pool.get(), 1u, &layout
             };
-            shared_handle<vk::DescriptorSet> set{ device->allocateDescriptorSets(alloc_info)[0], device, {pool} };
-            return VKDescriptorSet{std::move(layout), std::move(set)};
+            shared_handle<vk::DescriptorSet> set{ device->allocateDescriptorSets(alloc_info)[0], device, { pool } };
+            return VKDescriptorSet{ std::move(set) };
         }
     };
 }

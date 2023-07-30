@@ -52,6 +52,7 @@ WIS_EXPORT namespace wis
 	using VertexBufferView = DX12VertexBufferView;
 	using RenderPass = DX12RenderPass;
 	using DescriptorHeap = DX12DescriptorHeap;
+	using DescriptorSetLayout = DX12DescriptorSetLayout;
 	using DescriptorSet = DX12DescriptorSet;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH //MAC
@@ -86,6 +87,7 @@ WIS_EXPORT namespace wis
 	using VertexBufferView = VKVertexBufferView;
 	using RenderPass = VKRenderPass;
 	using DescriptorHeap = VKDescriptorHeap;
+	using DescriptorSetLayout = VKDescriptorSetLayout;
 	using DescriptorSet = VKDescriptorSet;
 }
 #else

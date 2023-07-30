@@ -237,9 +237,16 @@ WIS_EXPORT namespace wis
                                  SampleCount samples = SampleCount::s1,
                                  DataFormat vrs_format = DataFormat::unknown) const;
 
-        [[nodiscard]] VKRootSignature CreateRootSignature() const
+        [[nodiscard]] VKRootSignature CreateRootSignature(std::span<VKDescriptorSetLayout> layouts) const
         {
-            vk::PipelineLayoutCreateInfo pipeline_layout_info{};
+            wis::internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
+
+            for (auto &i : layouts) {
+                allocator.allocate(i.GetInternal().GetDescriptorSetLayout());
+            }
+            vk::PipelineLayoutCreateInfo pipeline_layout_info{
+                vk::PipelineLayoutCreateFlags{}, uint32_t(allocator.size()), allocator.data(), 0, nullptr
+            };
             return VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{ device->createPipelineLayout(pipeline_layout_info), device } };
         }
 
@@ -290,6 +297,49 @@ WIS_EXPORT namespace wis
             return VKDescriptorHeap{ std::move(pool) };
         }
 
+        [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
+        {
+            wis::internals::uniform_allocator<vk::DescriptorSetLayoutBinding, 32> bindings;
+
+            constexpr static vk::DescriptorType cbvSrvUavTypes[] = {
+                vk::DescriptorType::eSampledImage,
+                vk::DescriptorType::eStorageImage,
+                vk::DescriptorType::eUniformTexelBuffer,
+                vk::DescriptorType::eStorageTexelBuffer,
+                vk::DescriptorType::eUniformBuffer,
+                vk::DescriptorType::eStorageBuffer,
+                // VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR /* Need to check support if this is desired. */
+            };
+
+            constexpr static vk::MutableDescriptorTypeListVALVE cbvSrvUavTypeList{
+                sizeof(cbvSrvUavTypes) / sizeof(VkDescriptorType),
+                cbvSrvUavTypes
+            };
+
+            constexpr static vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
+                1u, &cbvSrvUavTypeList
+            };
+
+            for (auto &desc : descs) {
+                bindings.allocate(vk::DescriptorSetLayoutBinding{
+                        desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
+            }
+            vk::DescriptorSetLayoutCreateInfo desc{
+                vk::DescriptorSetLayoutCreateFlags{}, uint32_t(bindings.size()), bindings.data(), &mutableTypeInfo
+            };
+            return VKDescriptorSetLayout{ wis::shared_handle<vk::DescriptorSetLayout>{ device->createDescriptorSetLayout(desc), device } };
+        }
+
+        void CreateConstantBufferView(VKBufferView buffer, uint32_t size, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
+        {
+			vk::DescriptorBufferInfo desc{
+				buffer, 0, size
+			};
+			vk::WriteDescriptorSet write{
+				set, binding, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &desc, nullptr
+			};
+			device->updateDescriptorSets(write, nullptr);
+        }
     private:
         WIS_INLINE void GetQueueFamilies(VKAdapterView adapter) noexcept;
 

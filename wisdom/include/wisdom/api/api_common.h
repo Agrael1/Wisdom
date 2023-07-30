@@ -446,9 +446,18 @@ WIS_EXPORT namespace wis
         all = 0x7FFFFFFF, // VK_SHADER_STAGE_ALL,
     };
 
+    enum class BindingType {
+        SRV	= 0,
+        UAV,
+        CBV,
+        SAMPLER,
+    };
+
     struct BindingDescriptor {
         uint32_t binding = 0;
+        uint32_t count = 1;
         ShaderStage stages = ShaderStage::all;
+        BindingType type = BindingType::SRV;
     };
 
     // TODO: Add support for cubemaps

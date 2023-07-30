@@ -83,7 +83,23 @@ Test::App::App(uint32_t width, uint32_t height)
     vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
     ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
 
-    root = device.CreateRootSignature(); // empty
+    constants_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
+    constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
+    buffer.offset.x = 0.0f;
+    constant_buffer.UpdateSubresource(RawView(buffer));
+
+    std::array<wis::BindingDescriptor, 1> bindings{
+        wis::BindingDescriptor{
+                .binding = 0,
+                .stages = wis::ShaderStage::vertex,
+                .type = wis::BindingType::CBV,
+        }
+    };
+    wis::DescriptorSetLayout constants_layout = device.CreateDescriptorSetLayout(bindings);
+    constants_set = constants_heap.AllocateDescriptorSet(constants_layout);
+    device.CreateConstantBufferView(constant_buffer, sizeof(SceneConstantBuffer), constants_set, constants_layout, 0);
+
+    root = device.CreateRootSignature({ &constants_layout, 1u }); // empty
 
     static constexpr std::array<wis::InputLayoutDesc, 2> ia{
         wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
@@ -131,16 +147,6 @@ Test::App::App(uint32_t width, uint32_t height)
         if (swap.StereoSupported())
             rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
     }
-
-    constants_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
-    constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
-    std::array<wis::BindingDescriptor, 1> bindings{
-        wis::BindingDescriptor{
-                .binding = 0,
-                .stages = wis::ShaderStage::vertex,
-        }
-    };
-    constants_set = constants_heap.AllocateDescriptorSet(bindings);
 }
 Test::App::~App()
 {
@@ -162,6 +168,9 @@ void Test::App::Frame()
     context.Reset();
     auto back = swap.GetBackBuffer();
 
+    buffer.offset.x += 0.0005f;
+    constant_buffer.UpdateSubresource(RawView(buffer));
+
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
                              .state_after = wis::TextureState::RenderTarget,
                              .access_before = wis::ResourceAccess::Common,
@@ -175,7 +184,7 @@ void Test::App::Frame()
         std::pair{ rtvs2[swap.GetNextIndex()], color2 }
     };
 
-    context.SetGraphicsRootSignature(root);
+    context.SetGraphicsDescriptorSet(root, 0, constants_set);
     context.RSSetViewport({ float(wnd.width()), float(wnd.height()) });
     context.RSSetScissorRect({ long(wnd.width()), long(wnd.height()) });
     context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);

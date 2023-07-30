@@ -1,3 +1,4 @@
+//#include "../dx12_device.h"
 
 bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
 {
@@ -82,17 +83,27 @@ wis::DX12Fence wis::DX12Device::CreateFence() const
     return DX12Fence{ std::move(fence) };
 }
 
-wis::DX12RootSignature wis::DX12Device::CreateRootSignature() const
+wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts) const
 {
     winrt::com_ptr<ID3D12RootSignature> rsig;
 
-    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc{ 0, nullptr, 0, nullptr, flags };
+    wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
+    for (auto &lay : layouts) {
+        auto ranges = lay.GetInternal().GetRanges();
+        root_parameters.allocate()
+                .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
+    }
+
+
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+    desc.Init_1_1(uint32_t(root_parameters.size()), root_parameters.data(), 0, nullptr, flags);
+
 
     winrt::com_ptr<ID3DBlob> signature;
     winrt::com_ptr<ID3DBlob> error;
-    wis::check_hresult(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, signature.put(), error.put()));
+    wis::check_hresult(D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put()));
     wis::check_hresult(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void()));
     return DX12RootSignature{ std::move(rsig) };
 }

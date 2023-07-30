@@ -53,6 +53,6 @@ private:
     struct SceneConstantBuffer {
         glm::vec4 offset;
         float padding[60]; // Padding so the constant buffer is 256-byte aligned.
-    };
+    } buffer{};
 };
 } // namespace Test
