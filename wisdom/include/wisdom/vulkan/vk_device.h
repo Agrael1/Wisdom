@@ -237,7 +237,7 @@ WIS_EXPORT namespace wis
                                  SampleCount samples = SampleCount::s1,
                                  DataFormat vrs_format = DataFormat::unknown) const;
 
-        [[nodiscard]] VKRootSignature CreateRootSignature(std::span<VKDescriptorSetLayout> layouts) const
+        [[nodiscard]] VKRootSignature CreateRootSignature(std::span<VKDescriptorSetLayout> layouts = {}) const
         {
             wis::internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
