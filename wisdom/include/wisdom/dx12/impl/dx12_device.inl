@@ -6,7 +6,7 @@ bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
                                          D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
         return false;
 
-// Describe and create a render target view (RTV) descriptor heap.
+    // Describe and create a render target view (RTV) descriptor heap.
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
     rtvHeapDesc.NumDescriptors = heap_size;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -96,10 +96,8 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
                 .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
     }
 
-
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
     desc.Init_1_1(uint32_t(root_parameters.size()), root_parameters.data(), 0, nullptr, flags);
-
 
     winrt::com_ptr<ID3DBlob> signature;
     winrt::com_ptr<ID3DBlob> error;
@@ -109,7 +107,7 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
 }
 
 wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
-        DX12GraphicsPipelineDesc desc,
+        const DX12GraphicsPipelineDesc &desc,
         std::span<const InputLayoutDesc> input_layout) const // movable
 {
     winrt::com_ptr<ID3D12PipelineState> state;

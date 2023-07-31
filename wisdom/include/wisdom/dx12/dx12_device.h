@@ -89,7 +89,7 @@ WIS_EXPORT namespace wis
 
         /// @brief Create a graphics pipeline
         [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
-                DX12GraphicsPipelineDesc desc,
+                const DX12GraphicsPipelineDesc &desc,
                 std::span<const InputLayoutDesc> input_layout) const;
 
         /// @brief Create a shader

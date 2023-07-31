@@ -12,7 +12,7 @@ module;
 #include <vulkan/vulkan.hpp>
 
 #define WISDOM_MODULES
-#pragma warning(disable: 5244) //includes are interop, and not a mistake
+#pragma warning(disable : 5244) // includes are interop, and not a mistake
 export module wisdom.vk;
 
 import wisdom.api;
@@ -23,7 +23,6 @@ import wisdom.api;
 #include <wisdom/vulkan/vk_shared_handle.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
 #include <wisdom/vulkan/vk_views.h>
-
 
 #include <wisdom/vulkan/vk_adapter.h>
 

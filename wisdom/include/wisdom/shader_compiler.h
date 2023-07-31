@@ -4,7 +4,7 @@
 //#include <dxc/dxcapi.h>
 //
 //
-//namespace wis
+// namespace wis
 //{
 //	//unfinished for linux
 //	class ShaderCompiler

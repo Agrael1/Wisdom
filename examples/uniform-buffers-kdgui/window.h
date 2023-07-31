@@ -23,12 +23,11 @@ private:
 public:
     ~Window();
 
-public:
-    bool visible() const noexcept;
-    uint32_t width() const noexcept;
-    uint32_t height() const noexcept;
-    wis::SurfaceParameters GetSurfaceOptions() const noexcept;
-    bool resized() const noexcept;
+    [[nodiscard]] bool visible() const noexcept;
+    [[nodiscard]] uint32_t width() const noexcept;
+    [[nodiscard]] uint32_t height() const noexcept;
+    [[nodiscard]] wis::SurfaceParameters GetSurfaceOptions() const noexcept;
+    [[nodiscard]] bool resized() const noexcept;
     // KDGpu::Surface createSurface(KDGpu::Instance& instance);
 private:
     WindowP *p;
@@ -41,7 +40,6 @@ public:
     XApp();
     ~XApp();
 
-public:
     void ProcessEvents();
     Window createWindow(uint32_t width, uint32_t height);
 

@@ -54,17 +54,17 @@ WIS_EXPORT namespace wis
             resource->Unmap(0, nullptr);
             return true;
         }
-        [[nodiscard]] std::span<std::byte> MapMemory()noexcept
+        [[nodiscard]] std::span<std::byte> MapMemory() noexcept
         {
             void *bytes = nullptr;
             if (!wis::succeded_weak(resource->Map(0, nullptr, &bytes)))
                 return {};
             return { (std::byte *)bytes, resource->GetDesc().Width };
         }
-        void UnmapMemory()noexcept
+        void UnmapMemory() noexcept
         {
-			resource->Unmap(0, nullptr);
-		}
+            resource->Unmap(0, nullptr);
+        }
 
         [[nodiscard]] DX12VertexBufferView GetVertexBufferView(uint32_t byte_stride)
         {

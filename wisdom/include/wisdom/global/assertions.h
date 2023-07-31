@@ -12,13 +12,11 @@ WIS_EXPORT class message_exception : public wis::exception
 public:
     message_exception(std::string message, wis::source_location sl = wis::source_location::current())
         : wis::exception(sl)
-		, m_message(message)
-	{
+        , m_message(std::move(message))
+    {
+    }
 
-	}
-
-public:
-    const char* what() const noexcept override
+    const char *what() const noexcept override
     {
         if (whatBuffer.empty()) {
             whatBuffer = wis::format(
@@ -45,9 +43,8 @@ private:
     std::string m_message;
 };
 
-
-#define WIS_ASSERT(b, message) ::wis::assert_debug(b, #b + message)
-inline void assert_debug(bool b, std::string_view message, wis::source_location sl = wis::source_location::current())noexcept
+#define WIS_ASSERT(b, message) ::wis::assert_debug(b, #b + (message))
+inline void assert_debug(bool b, std::string_view message, wis::source_location sl = wis::source_location::current()) noexcept
 {
     if constexpr (wis::debug_mode || wis::runtime_asserts)
         if (!b)

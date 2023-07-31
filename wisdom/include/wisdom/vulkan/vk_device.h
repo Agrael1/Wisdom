@@ -27,15 +27,15 @@ WIS_EXPORT namespace wis
     class Internal<VKDevice>
     {
     public:
-        vk::Device GetDevice() const noexcept
+        [[nodiscard]] vk::Device GetDevice() const noexcept
         {
             return device.get();
         }
-        vk::PhysicalDevice GetAdapter() const noexcept
+        [[nodiscard]] vk::PhysicalDevice GetAdapter() const noexcept
         {
             return adapter;
         }
-        wis::shared_handle<vk::Device> GetDeviceHandle() const noexcept
+        [[nodiscard]] wis::shared_handle<vk::Device> GetDeviceHandle() const noexcept
         {
             return device;
         }
@@ -84,17 +84,15 @@ WIS_EXPORT namespace wis
                 return *this;
             }
 
-        public:
             uint8_t GetNextInLine() const noexcept
             {
                 return last.exchange((last + 1) % count);
             }
             bool Empty() const noexcept
             {
-                return !count;
+                return count == 0u;
             }
 
-        public:
             uint16_t queue_flags = 0;
             uint8_t count = 0;
             uint8_t family_index = 0;
@@ -141,9 +139,9 @@ WIS_EXPORT namespace wis
             const QueueFormat *GetOfType(QueueType type) const
             {
                 auto idx = QueueIndex(type);
-                auto *q = &available_queues[idx];
+                const auto *q = &available_queues[idx];
 
-                if (!q->count) {
+                if (q->count == 0u) {
                     idx = FindResembling(QueueTypes(idx));
                     if (idx == -1)
                         return nullptr;
@@ -154,14 +152,13 @@ WIS_EXPORT namespace wis
             int32_t FindResembling(QueueTypes type) const
             {
                 for (size_t i = 0; i < max_count; i++) {
-                    auto &r = available_queues[i];
-                    if (r.queue_flags & QueueFlag(type))
-                        return i;
+                    const auto &r = available_queues[i];
+                    if ((r.queue_flags & QueueFlag(type)) != 0u)
+                        return static_cast<int>(i);
                 }
                 return -1;
             }
 
-        public:
             std::array<QueueFormat, max_count> available_queues{};
         };
 
@@ -172,14 +169,12 @@ WIS_EXPORT namespace wis
             Initialize(adapter);
         }
 
-    public:
         operator VKDeviceView() const noexcept
         {
             return GetDeviceHandle();
         }
         WIS_INLINE bool Initialize(VKAdapterView adapter);
 
-    public:
         [[nodiscard]] WIS_INLINE
                 VKSwapChain
                 CreateSwapchain(
@@ -190,8 +185,8 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})
         {
-            auto *queue = queues.GetOfType(options.type);
-            if (!queue)
+            const auto *queue = queues.GetOfType(options.type);
+            if (queue == nullptr)
                 return {};
 
             vk::DeviceQueueInfo2 info{
@@ -252,7 +247,7 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] WIS_INLINE
                 VKPipelineState
-                CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout) const;
+                CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc &desc, std::span<const InputLayoutDesc> input_layout) const;
 
         [[nodiscard]] VKShader CreateShader(wis::shared_blob blob, ShaderType type) const
         {
@@ -299,7 +294,8 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
         {
-            wis::internals::uniform_allocator<vk::DescriptorSetLayoutBinding, 32> bindings;
+            static constexpr auto max_layout_bindings = 32;
+            wis::internals::uniform_allocator<vk::DescriptorSetLayoutBinding, max_layout_bindings> bindings;
 
             constexpr static vk::DescriptorType cbvSrvUavTypes[] = {
                 vk::DescriptorType::eSampledImage,
@@ -332,14 +328,15 @@ WIS_EXPORT namespace wis
 
         void CreateConstantBufferView(VKBufferView buffer, uint32_t size, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
         {
-			vk::DescriptorBufferInfo desc{
-				buffer, 0, size
-			};
-			vk::WriteDescriptorSet write{
-				set, binding, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &desc, nullptr
-			};
-			device->updateDescriptorSets(write, nullptr);
+            vk::DescriptorBufferInfo desc{
+                buffer, 0, size
+            };
+            vk::WriteDescriptorSet write{
+                set, binding, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &desc, nullptr
+            };
+            device->updateDescriptorSets(write, nullptr);
         }
+
     private:
         WIS_INLINE void GetQueueFamilies(VKAdapterView adapter) noexcept;
 
@@ -355,7 +352,6 @@ WIS_EXPORT namespace wis
                 const VKGraphicsPipelineDesc &desc,
                 wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> &shader_stages) const noexcept;
 
-    private:
         QueueResidency queues{};
         bool vrs_supported : 1 = false;
         bool mesh_shader_supported : 1 = false;

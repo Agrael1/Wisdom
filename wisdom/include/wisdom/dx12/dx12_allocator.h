@@ -30,7 +30,6 @@ WIS_EXPORT namespace wis
         DX12ResourceAllocator() = default;
         WIS_INLINE explicit DX12ResourceAllocator(DX12DeviceView device, DX12AdapterView adapter);
 
-    public:
         /// @brief Create a buffer that is persistently mapped to the GPU
         /// @param size Size of the buffer
         /// @param flags Type of buffer

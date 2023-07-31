@@ -2,6 +2,6 @@
 
 int main()
 {
-	Test::App app(1920, 1080);
-	return app.Start();
+    Test::App app(1920, 1080);
+    return app.Start();
 }

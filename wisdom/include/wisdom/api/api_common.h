@@ -275,7 +275,6 @@ WIS_EXPORT namespace wis
 
     /// @brief Basic Viewport structure
     struct Viewport {
-    public:
         /// @brief Create a viewport with the given width, height and depth range
         /// @param width Width of the viewport
         /// @param height Height of the viewport
@@ -286,7 +285,6 @@ WIS_EXPORT namespace wis
         Viewport(float width, float height, float min_depth = 0.0f, float max_depth = 1.0f, float top_leftx = 0.0f, float top_lefty = 0.0f)
             : top_leftx(top_leftx), top_lefty(top_lefty), width(width), height(height), min_depth(min_depth), max_depth(max_depth) { }
 
-    public:
         float top_leftx;
         float top_lefty;
         float width;
@@ -298,7 +296,6 @@ WIS_EXPORT namespace wis
     /// @brief Basic Rect structure for scissor rects
     /// @note  The order of the members is important, do not change it or the structure will not match the D3D12 structure
     struct ScissorRect {
-    public:
         /// @brief Create a scissor rect with the given width and height and top left corner at top,left
         /// @param right Right coordinate of the scissor rect
         /// @param bottom Bottom coordinate of the scissor rect
@@ -307,7 +304,6 @@ WIS_EXPORT namespace wis
         ScissorRect(long right, long bottom, long left = 0, long top = 0)
             : left(left), top(top), right(right), bottom(bottom) { }
 
-    public:
         long left;
         long top;
         long right;
@@ -374,12 +370,10 @@ WIS_EXPORT namespace wis
             none = 0,
         };
 
-    public:
         QueueOptions() = default;
         QueueOptions(QueueType type, Priority priority = Priority::normal, Flags flags = Flags::none, uint32_t node_mask = 0)
             : type(type), priority(priority), flags(flags), node_mask(node_mask) { }
 
-    public:
         QueueType type = QueueType::direct; //< Type of the queue (not all types are supported on all backends)
         Priority priority = Priority::normal; //< Priority of the queue (D3D12 only, but changes Vulkan queue search algorithm)
         Flags flags = Flags::none; //< Flags for the queue creation (unused)
@@ -391,7 +385,6 @@ WIS_EXPORT namespace wis
         /// @brief Denotes the whole dimension of the texture (all mips, all layers)
         static constexpr inline uint32_t whole = ~0u;
 
-    public:
         /// @brief Creates a full texture subresource range
         SubresourceRange() = default;
 
@@ -411,7 +404,6 @@ WIS_EXPORT namespace wis
             : base_mip(base_mip), extent_mips(extent_mips) { }
 
         // TODO: Is there mipped array textures?
-    public:
         uint32_t base_mip = 0;
         uint32_t extent_mips = whole;
         uint32_t base_layer = 0;
@@ -447,7 +439,7 @@ WIS_EXPORT namespace wis
     };
 
     enum class BindingType {
-        SRV	= 0,
+        SRV = 0,
         UAV,
         CBV,
         SAMPLER,

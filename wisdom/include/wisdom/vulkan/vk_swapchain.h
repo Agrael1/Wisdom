@@ -30,12 +30,11 @@ WIS_EXPORT namespace wis
             present_semaphore = device.createSemaphoreUnique({});
         }
 
-    public:
-        vk::SwapchainKHR GetSwapchain() const noexcept
+        [[nodiscard]] vk::SwapchainKHR GetSwapchain() const noexcept
         {
             return swap.get();
         }
-        vk::SurfaceKHR GetSurface() const noexcept
+        [[nodiscard]] vk::SurfaceKHR GetSurface() const noexcept
         {
             return swap.getSurface().get();
         }
@@ -67,7 +66,6 @@ WIS_EXPORT namespace wis
         VKSwapChain &operator=(VKSwapChain &&) noexcept = default;
         ~VKSwapChain() { ReleaseSemaphore(); }
 
-    public:
         /// @brief Get the current image index in the swapchain
         /// @return Index of the current image
         [[nodiscard]] uint32_t GetNextIndex() const noexcept
@@ -119,7 +117,7 @@ WIS_EXPORT namespace wis
                 vk::SharingMode::eExclusive, 0u, nullptr,
                 vk::SurfaceTransformFlagBitsKHR::eIdentity,
                 vk::CompositeAlphaFlagBitsKHR::eOpaque,
-                present_mode, true, swap.get()
+                present_mode, true, swap.get() // NOLINT
             };
             swap = wis::shared_handle<vk::SwapchainKHR>{
                 device.createSwapchainKHR(desc),
@@ -156,7 +154,6 @@ WIS_EXPORT namespace wis
         WIS_INLINE bool AquireNextIndex() noexcept;
         WIS_INLINE void ReleaseSemaphore() noexcept;
 
-    private:
         VKCommandQueue present_queue;
         VKCommandList initialization; //< Initialization command list
         std::vector<VKTexture> back_buffers; //< Render targets

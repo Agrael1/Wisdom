@@ -14,7 +14,7 @@ module;
 #include <xcb/xproto.h>
 #endif // WISDOM_LINUX
 
-#pragma warning(disable: 5244) //includes are interop, and not a mistake
+#pragma warning(disable : 5244) // includes are interop, and not a mistake
 #define WISDOM_MODULES
 export module wisdom.api;
 
@@ -36,10 +36,9 @@ export module wisdom.api;
 #include <wisdom/api/api_internal.h>
 #include <wisdom/api/api_swapchain.h>
 
-export namespace wis
-{
-	using wis::generator;
-	using wis::source_location;
-	using wis::format;
-	using wis::format_to;
-}
+export namespace wis {
+using wis::format;
+using wis::format_to;
+using wis::generator;
+using wis::source_location;
+} // namespace wis

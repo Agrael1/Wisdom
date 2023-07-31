@@ -6,6 +6,7 @@
 #include <wisdom/vulkan/vk_buffer_views.h>
 #include <wisdom/vulkan/vk_rtv.h>
 #include <span>
+#include <utility>
 #endif
 
 WIS_EXPORT namespace wis
@@ -18,7 +19,7 @@ WIS_EXPORT namespace wis
     public:
         Internal() = default;
         Internal(wis::shared_handle<vk::CommandPool> allocator, vk::CommandBuffer command_list)
-            : allocator(std::move(allocator)), command_list(std::move(command_list)) { }
+            : allocator(std::move(allocator)), command_list(command_list) { }
 
     protected:
         wis::shared_handle<vk::CommandPool> allocator;
@@ -31,18 +32,17 @@ WIS_EXPORT namespace wis
     public:
         VKCommandList() = default;
         explicit VKCommandList(wis::shared_handle<vk::CommandPool> allocator, vk::CommandBuffer command_list)
-            : QueryInternal(std::move(allocator), std::move(command_list)) { }
+            : QueryInternal(std::move(allocator), command_list) { }
         operator VKCommandListView() const noexcept
         {
             return command_list;
         }
 
-    public:
         /// @brief Bind a pipeline to the command list
         /// @param xpipeline Pipeline to bind
         void SetPipeline(VKPipelineState xpipeline) noexcept
         {
-            pipeline = xpipeline;
+            pipeline = std::move(xpipeline);
         }
 
         /// @brief Reset the command list
@@ -122,8 +122,8 @@ WIS_EXPORT namespace wis
         void RSSetScissorRect(ScissorRect srect) noexcept
         {
             vk::Rect2D rect;
-            rect.offset.x = srect.left;
-            rect.offset.y = srect.top;
+            rect.offset.x = static_cast<int>(srect.left);
+            rect.offset.y = static_cast<int>(srect.top);
             rect.extent.width = srect.right;
             rect.extent.height = srect.bottom;
             command_list.setScissor(0, 1, &rect);
@@ -168,8 +168,8 @@ WIS_EXPORT namespace wis
         }
         void SetGraphicsDescriptorSet(VKRootSignatureView root) noexcept
         {
-			//nothing tbd
-		}
+            // nothing tbd
+        }
         void SetGraphicsDescriptorSet(VKRootSignatureView root, uint32_t RootParameterIndex, VKDescriptorSetBindView heap) noexcept
         {
             command_list.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, root, RootParameterIndex, 1, &heap, 0, nullptr);

@@ -6,36 +6,38 @@
 
 WIS_EXPORT namespace wis
 {
-	class VKRenderTargetView;
+    class VKRenderTargetView;
 
-	template<>
-	class Internal<VKRenderTargetView>
-	{
-	public:
-		Internal() = default;
-		Internal(wis::shared_handle<vk::ImageView> view)
-			:view(std::move(view))
-		{}
-	public:
-		auto GetViewHandle()const noexcept
-		{
-			return view;
-		}
-		auto GetImageView()const noexcept
-		{
-			return view.get();
-		}
-	protected:
-		wis::shared_handle<vk::ImageView> view;
-	};
+    template<>
+    class Internal<VKRenderTargetView>
+    {
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::ImageView> view)
+            : view(std::move(view))
+        {
+        }
 
+        [[nodiscard]] auto GetViewHandle() const noexcept
+        {
+            return view;
+        }
+        [[nodiscard]] auto GetImageView() const noexcept
+        {
+            return view.get();
+        }
 
-	class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
-	{
-	public:
-		VKRenderTargetView() = default;
-		explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
-			:QueryInternal(std::move(view))
-		{}
-	};
+    protected:
+        wis::shared_handle<vk::ImageView> view;
+    };
+
+    class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
+    {
+    public:
+        VKRenderTargetView() = default;
+        explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
+            : QueryInternal(std::move(view))
+        {
+        }
+    };
 }

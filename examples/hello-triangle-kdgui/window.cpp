@@ -42,8 +42,8 @@ public:
 Window::Window(uint32_t width, uint32_t height, WindowP *p)
     : p(p)
 {
-    p->width = 1920;
-    p->height = 1080;
+    p->width = width;
+    p->height = height;
     p->visible = true;
 }
 Window::~Window()
@@ -71,7 +71,7 @@ wis::SurfaceParameters Window::GetSurfaceOptions() const noexcept
     if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
         auto *platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
         auto *waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration *>(platformIntegration);
-        auto waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow *>(p->platformWindow());
+        auto *waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow *>(p->platformWindow());
         return wis::SurfaceParameters{
             waylandPlatformIntegration->display(),
             waylandWindow->surface(),

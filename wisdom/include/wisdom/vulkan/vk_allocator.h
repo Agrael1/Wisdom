@@ -31,7 +31,6 @@ WIS_EXPORT namespace wis
         VKResourceAllocator() = default;
         WIS_INLINE VKResourceAllocator(VKDeviceView device, VKAdapterView adapter);
 
-    public:
         /// @brief Create a buffer that is persistently mapped to the GPU
         /// @param size Size of the buffer
         /// @param flags Type of buffer
@@ -81,17 +80,16 @@ WIS_EXPORT namespace wis
 
             return CreateBuffer(desc, alloc);
         }
-        
+
         /// @brief Create a constant buffer that is accessible by the CPU and GPU
         /// This function is equivalent to CreateHostVisibleBuffer, but ensures that the buffer size is 256 byte aligned in debug mode
         /// @param size Size of the buffer
         /// @return Buffer object
         [[nodiscard]] VKBuffer CreateConstantBuffer(size_t size) const
         {
-            wis::assert_debug(size % 256 == 0, wis::format("{} is nor 256 byte aligned", size));
+            wis::assert_debug(size % 256 == 0, wis::format("{} is not 256 byte aligned", size));
             return CreateHostVisibleBuffer(size, BufferFlags::ConstantBuffer);
         }
-
 
     private:
         [[nodiscard]] VKBuffer CreateBuffer(const vk::BufferCreateInfo &desc, const vma::AllocationCreateInfo &alloc_desc) const

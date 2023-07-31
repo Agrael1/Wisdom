@@ -26,7 +26,7 @@ public:
     [[nodiscard]] static std::string ExtensionsString() noexcept
     {
         std::string debug_str1{ "Available Extensions:\n" };
-        for (auto &i : instance().extensions) {
+        for (const auto &i : instance().extensions) {
             wis::format_to(std::back_inserter(debug_str1),
                            "{}\n",
                            i.first);
@@ -36,7 +36,7 @@ public:
     [[nodiscard]] static std::string LayersString() noexcept
     {
         std::string debug_str1{ "Available Layers:\n" };
-        for (auto &i : instance().layers) {
+        for (const auto &i : instance().layers) {
             wis::format_to(std::back_inserter(debug_str1),
                            "\t{}\n",
                            i.first);
@@ -53,7 +53,6 @@ private:
             LoadLayers();
     }
 
-private:
     void LoadExtensions() noexcept
     {
         auto vextensions = vk::enumerateInstanceExtensionProperties();
@@ -67,7 +66,6 @@ private:
             layers.emplace(i.layerName, i);
     }
 
-private:
     std::unordered_map<std::string, vk::ExtensionProperties, wis::string_hash> extensions;
     std::unordered_map<std::string, vk::LayerProperties, wis::string_hash> layers;
 };
@@ -144,7 +142,7 @@ inline constexpr uint32_t order_power(vk::PhysicalDeviceType t)
 }
 } // namespace
 
-VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT /*messageType*/, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void * /*pUserData*/)
 {
     wis::lib_log(SeverityConvert(messageSeverity),
                  wis::format(
@@ -162,7 +160,9 @@ wis::VKFactory::VKFactory(const ApplicationInfo &app_info, [[maybe_unused]] bool
     vkEnumerateInstanceVersion(&version);
 
     wis::lib_log(Severity::info, wis::format("Vulkan ver: {}.{}.{}", VK_API_VERSION_MAJOR(version), VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
-    api_version = version &= ~(0xFFFU); // unsigned remove patch from instance for compatibility
+
+    static constexpr auto version_mask = 0xFFFU;
+    api_version = version &= ~(version_mask); // unsigned remove patch from instance for compatibility
 
     vk::ApplicationInfo info{
         app_info.application_name,
@@ -201,11 +201,12 @@ wis::VKFactory::VKFactory(const ApplicationInfo &app_info, [[maybe_unused]] bool
     }
 }
 
+// NOLINTNEXTLINE
 wis::generator<wis::VKAdapter> wis::VKFactory::EnumerateAdapters(AdapterPreference preference) const noexcept
 {
     auto adapters = factory->enumeratePhysicalDevices();
 
-    if (adapters.size() > 1)
+    if (adapters.size() > 1) {
         switch (preference) {
         case wis::AdapterPreference::None:
             break;
@@ -232,9 +233,11 @@ wis::generator<wis::VKAdapter> wis::VKFactory::EnumerateAdapters(AdapterPreferen
         default:
             break;
         }
+    }
 
-    for (auto &a : adapters)
+    for (auto &a : adapters) {
         co_yield VKAdapter{ a };
+    }
 }
 
 std::vector<const char *> wis::VKFactory::FoundExtensions() noexcept
@@ -245,14 +248,14 @@ std::vector<const char *> wis::VKFactory::FoundExtensions() noexcept
         wis::lib_info(FactoryData::ExtensionsString());
 
     std::vector<const char *> found_extension;
-    for (auto *extension : req_extensions) {
+    for (const auto *extension : req_extensions) {
         if (extensions.contains(extension))
             found_extension.push_back(extension);
     }
 
     if constexpr (debug_mode) {
         std::string debug_str{ "Used Extensions:\n" };
-        for (auto *i : found_extension)
+        for (const auto *i : found_extension)
             wis::format_to(std::back_inserter(debug_str), "{},\n", i);
         wis::lib_info(std::move(debug_str));
     }
@@ -272,7 +275,7 @@ std::vector<const char *> wis::VKFactory::FoundLayers() noexcept
             out.push_back("VK_LAYER_KHRONOS_validation");
 
         std::string debug_str{ "Used Layers:\n" };
-        for (auto *i : out)
+        for (const auto *i : out)
             wis::format_to(std::back_inserter(debug_str), "{},\n", i);
         wis::lib_info(std::move(debug_str));
     }
