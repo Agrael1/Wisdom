@@ -4,43 +4,47 @@
 #include <optional>
 
 namespace Test {
-	class App
-	{
-	public:
-		App(uint32_t width, uint32_t height);
-		~App();
-	public:
-		int Start();
-	private:
-		void Frame();
-		void WaitForGPU();
-	private:
-		XApp app;
-		Window wnd;
+class App
+{
+public:
+    App(uint32_t width, uint32_t height);
+    ~App();
 
-		std::optional<wis::Factory> factory;
+public:
+    int Start();
 
-		wis::Device device;
-		wis::CommandQueue queue;
-		wis::SwapChain swap;
+private:
+    void Frame();
+    void WaitForGPU();
+    void OnResize(uint32_t width, uint32_t height);
 
-		wis::DescriptorHeap uniforms;
+private:
+    XApp app;
+    Window wnd;
 
-		wis::CommandList context;
-		wis::Fence fence;
-		wis::ResourceAllocator allocator;
+    std::optional<wis::Factory> factory;
 
-		wis::Shader vs;
-		wis::Shader ps;
+    wis::Device device;
+    wis::CommandQueue queue;
+    wis::SwapChain swap;
 
-		wis::RootSignature root;
-		wis::PipelineState pipeline;
-		wis::VertexBufferView vb;
-		wis::RenderTargetView rtvs[2];
-		wis::RenderTargetView rtvs2[2];
+    wis::DescriptorHeap uniforms;
 
-		wis::Buffer vertex_buffer;
-		wis::RenderPass render_pass;
-		uint64_t fence_value = 1;
-	};
-}
+    wis::CommandList context;
+    wis::Fence fence;
+    wis::ResourceAllocator allocator;
+
+    wis::Shader vs;
+    wis::Shader ps;
+
+    wis::RootSignature root;
+    wis::PipelineState pipeline;
+    wis::VertexBufferView vb;
+    wis::RenderTargetView rtvs[2];
+    wis::RenderTargetView rtvs2[2];
+
+    wis::Buffer vertex_buffer;
+    wis::RenderPass render_pass;
+    uint64_t fence_value = 1;
+};
+} // namespace Test

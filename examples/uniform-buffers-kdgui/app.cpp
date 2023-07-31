@@ -69,17 +69,6 @@ Test::App::App(uint32_t width, uint32_t height)
     fence = device.CreateFence();
     context = device.CreateCommandList(wis::QueueType::direct);
 
-    std::array cas2{
-        wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear },
-        wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear }
-    };
-
-    render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), swap.StereoSupported() + 1u });
-
     vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.cb.vs"), wis::ShaderType::vertex);
     ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
 
@@ -103,16 +92,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     root = device.CreateRootSignature({ &constants_layout, 1u }); // empty
 
-    static constexpr std::array<wis::InputLayoutDesc, 2> ia{
-        wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
-        wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
-    };
-
-    wis::GraphicsPipelineDesc desc{ root };
-    desc.SetVS(vs);
-    desc.SetPS(ps);
-    desc.SetRenderPass(render_pass);
-    pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
+    OnResize(width, height);
 
     struct Vertex {
         glm::vec3 pos;
@@ -142,13 +122,6 @@ Test::App::App(uint32_t width, uint32_t height)
 
     vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
     context.SetPipeline(pipeline);
-
-    auto x = swap.GetRenderTargets();
-    for (size_t i = 0; i < x.size(); i++) {
-        rtvs[i] = device.CreateRenderTargetView(x[i]);
-        if (swap.StereoSupported())
-            rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
-    }
 }
 Test::App::~App()
 {
@@ -161,7 +134,8 @@ int Test::App::Start()
         if (!wnd.visible())
             return 0;
         // Process Events
-
+        if (wnd.resized())
+            OnResize(wnd.width(), wnd.height());
         Frame();
     }
 }
@@ -173,8 +147,6 @@ void Test::App::Frame()
     buffer.offset.x += 0.0005f;
     float* mapped = reinterpret_cast<float*>(mapped_buffer.data());
     mapped[0] = buffer.offset.x;
-
-    constant_buffer.UpdateSubresource(RawView(buffer));
 
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
                              .state_after = wis::TextureState::RenderTarget,
@@ -220,4 +192,43 @@ void Test::App::WaitForGPU()
     queue.Signal(fence, vfence);
     fence_value++;
     fence.Wait(vfence);
+}
+
+
+void Test::App::OnResize(uint32_t width, uint32_t height)
+{
+    if (!swap.Resize(width, height))
+        return;
+
+    std::array cas2{
+        wis::ColorAttachment{
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear },
+        wis::ColorAttachment{
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear }
+    };
+
+    // needs to be recreated for vulkan for now
+    render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), swap.StereoSupported() + 1u });
+
+    // needs to be recreated for vulkan for now
+    static constexpr std::array<wis::InputLayoutDesc, 2> ia{
+        wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
+        wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+    };
+
+    wis::GraphicsPipelineDesc desc{ root };
+    desc.SetVS(vs);
+    desc.SetPS(ps);
+    desc.SetRenderPass(render_pass);
+    pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
+    context.SetPipeline(pipeline);
+
+    auto x = swap.GetRenderTargets();
+    for (size_t i = 0; i < x.size(); i++) {
+        rtvs[i] = device.CreateRenderTargetView(x[i]);
+        if (swap.StereoSupported())
+            rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
+    }
 }

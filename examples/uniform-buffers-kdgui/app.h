@@ -17,6 +17,7 @@ public:
 private:
     void Frame();
     void WaitForGPU();
+    void OnResize(uint32_t width, uint32_t height);
 
 private:
     XApp app;
