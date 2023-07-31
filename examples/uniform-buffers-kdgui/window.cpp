@@ -30,6 +30,13 @@ extern CAMetalLayer *createMetalLayer(KDGui::Window *window);
 
 class WindowP : public KDGui::Window
 {
+public:
+    virtual void resizeEvent(KDFoundation::ResizeEvent *ev) override
+    {
+        resized = true;
+        KDGui::Window::resizeEvent(ev);
+    }
+    bool resized = false;
 };
 
 Window::Window(uint32_t width, uint32_t height, WindowP *p)
@@ -51,6 +58,10 @@ uint32_t Window::width() const noexcept
 uint32_t Window::height() const noexcept
 {
     return p->height.get();
+}
+bool Window::resized() const noexcept
+{
+    return std::exchange(p->resized, false);
 }
 
 wis::SurfaceParameters Window::GetSurfaceOptions() const noexcept

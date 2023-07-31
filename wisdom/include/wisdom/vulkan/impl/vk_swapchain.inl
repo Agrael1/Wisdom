@@ -1,4 +1,4 @@
-//#include <wisdom/vulkan/vk_swapchain.h>
+#include <wisdom/vulkan/vk_swapchain.h>
 
 wis::VKSwapChain::VKSwapChain(wis::shared_handle<vk::SwapchainKHR> swap,
                               vk::Queue graphics_queue,
@@ -28,7 +28,7 @@ bool wis::VKSwapChain::Present()noexcept
 		1, &a, 1, &x, &present_index, nullptr
 	};
 
-	return wis::succeded(present_queue.GetInternal().GetQueue().presentKHR(present_info)) &&
+	return wis::succeded(present_queue.GetInternal().GetQueue().presentKHR(&present_info)) &&
 		AquireNextIndex();
 }
 

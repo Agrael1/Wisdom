@@ -32,7 +32,8 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_root_signature.h"
 		"include/wisdom/vulkan/vk_buffer_views.h"
 		"include/wisdom/vulkan/vk_xshared_handle.h"
-		"include/wisdom/vulkan/vk_views.h")
+		"include/wisdom/vulkan/vk_views.h"
+		"include/wisdom/vulkan/vk_descriptor_heap.h")
 	set(VKINL "include/wisdom/vulkan/impl/vk_adapter.inl")
 
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)

@@ -151,7 +151,7 @@ void Test::App::Frame()
 		std::pair{rtvs2[swap.GetNextIndex()], color2}
 	};
 	
-	context.SetGraphicsRootSignature(root);
+	context.SetGraphicsDescriptorSet(root);
 	context.RSSetViewport({ float(wnd.GetWidth()),float(wnd.GetHeight()) });
 	context.RSSetScissorRect({ wnd.GetWidth(), wnd.GetHeight() });
 	context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);

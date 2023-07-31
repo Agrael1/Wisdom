@@ -44,3 +44,18 @@ wis::DX12Buffer wis::DX12ResourceAllocator::CreateUploadBuffer(size_t size)
 
 	return DX12Buffer{ std::move(rc), std::move(al) };
 }
+
+wis::DX12Buffer wis::DX12ResourceAllocator::CreateHostVisibleBuffer(size_t size, [[maybe_unused]] BufferFlags flags) const
+{
+	winrt::com_ptr<ID3D12Resource> rc;
+	winrt::com_ptr<D3D12MA::Allocation> al;
+	auto desc = CD3DX12_RESOURCE_DESC::Buffer(size);
+	D3D12MA::ALLOCATION_DESC all_desc = {};
+	all_desc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+
+	allocator->CreateResource(&all_desc, &desc,
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		al.put(), __uuidof(*rc), rc.put_void());
+
+	return DX12Buffer{ std::move(rc), std::move(al) };
+}
