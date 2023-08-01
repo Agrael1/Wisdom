@@ -1,9 +1,12 @@
 #include "app.h"
+#include "cube.h"
 #include <iostream>
 #include <filesystem>
 #include <fstream>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 struct LogProvider : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
@@ -36,9 +39,9 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App(uint32_t width, uint32_t height)
@@ -48,7 +51,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
@@ -64,21 +67,28 @@ Test::App::App(uint32_t width, uint32_t height)
 
     queue = device.CreateCommandQueue();
 
+    // TODO: do vkGetPhysicalDeviceSurfaceCapabilitiesKHR. maybe have an overload
+    // to CreateSwapchain which just creates it at maxImageExtent?
     swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(width), uint32_t(height), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true }, wnd.GetSurfaceOptions());
 
     fence = device.CreateFence();
     context = device.CreateCommandList(wis::QueueType::direct);
 
-    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.cb.vs"), wis::ShaderType::vertex);
+    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.cb.transform.vs"), wis::ShaderType::vertex);
     ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
 
     constants_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
     constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
-    buffer.offset.x = 0.0f;
-    constant_buffer.UpdateSubresource(RawView(buffer));
+
+    constexpr glm::vec3 cube_position{ 0.0f, 0.0f, 5.0f };
+    constexpr glm::vec3 camera_position{ 0.0f, 0.2f, 0.0f };
+    view = glm::lookAtLH(camera_position, cube_position, glm::vec3(0.0f, 1.0f, 0.0f));
+    cube_transform = glm::translate(glm::mat4{ 1.0f }, cube_position);
+
+    // upload to gpu
     mapped_buffer = constant_buffer.MapMemory();
 
-    std::array<wis::BindingDescriptor, 1> bindings{
+    std::array bindings{
         wis::BindingDescriptor{
                 .binding = 0,
                 .stages = wis::ShaderStage::vertex,
@@ -93,24 +103,13 @@ Test::App::App(uint32_t width, uint32_t height)
 
     OnResize(width, height);
 
-    struct Vertex {
-        glm::vec3 pos;
-        glm::vec4 col;
-    };
-    auto aspect_ratio = float(width) / float(height);
-    Vertex triangleVertices[] = {
-        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
+    vertex_buffer = allocator.CreatePersistentBuffer(sizeof(cube_vertices), wis::BufferFlags::VertexBuffer);
 
-    vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
-
-    auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
-    upl_vbuf.UpdateSubresource(RawView(triangleVertices));
+    auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(cube_vertices));
+    upl_vbuf.UpdateSubresource(RawView(cube_vertices));
 
     context.Reset();
-    context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(triangleVertices));
+    context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(cube_vertices));
     context.BufferBarrier({ .access_before = wis::ResourceAccess::CopyDest,
                             .access_after = wis::ResourceAccess::VertexBuffer },
                           vertex_buffer);
@@ -122,10 +121,12 @@ Test::App::App(uint32_t width, uint32_t height)
     vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
     context.SetPipeline(pipeline);
 }
+
 Test::App::~App()
 {
     WaitForGPU();
 }
+
 int Test::App::Start()
 {
     while (true) {
@@ -138,14 +139,22 @@ int Test::App::Start()
         Frame();
     }
 }
+
+void Test::App::UpdateConstantBuffer()
+{
+    // glm is backwards... projection-view-model
+    buffer.model_view_projection = projection * view * cube_transform;
+    auto* mapped = reinterpret_cast<glm::mat4*>(mapped_buffer.data());
+    *mapped = glm::transpose(buffer.model_view_projection);
+}
+
 void Test::App::Frame()
 {
     context.Reset();
     auto back = swap.GetBackBuffer();
 
-    buffer.offset.x += 0.0005f;
-    float *mapped = reinterpret_cast<float *>(mapped_buffer.data());
-    mapped[0] = buffer.offset.x;
+    cube_transform = glm::rotate(cube_transform, glm::radians(0.1f), glm::vec3(0.0f, 1.0f, 1.0f));
+    UpdateConstantBuffer();
 
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
                              .state_after = wis::TextureState::RenderTarget,
@@ -167,7 +176,7 @@ void Test::App::Frame()
     context.IASetVertexBuffers({ &vb, 1 });
 
     context.BeginRenderPass(render_pass, { rtvsx.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
-    context.DrawInstanced(3);
+    context.DrawInstanced(cube_vertices.size());
     context.EndRenderPass();
 
     context.TextureBarrier({
@@ -198,6 +207,12 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     if (!swap.Resize(width, height))
         return;
 
+    // update projection
+    projection = glm::perspectiveFovLH_ZO(glm::radians(fov_degrees),
+                                          (float)width, (float)height,
+                                          near_plane, far_plane);
+    UpdateConstantBuffer();
+
     std::array cas2{
         wis::ColorAttachment{
                 .format = wis::SwapchainOptions::default_format,
@@ -211,9 +226,10 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
 
     // needs to be recreated for vulkan for now
-    static constexpr std::array<wis::InputLayoutDesc, 2> ia{
+    static constexpr std::array ia{
         wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
-        wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+        wis::InputLayoutDesc{ 1, "NORMAL", 0, wis::DataFormat::r32g32b32_float, 0, 12, wis::InputClassification::vertex, 0 },
+        wis::InputLayoutDesc{ 2, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 24, wis::InputClassification::vertex, 0 }
     };
 
     wis::GraphicsPipelineDesc desc{ root };
