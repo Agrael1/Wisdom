@@ -1,0 +1,16 @@
+enabled: true
+exclude:
+  - "**/*.patch"
+  - "**/node_modules/**/*"
+  - "**/vendor/**/*"
+  - ".github/workflows/**/*"
+
+pull_requests: true
+statuses:
+  skipped: true         # Green when skipped
+  differences: true     # Red when style differences are found
+  no_differences: true  # Green when no differences are found
+
+ignore_branches:
+  - "/*"
+  - "!master"
