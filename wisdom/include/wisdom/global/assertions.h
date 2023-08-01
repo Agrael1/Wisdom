@@ -20,9 +20,9 @@ public:
     {
         if (whatBuffer.empty()) {
             whatBuffer = wis::format(
-                    "\n{}\n ASSERT FAILED\n"
-                    "[Description]: {}\n{}\nProgram terminated...",
-                    type(), description(), origin());
+                             "\n{}\n ASSERT FAILED\n"
+                             "[Description]: {}\n{}\nProgram terminated...",
+                             type(), description(), origin());
         }
         return whatBuffer.c_str();
     }
