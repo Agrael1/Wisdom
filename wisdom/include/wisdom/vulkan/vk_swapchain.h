@@ -62,8 +62,8 @@ WIS_EXPORT namespace wis
                                         vk::SurfaceFormatKHR format,
                                         vk::PresentModeKHR present_mode,
                                         bool stereo);
-        VKSwapChain(VKSwapChain &&) noexcept = default;
-        VKSwapChain &operator=(VKSwapChain &&) noexcept = default;
+        VKSwapChain(VKSwapChain&&) noexcept = default;
+        VKSwapChain& operator=(VKSwapChain&&) noexcept = default;
         ~VKSwapChain() { ReleaseSemaphore(); }
 
         /// @brief Get the current image index in the swapchain
@@ -133,7 +133,7 @@ WIS_EXPORT namespace wis
             initialization.Reset();
             auto xback_buffers = device.getSwapchainImagesKHR(swap.get());
             back_buffers.reserve(xback_buffers.size());
-            for (auto &i : xback_buffers) {
+            for (auto& i : xback_buffers) {
                 back_buffers.emplace_back(
                         format.format, wis::shared_handle<vk::Image>{ i, swap.getParent(), vk::SwapchainOwns::yes });
                 initialization.TextureBarrier(

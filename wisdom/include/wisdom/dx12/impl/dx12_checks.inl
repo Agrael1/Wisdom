@@ -10,7 +10,7 @@ bool wis::log_dxgi_errors() noexcept
         return false;
     auto messages = DX12Info::GetMessages();
     bool bError = false;
-    for (auto &i : messages) {
+    for (auto& i : messages) {
         bError |= i.severity == error || i.severity == critical;
         lib_log(i.severity, i.description);
     }
@@ -32,7 +32,7 @@ std::string wis::hr_exception::description() const noexcept
 {
     return winrt::to_string(winrt::to_hstring(hResult));
 }
-const char *wis::hr_exception::what() const noexcept
+const char* wis::hr_exception::what() const noexcept
 {
     if (whatBuffer.empty()) {
         whatBuffer = wis::format(

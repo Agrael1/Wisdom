@@ -109,7 +109,7 @@ WIS_EXPORT namespace wis
 
         VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)
         {
-            const auto &device = pool.getParent();
+            const auto& device = pool.getParent();
 
             vk::DescriptorSetAllocateInfo alloc_info{
                 pool.get(), 1u, &layout

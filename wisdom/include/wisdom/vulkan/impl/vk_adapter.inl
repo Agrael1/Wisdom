@@ -10,15 +10,15 @@ wis::AdapterDesc wis::VKAdapter::GetDesc() const noexcept
     vk::PhysicalDeviceProperties2 properties;
     vk::PhysicalDeviceIDProperties id_props;
     properties.pNext = &id_props;
-    DynamicLoader::loader.vkGetPhysicalDeviceProperties2(adapter, reinterpret_cast<VkPhysicalDeviceProperties2 *>(&properties));
+    DynamicLoader::loader.vkGetPhysicalDeviceProperties2(adapter, reinterpret_cast<VkPhysicalDeviceProperties2*>(&properties));
 
-    auto &desc = properties.properties;
+    auto& desc = properties.properties;
     auto desc2 = adapter.getMemoryProperties();
 
     uint64_t local_mem = 0;
     uint64_t system_mem = 0;
     std::span types{ desc2.memoryTypes.data(), desc2.memoryTypeCount };
-    for (auto &i : types) {
+    for (auto& i : types) {
         if (i.propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal &&
             desc2.memoryHeaps[i.heapIndex].flags & vk::MemoryHeapFlagBits::eDeviceLocal) {
             local_mem = desc2.memoryHeaps[i.heapIndex].size;
@@ -46,7 +46,7 @@ wis::AdapterDesc wis::VKAdapter::GetDesc() const noexcept
         .dedicated_video_memory = local_mem,
         .dedicated_system_memory = 0,
         .shared_system_memory = system_mem,
-        .adapter_id = reinterpret_cast<uint64_t &>(id_props.deviceLUID),
+        .adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID),
         .flags = flag
     };
 }

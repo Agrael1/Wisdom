@@ -21,7 +21,7 @@ WIS_EXPORT namespace wis
         }
 
     public:
-        [[nodiscard]] ID3D12RootSignature *GetRootSignature() const noexcept
+        [[nodiscard]] ID3D12RootSignature* GetRootSignature() const noexcept
         {
             return root.get();
         }

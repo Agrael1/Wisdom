@@ -16,7 +16,7 @@ public:
     {
     }
 
-    const char *what() const noexcept override
+    const char* what() const noexcept override
     {
         if (whatBuffer.empty()) {
             whatBuffer = wis::format(

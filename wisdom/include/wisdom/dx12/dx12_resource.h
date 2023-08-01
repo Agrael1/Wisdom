@@ -22,7 +22,7 @@ WIS_EXPORT namespace wis
             : resource(std::move(rc)), allocation(std::move(al)) { }
 
     public:
-        [[nodiscard]] ID3D12Resource *GetResource() const noexcept
+        [[nodiscard]] ID3D12Resource* GetResource() const noexcept
         {
             return resource.get();
         }
@@ -46,20 +46,20 @@ WIS_EXPORT namespace wis
     public:
         bool UpdateSubresource(std::span<const std::byte> data)
         {
-            void *bytes = nullptr;
+            void* bytes = nullptr;
             if (!wis::succeded_weak(resource->Map(0, nullptr, &bytes)))
                 return false;
 
-            std::copy(data.data(), data.data() + data.size(), (std::byte *)bytes);
+            std::copy(data.data(), data.data() + data.size(), (std::byte*)bytes);
             resource->Unmap(0, nullptr);
             return true;
         }
         [[nodiscard]] std::span<std::byte> MapMemory() noexcept
         {
-            void *bytes = nullptr;
+            void* bytes = nullptr;
             if (!wis::succeded_weak(resource->Map(0, nullptr, &bytes)))
                 return {};
-            return { (std::byte *)bytes, resource->GetDesc().Width };
+            return { (std::byte*)bytes, resource->GetDesc().Width };
         }
         void UnmapMemory() noexcept
         {

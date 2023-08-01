@@ -28,7 +28,7 @@ WIS_EXPORT namespace wis
         }
 
     public:
-        [[nodiscard]] static IDXGIFactory4 *GetFactory() noexcept
+        [[nodiscard]] static IDXGIFactory4* GetFactory() noexcept
         {
             return factory.get();
         }
@@ -49,7 +49,7 @@ WIS_EXPORT namespace wis
         /// @brief Creates a new factory
         /// @param app_info Application info, not used
         ///	@param use_preference Use the preference when enumerating adapters
-        WIS_INLINE DX12Factory([[maybe_unused]] const ApplicationInfo &app_info, bool use_preference = true);
+        WIS_INLINE DX12Factory([[maybe_unused]] const ApplicationInfo& app_info, bool use_preference = true);
 
     public:
         /// @brief Enumerates all adapters on the system
@@ -86,7 +86,7 @@ WIS_EXPORT namespace wis
         /// @param queue Queue to use for the swapchain
         /// @return Handle to the swapchain
         WIS_INLINE [[nodiscard]] static winrt::com_ptr<IDXGISwapChain4>
-        SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1 &desc, IUnknown *core_window, IUnknown *queue);
+        SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue);
 
         /// @brief Creates a swapchain for a win32 window
         /// @param desc Description of the swapchain
@@ -94,7 +94,7 @@ WIS_EXPORT namespace wis
         /// @param queue Queue to use for the swapchain
         /// @return Handle to the swapchain
         WIS_INLINE [[nodiscard]] static winrt::com_ptr<IDXGISwapChain4>
-        SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1 &desc, HWND hwnd, IUnknown *queue);
+        SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue);
 
     private:
         static inline bool has_preference = false; //< if the user has specified a preference for adapters

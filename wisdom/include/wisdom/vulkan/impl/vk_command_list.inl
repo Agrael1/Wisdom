@@ -61,7 +61,7 @@ void wis::VKCommandList::IASetVertexBuffers(std::span<const VKVertexBufferView> 
     constexpr static std::array<vk::DeviceSize, 16> offsets{};
 
     for (size_t i = 0; i < resources.size(); i++) {
-        const auto &ii = resources[i].GetInternal();
+        const auto& ii = resources[i].GetInternal();
 
         buffers[i] = ii.GetBufferWeak();
         sizes[i] = ii.SizeBytes();
@@ -76,7 +76,7 @@ void wis::VKCommandList::BeginRenderPass(wis::VKRenderPassView rp,
 {
     wis::internals::uniform_allocator<vk::ImageView, max_render_targets> image_views;
     wis::internals::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
-    for (const auto &i : render_targets) {
+    for (const auto& i : render_targets) {
         image_views.allocate(i.first.GetInternal().GetImageView());
         image_clear.allocate().setColor(i.second);
     }

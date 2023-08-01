@@ -54,7 +54,7 @@ WIS_EXPORT namespace wis
         {
             auto vma = allocation.getAllocator().get();
             auto al = allocation.get();
-            auto *mem = vma.mapMemory(al);
+            auto* mem = vma.mapMemory(al);
             if (mem == nullptr)
                 return false;
 
@@ -67,10 +67,10 @@ WIS_EXPORT namespace wis
         {
             auto vma = allocation.getAllocator().get();
             auto al = allocation.get();
-            auto *mem = vma.mapMemory(al);
+            auto* mem = vma.mapMemory(al);
             if (mem == nullptr)
                 return {};
-            return { reinterpret_cast<std::byte *>(mem), size };
+            return { reinterpret_cast<std::byte*>(mem), size };
         }
         void UnmapMemory() noexcept
         {

@@ -21,7 +21,7 @@ WIS_EXPORT namespace wis
         Internal(winrt::com_ptr<IDXGIAdapter1> adapter) noexcept
             : adapter(std::move(adapter)) { }
 
-        [[nodiscard]] IDXGIAdapter1 *GetAdapter() const noexcept
+        [[nodiscard]] IDXGIAdapter1* GetAdapter() const noexcept
         {
             return adapter.get();
         }

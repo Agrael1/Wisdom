@@ -37,8 +37,8 @@ class generator_promise
 {
 public:
     using value_type = std::remove_reference_t<T>;
-    using reference_type = std::conditional_t<std::is_reference_v<T>, T, T &>;
-    using pointer_type = value_type *;
+    using reference_type = std::conditional_t<std::is_reference_v<T>, T, T&>;
+    using pointer_type = value_type*;
 
     generator_promise() = default;
 
@@ -50,13 +50,13 @@ public:
     template<
             typename U = T,
             std::enable_if_t<!std::is_rvalue_reference<U>::value, int> = 0>
-    std::suspend_always yield_value(std::remove_reference_t<T> &value) noexcept
+    std::suspend_always yield_value(std::remove_reference_t<T>& value) noexcept
     {
         m_value = std::addressof(value);
         return {};
     }
 
-    std::suspend_always yield_value(std::remove_reference_t<T> &&value) noexcept
+    std::suspend_always yield_value(std::remove_reference_t<T>&& value) noexcept
     {
         m_value = std::addressof(value);
         return {};
@@ -78,7 +78,7 @@ public:
 
     // Don't allow any use of 'co_await' inside the generator coroutine.
     template<typename U>
-    std::suspend_never await_transform(U &&value) = delete;
+    std::suspend_never await_transform(U&& value) = delete;
 
     void rethrow_if_exception()
     {
@@ -119,27 +119,27 @@ public:
     {
     }
 
-    friend bool operator==(const generator_iterator &it, generator_sentinel) noexcept
+    friend bool operator==(const generator_iterator& it, generator_sentinel) noexcept
     {
         return !it.m_coroutine || it.m_coroutine.done();
     }
 
-    friend bool operator!=(const generator_iterator &it, generator_sentinel s) noexcept
+    friend bool operator!=(const generator_iterator& it, generator_sentinel s) noexcept
     {
         return !(it == s);
     }
 
-    friend bool operator==(generator_sentinel s, const generator_iterator &it) noexcept
+    friend bool operator==(generator_sentinel s, const generator_iterator& it) noexcept
     {
         return (it == s);
     }
 
-    friend bool operator!=(generator_sentinel s, const generator_iterator &it) noexcept
+    friend bool operator!=(generator_sentinel s, const generator_iterator& it) noexcept
     {
         return it != s;
     }
 
-    generator_iterator &operator++()
+    generator_iterator& operator++()
     {
         m_coroutine.resume();
         if (m_coroutine.done()) {
@@ -182,13 +182,13 @@ public:
     {
     }
 
-    generator(generator &&other) noexcept
+    generator(generator&& other) noexcept
         : m_coroutine(other.m_coroutine)
     {
         other.m_coroutine = nullptr;
     }
 
-    generator(const generator &other) = delete;
+    generator(const generator& other) = delete;
 
     ~generator()
     {
@@ -197,7 +197,7 @@ public:
         }
     }
 
-    generator &operator=(generator other) noexcept
+    generator& operator=(generator other) noexcept
     {
         swap(other);
         return *this;
@@ -220,7 +220,7 @@ public:
         return detail::generator_sentinel{};
     }
 
-    void swap(generator &other) noexcept
+    void swap(generator& other) noexcept
     {
         std::swap(m_coroutine, other.m_coroutine);
     }
@@ -237,7 +237,7 @@ private:
 };
 
 template<typename T>
-void swap(generator<T> &a, generator<T> &b)
+void swap(generator<T>& a, generator<T>& b)
 {
     a.swap(b);
 }
@@ -252,9 +252,9 @@ generator<T> generator_promise<T>::get_return_object() noexcept
 } // namespace detail
 
 template<typename FUNC, typename T>
-generator<std::invoke_result_t<FUNC &, typename generator<T>::iterator::reference>> fmap(FUNC func, generator<T> source)
+generator<std::invoke_result_t<FUNC&, typename generator<T>::iterator::reference>> fmap(FUNC func, generator<T> source)
 {
-    for (auto &&value : source) {
+    for (auto&& value : source) {
         co_yield std::invoke(func, static_cast<decltype(value)>(value));
     }
 }

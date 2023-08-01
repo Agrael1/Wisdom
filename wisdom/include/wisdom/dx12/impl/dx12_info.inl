@@ -62,7 +62,7 @@ std::vector<wis::DXGIMessage> wis::DX12Info::GetMessages() noexcept
         winrt::check_hresult(info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength));
         // allocate memory for message
         auto bytes = std::make_unique<byte[]>(messageLength);
-        auto pMessage = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE *>(bytes.get());
+        auto pMessage = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE*>(bytes.get());
         // get message and bush it into vector
         winrt::check_hresult(info_queue->GetMessage(DXGI_DEBUG_ALL, i, pMessage, &messageLength));
         messages.emplace_back(Convert(pMessage->Severity), pMessage->pDescription);

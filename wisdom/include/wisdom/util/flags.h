@@ -73,7 +73,7 @@ WIS_EXPORT namespace river::flags
         return static_cast<std::underlying_type_t<T>>(underlying_value(lhs) | rhs);
     }
     template<Flag T>
-    constexpr auto operator|=(std::underlying_type_t<T> &value, T const flag)
+    constexpr auto operator|=(std::underlying_type_t<T>& value, T const flag)
     {
         return value = value | flag;
     }
@@ -94,7 +94,7 @@ WIS_EXPORT namespace river::flags
         return static_cast<std::underlying_type_t<T>>(underlying_value(lhs) & rhs);
     }
     template<Flag T>
-    constexpr auto operator&=(std::underlying_type_t<T> &value, T const flag)
+    constexpr auto operator&=(std::underlying_type_t<T>& value, T const flag)
     {
         return value = value & flag;
     }
@@ -115,7 +115,7 @@ WIS_EXPORT namespace river::flags
         return static_cast<std::underlying_type_t<T>>(underlying_value(lhs) ^ rhs);
     }
     template<Flag T>
-    constexpr auto operator^=(std::underlying_type_t<T> &value, T const flag)
+    constexpr auto operator^=(std::underlying_type_t<T>& value, T const flag)
     {
         return value = value ^ flag;
     }

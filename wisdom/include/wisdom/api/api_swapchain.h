@@ -68,7 +68,7 @@ WIS_EXPORT namespace wis
 #if WISDOM_UWP
         /// @brief Create a surface parameters for a WinRT CoreWindow.
         /// @param core_window Pointer to the CoreWindow.
-        explicit SurfaceParameters(IUnknown *core_window)
+        explicit SurfaceParameters(IUnknown* core_window)
             : type(Type::WinRT), core_window(core_window)
         {
         }
@@ -77,7 +77,7 @@ WIS_EXPORT namespace wis
         /// @brief Create a surface parameters for a X11 window.
         /// @param connection X11 connection.
         /// @param window X11 window.
-        explicit SurfaceParameters(xcb_connection_t *connection, xcb_window_t window)
+        explicit SurfaceParameters(xcb_connection_t* connection, xcb_window_t window)
             : type(Type::X11), x11{ connection, window }
         {
         }
@@ -85,7 +85,7 @@ WIS_EXPORT namespace wis
         /// @brief Create a surface parameters struct for a wayland window.
         /// @param display wayland display handle
         /// @param surface wayland surface handle
-        explicit SurfaceParameters(wl_display *display, wl_surface *surface)
+        explicit SurfaceParameters(wl_display* display, wl_surface* surface)
             : type(Type::Wayland), wayland{ display, surface }
         {
         }
@@ -93,7 +93,7 @@ WIS_EXPORT namespace wis
 #if WISDOM_MACOS
         /// @brief Create a surface parameters for a Metal layer.
         /// @param layer Metal layer.
-        explicit SurfaceParameters(CAMetalLayer *layer)
+        explicit SurfaceParameters(CAMetalLayer* layer)
             : type(Type::Metal), layer(layer)
         {
         }
@@ -104,21 +104,21 @@ WIS_EXPORT namespace wis
             HWND hwnd; //< Win32 window handle.
 #endif // WISDOM_WINDOWS
 #if WISDOM_UWP
-            IUnknown *core_window; //< WinRT CoreWindow.
+            IUnknown* core_window; //< WinRT CoreWindow.
 #endif // WISDOM_UWP
 #if WISDOM_LINUX
             struct
             {
-                xcb_connection_t *connection; //< X11 connection.
+                xcb_connection_t* connection; //< X11 connection.
                 xcb_window_t window; //< X11 window handle.
             } x11; //< X11 window.
             struct {
-                wl_display *display;
-                wl_surface *surface;
+                wl_display* display;
+                wl_surface* surface;
             } wayland;
 #endif // WISDOM_LINUX
 #if WISDOM_MACOS
-            CAMetalLayer *layer; //< Metal layer.
+            CAMetalLayer* layer; //< Metal layer.
 #endif // WISDOM_MACOS
         };
     };

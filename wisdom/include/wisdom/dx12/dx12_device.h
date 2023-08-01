@@ -23,7 +23,7 @@ WIS_EXPORT namespace wis
         static constexpr inline bool valid = true;
 
     public:
-        [[nodiscard]] ID3D12Device10 *GetDevice() const noexcept
+        [[nodiscard]] ID3D12Device10* GetDevice() const noexcept
         {
             return device.get();
         }
@@ -89,7 +89,7 @@ WIS_EXPORT namespace wis
 
         /// @brief Create a graphics pipeline
         [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
-                const DX12GraphicsPipelineDesc &desc,
+                const DX12GraphicsPipelineDesc& desc,
                 std::span<const InputLayoutDesc> input_layout) const;
 
         /// @brief Create a shader
@@ -137,8 +137,8 @@ WIS_EXPORT namespace wis
         {
             std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
 
-            for (auto &desc : descs) {
-                auto &range = ranges.emplace_back();
+            for (auto& desc : descs) {
+                auto& range = ranges.emplace_back();
                 range.Init(D3D12_DESCRIPTOR_RANGE_TYPE(desc.type), desc.count, desc.binding, 0);
             }
             return DX12DescriptorSetLayout{ std::move(ranges) };
@@ -149,7 +149,7 @@ WIS_EXPORT namespace wis
             D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
             cbvDesc.BufferLocation = buffer->GetGPUVirtualAddress();
             cbvDesc.SizeInBytes = size;
-            auto it = std::ranges::find_if(layout, [binding](auto &range) {
+            auto it = std::ranges::find_if(layout, [binding](auto& range) {
                 return range.BaseShaderRegister == binding;
             });
             if (it == layout.end())

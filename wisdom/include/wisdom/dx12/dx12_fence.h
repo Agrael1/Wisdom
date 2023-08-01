@@ -16,10 +16,10 @@ WIS_EXPORT namespace wis
         struct unique_event {
             unique_event()
                 : event(CreateEvent(nullptr, false, false, nullptr)) { }
-            unique_event(unique_event const &) = delete;
-            unique_event &operator=(unique_event const &) = delete;
-            unique_event(unique_event &&) = default;
-            unique_event &operator=(unique_event &&) = default;
+            unique_event(unique_event const&) = delete;
+            unique_event& operator=(unique_event const&) = delete;
+            unique_event(unique_event&&) = default;
+            unique_event& operator=(unique_event&&) = default;
             ~unique_event()
             {
                 event.close();
@@ -50,7 +50,7 @@ WIS_EXPORT namespace wis
         }
 
     public:
-        [[nodiscard]] auto *GetFence() const noexcept
+        [[nodiscard]] auto* GetFence() const noexcept
         {
             return fence.get();
         }

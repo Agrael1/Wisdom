@@ -20,7 +20,7 @@ WIS_EXPORT namespace wis
 
         /// @brief Get the immutable internal implementation
         /// @return Const reference to the internal implementation
-        [[nodiscard]] const Internal<Impl> &GetInternal() const
+        [[nodiscard]] const Internal<Impl>& GetInternal() const
         {
             return *this;
         }

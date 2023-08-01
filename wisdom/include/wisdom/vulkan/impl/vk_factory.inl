@@ -10,23 +10,23 @@
 namespace {
 struct FactoryData {
 public:
-    static const FactoryData &instance() noexcept
+    static const FactoryData& instance() noexcept
     {
         static FactoryData d;
         return d;
     }
-    static auto &GetExtensions() noexcept
+    static auto& GetExtensions() noexcept
     {
         return instance().extensions;
     }
-    static auto &GetLayers() noexcept
+    static auto& GetLayers() noexcept
     {
         return instance().layers;
     }
     [[nodiscard]] static std::string ExtensionsString() noexcept
     {
         std::string debug_str1{ "Available Extensions:\n" };
-        for (const auto &i : instance().extensions) {
+        for (const auto& i : instance().extensions) {
             wis::format_to(std::back_inserter(debug_str1),
                            "{}\n",
                            i.first);
@@ -36,7 +36,7 @@ public:
     [[nodiscard]] static std::string LayersString() noexcept
     {
         std::string debug_str1{ "Available Layers:\n" };
-        for (const auto &i : instance().layers) {
+        for (const auto& i : instance().layers) {
             wis::format_to(std::back_inserter(debug_str1),
                            "\t{}\n",
                            i.first);
@@ -56,13 +56,13 @@ private:
     void LoadExtensions() noexcept
     {
         auto vextensions = vk::enumerateInstanceExtensionProperties();
-        for (auto &i : vextensions)
+        for (auto& i : vextensions)
             extensions.emplace(i.extensionName, i);
     }
     void LoadLayers() noexcept
     {
         auto vlayers = vk::enumerateInstanceLayerProperties();
-        for (auto &i : vlayers)
+        for (auto& i : vlayers)
             layers.emplace(i.layerName, i);
     }
 
@@ -142,7 +142,7 @@ inline constexpr uint32_t order_power(vk::PhysicalDeviceType t)
 }
 } // namespace
 
-VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT /*messageType*/, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void * /*pUserData*/)
+VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT /*messageType*/, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* /*pUserData*/)
 {
     wis::lib_log(SeverityConvert(messageSeverity),
                  wis::format(
@@ -150,7 +150,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessage
     return false;
 }
 
-wis::VKFactory::VKFactory(const ApplicationInfo &app_info, [[maybe_unused]] bool unused)
+wis::VKFactory::VKFactory(const ApplicationInfo& app_info, [[maybe_unused]] bool unused)
 {
     if (instance_count.fetch_add(1, std::memory_order_relaxed) != 0)
         return;
@@ -235,27 +235,27 @@ wis::generator<wis::VKAdapter> wis::VKFactory::EnumerateAdapters(AdapterPreferen
         }
     }
 
-    for (auto &a : adapters) {
+    for (auto& a : adapters) {
         co_yield VKAdapter{ a };
     }
 }
 
-std::vector<const char *> wis::VKFactory::FoundExtensions() noexcept
+std::vector<const char*> wis::VKFactory::FoundExtensions() noexcept
 {
-    const auto &extensions = FactoryData::GetExtensions();
+    const auto& extensions = FactoryData::GetExtensions();
 
     if constexpr (debug_mode)
         wis::lib_info(FactoryData::ExtensionsString());
 
-    std::vector<const char *> found_extension;
-    for (const auto *extension : req_extensions) {
+    std::vector<const char*> found_extension;
+    for (const auto* extension : req_extensions) {
         if (extensions.contains(extension))
             found_extension.push_back(extension);
     }
 
     if constexpr (debug_mode) {
         std::string debug_str{ "Used Extensions:\n" };
-        for (const auto *i : found_extension)
+        for (const auto* i : found_extension)
             wis::format_to(std::back_inserter(debug_str), "{},\n", i);
         wis::lib_info(std::move(debug_str));
     }
@@ -263,11 +263,11 @@ std::vector<const char *> wis::VKFactory::FoundExtensions() noexcept
     return found_extension;
 }
 
-std::vector<const char *> wis::VKFactory::FoundLayers() noexcept
+std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 {
-    std::vector<const char *> out;
+    std::vector<const char*> out;
     if constexpr (debug_mode) {
-        const auto &layers = FactoryData::GetLayers();
+        const auto& layers = FactoryData::GetLayers();
         if constexpr (debug_mode)
             wis::lib_info(FactoryData::LayersString());
 
@@ -275,7 +275,7 @@ std::vector<const char *> wis::VKFactory::FoundLayers() noexcept
             out.push_back("VK_LAYER_KHRONOS_validation");
 
         std::string debug_str{ "Used Layers:\n" };
-        for (const auto *i : out)
+        for (const auto* i : out)
             wis::format_to(std::back_inserter(debug_str), "{},\n", i);
         wis::lib_info(std::move(debug_str));
     }

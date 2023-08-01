@@ -17,8 +17,8 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
     }();
 
     for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++) {
-        auto &q_info = queue_infos[queue_info_size];
-        auto &q = queues.available_queues[queue_info_size];
+        auto& q_info = queue_infos[queue_info_size];
+        auto& q = queues.available_queues[queue_info_size];
         if (q.count == 0u)
             continue;
 
@@ -30,8 +30,8 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
 
     auto exts = RequestExtensions(adapter);
 
-    void *device_create_info_next = nullptr;
-    auto add_extension = [&](auto &extension) {
+    void* device_create_info_next = nullptr;
+    auto add_extension = [&](auto& extension) {
         extension.pNext = device_create_info_next;
         device_create_info_next = &extension;
     };
@@ -174,7 +174,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 #endif
     int32_t present_queue = -1;
     for (uint16_t i = 0; i < max_count; i++) {
-        const auto &x = queues.available_queues[i];
+        const auto& x = queues.available_queues[i];
         if (x.Empty())
             continue;
 
@@ -189,7 +189,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
         return {}; // Presentation is not supported
     }
 
-    const auto &queue = queues.available_queues[present_queue];
+    const auto& queue = queues.available_queues[present_queue];
     vk::DeviceQueueInfo2 info{
         {},
         queue.family_index,
@@ -199,7 +199,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 
     auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
     auto format = std::ranges::find_if(surface_formats,
-                                       [=](const vk::SurfaceFormatKHR &fmt) {
+                                       [=](const vk::SurfaceFormatKHR& fmt) {
                                            return fmt.format == vk_format(options.format);
                                        });
     if (format == surface_formats.end() || format->format == vk::Format::eUndefined) {
@@ -254,9 +254,9 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<C
     size_t size = 0;
     static constexpr size_t max_attachment = 8;
 
-    for (auto &i : rtv_descs) {
-        auto &desc = attachment_descriptions[size];
-        auto &ref = attachment_references[size++];
+    for (auto& i : rtv_descs) {
+        auto& desc = attachment_descriptions[size];
+        auto& ref = attachment_references[size++];
         if (i.format == DataFormat::unknown) {
             ref.attachment = VK_ATTACHMENT_UNUSED;
             continue;
@@ -286,8 +286,8 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<C
 
     vk::AttachmentReference2 depth_reference;
     if (dsv_desc.format != DataFormat::unknown) {
-        auto &desc = attachment_descriptions[size];
-        auto &ref = attachment_references[size++];
+        auto& desc = attachment_descriptions[size];
+        auto& ref = attachment_references[size++];
 
         desc.format = vk_format(dsv_desc.format);
         desc.samples = static_cast<vk::SampleCountFlagBits>(samples);
@@ -363,7 +363,7 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<C
     };
 }
 
-wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc &desc, std::span<const InputLayoutDesc> input_layout) const
+wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const
 {
     static constexpr size_t attr_descriptions_per_binding = 16;
     std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
@@ -373,15 +373,15 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
     FillShaderStages(desc, shader_stages);
 
     std::bitset<max_vertex_bindings> binding_map;
-    for (const auto &i : input_layout) {
-        auto &b = bindings.at(i.input_slot);
+    for (const auto& i : input_layout) {
+        auto& b = bindings.at(i.input_slot);
         if (!binding_map[i.input_slot]) {
             b.inputRate = vk::VertexInputRate(i.input_slot_class);
             b.binding = i.input_slot;
             b.stride = 0; // we don't care abot stride, since we bind dynamic vertex buffers
             binding_map.set(i.input_slot);
         }
-        auto &at = attributes.allocate();
+        auto& at = attributes.allocate();
         at.binding = i.input_slot;
         at.format = convert_vk(i.format);
         at.location = i.location;
@@ -504,7 +504,7 @@ void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
     // NOLINTNEXTLINE
     for (uint8_t i = 0; i < family_props.size(); i++) {
         using enum vk::QueueFlagBits;
-        auto &family = family_props[i];
+        auto& family = family_props[i];
         if ((family.queueFlags & eGraphics) == eGraphics && queues.available_queues[+QueueTypes::graphics].Empty()) {
             queues.available_queues[+QueueTypes::graphics] = {
                 .queue_flags = uint16_t(uint32_t(family.queueFlags)),
@@ -544,19 +544,19 @@ void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
     }
 }
 
-wis::internals::uniform_allocator<const char *, wis::VKDevice::required_extensions.size()>
+wis::internals::uniform_allocator<const char*, wis::VKDevice::required_extensions.size()>
 wis::VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
 {
     auto extensions = adapter.enumerateDeviceExtensionProperties();
     std::unordered_set<std::string_view, wis::string_hash> ext_set;
     ext_set.reserve(extensions.size());
 
-    for (const auto &e : extensions)
+    for (const auto& e : extensions)
         ext_set.emplace(e.extensionName.data());
 
-    wis::internals::uniform_allocator<const char *, required_extensions.size()> avail_exts{};
+    wis::internals::uniform_allocator<const char*, required_extensions.size()> avail_exts{};
 
-    for (const auto *i : required_extensions) {
+    for (const auto* i : required_extensions) {
         if (!ext_set.contains(i))
             continue;
         avail_exts.allocate(i);
@@ -575,7 +575,7 @@ wis::VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
 
     if constexpr (wis::debug_mode) {
         wis::lib_info("Active Device Extensions:");
-        for (auto &i : avail_exts)
+        for (auto& i : avail_exts)
             wis::lib_info(wis::format("\t{}", i));
     }
 
@@ -591,34 +591,34 @@ vk::PresentModeKHR wis::VKDevice::GetPresentMode(vk::SurfaceKHR surface, bool vs
 }
 
 // NOLINTNEXTLINE
-void wis::VKDevice::FillShaderStages(const VKGraphicsPipelineDesc &desc, wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> &shader_stages) const noexcept
+void wis::VKDevice::FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages) const noexcept
 {
     if (desc.vs) {
-        auto &vs = shader_stages.allocate();
+        auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eVertex;
         vs.module = desc.vs.GetInternal().GetShaderModule();
         vs.pName = "main";
     }
     if (desc.ps) {
-        auto &vs = shader_stages.allocate();
+        auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eFragment;
         vs.module = desc.ps.GetInternal().GetShaderModule();
         vs.pName = "main";
     }
     if (desc.gs) {
-        auto &vs = shader_stages.allocate();
+        auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eGeometry;
         vs.module = desc.gs.GetInternal().GetShaderModule();
         vs.pName = "main";
     }
     if (desc.hs) {
-        auto &vs = shader_stages.allocate();
+        auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eTessellationControl;
         vs.module = desc.hs.GetInternal().GetShaderModule();
         vs.pName = "main";
     }
     if (desc.ds) {
-        auto &vs = shader_stages.allocate();
+        auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
         vs.module = desc.ds.GetInternal().GetShaderModule();
         vs.pName = "main";

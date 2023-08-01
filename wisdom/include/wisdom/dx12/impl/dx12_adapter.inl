@@ -15,7 +15,7 @@ wis::AdapterDesc wis::DX12Adapter::GetDesc() const noexcept
         .dedicated_video_memory = desc.DedicatedVideoMemory,
         .dedicated_system_memory = desc.DedicatedSystemMemory,
         .shared_system_memory = desc.SharedSystemMemory,
-        .adapter_id{ reinterpret_cast<uint64_t &>(desc.AdapterLuid) },
+        .adapter_id{ reinterpret_cast<uint64_t&>(desc.AdapterLuid) },
         .flags = AdapterFlags(desc.Flags)
     };
 }

@@ -22,7 +22,7 @@ WIS_EXPORT namespace wis
         {
             wis::lib_critical(what());
         }
-        const char *what() const noexcept override
+        const char* what() const noexcept override
         {
             if (whatBuffer.empty())
                 whatBuffer = wis::format("{}\n{}", type(), origin());

@@ -20,8 +20,8 @@ WIS_EXPORT namespace wis
     public:
         WIS_INLINE DX12Info();
         WIS_INLINE ~DX12Info();
-        DX12Info(const DX12Info &) = delete;
-        DX12Info &operator=(const DX12Info &) = delete;
+        DX12Info(const DX12Info&) = delete;
+        DX12Info& operator=(const DX12Info&) = delete;
 
     public:
         WIS_INLINE [[nodiscard]] static uint64_t GetNumMessages() noexcept;
