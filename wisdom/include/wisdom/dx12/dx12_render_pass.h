@@ -31,7 +31,7 @@ WIS_EXPORT namespace wis
         {
             return rt_descs;
         }
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC *GetDSDesc() const noexcept
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* GetDSDesc() const noexcept
         {
             return ds_desc.has_value() ? &ds_desc.value() : nullptr;
         }
@@ -50,7 +50,7 @@ WIS_EXPORT namespace wis
         mutable std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc;
     };
 
-    using DX12RenderPassView = const DX12RenderPass &; // rp is too large
+    using DX12RenderPassView = const DX12RenderPass&; // rp is too large
 
     // TODO: better RenderPass
     class DX12RenderPass : public QueryInternal<DX12RenderPass>

@@ -17,32 +17,32 @@ WIS_EXPORT namespace wis
         {
         }
 
-        VKGraphicsPipelineDesc &SetVS(VKShader vs) noexcept
+        VKGraphicsPipelineDesc& SetVS(VKShader vs) noexcept
         {
             this->vs = std::move(vs);
             return *this;
         }
-        VKGraphicsPipelineDesc &SetPS(VKShader ps) noexcept
+        VKGraphicsPipelineDesc& SetPS(VKShader ps) noexcept
         {
             this->ps = std::move(ps);
             return *this;
         }
-        VKGraphicsPipelineDesc &SetGS(VKShader gs) noexcept
+        VKGraphicsPipelineDesc& SetGS(VKShader gs) noexcept
         {
             this->gs = std::move(gs);
             return *this;
         }
-        VKGraphicsPipelineDesc &SetHS(VKShader hs) noexcept
+        VKGraphicsPipelineDesc& SetHS(VKShader hs) noexcept
         {
             this->hs = std::move(hs);
             return *this;
         }
-        VKGraphicsPipelineDesc &SetDS(VKShader ds) noexcept
+        VKGraphicsPipelineDesc& SetDS(VKShader ds) noexcept
         {
             this->ds = std::move(ds);
             return *this;
         }
-        VKGraphicsPipelineDesc &SetShader(VKShader shader) noexcept
+        VKGraphicsPipelineDesc& SetShader(VKShader shader) noexcept
         {
             using enum ShaderType;
             switch (shader.GetType()) {
@@ -61,7 +61,7 @@ WIS_EXPORT namespace wis
             }
             return *this;
         }
-        VKGraphicsPipelineDesc &SetRenderPass(VKRenderPass pass) noexcept
+        VKGraphicsPipelineDesc& SetRenderPass(VKRenderPass pass) noexcept
         {
             this->pass = std::move(pass);
             return *this;

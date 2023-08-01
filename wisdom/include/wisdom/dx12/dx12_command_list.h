@@ -24,11 +24,11 @@ WIS_EXPORT namespace wis
         }
 
     public:
-        [[nodiscard]] ID3D12GraphicsCommandList9 *GetCommandList() const noexcept
+        [[nodiscard]] ID3D12GraphicsCommandList9* GetCommandList() const noexcept
         {
             return command_list.get();
         }
-        [[nodiscard]] ID3D12CommandAllocator *GetCommandAllocator() const noexcept
+        [[nodiscard]] ID3D12CommandAllocator* GetCommandAllocator() const noexcept
         {
             return allocator.get();
         }
@@ -147,14 +147,14 @@ WIS_EXPORT namespace wis
         /// @param vp Viewport to set.
         void RSSetViewport(Viewport vp) noexcept
         {
-            command_list->RSSetViewports(1, (D3D12_VIEWPORT *)&vp);
+            command_list->RSSetViewports(1, (D3D12_VIEWPORT*)&vp);
         }
 
         /// @brief Sets the scissor rectangle for the command list.
         /// @param rect Scissor rectangle to set.
         void RSSetScissorRect(ScissorRect rect) noexcept
         {
-            command_list->RSSetScissorRects(1, (D3D12_RECT *)&rect);
+            command_list->RSSetScissorRects(1, (D3D12_RECT*)&rect);
         }
 
         /// @brief Sets the primitive topology.
@@ -170,7 +170,7 @@ WIS_EXPORT namespace wis
         /// @param start_slot Offset to start binding from.
         void IASetVertexBuffers(std::span<const DX12VertexBufferView> resources, uint32_t start_slot = 0) noexcept
         {
-            command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW *)resources.data());
+            command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
         }
 
         /// @brief Start a render pass.
@@ -179,7 +179,7 @@ WIS_EXPORT namespace wis
         void BeginRenderPass(DX12RenderPassView pass,
                              std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets) noexcept
         {
-            auto &i = pass.GetInternal();
+            auto& i = pass.GetInternal();
             auto rts = i.GetRTDescs();
             for (size_t i = 0; i < rts.size(); i++) {
                 rts[i].cpuDescriptor = render_targets[i].first.GetInternal().GetHandle();
@@ -201,9 +201,9 @@ WIS_EXPORT namespace wis
         /// @brief Sets render targets for the command list. Only valid for DX12 command lists.
         /// @param rtvs Render targets to set.
         /// @param dsv Depth stencil target to set. (optional, unused)
-        void OMSetRenderTargetsDX(std::span<const DX12RenderTargetView> rtvs, void *dsv = nullptr) noexcept
+        void OMSetRenderTargetsDX(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr) noexcept
         {
-            command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE *)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE *)dsv);
+            command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
         }
 
         /// @brief Draws instanced primitives, without indices.
@@ -225,7 +225,7 @@ WIS_EXPORT namespace wis
         void SetGraphicsDescriptorSet(DX12RootSignatureView root, uint32_t RootParameterIndex, DX12DescriptorSetBindView heap) noexcept
         {
             command_list->SetGraphicsRootSignature(root);
-            command_list->SetDescriptorHeaps(1, (ID3D12DescriptorHeap *const *)&std::get<0>(heap));
+            command_list->SetDescriptorHeaps(1, (ID3D12DescriptorHeap* const*)&std::get<0>(heap));
             command_list->SetGraphicsRootDescriptorTable(RootParameterIndex, std::get<1>(heap));
         }
 

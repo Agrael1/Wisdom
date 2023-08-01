@@ -105,7 +105,7 @@ WIS_EXPORT namespace wis
             , heap_increment(heap_increment){};
 
     public:
-        [[nodiscard]] ID3D12DescriptorHeap *GetDescriptorHeap() const noexcept
+        [[nodiscard]] ID3D12DescriptorHeap* GetDescriptorHeap() const noexcept
         {
             return heap.get();
         }
@@ -116,7 +116,7 @@ WIS_EXPORT namespace wis
         uint32_t heap_increment = 0;
     };
 
-    using DX12DescriptorHeapView = ID3D12DescriptorHeap *;
+    using DX12DescriptorHeapView = ID3D12DescriptorHeap*;
 
     /// @brief Shader object
     class DX12DescriptorHeap : public QueryInternal<DX12DescriptorHeap>

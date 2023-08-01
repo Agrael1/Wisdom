@@ -46,18 +46,18 @@ WIS_EXPORT namespace wis
         /// @tparam DataTy Type of data to get
         /// @return Pointer to the const data
         template<typename DataTy>
-        const DataTy *data() const noexcept
+        const DataTy* data() const noexcept
         {
-            return reinterpret_cast<const DataTy *>(xdata.get());
+            return reinterpret_cast<const DataTy*>(xdata.get());
         }
 
         /// @brief Get a pointer to the data of the blob
         /// @tparam DataTy Type of data to get
         /// @return Pointer to the data
         template<typename DataTy>
-        DataTy *data() noexcept
+        DataTy* data() noexcept
         {
-            return reinterpret_cast<DataTy *>(xdata.get());
+            return reinterpret_cast<DataTy*>(xdata.get());
         }
 
         /// @brief Get the size of the blob

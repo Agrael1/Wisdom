@@ -20,8 +20,8 @@ WIS_EXPORT namespace wis
             uint32_t patch{ 0 };
         };
 
-        const char *application_name = "";
-        const char *engine_name = "";
+        const char* application_name = "";
+        const char* engine_name = "";
         Version app_version{};
         Version engine_version{};
     };

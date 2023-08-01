@@ -24,13 +24,13 @@ WIS_EXPORT namespace wis
         {
         }
 
-        [[nodiscard]] const auto &getParent() const noexcept
+        [[nodiscard]] const auto& getParent() const noexcept
         {
             return getHeader().device;
         }
 
     protected:
-        static void internalDestroy(const AllocatorHeader & /*control*/, vma::Allocator handle) noexcept
+        static void internalDestroy(const AllocatorHeader& /*control*/, vma::Allocator handle) noexcept
         {
             handle.destroy();
         }
@@ -55,13 +55,13 @@ WIS_EXPORT namespace wis
         {
         }
 
-        [[nodiscard]] const auto &getAllocator() const noexcept
+        [[nodiscard]] const auto& getAllocator() const noexcept
         {
             return m_control->m_header.allocator;
         }
 
     protected:
-        static void internalDestroy(const AllocationHeader &control, vma::Allocation handle) noexcept
+        static void internalDestroy(const AllocationHeader& control, vma::Allocation handle) noexcept
         {
             control.allocator->freeMemory(handle);
         }

@@ -18,7 +18,7 @@ WIS_EXPORT namespace wis
         error,
         critical
     };
-    constexpr const char *severity_strings[]{
+    constexpr const char* severity_strings[]{
         "debug",
         "trace",
         "info",
@@ -40,14 +40,14 @@ WIS_EXPORT namespace wis
         ~LibLogger() = default;
 
     public:
-        LibLogger(const LibLogger &) = delete;
-        LibLogger(LibLogger &&) = delete;
-        LibLogger &operator=(const LibLogger &) = delete;
-        LibLogger &operator=(LibLogger &&) = delete;
+        LibLogger(const LibLogger&) = delete;
+        LibLogger(LibLogger&&) = delete;
+        LibLogger& operator=(const LibLogger&) = delete;
+        LibLogger& operator=(LibLogger&&) = delete;
 
         /// @brief Instance of the library logger
         /// @return Instance of the library logger
-        [[nodiscard]] static LibLogger &Instance()
+        [[nodiscard]] static LibLogger& Instance()
         {
             static LibLogger log;
             return log;
@@ -62,7 +62,7 @@ WIS_EXPORT namespace wis
 
         /// @brief Get the log layer for the library
         /// @return Log layer
-        [[nodiscard]] static auto *Get() noexcept
+        [[nodiscard]] static auto* Get() noexcept
         {
             return Instance().log.get();
         }

@@ -7,7 +7,7 @@ WIS_EXPORT namespace wis
 {
     struct string_hash {
         using is_transparent = void;
-        [[nodiscard]] size_t operator()(const char *txt) const
+        [[nodiscard]] size_t operator()(const char* txt) const
         {
             return std::hash<std::string_view>{}(txt);
         }
@@ -15,7 +15,7 @@ WIS_EXPORT namespace wis
         {
             return std::hash<std::string_view>{}(txt);
         }
-        [[nodiscard]] size_t operator()(const std::string &txt) const
+        [[nodiscard]] size_t operator()(const std::string& txt) const
         {
             return std::hash<std::string>{}(txt);
         }

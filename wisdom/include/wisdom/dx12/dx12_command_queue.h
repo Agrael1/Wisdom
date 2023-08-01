@@ -18,7 +18,7 @@ WIS_EXPORT namespace wis
         Internal(winrt::com_ptr<ID3D12CommandQueue> queue) noexcept
             : queue(std::move(queue)) { }
 
-        [[nodiscard]] ID3D12CommandQueue *GetQueue() const noexcept
+        [[nodiscard]] ID3D12CommandQueue* GetQueue() const noexcept
         {
             return queue.get();
         }
@@ -45,7 +45,7 @@ WIS_EXPORT namespace wis
         /// @param list List to execute.
         void ExecuteCommandList(DX12CommandListView list) noexcept
         {
-            queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList *const *>(&list));
+            queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&list));
         }
 
         /// @brief Signal a fence with some value.

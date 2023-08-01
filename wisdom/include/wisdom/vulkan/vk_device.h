@@ -76,7 +76,7 @@ WIS_EXPORT namespace wis
         };
         struct QueueFormat {
         public:
-            QueueFormat &operator=(QueueFormat &&o) noexcept
+            QueueFormat& operator=(QueueFormat&& o) noexcept
             {
                 queue_flags = o.queue_flags;
                 count = o.count;
@@ -136,10 +136,10 @@ WIS_EXPORT namespace wis
             }
 
         public:
-            const QueueFormat *GetOfType(QueueType type) const
+            const QueueFormat* GetOfType(QueueType type) const
             {
                 auto idx = QueueIndex(type);
-                const auto *q = &available_queues[idx];
+                const auto* q = &available_queues[idx];
 
                 if (q->count == 0u) {
                     idx = FindResembling(QueueTypes(idx));
@@ -152,7 +152,7 @@ WIS_EXPORT namespace wis
             int32_t FindResembling(QueueTypes type) const
             {
                 for (size_t i = 0; i < max_count; i++) {
-                    const auto &r = available_queues[i];
+                    const auto& r = available_queues[i];
                     if ((r.queue_flags & QueueFlag(type)) != 0u)
                         return static_cast<int>(i);
                 }
@@ -185,7 +185,7 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{})
         {
-            const auto *queue = queues.GetOfType(options.type);
+            const auto* queue = queues.GetOfType(options.type);
             if (queue == nullptr)
                 return {};
 
@@ -236,7 +236,7 @@ WIS_EXPORT namespace wis
         {
             wis::internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
-            for (auto &i : layouts) {
+            for (auto& i : layouts) {
                 allocator.allocate(i.GetInternal().GetDescriptorSetLayout());
             }
             vk::PipelineLayoutCreateInfo pipeline_layout_info{
@@ -247,7 +247,7 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] WIS_INLINE
                 VKPipelineState
-                CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc &desc, std::span<const InputLayoutDesc> input_layout) const;
+                CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const;
 
         [[nodiscard]] VKShader CreateShader(wis::shared_blob blob, ShaderType type) const
         {
@@ -316,7 +316,7 @@ WIS_EXPORT namespace wis
                 1u, &cbvSrvUavTypeList
             };
 
-            for (auto &desc : descs) {
+            for (auto& desc : descs) {
                 bindings.allocate(vk::DescriptorSetLayoutBinding{
                         desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
             }
@@ -341,7 +341,7 @@ WIS_EXPORT namespace wis
         WIS_INLINE void GetQueueFamilies(VKAdapterView adapter) noexcept;
 
         [[nodiscard]] WIS_INLINE
-                wis::internals::uniform_allocator<const char *, required_extensions.size()>
+                wis::internals::uniform_allocator<const char*, required_extensions.size()>
                 RequestExtensions(VKAdapterView adapter) noexcept;
 
         [[nodiscard]] WIS_INLINE
@@ -349,8 +349,8 @@ WIS_EXPORT namespace wis
                 GetPresentMode(vk::SurfaceKHR surface, bool vsync) const noexcept;
 
         WIS_INLINE void FillShaderStages(
-                const VKGraphicsPipelineDesc &desc,
-                wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> &shader_stages) const noexcept;
+                const VKGraphicsPipelineDesc& desc,
+                wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages) const noexcept;
 
         QueueResidency queues{};
         bool vrs_supported : 1 = false;

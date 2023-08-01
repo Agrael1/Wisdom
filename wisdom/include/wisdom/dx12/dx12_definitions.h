@@ -12,8 +12,8 @@ namespace wis {
 /// @param self Pointer
 /// @return Array view of the pointer
 template<class C>
-[[nodiscard]] inline auto **array_view(winrt::com_ptr<C> &self)
+[[nodiscard]] inline auto** array_view(winrt::com_ptr<C>& self)
 {
-    return reinterpret_cast<C **>(&self);
+    return reinterpret_cast<C**>(&self);
 }
 } // namespace wis

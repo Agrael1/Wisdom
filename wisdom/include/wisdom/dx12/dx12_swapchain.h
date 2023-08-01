@@ -22,7 +22,7 @@ WIS_EXPORT namespace wis
             : chain(std::move(chain)) { }
 
     public:
-        [[nodiscard]] IDXGISwapChain4 *GetSwapChain() const noexcept
+        [[nodiscard]] IDXGISwapChain4* GetSwapChain() const noexcept
         {
             return chain.get();
         }

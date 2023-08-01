@@ -90,7 +90,7 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
     D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
     wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
-    for (auto &lay : layouts) {
+    for (auto& lay : layouts) {
         auto ranges = lay.GetInternal().GetRanges();
         root_parameters.allocate()
                 .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
@@ -107,7 +107,7 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
 }
 
 wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
-        const DX12GraphicsPipelineDesc &desc,
+        const DX12GraphicsPipelineDesc& desc,
         std::span<const InputLayoutDesc> input_layout) const // movable
 {
     winrt::com_ptr<ID3D12PipelineState> state;
@@ -117,7 +117,7 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
     iadesc.NumElements = input_layout.size();
 
     wis::internals::uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
-    for (auto &i : input_layout) {
+    for (auto& i : input_layout) {
         ia.allocate(D3D12_INPUT_ELEMENT_DESC{
                 .SemanticName = i.semantic_name,
                 .SemanticIndex = i.semantic_index,
@@ -178,7 +178,7 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
     std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> om_rtv;
     om_rtv.reserve(rtv_descs.size());
 
-    for (auto &x : rtv_descs) {
+    for (auto& x : rtv_descs) {
         D3D12_RENDER_PASS_BEGINNING_ACCESS begin{
             .Type = convert_dx(x.load)
         };
@@ -189,7 +189,7 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
     }
 
     wis::internals::uniform_allocator<DataFormat, max_render_targets> a;
-    for (auto &i : rtv_descs)
+    for (auto& i : rtv_descs)
         a.allocate() = i.format;
 
     if (dsv_desc.format == DataFormat::unknown)

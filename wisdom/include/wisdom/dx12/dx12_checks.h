@@ -12,7 +12,7 @@ WIS_EXPORT namespace wis
     public:
         WIS_INLINE hr_exception(winrt::hresult hr, wis::source_location sl = wis::source_location::current());
 
-        WIS_INLINE const char *what() const noexcept override;
+        WIS_INLINE const char* what() const noexcept override;
         std::string_view type() const noexcept override
         {
             return "Vertas Window Exception";

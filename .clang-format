@@ -10,7 +10,7 @@ FixNamespaceComments: true
 NamespaceIndentation: None
 AlignAfterOpenBracket: true
 
-PointerBindsToType: false
+PointerBindsToType: true
 SpaceAfterTemplateKeyword: false
 
 AllowShortFunctionsOnASingleLine: Inline

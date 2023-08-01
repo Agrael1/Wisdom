@@ -19,7 +19,7 @@ WIS_EXPORT namespace wis
             : pipeline(std::move(xpipeline)) { }
 
     public:
-        ID3D12PipelineState *GetPipeline() const noexcept
+        ID3D12PipelineState* GetPipeline() const noexcept
         {
             return pipeline.get();
         }

@@ -14,7 +14,7 @@ WIS_EXPORT namespace wis
     /// @brief Data format for input assembler
     struct InputLayoutDesc {
         uint32_t location; //< Location of the input in the shader
-        const char *semantic_name; //< Semantic name of the input in the shader (e.g. "POSITION")
+        const char* semantic_name; //< Semantic name of the input in the shader (e.g. "POSITION")
         uint32_t semantic_index = 0u; //< Semantic index of the input in the shader (e.g. 0 for "POSITION0")
         DataFormat format; //< Data format of the input in the shader (e.g. r32g32b32a32_float for float4)
         uint32_t input_slot = 0u; //< Input slot in the input assembler

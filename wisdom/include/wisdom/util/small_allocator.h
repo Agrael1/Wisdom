@@ -20,8 +20,8 @@ WIS_EXPORT namespace wis::internals
     {
     public:
         constexpr memory_pool() = default;
-        memory_pool(const memory_pool &) = delete;
-        memory_pool(memory_pool &&) = delete;
+        memory_pool(const memory_pool&) = delete;
+        memory_pool(memory_pool&&) = delete;
 
         /// @brief Allocates an object of type T in the allocator and returns a reference to it
         /// @tparam T Type of the object to allocate
@@ -30,9 +30,9 @@ WIS_EXPORT namespace wis::internals
         /// @return Reference to the allocated object
         template<typename T, typename... Args>
         requires std::is_trivially_destructible_v<T>
-        constexpr T &allocate(Args &&...args) noexcept
+        constexpr T& allocate(Args&&... args) noexcept
         {
-            T *x = new (allocator.data() + byte_size) T(std::forward<Args>(args)...);
+            T* x = new (allocator.data() + byte_size) T(std::forward<Args>(args)...);
             byte_size += sizeof(T);
             assert(byte_size <= max_size);
             return *x;
@@ -42,18 +42,18 @@ WIS_EXPORT namespace wis::internals
         /// @tparam T Type of the pointer to return
         /// @return Data pointer as a pointer to type T
         template<typename T>
-        constexpr T *data() noexcept
+        constexpr T* data() noexcept
         {
-            return reinterpret_cast<T *>(allocator.data());
+            return reinterpret_cast<T*>(allocator.data());
         }
 
         /// @brief Returns a pointer to the allocator data as a pointer to const type T
         /// @tparam T Type of the pointer to return
         /// @return Data pointer as a pointer to const type T
         template<typename T>
-        constexpr const T *data() const noexcept
+        constexpr const T* data() const noexcept
         {
-            return reinterpret_cast<const T *>(allocator.data());
+            return reinterpret_cast<const T*>(allocator.data());
         }
 
         /// @brief Get the size of the allocated data
@@ -64,7 +64,7 @@ WIS_EXPORT namespace wis::internals
         }
 
     private:
-        alignas(void *) std::array<std::byte, max_size> allocator{};
+        alignas(void*) std::array<std::byte, max_size> allocator{};
         size_t byte_size = 0;
     };
 
@@ -86,9 +86,9 @@ WIS_EXPORT namespace wis::internals
         /// @param ...args Arguments to pass to the constructor
         /// @return Reference to the allocated object
         template<typename... Args>
-        constexpr T &allocate(Args &&...args) noexcept
+        constexpr T& allocate(Args&&... args) noexcept
         {
-            T *x = new (this->data() + rsize) T(std::forward<Args>(args)...);
+            T* x = new (this->data() + rsize) T(std::forward<Args>(args)...);
             rsize++;
             assert(rsize <= max_size);
             return *x;
@@ -117,28 +117,28 @@ WIS_EXPORT namespace wis::internals
 
         /// @brief Iterator to the beginning of the allocated data
         /// @return Pointer to the beginning of the allocated data
-        auto *begin() noexcept
+        auto* begin() noexcept
         {
             return this->data();
         }
 
         /// @brief Iterator to the end of the allocated data
         /// @return Pointer to the end of the allocated data
-        auto *end() noexcept
+        auto* end() noexcept
         {
             return this->data() + rsize;
         }
 
         /// @brief Const iterator to the beginning of the allocated data
         /// @return Const pointer to the beginning of the allocated data
-        const auto *begin() const noexcept
+        const auto* begin() const noexcept
         {
             return this->data();
         }
 
         /// @brief Const iterator to the end of the allocated data
         /// @return Const pointer to the end of the allocated data
-        const auto *end() const noexcept
+        const auto* end() const noexcept
         {
             return this->data() + rsize;
         }

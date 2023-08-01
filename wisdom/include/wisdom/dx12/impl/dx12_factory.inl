@@ -16,7 +16,7 @@ inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref)
     }
 }
 
-wis::DX12Factory::DX12Factory(const ApplicationInfo &app_info, bool use_preference)
+wis::DX12Factory::DX12Factory(const ApplicationInfo& app_info, bool use_preference)
 {
     if (factory)
         return;
@@ -32,7 +32,7 @@ wis::DX12Factory::DX12Factory(const ApplicationInfo &app_info, bool use_preferen
 wis::generator<wis::DX12Adapter> wis::DX12Factory::EnumerateAdapters(wis::AdapterPreference preference) const noexcept
 {
     auto gen = has_preference ? AdaptersByGPUPreference(to_dxgi(preference)) : Adapters();
-    for (auto &&i : gen)
+    for (auto&& i : gen)
         co_yield DX12Adapter(i);
 }
 
@@ -89,7 +89,7 @@ inline winrt::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 }
 
 winrt::com_ptr<IDXGISwapChain4>
-wis::DX12Factory::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1 &desc, IUnknown *core_window, IUnknown *queue)
+wis::DX12Factory::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue)
 {
     winrt::com_ptr<IDXGISwapChain1> swap;
     if (desc.Stereo) // until microsoft fixes this
@@ -112,7 +112,7 @@ wis::DX12Factory::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1 &desc, IUnk
 }
 
 winrt::com_ptr<IDXGISwapChain4>
-wis::DX12Factory::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1 &desc, HWND hwnd, IUnknown *queue)
+wis::DX12Factory::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue)
 {
     winrt::com_ptr<IDXGISwapChain1> swap;
     if (desc.Stereo) // until microsoft fixes this
