@@ -80,23 +80,12 @@ Test::App::App(uint32_t width, uint32_t height)
     constants_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
     constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
 
-    // model, view, and projection
-    constexpr auto cube_position = glm::vec3(0.0f, 0.0f, 0.8f);
-    cube_transform = glm::translate(cube_transform, cube_position);
-
-    constexpr auto camera_position = glm::vec3(0.0f, 0.2f, 0.0f);
+    constexpr glm::vec3 cube_position{ 0.0f, 0.0f, 5.0f };
+    constexpr glm::vec3 camera_position{ 0.0f, 0.2f, 0.0f };
     view = glm::lookAtLH(camera_position, cube_position, glm::vec3(0.0f, 1.0f, 0.0f));
-
-    constexpr auto near_plane = 0.1f;
-    constexpr auto far_plane = 100.0f;
-    constexpr auto fov_degrees = 45.0f;
-    projection = glm::perspectiveLH_ZO(glm::radians(fov_degrees),
-                                       (float)width / (float)height,
-                                       near_plane, far_plane);
-    buffer.model_view_projection = cube_transform * view * projection;
+    cube_transform = glm::translate(glm::mat4{ 1.0f }, cube_position);
 
     // upload to gpu
-    constant_buffer.UpdateSubresource(RawView(buffer));
     mapped_buffer = constant_buffer.MapMemory();
 
     std::array bindings{
@@ -151,15 +140,21 @@ int Test::App::Start()
     }
 }
 
+void Test::App::UpdateConstantBuffer()
+{
+    // glm is backwards... projection-view-model
+    buffer.model_view_projection = projection * view * cube_transform;
+    auto* mapped = reinterpret_cast<glm::mat4*>(mapped_buffer.data());
+    *mapped = glm::transpose(buffer.model_view_projection);
+}
+
 void Test::App::Frame()
 {
     context.Reset();
     auto back = swap.GetBackBuffer();
 
-    cube_transform = glm::rotate(cube_transform, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    buffer.model_view_projection = cube_transform * view * projection;
-    float* mapped = reinterpret_cast<float*>(mapped_buffer.data());
-    std::memcpy(mapped, &buffer.model_view_projection, sizeof(glm::mat4));
+    cube_transform = glm::rotate(cube_transform, glm::radians(0.1f), glm::vec3(0.0f, 1.0f, 1.0f));
+    UpdateConstantBuffer();
 
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
                              .state_after = wis::TextureState::RenderTarget,
@@ -211,6 +206,12 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 {
     if (!swap.Resize(width, height))
         return;
+
+    // update projection
+    projection = glm::perspectiveFovLH_ZO(glm::radians(fov_degrees),
+                                          (float)width, (float)height,
+                                          near_plane, far_plane);
+    UpdateConstantBuffer();
 
     std::array cas2{
         wis::ColorAttachment{

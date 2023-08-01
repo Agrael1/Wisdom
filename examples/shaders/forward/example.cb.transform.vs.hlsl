@@ -14,10 +14,10 @@ PSInput main(float3 pos : POSITION, float3 n : NORMAL, float4 color : COLOR)
     PSInput vertexShaderOutput;
 
     vertexShaderOutput.position = mul(float4(pos, 1.0f), modelViewProj);
+    // vertexShaderOutput.position = float4(pos, 1.0f);
 
-    // float shade = (0.5 * dot(n, float3(0.0f, 1.0f, 0.0f))) + 0.5;
-    // vertexShaderOutput.color = color * shade;
-    vertexShaderOutput.color = color;
+    float shade = (0.5 * dot(n, float3(0.0f, 1.0f, 0.0f))) + 0.5;
+    vertexShaderOutput.color = color * shade;
 
     return vertexShaderOutput;
 }

@@ -17,11 +17,15 @@ private:
     void Frame();
     void WaitForGPU();
     void OnResize(uint32_t width, uint32_t height);
+    void UpdateConstantBuffer();
 
     XApp app;
     Window wnd;
 
     glm::mat4 cube_transform{ 1.0f };
+    static constexpr auto near_plane = 0.1f;
+    static constexpr auto far_plane = 100.0f;
+    static constexpr auto fov_degrees = 90.0f;
     glm::mat4 projection{ 1.0f };
     glm::mat4 view{ 1.0f };
 
