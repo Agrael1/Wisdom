@@ -2,7 +2,7 @@
 #include <wisdom/wisdom.h>
 #include "window.h"
 #include <optional>
-#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace Test {
 class App
@@ -11,7 +11,6 @@ public:
     App(uint32_t width, uint32_t height);
     ~App();
 
-public:
     int Start();
 
 private:
@@ -21,6 +20,10 @@ private:
 
     XApp app;
     Window wnd;
+
+    glm::mat4 cube_transform{ 1.0f };
+    glm::mat4 projection{ 1.0f };
+    glm::mat4 view{ 1.0f };
 
     std::optional<wis::Factory> factory;
 
@@ -50,8 +53,8 @@ private:
     uint64_t fence_value = 1;
 
     struct SceneConstantBuffer {
-        glm::vec4 offset;
-        float padding[60]; // Padding so the constant buffer is 256-byte aligned.
+        glm::mat4 model_view_projection{ 1.0f };
+        std::byte padding[256 - sizeof(glm::mat4)]; // Padding so the constant buffer is 256-byte aligned.
     } buffer{};
     std::span<std::byte> mapped_buffer;
 };
