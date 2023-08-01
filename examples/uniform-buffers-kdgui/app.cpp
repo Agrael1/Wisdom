@@ -80,9 +80,9 @@ Test::App::App(uint32_t width, uint32_t height)
 
     std::array<wis::BindingDescriptor, 1> bindings{
         wis::BindingDescriptor{
-                .binding = 0,
-                .stages = wis::ShaderStage::vertex,
-                .type = wis::BindingType::CBV,
+            .binding = 0,
+            .stages = wis::ShaderStage::vertex,
+            .type = wis::BindingType::CBV,
         }
     };
     wis::DescriptorSetLayout constants_layout = device.CreateDescriptorSetLayout(bindings);
@@ -171,12 +171,12 @@ void Test::App::Frame()
     context.EndRenderPass();
 
     context.TextureBarrier({
-                                   .state_before = wis::TextureState::RenderTarget,
-                                   .state_after = wis::TextureState::Present,
-                                   .access_before = wis::ResourceAccess::RenderTarget,
-                                   .access_after = wis::ResourceAccess::Common,
-                           },
-                           back);
+        .state_before = wis::TextureState::RenderTarget,
+        .state_after = wis::TextureState::Present,
+        .access_before = wis::ResourceAccess::RenderTarget,
+        .access_after = wis::ResourceAccess::Common,
+    },
+    back);
     context.Close();
     queue.ExecuteCommandList(context);
 
@@ -200,11 +200,11 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     std::array cas2{
         wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear },
+            .format = wis::SwapchainOptions::default_format,
+            .load = wis::PassLoadOperation::clear },
         wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear }
+            .format = wis::SwapchainOptions::default_format,
+            .load = wis::PassLoadOperation::clear }
     };
 
     // needs to be recreated for vulkan for now
@@ -216,7 +216,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
         wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
     };
 
-    wis::GraphicsPipelineDesc desc{ root }; 
+    wis::GraphicsPipelineDesc desc{ root };
     desc.SetVS(vs);
     desc.SetPS(ps);
     desc.SetRenderPass(render_pass);
