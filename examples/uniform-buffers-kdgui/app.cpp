@@ -216,7 +216,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
         wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
     };
 
-    wis::GraphicsPipelineDesc desc{ root };
+    wis::GraphicsPipelineDesc desc{ root }; 
     desc.SetVS(vs);
     desc.SetPS(ps);
     desc.SetRenderPass(render_pass);
