@@ -7,49 +7,50 @@
 
 WIS_EXPORT namespace wis
 {
-	class VKRenderPass;
+    class VKRenderPass;
 
-	template<>
-	class Internal<VKRenderPass>
-	{
-	public:
-		Internal() = default;
-		Internal(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame)
-			:rp(std::move(rp)), frame(std::move(frame)) {}
-	public:
-		auto GetRenderPass()const noexcept
-		{
-			return rp.get();
-		}
-		auto GetFramebuffer()const noexcept
-		{
-			return frame.get();
-		}
-	private:
-		wis::shared_handle<vk::RenderPass> rp;
-		wis::shared_handle<vk::Framebuffer> frame;
-	};
+    template<>
+    class Internal<VKRenderPass>
+    {
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame)
+            : rp(std::move(rp)), frame(std::move(frame)) { }
 
+        [[nodiscard]] auto GetRenderPass() const noexcept
+        {
+            return rp.get();
+        }
+        [[nodiscard]] auto GetFramebuffer() const noexcept
+        {
+            return frame.get();
+        }
 
+    private:
+        wis::shared_handle<vk::RenderPass> rp;
+        wis::shared_handle<vk::Framebuffer> frame;
+    };
 
-	// TODO: Dynamic rendering
-	class VKRenderPass : public QueryInternal<VKRenderPass>
-	{
-	public:
-		VKRenderPass() = default;
-		explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame, Size2D frame_size)
-			:QueryInternal(std::move(rp), std::move(frame)), framebuffer_size(frame_size)
-		{}
-	public:
-		operator VKRenderPassView()const noexcept
-		{
-			return { GetRenderPass(), GetFramebuffer(), framebuffer_size };
-		}
-		Size2D GetFramebufferSize()const noexcept
-		{
-			return framebuffer_size;
-		}
-	private:
-		Size2D framebuffer_size{ 0,0 };
-	};
+    // TODO: Dynamic rendering
+    class VKRenderPass : public QueryInternal<VKRenderPass>
+    {
+    public:
+        VKRenderPass() = default;
+        explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame, Size2D frame_size)
+            : QueryInternal(std::move(rp), std::move(frame)), framebuffer_size(frame_size)
+        {
+        }
+
+        operator VKRenderPassView() const noexcept
+        {
+            return { GetRenderPass(), GetFramebuffer(), framebuffer_size };
+        }
+        [[nodiscard]] Size2D GetFramebufferSize() const noexcept
+        {
+            return framebuffer_size;
+        }
+
+    private:
+        Size2D framebuffer_size{ 0, 0 };
+    };
 }

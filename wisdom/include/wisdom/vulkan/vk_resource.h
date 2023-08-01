@@ -18,16 +18,15 @@ WIS_EXPORT namespace wis
         Internal(wis::shared_handle<vk::Buffer> buffer, wis::shared_handle<vma::Allocation> allocation, vk::DeviceSize size)
             : buffer(std::move(buffer)), allocation(std::move(allocation)), size(size) { }
 
-    public:
-        auto GetResource() const noexcept
+        [[nodiscard]] auto GetResource() const noexcept
         {
             return buffer.get();
         }
-        auto GetAllocation() const noexcept
+        [[nodiscard]] auto GetAllocation() const noexcept
         {
             return allocation.get();
         }
-        auto GetSize() const noexcept
+        [[nodiscard]] auto GetSize() const noexcept
         {
             return size;
         }
@@ -51,13 +50,12 @@ WIS_EXPORT namespace wis
             return GetResource();
         }
 
-    public:
         bool UpdateSubresource(std::span<const std::byte> data) noexcept
         {
             auto vma = allocation.getAllocator().get();
             auto al = allocation.get();
             auto *mem = vma.mapMemory(al);
-            if (!mem)
+            if (mem == nullptr)
                 return false;
 
             auto data_size = data.size();
@@ -70,16 +68,16 @@ WIS_EXPORT namespace wis
             auto vma = allocation.getAllocator().get();
             auto al = allocation.get();
             auto *mem = vma.mapMemory(al);
-            if (!mem)
+            if (mem == nullptr)
                 return {};
-            return { reinterpret_cast<std::byte*>(mem), size };
+            return { reinterpret_cast<std::byte *>(mem), size };
         }
         void UnmapMemory() noexcept
         {
-			auto vma = allocation.getAllocator().get();
-			auto al = allocation.get();
-			vma.unmapMemory(al);
-		}
+            auto vma = allocation.getAllocator().get();
+            auto al = allocation.get();
+            vma.unmapMemory(al);
+        }
 
         [[nodiscard]] VKVertexBufferView GetVertexBufferView(uint32_t byte_stride) const noexcept
         {
@@ -97,8 +95,7 @@ WIS_EXPORT namespace wis
         Internal(wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation, vk::Format format)
             : buffer(std::move(buffer)), allocation(std::move(allocation)), format(format) { }
 
-    public:
-        auto GetResource() const noexcept
+        [[nodiscard]] auto GetResource() const noexcept
         {
             return buffer.get();
         }

@@ -20,8 +20,7 @@ WIS_EXPORT namespace wis
         Internal(wis::shared_handle<vk::DescriptorSetLayout> layout)
             : layout(std::move(layout)){};
 
-    public:
-        auto GetDescriptorSetLayout() const noexcept
+        [[nodiscard]] auto GetDescriptorSetLayout() const noexcept
         {
             return layout.get();
         }
@@ -35,13 +34,12 @@ WIS_EXPORT namespace wis
     public:
         using QueryInternal::QueryInternal;
         operator VKDescriptorSetLayoutView() const noexcept
-		{
-			return GetDescriptorSetLayout();
-		}
+        {
+            return GetDescriptorSetLayout();
+        }
     };
 
     class VKDescriptorSet;
-
 
     template<>
     class Internal<VKDescriptorSet>
@@ -51,7 +49,6 @@ WIS_EXPORT namespace wis
         Internal(wis::shared_handle<vk::DescriptorSet> set)
             : set(std::move(set)){};
 
-    public:
         [[nodiscard]] auto GetDescriptorSet() const noexcept
         {
             return set.get();
@@ -81,8 +78,7 @@ WIS_EXPORT namespace wis
         Internal(wis::shared_handle<vk::DescriptorPool> pool)
             : pool(std::move(pool)){};
 
-    public:
-        auto GetDescriptorPool() const noexcept
+        [[nodiscard]] auto GetDescriptorPool() const noexcept
         {
             return pool.get();
         }
@@ -111,10 +107,9 @@ WIS_EXPORT namespace wis
             return GetDescriptorPool();
         }
 
-    public:
         VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)
         {
-            auto &device = pool.getParent();
+            const auto &device = pool.getParent();
 
             vk::DescriptorSetAllocateInfo alloc_info{
                 pool.get(), 1u, &layout

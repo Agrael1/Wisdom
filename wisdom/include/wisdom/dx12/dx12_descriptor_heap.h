@@ -46,7 +46,6 @@ WIS_EXPORT namespace wis
 
     class DX12DescriptorSet;
 
-
     template<>
     class Internal<DX12DescriptorSet>
     {

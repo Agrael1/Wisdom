@@ -6,41 +6,41 @@
 
 WIS_EXPORT namespace wis
 {
-	class VKPipelineState;
+    class VKPipelineState;
 
-	template<>
-	class Internal<VKPipelineState>
-	{
-	public:
-		Internal() = default;
-		Internal(wis::shared_handle<vk::Pipeline> pipeline): pipeline(std::move(pipeline)){};
-	public:
-		auto GetPipeline()const noexcept
-		{
-			return pipeline.get();
-		}
-	private:
-		wis::shared_handle<vk::Pipeline> pipeline;
-	};
+    template<>
+    class Internal<VKPipelineState>
+    {
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::Pipeline> pipeline)
+            : pipeline(std::move(pipeline)){};
 
+        [[nodiscard]] auto GetPipeline() const noexcept
+        {
+            return pipeline.get();
+        }
 
+    private:
+        wis::shared_handle<vk::Pipeline> pipeline;
+    };
 
-	/// @brief Pipeline state object
-	class VKPipelineState : public QueryInternal<VKPipelineState>
-	{
-	public:
-		VKPipelineState() = default;
-		explicit VKPipelineState(wis::shared_handle<vk::Pipeline> pipeline)
-			:QueryInternal(std::move(pipeline))
-		{}
-		operator VKPipelineStateView()const noexcept
-		{
-			return GetPipeline();
-		}
-		operator bool()const noexcept
-		{
-			return bool(GetPipeline());
-		}
-	};
-
+    /// @brief Pipeline state object
+    class VKPipelineState : public QueryInternal<VKPipelineState>
+    {
+    public:
+        VKPipelineState() = default;
+        explicit VKPipelineState(wis::shared_handle<vk::Pipeline> pipeline)
+            : QueryInternal(std::move(pipeline))
+        {
+        }
+        operator VKPipelineStateView() const noexcept
+        {
+            return GetPipeline();
+        }
+        operator bool() const noexcept
+        {
+            return bool(GetPipeline());
+        }
+    };
 }

@@ -59,7 +59,6 @@ WIS_EXPORT namespace wis
         /// @param unused
         WIS_INLINE VKFactory(const ApplicationInfo &app_info, [[maybe_unused]] bool unused = true);
 
-    public:
         /// @brief Enumerates all adapters on the system
         /// @param preference Preference to use when enumerating adapters, changes the order of the adapters
         /// @return coroutine that yields VKAdapter

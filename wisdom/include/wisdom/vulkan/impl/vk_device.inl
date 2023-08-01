@@ -19,7 +19,7 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
     for (size_t queue_info_size = 0; queue_info_size < max_count; queue_info_size++) {
         auto &q_info = queue_infos[queue_info_size];
         auto &q = queues.available_queues[queue_info_size];
-        if (!q.count)
+        if (q.count == 0u)
             continue;
 
         q_info.queueFamilyIndex = q.family_index;
@@ -174,7 +174,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 #endif
     int32_t present_queue = -1;
     for (uint16_t i = 0; i < max_count; i++) {
-        auto &x = queues.available_queues[i];
+        const auto &x = queues.available_queues[i];
         if (x.Empty())
             continue;
 
@@ -189,7 +189,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
         return {}; // Presentation is not supported
     }
 
-    auto &queue = queues.available_queues[present_queue];
+    const auto &queue = queues.available_queues[present_queue];
     vk::DeviceQueueInfo2 info{
         {},
         queue.family_index,
@@ -241,16 +241,18 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
     };
 }
 
+// NOLINTNEXTLINE
 wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,
                                                   DepthStencilAttachment dsv_desc,
                                                   SampleCount samples,
-                                                  DataFormat vrs_format) const
+                                                  DataFormat /*vrs_format*/) const
 {
     std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions{};
     std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references{};
     wis::internals::uniform_allocator<vk::FramebufferAttachmentImageInfo, max_render_targets + 2> image_md;
 
     size_t size = 0;
+    static constexpr size_t max_attachment = 8;
 
     for (auto &i : rtv_descs) {
         auto &desc = attachment_descriptions[size];
@@ -273,7 +275,7 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<C
         image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
                           frame_size.width, frame_size.height, i.array_levels, 1u, &desc.format);
 
-        if (size == 8)
+        if (size == max_attachment)
             break;
     }
 
@@ -361,16 +363,17 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<C
     };
 }
 
-wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(wis::VKGraphicsPipelineDesc desc, std::span<const InputLayoutDesc> input_layout) const
+wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc &desc, std::span<const InputLayoutDesc> input_layout) const
 {
+    static constexpr size_t attr_descriptions_per_binding = 16;
     std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
-    wis::internals::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * 16> attributes;
+    wis::internals::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * attr_descriptions_per_binding> attributes;
 
     wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
     FillShaderStages(desc, shader_stages);
 
     std::bitset<max_vertex_bindings> binding_map;
-    for (auto &i : input_layout) {
+    for (const auto &i : input_layout) {
         auto &b = bindings.at(i.input_slot);
         if (!binding_map[i.input_slot]) {
             b.inputRate = vk::VertexInputRate(i.input_slot_class);
@@ -439,7 +442,8 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(wis::VKGraphicsPipeli
         vk::PrimitiveTopology::eTriangleList, false
     };
 
-    wis::internals::uniform_allocator<vk::DynamicState, 5> dynamic_state_enables;
+    static constexpr size_t max_dynstates = 5; // only four if not using vrs
+    wis::internals::uniform_allocator<vk::DynamicState, max_dynstates> dynamic_state_enables;
     dynamic_state_enables.allocate(vk::DynamicState::eViewport);
     dynamic_state_enables.allocate(vk::DynamicState::eScissor);
     dynamic_state_enables.allocate(vk::DynamicState::ePrimitiveTopology);
@@ -495,7 +499,9 @@ void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
     using namespace river::flags;
     auto family_props = adapter.getQueueFamilyProperties();
     wis::lib_info(wis::format("The system supports {} queue families", family_props.size()));
+    assert(family_props.size() < 256);
 
+    // NOLINTNEXTLINE
     for (uint8_t i = 0; i < family_props.size(); i++) {
         using enum vk::QueueFlagBits;
         auto &family = family_props[i];
@@ -550,7 +556,7 @@ wis::VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
 
     wis::internals::uniform_allocator<const char *, required_extensions.size()> avail_exts{};
 
-    for (auto *i : required_extensions) {
+    for (const auto *i : required_extensions) {
         if (!ext_set.contains(i))
             continue;
         avail_exts.allocate(i);
@@ -584,6 +590,7 @@ vk::PresentModeKHR wis::VKDevice::GetPresentMode(vk::SurfaceKHR surface, bool vs
                  : eImmediate;
 }
 
+// NOLINTNEXTLINE
 void wis::VKDevice::FillShaderStages(const VKGraphicsPipelineDesc &desc, wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages> &shader_stages) const noexcept
 {
     if (desc.vs) {

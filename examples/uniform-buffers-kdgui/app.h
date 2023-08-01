@@ -19,7 +19,6 @@ private:
     void WaitForGPU();
     void OnResize(uint32_t width, uint32_t height);
 
-private:
     XApp app;
     Window wnd;
 
@@ -50,7 +49,6 @@ private:
     wis::RenderPass render_pass;
     uint64_t fence_value = 1;
 
-private:
     struct SceneConstantBuffer {
         glm::vec4 offset;
         float padding[60]; // Padding so the constant buffer is 256-byte aligned.

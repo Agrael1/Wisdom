@@ -12,7 +12,7 @@ module;
 #include <KDGui/platform/linux/wayland/linux_wayland_platform_integration.h>
 #endif
 #if defined(KD_PLATFORM_MACOS)
-extern CAMetalLayer* createMetalLayer(KDGui::Window* window);
+extern CAMetalLayer *createMetalLayer(KDGui::Window *window);
 #endif
 
 #include <KDGui/window.h>
@@ -24,69 +24,71 @@ import wisdom.api;
 class WindowP;
 export class Window
 {
-	friend class XApp;
+    friend class XApp;
+
 private:
-	Window(uint32_t width, uint32_t height, WindowP* p);
+    Window(uint32_t width, uint32_t height, WindowP *p);
+
 public:
-	~Window();
+    ~Window();
+
 public:
-	bool visible()const noexcept;
-	uint32_t width()const noexcept;
-	uint32_t height()const noexcept;
-	wis::SurfaceParameters GetSurfaceOptions()const noexcept;
+    bool visible() const noexcept;
+    uint32_t width() const noexcept;
+    uint32_t height() const noexcept;
+    wis::SurfaceParameters GetSurfaceOptions() const noexcept;
+
 private:
-	WindowP* p;
+    WindowP *p;
 };
 
 class XAppP;
 export class XApp
 {
 public:
-	XApp();
-	~XApp();
+    XApp();
+    ~XApp();
+
 public:
-	void ProcessEvents();
-	Window createWindow(uint32_t width, uint32_t height);
+    void ProcessEvents();
+    Window createWindow(uint32_t width, uint32_t height);
+
 private:
-	std::unique_ptr<XAppP> p;
+    std::unique_ptr<XAppP> p;
 };
-
-
 
 class WindowP : public KDGui::Window
 {
-
 };
 
-
-Window::Window(uint32_t width, uint32_t height, WindowP* p)
-	: p(p)
+Window::Window(uint32_t width, uint32_t height, WindowP *p)
+    : p(p)
 {
-	p->width = 1920;
-	p->height = 1080;
-	p->visible = true;
+    p->width = 1920;
+    p->height = 1080;
+    p->visible = true;
 }
 Window::~Window()
 {
-	p->destroy();
+    p->destroy();
 }
 
 uint32_t Window::width() const noexcept
 {
-	return p->width.get();
+    return p->width.get();
 }
 uint32_t Window::height() const noexcept
 {
-	return p->height.get();
+    return p->height.get();
 }
 
-wis::SurfaceParameters Window::GetSurfaceOptions()const noexcept
+wis::SurfaceParameters Window::GetSurfaceOptions() const noexcept
 {
 #if defined(KD_PLATFORM_WIN32)
-	auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow*>(p->platformWindow());
-	return wis::SurfaceParameters{
-		win32Window->handle()
-	};
+    auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow *>(p->platformWindow());
+    return wis::SurfaceParameters{
+        win32Window->handle()
+    };
 #elif defined(KD_PLATFORM_LINUX)
     if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
         auto *platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
@@ -104,38 +106,36 @@ wis::SurfaceParameters Window::GetSurfaceOptions()const noexcept
         };
     }
 #elif defined(KD_PLATFORM_MACOS)
-	return wis::SurfaceParameters{
-		.layer = createMetalLayer(this)
-	};
+    return wis::SurfaceParameters{
+        .layer = createMetalLayer(this)
+    };
 #endif
-	return {};
+    return {};
 }
 bool Window::visible() const noexcept
 {
-	return p->visible.get();
+    return p->visible.get();
 }
-
 
 class XAppP
 {
 public:
-	KDGui::GuiApplication app;
+    KDGui::GuiApplication app;
 };
 
 XApp::XApp()
-	:p(new XAppP())
+    : p(new XAppP())
 {
 }
 XApp::~XApp()
 {
 }
 
-
 void XApp::ProcessEvents()
 {
-	p->app.processEvents();
+    p->app.processEvents();
 }
 Window XApp::createWindow(uint32_t width, uint32_t height)
 {
-	return Window(width, height, p->app.createChild<WindowP>());
+    return Window(width, height, p->app.createChild<WindowP>());
 }

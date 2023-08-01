@@ -5,12 +5,12 @@
 
 WIS_EXPORT namespace wis
 {
-	using vk::SharedHandle;
+    using vk::SharedHandle;
 
     template<typename HandleType>
     class shared_handle : public vk::SharedHandle<HandleType>
     {
     public:
-		using vk::SharedHandle<HandleType>::SharedHandle;
+        using vk::SharedHandle<HandleType>::SharedHandle;
     };
 }

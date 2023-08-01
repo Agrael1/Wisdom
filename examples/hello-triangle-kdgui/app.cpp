@@ -76,7 +76,6 @@ Test::App::App(uint32_t width, uint32_t height)
 
     OnResize(width, height);
 
-
     struct Vertex {
         glm::vec3 pos;
         glm::vec4 col;
@@ -146,7 +145,7 @@ void Test::App::Frame()
     context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
     context.IASetVertexBuffers({ &vb, 1 });
 
-    context.BeginRenderPass(render_pass, { rtvsx.data(), swap.StereoSupported() + 1u });
+    context.BeginRenderPass(render_pass, { rtvsx.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
     context.DrawInstanced(3);
     context.EndRenderPass();
 
@@ -200,7 +199,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     desc.SetVS(vs);
     desc.SetPS(ps);
     desc.SetRenderPass(render_pass);
-    pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
+    pipeline = device.CreateGraphicsPipeline(desc, ia);
     context.SetPipeline(pipeline);
 
     auto x = swap.GetRenderTargets();
@@ -210,4 +209,3 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
             rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
     }
 }
-

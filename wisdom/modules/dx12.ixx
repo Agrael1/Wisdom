@@ -11,7 +11,7 @@ module;
 #include <array>
 #include <winrt/base.h>
 
-#pragma warning(disable: 5244) //includes are interop, and not a mistake
+#pragma warning(disable : 5244) // includes are interop, and not a mistake
 #define WISDOM_MODULES
 export module wisdom.dx12;
 
@@ -36,7 +36,6 @@ import wisdom.api;
 #include <wisdom/dx12/dx12_state_builder.h>
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_swapchain.h>
-
 
 #include <wisdom/dx12/dx12_command_list.h>
 #include <wisdom/dx12/dx12_command_queue.h>

@@ -12,36 +12,37 @@
 #include <wisdom/api/api_swapchain.h>
 #include <memory>
 
-
 class WindowP;
 class Window
 {
-	friend class XApp;
+    friend class XApp;
+
 private:
-	Window(uint32_t width, uint32_t height, WindowP* p);
+    Window(uint32_t width, uint32_t height, WindowP *p);
+
 public:
-	~Window();
-public:
-	bool visible()const noexcept;
-	uint32_t width()const noexcept;
-	uint32_t height()const noexcept;
-	wis::SurfaceParameters GetSurfaceOptions()const noexcept;
-	bool resized()const noexcept;
-	//KDGpu::Surface createSurface(KDGpu::Instance& instance);
+    ~Window();
+
+    [[nodiscard]] bool visible() const noexcept;
+    [[nodiscard]] uint32_t width() const noexcept;
+    [[nodiscard]] uint32_t height() const noexcept;
+    [[nodiscard]] wis::SurfaceParameters GetSurfaceOptions() const noexcept;
+    [[nodiscard]] bool resized() const noexcept;
+    // KDGpu::Surface createSurface(KDGpu::Instance& instance);
 private:
-	WindowP* p;
+    WindowP *p;
 };
 
 class XAppP;
 class XApp
 {
 public:
-	XApp();
-	~XApp();
-public:
-	void ProcessEvents();
-	Window createWindow(uint32_t width, uint32_t height);
-private:
-	std::unique_ptr<XAppP> p;
-};
+    XApp();
+    ~XApp();
 
+    void ProcessEvents();
+    Window createWindow(uint32_t width, uint32_t height);
+
+private:
+    std::unique_ptr<XAppP> p;
+};

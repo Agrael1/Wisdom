@@ -10,7 +10,6 @@ public:
     App(uint32_t width, uint32_t height);
     ~App();
 
-public:
     int Start();
 
 private:
@@ -18,7 +17,6 @@ private:
     void WaitForGPU();
     void OnResize(uint32_t width, uint32_t height);
 
-private:
     XApp app;
     Window wnd;
 

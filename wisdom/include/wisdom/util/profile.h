@@ -4,62 +4,69 @@
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 
-namespace wis
+namespace wis {
+class timer
 {
-	class timer
-	{
-		using clock = std::chrono::high_resolution_clock;
-	public:
-		void start()
-		{
-			start_time = clock::now();
-		}
-		float stop()
-		{
-			return (clock::now() - start_time).count() / 1'000'000'000.0f;
-		}
-	private:
-		std::chrono::time_point<clock> start_time;
-	};
+    using clock = std::chrono::high_resolution_clock;
 
-	class scoped_timer
-	{
-	public:
-		scoped_timer()
-		{
-			t.start();
-		}
-		~scoped_timer()
-		{
-			std::printf("%s", wis::format("{}\n", t.stop()).c_str());
-		}
-	private:
-		timer t;
-	};
+public:
+    void start()
+    {
+        start_time = clock::now();
+    }
+    float stop()
+    {
+        static constexpr float scale_factor = 1'000'000'000.0f;
+        return static_cast<float>((clock::now() - start_time).count()) / scale_factor;
+    }
 
+private:
+    std::chrono::time_point<clock> start_time;
+};
 
-	template<bool x>
-	class scoped_profiler_p;
+class scoped_timer
+{
+public:
+    scoped_timer()
+    {
+        t.start();
+    }
+    ~scoped_timer()
+    {
+        std::printf("%s", wis::format("{}\n", t.stop()).c_str());
+    }
 
-	template<>
-	class scoped_profiler_p<true>
-	{
-	public:
-		scoped_profiler_p(std::string message = "")
-			:message(std::move(message)) {
-			t.start();
-		}
-		~scoped_profiler_p()
-		{
-			wis::lib_info(wis::format("{}: {}", message, t.stop()));
-		}
-	private:
-		wis::timer t;
-		std::string message;
-	};
+private:
+    timer t;
+};
 
-	template<>
-	class scoped_profiler_p<false> { scoped_profiler_p(auto x) {} };
+template<bool x>
+class scoped_profiler_p;
 
-	using scoped_profiler = scoped_profiler_p<wis::debug_mode>;
-}
+template<>
+class scoped_profiler_p<true>
+{
+public:
+    scoped_profiler_p(std::string message = "")
+        : message(std::move(message))
+    {
+        t.start();
+    }
+    ~scoped_profiler_p()
+    {
+        wis::lib_info(wis::format("{}: {}", message, t.stop()));
+    }
+
+private:
+    wis::timer t;
+    std::string message;
+};
+
+template<>
+class scoped_profiler_p<false>
+{
+    scoped_profiler_p(auto x) { }
+};
+
+using scoped_profiler = scoped_profiler_p<wis::debug_mode>;
+} // namespace wis

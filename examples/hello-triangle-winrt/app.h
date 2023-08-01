@@ -2,41 +2,44 @@
 #include <wisdom/wisdom.h>
 
 namespace Test {
-	class App
-	{
-	public:
-		App();
-		~App();
-		void Initialize(IUnknown* core_window, uint32_t width, uint32_t height);
-	public:
-		void Frame();
-	private:
-		void WaitForGPU();
-	private:
-		uint32_t width = 0;
-		uint32_t height = 0;
+class App
+{
+public:
+    App();
+    ~App();
+    void Initialize(IUnknown *core_window, uint32_t width, uint32_t height);
 
-		std::optional<wis::Factory> factory;
+public:
+    void Frame();
 
-		wis::Device device;
-		wis::CommandQueue queue;
-		wis::SwapChain swap;
+private:
+    void WaitForGPU();
 
-		wis::CommandList context;
-		wis::Fence fence;
-		wis::ResourceAllocator allocator;
+private:
+    uint32_t width = 0;
+    uint32_t height = 0;
 
-		wis::Shader vs;
-		wis::Shader ps;
+    std::optional<wis::Factory> factory;
 
-		wis::RootSignature root;
-		wis::PipelineState pipeline;
-		wis::VertexBufferView vb;
-		wis::RenderTargetView rtvs[2];
-		wis::RenderTargetView rtvs2[2];
+    wis::Device device;
+    wis::CommandQueue queue;
+    wis::SwapChain swap;
 
-		wis::Buffer vertex_buffer;
-		wis::RenderPass render_pass;
-		uint64_t fence_value = 1;
-	};
-}
+    wis::CommandList context;
+    wis::Fence fence;
+    wis::ResourceAllocator allocator;
+
+    wis::Shader vs;
+    wis::Shader ps;
+
+    wis::RootSignature root;
+    wis::PipelineState pipeline;
+    wis::VertexBufferView vb;
+    wis::RenderTargetView rtvs[2];
+    wis::RenderTargetView rtvs2[2];
+
+    wis::Buffer vertex_buffer;
+    wis::RenderPass render_pass;
+    uint64_t fence_value = 1;
+};
+} // namespace Test

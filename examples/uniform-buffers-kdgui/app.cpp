@@ -78,7 +78,6 @@ Test::App::App(uint32_t width, uint32_t height)
     constant_buffer.UpdateSubresource(RawView(buffer));
     mapped_buffer = constant_buffer.MapMemory();
 
-
     std::array<wis::BindingDescriptor, 1> bindings{
         wis::BindingDescriptor{
                 .binding = 0,
@@ -145,7 +144,7 @@ void Test::App::Frame()
     auto back = swap.GetBackBuffer();
 
     buffer.offset.x += 0.0005f;
-    float* mapped = reinterpret_cast<float*>(mapped_buffer.data());
+    float *mapped = reinterpret_cast<float *>(mapped_buffer.data());
     mapped[0] = buffer.offset.x;
 
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
@@ -167,7 +166,7 @@ void Test::App::Frame()
     context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
     context.IASetVertexBuffers({ &vb, 1 });
 
-    context.BeginRenderPass(render_pass, { rtvsx.data(), swap.StereoSupported() + 1u });
+    context.BeginRenderPass(render_pass, { rtvsx.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
     context.DrawInstanced(3);
     context.EndRenderPass();
 
@@ -194,7 +193,6 @@ void Test::App::WaitForGPU()
     fence.Wait(vfence);
 }
 
-
 void Test::App::OnResize(uint32_t width, uint32_t height)
 {
     if (!swap.Resize(width, height))
@@ -210,7 +208,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     };
 
     // needs to be recreated for vulkan for now
-    render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), swap.StereoSupported() + 1u });
+    render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
 
     // needs to be recreated for vulkan for now
     static constexpr std::array<wis::InputLayoutDesc, 2> ia{
@@ -222,7 +220,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     desc.SetVS(vs);
     desc.SetPS(ps);
     desc.SetRenderPass(render_pass);
-    pipeline = device.CreateGraphicsPipeline(std::move(desc), ia);
+    pipeline = device.CreateGraphicsPipeline(desc, ia);
     context.SetPipeline(pipeline);
 
     auto x = swap.GetRenderTargets();

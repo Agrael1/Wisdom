@@ -6,36 +6,38 @@
 
 WIS_EXPORT namespace wis
 {
-	class VKRootSignature;
+    class VKRootSignature;
 
-	template<>
-	class Internal<VKRootSignature>
-	{
-	public:
-		Internal() = default;
-		Internal(wis::shared_handle<vk::PipelineLayout> root) :root(std::move(root)) {}
-	public:
-		auto GetRootSignature()const noexcept
-		{
-			return root.get();
-		}
-	protected:
-		wis::shared_handle<vk::PipelineLayout> root;
-	};
+    template<>
+    class Internal<VKRootSignature>
+    {
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::PipelineLayout> root)
+            : root(std::move(root)) { }
 
+        [[nodiscard]] auto GetRootSignature() const noexcept
+        {
+            return root.get();
+        }
 
-	/// @brief Root signature
-	class VKRootSignature : public QueryInternal<VKRootSignature>
-	{
-	public:
-		VKRootSignature() = default;
-		explicit VKRootSignature(wis::shared_handle<vk::PipelineLayout> root)
-			:QueryInternal(std::move(root))
-		{}
-	public:
-		operator VKRootSignatureView()const noexcept
-		{
-			return GetRootSignature();
-		}
-	};
+    protected:
+        wis::shared_handle<vk::PipelineLayout> root;
+    };
+
+    /// @brief Root signature
+    class VKRootSignature : public QueryInternal<VKRootSignature>
+    {
+    public:
+        VKRootSignature() = default;
+        explicit VKRootSignature(wis::shared_handle<vk::PipelineLayout> root)
+            : QueryInternal(std::move(root))
+        {
+        }
+
+        operator VKRootSignatureView() const noexcept
+        {
+            return GetRootSignature();
+        }
+    };
 }

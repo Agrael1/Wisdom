@@ -76,7 +76,6 @@ public:
     ReferenceCounter(const ReferenceCounter &) = delete;
     ReferenceCounter &operator=(const ReferenceCounter &) = delete;
 
-public:
     size_t addRef() VULKAN_HPP_NOEXCEPT
     {
         return m_ref_cnt.fetch_add(1, std::memory_order_relaxed);
@@ -87,7 +86,6 @@ public:
         return m_ref_cnt.fetch_sub(1, std::memory_order_acq_rel);
     }
 
-public:
     std::atomic_size_t m_ref_cnt{ 1 };
     HeaderType m_header{};
 };
@@ -100,7 +98,6 @@ class SharedHandleBase
 public:
     using ParentType = parent_of_t<HandleType>;
 
-public:
     SharedHandleBase() = default;
 
     template<typename... Args>
@@ -146,8 +143,7 @@ public:
         }
     }
 
-public:
-    HandleType get() const VULKAN_HPP_NOEXCEPT
+    [[nodiscard]] HandleType get() const VULKAN_HPP_NOEXCEPT
     {
         return m_handle;
     }
@@ -197,7 +193,7 @@ protected:
         control.deleter.destroy(control.parent.get(), handle);
     }
 
-    const HeaderType &getHeader() const VULKAN_HPP_NOEXCEPT
+    [[nodiscard]] const HeaderType &getHeader() const VULKAN_HPP_NOEXCEPT
     {
         return m_control->m_header;
     }
@@ -273,7 +269,6 @@ public:
     {
     }
 
-public:
     template<typename T = HandleType>
     typename std::enable_if<has_parent<T>, void>::type destroy(ParentType parent, HandleType handle) const VULKAN_HPP_NOEXCEPT
     {
@@ -314,7 +309,6 @@ public:
     {
     }
 
-public:
     void destroy(ParentType parent, HandleType handle) const VULKAN_HPP_NOEXCEPT
     {
         VULKAN_HPP_ASSERT(m_destroy && m_dispatch);
@@ -339,13 +333,12 @@ public:
     using destroy_pfn_t = void (ParentType::*)(HandleType, const Dispatcher &) const;
 
     template<class Dispatcher = VULKAN_HPP_DEFAULT_DISPATCHER_TYPE>
-    ObjectReleaseShared(Optional<const AllocationCallbacks> allocationCallbacks VULKAN_HPP_DEFAULT_ARGUMENT_NULLPTR_ASSIGNMENT,
+    ObjectReleaseShared(Optional<const AllocationCallbacks> /*allocationCallbacks*/ VULKAN_HPP_DEFAULT_ARGUMENT_NULLPTR_ASSIGNMENT,
                         const Dispatcher &dispatch VULKAN_HPP_DEFAULT_DISPATCHER_ASSIGNMENT)
         : m_destroy(reinterpret_cast<decltype(m_destroy)>(static_cast<destroy_pfn_t<Dispatcher>>(&ParentType::release))), m_dispatch(&dispatch)
     {
     }
 
-public:
     void destroy(ParentType parent, HandleType handle) const VULKAN_HPP_NOEXCEPT
     {
         VULKAN_HPP_ASSERT(m_destroy && m_dispatch);
@@ -381,7 +374,6 @@ public:
     {
     }
 
-public:
     void destroy(ParentType parent, HandleType handle) const VULKAN_HPP_NOEXCEPT
     {
         VULKAN_HPP_ASSERT(m_destroy && m_dispatch);
@@ -820,7 +812,7 @@ struct ImageHeader : SharedHeader<parent_of_t<VULKAN_HPP_NAMESPACE::Image>, type
             typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter deleter = typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter(),
             SwapchainOwns swapchainOwned = SwapchainOwns::no) VULKAN_HPP_NOEXCEPT
         : SharedHeader<parent_of_t<VULKAN_HPP_NAMESPACE::Image>, typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter>(std::move(parent),
-                                                                                                                                                          std::move(deleter)),
+                                                                                                                                                          deleter),
           swapchainOwned(swapchainOwned)
     {
     }
@@ -838,14 +830,13 @@ class SharedHandle<VULKAN_HPP_NAMESPACE::Image> : public SharedHandleBase<VULKAN
 public:
     using element_type = VULKAN_HPP_NAMESPACE::Image;
 
-public:
     SharedHandle() = default;
 
     explicit SharedHandle(VULKAN_HPP_NAMESPACE::Image handle,
                           SharedHandle<typename BaseType::ParentType> parent,
                           SwapchainOwns swapchain_owned = SwapchainOwns::no,
                           DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT
-        : BaseType(handle, std::move(parent), std::move(deleter), swapchain_owned)
+        : BaseType(handle, std::move(parent), deleter, swapchain_owned)
     {
     }
 
@@ -865,7 +856,7 @@ struct SwapchainHeader {
                             typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::SwapchainKHR>::deleter()) VULKAN_HPP_NOEXCEPT
         : surface(std::move(surface)),
           parent(std::move(parent)),
-          deleter(std::move(deleter))
+          deleter(deleter)
     {
     }
 
@@ -884,19 +875,17 @@ class SharedHandle<VULKAN_HPP_NAMESPACE::SwapchainKHR> : public SharedHandleBase
 public:
     using element_type = VULKAN_HPP_NAMESPACE::SwapchainKHR;
 
-public:
     SharedHandle() = default;
 
     explicit SharedHandle(VULKAN_HPP_NAMESPACE::SwapchainKHR handle,
                           SharedHandle<typename BaseType::ParentType> parent,
                           SharedHandle<VULKAN_HPP_NAMESPACE::SurfaceKHR> surface,
                           DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT
-        : BaseType(handle, std::move(surface), std::move(parent), std::move(deleter))
+        : BaseType(handle, std::move(surface), std::move(parent), deleter)
     {
     }
 
-public:
-    const SharedHandle<VULKAN_HPP_NAMESPACE::SurfaceKHR> &getSurface() const VULKAN_HPP_NOEXCEPT
+    [[nodiscard]] const SharedHandle<VULKAN_HPP_NAMESPACE::SurfaceKHR> &getSurface() const VULKAN_HPP_NOEXCEPT
     {
         return getHeader().surface;
     }

@@ -8,33 +8,39 @@
 
 WIS_EXPORT namespace wis
 {
-	class DX12RootSignature;
+    class DX12RootSignature;
 
-	template<>
-	class Internal<DX12RootSignature>
-	{
-	public:
-		Internal() = default;
-		explicit Internal(winrt::com_ptr<ID3D12RootSignature> xroot)noexcept
-			: root(std::move(xroot))
-		{}
-	public:
-		[[nodiscard]]ID3D12RootSignature* GetRootSignature()const noexcept{
-			return root.get();
-		}
-	protected:
-		winrt::com_ptr<ID3D12RootSignature> root;
-	};
+    template<>
+    class Internal<DX12RootSignature>
+    {
+    public:
+        Internal() = default;
+        explicit Internal(winrt::com_ptr<ID3D12RootSignature> xroot) noexcept
+            : root(std::move(xroot))
+        {
+        }
 
-	class DX12RootSignature : public QueryInternal<DX12RootSignature>
-	{
-	public:
-		DX12RootSignature() = default;
-		explicit DX12RootSignature(winrt::com_ptr<ID3D12RootSignature> xroot)noexcept
-			: QueryInternal(std::move(xroot))
-		{}
-		operator DX12RootSignatureView()const noexcept{
-			return GetRootSignature();
-		}
-	};
+    public:
+        [[nodiscard]] ID3D12RootSignature *GetRootSignature() const noexcept
+        {
+            return root.get();
+        }
+
+    protected:
+        winrt::com_ptr<ID3D12RootSignature> root;
+    };
+
+    class DX12RootSignature : public QueryInternal<DX12RootSignature>
+    {
+    public:
+        DX12RootSignature() = default;
+        explicit DX12RootSignature(winrt::com_ptr<ID3D12RootSignature> xroot) noexcept
+            : QueryInternal(std::move(xroot))
+        {
+        }
+        operator DX12RootSignatureView() const noexcept
+        {
+            return GetRootSignature();
+        }
+    };
 }
