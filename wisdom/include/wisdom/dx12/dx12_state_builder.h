@@ -20,32 +20,32 @@ WIS_EXPORT namespace wis
         }
 
     public:
-        DX12GraphicsPipelineDesc &SetVS(DX12Shader vs) noexcept
+        DX12GraphicsPipelineDesc& SetVS(DX12Shader vs) noexcept
         {
             this->vs = std::move(vs);
             return *this;
         }
-        DX12GraphicsPipelineDesc &SetPS(DX12Shader ps) noexcept
+        DX12GraphicsPipelineDesc& SetPS(DX12Shader ps) noexcept
         {
             this->ps = std::move(ps);
             return *this;
         }
-        DX12GraphicsPipelineDesc &SetGS(DX12Shader gs) noexcept
+        DX12GraphicsPipelineDesc& SetGS(DX12Shader gs) noexcept
         {
             this->gs = std::move(gs);
             return *this;
         }
-        DX12GraphicsPipelineDesc &SetHS(DX12Shader hs) noexcept
+        DX12GraphicsPipelineDesc& SetHS(DX12Shader hs) noexcept
         {
             this->hs = std::move(hs);
             return *this;
         }
-        DX12GraphicsPipelineDesc &SetDS(DX12Shader ds) noexcept
+        DX12GraphicsPipelineDesc& SetDS(DX12Shader ds) noexcept
         {
             this->ds = std::move(ds);
             return *this;
         }
-        DX12GraphicsPipelineDesc &SetShader(DX12Shader shader) noexcept
+        DX12GraphicsPipelineDesc& SetShader(DX12Shader shader) noexcept
         {
             using enum ShaderType;
             switch (shader.GetType()) {
@@ -64,7 +64,7 @@ WIS_EXPORT namespace wis
             }
             return *this;
         }
-        DX12GraphicsPipelineDesc &SetRenderPass(DX12RenderPassView pass) noexcept
+        DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPassView pass) noexcept
         {
             target_formats = pass.GetInternal().GetTargetFormats();
             return *this;
