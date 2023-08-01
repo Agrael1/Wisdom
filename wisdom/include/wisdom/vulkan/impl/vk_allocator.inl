@@ -3,7 +3,8 @@
 #include <wisdom/vulkan/vk_factory.h>
 #endif
 
-wis::VKResourceAllocator::VKResourceAllocator(const VKDeviceView &device, VKAdapterView adapter)
+// NOLINTNEXTLINE
+wis::VKResourceAllocator::VKResourceAllocator(VKDeviceView device, VKAdapterView adapter)
 {
     vma::AllocatorCreateInfo allocatorInfo{
         vma::AllocatorCreateFlags(0),
