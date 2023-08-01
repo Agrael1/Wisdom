@@ -39,9 +39,9 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App(uint32_t width, uint32_t height)
@@ -51,7 +51,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
@@ -156,7 +156,7 @@ void Test::App::Frame()
 
     cube_transform = glm::rotate(cube_transform, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     buffer.model_view_projection = cube_transform * view * projection;
-    float *mapped = reinterpret_cast<float *>(mapped_buffer.data());
+    float* mapped = reinterpret_cast<float*>(mapped_buffer.data());
     std::memcpy(mapped, &buffer.model_view_projection, sizeof(glm::mat4));
 
     context.TextureBarrier({ .state_before = wis::TextureState::Present,
