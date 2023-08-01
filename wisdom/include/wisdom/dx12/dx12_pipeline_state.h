@@ -8,36 +8,36 @@
 
 WIS_EXPORT namespace wis
 {
-class DX12PipelineState;
+    class DX12PipelineState;
 
-template<>
-class Internal<DX12PipelineState>
-{
-public:
-    Internal() = default;
-    Internal(winrt::com_ptr<ID3D12PipelineState> xpipeline)
-        : pipeline(std::move(xpipeline)) { }
-
-public:
-    ID3D12PipelineState* GetPipeline() const noexcept
+    template<>
+    class Internal<DX12PipelineState>
     {
-        return pipeline.get();
-    }
+    public:
+        Internal() = default;
+        Internal(winrt::com_ptr<ID3D12PipelineState> xpipeline)
+            : pipeline(std::move(xpipeline)) { }
 
-protected:
-    winrt::com_ptr<ID3D12PipelineState> pipeline;
-};
+    public:
+        ID3D12PipelineState* GetPipeline() const noexcept
+        {
+            return pipeline.get();
+        }
 
-/// @brief Pipeline state object, holds the state of the pipeline
-class DX12PipelineState : public QueryInternal<DX12PipelineState>
-{
-public:
-    DX12PipelineState() = default;
-    explicit DX12PipelineState(winrt::com_ptr<ID3D12PipelineState> xpipeline)
-        : QueryInternal(std::move(xpipeline)) { }
-    operator DX12PipelineStateView() const noexcept
+    protected:
+        winrt::com_ptr<ID3D12PipelineState> pipeline;
+    };
+
+    /// @brief Pipeline state object, holds the state of the pipeline
+    class DX12PipelineState : public QueryInternal<DX12PipelineState>
     {
-        return GetPipeline();
-    }
-};
+    public:
+        DX12PipelineState() = default;
+        explicit DX12PipelineState(winrt::com_ptr<ID3D12PipelineState> xpipeline)
+            : QueryInternal(std::move(xpipeline)) { }
+        operator DX12PipelineStateView() const noexcept
+        {
+            return GetPipeline();
+        }
+    };
 }

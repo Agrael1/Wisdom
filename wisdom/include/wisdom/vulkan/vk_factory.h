@@ -9,66 +9,66 @@
 
 WIS_EXPORT namespace wis
 {
-class VKFactory;
+    class VKFactory;
 
-template<>
-class Internal<VKFactory>
-{
-public:
-    Internal()
+    template<>
+    class Internal<VKFactory>
     {
-    }
-    ~Internal()
+    public:
+        Internal()
+        {
+        }
+        ~Internal()
+        {
+            if (instance_count.fetch_sub(1, std::memory_order_acq_rel) == 0)
+                messenger.reset();
+        }
+        static vk::Instance GetInstance() noexcept
+        {
+            return factory.get();
+        }
+        static uint32_t GetApiVer() noexcept
+        {
+            return api_version;
+        }
+        static auto GetInstanceHandle() noexcept
+        {
+            return factory;
+        }
+
+    protected:
+        static inline std::atomic_size_t instance_count{ 0 };
+        static inline wis::shared_handle<vk::Instance> factory{};
+        static inline wis::shared_handle<vk::DebugUtilsMessengerEXT> messenger{};
+        static inline uint32_t api_version{};
+    };
+
+    class VKFactory : public QueryInternal<VKFactory>
     {
-        if (instance_count.fetch_sub(1, std::memory_order_acq_rel) == 0)
-            messenger.reset();
-    }
-    static vk::Instance GetInstance() noexcept
-    {
-        return factory.get();
-    }
-    static uint32_t GetApiVer() noexcept
-    {
-        return api_version;
-    }
-    static auto GetInstanceHandle() noexcept
-    {
-        return factory;
-    }
+        friend class VKResourceAllocator;
+        friend class VKDevice;
+        static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+                VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                VkDebugUtilsMessageTypeFlagsEXT messageType,
+                const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                void* pUserData);
 
-protected:
-    static inline std::atomic_size_t instance_count{ 0 };
-    static inline wis::shared_handle<vk::Instance> factory{};
-    static inline wis::shared_handle<vk::DebugUtilsMessengerEXT> messenger{};
-    static inline uint32_t api_version{};
-};
+    public:
+        /// @brief Create a vulkan instance with the given application info
+        /// @param app_info Application info
+        /// @param unused
+        WIS_INLINE VKFactory(const ApplicationInfo& app_info, [[maybe_unused]] bool unused = true);
 
-class VKFactory : public QueryInternal<VKFactory>
-{
-    friend class VKResourceAllocator;
-    friend class VKDevice;
-    static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData);
+        /// @brief Enumerates all adapters on the system
+        /// @param preference Preference to use when enumerating adapters, changes the order of the adapters
+        /// @return coroutine that yields VKAdapter
+        [[nodiscard]] WIS_INLINE wis::generator<VKAdapter>
+        EnumerateAdapters(AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
-public:
-    /// @brief Create a vulkan instance with the given application info
-    /// @param app_info Application info
-    /// @param unused
-    WIS_INLINE VKFactory(const ApplicationInfo& app_info, [[maybe_unused]] bool unused = true);
-
-    /// @brief Enumerates all adapters on the system
-    /// @param preference Preference to use when enumerating adapters, changes the order of the adapters
-    /// @return coroutine that yields VKAdapter
-    [[nodiscard]] WIS_INLINE wis::generator<VKAdapter>
-    EnumerateAdapters(AdapterPreference preference = AdapterPreference::Performance) const noexcept;
-
-private:
-    static WIS_INLINE std::vector<const char*> FoundExtensions() noexcept;
-    static WIS_INLINE std::vector<const char*> FoundLayers() noexcept;
-};
+    private:
+        static WIS_INLINE std::vector<const char*> FoundExtensions() noexcept;
+        static WIS_INLINE std::vector<const char*> FoundLayers() noexcept;
+    };
 }
 
 #if defined(WISDOM_HEADER_ONLY)

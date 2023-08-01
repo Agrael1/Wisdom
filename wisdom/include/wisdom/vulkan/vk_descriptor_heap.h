@@ -8,114 +8,114 @@
 
 WIS_EXPORT namespace wis
 {
-class VKDescriptorSetLayout;
+    class VKDescriptorSetLayout;
 
-using VKDescriptorSetLayoutView = vk::DescriptorSetLayout;
+    using VKDescriptorSetLayoutView = vk::DescriptorSetLayout;
 
-template<>
-class Internal<VKDescriptorSetLayout>
-{
-public:
-    Internal() = default;
-    Internal(wis::shared_handle<vk::DescriptorSetLayout> layout)
-        : layout(std::move(layout)) {};
-
-    [[nodiscard]] auto GetDescriptorSetLayout() const noexcept
+    template<>
+    class Internal<VKDescriptorSetLayout>
     {
-        return layout.get();
-    }
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::DescriptorSetLayout> layout)
+            : layout(std::move(layout)){};
 
-protected:
-    wis::shared_handle<vk::DescriptorSetLayout> layout;
-};
+        [[nodiscard]] auto GetDescriptorSetLayout() const noexcept
+        {
+            return layout.get();
+        }
 
-class VKDescriptorSetLayout : public QueryInternal<VKDescriptorSetLayout>
-{
-public:
-    using QueryInternal::QueryInternal;
-    operator VKDescriptorSetLayoutView() const noexcept
+    protected:
+        wis::shared_handle<vk::DescriptorSetLayout> layout;
+    };
+
+    class VKDescriptorSetLayout : public QueryInternal<VKDescriptorSetLayout>
     {
-        return GetDescriptorSetLayout();
-    }
-};
+    public:
+        using QueryInternal::QueryInternal;
+        operator VKDescriptorSetLayoutView() const noexcept
+        {
+            return GetDescriptorSetLayout();
+        }
+    };
 
-class VKDescriptorSet;
+    class VKDescriptorSet;
 
-template<>
-class Internal<VKDescriptorSet>
-{
-public:
-    Internal() = default;
-    Internal(wis::shared_handle<vk::DescriptorSet> set)
-        : set(std::move(set)) {};
-
-    [[nodiscard]] auto GetDescriptorSet() const noexcept
+    template<>
+    class Internal<VKDescriptorSet>
     {
-        return set.get();
-    }
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::DescriptorSet> set)
+            : set(std::move(set)){};
 
-protected:
-    wis::shared_handle<vk::DescriptorSet> set;
-};
+        [[nodiscard]] auto GetDescriptorSet() const noexcept
+        {
+            return set.get();
+        }
 
-class VKDescriptorSet : public QueryInternal<VKDescriptorSet>
-{
-public:
-    using QueryInternal::QueryInternal;
-    operator VKDescriptorSetView() const noexcept
+    protected:
+        wis::shared_handle<vk::DescriptorSet> set;
+    };
+
+    class VKDescriptorSet : public QueryInternal<VKDescriptorSet>
     {
-        return GetDescriptorSet();
-    }
-};
+    public:
+        using QueryInternal::QueryInternal;
+        operator VKDescriptorSetView() const noexcept
+        {
+            return GetDescriptorSet();
+        }
+    };
 
-class VKDescriptorHeap;
+    class VKDescriptorHeap;
 
-template<>
-class Internal<VKDescriptorHeap>
-{
-public:
-    Internal() = default;
-    Internal(wis::shared_handle<vk::DescriptorPool> pool)
-        : pool(std::move(pool)) {};
-
-    [[nodiscard]] auto GetDescriptorPool() const noexcept
+    template<>
+    class Internal<VKDescriptorHeap>
     {
-        return pool.get();
-    }
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::DescriptorPool> pool)
+            : pool(std::move(pool)){};
 
-protected:
-    wis::shared_handle<vk::DescriptorPool> pool;
-};
+        [[nodiscard]] auto GetDescriptorPool() const noexcept
+        {
+            return pool.get();
+        }
 
-using VKDescriptorHeapView = vk::DescriptorPool;
+    protected:
+        wis::shared_handle<vk::DescriptorPool> pool;
+    };
 
-/// @brief Descriptor Heap object
-class VKDescriptorHeap : public QueryInternal<VKDescriptorHeap>
-{
-public:
-    VKDescriptorHeap() = default;
-    explicit VKDescriptorHeap(wis::shared_handle<vk::DescriptorPool> pool)
-        : QueryInternal(std::move(pool))
+    using VKDescriptorHeapView = vk::DescriptorPool;
+
+    /// @brief Descriptor Heap object
+    class VKDescriptorHeap : public QueryInternal<VKDescriptorHeap>
     {
-    }
-    operator bool() const noexcept
-    {
-        return bool(pool);
-    }
-    operator VKDescriptorHeapView() const noexcept
-    {
-        return GetDescriptorPool();
-    }
+    public:
+        VKDescriptorHeap() = default;
+        explicit VKDescriptorHeap(wis::shared_handle<vk::DescriptorPool> pool)
+            : QueryInternal(std::move(pool))
+        {
+        }
+        operator bool() const noexcept
+        {
+            return bool(pool);
+        }
+        operator VKDescriptorHeapView() const noexcept
+        {
+            return GetDescriptorPool();
+        }
 
-    VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)
-    {
-        const auto& device = pool.getParent();
+        VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)
+        {
+            const auto& device = pool.getParent();
 
-        vk::DescriptorSetAllocateInfo alloc_info{
-            pool.get(), 1u, &layout
-        };
-        shared_handle<vk::DescriptorSet> set{ device->allocateDescriptorSets(alloc_info)[0], device, { pool } };
-        return VKDescriptorSet{ std::move(set) };
-    }
-};
+            vk::DescriptorSetAllocateInfo alloc_info{
+                pool.get(), 1u, &layout
+            };
+            shared_handle<vk::DescriptorSet> set{ device->allocateDescriptorSets(alloc_info)[0], device, { pool } };
+            return VKDescriptorSet{ std::move(set) };
+        }
+    };
 }
