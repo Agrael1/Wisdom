@@ -67,6 +67,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
     queue = device.CreateCommandQueue();
 
+    // TODO: do vkGetPhysicalDeviceSurfaceCapabilitiesKHR. maybe have an overload
+    // to CreateSwapchain which just creates it at maxImageExtent?
     swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(width), uint32_t(height), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true }, wnd.GetSurfaceOptions());
 
     fence = device.CreateFence();
@@ -79,25 +81,25 @@ Test::App::App(uint32_t width, uint32_t height)
     constant_buffer = allocator.CreateConstantBuffer(sizeof(SceneConstantBuffer));
 
     // model, view, and projection
-    constexpr auto cube_position = glm::vec3(0.0f, 0.0f, -10.0f);
+    constexpr auto cube_position = glm::vec3(0.0f, 0.0f, 0.8f);
     cube_transform = glm::translate(cube_transform, cube_position);
 
     constexpr auto camera_position = glm::vec3(0.0f, 0.2f, 0.0f);
-    view = glm::lookAt(camera_position, cube_position, glm::vec3(0.0f, 1.0f, 0.0f));
+    view = glm::lookAtLH(camera_position, cube_position, glm::vec3(0.0f, 1.0f, 0.0f));
 
     constexpr auto near_plane = 0.1f;
     constexpr auto far_plane = 100.0f;
     constexpr auto fov_degrees = 45.0f;
-    projection = glm::perspective(glm::radians(fov_degrees),
-                                  (float)width / (float)height,
-                                  near_plane, far_plane);
+    projection = glm::perspectiveLH_ZO(glm::radians(fov_degrees),
+                                       (float)width / (float)height,
+                                       near_plane, far_plane);
     buffer.model_view_projection = cube_transform * view * projection;
 
     // upload to gpu
     constant_buffer.UpdateSubresource(RawView(buffer));
     mapped_buffer = constant_buffer.MapMemory();
 
-    std::array<wis::BindingDescriptor, 1> bindings{
+    std::array bindings{
         wis::BindingDescriptor{
                 .binding = 0,
                 .stages = wis::ShaderStage::vertex,
@@ -223,9 +225,10 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
 
     // needs to be recreated for vulkan for now
-    static constexpr std::array<wis::InputLayoutDesc, 2> ia{
+    static constexpr std::array ia{
         wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
-        wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+        wis::InputLayoutDesc{ 1, "NORMAL", 0, wis::DataFormat::r32g32b32_float, 0, 12, wis::InputClassification::vertex, 0 },
+        wis::InputLayoutDesc{ 2, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 24, wis::InputClassification::vertex, 0 }
     };
 
     wis::GraphicsPipelineDesc desc{ root };

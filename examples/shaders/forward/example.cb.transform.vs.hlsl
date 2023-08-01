@@ -9,7 +9,7 @@ struct PSInput
     float4 color : COLOR;
 };
 
-PSInput main(float3 pos : Position, float3 n : Normal, float4 color : Color)
+PSInput main(float3 pos : POSITION, float3 n : NORMAL, float4 color : COLOR)
 {
     PSInput vertexShaderOutput;
 
