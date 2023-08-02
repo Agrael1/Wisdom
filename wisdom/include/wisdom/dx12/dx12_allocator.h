@@ -76,7 +76,7 @@ WIS_EXPORT namespace wis
 
             return DX12Texture{ std::move(rc), std::move(al) };
         }
-        
+
         [[nodiscard]] DX12Texture CreateDepthStencilTexture(DepthDescriptor desc) const
         {
             using namespace river::flags;
@@ -96,8 +96,6 @@ WIS_EXPORT namespace wis
 
             return DX12Texture{ std::move(rc), std::move(al) };
         }
-
-
     };
 }
 

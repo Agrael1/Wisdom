@@ -84,7 +84,7 @@ public:
             wis::InputLayoutDesc{ 1, "NORMAL", 0, wis::DataFormat::r32g32b32_float, 0, 12, wis::InputClassification::vertex, 0 },
             wis::InputLayoutDesc{ 2, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 24, wis::InputClassification::vertex, 0 }
         };
-        
+
         auto x = swap.GetRenderTargets();
         for (size_t i = 0; i < x.size(); i++) {
             rtvs[i] = device.CreateRenderTargetView(x[i]);
@@ -93,10 +93,9 @@ public:
         }
 
         for (size_t i = 0; i < 2; i++) {
-			depth_buffers[i] = allocator.CreateDepthStencilTexture({ width, height, wis::DataFormat::d32_float });
-			dsv[i] = device.CreateDepthStencilView(depth_buffers[i]);
-		}
-
+            depth_buffers[i] = allocator.CreateDepthStencilTexture({ width, height, wis::DataFormat::d32_float });
+            dsv[i] = device.CreateDepthStencilView(depth_buffers[i]);
+        }
     }
 
     void WaitForGPU()
@@ -127,7 +126,6 @@ public:
     wis::RenderTargetView rtvs2[2];
     wis::Texture depth_buffers[2];
     wis::DepthStencilView dsv[2];
-
 
     wis::Fence fence;
     uint64_t fence_value = 1;

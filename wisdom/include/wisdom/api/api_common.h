@@ -476,8 +476,7 @@ WIS_EXPORT namespace wis
         DataFormat format = DataFormat::unknown;
     };
 
-    struct DepthDescriptor
-    {
+    struct DepthDescriptor {
         uint32_t width = 0;
         uint32_t height = 0;
         DataFormat format = DataFormat::unknown;
