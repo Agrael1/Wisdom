@@ -4,6 +4,7 @@
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
 #include <wisdom/vulkan/vk_resource.h>
+#include <wisdom/vulkan/vk_format.h>
 #include <wisdom/global/assertions.h>
 #endif // !WISDOM_MODULES
 
