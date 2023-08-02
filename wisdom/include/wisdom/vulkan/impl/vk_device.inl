@@ -1,7 +1,7 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
-// #include "../vk_device.h"
+ //#include "../vk_device.h"
 
 bool wis::VKDevice::Initialize(VKAdapterView adapter)
 {
@@ -408,7 +408,7 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
 
     vk::PipelineRasterizationStateCreateInfo rasterizer{
         vk::PipelineRasterizationStateCreateFlags{},
-        false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eClockwise,
+        false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eClockwise,
         false, 0.0f, 0.0f, 0.0f, 1.0f
     };
 
