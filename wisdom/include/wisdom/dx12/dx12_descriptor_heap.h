@@ -51,10 +51,11 @@ WIS_EXPORT namespace wis
     {
     public:
         Internal() = default;
-        Internal(winrt::com_ptr<ID3D12DescriptorHeap> heap, CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start, CD3DX12_CPU_DESCRIPTOR_HANDLE heap_end, uint32_t heap_increment)
+        Internal(winrt::com_ptr<ID3D12DescriptorHeap> heap, CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start, CD3DX12_CPU_DESCRIPTOR_HANDLE heap_end, CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_start, uint32_t heap_increment)
             : heap(std::move(heap))
             , heap_start(heap_start)
             , heap_end(heap_end)
+            , heap_gpu_start(heap_gpu_start)
             , heap_increment(heap_increment){};
 
     public:
@@ -70,11 +71,20 @@ WIS_EXPORT namespace wis
         {
             return heap_increment;
         }
+        [[nodiscard]] CD3DX12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGpuStart() const noexcept
+        {
+            return heap_gpu_start;
+        }
+        auto get() const noexcept
+        {
+            return heap.get();
+        }
 
     protected:
         winrt::com_ptr<ID3D12DescriptorHeap> heap;
         CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start;
         CD3DX12_CPU_DESCRIPTOR_HANDLE heap_end;
+        CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_start;
         uint32_t heap_increment = 0;
     };
 
@@ -88,7 +98,7 @@ WIS_EXPORT namespace wis
         }
         operator DX12DescriptorSetBindView() const noexcept
         {
-            return std::make_tuple(heap.get(), heap->GetGPUDescriptorHandleForHeapStart());
+            return std::make_tuple(heap.get(), GetDescriptorHeapGpuStart());
         }
     };
 
@@ -102,6 +112,7 @@ WIS_EXPORT namespace wis
         Internal(winrt::com_ptr<ID3D12DescriptorHeap> heap, uint32_t heap_increment)
             : heap(std::move(heap))
             , heap_start(this->heap->GetCPUDescriptorHandleForHeapStart())
+            , heap_gpu_start(this->heap->GetGPUDescriptorHandleForHeapStart())
             , heap_increment(heap_increment){};
 
     public:
@@ -113,6 +124,7 @@ WIS_EXPORT namespace wis
     protected:
         winrt::com_ptr<ID3D12DescriptorHeap> heap;
         CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start;
+        CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_start;
         uint32_t heap_increment = 0;
     };
 
@@ -140,9 +152,11 @@ WIS_EXPORT namespace wis
         DX12DescriptorSet AllocateDescriptorSet(DX12DescriptorSetLayoutView layout)
         {
             auto start = heap_start;
+            auto gpu_start = heap_gpu_start;
             heap_start.Offset(heap_increment * layout.size());
+            heap_gpu_start.Offset(heap_increment * layout.size());
             auto end = heap_start;
-            return DX12DescriptorSet{ heap, start, end, heap_increment };
+            return DX12DescriptorSet{ heap, start, end, gpu_start, heap_increment };
         }
     };
 }
