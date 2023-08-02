@@ -6,33 +6,33 @@
 
 WIS_EXPORT namespace wis
 {
-class DX12RenderTargetView;
+    class DX12RenderTargetView;
 
-template<>
-class Internal<DX12RenderTargetView>
-{
-public:
-    Internal() = default;
-    Internal(CD3DX12_CPU_DESCRIPTOR_HANDLE handle)
-        : handle(handle) { }
-
-public:
-    auto GetHandle() const noexcept
+    template<>
+    class Internal<DX12RenderTargetView>
     {
-        return handle;
-    }
+    public:
+        Internal() = default;
+        Internal(CD3DX12_CPU_DESCRIPTOR_HANDLE handle)
+            : handle(handle) { }
 
-protected:
-    CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
-};
+    public:
+        auto GetHandle() const noexcept
+        {
+            return handle;
+        }
 
-class DX12RenderTargetView : public QueryInternal<DX12RenderTargetView>
-{
-public:
-    DX12RenderTargetView() = default;
-    explicit DX12RenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE xhandle)
-        : QueryInternal(xhandle) { }
-};
+    protected:
+        CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
+    };
 
-using DX12DepthStencilView = DX12RenderTargetView;
+    class DX12RenderTargetView : public QueryInternal<DX12RenderTargetView>
+    {
+    public:
+        DX12RenderTargetView() = default;
+        explicit DX12RenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE xhandle)
+            : QueryInternal(xhandle) { }
+    };
+
+    using DX12DepthStencilView = DX12RenderTargetView;
 }

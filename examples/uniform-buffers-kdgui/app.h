@@ -41,7 +41,6 @@ private:
     wis::Buffer vertex_buffer;
     wis::Buffer index_buffer;
 
-
     struct SceneConstantBuffer {
         glm::mat4 model_view_projection{ 1.0f };
         std::byte padding[256 - sizeof(glm::mat4)]; // Padding so the constant buffer is 256-byte aligned.

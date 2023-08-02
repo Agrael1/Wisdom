@@ -32,9 +32,9 @@ Test::App::App(uint32_t width, uint32_t height)
 
     std::array bindings{
         wis::BindingDescriptor{
-            .binding = 0,
-            .stages = wis::ShaderStage::vertex,
-            .type = wis::BindingType::CBV,
+                .binding = 0,
+                .stages = wis::ShaderStage::vertex,
+                .type = wis::BindingType::CBV,
         }
     };
     wis::DescriptorSetLayout constants_layout = gfx.device.CreateDescriptorSetLayout(bindings);
@@ -130,12 +130,12 @@ void Test::App::Frame()
     gfx.context.EndRenderPass();
 
     gfx.context.TextureBarrier({
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-    },
-    back);
+                                       .state_before = wis::TextureState::RenderTarget,
+                                       .state_after = wis::TextureState::Present,
+                                       .access_before = wis::ResourceAccess::RenderTarget,
+                                       .access_after = wis::ResourceAccess::Common,
+                               },
+                               back);
     gfx.context.Close();
     gfx.queue.ExecuteCommandList(gfx.context);
 
@@ -149,8 +149,8 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     // update projection
     gfx.projection = glm::perspectiveFovLH_ZO(glm::radians(fov_degrees),
-                     (float)width, (float)height,
-                     near_plane, far_plane);
+                                              (float)width, (float)height,
+                                              near_plane, far_plane);
     UpdateConstantBuffer();
 
     // needs to be recreated for vulkan for now
@@ -169,19 +169,19 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     gfx.context.Reset();
     gfx.context.TextureBarrier({
-        .state_before = wis::TextureState::Undefined,
-        .state_after = wis::TextureState::DepthWrite,
-        .access_before = wis::ResourceAccess::Common,
-        .access_after = wis::ResourceAccess::DepthWrite,
-    },
-    gfx.depth_buffers[0]);
+                                       .state_before = wis::TextureState::Undefined,
+                                       .state_after = wis::TextureState::DepthWrite,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::DepthWrite,
+                               },
+                               gfx.depth_buffers[0]);
     gfx.context.TextureBarrier({
-        .state_before = wis::TextureState::Undefined,
-        .state_after = wis::TextureState::DepthWrite,
-        .access_before = wis::ResourceAccess::Common,
-        .access_after = wis::ResourceAccess::DepthWrite,
-    },
-    gfx.depth_buffers[1]);
+                                       .state_before = wis::TextureState::Undefined,
+                                       .state_after = wis::TextureState::DepthWrite,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::DepthWrite,
+                               },
+                               gfx.depth_buffers[1]);
     gfx.context.Close();
 
     gfx.queue.ExecuteCommandList(gfx.context);

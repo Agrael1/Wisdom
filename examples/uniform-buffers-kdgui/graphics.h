@@ -64,11 +64,11 @@ public:
 
         constexpr static std::array cas2{
             wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear },
+                    .format = wis::SwapchainOptions::default_format,
+                    .load = wis::PassLoadOperation::clear },
             wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear }
+                    .format = wis::SwapchainOptions::default_format,
+                    .load = wis::PassLoadOperation::clear }
         };
         wis::DepthStencilAttachment dsa{
             .format = wis::DataFormat::d32_float,
@@ -96,7 +96,6 @@ public:
             depth_buffers[i] = allocator.CreateDepthStencilTexture({ width, height, wis::DataFormat::d32_float });
             dsv[i] = device.CreateDepthStencilView(depth_buffers[i]);
         }
-
     }
 
     void WaitForGPU()
@@ -127,7 +126,6 @@ public:
     wis::RenderTargetView rtvs2[2];
     wis::Texture depth_buffers[2];
     wis::DepthStencilView dsv[2];
-
 
     wis::Fence fence;
     uint64_t fence_value = 1;

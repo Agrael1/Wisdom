@@ -6,40 +6,40 @@
 
 WIS_EXPORT namespace wis
 {
-class VKRenderTargetView;
+    class VKRenderTargetView;
 
-template<>
-class Internal<VKRenderTargetView>
-{
-public:
-    Internal() = default;
-    Internal(wis::shared_handle<vk::ImageView> view)
-        : view(std::move(view))
+    template<>
+    class Internal<VKRenderTargetView>
     {
-    }
+    public:
+        Internal() = default;
+        Internal(wis::shared_handle<vk::ImageView> view)
+            : view(std::move(view))
+        {
+        }
 
-    [[nodiscard]] auto GetViewHandle() const noexcept
+        [[nodiscard]] auto GetViewHandle() const noexcept
+        {
+            return view;
+        }
+        [[nodiscard]] auto GetImageView() const noexcept
+        {
+            return view.get();
+        }
+
+    protected:
+        wis::shared_handle<vk::ImageView> view;
+    };
+
+    class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
     {
-        return view;
-    }
-    [[nodiscard]] auto GetImageView() const noexcept
-    {
-        return view.get();
-    }
+    public:
+        VKRenderTargetView() = default;
+        explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
+            : QueryInternal(std::move(view))
+        {
+        }
+    };
 
-protected:
-    wis::shared_handle<vk::ImageView> view;
-};
-
-class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
-{
-public:
-    VKRenderTargetView() = default;
-    explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
-        : QueryInternal(std::move(view))
-    {
-    }
-};
-
-using VKDepthStencilView = VKRenderTargetView;
+    using VKDepthStencilView = VKRenderTargetView;
 }
