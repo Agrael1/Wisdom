@@ -33,27 +33,27 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 // dx12
 WIS_EXPORT namespace wis
 {
-    using Factory = DX12Factory;
-    using Adapter = DX12Adapter;
-    using Device = DX12Device;
-    using CommandQueue = DX12CommandQueue;
-    using SwapChain = DX12SwapChain;
-    using CommandList = DX12CommandList;
-    using Fence = DX12Fence;
-    using Buffer = DX12Buffer;
-    using RenderTargetView = DX12RenderTargetView;
-    using Shader = DX12Shader;
-    using RootSignature = DX12RootSignature;
-    using PipelineState = DX12PipelineState;
-    using ResourceAllocator = DX12ResourceAllocator;
-    using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
-    using VertexBufferView = DX12VertexBufferView;
-    using RenderPass = DX12RenderPass;
-    using DescriptorHeap = DX12DescriptorHeap;
-    using DescriptorSetLayout = DX12DescriptorSetLayout;
-    using DescriptorSet = DX12DescriptorSet;
-    using Texture = DX12Texture;
-    using DepthStencilView = DX12DepthStencilView;
+using Factory = DX12Factory;
+using Adapter = DX12Adapter;
+using Device = DX12Device;
+using CommandQueue = DX12CommandQueue;
+using SwapChain = DX12SwapChain;
+using CommandList = DX12CommandList;
+using Fence = DX12Fence;
+using Buffer = DX12Buffer;
+using RenderTargetView = DX12RenderTargetView;
+using Shader = DX12Shader;
+using RootSignature = DX12RootSignature;
+using PipelineState = DX12PipelineState;
+using ResourceAllocator = DX12ResourceAllocator;
+using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
+using VertexBufferView = DX12VertexBufferView;
+using RenderPass = DX12RenderPass;
+using DescriptorHeap = DX12DescriptorHeap;
+using DescriptorSetLayout = DX12DescriptorSetLayout;
+using DescriptorSet = DX12DescriptorSet;
+using Texture = DX12Texture;
+using DepthStencilView = DX12DepthStencilView;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH // MAC
 // metal
@@ -70,27 +70,27 @@ WIS_EXPORT namespace wis
 // vulkan
 WIS_EXPORT namespace wis
 {
-    using Factory = VKFactory;
-    using Adapter = VKAdapter;
-    using Device = VKDevice;
-    using CommandQueue = VKCommandQueue;
-    using SwapChain = VKSwapChain;
-    using CommandList = VKCommandList;
-    using Fence = VKFence;
-    using Buffer = VKBuffer;
-    using RenderTargetView = VKRenderTargetView;
-    using Shader = VKShader;
-    using RootSignature = VKRootSignature;
-    using PipelineState = VKPipelineState;
-    using ResourceAllocator = VKResourceAllocator;
-    using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
-    using VertexBufferView = VKVertexBufferView;
-    using RenderPass = VKRenderPass;
-    using DescriptorHeap = VKDescriptorHeap;
-    using DescriptorSetLayout = VKDescriptorSetLayout;
-    using DescriptorSet = VKDescriptorSet;
-    using Texture = VKTexture;
-    using DepthStencilView = VKDepthStencilView;
+using Factory = VKFactory;
+using Adapter = VKAdapter;
+using Device = VKDevice;
+using CommandQueue = VKCommandQueue;
+using SwapChain = VKSwapChain;
+using CommandList = VKCommandList;
+using Fence = VKFence;
+using Buffer = VKBuffer;
+using RenderTargetView = VKRenderTargetView;
+using Shader = VKShader;
+using RootSignature = VKRootSignature;
+using PipelineState = VKPipelineState;
+using ResourceAllocator = VKResourceAllocator;
+using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
+using VertexBufferView = VKVertexBufferView;
+using RenderPass = VKRenderPass;
+using DescriptorHeap = VKDescriptorHeap;
+using DescriptorSetLayout = VKDescriptorSetLayout;
+using DescriptorSet = VKDescriptorSet;
+using Texture = VKTexture;
+using DepthStencilView = VKDepthStencilView;
 }
 #else
 #error "No API selected"
