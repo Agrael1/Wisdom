@@ -53,6 +53,7 @@ Test::App::App(uint32_t width, uint32_t height)
     upl_vbuf.UpdateSubresource(RawView(cube_vertices_indexed));
     upl_ibuf.UpdateSubresource(RawView(cube_indices));
 
+    gfx.context.SetPipeline(pipeline);
     gfx.context.Reset();
     gfx.context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(cube_vertices_indexed));
     gfx.context.CopyBuffer(upl_ibuf, index_buffer, sizeof(cube_indices));
@@ -67,8 +68,13 @@ Test::App::App(uint32_t width, uint32_t height)
     gfx.queue.ExecuteCommandList(gfx.context);
     gfx.WaitForGPU();
 
+    gfx.context.Reset();
+
+    gfx.context.Close();
+
+    gfx.queue.ExecuteCommandList(gfx.context);
+    gfx.WaitForGPU();
     vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
-    gfx.context.SetPipeline(pipeline);
 }
 
 Test::App::~App()
@@ -100,10 +106,26 @@ void Test::App::UpdateConstantBuffer()
 void Test::App::Frame()
 {
     gfx.context.Reset();
+
     auto back = gfx.swap.GetBackBuffer();
 
     cube_transform = glm::rotate(cube_transform, glm::radians(0.1f), glm::vec3(0.0f, 1.0f, 1.0f));
     UpdateConstantBuffer();
+
+    gfx.context.TextureBarrier({
+                                       .state_before = wis::TextureState::Undefined,
+                                       .state_after = wis::TextureState::DepthWrite,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::DepthWrite,
+                               },
+                               gfx.depth_buffers[0]);
+    gfx.context.TextureBarrier({
+                                       .state_before = wis::TextureState::Undefined,
+                                       .state_after = wis::TextureState::DepthWrite,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::DepthWrite,
+                               },
+                               gfx.depth_buffers[1]);
 
     gfx.context.TextureBarrier({ .state_before = wis::TextureState::Present,
                                  .state_after = wis::TextureState::RenderTarget,
@@ -125,7 +147,7 @@ void Test::App::Frame()
     gfx.context.IASetVertexBuffers({ &vb, 1 });
     gfx.context.IASetIndexBuffer(index_buffer, sizeof(cube_indices), wis::IndexType::uint16);
 
-    gfx.context.BeginRenderPass(gfx.render_pass, { rtvsx.data(), static_cast<unsigned int>(gfx.swap.StereoSupported()) + 1u });
+    gfx.context.BeginRenderPass(gfx.render_pass, { rtvsx.data(), static_cast<unsigned int>(gfx.swap.StereoSupported()) + 1u }, std::pair{ gfx.dsv[gfx.swap.GetNextIndex()], wis::DepthClear{ 1.0f } });
     gfx.context.DrawIndexedInstanced(cube_indices.size());
     gfx.context.EndRenderPass();
 

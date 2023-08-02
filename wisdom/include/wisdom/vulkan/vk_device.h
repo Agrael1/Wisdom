@@ -275,7 +275,7 @@ WIS_EXPORT namespace wis
                 {},
                 vk::ImageSubresourceRange{
                         aspect_flags(texture.format),
-                        1u,
+                        0u,
                         1u,
                         0u,
                         1u,

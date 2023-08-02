@@ -23,7 +23,7 @@ WIS_EXPORT namespace wis
         }
 
     protected:
-        CD3DX12_CPU_DESCRIPTOR_HANDLE handle;
+        CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
     };
 
     class DX12RenderTargetView : public QueryInternal<DX12RenderTargetView>
