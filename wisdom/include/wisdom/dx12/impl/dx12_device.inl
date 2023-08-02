@@ -140,7 +140,7 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
     internals::memory_pool psta;
     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
-    
+
     if (desc.depth_enabled)
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2>() = CD3DX12_DEPTH_STENCIL_DESC2{ CD3DX12_DEFAULT{} };
 
