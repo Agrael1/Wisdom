@@ -134,6 +134,12 @@ WIS_EXPORT namespace wis
         sampler_feedback_mip_region_used_opaque = 190,
     };
 
+    /// @brief An enum describing the type of an index.
+    enum class IndexType {
+        uint16 = 0,
+        uint32 = 1
+    };
+
     /// @brief A string representation of the data format enum.
     constexpr inline std::string_view data_format_strings[]{
         "unknown = 0",

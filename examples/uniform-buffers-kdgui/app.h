@@ -53,6 +53,7 @@ private:
     wis::RenderTargetView rtvs2[2];
 
     wis::Buffer vertex_buffer;
+    wis::Buffer index_buffer;
     wis::RenderPass render_pass;
     uint64_t fence_value = 1;
 

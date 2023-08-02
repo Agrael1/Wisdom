@@ -142,6 +142,11 @@ WIS_EXPORT namespace wis
         /// @param start_slot Offset to start binding from.
         WIS_INLINE void IASetVertexBuffers(std::span<const VKVertexBufferView> resources, uint32_t start_slot = 0) noexcept;
 
+        void IASetIndexBuffer(VKBufferView buffer, uint32_t, IndexType type = IndexType::uint16) noexcept
+        {
+            command_list.bindIndexBuffer(buffer, 0, type == IndexType::uint16 ? vk::IndexType::eUint16 : vk::IndexType::eUint32);
+        }
+
         /// @brief Start a render pass.
         /// @param pass Pass description.
         /// @param render_targets Render targets to bind with colors to clear them with.
@@ -166,6 +171,16 @@ WIS_EXPORT namespace wis
         {
             command_list.draw(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
         }
+
+        void DrawIndexedInstanced(uint32_t IndexCountPerInstance,
+                                  uint32_t InstanceCount = 1,
+                                  uint32_t StartIndexLocation = 0,
+                                  uint32_t StartVertexLocation = 0,
+                                  uint32_t StartInstanceLocation = 0) noexcept
+        {
+            command_list.drawIndexed(IndexCountPerInstance, InstanceCount, StartIndexLocation, StartVertexLocation, StartInstanceLocation);
+        }
+
         void SetGraphicsDescriptorSet(VKRootSignatureView root) noexcept
         {
             // nothing tbd

@@ -103,16 +103,24 @@ Test::App::App(uint32_t width, uint32_t height)
 
     OnResize(width, height);
 
-    vertex_buffer = allocator.CreatePersistentBuffer(sizeof(cube_vertices), wis::BufferFlags::VertexBuffer);
+    vertex_buffer = allocator.CreatePersistentBuffer(sizeof(cube_vertices_indexed), wis::BufferFlags::VertexBuffer);
+    index_buffer = allocator.CreatePersistentBuffer(sizeof(cube_indices), wis::BufferFlags::IndexBuffer);
 
-    auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(cube_vertices));
-    upl_vbuf.UpdateSubresource(RawView(cube_vertices));
+
+    auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(cube_vertices_indexed));
+    auto upl_ibuf = allocator.CreateUploadBuffer(sizeof(cube_indices));
+    upl_vbuf.UpdateSubresource(RawView(cube_vertices_indexed));
+    upl_ibuf.UpdateSubresource(RawView(cube_indices));
 
     context.Reset();
-    context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(cube_vertices));
+    context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(cube_vertices_indexed));
+    context.CopyBuffer(upl_ibuf, index_buffer, sizeof(cube_indices));
     context.BufferBarrier({ .access_before = wis::ResourceAccess::CopyDest,
                             .access_after = wis::ResourceAccess::VertexBuffer },
                           vertex_buffer);
+    context.BufferBarrier({ .access_before = wis::ResourceAccess::CopyDest,
+                            .access_after = wis::ResourceAccess::IndexBuffer },
+                          index_buffer);
     context.Close();
 
     queue.ExecuteCommandList(context);
@@ -174,9 +182,10 @@ void Test::App::Frame()
     context.RSSetScissorRect({ long(wnd.width()), long(wnd.height()) });
     context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
     context.IASetVertexBuffers({ &vb, 1 });
+    context.IASetIndexBuffer(index_buffer, sizeof(cube_indices), wis::IndexType::uint16);
 
     context.BeginRenderPass(render_pass, { rtvsx.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
-    context.DrawInstanced(cube_vertices.size());
+    context.DrawIndexedInstanced(cube_indices.size());
     context.EndRenderPass();
 
     context.TextureBarrier({

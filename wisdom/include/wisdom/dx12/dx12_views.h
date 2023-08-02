@@ -1,5 +1,6 @@
 #pragma once
 #include <d3dx12/d3dx12_root_signature.h>
+#include <tuple>
 
 struct IDXGIAdapter1;
 // struct ID3D12Device10;
