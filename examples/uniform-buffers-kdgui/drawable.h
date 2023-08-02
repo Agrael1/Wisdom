@@ -3,13 +3,11 @@
 #include "graphics.h"
 #include <glm/glm.hpp>
 
-
 class Cube
 {
 public:
     Cube(const Graphics& gfx)
     {
-
     }
 
 public:

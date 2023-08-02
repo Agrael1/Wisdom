@@ -8,7 +8,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-
 template<class T>
 std::span<std::byte> RawView(T& data)
 {
@@ -33,9 +32,9 @@ Test::App::App(uint32_t width, uint32_t height)
 
     std::array bindings{
         wis::BindingDescriptor{
-            .binding = 0,
-            .stages = wis::ShaderStage::vertex,
-            .type = wis::BindingType::CBV,
+                .binding = 0,
+                .stages = wis::ShaderStage::vertex,
+                .type = wis::BindingType::CBV,
         }
     };
     wis::DescriptorSetLayout constants_layout = gfx.device.CreateDescriptorSetLayout(bindings);
@@ -48,7 +47,6 @@ Test::App::App(uint32_t width, uint32_t height)
 
     vertex_buffer = gfx.allocator.CreatePersistentBuffer(sizeof(cube_vertices_indexed), wis::BufferFlags::VertexBuffer);
     index_buffer = gfx.allocator.CreatePersistentBuffer(sizeof(cube_indices), wis::BufferFlags::IndexBuffer);
-
 
     auto upl_vbuf = gfx.allocator.CreateUploadBuffer(sizeof(cube_vertices_indexed));
     auto upl_ibuf = gfx.allocator.CreateUploadBuffer(sizeof(cube_indices));
@@ -132,12 +130,12 @@ void Test::App::Frame()
     gfx.context.EndRenderPass();
 
     gfx.context.TextureBarrier({
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-    },
-    back);
+                                       .state_before = wis::TextureState::RenderTarget,
+                                       .state_after = wis::TextureState::Present,
+                                       .access_before = wis::ResourceAccess::RenderTarget,
+                                       .access_after = wis::ResourceAccess::Common,
+                               },
+                               back);
     gfx.context.Close();
     gfx.queue.ExecuteCommandList(gfx.context);
 
@@ -151,8 +149,8 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     // update projection
     gfx.projection = glm::perspectiveFovLH_ZO(glm::radians(fov_degrees),
-                     (float)width, (float)height,
-                     near_plane, far_plane);
+                                              (float)width, (float)height,
+                                              near_plane, far_plane);
     UpdateConstantBuffer();
 
     // needs to be recreated for vulkan for now

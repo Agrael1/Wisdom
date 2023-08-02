@@ -23,7 +23,6 @@ private:
     Window wnd;
     Graphics gfx;
 
-
     glm::mat4 cube_transform{ 1.0f };
     static constexpr auto near_plane = 0.1f;
     static constexpr auto far_plane = 100.0f;
