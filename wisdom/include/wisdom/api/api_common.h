@@ -476,6 +476,13 @@ WIS_EXPORT namespace wis
         DataFormat format = DataFormat::unknown;
     };
 
+    struct DepthDescriptor
+    {
+        uint32_t width = 0;
+        uint32_t height = 0;
+        DataFormat format = DataFormat::unknown;
+    };
+
     /// @brief Size of a texture in pixels
     struct Size2D {
         Size2D(uint32_t w, uint32_t h)

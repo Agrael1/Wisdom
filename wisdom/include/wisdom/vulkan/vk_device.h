@@ -265,6 +265,25 @@ WIS_EXPORT namespace wis
         /// @return View object
         [[nodiscard]] WIS_INLINE VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {}) const;
 
+        [[nodiscard]] WIS_INLINE VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
+        {
+            vk::ImageViewCreateInfo desc{
+                vk::ImageViewCreateFlags{},
+                texture.image,
+                vk::ImageViewType::e2D,
+                texture.format,
+                {},
+                vk::ImageSubresourceRange{
+                        aspect_flags(texture.format),
+                        1u,
+                        1u,
+                        0u,
+                        1u,
+                }
+            };
+            return VKDepthStencilView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+        }
+
         /// @brief Create a Descriptor heap object, where descriptors can be allocated from
         /// @param num_descs maximum number of descriptors that can be allocated from this heap
         /// @param type Type of descriptors that can be allocated from this heap
