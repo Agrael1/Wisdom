@@ -170,7 +170,7 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
 
 wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
         wis::Size2D,
-        std::span<ColorAttachment> rtv_descs,
+        std::span<const ColorAttachment> rtv_descs,
         DepthStencilAttachment dsv_desc,
         SampleCount samples,
         DataFormat vrs_format) const

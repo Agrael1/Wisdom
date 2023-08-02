@@ -91,6 +91,20 @@ WIS_EXPORT namespace wis
             return CreateHostVisibleBuffer(size, BufferFlags::ConstantBuffer);
         }
 
+        [[nodiscard]] VKTexture CreateTexture(const TextureDescriptor& desc) const
+        {
+            auto format = convert_vk(desc.format);
+            vk::ImageCreateInfo img_desc{
+                vk::ImageCreateFlagBits::e2DArrayCompatible|vk::ImageCreateFlagBits::e2DViewCompatibleEXT,
+                    vk::ImageType::e3D, format, vk::Extent3D{ desc.width, desc.height, desc.depth }, desc.mip_levels, desc.array_size
+            };
+            vma::AllocationCreateInfo alloc{
+                {}, vma::MemoryUsage::eAuto
+            };
+            auto [a, b] = allocator->createImage(img_desc, alloc);
+            return VKTexture{ format, wis::shared_handle<vk::Image>{ a, allocator.getParent() }, wis::shared_handle<vma::Allocation>{ b, allocator } };
+        }
+
     private:
         [[nodiscard]] VKBuffer CreateBuffer(const vk::BufferCreateInfo& desc, const vma::AllocationCreateInfo& alloc_desc) const
         {

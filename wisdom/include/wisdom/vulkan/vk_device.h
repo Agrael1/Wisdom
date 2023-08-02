@@ -227,7 +227,7 @@ WIS_EXPORT namespace wis
 
         [[nodiscard]] WIS_INLINE
                 VKRenderPass
-                CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,
+                CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
                                  DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
                                  SampleCount samples = SampleCount::s1,
                                  DataFormat vrs_format = DataFormat::unknown) const;

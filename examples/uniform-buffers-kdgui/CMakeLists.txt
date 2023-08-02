@@ -2,7 +2,7 @@ project(uniform-buffers-kdgui)
 
 add_executable(${PROJECT_NAME}
 	entry_main.cpp "window.h"
- "window.cpp" "app.h" "app.cpp")
+ "window.cpp" "app.h" "app.cpp" "drawable.h" "graphics.h")
 
 if(WIN32)
 	include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Functions.cmake)

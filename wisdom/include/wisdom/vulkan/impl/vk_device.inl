@@ -242,7 +242,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 }
 
 // NOLINTNEXTLINE
-wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,
+wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
                                                   DepthStencilAttachment dsv_desc,
                                                   SampleCount samples,
                                                   DataFormat /*vrs_format*/) const

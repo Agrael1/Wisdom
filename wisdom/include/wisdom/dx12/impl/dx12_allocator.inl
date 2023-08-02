@@ -1,5 +1,4 @@
 #ifndef WISDOM_MODULES
-#include <d3dx12/d3dx12.h>
 #endif
 
 wis::DX12ResourceAllocator::DX12ResourceAllocator(wis::DX12DeviceView device, wis::DX12AdapterView adapter)
