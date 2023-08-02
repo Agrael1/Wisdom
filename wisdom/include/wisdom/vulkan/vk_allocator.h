@@ -95,8 +95,8 @@ WIS_EXPORT namespace wis
         {
             auto format = convert_vk(desc.format);
             vk::ImageCreateInfo img_desc{
-                vk::ImageCreateFlagBits::e2DArrayCompatible|vk::ImageCreateFlagBits::e2DViewCompatibleEXT,
-                    vk::ImageType::e3D, format, vk::Extent3D{ desc.width, desc.height, desc.depth }, desc.mip_levels, desc.array_size
+                vk::ImageCreateFlagBits::e2DArrayCompatible | vk::ImageCreateFlagBits::e2DViewCompatibleEXT,
+                vk::ImageType::e3D, format, vk::Extent3D{ desc.width, desc.height, desc.depth }, desc.mip_levels, desc.array_size
             };
             vma::AllocationCreateInfo alloc{
                 {}, vma::MemoryUsage::eAuto

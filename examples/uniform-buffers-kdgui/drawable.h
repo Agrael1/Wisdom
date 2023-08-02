@@ -3,13 +3,11 @@
 #include "graphics.h"
 #include <glm/glm.hpp>
 
-
 class Cube
 {
 public:
     Cube(const Graphics& gfx)
     {
-
     }
 
 public:
@@ -22,7 +20,7 @@ public:
     wis::Buffer vertex_buffer;
     wis::Buffer index_buffer;
     wis::Texture texture;
-    
+
     wis::Buffer constant_buffer;
     wis::DescriptorSet constants_set;
 

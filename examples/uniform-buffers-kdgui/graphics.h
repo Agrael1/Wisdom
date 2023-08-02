@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <fstream>
 
-
 template<class ShaderTy>
 inline auto LoadShader(std::filesystem::path p)
 {
