@@ -33,9 +33,9 @@ Test::App::App(uint32_t width, uint32_t height)
 
     std::array bindings{
         wis::BindingDescriptor{
-                .binding = 0,
-                .stages = wis::ShaderStage::vertex,
-                .type = wis::BindingType::CBV,
+            .binding = 0,
+            .stages = wis::ShaderStage::vertex,
+            .type = wis::BindingType::CBV,
         }
     };
     wis::DescriptorSetLayout constants_layout = gfx.device.CreateDescriptorSetLayout(bindings);
@@ -59,11 +59,11 @@ Test::App::App(uint32_t width, uint32_t height)
     gfx.context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(cube_vertices_indexed));
     gfx.context.CopyBuffer(upl_ibuf, index_buffer, sizeof(cube_indices));
     gfx.context.BufferBarrier({ .access_before = wis::ResourceAccess::CopyDest,
-                            .access_after = wis::ResourceAccess::VertexBuffer },
-                          vertex_buffer);
+                                .access_after = wis::ResourceAccess::VertexBuffer },
+                              vertex_buffer);
     gfx.context.BufferBarrier({ .access_before = wis::ResourceAccess::CopyDest,
-                            .access_after = wis::ResourceAccess::IndexBuffer },
-                          index_buffer);
+                                .access_after = wis::ResourceAccess::IndexBuffer },
+                              index_buffer);
     gfx.context.Close();
 
     gfx.queue.ExecuteCommandList(gfx.context);
@@ -108,10 +108,10 @@ void Test::App::Frame()
     UpdateConstantBuffer();
 
     gfx.context.TextureBarrier({ .state_before = wis::TextureState::Present,
-                             .state_after = wis::TextureState::RenderTarget,
-                             .access_before = wis::ResourceAccess::Common,
-                             .access_after = wis::ResourceAccess::RenderTarget },
-                           back);
+                                 .state_after = wis::TextureState::RenderTarget,
+                                 .access_before = wis::ResourceAccess::Common,
+                                 .access_after = wis::ResourceAccess::RenderTarget },
+                               back);
 
     constexpr wis::ColorClear color{ 0.0f, 0.2f, 0.4f, 1.0f };
     constexpr wis::ColorClear color2{ 1.0f, 0.2f, 0.4f, 1.0f };
@@ -132,12 +132,12 @@ void Test::App::Frame()
     gfx.context.EndRenderPass();
 
     gfx.context.TextureBarrier({
-                                   .state_before = wis::TextureState::RenderTarget,
-                                   .state_after = wis::TextureState::Present,
-                                   .access_before = wis::ResourceAccess::RenderTarget,
-                                   .access_after = wis::ResourceAccess::Common,
-                           },
-                           back);
+        .state_before = wis::TextureState::RenderTarget,
+        .state_after = wis::TextureState::Present,
+        .access_before = wis::ResourceAccess::RenderTarget,
+        .access_after = wis::ResourceAccess::Common,
+    },
+    back);
     gfx.context.Close();
     gfx.queue.ExecuteCommandList(gfx.context);
 
@@ -151,8 +151,8 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     // update projection
     gfx.projection = glm::perspectiveFovLH_ZO(glm::radians(fov_degrees),
-                                          (float)width, (float)height,
-                                          near_plane, far_plane);
+                     (float)width, (float)height,
+                     near_plane, far_plane);
     UpdateConstantBuffer();
 
     // needs to be recreated for vulkan for now

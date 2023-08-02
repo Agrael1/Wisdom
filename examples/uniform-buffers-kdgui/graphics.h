@@ -65,11 +65,11 @@ public:
 
         constexpr static std::array cas2{
             wis::ColorAttachment{
-                    .format = wis::SwapchainOptions::default_format,
-                    .load = wis::PassLoadOperation::clear },
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear },
             wis::ColorAttachment{
-                    .format = wis::SwapchainOptions::default_format,
-                    .load = wis::PassLoadOperation::clear }
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear }
         };
 
         // needs to be recreated for vulkan for now
