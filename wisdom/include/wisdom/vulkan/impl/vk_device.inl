@@ -1,7 +1,7 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
-// #include "../vk_device.h"
+ //#include "../vk_device.h"
 
 bool wis::VKDevice::Initialize(VKAdapterView adapter)
 {
@@ -242,7 +242,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 }
 
 // NOLINTNEXTLINE
-wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<ColorAttachment> rtv_descs,
+wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
                                                   DepthStencilAttachment dsv_desc,
                                                   SampleCount samples,
                                                   DataFormat /*vrs_format*/) const
@@ -408,7 +408,7 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
 
     vk::PipelineRasterizationStateCreateInfo rasterizer{
         vk::PipelineRasterizationStateCreateFlags{},
-        false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eClockwise,
+        false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eClockwise,
         false, 0.0f, 0.0f, 0.0f, 1.0f
     };
 

@@ -2,7 +2,7 @@
 #include <wisdom/wisdom.h>
 #include "window.h"
 #include <optional>
-#include <glm/mat4x4.hpp>
+#include "graphics.h"
 
 namespace Test {
 class App
@@ -21,25 +21,13 @@ private:
 
     XApp app;
     Window wnd;
+    Graphics gfx;
 
     glm::mat4 cube_transform{ 1.0f };
     static constexpr auto near_plane = 0.1f;
     static constexpr auto far_plane = 100.0f;
     static constexpr auto fov_degrees = 90.0f;
-    glm::mat4 projection{ 1.0f };
-    glm::mat4 view{ 1.0f };
 
-    std::optional<wis::Factory> factory;
-
-    wis::Device device;
-    wis::CommandQueue queue;
-    wis::SwapChain swap;
-
-    wis::CommandList context;
-    wis::Fence fence;
-    wis::ResourceAllocator allocator;
-
-    wis::DescriptorHeap constants_heap;
     wis::Buffer constant_buffer;
     wis::DescriptorSet constants_set;
 
@@ -49,12 +37,9 @@ private:
     wis::RootSignature root;
     wis::PipelineState pipeline;
     wis::VertexBufferView vb;
-    wis::RenderTargetView rtvs[2];
-    wis::RenderTargetView rtvs2[2];
 
     wis::Buffer vertex_buffer;
-    wis::RenderPass render_pass;
-    uint64_t fence_value = 1;
+    wis::Buffer index_buffer;
 
     struct SceneConstantBuffer {
         glm::mat4 model_view_projection{ 1.0f };

@@ -172,6 +172,15 @@ WIS_EXPORT namespace wis
         {
             command_list->IASetVertexBuffers(start_slot, resources.size(), (const D3D12_VERTEX_BUFFER_VIEW*)resources.data());
         }
+        void IASetIndexBuffer(DX12BufferView buffer, uint32_t size, IndexType type = IndexType::uint16) noexcept
+        {
+            D3D12_INDEX_BUFFER_VIEW ibv{
+                buffer->GetGPUVirtualAddress(),
+                size,
+                type == IndexType::uint16 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT,
+            };
+            command_list->IASetIndexBuffer(&ibv);
+        }
 
         /// @brief Start a render pass.
         /// @param pass Pass description.
@@ -218,6 +227,15 @@ WIS_EXPORT namespace wis
         {
             command_list->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
         }
+        void DrawIndexedInstanced(uint32_t IndexCountPerInstance,
+                                  uint32_t InstanceCount = 1,
+                                  uint32_t StartIndexLocation = 0,
+                                  uint32_t StartVertexLocation = 0,
+                                  uint32_t StartInstanceLocation = 0) noexcept
+        {
+            command_list->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation, StartVertexLocation, StartInstanceLocation);
+        }
+
         void SetGraphicsDescriptorSet(DX12RootSignatureView root) noexcept
         {
             command_list->SetGraphicsRootSignature(root);

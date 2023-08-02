@@ -49,6 +49,7 @@ WIS_EXPORT namespace wis
     enum class BufferFlags : uint32_t {
         None = 0,
         ConstantBuffer = 0x10, // VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+        IndexBuffer = 0x40, // VK_BUFFER_USAGE_INDEX_BUFFER_BIT
         VertexBuffer = 0x80, // VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     };
 

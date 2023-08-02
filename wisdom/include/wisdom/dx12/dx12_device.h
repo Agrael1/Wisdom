@@ -107,7 +107,7 @@ WIS_EXPORT namespace wis
         /// @param vrs_format The variable rate shading format
         [[nodiscard]] WIS_INLINE DX12RenderPass CreateRenderPass(
                 wis::Size2D,
-                std::span<ColorAttachment> rtv_descs,
+                std::span<const ColorAttachment> rtv_descs,
                 DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
                 SampleCount samples = SampleCount::s1,
                 DataFormat vrs_format = DataFormat::unknown) const;

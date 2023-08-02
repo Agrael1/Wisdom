@@ -102,6 +102,7 @@ WIS_EXPORT namespace wis
                 wis::check_hresult(chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void()));
                 render_targets.emplace_back(std::move(rc), nullptr);
             }
+            return true;
         }
 
     private:

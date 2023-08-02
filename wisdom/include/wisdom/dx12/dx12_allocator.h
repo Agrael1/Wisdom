@@ -4,6 +4,7 @@
 #include <wisdom/dx12/dx12_resource.h>
 #include <D3D12MemAlloc.h>
 #include <wisdom/global/assertions.h>
+#include <d3dx12/d3dx12.h>
 #endif
 
 WIS_EXPORT namespace wis
@@ -55,6 +56,25 @@ WIS_EXPORT namespace wis
         {
             wis::assert_debug(size % 256 == 0, wis::format("{} is nor 256 byte aligned", size));
             return CreateHostVisibleBuffer(size, BufferFlags::ConstantBuffer);
+        }
+        [[nodiscard]] DX12Texture CreateTexture(const TextureDescriptor& desc) const
+        {
+            using namespace river::flags;
+            winrt::com_ptr<ID3D12Resource> rc;
+            winrt::com_ptr<D3D12MA::Allocation> al;
+
+            auto tex_desc = CD3DX12_RESOURCE_DESC1::Tex3D(
+                    DXGI_FORMAT(desc.format), desc.width, desc.height, uint16_t(desc.depth), desc.mip_levels);
+            D3D12MA::ALLOCATION_DESC all_desc = {};
+            all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+
+            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
+
+            allocator->CreateResource2(&all_desc, &tex_desc,
+                                       state, nullptr,
+                                       al.put(), __uuidof(*rc), rc.put_void());
+
+            return DX12Texture{ std::move(rc), std::move(al) };
         }
     };
 }

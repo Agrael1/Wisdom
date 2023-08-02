@@ -2,7 +2,7 @@ project(uniform-buffers-kdgui)
 
 add_executable(${PROJECT_NAME}
 	entry_main.cpp "window.h"
- "window.cpp" "app.h" "app.cpp")
+ "window.cpp" "app.h" "app.cpp" "drawable.h" "graphics.h")
 
 if(WIN32)
 	include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Functions.cmake)
@@ -17,16 +17,16 @@ set_target_properties(${PROJECT_NAME}
     PROPERTIES
         CXX_STANDARD 20
 )
-target_compile_definitions(${PROJECT_NAME} 
-	PUBLIC 
+target_compile_definitions(${PROJECT_NAME}
+	PUBLIC
 		SHADER_DIR="${SHADER_DIR}"
 		GLM_FORCE_SIMD_AVX2
 		GLM_FORCE_ALIGNED_GENTYPES
 )
 
 if(UNIX)
-	target_link_options(${PROJECT_NAME} 
-		PRIVATE 
+	target_link_options(${PROJECT_NAME}
+		PRIVATE
 			"-lm"
 	)
 endif()
