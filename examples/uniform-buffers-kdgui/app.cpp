@@ -67,13 +67,6 @@ Test::App::App(uint32_t width, uint32_t height)
 
     gfx.queue.ExecuteCommandList(gfx.context);
     gfx.WaitForGPU();
-
-    gfx.context.Reset();
-
-    gfx.context.Close();
-
-    gfx.queue.ExecuteCommandList(gfx.context);
-    gfx.WaitForGPU();
     vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
 }
 
@@ -111,21 +104,6 @@ void Test::App::Frame()
 
     cube_transform = glm::rotate(cube_transform, glm::radians(0.1f), glm::vec3(0.0f, 1.0f, 1.0f));
     UpdateConstantBuffer();
-
-    gfx.context.TextureBarrier({
-                                       .state_before = wis::TextureState::Undefined,
-                                       .state_after = wis::TextureState::DepthWrite,
-                                       .access_before = wis::ResourceAccess::Common,
-                                       .access_after = wis::ResourceAccess::DepthWrite,
-                               },
-                               gfx.depth_buffers[0]);
-    gfx.context.TextureBarrier({
-                                       .state_before = wis::TextureState::Undefined,
-                                       .state_after = wis::TextureState::DepthWrite,
-                                       .access_before = wis::ResourceAccess::Common,
-                                       .access_after = wis::ResourceAccess::DepthWrite,
-                               },
-                               gfx.depth_buffers[1]);
 
     gfx.context.TextureBarrier({ .state_before = wis::TextureState::Present,
                                  .state_after = wis::TextureState::RenderTarget,
@@ -188,4 +166,24 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     desc.SetRenderPass(gfx.render_pass);
     pipeline = gfx.device.CreateGraphicsPipeline(desc, ia);
     gfx.context.SetPipeline(pipeline);
+
+    gfx.context.Reset();
+    gfx.context.TextureBarrier({
+                                       .state_before = wis::TextureState::Undefined,
+                                       .state_after = wis::TextureState::DepthWrite,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::DepthWrite,
+                               },
+                               gfx.depth_buffers[0]);
+    gfx.context.TextureBarrier({
+                                       .state_before = wis::TextureState::Undefined,
+                                       .state_after = wis::TextureState::DepthWrite,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::DepthWrite,
+                               },
+                               gfx.depth_buffers[1]);
+    gfx.context.Close();
+
+    gfx.queue.ExecuteCommandList(gfx.context);
+    gfx.WaitForGPU();
 }
