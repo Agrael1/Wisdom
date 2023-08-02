@@ -90,9 +90,9 @@ Test::App::App(uint32_t width, uint32_t height)
 
     std::array bindings{
         wis::BindingDescriptor{
-            .binding = 0,
-            .stages = wis::ShaderStage::vertex,
-            .type = wis::BindingType::CBV,
+                .binding = 0,
+                .stages = wis::ShaderStage::vertex,
+                .type = wis::BindingType::CBV,
         }
     };
     wis::DescriptorSetLayout constants_layout = device.CreateDescriptorSetLayout(bindings);
@@ -105,7 +105,6 @@ Test::App::App(uint32_t width, uint32_t height)
 
     vertex_buffer = allocator.CreatePersistentBuffer(sizeof(cube_vertices_indexed), wis::BufferFlags::VertexBuffer);
     index_buffer = allocator.CreatePersistentBuffer(sizeof(cube_indices), wis::BufferFlags::IndexBuffer);
-
 
     auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(cube_vertices_indexed));
     auto upl_ibuf = allocator.CreateUploadBuffer(sizeof(cube_indices));
@@ -189,12 +188,12 @@ void Test::App::Frame()
     context.EndRenderPass();
 
     context.TextureBarrier({
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-    },
-    back);
+                                   .state_before = wis::TextureState::RenderTarget,
+                                   .state_after = wis::TextureState::Present,
+                                   .access_before = wis::ResourceAccess::RenderTarget,
+                                   .access_after = wis::ResourceAccess::Common,
+                           },
+                           back);
     context.Close();
     queue.ExecuteCommandList(context);
 
@@ -224,11 +223,11 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     std::array cas2{
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear },
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear },
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear }
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear }
     };
 
     // needs to be recreated for vulkan for now
