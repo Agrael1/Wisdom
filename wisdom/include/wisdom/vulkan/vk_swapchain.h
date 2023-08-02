@@ -111,23 +111,33 @@ WIS_EXPORT namespace wis
             uint32_t nbuffers = back_buffers.size();
             back_buffers.clear();
 
-            vk::SwapchainCreateInfoKHR desc{
-                vk::SwapchainCreateFlagBitsKHR{}, GetSurface(),
-                nbuffers, format.format, format.colorSpace,
-                vk::Extent2D{ width, height },
-                stereo ? 2u : 1u,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
-                vk::SharingMode::eExclusive, 0u, nullptr,
-                vk::SurfaceTransformFlagBitsKHR::eIdentity,
-                vk::CompositeAlphaFlagBitsKHR::eOpaque,
-                present_mode, true, swap.get() // NOLINT
-            };
-            swap = wis::shared_handle<vk::SwapchainKHR>{
-                device.createSwapchainKHR(desc),
-                swap.getParent(), swap.getSurface()
-            };
-            CreateImages();
-            return true;
+            vk::SwapchainKHR gswap = swap.get();
+            while (true) {
+
+                vk::SwapchainCreateInfoKHR desc{
+                    vk::SwapchainCreateFlagBitsKHR{}, GetSurface(),
+                    nbuffers, format.format, format.colorSpace,
+                    vk::Extent2D{ width, height },
+                    stereo ? 2u : 1u,
+                    vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
+                    vk::SharingMode::eExclusive, 0u, nullptr,
+                    vk::SurfaceTransformFlagBitsKHR::eIdentity,
+                    vk::CompositeAlphaFlagBitsKHR::eOpaque,
+                    present_mode, true, gswap // NOLINT
+                };
+
+                auto r = device.createSwapchainKHR(&desc, nullptr, &gswap);
+                if (r != vk::Result::eSuccess) {
+                    gswap = nullptr;
+                    continue;
+                }
+                swap = wis::shared_handle<vk::SwapchainKHR>{
+                    gswap,
+                    swap.getParent(), swap.getSurface()
+                };
+                CreateImages();
+                return true;
+            }
         }
 
     private:
