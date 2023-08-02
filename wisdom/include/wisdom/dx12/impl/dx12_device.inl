@@ -1,4 +1,4 @@
-//#include "../dx12_device.h"
+#include "../dx12_device.h"
 
 bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
 {
@@ -217,5 +217,10 @@ wis::DX12RenderTargetView wis::DX12Device::CreateRenderTargetView(DX12TextureVie
     device->CreateRenderTargetView(texture, &desc, rtv_start);
     DX12RenderTargetView rtvm{ rtv_start };
     rtv_start.Offset(1, rtv_increment);
+    rtv_index++;
+    if (rtv_index == heap_size) {
+        rtv_index = 0;
+        rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
+    }
     return rtvm;
 }
