@@ -106,7 +106,6 @@ Test::App::App(uint32_t width, uint32_t height)
     vertex_buffer = allocator.CreatePersistentBuffer(sizeof(cube_vertices_indexed), wis::BufferFlags::VertexBuffer);
     index_buffer = allocator.CreatePersistentBuffer(sizeof(cube_indices), wis::BufferFlags::IndexBuffer);
 
-
     auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(cube_vertices_indexed));
     auto upl_ibuf = allocator.CreateUploadBuffer(sizeof(cube_indices));
     upl_vbuf.UpdateSubresource(RawView(cube_vertices_indexed));
