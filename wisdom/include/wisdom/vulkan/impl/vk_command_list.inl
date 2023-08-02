@@ -73,7 +73,7 @@ void wis::VKCommandList::IASetVertexBuffers(std::span<const VKVertexBufferView> 
 
 void wis::VKCommandList::BeginRenderPass(wis::VKRenderPassView rp,
                                          std::span<const std::pair<VKRenderTargetView, ColorClear>> render_targets,
-                                         std::pair<VKDepthStencilView, DepthClear> depth = {}) noexcept
+                                         std::pair<VKDepthStencilView, DepthClear> depth) noexcept
 {
     wis::internals::uniform_allocator<vk::ImageView, max_render_targets> image_views;
     wis::internals::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
