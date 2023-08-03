@@ -55,6 +55,15 @@ WIS_EXPORT namespace wis
         VertexBuffer = 0x80, // VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     };
 
+    enum class TextureFlags : uint32_t {
+        None = 0,
+        CopySource = 0x1, // VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        CopyDest = 0x2, // VK_BUFFER_USAGE_TRANSFER_DST_BIT
+        ShaderResource = 0x4, // VK_IMAGE_USAGE_SAMPLED_BIT
+        RenderTarget = 0x10, // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+        DepthStencil = 0x20, // VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+    };
+
     /// @brief Basic texture barrier w/o synchronization
     struct TextureBarrier {
         TextureState state_before; //< State before the barrier
