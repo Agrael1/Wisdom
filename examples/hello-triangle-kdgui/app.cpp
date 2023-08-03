@@ -4,6 +4,7 @@
 #include <fstream>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
+#include <glm/ext/vector_float2.hpp>
 
 struct LogProvider : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
@@ -16,6 +17,38 @@ constexpr wis::ApplicationInfo app_info{
     .application_name = "example",
     .engine_name = "none",
 };
+
+std::vector<uint8_t> GenerateTextureData(size_t width, size_t height, size_t texel_size)
+{
+    const size_t rowPitch = width * texel_size;
+    const size_t cellPitch = rowPitch >> 3; // The width of a cell in the checkerboard texture.
+    const size_t cellHeight = width >> 3; // The height of a cell in the checkerboard texture.
+    const size_t textureSize = rowPitch * height;
+
+    std::vector<uint8_t> data(textureSize);
+    uint8_t* pData = &data[0];
+
+    for (size_t n = 0; n < textureSize; n += texel_size) {
+        size_t x = n % rowPitch;
+        size_t y = n / rowPitch;
+        size_t i = x / cellPitch;
+        size_t j = y / cellHeight;
+
+        if (i % 2 == j % 2) {
+            pData[n] = 0x00; // R
+            pData[n + 1] = 0x00; // G
+            pData[n + 2] = 0x00; // B
+            pData[n + 3] = 0xff; // A
+        } else {
+            pData[n] = 0xff; // R
+            pData[n + 1] = 0xff; // G
+            pData[n + 2] = 0xff; // B
+            pData[n + 3] = 0xff; // A
+        }
+    }
+
+    return data;
+}
 
 // not WinRT Compatible
 template<class ShaderTy>
@@ -36,9 +69,9 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App(uint32_t width, uint32_t height)
@@ -48,7 +81,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
@@ -69,22 +102,41 @@ Test::App::App(uint32_t width, uint32_t height)
     fence = device.CreateFence();
     context = device.CreateCommandList(wis::QueueType::direct);
 
-    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
-    ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
+    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.tex.vs"), wis::ShaderType::vertex);
+    ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.tex.ps"), wis::ShaderType::pixel);
 
-    root = device.CreateRootSignature({}); // empty
+    srv_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
+    sampler_heap = device.CreateDescriptorHeap(1, wis::PoolType::SAMPLER);
+
+    wis::BindingDescriptor srv_bind{
+        .binding = 0,
+        .stages = wis::ShaderStage::all,
+    };
+    wis::BindingDescriptor splr_bind{
+        .binding = 0,
+        .stages = wis::ShaderStage::all,
+        .type = wis::BindingType::SAMPLER,
+    };
+
+    wis::DescriptorSetLayout dsl_srv = device.CreateDescriptorSetLayout({ &srv_bind, 1 });
+    wis::DescriptorSetLayout dsl_splr = device.CreateDescriptorSetLayout({ &splr_bind, 1 });
+    srv_set = srv_heap.AllocateDescriptorSet(dsl_srv);
+    sampler_set = sampler_heap.AllocateDescriptorSet(dsl_splr);
+
+    std::array a{ dsl_srv, dsl_splr };
+    root = device.CreateRootSignature(a); // empty
 
     OnResize(width, height);
 
     struct Vertex {
         glm::vec3 pos;
-        glm::vec4 col;
+        glm::vec2 tc;
     };
     auto aspect_ratio = float(width) / float(height);
     Vertex triangleVertices[] = {
-        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 0.5f, 1.0f } },
+        { { 0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 0.0f } },
+        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f } }
     };
 
     vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
@@ -92,17 +144,45 @@ Test::App::App(uint32_t width, uint32_t height)
     auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
     upl_vbuf.UpdateSubresource(RawView(triangleVertices));
 
+    texture = allocator.CreateTexture(wis::TextureDescriptor{
+            .width = 128,
+            .height = 128,
+            .format = wis::DataFormat::r8g8b8a8_unorm });
+    auto data = GenerateTextureData(128, 128, 4);
+    auto upl_tbuf = allocator.CreateUploadBuffer(data.size());
+    upl_tbuf.UpdateSubresource({ (std::byte*)data.data(), data.size() });
+
+    sampler = device.CreateSampler();
+
     context.Reset();
     context.CopyBuffer(upl_vbuf, vertex_buffer, sizeof(triangleVertices));
     context.BufferBarrier({ .access_before = wis::ResourceAccess::CopyDest,
                             .access_after = wis::ResourceAccess::VertexBuffer },
                           vertex_buffer);
+
+    context.TextureBarrier({ .state_before = wis::TextureState::Undefined,
+                             .state_after = wis::TextureState::CopyDst,
+                             .access_before = wis::ResourceAccess::Common,
+                             .access_after = wis::ResourceAccess::CopyDest },
+                           texture);
+
+    context.CopyTexture(upl_tbuf, texture, wis::TextureRange{ 0, 0, wis::Size3D{ 128, 128, 1 } });
+
+    context.TextureBarrier({ .state_before = wis::TextureState::CopyDst,
+                             .state_after = wis::TextureState::ShaderResource,
+                             .access_before = wis::ResourceAccess::CopyDest,
+                             .access_after = wis::ResourceAccess::ShaderResource },
+                           texture);
     context.Close();
 
     queue.ExecuteCommandList(context);
     WaitForGPU();
 
+    srv = device.CreateShaderResourceView(texture, { 0, 1, 0, 1 });
     vb = vertex_buffer.GetVertexBufferView(sizeof(Vertex));
+    device.WriteShaderResourceView(srv, srv_set, dsl_srv, 0);
+    device.WriteSampler(sampler, sampler_set, dsl_splr, 0);
+
     context.SetPipeline(pipeline);
 }
 Test::App::~App()
@@ -139,7 +219,10 @@ void Test::App::Frame()
         std::pair{ rtvs2[swap.GetNextIndex()], color2 }
     };
 
-    context.SetGraphicsDescriptorSet(root);
+    //context.SetGraphicsDescriptorSet(root);
+    context.SetGraphicsDescriptorSet(root,0, srv_set);
+    context.SetGraphicsDescriptorSet(root,1, sampler_set);
+
     context.RSSetViewport({ float(wnd.width()), float(wnd.height()) });
     context.RSSetScissorRect({ long(wnd.width()), long(wnd.height()) });
     context.IASetPrimitiveTopology(wis::PrimitiveTopology::trianglelist);
@@ -192,7 +275,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     // needs to be recreated for vulkan for now
     static constexpr std::array<wis::InputLayoutDesc, 2> ia{
         wis::InputLayoutDesc{ 0, "POSITION", 0, wis::DataFormat::r32g32b32_float, 0, 0, wis::InputClassification::vertex, 0 },
-        wis::InputLayoutDesc{ 1, "COLOR", 0, wis::DataFormat::r32g32b32a32_float, 0, 12, wis::InputClassification::vertex, 0 }
+        wis::InputLayoutDesc{ 1, "TEXCOORD0", 0, wis::DataFormat::r32g32_float, 0, 12, wis::InputClassification::vertex, 0 }
     };
 
     wis::GraphicsPipelineDesc desc{ root };

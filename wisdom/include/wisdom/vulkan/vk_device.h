@@ -12,6 +12,7 @@
 #include <wisdom/vulkan/vk_state_builder.h>
 #include <wisdom/vulkan/vk_root_signature.h>
 #include <wisdom/vulkan/vk_descriptor_heap.h>
+#include <wisdom/vulkan/vk_sampler.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/global/definitions.h>
@@ -265,7 +266,7 @@ WIS_EXPORT namespace wis
         /// @return View object
         [[nodiscard]] WIS_INLINE VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {}) const;
 
-        [[nodiscard]] WIS_INLINE VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
+        [[nodiscard]] VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
         {
             vk::ImageViewCreateInfo desc{
                 vk::ImageViewCreateFlags{},
@@ -343,17 +344,24 @@ WIS_EXPORT namespace wis
                 a,a,a,a,a,a,a,a,
             };
             // clang-format on
-
+            bool sampler = false;
             vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
                 uint32_t(descs.size()), cbvSrvUavTypeList.data()
             };
 
             for (auto& desc : descs) {
+                if (desc.type == wis::BindingType::SAMPLER) {
+                    sampler = true;
+                    bindings.allocate(vk::DescriptorSetLayoutBinding{
+                            desc.binding, vk::DescriptorType::eSampler, desc.count, vk::ShaderStageFlagBits(desc.stages) });
+                    continue;
+                }
+
                 bindings.allocate(vk::DescriptorSetLayoutBinding{
                         desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
             }
             vk::DescriptorSetLayoutCreateInfo desc{
-                vk::DescriptorSetLayoutCreateFlags{}, uint32_t(bindings.size()), bindings.data(), &mutableTypeInfo
+                vk::DescriptorSetLayoutCreateFlags{}, uint32_t(bindings.size()), bindings.data(), !sampler ? &mutableTypeInfo : nullptr
             };
             return VKDescriptorSetLayout{ wis::shared_handle<vk::DescriptorSetLayout>{ device->createDescriptorSetLayout(desc), device } };
         }
@@ -367,6 +375,71 @@ WIS_EXPORT namespace wis
                 set, binding, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &desc, nullptr
             };
             device->updateDescriptorSets(write, nullptr);
+        }
+
+        VKShaderResourceView CreateShaderResourceView(VKTextureView texture, SubresourceRange range) const
+        {
+            vk::ImageViewCreateInfo desc{
+                vk::ImageViewCreateFlags{},
+                texture.image,
+                vk::ImageViewType::e2D,
+                texture.format,
+                {},
+                vk::ImageSubresourceRange{
+                        aspect_flags(texture.format),
+                        range.base_mip,
+                        range.extent_mips,
+                        range.base_layer,
+                        range.extent_layers,
+                }
+            };
+            return VKShaderResourceView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+        }
+
+        void WriteShaderResourceView(VKShaderResourceView texture, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
+        {
+            vk::DescriptorImageInfo desc{
+                {}, texture.GetInternal().GetImageView(), vk::ImageLayout::eShaderReadOnlyOptimal
+            };
+            vk::WriteDescriptorSet write{
+                set, binding, 0, 1, vk::DescriptorType::eSampledImage, &desc, nullptr, nullptr
+            };
+            device->updateDescriptorSets(write, nullptr);
+        }
+        
+        void WriteSampler(VKSampler sampler, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
+        {
+            vk::DescriptorImageInfo desc{
+                sampler.GetInternal().GetSampler()
+            };
+            vk::WriteDescriptorSet write{
+                set, binding, 0, 1, vk::DescriptorType::eSampler, &desc, nullptr, nullptr
+            };
+            device->updateDescriptorSets(write, nullptr);
+        }
+
+        VKSampler CreateSampler()
+        {
+            vk::SamplerCreateInfo desc{
+                vk::SamplerCreateFlags{},
+                vk::Filter::eLinear,
+                vk::Filter::eLinear,
+                vk::SamplerMipmapMode::eLinear,
+                vk::SamplerAddressMode::eRepeat,
+                vk::SamplerAddressMode::eRepeat,
+                vk::SamplerAddressMode::eRepeat,
+                0.0f,
+                false,
+                1.0f,
+                false,
+                vk::CompareOp::eNever,
+                0.0f,
+                0.0f,
+                vk::BorderColor::eFloatOpaqueWhite,
+                false
+            };
+            return VKSampler{ wis::shared_handle<vk::Sampler>{
+                    device->createSampler(desc), device } };
         }
 
     private:

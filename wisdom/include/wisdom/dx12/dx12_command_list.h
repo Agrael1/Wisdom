@@ -6,6 +6,8 @@
 #include <wisdom/dx12/dx12_buffer_views.h>
 #include <wisdom/dx12/dx12_render_pass.h>
 #include <wisdom/dx12/dx12_pipeline_state.h>
+
+#include <d3dx12/d3dx12_resource_helpers.h>
 #endif
 
 WIS_EXPORT namespace wis
@@ -134,6 +136,18 @@ WIS_EXPORT namespace wis
         void CopyBuffer(DX12BufferView source, DX12BufferView destination, size_t data_size) noexcept
         {
             command_list->CopyBufferRegion(destination, 0, source, 0, data_size);
+        }
+
+        void CopyTexture(DX12BufferView source, DX12TextureView destination, TextureRange range) noexcept
+        {
+            auto d = destination->GetDesc();
+            auto subres = D3D12CalcSubresource(range.mip, range.array_layer, 0, d.MipLevels, d.DepthOrArraySize);
+
+            command_list->CopyTextureRegion(
+                    &CD3DX12_TEXTURE_COPY_LOCATION(destination, subres),
+                    0, 0, 0,
+                    &CD3DX12_TEXTURE_COPY_LOCATION(source),
+                    nullptr);
         }
 
         /// @brief Sets the root signature for the command list. Only for DX12.

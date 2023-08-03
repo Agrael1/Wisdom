@@ -193,6 +193,28 @@ WIS_EXPORT namespace wis
             wis::assert_debug(handle.ptr < end.ptr, wis::format("Handle for constant buffer {} is out of range", index));
             device->CreateConstantBufferView(&cbvDesc, handle);
         }
+
+        void CreateSampler(DX12DescriptorSetView set, uint32_t index = 0)
+        {
+            auto begin = std::get<0>(set);
+            auto end = std::get<1>(set);
+            auto increment = std::get<2>(set);
+            auto handle = begin.Offset(index, increment);
+
+            D3D12_SAMPLER_DESC sampler{
+                .Filter = D3D12_FILTER::D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+                .AddressU = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                .AddressV = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                .AddressW = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                .MipLODBias = 0,
+                .MaxAnisotropy = 0,
+                .ComparisonFunc = D3D12_COMPARISON_FUNC::D3D12_COMPARISON_FUNC_NEVER,
+                .BorderColor = D3D12_STATIC_BORDER_COLOR::D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
+                .MinLOD = 0,
+                .MaxLOD = D3D12_FLOAT32_MAX
+            };
+            device->CreateSampler(&sampler, handle);
+        }
     };
 }
 

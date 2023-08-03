@@ -103,6 +103,14 @@ WIS_EXPORT namespace wis
             command_list.copyBuffer(source, destination, bufCopy);
         }
 
+        void CopyTexture(VKBufferView source, VKTextureView destination, TextureRange range) noexcept
+        {
+            vk::BufferImageCopy img_copy{
+                0u, 0u, 0u, vk::ImageSubresourceLayers{ aspect_flags(destination.format), range.mip, range.array_layer, 1u }, { 0, 0, 0 }, vk::Extent3D{ range.extent.width, range.extent.height, range.extent.depth }
+            };
+            command_list.copyBufferToImage(source, destination.image, vk::ImageLayout::eTransferDstOptimal, img_copy);
+        }
+
         /// @brief Set viewport for the command list.
         /// @param vp Viewport to set.
         void RSSetViewport(Viewport vp) noexcept

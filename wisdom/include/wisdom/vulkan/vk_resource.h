@@ -93,7 +93,9 @@ WIS_EXPORT namespace wis
     public:
         Internal() = default;
         Internal(wis::shared_handle<vk::Image> buffer, wis::shared_handle<vma::Allocation> allocation, vk::Format format)
-            : buffer(std::move(buffer)), allocation(std::move(allocation)), format(format) { }
+            : buffer(std::move(buffer)), allocation(std::move(allocation)), format(format)
+        {
+        }
 
         [[nodiscard]] auto GetResource() const noexcept
         {

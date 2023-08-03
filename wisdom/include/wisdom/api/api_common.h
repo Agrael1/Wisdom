@@ -489,6 +489,21 @@ WIS_EXPORT namespace wis
         uint32_t width; //< Width of the texture in pixels
         uint32_t height; //< Height of the texture in pixels
     };
+    /// @brief Size of a texture in pixels
+    struct Size3D {
+        Size3D(uint32_t w, uint32_t h, uint32_t d)
+            : width(w), height(h), depth(d) { }
+        uint32_t width; //< Width of the texture in pixels
+        uint32_t height; //< Height of the texture in pixels
+        uint32_t depth; //< Depth of the texture in pixels
+    };
+
+    struct TextureRange
+    {
+        uint32_t mip;
+        uint32_t array_layer = 0;
+        Size3D extent;
+    };
 
     /// @brief Color clear value for a render target
     using ColorClear = std::array<float, 4>;

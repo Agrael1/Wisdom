@@ -40,6 +40,15 @@ private:
     wis::VertexBufferView vb;
     wis::RenderTargetView rtvs[2];
     wis::RenderTargetView rtvs2[2];
+    wis::Texture texture;
+    wis::VKShaderResourceView srv;
+    wis::Sampler sampler;
+
+    wis::DescriptorHeap srv_heap;
+    wis::DescriptorHeap sampler_heap;
+
+    wis::DescriptorSet srv_set;
+    wis::DescriptorSet sampler_set;
 
     wis::Buffer vertex_buffer;
     wis::RenderPass render_pass;

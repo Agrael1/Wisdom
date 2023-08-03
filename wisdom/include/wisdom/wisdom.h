@@ -54,6 +54,7 @@ WIS_EXPORT namespace wis
     using DescriptorSet = DX12DescriptorSet;
     using Texture = DX12Texture;
     using DepthStencilView = DX12DepthStencilView;
+    //using Sampler = DX12Sampler;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH // MAC
 // metal
@@ -91,6 +92,7 @@ WIS_EXPORT namespace wis
     using DescriptorSet = VKDescriptorSet;
     using Texture = VKTexture;
     using DepthStencilView = VKDepthStencilView;
+    using Sampler = VKSampler;
 }
 #else
 #error "No API selected"

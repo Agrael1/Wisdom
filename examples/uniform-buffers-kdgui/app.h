@@ -40,6 +40,7 @@ private:
 
     wis::Buffer vertex_buffer;
     wis::Buffer index_buffer;
+    
 
     struct SceneConstantBuffer {
         glm::mat4 model_view_projection{ 1.0f };
