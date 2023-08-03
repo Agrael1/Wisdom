@@ -40,4 +40,6 @@ WIS_EXPORT namespace wis
         {
         }
     };
+
+    using VKDepthStencilView = VKRenderTargetView;
 }

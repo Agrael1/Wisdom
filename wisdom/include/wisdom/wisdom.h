@@ -53,6 +53,7 @@ WIS_EXPORT namespace wis
     using DescriptorSetLayout = DX12DescriptorSetLayout;
     using DescriptorSet = DX12DescriptorSet;
     using Texture = DX12Texture;
+    using DepthStencilView = DX12DepthStencilView;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH // MAC
 // metal
@@ -89,6 +90,7 @@ WIS_EXPORT namespace wis
     using DescriptorSetLayout = VKDescriptorSetLayout;
     using DescriptorSet = VKDescriptorSet;
     using Texture = VKTexture;
+    using DepthStencilView = VKDepthStencilView;
 }
 #else
 #error "No API selected"

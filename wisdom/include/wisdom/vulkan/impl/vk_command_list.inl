@@ -72,7 +72,8 @@ void wis::VKCommandList::IASetVertexBuffers(std::span<const VKVertexBufferView> 
 }
 
 void wis::VKCommandList::BeginRenderPass(wis::VKRenderPassView rp,
-                                         std::span<const std::pair<VKRenderTargetView, ColorClear>> render_targets) noexcept
+                                         std::span<const std::pair<VKRenderTargetView, ColorClear>> render_targets,
+                                         std::pair<VKDepthStencilView, DepthClear> depth) noexcept
 {
     wis::internals::uniform_allocator<vk::ImageView, max_render_targets> image_views;
     wis::internals::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
@@ -80,9 +81,13 @@ void wis::VKCommandList::BeginRenderPass(wis::VKRenderPassView rp,
         image_views.allocate(i.first.GetInternal().GetImageView());
         image_clear.allocate().setColor(i.second);
     }
+    if (auto iv = depth.first.GetInternal().GetImageView()) {
+        image_views.allocate(iv);
+        image_clear.allocate().setDepthStencil(depth.second);
+    }
 
     vk::RenderPassAttachmentBeginInfo attachment_begin_info{
-        uint32_t(render_targets.size()),
+        uint32_t(image_views.size()),
         image_views.data()
     };
     vk::RenderPassBeginInfo render_pass_info{

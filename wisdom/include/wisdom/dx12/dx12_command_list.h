@@ -186,7 +186,8 @@ WIS_EXPORT namespace wis
         /// @param pass Pass description.
         /// @param render_targets Render targets to bind with colors to clear them with.
         void BeginRenderPass(DX12RenderPassView pass,
-                             std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets) noexcept
+                             std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets,
+                             std::pair<DX12DepthStencilView, DepthClear> depth = {}) noexcept
         {
             auto& i = pass.GetInternal();
             auto rts = i.GetRTDescs();
@@ -197,8 +198,13 @@ WIS_EXPORT namespace wis
                 rts[i].BeginningAccess.Clear.ClearValue.Color[2] = render_targets[i].second[2];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[3] = render_targets[i].second[3];
             }
+            auto dsdesc = i.GetDSDesc();
+            if (auto ds = depth.first.GetInternal().GetHandle(); ds.ptr) {
+                dsdesc->cpuDescriptor = ds;
+                dsdesc->DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
+            }
             // TODO: Depth stencil
-            command_list->BeginRenderPass(rts.size(), rts.data(), i.GetDSDesc(), D3D12_RENDER_PASS_FLAG_NONE);
+            command_list->BeginRenderPass(rts.size(), rts.data(), dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
         }
 
         /// @brief Ends the render pass.

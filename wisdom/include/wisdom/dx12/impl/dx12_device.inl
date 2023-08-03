@@ -1,4 +1,4 @@
-#include "../dx12_device.h"
+//#include "../dx12_device.h"
 
 bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
 {
@@ -14,6 +14,14 @@ bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
     wis::check_hresult(device->CreateDescriptorHeap(&rtvHeapDesc, __uuidof(*rtv_heap), rtv_heap.put_void()));
     rtv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
+
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+    dsvHeapDesc.NumDescriptors = dsv_heap_size;
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    wis::check_hresult(device->CreateDescriptorHeap(&dsvHeapDesc, __uuidof(*dsv_heap), dsv_heap.put_void()));
+    dsv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+    dsv_start = dsv_heap->GetCPUDescriptorHandleForHeapStart();
     return true;
 }
 
@@ -132,6 +140,9 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
     internals::memory_pool psta;
     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
+
+    if (desc.depth_enabled)
+        psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2>() = CD3DX12_DEPTH_STENCIL_DESC2{ CD3DX12_DEFAULT{} };
 
     if (desc.vs) {
         auto d = desc.vs.GetInternal().GetShaderBytecode();

@@ -70,9 +70,13 @@ public:
                     .format = wis::SwapchainOptions::default_format,
                     .load = wis::PassLoadOperation::clear }
         };
+        wis::DepthStencilAttachment dsa{
+            .format = wis::DataFormat::d32_float,
+            .depth_load = wis::PassLoadOperation::clear,
+        };
 
         // needs to be recreated for vulkan for now
-        render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u });
+        render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), static_cast<unsigned int>(swap.StereoSupported()) + 1u }, dsa);
 
         // needs to be recreated for vulkan for now
         static constexpr std::array ia{
@@ -86,6 +90,11 @@ public:
             rtvs[i] = device.CreateRenderTargetView(x[i]);
             if (swap.StereoSupported())
                 rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
+        }
+
+        for (size_t i = 0; i < 2; i++) {
+            depth_buffers[i] = allocator.CreateDepthStencilTexture({ width, height, wis::DataFormat::d32_float });
+            dsv[i] = device.CreateDepthStencilView(depth_buffers[i]);
         }
     }
 
@@ -115,6 +124,8 @@ public:
 
     wis::RenderTargetView rtvs[2];
     wis::RenderTargetView rtvs2[2];
+    wis::Texture depth_buffers[2];
+    wis::DepthStencilView dsv[2];
 
     wis::Fence fence;
     uint64_t fence_value = 1;

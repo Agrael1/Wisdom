@@ -76,6 +76,26 @@ WIS_EXPORT namespace wis
 
             return DX12Texture{ std::move(rc), std::move(al) };
         }
+
+        [[nodiscard]] DX12Texture CreateDepthStencilTexture(DepthDescriptor desc) const
+        {
+            using namespace river::flags;
+            winrt::com_ptr<ID3D12Resource> rc;
+            winrt::com_ptr<D3D12MA::Allocation> al;
+
+            auto tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
+                    DXGI_FORMAT(desc.format), desc.width, desc.height, 1, 1, D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+            D3D12MA::ALLOCATION_DESC all_desc = {};
+            all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+
+            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_DEPTH_WRITE;
+
+            allocator->CreateResource2(&all_desc, &tex_desc,
+                                       state, nullptr,
+                                       al.put(), __uuidof(*rc), rc.put_void());
+
+            return DX12Texture{ std::move(rc), std::move(al) };
+        }
     };
 }
 

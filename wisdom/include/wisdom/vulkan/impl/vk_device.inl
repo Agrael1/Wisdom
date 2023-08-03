@@ -455,6 +455,15 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
         {}, uint32_t(dynamic_state_enables.size()), dynamic_state_enables.data()
     };
 
+    vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
+		vk::PipelineDepthStencilStateCreateFlags{},
+		true, true,
+		vk::CompareOp::eLess,
+		false, false,
+		vk::StencilOpState{}, vk::StencilOpState{},
+		0.0f, 1.0f
+	};
+
     vk::GraphicsPipelineCreateInfo pipeline_desc{
         vk::PipelineCreateFlags{},
         uint32_t(shader_stages.size()),
@@ -465,7 +474,7 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
         &viewport_state, // viewport
         &rasterizer, // rasterizer
         &multisampling, // multisampling
-        nullptr, // depth stencil
+        &depth_stencil_state, // depth stencil
         &color_blending, // color blending
         &dss, // dynamic state
         desc.sig, // pipeline layout

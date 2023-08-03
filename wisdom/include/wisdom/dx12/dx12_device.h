@@ -20,6 +20,7 @@ WIS_EXPORT namespace wis
     {
     protected:
         static inline constexpr auto heap_size = 128u;
+        static inline constexpr auto dsv_heap_size = 6u;
         static constexpr inline bool valid = true;
 
     public:
@@ -31,10 +32,15 @@ WIS_EXPORT namespace wis
     protected:
         winrt::com_ptr<ID3D12Device10> device{};
         winrt::com_ptr<ID3D12DescriptorHeap> rtv_heap{};
+        winrt::com_ptr<ID3D12DescriptorHeap> dsv_heap{};
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_start;
+        CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_start;
 
         uint32_t rtv_increment = 0;
         uint32_t rtv_index = 0;
+
+        uint32_t dsv_increment = 0;
+        uint32_t dsv_index = 0;
     };
 
     /// @brief A DX12 device
@@ -119,6 +125,29 @@ WIS_EXPORT namespace wis
         /// @param texture The texture to create the view for
         /// @param range The range of the view
         [[nodiscard]] WIS_INLINE DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture, RenderSelector range = {});
+
+        [[nodiscard]] WIS_INLINE DX12DepthStencilView CreateDepthStencilView(DX12TextureView texture)
+        {
+            D3D12_DEPTH_STENCIL_VIEW_DESC desc{
+                .Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN,
+                .ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D,
+                .Texture2D{
+                        .MipSlice = 0,
+                }
+            };
+
+            device->CreateDepthStencilView(texture, &desc, dsv_start);
+
+            DX12DepthStencilView dsv{ dsv_start };
+
+            dsv_start.Offset(1, dsv_increment);
+            dsv_index++;
+            if (dsv_index == dsv_heap_size) {
+                dsv_index = 0;
+                dsv_start = dsv_heap->GetCPUDescriptorHandleForHeapStart();
+            }
+            return dsv;
+        }
 
         // TODO:Comment
         [[nodiscard]] DX12DescriptorHeap CreateDescriptorHeap(uint32_t num_descs, PoolType type) const
