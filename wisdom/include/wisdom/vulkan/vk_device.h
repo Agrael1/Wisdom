@@ -326,13 +326,26 @@ WIS_EXPORT namespace wis
                 // VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR /* Need to check support if this is desired. */
             };
 
-            constexpr static vk::MutableDescriptorTypeListVALVE cbvSrvUavTypeList{
+            constexpr static vk::MutableDescriptorTypeListVALVE a{
                 sizeof(cbvSrvUavTypes) / sizeof(VkDescriptorType),
                 cbvSrvUavTypes
             };
 
-            constexpr static vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
-                1u, &cbvSrvUavTypeList
+            // clang-format off
+            constexpr static std::array<vk::MutableDescriptorTypeListVALVE, 64> cbvSrvUavTypeList{
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+                a,a,a,a,a,a,a,a,
+            };
+            // clang-format on
+
+            vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
+                uint32_t(descs.size()), cbvSrvUavTypeList.data()
             };
 
             for (auto& desc : descs) {
