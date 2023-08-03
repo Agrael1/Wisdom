@@ -1,6 +1,7 @@
 #pragma once
 #ifndef WISDOM_MODULES
 #include <wisdom/api/api_common.h>
+#include <wisdom/api/api_barrier.h>
 #endif
 
 // TODO: Refactor
@@ -30,6 +31,7 @@ WIS_EXPORT namespace wis
         PassLoadOperation load = PassLoadOperation::load;
         PassStoreOperation store = PassStoreOperation::store;
         uint32_t array_levels = 1;
+        BufferFlags usage_flags = BufferFlags::CopyDest;
     };
 
     struct DepthStencilAttachment {

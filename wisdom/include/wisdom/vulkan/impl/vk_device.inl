@@ -272,7 +272,7 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<c
         ref.attachment = size - 1;
         ref.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
-        image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
+        image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits(i.usage_flags),
                           frame_size.width, frame_size.height, i.array_levels, 1u, &desc.format);
 
         if (size == max_attachment)

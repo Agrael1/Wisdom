@@ -48,6 +48,8 @@ WIS_EXPORT namespace wis
     /// @brief Buffer usage flags, TODO: add more
     enum class BufferFlags : uint32_t {
         None = 0,
+        CopySource = 0x1, // VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        CopyDest = 0x2, // VK_BUFFER_USAGE_TRANSFER_DST_BIT
         ConstantBuffer = 0x10, // VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
         IndexBuffer = 0x40, // VK_BUFFER_USAGE_INDEX_BUFFER_BIT
         VertexBuffer = 0x80, // VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
