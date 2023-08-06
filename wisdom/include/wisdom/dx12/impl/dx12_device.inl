@@ -1,4 +1,4 @@
-//#include "../dx12_device.h"
+..#include "../dx12_device.h"
 
 bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
 {

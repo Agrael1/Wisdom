@@ -1,10 +1,9 @@
 #ifndef WISDOM_MODULES
 // #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_dynamic_loader.h>
-#include <span>
 #endif
 
-wis::AdapterDesc wis::VKAdapter::GetDesc() const noexcept
+void wis::VKAdapter::GetDesc(wis::AdapterDesc& out_desc) const noexcept
 {
     using namespace river::flags;
     vk::PhysicalDeviceProperties2 properties;
@@ -35,18 +34,16 @@ wis::AdapterDesc wis::VKAdapter::GetDesc() const noexcept
         AdapterFlags(((+AdapterFlags::Remote) != 0u) && ((uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)) != 0u)) | AdapterFlags(((+AdapterFlags::Software) != 0u) && ((uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eCpu)) != 0u))
     };
 
-    std::string_view x = desc.deviceName;
-    return AdapterDesc{
-        .description{ x.begin(), x.end() },
-        .vendor_id = desc.vendorID,
-        .device_id = desc.deviceID,
-        .subsys_id = desc.apiVersion,
-        .revision = desc.driverVersion,
+    std::copy_n(desc.deviceName.data(), sizeof(out_desc.description) - 1, out_desc.description);
+    out_desc.vendor_id = desc.vendorID;
 
-        .dedicated_video_memory = local_mem,
-        .dedicated_system_memory = 0,
-        .shared_system_memory = system_mem,
-        .adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID),
-        .flags = flag
-    };
+    out_desc.device_id = desc.deviceID;
+    out_desc.subsys_id = desc.apiVersion;
+    out_desc.revision = desc.driverVersion;
+
+    out_desc.dedicated_video_memory = local_mem;
+    out_desc.dedicated_system_memory = 0;
+    out_desc.shared_system_memory = system_mem;
+    out_desc.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID);
+    out_desc.flags = wisAdapterFlags(flag);
 }

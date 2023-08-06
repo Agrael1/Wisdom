@@ -137,7 +137,7 @@ public:
     {
         // only this function owns the last reference to the control block
         // the same principle is used in the default deleter of std::shared_ptr
-        if (m_control && (m_control->release() == 0)) {
+        if (m_control && (m_control->release() == 1)) {
             ForwardType::internalDestroy(getHeader(), m_handle);
             delete m_control;
         }
@@ -896,5 +896,82 @@ protected:
     using BaseType::internalDestroy;
 };
 
+template<typename HandleType, typename ParentType>
+class SharedHandleBaseNoDestroy : public SharedHandleBase<HandleType, ParentType>
+{
+    using BaseType = SharedHandleBase<HandleType, ParentType>;
+
+public:
+    using BaseType::SharedHandleBase;
+
+    const ParentType& getParent() const VULKAN_HPP_NOEXCEPT
+    {
+        return BaseType::getHeader();
+    }
+
+protected:
+    static void internalDestroy(const ParentType&, HandleType) VULKAN_HPP_NOEXCEPT { }
+};
+
+//=== VK_VERSION_1_0 ===
+
+template<>
+class SharedHandle<PhysicalDevice> : public SharedHandleBaseNoDestroy<PhysicalDevice, SharedInstance>
+{
+    friend SharedHandleBase<PhysicalDevice, SharedInstance>;
+
+public:
+    using element_type = PhysicalDevice;
+    using SharedHandleBaseNoDestroy<PhysicalDevice, SharedInstance>::SharedHandleBaseNoDestroy;
+};
+using SharedPhysicalDevice = SharedHandle<PhysicalDevice>;
+
+template<>
+class SharedHandle<Queue> : public SharedHandleBaseNoDestroy<Queue, SharedDevice>
+{
+    friend SharedHandleBase<Queue, SharedDevice>;
+
+public:
+    using element_type = Queue;
+    using SharedHandleBaseNoDestroy<Queue, SharedDevice>::SharedHandleBaseNoDestroy;
+};
+using SharedQueue = SharedHandle<Queue>;
+
+//=== VK_KHR_display ===
+
+template<>
+class SharedHandle<DisplayKHR> : public SharedHandleBaseNoDestroy<DisplayKHR, SharedPhysicalDevice>
+{
+    friend SharedHandleBase<DisplayKHR, SharedPhysicalDevice>;
+
+public:
+    using element_type = DisplayKHR;
+    using SharedHandleBaseNoDestroy<DisplayKHR, SharedPhysicalDevice>::SharedHandleBaseNoDestroy;
+};
+using SharedDisplayKHR = SharedHandle<DisplayKHR>;
+
+template<>
+class SharedHandle<DisplayModeKHR> : public SharedHandleBaseNoDestroy<DisplayModeKHR, SharedDisplayKHR>
+{
+    friend SharedHandleBase<DisplayModeKHR, SharedDisplayKHR>;
+
+public:
+    using element_type = DisplayModeKHR;
+    using SharedHandleBaseNoDestroy<DisplayModeKHR, SharedDisplayKHR>::SharedHandleBaseNoDestroy;
+};
+using SharedDisplayModeKHR = SharedHandle<DisplayModeKHR>;
+
+//=== VK_INTEL_performance_query ===
+
+template<>
+class SharedHandle<PerformanceConfigurationINTEL> : public SharedHandleBaseNoDestroy<PerformanceConfigurationINTEL, SharedDevice>
+{
+    friend SharedHandleBase<PerformanceConfigurationINTEL, SharedDevice>;
+
+public:
+    using element_type = PerformanceConfigurationINTEL;
+    using SharedHandleBaseNoDestroy<PerformanceConfigurationINTEL, SharedDevice>::SharedHandleBaseNoDestroy;
+};
+using SharedPerformanceConfigurationINTEL = SharedHandle<PerformanceConfigurationINTEL>;
 } // namespace VULKAN_HPP_NAMESPACE
 #endif

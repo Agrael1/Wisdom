@@ -121,6 +121,9 @@ Test::App::App(uint32_t width, uint32_t height)
     wis::DescriptorSetLayout dsl_srv = device.CreateDescriptorSetLayout({ &srv_bind, 1 });
     wis::DescriptorSetLayout dsl_splr = device.CreateDescriptorSetLayout({ &splr_bind, 1 });
     srv_set = srv_heap.AllocateDescriptorSet(dsl_srv);
+    srv_set = {};
+    
+    srv_set = srv_heap.AllocateDescriptorSet(dsl_srv);
     sampler_set = sampler_heap.AllocateDescriptorSet(dsl_splr);
 
     std::array a{ dsl_srv, dsl_splr };
@@ -145,9 +148,10 @@ Test::App::App(uint32_t width, uint32_t height)
     upl_vbuf.UpdateSubresource(RawView(triangleVertices));
 
     texture = allocator.CreateTexture(wis::TextureDescriptor{
-            .width = 128,
-            .height = 128,
-            .format = wis::DataFormat::r8g8b8a8_unorm });
+                                              .width = 128,
+                                              .height = 128,
+                                              .format = wis::DataFormat::r8g8b8a8_unorm },
+                                      wis::TextureFlags(+wis::TextureFlags::CopyDest | +wis::TextureFlags::ShaderResource));
     auto data = GenerateTextureData(128, 128, 4);
     auto upl_tbuf = allocator.CreateUploadBuffer(data.size());
     upl_tbuf.UpdateSubresource({ (std::byte*)data.data(), data.size() });
@@ -219,9 +223,9 @@ void Test::App::Frame()
         std::pair{ rtvs2[swap.GetNextIndex()], color2 }
     };
 
-    //context.SetGraphicsDescriptorSet(root);
-    context.SetGraphicsDescriptorSet(root,0, srv_set);
-    context.SetGraphicsDescriptorSet(root,1, sampler_set);
+    // context.SetGraphicsDescriptorSet(root);
+    context.SetGraphicsDescriptorSet(root, 0, srv_set);
+    context.SetGraphicsDescriptorSet(root, 1, sampler_set);
 
     context.RSSetViewport({ float(wnd.width()), float(wnd.height()) });
     context.RSSetScissorRect({ long(wnd.width()), long(wnd.height()) });
