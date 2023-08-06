@@ -10,19 +10,7 @@ WIS_EXPORT namespace wis
     class VKFence;
 
     template<>
-    class Internal<VKFence>
-    {
-    public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::Semaphore> fence)
-            : fence(std::move(fence)), device(this->fence.getParent().get()) { }
-
-        [[nodiscard]] vk::Semaphore GetFence() const noexcept
-        {
-            return fence.get();
-        }
-
-    protected:
+    struct Internal<VKFence> {
         wis::shared_handle<vk::Semaphore> fence;
         vk::Device device; // little overhead for better performance
     };
@@ -31,20 +19,25 @@ WIS_EXPORT namespace wis
     {
     public:
         VKFence() = default;
-        explicit VKFence(wis::shared_handle<vk::Semaphore> fence)
+        explicit VKFence(wis::shared_handle<vk::Semaphore> fence) noexcept
             : QueryInternal(std::move(fence))
         {
         }
         operator VKFenceView() const noexcept
         {
-            return GetFence();
+            return fence.get();
+        }
+        operator bool() const noexcept
+        {
+            return bool(fence);
         }
 
+    public:
         /// @brief Get the current value of the fence.
         /// @return Value of the fence.
         [[nodiscard]] uint64_t GetCompletedValue() const noexcept
         {
-            return device.getSemaphoreCounterValue(fence.get());
+            return device.getSemaphoreCounterValue(fence.get()).value;
         }
 
         /// @brief Wait for the fence to reach a certain value.
@@ -56,7 +49,7 @@ WIS_EXPORT namespace wis
                 return true;
 
             auto s = fence.get();
-            vk::SemaphoreWaitInfo waitInfo{ {}, 1, &s, &value };
+            vk::SemaphoreWaitInfo waitInfo{ .semaphoreCount= 1, .pSemaphores = &s, .pValues = &value };
             return succeded(device.waitSemaphores(waitInfo, std::numeric_limits<uint64_t>::max()));
         }
 
@@ -65,8 +58,8 @@ WIS_EXPORT namespace wis
         void Signal(uint64_t value) noexcept
         {
             vk::SemaphoreSignalInfo signalInfo{
-                fence.get(),
-                value
+                .semaphore = fence.get(),
+                .value = value
             };
             std::ignore = device.signalSemaphore(&signalInfo);
         }

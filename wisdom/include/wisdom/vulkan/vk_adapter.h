@@ -27,6 +27,10 @@ public:
     {
         return adapter;
     }
+    operator bool() const noexcept
+	{
+		return bool(adapter);
+	}
 
     /// @brief Get the adapter description
     /// @return Adapter Description

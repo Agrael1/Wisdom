@@ -5,6 +5,7 @@
 typedef struct wisVKAdapter_t* wisVKAdapter;
 typedef struct wisVKFactory_t* wisVKFactory;
 typedef struct wisVKDevice_t* wisVKDevice;
+typedef struct wisVKFence_t* wisVKFence;
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,10 @@ uint32_t wisVKAdapterGeneratorStorageSize();
 
 wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator);
 void wisVKDeviceDestroy(wisVKDevice device, wisAllocator* allocator);
+
+uint64_t wisVKFenceGetCompletedValue(const wisVKFence fence);
+int wisVKFenceWait(const wisVKFence fence, uint64_t value);
+void wisVKFenceSignal(const wisVKFence fence, uint64_t value);
 
 #ifdef __cplusplus
 }

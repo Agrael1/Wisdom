@@ -1,4 +1,5 @@
 #include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/bindings/vulkan.h>
 
 template<class Type>
@@ -51,7 +52,7 @@ void wisVKFactoryDestroy(wisVKFactory factory, wisAllocator* allocator)
     Deallocate(allocator, As<wis::VKFactory*>(factory));
 }
 
-void wisVKAdapterGetDesc(wisVKAdapter self, wisAdapterDesc* pdesc)
+void wisVKAdapterGetDesc(const wisVKAdapter self, wisAdapterDesc* pdesc)
 {
     reinterpret_cast<const wis::VKAdapter*>(self)->GetDesc(reinterpret_cast<wis::AdapterDesc&>(*pdesc));
 }
@@ -66,6 +67,19 @@ wisVKAdapter wisVKFactoryGetNextAdapter(void* storage)
     auto& gen = *reinterpret_cast<wis::generator<wis::VKAdapter>*>(storage);
     auto a = gen.begin();
     return a == gen.end() ? nullptr : reinterpret_cast<wisVKAdapter>(&*a);
+}
+
+uint64_t wisVKFenceGetCompletedValue(const wisVKFence fence)
+{
+    return reinterpret_cast<const wis::VKFence*>(fence)->GetCompletedValue();
+}
+int wisVKFenceWait(const wisVKFence fence, uint64_t value)
+{
+    return reinterpret_cast<const wis::VKFence*>(fence)->Wait(value);
+}
+void wisVKFenceSignal(const wisVKFence fence, uint64_t value)
+{
+    reinterpret_cast<wis::VKFence*>(fence)->Signal(value);
 }
 
 // wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator)

@@ -4,6 +4,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+typedef enum Result {
+    Result_Success = 0,
+    Result_Failure = 1,
+} Result;
+
 typedef struct wisAllocator {
     void* user_data;
     void* (*allocate)(void* user_data, uint32_t size, uint32_t alignment);
