@@ -4,40 +4,25 @@
 #include <wisdom/vulkan/vk_shared_handle.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKSampler;
+
+template<>
+struct Internal<VKSampler> {
+    wis::shared_handle<vk::Sampler> sampler;
+};
+
+WIS_EXPORT class VKSampler : public QueryInternal<VKSampler>
 {
-    class VKSampler;
-
-    template<>
-    class Internal<VKSampler>
+public:
+    VKSampler() = default;
+    explicit VKSampler(wis::shared_handle<vk::Sampler> sampler) noexcept
+        : QueryInternal(std::move(sampler))
     {
-    public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::Sampler> view)
-            : view(std::move(view))
-        {
-        }
-
-        [[nodiscard]] auto GetSamplerHandle() const noexcept
-        {
-            return view;
-        }
-        [[nodiscard]] auto GetSampler() const noexcept
-        {
-            return view.get();
-        }
-
-    protected:
-        wis::shared_handle<vk::Sampler> view;
-    };
-
-    class VKSampler : public QueryInternal<VKSampler>
+    }
+    operator bool() const noexcept
     {
-    public:
-        VKSampler() = default;
-        explicit VKSampler(wis::shared_handle<vk::Sampler> view)
-            : QueryInternal(std::move(view))
-        {
-        }
-    };
-}
+        return bool(sampler);
+    }
+};
+} // namespace wis

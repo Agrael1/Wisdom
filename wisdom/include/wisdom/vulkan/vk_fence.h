@@ -5,7 +5,7 @@
 #include <wisdom/vulkan/vk_checks.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis
 {
     class VKFence;
 
@@ -15,7 +15,7 @@ WIS_EXPORT namespace wis
         vk::Device device; // little overhead for better performance
     };
 
-    class VKFence : public QueryInternal<VKFence>
+    WIS_EXPORT class VKFence : public QueryInternal<VKFence>
     {
     public:
         VKFence() = default;

@@ -6,6 +6,7 @@ typedef struct wisVKAdapter_t* wisVKAdapter;
 typedef struct wisVKFactory_t* wisVKFactory;
 typedef struct wisVKDevice_t* wisVKDevice;
 typedef struct wisVKFence_t* wisVKFence;
+typedef struct wisVKSampler_t* wisVKSampler;
 
 #ifdef __cplusplus
 extern "C" {
