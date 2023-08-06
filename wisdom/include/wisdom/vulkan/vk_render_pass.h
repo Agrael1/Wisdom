@@ -5,52 +5,34 @@
 #include <wisdom/vulkan/vk_views.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKRenderPass;
+
+template<>
+struct Internal<VKRenderPass> {
+    wis::shared_handle<vk::RenderPass> rp;
+    wis::shared_handle<vk::Framebuffer> frame;
+};
+
+// TODO: Dynamic rendering
+WIS_EXPORT class VKRenderPass : public QueryInternal<VKRenderPass>
 {
-    class VKRenderPass;
-
-    template<>
-    class Internal<VKRenderPass>
+public:
+    VKRenderPass() = default;
+    explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame, Size2D frame_size) noexcept
+        : QueryInternal(std::move(rp), std::move(frame)), framebuffer_size(frame_size)
     {
-    public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame)
-            : rp(std::move(rp)), frame(std::move(frame)) { }
-
-        [[nodiscard]] auto GetRenderPass() const noexcept
-        {
-            return rp.get();
-        }
-        [[nodiscard]] auto GetFramebuffer() const noexcept
-        {
-            return frame.get();
-        }
-
-    private:
-        wis::shared_handle<vk::RenderPass> rp;
-        wis::shared_handle<vk::Framebuffer> frame;
-    };
-
-    // TODO: Dynamic rendering
-    class VKRenderPass : public QueryInternal<VKRenderPass>
+    }
+    operator bool() const noexcept
+	{
+		return bool(rp)&&bool(frame);
+	}
+    [[nodiscard]] Size2D GetFramebufferSize() const noexcept
     {
-    public:
-        VKRenderPass() = default;
-        explicit VKRenderPass(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame, Size2D frame_size)
-            : QueryInternal(std::move(rp), std::move(frame)), framebuffer_size(frame_size)
-        {
-        }
+        return framebuffer_size;
+    }
 
-        operator VKRenderPassView() const noexcept
-        {
-            return { GetRenderPass(), GetFramebuffer(), framebuffer_size };
-        }
-        [[nodiscard]] Size2D GetFramebufferSize() const noexcept
-        {
-            return framebuffer_size;
-        }
-
-    private:
-        Size2D framebuffer_size{ 0, 0 };
-    };
-}
+private:
+    Size2D framebuffer_size{ 0, 0 };
+};
+} // namespace wis

@@ -4,43 +4,30 @@
 #include <wisdom/vulkan/vk_views.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKPipelineState;
+
+template<>
+struct Internal<VKPipelineState> {
+    wis::shared_handle<vk::Pipeline> pipeline;
+};
+
+/// @brief Pipeline state object
+WIS_EXPORT class VKPipelineState : public QueryInternal<VKPipelineState>
 {
-    class VKPipelineState;
-
-    template<>
-    class Internal<VKPipelineState>
+public:
+    VKPipelineState() = default;
+    explicit VKPipelineState(wis::shared_handle<vk::Pipeline> pipeline) noexcept
+        : QueryInternal(std::move(pipeline))
     {
-    public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::Pipeline> pipeline)
-            : pipeline(std::move(pipeline)){};
-
-        [[nodiscard]] auto GetPipeline() const noexcept
-        {
-            return pipeline.get();
-        }
-
-    private:
-        wis::shared_handle<vk::Pipeline> pipeline;
-    };
-
-    /// @brief Pipeline state object
-    class VKPipelineState : public QueryInternal<VKPipelineState>
+    }
+    operator bool() const noexcept
     {
-    public:
-        VKPipelineState() = default;
-        explicit VKPipelineState(wis::shared_handle<vk::Pipeline> pipeline)
-            : QueryInternal(std::move(pipeline))
-        {
-        }
-        operator VKPipelineStateView() const noexcept
-        {
-            return GetPipeline();
-        }
-        operator bool() const noexcept
-        {
-            return bool(GetPipeline());
-        }
-    };
-}
+        return bool(pipeline);
+    }
+    operator VKPipelineStateView() const noexcept
+    {
+        return pipeline.get();
+    }
+};
+} // namespace wis
