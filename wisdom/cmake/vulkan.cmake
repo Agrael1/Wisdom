@@ -36,7 +36,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_descriptor_heap.h" "include/wisdom/vulkan/vk_sampler.h")
 	set(VKINL "include/wisdom/vulkan/impl/vk_adapter.inl")
 
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND VULKAN_HPP_NO_EXCEPTIONS VULKAN_HPP_NO_CONSTRUCTORS )
 
 	# Add source to this project's executable.
 	target_sources(${PROJECT_NAME}

@@ -1,29 +1,31 @@
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/bindings/vulkan.h>
 
-
-template<class Type, class ...Args>
-static Type* Allocate(wisAllocator* allocator, Args&&... args)
-{
-    auto* ptr = allocator?
-        allocator->allocate(allocator->user_data, sizeof(Type), alignof(Type))
-                          : _aligned_malloc(sizeof(Type()), alignof(Type));
-    return reinterpret_cast<Type*>(new(ptr) Type(std::forward<Args>(args)...));
-}
-
 template<class Type>
 static void Deallocate(wisAllocator* allocator, Type* ptr)
 {
-    if (allocator) {
-		allocator->free(allocator->user_data, ptr);
-    }
-    else {
-		ptr->~Type();
-		_aligned_free(ptr);
-	}
+    ptr->~Type();
+    if (allocator)
+        allocator->free(allocator->user_data, ptr);
+    else
+        _aligned_free(ptr);
 }
 
-template <class CType, class Type>
+template<class Type, class... Args>
+static Type* Allocate(wisAllocator* allocator, Args&&... args)
+{
+    auto* ptr = allocator ? allocator->allocate(allocator->user_data, sizeof(Type), alignof(Type))
+                          : _aligned_malloc(sizeof(Type), alignof(Type));
+    auto* type = reinterpret_cast<Type*>(new (ptr) Type(std::forward<Args>(args)...));
+    if (!bool(*type)) {
+        Deallocate(allocator, type);
+        return nullptr;
+    } else {
+        return type;
+    }
+}
+
+template<class CType, class Type>
 CType As(Type* t)
 {
     return reinterpret_cast<CType>(t);
@@ -42,7 +44,7 @@ void wisVKFactoryFreeAdapterStorage(void* storage)
 
 wisVKFactory wisVKFactoryCreate(const wisApplicationInfo* app_info, wisAllocator* allocator)
 {
-    return As<wisVKFactory>(Allocate<wis::VKFactory>(allocator, *app_info));
+    return As<wisVKFactory>(Allocate<wis::VKFactory>(allocator, static_cast<const wis::ApplicationInfo&>(*app_info)));
 }
 void wisVKFactoryDestroy(wisVKFactory factory, wisAllocator* allocator)
 {
@@ -63,18 +65,16 @@ wisVKAdapter wisVKFactoryGetNextAdapter(void* storage)
 {
     auto& gen = *reinterpret_cast<wis::generator<wis::VKAdapter>*>(storage);
     auto a = gen.begin();
-    return a == gen.end()? nullptr : reinterpret_cast<wisVKAdapter>(&*a);
+    return a == gen.end() ? nullptr : reinterpret_cast<wisVKAdapter>(&*a);
 }
 
-
-//wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator)
+// wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator)
 //{
-//    return As<wisVKDevice>(Allocate<wis::VKDevice>(allocator, As<wis::VKAdapter*>(adapter)));
-//}
+//     return As<wisVKDevice>(Allocate<wis::VKDevice>(allocator, As<wis::VKAdapter*>(adapter)));
+// }
 //
-//void wisVKDeviceDestroy(wisVKDevice device, wisAllocator* allocator)
+// void wisVKDeviceDestroy(wisVKDevice device, wisAllocator* allocator)
 //{
-//    Deallocate(allocator, As<wis::VKDevice*>(device));
-//}
-
+//     Deallocate(allocator, As<wis::VKDevice*>(device));
+// }
 }
