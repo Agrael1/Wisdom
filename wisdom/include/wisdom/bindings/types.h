@@ -61,6 +61,18 @@ typedef struct wisApplicationInfo {
     wisVersion engine_version;
 } wisApplicationInfo;
 
+typedef enum wisShaderType {
+    ShaderType_Unknown,
+    ShaderType_Vertex,
+    ShaderType_Pixel,
+    ShaderType_Geometry,
+    ShaderType_Hull,
+    ShaderType_Domain,
+    ShaderType_Amplification,
+    ShaderType_Mesh,
+    ShaderType_Compute
+} wisShaderType;
+
 #ifdef __cplusplus
 }
 #endif

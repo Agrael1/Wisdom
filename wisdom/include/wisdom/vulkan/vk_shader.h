@@ -5,51 +5,41 @@
 #include <wisdom/vulkan/vk_shared_handle.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKShader;
+
+template<>
+struct Internal<VKShader> {
+    wis::shared_handle<vk::ShaderModule> module;
+};
+
+/// @brief Shader object
+WIS_EXPORT class VKShader : public QueryInternal<VKShader>
 {
-    class VKShader;
+public:
+    using DataType = uint32_t;
+    static constexpr inline ShaderLang language = ShaderLang::spirv;
 
-    template<>
-    class Internal<VKShader>
+    VKShader() = default;
+    explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type) noexcept
+        : QueryInternal(std::move(module)), type(type)
     {
-    public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::ShaderModule> module)
-            : module(std::move(module)){};
+    }
 
-        [[nodiscard]] auto GetShaderModule() const noexcept
-        {
-            return module.get();
-        }
-
-    protected:
-        wis::shared_handle<vk::ShaderModule> module;
-    };
-
-    /// @brief Shader object
-    class VKShader : public QueryInternal<VKShader>
+    operator bool() const noexcept
     {
-    public:
-        using DataType = uint32_t;
-        static constexpr inline ShaderLang language = ShaderLang::spirv;
+        return type != ShaderType::Unknown && module;
+    }
 
-        VKShader() = default;
-        explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type)
-            : QueryInternal(std::move(module)), type(type)
-        {
-        }
+public:
+    /// @brief Get shader type e.g. vertex, fragment
+    /// @return Type of shader
+    [[nodiscard]] ShaderType GetType() const noexcept
+    {
+        return type;
+    }
 
-        operator bool() const noexcept
-        {
-            return type != ShaderType::unknown && module;
-        }
-        /// @brief Get shader type e.g. vertex, fragment
-        /// @return Type of shader
-        [[nodiscard]] auto GetType() const noexcept
-        {
-            return type;
-        }
-
-        ShaderType type = ShaderType::unknown;
-    };
-}
+protected:
+    ShaderType type = ShaderType::Unknown;
+};
+} // namespace wis

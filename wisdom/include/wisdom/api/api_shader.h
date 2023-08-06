@@ -12,15 +12,15 @@ WIS_EXPORT namespace wis
 
     /// @brief Type of shader
     enum class ShaderType {
-        unknown,
-        vertex,
-        pixel,
-        geometry,
-        hull,
-        domain,
-        amplification,
-        mesh,
-        compute
+        Unknown,
+        Vertex,
+        Pixel,
+        Geometry,
+        Hull,
+        Domain,
+        Amplification,
+        Mesh,
+        Compute
     };
 
     /// @brief Compiled shader blob

@@ -1,5 +1,6 @@
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_fence.h>
+#include <wisdom/vulkan/vk_shader.h>
 #include <wisdom/bindings/vulkan.h>
 
 template<class Type>
@@ -80,6 +81,11 @@ int wisVKFenceWait(const wisVKFence fence, uint64_t value)
 void wisVKFenceSignal(const wisVKFence fence, uint64_t value)
 {
     reinterpret_cast<wis::VKFence*>(fence)->Signal(value);
+}
+
+wisShaderType GetType(const wisVKShader shader)
+{
+    return static_cast<wisShaderType>(reinterpret_cast<const wis::VKShader*>(shader)->GetType());
 }
 
 // wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator)
