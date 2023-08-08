@@ -1,6 +1,7 @@
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_shader.h>
+#include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/bindings/vulkan.h>
 
 template<class Type>

@@ -34,7 +34,7 @@ void wis::VKAdapter::GetDesc(wis::AdapterDesc& out_desc) const noexcept
         AdapterFlags(((+AdapterFlags::Remote) != 0u) && ((uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eVirtualGpu)) != 0u)) | AdapterFlags(((+AdapterFlags::Software) != 0u) && ((uint32_t(desc.deviceType) & uint32_t(vk::PhysicalDeviceType::eCpu)) != 0u))
     };
 
-    std::copy_n(desc.deviceName.data(), sizeof(out_desc.description) - 1, out_desc.description);
+    std::strncpy(out_desc.description, desc.deviceName.data(), sizeof(out_desc.description) - 1);
     out_desc.vendor_id = desc.vendorID;
 
     out_desc.device_id = desc.deviceID;

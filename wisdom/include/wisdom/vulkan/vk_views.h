@@ -6,6 +6,14 @@
 
 WIS_EXPORT namespace wis
 {
+    inline uint32_t GetApiVersion()noexcept
+    {
+        static constexpr auto version_mask = 0xFFFU;
+        uint32_t version = 0;
+        vkEnumerateInstanceVersion(&version);
+        return version &= ~(version_mask); // unsigned remove patch from instance for compatibility
+    }
+
     using VKAdapterView = vk::PhysicalDevice;
     using VKDeviceView = wis::shared_handle<vk::Device>;
     using VKBufferView = vk::Buffer;

@@ -1,27 +1,30 @@
 #ifndef WISDOM_MODULES
 // #include <wisdom/vulkan/vk_allocator.h>
-#include <wisdom/vulkan/vk_factory.h>
-#endif
+#include <wisdom/vulkan/vk_device.h>
+#endif // !WISDOM_MODULES
 
 // NOLINTNEXTLINE
-wis::VKResourceAllocator::VKResourceAllocator(VKDeviceView device, VKAdapterView adapter)
+wis::VKResourceAllocator::VKResourceAllocator(const VKDevice& in_device) noexcept
 {
+    const auto& d_internal = in_device.GetInternal();
+
     vma::AllocatorCreateInfo allocatorInfo{
         vma::AllocatorCreateFlags(0),
-        adapter,
-        device.get(),
+        d_internal.adapter,
+        d_internal.device.get(),
         0,
         nullptr,
         nullptr,
         nullptr,
         nullptr,
-        VKFactory::GetInstance(),
-        VKFactory::GetApiVer()
+        d_internal.instance.get(),
+        GetApiVersion()
     };
 
     vma::Allocator al;
+    auto result = vma::createAllocator(&allocatorInfo, &al);
+    if (!wis::succeeded(result))
+        return;
 
-    std::ignore = vma::createAllocator(&allocatorInfo, &al);
-
-    allocator = wis::shared_handle<vma::Allocator>{ al, std::move(device) };
+    allocator = wis::shared_handle<vma::Allocator>{ al, d_internal.device };
 }

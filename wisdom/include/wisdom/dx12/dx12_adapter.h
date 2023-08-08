@@ -9,47 +9,47 @@
 #include <dxgi.h>
 #endif // !WISDOM_MODULES
 
-WIS_EXPORT namespace wis
+namespace wis {
+class DX12Adapter;
+
+template<>
+struct Internal<DX12Adapter> {
+    winrt::com_ptr<IDXGIAdapter1> adapter;
+};
+
+/// @brief DX12 physical adapter
+WIS_EXPORT class DX12Adapter : public QueryInternal<DX12Adapter>
 {
-    class DX12Adapter;
-
-    template<>
-    class Internal<DX12Adapter>
+public:
+    DX12Adapter() = default;
+    explicit DX12Adapter(winrt::com_ptr<IDXGIAdapter1> adapter) noexcept
+        : QueryInternal(std::move(adapter))
     {
-    public:
-        Internal() = default;
-        Internal(winrt::com_ptr<IDXGIAdapter1> adapter) noexcept
-            : adapter(std::move(adapter)) { }
-
-        [[nodiscard]] IDXGIAdapter1* GetAdapter() const noexcept
-        {
-            return adapter.get();
-        }
-
-    protected:
-        winrt::com_ptr<IDXGIAdapter1> adapter;
-    };
-
-    /// @brief DX12 physical adapter
-    class DX12Adapter final : public QueryInternal<DX12Adapter>
+    }
+    operator DX12AdapterView() const noexcept
     {
-    public:
-        DX12Adapter() = default;
-        explicit DX12Adapter(winrt::com_ptr<IDXGIAdapter1> adapter) noexcept
-            : QueryInternal(std::move(adapter))
-        {
-        }
-        operator DX12AdapterView() const noexcept
-        {
-            return GetAdapter();
-        }
+        return adapter.get();
+    }
+    operator bool() const noexcept
+    {
+        return adapter != nullptr;
+    }
 
-        /// @brief Get the adapter description
-        /// @return Adapter Description
-        /// @note This function is thread safe
-        WIS_INLINE [[nodiscard]] AdapterDesc GetDesc() const noexcept;
-    };
-}
+public:
+    /// @brief Get the adapter description
+    /// @return Adapter Description
+    WIS_INLINE void GetDesc(AdapterDesc& desc) const noexcept;
+
+    /// @brief Get the adapter description
+    /// @return Adapter Description
+    [[nodiscard]] AdapterDesc GetDesc() const noexcept
+    {
+        AdapterDesc desc{};
+        GetDesc(desc);
+        return desc;
+    }
+};
+} // namespace wis
 
 #if defined(WISDOM_HEADER_ONLY)
 #include "impl/dx12_adapter.inl"

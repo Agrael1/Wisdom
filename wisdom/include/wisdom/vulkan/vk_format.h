@@ -4,6 +4,7 @@
 #include <wisdom/api/api_barrier.h>
 #include <wisdom/api/api_render_pass.h>
 #include <wisdom/util/flags.h>
+#include <wisdom/bridge/unreachable.h>
 #include <vulkan/vulkan.hpp>
 #endif
 
@@ -312,9 +313,32 @@ inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
         return vk::AttachmentStoreOp::eStore;
     case PassStoreOperation::discard:
         return vk::AttachmentStoreOp::eDontCare;
+    default:
+        wis::unreachable();
     }
-    assert(false);
     return vk::AttachmentStoreOp::eStore;
+}
+inline constexpr vk::ImageType convert_vk(TextureType state)
+{
+    switch (state) {
+    case wis::TextureType::T1D:
+        return vk::ImageType::e1D;
+    case wis::TextureType::T1DARRAY:
+        return vk::ImageType::e1D;
+    case wis::TextureType::T2D:
+        return vk::ImageType::e2D;
+    case wis::TextureType::T2DARRAY:
+        return vk::ImageType::e2D;
+    case wis::TextureType::T2DMS:
+        return vk::ImageType::e2D;
+    case wis::TextureType::T2DMSARRAY:
+        return vk::ImageType::e2D;
+    case wis::TextureType::T3D:
+        return vk::ImageType::e3D;
+    default:
+        wis::unreachable();
+    }
+    return vk::ImageType::e2D;
 }
 
 } // namespace wis

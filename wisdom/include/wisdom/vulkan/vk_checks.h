@@ -9,7 +9,7 @@ namespace wis {
 /// @brief Check if a vulkan result is a success
 /// @param res Result to check
 /// @return True if the result is a success
-inline bool succeded(vk::Result res, wis::Severity severity = wis::Severity::error, wis::source_location sl = wis::source_location::current())noexcept
+inline bool succeeded(vk::Result res, wis::Severity severity = wis::Severity::error, wis::source_location sl = wis::source_location::current())noexcept
 {
     if constexpr (debug_mode)
     {

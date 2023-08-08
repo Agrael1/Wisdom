@@ -56,7 +56,7 @@ private:
     void LoadExtensions() noexcept
     {
         auto&& [result, extensions] = vk::enumerateInstanceExtensionProperties();
-        if (!wis::succeded(result))
+        if (!wis::succeeded(result))
             return;
 
         for (auto& i : extensions)
@@ -65,7 +65,7 @@ private:
     void LoadLayers() noexcept
     {
         auto [result, layers] = vk::enumerateInstanceLayerProperties();
-        if (!wis::succeded(result))
+        if (!wis::succeeded(result))
             return;
 
         for (auto& i : layers)
@@ -159,14 +159,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallback(VkDebugUtilsMessage
 wis::VKFactory::VKFactory(const ApplicationInfo& app_info)noexcept
 {
     wis::lib_info("Initializing Instance");
-    uint32_t version = 0;
-    vkEnumerateInstanceVersion(&version);
 
-    wis::lib_log(Severity::info, wis::format("Vulkan ver: {}.{}.{}", VK_API_VERSION_MAJOR(version), VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
-
-    static constexpr auto version_mask = 0xFFFU;
-    api_version = version &= ~(version_mask); // unsigned remove patch from instance for compatibility
-
+    auto version = GetApiVersion();
     auto found_extension = FoundExtensions();
     auto found_layers = FoundLayers();
 
@@ -196,7 +190,7 @@ wis::VKFactory::VKFactory(const ApplicationInfo& app_info)noexcept
     }
 
     auto&& [result, instance] = vk::createInstance(create_info);
-    if (!wis::succeded(result))
+    if (!wis::succeeded(result))
         return;
 
     factory = wis::shared_handle<vk::Instance>{ instance };
@@ -213,7 +207,7 @@ wis::VKFactory::VKFactory(const ApplicationInfo& app_info)noexcept
 wis::generator<wis::VKAdapter> wis::VKFactory::EnumerateAdapters(AdapterPreference preference) const noexcept
 {
     auto&& [result, adapters] = factory->enumeratePhysicalDevices();
-    if (!wis::succeded(result))
+    if (!wis::succeeded(result))
         co_return;
 
     if (adapters.size() > 1) {

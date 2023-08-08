@@ -468,10 +468,23 @@ WIS_EXPORT namespace wis
     };
 
     struct TextureDescriptor {
-        uint32_t width = 0;
-        uint32_t height = 0;
-        uint32_t depth = 1;
-        uint32_t array_size = 1;
+        TextureType type = TextureType::T2D;
+        union {
+            struct {
+                uint32_t width;
+                uint32_t array_size = 1;
+            } t1d;
+            struct {
+                uint32_t width;
+                uint32_t height;
+                uint32_t array_size = 1;
+            } t2d;
+            struct {
+                uint32_t width;
+                uint32_t height;
+                uint32_t depth;
+            } t3d;
+        };
         uint32_t mip_levels = 1;
         DataFormat format = DataFormat::unknown;
     };
@@ -498,8 +511,7 @@ WIS_EXPORT namespace wis
         uint32_t depth; //< Depth of the texture in pixels
     };
 
-    struct TextureRange
-    {
+    struct TextureRange {
         uint32_t mip;
         uint32_t array_layer = 0;
         Size3D extent;

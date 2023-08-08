@@ -14,7 +14,6 @@ struct Internal<VKRenderPass> {
     wis::shared_handle<vk::Framebuffer> frame;
 };
 
-// TODO: Dynamic rendering
 WIS_EXPORT class VKRenderPass : public QueryInternal<VKRenderPass>
 {
 public:
