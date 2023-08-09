@@ -50,7 +50,7 @@ namespace wis
 
             auto s = fence.get();
             vk::SemaphoreWaitInfo waitInfo{ .semaphoreCount= 1, .pSemaphores = &s, .pValues = &value };
-            return succeded(device.waitSemaphores(waitInfo, std::numeric_limits<uint64_t>::max()));
+            return succeeded(device.waitSemaphores(waitInfo, std::numeric_limits<uint64_t>::max()));
         }
 
         /// @brief Signal the fence from CPU.

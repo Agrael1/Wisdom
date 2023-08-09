@@ -55,7 +55,7 @@ WIS_EXPORT namespace wis
             closed = false;
             command_list.begin(desc);
             if (pipeline)
-                command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().GetPipeline());
+                command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().pipeline.get());
             return !closed;
         }
 

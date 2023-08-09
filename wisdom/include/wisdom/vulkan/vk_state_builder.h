@@ -46,15 +46,15 @@ WIS_EXPORT namespace wis
         {
             using enum ShaderType;
             switch (shader.GetType()) {
-            case vertex:
+            case Vertex:
                 return SetVS(std::move(shader));
-            case pixel:
+            case Pixel:
                 return SetPS(std::move(shader));
-            case geometry:
+            case Geometry:
                 return SetGS(std::move(shader));
-            case hull:
+            case Hull:
                 return SetHS(std::move(shader));
-            case domain:
+            case Domain:
                 return SetDS(std::move(shader));
             default:
                 break;
