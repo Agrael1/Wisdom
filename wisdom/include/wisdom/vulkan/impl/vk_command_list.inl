@@ -1,4 +1,4 @@
-// #include <wisdom/vulkan/vk_command_list.h>
+#include <wisdom/vulkan/vk_command_list.h>
 #ifndef WISDOM_MODULES
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/global/definitions.h>
@@ -13,7 +13,13 @@ void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView 
         return;
 
     vk::BufferMemoryBarrier desc{
-        acc_before, acc_after, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, buffer, 0, VK_WHOLE_SIZE
+        .srcAccessMask = acc_before,
+        .dstAccessMask = acc_after,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = buffer,
+        .offset = 0,
+        .size = VK_WHOLE_SIZE
     };
     command_list.pipelineBarrier(
             vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
@@ -34,14 +40,14 @@ void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureVi
         return;
 
     vk::ImageMemoryBarrier image_memory_barrier{
-        acc_before,
-        acc_after,
-        vk_state_before,
-        vk_state_after,
-        VK_QUEUE_FAMILY_IGNORED,
-        VK_QUEUE_FAMILY_IGNORED,
-        texture.image,
-        convert_vk(barrier.range, texture.format)
+        .srcAccessMask = acc_before,
+        .dstAccessMask = acc_after,
+        .oldLayout = vk_state_before,
+        .newLayout = vk_state_after,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image = texture.image,
+        .subresourceRange = convert_vk(barrier.range, texture.format)
     };
     command_list.pipelineBarrier(
             vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
@@ -78,20 +84,25 @@ void wis::VKCommandList::BeginRenderPass(wis::VKRenderPassView rp,
     wis::internals::uniform_allocator<vk::ImageView, max_render_targets> image_views;
     wis::internals::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
     for (const auto& i : render_targets) {
-        image_views.allocate(i.first.GetInternal().GetImageView());
-        image_clear.allocate().setColor(i.second);
+        image_views.allocate(i.first.GetInternal().view);
+        image_clear.allocate().setColor(vk::ClearColorValue{ i.second });
     }
-    if (auto iv = depth.first.GetInternal().GetImageView()) {
+    if (auto iv = depth.first.GetInternal().view) {
         image_views.allocate(iv);
-        image_clear.allocate().setDepthStencil(depth.second);
+        image_clear.allocate().setDepthStencil(vk::ClearDepthStencilValue{ depth.second });
     }
 
     vk::RenderPassAttachmentBeginInfo attachment_begin_info{
-        uint32_t(image_views.size()),
-        image_views.data()
+        .attachmentCount = uint32_t(image_views.size()),
+        .pAttachments = image_views.data()
     };
     vk::RenderPassBeginInfo render_pass_info{
-        rp.pass, rp.frame, vk::Rect2D{ { 0, 0 }, { rp.frame_size.width, rp.frame_size.height } }, uint32_t(image_clear.size()), image_clear.data(), &attachment_begin_info
+        .pNext = &attachment_begin_info,
+        .renderPass = rp.pass,
+        .framebuffer = rp.frame,
+        .renderArea = vk::Rect2D{ { 0, 0 }, { rp.frame_size.width, rp.frame_size.height } },
+        .clearValueCount = uint32_t(image_clear.size()),
+        .pClearValues = image_clear.data(),
     };
     command_list.beginRenderPass(render_pass_info, vk::SubpassContents::eInline);
 }
