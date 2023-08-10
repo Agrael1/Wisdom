@@ -23,39 +23,39 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 #if WISDOMDX12 && !FORCEVK_SWITCH
 
-#ifndef WISDOM_MODULES
-#include <wisdom/dx12/dx12_factory.h>
-#include <wisdom/dx12/dx12_shader.h>
-#include <wisdom/dx12/dx12_allocator.h>
-#include <wisdom/dx12/dx12_device.h>
-#endif // WISDOMDX12 && !FORCEVK_SWITCH
-
-// dx12
-WIS_EXPORT namespace wis
-{
-    using Factory = DX12Factory;
-    using Adapter = DX12Adapter;
-    using Device = DX12Device;
-    using CommandQueue = DX12CommandQueue;
-    using SwapChain = DX12SwapChain;
-    using CommandList = DX12CommandList;
-    using Fence = DX12Fence;
-    using Buffer = DX12Buffer;
-    using RenderTargetView = DX12RenderTargetView;
-    using Shader = DX12Shader;
-    using RootSignature = DX12RootSignature;
-    using PipelineState = DX12PipelineState;
-    using ResourceAllocator = DX12ResourceAllocator;
-    using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
-    using VertexBufferView = DX12VertexBufferView;
-    using RenderPass = DX12RenderPass;
-    using DescriptorHeap = DX12DescriptorHeap;
-    using DescriptorSetLayout = DX12DescriptorSetLayout;
-    using DescriptorSet = DX12DescriptorSet;
-    using Texture = DX12Texture;
-    using DepthStencilView = DX12DepthStencilView;
-    //using Sampler = DX12Sampler;
-}
+//#ifndef WISDOM_MODULES
+//#include <wisdom/dx12/dx12_factory.h>
+//#include <wisdom/dx12/dx12_shader.h>
+//#include <wisdom/dx12/dx12_allocator.h>
+//#include <wisdom/dx12/dx12_device.h>
+//#endif // WISDOMDX12 && !FORCEVK_SWITCH
+//
+//// dx12
+//WIS_EXPORT namespace wis
+//{
+//    using Factory = DX12Factory;
+//    using Adapter = DX12Adapter;
+//    using Device = DX12Device;
+//    using CommandQueue = DX12CommandQueue;
+//    using SwapChain = DX12SwapChain;
+//    using CommandList = DX12CommandList;
+//    using Fence = DX12Fence;
+//    using Buffer = DX12Buffer;
+//    using RenderTargetView = DX12RenderTargetView;
+//    using Shader = DX12Shader;
+//    using RootSignature = DX12RootSignature;
+//    using PipelineState = DX12PipelineState;
+//    using ResourceAllocator = DX12ResourceAllocator;
+//    using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
+//    using VertexBufferView = DX12VertexBufferView;
+//    using RenderPass = DX12RenderPass;
+//    using DescriptorHeap = DX12DescriptorHeap;
+//    using DescriptorSetLayout = DX12DescriptorSetLayout;
+//    using DescriptorSet = DX12DescriptorSet;
+//    using Texture = DX12Texture;
+//    using DepthStencilView = DX12DepthStencilView;
+//    //using Sampler = DX12Sampler;
+//}
 #elif WISDOMMTL && !FORCEVK_SWITCH // MAC
 // metal
 WIS_EXPORT namespace wis

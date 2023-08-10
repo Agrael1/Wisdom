@@ -15,33 +15,13 @@ WIS_EXPORT namespace wis
     using DX12DescriptorSetLayoutView = std::span<const CD3DX12_DESCRIPTOR_RANGE1>;
 
     template<>
-    class Internal<DX12DescriptorSetLayout>
+    struct Internal<DX12DescriptorSetLayout>
     {
-    public:
-        Internal() = default;
-        Internal(std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges)
-            : ranges(std::move(ranges))
-        {
-        }
-
-    public:
-        [[nodiscard]] std::span<const CD3DX12_DESCRIPTOR_RANGE1> GetRanges() const noexcept
-        {
-            return ranges;
-        }
-
-    protected:
         std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
     };
 
     class DX12DescriptorSetLayout : public QueryInternal<DX12DescriptorSetLayout>
     {
-    public:
-        using QueryInternal::QueryInternal;
-        operator DX12DescriptorSetLayoutView() const noexcept
-        {
-            return GetRanges();
-        }
     };
 
     class DX12DescriptorSet;

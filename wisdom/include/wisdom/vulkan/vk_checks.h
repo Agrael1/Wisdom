@@ -3,6 +3,7 @@
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
 #include <vulkan/vulkan.hpp>
+#include <wisdom/bridge/format.h>
 #endif
 
 namespace wis {

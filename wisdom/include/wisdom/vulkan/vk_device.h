@@ -24,8 +24,7 @@ WIS_EXPORT namespace wis
     class VKDevice;
 
     template<>
-    struct Internal<VKDevice>
-    {
+    struct Internal<VKDevice> {
         shared_handle<vk::Device> device;
         shared_handle<vk::Instance> instance;
         vk::PhysicalDevice adapter;
@@ -170,40 +169,42 @@ WIS_EXPORT namespace wis
             if (queue == nullptr)
                 return {};
 
-            vk::DeviceQueueInfo2 info{
-                {},
-                queue->family_index,
-                queue->GetNextInLine()
-            };
-            return VKCommandQueue{ device->getQueue2(info) };
+            return VKCommandQueue{ device->getQueue(queue->family_index, queue->GetNextInLine()) };
         }
 
         [[nodiscard]] VKCommandList CreateCommandList(QueueType list_type) const
         {
             vk::CommandPoolCreateInfo cmd_pool_create_info{
-                vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-                queues.GetOfType(list_type)->family_index
+                .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                .queueFamilyIndex = queues.GetOfType(list_type)->family_index
             };
-            auto ca = device->createCommandPool(cmd_pool_create_info); // allocator
+            auto [result, ca] = device->createCommandPool(cmd_pool_create_info); // allocator
 
             vk::CommandBufferAllocateInfo cmd_buf_alloc_info{
-                ca, vk::CommandBufferLevel::ePrimary, 1
+                .commandPool = ca,
+                .level = vk::CommandBufferLevel::ePrimary,
+                .commandBufferCount = 1
             };
 
+            auto [result2, value] = device->allocateCommandBuffers(cmd_buf_alloc_info);
+
             return VKCommandList{ shared_handle<vk::CommandPool>{ ca, device },
-                                  vk::CommandBuffer{ device->allocateCommandBuffers(cmd_buf_alloc_info).at(0) } };
+                                  vk::CommandBuffer{ value.at(0) } };
         }
 
         [[nodiscard]] VKFence CreateFence() const
         {
             vk::SemaphoreTypeCreateInfo timeline_desc{
-                vk::SemaphoreType::eTimeline,
-                0
+                .semaphoreType =
+                        vk::SemaphoreType::eTimeline,
+                .initialValue = 0
             };
             vk::SemaphoreCreateInfo desc{
-                {}, &timeline_desc
+                .pNext = &timeline_desc
             };
-            return VKFence{ shared_handle<vk::Semaphore>{ device->createSemaphore(desc), device } };
+            auto [result, value] = device->createSemaphore(desc);
+
+            return VKFence{ shared_handle<vk::Semaphore>{ value, device } };
         }
 
         [[nodiscard]] WIS_INLINE
@@ -218,12 +219,16 @@ WIS_EXPORT namespace wis
             internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
             for (auto& i : layouts) {
-                allocator.allocate(i.GetInternal().GetDescriptorSetLayout());
+                allocator.allocate(i.GetInternal().layout.get());
             }
             vk::PipelineLayoutCreateInfo pipeline_layout_info{
-                vk::PipelineLayoutCreateFlags{}, uint32_t(allocator.size()), allocator.data(), 0, nullptr
+                .setLayoutCount = uint32_t(allocator.size()),
+                .pSetLayouts = allocator.data()
             };
-            return VKRootSignature{ shared_handle<vk::PipelineLayout>{ device->createPipelineLayout(pipeline_layout_info), device } };
+
+            auto [result, value] = device->createPipelineLayout(pipeline_layout_info);
+
+            return VKRootSignature{ shared_handle<vk::PipelineLayout>{ value, device } };
         }
 
         [[nodiscard]] WIS_INLINE
@@ -233,11 +238,12 @@ WIS_EXPORT namespace wis
         [[nodiscard]] VKShader CreateShader(shared_blob blob, ShaderType type) const
         {
             vk::ShaderModuleCreateInfo desc{
-                vk::ShaderModuleCreateFlags{},
-                blob.size(),
-                blob.data<uint32_t>()
+                .codeSize = blob.size(),
+                .pCode = blob.data<uint32_t>()
             };
-            return VKShader{ shared_handle<vk::ShaderModule>{ device->createShaderModule(desc), device }, type };
+            auto [result, value] = device->createShaderModule(desc);
+
+            return VKShader{ shared_handle<vk::ShaderModule>{ value, device }, type };
         }
 
         /// @brief Create a Render target view object
@@ -249,20 +255,20 @@ WIS_EXPORT namespace wis
         [[nodiscard]] VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
         {
             vk::ImageViewCreateInfo desc{
-                vk::ImageViewCreateFlags{},
-                texture.image,
-                vk::ImageViewType::e2D,
-                texture.format,
-                {},
-                vk::ImageSubresourceRange{
-                        aspect_flags(texture.format),
-                        0u,
-                        1u,
-                        0u,
-                        1u,
-                }
+                .image = texture.image,
+                .viewType = vk::ImageViewType::e2D,
+                .format = texture.format,
+                .subresourceRange =
+                        vk::ImageSubresourceRange{
+                                aspect_flags(texture.format),
+                                0u,
+                                1u,
+                                0u,
+                                1u,
+                        }
             };
-            return VKDepthStencilView{ shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+            auto [result, value] = device->createImageView(desc);
+            return VKDepthStencilView{ shared_handle<vk::ImageView>{ value, device } };
         }
 
         /// @brief Create a Descriptor heap object, where descriptors can be allocated from
@@ -271,24 +277,17 @@ WIS_EXPORT namespace wis
         /// @return Descriptor heap object
         [[nodiscard]] VKDescriptorHeap CreateDescriptorHeap(uint32_t num_descs, PoolType type) const
         {
-            if (type == PoolType::CBV_SRV_UAV) {
-                vk::DescriptorPoolSize size_desc{
-                    vk::DescriptorType::eMutableVALVE, num_descs
-                };
-                vk::DescriptorPoolCreateInfo pool_desc{
-                    vk::DescriptorPoolCreateFlags{}, num_descs, 1u, &size_desc
-                };
-                shared_handle<vk::DescriptorPool> pool{ device->createDescriptorPool(pool_desc), device };
-                return VKDescriptorHeap{ std::move(pool) };
-            }
-
             vk::DescriptorPoolSize size_desc{
-                vk::DescriptorType::eSampler, num_descs
+                .type = type == PoolType::CBV_SRV_UAV ? vk::DescriptorType::eMutableVALVE : vk::DescriptorType::eSampler,
+                .descriptorCount = num_descs
             };
             vk::DescriptorPoolCreateInfo pool_desc{
-                vk::DescriptorPoolCreateFlags{}, num_descs, 1u, &size_desc
+                .maxSets = num_descs,
+                .poolSizeCount = 1,
+                .pPoolSizes = &size_desc
             };
-            shared_handle<vk::DescriptorPool> pool{ device->createDescriptorPool(pool_desc), device };
+            auto [result, value] = device->createDescriptorPool(pool_desc);
+            shared_handle<vk::DescriptorPool> pool{ value, device };
             return VKDescriptorHeap{ std::move(pool) };
         }
 
@@ -326,7 +325,8 @@ WIS_EXPORT namespace wis
             // clang-format on
             bool sampler = false;
             vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
-                uint32_t(descs.size()), cbvSrvUavTypeList.data()
+                .mutableDescriptorTypeListCount = uint32_t(descs.size()),
+                .pMutableDescriptorTypeLists = cbvSrvUavTypeList.data()
             };
 
             for (auto& desc : descs) {
@@ -341,18 +341,28 @@ WIS_EXPORT namespace wis
                         desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
             }
             vk::DescriptorSetLayoutCreateInfo desc{
-                vk::DescriptorSetLayoutCreateFlags{}, uint32_t(bindings.size()), bindings.data(), !sampler ? &mutableTypeInfo : nullptr
+                .pNext = sampler ? &mutableTypeInfo : nullptr,
+                .bindingCount = uint32_t(bindings.size()),
+                .pBindings = bindings.data(),
             };
-            return VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ device->createDescriptorSetLayout(desc), device } };
+            auto [result, value] = device->createDescriptorSetLayout(desc);
+            return VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ value, device } };
         }
 
         void CreateConstantBufferView(VKBufferView buffer, uint32_t size, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
         {
             vk::DescriptorBufferInfo desc{
-                buffer, 0, size
+                .buffer = buffer,
+                .offset = 0,
+                .range = size
             };
             vk::WriteDescriptorSet write{
-                set, binding, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &desc, nullptr
+                .dstSet = set,
+                .dstBinding = binding,
+                .dstArrayElement = 0,
+                .descriptorCount = 1,
+                .descriptorType = vk::DescriptorType::eUniformBuffer,
+                .pBufferInfo = &desc,
             };
             device->updateDescriptorSets(write, nullptr);
         }
@@ -386,7 +396,7 @@ WIS_EXPORT namespace wis
             };
             device->updateDescriptorSets(write, nullptr);
         }
-        
+
         void WriteSampler(VKSampler sampler, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
         {
             vk::DescriptorImageInfo desc{
@@ -444,8 +454,6 @@ WIS_EXPORT namespace wis
         bool ray_query_supported : 1 = false;
         bool draw_indirect_supported : 1 = false;
     };
-
-
 
     bool VKDevice::Initialize(const VKFactory& factory, VKAdapterView adapter)
     {
@@ -670,9 +678,9 @@ WIS_EXPORT namespace wis
 
     // NOLINTNEXTLINE
     VKRenderPass VKDevice::CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
-                                                      DepthStencilAttachment dsv_desc,
-                                                      SampleCount samples,
-                                                      DataFormat /*vrs_format*/) const
+                                            DepthStencilAttachment dsv_desc,
+                                            SampleCount samples,
+                                            DataFormat /*vrs_format*/) const
     {
         std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions{};
         std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references{};
@@ -1060,8 +1068,6 @@ WIS_EXPORT namespace wis
             vs.pName = "main";
         }
     }
-
-
 }
 
 #if defined(WISDOM_HEADER_ONLY)
