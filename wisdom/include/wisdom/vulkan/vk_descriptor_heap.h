@@ -23,12 +23,16 @@ WIS_EXPORT namespace wis
 
     class VKDescriptorSetLayout : public QueryInternal<VKDescriptorSetLayout>
     {
-	public:
-		VKDescriptorSetLayout() = default;
-		explicit VKDescriptorSetLayout(wis::shared_handle<vk::DescriptorSetLayout> layout)
-			: QueryInternal(std::move(layout))
-		{
-		}
+    public:
+        VKDescriptorSetLayout() = default;
+        explicit VKDescriptorSetLayout(wis::shared_handle<vk::DescriptorSetLayout> layout)
+            : QueryInternal(std::move(layout))
+        {
+        }
+        operator VKDescriptorSetLayoutView() const noexcept
+        {
+            return layout.get();
+        }
     };
 
     template<>
@@ -43,6 +47,10 @@ WIS_EXPORT namespace wis
         explicit VKDescriptorSet(wis::shared_handle<vk::DescriptorSet> set)
             : QueryInternal(std::move(set))
         {
+        }
+        operator VKDescriptorSetView() const noexcept
+        {
+            return set.get();
         }
     };
 

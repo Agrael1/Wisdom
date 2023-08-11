@@ -17,6 +17,8 @@
 #include <wisdom/global/definitions.h>
 #include <bitset>
 #include <wisdom/util/small_allocator.h>
+#include <array>
+#include <unordered_set>
 #endif
 
 WIS_EXPORT namespace wis
@@ -341,7 +343,7 @@ WIS_EXPORT namespace wis
                         desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
             }
             vk::DescriptorSetLayoutCreateInfo desc{
-                .pNext = sampler ? &mutableTypeInfo : nullptr,
+                .pNext = !sampler ? &mutableTypeInfo : nullptr,
                 .bindingCount = uint32_t(bindings.size()),
                 .pBindings = bindings.data(),
             };
@@ -370,29 +372,35 @@ WIS_EXPORT namespace wis
         VKShaderResourceView CreateShaderResourceView(VKTextureView texture, SubresourceRange range) const
         {
             vk::ImageViewCreateInfo desc{
-                vk::ImageViewCreateFlags{},
-                texture.image,
-                vk::ImageViewType::e2D,
-                texture.format,
-                {},
-                vk::ImageSubresourceRange{
-                        aspect_flags(texture.format),
-                        range.base_mip,
-                        range.extent_mips,
-                        range.base_layer,
-                        range.extent_layers,
-                }
+                .image = texture.image,
+                .viewType = vk::ImageViewType::e2D,
+                .format = texture.format,
+                .subresourceRange =
+                        vk::ImageSubresourceRange{
+                                aspect_flags(texture.format),
+                                range.base_mip,
+                                range.extent_mips,
+                                range.base_layer,
+                                range.extent_layers,
+                        }
             };
-            return VKShaderResourceView{ shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+            auto [result, value] = device->createImageView(desc);
+            return VKShaderResourceView{ shared_handle<vk::ImageView>{ value, device } };
         }
 
         void WriteShaderResourceView(VKShaderResourceView texture, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
         {
             vk::DescriptorImageInfo desc{
-                {}, texture.GetInternal().GetImageView(), vk::ImageLayout::eShaderReadOnlyOptimal
+                .imageView = texture.GetInternal().view.get(),
+                .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
             };
             vk::WriteDescriptorSet write{
-                set, binding, 0, 1, vk::DescriptorType::eSampledImage, &desc, nullptr, nullptr
+                .dstSet = set,
+                .dstBinding = binding,
+                .dstArrayElement = 0,
+                .descriptorCount = 1,
+                .descriptorType = vk::DescriptorType::eSampledImage,
+                .pImageInfo = &desc,
             };
             device->updateDescriptorSets(write, nullptr);
         }
@@ -400,10 +408,15 @@ WIS_EXPORT namespace wis
         void WriteSampler(VKSampler sampler, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
         {
             vk::DescriptorImageInfo desc{
-                sampler.GetInternal().GetSampler()
+                .sampler = sampler.GetInternal().sampler.get()
             };
             vk::WriteDescriptorSet write{
-                set, binding, 0, 1, vk::DescriptorType::eSampler, &desc, nullptr, nullptr
+                .dstSet = set,
+                .dstBinding = binding,
+                .dstArrayElement = 0,
+                .descriptorCount = 1,
+                .descriptorType = vk::DescriptorType::eSampler,
+                .pImageInfo = &desc,
             };
             device->updateDescriptorSets(write, nullptr);
         }
@@ -411,25 +424,25 @@ WIS_EXPORT namespace wis
         VKSampler CreateSampler()
         {
             vk::SamplerCreateInfo desc{
-                vk::SamplerCreateFlags{},
-                vk::Filter::eLinear,
-                vk::Filter::eLinear,
-                vk::SamplerMipmapMode::eLinear,
-                vk::SamplerAddressMode::eRepeat,
-                vk::SamplerAddressMode::eRepeat,
-                vk::SamplerAddressMode::eRepeat,
-                0.0f,
-                false,
-                1.0f,
-                false,
-                vk::CompareOp::eNever,
-                0.0f,
-                0.0f,
-                vk::BorderColor::eFloatOpaqueWhite,
-                false
+                .magFilter = vk::Filter::eLinear,
+                .minFilter = vk::Filter::eLinear,
+                .mipmapMode = vk::SamplerMipmapMode::eLinear,
+                .addressModeU = vk::SamplerAddressMode::eRepeat,
+                .addressModeV = vk::SamplerAddressMode::eRepeat,
+                .addressModeW = vk::SamplerAddressMode::eRepeat,
+                .mipLodBias = 0.0f,
+                .anisotropyEnable = false,
+                .maxAnisotropy = 1.0f,
+                .compareEnable = false,
+                .compareOp = vk::CompareOp::eNever,
+                .minLod = 0.0f,
+                .maxLod = 0.0f,
+                .borderColor = vk::BorderColor::eFloatOpaqueWhite,
+                .unnormalizedCoordinates = false
             };
+            auto [result, value] = device->createSampler(desc);
             return VKSampler{ shared_handle<vk::Sampler>{
-                    device->createSampler(desc), device } };
+                    value, device } };
         }
 
     private:
@@ -569,10 +582,14 @@ WIS_EXPORT namespace wis
         add_extension(mutable_descriptor_type_features);
 
         vk::DeviceCreateInfo desc{
-            {}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, uint32_t(exts.size()), exts.data(), nullptr, device_create_info_next
+            .pNext = device_create_info_next,
+            .queueCreateInfoCount = uint32_t(queue_infos.size()),
+            .pQueueCreateInfos = queue_infos.data(),
+            .enabledExtensionCount = uint32_t(exts.size()),
+            .ppEnabledExtensionNames = exts.data(),
         };
-
-        device = shared_handle<vk::Device>{ adapter.createDevice(desc) };
+        auto [result, value] = adapter.createDevice(desc);
+        device = shared_handle<vk::Device>{ value };
         return bool(device);
     }
 
@@ -584,10 +601,11 @@ WIS_EXPORT namespace wis
 
 #if defined(WISDOM_WINDOWS)
         vk::Win32SurfaceCreateInfoKHR surface_desc{
-            {}, GetModuleHandle(nullptr), xsurface.hwnd
+            .hinstance = GetModuleHandle(nullptr), .hwnd = xsurface.hwnd
         };
         lib_info("Initializing Win32 Surface");
-        shared_handle<vk::SurfaceKHR> surface{ instance->createWin32SurfaceKHR(surface_desc), instance };
+        auto [result, value] = instance->createWin32SurfaceKHR(surface_desc);
+        shared_handle<vk::SurfaceKHR> surface{ value, instance };
 #elif defined(WISDOM_MACOS)
         static_assert(false, "No Mac is implemented");
 #elif defined(WISDOM_LINUX)
@@ -597,14 +615,16 @@ WIS_EXPORT namespace wis
             surface_desc.setConnection(xsurface.x11.connection);
             surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
             lib_info("Initializing XCB Surface");
-            surface = shared_handle<vk::SurfaceKHR>{ instance->createXcbSurfaceKHR(surface_desc), instance };
+            auto [result, value] = instance->createXcbSurfaceKHR(surface_desc);
+            surface = shared_handle<vk::SurfaceKHR>{ value, instance };
         } else {
             assert(xsurface.type == Type::Wayland);
             vk::WaylandSurfaceCreateInfoKHR surface_desc = {};
             surface_desc.setDisplay(xsurface.wayland.display);
             surface_desc.setSurface(xsurface.wayland.surface);
             lib_info("Initializing Wayland Surface");
-            surface = shared_handle<vk::SurfaceKHR>{ instance->createWaylandSurfaceKHR(surface_desc), instance };
+            auto [result, value] = instance->createWaylandSurfaceKHR(surface_desc);
+            surface = shared_handle<vk::SurfaceKHR>{ value, instance };
         }
 #endif
         int32_t present_queue = -1;
@@ -613,7 +633,9 @@ WIS_EXPORT namespace wis
             if (x.Empty())
                 continue;
 
-            if (adapter.getSurfaceSupportKHR(x.family_index, surface.get())) {
+            auto [result, value] = adapter.getSurfaceSupportKHR(x.family_index, surface.get());
+
+            if (value) {
                 present_queue = i;
                 lib_info(format("Present queue {} selected", i));
                 break;
@@ -626,13 +648,12 @@ WIS_EXPORT namespace wis
 
         const auto& queue = queues.available_queues[present_queue];
         vk::DeviceQueueInfo2 info{
-            {},
-            queue.family_index,
-            queue.GetNextInLine()
+            .queueFamilyIndex = queue.family_index,
+            .queueIndex = queue.GetNextInLine(),
         };
         vk::Queue qpresent_queue = device->getQueue2(info);
 
-        auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
+        auto [result2, surface_formats] = adapter.getSurfaceFormatsKHR(surface.get());
         auto format = std::ranges::find_if(surface_formats,
                                            [=](const vk::SurfaceFormatKHR& fmt) {
                                                return fmt.format == vk_format(options.format);
@@ -642,7 +663,7 @@ WIS_EXPORT namespace wis
             return {}; // Format specified is not supported
         }
 
-        auto cap = adapter.getSurfaceCapabilitiesKHR(surface.get());
+        auto [result3, cap] = adapter.getSurfaceCapabilitiesKHR(surface.get());
         bool stereo = cap.maxImageArrayLayers > 1;
         if (options.stereo && stereo)
             lib_info(wis::format("Stereo mode is ativated"));
@@ -652,20 +673,26 @@ WIS_EXPORT namespace wis
         auto present_mode = GetPresentMode(surface.get(), vsync);
 
         vk::SwapchainCreateInfoKHR desc{
-            vk::SwapchainCreateFlagBitsKHR{}, surface.get(),
-            options.frame_count, format->format, format->colorSpace,
-            vk::Extent2D{ options.width, options.height },
-            layers,
-            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
-            vk::SharingMode::eExclusive, 0u, nullptr,
-            vk::SurfaceTransformFlagBitsKHR::eIdentity,
-            vk::CompositeAlphaFlagBitsKHR::eOpaque,
-            present_mode, true, nullptr
+            .surface = surface.get(),
+            .minImageCount = options.frame_count,
+            .imageFormat = format->format,
+            .imageColorSpace = format->colorSpace,
+            .imageExtent = vk::Extent2D{ options.width, options.height },
+            .imageArrayLayers = layers,
+            .imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
+            .imageSharingMode = vk::SharingMode::eExclusive,
+            .queueFamilyIndexCount = 0u,
+            .pQueueFamilyIndices = nullptr,
+            .preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity,
+            .compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
+            .presentMode = present_mode,
+            .clipped = true,
         };
 
+        auto [result4, swapchain] = device->createSwapchainKHR(desc);
         return VKSwapChain{
             shared_handle<vk::SwapchainKHR>{
-                    device->createSwapchainKHR(desc),
+                    swapchain,
                     device, surface },
             render_queue,
             VKCommandQueue{ qpresent_queue },
@@ -707,8 +734,14 @@ WIS_EXPORT namespace wis
             ref.attachment = size - 1;
             ref.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
-            image_md.allocate(vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits(i.usage_flags),
-                              frame_size.width, frame_size.height, i.array_levels, 1u, &desc.format);
+            image_md.allocate(
+                    vk::FramebufferAttachmentImageInfo{
+                            .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits(i.usage_flags),
+                            .width = frame_size.width,
+                            .height = frame_size.height,
+                            .layerCount = i.array_levels,
+                            .viewFormatCount = 1u,
+                            .pViewFormats = &desc.format });
 
             if (size == max_attachment)
                 break;
@@ -736,9 +769,13 @@ WIS_EXPORT namespace wis
             ref.attachment = size - 1;
             ref.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
-            image_md.allocate(
-                    vk::ImageCreateFlags{}, vk::ImageUsageFlagBits::eDepthStencilAttachment,
-                    frame_size.width, frame_size.height, 1u, 1u, &desc.format);
+            image_md.allocate(vk::FramebufferAttachmentImageInfo{
+                    .usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                    .width = frame_size.width,
+                    .height = frame_size.height,
+                    .layerCount = 1u,
+                    .viewFormatCount = 1u,
+                    .pViewFormats = &desc.format });
 
             sub_pass.pDepthStencilAttachment = &attachment_references[size - 1];
         }
@@ -780,20 +817,27 @@ WIS_EXPORT namespace wis
         render_pass_info.pAttachments = attachment_descriptions.data();
         render_pass_info.subpassCount = 1;
         render_pass_info.pSubpasses = &sub_pass;
-        auto rp = shared_handle<vk::RenderPass>{ device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device };
+
+        auto [result, value] = device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader);
+        auto rp = shared_handle<vk::RenderPass>{ value, device };
 
         vk::FramebufferAttachmentsCreateInfo attachments_create_info;
         attachments_create_info.attachmentImageInfoCount = image_md.size();
         attachments_create_info.pAttachmentImageInfos = image_md.data();
 
         vk::FramebufferCreateInfo desc{
-            vk::FramebufferCreateFlagBits::eImageless,
-            rp.get(), uint32_t(image_md.size()), nullptr, frame_size.width, frame_size.height, 1, &attachments_create_info
+            .pNext = &attachments_create_info,
+            .flags = vk::FramebufferCreateFlagBits::eImageless,
+            .renderPass = rp.get(),
+            .attachmentCount = static_cast<uint32_t>(image_md.size()),
+            .width = frame_size.width,
+            .height = frame_size.height,
+            .layers = 1,
         };
-
+        auto [result2, value2] = device->createFramebuffer(desc);
         return VKRenderPass{
             std::move(rp),
-            shared_handle<vk::Framebuffer>{ device->createFramebuffer(desc), device },
+            shared_handle<vk::Framebuffer>{ value2, device },
             frame_size
         };
     }
@@ -830,11 +874,10 @@ WIS_EXPORT namespace wis
                 bindings[rsize++] = bindings[i];
 
         vk::PipelineVertexInputStateCreateInfo ia{
-            vk::PipelineVertexInputStateCreateFlagBits{},
-            uint32_t(rsize),
-            bindings.data(),
-            uint32_t(attributes.size()),
-            attributes.data()
+            .vertexBindingDescriptionCount = uint32_t(rsize),
+            .pVertexBindingDescriptions = bindings.data(),
+            .vertexAttributeDescriptionCount = uint32_t(attributes.size()),
+            .pVertexAttributeDescriptions = attributes.data()
         };
 
         vk::PipelineViewportStateCreateInfo viewport_state;
@@ -842,9 +885,9 @@ WIS_EXPORT namespace wis
         viewport_state.scissorCount = 1;
 
         vk::PipelineRasterizationStateCreateInfo rasterizer{
-            vk::PipelineRasterizationStateCreateFlags{},
-            false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eClockwise,
-            false, 0.0f, 0.0f, 0.0f, 1.0f
+            .cullMode = vk::CullModeFlagBits::eBack,
+            .frontFace = vk::FrontFace::eClockwise,
+            .lineWidth = 1.0f
         };
 
         vk::PipelineColorBlendAttachmentState color_blend_attachment[2]{
@@ -860,12 +903,9 @@ WIS_EXPORT namespace wis
 
         };
         vk::PipelineColorBlendStateCreateInfo color_blending{
-            vk::PipelineColorBlendStateCreateFlags{},
-            false,
-            vk::LogicOp::eCopy,
-            2,
-            color_blend_attachment,
-            { 0.0f, 0.0f, 0.0f, 0.0f }
+            .logicOp = vk::LogicOp::eCopy,
+            .attachmentCount = 2,
+            .pAttachments = color_blend_attachment
         };
 
         vk::PipelineMultisampleStateCreateInfo multisampling{};
@@ -873,8 +913,7 @@ WIS_EXPORT namespace wis
         multisampling.sampleShadingEnable = false;
 
         vk::PipelineInputAssemblyStateCreateInfo input_assembly{
-            vk::PipelineInputAssemblyStateCreateFlags{},
-            vk::PrimitiveTopology::eTriangleList, false
+            .topology = vk::PrimitiveTopology::eTriangleList,
         };
 
         static constexpr size_t max_dynstates = 5; // only four if not using vrs
@@ -887,33 +926,34 @@ WIS_EXPORT namespace wis
         // 	dynamic_state_enables.allocate(vk::DynamicState::eFragmentShadingRateKHR);
 
         vk::PipelineDynamicStateCreateInfo dss{
-            {}, uint32_t(dynamic_state_enables.size()), dynamic_state_enables.data()
+            .dynamicStateCount = uint32_t(dynamic_state_enables.size()),
+            .pDynamicStates = dynamic_state_enables.data()
         };
 
         vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
-            vk::PipelineDepthStencilStateCreateFlags{},
-            true, true,
-            vk::CompareOp::eLess,
-            false, false,
-            vk::StencilOpState{}, vk::StencilOpState{},
-            0.0f, 1.0f
+            .depthTestEnable = true,
+            .depthWriteEnable = true,
+            .depthCompareOp = vk::CompareOp::eLess,
+            .depthBoundsTestEnable = false,
+            .stencilTestEnable = false,
+            .minDepthBounds = 0.0f,
+            .maxDepthBounds = 1.0f
         };
 
         vk::GraphicsPipelineCreateInfo pipeline_desc{
-            vk::PipelineCreateFlags{},
-            uint32_t(shader_stages.size()),
-            shader_stages.data(), // shader stages
-            &ia, // vertex input
-            &input_assembly, // input assembly
-            nullptr, // tessellation
-            &viewport_state, // viewport
-            &rasterizer, // rasterizer
-            &multisampling, // multisampling
-            &depth_stencil_state, // depth stencil
-            &color_blending, // color blending
-            &dss, // dynamic state
-            desc.sig, // pipeline layout
-            desc.pass.GetInternal().GetRenderPass(), // render pass
+            .stageCount = uint32_t(shader_stages.size()),
+            .pStages = shader_stages.data(), // shader stages
+            .pVertexInputState = &ia, // vertex input
+            .pInputAssemblyState = &input_assembly, // input assembly
+            .pTessellationState = nullptr, // tessellation
+            .pViewportState = &viewport_state, // viewport
+            .pRasterizationState = &rasterizer, // rasterizer
+            .pMultisampleState = &multisampling, // multisampling
+            .pDepthStencilState = &depth_stencil_state, // depth stencil
+            .pColorBlendState = &color_blending, // color blending
+            .pDynamicState = &dss, // dynamic state
+            .layout = desc.sig, // pipeline layout
+            .renderPass = desc.pass.GetInternal().rp.get(), // render pass
         };
 
         return VKPipelineState{ shared_handle<vk::Pipeline>{ device->createGraphicsPipeline(nullptr, pipeline_desc).value, device } };
@@ -922,12 +962,10 @@ WIS_EXPORT namespace wis
     VKRenderTargetView VKDevice::CreateRenderTargetView(VKTextureView texture, RenderSelector range) const
     {
         vk::ImageViewCreateInfo desc{
-            vk::ImageViewCreateFlags{},
-            texture.image,
-            vk::ImageViewType::e2DArray,
-            texture.format,
-            {},
-            vk::ImageSubresourceRange{
+            .image = texture.image,
+            .viewType = vk::ImageViewType::e2DArray,
+            .format = texture.format,
+            .subresourceRange = vk::ImageSubresourceRange{
                     aspect_flags(texture.format),
                     range.mip,
                     1u,
@@ -935,7 +973,8 @@ WIS_EXPORT namespace wis
                     range.extent_layers,
             }
         };
-        return VKRenderTargetView{ shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+        auto [result, value] = device->createImageView(desc);
+        return VKRenderTargetView{ shared_handle<vk::ImageView>{ value, device } };
     }
 
     void VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
@@ -991,7 +1030,7 @@ WIS_EXPORT namespace wis
     internals::uniform_allocator<const char*, VKDevice::required_extensions.size()>
     VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
     {
-        auto extensions = adapter.enumerateDeviceExtensionProperties();
+        auto [result, extensions] = adapter.enumerateDeviceExtensionProperties();
         std::unordered_set<std::string_view, string_hash> ext_set;
         ext_set.reserve(extensions.size());
 
@@ -1029,7 +1068,7 @@ WIS_EXPORT namespace wis
     vk::PresentModeKHR VKDevice::GetPresentMode(vk::SurfaceKHR surface, bool vsync) const noexcept
     {
         using enum vk::PresentModeKHR;
-        auto modes = adapter.getSurfacePresentModesKHR(surface);
+        auto [result, modes] = adapter.getSurfacePresentModesKHR(surface);
         return vsync ? std::ranges::count(modes, eFifoRelaxed) ? eFifoRelaxed : eFifo
                      : eImmediate;
     }
@@ -1040,31 +1079,31 @@ WIS_EXPORT namespace wis
         if (desc.vs) {
             auto& vs = shader_stages.allocate();
             vs.stage = vk::ShaderStageFlagBits::eVertex;
-            vs.module = desc.vs.GetInternal().GetShaderModule();
+            vs.module = desc.vs.GetInternal().module.get();
             vs.pName = "main";
         }
         if (desc.ps) {
             auto& vs = shader_stages.allocate();
             vs.stage = vk::ShaderStageFlagBits::eFragment;
-            vs.module = desc.ps.GetInternal().GetShaderModule();
+            vs.module = desc.ps.GetInternal().module.get();
             vs.pName = "main";
         }
         if (desc.gs) {
             auto& vs = shader_stages.allocate();
             vs.stage = vk::ShaderStageFlagBits::eGeometry;
-            vs.module = desc.gs.GetInternal().GetShaderModule();
+            vs.module = desc.gs.GetInternal().module.get();
             vs.pName = "main";
         }
         if (desc.hs) {
             auto& vs = shader_stages.allocate();
             vs.stage = vk::ShaderStageFlagBits::eTessellationControl;
-            vs.module = desc.hs.GetInternal().GetShaderModule();
+            vs.module = desc.hs.GetInternal().module.get();
             vs.pName = "main";
         }
         if (desc.ds) {
             auto& vs = shader_stages.allocate();
             vs.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
-            vs.module = desc.ds.GetInternal().GetShaderModule();
+            vs.module = desc.ds.GetInternal().module.get();
             vs.pName = "main";
         }
     }

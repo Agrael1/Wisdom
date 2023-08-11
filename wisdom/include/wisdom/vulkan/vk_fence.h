@@ -22,6 +22,7 @@ namespace wis
         explicit VKFence(wis::shared_handle<vk::Semaphore> fence) noexcept
             : QueryInternal(std::move(fence))
         {
+            device = this->fence.getParent().get();
         }
         operator VKFenceView() const noexcept
         {

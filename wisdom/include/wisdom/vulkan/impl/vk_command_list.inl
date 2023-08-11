@@ -84,10 +84,10 @@ void wis::VKCommandList::BeginRenderPass(wis::VKRenderPassView rp,
     wis::internals::uniform_allocator<vk::ImageView, max_render_targets> image_views;
     wis::internals::uniform_allocator<vk::ClearValue, max_render_targets> image_clear;
     for (const auto& i : render_targets) {
-        image_views.allocate(i.first.GetInternal().view);
+        image_views.allocate(i.first.GetInternal().view.get());
         image_clear.allocate().setColor(vk::ClearColorValue{ i.second });
     }
-    if (auto iv = depth.first.GetInternal().view) {
+    if (auto iv = depth.first.GetInternal().view.get()) {
         image_views.allocate(iv);
         image_clear.allocate().setDepthStencil(vk::ClearDepthStencilValue{ depth.second });
     }

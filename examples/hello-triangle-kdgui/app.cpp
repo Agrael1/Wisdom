@@ -13,10 +13,7 @@ struct LogProvider : public wis::LogLayer {
     };
 };
 
-constexpr wis::ApplicationInfo app_info{
-    .application_name = "example",
-    .engine_name = "none",
-};
+constexpr wis::ApplicationInfo app_info{};
 
 std::vector<uint8_t> GenerateTextureData(size_t width, size_t height, size_t texel_size)
 {
@@ -77,6 +74,7 @@ std::span<std::byte> RawView(T& data)
 Test::App::App(uint32_t width, uint32_t height)
     : wnd(app.createWindow(width, height))
 {
+    using namespace river::flags;
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
     factory.emplace(app_info);
@@ -89,8 +87,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
         std::cout << desc.to_string();
 
-        if (device.Initialize(a)) {
-            allocator = wis::ResourceAllocator{ device, a };
+        if (device.Initialize(*factory, a)) {
+            allocator = wis::ResourceAllocator{ device };
             break;
         }
     }
@@ -102,8 +100,8 @@ Test::App::App(uint32_t width, uint32_t height)
     fence = device.CreateFence();
     context = device.CreateCommandList(wis::QueueType::direct);
 
-    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.tex.vs"), wis::ShaderType::vertex);
-    ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.tex.ps"), wis::ShaderType::pixel);
+    vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.tex.vs"), wis::ShaderType::Vertex);
+    ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.tex.ps"), wis::ShaderType::Pixel);
 
     srv_heap = device.CreateDescriptorHeap(1, wis::PoolType::CBV_SRV_UAV);
     sampler_heap = device.CreateDescriptorHeap(1, wis::PoolType::SAMPLER);
@@ -122,7 +120,7 @@ Test::App::App(uint32_t width, uint32_t height)
     wis::DescriptorSetLayout dsl_splr = device.CreateDescriptorSetLayout({ &splr_bind, 1 });
     srv_set = srv_heap.AllocateDescriptorSet(dsl_srv);
     srv_set = {};
-    
+
     srv_set = srv_heap.AllocateDescriptorSet(dsl_srv);
     sampler_set = sampler_heap.AllocateDescriptorSet(dsl_splr);
 
@@ -142,14 +140,16 @@ Test::App::App(uint32_t width, uint32_t height)
         { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f } }
     };
 
-    vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
+    vertex_buffer = allocator.CreatePersistentBuffer(sizeof(triangleVertices), wis::BufferFlags(wis::BufferFlags::VertexBuffer | wis::BufferFlags::CopyDest));
 
     auto upl_vbuf = allocator.CreateUploadBuffer(sizeof(triangleVertices));
     upl_vbuf.UpdateSubresource(RawView(triangleVertices));
 
     texture = allocator.CreateTexture(wis::TextureDescriptor{
-                                              .width = 128,
-                                              .height = 128,
+                                              .t2d = {
+                                                      .width = 128,
+                                                      .height = 128,
+                                              },
                                               .format = wis::DataFormat::r8g8b8a8_unorm },
                                       wis::TextureFlags(+wis::TextureFlags::CopyDest | +wis::TextureFlags::ShaderResource));
     auto data = GenerateTextureData(128, 128, 4);

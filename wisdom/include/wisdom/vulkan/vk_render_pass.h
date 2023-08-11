@@ -22,6 +22,10 @@ public:
         : QueryInternal(std::move(rp), std::move(frame)), framebuffer_size(frame_size)
     {
     }
+    operator VKRenderPassView() const noexcept
+	{
+        return VKRenderPassView{ rp.get(), frame.get(), framebuffer_size };
+	}
     operator bool() const noexcept
 	{
 		return bool(rp)&&bool(frame);
