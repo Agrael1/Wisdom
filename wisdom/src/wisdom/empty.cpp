@@ -89,13 +89,13 @@ wisShaderType GetType(const wisVKShader shader)
     return static_cast<wisShaderType>(reinterpret_cast<const wis::VKShader*>(shader)->GetType());
 }
 
-// wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator)
-//{
-//     return As<wisVKDevice>(Allocate<wis::VKDevice>(allocator, As<wis::VKAdapter*>(adapter)));
-// }
-//
-// void wisVKDeviceDestroy(wisVKDevice device, wisAllocator* allocator)
-//{
-//     Deallocate(allocator, As<wis::VKDevice*>(device));
-// }
+wisVKDevice wisVKDeviceCreate(const wisVKAdapter adapter, wisAllocator* allocator)
+{
+    return As<wisVKDevice>(Allocate<wis::VKDevice>(allocator, As<wis::VKAdapter*>(adapter)));
+}
+
+void wisVKDeviceDestroy(wisVKDevice device, wisAllocator* allocator)
+{
+    Deallocate(allocator, As<wis::VKDevice*>(device));
+}
 }

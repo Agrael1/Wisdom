@@ -73,6 +73,25 @@ typedef enum wisShaderType {
     ShaderType_Compute
 } wisShaderType;
 
+/// @brief Buffer usage flags, TODO: add more
+typedef enum wisBufferFlags {
+    None = 0,
+    CopySource = 0x1, // VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+    CopyDest = 0x2, // VK_BUFFER_USAGE_TRANSFER_DST_BIT
+    ConstantBuffer = 0x10, // VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+    IndexBuffer = 0x40, // VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+    VertexBuffer = 0x80, // VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+} wisBufferFlags;
+
+typedef enum wisTextureFlags {
+    None = 0,
+    CopySource = 0x1, // VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+    CopyDest = 0x2, // VK_BUFFER_USAGE_TRANSFER_DST_BIT
+    ShaderResource = 0x4, // VK_IMAGE_USAGE_SAMPLED_BIT
+    RenderTarget = 0x10, // VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+    DepthStencil = 0x20, // VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+} wisTextureFlags;
+
 #ifdef __cplusplus
 }
 #endif
