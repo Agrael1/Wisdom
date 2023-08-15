@@ -52,7 +52,8 @@ public:
     /// @param options The options to use
     /// @param surface The surface to use
     /// @return The created swapchain
-    [[nodiscard]] WIS_INLINE DX12SwapChain CreateSwapchain(
+    [[nodiscard]] WIS_INLINE DX12SwapChain
+    CreateSwapchain(
             DX12CommandQueueView queue,
             wis::SwapchainOptions options,
             wis::SurfaceParameters surface) const noexcept;
@@ -60,32 +61,102 @@ public:
     /// @brief Create a command queue
     /// @param options The options to use
     /// @return The created command queue
-    [[nodiscard]] WIS_INLINE DX12CommandQueue
-    CreateCommandQueue(QueueOptions options = QueueOptions{}) const noexcept;
+    [[nodiscard]] DX12CommandQueue
+    CreateCommandQueue(QueueOptions options = QueueOptions{}) const noexcept
+    {
+        winrt::com_ptr<ID3D12CommandQueue> queue;
+        D3D12_COMMAND_QUEUE_DESC desc{
+            .Type = D3D12_COMMAND_LIST_TYPE(options.type),
+            .Priority = int(options.priority),
+            .Flags = D3D12_COMMAND_QUEUE_FLAGS(options.flags),
+            .NodeMask = options.node_mask
+        };
+        return wis::succeded(device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
+                ? DX12CommandQueue{ std::move(queue) }
+                : DX12CommandQueue{};
+    }
 
     /// @brief Create a command list
     /// @param list_type The type of list to create
     /// @return The created command list
-    [[nodiscard]] WIS_INLINE DX12CommandList CreateCommandList(QueueType list_type) const;
+    [[nodiscard]] DX12CommandList
+    CreateCommandList(QueueType list_type) const noexcept
+    {
+        D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(list_type);
+        winrt::com_ptr<ID3D12CommandAllocator> xallocator;
+        winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list;
 
-    /// @brief Create a fence
-    [[nodiscard]] WIS_INLINE DX12Fence CreateFence() const;
+        return !wis::succeded(device->CreateCommandAllocator(clty, __uuidof(*xallocator), xallocator.put_void())) ||
+                        !wis::succeded(device->CreateCommandList(0, clty, xallocator.get(), nullptr, __uuidof(*xcommand_list), xcommand_list.put_void()))
+                ? DX12CommandList{}
+                : DX12CommandList{
+                      std::move(xallocator),
+                      std::move(xcommand_list)
+                  };
+    }
 
-    /// @brief Create a root signature (empty)
-    [[nodiscard]] WIS_INLINE DX12RootSignature CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts = {}) const;
+    [[nodiscard]] DX12Fence
+    CreateFence(uint64_t initial_value) const noexcept
+    {
+        winrt::com_ptr<ID3D12Fence1> fence;
+        return wis::succeded(device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()))
+                ? DX12Fence{ std::move(fence) }
+                : DX12Fence{};
+    }
+
+    [[nodiscard]] DX12DescriptorHeap
+    CreateDescriptorHeap(PoolType type, uint32_t num_descs, PoolFlags flags) const noexcept
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC desc{
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE(type),
+            .NumDescriptors = num_descs,
+            .Flags = D3D12_DESCRIPTOR_HEAP_FLAGS(flags),
+            .NodeMask = 0u
+        };
+
+        winrt::com_ptr<ID3D12DescriptorHeap> heap;
+        return wis::succeded(device->CreateDescriptorHeap(&desc, __uuidof(*heap), heap.put_void()))
+                ? DX12DescriptorHeap{ std::move(heap), device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE(type)) }
+                : DX12DescriptorHeap{};
+    }
+
+    /// @brief Create a shader
+    /// @param blob The shader blob
+    /// @param type The shader type
+    [[nodiscard]] DX12Shader
+    CreateShader(shared_blob blob, ShaderType type) const noexcept
+    {
+        return DX12Shader{ std::move(blob), type };
+    }
+
+    /// @brief Create a root signature
+    [[nodiscard]] DX12RootSignature CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts = {}) const noexcept
+    {
+        winrt::com_ptr<ID3D12RootSignature> rsig;
+
+        D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+        wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
+        for (auto& lay : layouts) {
+            auto ranges = lay.GetInternal().GetRanges();
+            root_parameters.allocate()
+                    .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
+        }
+
+        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+        desc.Init_1_1(uint32_t(root_parameters.size()), root_parameters.data(), 0, nullptr, flags);
+
+        winrt::com_ptr<ID3DBlob> signature;
+        winrt::com_ptr<ID3DBlob> error;
+        wis::check_hresult(D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put()));
+        wis::check_hresult(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void()));
+        return DX12RootSignature{ std::move(rsig) };
+    }
 
     /// @brief Create a graphics pipeline
     [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
             const DX12GraphicsPipelineDesc& desc,
             std::span<const InputLayoutDesc> input_layout) const;
-
-    /// @brief Create a shader
-    /// @param blob The shader blob
-    /// @param type The shader type
-    [[nodiscard]] DX12Shader CreateShader(shared_blob blob, ShaderType type) const noexcept
-    {
-        return DX12Shader{ std::move(blob), type };
-    }
 
     /// @brief Create a render pass
     /// @param rtv_descs The render target descriptions
@@ -146,21 +217,6 @@ public:
             dsv_start = dsv_heap->GetCPUDescriptorHandleForHeapStart();
         }
         return dsv;
-    }
-
-    [[nodiscard]] DX12DescriptorHeap CreateDescriptorHeap(PoolType type, uint32_t num_descs, PoolFlags flags) const noexcept
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC desc{
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE(type),
-            .NumDescriptors = num_descs,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAGS(flags),
-            .NodeMask = 0u
-        };
-
-        winrt::com_ptr<ID3D12DescriptorHeap> heap;
-        return wis::succeded(device->CreateDescriptorHeap(&desc, __uuidof(*heap), heap.put_void()))
-                ? DX12DescriptorHeap{ std::move(heap), device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE(type)) }
-                : DX12DescriptorHeap{};
     }
 
     [[nodiscard]] DX12DescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
@@ -324,64 +380,6 @@ wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView qu
 #endif
     }
     return DX12SwapChain{ std::move(chain), options.frame_count, bool(desc.Stereo) };
-}
-
-wis::DX12CommandQueue wis::DX12Device::CreateCommandQueue(wis::QueueOptions options) const noexcept
-{
-    winrt::com_ptr<ID3D12CommandQueue> queue;
-    D3D12_COMMAND_QUEUE_DESC desc{
-        .Type = D3D12_COMMAND_LIST_TYPE(options.type),
-        .Priority = int(options.priority),
-        .Flags = D3D12_COMMAND_QUEUE_FLAGS(options.flags),
-        .NodeMask = options.node_mask
-    };
-    return wis::succeded(device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
-        ? DX12CommandQueue{ std::move(queue) }: DX12CommandQueue{};
-}
-
-wis::DX12CommandList wis::DX12Device::CreateCommandList(QueueType list_type) const
-{
-    D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(list_type);
-    winrt::com_ptr<ID3D12CommandAllocator> xallocator;
-    winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list;
-
-    wis::check_hresult(device->CreateCommandAllocator(clty, __uuidof(*xallocator), xallocator.put_void()));
-    wis::check_hresult(device->CreateCommandList1(0, clty, D3D12_COMMAND_LIST_FLAG_NONE, __uuidof(ID3D12GraphicsCommandList7), xcommand_list.put_void()));
-
-    return DX12CommandList{
-        std::move(xallocator),
-        std::move(xcommand_list)
-    };
-}
-
-wis::DX12Fence wis::DX12Device::CreateFence() const
-{
-    winrt::com_ptr<ID3D12Fence1> fence;
-    wis::check_hresult(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()));
-    return DX12Fence{ std::move(fence) };
-}
-
-wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts) const
-{
-    winrt::com_ptr<ID3D12RootSignature> rsig;
-
-    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-    wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
-    for (auto& lay : layouts) {
-        auto ranges = lay.GetInternal().GetRanges();
-        root_parameters.allocate()
-                .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
-    }
-
-    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-    desc.Init_1_1(uint32_t(root_parameters.size()), root_parameters.data(), 0, nullptr, flags);
-
-    winrt::com_ptr<ID3DBlob> signature;
-    winrt::com_ptr<ID3DBlob> error;
-    wis::check_hresult(D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put()));
-    wis::check_hresult(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void()));
-    return DX12RootSignature{ std::move(rsig) };
 }
 
 wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(

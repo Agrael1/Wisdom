@@ -135,15 +135,15 @@ public:
     WIS_INLINE bool Initialize(VKFactoryHandle factory, VKAdapterView adapter) noexcept;
 
 public:
-    [[nodiscard]] WIS_INLINE
-            VKSwapChain
-            CreateSwapchain(
-                    VKCommandQueueView render_queue,
-                    SwapchainOptions options,
-                    SurfaceParameters xsurface,
-                    bool vsync = false) const noexcept;
+    [[nodiscard]] WIS_INLINE VKSwapChain
+    CreateSwapchain(
+            VKCommandQueueView render_queue,
+            SwapchainOptions options,
+            SurfaceParameters xsurface,
+            bool vsync = false) const noexcept;
 
-    [[nodiscard]] VKCommandQueue CreateCommandQueue(QueueOptions options = QueueOptions{}) const noexcept
+    [[nodiscard]] VKCommandQueue
+    CreateCommandQueue(QueueOptions options = QueueOptions{}) const noexcept
     {
         const auto* queue = queues.GetOfType(options.type);
         if (queue == nullptr)
@@ -152,13 +152,16 @@ public:
         return VKCommandQueue{ device->getQueue(queue->family_index, queue->GetNextInLine()) };
     }
 
-    [[nodiscard]] VKCommandList CreateCommandList(QueueType list_type) const
+    [[nodiscard]] VKCommandList
+    CreateCommandList(QueueType list_type) const noexcept
     {
         vk::CommandPoolCreateInfo cmd_pool_create_info{
             .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
             .queueFamilyIndex = queues.GetOfType(list_type)->family_index
         };
         auto [result, ca] = device->createCommandPool(cmd_pool_create_info); // allocator
+        if (!succeeded(result))
+            return {};
 
         vk::CommandBufferAllocateInfo cmd_buf_alloc_info{
             .commandPool = ca,
@@ -167,34 +170,71 @@ public:
         };
 
         auto [result2, value] = device->allocateCommandBuffers(cmd_buf_alloc_info);
-
-        return VKCommandList{ shared_handle<vk::CommandPool>{ ca, device },
-                              vk::CommandBuffer{ value.at(0) } };
+        !succeeded(result2)
+                ? VKCommandList{}
+                : VKCommandList{
+                      shared_handle<vk::CommandPool>{ ca, device },
+                      vk::CommandBuffer{ value.at(0) }
+                  };
     }
 
-    [[nodiscard]] VKFence CreateFence() const
+    [[nodiscard]] VKFence
+    CreateFence(uint64_t initial_value) const noexcept
     {
         vk::SemaphoreTypeCreateInfo timeline_desc{
             .semaphoreType =
                     vk::SemaphoreType::eTimeline,
-            .initialValue = 0
+            .initialValue = initial_value
         };
         vk::SemaphoreCreateInfo desc{
             .pNext = &timeline_desc
         };
         auto [result, value] = device->createSemaphore(desc);
-
-        return VKFence{ shared_handle<vk::Semaphore>{ value, device } };
+        return succeeded(result)
+                ? VKFence{ shared_handle<vk::Semaphore>{ value, device } }
+                : VKFence{};
     }
 
-    [[nodiscard]] WIS_INLINE
-            VKRenderPass
-            CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
-                             DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
-                             SampleCount samples = SampleCount::s1,
-                             DataFormat vrs_format = DataFormat::unknown) const;
+    [[nodiscard]] VKDescriptorHeap
+    CreateDescriptorHeap(PoolType type, uint32_t num_descs, PoolFlags flags) const noexcept
+    {
+        vk::DescriptorPoolCreateFlags pool_flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+        if (flags == PoolFlags::CpuOnly)
+            pool_flags |= vk::DescriptorPoolCreateFlagBits::eHostOnlyVALVE;
 
-    [[nodiscard]] VKRootSignature CreateRootSignature(std::span<VKDescriptorSetLayout> layouts = {}) const
+        vk::DescriptorPoolSize size_desc{
+            .type = type == PoolType::CBV_SRV_UAV ? vk::DescriptorType::eMutableVALVE : vk::DescriptorType::eSampler,
+            .descriptorCount = num_descs
+        };
+        vk::DescriptorPoolCreateInfo pool_desc{
+            .flags = pool_flags,
+            .maxSets = num_descs,
+            .poolSizeCount = 1,
+            .pPoolSizes = &size_desc
+        };
+        auto [result, value] = device->createDescriptorPool(pool_desc);
+        return succeeded(result)
+                ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ value, device } }
+                : VKDescriptorHeap{};
+    }
+
+    [[nodiscard]] VKShader
+    CreateShader(shared_blob blob, ShaderType type) const noexcept
+    {
+        vk::ShaderModuleCreateInfo desc{
+            .codeSize = blob.size(),
+            .pCode = blob.data<uint32_t>()
+        };
+        auto [result, value] = device->createShaderModule(desc);
+        return succeeded(result)
+				? VKShader{ shared_handle<vk::ShaderModule>{ value, device }, type }
+				: VKShader{};
+    }
+
+
+
+    [[nodiscard]] VKRootSignature
+    CreateRootSignature(std::span<VKDescriptorSetLayout> layouts = {}) const noexcept
     {
         internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
@@ -207,24 +247,21 @@ public:
         };
 
         auto [result, value] = device->createPipelineLayout(pipeline_layout_info);
-
-        return VKRootSignature{ shared_handle<vk::PipelineLayout>{ value, device } };
+        return succeeded(result)
+                ? VKRootSignature{ shared_handle<vk::PipelineLayout>{ value, device } }
+                : VKRootSignature{};
     }
+
+    [[nodiscard]] WIS_INLINE
+            VKRenderPass
+            CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
+                             DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
+                             SampleCount samples = SampleCount::s1,
+                             DataFormat vrs_format = DataFormat::unknown) const;
 
     [[nodiscard]] WIS_INLINE
             VKPipelineState
             CreateGraphicsPipeline(const VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const;
-
-    [[nodiscard]] VKShader CreateShader(shared_blob blob, ShaderType type) const
-    {
-        vk::ShaderModuleCreateInfo desc{
-            .codeSize = blob.size(),
-            .pCode = blob.data<uint32_t>()
-        };
-        auto [result, value] = device->createShaderModule(desc);
-
-        return VKShader{ shared_handle<vk::ShaderModule>{ value, device }, type };
-    }
 
     /// @brief Create a Render target view object
     /// @param texture The texture to create the view for
@@ -249,34 +286,6 @@ public:
         };
         auto [result, value] = device->createImageView(desc);
         return VKDepthStencilView{ shared_handle<vk::ImageView>{ value, device } };
-    }
-
-    /// @brief Create a Descriptor heap object, where descriptors can be allocated from
-    /// @param num_descs maximum number of descriptors that can be allocated from this heap
-    /// @param type Type of descriptors that can be allocated from this heap
-    /// @return Descriptor heap object
-    [[nodiscard]] VKDescriptorHeap CreateDescriptorHeap(PoolType type, uint32_t num_descs, PoolFlags flags) const noexcept
-    {
-        vk::DescriptorPoolCreateFlags pool_flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        if (flags == PoolFlags::CpuOnly)
-            pool_flags |= vk::DescriptorPoolCreateFlagBits::eHostOnlyVALVE;
-
-        vk::DescriptorPoolSize size_desc{
-            .type = type == PoolType::CBV_SRV_UAV ? vk::DescriptorType::eMutableVALVE : vk::DescriptorType::eSampler,
-            .descriptorCount = num_descs
-        };
-        vk::DescriptorPoolCreateInfo pool_desc{
-            .flags = pool_flags,
-            .maxSets = num_descs,
-            .poolSizeCount = 1,
-            .pPoolSizes = &size_desc
-        };
-        auto [result, value] = device->createDescriptorPool(pool_desc);
-        if (!succeeded(result))
-            return {};
-
-        shared_handle<vk::DescriptorPool> pool{ value, device };
-        return VKDescriptorHeap{ std::move(pool) };
     }
 
     [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const

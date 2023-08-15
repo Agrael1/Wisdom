@@ -15,8 +15,7 @@ WIS_EXPORT namespace wis
     using DX12DescriptorSetLayoutView = std::span<const CD3DX12_DESCRIPTOR_RANGE1>;
 
     template<>
-    struct Internal<DX12DescriptorSetLayout>
-    {
+    struct Internal<DX12DescriptorSetLayout> {
         std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
     };
 
@@ -111,11 +110,11 @@ WIS_EXPORT namespace wis
     using DX12DescriptorHeapView = ID3D12DescriptorHeap*;
 
     /// @brief Shader object
-    class DX12DescriptorHeap : public QueryInternal<DX12DescriptorHeap>
+    WIS_EXPORT class DX12DescriptorHeap : public QueryInternal<DX12DescriptorHeap>
     {
     public:
         DX12DescriptorHeap() = default;
-        explicit DX12DescriptorHeap(winrt::com_ptr<ID3D12DescriptorHeap> heap, uint32_t heap_increment)
+        explicit DX12DescriptorHeap(winrt::com_ptr<ID3D12DescriptorHeap> heap, uint32_t heap_increment) noexcept
             : QueryInternal(std::move(heap), heap_increment)
         {
         }
