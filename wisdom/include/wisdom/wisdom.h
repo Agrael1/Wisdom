@@ -41,7 +41,7 @@ WIS_EXPORT namespace wis
     using CommandList = DX12CommandList;
     using Fence = DX12Fence;
     using Buffer = DX12Buffer;
-    using RenderTargetView = DX12RenderTargetView;
+    using RenderTarget = DX12RenderTarget;
     using Shader = DX12Shader;
     using RootSignature = DX12RootSignature;
     using PipelineState = DX12PipelineState;
@@ -79,7 +79,7 @@ WIS_EXPORT namespace wis
     using CommandList = VKCommandList;
     using Fence = VKFence;
     using Buffer = VKBuffer;
-    using RenderTargetView = VKRenderTargetView;
+    using RenderTarget = VKRenderTarget;
     using Shader = VKShader;
     using RootSignature = VKRootSignature;
     using PipelineState = VKPipelineState;

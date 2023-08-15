@@ -136,11 +136,10 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE VKSwapChain
-    CreateSwapchain(
-            VKCommandQueueView render_queue,
-            SwapchainOptions options,
-            SurfaceParameters xsurface,
-            bool vsync = false) const noexcept;
+    CreateSwapchain(VKCommandQueueView render_queue,
+                    SwapchainOptions options,
+                    SurfaceParameters xsurface,
+                    bool vsync = false) const noexcept;
 
     [[nodiscard]] VKCommandQueue
     CreateCommandQueue(QueueOptions options = QueueOptions{}) const noexcept
@@ -227,14 +226,107 @@ public:
         };
         auto [result, value] = device->createShaderModule(desc);
         return succeeded(result)
-				? VKShader{ shared_handle<vk::ShaderModule>{ value, device }, type }
-				: VKShader{};
+                ? VKShader{ shared_handle<vk::ShaderModule>{ value, device }, type }
+                : VKShader{};
     }
 
+    [[nodiscard]] VKRenderTarget
+    CreateRenderTarget(VKTextureView texture, wis::DataFormat format, RenderTargetSelector range = {}) const noexcept
+    {
+        auto vk_format = convert_vk(format);
+        vk::ImageViewCreateInfo desc{
+            .image = texture.image,
+            .format = vk_format
+        };
 
+        switch (range.type) {
+        case TextureType::Texture1D:
+            desc.viewType = vk::ImageViewType::e1D;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = range.mip,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1
+            };
+            break;
+        case TextureType::Texture2D:
+            desc.viewType = vk::ImageViewType::e2D;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = range.mip,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1
+            };
+            break;
+        case TextureType::Texture3D:
+            desc.viewType = vk::ImageViewType::e3D;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = range.mip,
+                .levelCount = 1,
+                .baseArrayLayer = range.base_layer,
+                .layerCount = range.extent_layers
+            };
+            break;
+        case TextureType::Texture1DArray:
+            desc.viewType = vk::ImageViewType::e1DArray;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = range.mip,
+                .levelCount = 1,
+                .baseArrayLayer = range.base_layer,
+                .layerCount = range.extent_layers
+            };
+            break;
+        case TextureType::Texture2DArray:
+            desc.viewType = vk::ImageViewType::e2DArray;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = range.mip,
+                .levelCount = 1,
+                .baseArrayLayer = range.base_layer,
+                .layerCount = range.extent_layers
+            };
+            break;
+        case TextureType::Texture2DMS:
+            desc.viewType = vk::ImageViewType::e2D;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = 0,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1
+            };
+            break;
+        case TextureType::Texture2DMSArray:
+            desc.viewType = vk::ImageViewType::e2DArray;
+            desc.subresourceRange = {
+                .aspectMask = aspect_flags(vk_format),
+                .baseMipLevel = 0,
+                .levelCount = 1,
+                .baseArrayLayer = range.base_layer,
+                .layerCount = range.extent_layers
+            };
+            break;
+        default:
+            break;
+        }
 
-    [[nodiscard]] VKRootSignature
-    CreateRootSignature(std::span<VKDescriptorSetLayout> layouts = {}) const noexcept
+        auto [result, value] = device->createImageView(desc);
+        return succeeded(result)
+                ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
+                : VKRenderTarget{};
+    }
+
+    [[nodiscard]] VKDepthStencil
+    CreateDepthStencil(VKTextureView texture, wis::DataFormat format) const noexcept
+    {
+        return CreateRenderTarget(texture, format);
+    }
+
+    [[nodiscard]] VKRootSignature CreateRootSignature(std::span<VKDescriptorSetLayout> layouts = {}) const noexcept
     {
         internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
@@ -262,31 +354,6 @@ public:
     [[nodiscard]] WIS_INLINE
             VKPipelineState
             CreateGraphicsPipeline(const VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const;
-
-    /// @brief Create a Render target view object
-    /// @param texture The texture to create the view for
-    /// @param range Select the subresource range to create the view for
-    /// @return View object
-    [[nodiscard]] WIS_INLINE VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {}) const;
-
-    [[nodiscard]] VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
-    {
-        vk::ImageViewCreateInfo desc{
-            .image = texture.image,
-            .viewType = vk::ImageViewType::e2D,
-            .format = texture.format,
-            .subresourceRange =
-                    vk::ImageSubresourceRange{
-                            aspect_flags(texture.format),
-                            0u,
-                            1u,
-                            0u,
-                            1u,
-                    }
-        };
-        auto [result, value] = device->createImageView(desc);
-        return VKDepthStencilView{ shared_handle<vk::ImageView>{ value, device } };
-    }
 
     [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
     {
@@ -998,24 +1065,6 @@ VKPipelineState VKDevice::CreateGraphicsPipeline(const VKGraphicsPipelineDesc& d
     };
 
     return VKPipelineState{ shared_handle<vk::Pipeline>{ device->createGraphicsPipeline(nullptr, pipeline_desc).value, device } };
-}
-
-VKRenderTargetView VKDevice::CreateRenderTargetView(VKTextureView texture, RenderSelector range) const
-{
-    vk::ImageViewCreateInfo desc{
-        .image = texture.image,
-        .viewType = vk::ImageViewType::e2DArray,
-        .format = texture.format,
-        .subresourceRange = vk::ImageSubresourceRange{
-                aspect_flags(texture.format),
-                range.mip,
-                1u,
-                range.base_layer,
-                range.extent_layers,
-        }
-    };
-    auto [result, value] = device->createImageView(desc);
-    return VKRenderTargetView{ shared_handle<vk::ImageView>{ value, device } };
 }
 
 void VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept

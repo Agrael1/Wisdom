@@ -16,6 +16,7 @@ struct IDXGIFactory4;
 WIS_EXPORT namespace wis
 {
     using DX12FactoryHandle = std::tuple<IDXGIFactory4*>;
+    using DX12RenderTargetHandle = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 
     using DX12AdapterView = IDXGIAdapter1*;
     using DX12DeviceView = ID3D12Device10*;

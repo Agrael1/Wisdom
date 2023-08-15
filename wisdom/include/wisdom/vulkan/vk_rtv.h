@@ -2,27 +2,31 @@
 #ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_views.h>
 #endif
 
 namespace wis {
-class VKRenderTargetView;
+class VKRenderTarget;
 
 template<>
-struct Internal<VKRenderTargetView> {
+struct Internal<VKRenderTarget> {
     wis::shared_handle<vk::ImageView> view;
 };
 
-WIS_EXPORT class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
+WIS_EXPORT class VKRenderTarget : public QueryInternal<VKRenderTarget>
 {
 public:
-    VKRenderTargetView() = default;
-    explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view) noexcept
+    VKRenderTarget() = default;
+    explicit VKRenderTarget(wis::shared_handle<vk::ImageView> view) noexcept
         : QueryInternal(std::move(view))
     {
     }
+    operator VKRenderTargetHandle() const noexcept { return view.get(); }
     operator bool() const noexcept { return bool(view); }
 };
 
-using VKDepthStencilView = VKRenderTargetView;
-using VKShaderResourceView = VKRenderTargetView;
+using VKDepthStencil = VKRenderTarget;
+using VKDepthStencilHandle = VKRenderTargetHandle;
+
+using VKShaderResourceView = VKRenderTarget;
 } // namespace wis

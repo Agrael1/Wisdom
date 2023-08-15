@@ -15,6 +15,7 @@ WIS_EXPORT namespace wis
     }
 
     using VKFactoryHandle = std::tuple<wis::shared_handle<vk::Instance>>;
+    using VKRenderTargetHandle = std::tuple<vk::ImageView>;
 
     using VKAdapterView = vk::PhysicalDevice;
     using VKBufferView = vk::Buffer;

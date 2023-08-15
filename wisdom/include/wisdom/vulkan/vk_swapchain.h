@@ -91,7 +91,7 @@ public:
 
     /// @brief Get the current render target in the swapchain
     /// @return Buffer view of the current render target TODO: Make a texture view
-    [[nodiscard]] auto GetBackBuffer() const noexcept
+    [[nodiscard]] VKTextureView GetBackBuffer() const noexcept
     {
         return back_buffers[present_index];
     }
