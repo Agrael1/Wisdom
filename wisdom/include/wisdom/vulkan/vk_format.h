@@ -155,7 +155,7 @@ inline constexpr vk::Format vk_format(wis::DataFormat df)
     return vk_format_map[+df];
 }
 
-inline constexpr vk::ImageAspectFlags aspect_flags(vk::Format format)
+inline constexpr vk::ImageAspectFlags aspect_flags(vk::Format format) noexcept
 {
     switch (format) {
     case vk::Format::eD32SfloatS8Uint:
@@ -173,11 +173,11 @@ inline constexpr vk::ImageAspectFlags aspect_flags(vk::Format format)
     }
 }
 
-inline constexpr vk::Format convert_vk(wis::DataFormat df)
+inline constexpr vk::Format convert_vk(wis::DataFormat df) noexcept
 {
     return vk_format(df);
 }
-inline constexpr vk::ImageLayout convert_vk(TextureState state)
+inline constexpr vk::ImageLayout convert_vk(TextureState state) noexcept
 {
     using enum vk::ImageLayout;
     using enum TextureState;
@@ -215,7 +215,7 @@ inline constexpr vk::ImageLayout convert_vk(TextureState state)
         return ePresentSrcKHR;
     }
 }
-inline constexpr vk::AccessFlags convert_vk(ResourceAccess access)
+inline constexpr vk::AccessFlags convert_vk(ResourceAccess access) noexcept
 {
     using namespace river::flags;
     uint32_t result{};
@@ -255,7 +255,7 @@ inline constexpr vk::AccessFlags convert_vk(ResourceAccess access)
         result |= VK_ACCESS_NONE;
     return vk::AccessFlags(result);
 }
-inline constexpr vk::ImageSubresourceRange convert_vk(wis::SubresourceRange range, vk::Format format)
+inline constexpr vk::ImageSubresourceRange convert_vk(wis::SubresourceRange range, vk::Format format) noexcept
 {
     return vk::ImageSubresourceRange{
         aspect_flags(format),
@@ -266,7 +266,7 @@ inline constexpr vk::ImageSubresourceRange convert_vk(wis::SubresourceRange rang
     };
 }
 
-inline constexpr vk::AttachmentLoadOp convert(PassLoadOperation state)
+inline constexpr vk::AttachmentLoadOp convert(PassLoadOperation state) noexcept
 {
     switch (state) {
     case PassLoadOperation::load:
@@ -279,7 +279,7 @@ inline constexpr vk::AttachmentLoadOp convert(PassLoadOperation state)
     assert(false);
     return vk::AttachmentLoadOp::eLoad;
 }
-inline constexpr vk::PrimitiveTopology convert(wis::PrimitiveTopology topology)
+inline constexpr vk::PrimitiveTopology convert(wis::PrimitiveTopology topology) noexcept
 {
     using enum vk::PrimitiveTopology;
     switch (topology) {
@@ -306,7 +306,7 @@ inline constexpr vk::PrimitiveTopology convert(wis::PrimitiveTopology topology)
         return eTriangleListWithAdjacency;
     }
 }
-inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
+inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state) noexcept
 {
     switch (state) {
     case PassStoreOperation::store:
@@ -318,7 +318,7 @@ inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
     }
     return vk::AttachmentStoreOp::eStore;
 }
-inline constexpr vk::ImageType convert_vk(TextureType state)
+inline constexpr vk::ImageType convert_vk(TextureType state) noexcept
 {
     switch (state) {
     case wis::TextureType::T1D:

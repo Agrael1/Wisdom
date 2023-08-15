@@ -18,7 +18,7 @@ WIS_EXPORT class VKCommandQueue : public QueryInternal<VKCommandQueue>
 {
 public:
     VKCommandQueue() = default;
-    explicit VKCommandQueue(vk::Queue queue)
+    explicit VKCommandQueue(vk::Queue queue) noexcept
         : QueryInternal(queue) { }
     operator VKCommandQueueView() const noexcept
     {
@@ -31,7 +31,7 @@ public:
 
     /// @brief Execute a command list on the GPU.
     /// @param list List to execute.
-    void ExecuteCommandList(VKCommandListView command_list)
+    void ExecuteCommandList(VKCommandListView command_list) const noexcept
     {
         vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eAllCommands;
 
@@ -47,7 +47,7 @@ public:
     /// @param fence Fence to signal.
     /// @param value Value to signal with.
     /// @return true if call succeeded.
-    bool Signal(VKFenceView fence, uint64_t value)
+    bool Signal(VKFenceView fence, uint64_t value) const noexcept
     {
         vk::TimelineSemaphoreSubmitInfo submit{
             .signalSemaphoreValueCount = 1,

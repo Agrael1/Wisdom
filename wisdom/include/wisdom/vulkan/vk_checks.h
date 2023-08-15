@@ -12,7 +12,7 @@ namespace wis {
 /// @return True if the result is a success
 inline bool succeeded(vk::Result res, wis::Severity severity = wis::Severity::error, wis::source_location sl = wis::source_location::current())noexcept
 {
-    if constexpr (debug_mode)
+    if constexpr (debug_mode || runtime_asserts)
     {
         if (res != vk::Result::eSuccess)
         {

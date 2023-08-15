@@ -25,7 +25,7 @@ WIS_EXPORT namespace wis
     {
     public:
         VKDescriptorSetLayout() = default;
-        explicit VKDescriptorSetLayout(wis::shared_handle<vk::DescriptorSetLayout> layout)
+        explicit VKDescriptorSetLayout(wis::shared_handle<vk::DescriptorSetLayout> layout) noexcept
             : QueryInternal(std::move(layout))
         {
         }
@@ -44,7 +44,7 @@ WIS_EXPORT namespace wis
     {
     public:
         VKDescriptorSet() = default;
-        explicit VKDescriptorSet(wis::shared_handle<vk::DescriptorSet> set)
+        explicit VKDescriptorSet(wis::shared_handle<vk::DescriptorSet> set) noexcept
             : QueryInternal(std::move(set))
         {
         }
@@ -64,7 +64,7 @@ WIS_EXPORT namespace wis
     {
     public:
         VKDescriptorHeap() = default;
-        explicit VKDescriptorHeap(wis::shared_handle<vk::DescriptorPool> pool)
+        explicit VKDescriptorHeap(wis::shared_handle<vk::DescriptorPool> pool) noexcept
             : QueryInternal(std::move(pool))
         {
         }
@@ -77,7 +77,7 @@ WIS_EXPORT namespace wis
             return pool.get();
         }
 
-        VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)
+        VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout) noexcept
         {
             const auto& device = pool.getParent();
 

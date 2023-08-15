@@ -1,9 +1,8 @@
 #ifndef WISDOM_MODULES
-#include <d3d11.h> // fix for stereo swapchain
 #include <wisdom/dx12/dx12_checks.h>
 #endif
 
-inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref)
+inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref) noexcept
 {
     switch (pref) {
     default:
@@ -16,17 +15,16 @@ inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref)
     }
 }
 
-wis::DX12Factory::DX12Factory(const ApplicationInfo& app_info, bool use_preference)
+wis::DX12Factory::DX12Factory(const ApplicationInfo& app_info) noexcept
 {
     if (factory)
         return;
     EnableDebugLayer();
-    wis::check_hresult(CreateDXGIFactory2(debug_flag,
-                                          __uuidof(IDXGIFactory4), factory.put_void()));
+    wis::succeded(CreateDXGIFactory2(debug_flag,
+                                     __uuidof(IDXGIFactory4), factory.put_void()));
 
     // TODO: consider constexpr
-
-    has_preference = bool(factory.try_as<IDXGIFactory6>()) && use_preference;
+    has_preference = bool(factory.try_as<IDXGIFactory6>());
 }
 
 wis::generator<wis::DX12Adapter> wis::DX12Factory::EnumerateAdapters(wis::AdapterPreference preference) const noexcept
@@ -55,7 +53,7 @@ wis::DX12Factory::AdaptersByGPUPreference(DXGI_GPU_PREFERENCE preference) const 
     auto factory6 = factory.try_as<IDXGIFactory6>();
     uint32_t index = 0;
 
-    while (wis::succeded_weak(factory6->EnumAdapterByGpuPreference(index++,
+    while (wis::succeded(factory6->EnumAdapterByGpuPreference(index++,
                                                                    preference,
                                                                    __uuidof(IDXGIAdapter1), adapter.put_void()))) {
         co_yield std::move(adapter);
@@ -68,70 +66,7 @@ wis::DX12Factory::Adapters() const noexcept
     winrt::com_ptr<IDXGIAdapter1> adapter;
     uint32_t index = 0;
 
-    while (wis::succeded_weak(factory->EnumAdapters1(index++, adapter.put())))
+    while (wis::succeded(factory->EnumAdapters1(index++, adapter.put())))
         co_yield std::move(adapter);
 }
 
-inline winrt::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
-{
-    constexpr D3D_FEATURE_LEVEL featureLevels[]{
-        D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1
-    };
-
-    winrt::com_ptr<ID3D11Device> device11;
-    D3D11CreateDevice(nullptr,
-                      D3D_DRIVER_TYPE_HARDWARE,
-                      nullptr, 0,
-                      featureLevels, 3, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
-    return device11;
-}
-
-winrt::com_ptr<IDXGISwapChain4>
-wis::DX12Factory::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue)
-{
-    winrt::com_ptr<IDXGISwapChain1> swap;
-    if (desc.Stereo) // until microsoft fixes this
-    {
-        wis::check_hresult(factory->CreateSwapChainForCoreWindow(
-                CreateD3D11Device().get(),
-                core_window,
-                &desc,
-                nullptr,
-                swap.put()));
-    }
-
-    wis::check_hresult(factory->CreateSwapChainForCoreWindow(
-            queue, // Swap chain needs the queue so that it can force a flush on it.
-            core_window,
-            &desc,
-            nullptr,
-            swap.put()));
-    return swap.try_as<IDXGISwapChain4>();
-}
-
-winrt::com_ptr<IDXGISwapChain4>
-wis::DX12Factory::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue)
-{
-    winrt::com_ptr<IDXGISwapChain1> swap;
-    if (desc.Stereo) // until microsoft fixes this
-    {
-        wis::check_hresult(factory->CreateSwapChainForHwnd(
-                CreateD3D11Device().get(), // Swap chain needs the queue so that it can force a flush on it.
-                hwnd,
-                &desc,
-                nullptr,
-                nullptr,
-                swap.put()));
-    }
-
-    wis::check_hresult(factory->CreateSwapChainForHwnd(
-            queue, // Swap chain needs the queue so that it can force a flush on it.
-            hwnd,
-            &desc,
-            nullptr,
-            nullptr,
-            swap.put()));
-    return swap.try_as<IDXGISwapChain4>();
-}

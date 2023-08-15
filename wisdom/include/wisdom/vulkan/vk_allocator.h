@@ -111,7 +111,7 @@ public:
     /// @brief Create a depth stencil texture
     /// @param desc Depth descriptor
     /// @param flags Texture usage flags, aside from depth stencil attachment
-    /// @return Texture object 
+    /// @return Texture object
     [[nodiscard]] VKTexture CreateDepthStencilTexture(DepthDescriptor desc, TextureFlags flags = TextureFlags::None) const noexcept
     {
         auto format = convert_vk(desc.format);

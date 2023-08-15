@@ -19,8 +19,8 @@ WIS_EXPORT class VKAdapter : public QueryInternal<VKAdapter>
 {
 public:
     VKAdapter() = default;
-    explicit VKAdapter(vk::PhysicalDevice adapter)
-        : QueryInternal{ adapter }
+    explicit VKAdapter(vk::PhysicalDevice adapter) noexcept
+        : QueryInternal(adapter)
     {
     }
     operator VKAdapterView() const noexcept
@@ -28,9 +28,9 @@ public:
         return adapter;
     }
     operator bool() const noexcept
-	{
-		return bool(adapter);
-	}
+    {
+        return bool(adapter);
+    }
 
     /// @brief Get the adapter description
     /// @return Adapter Description

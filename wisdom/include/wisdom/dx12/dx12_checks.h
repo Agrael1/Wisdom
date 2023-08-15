@@ -88,19 +88,20 @@ WIS_EXPORT namespace wis
     /// @brief Check if the given HRESULT is a success code, logging any errors and throwing a windows exception if it is not a success code
     /// @param hr HRESULT to check
     /// @return True if the HRESULT is a success code
-    inline bool succeded(winrt::hresult hr) noexcept
-    {
-        return check_hresult_nothrow(hr);
-    }
+    // inline bool succeded(winrt::hresult hr) noexcept
+    //{
+    //     return check_hresult_nothrow(hr);
+    // }
 
     /// @brief Check if the given HRESULT a success code, without logging, serves as an assert
     /// @param hr HRESULT to check
     /// @return True if the HRESULT is a success code
-    inline bool succeded_weak(winrt::hresult hr)
+    inline bool succeded(winrt::hresult hr) noexcept
     {
-        if constexpr (!debug_mode || !runtime_asserts)
-            return hr >= 0;
-        return check_hresult_nothrow(hr);
+        if constexpr (debug_mode || runtime_asserts)
+            if (hr < 0)
+                log_dxgi_errors();
+        return hr >= 0;
     }
 }
 

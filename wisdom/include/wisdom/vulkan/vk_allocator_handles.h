@@ -19,7 +19,7 @@ WIS_EXPORT namespace wis
 
     public:
         shared_handle() = default;
-        explicit shared_handle(vma::Allocator handle, vk::SharedDevice parent)
+        explicit shared_handle(vma::Allocator handle, vk::SharedDevice parent) noexcept
             : base(handle, AllocatorHeader{ std::move(parent) })
         {
         }
@@ -50,7 +50,7 @@ WIS_EXPORT namespace wis
 
     public:
         shared_handle() = default;
-        explicit shared_handle(vma::Allocation handle, shared_handle<vma::Allocator> parent)
+        explicit shared_handle(vma::Allocation handle, shared_handle<vma::Allocator> parent) noexcept
             : base(handle, AllocationHeader{ std::move(parent) })
         {
         }
@@ -66,4 +66,4 @@ WIS_EXPORT namespace wis
             control.allocator->freeMemory(handle);
         }
     };
-}
+} // namespace wis

@@ -522,4 +522,10 @@ WIS_EXPORT namespace wis
 
     /// @brief Depth clear value for a depth stencil
     using DepthClear = float;
+
+    enum class PoolFlags
+    {
+        CpuOnly,
+        ShaderVisible,
+    };
 }

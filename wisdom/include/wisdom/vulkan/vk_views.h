@@ -14,6 +14,8 @@ WIS_EXPORT namespace wis
         return version &= ~(version_mask); // unsigned remove patch from instance for compatibility
     }
 
+    using VKFactoryHandle = std::tuple<wis::shared_handle<vk::Instance>>;
+
     using VKAdapterView = vk::PhysicalDevice;
     using VKBufferView = vk::Buffer;
     struct VKTextureView {

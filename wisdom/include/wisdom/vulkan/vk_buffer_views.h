@@ -4,51 +4,26 @@
 #include <vulkan/vulkan.hpp>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKVertexBufferView;
+
+template<>
+struct Internal<VKVertexBufferView> {
+    vk::Buffer buffer;
+    vk::DeviceSize size_bytes;
+    vk::DeviceSize stride_bytes;
+};
+
+/// @brief Vertex buffer view
+WIS_EXPORT class VKVertexBufferView : public QueryInternal<VKVertexBufferView>
 {
-    class VKVertexBufferView;
-
-    template<>
-    class Internal<VKVertexBufferView>
+public:
+    VKVertexBufferView() = default;
+    explicit VKVertexBufferView(vk::Buffer buffer,
+                                vk::DeviceSize size_bytes,
+                                vk::DeviceSize stride_bytes)
+        : QueryInternal(buffer, size_bytes, stride_bytes)
     {
-    public:
-        Internal() = default;
-        Internal(vk::Buffer buffer,
-                 vk::DeviceSize size_bytes,
-                 vk::DeviceSize stride_bytes)
-            : buffer(buffer), size_bytes(size_bytes), stride_bytes(stride_bytes)
-        {
-        }
-
-        [[nodiscard]] auto GetBufferWeak() const noexcept
-        {
-            return buffer;
-        }
-        [[nodiscard]] vk::DeviceSize SizeBytes() const noexcept
-        {
-            return size_bytes;
-        }
-        [[nodiscard]] vk::DeviceSize StrideBytes() const noexcept
-        {
-            return stride_bytes;
-        }
-
-    protected:
-        vk::Buffer buffer;
-        vk::DeviceSize size_bytes;
-        vk::DeviceSize stride_bytes;
-    };
-
-    /// @brief Vertex buffer view
-    class VKVertexBufferView : public QueryInternal<VKVertexBufferView>
-    {
-    public:
-        VKVertexBufferView() = default;
-        explicit VKVertexBufferView(vk::Buffer buffer,
-                                    vk::DeviceSize size_bytes,
-                                    vk::DeviceSize stride_bytes)
-            : QueryInternal(buffer, size_bytes, stride_bytes)
-        {
-        }
-    };
-}
+    }
+};
+} // namespace wis

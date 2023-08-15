@@ -3,6 +3,7 @@
 #include <tuple>
 
 struct IDXGIAdapter1;
+struct IDXGIFactory4;
 // struct ID3D12Device10;
 // struct ID3D12PipelineState;
 // struct ID3D12CommandQueue;
@@ -14,6 +15,8 @@ struct IDXGIAdapter1;
 
 WIS_EXPORT namespace wis
 {
+    using DX12FactoryHandle = std::tuple<IDXGIFactory4*>;
+
     using DX12AdapterView = IDXGIAdapter1*;
     using DX12DeviceView = ID3D12Device10*;
     using DX12PipelineStateView = ID3D12PipelineState*;

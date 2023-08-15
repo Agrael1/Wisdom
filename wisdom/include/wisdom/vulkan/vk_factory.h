@@ -4,6 +4,7 @@
 #include <wisdom/api/api_internal.h>
 #include <wisdom/bridge/generator.h>
 #include <wisdom/vulkan/vk_adapter.h>
+#include <wisdom/vulkan/vk_views.h>
 #endif
 
 namespace wis {
@@ -20,7 +21,6 @@ struct Internal<VKFactory> {
 
 WIS_EXPORT class VKFactory : public QueryInternal<VKFactory>
 {
-    friend class VKResourceAllocator;
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -36,6 +36,10 @@ public:
     {
         return bool(factory);
     }
+    operator VKFactoryHandle() const noexcept
+	{
+		return std::tie(factory);
+	}
 
     /// @brief Enumerates all adapters on the system
     /// @param preference Preference to use when enumerating adapters, changes the order of the adapters

@@ -11,6 +11,7 @@ include(cmake/dx12.cmake)
 include(cmake/vulkan.cmake)
 
 
+
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR CMAKE_SYSTEM_NAME STREQUAL "tvOS" AND NOT WISDOM_FORCE_VULKAN)
 	message("Platform Library is Metal")
 	set(WISDOMMTL TRUE)
@@ -42,7 +43,7 @@ set(HEADER_LIST
 	"include/wisdom/util/small_allocator.h"
 	"include/wisdom/bridge/format.h"
 	"include/wisdom/bridge/source_location.h"
-  "include/wisdom/global/assertions.h" "include/wisdom/bridge/unreachable.h")
+  "include/wisdom/global/assertions.h" "include/wisdom/bridge/unreachable.h" "include/wisdom/bridge/bitscan.h")
 
 
 
@@ -114,6 +115,9 @@ if(WISDOM_USE_FMT)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_USE_FMT)
 	target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 endif()
+
+
+add_subdirectory("generator")
 
 
 target_install(${PROJECT_NAME})

@@ -83,7 +83,7 @@ WIS_EXPORT class VKTexture : public QueryInternal<VKTexture>
 {
 public:
     VKTexture() = default;
-    explicit VKTexture(vk::Format format, wis::shared_handle<vk::Image> image, wis::shared_handle<vma::Allocation> allocation = {})
+    explicit VKTexture(vk::Format format, wis::shared_handle<vk::Image> image, wis::shared_handle<vma::Allocation> allocation = {}) noexcept
         : QueryInternal(std::move(allocation), std::move(image), format)
     {
     }

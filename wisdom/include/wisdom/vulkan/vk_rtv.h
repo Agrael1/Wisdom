@@ -16,10 +16,11 @@ WIS_EXPORT class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
 {
 public:
     VKRenderTargetView() = default;
-    explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
+    explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view) noexcept
         : QueryInternal(std::move(view))
     {
     }
+    operator bool() const noexcept { return bool(view); }
 };
 
 using VKDepthStencilView = VKRenderTargetView;
