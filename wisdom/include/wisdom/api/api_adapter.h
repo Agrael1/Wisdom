@@ -46,15 +46,15 @@ WIS_EXPORT namespace wis
                     description, vendor_id, device_id, subsys_id, revision, dedicated_video_memory, dedicated_system_memory, shared_system_memory, adapter_id);
         }
 
-        std::string description; //< Adapter description
+        char description[256]; //< Adapter description
         uint32_t vendor_id; //< Adapter vendor id
         uint32_t device_id; //< Adapter device id
         uint32_t subsys_id; //< Adapter subsystem id (DX12)/ api version (Vulkan)
         uint32_t revision; //< Adapter revision (DX12)/ driver version (Vulkan)
 
-        size_t dedicated_video_memory; //< Dedicated video memory
-        size_t dedicated_system_memory; //< Dedicated system memory (DX12 only)
-        size_t shared_system_memory; //< Shared system memory
+        uint64_t dedicated_video_memory; //< Dedicated video memory
+        uint64_t dedicated_system_memory; //< Dedicated system memory (DX12 only)
+        uint64_t shared_system_memory; //< Shared system memory
         uint64_t adapter_id; //< Adapter id(LUID)
 
         AdapterFlags flags = AdapterFlags::None; //< Adapter flags describing the adapter properties

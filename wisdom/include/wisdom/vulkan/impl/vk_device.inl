@@ -3,10 +3,10 @@
 #endif
  //#include "../vk_device.h"
 
-bool wis::VKDevice::Initialize(VKAdapterView adapter)
+bool wis::VKDevice::Initialize(VKAdapterView xadapter)
 {
-    this->adapter = adapter;
-    GetQueueFamilies(adapter);
+    adapter = std::get<0>(xadapter);
+    GetQueueFamilies();
     std::array<vk::DeviceQueueCreateInfo, max_count> queue_infos{};
     size_t queue_count = 0;
 
@@ -28,7 +28,7 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
         queue_count++;
     }
 
-    auto exts = RequestExtensions(adapter);
+    auto exts = RequestExtensions();
 
     void* device_create_info_next = nullptr;
     auto add_extension = [&](auto& extension) {
@@ -503,7 +503,7 @@ wis::VKRenderTargetView wis::VKDevice::CreateRenderTargetView(VKTextureView text
     return VKRenderTargetView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
 }
 
-void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
+void wis::VKDevice::GetQueueFamilies() noexcept
 {
     using namespace river::flags;
     auto family_props = adapter.getQueueFamilyProperties();
@@ -554,7 +554,7 @@ void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
 }
 
 wis::internals::uniform_allocator<const char*, wis::VKDevice::required_extensions.size()>
-wis::VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
+wis::VKDevice::RequestExtensions() noexcept
 {
     auto extensions = adapter.enumerateDeviceExtensionProperties();
     std::unordered_set<std::string_view, wis::string_hash> ext_set;

@@ -2,7 +2,7 @@
 
 bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
 {
-    if (!wis::succeded(D3D12CreateDevice(adapter,
+    if (!wis::succeded(D3D12CreateDevice(std::get<0>(adapter),
                                          D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
         return false;
 
