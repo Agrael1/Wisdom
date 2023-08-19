@@ -34,7 +34,6 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_xshared_handle.h"
 		"include/wisdom/vulkan/vk_views.h"
 		"include/wisdom/vulkan/vk_descriptor_heap.h")
-	set(VKINL "include/wisdom/vulkan/impl/vk_adapter.inl")
 
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
 
@@ -42,7 +41,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	target_sources(${PROJECT_NAME}
 	PUBLIC FILE_SET HEADERS 
 		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-		FILES ${VKHEADERS} ${VKINL}
+		FILES ${VKHEADERS}
 	)
 
 	if(WISDOM_BUILD_TYPE STREQUAL "static")

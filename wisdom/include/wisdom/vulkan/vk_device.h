@@ -338,11 +338,11 @@ WIS_EXPORT namespace wis
         }
 
     private:
-        WIS_INLINE void GetQueueFamilies(VKAdapterView adapter) noexcept;
+        WIS_INLINE void GetQueueFamilies() noexcept;
 
         [[nodiscard]] WIS_INLINE
                 wis::internals::uniform_allocator<const char*, required_extensions.size()>
-                RequestExtensions(VKAdapterView adapter) noexcept;
+                RequestExtensions() noexcept;
 
         [[nodiscard]] WIS_INLINE
                 vk::PresentModeKHR

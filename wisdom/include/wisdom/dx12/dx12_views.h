@@ -14,7 +14,8 @@ struct IDXGIAdapter1;
 
 WIS_EXPORT namespace wis
 {
-    using DX12AdapterView = IDXGIAdapter1*;
+    using DX12AdapterView = std::tuple<IDXGIAdapter1*>;
+
     using DX12DeviceView = ID3D12Device10*;
     using DX12PipelineStateView = ID3D12PipelineState*;
     using DX12CommandQueueView = ID3D12CommandQueue*;

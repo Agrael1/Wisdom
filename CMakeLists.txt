@@ -44,6 +44,12 @@ option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
 option(WISDOM_USE_SYSTEM_DXC "Use dxc from PATH" OFF)
 
 
+if(WISDOM_FORCE_VULKAN)
+	message("[Wisdom] Forcing vulkan as default device")
+else()
+	message("[Wisdom] Using platform specific default device")
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13"
     OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "16")
 	option(WISDOM_USE_FMT "Build Wisdom with fmtlib" ON)

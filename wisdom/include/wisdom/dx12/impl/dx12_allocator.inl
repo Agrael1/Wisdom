@@ -8,7 +8,7 @@ wis::DX12ResourceAllocator::DX12ResourceAllocator(wis::DX12DeviceView device, wi
         .pDevice = device,
         .PreferredBlockSize = 0,
         .pAllocationCallbacks = nullptr,
-        .pAdapter = adapter
+        .pAdapter = std::get<0>(adapter)
     };
     wis::check_hresult(D3D12MA::CreateAllocator(&desc, allocator.put()));
 }
