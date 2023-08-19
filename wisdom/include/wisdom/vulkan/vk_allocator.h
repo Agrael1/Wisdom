@@ -136,12 +136,13 @@ WIS_EXPORT namespace wis
                 vk::ImageType::e2D, format, vk::Extent3D{ desc.width, desc.height, 1 }, 1, 1, vk::SampleCountFlagBits::e1, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eDepthStencilAttachment
             };
-            vma::AllocationCreateInfo alloc{
-                {}, vma::MemoryUsage::eAuto
+            VmaAllocationCreateInfo alloc{
+                .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
             };
-
-            auto [a, b] = allocator->createImage(img_desc, alloc);
-            return VKTexture{ format, wis::shared_handle<vk::Image>{ a, allocator.getParent() }, wis::shared_handle<vma::Allocation>{ b, allocator } };
+            VkImage image;
+            VmaAllocation allocation;
+            VkResult a = vmaCreateImage(allocator.get(), reinterpret_cast<const VkImageCreateInfo*>(&img_desc), &alloc, &image, &allocation, nullptr);
+            return VKTexture{ format, wis::shared_handle<vk::Image>{ image, allocator.getParent() }, wis::shared_handle<VmaAllocation>{ allocation, allocator } };
         }
 
     private:
