@@ -434,14 +434,14 @@ WIS_EXPORT namespace wis
     };
 
     enum class ShaderStage {
-        vertex = 1, // VK_SHADER_STAGE_VERTEX_BIT,
-        hull = 2, // VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT,
-        domain = 4, // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
-        geometry = 8, // VK_SHADER_STAGE_GEOMETRY_BIT,
-        pixel = 16, // VK_SHADER_STAGE_FRAGMENT_BIT,
-        compute = 32, // VK_SHADER_STAGE_COMPUTE_BIT,
-        all_graphics = 31, // VK_SHADER_STAGE_ALL_GRAPHICS,
-        all = 0x7FFFFFFF, // VK_SHADER_STAGE_ALL,
+        Vertex = 1, // VK_SHADER_STAGE_VERTEX_BIT,
+        Hull = 2, // VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT,
+        Domain = 4, // VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
+        Geometry = 8, // VK_SHADER_STAGE_GEOMETRY_BIT,
+        Pixel = 16, // VK_SHADER_STAGE_FRAGMENT_BIT,
+        Compute = 32, // VK_SHADER_STAGE_COMPUTE_BIT,
+        All_graphics = 31, // VK_SHADER_STAGE_ALL_GRAPHICS,
+        All = 0x7FFFFFFF, // VK_SHADER_STAGE_ALL,
     };
 
     enum class BindingType {
@@ -454,7 +454,7 @@ WIS_EXPORT namespace wis
     struct BindingDescriptor {
         uint32_t binding = 0;
         uint32_t count = 1;
-        ShaderStage stages = ShaderStage::all;
+        ShaderStage stages = ShaderStage::All;
         BindingType type = BindingType::SRV;
     };
 

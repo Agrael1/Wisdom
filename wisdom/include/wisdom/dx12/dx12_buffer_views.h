@@ -31,7 +31,7 @@ WIS_EXPORT namespace wis
     public:
         DX12VertexBufferView() = default;
         explicit DX12VertexBufferView(D3D12_VERTEX_BUFFER_VIEW xhandle)
-            : base(xhandle) { }
+            : QueryInternal(xhandle) { }
 
         /// @brief Get the view
         /// @note This function is only available in the internal API

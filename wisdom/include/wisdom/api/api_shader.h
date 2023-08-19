@@ -54,7 +54,7 @@ WIS_EXPORT namespace wis
         /// @brief Get a pointer to the data of the blob
         /// @tparam DataTy Type of data to get
         /// @return Pointer to the data
-        template<typename DataTy>
+        template<typename DataTy = std::byte>
         DataTy* data() noexcept
         {
             return reinterpret_cast<DataTy*>(xdata.get());

@@ -326,6 +326,66 @@ public:
         return CreateRenderTarget(texture, format);
     }
 
+    [[nodiscard]] VKDescriptorSetLayout
+    CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const noexcept
+    {
+        // TODO: This is a bit of a mess, but it works for now.
+        static constexpr auto max_layout_bindings = 64;
+        internals::uniform_allocator<vk::DescriptorSetLayoutBinding, max_layout_bindings> bindings;
+
+        constexpr static vk::DescriptorType cbvSrvUavTypes[] = {
+            vk::DescriptorType::eSampledImage,
+            vk::DescriptorType::eStorageImage,
+            vk::DescriptorType::eUniformTexelBuffer,
+            vk::DescriptorType::eStorageTexelBuffer,
+            vk::DescriptorType::eUniformBuffer,
+            vk::DescriptorType::eStorageBuffer,
+            // VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR /* Need to check support if this is desired. */
+        };
+
+        constexpr static vk::MutableDescriptorTypeListVALVE a{
+            sizeof(cbvSrvUavTypes) / sizeof(VkDescriptorType),
+            cbvSrvUavTypes
+        };
+
+        // clang-format off
+        constexpr static std::array<vk::MutableDescriptorTypeListVALVE, 64> cbvSrvUavTypeList{
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+            a,a,a,a,a,a,a,a,
+        };
+        // clang-format on
+        bool sampler = false;
+        vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
+            .mutableDescriptorTypeListCount = uint32_t(descs.size()),
+            .pMutableDescriptorTypeLists = cbvSrvUavTypeList.data()
+        };
+
+        for (auto& desc : descs) {
+            if (desc.type == BindingType::SAMPLER) {
+                sampler = true;
+                bindings.allocate(vk::DescriptorSetLayoutBinding{
+                        desc.binding, vk::DescriptorType::eSampler, desc.count, vk::ShaderStageFlagBits(desc.stages) });
+                continue;
+            }
+
+            bindings.allocate(vk::DescriptorSetLayoutBinding{
+                    desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
+        }
+        vk::DescriptorSetLayoutCreateInfo desc{
+            .pNext = !sampler ? &mutableTypeInfo : nullptr,
+            .bindingCount = uint32_t(bindings.size()),
+            .pBindings = bindings.data(),
+        };
+        auto [result, value] = device->createDescriptorSetLayout(desc);
+        return VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ value, device } };
+    }
+
     [[nodiscard]] VKRootSignature CreateRootSignature(std::span<VKDescriptorSetLayout> layouts = {}) const noexcept
     {
         internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
@@ -354,64 +414,6 @@ public:
     [[nodiscard]] WIS_INLINE
             VKPipelineState
             CreateGraphicsPipeline(const VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const;
-
-    [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
-    {
-        static constexpr auto max_layout_bindings = 32;
-        internals::uniform_allocator<vk::DescriptorSetLayoutBinding, max_layout_bindings> bindings;
-
-        constexpr static vk::DescriptorType cbvSrvUavTypes[] = {
-            vk::DescriptorType::eSampledImage,
-            vk::DescriptorType::eStorageImage,
-            vk::DescriptorType::eUniformTexelBuffer,
-            vk::DescriptorType::eStorageTexelBuffer,
-            vk::DescriptorType::eUniformBuffer,
-            vk::DescriptorType::eStorageBuffer,
-            // VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR /* Need to check support if this is desired. */
-        };
-
-        constexpr static vk::MutableDescriptorTypeListVALVE a{
-            sizeof(cbvSrvUavTypes) / sizeof(VkDescriptorType),
-            cbvSrvUavTypes
-        };
-
-        // clang-format off
-            constexpr static std::array<vk::MutableDescriptorTypeListVALVE, 64> cbvSrvUavTypeList{
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-                a,a,a,a,a,a,a,a,
-            };
-        // clang-format on
-        bool sampler = false;
-        vk::MutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
-            .mutableDescriptorTypeListCount = uint32_t(descs.size()),
-            .pMutableDescriptorTypeLists = cbvSrvUavTypeList.data()
-        };
-
-        for (auto& desc : descs) {
-            if (desc.type == BindingType::SAMPLER) {
-                sampler = true;
-                bindings.allocate(vk::DescriptorSetLayoutBinding{
-                        desc.binding, vk::DescriptorType::eSampler, desc.count, vk::ShaderStageFlagBits(desc.stages) });
-                continue;
-            }
-
-            bindings.allocate(vk::DescriptorSetLayoutBinding{
-                    desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
-        }
-        vk::DescriptorSetLayoutCreateInfo desc{
-            .pNext = !sampler ? &mutableTypeInfo : nullptr,
-            .bindingCount = uint32_t(bindings.size()),
-            .pBindings = bindings.data(),
-        };
-        auto [result, value] = device->createDescriptorSetLayout(desc);
-        return VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ value, device } };
-    }
 
     void CreateConstantBufferView(VKBufferView buffer, uint32_t size, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const
     {

@@ -207,7 +207,9 @@ public:
         D3D12_DEPTH_STENCIL_VIEW_DESC desc{
             .Format = DXGI_FORMAT(format),
             .ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D, // only 2D for now
-            .Texture2D{.MipSlice = 0,}
+            .Texture2D{
+                    .MipSlice = 0,
+            }
         };
 
         D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
@@ -225,6 +227,19 @@ public:
         return DX12DepthStencil{ std::move(heap) };
     }
 
+    //TODO: Rework this
+    [[nodiscard]] DX12DescriptorSetLayout
+    CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const noexcept
+    {
+        std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
+
+        for (auto& desc : descs) {
+            auto& range = ranges.emplace_back();
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE(desc.type), desc.count, desc.binding, 0);
+        }
+        return DX12DescriptorSetLayout{ std::move(ranges) };
+    }
+
     /// @brief Create a root signature
     [[nodiscard]] DX12RootSignature CreateRootSignature(std::span<DX12DescriptorSetLayout> layouts = {}) const noexcept
     {
@@ -234,7 +249,7 @@ public:
 
         wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
         for (auto& lay : layouts) {
-            auto ranges = lay.GetInternal().GetRanges();
+            auto ranges = lay.GetInternal().ranges;
             root_parameters.allocate()
                     .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
         }
@@ -266,19 +281,9 @@ public:
             SampleCount samples = SampleCount::s1,
             DataFormat vrs_format = DataFormat::unknown) const;
 
-    [[nodiscard]] DX12DescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
+    void CreateConstantBufferView(DX12BufferView buffer, uint32_t size, DX12DescriptorSetView set, DX12DescriptorSetLayoutView xlayout, uint32_t binding = 0) const
     {
-        std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
-
-        for (auto& desc : descs) {
-            auto& range = ranges.emplace_back();
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE(desc.type), desc.count, desc.binding, 0);
-        }
-        return DX12DescriptorSetLayout{ std::move(ranges) };
-    }
-
-    void CreateConstantBufferView(DX12BufferView buffer, uint32_t size, DX12DescriptorSetView set, DX12DescriptorSetLayoutView layout, uint32_t binding = 0) const
-    {
+        auto& layout = std::get<0>(xlayout);
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
         cbvDesc.BufferLocation = buffer->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = size;
@@ -460,24 +465,24 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2>() = CD3DX12_DEPTH_STENCIL_DESC2{ CD3DX12_DEFAULT{} };
 
     if (desc.vs) {
-        auto d = desc.vs.GetInternal().GetShaderBytecode();
+        auto d = desc.vs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_VS>() = { d.data(), d.size() };
     }
     if (desc.ps) {
-        auto d = desc.ps.GetInternal().GetShaderBytecode();
+        auto d = desc.ps.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_PS>() = { d.data(), d.size() };
     }
     if (desc.gs) {
-        auto d = desc.gs.GetInternal().GetShaderBytecode();
+        auto d = desc.gs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_GS>() = { d.data(), d.size() };
     }
 
     if (desc.hs) {
-        auto d = desc.hs.GetInternal().GetShaderBytecode();
+        auto d = desc.hs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_HS>() = { d.data(), d.size() };
     }
     if (desc.ds) {
-        auto d = desc.ds.GetInternal().GetShaderBytecode();
+        auto d = desc.ds.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
     }
     if (desc.target_formats.size()) {

@@ -27,14 +27,14 @@ WIS_EXPORT namespace wis
             : QueryInternal(std::move(rc), std::move(al)) { }
         operator DX12BufferView() const noexcept
         {
-            return GetResource();
+            return resource.get();
         }
 
     public:
         bool UpdateSubresource(std::span<const std::byte> data)
         {
             void* bytes = nullptr;
-            if (!wis::succeded_weak(resource->Map(0, nullptr, &bytes)))
+            if (!wis::succeded(resource->Map(0, nullptr, &bytes)))
                 return false;
 
             std::copy(data.data(), data.data() + data.size(), (std::byte*)bytes);
@@ -44,7 +44,7 @@ WIS_EXPORT namespace wis
         [[nodiscard]] std::span<std::byte> MapMemory() noexcept
         {
             void* bytes = nullptr;
-            if (!wis::succeded_weak(resource->Map(0, nullptr, &bytes)))
+            if (!wis::succeded(resource->Map(0, nullptr, &bytes)))
                 return {};
             return { (std::byte*)bytes, resource->GetDesc().Width };
         }

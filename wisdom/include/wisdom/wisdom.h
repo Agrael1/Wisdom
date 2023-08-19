@@ -25,9 +25,9 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 #ifndef WISDOM_MODULES
 #include <wisdom/dx12/dx12_factory.h>
-//#include <wisdom/dx12/dx12_shader.h>
-//#include <wisdom/dx12/dx12_allocator.h>
-//#include <wisdom/dx12/dx12_device.h>
+#include <wisdom/dx12/dx12_shader.h>
+#include <wisdom/dx12/dx12_allocator.h>
+#include <wisdom/dx12/dx12_device.h>
 #endif
 
 // dx12
@@ -53,7 +53,7 @@ WIS_EXPORT namespace wis
     using DescriptorSetLayout = DX12DescriptorSetLayout;
     using DescriptorSet = DX12DescriptorSet;
     using Texture = DX12Texture;
-    using DepthStencilView = DX12DepthStencilView;
+    using DepthStencil = DX12DepthStencil;
     //using Sampler = DX12Sampler;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH // MAC
