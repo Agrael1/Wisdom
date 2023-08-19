@@ -4,6 +4,7 @@
 #include <wisdom/api/api_adapter.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_dynamic_loader.h>
+#include <span>
 #endif // !WISDOM_MODULES
 
 namespace wis {
