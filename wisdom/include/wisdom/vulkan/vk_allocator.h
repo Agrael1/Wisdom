@@ -154,7 +154,3 @@ WIS_EXPORT namespace wis
         }
     };
 }
-
-#if defined(WISDOM_HEADER_ONLY)
-#include "impl/vk_allocator.inl"
-#endif
