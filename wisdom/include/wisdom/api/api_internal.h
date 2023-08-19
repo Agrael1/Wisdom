@@ -5,7 +5,8 @@ namespace wis {
 /// @brief Template class for internal implementation
 /// @tparam Impl Implementation class type
 template<class Impl>
-WIS_EXPORT class Internal {
+WIS_EXPORT class Internal
+{
 };
 
 /// @brief QueryInternal class for querying the internal implementation
