@@ -35,16 +35,16 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App()
 {
 }
 
-void Test::App::Initialize(IUnknown *core_window, uint32_t xwidth, uint32_t xheight)
+void Test::App::Initialize(IUnknown* core_window, uint32_t xwidth, uint32_t xheight)
 {
     width = xwidth;
     height = xheight;
@@ -52,7 +52,7 @@ void Test::App::Initialize(IUnknown *core_window, uint32_t xwidth, uint32_t xhei
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
@@ -75,11 +75,11 @@ void Test::App::Initialize(IUnknown *core_window, uint32_t xwidth, uint32_t xhei
 
     std::array cas2{
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear },
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear },
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear }
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear }
     };
 
     render_pass = device.CreateRenderPass({ width, height }, { cas2.data(), swap.StereoSupported() + 1u });
@@ -146,12 +146,12 @@ void Test::App::Frame()
     auto back = swap.GetBackBuffer();
 
     context.TextureBarrier({
-        .state_before = wis::TextureState::Present,
-        .state_after = wis::TextureState::RenderTarget,
-        .access_before = wis::ResourceAccess::Common,
-        .access_after = wis::ResourceAccess::RenderTarget,
-    },
-    back);
+                                   .state_before = wis::TextureState::Present,
+                                   .state_after = wis::TextureState::RenderTarget,
+                                   .access_before = wis::ResourceAccess::Common,
+                                   .access_after = wis::ResourceAccess::RenderTarget,
+                           },
+                           back);
 
     constexpr wis::ColorClear color{ 0.0f, 0.2f, 0.4f, 1.0f };
     constexpr wis::ColorClear color2{ 1.0f, 0.2f, 0.4f, 1.0f };
@@ -171,12 +171,12 @@ void Test::App::Frame()
     context.EndRenderPass();
 
     context.TextureBarrier({
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-    },
-    back);
+                                   .state_before = wis::TextureState::RenderTarget,
+                                   .state_after = wis::TextureState::Present,
+                                   .access_before = wis::ResourceAccess::RenderTarget,
+                                   .access_after = wis::ResourceAccess::Common,
+                           },
+                           back);
     context.Close();
     queue.ExecuteCommandList(context);
 

@@ -36,9 +36,9 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App(uint32_t width, uint32_t height)
@@ -48,7 +48,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
@@ -150,12 +150,12 @@ void Test::App::Frame()
     context.EndRenderPass();
 
     context.TextureBarrier({
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-    },
-    back);
+                                   .state_before = wis::TextureState::RenderTarget,
+                                   .state_after = wis::TextureState::Present,
+                                   .access_before = wis::ResourceAccess::RenderTarget,
+                                   .access_after = wis::ResourceAccess::Common,
+                           },
+                           back);
     context.Close();
     queue.ExecuteCommandList(context);
 
@@ -179,11 +179,11 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     std::array cas2{
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear },
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear },
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear }
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear }
     };
 
     // needs to be recreated for vulkan for now

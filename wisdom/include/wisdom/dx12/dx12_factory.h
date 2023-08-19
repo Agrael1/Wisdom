@@ -78,15 +78,15 @@ private:
     /// @param preference Specifies the GPU preference
     /// @return Coroutine that yields IDXGIAdapter1
     wis::generator<winrt::com_ptr<IDXGIAdapter1>>
-            AdaptersByGPUPreference(DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept
+    AdaptersByGPUPreference(DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept
     {
         winrt::com_ptr<IDXGIAdapter1> adapter;
         auto factory6 = factory.try_as<IDXGIFactory6>();
         uint32_t index = 0;
 
         while (wis::succeded(factory6->EnumAdapterByGpuPreference(index++,
-                             preference,
-                             __uuidof(IDXGIAdapter1), adapter.put_void()))) {
+                                                                  preference,
+                                                                  __uuidof(IDXGIAdapter1), adapter.put_void()))) {
             co_yield std::move(adapter);
         }
     }
@@ -94,7 +94,7 @@ private:
     /// @brief Enumerates all adapters on the system
     /// @return Coroutine that yields IDXGIAdapter1
     wis::generator<winrt::com_ptr<IDXGIAdapter1>>
-            Adapters() const noexcept
+    Adapters() const noexcept
     {
         winrt::com_ptr<IDXGIAdapter1> adapter;
         uint32_t index = 0;

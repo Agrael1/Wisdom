@@ -9,76 +9,76 @@
 
 WIS_EXPORT namespace wis
 {
-class DX12GraphicsPipelineDesc
-{
-    friend class DX12Device;
+    class DX12GraphicsPipelineDesc
+    {
+        friend class DX12Device;
 
-public:
-    DX12GraphicsPipelineDesc(DX12RootSignature sig) noexcept
-        : sig(std::move(sig))
-    {
-    }
-
-public:
-    DX12GraphicsPipelineDesc& SetVS(DX12Shader vs) noexcept
-    {
-        this->vs = std::move(vs);
-        return *this;
-    }
-    DX12GraphicsPipelineDesc& SetPS(DX12Shader ps) noexcept
-    {
-        this->ps = std::move(ps);
-        return *this;
-    }
-    DX12GraphicsPipelineDesc& SetGS(DX12Shader gs) noexcept
-    {
-        this->gs = std::move(gs);
-        return *this;
-    }
-    DX12GraphicsPipelineDesc& SetHS(DX12Shader hs) noexcept
-    {
-        this->hs = std::move(hs);
-        return *this;
-    }
-    DX12GraphicsPipelineDesc& SetDS(DX12Shader ds) noexcept
-    {
-        this->ds = std::move(ds);
-        return *this;
-    }
-    DX12GraphicsPipelineDesc& SetShader(DX12Shader shader) noexcept
-    {
-        using enum ShaderType;
-        switch (shader.GetType()) {
-        case vertex:
-            return SetVS(std::move(shader));
-        case pixel:
-            return SetPS(std::move(shader));
-        case geometry:
-            return SetGS(std::move(shader));
-        case hull:
-            return SetHS(std::move(shader));
-        case domain:
-            return SetDS(std::move(shader));
-        default:
-            break;
+    public:
+        DX12GraphicsPipelineDesc(DX12RootSignature sig) noexcept
+            : sig(std::move(sig))
+        {
         }
-        return *this;
-    }
-    DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPassView pass) noexcept
-    {
-        render_pass = pass;
-        return *this;
-    }
 
-private:
-    DX12RootSignature sig;
-    DX12Shader vs;
-    DX12Shader ps;
-    DX12Shader gs;
-    DX12Shader hs;
-    DX12Shader ds;
-    DX12RenderPassView render_pass;
-};
+    public:
+        DX12GraphicsPipelineDesc& SetVS(DX12Shader vs) noexcept
+        {
+            this->vs = std::move(vs);
+            return *this;
+        }
+        DX12GraphicsPipelineDesc& SetPS(DX12Shader ps) noexcept
+        {
+            this->ps = std::move(ps);
+            return *this;
+        }
+        DX12GraphicsPipelineDesc& SetGS(DX12Shader gs) noexcept
+        {
+            this->gs = std::move(gs);
+            return *this;
+        }
+        DX12GraphicsPipelineDesc& SetHS(DX12Shader hs) noexcept
+        {
+            this->hs = std::move(hs);
+            return *this;
+        }
+        DX12GraphicsPipelineDesc& SetDS(DX12Shader ds) noexcept
+        {
+            this->ds = std::move(ds);
+            return *this;
+        }
+        DX12GraphicsPipelineDesc& SetShader(DX12Shader shader) noexcept
+        {
+            using enum ShaderType;
+            switch (shader.GetType()) {
+            case vertex:
+                return SetVS(std::move(shader));
+            case pixel:
+                return SetPS(std::move(shader));
+            case geometry:
+                return SetGS(std::move(shader));
+            case hull:
+                return SetHS(std::move(shader));
+            case domain:
+                return SetDS(std::move(shader));
+            default:
+                break;
+            }
+            return *this;
+        }
+        DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPassView pass) noexcept
+        {
+            render_pass = pass;
+            return *this;
+        }
 
-// TODO: Mesh and Compute pipelines
+    private:
+        DX12RootSignature sig;
+        DX12Shader vs;
+        DX12Shader ps;
+        DX12Shader gs;
+        DX12Shader hs;
+        DX12Shader ds;
+        DX12RenderPassView render_pass;
+    };
+
+    // TODO: Mesh and Compute pipelines
 }
