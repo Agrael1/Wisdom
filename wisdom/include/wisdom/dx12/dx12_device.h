@@ -190,7 +190,7 @@ WIS_EXPORT namespace wis
 
     protected:
         WIS_INLINE [[nodiscard]] winrt::com_ptr<IDXGISwapChain4>
-        SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue)const noexcept;
+        SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue) const noexcept;
 
         WIS_INLINE [[nodiscard]] winrt::com_ptr<IDXGISwapChain4>
         SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue) const noexcept;

@@ -35,16 +35,16 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App()
 {
 }
 
-void Test::App::Initialize(IUnknown *core_window, uint32_t xwidth, uint32_t xheight)
+void Test::App::Initialize(IUnknown* core_window, uint32_t xwidth, uint32_t xheight)
 {
     width = xwidth;
     height = xheight;
@@ -52,7 +52,7 @@ void Test::App::Initialize(IUnknown *core_window, uint32_t xwidth, uint32_t xhei
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
