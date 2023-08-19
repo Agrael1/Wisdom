@@ -95,8 +95,8 @@ WIS_EXPORT namespace wis
         void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer) noexcept
         {
             CD3DX12_BUFFER_BARRIER bb{
-                D3D12_BARRIER_SYNC_ALL, // TODO: Better sync
-                D3D12_BARRIER_SYNC_ALL,
+                D3D12_BARRIER_SYNC(barrier.sync_before),
+                D3D12_BARRIER_SYNC(barrier.sync_after),
                 convert_dx(barrier.access_before),
                 convert_dx(barrier.access_after),
                 buffer
@@ -112,8 +112,8 @@ WIS_EXPORT namespace wis
         {
             auto r = barrier.range;
             CD3DX12_TEXTURE_BARRIER tb{
-                D3D12_BARRIER_SYNC_ALL,
-                D3D12_BARRIER_SYNC_ALL,
+                D3D12_BARRIER_SYNC(barrier.sync_before),
+                D3D12_BARRIER_SYNC(barrier.sync_after),
                 convert_dx(barrier.access_before),
                 convert_dx(barrier.access_after),
                 convert_dx(barrier.state_before),
@@ -189,22 +189,22 @@ WIS_EXPORT namespace wis
                              std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets,
                              std::pair<DX12DepthStencilView, DepthClear> depth = {}) noexcept
         {
-            auto& i = pass.GetInternal();
-            auto rts = i.GetRTDescs();
-            for (size_t i = 0; i < rts.size(); i++) {
+            auto& rpi = *std::get<0>(pass);
+            auto& rts = rpi.rt_descs;
+            for (size_t i = 0; i < rpi.rt_formats.size(); i++) {
                 rts[i].cpuDescriptor = render_targets[i].first.GetInternal().GetHandle();
                 rts[i].BeginningAccess.Clear.ClearValue.Color[0] = render_targets[i].second[0];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[1] = render_targets[i].second[1];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[2] = render_targets[i].second[2];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[3] = render_targets[i].second[3];
             }
-            auto dsdesc = i.GetDSDesc();
-            if (auto ds = depth.first.GetInternal().GetHandle(); ds.ptr) {
-                dsdesc->cpuDescriptor = ds;
-                dsdesc->DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
+
+            auto& dsdesc = rpi.ds_desc;
+            if (auto ds = depth.first.GetInternal().GetHandle(); ds.ptr && rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+                dsdesc.cpuDescriptor = ds;
+                dsdesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
             }
-            // TODO: Depth stencil
-            command_list->BeginRenderPass(rts.size(), rts.data(), dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
+            command_list->BeginRenderPass(render_targets.size(), rts.data(), &dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
         }
 
         /// @brief Ends the render pass.

@@ -8,4 +8,3 @@
 #include <wisdom/dx12/impl/dx12_info.inl>
 #include <wisdom/dx12/impl/dx12_allocator.inl>
 #include <wisdom/dx12/impl/dx12_device.inl>
-#include <wisdom/dx12/impl/dx12_factory.inl>

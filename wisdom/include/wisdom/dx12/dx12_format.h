@@ -3,6 +3,8 @@
 #include <wisdom/api/api_render_pass.h>
 #include <wisdom/api/api_barrier.h>
 #include <d3d12.h>
+#include <wisdom/api/api_factory.h>
+#include <dxgi1_6.h>
 #endif
 
 namespace wis {
@@ -58,6 +60,18 @@ inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStage op) noexcept
     default:
     case wis::ShaderStage::all:
         break;
+    }
+}
+inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref) noexcept
+{
+    switch (pref) {
+    default:
+    case wis::AdapterPreference::None:
+        return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_UNSPECIFIED;
+    case wis::AdapterPreference::MinConsumption:
+        return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_MINIMUM_POWER;
+    case wis::AdapterPreference::Performance:
+        return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
     }
 }
 } // namespace wis

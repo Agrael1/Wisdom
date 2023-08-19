@@ -1,4 +1,4 @@
-// #include <wisdom/vulkan/vk_command_list.h>
+ #include <wisdom/vulkan/vk_command_list.h>
 #ifndef WISDOM_MODULES
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/global/definitions.h>
@@ -12,14 +12,24 @@ void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView 
     if (!buffer || acc_before == acc_after)
         return;
 
-    vk::BufferMemoryBarrier desc{
-        acc_before, acc_after, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, buffer, 0, VK_WHOLE_SIZE
+    vk::BufferMemoryBarrier2 desc{
+        convert_vk(barrier.sync_before),
+        acc_before,
+        convert_vk(barrier.sync_after),
+        acc_after,
+        VK_QUEUE_FAMILY_IGNORED, 
+        VK_QUEUE_FAMILY_IGNORED, 
+        buffer, 
+        0, 
+        VK_WHOLE_SIZE
     };
-    command_list.pipelineBarrier(
-            vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
-            vk::DependencyFlagBits::eByRegion,
-            0, nullptr,
-            1, &desc, 0, nullptr);
+    vk::DependencyInfo depinfo{
+        vk::DependencyFlagBits::eByRegion,
+        0, nullptr,
+        1, &desc,
+        0, nullptr,
+    };
+    command_list.pipelineBarrier2(&depinfo);
 }
 
 void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept
@@ -33,8 +43,10 @@ void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureVi
     if (!texture.image || (vk_state_before == vk_state_after && acc_before == acc_after))
         return;
 
-    vk::ImageMemoryBarrier image_memory_barrier{
+    vk::ImageMemoryBarrier2 image_memory_barrier{
+        convert_vk(barrier.sync_before),
         acc_before,
+        convert_vk(barrier.sync_after),
         acc_after,
         vk_state_before,
         vk_state_after,
@@ -43,12 +55,13 @@ void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureVi
         texture.image,
         convert_vk(barrier.range, texture.format)
     };
-    command_list.pipelineBarrier(
-            vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands,
-            vk::DependencyFlagBits::eByRegion,
-            0, nullptr,
-            0, nullptr,
-            1, &image_memory_barrier);
+    vk::DependencyInfo depinfo{
+        vk::DependencyFlagBits::eByRegion,
+        0, nullptr,
+        0, nullptr,
+        1, &image_memory_barrier
+    };
+    command_list.pipelineBarrier2(&depinfo);
 }
 
 void wis::VKCommandList::IASetVertexBuffers(std::span<const VKVertexBufferView> resources, uint32_t start_slot) noexcept

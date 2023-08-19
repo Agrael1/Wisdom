@@ -40,7 +40,7 @@ WIS_EXPORT namespace wis
             return device;
         }
 
-    protected:
+        wis::shared_handle<vk::Instance> instance;
         wis::shared_handle<vk::Device> device;
         vk::PhysicalDevice adapter;
     };
@@ -164,16 +164,16 @@ WIS_EXPORT namespace wis
 
     public:
         VKDevice() = default;
-        explicit VKDevice(VKAdapterView adapter)
+        explicit VKDevice(VKFactoryHandle factory, VKAdapterView adapter)
         {
-            Initialize(adapter);
+            Initialize(std::move(factory), adapter);
         }
 
         operator VKDeviceView() const noexcept
         {
             return GetDeviceHandle();
         }
-        WIS_INLINE bool Initialize(VKAdapterView adapter);
+        WIS_INLINE bool Initialize(VKFactoryHandle factory, VKAdapterView adapter);
 
         [[nodiscard]] WIS_INLINE
                 VKSwapChain

@@ -6,6 +6,7 @@
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_format.h>
 #include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_device.h>
 #include <wisdom/global/assertions.h>
 #endif // !WISDOM_MODULES
 
@@ -31,19 +32,25 @@ WIS_EXPORT namespace wis
     {
     public:
         VKResourceAllocator() = default;
-        WIS_INLINE VKResourceAllocator(VKDeviceView device, VKAdapterView adapter)
+        WIS_INLINE VKResourceAllocator(const VKDevice& device)
         {
+            auto& i = device.GetInternal();
+            static constexpr auto version_mask = 0xFFFU;
+            uint32_t version = 0;
+            vkEnumerateInstanceVersion(&version);
+            version &= ~(version_mask); // unsigned remove patch from instance for compatibility
+
             VmaAllocatorCreateInfo allocatorInfo{
                 VmaAllocatorCreateFlags(0),
-                std::get<0>(adapter),
-                device.get(),
+                i.adapter,
+                i.device.get(),
                 0,
                 nullptr,
                 nullptr,
                 nullptr,
                 nullptr,
-                VKFactory::GetInstance(),
-                VKFactory::GetApiVer()
+                i.instance.get(),
+                version
             };
 
             VmaAllocator al;

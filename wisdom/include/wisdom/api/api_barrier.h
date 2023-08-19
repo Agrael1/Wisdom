@@ -53,8 +53,38 @@ WIS_EXPORT namespace wis
         VertexBuffer = 0x80, // VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     };
 
+    /// @brief DX12-like barrier synchronization flags
+    enum class BarrierSync : uint32_t {
+        None = 0,
+        All = 1,
+        Draw = 0x2,
+        IndexInput = 0x4,
+        VertexShading = 0x8,
+        PixelShading = 0x10,
+        DepthStencil = 0x20,
+        RenderTarget = 0x40,
+        ComputeShading = 0x80,
+        Raytracing = 0x100,
+        Copy = 0x200,
+        Resolve = 0x400,
+        ExecuteIndirect = 0x800,
+        Predication = 0x800,
+        AllShading = 0x1000,
+        DXNonPixelShading = 0x2000,
+        DXEmitRASPostbuildInfo = 0x4000,
+        DXClearUAV = 0x8000,
+        VideoDecode = 0x100000,
+        DXVideoProcess = 0x200000,
+        VideoEncode = 0x400000,
+        BuildRAS = 0x800000,
+        CopyRAS = 0x1000000,
+        DXSplit = 0x80000000 
+    };
+
     /// @brief Basic texture barrier w/o synchronization
     struct TextureBarrier {
+        BarrierSync sync_before = BarrierSync::All;
+        BarrierSync sync_after = BarrierSync::All;
         TextureState state_before; //< State before the barrier
         TextureState state_after; //< State after the barrier
         ResourceAccess access_before; //< Access before the barrier
@@ -64,6 +94,8 @@ WIS_EXPORT namespace wis
 
     /// @brief Basic buffer barrier w/o synchronization
     struct BufferBarrier {
+        BarrierSync sync_before = BarrierSync::All;
+        BarrierSync sync_after = BarrierSync::All;
         ResourceAccess access_before; //< Access before the barrier
         ResourceAccess access_after; //< Access after the barrier
     };

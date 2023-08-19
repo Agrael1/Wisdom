@@ -1,11 +1,12 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
- //#include "../vk_device.h"
+//#include "../vk_device.h"
 
-bool wis::VKDevice::Initialize(VKAdapterView xadapter)
+bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
 {
     adapter = std::get<0>(xadapter);
+    instance = std::move(std::get<0>(factory));
     GetQueueFamilies();
     std::array<vk::DeviceQueueCreateInfo, max_count> queue_infos{};
     size_t queue_count = 0;
@@ -144,8 +145,6 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
     using Type = wis::SurfaceParameters::Type;
     if (xsurface.type == Type::WinRT)
         return {}; // Bail out, no support for UWP from Vulkan
-
-    auto instance = VKFactory::Internal::GetInstanceHandle();
 
 #if defined(WISDOM_WINDOWS)
     vk::Win32SurfaceCreateInfoKHR surface_desc{
@@ -456,13 +455,13 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
     };
 
     vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
-		vk::PipelineDepthStencilStateCreateFlags{},
-		true, true,
-		vk::CompareOp::eLess,
-		false, false,
-		vk::StencilOpState{}, vk::StencilOpState{},
-		0.0f, 1.0f
-	};
+        vk::PipelineDepthStencilStateCreateFlags{},
+        true, true,
+        vk::CompareOp::eLess,
+        false, false,
+        vk::StencilOpState{}, vk::StencilOpState{},
+        0.0f, 1.0f
+    };
 
     vk::GraphicsPipelineCreateInfo pipeline_desc{
         vk::PipelineCreateFlags{},

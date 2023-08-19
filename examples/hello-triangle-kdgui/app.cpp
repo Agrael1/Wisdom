@@ -56,8 +56,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
         std::cout << desc.to_string();
 
-        if (device.Initialize(a)) {
-            allocator = wis::ResourceAllocator{ device, a };
+        if (device.Initialize(*factory, a)) {
+            allocator = wis::ResourceAllocator{ device };
             break;
         }
     }

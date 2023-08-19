@@ -66,8 +66,7 @@ WIS_EXPORT namespace wis
         }
         DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPassView pass) noexcept
         {
-            target_formats = pass.GetInternal().GetTargetFormats();
-            depth_enabled = pass.GetInternal().GetDSDesc() != nullptr;
+            render_pass = pass;
             return *this;
         }
 
@@ -78,9 +77,7 @@ WIS_EXPORT namespace wis
         DX12Shader gs;
         DX12Shader hs;
         DX12Shader ds;
-
-        wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats;
-        bool depth_enabled = false;
+        DX12RenderPassView render_pass;
     };
 
     // TODO: Mesh and Compute pipelines

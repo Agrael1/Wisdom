@@ -1,5 +1,5 @@
 #ifndef WISDOM_MODULES
-#include <wisdom/vulkan/vk_factory.h>
+//#include <wisdom/vulkan/vk_factory.h>
 #include <ranges>
 #include <unordered_map>
 #include <wisdom/util/misc.h>
@@ -142,7 +142,7 @@ inline constexpr uint32_t order_power(vk::PhysicalDeviceType t)
 }
 } // namespace
 
-VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT /*messageType*/, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* /*pUserData*/)
+VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT /*messageType*/, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* /*pUserData*/)
 {
     wis::lib_log(SeverityConvert(messageSeverity),
                  wis::format(
@@ -150,11 +150,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::debugCallback(VkDebugUtilsMessage
     return false;
 }
 
-wis::VKFactory::VKFactory(const ApplicationInfo& app_info, [[maybe_unused]] bool unused)
+wis::VKFactory::VKFactory(const ApplicationInfo& app_info) noexcept
 {
-    if (instance_count.fetch_add(1, std::memory_order_relaxed) != 0)
-        return;
-
     wis::lib_info("Initializing Instance");
     uint32_t version = 0;
     vkEnumerateInstanceVersion(&version);
@@ -186,7 +183,7 @@ wis::VKFactory::VKFactory(const ApplicationInfo& app_info, [[maybe_unused]] bool
             vk::DebugUtilsMessengerCreateFlagsEXT(0),
             vk::DebugUtilsMessageSeverityFlagsEXT(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT),
             vk::DebugUtilsMessageTypeFlagsEXT(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
-            VKFactory::debugCallback);
+            VKFactory::DebugCallback);
 
     if constexpr (debug_mode) {
         create_info.pNext = &create_instance_debug;

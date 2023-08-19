@@ -1,8 +1,13 @@
 #pragma once
+#ifndef WISDOM_MODULES
 #include <d3dx12/d3dx12_root_signature.h>
+#include <wisdom/global/definitions.h>
 #include <tuple>
+#include <span>
+#endif
 
 struct IDXGIAdapter1;
+struct IDXGIFactory4;
 // struct ID3D12Device10;
 // struct ID3D12PipelineState;
 // struct ID3D12CommandQueue;
@@ -15,6 +20,9 @@ struct IDXGIAdapter1;
 WIS_EXPORT namespace wis
 {
     using DX12AdapterView = std::tuple<IDXGIAdapter1*>;
+    using DX12FactoryView = std::tuple<IDXGIFactory4*>;
+
+    using DX12RenderPassView = std::tuple<const struct DX12RenderPassInternal*>;
 
     using DX12DeviceView = ID3D12Device10*;
     using DX12PipelineStateView = ID3D12PipelineState*;

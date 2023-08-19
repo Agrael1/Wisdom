@@ -41,8 +41,8 @@ public:
 
             std::cout << desc.to_string();
 
-            if (device.Initialize(a)) {
-                allocator = wis::ResourceAllocator{ device, a };
+            if (device.Initialize(factory, a)) {
+                allocator = wis::ResourceAllocator{ device };
                 break;
             }
         }

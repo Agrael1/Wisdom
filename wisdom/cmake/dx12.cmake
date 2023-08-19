@@ -29,7 +29,6 @@ if(WIN32)
 		"include/wisdom/dx12/impl/dx12_allocator.inl"
 		"include/wisdom/dx12/impl/dx12_checks.inl"
 		"include/wisdom/dx12/impl/dx12_device.inl"
-		"include/wisdom/dx12/impl/dx12_factory.inl"
 		"include/wisdom/dx12/impl/dx12_info.inl"
 	)
 	target_link_libraries(${PROJECT_NAME}

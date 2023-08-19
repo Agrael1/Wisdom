@@ -1,14 +1,15 @@
 #ifndef WISDOM_MODULES
+#include <wisdom/dx12/dx12_device.h>
 #endif
 
-wis::DX12ResourceAllocator::DX12ResourceAllocator(wis::DX12DeviceView device, wis::DX12AdapterView adapter)
+wis::DX12ResourceAllocator::DX12ResourceAllocator(const wis::DX12Device& device)
 {
     D3D12MA::ALLOCATOR_DESC desc{
         .Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
-        .pDevice = device,
+        .pDevice = device.GetInternal().device.get(),
         .PreferredBlockSize = 0,
         .pAllocationCallbacks = nullptr,
-        .pAdapter = std::get<0>(adapter)
+        .pAdapter = device.GetInternal().adapter.get()
     };
     wis::check_hresult(D3D12MA::CreateAllocator(&desc, allocator.put()));
 }

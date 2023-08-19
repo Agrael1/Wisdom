@@ -169,17 +169,21 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     gfx.context.Reset();
     gfx.context.TextureBarrier({
+                                       .sync_before = wis::BarrierSync::None,
+                                       .sync_after = wis::BarrierSync::None,
                                        .state_before = wis::TextureState::Undefined,
                                        .state_after = wis::TextureState::DepthWrite,
-                                       .access_before = wis::ResourceAccess::Common,
-                                       .access_after = wis::ResourceAccess::DepthWrite,
+                                       .access_before = wis::ResourceAccess::NoAccess,
+                                       .access_after = wis::ResourceAccess::NoAccess,
                                },
                                gfx.depth_buffers[0]);
     gfx.context.TextureBarrier({
+                                       .sync_before = wis::BarrierSync::None,
+                                       .sync_after = wis::BarrierSync::None,
                                        .state_before = wis::TextureState::Undefined,
                                        .state_after = wis::TextureState::DepthWrite,
-                                       .access_before = wis::ResourceAccess::Common,
-                                       .access_after = wis::ResourceAccess::DepthWrite,
+                                       .access_before = wis::ResourceAccess::NoAccess,
+                                       .access_after = wis::ResourceAccess::NoAccess,
                                },
                                gfx.depth_buffers[1]);
     gfx.context.Close();
