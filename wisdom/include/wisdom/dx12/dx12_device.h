@@ -103,7 +103,7 @@ WIS_EXPORT namespace wis
                 std::span<const ColorAttachment> rtv_descs,
                 DepthStencilAttachment dsv_desc = DepthStencilAttachment{}) const noexcept;
 
-         /// @brief Create a render target view
+        /// @brief Create a render target view
         /// @param texture The texture to create the view for
         /// @param range The range of the view
         [[nodiscard]] DX12RenderTarget

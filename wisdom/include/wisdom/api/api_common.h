@@ -458,7 +458,6 @@ WIS_EXPORT namespace wis
         BindingType type = BindingType::SRV;
     };
 
-
     // TODO: Better selector for texture types
     struct RenderTargetSelector {
         TextureType type = TextureType::Texture2D;
