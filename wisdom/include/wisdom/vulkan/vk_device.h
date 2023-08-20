@@ -27,19 +27,6 @@ WIS_EXPORT namespace wis
     class Internal<VKDevice>
     {
     public:
-        [[nodiscard]] vk::Device GetDevice() const noexcept
-        {
-            return device.get();
-        }
-        [[nodiscard]] vk::PhysicalDevice GetAdapter() const noexcept
-        {
-            return adapter;
-        }
-        [[nodiscard]] wis::shared_handle<vk::Device> GetDeviceHandle() const noexcept
-        {
-            return device;
-        }
-
         wis::shared_handle<vk::Instance> instance;
         wis::shared_handle<vk::Device> device;
         vk::PhysicalDevice adapter;
@@ -169,10 +156,6 @@ WIS_EXPORT namespace wis
             Initialize(std::move(factory), adapter);
         }
 
-        operator VKDeviceView() const noexcept
-        {
-            return GetDeviceHandle();
-        }
         WIS_INLINE bool Initialize(VKFactoryHandle factory, VKAdapterView adapter);
 
         [[nodiscard]] WIS_INLINE
@@ -237,7 +220,7 @@ WIS_EXPORT namespace wis
             wis::internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
             for (auto& i : layouts) {
-                allocator.allocate(i.GetInternal().GetDescriptorSetLayout());
+                allocator.allocate(i.GetInternal().layout.get());
             }
             vk::PipelineLayoutCreateInfo pipeline_layout_info{
                 vk::PipelineLayoutCreateFlags{}, uint32_t(allocator.size()), allocator.data(), 0, nullptr

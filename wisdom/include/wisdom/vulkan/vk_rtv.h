@@ -12,22 +12,6 @@ WIS_EXPORT namespace wis
     class Internal<VKRenderTargetView>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::ImageView> view)
-            : view(std::move(view))
-        {
-        }
-
-        [[nodiscard]] auto GetViewHandle() const noexcept
-        {
-            return view;
-        }
-        [[nodiscard]] auto GetImageView() const noexcept
-        {
-            return view.get();
-        }
-
-    protected:
         wis::shared_handle<vk::ImageView> view;
     };
 

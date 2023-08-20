@@ -1,7 +1,7 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
-//#include "../vk_device.h"
+#include "../vk_device.h"
 
 bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
 {
@@ -477,7 +477,7 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
         &color_blending, // color blending
         &dss, // dynamic state
         desc.sig, // pipeline layout
-        desc.pass.GetInternal().GetRenderPass(), // render pass
+        desc.pass.GetInternal().rp.get(), // render pass
     };
 
     return VKPipelineState{ wis::shared_handle<vk::Pipeline>{ device->createGraphicsPipeline(nullptr, pipeline_desc).value, device } };
@@ -604,31 +604,31 @@ void wis::VKDevice::FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::in
     if (desc.vs) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eVertex;
-        vs.module = desc.vs.GetInternal().GetShaderModule();
+        vs.module = desc.vs.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.ps) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eFragment;
-        vs.module = desc.ps.GetInternal().GetShaderModule();
+        vs.module = desc.ps.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.gs) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eGeometry;
-        vs.module = desc.gs.GetInternal().GetShaderModule();
+        vs.module = desc.gs.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.hs) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eTessellationControl;
-        vs.module = desc.hs.GetInternal().GetShaderModule();
+        vs.module = desc.hs.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.ds) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
-        vs.module = desc.ds.GetInternal().GetShaderModule();
+        vs.module = desc.ds.GetInternal().module.get();
         vs.pName = "main";
     }
 }

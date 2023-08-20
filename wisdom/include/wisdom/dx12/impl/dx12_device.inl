@@ -101,7 +101,7 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
 
     wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
     for (auto& lay : layouts) {
-        auto ranges = lay.GetInternal().GetRanges();
+        auto& ranges = lay.GetInternal().ranges;
         root_parameters.allocate()
                 .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
     }
@@ -140,28 +140,28 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
     iadesc.pInputElementDescs = ia.data();
 
     internals::memory_pool psta;
-    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
+    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().root.get();
     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
 
     if (desc.vs) {
-        auto d = desc.vs.GetInternal().GetShaderBytecode();
+        auto& d = desc.vs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_VS>() = { d.data(), d.size() };
     }
     if (desc.ps) {
-        auto d = desc.ps.GetInternal().GetShaderBytecode();
+        auto& d = desc.ps.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_PS>() = { d.data(), d.size() };
     }
     if (desc.gs) {
-        auto d = desc.gs.GetInternal().GetShaderBytecode();
+        auto& d = desc.gs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_GS>() = { d.data(), d.size() };
     }
 
     if (desc.hs) {
-        auto d = desc.hs.GetInternal().GetShaderBytecode();
+        auto& d = desc.hs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_HS>() = { d.data(), d.size() };
     }
     if (desc.ds) {
-        auto d = desc.ds.GetInternal().GetShaderBytecode();
+        auto& d = desc.ds.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
     }
 

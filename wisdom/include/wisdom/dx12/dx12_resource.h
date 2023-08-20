@@ -17,17 +17,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12Buffer>
     {
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<ID3D12Resource> rc, winrt::com_ptr<D3D12MA::Allocation> al)
-            : resource(std::move(rc)), allocation(std::move(al)) { }
-
-    public:
-        [[nodiscard]] ID3D12Resource* GetResource() const noexcept
-        {
-            return resource.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12Resource> resource;
         winrt::com_ptr<D3D12MA::Allocation> allocation;
     };
@@ -40,7 +29,7 @@ WIS_EXPORT namespace wis
             : QueryInternal(std::move(rc), std::move(al)) { }
         operator DX12BufferView() const noexcept
         {
-            return GetResource();
+            return resource.get();
         }
 
     public:
@@ -80,7 +69,7 @@ WIS_EXPORT namespace wis
             : QueryInternal(std::move(rc), std::move(al)) { }
         operator DX12TextureView() const noexcept
         {
-            return GetResource();
+            return resource.get();
         }
     };
 }

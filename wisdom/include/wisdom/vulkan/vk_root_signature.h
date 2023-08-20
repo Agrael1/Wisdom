@@ -12,16 +12,6 @@ WIS_EXPORT namespace wis
     class Internal<VKRootSignature>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::PipelineLayout> root)
-            : root(std::move(root)) { }
-
-        [[nodiscard]] auto GetRootSignature() const noexcept
-        {
-            return root.get();
-        }
-
-    protected:
         wis::shared_handle<vk::PipelineLayout> root;
     };
 
@@ -37,7 +27,7 @@ WIS_EXPORT namespace wis
 
         operator VKRootSignatureView() const noexcept
         {
-            return GetRootSignature();
+            return root.get();
         }
     };
 }

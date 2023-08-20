@@ -28,7 +28,7 @@ bool wis::VKSwapChain::Present() noexcept
         1, &a, 1, &x, &present_index, nullptr
     };
 
-    return wis::succeded(present_queue.GetInternal().GetQueue().presentKHR(&present_info)) &&
+    return wis::succeeded(present_queue.GetInternal().queue.presentKHR(&present_info)) &&
             AquireNextIndex();
 }
 
@@ -42,19 +42,19 @@ bool wis::VKSwapChain::AquireNextIndex() noexcept
     signal_submit_info.pWaitSemaphores = &present_semaphore.get();
     vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eTransfer;
     signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
-    return wis::succeded(present_queue.GetInternal().GetQueue().submit(1, &signal_submit_info, {}));
+    return wis::succeeded(present_queue.GetInternal().queue.submit(1, &signal_submit_info, {}));
 }
 
 void wis::VKSwapChain::ReleaseSemaphore() noexcept
 {
     if (!present_semaphore)
         return;
-    auto queue = present_queue.GetInternal().GetQueue();
+    auto queue = present_queue.GetInternal().queue;
 
     vk::SubmitInfo signal_submit_info = {};
     signal_submit_info.pNext = nullptr;
     signal_submit_info.signalSemaphoreCount = 1;
     signal_submit_info.pSignalSemaphores = &present_semaphore.get();
-    wis::succeded(queue.submit(1, &signal_submit_info, {}));
+    wis::succeeded(queue.submit(1, &signal_submit_info, {}));
     queue.waitIdle();
 }

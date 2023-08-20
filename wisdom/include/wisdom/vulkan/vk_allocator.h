@@ -1,11 +1,9 @@
 #pragma once
 #ifndef WISDOM_MODULES
 #include <wisdom/api/api_barrier.h>
-#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_format.h>
-#include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/global/assertions.h>
 #endif // !WISDOM_MODULES
@@ -18,12 +16,6 @@ WIS_EXPORT namespace wis
     class Internal<VKResourceAllocator>
     {
     public:
-        [[nodiscard]] VmaAllocator GetAllocator() const noexcept
-        {
-            return allocator.get();
-        }
-
-    protected:
         wis::shared_handle<VmaAllocator> allocator;
     };
 
@@ -32,7 +24,7 @@ WIS_EXPORT namespace wis
     {
     public:
         VKResourceAllocator() = default;
-        WIS_INLINE VKResourceAllocator(const VKDevice& device)
+        VKResourceAllocator(const VKDevice& device) noexcept
         {
             auto& i = device.GetInternal();
             static constexpr auto version_mask = 0xFFFU;
@@ -40,10 +32,12 @@ WIS_EXPORT namespace wis
             vkEnumerateInstanceVersion(&version);
             version &= ~(version_mask); // unsigned remove patch from instance for compatibility
 
+            auto device_handle{i.device};
+
             VmaAllocatorCreateInfo allocatorInfo{
                 VmaAllocatorCreateFlags(0),
                 i.adapter,
-                i.device.get(),
+                device_handle.get(),
                 0,
                 nullptr,
                 nullptr,
@@ -55,7 +49,7 @@ WIS_EXPORT namespace wis
 
             VmaAllocator al;
             vmaCreateAllocator(&allocatorInfo, &al);
-            allocator = wis::shared_handle<VmaAllocator>{ al, std::move(device) };
+            allocator = wis::shared_handle<VmaAllocator>{ al, std::move(device_handle) };
         }
 
         /// @brief Create a buffer that is persistently mapped to the GPU

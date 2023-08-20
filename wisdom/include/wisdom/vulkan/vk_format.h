@@ -301,8 +301,9 @@ inline constexpr vk::PrimitiveTopology convert(wis::PrimitiveTopology topology)
     case wis::PrimitiveTopology::linestrip_adj:
         return eLineStripWithAdjacency;
     case wis::PrimitiveTopology::trianglelist_adj:
-    case wis::PrimitiveTopology::trianglestrip_adj:
         return eTriangleListWithAdjacency;
+    case wis::PrimitiveTopology::trianglestrip_adj:
+        return eTriangleStripWithAdjacency;
     }
 }
 inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)

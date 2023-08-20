@@ -17,11 +17,6 @@ WIS_EXPORT namespace wis
     class Internal<VKCommandList>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::CommandPool> allocator, vk::CommandBuffer command_list)
-            : allocator(std::move(allocator)), command_list(command_list) { }
-
-    protected:
         wis::shared_handle<vk::CommandPool> allocator;
         vk::CommandBuffer command_list;
         VKPipelineState pipeline;
@@ -55,7 +50,7 @@ WIS_EXPORT namespace wis
             closed = false;
             command_list.begin(desc);
             if (pipeline)
-                command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().GetPipeline());
+                command_list.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetInternal().pipeline.get());
             return !closed;
         }
 

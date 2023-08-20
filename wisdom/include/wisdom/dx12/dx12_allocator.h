@@ -16,12 +16,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12ResourceAllocator>
     {
     public:
-        [[nodiscard]] D3D12MA::Allocator* GetAllocator() const noexcept
-        {
-            return allocator.get();
-        }
-
-    protected:
         winrt::com_ptr<D3D12MA::Allocator> allocator;
     };
 

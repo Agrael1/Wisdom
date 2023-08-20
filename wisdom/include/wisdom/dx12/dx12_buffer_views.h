@@ -12,16 +12,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12VertexBufferView>
     {
     public:
-        Internal() = default;
-        Internal(D3D12_VERTEX_BUFFER_VIEW view)
-            : view(view) { }
-
-        [[nodiscard]] D3D12_VERTEX_BUFFER_VIEW GetView() const noexcept
-        {
-            return view;
-        }
-
-    protected:
         D3D12_VERTEX_BUFFER_VIEW view;
     };
 

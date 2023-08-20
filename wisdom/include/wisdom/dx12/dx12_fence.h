@@ -42,20 +42,6 @@ WIS_EXPORT namespace wis
         };
 
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<ID3D12Fence1> fence)
-            : fence(std::move(fence))
-        {
-            wis::check_bool(fence_event);
-        }
-
-    public:
-        [[nodiscard]] auto* GetFence() const noexcept
-        {
-            return fence.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12Fence1> fence;
         unique_event fence_event;
     };
@@ -69,7 +55,7 @@ WIS_EXPORT namespace wis
             : QueryInternal(std::move(xfence)) { }
         operator DX12FenceView() const noexcept
         {
-            return GetFence();
+            return fence.get();
         }
 
     public:

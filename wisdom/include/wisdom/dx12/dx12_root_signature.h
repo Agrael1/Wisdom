@@ -14,19 +14,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12RootSignature>
     {
     public:
-        Internal() = default;
-        explicit Internal(winrt::com_ptr<ID3D12RootSignature> xroot) noexcept
-            : root(std::move(xroot))
-        {
-        }
-
-    public:
-        [[nodiscard]] ID3D12RootSignature* GetRootSignature() const noexcept
-        {
-            return root.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12RootSignature> root;
     };
 
@@ -40,7 +27,7 @@ WIS_EXPORT namespace wis
         }
         operator DX12RootSignatureView() const noexcept
         {
-            return GetRootSignature();
+            return root.get();
         }
     };
 }

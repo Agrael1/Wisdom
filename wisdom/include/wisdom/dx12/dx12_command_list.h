@@ -16,24 +16,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12CommandList>
     {
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<ID3D12CommandAllocator> xallocator,
-                 winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list)
-            : allocator(std::move(xallocator)), command_list(std::move(xcommand_list))
-        {
-        }
-
-    public:
-        [[nodiscard]] ID3D12GraphicsCommandList9* GetCommandList() const noexcept
-        {
-            return command_list.get();
-        }
-        [[nodiscard]] ID3D12CommandAllocator* GetCommandAllocator() const noexcept
-        {
-            return allocator.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12CommandAllocator> allocator;
         winrt::com_ptr<ID3D12GraphicsCommandList9> command_list;
     };
@@ -192,7 +174,7 @@ WIS_EXPORT namespace wis
             auto& rpi = *std::get<0>(pass);
             auto& rts = rpi.rt_descs;
             for (size_t i = 0; i < rpi.rt_formats.size(); i++) {
-                rts[i].cpuDescriptor = render_targets[i].first.GetInternal().GetHandle();
+                rts[i].cpuDescriptor = render_targets[i].first.GetInternal().handle;
                 rts[i].BeginningAccess.Clear.ClearValue.Color[0] = render_targets[i].second[0];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[1] = render_targets[i].second[1];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[2] = render_targets[i].second[2];
@@ -200,7 +182,7 @@ WIS_EXPORT namespace wis
             }
 
             auto& dsdesc = rpi.ds_desc;
-            if (auto ds = depth.first.GetInternal().GetHandle(); ds.ptr && rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+            if (auto ds = depth.first.GetInternal().handle; ds.ptr && rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
                 dsdesc.cpuDescriptor = ds;
                 dsdesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
             }

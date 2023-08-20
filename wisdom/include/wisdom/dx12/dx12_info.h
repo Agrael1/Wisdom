@@ -6,7 +6,7 @@
 #include <dxgidebug.h>
 #endif // !WISDOM_MODULES
 
-WIS_EXPORT namespace wis
+namespace wis
 {
     /// @brief Message struct for debug and error messagesW
     struct DXGIMessage {

@@ -12,19 +12,7 @@ WIS_EXPORT namespace wis
     template<>
     class Internal<VKCommandQueue>
     {
-        static constexpr inline bool valid = true;
-
     public:
-        Internal() = default;
-        Internal(vk::Queue queue)
-            : queue(queue) { }
-
-        [[nodiscard]] auto GetQueue() const noexcept
-        {
-            return queue;
-        }
-
-    protected:
         vk::Queue queue;
     };
 
@@ -70,7 +58,7 @@ WIS_EXPORT namespace wis
                 1, &fence,
                 &submit
             };
-            return wis::succeded(queue.submit(1, &info, nullptr));
+            return wis::succeeded(queue.submit(1, &info, nullptr));
         }
     };
 }

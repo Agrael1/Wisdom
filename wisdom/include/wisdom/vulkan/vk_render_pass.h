@@ -13,20 +13,6 @@ WIS_EXPORT namespace wis
     class Internal<VKRenderPass>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::RenderPass> rp, wis::shared_handle<vk::Framebuffer> frame)
-            : rp(std::move(rp)), frame(std::move(frame)) { }
-
-        [[nodiscard]] auto GetRenderPass() const noexcept
-        {
-            return rp.get();
-        }
-        [[nodiscard]] auto GetFramebuffer() const noexcept
-        {
-            return frame.get();
-        }
-
-    private:
         wis::shared_handle<vk::RenderPass> rp;
         wis::shared_handle<vk::Framebuffer> frame;
     };
@@ -43,7 +29,7 @@ WIS_EXPORT namespace wis
 
         operator VKRenderPassView() const noexcept
         {
-            return { GetRenderPass(), GetFramebuffer(), framebuffer_size };
+            return { rp.get(), frame.get(), framebuffer_size };
         }
         [[nodiscard]] Size2D GetFramebufferSize() const noexcept
         {

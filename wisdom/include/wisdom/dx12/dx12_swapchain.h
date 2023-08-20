@@ -13,21 +13,7 @@ WIS_EXPORT namespace wis
     template<>
     class Internal<DX12SwapChain>
     {
-        friend class DX12SwapChain;
-        static constexpr inline bool valid = true;
-
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<IDXGISwapChain4> chain)
-            : chain(std::move(chain)) { }
-
-    public:
-        [[nodiscard]] IDXGISwapChain4* GetSwapChain() const noexcept
-        {
-            return chain.get();
-        }
-
-    protected:
         winrt::com_ptr<IDXGISwapChain4> chain{};
     };
 

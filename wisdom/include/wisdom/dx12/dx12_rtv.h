@@ -12,17 +12,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12RenderTargetView>
     {
     public:
-        Internal() = default;
-        Internal(CD3DX12_CPU_DESCRIPTOR_HANDLE handle)
-            : handle(handle) { }
-
-    public:
-        auto GetHandle() const noexcept
-        {
-            return handle;
-        }
-
-    protected:
         CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
     };
 
