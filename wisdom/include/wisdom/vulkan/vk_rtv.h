@@ -22,8 +22,12 @@ public:
         : QueryInternal(std::move(view))
     {
     }
-    operator VKRenderTargetHandle() const noexcept { return view.get(); }
-    operator bool() const noexcept { return bool(view); }
+    operator VKRenderTargetHandle() const noexcept {
+        return view.get();
+    }
+    operator bool() const noexcept {
+        return bool(view);
+    }
 };
 
 using VKDepthStencil = VKRenderTarget;

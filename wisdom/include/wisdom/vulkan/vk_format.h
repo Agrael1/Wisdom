@@ -8,7 +8,7 @@
 #endif
 
 namespace wis {
-constexpr inline vk::Format vk_format_map[]{
+constexpr inline vk::Format vk_format_map[] {
     vk::Format::eUndefined, // unknown = 0,
     vk::Format::eR32G32B32A32Sfloat, // r32g32b32a32_typeless = 1,
     vk::Format::eR32G32B32A32Sfloat, // r32g32b32a32_float = 1,

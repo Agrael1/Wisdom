@@ -6,31 +6,31 @@
 
 WIS_EXPORT namespace wis
 {
-    class VKPipelineState;
+class VKPipelineState;
 
-    template<>
-    class Internal<VKPipelineState>
-    {
-    public:
-        wis::shared_handle<vk::Pipeline> pipeline;
-    };
+template<>
+class Internal<VKPipelineState>
+{
+public:
+    wis::shared_handle<vk::Pipeline> pipeline;
+};
 
-    /// @brief Pipeline state object
-    class VKPipelineState : public QueryInternal<VKPipelineState>
+/// @brief Pipeline state object
+class VKPipelineState : public QueryInternal<VKPipelineState>
+{
+public:
+    VKPipelineState() = default;
+    explicit VKPipelineState(wis::shared_handle<vk::Pipeline> pipeline)
+        : QueryInternal(std::move(pipeline))
     {
-    public:
-        VKPipelineState() = default;
-        explicit VKPipelineState(wis::shared_handle<vk::Pipeline> pipeline)
-            : QueryInternal(std::move(pipeline))
-        {
-        }
-        operator VKPipelineStateView() const noexcept
-        {
-            return pipeline.get();
-        }
-        operator bool() const noexcept
-        {
-            return bool(pipeline);
-        }
-    };
+    }
+    operator VKPipelineStateView() const noexcept
+    {
+        return pipeline.get();
+    }
+    operator bool() const noexcept
+    {
+        return bool(pipeline);
+    }
+};
 }

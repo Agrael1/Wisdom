@@ -6,28 +6,28 @@
 
 WIS_EXPORT namespace wis
 {
-    class VKRootSignature;
+class VKRootSignature;
 
-    template<>
-    class Internal<VKRootSignature>
+template<>
+class Internal<VKRootSignature>
+{
+public:
+    wis::shared_handle<vk::PipelineLayout> root;
+};
+
+/// @brief Root signature
+class VKRootSignature : public QueryInternal<VKRootSignature>
+{
+public:
+    VKRootSignature() = default;
+    explicit VKRootSignature(wis::shared_handle<vk::PipelineLayout> root)
+        : QueryInternal(std::move(root))
     {
-    public:
-        wis::shared_handle<vk::PipelineLayout> root;
-    };
+    }
 
-    /// @brief Root signature
-    class VKRootSignature : public QueryInternal<VKRootSignature>
+    operator VKRootSignatureView() const noexcept
     {
-    public:
-        VKRootSignature() = default;
-        explicit VKRootSignature(wis::shared_handle<vk::PipelineLayout> root)
-            : QueryInternal(std::move(root))
-        {
-        }
-
-        operator VKRootSignatureView() const noexcept
-        {
-            return root.get();
-        }
-    };
+        return root.get();
+    }
+};
 }
