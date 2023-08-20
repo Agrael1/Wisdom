@@ -78,10 +78,10 @@ WIS_EXPORT namespace wis
     public:
         DX12DescriptorHeap() = default;
         explicit DX12DescriptorHeap(winrt::com_ptr<ID3D12DescriptorHeap> heap, uint32_t heap_increment)
-            : QueryInternal(std::move(heap), 
-                CD3DX12_CPU_DESCRIPTOR_HANDLE(heap->GetCPUDescriptorHandleForHeapStart()), 
-                CD3DX12_GPU_DESCRIPTOR_HANDLE(heap->GetGPUDescriptorHandleForHeapStart()), 
-                heap_increment)
+            : QueryInternal(std::move(heap),
+                            CD3DX12_CPU_DESCRIPTOR_HANDLE(heap->GetCPUDescriptorHandleForHeapStart()),
+                            CD3DX12_GPU_DESCRIPTOR_HANDLE(heap->GetGPUDescriptorHandleForHeapStart()),
+                            heap_increment)
         {
         }
         operator bool() const noexcept
