@@ -64,7 +64,7 @@ public:
         std::span types{ desc2.memoryTypes.data(), desc2.memoryTypeCount };
         for (auto& i : types) {
             if (i.propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal &&
-                desc2.memoryHeaps[i.heapIndex].flags & vk::MemoryHeapFlagBits::eDeviceLocal) {
+                    desc2.memoryHeaps[i.heapIndex].flags & vk::MemoryHeapFlagBits::eDeviceLocal) {
                 local_mem = desc2.memoryHeaps[i.heapIndex].size;
             }
 
