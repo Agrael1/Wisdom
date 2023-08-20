@@ -131,9 +131,9 @@ void Test::App::Initialize(IUnknown* core_window, uint32_t xwidth, uint32_t xhei
 
     auto x = swap.GetRenderTargets();
     for (size_t i = 0; i < x.size(); i++) {
-        rtvs[i] = device.CreateRenderTargetView(x[i]);
+        rtvs[i] = device.CreateRenderTarget(x[i], wis::SwapchainOptions::default_format);
         if (swap.StereoSupported())
-            rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
+            rtvs2[i] = device.CreateRenderTarget(x[i], wis::SwapchainOptions::default_format, { .type = wis::TextureType::Texture2DArray, .base_layer = 1 });
     }
 }
 Test::App::~App()
