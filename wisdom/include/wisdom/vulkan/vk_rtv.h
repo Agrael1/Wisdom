@@ -9,7 +9,8 @@ namespace wis {
 class VKRenderTarget;
 
 template<>
-class Internal<VKRenderTarget> {
+class Internal<VKRenderTarget>
+{
 public:
     wis::shared_handle<vk::ImageView> view;
 };
@@ -22,10 +23,12 @@ public:
         : QueryInternal(std::move(view))
     {
     }
-    operator VKRenderTargetHandle() const noexcept {
+    operator VKRenderTargetHandle() const noexcept
+    {
         return view.get();
     }
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(view);
     }
 };

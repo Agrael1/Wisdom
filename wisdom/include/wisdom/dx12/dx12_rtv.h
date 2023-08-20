@@ -10,7 +10,8 @@ namespace wis {
 class DX12RenderTarget;
 
 template<>
-class Internal<DX12RenderTarget> {
+class Internal<DX12RenderTarget>
+{
 public:
     winrt::com_ptr<ID3D12DescriptorHeap> desc;
     CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
@@ -23,11 +24,13 @@ public:
     explicit DX12RenderTarget(winrt::com_ptr<ID3D12DescriptorHeap> desc) noexcept
         : QueryInternal(std::move(desc), CD3DX12_CPU_DESCRIPTOR_HANDLE(desc->GetCPUDescriptorHandleForHeapStart())) { }
 
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(desc);
     }
 
-    operator DX12RenderTargetHandle() const noexcept {
+    operator DX12RenderTargetHandle() const noexcept
+    {
         return handle;
     }
 };

@@ -64,11 +64,11 @@ public:
 
         constexpr static std::array cas2{
             wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear },
+                    .format = wis::SwapchainOptions::default_format,
+                    .load = wis::PassLoadOperation::clear },
             wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear }
+                    .format = wis::SwapchainOptions::default_format,
+                    .load = wis::PassLoadOperation::clear }
         };
         wis::DepthStencilAttachment dsa{
             .format = wis::DataFormat::d32_float,

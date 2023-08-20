@@ -7,58 +7,58 @@
 
 WIS_EXPORT namespace wis
 {
-class VKCommandQueue;
+    class VKCommandQueue;
 
-template<>
-class Internal<VKCommandQueue>
-{
-public:
-    vk::Queue queue;
-};
-
-/// @brief A command queue is used to submit command lists to the GPU.
-class VKCommandQueue : public QueryInternal<VKCommandQueue>
-{
-public:
-    VKCommandQueue() = default;
-    explicit VKCommandQueue(vk::Queue queue)
-        : QueryInternal(queue) { }
-    operator VKCommandQueueView() const noexcept
+    template<>
+    class Internal<VKCommandQueue>
     {
-        return queue;
-    }
+    public:
+        vk::Queue queue;
+    };
 
-    /// @brief Execute a command list on the GPU.
-    /// @param list List to execute.
-    void ExecuteCommandList(VKCommandListView command_list)
+    /// @brief A command queue is used to submit command lists to the GPU.
+    class VKCommandQueue : public QueryInternal<VKCommandQueue>
     {
-        vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eAllCommands;
+    public:
+        VKCommandQueue() = default;
+        explicit VKCommandQueue(vk::Queue queue)
+            : QueryInternal(queue) { }
+        operator VKCommandQueueView() const noexcept
+        {
+            return queue;
+        }
 
-        vk::SubmitInfo submit_info = {};
-        submit_info.commandBufferCount = 1;
-        submit_info.pCommandBuffers = &command_list;
-        submit_info.pWaitDstStageMask = &wait_dst_stage_mask;
+        /// @brief Execute a command list on the GPU.
+        /// @param list List to execute.
+        void ExecuteCommandList(VKCommandListView command_list)
+        {
+            vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eAllCommands;
 
-        queue.submit(submit_info);
-    }
+            vk::SubmitInfo submit_info = {};
+            submit_info.commandBufferCount = 1;
+            submit_info.pCommandBuffers = &command_list;
+            submit_info.pWaitDstStageMask = &wait_dst_stage_mask;
 
-    /// @brief Signal a fence with some value.
-    /// @param fence Fence to signal.
-    /// @param value Value to signal with.
-    /// @return true if call succeeded.
-    bool Signal(VKFenceView fence, uint64_t value)
-    {
-        vk::TimelineSemaphoreSubmitInfo submit{
-            0, nullptr, 1, &value
-        };
+            queue.submit(submit_info);
+        }
 
-        vk::SubmitInfo info{
-            0, nullptr,
-            nullptr, 0u, nullptr,
-            1, &fence,
-            &submit
-        };
-        return wis::succeeded(queue.submit(1, &info, nullptr));
-    }
-};
+        /// @brief Signal a fence with some value.
+        /// @param fence Fence to signal.
+        /// @param value Value to signal with.
+        /// @return true if call succeeded.
+        bool Signal(VKFenceView fence, uint64_t value)
+        {
+            vk::TimelineSemaphoreSubmitInfo submit{
+                0, nullptr, 1, &value
+            };
+
+            vk::SubmitInfo info{
+                0, nullptr,
+                nullptr, 0u, nullptr,
+                1, &fence,
+                &submit
+            };
+            return wis::succeeded(queue.submit(1, &info, nullptr));
+        }
+    };
 }
