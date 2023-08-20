@@ -17,10 +17,10 @@ void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView 
         acc_before,
         convert_vk(barrier.sync_after),
         acc_after,
-        VK_QUEUE_FAMILY_IGNORED, 
-        VK_QUEUE_FAMILY_IGNORED, 
-        buffer, 
-        0, 
+        VK_QUEUE_FAMILY_IGNORED,
+        VK_QUEUE_FAMILY_IGNORED,
+        buffer,
+        0,
         VK_WHOLE_SIZE
     };
     vk::DependencyInfo depinfo{

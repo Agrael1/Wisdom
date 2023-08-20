@@ -78,7 +78,7 @@ WIS_EXPORT namespace wis
         VideoEncode = 0x400000,
         BuildRAS = 0x800000,
         CopyRAS = 0x1000000,
-        DXSplit = 0x80000000 
+        DXSplit = 0x80000000
     };
 
     /// @brief Basic texture barrier w/o synchronization
