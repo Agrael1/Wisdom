@@ -32,7 +32,7 @@ WIS_EXPORT namespace wis
             vkEnumerateInstanceVersion(&version);
             version &= ~(version_mask); // unsigned remove patch from instance for compatibility
 
-            auto device_handle{i.device};
+            auto device_handle{ i.device };
 
             VmaAllocatorCreateInfo allocatorInfo{
                 VmaAllocatorCreateFlags(0),
