@@ -7,39 +7,39 @@
 
 WIS_EXPORT namespace wis
 {
-class VKShader;
+    class VKShader;
 
-template<>
-class Internal<VKShader>
-{
-public:
-    wis::shared_handle<vk::ShaderModule> module;
-};
-
-/// @brief Shader object
-class VKShader : public QueryInternal<VKShader>
-{
-public:
-    using DataType = uint32_t;
-    static constexpr inline ShaderLang language = ShaderLang::spirv;
-
-    VKShader() = default;
-    explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type)
-        : QueryInternal(std::move(module)), type(type)
+    template<>
+    class Internal<VKShader>
     {
-    }
+    public:
+        wis::shared_handle<vk::ShaderModule> module;
+    };
 
-    operator bool() const noexcept
+    /// @brief Shader object
+    class VKShader : public QueryInternal<VKShader>
     {
-        return type != ShaderType::unknown && module;
-    }
-    /// @brief Get shader type e.g. vertex, fragment
-    /// @return Type of shader
-    [[nodiscard]] auto GetType() const noexcept
-    {
-        return type;
-    }
+    public:
+        using DataType = uint32_t;
+        static constexpr inline ShaderLang language = ShaderLang::spirv;
 
-    ShaderType type = ShaderType::unknown;
-};
+        VKShader() = default;
+        explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type)
+            : QueryInternal(std::move(module)), type(type)
+        {
+        }
+
+        operator bool() const noexcept
+        {
+            return type != ShaderType::unknown && module;
+        }
+        /// @brief Get shader type e.g. vertex, fragment
+        /// @return Type of shader
+        [[nodiscard]] auto GetType() const noexcept
+        {
+            return type;
+        }
+
+        ShaderType type = ShaderType::unknown;
+    };
 }

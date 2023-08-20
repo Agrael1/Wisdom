@@ -64,8 +64,8 @@ Test::App::App(uint32_t width, uint32_t height)
     queue = device.CreateCommandQueue();
 
     swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true },
-    wis::SurfaceParameters{
-        wnd.GetHandle() });
+                                  wis::SurfaceParameters{
+                                          wnd.GetHandle() });
 
     fence = device.CreateFence();
     context = device.CreateCommandList(wis::QueueType::direct);
@@ -123,12 +123,12 @@ void Test::App::Frame()
     auto back = swap.GetBackBuffer();
 
     context.TextureBarrier({
-        .state_before = wis::TextureState::Present,
-        .state_after = wis::TextureState::RenderTarget,
-        .access_before = wis::ResourceAccess::Common,
-        .access_after = wis::ResourceAccess::RenderTarget,
-    },
-    back);
+                                   .state_before = wis::TextureState::Present,
+                                   .state_after = wis::TextureState::RenderTarget,
+                                   .access_before = wis::ResourceAccess::Common,
+                                   .access_after = wis::ResourceAccess::RenderTarget,
+                           },
+                           back);
 
     constexpr wis::ColorClear color{ 0.0f, 0.2f, 0.4f, 1.0f };
     constexpr wis::ColorClear color2{ 1.0f, 0.2f, 0.4f, 1.0f };
@@ -148,12 +148,12 @@ void Test::App::Frame()
     context.EndRenderPass();
 
     context.TextureBarrier({
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-    },
-    back);
+                                   .state_before = wis::TextureState::RenderTarget,
+                                   .state_after = wis::TextureState::Present,
+                                   .access_before = wis::ResourceAccess::RenderTarget,
+                                   .access_after = wis::ResourceAccess::Common,
+                           },
+                           back);
     context.Close();
     queue.ExecuteCommandList(context);
 
@@ -177,11 +177,11 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     std::array cas2{
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear },
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear },
         wis::ColorAttachment{
-            .format = wis::SwapchainOptions::default_format,
-            .load = wis::PassLoadOperation::clear }
+                .format = wis::SwapchainOptions::default_format,
+                .load = wis::PassLoadOperation::clear }
     };
 
     // needs to be recreated for vulkan for now

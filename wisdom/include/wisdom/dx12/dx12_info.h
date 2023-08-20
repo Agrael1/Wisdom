@@ -6,8 +6,7 @@
 #include <dxgidebug.h>
 #endif // !WISDOM_MODULES
 
-namespace wis
-{
+namespace wis {
 /// @brief Message struct for debug and error messagesW
 struct DXGIMessage {
     Severity severity; //< Severity of the message
@@ -30,7 +29,7 @@ public:
 private:
     static inline winrt::com_ptr<IDXGIInfoQueue> info_queue{};
 };
-}
+} // namespace wis
 
 #if defined(WISDOM_HEADER_ONLY)
 #include "impl/dx12_info.inl"

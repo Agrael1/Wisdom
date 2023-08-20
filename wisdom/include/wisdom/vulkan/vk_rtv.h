@@ -6,24 +6,24 @@
 
 WIS_EXPORT namespace wis
 {
-class VKRenderTargetView;
+    class VKRenderTargetView;
 
-template<>
-class Internal<VKRenderTargetView>
-{
-public:
-    wis::shared_handle<vk::ImageView> view;
-};
-
-class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
-{
-public:
-    VKRenderTargetView() = default;
-    explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
-        : QueryInternal(std::move(view))
+    template<>
+    class Internal<VKRenderTargetView>
     {
-    }
-};
+    public:
+        wis::shared_handle<vk::ImageView> view;
+    };
 
-using VKDepthStencilView = VKRenderTargetView;
+    class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
+    {
+    public:
+        VKRenderTargetView() = default;
+        explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
+            : QueryInternal(std::move(view))
+        {
+        }
+    };
+
+    using VKDepthStencilView = VKRenderTargetView;
 }

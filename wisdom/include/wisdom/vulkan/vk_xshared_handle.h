@@ -48,9 +48,8 @@ class SharedHandle;
 template<typename ParentType, typename Deleter>
 struct SharedHeader {
     SharedHeader(SharedHandle<ParentType> parent, Deleter deleter = Deleter()) VULKAN_HPP_NOEXCEPT
-:
-    parent(std::move(parent)),
-           deleter(std::move(deleter))
+        : parent(std::move(parent)),
+          deleter(std::move(deleter))
     {
     }
 
@@ -60,8 +59,7 @@ struct SharedHeader {
 
 template<typename Deleter>
 struct SharedHeader<NoParent, Deleter> {
-SharedHeader(Deleter deleter = Deleter()) VULKAN_HPP_NOEXCEPT :
-    deleter(std::move(deleter)) { }
+    SharedHeader(Deleter deleter = Deleter()) VULKAN_HPP_NOEXCEPT : deleter(std::move(deleter)) { }
 
     Deleter deleter;
 };
@@ -74,7 +72,7 @@ class ReferenceCounter
 public:
     template<typename... Args>
     ReferenceCounter(Args&&... control_args)
-        : m_header(std::forward<Args>(control_args)...) {};
+        : m_header(std::forward<Args>(control_args)...){};
     ReferenceCounter(const ReferenceCounter&) = delete;
     ReferenceCounter& operator=(const ReferenceCounter&) = delete;
 
@@ -116,9 +114,8 @@ public:
     }
 
     SharedHandleBase(SharedHandleBase&& o) VULKAN_HPP_NOEXCEPT
-:
-    m_handle(o.m_handle),
-    m_control(o.m_control)
+        : m_handle(o.m_handle),
+          m_control(o.m_control)
     {
         o.m_handle = nullptr;
         o.m_control = nullptr;
@@ -228,14 +225,12 @@ public:
 
     template<typename T = HandleType, typename = typename std::enable_if<has_parent<T>>::type>
     explicit SharedHandle(HandleType handle, SharedHandle<typename BaseType::ParentType> parent, DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT
-:
-    BaseType(handle, std::move(parent), std::move(deleter))
+        : BaseType(handle, std::move(parent), std::move(deleter))
     {
     }
 
     template<typename T = HandleType, typename = typename std::enable_if<!has_parent<T>>::type>
-explicit SharedHandle(HandleType handle, DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT :
-    BaseType(handle, std::move(deleter))
+    explicit SharedHandle(HandleType handle, DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT : BaseType(handle, std::move(deleter))
     {
     }
 
@@ -262,9 +257,9 @@ public:
     template<class Dispatcher>
     using destroy_pfn_t = typename std::conditional<has_parent<HandleType>,
 
-          void (ParentType::*)(HandleType, const AllocationCallbacks*, const Dispatcher&) const,
+                                                    void (ParentType::*)(HandleType, const AllocationCallbacks*, const Dispatcher&) const,
 
-          void (HandleType::*)(const AllocationCallbacks*, const Dispatcher&) const>::type;
+                                                    void (HandleType::*)(const AllocationCallbacks*, const Dispatcher&) const>::type;
     using selector_t = typename std::conditional<has_parent<HandleType>, ParentType, HandleType>::type;
 
     template<typename Dispatcher = VULKAN_HPP_DEFAULT_DISPATCHER_TYPE>
@@ -815,13 +810,12 @@ enum class SwapchainOwns {
 
 struct ImageHeader : SharedHeader<parent_of_t<VULKAN_HPP_NAMESPACE::Image>, typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter> {
     ImageHeader(
-        SharedHandle<parent_of_t<VULKAN_HPP_NAMESPACE::Image>> parent,
-        typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter deleter = typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter(),
-        SwapchainOwns swapchainOwned = SwapchainOwns::no) VULKAN_HPP_NOEXCEPT
-:
-    SharedHeader<parent_of_t<VULKAN_HPP_NAMESPACE::Image>, typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter>(std::move(parent),
-            deleter),
-            swapchainOwned(swapchainOwned)
+            SharedHandle<parent_of_t<VULKAN_HPP_NAMESPACE::Image>> parent,
+            typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter deleter = typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter(),
+            SwapchainOwns swapchainOwned = SwapchainOwns::no) VULKAN_HPP_NOEXCEPT
+        : SharedHeader<parent_of_t<VULKAN_HPP_NAMESPACE::Image>, typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::Image>::deleter>(std::move(parent),
+                                                                                                                                                          deleter),
+          swapchainOwned(swapchainOwned)
     {
     }
 
@@ -844,8 +838,7 @@ public:
                           SharedHandle<typename BaseType::ParentType> parent,
                           SwapchainOwns swapchain_owned = SwapchainOwns::no,
                           DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT
-:
-    BaseType(handle, std::move(parent), deleter, swapchain_owned)
+        : BaseType(handle, std::move(parent), deleter, swapchain_owned)
     {
     }
 
@@ -862,11 +855,10 @@ struct SwapchainHeader {
     SwapchainHeader(SharedHandle<VULKAN_HPP_NAMESPACE::SurfaceKHR> surface,
                     SharedHandle<parent_of_t<VULKAN_HPP_NAMESPACE::SwapchainKHR>> parent,
                     typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::SwapchainKHR>::deleter deleter =
-                        typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::SwapchainKHR>::deleter()) VULKAN_HPP_NOEXCEPT
-:
-    surface(std::move(surface)),
-            parent(std::move(parent)),
-            deleter(deleter)
+                            typename VULKAN_HPP_NAMESPACE::SharedHandleTraits<VULKAN_HPP_NAMESPACE::SwapchainKHR>::deleter()) VULKAN_HPP_NOEXCEPT
+        : surface(std::move(surface)),
+          parent(std::move(parent)),
+          deleter(deleter)
     {
     }
 
@@ -891,8 +883,7 @@ public:
                           SharedHandle<typename BaseType::ParentType> parent,
                           SharedHandle<VULKAN_HPP_NAMESPACE::SurfaceKHR> surface,
                           DeleterType deleter = DeleterType()) VULKAN_HPP_NOEXCEPT
-:
-    BaseType(handle, std::move(surface), std::move(parent), deleter)
+        : BaseType(handle, std::move(surface), std::move(parent), deleter)
     {
     }
 
