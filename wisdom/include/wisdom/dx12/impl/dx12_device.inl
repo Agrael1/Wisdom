@@ -7,24 +7,6 @@ bool wis::DX12Device::Initialize(DX12FactoryView in_factory, wis::DX12AdapterVie
     if (!wis::succeded(D3D12CreateDevice(adapter.get(),
                                          D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
         return false;
-
-    // Describe and create a render target view (RTV) descriptor heap.
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    rtvHeapDesc.NumDescriptors = heap_size;
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    wis::check_hresult(device->CreateDescriptorHeap(&rtvHeapDesc, __uuidof(*rtv_heap), rtv_heap.put_void()));
-    rtv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
-
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-    dsvHeapDesc.NumDescriptors = dsv_heap_size;
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    wis::check_hresult(device->CreateDescriptorHeap(&dsvHeapDesc, __uuidof(*dsv_heap), dsv_heap.put_void()));
-    dsv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-    dsv_start = dsv_heap->GetCPUDescriptorHandleForHeapStart();
-    return true;
 }
 
 wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView queue, wis::SwapchainOptions options, wis::SurfaceParameters surface) const
@@ -238,27 +220,6 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
     return DX12RenderPass{ std::move(render_pass_internal) };
 }
 
-wis::DX12RenderTargetView wis::DX12Device::CreateRenderTargetView(DX12TextureView texture, RenderSelector range)
-{
-    D3D12_RENDER_TARGET_VIEW_DESC desc{
-        .Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN,
-        .ViewDimension = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
-        .Texture2DArray{
-                .MipSlice = range.mip,
-                .FirstArraySlice = range.base_layer,
-                .ArraySize = range.extent_layers,
-                .PlaneSlice = 0 }
-    };
-    device->CreateRenderTargetView(texture, &desc, rtv_start);
-    DX12RenderTargetView rtvm{ rtv_start };
-    rtv_start.Offset(1, rtv_increment);
-    rtv_index++;
-    if (rtv_index == heap_size) {
-        rtv_index = 0;
-        rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
-    }
-    return rtvm;
-}
 
 #include <d3d11.h>
 

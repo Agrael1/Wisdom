@@ -9,6 +9,8 @@ WIS_EXPORT namespace wis
     using VKAdapterView = std::tuple<vk::PhysicalDevice>;
     using VKFactoryHandle = std::tuple<wis::shared_handle<vk::Instance>>;
 
+    using VKRenderTargetHandle = std::tuple<vk::ImageView>;
+
     using VKBufferView = vk::Buffer;
     struct VKTextureView {
         vk::Image image;

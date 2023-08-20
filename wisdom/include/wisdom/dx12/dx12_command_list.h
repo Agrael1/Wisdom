@@ -168,8 +168,8 @@ WIS_EXPORT namespace wis
         /// @param pass Pass description.
         /// @param render_targets Render targets to bind with colors to clear them with.
         void BeginRenderPass(DX12RenderPassView pass,
-                             std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets,
-                             std::pair<DX12DepthStencilView, DepthClear> depth = {}) noexcept
+                             std::span<const std::pair<DX12RenderTarget, ColorClear>> render_targets,
+                             std::pair<DX12DepthStencil, DepthClear> depth = {}) noexcept
         {
             auto& rpi = *std::get<0>(pass);
             auto& rts = rpi.rt_descs;
@@ -198,7 +198,7 @@ WIS_EXPORT namespace wis
         /// @brief Sets render targets for the command list. Only valid for DX12 command lists.
         /// @param rtvs Render targets to set.
         /// @param dsv Depth stencil target to set. (optional, unused)
-        void OMSetRenderTargetsDX(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr) noexcept
+        void OMSetRenderTargetsDX(std::span<const DX12RenderTarget> rtvs, void* dsv = nullptr) noexcept
         {
             command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
         }

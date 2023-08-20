@@ -72,6 +72,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
 Test::App::~App()
 {
+    constant_buffer.UnmapMemory();
     gfx.WaitForGPU();
 }
 

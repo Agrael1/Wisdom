@@ -146,8 +146,8 @@ WIS_EXPORT namespace wis
         /// @param pass Pass description.
         /// @param render_targets Render targets to bind with colors to clear them with.
         WIS_INLINE void BeginRenderPass(wis::VKRenderPassView rp,
-                                        std::span<const std::pair<VKRenderTargetView, ColorClear>> render_targets,
-                                        std::pair<VKDepthStencilView, DepthClear> depth = {}) noexcept;
+                                        std::span<const std::pair<VKRenderTarget, ColorClear>> render_targets,
+                                        std::pair<VKDepthStencil, DepthClear> depth = {}) noexcept;
 
         /// @brief Ends the render pass.
         void EndRenderPass() noexcept

@@ -41,7 +41,7 @@ WIS_EXPORT namespace wis
     using CommandList = DX12CommandList;
     using Fence = DX12Fence;
     using Buffer = DX12Buffer;
-    using RenderTargetView = DX12RenderTargetView;
+    using RenderTarget = DX12RenderTarget;
     using Shader = DX12Shader;
     using RootSignature = DX12RootSignature;
     using PipelineState = DX12PipelineState;
@@ -53,7 +53,7 @@ WIS_EXPORT namespace wis
     using DescriptorSetLayout = DX12DescriptorSetLayout;
     using DescriptorSet = DX12DescriptorSet;
     using Texture = DX12Texture;
-    using DepthStencilView = DX12DepthStencilView;
+    using DepthStencil = DX12DepthStencil;
 }
 #elif WISDOMMTL && !FORCEVK_SWITCH // MAC
 // metal
@@ -78,7 +78,7 @@ WIS_EXPORT namespace wis
     using CommandList = VKCommandList;
     using Fence = VKFence;
     using Buffer = VKBuffer;
-    using RenderTargetView = VKRenderTargetView;
+    using RenderTarget = VKRenderTarget;
     using Shader = VKShader;
     using RootSignature = VKRootSignature;
     using PipelineState = VKPipelineState;
@@ -90,7 +90,7 @@ WIS_EXPORT namespace wis
     using DescriptorSetLayout = VKDescriptorSetLayout;
     using DescriptorSet = VKDescriptorSet;
     using Texture = VKTexture;
-    using DepthStencilView = VKDepthStencilView;
+    using DepthStencil = VKDepthStencil;
 }
 #else
 #error "No API selected"

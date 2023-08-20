@@ -242,29 +242,102 @@ WIS_EXPORT namespace wis
             return VKShader{ wis::shared_handle<vk::ShaderModule>{ device->createShaderModule(desc), device }, type };
         }
 
-        /// @brief Create a Render target view object
-        /// @param texture The texture to create the view for
-        /// @param range Select the subresource range to create the view for
-        /// @return View object
-        [[nodiscard]] WIS_INLINE VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {}) const;
-
-        [[nodiscard]] WIS_INLINE VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
+        [[nodiscard]] VKRenderTarget
+        CreateRenderTarget(VKTextureView texture, wis::DataFormat format, RenderTargetSelector range = {}) const noexcept
         {
-            vk::ImageViewCreateInfo desc{
-                vk::ImageViewCreateFlags{},
-                texture.image,
-                vk::ImageViewType::e2D,
-                texture.format,
-                {},
-                vk::ImageSubresourceRange{
-                        aspect_flags(texture.format),
-                        0u,
-                        1u,
-                        0u,
-                        1u,
-                }
+            auto vk_format = convert_vk(format);
+            vk::ImageViewCreateInfo desc;
+            {
+                desc.image = texture.image,
+                desc.format = vk_format;
             };
-            return VKDepthStencilView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+
+            switch (range.type) {
+            case TextureType::Texture1D:
+                desc.viewType = vk::ImageViewType::e1D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = 0,
+                    desc.subresourceRange.layerCount = 1;
+                };
+                break;
+            case TextureType::Texture2D:
+                desc.viewType = vk::ImageViewType::e2D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = 0,
+                    desc.subresourceRange.layerCount = 1;
+                };
+                break;
+            case TextureType::Texture3D:
+                desc.viewType = vk::ImageViewType::e3D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            case TextureType::Texture1DArray:
+                desc.viewType = vk::ImageViewType::e1DArray;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            case TextureType::Texture2DArray:
+                desc.viewType = vk::ImageViewType::e2DArray;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            case TextureType::Texture2DMS:
+                desc.viewType = vk::ImageViewType::e2D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = 0,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = 0,
+                    desc.subresourceRange.layerCount = 1;
+                };
+                break;
+            case TextureType::Texture2DMSArray:
+                desc.viewType = vk::ImageViewType::e2DArray;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = 0,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            default:
+                break;
+            }
+
+            return VKRenderTarget{ shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+            // auto [result, value] = device->createImageView(desc);
+            // return succeeded(result)
+            //         ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
+            //         : VKRenderTarget{};
+        }
+
+        [[nodiscard]] VKDepthStencil
+        CreateDepthStencil(VKTextureView texture, wis::DataFormat format) const noexcept
+        {
+            return CreateRenderTarget(texture, format);
         }
 
         /// @brief Create a Descriptor heap object, where descriptors can be allocated from

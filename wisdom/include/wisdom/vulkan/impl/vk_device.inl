@@ -483,25 +483,6 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
     return VKPipelineState{ wis::shared_handle<vk::Pipeline>{ device->createGraphicsPipeline(nullptr, pipeline_desc).value, device } };
 }
 
-wis::VKRenderTargetView wis::VKDevice::CreateRenderTargetView(VKTextureView texture, RenderSelector range) const
-{
-    vk::ImageViewCreateInfo desc{
-        vk::ImageViewCreateFlags{},
-        texture.image,
-        vk::ImageViewType::e2DArray,
-        texture.format,
-        {},
-        vk::ImageSubresourceRange{
-                aspect_flags(texture.format),
-                range.mip,
-                1u,
-                range.base_layer,
-                range.extent_layers,
-        }
-    };
-    return VKRenderTargetView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
-}
-
 void wis::VKDevice::GetQueueFamilies() noexcept
 {
     using namespace river::flags;

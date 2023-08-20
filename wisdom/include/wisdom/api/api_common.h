@@ -418,13 +418,13 @@ WIS_EXPORT namespace wis
 
     /// @brief Structure for selecting a texture type
     enum class TextureType {
-        T1D = 2,
-        T1DARRAY = 3,
-        T2D = 4,
-        T2DARRAY = 5,
-        T2DMS = 6,
-        T2DMSARRAY = 7,
-        T3D = 8
+        Texture1D = 2,
+        Texture1DArray = 3,
+        Texture2D = 4,
+        Texture2DArray = 5,
+        Texture2DMS = 6,
+        Texture2DMSArray = 7,
+        Texture3D = 8
     };
 
     /// @brief Structure for selecting a DescriptorHeap type
@@ -458,13 +458,14 @@ WIS_EXPORT namespace wis
         BindingType type = BindingType::SRV;
     };
 
-    // TODO: Add support for cubemaps
+
     // TODO: Better selector for texture types
-    struct RenderSelector {
-        TextureType type = TextureType::T2DARRAY;
+    struct RenderTargetSelector {
+        TextureType type = TextureType::Texture2D;
+
         uint32_t mip = 0;
-        uint32_t base_layer = 0;
-        uint32_t extent_layers = 1;
+        uint32_t base_layer = 0; // In 3D textures, this is the z offset
+        uint32_t extent_layers = 1; // In 3D textures, this is the depth
     };
 
     struct TextureDescriptor {

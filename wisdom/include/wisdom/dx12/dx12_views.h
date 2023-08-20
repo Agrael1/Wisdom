@@ -22,6 +22,7 @@ WIS_EXPORT namespace wis
     using DX12AdapterView = std::tuple<IDXGIAdapter1*>;
     using DX12FactoryView = std::tuple<IDXGIFactory4*>;
 
+    using DX12RenderTargetHandle = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
     using DX12RenderPassView = std::tuple<const struct DX12RenderPassInternal*>;
 
     using DX12DeviceView = ID3D12Device10*;
