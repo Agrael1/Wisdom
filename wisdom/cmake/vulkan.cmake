@@ -4,13 +4,13 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	message("Vulkan found!")
 	set(WISDOMVK TRUE)
 
-	target_link_libraries(${PROJECT_NAME} 
-		PUBLIC VKAllocator 
+	target_link_libraries(${PROJECT_NAME}
+		PUBLIC VKAllocator
 	)
 
 	set(VKHEADERS
-		"include/wisdom/vulkan/vk_factory.h" 
-		
+		"include/wisdom/vulkan/vk_factory.h"
+
 		"include/wisdom/vulkan/vk_adapter.h"
 		"include/wisdom/vulkan/vk_shared_handle.h"
 		"include/wisdom/vulkan/vk_dynamic_loader.h"
@@ -34,25 +34,24 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_xshared_handle.h"
 		"include/wisdom/vulkan/vk_views.h"
 		"include/wisdom/vulkan/vk_descriptor_heap.h")
-	set(VKINL "include/wisdom/vulkan/impl/vk_adapter.inl")
 
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
 
 	# Add source to this project's executable.
 	target_sources(${PROJECT_NAME}
-	PUBLIC FILE_SET HEADERS 
+	PUBLIC FILE_SET HEADERS
 		BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-		FILES ${VKHEADERS} ${VKINL}
+		FILES ${VKHEADERS}
 	)
 
 	if(WISDOM_BUILD_TYPE STREQUAL "static")
 		target_sources(${PROJECT_NAME}
-		PRIVATE 
+		PRIVATE
 			"src/wisdom/vulkan.cpp"
 		)
 	elseif(WISDOM_BUILD_TYPE STREQUAL "modules")
 		target_sources(${PROJECT_NAME}
-		PUBLIC FILE_SET CXX_MODULES 
+		PUBLIC FILE_SET CXX_MODULES
 			BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
 			FILES "modules/vulkan.ixx"
 		)

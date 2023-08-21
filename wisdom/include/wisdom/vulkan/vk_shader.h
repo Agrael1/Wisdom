@@ -13,16 +13,6 @@ WIS_EXPORT namespace wis
     class Internal<VKShader>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::ShaderModule> module)
-            : module(std::move(module)){};
-
-        [[nodiscard]] auto GetShaderModule() const noexcept
-        {
-            return module.get();
-        }
-
-    protected:
         wis::shared_handle<vk::ShaderModule> module;
     };
 

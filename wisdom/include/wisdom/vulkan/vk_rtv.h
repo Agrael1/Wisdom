@@ -2,44 +2,37 @@
 #ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_views.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKRenderTarget;
+
+template<>
+class Internal<VKRenderTarget>
 {
-    class VKRenderTargetView;
+public:
+    wis::shared_handle<vk::ImageView> view;
+};
 
-    template<>
-    class Internal<VKRenderTargetView>
+WIS_EXPORT class VKRenderTarget : public QueryInternal<VKRenderTarget>
+{
+public:
+    VKRenderTarget() = default;
+    explicit VKRenderTarget(wis::shared_handle<vk::ImageView> view) noexcept
+        : QueryInternal(std::move(view))
     {
-    public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::ImageView> view)
-            : view(std::move(view))
-        {
-        }
-
-        [[nodiscard]] auto GetViewHandle() const noexcept
-        {
-            return view;
-        }
-        [[nodiscard]] auto GetImageView() const noexcept
-        {
-            return view.get();
-        }
-
-    protected:
-        wis::shared_handle<vk::ImageView> view;
-    };
-
-    class VKRenderTargetView : public QueryInternal<VKRenderTargetView>
+    }
+    operator VKRenderTargetHandle() const noexcept
     {
-    public:
-        VKRenderTargetView() = default;
-        explicit VKRenderTargetView(wis::shared_handle<vk::ImageView> view)
-            : QueryInternal(std::move(view))
-        {
-        }
-    };
+        return view.get();
+    }
+    operator bool() const noexcept
+    {
+        return bool(view);
+    }
+};
 
-    using VKDepthStencilView = VKRenderTargetView;
-}
+using VKDepthStencil = VKRenderTarget;
+using VKDepthStencilHandle = VKRenderTargetHandle;
+} // namespace wis

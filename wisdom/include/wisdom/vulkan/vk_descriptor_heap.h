@@ -16,16 +16,6 @@ WIS_EXPORT namespace wis
     class Internal<VKDescriptorSetLayout>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::DescriptorSetLayout> layout)
-            : layout(std::move(layout)){};
-
-        [[nodiscard]] auto GetDescriptorSetLayout() const noexcept
-        {
-            return layout.get();
-        }
-
-    protected:
         wis::shared_handle<vk::DescriptorSetLayout> layout;
     };
 
@@ -35,7 +25,7 @@ WIS_EXPORT namespace wis
         using QueryInternal::QueryInternal;
         operator VKDescriptorSetLayoutView() const noexcept
         {
-            return GetDescriptorSetLayout();
+            return layout.get();
         }
     };
 
@@ -45,16 +35,6 @@ WIS_EXPORT namespace wis
     class Internal<VKDescriptorSet>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::DescriptorSet> set)
-            : set(std::move(set)){};
-
-        [[nodiscard]] auto GetDescriptorSet() const noexcept
-        {
-            return set.get();
-        }
-
-    protected:
         wis::shared_handle<vk::DescriptorSet> set;
     };
 
@@ -64,7 +44,7 @@ WIS_EXPORT namespace wis
         using QueryInternal::QueryInternal;
         operator VKDescriptorSetView() const noexcept
         {
-            return GetDescriptorSet();
+            return set.get();
         }
     };
 
@@ -74,16 +54,6 @@ WIS_EXPORT namespace wis
     class Internal<VKDescriptorHeap>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::DescriptorPool> pool)
-            : pool(std::move(pool)){};
-
-        [[nodiscard]] auto GetDescriptorPool() const noexcept
-        {
-            return pool.get();
-        }
-
-    protected:
         wis::shared_handle<vk::DescriptorPool> pool;
     };
 
@@ -104,7 +74,7 @@ WIS_EXPORT namespace wis
         }
         operator VKDescriptorHeapView() const noexcept
         {
-            return GetDescriptorPool();
+            return pool.get();
         }
 
         VKDescriptorSet AllocateDescriptorSet(VKDescriptorSetLayoutView layout)

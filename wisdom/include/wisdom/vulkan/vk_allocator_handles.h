@@ -1,69 +1,57 @@
 #pragma once
 #ifndef WISDOM_MODULES
 #include <wisdom/vulkan/vk_shared_handle.h>
-#include <vk_mem_alloc.hpp>
+#include <vk_mem_alloc.h>
 #endif // !WISDOM_MODULES
 
-WIS_EXPORT namespace wis
+namespace wis {
+template<>
+WIS_EXPORT class shared_handle<VmaAllocator> : public vk::SharedHandleBase<VmaAllocator, vk::SharedDevice, shared_handle<VmaAllocator>>
 {
-    struct AllocatorHeader {
-        vk::SharedDevice device;
-    };
+    using base = vk::SharedHandleBase<VmaAllocator, vk::SharedDevice, shared_handle<VmaAllocator>>;
+    friend base;
 
-    template<>
-    class shared_handle<vma::Allocator> : public vk::SharedHandleBase<vma::Allocator, AllocatorHeader, shared_handle<vma::Allocator>>
+public:
+    shared_handle() = default;
+    explicit shared_handle(VmaAllocator handle, vk::SharedDevice parent)
+        : base(handle, std::move(parent))
     {
-        using base = vk::SharedHandleBase<vma::Allocator, AllocatorHeader, shared_handle<vma::Allocator>>;
-        using base::m_control;
-        friend base;
+    }
 
-    public:
-        shared_handle() = default;
-        explicit shared_handle(vma::Allocator handle, vk::SharedDevice parent)
-            : base(handle, AllocatorHeader{ std::move(parent) })
-        {
-        }
-
-        [[nodiscard]] const auto& getParent() const noexcept
-        {
-            return getHeader().device;
-        }
-
-    protected:
-        static void internalDestroy(const AllocatorHeader& /*control*/, vma::Allocator handle) noexcept
-        {
-            handle.destroy();
-        }
-    };
-
-    struct AllocationHeader {
-        shared_handle<vma::Allocator> allocator;
-    };
-
-    template<>
-    class shared_handle<vma::Allocation> : public vk::SharedHandleBase<vma::Allocation, AllocationHeader, shared_handle<vma::Allocation>>
+    [[nodiscard]] const auto& getParent() const noexcept
     {
-        using base = vk::SharedHandleBase<vma::Allocation, AllocationHeader, shared_handle<vma::Allocation>>;
-        using base::m_control;
-        using base::m_handle;
-        friend base;
+        return getHeader();
+    }
 
-    public:
-        shared_handle() = default;
-        explicit shared_handle(vma::Allocation handle, shared_handle<vma::Allocator> parent)
-            : base(handle, AllocationHeader{ std::move(parent) })
-        {
-        }
+protected:
+    static void internalDestroy(const vk::SharedDevice& /*control*/, VmaAllocator handle) noexcept
+    {
+        vmaDestroyAllocator(handle);
+    }
+};
 
-        [[nodiscard]] const auto& getAllocator() const noexcept
-        {
-            return m_control->m_header.allocator;
-        }
+template<>
+WIS_EXPORT class shared_handle<VmaAllocation> : public vk::SharedHandleBase<VmaAllocation, shared_handle<VmaAllocator>, shared_handle<VmaAllocation>>
+{
+    using base = vk::SharedHandleBase<VmaAllocation, shared_handle<VmaAllocator>, shared_handle<VmaAllocation>>;
+    friend base;
 
-    protected:
-        static void internalDestroy(const AllocationHeader& control, vma::Allocation handle) noexcept
-        {
-            control.allocator->freeMemory(handle);
-        }
-    };
-}
+public:
+    shared_handle() = default;
+    explicit shared_handle(VmaAllocation handle, shared_handle<VmaAllocator> parent)
+        : base(handle, std::move(parent))
+    {
+    }
+
+    [[nodiscard]] const auto& getAllocator() const noexcept
+    {
+        return getHeader();
+    }
+
+protected:
+    static void internalDestroy(const shared_handle<VmaAllocator>& control, VmaAllocation handle) noexcept
+    {
+        vmaFreeMemory(control.get(), handle);
+    }
+};
+} // namespace wis

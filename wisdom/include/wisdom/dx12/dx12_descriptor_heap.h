@@ -18,19 +18,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12DescriptorSetLayout>
     {
     public:
-        Internal() = default;
-        Internal(std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges)
-            : ranges(std::move(ranges))
-        {
-        }
-
-    public:
-        [[nodiscard]] std::span<const CD3DX12_DESCRIPTOR_RANGE1> GetRanges() const noexcept
-        {
-            return ranges;
-        }
-
-    protected:
         std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges;
     };
 
@@ -40,7 +27,7 @@ WIS_EXPORT namespace wis
         using QueryInternal::QueryInternal;
         operator DX12DescriptorSetLayoutView() const noexcept
         {
-            return GetRanges();
+            return ranges;
         }
     };
 
@@ -50,37 +37,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12DescriptorSet>
     {
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<ID3D12DescriptorHeap> heap, CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start, CD3DX12_CPU_DESCRIPTOR_HANDLE heap_end, CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_start, uint32_t heap_increment)
-            : heap(std::move(heap))
-            , heap_start(heap_start)
-            , heap_end(heap_end)
-            , heap_gpu_start(heap_gpu_start)
-            , heap_increment(heap_increment){};
-
-    public:
-        [[nodiscard]] CD3DX12_CPU_DESCRIPTOR_HANDLE GetDescriptorHeapStart() const noexcept
-        {
-            return heap_start;
-        }
-        [[nodiscard]] CD3DX12_CPU_DESCRIPTOR_HANDLE GetDescriptorHeapEnd() const noexcept
-        {
-            return heap_end;
-        }
-        [[nodiscard]] uint32_t GetDescriptorHeapIncrement() const noexcept
-        {
-            return heap_increment;
-        }
-        [[nodiscard]] CD3DX12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGpuStart() const noexcept
-        {
-            return heap_gpu_start;
-        }
-        auto get() const noexcept
-        {
-            return heap.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12DescriptorHeap> heap;
         CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start;
         CD3DX12_CPU_DESCRIPTOR_HANDLE heap_end;
@@ -94,11 +50,11 @@ WIS_EXPORT namespace wis
         using QueryInternal::QueryInternal;
         operator DX12DescriptorSetView() const noexcept
         {
-            return std::make_tuple(GetDescriptorHeapStart(), GetDescriptorHeapEnd(), GetDescriptorHeapIncrement());
+            return std::make_tuple(heap_start, heap_end, heap_increment);
         }
         operator DX12DescriptorSetBindView() const noexcept
         {
-            return std::make_tuple(heap.get(), GetDescriptorHeapGpuStart());
+            return std::make_tuple(heap.get(), heap_gpu_start);
         }
     };
 
@@ -108,20 +64,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12DescriptorHeap>
     {
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<ID3D12DescriptorHeap> heap, uint32_t heap_increment)
-            : heap(std::move(heap))
-            , heap_start(this->heap->GetCPUDescriptorHandleForHeapStart())
-            , heap_gpu_start(this->heap->GetGPUDescriptorHandleForHeapStart())
-            , heap_increment(heap_increment){};
-
-    public:
-        [[nodiscard]] ID3D12DescriptorHeap* GetDescriptorHeap() const noexcept
-        {
-            return heap.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12DescriptorHeap> heap;
         CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start;
         CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_start;
@@ -136,7 +78,10 @@ WIS_EXPORT namespace wis
     public:
         DX12DescriptorHeap() = default;
         explicit DX12DescriptorHeap(winrt::com_ptr<ID3D12DescriptorHeap> heap, uint32_t heap_increment)
-            : QueryInternal(std::move(heap), heap_increment)
+            : QueryInternal(std::move(heap),
+                            CD3DX12_CPU_DESCRIPTOR_HANDLE(heap->GetCPUDescriptorHandleForHeapStart()),
+                            CD3DX12_GPU_DESCRIPTOR_HANDLE(heap->GetGPUDescriptorHandleForHeapStart()),
+                            heap_increment)
         {
         }
         operator bool() const noexcept
@@ -145,7 +90,7 @@ WIS_EXPORT namespace wis
         }
         operator DX12DescriptorHeapView() const noexcept
         {
-            return GetDescriptorHeap();
+            return heap.get();
         }
 
     public:

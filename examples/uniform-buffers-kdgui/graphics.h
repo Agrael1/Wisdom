@@ -41,8 +41,8 @@ public:
 
             std::cout << desc.to_string();
 
-            if (device.Initialize(a)) {
-                allocator = wis::ResourceAllocator{ device, a };
+            if (device.Initialize(factory, a)) {
+                allocator = wis::ResourceAllocator{ device };
                 break;
             }
         }
@@ -87,14 +87,14 @@ public:
 
         auto x = swap.GetRenderTargets();
         for (size_t i = 0; i < x.size(); i++) {
-            rtvs[i] = device.CreateRenderTargetView(x[i]);
+            rtvs[i] = device.CreateRenderTarget(x[i], wis::SwapchainOptions::default_format);
             if (swap.StereoSupported())
-                rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
+                rtvs2[i] = device.CreateRenderTarget(x[i], wis::SwapchainOptions::default_format, { .type = wis::TextureType::Texture2DArray, .base_layer = 1 });
         }
 
         for (size_t i = 0; i < 2; i++) {
             depth_buffers[i] = allocator.CreateDepthStencilTexture({ width, height, wis::DataFormat::d32_float });
-            dsv[i] = device.CreateDepthStencilView(depth_buffers[i]);
+            dsv[i] = device.CreateDepthStencil(depth_buffers[i], wis::DataFormat::d32_float);
         }
     }
 
@@ -122,10 +122,10 @@ public:
     wis::DescriptorHeap constants_heap;
     wis::RenderPass render_pass;
 
-    wis::RenderTargetView rtvs[2];
-    wis::RenderTargetView rtvs2[2];
+    wis::RenderTarget rtvs[2];
+    wis::RenderTarget rtvs2[2];
     wis::Texture depth_buffers[2];
-    wis::DepthStencilView dsv[2];
+    wis::DepthStencil dsv[2];
 
     wis::Fence fence;
     uint64_t fence_value = 1;

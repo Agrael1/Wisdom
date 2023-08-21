@@ -27,20 +27,7 @@ WIS_EXPORT namespace wis
     class Internal<VKDevice>
     {
     public:
-        [[nodiscard]] vk::Device GetDevice() const noexcept
-        {
-            return device.get();
-        }
-        [[nodiscard]] vk::PhysicalDevice GetAdapter() const noexcept
-        {
-            return adapter;
-        }
-        [[nodiscard]] wis::shared_handle<vk::Device> GetDeviceHandle() const noexcept
-        {
-            return device;
-        }
-
-    protected:
+        wis::shared_handle<vk::Instance> instance;
         wis::shared_handle<vk::Device> device;
         vk::PhysicalDevice adapter;
     };
@@ -164,16 +151,12 @@ WIS_EXPORT namespace wis
 
     public:
         VKDevice() = default;
-        explicit VKDevice(VKAdapterView adapter)
+        explicit VKDevice(VKFactoryHandle factory, VKAdapterView adapter)
         {
-            Initialize(adapter);
+            Initialize(std::move(factory), adapter);
         }
 
-        operator VKDeviceView() const noexcept
-        {
-            return GetDeviceHandle();
-        }
-        WIS_INLINE bool Initialize(VKAdapterView adapter);
+        WIS_INLINE bool Initialize(VKFactoryHandle factory, VKAdapterView adapter);
 
         [[nodiscard]] WIS_INLINE
                 VKSwapChain
@@ -237,7 +220,7 @@ WIS_EXPORT namespace wis
             wis::internals::uniform_allocator<vk::DescriptorSetLayout> allocator;
 
             for (auto& i : layouts) {
-                allocator.allocate(i.GetInternal().GetDescriptorSetLayout());
+                allocator.allocate(i.GetInternal().layout.get());
             }
             vk::PipelineLayoutCreateInfo pipeline_layout_info{
                 vk::PipelineLayoutCreateFlags{}, uint32_t(allocator.size()), allocator.data(), 0, nullptr
@@ -259,29 +242,102 @@ WIS_EXPORT namespace wis
             return VKShader{ wis::shared_handle<vk::ShaderModule>{ device->createShaderModule(desc), device }, type };
         }
 
-        /// @brief Create a Render target view object
-        /// @param texture The texture to create the view for
-        /// @param range Select the subresource range to create the view for
-        /// @return View object
-        [[nodiscard]] WIS_INLINE VKRenderTargetView CreateRenderTargetView(VKTextureView texture, RenderSelector range = {}) const;
-
-        [[nodiscard]] WIS_INLINE VKDepthStencilView CreateDepthStencilView(VKTextureView texture) const
+        [[nodiscard]] VKRenderTarget
+        CreateRenderTarget(VKTextureView texture, wis::DataFormat format, RenderTargetSelector range = {}) const noexcept
         {
-            vk::ImageViewCreateInfo desc{
-                vk::ImageViewCreateFlags{},
-                texture.image,
-                vk::ImageViewType::e2D,
-                texture.format,
-                {},
-                vk::ImageSubresourceRange{
-                        aspect_flags(texture.format),
-                        0u,
-                        1u,
-                        0u,
-                        1u,
-                }
+            auto vk_format = convert_vk(format);
+            vk::ImageViewCreateInfo desc;
+            {
+                desc.image = texture.image,
+                desc.format = vk_format;
             };
-            return VKDepthStencilView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+
+            switch (range.type) {
+            case TextureType::Texture1D:
+                desc.viewType = vk::ImageViewType::e1D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = 0,
+                    desc.subresourceRange.layerCount = 1;
+                };
+                break;
+            case TextureType::Texture2D:
+                desc.viewType = vk::ImageViewType::e2D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = 0,
+                    desc.subresourceRange.layerCount = 1;
+                };
+                break;
+            case TextureType::Texture3D:
+                desc.viewType = vk::ImageViewType::e3D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            case TextureType::Texture1DArray:
+                desc.viewType = vk::ImageViewType::e1DArray;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            case TextureType::Texture2DArray:
+                desc.viewType = vk::ImageViewType::e2DArray;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = range.mip,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            case TextureType::Texture2DMS:
+                desc.viewType = vk::ImageViewType::e2D;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = 0,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = 0,
+                    desc.subresourceRange.layerCount = 1;
+                };
+                break;
+            case TextureType::Texture2DMSArray:
+                desc.viewType = vk::ImageViewType::e2DArray;
+                {
+                    desc.subresourceRange.aspectMask = aspect_flags(vk_format),
+                    desc.subresourceRange.baseMipLevel = 0,
+                    desc.subresourceRange.levelCount = 1,
+                    desc.subresourceRange.baseArrayLayer = range.base_layer,
+                    desc.subresourceRange.layerCount = range.extent_layers;
+                };
+                break;
+            default:
+                break;
+            }
+
+            return VKRenderTarget{ shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
+            // auto [result, value] = device->createImageView(desc);
+            // return succeeded(result)
+            //         ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
+            //         : VKRenderTarget{};
+        }
+
+        [[nodiscard]] VKDepthStencil
+        CreateDepthStencil(VKTextureView texture, wis::DataFormat format) const noexcept
+        {
+            return CreateRenderTarget(texture, format);
         }
 
         /// @brief Create a Descriptor heap object, where descriptors can be allocated from
@@ -357,11 +413,11 @@ WIS_EXPORT namespace wis
         }
 
     private:
-        WIS_INLINE void GetQueueFamilies(VKAdapterView adapter) noexcept;
+        WIS_INLINE void GetQueueFamilies() noexcept;
 
         [[nodiscard]] WIS_INLINE
                 wis::internals::uniform_allocator<const char*, required_extensions.size()>
-                RequestExtensions(VKAdapterView adapter) noexcept;
+                RequestExtensions() noexcept;
 
         [[nodiscard]] WIS_INLINE
                 vk::PresentModeKHR

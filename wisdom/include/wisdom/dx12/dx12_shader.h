@@ -12,17 +12,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12Shader>
     {
     public:
-        Internal() = default;
-        Internal(shared_blob blob)
-            : bytecode(std::move(blob)){};
-
-    public:
-        [[nodiscard]] std::span<const std::byte> GetShaderBytecode() const noexcept
-        {
-            return bytecode.span<std::byte>();
-        }
-
-    protected:
         wis::shared_blob bytecode;
     };
 

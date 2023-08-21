@@ -1,12 +1,13 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
- //#include "../vk_device.h"
+#include "../vk_device.h"
 
-bool wis::VKDevice::Initialize(VKAdapterView adapter)
+bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
 {
-    this->adapter = adapter;
-    GetQueueFamilies(adapter);
+    adapter = std::get<0>(xadapter);
+    instance = std::move(std::get<0>(factory));
+    GetQueueFamilies();
     std::array<vk::DeviceQueueCreateInfo, max_count> queue_infos{};
     size_t queue_count = 0;
 
@@ -28,7 +29,7 @@ bool wis::VKDevice::Initialize(VKAdapterView adapter)
         queue_count++;
     }
 
-    auto exts = RequestExtensions(adapter);
+    auto exts = RequestExtensions();
 
     void* device_create_info_next = nullptr;
     auto add_extension = [&](auto& extension) {
@@ -144,8 +145,6 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
     using Type = wis::SurfaceParameters::Type;
     if (xsurface.type == Type::WinRT)
         return {}; // Bail out, no support for UWP from Vulkan
-
-    auto instance = VKFactory::Internal::GetInstanceHandle();
 
 #if defined(WISDOM_WINDOWS)
     vk::Win32SurfaceCreateInfoKHR surface_desc{
@@ -456,13 +455,13 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
     };
 
     vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
-		vk::PipelineDepthStencilStateCreateFlags{},
-		true, true,
-		vk::CompareOp::eLess,
-		false, false,
-		vk::StencilOpState{}, vk::StencilOpState{},
-		0.0f, 1.0f
-	};
+        vk::PipelineDepthStencilStateCreateFlags{},
+        true, true,
+        vk::CompareOp::eLess,
+        false, false,
+        vk::StencilOpState{}, vk::StencilOpState{},
+        0.0f, 1.0f
+    };
 
     vk::GraphicsPipelineCreateInfo pipeline_desc{
         vk::PipelineCreateFlags{},
@@ -478,32 +477,13 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
         &color_blending, // color blending
         &dss, // dynamic state
         desc.sig, // pipeline layout
-        desc.pass.GetInternal().GetRenderPass(), // render pass
+        desc.pass.GetInternal().rp.get(), // render pass
     };
 
     return VKPipelineState{ wis::shared_handle<vk::Pipeline>{ device->createGraphicsPipeline(nullptr, pipeline_desc).value, device } };
 }
 
-wis::VKRenderTargetView wis::VKDevice::CreateRenderTargetView(VKTextureView texture, RenderSelector range) const
-{
-    vk::ImageViewCreateInfo desc{
-        vk::ImageViewCreateFlags{},
-        texture.image,
-        vk::ImageViewType::e2DArray,
-        texture.format,
-        {},
-        vk::ImageSubresourceRange{
-                aspect_flags(texture.format),
-                range.mip,
-                1u,
-                range.base_layer,
-                range.extent_layers,
-        }
-    };
-    return VKRenderTargetView{ wis::shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
-}
-
-void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
+void wis::VKDevice::GetQueueFamilies() noexcept
 {
     using namespace river::flags;
     auto family_props = adapter.getQueueFamilyProperties();
@@ -554,7 +534,7 @@ void wis::VKDevice::GetQueueFamilies(VKAdapterView adapter) noexcept
 }
 
 wis::internals::uniform_allocator<const char*, wis::VKDevice::required_extensions.size()>
-wis::VKDevice::RequestExtensions(VKAdapterView adapter) noexcept
+wis::VKDevice::RequestExtensions() noexcept
 {
     auto extensions = adapter.enumerateDeviceExtensionProperties();
     std::unordered_set<std::string_view, wis::string_hash> ext_set;
@@ -605,31 +585,31 @@ void wis::VKDevice::FillShaderStages(const VKGraphicsPipelineDesc& desc, wis::in
     if (desc.vs) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eVertex;
-        vs.module = desc.vs.GetInternal().GetShaderModule();
+        vs.module = desc.vs.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.ps) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eFragment;
-        vs.module = desc.ps.GetInternal().GetShaderModule();
+        vs.module = desc.ps.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.gs) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eGeometry;
-        vs.module = desc.gs.GetInternal().GetShaderModule();
+        vs.module = desc.gs.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.hs) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eTessellationControl;
-        vs.module = desc.hs.GetInternal().GetShaderModule();
+        vs.module = desc.hs.GetInternal().module.get();
         vs.pName = "main";
     }
     if (desc.ds) {
         auto& vs = shader_stages.allocate();
         vs.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
-        vs.module = desc.ds.GetInternal().GetShaderModule();
+        vs.module = desc.ds.GetInternal().module.get();
         vs.pName = "main";
     }
 }

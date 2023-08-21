@@ -214,12 +214,12 @@ inline constexpr vk::ImageLayout convert_vk(TextureState state)
         return ePresentSrcKHR;
     }
 }
-inline constexpr vk::AccessFlags convert_vk(ResourceAccess access)
+inline constexpr vk::AccessFlags2 convert_vk(ResourceAccess access)
 {
     using namespace river::flags;
     uint32_t result{};
     if (access == ResourceAccess::Common)
-        return vk::AccessFlags(+vk::AccessFlagBits::eMemoryRead | +vk::AccessFlagBits::eMemoryWrite);
+        return vk::AccessFlags2(+vk::AccessFlagBits::eMemoryRead | +vk::AccessFlagBits::eMemoryWrite);
     if ((access & ResourceAccess::VertexBuffer) != 0u)
         result |= VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
     if ((access & ResourceAccess::ConstantBuffer) != 0u)
@@ -252,7 +252,7 @@ inline constexpr vk::AccessFlags convert_vk(ResourceAccess access)
         result |= VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
     if ((access & ResourceAccess::NoAccess) != 0u)
         result |= VK_ACCESS_NONE;
-    return vk::AccessFlags(result);
+    return vk::AccessFlags2(result);
 }
 inline constexpr vk::ImageSubresourceRange convert_vk(wis::SubresourceRange range, vk::Format format)
 {
@@ -301,8 +301,9 @@ inline constexpr vk::PrimitiveTopology convert(wis::PrimitiveTopology topology)
     case wis::PrimitiveTopology::linestrip_adj:
         return eLineStripWithAdjacency;
     case wis::PrimitiveTopology::trianglelist_adj:
-    case wis::PrimitiveTopology::trianglestrip_adj:
         return eTriangleListWithAdjacency;
+    case wis::PrimitiveTopology::trianglestrip_adj:
+        return eTriangleStripWithAdjacency;
     }
 }
 inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
@@ -316,5 +317,49 @@ inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
     assert(false);
     return vk::AttachmentStoreOp::eStore;
 }
+inline constexpr vk::PipelineStageFlags2 convert_vk(BarrierSync state)
+{
+    using namespace river::flags;
+    using enum wis::BarrierSync;
 
+    uint64_t result{};
+
+    if (state & All)
+        result |= vk::PipelineStageFlagBits2::eAllCommands;
+    if (state & Draw)
+        result |= vk::PipelineStageFlagBits2::eDrawIndirect;
+    if (state & IndexInput)
+        result |= vk::PipelineStageFlagBits2::eIndexInput;
+    if (state & VertexShading)
+        result |= +vk::PipelineStageFlagBits2::eVertexInput | +vk::PipelineStageFlagBits2::eVertexShader;
+    if (state & PixelShading)
+        result |= vk::PipelineStageFlagBits2::eFragmentShader;
+    if (state & DepthStencil)
+        result |= +vk::PipelineStageFlagBits2::eEarlyFragmentTests | +vk::PipelineStageFlagBits2::eLateFragmentTests;
+    if (state & RenderTarget)
+        result |= vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    if (state & ComputeShading)
+        result |= vk::PipelineStageFlagBits2::eComputeShader;
+    if (state & Raytracing)
+        result |= vk::PipelineStageFlagBits2::eRayTracingShaderKHR;
+    if (state & Copy)
+        result |= vk::PipelineStageFlagBits2::eTransfer;
+    if (state & Resolve)
+        result |= vk::PipelineStageFlagBits2::eResolve;
+    if (state & ExecuteIndirect)
+        result |= vk::PipelineStageFlagBits2::eDrawIndirect;
+    if (state & AllShading)
+        result |= vk::PipelineStageFlagBits2::eAllGraphics;
+    if (state & VideoDecode)
+        result |= vk::PipelineStageFlagBits2::eVideoDecodeKHR;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+    if (state & VideoEncode)
+        result |= vk::PipelineStageFlagBits2::eVideoEncodeKHR;
+#endif /*VK_ENABLE_BETA_EXTENSIONS*/
+    if (state & BuildRAS)
+        result |= vk::PipelineStageFlagBits2::eAccelerationStructureBuildKHR;
+    if (state & CopyRAS)
+        result |= vk::PipelineStageFlagBits2::eAccelerationStructureCopyKHR;
+    return vk::PipelineStageFlags2(result);
+}
 } // namespace wis

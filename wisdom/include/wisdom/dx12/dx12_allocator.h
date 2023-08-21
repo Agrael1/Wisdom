@@ -10,17 +10,12 @@
 WIS_EXPORT namespace wis
 {
     class DX12ResourceAllocator;
+    class DX12Device;
 
     template<>
     class Internal<DX12ResourceAllocator>
     {
     public:
-        [[nodiscard]] D3D12MA::Allocator* GetAllocator() const noexcept
-        {
-            return allocator.get();
-        }
-
-    protected:
         winrt::com_ptr<D3D12MA::Allocator> allocator;
     };
 
@@ -29,7 +24,7 @@ WIS_EXPORT namespace wis
     {
     public:
         DX12ResourceAllocator() = default;
-        WIS_INLINE explicit DX12ResourceAllocator(DX12DeviceView device, DX12AdapterView adapter);
+        WIS_INLINE explicit DX12ResourceAllocator(const wis::DX12Device& device);
 
         /// @brief Create a buffer that is persistently mapped to the GPU
         /// @param size Size of the buffer
@@ -84,11 +79,11 @@ WIS_EXPORT namespace wis
             winrt::com_ptr<D3D12MA::Allocation> al;
 
             auto tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                    DXGI_FORMAT(desc.format), desc.width, desc.height, 1, 1, D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+                    DXGI_FORMAT(desc.format), desc.width, desc.height, 1, 1, 1, 0, D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
             D3D12MA::ALLOCATION_DESC all_desc = {};
             all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
-            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_DEPTH_WRITE;
+            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 
             allocator->CreateResource2(&all_desc, &tex_desc,
                                        state, nullptr,

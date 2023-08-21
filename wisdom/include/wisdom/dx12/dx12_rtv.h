@@ -1,38 +1,40 @@
 #pragma once
 #ifndef WISDOM_MODULES
+#include <wisdom/dx12/dx12_views.h>
 #include <wisdom/api/api_internal.h>
 #include <d3dx12/d3dx12.h>
+#include <winrt/base.h>
 #endif // !WISDOM_MODULES
 
-WIS_EXPORT namespace wis
+namespace wis {
+class DX12RenderTarget;
+
+template<>
+class Internal<DX12RenderTarget>
 {
-    class DX12RenderTargetView;
+public:
+    winrt::com_ptr<ID3D12DescriptorHeap> desc;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
+};
 
-    template<>
-    class Internal<DX12RenderTargetView>
+WIS_EXPORT class DX12RenderTarget : public QueryInternal<DX12RenderTarget>
+{
+public:
+    DX12RenderTarget() = default;
+    explicit DX12RenderTarget(winrt::com_ptr<ID3D12DescriptorHeap> desc) noexcept
+        : QueryInternal(std::move(desc), CD3DX12_CPU_DESCRIPTOR_HANDLE(desc->GetCPUDescriptorHandleForHeapStart())) { }
+
+    operator bool() const noexcept
     {
-    public:
-        Internal() = default;
-        Internal(CD3DX12_CPU_DESCRIPTOR_HANDLE handle)
-            : handle(handle) { }
+        return bool(desc);
+    }
 
-    public:
-        auto GetHandle() const noexcept
-        {
-            return handle;
-        }
-
-    protected:
-        CD3DX12_CPU_DESCRIPTOR_HANDLE handle{};
-    };
-
-    class DX12RenderTargetView : public QueryInternal<DX12RenderTargetView>
+    operator DX12RenderTargetHandle() const noexcept
     {
-    public:
-        DX12RenderTargetView() = default;
-        explicit DX12RenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE xhandle)
-            : QueryInternal(xhandle) { }
-    };
+        return handle;
+    }
+};
 
-    using DX12DepthStencilView = DX12RenderTargetView;
-}
+using DX12DepthStencil = DX12RenderTarget;
+using DX12DepthStencilHandle = DX12RenderTargetHandle;
+} // namespace wis

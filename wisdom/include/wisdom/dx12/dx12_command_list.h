@@ -16,24 +16,6 @@ WIS_EXPORT namespace wis
     class Internal<DX12CommandList>
     {
     public:
-        Internal() = default;
-        Internal(winrt::com_ptr<ID3D12CommandAllocator> xallocator,
-                 winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list)
-            : allocator(std::move(xallocator)), command_list(std::move(xcommand_list))
-        {
-        }
-
-    public:
-        [[nodiscard]] ID3D12GraphicsCommandList9* GetCommandList() const noexcept
-        {
-            return command_list.get();
-        }
-        [[nodiscard]] ID3D12CommandAllocator* GetCommandAllocator() const noexcept
-        {
-            return allocator.get();
-        }
-
-    protected:
         winrt::com_ptr<ID3D12CommandAllocator> allocator;
         winrt::com_ptr<ID3D12GraphicsCommandList9> command_list;
     };
@@ -95,8 +77,8 @@ WIS_EXPORT namespace wis
         void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer) noexcept
         {
             CD3DX12_BUFFER_BARRIER bb{
-                D3D12_BARRIER_SYNC_ALL, // TODO: Better sync
-                D3D12_BARRIER_SYNC_ALL,
+                D3D12_BARRIER_SYNC(barrier.sync_before),
+                D3D12_BARRIER_SYNC(barrier.sync_after),
                 convert_dx(barrier.access_before),
                 convert_dx(barrier.access_after),
                 buffer
@@ -112,8 +94,8 @@ WIS_EXPORT namespace wis
         {
             auto r = barrier.range;
             CD3DX12_TEXTURE_BARRIER tb{
-                D3D12_BARRIER_SYNC_ALL,
-                D3D12_BARRIER_SYNC_ALL,
+                D3D12_BARRIER_SYNC(barrier.sync_before),
+                D3D12_BARRIER_SYNC(barrier.sync_after),
                 convert_dx(barrier.access_before),
                 convert_dx(barrier.access_after),
                 convert_dx(barrier.state_before),
@@ -186,25 +168,25 @@ WIS_EXPORT namespace wis
         /// @param pass Pass description.
         /// @param render_targets Render targets to bind with colors to clear them with.
         void BeginRenderPass(DX12RenderPassView pass,
-                             std::span<const std::pair<DX12RenderTargetView, ColorClear>> render_targets,
-                             std::pair<DX12DepthStencilView, DepthClear> depth = {}) noexcept
+                             std::span<const std::pair<DX12RenderTarget, ColorClear>> render_targets,
+                             std::pair<DX12DepthStencil, DepthClear> depth = {}) noexcept
         {
-            auto& i = pass.GetInternal();
-            auto rts = i.GetRTDescs();
-            for (size_t i = 0; i < rts.size(); i++) {
-                rts[i].cpuDescriptor = render_targets[i].first.GetInternal().GetHandle();
+            auto& rpi = *std::get<0>(pass);
+            auto& rts = rpi.rt_descs;
+            for (size_t i = 0; i < rpi.rt_formats.size(); i++) {
+                rts[i].cpuDescriptor = render_targets[i].first.GetInternal().handle;
                 rts[i].BeginningAccess.Clear.ClearValue.Color[0] = render_targets[i].second[0];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[1] = render_targets[i].second[1];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[2] = render_targets[i].second[2];
                 rts[i].BeginningAccess.Clear.ClearValue.Color[3] = render_targets[i].second[3];
             }
-            auto dsdesc = i.GetDSDesc();
-            if (auto ds = depth.first.GetInternal().GetHandle(); ds.ptr) {
-                dsdesc->cpuDescriptor = ds;
-                dsdesc->DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
+
+            auto& dsdesc = rpi.ds_desc;
+            if (auto ds = depth.first.GetInternal().handle; ds.ptr && rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+                dsdesc.cpuDescriptor = ds;
+                dsdesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
             }
-            // TODO: Depth stencil
-            command_list->BeginRenderPass(rts.size(), rts.data(), dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
+            command_list->BeginRenderPass(render_targets.size(), rts.data(), &dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
         }
 
         /// @brief Ends the render pass.
@@ -216,7 +198,7 @@ WIS_EXPORT namespace wis
         /// @brief Sets render targets for the command list. Only valid for DX12 command lists.
         /// @param rtvs Render targets to set.
         /// @param dsv Depth stencil target to set. (optional, unused)
-        void OMSetRenderTargetsDX(std::span<const DX12RenderTargetView> rtvs, void* dsv = nullptr) noexcept
+        void OMSetRenderTargetsDX(std::span<const DX12RenderTarget> rtvs, void* dsv = nullptr) noexcept
         {
             command_list->OMSetRenderTargets(uint32_t(rtvs.size()), (const D3D12_CPU_DESCRIPTOR_HANDLE*)(rtvs.data()), false, (D3D12_CPU_DESCRIPTOR_HANDLE*)dsv);
         }

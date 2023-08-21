@@ -39,7 +39,7 @@ WIS_EXPORT namespace wis
             return swap.getSurface().get();
         }
 
-    protected:
+    public:
         wis::shared_handle<vk::SwapchainKHR> swap;
         vk::Device device;
 
@@ -160,7 +160,7 @@ WIS_EXPORT namespace wis
             }
             initialization.Close();
             present_queue.ExecuteCommandList(initialization);
-            present_queue.GetInternal().GetQueue().waitIdle();
+            present_queue.GetInternal().queue.waitIdle();
 
             AquireNextIndex();
         }

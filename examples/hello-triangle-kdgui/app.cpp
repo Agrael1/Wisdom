@@ -36,9 +36,9 @@ auto LoadShader(std::filesystem::path p)
 }
 
 template<class T>
-std::span<std::byte> RawView(T &data)
+std::span<std::byte> RawView(T& data)
 {
-    return { (std::byte *)&data, sizeof(T) };
+    return { (std::byte*)&data, sizeof(T) };
 }
 
 Test::App::App(uint32_t width, uint32_t height)
@@ -48,7 +48,7 @@ Test::App::App(uint32_t width, uint32_t height)
 
     factory.emplace(app_info);
 
-    for (auto &&a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
+    for (auto&& a : factory->EnumerateAdapters(wis::AdapterPreference::Performance)) {
         auto desc = a.GetDesc();
 
         if (desc.IsSoftware())
@@ -56,8 +56,8 @@ Test::App::App(uint32_t width, uint32_t height)
 
         std::cout << desc.to_string();
 
-        if (device.Initialize(a)) {
-            allocator = wis::ResourceAllocator{ device, a };
+        if (device.Initialize(*factory, a)) {
+            allocator = wis::ResourceAllocator{ device };
             break;
         }
     }
@@ -204,8 +204,8 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     auto x = swap.GetRenderTargets();
     for (size_t i = 0; i < x.size(); i++) {
-        rtvs[i] = device.CreateRenderTargetView(x[i]);
+        rtvs[i] = device.CreateRenderTarget(x[i], wis::SwapchainOptions::default_format);
         if (swap.StereoSupported())
-            rtvs2[i] = device.CreateRenderTargetView(x[i], { .base_layer = 1 });
+            rtvs2[i] = device.CreateRenderTarget(x[i], wis::SwapchainOptions::default_format, { .type = wis::TextureType::Texture2DArray, .base_layer = 1 });
     }
 }

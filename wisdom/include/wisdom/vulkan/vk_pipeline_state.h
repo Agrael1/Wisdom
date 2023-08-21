@@ -12,16 +12,6 @@ WIS_EXPORT namespace wis
     class Internal<VKPipelineState>
     {
     public:
-        Internal() = default;
-        Internal(wis::shared_handle<vk::Pipeline> pipeline)
-            : pipeline(std::move(pipeline)){};
-
-        [[nodiscard]] auto GetPipeline() const noexcept
-        {
-            return pipeline.get();
-        }
-
-    private:
         wis::shared_handle<vk::Pipeline> pipeline;
     };
 
@@ -36,11 +26,11 @@ WIS_EXPORT namespace wis
         }
         operator VKPipelineStateView() const noexcept
         {
-            return GetPipeline();
+            return pipeline.get();
         }
         operator bool() const noexcept
         {
-            return bool(GetPipeline());
+            return bool(pipeline);
         }
     };
 }

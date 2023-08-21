@@ -1,10 +1,10 @@
 #pragma once
 #ifndef WISDOM_MODULES
 #include <wisdom/api/api_barrier.h>
-#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_allocator_handles.h>
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_format.h>
+#include <wisdom/vulkan/vk_device.h>
 #include <wisdom/global/assertions.h>
 #endif // !WISDOM_MODULES
 
@@ -16,13 +16,7 @@ WIS_EXPORT namespace wis
     class Internal<VKResourceAllocator>
     {
     public:
-        [[nodiscard]] VmaAllocator GetAllocator() const noexcept
-        {
-            return allocator.get();
-        }
-
-    protected:
-        wis::shared_handle<vma::Allocator> allocator;
+        wis::shared_handle<VmaAllocator> allocator;
     };
 
     /// @brief Resource allocator for Vulkan
@@ -30,7 +24,33 @@ WIS_EXPORT namespace wis
     {
     public:
         VKResourceAllocator() = default;
-        WIS_INLINE VKResourceAllocator(VKDeviceView device, VKAdapterView adapter);
+        VKResourceAllocator(const VKDevice& device) noexcept
+        {
+            auto& i = device.GetInternal();
+            static constexpr auto version_mask = 0xFFFU;
+            uint32_t version = 0;
+            vkEnumerateInstanceVersion(&version);
+            version &= ~(version_mask); // unsigned remove patch from instance for compatibility
+
+            auto device_handle{ i.device };
+
+            VmaAllocatorCreateInfo allocatorInfo{
+                VmaAllocatorCreateFlags(0),
+                i.adapter,
+                device_handle.get(),
+                0,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                i.instance.get(),
+                version
+            };
+
+            VmaAllocator al;
+            vmaCreateAllocator(&allocatorInfo, &al);
+            allocator = wis::shared_handle<VmaAllocator>{ al, std::move(device_handle) };
+        }
 
         /// @brief Create a buffer that is persistently mapped to the GPU
         /// @param size Size of the buffer
@@ -41,8 +61,8 @@ WIS_EXPORT namespace wis
             vk::BufferCreateInfo desc{
                 {}, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits(flags), vk::SharingMode::eExclusive, 0, nullptr, nullptr
             };
-            vma::AllocationCreateInfo alloc{
-                {}, vma::MemoryUsage::eAuto
+            VmaAllocationCreateInfo alloc{
+                .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO
             };
             return CreateBuffer(desc, alloc);
         }
@@ -56,9 +76,10 @@ WIS_EXPORT namespace wis
                 vk::BufferCreateFlags{}, size, vk::BufferUsageFlagBits::eTransferSrc,
                 vk::SharingMode::eExclusive, 0, nullptr, nullptr
             };
-            vma::AllocationCreateInfo alloc{
-                vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent // ensure mapping does not need to be flushed
+            VmaAllocationCreateInfo alloc{
+                .flags = VmaAllocationCreateFlagBits::VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+                .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+                .requiredFlags = VkMemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent) // ensure mapping does not need to be flushed
             };
 
             return CreateBuffer(desc, alloc);
@@ -74,9 +95,10 @@ WIS_EXPORT namespace wis
                 vk::BufferCreateFlags{}, size, vk::BufferUsageFlagBits(flags),
                 vk::SharingMode::eExclusive, 0, nullptr, nullptr
             };
-            vma::AllocationCreateInfo alloc{
-                vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent // ensure mapping does not need to be flushed
+            VmaAllocationCreateInfo alloc{
+                .flags = VmaAllocationCreateFlagBits::VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+                .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+                .requiredFlags = VkMemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent) // ensure mapping does not need to be flushed
             };
 
             return CreateBuffer(desc, alloc);
@@ -99,11 +121,13 @@ WIS_EXPORT namespace wis
                 vk::ImageCreateFlagBits::e2DArrayCompatible | vk::ImageCreateFlagBits::e2DViewCompatibleEXT,
                 vk::ImageType::e3D, format, vk::Extent3D{ desc.width, desc.height, desc.depth }, desc.mip_levels, desc.array_size
             };
-            vma::AllocationCreateInfo alloc{
-                {}, vma::MemoryUsage::eAuto
+            VmaAllocationCreateInfo alloc{
+                .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
             };
-            auto [a, b] = allocator->createImage(img_desc, alloc);
-            return VKTexture{ format, wis::shared_handle<vk::Image>{ a, allocator.getParent() }, wis::shared_handle<vma::Allocation>{ b, allocator } };
+            VkImage image;
+            VmaAllocation allocation;
+            VkResult a = vmaCreateImage(allocator.get(), reinterpret_cast<const VkImageCreateInfo*>(&img_desc), &alloc, &image, &allocation, nullptr);
+            return VKTexture{ format, wis::shared_handle<vk::Image>{ image, allocator.getParent() }, wis::shared_handle<VmaAllocation>{ allocation, allocator } };
         }
         [[nodiscard]] VKTexture CreateDepthStencilTexture(DepthDescriptor desc) const
         {
@@ -113,23 +137,22 @@ WIS_EXPORT namespace wis
                 vk::ImageType::e2D, format, vk::Extent3D{ desc.width, desc.height, 1 }, 1, 1, vk::SampleCountFlagBits::e1, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eDepthStencilAttachment
             };
-            vma::AllocationCreateInfo alloc{
-                {}, vma::MemoryUsage::eAuto
+            VmaAllocationCreateInfo alloc{
+                .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
             };
-
-            auto [a, b] = allocator->createImage(img_desc, alloc);
-            return VKTexture{ format, wis::shared_handle<vk::Image>{ a, allocator.getParent() }, wis::shared_handle<vma::Allocation>{ b, allocator } };
+            VkImage image;
+            VmaAllocation allocation;
+            VkResult a = vmaCreateImage(allocator.get(), reinterpret_cast<const VkImageCreateInfo*>(&img_desc), &alloc, &image, &allocation, nullptr);
+            return VKTexture{ format, wis::shared_handle<vk::Image>{ image, allocator.getParent() }, wis::shared_handle<VmaAllocation>{ allocation, allocator } };
         }
 
     private:
-        [[nodiscard]] VKBuffer CreateBuffer(const vk::BufferCreateInfo& desc, const vma::AllocationCreateInfo& alloc_desc) const
+        [[nodiscard]] VKBuffer CreateBuffer(const vk::BufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const
         {
-            auto [a, b] = allocator->createBuffer(desc, alloc_desc);
-            return VKBuffer{ wis::shared_handle<vk::Buffer>{ a, allocator.getParent() }, wis::shared_handle<vma::Allocation>{ b, allocator }, desc.size };
+            VmaAllocation allocation;
+            VkBuffer buffer;
+            VkResult a = vmaCreateBuffer(allocator.get(), reinterpret_cast<const VkBufferCreateInfo*>(&desc), &alloc_desc, &buffer, &allocation, nullptr);
+            return VKBuffer{ wis::shared_handle<vk::Buffer>{ buffer, allocator.getParent() }, wis::shared_handle<VmaAllocation>{ allocation, allocator }, desc.size };
         }
     };
 }
-
-#if defined(WISDOM_HEADER_ONLY)
-#include "impl/vk_allocator.inl"
-#endif

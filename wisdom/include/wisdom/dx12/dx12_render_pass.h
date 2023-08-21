@@ -2,66 +2,45 @@
 #ifndef WISDOM_MODULES
 #include <wisdom/global/definitions.h>
 #include <wisdom/api/api_internal.h>
-#include <wisdom/api/api_common.h>
 #include <wisdom/util/small_allocator.h>
+#include <wisdom/dx12/dx12_views.h>
 #include <d3d12.h>
-#include <optional>
-#include <span>
-#include <vector>
+#include <memory>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class DX12RenderPass;
+
+// Render pass descriptor is way too big to be allocated on the stack
+struct DX12RenderPassInternal {
+    wis::internals::uniform_allocator<DXGI_FORMAT, max_render_targets> rt_formats;
+    mutable std::array<D3D12_RENDER_PASS_RENDER_TARGET_DESC, max_render_targets> rt_descs;
+    mutable D3D12_RENDER_PASS_DEPTH_STENCIL_DESC ds_desc;
+    DXGI_FORMAT ds_format = DXGI_FORMAT_UNKNOWN;
+};
+
+template<>
+class Internal<DX12RenderPass>
 {
-    class DX12RenderPass;
+public:
+    std::unique_ptr<DX12RenderPassInternal> desc;
+};
 
-    template<>
-    class Internal<DX12RenderPass>
+WIS_EXPORT class DX12RenderPass : public QueryInternal<DX12RenderPass>
+{
+public:
+    DX12RenderPass() = default;
+    explicit DX12RenderPass(std::unique_ptr<DX12RenderPassInternal> desc) noexcept
+        : QueryInternal(std::move(desc)) { }
+
+    operator DX12RenderPassView() const noexcept
     {
-    public:
-        Internal() = default;
-        Internal(wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats,
-                 std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs,
-                 std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc)
-            : target_formats(target_formats), rt_descs(std::move(rt_descs)), ds_desc(std::move(ds_desc))
-        {
-        }
+        return desc.get();
+    }
 
-    public:
-        std::span<D3D12_RENDER_PASS_RENDER_TARGET_DESC> GetRTDescs() const noexcept
-        {
-            return rt_descs;
-        }
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* GetDSDesc() const noexcept
-        {
-            return ds_desc.has_value() ? &ds_desc.value() : nullptr;
-        }
-        const wis::internals::uniform_allocator<DataFormat, max_render_targets> GetTargetFormats() const noexcept
-        {
-            return target_formats;
-        }
-        std::span<const DataFormat> GetTargetFormatSpan() const noexcept
-        {
-            return { target_formats.data(), target_formats.size() };
-        }
-
-    private:
-        wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats;
-        mutable std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
-        mutable std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc;
-    };
-
-    using DX12RenderPassView = const DX12RenderPass&; // rp is too large
-
-    // TODO: better RenderPass
-    class DX12RenderPass : public QueryInternal<DX12RenderPass>
+    operator bool() const noexcept
     {
-    public:
-        DX12RenderPass() = default;
-        explicit DX12RenderPass(wis::internals::uniform_allocator<DataFormat, max_render_targets> target_formats,
-                                std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs,
-                                std::optional<D3D12_RENDER_PASS_DEPTH_STENCIL_DESC> ds_desc = {})
-            : QueryInternal(target_formats, std::move(rt_descs), std::move(ds_desc)){};
-
-    public:
-    };
-}
+        return bool(desc);
+    }
+};
+} // namespace wis

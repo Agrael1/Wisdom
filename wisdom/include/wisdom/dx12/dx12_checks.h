@@ -85,12 +85,22 @@ WIS_EXPORT namespace wis
         throw wis::hr_exception{ last_windows_error(), sl };
     }
 
-    /// @brief Check if the given HRESULT is a success code, logging any errors and throwing a windows exception if it is not a success code
+    /// @brief Check if the given HRESULT a success code, without logging, serves as an assert
     /// @param hr HRESULT to check
     /// @return True if the HRESULT is a success code
     inline bool succeded(winrt::hresult hr) noexcept
     {
-        return check_hresult_nothrow(hr);
+        if constexpr (debug_mode || runtime_asserts)
+            log_dxgi_errors();
+        return hr >= 0;
+    }
+
+    /// @brief Check if there are any errors in the current context, logging any errors
+    /// @param sl Source location
+    inline void log_context(wis::source_location sl = wis::source_location::current())
+    {
+        if constexpr (debug_mode)
+            log_dxgi_errors();
     }
 
     /// @brief Check if the given HRESULT a success code, without logging, serves as an assert

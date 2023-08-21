@@ -1,28 +1,12 @@
-//#include "../dx12_device.h"
+#include "../dx12_device.h"
 
-bool wis::DX12Device::Initialize(wis::DX12AdapterView adapter) noexcept
+bool wis::DX12Device::Initialize(DX12FactoryView in_factory, wis::DX12AdapterView in_adapter) noexcept
 {
-    if (!wis::succeded(D3D12CreateDevice(adapter,
+    factory.copy_from(std::get<0>(in_factory));
+    adapter.copy_from(std::get<0>(in_adapter));
+    if (!wis::succeded(D3D12CreateDevice(adapter.get(),
                                          D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
         return false;
-
-    // Describe and create a render target view (RTV) descriptor heap.
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    rtvHeapDesc.NumDescriptors = heap_size;
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    wis::check_hresult(device->CreateDescriptorHeap(&rtvHeapDesc, __uuidof(*rtv_heap), rtv_heap.put_void()));
-    rtv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
-
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-    dsvHeapDesc.NumDescriptors = dsv_heap_size;
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    wis::check_hresult(device->CreateDescriptorHeap(&dsvHeapDesc, __uuidof(*dsv_heap), dsv_heap.put_void()));
-    dsv_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-    dsv_start = dsv_heap->GetCPUDescriptorHandleForHeapStart();
-    return true;
 }
 
 wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView queue, wis::SwapchainOptions options, wis::SurfaceParameters surface) const
@@ -31,7 +15,7 @@ wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView qu
         .Width = options.width,
         .Height = options.height,
         .Format = DXGI_FORMAT(options.format),
-        .Stereo = DX12Factory::GetFactory()->IsWindowedStereoEnabled() && options.stereo,
+        .Stereo = factory->IsWindowedStereoEnabled() && options.stereo,
         .SampleDesc{ .Count = 1, .Quality = 0 },
         .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
         .BufferCount = options.frame_count,
@@ -45,11 +29,11 @@ wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView qu
     switch (surface.type) {
     default:
     case SurfaceParameters::Type::Win32:
-        chain = DX12Factory::SwapChainForWin32(desc, surface.hwnd, queue);
+        chain = SwapChainForWin32(desc, surface.hwnd, queue);
         break;
 #ifdef WISDOM_UWP
     case SurfaceParameters::Type::WinRT:
-        chain = DX12Factory::SwapChainForCoreWindow(desc, surface.core_window, queue);
+        chain = SwapChainForCoreWindow(desc, surface.core_window, queue);
         break;
 #endif
     }
@@ -99,7 +83,7 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
 
     wis::internals::uniform_allocator<CD3DX12_ROOT_PARAMETER1> root_parameters;
     for (auto& lay : layouts) {
-        auto ranges = lay.GetInternal().GetRanges();
+        auto& ranges = lay.GetInternal().ranges;
         root_parameters.allocate()
                 .InitAsDescriptorTable(ranges.size(), ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
     }
@@ -116,7 +100,7 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
 
 wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
         const DX12GraphicsPipelineDesc& desc,
-        std::span<const InputLayoutDesc> input_layout) const // movable
+        std::span<const InputLayoutDesc> input_layout) const noexcept
 {
     winrt::com_ptr<ID3D12PipelineState> state;
     D3D12_PIPELINE_STATE_STREAM_DESC xdesc{};
@@ -138,100 +122,167 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
     iadesc.pInputElementDescs = ia.data();
 
     internals::memory_pool psta;
-    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().GetRootSignature();
+    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().root.get();
     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
 
-    if (desc.depth_enabled)
-        psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2>() = CD3DX12_DEPTH_STENCIL_DESC2{ CD3DX12_DEFAULT{} };
-
     if (desc.vs) {
-        auto d = desc.vs.GetInternal().GetShaderBytecode();
+        auto& d = desc.vs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_VS>() = { d.data(), d.size() };
     }
     if (desc.ps) {
-        auto d = desc.ps.GetInternal().GetShaderBytecode();
+        auto& d = desc.ps.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_PS>() = { d.data(), d.size() };
     }
     if (desc.gs) {
-        auto d = desc.gs.GetInternal().GetShaderBytecode();
+        auto& d = desc.gs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_GS>() = { d.data(), d.size() };
     }
 
     if (desc.hs) {
-        auto d = desc.hs.GetInternal().GetShaderBytecode();
+        auto& d = desc.hs.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_HS>() = { d.data(), d.size() };
     }
     if (desc.ds) {
-        auto d = desc.ds.GetInternal().GetShaderBytecode();
+        auto& d = desc.ds.GetInternal().bytecode;
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
     }
-    if (desc.target_formats.size()) {
+
+    auto& rpi = *std::get<0>(desc.render_pass);
+
+    if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+        psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL1>() = CD3DX12_DEPTH_STENCIL_DESC1{ CD3DX12_DEFAULT{} };
+        psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(rpi.ds_format);
+    }
+    if (rpi.rt_formats.size()) {
         D3D12_RT_FORMAT_ARRAY rta{
-            .NumRenderTargets = uint32_t(desc.target_formats.size())
+            .NumRenderTargets = uint32_t(rpi.rt_formats.size())
         };
-        std::memcpy(rta.RTFormats, desc.target_formats.data(), desc.target_formats.size() * sizeof(DataFormat));
+        std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
     }
+
+
     xdesc.pPipelineStateSubobjectStream = psta.data<void>();
     xdesc.SizeInBytes = psta.size_bytes();
 
-    wis::check_hresult(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()));
-    return DX12PipelineState{ std::move(state) };
+    return wis::succeded(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
+            ? DX12PipelineState{ std::move(state) }
+            : DX12PipelineState{};
 }
 
 wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
         wis::Size2D,
         std::span<const ColorAttachment> rtv_descs,
-        DepthStencilAttachment dsv_desc,
-        SampleCount samples,
-        DataFormat vrs_format) const
+        DepthStencilAttachment dsv_desc) const noexcept
 {
-    std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> om_rtv;
-    om_rtv.reserve(rtv_descs.size());
-
-    for (auto& x : rtv_descs) {
-        D3D12_RENDER_PASS_BEGINNING_ACCESS begin{
-            .Type = convert_dx(x.load)
-        };
-        D3D12_RENDER_PASS_ENDING_ACCESS end{
-            .Type = convert_dx(x.store)
-        };
-        om_rtv.push_back({ 0, begin, end });
+    if constexpr (wis::debug_mode)
+    {
+        if (rtv_descs.size() >= max_render_targets) {
+            wis::lib_error(
+                    wis::format("Render Pass has {} render targets, which is more, than {}, excessive targets are truncated.",
+                                rtv_descs.size(),
+                                wis::max_render_targets));
+            return {};
+        }
+        if (rtv_descs.size() + (dsv_desc.format != DataFormat::unknown) == 0) {
+            wis::lib_error("Render Pass has no render targets and no depth stencil target, which is invalid.");
+            return {};
+        }
     }
 
-    wis::internals::uniform_allocator<DataFormat, max_render_targets> a;
-    for (auto& i : rtv_descs)
-        a.allocate() = i.format;
+    auto render_pass_internal = std::make_unique<DX12RenderPassInternal>();
+
+    for (size_t i = 0; i < rtv_descs.size(); i++) {
+        auto& rtv = rtv_descs[i];
+        render_pass_internal->rt_descs[i] = {
+            .BeginningAccess = { .Type = convert_dx(rtv.load) },
+            .EndingAccess = { .Type = convert_dx(rtv.store) }
+        };
+        if (rtv.load == PassLoadOperation::clear)
+            render_pass_internal->rt_descs[i].BeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT(rtv.format);
+        render_pass_internal->rt_formats.allocate(DXGI_FORMAT(rtv.format));
+    }
 
     if (dsv_desc.format == DataFormat::unknown)
-        return DX12RenderPass{ a, std::move(om_rtv) };
+        return DX12RenderPass{ std::move(render_pass_internal) };
 
-    D3D12_RENDER_PASS_BEGINNING_ACCESS depth_begin{ convert_dx(dsv_desc.depth_load), {} };
-    D3D12_RENDER_PASS_ENDING_ACCESS depth_end{ convert_dx(dsv_desc.depth_store), {} };
-    D3D12_RENDER_PASS_BEGINNING_ACCESS stencil_begin{ convert_dx(dsv_desc.stencil_load), {} };
-    D3D12_RENDER_PASS_ENDING_ACCESS stencil_end{ convert_dx(dsv_desc.stencil_store), {} };
+    render_pass_internal->ds_format = DXGI_FORMAT(dsv_desc.format);
+    render_pass_internal->ds_desc = {
+        .DepthBeginningAccess = { convert_dx(dsv_desc.depth_load), {} },
+        .StencilBeginningAccess = { convert_dx(dsv_desc.stencil_load), {} },
+        .DepthEndingAccess = { convert_dx(dsv_desc.depth_store), {} },
+        .StencilEndingAccess = { convert_dx(dsv_desc.stencil_store), {} }
+    };
 
-    return DX12RenderPass{ a, std::move(om_rtv), D3D12_RENDER_PASS_DEPTH_STENCIL_DESC{ 0, depth_begin, stencil_begin, depth_end, stencil_end } };
+    if (dsv_desc.depth_load == PassLoadOperation::clear)
+        render_pass_internal->ds_desc.DepthBeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT(dsv_desc.format);
+
+    return DX12RenderPass{ std::move(render_pass_internal) };
 }
 
-wis::DX12RenderTargetView wis::DX12Device::CreateRenderTargetView(DX12TextureView texture, RenderSelector range)
+
+#include <d3d11.h>
+
+inline winrt::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
-    D3D12_RENDER_TARGET_VIEW_DESC desc{
-        .Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN,
-        .ViewDimension = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
-        .Texture2DArray{
-                .MipSlice = range.mip,
-                .FirstArraySlice = range.base_layer,
-                .ArraySize = range.extent_layers,
-                .PlaneSlice = 0 }
+    constexpr D3D_FEATURE_LEVEL featureLevels[]{
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1
     };
-    device->CreateRenderTargetView(texture, &desc, rtv_start);
-    DX12RenderTargetView rtvm{ rtv_start };
-    rtv_start.Offset(1, rtv_increment);
-    rtv_index++;
-    if (rtv_index == heap_size) {
-        rtv_index = 0;
-        rtv_start = rtv_heap->GetCPUDescriptorHandleForHeapStart();
+
+    winrt::com_ptr<ID3D11Device> device11;
+    D3D11CreateDevice(nullptr,
+                      D3D_DRIVER_TYPE_HARDWARE,
+                      nullptr, 0,
+                      featureLevels, 3, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
+    return device11;
+}
+
+winrt::com_ptr<IDXGISwapChain4>
+wis::DX12Device::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue) const noexcept
+{
+    winrt::com_ptr<IDXGISwapChain1> swap;
+    if (desc.Stereo) // until microsoft fixes this
+    {
+        wis::succeded(factory->CreateSwapChainForCoreWindow(
+                CreateD3D11Device().get(),
+                core_window,
+                &desc,
+                nullptr,
+                swap.put()));
     }
-    return rtvm;
+
+    wis::succeded(factory->CreateSwapChainForCoreWindow(
+            queue, // Swap chain needs the queue so that it can force a flush on it.
+            core_window,
+            &desc,
+            nullptr,
+            swap.put()));
+    return swap.try_as<IDXGISwapChain4>();
+}
+
+winrt::com_ptr<IDXGISwapChain4>
+wis::DX12Device::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue) const noexcept
+{
+    winrt::com_ptr<IDXGISwapChain1> swap;
+    if (desc.Stereo) // until microsoft fixes this
+    {
+        wis::succeded(factory->CreateSwapChainForHwnd(
+                CreateD3D11Device().get(), // Swap chain needs the queue so that it can force a flush on it.
+                hwnd,
+                &desc,
+                nullptr,
+                nullptr,
+                swap.put()));
+    }
+
+    wis::succeded(factory->CreateSwapChainForHwnd(
+            queue, // Swap chain needs the queue so that it can force a flush on it.
+            hwnd,
+            &desc,
+            nullptr,
+            nullptr,
+            swap.put()));
+    return swap.try_as<IDXGISwapChain4>();
 }

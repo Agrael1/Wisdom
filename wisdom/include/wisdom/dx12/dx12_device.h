@@ -18,29 +18,14 @@ WIS_EXPORT namespace wis
     template<>
     class Internal<DX12Device>
     {
-    protected:
+    public:
         static inline constexpr auto heap_size = 128u;
         static inline constexpr auto dsv_heap_size = 6u;
-        static constexpr inline bool valid = true;
 
     public:
-        [[nodiscard]] ID3D12Device10* GetDevice() const noexcept
-        {
-            return device.get();
-        }
-
-    protected:
-        winrt::com_ptr<ID3D12Device10> device{};
-        winrt::com_ptr<ID3D12DescriptorHeap> rtv_heap{};
-        winrt::com_ptr<ID3D12DescriptorHeap> dsv_heap{};
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_start;
-        CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_start;
-
-        uint32_t rtv_increment = 0;
-        uint32_t rtv_index = 0;
-
-        uint32_t dsv_increment = 0;
-        uint32_t dsv_index = 0;
+        winrt::com_ptr<ID3D12Device10> device;
+        winrt::com_ptr<IDXGIAdapter1> adapter;
+        winrt::com_ptr<IDXGIFactory4> factory;
     };
 
     /// @brief A DX12 device
@@ -48,23 +33,23 @@ WIS_EXPORT namespace wis
     {
     public:
         DX12Device() = default;
-        explicit DX12Device(DX12AdapterView adapter)
+        explicit DX12Device(DX12FactoryView factory, DX12AdapterView adapter)
         {
-            Initialize(adapter);
+            Initialize(factory, adapter);
         };
 
     public:
         /// @brief Initialize the device
         /// @param adapter The adapter to use
         /// @return true if the device was initialized successfully
-        WIS_INLINE bool Initialize(DX12AdapterView adapter) noexcept;
+        WIS_INLINE bool Initialize(DX12FactoryView factory, DX12AdapterView adapter) noexcept;
         explicit operator bool() const noexcept
         {
             return bool(device);
         }
         operator DX12DeviceView() const noexcept
         {
-            return GetDevice();
+            return device.get();
         }
 
     public:
@@ -98,7 +83,7 @@ WIS_EXPORT namespace wis
         /// @brief Create a graphics pipeline
         [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
                 const DX12GraphicsPipelineDesc& desc,
-                std::span<const InputLayoutDesc> input_layout) const;
+                std::span<const InputLayoutDesc> input_layout) const noexcept;
 
         /// @brief Create a shader
         /// @param blob The shader blob
@@ -116,37 +101,104 @@ WIS_EXPORT namespace wis
         [[nodiscard]] WIS_INLINE DX12RenderPass CreateRenderPass(
                 wis::Size2D,
                 std::span<const ColorAttachment> rtv_descs,
-                DepthStencilAttachment dsv_desc = DepthStencilAttachment{},
-                SampleCount samples = SampleCount::s1,
-                DataFormat vrs_format = DataFormat::unknown) const;
+                DepthStencilAttachment dsv_desc = DepthStencilAttachment{}) const noexcept;
 
-        // TODO: other formats, better allocator
         /// @brief Create a render target view
         /// @param texture The texture to create the view for
         /// @param range The range of the view
-        [[nodiscard]] WIS_INLINE DX12RenderTargetView CreateRenderTargetView(DX12TextureView texture, RenderSelector range = {});
+        [[nodiscard]] DX12RenderTarget
+        CreateRenderTarget(DX12TextureView texture, wis::DataFormat format, RenderTargetSelector range = {}) const noexcept
+        {
+            D3D12_RENDER_TARGET_VIEW_DESC desc{
+                .Format = DXGI_FORMAT(format),
+                .ViewDimension = D3D12_RTV_DIMENSION(range.type),
+                .Texture2DArray{
+                        .MipSlice = range.mip,
+                        .FirstArraySlice = range.base_layer,
+                        .ArraySize = range.extent_layers,
+                        .PlaneSlice = 0 }
+            };
+            switch (range.type) {
+            case TextureType::Texture1D:
+                desc.Texture1D = {
+                    .MipSlice = range.mip
+                };
+                break;
+            case TextureType::Texture1DArray:
+                desc.Texture1DArray = {
+                    .MipSlice = range.mip,
+                    .FirstArraySlice = range.base_layer,
+                    .ArraySize = range.extent_layers
+                };
+                break;
+            case TextureType::Texture2D:
+                desc.Texture2D = {
+                    .MipSlice = range.mip
+                };
+                break;
+            case TextureType::Texture2DArray:
+                desc.Texture2DArray = {
+                    .MipSlice = range.mip,
+                    .FirstArraySlice = range.base_layer,
+                    .ArraySize = range.extent_layers
+                };
+                break;
+            case TextureType::Texture2DMSArray:
+                desc.Texture2DMSArray = {
+                    .FirstArraySlice = range.base_layer,
+                    .ArraySize = range.extent_layers
+                };
+                break;
+            case TextureType::Texture3D:
+                desc.Texture3D = {
+                    .MipSlice = range.mip,
+                    .FirstWSlice = range.base_layer,
+                    .WSize = range.extent_layers
+                };
+                break;
+            default:
+                break;
+            }
 
-        [[nodiscard]] WIS_INLINE DX12DepthStencilView CreateDepthStencilView(DX12TextureView texture)
+            D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+                .Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+                .NumDescriptors = 1,
+                .Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+                .NodeMask = 0u
+            };
+
+            winrt::com_ptr<ID3D12DescriptorHeap> heap;
+            if (!wis::succeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
+                return {};
+
+            device->CreateRenderTargetView(texture, &desc, heap->GetCPUDescriptorHandleForHeapStart());
+            return DX12RenderTarget{ std::move(heap) };
+        }
+
+        [[nodiscard]] DX12DepthStencil
+        CreateDepthStencil(DX12TextureView texture, wis::DataFormat format) const noexcept
         {
             D3D12_DEPTH_STENCIL_VIEW_DESC desc{
-                .Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN,
-                .ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D,
+                .Format = DXGI_FORMAT(format),
+                .ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D, // only 2D for now
                 .Texture2D{
                         .MipSlice = 0,
                 }
             };
 
-            device->CreateDepthStencilView(texture, &desc, dsv_start);
+            D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+                .Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+                .NumDescriptors = 1,
+                .Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+                .NodeMask = 0u
+            };
 
-            DX12DepthStencilView dsv{ dsv_start };
+            winrt::com_ptr<ID3D12DescriptorHeap> heap;
+            if (!wis::succeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
+                return {};
 
-            dsv_start.Offset(1, dsv_increment);
-            dsv_index++;
-            if (dsv_index == dsv_heap_size) {
-                dsv_index = 0;
-                dsv_start = dsv_heap->GetCPUDescriptorHandleForHeapStart();
-            }
-            return dsv;
+            device->CreateDepthStencilView(texture, &desc, heap->GetCPUDescriptorHandleForHeapStart());
+            return DX12DepthStencil{ std::move(heap) };
         }
 
         // TODO:Comment
@@ -193,6 +245,13 @@ WIS_EXPORT namespace wis
             wis::assert_debug(handle.ptr < end.ptr, wis::format("Handle for constant buffer {} is out of range", index));
             device->CreateConstantBufferView(&cbvDesc, handle);
         }
+
+    protected:
+        WIS_INLINE [[nodiscard]] winrt::com_ptr<IDXGISwapChain4>
+        SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnknown* core_window, IUnknown* queue) const noexcept;
+
+        WIS_INLINE [[nodiscard]] winrt::com_ptr<IDXGISwapChain4>
+        SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd, IUnknown* queue) const noexcept;
     };
 }
 

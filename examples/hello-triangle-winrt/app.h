@@ -7,7 +7,7 @@ class App
 public:
     App();
     ~App();
-    void Initialize(IUnknown *core_window, uint32_t width, uint32_t height);
+    void Initialize(IUnknown* core_window, uint32_t width, uint32_t height);
 
 public:
     void Frame();
@@ -35,8 +35,8 @@ private:
     wis::RootSignature root;
     wis::PipelineState pipeline;
     wis::VertexBufferView vb;
-    wis::RenderTargetView rtvs[2];
-    wis::RenderTargetView rtvs2[2];
+    wis::RenderTarget rtvs[2];
+    wis::RenderTarget rtvs2[2];
 
     wis::Buffer vertex_buffer;
     wis::RenderPass render_pass;
