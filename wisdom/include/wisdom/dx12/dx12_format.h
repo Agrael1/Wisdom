@@ -1,5 +1,6 @@
 #pragma once
 #ifndef WISDOM_MODULES
+#include <wisdom/util/flags.h>
 #include <wisdom/api/api_render_pass.h>
 #include <wisdom/api/api_barrier.h>
 #include <d3d12.h>
@@ -41,6 +42,20 @@ inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(PassStoreOperat
     case PassStoreOperation::discard:
         return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
     }
+}
+inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureFlags op) noexcept
+{
+    using namespace river::flags;
+    D3D12_RESOURCE_FLAGS ret = D3D12_RESOURCE_FLAG_NONE;
+    if (!(op & TextureFlags::ShaderResource))
+        ret |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+    if (op & TextureFlags::RenderTarget)
+        ret |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    if (op & TextureFlags::DepthStencil)
+        ret |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    if (op & TextureFlags::Storage)
+        ret |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    return ret;
 }
 inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStage op) noexcept
 {

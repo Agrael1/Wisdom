@@ -427,6 +427,24 @@ WIS_EXPORT namespace wis
         Texture3D = 8
     };
 
+    enum class TextureFlags : uint32_t {
+        None = 0,
+        CopySrc = (1 << 0),
+        CopyDst = (1 << 1),
+        VKSampled = (1 << 2),
+        Storage = (1 << 3),
+        RenderTarget = (1 << 4),
+        DepthStencil = (1 << 5),
+        VKTransientAttachment = (1 << 6),
+        ShaderResource = (1 << 7),
+        VKVideoDecodeDst = (1 << 10),
+        VKVideoDecodeSrc = (1 << 11),
+        VKVideoDecodeDpb = (1 << 12),
+        VKShadingRateImage = (1 << 8),
+        VKFragmentDensityMap = (1 << 9),
+        VKFragmentShadingRateAttachment = VKShadingRateImage,
+    };
+
     /// @brief Structure for selecting a DescriptorHeap type
     enum class PoolType {
         CBV_SRV_UAV = 0,
@@ -461,25 +479,25 @@ WIS_EXPORT namespace wis
     // TODO: Better selector for texture types
     struct RenderTargetSelector {
         TextureType type = TextureType::Texture2D;
-
         uint32_t mip = 0;
         uint32_t base_layer = 0; // In 3D textures, this is the z offset
         uint32_t extent_layers = 1; // In 3D textures, this is the depth
     };
 
     struct TextureDescriptor {
+        TextureType type = TextureType::Texture2D;
+        DataFormat format = DataFormat::unknown;
         uint32_t width = 0;
         uint32_t height = 0;
         uint32_t depth = 1;
         uint32_t array_size = 1;
         uint32_t mip_levels = 1;
-        DataFormat format = DataFormat::unknown;
     };
 
     struct DepthDescriptor {
+        DataFormat format = DataFormat::unknown;
         uint32_t width = 0;
         uint32_t height = 0;
-        DataFormat format = DataFormat::unknown;
     };
 
     /// @brief Size of a texture in pixels

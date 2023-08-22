@@ -88,7 +88,7 @@ WIS_EXPORT namespace wis
     /// @brief Check if the given HRESULT a success code, without logging, serves as an assert
     /// @param hr HRESULT to check
     /// @return True if the HRESULT is a success code
-    inline bool succeded(winrt::hresult hr) noexcept
+    inline bool succeeded(winrt::hresult hr) noexcept
     {
         if constexpr (debug_mode || runtime_asserts)
             log_dxgi_errors();

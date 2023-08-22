@@ -24,7 +24,7 @@ public:
 /// @note Not thread safe on creation
 WIS_EXPORT class DX12Factory : public QueryInternal<DX12Factory>
 {
-    static inline constexpr uint32_t debug_flag = wis::debug_mode & DXGI_CREATE_FACTORY_DEBUG;
+    static inline constexpr uint32_t debug_flag = wis::debug_mode * DXGI_CREATE_FACTORY_DEBUG;
 
 public:
     /// @brief Creates a new factory
@@ -33,7 +33,7 @@ public:
     explicit DX12Factory([[maybe_unused]] const ApplicationInfo& app_info = {}) noexcept
     {
         EnableDebugLayer();
-        wis::succeded(CreateDXGIFactory2(debug_flag,
+        wis::succeeded(CreateDXGIFactory2(debug_flag,
                                          __uuidof(IDXGIFactory4), factory.put_void()));
 
         // TODO: consider constexpr
@@ -66,7 +66,7 @@ private:
     {
         if constexpr (wis::debug_mode) {
             winrt::com_ptr<ID3D12Debug> debugController;
-            if (wis::succeded(D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
+            if (wis::succeeded(D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
                 debugController->EnableDebugLayer();
 
             if (auto d1 = debugController.try_as<ID3D12Debug1>())
@@ -84,7 +84,7 @@ private:
         auto factory6 = factory.try_as<IDXGIFactory6>();
         uint32_t index = 0;
 
-        while (wis::succeded(factory6->EnumAdapterByGpuPreference(index++,
+        while (wis::succeeded(factory6->EnumAdapterByGpuPreference(index++,
                                                                   preference,
                                                                   __uuidof(IDXGIAdapter1), adapter.put_void()))) {
             co_yield std::move(adapter);
@@ -99,7 +99,7 @@ private:
         winrt::com_ptr<IDXGIAdapter1> adapter;
         uint32_t index = 0;
 
-        while (wis::succeded(factory->EnumAdapters1(index++, adapter.put())))
+        while (wis::succeeded(factory->EnumAdapters1(index++, adapter.put())))
             co_yield std::move(adapter);
     }
 
