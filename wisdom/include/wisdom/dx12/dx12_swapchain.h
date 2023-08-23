@@ -80,7 +80,7 @@ WIS_EXPORT namespace wis
         {
             size_t current_size = render_targets.size();
             render_targets.clear(); // release all resources
-            if (!wis::succeded(chain->ResizeBuffers(current_size, width, height, DXGI_FORMAT_UNKNOWN, 0)))
+            if (!wis::succeeded(chain->ResizeBuffers(current_size, width, height, DXGI_FORMAT_UNKNOWN, 0)))
                 return false;
 
             for (uint32_t n = 0; n < current_size; n++) {

@@ -168,7 +168,7 @@ WIS_EXPORT namespace wis
             };
 
             winrt::com_ptr<ID3D12DescriptorHeap> heap;
-            if (!wis::succeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
+            if (!wis::succeeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
                 return {};
 
             device->CreateRenderTargetView(texture, &desc, heap->GetCPUDescriptorHandleForHeapStart());
@@ -194,7 +194,7 @@ WIS_EXPORT namespace wis
             };
 
             winrt::com_ptr<ID3D12DescriptorHeap> heap;
-            if (!wis::succeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
+            if (!wis::succeeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
                 return {};
 
             device->CreateDepthStencilView(texture, &desc, heap->GetCPUDescriptorHandleForHeapStart());

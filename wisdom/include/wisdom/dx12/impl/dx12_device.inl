@@ -4,7 +4,7 @@ bool wis::DX12Device::Initialize(DX12FactoryView in_factory, wis::DX12AdapterVie
 {
     factory.copy_from(std::get<0>(in_factory));
     adapter.copy_from(std::get<0>(in_adapter));
-    if (!wis::succeded(D3D12CreateDevice(adapter.get(),
+    if (!wis::succeeded(D3D12CreateDevice(adapter.get(),
                                          D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
         return false;
 }
@@ -165,7 +165,7 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
     xdesc.pPipelineStateSubobjectStream = psta.data<void>();
     xdesc.SizeInBytes = psta.size_bytes();
 
-    return wis::succeded(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
+    return wis::succeeded(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
             ? DX12PipelineState{ std::move(state) }
             : DX12PipelineState{};
 }
@@ -245,7 +245,7 @@ wis::DX12Device::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnkn
     winrt::com_ptr<IDXGISwapChain1> swap;
     if (desc.Stereo) // until microsoft fixes this
     {
-        wis::succeded(factory->CreateSwapChainForCoreWindow(
+        wis::succeeded(factory->CreateSwapChainForCoreWindow(
                 CreateD3D11Device().get(),
                 core_window,
                 &desc,
@@ -253,7 +253,7 @@ wis::DX12Device::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnkn
                 swap.put()));
     }
 
-    wis::succeded(factory->CreateSwapChainForCoreWindow(
+    wis::succeeded(factory->CreateSwapChainForCoreWindow(
             queue, // Swap chain needs the queue so that it can force a flush on it.
             core_window,
             &desc,
@@ -268,7 +268,7 @@ wis::DX12Device::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd,
     winrt::com_ptr<IDXGISwapChain1> swap;
     if (desc.Stereo) // until microsoft fixes this
     {
-        wis::succeded(factory->CreateSwapChainForHwnd(
+        wis::succeeded(factory->CreateSwapChainForHwnd(
                 CreateD3D11Device().get(), // Swap chain needs the queue so that it can force a flush on it.
                 hwnd,
                 &desc,
@@ -277,7 +277,7 @@ wis::DX12Device::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd,
                 swap.put()));
     }
 
-    wis::succeded(factory->CreateSwapChainForHwnd(
+    wis::succeeded(factory->CreateSwapChainForHwnd(
             queue, // Swap chain needs the queue so that it can force a flush on it.
             hwnd,
             &desc,

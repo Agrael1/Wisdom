@@ -51,7 +51,7 @@ public:
     /// @return true if call succeeded.
     bool Signal(DX12FenceView fence, uint64_t value) noexcept
     {
-        return wis::succeded(queue->Signal(fence, value));
+        return wis::succeeded(queue->Signal(fence, value));
     }
 };
 } // namespace wis
