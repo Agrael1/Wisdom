@@ -79,7 +79,7 @@ public:
             D3D12_BARRIER_SYNC(barrier.sync_after),
             convert_dx(barrier.access_before),
             convert_dx(barrier.access_after),
-            buffer
+            std::get<0>(buffer)
         };
         CD3DX12_BARRIER_GROUP bg{ 1, &bb };
         command_list->Barrier(1, &bg);
@@ -98,7 +98,7 @@ public:
             convert_dx(barrier.access_after),
             convert_dx(barrier.state_before),
             convert_dx(barrier.state_after),
-            texture,
+            std::get<0>(texture),
             r.extent_mips == r.whole ? CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.whole) : CD3DX12_BARRIER_SUBRESOURCE_RANGE(r.base_mip, r.extent_mips, r.base_layer, r.extent_layers)
         };
         CD3DX12_BARRIER_GROUP bg{ 1, &tb };
@@ -113,14 +113,14 @@ public:
     /// @param data_size Size of the data to copy.
     void CopyBuffer(DX12BufferView source, DX12BufferView destination, size_t data_size) noexcept
     {
-        command_list->CopyBufferRegion(destination, 0, source, 0, data_size);
+        command_list->CopyBufferRegion(std::get<0>(destination), 0, std::get<0>(source), 0, data_size);
     }
 
     /// @brief Sets the root signature for the command list. Only for DX12.
     /// @param root Root signature to set.
     void DXSetGraphicsRootSignature(DX12RootSignatureView root) noexcept
     {
-        command_list->SetGraphicsRootSignature(root);
+        command_list->SetGraphicsRootSignature(std::get<0>(root));
     }
 
     /// @brief Set viewport for the command list.
@@ -155,7 +155,7 @@ public:
     void IASetIndexBuffer(DX12BufferView buffer, uint32_t size, IndexType type = IndexType::uint16) noexcept
     {
         D3D12_INDEX_BUFFER_VIEW ibv{
-            buffer->GetGPUVirtualAddress(),
+            std::get<0>(buffer)->GetGPUVirtualAddress(),
             size,
             type == IndexType::uint16 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT,
         };
@@ -224,11 +224,11 @@ public:
 
     void SetGraphicsDescriptorSet(DX12RootSignatureView root) noexcept
     {
-        command_list->SetGraphicsRootSignature(root);
+        command_list->SetGraphicsRootSignature(std::get<0>(root));
     }
     void SetGraphicsDescriptorSet(DX12RootSignatureView root, uint32_t RootParameterIndex, DX12DescriptorSetBindView heap) noexcept
     {
-        command_list->SetGraphicsRootSignature(root);
+        command_list->SetGraphicsRootSignature(std::get<0>(root));
         command_list->SetDescriptorHeaps(1, (ID3D12DescriptorHeap* const*)&std::get<0>(heap));
         command_list->SetGraphicsRootDescriptorTable(RootParameterIndex, std::get<1>(heap));
     }

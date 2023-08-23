@@ -107,9 +107,9 @@ public:
     /// @param range The range of the view
     [[nodiscard]] DX12RenderTarget
     CreateRenderTarget(
-        DX12TextureView texture, 
-        wis::DataFormat format, 
-        RenderTargetSelector range = {}) const noexcept
+            DX12TextureView texture,
+            wis::DataFormat format,
+            RenderTargetSelector range = {}) const noexcept
     {
         D3D12_RENDER_TARGET_VIEW_DESC desc{
             .Format = DXGI_FORMAT(format),
@@ -173,7 +173,7 @@ public:
         if (!wis::succeeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
             return {};
 
-        device->CreateRenderTargetView(texture, &desc, heap->GetCPUDescriptorHandleForHeapStart());
+        device->CreateRenderTargetView(std::get<0>(texture), &desc, heap->GetCPUDescriptorHandleForHeapStart());
         return DX12RenderTarget{ std::move(heap) };
     }
 
@@ -199,7 +199,7 @@ public:
         if (!wis::succeeded(device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void())))
             return {};
 
-        device->CreateDepthStencilView(texture, &desc, heap->GetCPUDescriptorHandleForHeapStart());
+        device->CreateDepthStencilView(std::get<0>(texture), &desc, heap->GetCPUDescriptorHandleForHeapStart());
         return DX12DepthStencil{ std::move(heap) };
     }
 
@@ -232,7 +232,7 @@ public:
     void CreateConstantBufferView(DX12BufferView buffer, uint32_t size, DX12DescriptorSetView set, DX12DescriptorSetLayoutView layout, uint32_t binding = 0) const
     {
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-        cbvDesc.BufferLocation = buffer->GetGPUVirtualAddress();
+        cbvDesc.BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = size;
         auto it = std::ranges::find_if(layout, [binding](auto& range) {
             return range.BaseShaderRegister == binding;
