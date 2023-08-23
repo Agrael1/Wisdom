@@ -68,7 +68,7 @@ Test::App::App(uint32_t width, uint32_t height)
                                           wnd.GetHandle() });
 
     fence = device.CreateFence();
-    context = device.CreateCommandList(wis::QueueType::direct);
+    context = device.CreateCommandList(wis::QueueType::Direct);
     vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
     ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);
     root = device.CreateRootSignature(); // empty

@@ -52,7 +52,7 @@ public:
         swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(width), uint32_t(height), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true }, surface);
 
         fence = device.CreateFence();
-        context = device.CreateCommandList(wis::QueueType::direct);
+        context = device.CreateCommandList(wis::QueueType::Direct);
         constants_heap = device.CreateDescriptorHeap(2, wis::PoolType::CBV_SRV_UAV);
     }
 

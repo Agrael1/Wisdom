@@ -8,12 +8,12 @@ include(deps.cmake)
 
 
 # Add source to this project's executable.
-add_executable(${PROJECT_NAME} "resources/WinD3D.rc")
+add_executable(${PROJECT_NAME} "resources/WinD3D.rc" "include/example/util.h")
 
 wis_install_dx(${PROJECT_NAME})
 
-set(SOURCES "src/entry_main.cpp" "src/app.cpp" "src/keyboard.cpp" "src/mouse.cpp" "src/window.cpp")
-set(HEADERS "include/example/app.h" "include/example/keyboard.h" "include/example/menu.h" "include/example/mouse.h" "include/example/window.h" "include/resource.h")
+set(SOURCES "src/entry_main.cpp" "src/app.cpp" "src/keyboard.cpp" "src/mouse.cpp" "src/window.cpp" "src/util.cpp")
+set(HEADERS "include/example/app.h" "include/example/keyboard.h" "include/example/menu.h" "include/example/mouse.h" "include/example/window.h" "include/resource.h" "include/example/util.h")
 
 target_sources(${PROJECT_NAME}
 	PRIVATE 

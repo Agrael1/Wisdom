@@ -1,7 +1,7 @@
 #include <example/window.h>
 #include <sstream>
 #include <resource.h>
-#include <wisdom/dx12/dx12_checks.h>
+#include <example/util.h>
 
 // extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

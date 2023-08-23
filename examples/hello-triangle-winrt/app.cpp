@@ -71,7 +71,7 @@ void Test::App::Initialize(IUnknown* core_window, uint32_t xwidth, uint32_t xhei
     swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(width), uint32_t(height), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true }, wis::SurfaceParameters{ core_window });
 
     fence = device.CreateFence();
-    context = device.CreateCommandList(wis::QueueType::direct);
+    context = device.CreateCommandList(wis::QueueType::Direct);
 
     std::array cas2{
         wis::ColorAttachment{

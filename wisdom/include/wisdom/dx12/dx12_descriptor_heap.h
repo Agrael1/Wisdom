@@ -8,6 +8,8 @@
 #include <span>
 #endif
 
+// TODO: Rework
+
 WIS_EXPORT namespace wis
 {
     class DX12DescriptorSetLayout;

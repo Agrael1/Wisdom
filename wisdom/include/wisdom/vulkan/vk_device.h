@@ -95,11 +95,11 @@ WIS_EXPORT namespace wis
             static constexpr size_t QueueIndex(QueueType type)
             {
                 switch (type) {
-                case wis::QueueType::compute:
+                case wis::QueueType::Compute:
                     return +QueueTypes::compute;
-                case wis::QueueType::copy:
+                case wis::QueueType::Copy:
                     return +QueueTypes::copy;
-                case wis::QueueType::video_decode:
+                case wis::QueueType::VideoDecode:
                     return +QueueTypes::video_decode;
                 default:
                     return +QueueTypes::graphics;
@@ -196,11 +196,11 @@ WIS_EXPORT namespace wis
                                   vk::CommandBuffer{ device->allocateCommandBuffers(cmd_buf_alloc_info).at(0) } };
         }
 
-        [[nodiscard]] VKFence CreateFence() const
+        [[nodiscard]] VKFence CreateFence(uint64_t initial_value = 0ull) const
         {
             vk::SemaphoreTypeCreateInfo timeline_desc{
                 vk::SemaphoreType::eTimeline,
-                0
+                initial_value
             };
             vk::SemaphoreCreateInfo desc{
                 {}, &timeline_desc

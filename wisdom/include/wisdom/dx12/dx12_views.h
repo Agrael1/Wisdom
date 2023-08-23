@@ -24,10 +24,10 @@ WIS_EXPORT namespace wis
 
     using DX12RenderTargetHandle = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
     using DX12RenderPassView = std::tuple<const struct DX12RenderPassInternal*>;
+    using DX12VertexBufferView = std::tuple<D3D12_VERTEX_BUFFER_VIEW>;
+    using DX12CommandQueueView = std::tuple<ID3D12CommandQueue*>;
 
-    using DX12DeviceView = ID3D12Device10*;
     using DX12PipelineStateView = ID3D12PipelineState*;
-    using DX12CommandQueueView = ID3D12CommandQueue*;
     using DX12FenceView = ID3D12Fence1*;
     using DX12CommandListView = ID3D12GraphicsCommandList9*;
     using DX12BufferView = ID3D12Resource*;

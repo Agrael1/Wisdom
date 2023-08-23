@@ -270,13 +270,13 @@ WIS_EXPORT namespace wis
     /// @brief Queue type for a command list and command queue queries
     /// @note  The order of the enum values is important, do not change it
     enum class QueueType {
-        direct = 0,
-        bundle = 1, //< Bundle queues are used for bundles in D3D12, but are not supported in Vulkan yet
-        compute = 2,
-        copy = 3,
-        video_decode = 4, //< Video decode queues are used for video decode in D3D12, but are not supported in Vulkan yet
-        video_process = 5, //< Video process queues are used for video process in D3D12, but are not supported in Vulkan yet
-        video_encode = 6, //< Video encode queues are used for video encode in D3D12, but are not supported in Vulkan yet
+        Direct = 0,
+        Bundle = 1, //< Bundle queues are used for bundles in D3D12, but are not supported in Vulkan yet
+        Compute = 2,
+        Copy = 3,
+        VideoDecode = 4, //< Video decode queues are used for video decode in D3D12, but are not supported in Vulkan yet
+        VideoProcess = 5, //< Video process queues are used for video process in D3D12, but are not supported in Vulkan yet
+        VideoEncode = 6, //< Video encode queues are used for video encode in D3D12, but are not supported in Vulkan yet
     };
 
     /// @brief Basic Viewport structure
@@ -368,21 +368,17 @@ WIS_EXPORT namespace wis
     /// @note  Matches the D3D12_COMMAND_QUEUE_DESC structure
     struct QueueOptions {
         enum class Priority {
-            normal = 0,
-            high = 100,
-            global_realtime = 10000
+            Normal = 0,
+            High = 100,
+            GlobalRealtime = 10000
         };
         enum class Flags {
-            none = 0,
+            None = 0,
         };
 
-        QueueOptions() = default;
-        QueueOptions(QueueType type, Priority priority = Priority::normal, Flags flags = Flags::none, uint32_t node_mask = 0)
-            : type(type), priority(priority), flags(flags), node_mask(node_mask) { }
-
-        QueueType type = QueueType::direct; //< Type of the queue (not all types are supported on all backends)
-        Priority priority = Priority::normal; //< Priority of the queue (D3D12 only, but changes Vulkan queue search algorithm)
-        Flags flags = Flags::none; //< Flags for the queue creation (unused)
+        QueueType type = QueueType::Direct; //< Type of the queue (not all types are supported on all backends)
+        Priority priority = Priority::Normal; //< Priority of the queue (D3D12 only, but changes Vulkan queue search algorithm)
+        Flags flags = Flags::None; //< Flags for the queue creation (unused)
         uint32_t node_mask = 0; //< Node mask for multi GPU systems (default to 0 for single GPU systems)
     };
 

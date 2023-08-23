@@ -233,7 +233,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
                 device, surface },
         render_queue,
         VKCommandQueue{ qpresent_queue },
-        CreateCommandList(QueueType::direct),
+        CreateCommandList(QueueType::Direct),
         *format,
         present_mode,
         stereo
