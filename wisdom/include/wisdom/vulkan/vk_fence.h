@@ -34,7 +34,7 @@ WIS_EXPORT namespace wis
         /// @return Value of the fence.
         [[nodiscard]] uint64_t GetCompletedValue() const noexcept
         {
-            return device.getSemaphoreCounterValue(fence.get());
+            return device.getSemaphoreCounterValue(fence.get()).value;
         }
 
         /// @brief Wait for the fence to reach a certain value.

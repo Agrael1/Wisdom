@@ -23,14 +23,14 @@ template<>
 class Internal<DX12RenderPass>
 {
 public:
-    std::unique_ptr<DX12RenderPassInternal> desc;
+    std::shared_ptr<DX12RenderPassInternal> desc;
 };
 
 WIS_EXPORT class DX12RenderPass : public QueryInternal<DX12RenderPass>
 {
 public:
     DX12RenderPass() = default;
-    explicit DX12RenderPass(std::unique_ptr<DX12RenderPassInternal> desc) noexcept
+    explicit DX12RenderPass(std::shared_ptr<DX12RenderPassInternal> desc) noexcept
         : QueryInternal(std::move(desc)) { }
 
     operator DX12RenderPassView() const noexcept

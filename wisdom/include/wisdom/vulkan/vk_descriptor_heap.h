@@ -2,6 +2,7 @@
 #ifndef WISDOM_MODULES
 #include <wisdom/api/api_internal.h>
 #include <wisdom/vulkan/vk_shared_handle.h>
+#include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/api/api_common.h>
 #endif
@@ -84,8 +85,10 @@ WIS_EXPORT namespace wis
             vk::DescriptorSetAllocateInfo alloc_info{
                 pool.get(), 1u, &layout
             };
-            shared_handle<vk::DescriptorSet> set{ device->allocateDescriptorSets(alloc_info)[0], device, { pool } };
-            return VKDescriptorSet{ std::move(set) };
+            auto [result, sets] = device->allocateDescriptorSets(alloc_info);
+            return succeeded(result)
+                    ? VKDescriptorSet{ shared_handle<vk::DescriptorSet>{ std::move(sets[0]), device, { pool } } }
+                    : VKDescriptorSet{};
         }
     };
 }

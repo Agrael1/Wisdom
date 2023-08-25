@@ -63,9 +63,9 @@ public:
         }
         return *this;
     }
-    DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPassView pass) noexcept
+    DX12GraphicsPipelineDesc& SetRenderPass(DX12RenderPass pass) noexcept
     {
-        render_pass = pass;
+        render_pass = std::move(pass);
         return *this;
     }
 
@@ -76,7 +76,7 @@ private:
     DX12Shader gs;
     DX12Shader hs;
     DX12Shader ds;
-    DX12RenderPassView render_pass;
+    DX12RenderPass render_pass;
 };
 
 // TODO: Mesh and Compute pipelines

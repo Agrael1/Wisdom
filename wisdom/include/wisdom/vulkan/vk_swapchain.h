@@ -26,8 +26,12 @@ WIS_EXPORT namespace wis
             , present_mode(present_mode)
             , device(this->swap.getParent().get())
         {
-            graphics_semaphore = device.createSemaphoreUnique({});
-            present_semaphore = device.createSemaphoreUnique({});
+            auto [result, value] = device.createSemaphoreUnique({});
+            auto [result2, value2] = device.createSemaphoreUnique({});
+            if (!succeeded(result) || !succeeded(result2))
+                return;
+            graphics_semaphore = std::move(value);
+            present_semaphore = std::move(value2);
         }
 
         [[nodiscard]] vk::SwapchainKHR GetSwapchain() const noexcept
@@ -85,7 +89,7 @@ WIS_EXPORT namespace wis
 
         /// @brief Get the current render target in the swapchain
         /// @return Buffer view of the current render target TODO: Make a texture view
-        [[nodiscard]] auto GetBackBuffer() const noexcept
+        [[nodiscard]] VKTextureView GetBackBuffer() const noexcept
         {
             return back_buffers[present_index];
         }
@@ -144,7 +148,10 @@ WIS_EXPORT namespace wis
         void CreateImages() noexcept
         {
             initialization.Reset();
-            auto xback_buffers = device.getSwapchainImagesKHR(swap.get());
+            auto [result, xback_buffers] = device.getSwapchainImagesKHR(swap.get());
+            if (!succeeded(result))
+                return;
+
             back_buffers.reserve(xback_buffers.size());
             for (auto& i : xback_buffers) {
                 back_buffers.emplace_back(
@@ -154,7 +161,7 @@ WIS_EXPORT namespace wis
                                 .state_before = TextureState::Undefined,
                                 .state_after = TextureState::Present,
                                 .access_before = ResourceAccess::NoAccess,
-                                .access_after = ResourceAccess::Common,
+                                .access_after = ResourceAccess::NoAccess,
                         },
                         { i, format.format });
             }

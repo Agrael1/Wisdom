@@ -186,14 +186,18 @@ WIS_EXPORT namespace wis
                 vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                 queues.GetOfType(list_type)->family_index
             };
-            auto ca = device->createCommandPool(cmd_pool_create_info); // allocator
+            auto [result, ca] = device->createCommandPool(cmd_pool_create_info); // allocator
+            if (!succeeded(result))
+                return {};
 
             vk::CommandBufferAllocateInfo cmd_buf_alloc_info{
                 ca, vk::CommandBufferLevel::ePrimary, 1
             };
 
+            auto [result2, cb] = device->allocateCommandBuffers(cmd_buf_alloc_info);
+
             return VKCommandList{ wis::shared_handle<vk::CommandPool>{ ca, device },
-                                  vk::CommandBuffer{ device->allocateCommandBuffers(cmd_buf_alloc_info).at(0) } };
+                                  vk::CommandBuffer{ cb.at(0) } };
         }
 
         [[nodiscard]] VKFence CreateFence(uint64_t initial_value = 0ull) const
@@ -205,7 +209,8 @@ WIS_EXPORT namespace wis
             vk::SemaphoreCreateInfo desc{
                 {}, &timeline_desc
             };
-            return VKFence{ wis::shared_handle<vk::Semaphore>{ device->createSemaphore(desc), device } };
+            auto [result, sem] = device->createSemaphore(desc);
+            return succeeded(result) ? VKFence{ wis::shared_handle<vk::Semaphore>{ sem, device } } : VKFence{};
         }
 
         [[nodiscard]] WIS_INLINE
@@ -225,7 +230,9 @@ WIS_EXPORT namespace wis
             vk::PipelineLayoutCreateInfo pipeline_layout_info{
                 vk::PipelineLayoutCreateFlags{}, uint32_t(allocator.size()), allocator.data(), 0, nullptr
             };
-            return VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{ device->createPipelineLayout(pipeline_layout_info), device } };
+
+            auto [result, layout] = device->createPipelineLayout(pipeline_layout_info);
+            return succeeded(result) ? VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{ layout, device } } : VKRootSignature{};
         }
 
         [[nodiscard]] WIS_INLINE
@@ -239,7 +246,8 @@ WIS_EXPORT namespace wis
                 blob.size(),
                 blob.data<uint32_t>()
             };
-            return VKShader{ wis::shared_handle<vk::ShaderModule>{ device->createShaderModule(desc), device }, type };
+            auto [result, module] = device->createShaderModule(desc);
+            return succeeded(result) ? VKShader{ wis::shared_handle<vk::ShaderModule>{ module, device }, type } : VKShader{};
         }
 
         [[nodiscard]] VKRenderTarget
@@ -327,11 +335,10 @@ WIS_EXPORT namespace wis
                 break;
             }
 
-            return VKRenderTarget{ shared_handle<vk::ImageView>{ device->createImageView(desc), device } };
-            // auto [result, value] = device->createImageView(desc);
-            // return succeeded(result)
-            //         ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
-            //         : VKRenderTarget{};
+            auto [result, value] = device->createImageView(desc);
+            return succeeded(result)
+                    ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
+                    : VKRenderTarget{};
         }
 
         [[nodiscard]] VKDepthStencil
@@ -353,8 +360,8 @@ WIS_EXPORT namespace wis
                 vk::DescriptorPoolCreateInfo pool_desc{
                     vk::DescriptorPoolCreateFlags{}, num_descs, 1u, &size_desc
                 };
-                wis::shared_handle<vk::DescriptorPool> pool{ device->createDescriptorPool(pool_desc), device };
-                return VKDescriptorHeap{ std::move(pool) };
+                auto [result, pool] = device->createDescriptorPool(pool_desc);
+                return succeeded(result) ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ pool, device } } : VKDescriptorHeap{};
             }
 
             vk::DescriptorPoolSize size_desc{
@@ -363,8 +370,8 @@ WIS_EXPORT namespace wis
             vk::DescriptorPoolCreateInfo pool_desc{
                 vk::DescriptorPoolCreateFlags{}, num_descs, 1u, &size_desc
             };
-            wis::shared_handle<vk::DescriptorPool> pool{ device->createDescriptorPool(pool_desc), device };
-            return VKDescriptorHeap{ std::move(pool) };
+            auto [result, pool] = device->createDescriptorPool(pool_desc);
+            return succeeded(result) ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ pool, device } } : VKDescriptorHeap{};
         }
 
         [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const
@@ -398,7 +405,10 @@ WIS_EXPORT namespace wis
             vk::DescriptorSetLayoutCreateInfo desc{
                 vk::DescriptorSetLayoutCreateFlags{}, uint32_t(bindings.size()), bindings.data(), &mutableTypeInfo
             };
-            return VKDescriptorSetLayout{ wis::shared_handle<vk::DescriptorSetLayout>{ device->createDescriptorSetLayout(desc), device } };
+            auto [result, value] = device->createDescriptorSetLayout(desc);
+            return succeeded(result)
+                    ? VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ value, device } }
+                    : VKDescriptorSetLayout{};
         }
 
         void CreateConstantBufferView(VKBufferView buffer, uint32_t size, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const

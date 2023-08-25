@@ -149,7 +149,7 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
     }
 
-    auto& rpi = *std::get<0>(desc.render_pass);
+    auto& rpi = *desc.render_pass.GetInternal().desc;
 
     if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL1>() = CD3DX12_DEPTH_STENCIL_DESC1{ CD3DX12_DEFAULT{} };
@@ -190,7 +190,7 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
         }
     }
 
-    auto render_pass_internal = std::make_unique<DX12RenderPassInternal>();
+    auto render_pass_internal = std::make_shared<DX12RenderPassInternal>();
 
     for (size_t i = 0; i < rtv_descs.size(); i++) {
         auto& rtv = rtv_descs[i];

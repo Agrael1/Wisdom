@@ -1,7 +1,7 @@
 #ifndef WISDOM_MODULES
 #include <unordered_set>
 #endif
-#include "../vk_device.h"
+//#include "../vk_device.h"
 
 bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
 {
@@ -136,39 +136,57 @@ bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
         {}, uint32_t(queue_count), queue_infos.data(), 0, nullptr, uint32_t(exts.size()), exts.data(), nullptr, device_create_info_next
     };
 
-    device = wis::shared_handle<vk::Device>{ adapter.createDevice(desc) };
+    auto [result, value] = adapter.createDevice(desc);
+    if (!succeeded(result))
+        return {};
+
+    device = shared_handle<vk::Device>{ value };
     return bool(device);
 }
 
 wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync) const
 {
-    using Type = wis::SurfaceParameters::Type;
+    using Type = SurfaceParameters::Type;
     if (xsurface.type == Type::WinRT)
         return {}; // Bail out, no support for UWP from Vulkan
 
 #if defined(WISDOM_WINDOWS)
     vk::Win32SurfaceCreateInfoKHR surface_desc{
-        {}, GetModuleHandle(nullptr), xsurface.hwnd
+        {},
+        GetModuleHandle(nullptr),
+        xsurface.hwnd
     };
-    wis::lib_info("Initializing Win32 Surface");
-    wis::shared_handle<vk::SurfaceKHR> surface{ instance->createWin32SurfaceKHR(surface_desc), instance };
+    lib_info("Initializing Win32 Surface");
+    auto [result, value] = instance->createWin32SurfaceKHR(surface_desc);
+    shared_handle<vk::SurfaceKHR> surface{ value, instance };
+    if (!succeeded(result))
+        return {};
+
 #elif defined(WISDOM_MACOS)
     static_assert(false, "No Mac is implemented");
 #elif defined(WISDOM_LINUX)
-    wis::shared_handle<vk::SurfaceKHR> surface;
+    shared_handle<vk::SurfaceKHR> surface;
     if (xsurface.type == Type::X11) {
         vk::XcbSurfaceCreateInfoKHR surface_desc = {};
         surface_desc.setConnection(xsurface.x11.connection);
         surface_desc.setWindow((ptrdiff_t)xsurface.x11.window);
-        wis::lib_info("Initializing XCB Surface");
-        surface = wis::shared_handle<vk::SurfaceKHR>{ instance->createXcbSurfaceKHR(surface_desc), instance };
+        lib_info("Initializing XCB Surface");
+        auto [result, value] = instance->createXcbSurfaceKHR(surface_desc);
+        if (!succeeded(result))
+            return {};
+
+        surface = shared_handle<vk::SurfaceKHR>{ value, instance };
     } else {
         assert(xsurface.type == Type::Wayland);
         vk::WaylandSurfaceCreateInfoKHR surface_desc = {};
         surface_desc.setDisplay(xsurface.wayland.display);
         surface_desc.setSurface(xsurface.wayland.surface);
-        wis::lib_info("Initializing Wayland Surface");
-        surface = wis::shared_handle<vk::SurfaceKHR>{ instance->createWaylandSurfaceKHR(surface_desc), instance };
+        lib_info("Initializing Wayland Surface");
+        auto [result, value] = instance->createWaylandSurfaceKHR(surface_desc);
+        if (!succeeded(result))
+            return {};
+
+        surface = shared_handle<vk::SurfaceKHR>{ value, instance };
     }
 #endif
     int32_t present_queue = -1;
@@ -177,9 +195,11 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
         if (x.Empty())
             continue;
 
-        if (adapter.getSurfaceSupportKHR(x.family_index, surface.get())) {
+        auto [result, value] = adapter.getSurfaceSupportKHR(x.family_index, surface.get());
+
+        if (value) {
             present_queue = i;
-            lib_info(wis::format("Present queue {} selected", i));
+            lib_info(format("Present queue {} selected", i));
             break;
         }
     }
@@ -189,24 +209,31 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
     }
 
     const auto& queue = queues.available_queues[present_queue];
-    vk::DeviceQueueInfo2 info{
-        {},
-        queue.family_index,
-        queue.GetNextInLine()
+    vk::DeviceQueueInfo2 info{};
+    {
+        info.queueFamilyIndex = queue.family_index,
+        info.queueIndex = queue.GetNextInLine();
     };
     vk::Queue qpresent_queue = device->getQueue2(info);
 
-    auto surface_formats = adapter.getSurfaceFormatsKHR(surface.get());
+    auto [result2, surface_formats] = adapter.getSurfaceFormatsKHR(surface.get());
+    if (!succeeded(result2))
+        return {};
+
     auto format = std::ranges::find_if(surface_formats,
                                        [=](const vk::SurfaceFormatKHR& fmt) {
                                            return fmt.format == vk_format(options.format);
                                        });
+
     if (format == surface_formats.end() || format->format == vk::Format::eUndefined) {
         lib_error(wis::format("Supplied format {} is not supported by surface", data_format_strings[+options.format]));
         return {}; // Format specified is not supported
     }
 
-    auto cap = adapter.getSurfaceCapabilitiesKHR(surface.get());
+    auto [result3, cap] = adapter.getSurfaceCapabilitiesKHR(surface.get());
+    if (!succeeded(result3))
+        return {};
+
     bool stereo = cap.maxImageArrayLayers > 1;
     if (options.stereo && stereo)
         lib_info(wis::format("Stereo mode is ativated"));
@@ -215,29 +242,39 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 
     auto present_mode = GetPresentMode(surface.get(), vsync);
 
-    vk::SwapchainCreateInfoKHR desc{
-        vk::SwapchainCreateFlagBitsKHR{}, surface.get(),
-        options.frame_count, format->format, format->colorSpace,
-        vk::Extent2D{ options.width, options.height },
-        layers,
-        vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
-        vk::SharingMode::eExclusive, 0u, nullptr,
-        vk::SurfaceTransformFlagBitsKHR::eIdentity,
-        vk::CompositeAlphaFlagBitsKHR::eOpaque,
-        present_mode, true, nullptr
+    vk::SwapchainCreateInfoKHR desc{};
+    {
+        desc.surface = surface.get(),
+        desc.minImageCount = options.frame_count,
+        desc.imageFormat = format->format,
+        desc.imageColorSpace = format->colorSpace,
+        desc.imageExtent = vk::Extent2D{ options.width, options.height },
+        desc.imageArrayLayers = layers,
+        desc.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
+        desc.imageSharingMode = vk::SharingMode::eExclusive,
+        desc.queueFamilyIndexCount = 0u,
+        desc.pQueueFamilyIndices = nullptr,
+        desc.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity,
+        desc.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
+        desc.presentMode = present_mode,
+        desc.clipped = true;
     };
 
-    return VKSwapChain{
-        wis::shared_handle<vk::SwapchainKHR>{
-                device->createSwapchainKHR(desc),
-                device, surface },
-        render_queue,
-        VKCommandQueue{ qpresent_queue },
-        CreateCommandList(QueueType::Direct),
-        *format,
-        present_mode,
-        stereo
-    };
+    auto [result4, swapchain] = device->createSwapchainKHR(desc);
+    return succeeded(result)
+            ? VKSwapChain{
+                  shared_handle<vk::SwapchainKHR>{
+                          swapchain,
+                          device,
+                          surface },
+                  render_queue,
+                  VKCommandQueue{ qpresent_queue },
+                  CreateCommandList(QueueType::Direct),
+                  *format,
+                  present_mode,
+                  stereo
+              }
+            : VKSwapChain{};
 }
 
 // NOLINTNEXTLINE
@@ -344,7 +381,12 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<c
     render_pass_info.pAttachments = attachment_descriptions.data();
     render_pass_info.subpassCount = 1;
     render_pass_info.pSubpasses = &sub_pass;
-    auto rp = wis::shared_handle<vk::RenderPass>{ device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader), device };
+
+    auto [result, render_pass] = device->createRenderPass2KHR(render_pass_info, nullptr, DynamicLoader::loader);
+    if (!succeeded(result))
+        return {};
+
+    auto rp = wis::shared_handle<vk::RenderPass>{ render_pass, device };
 
     vk::FramebufferAttachmentsCreateInfo attachments_create_info;
     attachments_create_info.attachmentImageInfoCount = image_md.size();
@@ -355,11 +397,9 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<c
         rp.get(), uint32_t(image_md.size()), nullptr, frame_size.width, frame_size.height, 1, &attachments_create_info
     };
 
-    return VKRenderPass{
-        std::move(rp),
-        wis::shared_handle<vk::Framebuffer>{ device->createFramebuffer(desc), device },
-        frame_size
-    };
+    auto [result2, fb] = device->createFramebuffer(desc);
+
+    return succeeded(result2) ? VKRenderPass{ std::move(rp), wis::shared_handle<vk::Framebuffer>{ fb, device }, frame_size } : VKRenderPass{};
 }
 
 wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const
@@ -536,7 +576,10 @@ void wis::VKDevice::GetQueueFamilies() noexcept
 wis::internals::uniform_allocator<const char*, wis::VKDevice::required_extensions.size()>
 wis::VKDevice::RequestExtensions() noexcept
 {
-    auto extensions = adapter.enumerateDeviceExtensionProperties();
+    auto [result, extensions] = adapter.enumerateDeviceExtensionProperties();
+    if (!succeeded(result)) {
+		return {};
+    };
     std::unordered_set<std::string_view, wis::string_hash> ext_set;
     ext_set.reserve(extensions.size());
 
@@ -574,7 +617,7 @@ wis::VKDevice::RequestExtensions() noexcept
 vk::PresentModeKHR wis::VKDevice::GetPresentMode(vk::SurfaceKHR surface, bool vsync) const noexcept
 {
     using enum vk::PresentModeKHR;
-    auto modes = adapter.getSurfacePresentModesKHR(surface);
+    auto [result, modes] = adapter.getSurfacePresentModesKHR(surface);
     return vsync ? std::ranges::count(modes, eFifoRelaxed) ? eFifoRelaxed : eFifo
                  : eImmediate;
 }
