@@ -51,9 +51,10 @@ public:
         allocator = wis::shared_handle<VmaAllocator>{ al, std::move(device_handle) };
     }
     operator bool() const noexcept
-	{
-		return bool(allocator);
-	}
+    {
+        return bool(allocator);
+    }
+
 public:
     /// @brief Create a buffer that is persistently mapped to the GPU
     /// @param size Size of the buffer

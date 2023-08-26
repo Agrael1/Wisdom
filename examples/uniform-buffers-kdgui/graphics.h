@@ -94,7 +94,8 @@ public:
 
         for (size_t i = 0; i < 2; i++) {
             depth_buffers[i] = allocator.CreateDepthStencilTexture({
-                    wis::DataFormat::d32_float, width,
+                    wis::DataFormat::d32_float,
+                    width,
                     height,
             });
             dsv[i] = device.CreateDepthStencil(depth_buffers[i], wis::DataFormat::d32_float);

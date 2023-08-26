@@ -33,7 +33,6 @@ WIS_EXPORT namespace wis
     using DX12BufferView = std::tuple<ID3D12Resource*>;
     using DX12TextureView = DX12BufferView;
 
-
     using DX12RootSignatureView = std::tuple<ID3D12RootSignature*>;
     using DX12DescriptorSetView = std::tuple<CD3DX12_CPU_DESCRIPTOR_HANDLE, CD3DX12_CPU_DESCRIPTOR_HANDLE, uint32_t>;
     using DX12DescriptorSetBindView = std::tuple<ID3D12DescriptorHeap*, D3D12_GPU_DESCRIPTOR_HANDLE>;

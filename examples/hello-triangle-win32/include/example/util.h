@@ -3,8 +3,7 @@
 #include <wisdom/util/exception.h>
 #include <winrt/base.h>
 
-namespace wis
-{
+namespace wis {
 /// @brief Get the last windows error
 /// @return HRESULT of the last windows error
 WIS_INLINE winrt::hresult last_windows_error() noexcept;
@@ -39,6 +38,4 @@ inline void check_windows(bool check, wis::source_location sl = wis::source_loca
     throw wis::hr_exception{ last_windows_error(), sl };
 }
 
-
-
-}
+} // namespace wis

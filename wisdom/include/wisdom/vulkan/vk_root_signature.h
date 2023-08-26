@@ -29,8 +29,8 @@ public:
         return root.get();
     }
     operator bool() const noexcept
-	{
-		return bool(root);
-	}
+    {
+        return bool(root);
+    }
 };
 } // namespace wis

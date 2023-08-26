@@ -1,7 +1,6 @@
 #include <example/util.h>
 #include <Windows.h>
 
-
 winrt::hresult wis::last_windows_error() noexcept
 {
     return winrt::hresult(GetLastError());
