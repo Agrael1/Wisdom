@@ -64,11 +64,11 @@ public:
 
         constexpr static std::array cas2{
             wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear },
+                    .format = wis::SwapchainOptions::default_format,
+                    .load = wis::PassLoadOperation::clear },
             wis::ColorAttachment{
-                .format = wis::SwapchainOptions::default_format,
-                .load = wis::PassLoadOperation::clear }
+                    .format = wis::SwapchainOptions::default_format,
+                    .load = wis::PassLoadOperation::clear }
         };
         wis::DepthStencilAttachment dsa{
             .format = wis::DataFormat::d32_float,
@@ -94,9 +94,9 @@ public:
 
         for (size_t i = 0; i < 2; i++) {
             depth_buffers[i] = allocator.CreateDepthStencilTexture({
-                wis::DataFormat::d32_float,
-                width,
-                height,
+                    wis::DataFormat::d32_float,
+                    width,
+                    height,
             });
             dsv[i] = device.CreateDepthStencil(depth_buffers[i], wis::DataFormat::d32_float);
         }

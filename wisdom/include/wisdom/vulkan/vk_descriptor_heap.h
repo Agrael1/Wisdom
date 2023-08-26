@@ -86,9 +86,8 @@ public:
         };
         auto [result, sets] = device->allocateDescriptorSets(alloc_info);
         return succeeded(result)
-               ? VKDescriptorSet{ shared_handle<vk::DescriptorSet>{ std::move(sets[0]), device, { pool } } }
-               :
-               VKDescriptorSet{};
+                ? VKDescriptorSet{ shared_handle<vk::DescriptorSet>{ std::move(sets[0]), device, { pool } } }
+                : VKDescriptorSet{};
     }
 };
 } // namespace wis

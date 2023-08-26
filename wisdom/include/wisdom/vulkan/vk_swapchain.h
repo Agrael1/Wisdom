@@ -138,7 +138,7 @@ public:
                 gswap = nullptr;
                 continue;
             }
-            swap = wis::shared_handle<vk::SwapchainKHR> {
+            swap = wis::shared_handle<vk::SwapchainKHR>{
                 gswap,
                 swap.getParent(), swap.getSurface()
             };
@@ -158,15 +158,15 @@ private:
         back_buffers.reserve(xback_buffers.size());
         for (auto& i : xback_buffers) {
             back_buffers.emplace_back(
-                format.format, wis::shared_handle<vk::Image> { i, swap.getParent(), vk::SwapchainOwns::yes });
+                    format.format, wis::shared_handle<vk::Image>{ i, swap.getParent(), vk::SwapchainOwns::yes });
             initialization.TextureBarrier(
-            {
-                .state_before = TextureState::Undefined,
-                .state_after = TextureState::Present,
-                .access_before = ResourceAccess::NoAccess,
-                .access_after = ResourceAccess::NoAccess,
-            },
-            { i, format.format });
+                    {
+                            .state_before = TextureState::Undefined,
+                            .state_after = TextureState::Present,
+                            .access_before = ResourceAccess::NoAccess,
+                            .access_after = ResourceAccess::NoAccess,
+                    },
+                    { i, format.format });
         }
         initialization.Close();
         present_queue.ExecuteCommandList(initialization);
