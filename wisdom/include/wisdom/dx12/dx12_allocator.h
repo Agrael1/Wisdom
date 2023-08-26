@@ -76,38 +76,38 @@ public:
         switch (desc.type) {
         case TextureType::Texture1D:
             tex_desc = CD3DX12_RESOURCE_DESC1::Tex1D(
-                    DXGI_FORMAT(desc.format),
-                    desc.width, 1,
-                    uint16_t(desc.mip_levels));
+                           DXGI_FORMAT(desc.format),
+                           desc.width, 1,
+                           uint16_t(desc.mip_levels));
             break;
         case TextureType::Texture2D:
             tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                    DXGI_FORMAT(desc.format),
-                    desc.width,
-                    desc.height,
-                    uint16_t(1),
-                    uint16_t(desc.mip_levels));
+                           DXGI_FORMAT(desc.format),
+                           desc.width,
+                           desc.height,
+                           uint16_t(1),
+                           uint16_t(desc.mip_levels));
         case TextureType::Texture3D:
             tex_desc = CD3DX12_RESOURCE_DESC1::Tex3D(
-                    DXGI_FORMAT(desc.format),
-                    desc.width,
-                    desc.height,
-                    uint16_t(desc.depth),
-                    uint16_t(desc.mip_levels));
+                           DXGI_FORMAT(desc.format),
+                           desc.width,
+                           desc.height,
+                           uint16_t(desc.depth),
+                           uint16_t(desc.mip_levels));
             break;
         case TextureType::Texture1DArray:
             tex_desc = CD3DX12_RESOURCE_DESC1::Tex1D(
-                    DXGI_FORMAT(desc.format),
-                    desc.width, uint16_t(desc.array_size),
-                    uint16_t(desc.mip_levels));
+                           DXGI_FORMAT(desc.format),
+                           desc.width, uint16_t(desc.array_size),
+                           uint16_t(desc.mip_levels));
             break;
         case TextureType::Texture2DArray:
             tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                    DXGI_FORMAT(desc.format),
-                    desc.width,
-                    desc.height,
-                    uint16_t(desc.array_size),
-                    uint16_t(desc.mip_levels));
+                           DXGI_FORMAT(desc.format),
+                           desc.width,
+                           desc.height,
+                           uint16_t(desc.array_size),
+                           uint16_t(desc.mip_levels));
             break;
         default:
             assert(false && "TODO: make multisampled textures");
@@ -121,10 +121,11 @@ public:
         D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
 
         return wis::succeeded(allocator->CreateResource2(&all_desc, &tex_desc,
-                                                         state, nullptr,
-                                                         al.put(), __uuidof(*rc), rc.put_void()))
-                ? DX12Texture{ std::move(rc), std::move(al) }
-                : DX12Texture{};
+                              state, nullptr,
+                              al.put(), __uuidof(*rc), rc.put_void()))
+               ? DX12Texture{ std::move(rc), std::move(al) }
+               :
+               DX12Texture{};
     }
 
     [[nodiscard]] DX12Texture
