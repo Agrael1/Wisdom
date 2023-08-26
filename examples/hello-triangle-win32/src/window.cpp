@@ -79,13 +79,13 @@ Window::Window(unsigned int width, unsigned int height, const char *name)
     wis::check_windows(AdjustWindowRect(&rWindow, WS_OVERLAPPEDWINDOW, TRUE));
 
     hWnd.reset(CreateWindowA(
-            WindowClass::GetName(), name,
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT,
-            rWindow.right - rWindow.left,
-            rWindow.bottom - rWindow.top,
-            nullptr, nullptr,
-            WindowClass::GetInstance(), this));
+                   WindowClass::GetName(), name,
+                   WS_OVERLAPPEDWINDOW,
+                   CW_USEDEFAULT, CW_USEDEFAULT,
+                   rWindow.right - rWindow.left,
+                   rWindow.bottom - rWindow.top,
+                   nullptr, nullptr,
+                   WindowClass::GetInstance(), this));
 
     // Error checks
     wis::check_windows(!!hWnd);
@@ -249,12 +249,12 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     // const auto& imio = ImGui::GetIO();
 
     switch (msg) {
-        // we don't want the DefProc to handle this message because
-        // we want our destructor to destroy the window, so return 0 instead of break
+    // we don't want the DefProc to handle this message because
+    // we want our destructor to destroy the window, so return 0 instead of break
     case WM_CLOSE:
         PostQuitMessage(0);
         return 0;
-        // clear keystate when window loses focus to prevent input getting "stuck"
+    // clear keystate when window loses focus to prevent input getting "stuck"
     case WM_KILLFOCUS:
         kbd.ClearState();
         break;
@@ -323,9 +323,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
 
-        /*********** KEYBOARD MESSAGES ***********/
+    /*********** KEYBOARD MESSAGES ***********/
     case WM_KEYDOWN:
-        // syskey commands need to be handled to track ALT key (VK_MENU) and F10
+    // syskey commands need to be handled to track ALT key (VK_MENU) and F10
     case WM_SYSKEYDOWN:
         // stifle this keyboard message if imgui wants to capture
         // if (imio.WantCaptureKeyboard)
@@ -354,9 +354,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         //}
         kbd.OnChar(static_cast<unsigned char>(wParam));
         break;
-        /*********** END KEYBOARD MESSAGES ***********/
+    /*********** END KEYBOARD MESSAGES ***********/
 
-        /************* MOUSE MESSAGES ****************/
+    /************* MOUSE MESSAGES ****************/
     case WM_MOUSEMOVE: {
         const POINTS pt = MAKEPOINTS(lParam);
         // cursorless exclusive gets first dibs
@@ -486,7 +486,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // process the raw input data
         auto &ri = reinterpret_cast<const RAWINPUT &>(*rawBuffer.data());
         if (ri.header.dwType == RIM_TYPEMOUSE &&
-            (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
+                (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
             mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
         }
         break;

@@ -48,12 +48,12 @@ public:
 
         VmaAllocator al;
         vmaCreateAllocator(&allocatorInfo, &al);
-        allocator = wis::shared_handle<VmaAllocator>{ al, std::move(device_handle) };
+        allocator = wis::shared_handle<VmaAllocator> { al, std::move(device_handle) };
     }
     operator bool() const noexcept
-	{
-		return bool(allocator);
-	}
+    {
+        return bool(allocator);
+    }
 public:
     /// @brief Create a buffer that is persistently mapped to the GPU
     /// @param size Size of the buffer
@@ -189,17 +189,18 @@ private:
         VmaAllocation allocation;
         VkBuffer buffer;
         return wis::succeeded(vmaCreateBuffer(
-                       allocator.get(),
-                       reinterpret_cast<const VkBufferCreateInfo*>(&desc),
-                       &alloc_desc,
-                       &buffer,
-                       &allocation,
-                       nullptr))
-                ? VKBuffer{
-                      wis::shared_handle<vk::Buffer>{ buffer, allocator.getParent() },
-                      wis::shared_handle<VmaAllocation>{ allocation, allocator }, desc.size
-                  }
-                : VKBuffer{};
+                                  allocator.get(),
+                                  reinterpret_cast<const VkBufferCreateInfo*>(&desc),
+                                  &alloc_desc,
+                                  &buffer,
+                                  &allocation,
+                                  nullptr))
+        ? VKBuffer{
+            wis::shared_handle<vk::Buffer>{ buffer, allocator.getParent() },
+            wis::shared_handle<VmaAllocation>{ allocation, allocator }, desc.size
+        }
+:
+        VKBuffer{};
     }
     [[nodiscard]] VKTexture
     CreateTexture(const vk::ImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
@@ -207,18 +208,19 @@ private:
         VmaAllocation allocation;
         VkImage buffer;
         return wis::succeeded(vmaCreateImage(
-                       allocator.get(),
-                       reinterpret_cast<const VkImageCreateInfo*>(&desc),
-                       &alloc_desc,
-                       &buffer,
-                       &allocation,
-                       nullptr))
-                ? VKTexture{
-                      desc.format,
-                      wis::shared_handle<vk::Image>{ buffer, allocator.getParent() },
-                      wis::shared_handle<VmaAllocation>{ allocation, allocator }
-                  }
-                : VKTexture{};
+                                  allocator.get(),
+                                  reinterpret_cast<const VkImageCreateInfo*>(&desc),
+                                  &alloc_desc,
+                                  &buffer,
+                                  &allocation,
+                                  nullptr))
+        ? VKTexture{
+            desc.format,
+            wis::shared_handle<vk::Image>{ buffer, allocator.getParent() },
+            wis::shared_handle<VmaAllocation>{ allocation, allocator }
+        }
+:
+        VKTexture{};
     }
 };
 } // namespace wis
