@@ -270,13 +270,13 @@ WIS_EXPORT namespace wis
     /// @brief Queue type for a command list and command queue queries
     /// @note  The order of the enum values is important, do not change it
     enum class QueueType {
-        direct = 0,
-        bundle = 1, //< Bundle queues are used for bundles in D3D12, but are not supported in Vulkan yet
-        compute = 2,
-        copy = 3,
-        video_decode = 4, //< Video decode queues are used for video decode in D3D12, but are not supported in Vulkan yet
-        video_process = 5, //< Video process queues are used for video process in D3D12, but are not supported in Vulkan yet
-        video_encode = 6, //< Video encode queues are used for video encode in D3D12, but are not supported in Vulkan yet
+        Direct = 0,
+        Bundle = 1, //< Bundle queues are used for bundles in D3D12, but are not supported in Vulkan yet
+        Compute = 2,
+        Copy = 3,
+        VideoDecode = 4, //< Video decode queues are used for video decode in D3D12, but are not supported in Vulkan yet
+        VideoProcess = 5, //< Video process queues are used for video process in D3D12, but are not supported in Vulkan yet
+        VideoEncode = 6, //< Video encode queues are used for video encode in D3D12, but are not supported in Vulkan yet
     };
 
     /// @brief Basic Viewport structure
@@ -368,21 +368,17 @@ WIS_EXPORT namespace wis
     /// @note  Matches the D3D12_COMMAND_QUEUE_DESC structure
     struct QueueOptions {
         enum class Priority {
-            normal = 0,
-            high = 100,
-            global_realtime = 10000
+            Normal = 0,
+            High = 100,
+            GlobalRealtime = 10000
         };
         enum class Flags {
-            none = 0,
+            None = 0,
         };
 
-        QueueOptions() = default;
-        QueueOptions(QueueType type, Priority priority = Priority::normal, Flags flags = Flags::none, uint32_t node_mask = 0)
-            : type(type), priority(priority), flags(flags), node_mask(node_mask) { }
-
-        QueueType type = QueueType::direct; //< Type of the queue (not all types are supported on all backends)
-        Priority priority = Priority::normal; //< Priority of the queue (D3D12 only, but changes Vulkan queue search algorithm)
-        Flags flags = Flags::none; //< Flags for the queue creation (unused)
+        QueueType type = QueueType::Direct; //< Type of the queue (not all types are supported on all backends)
+        Priority priority = Priority::Normal; //< Priority of the queue (D3D12 only, but changes Vulkan queue search algorithm)
+        Flags flags = Flags::None; //< Flags for the queue creation (unused)
         uint32_t node_mask = 0; //< Node mask for multi GPU systems (default to 0 for single GPU systems)
     };
 
@@ -427,6 +423,24 @@ WIS_EXPORT namespace wis
         Texture3D = 8
     };
 
+    enum class TextureFlags : uint32_t {
+        None = 0,
+        CopySrc = (1 << 0),
+        CopyDst = (1 << 1),
+        VKSampled = (1 << 2),
+        Storage = (1 << 3),
+        RenderTarget = (1 << 4),
+        DepthStencil = (1 << 5),
+        VKTransientAttachment = (1 << 6),
+        ShaderResource = (1 << 7),
+        VKVideoDecodeDst = (1 << 10),
+        VKVideoDecodeSrc = (1 << 11),
+        VKVideoDecodeDpb = (1 << 12),
+        VKShadingRateImage = (1 << 8),
+        VKFragmentDensityMap = (1 << 9),
+        VKFragmentShadingRateAttachment = VKShadingRateImage,
+    };
+
     /// @brief Structure for selecting a DescriptorHeap type
     enum class PoolType {
         CBV_SRV_UAV = 0,
@@ -461,25 +475,25 @@ WIS_EXPORT namespace wis
     // TODO: Better selector for texture types
     struct RenderTargetSelector {
         TextureType type = TextureType::Texture2D;
-
         uint32_t mip = 0;
         uint32_t base_layer = 0; // In 3D textures, this is the z offset
         uint32_t extent_layers = 1; // In 3D textures, this is the depth
     };
 
     struct TextureDescriptor {
+        TextureType type = TextureType::Texture2D;
+        DataFormat format = DataFormat::unknown;
         uint32_t width = 0;
         uint32_t height = 0;
         uint32_t depth = 1;
         uint32_t array_size = 1;
         uint32_t mip_levels = 1;
-        DataFormat format = DataFormat::unknown;
     };
 
     struct DepthDescriptor {
+        DataFormat format = DataFormat::unknown;
         uint32_t width = 0;
         uint32_t height = 0;
-        DataFormat format = DataFormat::unknown;
     };
 
     /// @brief Size of a texture in pixels

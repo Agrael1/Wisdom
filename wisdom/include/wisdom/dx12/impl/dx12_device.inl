@@ -4,18 +4,19 @@ bool wis::DX12Device::Initialize(DX12FactoryView in_factory, wis::DX12AdapterVie
 {
     factory.copy_from(std::get<0>(in_factory));
     adapter.copy_from(std::get<0>(in_adapter));
-    if (!wis::succeded(D3D12CreateDevice(adapter.get(),
-                                         D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device9), device.put_void())))
-        return false;
+    return wis::succeeded(D3D12CreateDevice(adapter.get(),
+                                            D3D_FEATURE_LEVEL_11_0,
+                                            __uuidof(ID3D12Device9),
+                                            device.put_void()));
 }
 
-wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView queue, wis::SwapchainOptions options, wis::SurfaceParameters surface) const
+wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView queue, wis::SwapchainOptions options, wis::SurfaceParameters surface) const noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 desc{
         .Width = options.width,
         .Height = options.height,
         .Format = DXGI_FORMAT(options.format),
-        .Stereo = factory->IsWindowedStereoEnabled() && options.stereo,
+        .Stereo = options.stereo && factory->IsWindowedStereoEnabled(),
         .SampleDesc{ .Count = 1, .Quality = 0 },
         .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
         .BufferCount = options.frame_count,
@@ -29,18 +30,18 @@ wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView qu
     switch (surface.type) {
     default:
     case SurfaceParameters::Type::Win32:
-        chain = SwapChainForWin32(desc, surface.hwnd, queue);
+        chain = SwapChainForWin32(desc, surface.hwnd, std::get<0>(queue));
         break;
 #ifdef WISDOM_UWP
     case SurfaceParameters::Type::WinRT:
-        chain = SwapChainForCoreWindow(desc, surface.core_window, queue);
+        chain = SwapChainForCoreWindow(desc, surface.core_window, std::get<0>(queue));
         break;
 #endif
     }
     return DX12SwapChain{ std::move(chain), options.frame_count, bool(desc.Stereo) };
 }
 
-wis::DX12CommandQueue wis::DX12Device::CreateCommandQueue(wis::QueueOptions options) const
+wis::DX12CommandQueue wis::DX12Device::CreateCommandQueue(wis::QueueOptions options) const noexcept
 {
     winrt::com_ptr<ID3D12CommandQueue> queue;
     D3D12_COMMAND_QUEUE_DESC desc{
@@ -49,29 +50,30 @@ wis::DX12CommandQueue wis::DX12Device::CreateCommandQueue(wis::QueueOptions opti
         .Flags = D3D12_COMMAND_QUEUE_FLAGS(options.flags),
         .NodeMask = options.node_mask
     };
-    wis::check_hresult(device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()));
-    return DX12CommandQueue{ std::move(queue) };
+    return wis::succeeded(device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
+            ? DX12CommandQueue{ std::move(queue) }
+            : DX12CommandQueue{};
 }
 
-wis::DX12CommandList wis::DX12Device::CreateCommandList(QueueType list_type) const
+wis::DX12CommandList wis::DX12Device::CreateCommandList(QueueType list_type) const noexcept
 {
     D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(list_type);
     winrt::com_ptr<ID3D12CommandAllocator> xallocator;
     winrt::com_ptr<ID3D12GraphicsCommandList9> xcommand_list;
 
-    wis::check_hresult(device->CreateCommandAllocator(clty, __uuidof(*xallocator), xallocator.put_void()));
-    wis::check_hresult(device->CreateCommandList1(0, clty, D3D12_COMMAND_LIST_FLAG_NONE, __uuidof(ID3D12GraphicsCommandList7), xcommand_list.put_void()));
-
-    return DX12CommandList{
-        std::move(xallocator),
-        std::move(xcommand_list)
-    };
+    return wis::succeeded(device->CreateCommandAllocator(clty, __uuidof(*xallocator), xallocator.put_void())) &&
+                    wis::succeeded(device->CreateCommandList1(0, clty, D3D12_COMMAND_LIST_FLAG_NONE, __uuidof(ID3D12GraphicsCommandList7), xcommand_list.put_void()))
+            ? DX12CommandList{
+                  std::move(xallocator),
+                  std::move(xcommand_list)
+              }
+            : DX12CommandList{};
 }
 
-wis::DX12Fence wis::DX12Device::CreateFence() const
+wis::DX12Fence wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
 {
     winrt::com_ptr<ID3D12Fence1> fence;
-    wis::check_hresult(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()));
+    wis::succeeded(device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()));
     return DX12Fence{ std::move(fence) };
 }
 
@@ -93,8 +95,8 @@ wis::DX12RootSignature wis::DX12Device::CreateRootSignature(std::span<DX12Descri
 
     winrt::com_ptr<ID3DBlob> signature;
     winrt::com_ptr<ID3DBlob> error;
-    wis::check_hresult(D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put()));
-    wis::check_hresult(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void()));
+    wis::succeeded(D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put()));
+    wis::succeeded(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void()));
     return DX12RootSignature{ std::move(rsig) };
 }
 
@@ -147,7 +149,7 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
     }
 
-    auto& rpi = *std::get<0>(desc.render_pass);
+    auto& rpi = *desc.render_pass.GetInternal().desc;
 
     if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL1>() = CD3DX12_DEPTH_STENCIL_DESC1{ CD3DX12_DEFAULT{} };
@@ -161,11 +163,10 @@ wis::DX12PipelineState wis::DX12Device::CreateGraphicsPipeline(
         psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
     }
 
-
     xdesc.pPipelineStateSubobjectStream = psta.data<void>();
     xdesc.SizeInBytes = psta.size_bytes();
 
-    return wis::succeded(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
+    return wis::succeeded(device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
             ? DX12PipelineState{ std::move(state) }
             : DX12PipelineState{};
 }
@@ -175,8 +176,7 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
         std::span<const ColorAttachment> rtv_descs,
         DepthStencilAttachment dsv_desc) const noexcept
 {
-    if constexpr (wis::debug_mode)
-    {
+    if constexpr (wis::debug_mode) {
         if (rtv_descs.size() >= max_render_targets) {
             wis::lib_error(
                     wis::format("Render Pass has {} render targets, which is more, than {}, excessive targets are truncated.",
@@ -190,7 +190,7 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
         }
     }
 
-    auto render_pass_internal = std::make_unique<DX12RenderPassInternal>();
+    auto render_pass_internal = std::make_shared<DX12RenderPassInternal>();
 
     for (size_t i = 0; i < rtv_descs.size(); i++) {
         auto& rtv = rtv_descs[i];
@@ -220,7 +220,6 @@ wis::DX12RenderPass wis::DX12Device::CreateRenderPass(
     return DX12RenderPass{ std::move(render_pass_internal) };
 }
 
-
 #include <d3d11.h>
 
 inline winrt::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
@@ -245,7 +244,7 @@ wis::DX12Device::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnkn
     winrt::com_ptr<IDXGISwapChain1> swap;
     if (desc.Stereo) // until microsoft fixes this
     {
-        wis::succeded(factory->CreateSwapChainForCoreWindow(
+        wis::succeeded(factory->CreateSwapChainForCoreWindow(
                 CreateD3D11Device().get(),
                 core_window,
                 &desc,
@@ -253,7 +252,7 @@ wis::DX12Device::SwapChainForCoreWindow(const DXGI_SWAP_CHAIN_DESC1& desc, IUnkn
                 swap.put()));
     }
 
-    wis::succeded(factory->CreateSwapChainForCoreWindow(
+    wis::succeeded(factory->CreateSwapChainForCoreWindow(
             queue, // Swap chain needs the queue so that it can force a flush on it.
             core_window,
             &desc,
@@ -268,7 +267,7 @@ wis::DX12Device::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd,
     winrt::com_ptr<IDXGISwapChain1> swap;
     if (desc.Stereo) // until microsoft fixes this
     {
-        wis::succeded(factory->CreateSwapChainForHwnd(
+        wis::succeeded(factory->CreateSwapChainForHwnd(
                 CreateD3D11Device().get(), // Swap chain needs the queue so that it can force a flush on it.
                 hwnd,
                 &desc,
@@ -277,7 +276,7 @@ wis::DX12Device::SwapChainForWin32(const DXGI_SWAP_CHAIN_DESC1& desc, HWND hwnd,
                 swap.put()));
     }
 
-    wis::succeded(factory->CreateSwapChainForHwnd(
+    wis::succeeded(factory->CreateSwapChainForHwnd(
             queue, // Swap chain needs the queue so that it can force a flush on it.
             hwnd,
             &desc,

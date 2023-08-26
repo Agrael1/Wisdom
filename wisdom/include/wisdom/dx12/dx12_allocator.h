@@ -4,95 +4,145 @@
 #include <wisdom/dx12/dx12_resource.h>
 #include <D3D12MemAlloc.h>
 #include <wisdom/global/assertions.h>
+#include <wisdom/dx12/dx12_format.h>
 #include <d3dx12/d3dx12.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class DX12ResourceAllocator;
+class DX12Device;
+
+template<>
+class Internal<DX12ResourceAllocator>
 {
-    class DX12ResourceAllocator;
-    class DX12Device;
+public:
+    winrt::com_ptr<D3D12MA::Allocator> allocator;
+};
 
-    template<>
-    class Internal<DX12ResourceAllocator>
+/// @brief Resource allocator for DX12
+WIS_EXPORT class DX12ResourceAllocator : public QueryInternal<DX12ResourceAllocator>
+{
+public:
+    DX12ResourceAllocator() = default;
+    WIS_INLINE explicit DX12ResourceAllocator(const wis::DX12Device& device) noexcept;
+    operator bool() const noexcept
     {
-    public:
-        winrt::com_ptr<D3D12MA::Allocator> allocator;
-    };
+        return bool(allocator);
+    }
 
-    /// @brief Resource allocator for DX12
-    class DX12ResourceAllocator : public QueryInternal<DX12ResourceAllocator>
+public:
+    /// @brief Create a buffer that is persistently mapped to the GPU
+    /// @param size Size of the buffer
+    /// @param flags Type of buffer
+    /// @return Buffer object
+    [[nodiscard]] WIS_INLINE DX12Buffer
+    CreatePersistentBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None) const noexcept;
+
+    /// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
+    /// @param size Size of the buffer
+    /// @return Buffer object
+    [[nodiscard]] WIS_INLINE DX12Buffer
+    CreateUploadBuffer(size_t size) const noexcept;
+
+    /// @brief Create a buffer that is accessible by the CPU and GPU
+    /// @param size Size of the buffer
+    /// @param flags Type of buffer
+    /// @return Buffer object
+    [[nodiscard]] DX12Buffer
+    CreateHostVisibleBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None) const noexcept
     {
-    public:
-        DX12ResourceAllocator() = default;
-        WIS_INLINE explicit DX12ResourceAllocator(const wis::DX12Device& device);
+        return CreateUploadBuffer(size);
+    }
 
-        /// @brief Create a buffer that is persistently mapped to the GPU
-        /// @param size Size of the buffer
-        /// @param flags Type of buffer
-        /// @return Buffer object
-        [[nodiscard]] WIS_INLINE DX12Buffer CreatePersistentBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None);
+    /// @brief Create a constant buffer that is accessible by the CPU and GPU
+    /// This function is equivalent to CreateHostVisibleBuffer, but ensures that the buffer size is 256 byte aligned in debug mode
+    /// @param size Size of the buffer
+    /// @return Buffer object
+    [[nodiscard]] DX12Buffer
+    CreateConstantBuffer(size_t size) const noexcept
+    {
+        wis::assert_debug(size % 256 == 0, wis::format("{} is not 256 byte aligned", size));
+        return CreateHostVisibleBuffer(size, BufferFlags::ConstantBuffer);
+    }
 
-        /// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
-        /// @param size Size of the buffer
-        /// @return Buffer object
-        [[nodiscard]] WIS_INLINE DX12Buffer CreateUploadBuffer(size_t size);
+    [[nodiscard]] DX12Texture
+    CreateTexture(const TextureDescriptor& desc, TextureFlags flags = TextureFlags::None) const noexcept
+    {
+        using namespace river::flags;
+        winrt::com_ptr<ID3D12Resource> rc;
+        winrt::com_ptr<D3D12MA::Allocation> al;
 
-        /// @brief Create a buffer that is accessible by the CPU and GPU
-        /// @param size Size of the buffer
-        /// @param flags Type of buffer
-        /// @return Buffer object
-        [[nodiscard]] WIS_INLINE DX12Buffer CreateHostVisibleBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None) const;
-
-        /// @brief Create a constant buffer that is accessible by the CPU and GPU
-        /// This function is equivalent to CreateHostVisibleBuffer, but ensures that the buffer size is 256 byte aligned in debug mode
-        /// @param size Size of the buffer
-        /// @return Buffer object
-        [[nodiscard]] DX12Buffer CreateConstantBuffer(size_t size) const
-        {
-            wis::assert_debug(size % 256 == 0, wis::format("{} is nor 256 byte aligned", size));
-            return CreateHostVisibleBuffer(size, BufferFlags::ConstantBuffer);
+        CD3DX12_RESOURCE_DESC1 tex_desc{};
+        switch (desc.type) {
+        case TextureType::Texture1D:
+            tex_desc = CD3DX12_RESOURCE_DESC1::Tex1D(
+                    DXGI_FORMAT(desc.format),
+                    desc.width, 1,
+                    uint16_t(desc.mip_levels));
+            break;
+        case TextureType::Texture2D:
+            tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
+                    DXGI_FORMAT(desc.format),
+                    desc.width,
+                    desc.height,
+                    uint16_t(1),
+                    uint16_t(desc.mip_levels));
+        case TextureType::Texture3D:
+            tex_desc = CD3DX12_RESOURCE_DESC1::Tex3D(
+                    DXGI_FORMAT(desc.format),
+                    desc.width,
+                    desc.height,
+                    uint16_t(desc.depth),
+                    uint16_t(desc.mip_levels));
+            break;
+        case TextureType::Texture1DArray:
+            tex_desc = CD3DX12_RESOURCE_DESC1::Tex1D(
+                    DXGI_FORMAT(desc.format),
+                    desc.width, uint16_t(desc.array_size),
+                    uint16_t(desc.mip_levels));
+            break;
+        case TextureType::Texture2DArray:
+            tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
+                    DXGI_FORMAT(desc.format),
+                    desc.width,
+                    desc.height,
+                    uint16_t(desc.array_size),
+                    uint16_t(desc.mip_levels));
+            break;
+        default:
+            assert(false && "TODO: make multisampled textures");
+            break;
         }
-        [[nodiscard]] DX12Texture CreateTexture(const TextureDescriptor& desc) const
-        {
-            using namespace river::flags;
-            winrt::com_ptr<ID3D12Resource> rc;
-            winrt::com_ptr<D3D12MA::Allocation> al;
+        tex_desc.Flags = convert_dx(flags);
 
-            auto tex_desc = CD3DX12_RESOURCE_DESC1::Tex3D(
-                    DXGI_FORMAT(desc.format), desc.width, desc.height, uint16_t(desc.depth), desc.mip_levels);
-            D3D12MA::ALLOCATION_DESC all_desc = {};
-            all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+        D3D12MA::ALLOCATION_DESC all_desc = {};
+        all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
-            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
+        D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
 
-            allocator->CreateResource2(&all_desc, &tex_desc,
-                                       state, nullptr,
-                                       al.put(), __uuidof(*rc), rc.put_void());
+        return wis::succeeded(allocator->CreateResource2(&all_desc, &tex_desc,
+                                                         state, nullptr,
+                                                         al.put(), __uuidof(*rc), rc.put_void()))
+                ? DX12Texture{ std::move(rc), std::move(al) }
+                : DX12Texture{};
+    }
 
-            return DX12Texture{ std::move(rc), std::move(al) };
-        }
-
-        [[nodiscard]] DX12Texture CreateDepthStencilTexture(DepthDescriptor desc) const
-        {
-            using namespace river::flags;
-            winrt::com_ptr<ID3D12Resource> rc;
-            winrt::com_ptr<D3D12MA::Allocation> al;
-
-            auto tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                    DXGI_FORMAT(desc.format), desc.width, desc.height, 1, 1, 1, 0, D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-            D3D12MA::ALLOCATION_DESC all_desc = {};
-            all_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
-
-            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
-
-            allocator->CreateResource2(&all_desc, &tex_desc,
-                                       state, nullptr,
-                                       al.put(), __uuidof(*rc), rc.put_void());
-
-            return DX12Texture{ std::move(rc), std::move(al) };
-        }
-    };
-}
+    [[nodiscard]] DX12Texture
+    CreateDepthStencilTexture(DepthDescriptor desc) const noexcept
+    {
+        const TextureDescriptor t_desc{
+            .type = TextureType::Texture2D,
+            .format = desc.format,
+            .width = desc.width,
+            .height = desc.height,
+            .depth = 1,
+            .array_size = 1,
+            .mip_levels = 1,
+        };
+        return CreateTexture(t_desc, TextureFlags::DepthStencil);
+    }
+};
+} // namespace wis
 
 #if defined(WISDOM_HEADER_ONLY)
 #include "impl/dx12_allocator.inl"

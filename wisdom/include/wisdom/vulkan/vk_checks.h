@@ -22,4 +22,8 @@ inline bool succeeded(vk::Result res, wis::Severity severity = wis::Severity::er
     }
     return res == vk::Result::eSuccess;
 }
+inline bool succeeded(VkResult res, wis::Severity severity = wis::Severity::error, wis::source_location sl = wis::source_location::current()) noexcept
+{
+    return succeeded(static_cast<vk::Result>(res), severity, sl);
+}
 } // namespace wis

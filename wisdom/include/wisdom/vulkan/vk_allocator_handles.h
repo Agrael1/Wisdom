@@ -13,7 +13,7 @@ WIS_EXPORT class shared_handle<VmaAllocator> : public vk::SharedHandleBase<VmaAl
 
 public:
     shared_handle() = default;
-    explicit shared_handle(VmaAllocator handle, vk::SharedDevice parent)
+    explicit shared_handle(VmaAllocator handle, vk::SharedDevice parent) noexcept
         : base(handle, std::move(parent))
     {
     }
@@ -38,7 +38,7 @@ WIS_EXPORT class shared_handle<VmaAllocation> : public vk::SharedHandleBase<VmaA
 
 public:
     shared_handle() = default;
-    explicit shared_handle(VmaAllocation handle, shared_handle<VmaAllocator> parent)
+    explicit shared_handle(VmaAllocation handle, shared_handle<VmaAllocator> parent) noexcept
         : base(handle, std::move(parent))
     {
     }

@@ -52,7 +52,7 @@ public:
         swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(width), uint32_t(height), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true }, surface);
 
         fence = device.CreateFence();
-        context = device.CreateCommandList(wis::QueueType::direct);
+        context = device.CreateCommandList(wis::QueueType::Direct);
         constants_heap = device.CreateDescriptorHeap(2, wis::PoolType::CBV_SRV_UAV);
     }
 
@@ -93,7 +93,11 @@ public:
         }
 
         for (size_t i = 0; i < 2; i++) {
-            depth_buffers[i] = allocator.CreateDepthStencilTexture({ width, height, wis::DataFormat::d32_float });
+            depth_buffers[i] = allocator.CreateDepthStencilTexture({
+                    wis::DataFormat::d32_float,
+                    width,
+                    height,
+            });
             dsv[i] = device.CreateDepthStencil(depth_buffers[i], wis::DataFormat::d32_float);
         }
     }

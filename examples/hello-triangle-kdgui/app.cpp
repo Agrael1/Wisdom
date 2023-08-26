@@ -67,7 +67,7 @@ Test::App::App(uint32_t width, uint32_t height)
     swap = device.CreateSwapchain(queue, wis::SwapchainOptions{ uint32_t(width), uint32_t(height), wis::SwapchainOptions::default_frames, wis::SwapchainOptions::default_format, true }, wnd.GetSurfaceOptions());
 
     fence = device.CreateFence();
-    context = device.CreateCommandList(wis::QueueType::direct);
+    context = device.CreateCommandList(wis::QueueType::Direct);
 
     vs = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.vs"), wis::ShaderType::vertex);
     ps = device.CreateShader(LoadShader<wis::Shader>(SHADER_DIR "/example.ps"), wis::ShaderType::pixel);

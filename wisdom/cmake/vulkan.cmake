@@ -35,7 +35,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_views.h"
 		"include/wisdom/vulkan/vk_descriptor_heap.h")
 
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND VULKAN_HPP_NO_EXCEPTIONS)
 
 	# Add source to this project's executable.
 	target_sources(${PROJECT_NAME}

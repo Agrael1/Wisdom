@@ -1,10 +1,11 @@
 #ifndef WISDOM_MODULES
-//#include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_factory.h>
 #include <ranges>
 #include <unordered_map>
 #include <wisdom/util/misc.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/global/definitions.h>
+#include <wisdom/vulkan/vk_checks.h>
 #endif
 
 namespace {
@@ -55,13 +56,19 @@ private:
 
     void LoadExtensions() noexcept
     {
-        auto vextensions = vk::enumerateInstanceExtensionProperties();
+        auto [result, vextensions] = vk::enumerateInstanceExtensionProperties();
+        if (!wis::succeeded(result))
+            return;
+
         for (auto& i : vextensions)
             extensions.emplace(i.extensionName, i);
     }
     void LoadLayers() noexcept
     {
-        auto vlayers = vk::enumerateInstanceLayerProperties();
+        auto [result, vlayers] = vk::enumerateInstanceLayerProperties();
+        if (!wis::succeeded(result))
+            return;
+
         for (auto& i : vlayers)
             layers.emplace(i.layerName, i);
     }
@@ -189,19 +196,30 @@ wis::VKFactory::VKFactory(const ApplicationInfo& app_info) noexcept
         create_info.pNext = &create_instance_debug;
     }
 
-    factory = wis::shared_handle<vk::Instance>{ vk::createInstance(create_info) };
+    auto&& [result, instance] = vk::createInstance(create_info);
+    if (!wis::succeeded(result))
+        return;
+
+    factory = wis::shared_handle<vk::Instance>{ instance };
+
     DynamicLoader::loader = vk::DispatchLoaderDynamic{ factory.get(), vkGetInstanceProcAddr };
     DynamicLoader::init = true;
 
     if constexpr (debug_mode) {
-        messenger = wis::shared_handle<vk::DebugUtilsMessengerEXT>{ factory->createDebugUtilsMessengerEXT(create_instance_debug, nullptr, DynamicLoader::loader), factory, { nullptr, DynamicLoader::loader } };
+        auto&& [result, mess] = instance.createDebugUtilsMessengerEXT(create_instance_debug, nullptr, DynamicLoader::loader);
+        if (!wis::succeeded(result))
+            return;
+
+        messenger = wis::shared_handle<vk::DebugUtilsMessengerEXT>{ mess, factory, { nullptr, DynamicLoader::loader } };
     }
 }
 
 // NOLINTNEXTLINE
 wis::generator<wis::VKAdapter> wis::VKFactory::EnumerateAdapters(AdapterPreference preference) const noexcept
 {
-    auto adapters = factory->enumeratePhysicalDevices();
+    auto&& [result, adapters] = factory->enumeratePhysicalDevices();
+    if (!wis::succeeded(result))
+        co_return;
 
     if (adapters.size() > 1) {
         switch (preference) {
