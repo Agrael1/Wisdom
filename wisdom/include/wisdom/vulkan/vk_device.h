@@ -162,12 +162,12 @@ public:
     WIS_INLINE bool Initialize(VKFactoryHandle factory, VKAdapterView adapter) noexcept;
 
     [[nodiscard]] WIS_INLINE
-    VKSwapChain
-    CreateSwapchain(
-        VKCommandQueueView render_queue,
-        wis::SwapchainOptions options,
-        wis::SurfaceParameters xsurface,
-        bool vsync = false) const noexcept;
+            VKSwapChain
+            CreateSwapchain(
+                    VKCommandQueueView render_queue,
+                    wis::SwapchainOptions options,
+                    wis::SurfaceParameters xsurface,
+                    bool vsync = false) const noexcept;
 
 public:
     [[nodiscard]] VKCommandQueue
@@ -217,8 +217,7 @@ public:
             {}, &timeline_desc
         };
         auto [result, sem] = device->createSemaphore(desc);
-        return succeeded(result) ? VKFence{ wis::shared_handle<vk::Semaphore>{ sem, device } } :
-               VKFence{};
+        return succeeded(result) ? VKFence{ wis::shared_handle<vk::Semaphore>{ sem, device } } : VKFence{};
     }
 
     [[nodiscard]] WIS_INLINE VKRenderPass
@@ -239,13 +238,12 @@ public:
         };
 
         auto [result, layout] = device->createPipelineLayout(pipeline_layout_info);
-        return succeeded(result) ? VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{ layout, device } } :
-               VKRootSignature{};
+        return succeeded(result) ? VKRootSignature{ wis::shared_handle<vk::PipelineLayout>{ layout, device } } : VKRootSignature{};
     }
 
     [[nodiscard]] WIS_INLINE
-    VKPipelineState
-    CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const noexcept;
+            VKPipelineState
+            CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const noexcept;
 
     [[nodiscard]] VKShader CreateShader(wis::shared_blob blob, ShaderType type) const noexcept
     {
@@ -255,8 +253,7 @@ public:
             blob.data<uint32_t>()
         };
         auto [result, module] = device->createShaderModule(desc);
-        return succeeded(result) ? VKShader{ wis::shared_handle<vk::ShaderModule>{ module, device }, type } :
-               VKShader{};
+        return succeeded(result) ? VKShader{ wis::shared_handle<vk::ShaderModule>{ module, device }, type } : VKShader{};
     }
 
     [[nodiscard]] VKRenderTarget
@@ -346,9 +343,8 @@ public:
 
         auto [result, value] = device->createImageView(desc);
         return succeeded(result)
-               ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
-               :
-               VKRenderTarget{};
+                ? VKRenderTarget{ shared_handle<vk::ImageView>{ value, device } }
+                : VKRenderTarget{};
     }
 
     [[nodiscard]] VKDepthStencil
@@ -371,8 +367,7 @@ public:
                 vk::DescriptorPoolCreateFlags{}, num_descs, 1u, &size_desc
             };
             auto [result, pool] = device->createDescriptorPool(pool_desc);
-            return succeeded(result) ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ pool, device } } :
-                   VKDescriptorHeap{};
+            return succeeded(result) ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ pool, device } } : VKDescriptorHeap{};
         }
 
         vk::DescriptorPoolSize size_desc{
@@ -382,8 +377,7 @@ public:
             vk::DescriptorPoolCreateFlags{}, num_descs, 1u, &size_desc
         };
         auto [result, pool] = device->createDescriptorPool(pool_desc);
-        return succeeded(result) ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ pool, device } } :
-               VKDescriptorHeap{};
+        return succeeded(result) ? VKDescriptorHeap{ shared_handle<vk::DescriptorPool>{ pool, device } } : VKDescriptorHeap{};
     }
 
     [[nodiscard]] VKDescriptorSetLayout CreateDescriptorSetLayout(std::span<BindingDescriptor> descs) const noexcept
@@ -412,16 +406,15 @@ public:
 
         for (auto& desc : descs) {
             bindings.allocate(vk::DescriptorSetLayoutBinding{
-                desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
+                    desc.binding, vk::DescriptorType::eMutableVALVE, desc.count, vk::ShaderStageFlagBits(desc.stages) });
         }
         vk::DescriptorSetLayoutCreateInfo desc{
             vk::DescriptorSetLayoutCreateFlags{}, uint32_t(bindings.size()), bindings.data(), &mutableTypeInfo
         };
         auto [result, value] = device->createDescriptorSetLayout(desc);
         return succeeded(result)
-               ? VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ value, device } }
-               :
-               VKDescriptorSetLayout{};
+                ? VKDescriptorSetLayout{ shared_handle<vk::DescriptorSetLayout>{ value, device } }
+                : VKDescriptorSetLayout{};
     }
 
     void CreateConstantBufferView(VKBufferView buffer, uint32_t size, VKDescriptorSetView set, VKDescriptorSetLayoutView, uint32_t binding = 0) const noexcept
@@ -439,16 +432,16 @@ private:
     WIS_INLINE void GetQueueFamilies() noexcept;
 
     [[nodiscard]] WIS_INLINE
-    wis::internals::uniform_allocator<const char*, required_extensions.size()>
-    RequestExtensions() noexcept;
+            wis::internals::uniform_allocator<const char*, required_extensions.size()>
+            RequestExtensions() noexcept;
 
     [[nodiscard]] WIS_INLINE
-    vk::PresentModeKHR
-    GetPresentMode(vk::SurfaceKHR surface, bool vsync) const noexcept;
+            vk::PresentModeKHR
+            GetPresentMode(vk::SurfaceKHR surface, bool vsync) const noexcept;
 
     WIS_INLINE void FillShaderStages(
-        const VKGraphicsPipelineDesc& desc,
-        wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages) const noexcept;
+            const VKGraphicsPipelineDesc& desc,
+            wis::internals::uniform_allocator<vk::PipelineShaderStageCreateInfo, max_shader_stages>& shader_stages) const noexcept;
 
     QueueResidency queues{};
     bool vrs_supported : 1 = false;

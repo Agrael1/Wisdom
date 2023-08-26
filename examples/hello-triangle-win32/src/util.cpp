@@ -1,7 +1,6 @@
 #include <example/util.h>
 #include <Windows.h>
 
-
 winrt::hresult wis::last_windows_error() noexcept
 {
     return winrt::hresult(GetLastError());
@@ -21,10 +20,10 @@ const char* wis::hr_exception::what() const noexcept
 {
     if (whatBuffer.empty()) {
         whatBuffer = wis::format(
-                         "{}\n[Error Code]: 0x{:08X}({})\n"
-                         "[Description]: {}\n{}",
-                         type(), (unsigned long)error_code(), (unsigned long)error_code(),
-                         description(), origin());
+                "{}\n[Error Code]: 0x{:08X}({})\n"
+                "[Description]: {}\n{}",
+                type(), (unsigned long)error_code(), (unsigned long)error_code(),
+                description(), origin());
     }
     return whatBuffer.c_str();
 }

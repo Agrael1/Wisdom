@@ -52,9 +52,9 @@ public:
     /// @return The created swapchain
     [[nodiscard]] WIS_INLINE DX12SwapChain
     CreateSwapchain(
-        DX12CommandQueueView queue,
-        wis::SwapchainOptions options,
-        wis::SurfaceParameters surface) const noexcept;
+            DX12CommandQueueView queue,
+            wis::SwapchainOptions options,
+            wis::SurfaceParameters surface) const noexcept;
 
     /// @brief Create a command queue
     /// @param options The options to use
@@ -79,8 +79,8 @@ public:
     /// @brief Create a graphics pipeline
     /// TODO: revisit
     [[nodiscard]] WIS_INLINE DX12PipelineState CreateGraphicsPipeline(
-        const DX12GraphicsPipelineDesc& desc,
-        std::span<const InputLayoutDesc> input_layout) const noexcept;
+            const DX12GraphicsPipelineDesc& desc,
+            std::span<const InputLayoutDesc> input_layout) const noexcept;
 
     /// @brief Create a shader
     /// @param blob The shader blob
@@ -98,27 +98,27 @@ public:
     /// @param vrs_format The variable rate shading format
     [[nodiscard]] WIS_INLINE DX12RenderPass
     CreateRenderPass(
-        wis::Size2D,
-        std::span<const ColorAttachment> rtv_descs,
-        DepthStencilAttachment dsv_desc = DepthStencilAttachment{}) const noexcept;
+            wis::Size2D,
+            std::span<const ColorAttachment> rtv_descs,
+            DepthStencilAttachment dsv_desc = DepthStencilAttachment{}) const noexcept;
 
     /// @brief Create a render target view
     /// @param texture The texture to create the view for
     /// @param range The range of the view
     [[nodiscard]] DX12RenderTarget
     CreateRenderTarget(
-        DX12TextureView texture,
-        wis::DataFormat format,
-        RenderTargetSelector range = {}) const noexcept
+            DX12TextureView texture,
+            wis::DataFormat format,
+            RenderTargetSelector range = {}) const noexcept
     {
         D3D12_RENDER_TARGET_VIEW_DESC desc{
             .Format = DXGI_FORMAT(format),
             .ViewDimension = D3D12_RTV_DIMENSION(range.type),
             .Texture2DArray{
-                .MipSlice = range.mip,
-                .FirstArraySlice = range.base_layer,
-                .ArraySize = range.extent_layers,
-                .PlaneSlice = 0 }
+                    .MipSlice = range.mip,
+                    .FirstArraySlice = range.base_layer,
+                    .ArraySize = range.extent_layers,
+                    .PlaneSlice = 0 }
         };
         switch (range.type) {
         case TextureType::Texture1D:
@@ -184,7 +184,7 @@ public:
             .Format = DXGI_FORMAT(format),
             .ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D, // only 2D for now
             .Texture2D{
-                .MipSlice = 0,
+                    .MipSlice = 0,
             }
         };
 

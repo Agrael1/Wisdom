@@ -57,7 +57,7 @@ Window::WindowClass::~WindowClass()
 {
     UnregisterClassA(wndClassName, GetInstance());
 }
-const char *Window::WindowClass::GetName() noexcept
+const char* Window::WindowClass::GetName() noexcept
 {
     return wndClassName;
 }
@@ -67,7 +67,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 }
 
 // Window namespace
-Window::Window(unsigned int width, unsigned int height, const char *name)
+Window::Window(unsigned int width, unsigned int height, const char* name)
     : width(width), height(height)
 {
     RECT rWindow;
@@ -79,13 +79,13 @@ Window::Window(unsigned int width, unsigned int height, const char *name)
     wis::check_windows(AdjustWindowRect(&rWindow, WS_OVERLAPPEDWINDOW, TRUE));
 
     hWnd.reset(CreateWindowA(
-                   WindowClass::GetName(), name,
-                   WS_OVERLAPPEDWINDOW,
-                   CW_USEDEFAULT, CW_USEDEFAULT,
-                   rWindow.right - rWindow.left,
-                   rWindow.bottom - rWindow.top,
-                   nullptr, nullptr,
-                   WindowClass::GetInstance(), this));
+            WindowClass::GetName(), name,
+            WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT, CW_USEDEFAULT,
+            rWindow.right - rWindow.left,
+            rWindow.bottom - rWindow.top,
+            nullptr, nullptr,
+            WindowClass::GetInstance(), this));
 
     // Error checks
     wis::check_windows(!!hWnd);
@@ -162,7 +162,7 @@ void Window::ConfineCursor() noexcept
 {
     RECT rect;
     GetClientRect(hWnd.get(), &rect);
-    MapWindowPoints(hWnd.get(), nullptr, reinterpret_cast<POINT *>(&rect), 2);
+    MapWindowPoints(hWnd.get(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
     ClipCursor(&rect);
 }
 void Window::FreeCursor() noexcept
@@ -222,8 +222,8 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     // Create routine initializer
     if (msg == WM_NCCREATE) {
         // Extract data from creation of window
-        const CREATESTRUCTW *const pCreate = reinterpret_cast<CREATESTRUCTW *>(lParam);
-        Window *const pWnd = static_cast<Window *>(pCreate->lpCreateParams);
+        const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+        Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
         // set WinAPI-managed user data to store ptr to win class
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
         // set msgproc to to non setup handle
@@ -236,7 +236,7 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     // retrieve ptr to win class
-    Window *const pWnd = reinterpret_cast<Window *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     // forward msg to class handler
     return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 }
@@ -484,9 +484,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         // process the raw input data
-        auto &ri = reinterpret_cast<const RAWINPUT &>(*rawBuffer.data());
+        auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
         if (ri.header.dwType == RIM_TYPEMOUSE &&
-                (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
+            (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
             mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
         }
         break;
