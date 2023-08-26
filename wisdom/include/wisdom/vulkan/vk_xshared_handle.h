@@ -4,7 +4,7 @@
 #include <atomic>
 #endif
 
-#if VK_HEADER_VERSION < 257
+//#if VK_HEADER_VERSION < 257
 namespace VULKAN_HPP_NAMESPACE {
 template<typename HandleType>
 class SharedHandleTraits;
@@ -897,4 +897,4 @@ protected:
 };
 
 } // namespace VULKAN_HPP_NAMESPACE
-#endif
+//#endif

@@ -34,7 +34,7 @@ wis::DX12SwapChain wis::DX12Device::CreateSwapchain(wis::DX12CommandQueueView qu
         break;
 #ifdef WISDOM_UWP
     case SurfaceParameters::Type::WinRT:
-        chain = SwapChainForCoreWindow(desc, surface.core_window, queue);
+        chain = SwapChainForCoreWindow(desc, surface.core_window, std::get<0>(queue));
         break;
 #endif
     }
