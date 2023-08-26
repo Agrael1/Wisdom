@@ -5,41 +5,40 @@
 #include <wisdom/vulkan/vk_shared_handle.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKShader;
+
+template<>
+class Internal<VKShader>
 {
-    class VKShader;
+public:
+    wis::shared_handle<vk::ShaderModule> module;
+};
 
-    template<>
-    class Internal<VKShader>
+/// @brief Shader object
+WIS_EXPORT class VKShader : public QueryInternal<VKShader>
+{
+public:
+    using DataType = uint32_t;
+    static constexpr inline ShaderLang language = ShaderLang::spirv;
+
+    VKShader() = default;
+    explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type) noexcept
+        : QueryInternal(std::move(module)), type(type)
     {
-    public:
-        wis::shared_handle<vk::ShaderModule> module;
-    };
+    }
 
-    /// @brief Shader object
-    class VKShader : public QueryInternal<VKShader>
+    operator bool() const noexcept
     {
-    public:
-        using DataType = uint32_t;
-        static constexpr inline ShaderLang language = ShaderLang::spirv;
+        return type != ShaderType::unknown && module;
+    }
+    /// @brief Get shader type e.g. vertex, fragment
+    /// @return Type of shader
+    [[nodiscard]] auto GetType() const noexcept
+    {
+        return type;
+    }
 
-        VKShader() = default;
-        explicit VKShader(wis::shared_handle<vk::ShaderModule> module, ShaderType type)
-            : QueryInternal(std::move(module)), type(type)
-        {
-        }
-
-        operator bool() const noexcept
-        {
-            return type != ShaderType::unknown && module;
-        }
-        /// @brief Get shader type e.g. vertex, fragment
-        /// @return Type of shader
-        [[nodiscard]] auto GetType() const noexcept
-        {
-            return type;
-        }
-
-        ShaderType type = ShaderType::unknown;
-    };
-}
+    ShaderType type = ShaderType::unknown;
+};
+} // namespace wis

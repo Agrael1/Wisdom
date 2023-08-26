@@ -3,7 +3,7 @@
 #endif
 //#include "../vk_device.h"
 
-bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
+bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter) noexcept
 {
     adapter = std::get<0>(xadapter);
     instance = std::move(std::get<0>(factory));
@@ -144,7 +144,7 @@ bool wis::VKDevice::Initialize(VKFactoryHandle factory, VKAdapterView xadapter)
     return bool(device);
 }
 
-wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync) const
+wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue, wis::SwapchainOptions options, wis::SurfaceParameters xsurface, bool vsync) const noexcept
 {
     using Type = SurfaceParameters::Type;
     if (xsurface.type == Type::WinRT)
@@ -281,7 +281,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
 wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<const ColorAttachment> rtv_descs,
                                                   DepthStencilAttachment dsv_desc,
                                                   SampleCount samples,
-                                                  DataFormat /*vrs_format*/) const
+                                                  DataFormat /*vrs_format*/) const noexcept
 {
     std::array<vk::AttachmentDescription2, max_render_targets + 2> attachment_descriptions{};
     std::array<vk::AttachmentReference2, max_render_targets + 2> attachment_references{};
@@ -402,7 +402,7 @@ wis::VKRenderPass wis::VKDevice::CreateRenderPass(Size2D frame_size, std::span<c
     return succeeded(result2) ? VKRenderPass{ std::move(rp), wis::shared_handle<vk::Framebuffer>{ fb, device }, frame_size } : VKRenderPass{};
 }
 
-wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const
+wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc, std::span<const InputLayoutDesc> input_layout) const noexcept
 {
     static constexpr size_t attr_descriptions_per_binding = 16;
     std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;

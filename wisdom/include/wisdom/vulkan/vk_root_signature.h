@@ -4,30 +4,33 @@
 #include <wisdom/vulkan/vk_views.h>
 #endif
 
-WIS_EXPORT namespace wis
+namespace wis {
+class VKRootSignature;
+
+template<>
+class Internal<VKRootSignature>
 {
-    class VKRootSignature;
+public:
+    wis::shared_handle<vk::PipelineLayout> root;
+};
 
-    template<>
-    class Internal<VKRootSignature>
+/// @brief Root signature
+WIS_EXPORT class VKRootSignature : public QueryInternal<VKRootSignature>
+{
+public:
+    VKRootSignature() = default;
+    explicit VKRootSignature(wis::shared_handle<vk::PipelineLayout> root) noexcept
+        : QueryInternal(std::move(root))
     {
-    public:
-        wis::shared_handle<vk::PipelineLayout> root;
-    };
+    }
 
-    /// @brief Root signature
-    class VKRootSignature : public QueryInternal<VKRootSignature>
+    operator VKRootSignatureView() const noexcept
     {
-    public:
-        VKRootSignature() = default;
-        explicit VKRootSignature(wis::shared_handle<vk::PipelineLayout> root)
-            : QueryInternal(std::move(root))
-        {
-        }
-
-        operator VKRootSignatureView() const noexcept
-        {
-            return root.get();
-        }
-    };
-}
+        return root.get();
+    }
+    operator bool() const noexcept
+	{
+		return bool(root);
+	}
+};
+} // namespace wis
