@@ -34,7 +34,7 @@ public:
     {
         EnableDebugLayer();
         wis::succeeded(CreateDXGIFactory2(debug_flag,
-                                         __uuidof(IDXGIFactory4), factory.put_void()));
+                                          __uuidof(IDXGIFactory4), factory.put_void()));
 
         // TODO: consider constexpr
         has_preference = bool(factory.try_as<IDXGIFactory6>());
@@ -85,8 +85,8 @@ private:
         uint32_t index = 0;
 
         while (wis::succeeded(factory6->EnumAdapterByGpuPreference(index++,
-                                                                  preference,
-                                                                  __uuidof(IDXGIAdapter1), adapter.put_void()))) {
+                                                                   preference,
+                                                                   __uuidof(IDXGIAdapter1), adapter.put_void()))) {
             co_yield std::move(adapter);
         }
     }

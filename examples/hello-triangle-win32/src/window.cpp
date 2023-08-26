@@ -57,7 +57,7 @@ Window::WindowClass::~WindowClass()
 {
     UnregisterClassA(wndClassName, GetInstance());
 }
-const char *Window::WindowClass::GetName() noexcept
+const char* Window::WindowClass::GetName() noexcept
 {
     return wndClassName;
 }
@@ -67,7 +67,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 }
 
 // Window namespace
-Window::Window(unsigned int width, unsigned int height, const char *name)
+Window::Window(unsigned int width, unsigned int height, const char* name)
     : width(width), height(height)
 {
     RECT rWindow;
@@ -162,7 +162,7 @@ void Window::ConfineCursor() noexcept
 {
     RECT rect;
     GetClientRect(hWnd.get(), &rect);
-    MapWindowPoints(hWnd.get(), nullptr, reinterpret_cast<POINT *>(&rect), 2);
+    MapWindowPoints(hWnd.get(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
     ClipCursor(&rect);
 }
 void Window::FreeCursor() noexcept
@@ -222,8 +222,8 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     // Create routine initializer
     if (msg == WM_NCCREATE) {
         // Extract data from creation of window
-        const CREATESTRUCTW *const pCreate = reinterpret_cast<CREATESTRUCTW *>(lParam);
-        Window *const pWnd = static_cast<Window *>(pCreate->lpCreateParams);
+        const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+        Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
         // set WinAPI-managed user data to store ptr to win class
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
         // set msgproc to to non setup handle
@@ -236,7 +236,7 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     // retrieve ptr to win class
-    Window *const pWnd = reinterpret_cast<Window *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     // forward msg to class handler
     return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 }
@@ -249,12 +249,12 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     // const auto& imio = ImGui::GetIO();
 
     switch (msg) {
-        // we don't want the DefProc to handle this message because
-        // we want our destructor to destroy the window, so return 0 instead of break
+    // we don't want the DefProc to handle this message because
+    // we want our destructor to destroy the window, so return 0 instead of break
     case WM_CLOSE:
         PostQuitMessage(0);
         return 0;
-        // clear keystate when window loses focus to prevent input getting "stuck"
+    // clear keystate when window loses focus to prevent input getting "stuck"
     case WM_KILLFOCUS:
         kbd.ClearState();
         break;
@@ -323,9 +323,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
 
-        /*********** KEYBOARD MESSAGES ***********/
+    /*********** KEYBOARD MESSAGES ***********/
     case WM_KEYDOWN:
-        // syskey commands need to be handled to track ALT key (VK_MENU) and F10
+    // syskey commands need to be handled to track ALT key (VK_MENU) and F10
     case WM_SYSKEYDOWN:
         // stifle this keyboard message if imgui wants to capture
         // if (imio.WantCaptureKeyboard)
@@ -354,9 +354,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         //}
         kbd.OnChar(static_cast<unsigned char>(wParam));
         break;
-        /*********** END KEYBOARD MESSAGES ***********/
+    /*********** END KEYBOARD MESSAGES ***********/
 
-        /************* MOUSE MESSAGES ****************/
+    /************* MOUSE MESSAGES ****************/
     case WM_MOUSEMOVE: {
         const POINTS pt = MAKEPOINTS(lParam);
         // cursorless exclusive gets first dibs
@@ -484,7 +484,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         // process the raw input data
-        auto &ri = reinterpret_cast<const RAWINPUT &>(*rawBuffer.data());
+        auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
         if (ri.header.dwType == RIM_TYPEMOUSE &&
             (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
             mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);

@@ -3,7 +3,7 @@ if(WIN32)
 	message("Platform Library is DirectX 12")
 	set(WISDOMDX12 TRUE)
 	set(DX12HEADERS
-		
+
 		"include/wisdom/dx12/dx12_factory.h"
 		"include/wisdom/dx12/dx12_checks.h"
 		"include/wisdom/dx12/dx12_info.h"
@@ -20,7 +20,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_shader.h"
 		"include/wisdom/dx12/dx12_allocator.h"
 		"include/wisdom/dx12/dx12_state_builder.h"
-		
+
 		"include/wisdom/dx12/dx12_render_pass.h"
 		"include/wisdom/dx12/dx12_format.h"
 		"include/wisdom/dx12/dx12_views.h"
