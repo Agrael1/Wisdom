@@ -261,7 +261,7 @@ wis::VKSwapChain wis::VKDevice::CreateSwapchain(VKCommandQueueView render_queue,
     };
 
     auto [result4, swapchain] = device->createSwapchainKHR(desc);
-    return succeeded(result)
+    return succeeded(result4)
             ? VKSwapChain{
                   shared_handle<vk::SwapchainKHR>{
                           swapchain,

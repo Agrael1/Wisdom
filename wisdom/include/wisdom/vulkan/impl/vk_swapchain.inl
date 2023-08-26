@@ -6,7 +6,7 @@ wis::VKSwapChain::VKSwapChain(wis::shared_handle<vk::SwapchainKHR> swap,
                               VKCommandList initialization,
                               vk::SurfaceFormatKHR format,
                               vk::PresentModeKHR present_mode,
-                              bool stereo)
+                              bool stereo) noexcept
     : QueryInternal(std::move(swap), graphics_queue, format, present_mode)
     , stereo(stereo)
     , present_queue(std::move(present_queue))

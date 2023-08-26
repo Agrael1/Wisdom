@@ -64,7 +64,7 @@ public:
                                     VKCommandList initialization,
                                     vk::SurfaceFormatKHR format,
                                     vk::PresentModeKHR present_mode,
-                                    bool stereo);
+                                    bool stereo) noexcept;
     VKSwapChain(VKSwapChain&&) noexcept = default;
     VKSwapChain& operator=(VKSwapChain&&) noexcept = default;
     ~VKSwapChain()
