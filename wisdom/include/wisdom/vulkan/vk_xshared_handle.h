@@ -258,7 +258,9 @@ template<typename SharedType>
 VULKAN_HPP_INLINE std::vector<typename SharedType::element_type> sharedToRaw(std::vector<SharedType> const& handles)
 {
     std::vector<typename SharedType::element_type> newBuffer(handles.size());
-    std::transform(handles.begin(), handles.end(), newBuffer.begin(), [](SharedType const& handle) { return handle.get(); });
+    std::transform(handles.begin(), handles.end(), newBuffer.begin(), [](SharedType const& handle) {
+        return handle.get();
+    });
     return newBuffer;
 }
 
@@ -1060,7 +1062,6 @@ public:
 
 using SharedPerformanceConfigurationINTEL = SharedHandle<PerformanceConfigurationINTEL>;
 #endif // VK_INTEL_performance_query
-
 
 #endif // !VULKAN_HPP_NO_SMART_HANDLE
 } // namespace VULKAN_HPP_NAMESPACE
