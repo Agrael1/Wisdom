@@ -12,7 +12,8 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_factory.h"
 
 		"include/wisdom/vulkan/vk_adapter.h"
-		"include/wisdom/vulkan/vk_shared_handle.h"
+		
+		"include/wisdom/vulkan/vk_managed_handles.h"
 		"include/wisdom/vulkan/vk_dynamic_loader.h"
 		"include/wisdom/vulkan/vk_device.h"
 		"include/wisdom/vulkan/vk_allocator.h"
@@ -33,7 +34,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_buffer_views.h"
 		"include/wisdom/vulkan/vk_xshared_handle.h"
 		"include/wisdom/vulkan/vk_views.h"
-		"include/wisdom/vulkan/vk_descriptor_heap.h")
+		"include/wisdom/vulkan/vk_descriptor_heap.h" "include/wisdom/vulkan/vk_handle_traits.h")
 
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND VULKAN_HPP_NO_EXCEPTIONS)
 
