@@ -1,0 +1,59 @@
+From b909e76c418264c9f641ba5a0da57f44e9b4e12d Mon Sep 17 00:00:00 2001
+From: Ilya Doroshenko <ilya.doroshenko@kdab.com>
+Date: Mon, 11 Sep 2023 15:29:49 +0200
+Subject: [PATCH 1/1] fix for dx renderpass
+
+---
+ .../include/wisdom/dx12/dx12_command_list.h   |  3 ++-
+ wisdom/src/wisdom/empty.cpp                   | 24 +++++++++----------
+ 2 files changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/wisdom/include/wisdom/dx12/dx12_command_list.h b/wisdom/include/wisdom/dx12/dx12_command_list.h
+index 989c040..a6bfec5 100644
+--- a/wisdom/include/wisdom/dx12/dx12_command_list.h
++++ b/wisdom/include/wisdom/dx12/dx12_command_list.h
+@@ -183,8 +183,9 @@ public:
+         if (auto ds = depth.first.GetInternal().handle; ds.ptr && rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+             dsdesc.cpuDescriptor = ds;
+             dsdesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
++            command_list->BeginRenderPass(render_targets.size(), rts.data(), &dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
+         }
+-        command_list->BeginRenderPass(render_targets.size(), rts.data(), &dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
++        else command_list->BeginRenderPass(render_targets.size(), rts.data(), nullptr, D3D12_RENDER_PASS_FLAG_NONE);
+     }
+ 
+     /// @brief Ends the render pass.
+diff --git a/wisdom/src/wisdom/empty.cpp b/wisdom/src/wisdom/empty.cpp
+index 2f41a4f..6d0632c 100644
+--- a/wisdom/src/wisdom/empty.cpp
++++ b/wisdom/src/wisdom/empty.cpp
+@@ -1,12 +1,12 @@
+-#include <wisdom/vulkan/vk_managed_handles.h>
+-
+-void a()
+-{
+-    VkInstance b{};
+-    wis::shared_handle<VkInstance> a{ b, &vkDestroyInstance };
+-    wis::shared_handle<VkDevice> d;
+-
+-    VkImage i{};
+-    wis::shared_handle<VkImage> c{i, d, &vkDestroyImage, wis::owned_by_swapchain::no};
+-    wis::managed_handle<VkImage> e{i};
+-}
+\ No newline at end of file
++//#include <wisdom/vulkan/vk_managed_handles.h>
++//
++//void a()
++//{
++//    VkInstance b{};
++//    wis::shared_handle<VkInstance> a{ b, &vkDestroyInstance };
++//    wis::shared_handle<VkDevice> d;
++//
++//    VkImage i{};
++//    wis::shared_handle<VkImage> c{i, d, &vkDestroyImage, wis::owned_by_swapchain::no};
++//    wis::managed_handle<VkImage> e{i};
++//}
+\ No newline at end of file
+-- 
+2.40.0.windows.1
+

@@ -184,8 +184,8 @@ public:
             dsdesc.cpuDescriptor = ds;
             dsdesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = depth.second;
             command_list->BeginRenderPass(render_targets.size(), rts.data(), &dsdesc, D3D12_RENDER_PASS_FLAG_NONE);
-        }
-        command_list->BeginRenderPass(render_targets.size(), rts.data(), nullptr, D3D12_RENDER_PASS_FLAG_NONE);
+        } else
+            command_list->BeginRenderPass(render_targets.size(), rts.data(), nullptr, D3D12_RENDER_PASS_FLAG_NONE);
     }
 
     /// @brief Ends the render pass.
