@@ -8,123 +8,104 @@ WIS_EXPORT namespace wis
     template<typename HandleType>
     class shared_handle;
 
-    template<typename DestructorType, typename Deleter>
-    struct shared_header {
-        shared_header(shared_handle<DestructorType> parent, Deleter deleter = Deleter()) noexcept
-            : parent(std::move(parent)), deleter(std::move(deleter))
-        {
-        }
-
-        shared_handle<DestructorType> parent;
-        Deleter deleter;
-    };
-
-    template<typename Deleter>
-    struct shared_header<empty_type, Deleter> {
-        shared_header(Deleter deleter = Deleter()) noexcept
-            : deleter(std::move(deleter)) { }
-
-        Deleter deleter;
-    };
-
-    template<typename DestructorType, typename PoolType, typename Deleter>
-    struct pool_header {
-        pool_header(shared_handle<DestructorType> parent, shared_handle<PoolType> pool, Deleter deleter = Deleter()) noexcept
-            : parent(std::move(parent)), pool(std::move(pool)), deleter(std::move(deleter))
-        {
-        }
-
-        shared_handle<DestructorType> parent;
-        shared_handle<PoolType> pool;
-        Deleter deleter;
-    };
-
     template<typename HandleType>
     using deleter_of_t = std::conditional_t<std::is_same_v<typename handle_traits<HandleType>::deleter_pool, empty_type>,
                                             deleter<HandleType>, pool_deleter<HandleType>>;
 
     template<typename HandleType>
-    using header_of_t = std::conditional_t<std::is_same_v<typename handle_traits<HandleType>::deleter_pool, empty_type>,
-                                           shared_header<typename handle_traits<HandleType>::deleter_parent, deleter<HandleType>>,
-                                           pool_header<typename handle_traits<HandleType>::deleter_parent, typename handle_traits<HandleType>::deleter_pool, pool_deleter<HandleType>>>;
+    using parent_of_t = typename handle_traits<HandleType>::deleter_parent;
+
+    template<typename HandleType>
+    using pool_of_t = typename handle_traits<HandleType>::deleter_pool;
+
+    template<typename HandleType>
+    constexpr inline bool has_parent_v = !std::is_same_v<parent_of_t<HandleType>, empty_type>;
+
+    template<typename HandleType>
+    constexpr inline bool has_pool_v = !std::is_same_v<pool_of_t<HandleType>, empty_type>;
+
+    template<typename HandleType>
+    constexpr inline bool has_header_v = !std::is_same_v<typename handle_traits<HandleType>::deleter_pfn, empty_type>;
+
+    template<typename HandleType>
+    struct managed_header {
+        deleter_of_t<HandleType> deleter;
+    };
+
+    template<typename HandleType>
+        requires has_parent_v<HandleType>
+    struct managed_header<HandleType> {
+        shared_handle<parent_of_t<HandleType>> parent;
+        deleter_of_t<HandleType> deleter;
+    };
+
+    template<typename HandleType>
+        requires has_parent_v<HandleType> && has_pool_v<HandleType>
+    struct managed_header<HandleType> {
+        shared_handle<parent_of_t<HandleType>> parent;
+        shared_handle<pool_of_t<HandleType>> pool;
+        deleter_of_t<HandleType> deleter;
+    };
 
     //=====================================================================================================================
 
+    class control_block_base
+    {
+    public:
+        control_block_base() = default;
+        control_block_base(const control_block_base&) = delete;
+        control_block_base& operator=(const control_block_base&) = delete;
+
+    public:
+        size_t add_ref() noexcept
+        {
+            // Relaxed memory order is sufficient since this does not impose any ordering on other operations
+            return m_ref_cnt.fetch_add(1, std::memory_order_relaxed);
+        }
+
+        size_t release() noexcept
+        {
+            // A release memory order to ensure that all releases are ordered
+            return m_ref_cnt.fetch_sub(1, std::memory_order_release);
+        }
+
+    public:
+        std::atomic_size_t m_ref_cnt{ 1 };
+    };
+
     template<typename HeaderType>
-    class control_block
+    class control_block : public control_block_base
     {
     public:
         template<typename... Args>
         control_block(Args&&... control_args)
-            : m_header(std::forward<Args>(control_args)...)
+            : m_header{ std::forward<Args>(control_args)... }
         {
-        }
-
-        control_block(const control_block&) = delete;
-        control_block& operator=(const control_block&) = delete;
-
-    public:
-        size_t add_ref() noexcept
-        {
-            // Relaxed memory order is sufficient since this does not impose any ordering on other operations
-            return m_ref_cnt.fetch_add(1, std::memory_order_relaxed);
-        }
-
-        size_t release() noexcept
-        {
-            // A release memory order to ensure that all releases are ordered
-            return m_ref_cnt.fetch_sub(1, std::memory_order_release);
         }
 
     public:
-        std::atomic_size_t m_ref_cnt{ 1 };
         HeaderType m_header{};
     };
 
     template<>
-    class control_block<empty_type>
+    class control_block<empty_type> : public control_block_base
     {
-    public:
-        control_block() = default;
-        control_block(const control_block&) = delete;
-        control_block& operator=(const control_block&) = delete;
-
-    public:
-        size_t add_ref() noexcept
-        {
-            // Relaxed memory order is sufficient since this does not impose any ordering on other operations
-            return m_ref_cnt.fetch_add(1, std::memory_order_relaxed);
-        }
-
-        size_t release() noexcept
-        {
-            // A release memory order to ensure that all releases are ordered
-            return m_ref_cnt.fetch_sub(1, std::memory_order_release);
-        }
-
-    public:
-        std::atomic_size_t m_ref_cnt{ 1 };
     };
 
     //=====================================================================================================================
 
-    template<typename HandleType, typename HeaderType = header_of_t<HandleType>, typename ForwardType = shared_handle<HandleType>>
+    template<typename HandleType, typename HeaderType = managed_header<HandleType>, typename ForwardType = shared_handle<HandleType>>
     class shared_handle_base
     {
-    public:
-        using parent_type = typename handle_traits<HandleType>::deleter_parent;
-
-        static inline constexpr bool has_header = !std::is_same<HeaderType, empty_type>::value;
-        static inline constexpr bool has_parent = has_header && !std::is_same_v<parent_type, empty_type>;
-        static inline constexpr bool has_pool = !std::is_same_v<typename handle_traits<HandleType>::deleter_pool, empty_type>;
-
     public:
         shared_handle_base() = default;
 
         template<typename... Args>
         shared_handle_base(HandleType handle, Args&&... control_args) noexcept
-            : m_control((control_block<HeaderType>*)std::malloc(sizeof(control_block<HeaderType>))), m_handle(handle)
+            : m_control(reinterpret_cast<control_block<HeaderType>*>(std::malloc(sizeof(control_block<HeaderType>))))
+            , m_handle(handle)
         {
+            // placement new for noexcept construction
             new (m_control) control_block<HeaderType>(std::forward<Args>(control_args)...);
         }
 
@@ -164,7 +145,8 @@ WIS_EXPORT namespace wis
                 // by ordering all atomic operations before this fence
                 std::atomic_thread_fence(std::memory_order_acquire);
                 static_cast<ForwardType*>(this)->internal_destroy();
-                delete m_control;
+                m_control->~control_block<HeaderType>();
+                free(m_control);
             }
         }
 
@@ -172,6 +154,16 @@ WIS_EXPORT namespace wis
         HandleType get() const noexcept
         {
             return m_handle;
+        }
+
+        template<typename... Args>
+        HandleType* put_unsafe(Args&&... control_args) noexcept
+        {
+            if (m_control)
+                reset();
+            m_control = reinterpret_cast<control_block<HeaderType>*>(std::malloc(sizeof(control_block<HeaderType>)));
+            new (m_control) control_block<HeaderType>(std::forward<Args>(control_args)...);
+            return &m_handle;
         }
 
         HandleType operator*() const noexcept
@@ -196,12 +188,11 @@ WIS_EXPORT namespace wis
         }
 
         const HeaderType& header() const noexcept
-            requires has_header
         {
             return m_control->m_header;
         }
-        const shared_handle<parent_type>& parent() const noexcept
-            requires has_parent
+        const shared_handle<parent_of_t<HandleType>>& parent() const noexcept
+            requires has_parent_v<HandleType>
         {
             return m_control->m_header.parent;
         }
@@ -214,21 +205,21 @@ WIS_EXPORT namespace wis
         }
 
         void internal_destroy() noexcept
-            requires !has_header
+            requires !has_header_v<HandleType>
         {
         }
         void internal_destroy() noexcept
-            requires has_parent && !has_pool
-        {
-            m_control->m_header.deleter(m_control->m_header.parent.get(), m_handle);
-        }
-        void internal_destroy() noexcept
-            requires !has_parent
+            requires !has_parent_v<HandleType>
         {
             m_control->m_header.deleter(m_handle);
         }
         void internal_destroy() noexcept
-            requires has_pool
+            requires has_parent_v<HandleType> && !has_pool_v<HandleType>
+        {
+            m_control->m_header.deleter(m_control->m_header.parent.get(), m_handle);
+        }
+        void internal_destroy() noexcept
+            requires has_pool_v<HandleType>
         {
             m_control->m_header.deleter(m_control->m_header.parent.get(), m_control->m_header.pool.get(), m_handle);
         }
@@ -250,22 +241,15 @@ WIS_EXPORT namespace wis
     template<typename HandleType>
     class managed_handle;
 
-    template<typename HandleType, typename HeaderType = header_of_t<HandleType>, typename ForwardType = managed_handle<HandleType>>
+    template<typename HandleType, typename HeaderType = managed_header<HandleType>, typename ForwardType = managed_handle<HandleType>>
     class managed_handle_base
     {
-    public:
-        using parent_type = typename handle_traits<HandleType>::deleter_parent;
-
-        static inline constexpr bool has_header = !std::is_same<HeaderType, empty_type>::value;
-        static inline constexpr bool has_parent = has_header && !std::is_same_v<parent_type, empty_type>;
-        static inline constexpr bool has_pool = !std::is_same_v<typename handle_traits<HandleType>::deleter_pool, empty_type>;
-
     public:
         managed_handle_base() = default;
 
         template<typename... Args>
         managed_handle_base(HandleType handle, Args&&... control_args) noexcept
-            : m_header(std::forward<Args>(control_args)...), m_handle(handle)
+            : m_header{ std::forward<Args>(control_args)... }, m_handle(handle)
         {
         }
 
@@ -322,29 +306,29 @@ WIS_EXPORT namespace wis
         {
             return m_header;
         }
-        const shared_handle<parent_type>& parent() const noexcept
-            requires has_parent
+        const shared_handle<parent_of_t<HandleType>>& parent() const noexcept
+            requires has_parent_v<HandleType>
         {
             return m_header.parent;
         }
 
     protected:
         void internal_destroy() noexcept
-            requires !has_header
+            requires !has_header_v<HandleType>
         {
         }
         void internal_destroy() noexcept
-            requires has_parent && !has_pool
-        {
-            m_header.deleter(m_header.parent.get(), m_handle);
-        }
-        void internal_destroy() noexcept
-            requires !has_parent
+            requires !has_parent_v<HandleType> && !has_pool_v<HandleType>
         {
             m_header.deleter(m_handle);
         }
         void internal_destroy() noexcept
-            requires has_pool
+            requires has_parent_v<HandleType> && !has_pool_v<HandleType>
+        {
+            m_header.deleter(m_header.parent.get(), m_handle);
+        }
+        void internal_destroy() noexcept
+            requires has_pool_v<HandleType>
         {
             m_header.deleter(m_header.parent.get(), m_header.pool.get(), m_handle);
         }
@@ -368,22 +352,12 @@ WIS_EXPORT namespace wis
         no
     };
 
-    struct image_header : public header_of_t<VkImage> {
-        image_header(shared_handle<handle_traits<VkImage>::deleter_parent> parent, wis::deleter<VkImage> deleter, owned_by_swapchain owned = owned_by_swapchain::no) noexcept
-            : header_of_t<VkImage>(std::move(parent), std::move(deleter)), m_owned(owned)
-        {
-        }
+    struct image_header : public managed_header<VkImage> {
         owned_by_swapchain m_owned;
     };
     struct swapchain_header {
-        swapchain_header(shared_handle<typename handle_traits<VkSwapchainKHR>::deleter_parent> parent,
-                         deleter<VkSwapchainKHR> deleter,
-                         shared_handle<VkSurfaceKHR> surface) noexcept
-            : surface(std::move(surface)), parent(std::move(parent)), deleter(std::move(deleter))
-        {
-        }
         shared_handle<VkSurfaceKHR> surface;
-        shared_handle<typename handle_traits<VkSwapchainKHR>::deleter_parent> parent;
+        shared_handle<parent_of_t<VkSwapchainKHR>> parent;
         deleter<VkSwapchainKHR> deleter;
     };
 
