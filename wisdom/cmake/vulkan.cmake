@@ -12,7 +12,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_factory.h"
 
 		"include/wisdom/vulkan/vk_adapter.h"
-		
+
 		"include/wisdom/vulkan/vk_managed_handles.h"
 		"include/wisdom/vulkan/vk_dynamic_loader.h"
 		"include/wisdom/vulkan/vk_device.h"
