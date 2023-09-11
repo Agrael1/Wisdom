@@ -1,3 +1,4 @@
+
 #ifndef VULKAN_CSHARED_HPP
 #define VULKAN_CSHARED_HPP
 
@@ -32,6 +33,7 @@ public:
     }
 };
 
+#if defined(VK_VERSION_1_0)
 //=== VK_VERSION_1_0 ===
 template<>
 class handle_traits<VkInstance>
@@ -354,7 +356,9 @@ public:
         return vkFreeCommandBuffers;
     }
 };
+#endif /*VK_VERSION_1_0*/
 
+#if defined(VK_VERSION_1_1)
 //=== VK_VERSION_1_1 ===
 template<>
 class handle_traits<VkSamplerYcbcrConversion>
@@ -383,7 +387,9 @@ public:
         return vkDestroyDescriptorUpdateTemplateKHR;
     }
 };
+#endif /*VK_VERSION_1_1*/
 
+#if defined(VK_VERSION_1_3)
 //=== VK_VERSION_1_3 ===
 template<>
 class handle_traits<VkPrivateDataSlot>
@@ -398,7 +404,9 @@ public:
         return vkDestroyPrivateDataSlotEXT;
     }
 };
+#endif /*VK_VERSION_1_3*/
 
+#if defined(VK_KHR_surface)
 //=== VK_KHR_surface ===
 template<>
 class handle_traits<VkSurfaceKHR>
@@ -413,7 +421,9 @@ public:
         return vkDestroySurfaceKHR;
     }
 };
+#endif /*VK_KHR_surface*/
 
+#if defined(VK_KHR_swapchain)
 //=== VK_KHR_swapchain ===
 template<>
 class handle_traits<VkSwapchainKHR>
@@ -428,7 +438,9 @@ public:
         return vkDestroySwapchainKHR;
     }
 };
+#endif /*VK_KHR_swapchain*/
 
+#if defined(VK_EXT_debug_report)
 //=== VK_EXT_debug_report ===
 template<>
 class handle_traits<VkDebugReportCallbackEXT>
@@ -443,7 +455,9 @@ public:
         return vkDestroyDebugReportCallbackEXT;
     }
 };
+#endif /*VK_EXT_debug_report*/
 
+#if defined(VK_KHR_video_queue)
 //=== VK_KHR_video_queue ===
 template<>
 class handle_traits<VkVideoSessionKHR>
@@ -472,7 +486,9 @@ public:
         return vkDestroyVideoSessionParametersKHR;
     }
 };
+#endif /*VK_KHR_video_queue*/
 
+#if defined(VK_NVX_binary_import)
 //=== VK_NVX_binary_import ===
 template<>
 class handle_traits<VkCuModuleNVX>
@@ -501,7 +517,9 @@ public:
         return vkDestroyCuFunctionNVX;
     }
 };
+#endif /*VK_NVX_binary_import*/
 
+#if defined(VK_EXT_debug_utils)
 //=== VK_EXT_debug_utils ===
 template<>
 class handle_traits<VkDebugUtilsMessengerEXT>
@@ -516,7 +534,9 @@ public:
         return vkDestroyDebugUtilsMessengerEXT;
     }
 };
+#endif /*VK_EXT_debug_utils*/
 
+#if defined(VK_KHR_acceleration_structure)
 //=== VK_KHR_acceleration_structure ===
 template<>
 class handle_traits<VkAccelerationStructureKHR>
@@ -531,7 +551,9 @@ public:
         return vkDestroyAccelerationStructureKHR;
     }
 };
+#endif /*VK_KHR_acceleration_structure*/
 
+#if defined(VK_EXT_validation_cache)
 //=== VK_EXT_validation_cache ===
 template<>
 class handle_traits<VkValidationCacheEXT>
@@ -546,7 +568,9 @@ public:
         return vkDestroyValidationCacheEXT;
     }
 };
+#endif /*VK_EXT_validation_cache*/
 
+#if defined(VK_NV_ray_tracing)
 //=== VK_NV_ray_tracing ===
 template<>
 class handle_traits<VkAccelerationStructureNV>
@@ -561,7 +585,9 @@ public:
         return vkDestroyAccelerationStructureNV;
     }
 };
+#endif /*VK_NV_ray_tracing*/
 
+#if defined(VK_KHR_deferred_host_operations)
 //=== VK_KHR_deferred_host_operations ===
 template<>
 class handle_traits<VkDeferredOperationKHR>
@@ -576,7 +602,9 @@ public:
         return vkDestroyDeferredOperationKHR;
     }
 };
+#endif /*VK_KHR_deferred_host_operations*/
 
+#if defined(VK_NV_device_generated_commands)
 //=== VK_NV_device_generated_commands ===
 template<>
 class handle_traits<VkIndirectCommandsLayoutNV>
@@ -591,8 +619,9 @@ public:
         return vkDestroyIndirectCommandsLayoutNV;
     }
 };
+#endif /*VK_NV_device_generated_commands*/
 
-#if defined(VK_USE_PLATFORM_FUCHSIA)
+#if defined(VK_FUCHSIA_buffer_collection)
 //=== VK_FUCHSIA_buffer_collection ===
 template<>
 class handle_traits<VkBufferCollectionFUCHSIA>
@@ -607,8 +636,9 @@ public:
         return vkDestroyBufferCollectionFUCHSIA;
     }
 };
-#endif /*VK_USE_PLATFORM_FUCHSIA*/
+#endif /*VK_FUCHSIA_buffer_collection*/
 
+#if defined(VK_EXT_opacity_micromap)
 //=== VK_EXT_opacity_micromap ===
 template<>
 class handle_traits<VkMicromapEXT>
@@ -623,7 +653,9 @@ public:
         return vkDestroyMicromapEXT;
     }
 };
+#endif /*VK_EXT_opacity_micromap*/
 
+#if defined(VK_NV_optical_flow)
 //=== VK_NV_optical_flow ===
 template<>
 class handle_traits<VkOpticalFlowSessionNV>
@@ -638,7 +670,9 @@ public:
         return vkDestroyOpticalFlowSessionNV;
     }
 };
+#endif /*VK_NV_optical_flow*/
 
+#if defined(VK_EXT_shader_object)
 //=== VK_EXT_shader_object ===
 template<>
 class handle_traits<VkShaderEXT>
@@ -653,16 +687,17 @@ public:
         return vkDestroyShaderEXT;
     }
 };
+#endif /*VK_EXT_shader_object*/
 
 template<typename HandleType>
-class deleter
+class single_deleter
 {
     using deleter_pfn = typename handle_traits<HandleType>::deleter_pfn;
     using deleter_parent = typename handle_traits<HandleType>::deleter_parent;
     static inline constexpr bool has_parent = !std::is_same<deleter_parent, empty_type>::value;
 
 public:
-    deleter(deleter_pfn pfn = handle_traits<HandleType>::default_deleter(), VkAllocationCallbacks* pallocator = nullptr) noexcept
+    single_deleter(deleter_pfn pfn = handle_traits<HandleType>::default_deleter(), VkAllocationCallbacks* pallocator = nullptr) noexcept
         : m_pfn(pfn), m_pallocator(pallocator)
     {
     }
@@ -706,5 +741,5 @@ public:
     deleter_pfn m_pfn;
 };
 #endif // !VULKAN_HPP_NO_SMART_HANDLE
-} // namespace wis
+} // namespace VULKAN_HPP_NAMESPACE
 #endif // VULKAN_SHARED_HPP

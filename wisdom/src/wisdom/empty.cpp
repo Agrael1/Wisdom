@@ -1,3 +1,4 @@
+#if WISDOM_VULKAN_FOUND
 #include <wisdom/vulkan/vk_managed_handles.h>
 
 void a()
@@ -10,3 +11,4 @@ void a()
     wis::shared_handle<VkImage> c{i, d, &vkDestroyImage, wis::owned_by_swapchain::no};
     wis::managed_handle<VkImage> e{i};
 }
+#endif
