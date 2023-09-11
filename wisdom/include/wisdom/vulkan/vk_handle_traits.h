@@ -688,58 +688,6 @@ public:
     }
 };
 #endif /*VK_EXT_shader_object*/
-
-template<typename HandleType>
-class single_deleter
-{
-    using deleter_pfn = typename handle_traits<HandleType>::deleter_pfn;
-    using deleter_parent = typename handle_traits<HandleType>::deleter_parent;
-    static inline constexpr bool has_parent = !std::is_same<deleter_parent, empty_type>::value;
-
-public:
-    single_deleter(deleter_pfn pfn = handle_traits<HandleType>::default_deleter(), VkAllocationCallbacks* pallocator = nullptr) noexcept
-        : m_pfn(pfn), m_pallocator(pallocator)
-    {
-    }
-
-public:
-    void operator()(deleter_parent parent, HandleType handle) const noexcept
-        requires has_parent
-    {
-        m_pfn(parent, handle, m_pallocator);
-    }
-
-    void operator()(HandleType handle) const noexcept
-        requires !has_parent
-    {
-        m_pfn(handle, m_pallocator);
-    }
-
-public:
-    deleter_pfn m_pfn;
-    VkAllocationCallbacks* m_pallocator;
-};
-
-template<typename HandleType>
-class pool_deleter
-{
-    using deleter_pfn = typename handle_traits<HandleType>::deleter_pfn;
-    using deleter_parent = typename handle_traits<HandleType>::deleter_parent;
-    using deleter_pool = typename handle_traits<HandleType>::deleter_pool;
-
-public:
-    pool_deleter(deleter_pfn pfn = handle_traits<HandleType>::default_deleter()) noexcept
-        : m_pfn(pfn) { }
-
-public:
-    void operator()(deleter_parent parent, deleter_pool pool, uint32_t num_handles, HandleType* handles) const noexcept
-    {
-        m_pfn(parent, pool, num_handles, handles);
-    }
-
-public:
-    deleter_pfn m_pfn;
-};
 #endif // !VULKAN_HPP_NO_SMART_HANDLE
 } // namespace VULKAN_HPP_NAMESPACE
 #endif // VULKAN_SHARED_HPP

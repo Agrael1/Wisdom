@@ -6,13 +6,6 @@
 WIS_EXPORT namespace wis
 {
     template<typename HandleType>
-    class shared_handle;
-
-    template<typename HandleType>
-    using deleter_of_t = std::conditional_t<std::is_same_v<typename handle_traits<HandleType>::deleter_pool, empty_type>,
-                                            single_deleter<HandleType>, pool_deleter<HandleType>>;
-
-    template<typename HandleType>
     using parent_of_t = typename handle_traits<HandleType>::deleter_parent;
 
     template<typename HandleType>
@@ -26,6 +19,63 @@ WIS_EXPORT namespace wis
 
     template<typename HandleType>
     constexpr inline bool has_header_v = !std::is_same_v<typename handle_traits<HandleType>::deleter_pfn, empty_type>;
+
+    template<typename HandleType>
+    class single_deleter
+    {
+        using deleter_pfn = typename handle_traits<HandleType>::deleter_pfn;
+
+    public:
+        single_deleter(deleter_pfn pfn = handle_traits<HandleType>::default_deleter(), VkAllocationCallbacks* pallocator = nullptr) noexcept
+            : m_pfn(pfn), m_pallocator(pallocator)
+        {
+        }
+
+    public:
+        void operator()(parent_of_t<HandleType> parent, HandleType handle) const noexcept
+            requires(has_parent_v<HandleType>)
+        {
+            m_pfn(parent, handle, m_pallocator);
+        }
+
+        void operator()(HandleType handle) const noexcept
+            requires(!has_parent_v<HandleType>)
+        {
+            m_pfn(handle, m_pallocator);
+        }
+
+    public:
+        deleter_pfn m_pfn;
+        VkAllocationCallbacks* m_pallocator;
+    };
+
+    template<typename HandleType>
+    class pool_deleter
+    {
+        using deleter_pfn = typename handle_traits<HandleType>::deleter_pfn;
+
+    public:
+        pool_deleter(deleter_pfn pfn = handle_traits<HandleType>::default_deleter()) noexcept
+            : m_pfn(pfn) { }
+
+    public:
+        void operator()(parent_of_t<HandleType> parent, pool_of_t<HandleType> pool, uint32_t num_handles, HandleType* handles) const noexcept
+        {
+            m_pfn(parent, pool, num_handles, handles);
+        }
+
+    public:
+        deleter_pfn m_pfn;
+    };
+
+    template<typename HandleType>
+    using deleter_of_t = std::conditional_t<std::is_same_v<pool_of_t<HandleType>, empty_type>,
+                                            single_deleter<HandleType>, pool_deleter<HandleType>>;
+
+    //=====================================================================================================================
+
+    template<typename HandleType>
+    class shared_handle;
 
     template<typename HandleType>
     struct managed_header {
