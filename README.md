@@ -105,3 +105,11 @@ Visit https://github.com/KDAB/KDUtils to see more details.
 
 The project has trello page. https://trello.com/b/qjrv97Bc/wisdom-veritas
 Suggestions are appreciated.
+
+
+1. C API Generation
+2. Reduce Vulkan overhead (Volk/less shared handles?)
+3. Profiling and logs 
+4. Bind less model.
+5. Fallbacks on demand
+6. Result

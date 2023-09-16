@@ -54,6 +54,7 @@ option(WISDOM_FORCE_VULKAN
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
+option(WISDOM_GENERATE_API "Generate the API" ${WTOP})
 option(WISDOM_USE_SYSTEM_DXC "Use dxc from PATH" OFF)
 
 if(WISDOM_FORCE_VULKAN)
@@ -100,6 +101,10 @@ include(cmake/Functions.cmake)
 
 # Include sub-projects.
 add_subdirectory("plugins")
+if(WISDOM_GENERATE_API)
+  add_subdirectory("generator")
+endif()
+
 add_subdirectory("wisdom")
 
 if(WISDOM_BUILD_EXAMPLES)
