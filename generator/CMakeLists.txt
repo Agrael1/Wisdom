@@ -19,7 +19,11 @@ target_sources (${PROJECT_NAME}
 		generator.h
 		generator.cpp
  "string_literal.h" "enums.h")
-target_compile_definitions(${PROJECT_NAME} PRIVATE "OUTPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\"")
+target_compile_definitions(${PROJECT_NAME} 
+	PRIVATE 
+		"INPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\""
+		"OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/bindings\""
+)
 
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE

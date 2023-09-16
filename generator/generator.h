@@ -44,13 +44,14 @@ struct WisBitmask {
 
 class Generator
 {
-    static constexpr std::string_view output_file = OUTPUT_FILE;
+    static constexpr std::string_view input_file = INPUT_FILE;
+    static constexpr std::string_view output_dir = OUTPUT_DIR;
 
 public:
     Generator() = default;
 
 public:
-    int GenerateCAPI(std::filesystem::path file = OUTPUT_FILE);
+    int GenerateCAPI(std::filesystem::path file = input_file);
     std::string GenerateCTypes();
     std::string GenerateCTypedefs();
 

@@ -1,5 +1,6 @@
 #include "generator.h"
 #include "../wisdom/include/wisdom/bridge/format.h"
+#include <fstream>
 
 using namespace tinyxml2;
 
@@ -18,7 +19,20 @@ int Generator::GenerateCAPI(std::filesystem::path file)
 
     auto* types = root->FirstChildElement("types");
     ParseTypes(types);
-    output = GenerateCTypes();
+
+    output = std::format("#pragma once\n\n#include <stdint.h>\n\n");
+    output += GenerateCTypes();
+
+    std::filesystem::path output_path = output_dir;
+    std::filesystem::create_directories(output_path);
+    output_path /= "wisdom.h";
+    output_path = std::filesystem::absolute(output_path);
+
+
+    std::ofstream out(output_path);
+    if (!out.is_open())
+        return 1;
+    out << output;
     return 0;
 }
 
@@ -49,7 +63,7 @@ std::string Generator::GenerateCTypedefs()
     for (auto& s : bitmasks) {
         c_types += std::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
     }
-    return c_types;
+    return c_types + '\n';
 }
 
 void Generator::ParseTypes(tinyxml2::XMLElement* types)
@@ -173,7 +187,7 @@ std::string Generator::MakeCStruct(const WisStruct& s)
 
 std::string Generator::MakeCEnum(const WisEnum& s)
 {
-    std::string st_decl = !s.type.empty() ? wis::format("enum Wis{} : {}{{\n", s.name, standard_types.at(s.type)) : wis::format("enum Wis{}{{\n", s.name);
+    std::string st_decl = !s.type.empty() ? wis::format("enum Wis{} : {} {{\n", s.name, standard_types.at(s.type)) : wis::format("enum Wis{} {{\n", s.name);
 
     for (auto& m : s.values) {
         st_decl += wis::format("    Wis{}{} = {},\n", s.name, m.name, m.value);
@@ -184,7 +198,7 @@ std::string Generator::MakeCEnum(const WisEnum& s)
 
 std::string Generator::MakeCBitmask(const WisBitmask& s)
 {
-    std::string st_decl = s.size ? wis::format("enum Wis{} : uint{}_t {{\n", s.name, s.size) : wis::format("enum Wis{}{{\n", s.name);
+    std::string st_decl = s.size ? wis::format("enum Wis{} : uint{}_t {{\n", s.name, s.size) : wis::format("enum Wis{} {{\n", s.name);
 
     for (auto& m : s.values) {
         if (m.type == WisBitmaskValue::Type::Value) {
