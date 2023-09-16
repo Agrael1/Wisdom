@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
   <types comment="Type definitions">
-    <type name="AdapterPreference" category="enum">
+    <type name="AdapterPreference" category="enum" type="i32">
       <value name="None" value="0"/>
       <value name="MinConsumption" value="1"/>
       <value name="Performance" value="2"/>
@@ -13,7 +13,7 @@
       <value name="ACGCompatible" bit="2" impl="dx"/>
       <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
       <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
-      <value name="KeyedMutexConfoemance" bit="5" impl="dx"/>
+      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
     </type>
     <type name="AdapterDesc" category="struct" >
       <member type="u8string" name="description" array="256"/>

@@ -2,5 +2,5 @@
 
 int main()
 {
-    return Generator{}.GenerateAPI();
+    return Generator{}.GenerateCAPI();
 }
