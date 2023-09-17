@@ -24,7 +24,7 @@ target_compile_definitions(${PROJECT_NAME}
 		"INPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\""
 		"OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/bindings\""
 )
-
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/include")
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE
 		tinyxml2::tinyxml2
@@ -40,5 +40,4 @@ endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
 )

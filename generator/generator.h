@@ -1,7 +1,7 @@
 #pragma once
 #define WIS_EXPORT
 #include <tinyxml2.h>
-#include <string_view>
+#include <string>
 #include <filesystem>
 #include <unordered_set>
 #include <unordered_map>
@@ -42,6 +42,41 @@ struct WisBitmask {
     std::vector<WisBitmaskValue> values;
 };
 
+struct WisFunctionParameter {
+    std::string type;
+    std::string name;
+    std::string array_size;
+    std::string default_value;
+};
+struct WisFunction {
+    std::string name;
+    std::string return_type;
+    std::string this_type;
+    std::vector<WisFunctionParameter> parameters;
+};
+
+enum ImplementedFor {
+    None = 0,
+    DX12 = 1,
+    Vulkan = 2,
+    Both = 3
+};
+
+enum class TypeInfo {
+    None,
+    Regular,
+    Struct,
+    Enum,
+    Handle,
+};
+
+struct WisHandle {
+    std::string name;
+    ImplementedFor impl = ImplementedFor::Both;
+};
+
+using ResolvedType = std::pair<TypeInfo, std::string>;
+
 class Generator
 {
     static constexpr std::string_view input_file = INPUT_FILE;
@@ -56,6 +91,9 @@ public:
     std::string GenerateCTypedefs();
 
     void ParseTypes(tinyxml2::XMLElement* types);
+    void ParseHandles(tinyxml2::XMLElement* handles);
+    void ParseFunctions(tinyxml2::XMLElement* functions);
+
     void ParseStruct(tinyxml2::XMLElement* type);
     void ParseEnum(tinyxml2::XMLElement* type);
     void ParseBitmask(tinyxml2::XMLElement* type);
@@ -64,8 +102,9 @@ public:
     std::string MakeCEnum(const WisEnum& s);
     std::string MakeCBitmask(const WisBitmask& s);
 
-    std::string MakeHandle(tinyxml2::XMLElement* type);
-    std::string MakeFunction(tinyxml2::XMLElement* type);
+    std::string MakeHandle(const WisHandle& s);
+    std::string MakeFunctionDecl(const WisFunction& s);
+    ResolvedType ResolveType(const std::string& type);
 
 private:
     tinyxml2::XMLDocument doc;
@@ -73,8 +112,12 @@ private:
     std::vector<WisStruct> structs;
     std::vector<WisEnum> enums;
     std::vector<WisBitmask> bitmasks;
+    std::vector<WisHandle> handles;
+    std::vector<WisFunction> functions;
 
-    const std::unordered_map<std::string, std::string> standard_types{
+    std::unordered_map<std::string, WisStruct*> struct_map;
+    std::unordered_map<std::string, WisHandle*> handle_map;
+    const std::unordered_map<std::string_view, std::string_view> standard_types{
         { "u8", "uint8_t" },
         { "u16", "uint16_t" },
         { "u32", "uint32_t" },

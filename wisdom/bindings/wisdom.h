@@ -1,5 +1,4 @@
 #pragma once
-
 #include <stdint.h>
 
 typedef struct WisAdapterDesc WisAdapterDesc;
@@ -36,3 +35,17 @@ enum WisAdapterFlags : uint32_t {
     WisAdapterFlagsMax = 0xFFFFFFFF;
 };
 
+//==================================HANDLES==================================
+
+typedef struct DX12Factory_t* DX12Factory;
+typedef struct VKFactory_t* VKFactory;
+
+typedef struct DX12Adapter_t* DX12Adapter;
+typedef struct VKAdapter_t* VKAdapter;
+
+//=================================FUNCTIONS=================================
+
+DX12Factory DX12FactoryCreate();
+VKFactory VKFactoryCreate();
+void DX12FactoryDestroy(DX12Factory self);
+void VKFactoryDestroy(VKFactory self);

@@ -29,12 +29,12 @@
     </type>
   </types>
   <handles>
-    <handle name="Factory" size_vk="24" size_dx="8"/>
-    <handle name="Adapter" size="8"/>
+    <handle name="Factory"/>
+    <handle name="Adapter"/>
   </handles>
   <functions>
     <func for="AdapterDesc" name="ToString" returns="u8string"/>
-    <func for="Factory" name="Create"/>
+    <func for="Factory" name="Create" returns="Factory"/>
     <func for="Factory" name="Destroy"/>
   </functions>
 </registry>

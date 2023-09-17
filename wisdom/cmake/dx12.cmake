@@ -3,7 +3,6 @@ if(WIN32)
 	message("Platform Library is DirectX 12")
 	set(WISDOMDX12 TRUE)
 	set(DX12HEADERS
-
 		"include/wisdom/dx12/dx12_factory.h"
 		"include/wisdom/dx12/dx12_checks.h"
 		"include/wisdom/dx12/dx12_info.h"
@@ -31,6 +30,12 @@ if(WIN32)
 		"include/wisdom/dx12/impl/dx12_device.inl"
 		"include/wisdom/dx12/impl/dx12_info.inl"
 	)
+	#file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/wisdom_dx12.h" "#pragma once\n#ifndef WIS_EXPORT\n#define WIS_EXPORT\n#endif\n\n")
+	#foreach(HEADER ${DX12HEADERS})
+	#	string(REPLACE "include/wisdom/" "" HEADER "${HEADER}")
+	#	file(APPEND "${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/wisdom_dx12.h" "#include \"${HEADER}\"\n")
+	#endforeach()
+
 	target_link_libraries(${PROJECT_NAME}
 		PUBLIC
 			WinRT

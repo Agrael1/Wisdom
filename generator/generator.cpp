@@ -1,6 +1,8 @@
 #include "generator.h"
 #include "../wisdom/include/wisdom/bridge/format.h"
 #include <fstream>
+#include <ranges>
+#include <array>
 
 using namespace tinyxml2;
 
@@ -19,15 +21,26 @@ int Generator::GenerateCAPI(std::filesystem::path file)
 
     auto* types = root->FirstChildElement("types");
     ParseTypes(types);
+    auto* handles = root->FirstChildElement("handles");
+    ParseHandles(handles);
+    auto* funcs = root->FirstChildElement("functions");
+    ParseFunctions(funcs);
 
-    output = std::format("#pragma once\n\n#include <stdint.h>\n\n");
+    output = wis::format("#pragma once\n#include <stdint.h>\n\n");
     output += GenerateCTypes();
+    output += "//==================================HANDLES==================================\n\n";
+    for (auto& h : this->handles) {
+        output += MakeHandle(h);
+    }
+    output += "//=================================FUNCTIONS=================================\n\n";
+    for (auto& f : this->functions) {
+        output += MakeFunctionDecl(f);
+    }
 
     std::filesystem::path output_path = output_dir;
     std::filesystem::create_directories(output_path);
     output_path /= "wisdom.h";
     output_path = std::filesystem::absolute(output_path);
-
 
     std::ofstream out(output_path);
     if (!out.is_open())
@@ -55,13 +68,13 @@ std::string Generator::GenerateCTypedefs()
 {
     std::string c_types;
     for (auto& s : structs) {
-        c_types += std::format("typedef struct Wis{} Wis{};\n", s.name, s.name);
+        c_types += wis::format("typedef struct Wis{} Wis{};\n", s.name, s.name);
     }
     for (auto& s : enums) {
-        c_types += std::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
+        c_types += wis::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
     }
     for (auto& s : bitmasks) {
-        c_types += std::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
+        c_types += wis::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
     }
     return c_types + '\n';
 }
@@ -77,6 +90,48 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         } else if (std::string_view(category) == "bitmask") {
             ParseBitmask(type);
         }
+    }
+    for (auto& s : structs) {
+        struct_map[s.name] = &s;
+    }
+}
+void Generator::ParseFunctions(tinyxml2::XMLElement* type)
+{
+    for (auto* func = type->FirstChildElement("func"); func; func = func->NextSiblingElement("func")) {
+        auto& ref = functions.emplace_back();
+        auto name = func->FindAttribute("name")->Value();
+        ref.name = name;
+
+        if (auto* ret = func->FindAttribute("returns"))
+            ref.return_type = ret->Value();
+
+        if (auto* ret = func->FindAttribute("for"))
+            ref.this_type = ret->Value();
+
+        for (auto* param = func->FirstChildElement("param"); param; param = param->NextSiblingElement("param")) {
+            auto& p = ref.parameters.emplace_back();
+
+            auto* type = param->FindAttribute("type")->Value();
+            auto* name = param->FindAttribute("name")->Value();
+
+            p.type = type;
+            p.name = name;
+        }
+    }
+}
+
+void Generator::ParseHandles(tinyxml2::XMLElement* types)
+{
+    for (auto* type = types->FirstChildElement("handle"); type; type = type->NextSiblingElement("handle")) {
+        auto& ref = handles.emplace_back();
+        auto name = type->FindAttribute("name")->Value();
+        ref.name = name;
+
+        if (auto* impl = type->FindAttribute("impl"))
+            ref.impl = (impl->Value() == std::string_view("dx")) ? ImplementedFor::DX12 : ImplementedFor::Vulkan;
+    }
+    for (auto& h : handles) {
+        handle_map[h.name] = &h;
     }
 }
 
@@ -211,4 +266,115 @@ std::string Generator::MakeCBitmask(const WisBitmask& s)
 
     st_decl += "};\n\n";
     return st_decl;
+}
+
+ResolvedType Generator::ResolveType(const std::string& type)
+{
+    if (auto it = standard_types.find(type); it != standard_types.end()) {
+        return { TypeInfo::Regular, std::string(it->second) };
+    }
+
+    if (auto it = struct_map.find(type); it != struct_map.end()) {
+        return {
+            TypeInfo::Struct, wis::format("Wis{}*", type)
+        };
+    }
+    if (auto it = handle_map.find(type); it != handle_map.end()) {
+        return {
+            TypeInfo::Handle, wis::format("{}", type)
+        };
+    }
+
+    return {
+        TypeInfo::Regular, "Wis" + type
+    };
+}
+
+std::string Generator::MakeFunctionDecl(const WisFunction& func)
+{
+    std::string st_decl;
+
+    // 1. return type
+    ResolvedType ret_t = [this, &func]() -> ResolvedType {
+        if (func.return_type.empty())
+            return std::pair{ TypeInfo::None, "void" };
+
+        if (std::string_view(func.return_type).substr(2) == "string")
+            return std::pair{ TypeInfo::None, "" };
+
+        return ResolveType(func.return_type);
+    }();
+
+    if (ret_t.first == TypeInfo::None && ret_t.second.empty())
+        return {};
+
+    // 2. this type
+    ResolvedType this_t = [this, &func]() -> ResolvedType {
+        return func.this_type.empty() ? std::pair{ TypeInfo::None, "" } : ResolveType(func.this_type);
+    }();
+
+    // 3. parameters
+    std::vector<ResolvedType> params_t;
+    for (auto& p : func.parameters) {
+        params_t.push_back(ResolveType(p.type));
+    }
+
+    bool impl_based = this_t.first == TypeInfo::Handle || ret_t.first == TypeInfo::Handle || std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
+                                                                                                 return t.first == TypeInfo::Handle;
+                                                                                             }) != params_t.end();
+    constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
+
+    for (size_t j = 0; j < impl_based + 1; j++) {
+        std::string return_t = ret_t.first == TypeInfo::Struct 
+            ? "void" 
+            : ret_t.first == TypeInfo::Handle 
+            ? wis::format("{}{}", impls[j], ret_t.second)
+            : ret_t.second;
+
+        st_decl += wis::format("{} {}{}{}(",
+                               return_t,
+                               impl_based ? impls[j] : "",
+                               this_t.second,
+                               func.name);
+        if (ret_t.second != this_t.second) {
+            if (this_t.first == TypeInfo::Handle) {
+                st_decl += wis::format("{}{} self, ", impl_based ? impls[j] : "", this_t.second);
+            } else {
+                st_decl += wis::format("{} self, ", this_t.second);
+            }
+        }
+
+        for (uint32_t i = 0; i < params_t.size(); i++) {
+            auto& t = params_t[i];
+            auto& p = func.parameters[i];
+
+            if (t.first == TypeInfo::Handle) {
+                st_decl += wis::format("{}{} {}, ", impls[j], t.second, p.name);
+            } else {
+                st_decl += wis::format("{} {}, ", t.second, p.name);
+            }
+        }
+        if (ret_t.first == TypeInfo::Struct) {
+            st_decl += wis::format("{} out_struct", ret_t.second);
+        }
+        if (st_decl.back() == ' ') {
+            st_decl.pop_back();
+            st_decl.pop_back();
+        }
+        st_decl += ");\n";
+    }
+
+    return st_decl;
+}
+
+std::string Generator::MakeHandle(const WisHandle& s)
+{
+    std::string st_decl;
+    if (s.impl & ImplementedFor::DX12) {
+        st_decl += wis::format("typedef struct DX12{}_t* DX12{};\n", s.name, s.name);
+    }
+    if (s.impl & ImplementedFor::Vulkan) {
+        st_decl += wis::format("typedef struct VK{}_t* VK{};\n", s.name, s.name);
+    }
+    return st_decl + '\n';
 }
