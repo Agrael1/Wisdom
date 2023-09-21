@@ -106,6 +106,7 @@ public:
     std::string MakeFunctionDecl(const WisFunction& s);
     ResolvedType ResolveType(const std::string& type);
 
+    std::string MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl);
 private:
     tinyxml2::XMLDocument doc;
 
@@ -114,9 +115,11 @@ private:
     std::vector<WisBitmask> bitmasks;
     std::vector<WisHandle> handles;
     std::vector<WisFunction> functions;
+    std::vector<std::string> function_impl;
 
     std::unordered_map<std::string, WisStruct*> struct_map;
     std::unordered_map<std::string, WisHandle*> handle_map;
+
     const std::unordered_map<std::string_view, std::string_view> standard_types{
         { "u8", "uint8_t" },
         { "u16", "uint16_t" },
@@ -134,5 +137,4 @@ private:
         { "u16string", "const char16_t" },
         { "u32string", "const char32_t" },
     };
-    std::string output;
 };
