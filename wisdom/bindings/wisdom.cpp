@@ -11,11 +11,11 @@ VKFactory VKFactoryCreate()
 }
 void DX12FactoryDestroy(DX12Factory self)
 {
-    auto* xself = static_cast<wis::DX12Factory*>(self);
+    auto* xself = reinterpret_cast<wis::DX12Factory*>(self);
     delete xself;
 }
 void VKFactoryDestroy(VKFactory self)
 {
-    auto* xself = static_cast<wis::VKFactory*>(self);
+    auto* xself = reinterpret_cast<wis::VKFactory*>(self);
     delete xself;
 }

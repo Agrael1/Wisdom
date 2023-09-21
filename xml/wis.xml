@@ -33,7 +33,6 @@
     <handle name="Adapter"/>
   </handles>
   <functions>
-    <func for="AdapterDesc" name="ToString" returns="u8string"/>
     <func for="Factory" name="Create" returns="Factory"/>
     <func for="Factory" name="Destroy"/>
   </functions>

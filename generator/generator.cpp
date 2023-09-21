@@ -37,10 +37,22 @@ int Generator::GenerateCAPI(std::filesystem::path file)
         output += MakeFunctionDecl(f);
     }
 
+    // Function implementations
     std::string output_cpp = wis::format("#include \"wisdom.h\"\n#include <wisdom/wisdom.h>\n\n");
     for (auto& f : function_impl) {
         output_cpp += f;
     }
+
+    std::string output_api = wis::format("#pragma once\n#include <array>\n\nnamespace wis\n{{\n");
+    output_api += GenerateCPPTypes();
+
+    output_api += "//==============================TYPE TRAITS==============================\n\n";
+    output_api += "template <typename T> struct is_flag_enum : public std::false_type {};\n";
+    for (auto& t : cpp_type_traits) {
+        output_api += t;
+    }
+
+    output_api += "}\n";
 
     std::filesystem::path output_path = output_dir;
     std::filesystem::create_directories(output_path);
@@ -54,20 +66,40 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     if (!out.is_open())
         return 1;
     out << output;
+
+    std::ofstream out_api(std::filesystem::absolute(output_path / "api.h"));
+    if (!out_api.is_open())
+        return 1;
+    out_api << output_api;
+
     return 0;
 }
 
 std::string Generator::GenerateCTypes()
 {
     std::string c_types = GenerateCTypedefs();
-    for (auto& s : structs) {
-        c_types += MakeCStruct(s);
-    }
     for (auto& s : enums) {
         c_types += MakeCEnum(s);
     }
     for (auto& s : bitmasks) {
         c_types += MakeCBitmask(s);
+    }
+    for (auto& s : structs) {
+        c_types += MakeCStruct(s);
+    }
+    return c_types;
+}
+std::string Generator::GenerateCPPTypes()
+{
+    std::string c_types = GenerateCPPTypedefs();
+    for (auto& s : enums) {
+        c_types += MakeCPPEnum(s);
+    }
+    for (auto& s : bitmasks) {
+        c_types += MakeCPPBitmask(s);
+    }
+    for (auto& s : structs) {
+        c_types += MakeCPPStruct(s);
     }
     return c_types;
 }
@@ -83,6 +115,20 @@ std::string Generator::GenerateCTypedefs()
     }
     for (auto& s : bitmasks) {
         c_types += wis::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
+    }
+    return c_types + '\n';
+}
+std::string Generator::GenerateCPPTypedefs()
+{
+    std::string c_types;
+    for (auto& s : structs) {
+        c_types += wis::format("struct {};\n", s.name);
+    }
+    for (auto& s : enums) {
+        c_types += wis::format("enum class {};\n", s.name);
+    }
+    for (auto& s : bitmasks) {
+        c_types += wis::format("enum class {};\n", s.name);
     }
     return c_types + '\n';
 }
@@ -223,6 +269,10 @@ std::string MakeCArray(std::string_view type, std::string_view name, std::string
 {
     return wis::format("    {} {}[{}];\n", type, name, arr_len);
 }
+std::string MakeCPPArray(std::string_view type, std::string_view name, std::string_view arr_len)
+{
+    return wis::format("    std::array<{}, {}> {};\n", type, arr_len, name);
+}
 
 std::string Generator::MakeCStruct(const WisStruct& s)
 {
@@ -248,12 +298,46 @@ std::string Generator::MakeCStruct(const WisStruct& s)
     return st_decl;
 }
 
+std::string Generator::MakeCPPStruct(const WisStruct& s)
+{
+    auto st_decl = wis::format(
+            "struct {}{{\n", s.name);
+
+    for (auto& m : s.members) {
+
+        std::string res_type;
+        if (auto it = standard_types.find(m.type); it != standard_types.end())
+            res_type = it->second;
+        else
+            res_type = m.type;
+
+        if (m.array_size.empty()) {
+            st_decl += wis::format("    {} {};\n", res_type, m.name);
+        } else {
+            st_decl += MakeCPPArray(res_type, m.name, m.array_size);
+        }
+    }
+
+    st_decl += "};\n\n";
+    return st_decl;
+}
+
 std::string Generator::MakeCEnum(const WisEnum& s)
 {
     std::string st_decl = !s.type.empty() ? wis::format("enum Wis{} : {} {{\n", s.name, standard_types.at(s.type)) : wis::format("enum Wis{} {{\n", s.name);
 
     for (auto& m : s.values) {
         st_decl += wis::format("    Wis{}{} = {},\n", s.name, m.name, m.value);
+    }
+    st_decl += "};\n\n";
+    return st_decl;
+}
+std::string Generator::MakeCPPEnum(const WisEnum& s)
+{
+    std::string st_decl = !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type)) : wis::format("enum class {} {{\n", s.name);
+
+    for (auto& m : s.values) {
+        st_decl += wis::format("    {} = {},\n", m.name, m.value);
     }
     st_decl += "};\n\n";
     return st_decl;
@@ -273,6 +357,23 @@ std::string Generator::MakeCBitmask(const WisBitmask& s)
     st_decl += wis::format("    Wis{}Max = 0x{:X};\n", s.name, (1ull << s.size) - 1);
 
     st_decl += "};\n\n";
+    return st_decl;
+}
+std::string Generator::MakeCPPBitmask(const WisBitmask& s)
+{
+    std::string st_decl = s.size ? wis::format("enum class {} : uint{}_t {{\n", s.name, s.size) : wis::format("enum class {} {{\n", s.name);
+
+    for (auto& m : s.values) {
+        if (m.type == WisBitmaskValue::Type::Value) {
+            st_decl += wis::format("    {} = 0x{:X},\n", m.name, m.value);
+        } else {
+            st_decl += wis::format("    {} = 1 << {},\n", m.name, m.bit);
+        }
+    }
+    st_decl += wis::format("    Max = 0x{:X};\n", (1ull << s.size) - 1);
+
+    st_decl += "};\n\n";
+    cpp_type_traits.emplace_back(wis::format("template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));
     return st_decl;
 }
 
@@ -306,7 +407,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     bool has_this = !func.this_type.empty();
 
     // static cast as refs
-    if (!has_this && !constructor) {
+    if (has_this && !constructor) {
         st_decl += handle_map.contains(func.this_type)
                 ? wis::format("    auto* xself = reinterpret_cast<wis::{}{}*>(self);\n", impl, func.this_type)
                 : st_decl += wis::format("    auto* xself = reinterpret_cast<wis::{}*>(self);\n", func.this_type);

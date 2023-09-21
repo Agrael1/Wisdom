@@ -88,7 +88,9 @@ public:
 public:
     int GenerateCAPI(std::filesystem::path file = input_file);
     std::string GenerateCTypes();
+    std::string GenerateCPPTypes();
     std::string GenerateCTypedefs();
+    std::string GenerateCPPTypedefs();
 
     void ParseTypes(tinyxml2::XMLElement* types);
     void ParseHandles(tinyxml2::XMLElement* handles);
@@ -101,6 +103,9 @@ public:
     std::string MakeCStruct(const WisStruct& s);
     std::string MakeCEnum(const WisEnum& s);
     std::string MakeCBitmask(const WisBitmask& s);
+    std::string MakeCPPStruct(const WisStruct& s);
+    std::string MakeCPPEnum(const WisEnum& s);
+    std::string MakeCPPBitmask(const WisBitmask& s);
 
     std::string MakeHandle(const WisHandle& s);
     std::string MakeFunctionDecl(const WisFunction& s);
@@ -116,6 +121,8 @@ private:
     std::vector<WisHandle> handles;
     std::vector<WisFunction> functions;
     std::vector<std::string> function_impl;
+
+    std::vector<std::string> cpp_type_traits;
 
     std::unordered_map<std::string, WisStruct*> struct_map;
     std::unordered_map<std::string, WisHandle*> handle_map;
