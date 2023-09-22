@@ -30,7 +30,7 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     output += GenerateCTypes();
     output += "//==================================HANDLES==================================\n\n";
     for (auto& h : this->handles) {
-        output += MakeHandle(h);
+        output += MakeHandle(*h);
     }
     output += "//=================================FUNCTIONS=================================\n\n";
     for (auto& f : this->functions) {
@@ -81,13 +81,13 @@ std::string Generator::GenerateCTypes()
 {
     std::string c_types = GenerateCTypedefs();
     for (auto& s : enums) {
-        c_types += MakeCEnum(s);
+        c_types += MakeCEnum(*s);
     }
     for (auto& s : bitmasks) {
-        c_types += MakeCBitmask(s);
+        c_types += MakeCBitmask(*s);
     }
     for (auto& s : structs) {
-        c_types += MakeCStruct(s);
+        c_types += MakeCStruct(*s);
     }
     return c_types;
 }
@@ -95,13 +95,13 @@ std::string Generator::GenerateCPPTypes()
 {
     std::string c_types = GenerateCPPTypedefs();
     for (auto& s : enums) {
-        c_types += MakeCPPEnum(s);
+        c_types += MakeCPPEnum(*s);
     }
     for (auto& s : bitmasks) {
-        c_types += MakeCPPBitmask(s);
+        c_types += MakeCPPBitmask(*s);
     }
     for (auto& s : structs) {
-        c_types += MakeCPPStruct(s);
+        c_types += MakeCPPStruct(*s);
     }
     return c_types;
 }
@@ -110,13 +110,13 @@ std::string Generator::GenerateCTypedefs()
 {
     std::string c_types;
     for (auto& s : structs) {
-        c_types += wis::format("typedef struct Wis{} Wis{};\n", s.name, s.name);
+        c_types += wis::format("typedef struct Wis{} Wis{};\n", s->name, s->name);
     }
     for (auto& s : enums) {
-        c_types += wis::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
+        c_types += wis::format("typedef enum Wis{} Wis{};\n", s->name, s->name);
     }
     for (auto& s : bitmasks) {
-        c_types += wis::format("typedef enum Wis{} Wis{};\n", s.name, s.name);
+        c_types += wis::format("typedef enum Wis{} Wis{};\n", s->name, s->name);
     }
     return c_types + '\n';
 }
@@ -124,13 +124,13 @@ std::string Generator::GenerateCPPTypedefs()
 {
     std::string c_types;
     for (auto& s : structs) {
-        c_types += wis::format("struct {};\n", s.name);
+        c_types += wis::format("struct {};\n", s->name);
     }
     for (auto& s : enums) {
-        c_types += wis::format("enum class {};\n", s.name);
+        c_types += wis::format("enum class {};\n", s->name);
     }
     for (auto& s : bitmasks) {
-        c_types += wis::format("enum class {};\n", s.name);
+        c_types += wis::format("enum class {};\n", s->name);
     }
     return c_types + '\n';
 }
@@ -146,9 +146,6 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         } else if (std::string_view(category) == "bitmask") {
             ParseBitmask(type);
         }
-    }
-    for (auto& s : structs) {
-        struct_map[s.name] = &s;
     }
 }
 void Generator::ParseFunctions(tinyxml2::XMLElement* type)
@@ -179,22 +176,21 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 void Generator::ParseHandles(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("handle"); type; type = type->NextSiblingElement("handle")) {
-        auto& ref = handles.emplace_back();
         auto name = type->FindAttribute("name")->Value();
+        auto& ref = handle_map[name];
+        handles.emplace_back(&ref);
         ref.name = name;
 
         if (auto* impl = type->FindAttribute("impl"))
             ref.impl = (impl->Value() == std::string_view("dx")) ? ImplementedFor::DX12 : ImplementedFor::Vulkan;
     }
-    for (auto& h : handles) {
-        handle_map[h.name] = &h;
-    }
 }
 
 void Generator::ParseStruct(tinyxml2::XMLElement* type)
 {
-    auto& ref = structs.emplace_back();
     auto name = type->FindAttribute("name")->Value();
+    auto& ref = struct_map[name];
+    structs.emplace_back(&ref);
     ref.name = name;
 
     for (auto* member = type->FirstChildElement("member"); member; member = member->NextSiblingElement("member")) {
@@ -213,6 +209,9 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
         if (auto* def = member->FindAttribute("default")) {
             m.default_value = def->Value();
         }
+        if (auto* mod = member->FindAttribute("mod")) {
+            m.modifier = mod->Value();
+        }
     }
 }
 
@@ -227,8 +226,9 @@ std::string_view ImplCode(std::string_view impl)
 
 void Generator::ParseEnum(tinyxml2::XMLElement* type)
 {
-    auto& ref = enums.emplace_back();
     auto name = type->FindAttribute("name")->Value();
+    auto& ref = enum_map[name];
+    enums.emplace_back(&ref);
     ref.name = name;
 
     if (auto* size = type->FindAttribute("type"))
@@ -246,12 +246,11 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     }
 }
 
-
-
 void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 {
-    auto& ref = bitmasks.emplace_back();
     auto name = type->FindAttribute("name")->Value();
+    auto& ref = bitmask_map[name];
+    bitmasks.emplace_back(&ref);
     ref.name = name;
 
     if (auto* size = type->FindAttribute("size"))
@@ -303,6 +302,9 @@ std::string Generator::MakeCStruct(const WisStruct& s)
         else
             res_type = "Wis" + m.type;
 
+        if (m.modifier == "ptr")
+            res_type += '*';
+
         if (m.array_size.empty()) {
             st_decl += wis::format("    {} {};\n", res_type, m.name);
         } else {
@@ -325,10 +327,19 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
         if (auto it = standard_types.find(m.type); it != standard_types.end())
             res_type = it->second;
         else
-            res_type = m.type;
+            res_type = "wis::" + m.type;
+
+        if (m.modifier == "ptr")
+            res_type += '*';
 
         if (m.array_size.empty()) {
-            st_decl += wis::format("    {} {};\n", res_type, m.name);
+            std::string def = "";
+            if (!m.default_value.empty()) {
+                def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
+                        ? wis::format(" = {}::{}", res_type, m.default_value)
+                        : wis::format(" = {}", m.default_value);
+            }
+            st_decl += wis::format("    {} {}{};\n", res_type, m.name, def);
         } else {
             st_decl += MakeCPPArray(res_type, m.name, m.array_size);
         }
@@ -395,6 +406,9 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
 
 ResolvedType Generator::ResolveType(const std::string& type)
 {
+    if (type == "Result")
+        return { TypeInfo::Regular, "WisResult" };
+
     if (auto it = standard_types.find(type); it != standard_types.end()) {
         return { TypeInfo::Regular, std::string(it->second) };
     }
@@ -430,7 +444,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     }
 
     if (constructor) {
-        st_decl += wis::format("    return reinterpret_cast<{}{}>(new wis::{}{}(", impl, func.this_type, impl, func.this_type);
+        st_decl += wis::format("    *out_handle = reinterpret_cast<{}{}>(new wis::{}{}(", impl, func.this_type, impl, func.this_type);
         // TODO: handle parameters
         st_decl += "));\n";
     } else if (func.name == "Destroy") {
@@ -495,12 +509,14 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
                                impl_based ? impls[j] : "",
                                this_t.second,
                                func.name);
-        if (ret_t.second != this_t.second) {
+        if (func.name != "Create") {
             if (this_t.first == TypeInfo::Handle) {
                 st_decl += wis::format("{}{} self, ", impl_based ? impls[j] : "", this_t.second);
             } else {
                 st_decl += wis::format("{} self, ", this_t.second);
             }
+        } else {
+            st_decl += wis::format("{}{}* out_handle, ", impls[j], this_t.second);
         }
 
         for (uint32_t i = 0; i < params_t.size(); i++) {

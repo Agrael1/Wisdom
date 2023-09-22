@@ -3,9 +3,16 @@
 
 namespace wis
 {
+struct Result;
 struct AdapterDesc;
+enum class Status;
 enum class AdapterPreference;
 enum class AdapterFlags;
+
+enum class Status : uint32_t {
+    Ok = 0,
+    Error = 1,
+};
 
 enum class AdapterPreference : int32_t {
     None = 0,
@@ -24,6 +31,11 @@ enum class AdapterFlags : uint32_t {
     Max = 0xFFFFFFFF;
 };
 
+struct Result{
+    wis::Status status = wis::Status::Ok;
+    const char8_t* error = nullptr;
+};
+
 struct AdapterDesc{
     std::array<const char8_t, 256> description;
     uint32_t vendor_id;
@@ -34,7 +46,7 @@ struct AdapterDesc{
     uint64_t dedicated_system_memory;
     uint64_t shared_system_memory;
     uint64_t adapter_id;
-    AdapterFlags flags;
+    wis::AdapterFlags flags;
 };
 
 //==============================TYPE TRAITS==============================

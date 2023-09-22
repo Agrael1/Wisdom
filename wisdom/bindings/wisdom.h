@@ -1,9 +1,16 @@
 #pragma once
 #include <stdint.h>
 
+typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
+typedef enum WisStatus WisStatus;
 typedef enum WisAdapterPreference WisAdapterPreference;
 typedef enum WisAdapterFlags WisAdapterFlags;
+
+enum WisStatus : uint32_t {
+    WisStatusOk = 0,
+    WisStatusError = 1,
+};
 
 enum WisAdapterPreference : int32_t {
     WisAdapterPreferenceNone = 0,
@@ -20,6 +27,11 @@ enum WisAdapterFlags : uint32_t {
     WisAdapterFlagsDXSupportsNonMonitoredFences = 1 << 4,
     WisAdapterFlagsDXKeyedMutexConformance = 1 << 5,
     WisAdapterFlagsMax = 0xFFFFFFFF;
+};
+
+struct WisResult{
+    WisStatus status;
+    const char8_t* error;
 };
 
 struct WisAdapterDesc{
@@ -45,7 +57,7 @@ typedef struct VKAdapter_t* VKAdapter;
 
 //=================================FUNCTIONS=================================
 
-DX12Factory DX12FactoryCreate();
-VKFactory VKFactoryCreate();
+WisResult DX12FactoryCreate(DX12Factory* out_handle);
+WisResult VKFactoryCreate(VKFactory* out_handle);
 void DX12FactoryDestroy(DX12Factory self);
 void VKFactoryDestroy(VKFactory self);

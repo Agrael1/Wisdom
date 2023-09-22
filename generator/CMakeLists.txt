@@ -40,5 +40,5 @@ if(WISDOM_USE_FMT)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD 20
+	CXX_STANDARD 23
 )

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
   <types comment="Type definitions">
+    <type name="Status" category="enum" type="u32">
+      <value name="Ok" value="0"/>
+      <value name="Error" value="1"/>
+    </type>
+    <type name="Result" category="struct">
+      <member type="Status" name="status" default="Ok"/>
+      <member type="u8string" name="error" mod="ptr" default="nullptr"/>
+    </type>
     <type name="AdapterPreference" category="enum" type="i32">
       <value name="None" value="0"/>
       <value name="MinConsumption" value="1"/>
@@ -33,7 +41,7 @@
     <handle name="Adapter"/>
   </handles>
   <functions>
-    <func for="Factory" name="Create" returns="Factory"/>
+    <func for="Factory" name="Create" returns="Result"/>
     <func for="Factory" name="Destroy"/>
   </functions>
 </registry>

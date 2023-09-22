@@ -10,6 +10,7 @@ struct WisStructMember {
     std::string name;
     std::string type;
     std::string array_size;
+    std::string modifier;
     std::string default_value;
 };
 struct WisStruct {
@@ -113,20 +114,23 @@ public:
     ResolvedType ResolveType(const std::string& type);
 
     std::string MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl);
+
 private:
     tinyxml2::XMLDocument doc;
 
-    std::vector<WisStruct> structs;
-    std::vector<WisEnum> enums;
-    std::vector<WisBitmask> bitmasks;
-    std::vector<WisHandle> handles;
+    std::vector<WisStruct*> structs;
+    std::vector<WisEnum*> enums;
+    std::vector<WisBitmask*> bitmasks;
+    std::vector<WisHandle*> handles;
     std::vector<WisFunction> functions;
     std::vector<std::string> function_impl;
 
     std::vector<std::string> cpp_type_traits;
 
-    std::unordered_map<std::string, WisStruct*> struct_map;
-    std::unordered_map<std::string, WisHandle*> handle_map;
+    std::unordered_map<std::string, WisStruct> struct_map;
+    std::unordered_map<std::string, WisHandle> handle_map;
+    std::unordered_map<std::string, WisEnum> enum_map;
+    std::unordered_map<std::string, WisBitmask> bitmask_map;
 
     const std::unordered_map<std::string_view, std::string_view> standard_types{
         { "u8", "uint8_t" },
