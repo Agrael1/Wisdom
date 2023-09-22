@@ -67,7 +67,9 @@ int Generator::GenerateCAPI(std::filesystem::path file)
         return 1;
     out << output;
 
-    std::ofstream out_api(std::filesystem::absolute(output_path / "api.h"));
+    std::filesystem::path cpp_output_path = cpp_output_dir;
+    std::filesystem::create_directories(cpp_output_path);
+    std::ofstream out_api(std::filesystem::absolute(cpp_output_path / "api.h"));
     if (!out_api.is_open())
         return 1;
     out_api << output_api;

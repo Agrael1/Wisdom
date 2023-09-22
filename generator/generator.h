@@ -81,6 +81,7 @@ class Generator
 {
     static constexpr std::string_view input_file = INPUT_FILE;
     static constexpr std::string_view output_dir = OUTPUT_DIR;
+    static constexpr std::string_view cpp_output_dir = CPP_OUTPUT_DIR;
 
 public:
     Generator() = default;

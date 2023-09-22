@@ -115,5 +115,12 @@ if(WISDOM_USE_FMT)
 	target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 endif()
 
+if(WISDOM_GENERATE_API)
+	add_custom_target(GenerateAPI 
+		COMMAND $<TARGET_FILE:generator>
+		DEPENDS generator
+	)
+	add_dependencies(${PROJECT_NAME} GenerateAPI)
+endif()
 
 target_install(${PROJECT_NAME})
