@@ -216,6 +216,15 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     }
 }
 
+std::string_view ImplCode(std::string_view impl)
+{
+    if (impl == "dx")
+        return "DX";
+    if (impl == "vk")
+        return "VK";
+    return "";
+}
+
 void Generator::ParseEnum(tinyxml2::XMLElement* type)
 {
     auto& ref = enums.emplace_back();
@@ -230,11 +239,14 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
 
         auto* name = member->FindAttribute("name")->Value();
         auto* value = member->FindAttribute("value")->Value();
+        auto* impl = member->FindAttribute("impl");
 
-        m.name = name;
+        m.name = impl ? wis::format("{}{}", ImplCode(impl->Value()), name) : name;
         m.value = std::stoul(value);
     }
 }
+
+
 
 void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 {
@@ -251,7 +263,9 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
         auto& m = ref.values.emplace_back();
 
         auto* name = member->FindAttribute("name")->Value();
-        m.name = name;
+        auto* impl = member->FindAttribute("impl");
+
+        m.name = impl ? wis::format("{}{}", ImplCode(impl->Value()), name) : name;
 
         auto* value = member->FindAttribute("value");
         auto* bit = member->FindAttribute("bit");

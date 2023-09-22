@@ -17,10 +17,10 @@ enum class AdapterFlags : uint32_t {
     None = 0x0,
     Remote = 1 << 0,
     Software = 1 << 1,
-    ACGCompatible = 1 << 2,
-    SupportsMonitoredFences = 1 << 3,
-    SupportsNonMonitoredFences = 1 << 4,
-    KeyedMutexConformance = 1 << 5,
+    DXACGCompatible = 1 << 2,
+    DXSupportsMonitoredFences = 1 << 3,
+    DXSupportsNonMonitoredFences = 1 << 4,
+    DXKeyedMutexConformance = 1 << 5,
     Max = 0xFFFFFFFF;
 };
 

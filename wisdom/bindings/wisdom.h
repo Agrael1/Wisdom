@@ -15,10 +15,10 @@ enum WisAdapterFlags : uint32_t {
     WisAdapterFlagsNone = 0x0,
     WisAdapterFlagsRemote = 1 << 0,
     WisAdapterFlagsSoftware = 1 << 1,
-    WisAdapterFlagsACGCompatible = 1 << 2,
-    WisAdapterFlagsSupportsMonitoredFences = 1 << 3,
-    WisAdapterFlagsSupportsNonMonitoredFences = 1 << 4,
-    WisAdapterFlagsKeyedMutexConformance = 1 << 5,
+    WisAdapterFlagsDXACGCompatible = 1 << 2,
+    WisAdapterFlagsDXSupportsMonitoredFences = 1 << 3,
+    WisAdapterFlagsDXSupportsNonMonitoredFences = 1 << 4,
+    WisAdapterFlagsDXKeyedMutexConformance = 1 << 5,
     WisAdapterFlagsMax = 0xFFFFFFFF;
 };
 
