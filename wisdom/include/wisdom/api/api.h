@@ -1,8 +1,7 @@
 #pragma once
 #include <array>
 
-namespace wis
-{
+namespace wis {
 struct Result;
 struct AdapterDesc;
 
@@ -48,6 +47,10 @@ struct AdapterDesc {
 
 //==============================TYPE TRAITS==============================
 
-template <typename T> struct is_flag_enum : public std::false_type {};
-template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
-}
+template<typename T>
+struct is_flag_enum : public std::false_type {
+};
+template<>
+struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
+};
+} // namespace wis
