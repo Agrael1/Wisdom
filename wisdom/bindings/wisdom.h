@@ -29,12 +29,12 @@ enum WisAdapterFlags : uint32_t {
     WisAdapterFlagsMax = 0xFFFFFFFF,
 };
 
-struct WisResult{
+struct WisResult {
     WisStatus status;
     const char8_t* error;
 };
 
-struct WisAdapterDesc{
+struct WisAdapterDesc {
     const char8_t description[256];
     uint32_t vendor_id;
     uint32_t device_id;

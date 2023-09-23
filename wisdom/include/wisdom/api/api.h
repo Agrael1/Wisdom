@@ -1,8 +1,7 @@
 #pragma once
 #include <array>
 
-namespace wis
-{
+namespace wis {
 struct Result;
 struct AdapterDesc;
 
@@ -28,12 +27,12 @@ enum class AdapterFlags : uint32_t {
     Max = 0xFFFFFFFF,
 };
 
-struct Result{
+struct Result {
     wis::Status status = wis::Status::Ok;
     const char8_t* error = nullptr;
 };
 
-struct AdapterDesc{
+struct AdapterDesc {
     std::array<const char8_t, 256> description;
     uint32_t vendor_id;
     uint32_t device_id;
@@ -48,6 +47,10 @@ struct AdapterDesc{
 
 //==============================TYPE TRAITS==============================
 
-template <typename T> struct is_flag_enum : public std::false_type {};
-template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
-}
+template<typename T>
+struct is_flag_enum : public std::false_type {
+};
+template<>
+struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
+};
+} // namespace wis
