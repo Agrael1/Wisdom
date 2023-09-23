@@ -689,5 +689,5 @@ public:
 };
 #endif /*VK_EXT_shader_object*/
 #endif // !VULKAN_HPP_NO_SMART_HANDLE
-} // namespace VULKAN_HPP_NAMESPACE
+} // namespace wis
 #endif // VULKAN_SHARED_HPP
