@@ -48,7 +48,8 @@ if(WTOP AND NOT WINDOWS_STORE)
   set(GEN ON)
 endif()
 
-option(WISDOM_RUNTIME_ASSERTS
+option(
+  WISDOM_RUNTIME_ASSERTS
   "Turn on/off runtime assertions (turned on might slightly affect performance)"
   ON)
 option(WISDOM_FORCE_VULKAN
