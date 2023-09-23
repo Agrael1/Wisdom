@@ -9,6 +9,8 @@ FetchContent_Declare(
   tinyxml2
   GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
   GIT_TAG origin/master)
+
+set(tinyxml2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(tinyxml2)
 
 add_executable(${PROJECT_NAME})

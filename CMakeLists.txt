@@ -44,8 +44,11 @@ else()
   set(WTOP OFF)
 endif()
 
-option(
-  WISDOM_RUNTIME_ASSERTS
+if(WTOP AND NOT WINDOWS_STORE)
+  set(GEN ON)
+endif()
+
+option(WISDOM_RUNTIME_ASSERTS
   "Turn on/off runtime assertions (turned on might slightly affect performance)"
   ON)
 option(WISDOM_FORCE_VULKAN
@@ -54,7 +57,7 @@ option(WISDOM_FORCE_VULKAN
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
-option(WISDOM_GENERATE_API "Generate the API" ${WTOP})
+option(WISDOM_GENERATE_API "Generate the API" ${GEN})
 option(WISDOM_USE_SYSTEM_DXC "Use dxc from PATH" OFF)
 
 if(WISDOM_FORCE_VULKAN)
