@@ -286,7 +286,7 @@ std::string MakeCPPArray(std::string_view type, std::string_view name, std::stri
 std::string Generator::MakeCStruct(const WisStruct& s)
 {
     auto st_decl = wis::format(
-            "struct Wis{}{{\n", s.name);
+                       "struct Wis{}{{\n", s.name);
 
     for (auto& m : s.members) {
 
@@ -313,7 +313,7 @@ std::string Generator::MakeCStruct(const WisStruct& s)
 std::string Generator::MakeCPPStruct(const WisStruct& s)
 {
     auto st_decl = wis::format(
-            "struct {}{{\n", s.name);
+                       "struct {}{{\n", s.name);
 
     for (auto& m : s.members) {
 
@@ -330,8 +330,8 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
             std::string def = "";
             if (!m.default_value.empty()) {
                 def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
-                        ? wis::format(" = {}::{}", res_type, m.default_value)
-                        : wis::format(" = {}", m.default_value);
+                      ? wis::format(" = {}::{}", res_type, m.default_value)
+                      : wis::format(" = {}", m.default_value);
             }
             st_decl += wis::format("    {} {}{};\n", res_type, m.name, def);
         } else {
@@ -433,8 +433,8 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     // static cast as refs
     if (has_this && !constructor) {
         st_decl += handle_map.contains(func.this_type)
-                ? wis::format("    auto* xself = reinterpret_cast<wis::{}{}*>(self);\n", impl, func.this_type)
-                : st_decl += wis::format("    auto* xself = reinterpret_cast<wis::{}*>(self);\n", func.this_type);
+                   ? wis::format("    auto* xself = reinterpret_cast<wis::{}{}*>(self);\n", impl, func.this_type)
+                   : st_decl += wis::format("    auto* xself = reinterpret_cast<wis::{}*>(self);\n", func.this_type);
     }
 
     if (constructor) {
@@ -475,7 +475,8 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
 
     // 2. this type
     ResolvedType this_t = [this, &func]() -> ResolvedType {
-        return func.this_type.empty() ? std::pair{ TypeInfo::None, "" } : ResolveType(func.this_type);
+return func.this_type.empty() ? std::pair{ TypeInfo::None, "" } :
+        ResolveType(func.this_type);
     }();
 
     // 3. parameters
@@ -485,18 +486,18 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
     }
 
     bool impl_based = this_t.first == TypeInfo::Handle || ret_t.first == TypeInfo::Handle || std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
-                                                                                                 return t.first == TypeInfo::Handle;
-                                                                                             }) != params_t.end();
+        return t.first == TypeInfo::Handle;
+    }) != params_t.end();
     constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
     std::array<std::string, 2> decls{};
 
     for (size_t j = 0; j < impl_based + 1; j++) {
         auto& st_decl = decls[j];
         std::string return_t = ret_t.first == TypeInfo::Struct
-                ? "void"
-                : ret_t.first == TypeInfo::Handle
-                ? wis::format("{}{}", impls[j], ret_t.second)
-                : ret_t.second;
+                               ? "void"
+                               : ret_t.first == TypeInfo::Handle
+                               ? wis::format("{}{}", impls[j], ret_t.second)
+                               : ret_t.second;
 
         st_decl += wis::format("{} {}{}{}(",
                                return_t,
