@@ -5,9 +5,6 @@ namespace wis
 {
 struct Result;
 struct AdapterDesc;
-enum class Status;
-enum class AdapterPreference;
-enum class AdapterFlags;
 
 enum class Status : uint32_t {
     Ok = 0,
@@ -28,7 +25,7 @@ enum class AdapterFlags : uint32_t {
     DXSupportsMonitoredFences = 1 << 3,
     DXSupportsNonMonitoredFences = 1 << 4,
     DXKeyedMutexConformance = 1 << 5,
-    Max = 0xFFFFFFFF;
+    Max = 0xFFFFFFFF,
 };
 
 struct Result{

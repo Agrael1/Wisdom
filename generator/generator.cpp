@@ -126,12 +126,6 @@ std::string Generator::GenerateCPPTypedefs()
     for (auto& s : structs) {
         c_types += wis::format("struct {};\n", s->name);
     }
-    for (auto& s : enums) {
-        c_types += wis::format("enum class {};\n", s->name);
-    }
-    for (auto& s : bitmasks) {
-        c_types += wis::format("enum class {};\n", s->name);
-    }
     return c_types + '\n';
 }
 
@@ -381,7 +375,7 @@ std::string Generator::MakeCBitmask(const WisBitmask& s)
             st_decl += wis::format("    Wis{}{} = 1 << {},\n", s.name, m.name, m.bit);
         }
     }
-    st_decl += wis::format("    Wis{}Max = 0x{:X};\n", s.name, (1ull << s.size) - 1);
+    st_decl += wis::format("    Wis{}Max = 0x{:X},\n", s.name, (1ull << s.size) - 1);
 
     st_decl += "};\n\n";
     return st_decl;
@@ -397,7 +391,7 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
             st_decl += wis::format("    {} = 1 << {},\n", m.name, m.bit);
         }
     }
-    st_decl += wis::format("    Max = 0x{:X};\n", (1ull << s.size) - 1);
+    st_decl += wis::format("    Max = 0x{:X},\n", (1ull << s.size) - 1);
 
     st_decl += "};\n\n";
     cpp_type_traits.emplace_back(wis::format("template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));

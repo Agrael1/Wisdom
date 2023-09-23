@@ -26,7 +26,7 @@ enum WisAdapterFlags : uint32_t {
     WisAdapterFlagsDXSupportsMonitoredFences = 1 << 3,
     WisAdapterFlagsDXSupportsNonMonitoredFences = 1 << 4,
     WisAdapterFlagsDXKeyedMutexConformance = 1 << 5,
-    WisAdapterFlagsMax = 0xFFFFFFFF;
+    WisAdapterFlagsMax = 0xFFFFFFFF,
 };
 
 struct WisResult{
