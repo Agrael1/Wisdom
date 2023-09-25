@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+  <types comment="Type definitions">
+    <type name="Status" category="enum" type="u32">
+      <value name="Ok" value="0"/>
+      <value name="Error" value="1"/>
+    </type>
+    <type name="Result" category="struct">
+      <member type="Status" name="status" default="Ok"/>
+      <member type="u8string" name="error" mod="ptr" default="nullptr"/>
+    </type>
+    <type name="AdapterPreference" category="enum" type="i32">
+      <value name="None" value="0"/>
+      <value name="MinConsumption" value="1"/>
+      <value name="Performance" value="2"/>
+    </type>
+    <type name="AdapterFlags" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="Remote" bit="0"/>
+      <value name="Software" bit="1"/>
+      <value name="ACGCompatible" bit="2" impl="dx"/>
+      <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
+      <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
+      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
+    </type>
+    <type name="AdapterDesc" category="struct" >
+      <member type="u8string" name="description" array="256"/>
+      <member type="u32" name="vendor_id"/>
+      <member type="u32" name="device_id"/>
+      <member type="u32" name="subsys_id"/>
+      <member type="u32" name="revision"/>
+      <member type="u64" name="dedicated_video_memory"/>
+      <member type="u64" name="dedicated_system_memory"/>
+      <member type="u64" name="shared_system_memory"/>
+      <member type="u64" name="adapter_id"/>
+      <member type="AdapterFlags" name="flags"/>
+    </type>
+  </types>
+  <handles>
+    <handle name="Factory"/>
+    <handle name="Adapter"/>
+  </handles>
+  <functions>
+    <func for="Factory" name="Create" returns="Result"/>
+    <func for="Factory" name="Destroy"/>
+  </functions>
+</registry>

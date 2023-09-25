@@ -20,8 +20,7 @@ public:
     winrt::com_ptr<IDXGIFactory4> factory{};
 };
 
-/// @brief Main Factory class, since we don't need more than one factory it is a static resource
-/// @note Not thread safe on creation
+/// @brief Main Factory class
 WIS_EXPORT class DX12Factory : public QueryInternal<DX12Factory>
 {
     static inline constexpr uint32_t debug_flag = wis::debug_mode * DXGI_CREATE_FACTORY_DEBUG;
