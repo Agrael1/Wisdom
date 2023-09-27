@@ -25,12 +25,11 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_views.h"
 		"include/wisdom/dx12/dx12_descriptor_heap.h"
 		"include/wisdom/dx12/xdx12_convert.h"
-	)
+		"include/wisdom/dx12/xdx12_info.h")
 	set(DX12INL
 		"include/wisdom/dx12/impl/dx12_allocator.inl"
 		"include/wisdom/dx12/impl/dx12_checks.inl"
 		"include/wisdom/dx12/impl/dx12_device.inl"
-		"include/wisdom/dx12/impl/dx12_info.inl"
 		)
 	#file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/wisdom_dx12.h" "#pragma once\n#ifndef WIS_EXPORT\n#define WIS_EXPORT\n#endif\n\n")
 	#foreach(HEADER ${DX12HEADERS})

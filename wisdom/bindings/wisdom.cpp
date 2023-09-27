@@ -1,13 +1,13 @@
 #include "wisdom.h"
 #include <wisdom/wisdom.h>
 
-WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer)
+WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer, WisDebugCallback callback)
 {
-    *out_handle = reinterpret_cast<DX12Factory>(new wis::DX12Factory(debug_layer));
+    *out_handle = reinterpret_cast<DX12Factory>(new wis::DX12Factory(debug_layer, callback));
 }
-WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer)
+WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer, WisDebugCallback callback)
 {
-    *out_handle = reinterpret_cast<VKFactory>(new wis::VKFactory(debug_layer));
+    *out_handle = reinterpret_cast<VKFactory>(new wis::VKFactory(debug_layer, callback));
 }
 void DX12FactoryDestroy(DX12Factory self)
 {

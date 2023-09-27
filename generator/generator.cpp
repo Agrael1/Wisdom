@@ -26,8 +26,25 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     auto* funcs = root->FirstChildElement("functions");
     ParseFunctions(funcs);
 
-    std::string output = wis::format("#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n");
+    std::string output = "#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
+     constexpr auto cconvs = R"(
+// callconv
+#if defined(_WIN32)
+    // On Windows, Vulkan commands use the stdcall convention
+    #define WISCALL __stdcall
+#else
+    // On other platforms, use the default calling convention
+    #define WISCALL
+#endif
+
+)";
+    output += cconvs;
     output += GenerateCTypes();
+
+    output += "//=================================DELEGATES=================================\n\n";
+    for (auto& f : this->delegates) {
+        output += MakeDelegate(f);
+    }
     output += "//==================================HANDLES==================================\n\n";
     for (auto& h : this->handles) {
         output += MakeHandle(*h);
@@ -38,14 +55,19 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     }
 
     // Function implementations
-    std::string output_cpp = wis::format("#include \"wisdom.h\"\n#include <wisdom/wisdom.h>\n\n");
+    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.h>\n\n";
     for (auto& f : function_impl) {
         output_cpp += f;
     }
 
-    std::string output_api = wis::format("#pragma once\n#include <array>\n\nnamespace wis\n{{\n");
+    std::string output_api = "#pragma once\n#include <array>\n\n";
+    output_api += cconvs;
+    output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
-
+    output_api += "//=================================DELEGATES=================================\n\n";
+    for (auto& f : this->delegates) {
+        output_api += MakeCPPDelegate(f);
+    }
     output_api += "//==============================TYPE TRAITS==============================\n\n";
     output_api += "template <typename T> struct is_flag_enum : public std::false_type {};\n";
     for (auto& t : cpp_type_traits) {
@@ -139,6 +161,8 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
             ParseEnum(type);
         } else if (std::string_view(category) == "bitmask") {
             ParseBitmask(type);
+        } else if (std::string_view(category) == "delegate") {
+            ParseDelegate(type);
         }
     }
 }
@@ -163,6 +187,10 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 
             p.type = type;
             p.name = name;
+
+            if (auto* mod = param->FindAttribute("mod")) {
+                p.modifier = mod->Value();
+            }
         }
     }
 }
@@ -271,6 +299,33 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 
         m.bit = std::stoul(bit->Value());
         m.type = WisBitmaskValue::Type::Bit;
+    }
+}
+
+void Generator::ParseDelegate(tinyxml2::XMLElement* type)
+{
+    auto& ref = delegates.emplace_back();
+    auto name = type->FindAttribute("name")->Value();
+    ref.name = name;
+
+    if (auto* ret = type->FindAttribute("returns"))
+        ref.return_type = ret->Value();
+
+    if (auto* ret = type->FindAttribute("conv"))
+        ref.this_type = ret->Value();
+
+    for (auto* param = type->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
+        auto& p = ref.parameters.emplace_back();
+
+        auto* type = param->FindAttribute("type")->Value();
+        auto* name = param->FindAttribute("name")->Value();
+
+        p.type = type;
+        p.name = name;
+
+        if (auto* mod = param->FindAttribute("mod")) {
+            p.modifier = mod->Value();
+        }
     }
 }
 
@@ -397,6 +452,71 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
     cpp_type_traits.emplace_back(wis::format("template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));
     return st_decl;
 }
+ResolvedType Generator::ResolveCPPType(const std::string& type)
+{
+    if (type == "Result")
+        return { TypeInfo::Regular, "wis::Result" };
+
+    if (auto it = standard_types.find(type); it != standard_types.end()) {
+        return { TypeInfo::Regular, std::string(it->second) };
+    }
+
+    if (auto it = struct_map.find(type); it != struct_map.end()) {
+        return {
+            TypeInfo::Struct, wis::format("wis::{}*", type)
+        };
+    }
+    if (auto it = handle_map.find(type); it != handle_map.end()) {
+        return {
+            TypeInfo::Handle, wis::format("{}", type)
+        };
+    }
+
+    return {
+        TypeInfo::Regular, "wis::" + type
+    };
+}
+std::string Generator::MakeCPPDelegate(const WisFunction& func)
+{
+    std::string st_decls;
+    // 3. parameters
+    std::vector<ResolvedType> params_t;
+    for (auto& p : func.parameters) {
+        params_t.push_back(ResolveCPPType(p.type));
+    }
+
+    bool impl_based = std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
+                          return t.first == TypeInfo::Handle;
+                      }) != params_t.end();
+
+    constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
+
+    for (size_t j = 0; j < impl_based + 1; j++) {
+        std::string st_decl = wis::format("typedef void (WISCALL *{}{})(",
+                                          impl_based ? impls[j] : "",
+                                          func.name);
+
+        for (uint32_t i = 0; i < params_t.size(); i++) {
+            auto& t = params_t[i];
+            auto& p = func.parameters[i];
+
+            std::string modified = p.modifier == "ptr" ? "*" : "";
+            if (t.first == TypeInfo::Handle) {
+                st_decl += wis::format("{}{} {}{}, ", impls[j], t.second, modified, p.name);
+            } else {
+                st_decl += wis::format("{} {}{}, ", t.second, modified, p.name);
+            }
+        }
+        if (st_decl.back() == ' ') {
+            st_decl.pop_back();
+            st_decl.pop_back();
+        }
+        st_decl += ");\n";
+        st_decls += st_decl;
+    }
+
+    return st_decls;
+}
 
 ResolvedType Generator::ResolveType(const std::string& type)
 {
@@ -446,7 +566,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             args_str += wis::format("reinterpret_cast<wis::{}{}*>({}), ", impl, p.type, p.name);
         }
         if (a.first == TypeInfo::Regular) {
-            args_str += wis::format("{}, " ,p.name);
+            args_str += wis::format("{}, ", p.name);
         }
         if (a.first == TypeInfo::Enum) {
             args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
@@ -561,6 +681,48 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
         st_decl += ")";
         function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impls[j], params_t));
         st_decl += ";\n";
+        st_decls += st_decl;
+    }
+
+    return st_decls;
+}
+
+std::string Generator::MakeDelegate(const WisFunction& func)
+{
+    std::string st_decls;
+    // 3. parameters
+    std::vector<ResolvedType> params_t;
+    for (auto& p : func.parameters) {
+        params_t.push_back(ResolveType(p.type));
+    }
+
+    bool impl_based = std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
+                          return t.first == TypeInfo::Handle;
+                      }) != params_t.end();
+
+    constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
+
+    for (size_t j = 0; j < impl_based + 1; j++) {
+        std::string st_decl = wis::format("typedef void (WISCALL *Wis{}{})(",
+                                          impl_based ? impls[j] : "",
+                                          func.name);
+
+        for (uint32_t i = 0; i < params_t.size(); i++) {
+            auto& t = params_t[i];
+            auto& p = func.parameters[i];
+
+            std::string modified = p.modifier == "ptr" ? "*" : "";
+            if (t.first == TypeInfo::Handle) {
+                st_decl += wis::format("{}{} {}{}, ", impls[j], t.second, modified, p.name);
+            } else {
+                st_decl += wis::format("{} {}{}, ", t.second, modified, p.name);
+            }
+        }
+        if (st_decl.back() == ' ') {
+            st_decl.pop_back();
+            st_decl.pop_back();
+        }
+        st_decl += ");\n";
         st_decls += st_decl;
     }
 

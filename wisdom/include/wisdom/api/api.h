@@ -1,8 +1,17 @@
 #pragma once
 #include <array>
 
-namespace wis
-{
+
+// callconv
+#if defined(_WIN32)
+    // On Windows, Vulkan commands use the stdcall convention
+    #define WISCALL __stdcall
+#else
+    // On other platforms, use the default calling convention
+    #define WISCALL
+#endif
+
+namespace wis {
 struct Result;
 struct AdapterDesc;
 
@@ -18,6 +27,15 @@ enum class AdapterPreference : int32_t {
     None = 0,
     MinConsumption = 1,
     Performance = 2,
+};
+
+enum class Severity {
+    Debug = 0,
+    Trace = 1,
+    Info = 2,
+    Warning = 3,
+    Error = 4,
+    Critical = 5,
 };
 
 enum class AdapterFlags : uint32_t {
@@ -49,6 +67,9 @@ struct AdapterDesc{
     wis::AdapterFlags flags;
 };
 
+//=================================DELEGATES=================================
+
+typedef void (WISCALL *DebugCallback)(wis::Severity severity, const char *message);
 //==============================TYPE TRAITS==============================
 
 template <typename T> struct is_flag_enum : public std::false_type {};

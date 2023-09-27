@@ -48,13 +48,14 @@ struct WisBitmask {
 struct WisFunctionParameter {
     std::string type;
     std::string name;
+    std::string modifier;
     std::string array_size;
     std::string default_value;
 };
 struct WisFunction {
     std::string name;
     std::string return_type;
-    std::string this_type;
+    std::string this_type; // for methods, for callbacks this is the calling convention
     std::vector<WisFunctionParameter> parameters;
 };
 
@@ -103,6 +104,7 @@ public:
     void ParseStruct(tinyxml2::XMLElement* type);
     void ParseEnum(tinyxml2::XMLElement* type);
     void ParseBitmask(tinyxml2::XMLElement* type);
+    void ParseDelegate(tinyxml2::XMLElement* type);
 
     std::string MakeCStruct(const WisStruct& s);
     std::string MakeCEnum(const WisEnum& s);
@@ -110,9 +112,12 @@ public:
     std::string MakeCPPStruct(const WisStruct& s);
     std::string MakeCPPEnum(const WisEnum& s);
     std::string MakeCPPBitmask(const WisBitmask& s);
+    std::string MakeCPPDelegate(const WisFunction& s);
+    ResolvedType ResolveCPPType(const std::string& type);
 
     std::string MakeHandle(const WisHandle& s);
     std::string MakeFunctionDecl(const WisFunction& s);
+    std::string MakeDelegate(const WisFunction& s);
     ResolvedType ResolveType(const std::string& type);
 
     std::string MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl, std::span<ResolvedType> args);
@@ -125,6 +130,7 @@ private:
     std::vector<WisBitmask*> bitmasks;
     std::vector<WisHandle*> handles;
     std::vector<WisFunction> functions;
+    std::vector<WisFunction> delegates;
     std::vector<std::string> function_impl;
 
     std::vector<std::string> cpp_type_traits;

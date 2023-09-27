@@ -2,10 +2,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+// callconv
+#if defined(_WIN32)
+    // On Windows, Vulkan commands use the stdcall convention
+    #define WISCALL __stdcall
+#else
+    // On other platforms, use the default calling convention
+    #define WISCALL
+#endif
+
 typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
 typedef enum WisStatus WisStatus;
 typedef enum WisAdapterPreference WisAdapterPreference;
+typedef enum WisSeverity WisSeverity;
 typedef enum WisAdapterFlags WisAdapterFlags;
 
 enum WisStatus : uint32_t {
@@ -20,6 +31,15 @@ enum WisAdapterPreference : int32_t {
     WisAdapterPreferenceNone = 0,
     WisAdapterPreferenceMinConsumption = 1,
     WisAdapterPreferencePerformance = 2,
+};
+
+enum WisSeverity {
+    WisSeverityDebug = 0,
+    WisSeverityTrace = 1,
+    WisSeverityInfo = 2,
+    WisSeverityWarning = 3,
+    WisSeverityError = 4,
+    WisSeverityCritical = 5,
 };
 
 enum WisAdapterFlags : uint32_t {
@@ -51,6 +71,9 @@ struct WisAdapterDesc{
     WisAdapterFlags flags;
 };
 
+//=================================DELEGATES=================================
+
+typedef void (WISCALL *WisDebugCallback)(WisSeverity severity, const char *message);
 //==================================HANDLES==================================
 
 typedef struct DX12Factory_t* DX12Factory;
@@ -61,7 +84,7 @@ typedef struct VKAdapter_t* VKAdapter;
 
 //=================================FUNCTIONS=================================
 
-WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer);
-WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer);
+WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer, WisDebugCallback callback);
+WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer, WisDebugCallback callback);
 void DX12FactoryDestroy(DX12Factory self);
 void VKFactoryDestroy(VKFactory self);

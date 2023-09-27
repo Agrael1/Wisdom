@@ -1,14 +1,14 @@
 #pragma once
 #include <wisdom/api/consts.h>
 #include <wisdom/api/internal.h>
-#include <wisdom/global/definitions.h>
-#include "dx12_checks.h"
+#include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/xdx12_convert.h>
+#include <wisdom/dx12/xdx12_info.h>
+#include <wisdom/global/definitions.h>
 #include <wisdom/util/error_messages.h>
-#include <wisdom/util/com_ptr.h>
 
-#include <dxgi1_6.h>
 #include <d3d12.h>
+#include <dxgi1_6.h>
 
 namespace wis {
 class DX12Factory;
@@ -23,15 +23,15 @@ class DX12Factory : public QueryInternal<DX12Factory>
 {
 public:
     DX12Factory() = default;
-    DX12Factory(bool debug_layer) noexcept
+    DX12Factory(bool debug_layer, DebugCallback callback) noexcept
     {
-        Initialize(debug_layer);
+        Initialize(debug_layer, callback);
     }
 
-    wis::Result Initialize(bool debug_layer = false) noexcept
+    wis::Result Initialize(bool debug_layer = false, DebugCallback callback = nullptr) noexcept
     {
         if (debug_layer)
-            EnableDebugLayer();
+            EnableDebugLayer(callback);
 
         auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                      __uuidof(IDXGIFactory4), factory.put_void());
@@ -50,8 +50,10 @@ public:
     }
 
 private:
-    void EnableDebugLayer() noexcept
+    void EnableDebugLayer(DebugCallback callback) noexcept
     {
+        DX12Info::SetCallback(callback);
+
         wis::com_ptr<ID3D12Debug> debugController;
         if (wis::succeeded(D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
             debugController->EnableDebugLayer();
