@@ -44,7 +44,9 @@
     <handle name="Adapter"/>
   </handles>
   <functions>
-    <func for="Factory" name="Create" returns="Result"/>
+    <func for="Factory" name="Create" returns="Result">
+      <arg type="bool" name="debug_layer" default="false"/>
+    </func>
     <func for="Factory" name="Destroy"/>
   </functions>
 </registry>

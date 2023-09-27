@@ -7,6 +7,32 @@ struct take_ownership_t {
 };
 constexpr take_ownership_t take_ownership;
 
+template<typename T>
+struct guid_of {
+    static constexpr auto value = __uuidof(T);
+};
+
+template<typename T>
+constexpr auto guid_of_v = guid_of<T>::value;
+
+using hresult = int32_t;
+
+template<class T>
+class com_ptr;
+
+template<typename T>
+struct com_with_result {
+    hresult result;
+    com_ptr<T> ptr;
+    operator bool() const noexcept
+    {
+        return result >= 0 && bool(ptr);
+    }
+    auto operator->() const noexcept
+    {
+        return ptr.get();
+    }
+};
 
 template<class T>
 class com_ptr
@@ -19,27 +45,27 @@ public:
     using const_pointer = const T*;
 
 public:
-    com_ptr()
+    com_ptr() noexcept
         : ptr(nullptr) { }
-    com_ptr(pointer p)
+    com_ptr(pointer p) noexcept
         : ptr(p) { }
-    com_ptr(void* p, take_ownership_t)
-        : ptr(static_cast<pointer>(other.ptr)) { }
+    com_ptr(void* p, take_ownership_t) noexcept
+        : ptr(static_cast<pointer>(p)) { }
 
     template<class U>
-    com_ptr(const com_ptr<U>& other)
+    com_ptr(const com_ptr<U>& other) noexcept
         : ptr(other.ptr)
     {
         add_ref();
     }
 
     template<class U>
-    com_ptr(com_ptr<U>&& other)
+    com_ptr(com_ptr<U>&& other) noexcept
         : ptr(std::exchange(other.ptr, {}))
     {
     }
 
-    ~com_ptr()
+    ~com_ptr() noexcept
     {
         release();
     }
@@ -54,7 +80,7 @@ public:
     com_ptr& operator=(com_ptr<U>&& ptr) noexcept
     {
         if constexpr (std::same_as<U, T>) {
-            if (this == &other)
+            if (this == ptr.get())
                 return *this;
         }
 
@@ -71,13 +97,13 @@ public:
     {
         return ptr;
     }
-    auto operator*() const noexcept
+    auto& operator*() const noexcept
     {
         return *ptr;
     }
 
 public:
-    auto get() const noexcept
+    pointer get() const noexcept
     {
         return ptr;
     }
@@ -108,16 +134,35 @@ public:
     {
         std::swap(ptr, other.ptr);
     }
-    //template<typename To>
-
-
-public:
-private:
-    void copy_ref(type* other) noexcept
+    template<typename To>
+    hresult as(com_ptr<To>* out) const noexcept
     {
-        if (m_ptr != other) {
+        return ptr->QueryInterface(guid_of_v<To>, out->put_void());
+    }
+    template<typename To>
+    com_with_result<To> as() const noexcept
+    {
+        com_ptr<To> out;
+        auto hr = ptr->QueryInterface(guid_of_v<To>, reinterpret_cast<void**>(&out.ptr));
+        return { hr, std::move(out) };
+    }
+    void copy_from(T* other) noexcept
+    {
+        copy_ref(other);
+    }
+
+    void copy_to(T** other) const noexcept
+    {
+        add_ref();
+        *other = ptr;
+    }
+
+private:
+    void copy_ref(T* other) noexcept
+    {
+        if (ptr != other) {
             release();
-            m_ptr = other;
+            ptr = other;
             add_ref();
         }
     }
@@ -129,7 +174,7 @@ private:
     void release() noexcept
     {
         if (ptr)
-            std::exchange(m_ptr, {})->Release();
+            std::exchange(ptr, {})->Release();
     }
 
 private:

@@ -12,10 +12,9 @@
 namespace wis {
 
 template<wis::string_literal func, wis::string_literal message>
-constexpr inline auto MakeErrorString()
+consteval inline auto MakeErrorString()
 {
     using namespace wis::literals;
-    static constexpr auto estr = "Error in "_sl + func + ": "_sl + message;
-    return estr.c_str();
+    return "Error in "_sl + func + ": "_sl + message;
 }
 } // namespace wis

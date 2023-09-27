@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include <span>
 
 struct WisStructMember {
     std::string name;
@@ -114,7 +115,7 @@ public:
     std::string MakeFunctionDecl(const WisFunction& s);
     ResolvedType ResolveType(const std::string& type);
 
-    std::string MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl);
+    std::string MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl, std::span<ResolvedType> args);
 
 private:
     tinyxml2::XMLDocument doc;
@@ -134,6 +135,7 @@ private:
     std::unordered_map<std::string, WisBitmask> bitmask_map;
 
     const std::unordered_map<std::string_view, std::string_view> standard_types{
+        { "bool", "bool" },
         { "u8", "uint8_t" },
         { "u16", "uint16_t" },
         { "u32", "uint32_t" },

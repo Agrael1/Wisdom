@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
@@ -60,7 +61,7 @@ typedef struct VKAdapter_t* VKAdapter;
 
 //=================================FUNCTIONS=================================
 
-WisResult DX12FactoryCreate(DX12Factory* out_handle);
-WisResult VKFactoryCreate(VKFactory* out_handle);
+WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer);
+WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer);
 void DX12FactoryDestroy(DX12Factory self);
 void VKFactoryDestroy(VKFactory self);
