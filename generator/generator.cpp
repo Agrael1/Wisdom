@@ -26,7 +26,7 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     auto* funcs = root->FirstChildElement("functions");
     ParseFunctions(funcs);
 
-    std::string output = wis::format("#pragma once\n#include <stdint.h>\n\n");
+    std::string output = wis::format("#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n");
     output += GenerateCTypes();
     output += "//==================================HANDLES==================================\n\n";
     for (auto& h : this->handles) {
@@ -155,7 +155,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         if (auto* ret = func->FindAttribute("for"))
             ref.this_type = ret->Value();
 
-        for (auto* param = func->FirstChildElement("param"); param; param = param->NextSiblingElement("param")) {
+        for (auto* param = func->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
             auto& p = ref.parameters.emplace_back();
 
             auto* type = param->FindAttribute("type")->Value();
@@ -423,7 +423,7 @@ ResolvedType Generator::ResolveType(const std::string& type)
     };
 }
 
-std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl)
+std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl, std::span<ResolvedType> args)
 {
     std::string st_decl{ func_decl };
     st_decl += "\n{\n";
@@ -437,17 +437,45 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
                 : st_decl += wis::format("    auto* xself = reinterpret_cast<wis::{}*>(self);\n", func.this_type);
     }
 
+    std::string args_str;
+    for (size_t i = 0; i < args.size(); i++) {
+        auto& a = args[i];
+        auto& p = func.parameters[i];
+
+        if (a.first == TypeInfo::Handle) {
+            args_str += wis::format("reinterpret_cast<wis::{}{}*>({}), ", impl, p.type, p.name);
+        }
+        if (a.first == TypeInfo::Regular) {
+            args_str += wis::format("{}, " ,p.name);
+        }
+        if (a.first == TypeInfo::Enum) {
+            args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
+        }
+    }
+    if (!args_str.empty() && args_str.back() == ' ') {
+        args_str.pop_back();
+        args_str.pop_back();
+    }
+
+    for (auto& a : args) {
+        if (a.first == TypeInfo::Handle) {
+            st_decl += wis::format("    auto* x{} = reinterpret_cast<wis::{}{}*>({});\n", a.second, impl, a.second, a.second);
+        }
+    }
+
     if (constructor) {
         st_decl += wis::format("    *out_handle = reinterpret_cast<{}{}>(new wis::{}{}(", impl, func.this_type, impl, func.this_type);
-        // TODO: handle parameters
+        st_decl += args_str;
         st_decl += "));\n";
     } else if (func.name == "Destroy") {
         st_decl += wis::format("    delete xself;\n", impl, func.this_type);
     } else if (has_this) {
         st_decl += wis::format("    return xself->{}(", impl, func.this_type, func.name);
+        st_decl += args_str;
         st_decl += ");\n";
     } else {
         st_decl += wis::format("    return wis::{}(", impl, func.name);
+        st_decl += args_str;
         st_decl += ");\n";
     }
 
@@ -531,7 +559,7 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
             st_decl.pop_back();
         }
         st_decl += ")";
-        function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impls[j]));
+        function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impls[j], params_t));
         st_decl += ";\n";
         st_decls += st_decl;
     }
