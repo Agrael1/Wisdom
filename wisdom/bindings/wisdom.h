@@ -10,6 +10,9 @@ typedef enum WisAdapterFlags WisAdapterFlags;
 enum WisStatus : uint32_t {
     WisStatusOk = 0,
     WisStatusError = 1,
+    WisStatusInvalidArgument = 2,
+    WisStatusOutOfMemory = 3,
+    WisStatusDeviceLost = 4,
 };
 
 enum WisAdapterPreference : int32_t {
@@ -29,13 +32,13 @@ enum WisAdapterFlags : uint32_t {
     WisAdapterFlagsMax = 0xFFFFFFFF,
 };
 
-struct WisResult {
+struct WisResult{
     WisStatus status;
-    const char8_t* error;
+    const char* error;
 };
 
-struct WisAdapterDesc {
-    const char8_t description[256];
+struct WisAdapterDesc{
+    const char description[256];
     uint32_t vendor_id;
     uint32_t device_id;
     uint32_t subsys_id;

@@ -1,13 +1,17 @@
 #pragma once
 #include <array>
 
-namespace wis {
+namespace wis
+{
 struct Result;
 struct AdapterDesc;
 
 enum class Status : uint32_t {
     Ok = 0,
     Error = 1,
+    InvalidArgument = 2,
+    OutOfMemory = 3,
+    DeviceLost = 4,
 };
 
 enum class AdapterPreference : int32_t {
@@ -27,13 +31,13 @@ enum class AdapterFlags : uint32_t {
     Max = 0xFFFFFFFF,
 };
 
-struct Result {
+struct Result{
     wis::Status status = wis::Status::Ok;
-    const char8_t* error = nullptr;
+    const char* error = nullptr;
 };
 
-struct AdapterDesc {
-    std::array<const char8_t, 256> description;
+struct AdapterDesc{
+    std::array<const char, 256> description;
     uint32_t vendor_id;
     uint32_t device_id;
     uint32_t subsys_id;
@@ -47,10 +51,6 @@ struct AdapterDesc {
 
 //==============================TYPE TRAITS==============================
 
-template<typename T>
-struct is_flag_enum : public std::false_type {
-};
-template<>
-struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
-};
-} // namespace wis
+template <typename T> struct is_flag_enum : public std::false_type {};
+template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
+}

@@ -146,7 +146,7 @@ private:
         { "f32", "float" },
         { "f64", "double" },
 
-        { "u8string", "const char8_t" },
+        { "u8string", "const char" },
         { "u16string", "const char16_t" },
         { "u32string", "const char32_t" },
     };
