@@ -29,18 +29,13 @@ public:
 
     wis::Result Initialize(bool debug_layer = false) noexcept
     {
+        auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
+                                     __uuidof(IDXGIFactory4), factory.put_void());
 
-        if (auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
-                                         __uuidof(IDXGIFactory4), factory.put_void());
-            !wis::succeeded(hr))
+        if (!wis::succeeded(hr))
             return {
-                wis::convert(hr), wis::MakeErrorString<__func__>(1, "Failed to create DX12 factory"_sl)
+                wis::convert(hr), wis::MakeErrorString<FUNC, "Failed to create DX12 factory">()
             };
-        constexpr auto a = sl_to_sl();
-        return {
-            wis::Status::Error, wis::MakeErrorString<__FUNCSIG__>(1, "Test the caps of the result"_sl)
-        };
-
 
         has_preference = bool(factory.try_as<IDXGIFactory6>());
     }
