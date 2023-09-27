@@ -25,8 +25,13 @@ public:
     static void Poll() noexcept
     {
         auto& inst = instance();
-        if (inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
+        if (!inst.info_queue || inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
             return;
+
+        if (!inst.callback) {
+            inst.info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
+            return;
+        }
 
         inst.semaphore.acquire();
         inst.PollInternal();
