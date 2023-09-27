@@ -89,4 +89,3 @@ inline constexpr DXGI_GPU_PREFERENCE to_dxgi(wis::AdapterPreference pref) noexce
         return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
     }
 }
-} // namespace wis

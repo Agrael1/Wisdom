@@ -26,6 +26,7 @@ WIS_EXPORT class DX12Factory : public QueryInternal<DX12Factory>
     static inline constexpr uint32_t debug_flag = wis::debug_mode * DXGI_CREATE_FACTORY_DEBUG;
 
 public:
+    DX12Factory() = default;
     /// @brief Creates a new factory
     /// @param app_info Application info, not used
     ///	@param use_preference Use the preference when enumerating adapters

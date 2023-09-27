@@ -4,6 +4,9 @@
     <type name="Status" category="enum" type="u32">
       <value name="Ok" value="0"/>
       <value name="Error" value="1"/>
+      <value name="InvalidArgument" value="2"/>
+      <value name="OutOfMemory" value="3"/>
+      <value name="DeviceLost" value="4"/>
     </type>
     <type name="Result" category="struct">
       <member type="Status" name="status" default="Ok"/>
