@@ -72,6 +72,7 @@ enum class TypeInfo {
     Struct,
     Enum,
     Handle,
+    Delegate,
 };
 
 struct WisHandle {
@@ -130,7 +131,7 @@ private:
     std::vector<WisBitmask*> bitmasks;
     std::vector<WisHandle*> handles;
     std::vector<WisFunction> functions;
-    std::vector<WisFunction> delegates;
+    std::vector<WisFunction*> delegates;
     std::vector<std::string> function_impl;
 
     std::vector<std::string> cpp_type_traits;
@@ -139,6 +140,7 @@ private:
     std::unordered_map<std::string, WisHandle> handle_map;
     std::unordered_map<std::string, WisEnum> enum_map;
     std::unordered_map<std::string, WisBitmask> bitmask_map;
+    std::unordered_map<std::string, WisFunction> delegate_map;
 
     const std::unordered_map<std::string_view, std::string_view> standard_types{
         { "bool", "bool" },

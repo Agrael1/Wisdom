@@ -43,7 +43,7 @@ int Generator::GenerateCAPI(std::filesystem::path file)
 
     output += "//=================================DELEGATES=================================\n\n";
     for (auto& f : this->delegates) {
-        output += MakeDelegate(f);
+        output += MakeDelegate(*f);
     }
     output += "//==================================HANDLES==================================\n\n";
     for (auto& h : this->handles) {
@@ -66,7 +66,7 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     output_api += GenerateCPPTypes();
     output_api += "//=================================DELEGATES=================================\n\n";
     for (auto& f : this->delegates) {
-        output_api += MakeCPPDelegate(f);
+        output_api += MakeCPPDelegate(*f);
     }
     output_api += "//==============================TYPE TRAITS==============================\n\n";
     output_api += "template <typename T> struct is_flag_enum : public std::false_type {};\n";
@@ -304,8 +304,9 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 
 void Generator::ParseDelegate(tinyxml2::XMLElement* type)
 {
-    auto& ref = delegates.emplace_back();
     auto name = type->FindAttribute("name")->Value();
+    auto& ref = delegate_map[name];
+    delegates.emplace_back(&ref);
     ref.name = name;
 
     if (auto* ret = type->FindAttribute("returns"))
@@ -537,6 +538,11 @@ ResolvedType Generator::ResolveType(const std::string& type)
             TypeInfo::Handle, wis::format("{}", type)
         };
     }
+    if (auto it = delegate_map.find(type); it != delegate_map.end()) {
+        return {
+            TypeInfo::Delegate, wis::format("Wis{}", type)
+        };
+    }
 
     return {
         TypeInfo::Regular, "Wis" + type
@@ -569,6 +575,9 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             args_str += wis::format("{}, ", p.name);
         }
         if (a.first == TypeInfo::Enum) {
+            args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
+        }
+        if (a.first == TypeInfo::Delegate) {
             args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
         }
     }
