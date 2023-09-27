@@ -68,8 +68,8 @@ void wis::DX12Info::PollInternal() noexcept
         hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, pMessage, &messageLength);
         if (hr < 0)
             continue;
-        if (callback)
-            callback(Convert(pMessage->Severity), pMessage->pDescription);
+
+        callback(Convert(pMessage->Severity), pMessage->pDescription);
     }
     info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
 }
