@@ -17,7 +17,7 @@ struct DXGIMessage {
 class DX12Info
 {
 public:
-    WIS_INLINE DX12Info();
+    WIS_INLINE DX12Info() noexcept;
     WIS_INLINE ~DX12Info();
     DX12Info(const DX12Info&) = delete;
     DX12Info& operator=(const DX12Info&) = delete;

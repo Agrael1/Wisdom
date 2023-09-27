@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
+
   <types comment="Type definitions">
     <type name="Status" category="enum" type="u32">
       <value name="Ok" value="0"/>
@@ -38,6 +39,18 @@
       <member type="u64" name="adapter_id"/>
       <member type="AdapterFlags" name="flags"/>
     </type>
+    <type name="Severity" category="enum">
+      <value name="Debug" value="0"/>
+      <value name="Trace" value="1"/>
+      <value name="Info" value="2"/>
+      <value name="Warning" value="3"/>
+      <value name="Error" value="4"/>
+      <value name="Critical" value="5"/>
+    </type>
+    <type name="DebugCallback" category="delegate">
+      <arg type="Severity" name="severity"/>
+      <arg type="u8string" name="message" mod="ptr"/>
+    </type>
   </types>
   <handles>
     <handle name="Factory"/>
@@ -46,6 +59,7 @@
   <functions>
     <func for="Factory" name="Create" returns="Result">
       <arg type="bool" name="debug_layer" default="false"/>
+      <arg type="DebugCallback" name="callback" default="nullptr"/>
     </func>
     <func for="Factory" name="Destroy"/>
   </functions>
