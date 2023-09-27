@@ -3,11 +3,11 @@
 
 WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer, WisDebugCallback callback)
 {
-    *out_handle = reinterpret_cast<DX12Factory>(new wis::DX12Factory(debug_layer, callback));
+    *out_handle = reinterpret_cast<DX12Factory>(new wis::DX12Factory(debug_layer, reinterpret_cast<wis::DebugCallback>(callback)));
 }
 WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer, WisDebugCallback callback)
 {
-    *out_handle = reinterpret_cast<VKFactory>(new wis::VKFactory(debug_layer, callback));
+    *out_handle = reinterpret_cast<VKFactory>(new wis::VKFactory(debug_layer, reinterpret_cast<wis::DebugCallback>(callback)));
 }
 void DX12FactoryDestroy(DX12Factory self)
 {
