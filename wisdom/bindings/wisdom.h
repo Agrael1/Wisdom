@@ -2,16 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
-// callconv
-#if defined(_WIN32)
-    // On Windows, Vulkan commands use the stdcall convention
-    #define WISCALL __stdcall
-#else
-    // On other platforms, use the default calling convention
-    #define WISCALL
-#endif
-
 typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
 typedef enum WisStatus WisStatus;
@@ -73,7 +63,7 @@ struct WisAdapterDesc{
 
 //=================================DELEGATES=================================
 
-typedef void (WISCALL *WisDebugCallback)(WisSeverity severity, const char *message, void *user_data);
+typedef void (*WisDebugCallback)(WisSeverity severity, const char *message, void *user_data);
 //==================================HANDLES==================================
 
 typedef struct DX12Factory_t* DX12Factory;

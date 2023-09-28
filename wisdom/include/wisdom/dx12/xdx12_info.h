@@ -91,18 +91,17 @@ private:
 };
 
 struct DX12InfoToken {
-    DX12InfoToken() noexcept = default;
-    ~DX12InfoToken() noexcept
-    {
-        if (DX12Info::instance().ref_count.fetch_sub(1, std::memory_order_release) == 1) {
-            std::atomic_thread_fence(std::memory_order_acquire);
-            DX12Info::instance().Uninitialize();
-        }
-    }
     void Acquire() noexcept
     {
         if (!DX12Info::instance().ref_count.fetch_add(1, std::memory_order_relaxed)) {
             DX12Info::instance().Initialize(); // no need to synchronize, since debug queue is only one
+        }
+    }
+    void Release() noexcept
+    {
+        if ((DX12Info::instance().ref_count.fetch_sub(1, std::memory_order_release) == 1)) {
+            std::atomic_thread_fence(std::memory_order_acquire);
+            DX12Info::instance().Uninitialize();
         }
     }
 };
