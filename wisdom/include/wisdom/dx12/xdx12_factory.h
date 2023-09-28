@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/api/consts.h>
 #include <wisdom/api/internal.h>
-#include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/dx12/xdx12_checks.h>
 #include <wisdom/dx12/xdx12_convert.h>
 #include <wisdom/dx12/xdx12_info.h>
 #include <wisdom/global/definitions.h>
@@ -45,7 +45,7 @@ public:
                                      __uuidof(IDXGIFactory4), factory.put_void());
 
         if (!wis::succeeded(hr))
-            return MakeResult<FUNC, "Failed to create DX12 factory">(hr);
+            return wis::make_result<FUNC, "Failed to create DX12 factory">(hr);
 
         has_preference = bool(factory.as<IDXGIFactory6>());
         return wis::success;
