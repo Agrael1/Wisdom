@@ -29,9 +29,6 @@ inline constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev) noe
 
 wis::DX12Info::DX12Info() noexcept
 {
-    if (info_queue)
-        return;
-
     auto hr = DXGIGetDebugInterface1(0, __uuidof(IDXGIInfoQueue), info_queue.put_void());
     if constexpr (debug_mode) {
         info_queue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
@@ -44,6 +41,7 @@ wis::DX12Info::DX12Info() noexcept
             d3dinfoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true); // Warning
         }
     }
+    info_queue->AddApplicationMessage(DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO, "Debug layer creation succeded");
 }
 wis::DX12Info::~DX12Info() noexcept
 {
@@ -52,7 +50,7 @@ wis::DX12Info::~DX12Info() noexcept
 
 void wis::DX12Info::PollInternal() noexcept
 {
-    std::vector<byte[]> message;
+    std::vector<byte> message;
     message.resize(sizeof(DXGI_INFO_QUEUE_MESSAGE));
 
     HRESULT hr = S_OK;
@@ -69,7 +67,10 @@ void wis::DX12Info::PollInternal() noexcept
         if (hr < 0)
             continue;
 
-        callback(Convert(pMessage->Severity), pMessage->pDescription);
+        // call callbacks
+        for (auto&& [k, v] : callbacks) {
+            k(Convert(pMessage->Severity), pMessage->pDescription, v);
+        }
     }
     info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
 }

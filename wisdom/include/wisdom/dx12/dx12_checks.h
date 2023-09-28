@@ -3,13 +3,18 @@
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/exception.h>
 #include <winrt/base.h>
+#include <wisdom/dx12/xdx12_info.h>
 #endif
 
 WIS_EXPORT namespace wis
 {
     /// @brief Log any errors in the current context
     /// @return true if there were any errors
-    WIS_INLINE bool log_dxgi_errors() noexcept;
+    WIS_INLINE bool log_dxgi_errors() noexcept
+    {
+        DX12Info::Poll();
+        return true;
+    }
 
     /// @brief Chaeck if there are any errors in the current context, logging any errors
     /// @param sl Source location

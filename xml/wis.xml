@@ -50,6 +50,7 @@
     <type name="DebugCallback" category="delegate">
       <arg type="Severity" name="severity"/>
       <arg type="u8string" name="message" mod="ptr"/>
+      <arg type="void" name="user_data" mod="ptr"/>
     </type>
   </types>
   <handles>

@@ -69,7 +69,7 @@ struct AdapterDesc{
 
 //=================================DELEGATES=================================
 
-typedef void (WISCALL *DebugCallback)(wis::Severity severity, const char *message);
+typedef void (WISCALL *DebugCallback)(wis::Severity severity, const char *message, void *user_data);
 //==============================TYPE TRAITS==============================
 
 template <typename T> struct is_flag_enum : public std::false_type {};

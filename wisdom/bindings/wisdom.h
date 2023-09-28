@@ -73,7 +73,7 @@ struct WisAdapterDesc{
 
 //=================================DELEGATES=================================
 
-typedef void (WISCALL *WisDebugCallback)(WisSeverity severity, const char *message);
+typedef void (WISCALL *WisDebugCallback)(WisSeverity severity, const char *message, void *user_data);
 //==================================HANDLES==================================
 
 typedef struct DX12Factory_t* DX12Factory;

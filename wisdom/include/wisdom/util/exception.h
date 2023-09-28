@@ -20,7 +20,7 @@ WIS_EXPORT namespace wis
 
         void log() const noexcept
         {
-            wis::lib_critical(what());
+            //wis::lib_critical(what());
         }
         const char* what() const noexcept override
         {
