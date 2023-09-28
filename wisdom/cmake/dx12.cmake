@@ -29,8 +29,7 @@ if(WIN32)
 	set(DX12INL
 		"include/wisdom/dx12/impl/dx12_allocator.inl"
 		"include/wisdom/dx12/impl/dx12_checks.inl"
-		"include/wisdom/dx12/impl/dx12_device.inl"
-		)
+		"include/wisdom/dx12/impl/dx12_device.inl")
 	#file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/wisdom_dx12.h" "#pragma once\n#ifndef WIS_EXPORT\n#define WIS_EXPORT\n#endif\n\n")
 	#foreach(HEADER ${DX12HEADERS})
 	#	string(REPLACE "include/wisdom/" "" HEADER "${HEADER}")
