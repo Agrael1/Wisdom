@@ -29,7 +29,9 @@ public:
         if (!inst.info_queue || inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
             return;
 
-        inst.semaphore.acquire();
+        if(!inst.semaphore.try_acquire())
+            return;
+
         if (inst.callbacks.empty()) {
             inst.info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
             return;
