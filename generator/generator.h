@@ -144,6 +144,7 @@ private:
 
     const std::unordered_map<std::string_view, std::string_view> standard_types{
         { "bool", "bool" },
+        { "void", "void" },
         { "u8", "uint8_t" },
         { "u16", "uint16_t" },
         { "u32", "uint32_t" },

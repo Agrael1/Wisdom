@@ -27,11 +27,17 @@ public:
     {
         Initialize(debug_layer, callback);
     }
+    ~DX12Factory()
+    {
+        if (callback) {
+            DX12Info::RemoveCallback(callback);
+        }
+    }
 
-    wis::Result Initialize(bool debug_layer = false, DebugCallback callback = nullptr) noexcept
+    wis::Result Initialize(bool debug_layer = false, DebugCallback callback = nullptr, void* user_data = nullptr) noexcept
     {
         if (debug_layer)
-            EnableDebugLayer(callback);
+            EnableDebugLayer(callback, user_data);
 
         auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                      __uuidof(IDXGIFactory4), factory.put_void());
@@ -40,7 +46,6 @@ public:
             return MakeResult<FUNC, "Failed to create DX12 factory">(hr);
 
         has_preference = bool(factory.as<IDXGIFactory6>());
-
         return wis::success;
     }
 
@@ -50,9 +55,11 @@ public:
     }
 
 private:
-    void EnableDebugLayer(DebugCallback callback) noexcept
+    void EnableDebugLayer(DebugCallback callback, void* user_data) noexcept
     {
-        DX12Info::SetCallback(callback);
+        if (callback) {
+            DX12Info::AddCallback(callback, user_data);
+        }
 
         wis::com_ptr<ID3D12Debug> debugController;
         if (wis::succeeded(D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
@@ -64,5 +71,6 @@ private:
 
 private:
     static inline bool has_preference = true;
+    DebugCallback callback = nullptr;
 };
 } // namespace wis
