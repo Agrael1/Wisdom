@@ -36,8 +36,10 @@ public:
 
     wis::Result Initialize(bool debug_layer = false, DebugCallback callback = nullptr, void* user_data = nullptr) noexcept
     {
-        if (debug_layer)
-            EnableDebugLayer(callback, user_data);
+        if constexpr (wis::debug_layer) {
+            if (debug_layer)
+                EnableDebugLayer(callback, user_data);
+        }
 
         auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                      __uuidof(IDXGIFactory4), factory.put_void());
@@ -57,6 +59,8 @@ public:
 private:
     void EnableDebugLayer(DebugCallback callback, void* user_data) noexcept
     {
+        token.Acquire();
+
         if (callback) {
             this->callback = callback;
             DX12Info::AddCallback(callback, user_data);
@@ -73,5 +77,6 @@ private:
 private:
     static inline bool has_preference = true;
     DebugCallback callback = nullptr;
+    [[no_unique_address]] wis::DX12InfoToken token;
 };
 } // namespace wis

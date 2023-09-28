@@ -49,9 +49,9 @@ if(WTOP AND NOT WINDOWS_STORE)
 endif()
 
 option(
-  WISDOM_RUNTIME_ASSERTS
-  "Turn on/off runtime assertions (turned on might slightly affect performance)"
-  ON)
+  WISDOM_DEBUG_LAYER
+  "Turn on/off runtime debug messages (turned on might slightly affect performance)"
+  OFF)
 option(WISDOM_FORCE_VULKAN
        "Forces the default device to be vulkan, instead of platform specific"
        OFF)

@@ -9,6 +9,8 @@ namespace wis {
 /// @brief Information queue for debug and error messages
 class DX12Info
 {
+    friend struct DX12InfoToken;
+
 public:
     static DX12Info& instance() noexcept
     {
@@ -17,10 +19,23 @@ public:
     }
 
 private:
-    WIS_INLINE DX12Info() noexcept;
-    WIS_INLINE ~DX12Info() noexcept;
+    DX12Info() noexcept = default;
     DX12Info(const DX12Info&) = delete;
     DX12Info& operator=(const DX12Info&) = delete;
+
+    void Uninitialize() noexcept
+    {
+        semaphore.acquire();
+        callback_sem.acquire();
+
+        info_queue.reset();
+        callbacks.clear();
+
+        callback_sem.release();
+        semaphore.release();
+    }
+    WIS_INLINE void PollInternal() noexcept;
+    WIS_INLINE void Initialize() noexcept;
 
 public:
     static void Poll() noexcept
@@ -29,7 +44,7 @@ public:
         if (!inst.info_queue || inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
             return;
 
-        if(!inst.semaphore.try_acquire())
+        if (!inst.semaphore.try_acquire())
             return;
 
         if (inst.callbacks.empty()) {
@@ -38,8 +53,7 @@ public:
             return;
         }
 
-        if (inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
-        {
+        if (inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0) {
             inst.semaphore.release();
             return;
         }
@@ -69,13 +83,28 @@ public:
     }
 
 private:
-    void PollInternal() noexcept;
-
-private:
     wis::com_ptr<IDXGIInfoQueue> info_queue;
     std::binary_semaphore semaphore{ 1 };
     std::binary_semaphore callback_sem{ 1 };
     std::unordered_map<wis::DebugCallback, void*> callbacks;
+    std::atomic_size_t ref_count{ 0 };
+};
+
+struct DX12InfoToken {
+    DX12InfoToken() noexcept = default;
+    ~DX12InfoToken() noexcept
+    {
+        if (DX12Info::instance().ref_count.fetch_sub(1, std::memory_order_release) == 1) {
+            std::atomic_thread_fence(std::memory_order_acquire);
+            DX12Info::instance().Uninitialize();
+        }
+    }
+    void Acquire() noexcept
+    {
+        if (!DX12Info::instance().ref_count.fetch_add(1, std::memory_order_relaxed)) {
+            DX12Info::instance().Initialize(); // no need to synchronize, since debug queue is only one
+        }
+    }
 };
 } // namespace wis
 
