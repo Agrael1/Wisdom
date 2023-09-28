@@ -53,10 +53,11 @@ void wis::DX12Info::PollInternal() noexcept
     std::vector<byte> message;
     message.resize(sizeof(DXGI_INFO_QUEUE_MESSAGE));
 
-    HRESULT hr = S_OK;
-    SIZE_T messageLength = 0;
-
-    for (UINT64 i = 0, hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength); hr >= 0; i++) {
+    for (UINT64 i = 0;; i++) {
+        SIZE_T messageLength = 0;
+        HRESULT hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength);
+        if (hr < 0)
+            break;
 
         // allocate memory for message
         message.resize(messageLength);
