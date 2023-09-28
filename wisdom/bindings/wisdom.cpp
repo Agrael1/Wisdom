@@ -1,13 +1,27 @@
 #include "wisdom.h"
 #include <wisdom/wisdom.h>
 
-WisResult DX12FactoryCreate(DX12Factory* out_handle, bool debug_layer, WisDebugCallback callback)
+WisResult DX12FactoryCreate(DX12Factory* out_handle,  bool debug_layer,  WisDebugCallback callback,  void* user_data)
 {
-    *out_handle = reinterpret_cast<DX12Factory>(new wis::DX12Factory(debug_layer, reinterpret_cast<wis::DebugCallback>(callback)));
+    std::unique_ptr<wis::DX12Factory> ret{ new wis::DX12Factory(); };
+    WisResult result = reinterpret_cast<WisResult&>(ret->Initialize(debug_layer, reinterpret_cast<wis::DebugCallback>(callback), user_data));
+    if (result != WisResult::Success) {{
+*out_handle = nullptr;
+return result;
+}}
+    *out_handle = reinterpret_cast<DX12Factory>(ret.release());
+return result;
 }
-WisResult VKFactoryCreate(VKFactory* out_handle, bool debug_layer, WisDebugCallback callback)
+WisResult VKFactoryCreate(VKFactory* out_handle,  bool debug_layer,  WisDebugCallback callback,  void* user_data)
 {
-    *out_handle = reinterpret_cast<VKFactory>(new wis::VKFactory(debug_layer, reinterpret_cast<wis::DebugCallback>(callback)));
+    std::unique_ptr<wis::VKFactory> ret{ new wis::VKFactory(); };
+    WisResult result = reinterpret_cast<WisResult&>(ret->Initialize(debug_layer, reinterpret_cast<wis::DebugCallback>(callback), user_data));
+    if (result != WisResult::Success) {{
+*out_handle = nullptr;
+return result;
+}}
+    *out_handle = reinterpret_cast<VKFactory>(ret.release());
+return result;
 }
 void DX12FactoryDestroy(DX12Factory self)
 {
