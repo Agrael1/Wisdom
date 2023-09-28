@@ -1,5 +1,4 @@
 #pragma once
-#define WIS_EXPORT
 #include <tinyxml2.h>
 #include <string>
 #include <filesystem>

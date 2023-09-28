@@ -61,6 +61,7 @@
     <func for="Factory" name="Create" returns="Result">
       <arg type="bool" name="debug_layer" default="false"/>
       <arg type="DebugCallback" name="callback" default="nullptr"/>
+      <arg type="void" name="user_data" mod="ptr"/>
     </func>
     <func for="Factory" name="Destroy"/>
   </functions>

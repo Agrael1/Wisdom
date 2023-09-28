@@ -10,8 +10,6 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
-#include <wisdom/bridge/format.h>
-
 namespace wis {
 class DX12Factory;
 
@@ -24,19 +22,14 @@ struct Internal<DX12Factory> {
 class DX12Factory : public QueryInternal<DX12Factory>
 {
 public:
-    DX12Factory() = default;
+    DX12Factory() noexcept = default;
     DX12Factory(bool debug_layer, DebugCallback callback) noexcept
     {
         Initialize(debug_layer, callback);
     }
-    ~DX12Factory()
+    ~DX12Factory() noexcept
     {
-        if constexpr (wis::debug_layer) {
-            if (callback) {
-                token.Release();
-                DX12Info::RemoveCallback(callback);
-            }
-        }
+        Uninitialize();
     }
     DX12Factory(const DX12Factory&) = delete;
     DX12Factory& operator=(const DX12Factory&) = delete;
@@ -44,7 +37,8 @@ public:
     DX12Factory(DX12Factory&& other) noexcept
         : QueryInternal<DX12Factory>(std::move(other))
         , callback(std::exchange(other.callback, nullptr))
-    {}
+    {
+    }
     DX12Factory& operator=(DX12Factory&& other) noexcept
     {
         QueryInternal<DX12Factory>::operator=(std::move(other));
@@ -55,6 +49,9 @@ public:
 public:
     wis::Result Initialize(bool debug_layer = false, DebugCallback callback = nullptr, void* user_data = nullptr) noexcept
     {
+        if (bool(*this))
+            Uninitialize();
+
         if constexpr (wis::debug_layer) {
             if (debug_layer)
                 EnableDebugLayer(callback, user_data);
@@ -62,12 +59,11 @@ public:
 
         auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                      __uuidof(IDXGIFactory4), factory.put_void());
-        f();
+
         if (!wis::succeeded(hr))
-            return wis::make_result<FUNC, "Failed to create DX12 factory">(hr);
+            return wis::make_result<FUNC, "Failed to create DXGI factory">(hr);
 
         has_preference = bool(factory.as<IDXGIFactory6>());
-        f();
 
         return wis::success;
     }
@@ -76,11 +72,6 @@ public:
         if constexpr (wis::debug_layer)
             factory->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
     }
-    void f()
-    {
-        printf("%s", wis::format("{}\n", factory->AddRef()).c_str());
-        factory->Release();
-    }
 
     operator bool() const noexcept
     {
@@ -88,6 +79,16 @@ public:
     }
 
 private:
+    void Uninitialize() noexcept
+    {
+        if constexpr (wis::debug_layer) {
+            if (callback) {
+                DX12Info::RemoveCallback(callback);
+                token.Release();
+            }
+        }
+        factory.reset();
+    }
     void EnableDebugLayer(DebugCallback callback, void* user_data) noexcept
     {
         if (callback) {

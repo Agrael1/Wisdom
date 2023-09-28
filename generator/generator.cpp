@@ -580,9 +580,11 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     }
 
     if (constructor) {
-        st_decl += wis::format("    *out_handle = reinterpret_cast<{}{}>(new wis::{}{}(", impl, func.this_type, impl, func.this_type);
-        st_decl += args_str;
-        st_decl += "));\n";
+        std::string type = wis::format("wis::{}{}", impl, func.this_type);
+        st_decl += wis::format("    std::unique_ptr<{}> ret{{ new {}(); }};\n", type, type);
+        st_decl += wis::format("    WisResult result = reinterpret_cast<WisResult&>(ret->Initialize({}));\n", args_str);
+        st_decl += "    if (result != WisResult::Success) {{\n*out_handle = nullptr;\nreturn result;\n}}\n";
+        st_decl += wis::format("    *out_handle = reinterpret_cast<{}{}>(ret.release());\nreturn result;\n", impl, func.this_type);
     } else if (func.name == "Destroy") {
         st_decl += wis::format("    delete xself;\n", impl, func.this_type);
     } else if (has_this) {
@@ -597,6 +599,29 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
     st_decl += "}\n";
     return st_decl;
+}
+
+std::string GetFullArg(TypeInfo type, const WisFunctionParameter& arg, std::string_view impl)
+{
+    std::string post_decl;
+    std::string pre_decl;
+    if (arg.modifier == "ptr") {
+        post_decl += '*';
+    }
+    if (arg.modifier == "const") {
+        pre_decl += "const";
+    }
+
+    std::string xtype;
+    if (type == TypeInfo::Handle) {
+        xtype = wis::format("{}{}", impl, arg.type);
+    } else if (type == TypeInfo::Struct || type == TypeInfo::Enum || type == TypeInfo::Delegate) {
+        xtype = wis::format("Wis{}", arg.type);
+    } else {
+        xtype = arg.type;
+    }
+
+    return wis::format("{} {}{} {}", pre_decl, xtype, post_decl, arg.name);
 }
 
 std::string Generator::MakeFunctionDecl(const WisFunction& func)
@@ -661,11 +686,7 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
             auto& t = params_t[i];
             auto& p = func.parameters[i];
 
-            if (t.first == TypeInfo::Handle) {
-                st_decl += wis::format("{}{} {}, ", impls[j], t.second, p.name);
-            } else {
-                st_decl += wis::format("{} {}, ", t.second, p.name);
-            }
+            st_decl += wis::format("{}, ", GetFullArg(t.first, p, impls[j]));
         }
         if (ret_t.first == TypeInfo::Struct) {
             st_decl += wis::format("{} out_struct", ret_t.second);
