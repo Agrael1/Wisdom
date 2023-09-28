@@ -58,6 +58,7 @@ private:
     void EnableDebugLayer(DebugCallback callback, void* user_data) noexcept
     {
         if (callback) {
+            this->callback = callback;
             DX12Info::AddCallback(callback, user_data);
         }
 
