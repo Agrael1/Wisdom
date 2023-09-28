@@ -150,11 +150,14 @@ public:
     {
         copy_ref(other);
     }
-
     void copy_to(T** other) const noexcept
     {
         add_ref();
         *other = ptr;
+    }
+    void reset() noexcept
+    {
+        release();
     }
 
     // TBT
