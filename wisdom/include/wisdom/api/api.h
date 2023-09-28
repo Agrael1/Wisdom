@@ -1,16 +1,6 @@
 #pragma once
 #include <array>
 
-
-// callconv
-#if defined(_WIN32)
-    // On Windows, Vulkan commands use the stdcall convention
-    #define WISCALL __stdcall
-#else
-    // On other platforms, use the default calling convention
-    #define WISCALL
-#endif
-
 namespace wis {
 struct Result;
 struct AdapterDesc;
@@ -69,7 +59,7 @@ struct AdapterDesc{
 
 //=================================DELEGATES=================================
 
-typedef void (WISCALL *DebugCallback)(wis::Severity severity, const char *message, void *user_data);
+typedef void (*DebugCallback)(wis::Severity severity, const char *message, void *user_data);
 //==============================TYPE TRAITS==============================
 
 template <typename T> struct is_flag_enum : public std::false_type {};

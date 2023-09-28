@@ -27,18 +27,6 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     ParseFunctions(funcs);
 
     std::string output = "#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
-     constexpr auto cconvs = R"(
-// callconv
-#if defined(_WIN32)
-    // On Windows, Vulkan commands use the stdcall convention
-    #define WISCALL __stdcall
-#else
-    // On other platforms, use the default calling convention
-    #define WISCALL
-#endif
-
-)";
-    output += cconvs;
     output += GenerateCTypes();
 
     output += "//=================================DELEGATES=================================\n\n";
@@ -61,7 +49,6 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     }
 
     std::string output_api = "#pragma once\n#include <array>\n\n";
-    output_api += cconvs;
     output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
     output_api += "//=================================DELEGATES=================================\n\n";
@@ -493,7 +480,7 @@ std::string Generator::MakeCPPDelegate(const WisFunction& func)
     constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
 
     for (size_t j = 0; j < impl_based + 1; j++) {
-        std::string st_decl = wis::format("typedef void (WISCALL *{}{})(",
+        std::string st_decl = wis::format("typedef void (*{}{})(",
                                           impl_based ? impls[j] : "",
                                           func.name);
 
@@ -712,7 +699,7 @@ std::string Generator::MakeDelegate(const WisFunction& func)
     constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
 
     for (size_t j = 0; j < impl_based + 1; j++) {
-        std::string st_decl = wis::format("typedef void (WISCALL *Wis{}{})(",
+        std::string st_decl = wis::format("typedef void (*Wis{}{})(",
                                           impl_based ? impls[j] : "",
                                           func.name);
 

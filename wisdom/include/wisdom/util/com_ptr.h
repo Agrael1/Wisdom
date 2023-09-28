@@ -77,15 +77,17 @@ public:
         return *this;
     }
     template<class U>
-    com_ptr& operator=(com_ptr<U>&& ptr) noexcept
+    com_ptr& operator=(com_ptr<U>&& other) noexcept
     {
         if constexpr (std::same_as<U, T>) {
-            if (this == ptr.get())
+            if (get() == other.get()) {
+                std::exchange(other.ptr, {});
                 return *this;
+            }
         }
 
         release();
-        copy_ref(std::exchange(ptr.ptr, {}));
+        ptr = std::exchange(other.ptr, {});
         return *this;
     }
 
@@ -161,8 +163,8 @@ public:
     }
 
     // TBT
-    //template<class Type, typename Method, class...Args>
-    //com_with_result<Type> capture(Args&&...args) const noexcept
+    // template<class Type, typename Method, class...Args>
+    // com_with_result<Type> capture(Args&&...args) const noexcept
     //{
     //    com_ptr<Type> out;
     //    auto hr = (ptr->*Method)(std::forward<Args>(args)..., guid_of_v<Type>, out.put_void());

@@ -7,6 +7,8 @@
 #include <d3d12sdklayers.h>
 #include <vector>
 
+#include <wisdom/bridge/format.h>
+
 namespace wis {
 inline constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev) noexcept
 {
