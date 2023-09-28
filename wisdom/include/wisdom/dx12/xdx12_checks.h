@@ -1,6 +1,9 @@
 #pragma once
-#include <wisdom/global/definitions.h>
+#include <wisdom/dx12/xdx12_convert.h>
 #include <wisdom/dx12/xdx12_info.h>
+#include <wisdom/global/definitions.h>
+#include <wisdom/util/error_messages.h>
+
 
 namespace wis {
 /// @brief Log any errors in the current context
@@ -26,4 +29,13 @@ inline void check_context() noexcept
     if constexpr (debug_layer)
         log_dxgi_errors();
 }
+
+template<wis::string_literal func, wis::string_literal message>
+constexpr inline wis::Result make_result(HRESULT hr) noexcept
+{
+    static constinit auto str = wis::MakeErrorString<func, message>();
+    return wis::Result{ convert(hr), str.c_str() };
+}
+
+
 } // namespace wis
