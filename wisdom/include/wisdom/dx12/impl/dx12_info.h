@@ -69,9 +69,11 @@ void wis::DX12Info::PollInternal() noexcept
             continue;
 
         // call callbacks
+        callback_sem.acquire();
         for (auto&& [k, v] : callbacks) {
             k(Convert(pMessage->Severity), pMessage->pDescription, v);
         }
+        callback_sem.release();
     }
     info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
 }

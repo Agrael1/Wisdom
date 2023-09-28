@@ -34,11 +34,15 @@ public:
 
         if (inst.callbacks.empty()) {
             inst.info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
+            inst.semaphore.release();
             return;
         }
 
         if (inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
+        {
+            inst.semaphore.release();
             return;
+        }
 
         inst.PollInternal();
         inst.semaphore.release();
@@ -46,16 +50,22 @@ public:
     static void AddCallback(DebugCallback callback, void* user_data = nullptr) noexcept
     {
         auto& inst = instance();
-        inst.semaphore.acquire();
+        if (inst.callbacks.contains(callback))
+            return;
+
+        inst.callback_sem.acquire();
         inst.callbacks.emplace(callback, user_data);
-        inst.semaphore.release();
+        inst.callback_sem.release();
     }
     static void RemoveCallback(DebugCallback callback) noexcept
     {
         auto& inst = instance();
-        inst.semaphore.acquire();
+        if (!inst.callbacks.contains(callback))
+            return;
+
+        inst.callback_sem.acquire();
         inst.callbacks.erase(callback);
-        inst.semaphore.release();
+        inst.callback_sem.release();
     }
 
 private:
@@ -64,6 +74,7 @@ private:
 private:
     wis::com_ptr<IDXGIInfoQueue> info_queue;
     std::binary_semaphore semaphore{ 1 };
+    std::binary_semaphore callback_sem{ 1 };
     std::unordered_map<wis::DebugCallback, void*> callbacks;
 };
 } // namespace wis
