@@ -70,7 +70,7 @@ public:
             return;
         }
 
-        inst.callbacks.emplace(callback, user_data);
+        inst.callbacks.emplace(callback, std::pair<void*, size_t>{ user_data, 1 });
         inst.callback_sem.release();
     }
     static void RemoveCallback(DebugCallback callback) noexcept
