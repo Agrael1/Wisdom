@@ -64,21 +64,24 @@ public:
     static void AddCallback(DebugCallback callback, void* user_data = nullptr) noexcept
     {
         auto& inst = instance();
-        if (inst.callbacks.contains(callback))
-            return;
-
         inst.callback_sem.acquire();
+        if (inst.callbacks.contains(callback)) {
+            inst.callbacks.at(callback).second++;
+            return;
+        }
+
         inst.callbacks.emplace(callback, user_data);
         inst.callback_sem.release();
     }
     static void RemoveCallback(DebugCallback callback) noexcept
     {
         auto& inst = instance();
+        inst.callback_sem.acquire();
         if (!inst.callbacks.contains(callback))
             return;
 
-        inst.callback_sem.acquire();
-        inst.callbacks.erase(callback);
+        if (!--inst.callbacks.at(callback).second)
+            inst.callbacks.erase(callback);
         inst.callback_sem.release();
     }
 
@@ -86,7 +89,7 @@ private:
     wis::com_ptr<IDXGIInfoQueue> info_queue;
     std::binary_semaphore semaphore{ 1 };
     std::binary_semaphore callback_sem{ 1 };
-    std::unordered_map<wis::DebugCallback, void*> callbacks;
+    std::unordered_map<wis::DebugCallback, std::pair<void*, std::size_t>> callbacks;
     std::atomic_size_t ref_count{ 0 };
 };
 

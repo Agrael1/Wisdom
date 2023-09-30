@@ -6,6 +6,8 @@
 
 using namespace tinyxml2;
 
+//-----------------------------------------------------------------------------
+
 int Generator::GenerateCAPI(std::filesystem::path file)
 {
     structs.clear();
@@ -138,6 +140,8 @@ std::string Generator::GenerateCPPTypedefs()
     return c_types + '\n';
 }
 
+//-----------------------------------------------------------------------------
+
 void Generator::ParseTypes(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("type"); type; type = type->NextSiblingElement("type")) {
@@ -153,32 +157,58 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         }
     }
 }
+
+std::vector<WisReturnType> ParseFunctionReturn(tinyxml2::XMLElement* func)
+{
+    std::vector<WisReturnType> ret;
+    if (auto returns = func->FindAttribute("returns"))
+        return { { returns->Value() } };
+
+    for (auto* param = func->FirstChildElement("ret"); param; param = param->NextSiblingElement("ret")) {
+        auto& p = ret.emplace_back();
+
+        auto* type = param->FindAttribute("type")->Value();
+        p.type = type;
+
+        if (auto* name = param->FindAttribute("name"))
+            p.opt_name = name->Value();
+
+        if (auto* mod = param->FindAttribute("mod"))
+            p.modifier = mod->Value();
+    }
+    return ret;
+}
+
+std::vector<WisFunctionParameter> ParseFunctionArgs(tinyxml2::XMLElement* func)
+{
+    std::vector<WisFunctionParameter> ret;
+    for (auto* param = func->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
+        auto& p = ret.emplace_back();
+
+        auto* type = param->FindAttribute("type")->Value();
+        auto* name = param->FindAttribute("name")->Value();
+
+        p.type = type;
+        p.name = name;
+
+        if (auto* mod = param->FindAttribute("mod"))
+            p.modifier = mod->Value();
+    }
+    return ret;
+}
+
 void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 {
     for (auto* func = type->FirstChildElement("func"); func; func = func->NextSiblingElement("func")) {
         auto& ref = functions.emplace_back();
+
         auto name = func->FindAttribute("name")->Value();
         ref.name = name;
-
-        if (auto* ret = func->FindAttribute("returns"))
-            ref.return_type = ret->Value();
+        ref.return_types = ParseFunctionReturn(func);
+        ref.parameters = ParseFunctionArgs(func);
 
         if (auto* ret = func->FindAttribute("for"))
             ref.this_type = ret->Value();
-
-        for (auto* param = func->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
-            auto& p = ref.parameters.emplace_back();
-
-            auto* type = param->FindAttribute("type")->Value();
-            auto* name = param->FindAttribute("name")->Value();
-
-            p.type = type;
-            p.name = name;
-
-            if (auto* mod = param->FindAttribute("mod")) {
-                p.modifier = mod->Value();
-            }
-        }
     }
 }
 
@@ -295,27 +325,10 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* type)
     auto& ref = delegate_map[name];
     delegates.emplace_back(&ref);
     ref.name = name;
-
-    if (auto* ret = type->FindAttribute("returns"))
-        ref.return_type = ret->Value();
-
-    if (auto* ret = type->FindAttribute("conv"))
-        ref.this_type = ret->Value();
-
-    for (auto* param = type->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
-        auto& p = ref.parameters.emplace_back();
-
-        auto* type = param->FindAttribute("type")->Value();
-        auto* name = param->FindAttribute("name")->Value();
-
-        p.type = type;
-        p.name = name;
-
-        if (auto* mod = param->FindAttribute("mod")) {
-            p.modifier = mod->Value();
-        }
-    }
+    ref.parameters = ParseFunctionArgs(type);
 }
+
+//-----------------------------------------------------------------------------
 
 std::string MakeCArray(std::string_view type, std::string_view name, std::string_view arr_len)
 {
@@ -352,7 +365,6 @@ std::string Generator::MakeCStruct(const WisStruct& s)
     st_decl += "};\n\n";
     return st_decl;
 }
-
 std::string Generator::MakeCPPStruct(const WisStruct& s)
 {
     auto st_decl = wis::format(
@@ -440,10 +452,42 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
     cpp_type_traits.emplace_back(wis::format("template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));
     return st_decl;
 }
+
+//-----------------------------------------------------------------------------
+
+ResolvedType Generator::ResolveType(const std::string& type)
+{
+    if (type == "Result")
+        return { TypeInfo::Result, "WisResult" };
+
+    if (auto it = standard_types.find(type); it != standard_types.end()) {
+        return { type.contains("string") ? TypeInfo::String : TypeInfo::Regular, std::string(it->second) };
+    }
+
+    if (auto it = struct_map.find(type); it != struct_map.end()) {
+        return {
+            TypeInfo::Struct, wis::format("Wis{}", type)
+        };
+    }
+    if (auto it = handle_map.find(type); it != handle_map.end()) {
+        return {
+            TypeInfo::Handle, wis::format("{}", type)
+        };
+    }
+    if (auto it = delegate_map.find(type); it != delegate_map.end()) {
+        return {
+            TypeInfo::Delegate, wis::format("Wis{}", type)
+        };
+    }
+
+    return {
+        TypeInfo::Regular, "Wis" + type
+    };
+}
 ResolvedType Generator::ResolveCPPType(const std::string& type)
 {
     if (type == "Result")
-        return { TypeInfo::Regular, "wis::Result" };
+        return { TypeInfo::Result, "wis::Result" };
 
     if (auto it = standard_types.find(type); it != standard_types.end()) {
         return { TypeInfo::Regular, std::string(it->second) };
@@ -451,7 +495,7 @@ ResolvedType Generator::ResolveCPPType(const std::string& type)
 
     if (auto it = struct_map.find(type); it != struct_map.end()) {
         return {
-            TypeInfo::Struct, wis::format("wis::{}*", type)
+            TypeInfo::Struct, wis::format("wis::{}", type)
         };
     }
     if (auto it = handle_map.find(type); it != handle_map.end()) {
@@ -464,6 +508,206 @@ ResolvedType Generator::ResolveCPPType(const std::string& type)
         TypeInfo::Regular, "wis::" + type
     };
 }
+
+struct FuncInfo {
+    ResolvedType return_type;
+    ResolvedType this_t;
+    std::span<ResolvedType> other_rets;
+    std::span<ResolvedType> params;
+    std::string_view impl;
+    std::string_view decl;
+};
+
+// maybe add an array
+std::string GetArgString(const ResolvedType& resolved, std::string_view impl, std::string_view name, std::string_view mod)
+{
+    std::string pre_mod;
+    std::string post_mod;
+    if (mod == "ptr") {
+        post_mod += '*';
+    }
+    if (mod == "cptr") {
+        pre_mod += "const";
+        post_mod += '*';
+    }
+    if (mod == "const") {
+        pre_mod += "const";
+    }
+
+    return resolved.first == TypeInfo::Handle
+            ? wis::format("{} {}{} {}{}", pre_mod, impl, resolved.second, post_mod, name)
+            : wis::format("{} {} {}{}", pre_mod, resolved.second, post_mod, name);
+}
+
+std::string Generator::MakeFunctionDecl(const WisFunction& func)
+{
+    std::string st_decls;
+
+    // 1. return type
+    ResolvedType ret_t = func.return_types.empty()
+            ? ResolvedType{ TypeInfo::None, "void" }
+            : ResolveType(func.return_types[0].type);
+
+    std::vector<ResolvedType> other_rets;
+    for (size_t i = 1; i < func.return_types.size(); i++) {
+        other_rets.push_back(ResolveType(func.return_types[i].type));
+    }
+
+    if (ret_t.first == TypeInfo::String)
+        return {}; // skip string returns
+
+    // 2. this type
+    ResolvedType this_t = func.this_type.empty()
+            ? std::pair{ TypeInfo::None, "" }
+            : ResolveType(func.this_type);
+
+    // 3. parameters
+    std::vector<ResolvedType> params_t;
+    for (auto& p : func.parameters) {
+        params_t.push_back(ResolveType(p.type));
+    }
+
+    bool impl_based = this_t.first ==
+                    TypeInfo::Handle ||
+            ret_t.first == TypeInfo::Handle ||
+            std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
+                return t.first == TypeInfo::Handle;
+            }) != params_t.end() ||
+            std::ranges::find_if(other_rets.begin(), other_rets.end(), [](const ResolvedType& t) {
+                return t.first == TypeInfo::Handle;
+            }) != other_rets.end();
+
+    constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
+    std::array<std::string, 2> decls{};
+
+    for (size_t j = 0; j < impl_based + 1; j++) {
+        auto& st_decl = decls[j];
+        std::string return_t = GetArgString(ret_t, impls[j], "", "");
+
+        st_decl = wis::format("{} {}{}{}(",
+                              return_t,
+                              impl_based ? impls[j] : "",
+                              this_t.second,
+                              func.name);
+
+        if (this_t.first != TypeInfo::None)
+            st_decl += GetArgString(this_t, impls[j], "self", this_t.first == TypeInfo::Handle ? "" : "ptr");
+
+        for (uint32_t i = 0; i < params_t.size(); i++) {
+            auto& t = params_t[i];
+            auto& p = func.parameters[i];
+
+            st_decl += wis::format("{}, ", GetArgString(t, impls[j], p.name, p.modifier));
+        }
+        for (uint32_t i = 0; i < other_rets.size(); i++) {
+            auto& t = other_rets[i];
+            auto& p = func.return_types[i + 1];
+
+            st_decl += wis::format("{}* {}, ", GetArgString(t, impls[j], "", p.modifier), "out_" + p.opt_name);
+        }
+
+        if (st_decl.back() == ' ') {
+            st_decl.pop_back();
+            st_decl.pop_back();
+        }
+
+        st_decl += ")";
+        function_impl.emplace_back(MakeFunctionImpl(func, { ret_t, this_t, other_rets, params_t, impls[j], st_decl }));
+        st_decl += ";\n";
+        st_decls += st_decl;
+    }
+
+    return st_decls;
+}
+
+std::string Generator::MakeFunctionImpl(const WisFunction& func, const FuncInfo& fi)
+{
+    std::string st_decl{ fi.decl };
+    st_decl += "\n{\n";
+    // bool constructor = func.name == "Create";
+    bool has_this = !func.this_type.empty();
+
+    // static cast as refs
+    if (has_this) {
+        st_decl += fi.this_t.first == TypeInfo::Handle
+                ? wis::format("    auto* xself = reinterpret_cast<wis::{}{}*>(self);\n", fi.impl, func.this_type)
+                : st_decl += wis::format("    auto* xself = reinterpret_cast<wis::{}*>(self);\n", func.this_type);
+    }
+
+    if (func.name == "Destroy") {
+        st_decl += "    delete xself;\n}\n";
+        return st_decl;
+    }
+
+    std::string args_str;
+    for (size_t i = 0; i < fi.params.size(); i++) {
+        auto& a = fi.params[i];
+        auto& p = func.parameters[i];
+
+        if (a.first == TypeInfo::Handle) {
+            args_str += wis::format("reinterpret_cast<wis::{}{}*>({}), ", fi.impl, p.type, p.name);
+        } else if (a.first == TypeInfo::Regular) {
+            args_str += wis::format("{}, ", p.name);
+        } else if (a.first == TypeInfo::Enum || a.first == TypeInfo::Delegate) {
+            args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
+        }
+    }
+    if (!args_str.empty() && args_str.back() == ' ') {
+        args_str.pop_back();
+        args_str.pop_back();
+    }
+
+    std::string call = has_this
+            ? wis::format("xself->{}({});\n", func.name, args_str)
+            : wis::format("wis::{}{}({});\n", fi.impl, func.name, args_str);
+
+    if (func.return_types.empty()) {
+        return st_decl + call + "}\n";
+    }
+
+    // return types
+    st_decl += wis::format("    auto&& ret = {}", call);
+
+    bool has_other_results = !fi.other_rets.empty();
+
+    if (!has_other_results) {
+        if (fi.return_type.first == TypeInfo::Handle) {
+            std::string type = wis::format("wis::{}{}", fi.impl, func.return_types[0].type);
+            return st_decl + wis::format("    return reinterpret_cast<{}{}>(new wis::{}(std::move(ret)) }};\n", fi.impl, fi.return_type.second, type);
+        }
+        return st_decl + wis::format("    return reinterpret_cast<{}&>(ret);\n}}\n", fi.return_type.second);
+    }
+
+    // get result index
+    bool first_result = fi.return_type.first == TypeInfo::Result;
+    int64_t result_idx = -1;
+    if (fi.return_type.first == TypeInfo::Result)
+        result_idx = 0;
+    else {
+        auto result = std::ranges::find_if(func.return_types, [](const WisReturnType& t) {
+            return t.type == "Result";
+        });
+        result_idx = result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
+    }
+
+    if (result_idx >= 0)
+        st_decl += wis::format("    bool ok = std::get<{}>(ret).status == wis::Status::Success;\n", result_idx);
+
+    for (size_t i = 1; i < func.return_types.size(); i++) {
+        auto& a = fi.other_rets[i - 1];
+        auto& p = func.return_types[i];
+
+        std::string type = wis::format("wis::{}{}", fi.impl, p.type);
+        std::string out_type = wis::format("{}{}", a.first == TypeInfo::Handle ? fi.impl : "", a.second);
+        st_decl += result_idx < 0
+                ? wis ::format("    *out_{} = reinterpret_cast<{}>(new {}(std::move(std::get<{}>(ret))));\n",
+                               p.opt_name, out_type, type, i)
+                : wis::format("    *out_{} = ok ? reinterpret_cast<{}>(new {}(std::move(std::get<{}>(ret)))) : reinterpret_cast<{}>(nullptr);\n",
+                              p.opt_name, out_type, type, i, out_type);
+    }
+    return st_decl + wis::format("    return reinterpret_cast<{}&>(std::get<0>(ret));\n}}\n", fi.return_type.second);
+}
+
 std::string Generator::MakeCPPDelegate(const WisFunction& func)
 {
     std::string st_decls;
@@ -506,101 +750,6 @@ std::string Generator::MakeCPPDelegate(const WisFunction& func)
     return st_decls;
 }
 
-ResolvedType Generator::ResolveType(const std::string& type)
-{
-    if (type == "Result")
-        return { TypeInfo::Regular, "WisResult" };
-
-    if (auto it = standard_types.find(type); it != standard_types.end()) {
-        return { TypeInfo::Regular, std::string(it->second) };
-    }
-
-    if (auto it = struct_map.find(type); it != struct_map.end()) {
-        return {
-            TypeInfo::Struct, wis::format("Wis{}*", type)
-        };
-    }
-    if (auto it = handle_map.find(type); it != handle_map.end()) {
-        return {
-            TypeInfo::Handle, wis::format("{}", type)
-        };
-    }
-    if (auto it = delegate_map.find(type); it != delegate_map.end()) {
-        return {
-            TypeInfo::Delegate, wis::format("Wis{}", type)
-        };
-    }
-
-    return {
-        TypeInfo::Regular, "Wis" + type
-    };
-}
-
-std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl, std::span<ResolvedType> args)
-{
-    std::string st_decl{ func_decl };
-    st_decl += "\n{\n";
-    bool constructor = func.name == "Create";
-    bool has_this = !func.this_type.empty();
-
-    // static cast as refs
-    if (has_this && !constructor) {
-        st_decl += handle_map.contains(func.this_type)
-                ? wis::format("    auto* xself = reinterpret_cast<wis::{}{}*>(self);\n", impl, func.this_type)
-                : st_decl += wis::format("    auto* xself = reinterpret_cast<wis::{}*>(self);\n", func.this_type);
-    }
-
-    std::string args_str;
-    for (size_t i = 0; i < args.size(); i++) {
-        auto& a = args[i];
-        auto& p = func.parameters[i];
-
-        if (a.first == TypeInfo::Handle) {
-            args_str += wis::format("reinterpret_cast<wis::{}{}*>({}), ", impl, p.type, p.name);
-        }
-        if (a.first == TypeInfo::Regular) {
-            args_str += wis::format("{}, ", p.name);
-        }
-        if (a.first == TypeInfo::Enum) {
-            args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
-        }
-        if (a.first == TypeInfo::Delegate) {
-            args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
-        }
-    }
-    if (!args_str.empty() && args_str.back() == ' ') {
-        args_str.pop_back();
-        args_str.pop_back();
-    }
-
-    for (auto& a : args) {
-        if (a.first == TypeInfo::Handle) {
-            st_decl += wis::format("    auto* x{} = reinterpret_cast<wis::{}{}*>({});\n", a.second, impl, a.second, a.second);
-        }
-    }
-
-    if (constructor) {
-        std::string type = wis::format("wis::{}{}", impl, func.this_type);
-        st_decl += wis::format("    std::unique_ptr<{}> ret{{ new {}(); }};\n", type, type);
-        st_decl += wis::format("    WisResult result = reinterpret_cast<WisResult&>(ret->Initialize({}));\n", args_str);
-        st_decl += "    if (result != WisResult::Success) {{\n*out_handle = nullptr;\nreturn result;\n}}\n";
-        st_decl += wis::format("    *out_handle = reinterpret_cast<{}{}>(ret.release());\nreturn result;\n", impl, func.this_type);
-    } else if (func.name == "Destroy") {
-        st_decl += wis::format("    delete xself;\n", impl, func.this_type);
-    } else if (has_this) {
-        st_decl += wis::format("    return xself->{}(", impl, func.this_type, func.name);
-        st_decl += args_str;
-        st_decl += ");\n";
-    } else {
-        st_decl += wis::format("    return wis::{}(", impl, func.name);
-        st_decl += args_str;
-        st_decl += ");\n";
-    }
-
-    st_decl += "}\n";
-    return st_decl;
-}
-
 std::string GetFullArg(TypeInfo type, const WisFunctionParameter& arg, std::string_view impl)
 {
     std::string post_decl;
@@ -622,86 +771,6 @@ std::string GetFullArg(TypeInfo type, const WisFunctionParameter& arg, std::stri
     }
 
     return wis::format("{} {}{} {}", pre_decl, xtype, post_decl, arg.name);
-}
-
-std::string Generator::MakeFunctionDecl(const WisFunction& func)
-{
-    std::string st_decls;
-
-    // 1. return type
-    ResolvedType ret_t = [this, &func]() -> ResolvedType {
-        if (func.return_type.empty())
-            return std::pair{ TypeInfo::None, "void" };
-
-        if (std::string_view(func.return_type).substr(2) == "string")
-            return std::pair{ TypeInfo::None, "" };
-
-        return ResolveType(func.return_type);
-    }();
-
-    if (ret_t.first == TypeInfo::None && ret_t.second.empty())
-        return {};
-
-    // 2. this type
-    ResolvedType this_t = [this, &func]() -> ResolvedType {
-        return func.this_type.empty() ? std::pair{ TypeInfo::None, "" } : ResolveType(func.this_type);
-    }();
-
-    // 3. parameters
-    std::vector<ResolvedType> params_t;
-    for (auto& p : func.parameters) {
-        params_t.push_back(ResolveType(p.type));
-    }
-
-    bool impl_based = this_t.first == TypeInfo::Handle || ret_t.first == TypeInfo::Handle || std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
-                                                                                                 return t.first == TypeInfo::Handle;
-                                                                                             }) != params_t.end();
-    constexpr static std::array<std::string_view, 2> impls{ "DX12", "VK" };
-    std::array<std::string, 2> decls{};
-
-    for (size_t j = 0; j < impl_based + 1; j++) {
-        auto& st_decl = decls[j];
-        std::string return_t = ret_t.first == TypeInfo::Struct
-                ? "void"
-                : ret_t.first == TypeInfo::Handle
-                ? wis::format("{}{}", impls[j], ret_t.second)
-                : ret_t.second;
-
-        st_decl += wis::format("{} {}{}{}(",
-                               return_t,
-                               impl_based ? impls[j] : "",
-                               this_t.second,
-                               func.name);
-        if (func.name != "Create") {
-            if (this_t.first == TypeInfo::Handle) {
-                st_decl += wis::format("{}{} self, ", impl_based ? impls[j] : "", this_t.second);
-            } else {
-                st_decl += wis::format("{} self, ", this_t.second);
-            }
-        } else {
-            st_decl += wis::format("{}{}* out_handle, ", impls[j], this_t.second);
-        }
-
-        for (uint32_t i = 0; i < params_t.size(); i++) {
-            auto& t = params_t[i];
-            auto& p = func.parameters[i];
-
-            st_decl += wis::format("{}, ", GetFullArg(t.first, p, impls[j]));
-        }
-        if (ret_t.first == TypeInfo::Struct) {
-            st_decl += wis::format("{} out_struct", ret_t.second);
-        }
-        if (st_decl.back() == ' ') {
-            st_decl.pop_back();
-            st_decl.pop_back();
-        }
-        st_decl += ")";
-        function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impls[j], params_t));
-        st_decl += ";\n";
-        st_decls += st_decl;
-    }
-
-    return st_decls;
 }
 
 std::string Generator::MakeDelegate(const WisFunction& func)
