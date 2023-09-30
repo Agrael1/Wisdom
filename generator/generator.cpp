@@ -591,7 +591,7 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
                               func.name);
 
         if (this_t.first != TypeInfo::None)
-            st_decl += GetArgString(this_t, impls[j], "self", this_t.first == TypeInfo::Handle ? "" : "ptr");
+            st_decl += wis::format("{}, ", GetArgString(this_t, impls[j], "self", this_t.first == TypeInfo::Handle ? "" : "ptr"));
 
         for (uint32_t i = 0; i < params_t.size(); i++) {
             auto& t = params_t[i];
@@ -646,11 +646,11 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, const FuncInfo&
 
         if (a.first == TypeInfo::Handle) {
             args_str += wis::format("reinterpret_cast<wis::{}{}*>({}), ", fi.impl, p.type, p.name);
-        } else if (a.first == TypeInfo::Regular) {
+        } else if (a.first == TypeInfo::Regular || a.first == TypeInfo::String) {
             args_str += wis::format("{}, ", p.name);
         } else if (a.first == TypeInfo::Enum || a.first == TypeInfo::Delegate) {
             args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
-        }
+        } 
     }
     if (!args_str.empty() && args_str.back() == ' ') {
         args_str.pop_back();
@@ -658,8 +658,8 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, const FuncInfo&
     }
 
     std::string call = has_this
-            ? wis::format("xself->{}({});\n", func.name, args_str)
-            : wis::format("wis::{}{}({});\n", fi.impl, func.name, args_str);
+            ? wis::format("    xself->{}({});\n", func.name, args_str)
+            : wis::format("    wis::{}{}({});\n", fi.impl, func.name, args_str);
 
     if (func.return_types.empty()) {
         return st_decl + call + "}\n";
