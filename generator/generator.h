@@ -51,10 +51,16 @@ struct WisFunctionParameter {
     std::string array_size;
     std::string default_value;
 };
+struct WisReturnType {
+    std::string type;
+    std::string opt_name;
+    std::string modifier;
+    std::string array_size;
+};
 struct WisFunction {
     std::string name;
-    std::string return_type;
-    std::string this_type; // for methods, for callbacks this is the calling convention
+    std::string this_type;
+    std::vector<WisReturnType> return_types;
     std::vector<WisFunctionParameter> parameters;
 };
 
@@ -67,11 +73,13 @@ enum ImplementedFor {
 
 enum class TypeInfo {
     None,
+    Result,
     Regular,
     Struct,
     Enum,
     Handle,
     Delegate,
+    String
 };
 
 struct WisHandle {
@@ -80,6 +88,8 @@ struct WisHandle {
 };
 
 using ResolvedType = std::pair<TypeInfo, std::string>;
+
+struct FuncInfo;
 
 class Generator
 {
@@ -120,7 +130,7 @@ public:
     std::string MakeDelegate(const WisFunction& s);
     ResolvedType ResolveType(const std::string& type);
 
-    std::string MakeFunctionImpl(const WisFunction& func, std::string_view func_decl, std::string_view impl, std::span<ResolvedType> args);
+    std::string MakeFunctionImpl(const WisFunction& func, const FuncInfo& fi );
 
 private:
     tinyxml2::XMLDocument doc;
