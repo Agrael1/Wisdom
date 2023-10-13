@@ -38,33 +38,31 @@ public:
     ~DX12Factory() noexcept
     {
         if constexpr (wis::debug_layer) {
-            if (callback) {
-                DX12Info::RemoveCallback(callback);
-                token.Release();
-            }
+            DX12Info::RemoveCallback(this);
+            token.Release();
         }
     }
     DX12Factory(const DX12Factory&) = delete;
     DX12Factory& operator=(const DX12Factory&) = delete;
     DX12Factory(DX12Factory&& other) noexcept
         : QueryInternal<DX12Factory>(std::move(other))
-        , callback(std::exchange(other.callback, nullptr))
     {
+        if constexpr (wis::debug_layer) {
+            if(DX12Info::RebindCallback(this, &other))
+                token.Acquire();
+        }
     }
     DX12Factory& operator=(DX12Factory&& other) noexcept
     {
         QueryInternal<DX12Factory>::operator=(std::move(other));
-        callback = std::exchange(other.callback, nullptr);
+        if constexpr (wis::debug_layer) {
+            if (DX12Info::RebindCallback(this, &other))
+                token.Acquire();
+        }
         return *this;
     }
 
 public:
-    void SetName(const char* name) noexcept
-    {
-        if constexpr (wis::debug_layer)
-            factory->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
-    }
-
     operator bool() const noexcept
     {
         return bool(factory);
@@ -75,8 +73,7 @@ private:
     {
         if (callback) {
             token.Acquire();
-            this->callback = callback;
-            DX12Info::AddCallback(callback, user_data);
+            DX12Info::AddCallback(this, callback, user_data);
         }
 
         wis::com_ptr<ID3D12Debug> debugController;
@@ -89,11 +86,10 @@ private:
 
 private:
     static inline bool has_preference = true;
-    wis::DebugCallback callback = nullptr;
     [[no_unique_address]] wis::DX12InfoToken token;
 };
 
-std::pair<wis::Result, wis::DX12Factory> DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
+std::pair<wis::Result, wis::DX12Factory> wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     wis::com_ptr<IDXGIFactory4> factory;
     auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,

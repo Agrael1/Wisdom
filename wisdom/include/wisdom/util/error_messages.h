@@ -12,7 +12,7 @@
 namespace wis {
 
 template<wis::string_literal func, wis::string_literal message>
-consteval inline auto MakeErrorString()
+consteval inline auto make_error_string()
 {
     using namespace wis::literals;
     return "Error in "_sl + func + ": "_sl + message;

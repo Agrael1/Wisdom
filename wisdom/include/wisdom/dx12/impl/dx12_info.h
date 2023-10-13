@@ -72,7 +72,7 @@ void wis::DX12Info::PollInternal() noexcept
         // call callbacks
         callback_sem.acquire();
         for (auto&& [k, v] : callbacks) {
-            k(Convert(pMessage->Severity), pMessage->pDescription, v.first);
+            v.first(Convert(pMessage->Severity), pMessage->pDescription, v.second);
         }
         callback_sem.release();
     }

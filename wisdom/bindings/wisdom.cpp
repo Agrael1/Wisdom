@@ -25,13 +25,3 @@
     auto* xself = reinterpret_cast<wis::VKFactory*>(self);
     delete xself;
 }
- void  DX12FactorySetName( DX12Factory self,  const char *name)
-{
-    auto* xself = reinterpret_cast<wis::DX12Factory*>(self);
-    xself->SetName(name);
-}
- void  VKFactorySetName( VKFactory self,  const char *name)
-{
-    auto* xself = reinterpret_cast<wis::VKFactory*>(self);
-    xself->SetName(name);
-}

@@ -9,7 +9,6 @@
  */
 
 #include "window.h"
-
 #include <KDFoundation/config.h> // for KD_PLATFORM
 #include <KDGui/gui_application.h>
 
