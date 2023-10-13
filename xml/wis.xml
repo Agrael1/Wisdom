@@ -66,8 +66,5 @@
       <arg type="void" name="user_data" mod="ptr"/>
     </func>
     <func for="Factory" name="Destroy"/>
-    <func for="Factory" name="SetName">
-      <arg type="u8string" name="name" mod="ptr"/>
-    </func>
   </functions>
 </registry>

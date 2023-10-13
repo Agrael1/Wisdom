@@ -61,35 +61,42 @@ public:
         inst.PollInternal();
         inst.semaphore.release();
     }
-    static void AddCallback(DebugCallback callback, void* user_data = nullptr) noexcept
+    static void AddCallback(void* factory, DebugCallback callback, void* user_data = nullptr) noexcept
     {
         auto& inst = instance();
         inst.callback_sem.acquire();
-        if (inst.callbacks.contains(callback)) {
-            inst.callbacks.at(callback).second++;
-            return;
-        }
-
-        inst.callbacks.emplace(callback, std::pair<void*, size_t>{ user_data, 1 });
+        inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*>{ callback, user_data });
         inst.callback_sem.release();
     }
-    static void RemoveCallback(DebugCallback callback) noexcept
+    static void RemoveCallback(void* factrory) noexcept
     {
         auto& inst = instance();
-        inst.callback_sem.acquire();
-        if (!inst.callbacks.contains(callback))
+        if (!inst.callbacks.contains(factrory))
             return;
 
-        if (!--inst.callbacks.at(callback).second)
-            inst.callbacks.erase(callback);
+        inst.callback_sem.acquire();
+        inst.callbacks.erase(factrory);
         inst.callback_sem.release();
+    }
+    static bool RebindCallback(void* factory_from, void* factory_to) noexcept
+    {
+        auto& inst = instance();
+        if (!inst.callbacks.contains(factory_from))
+            return false;
+
+        inst.callback_sem.acquire();
+        auto&& [k, v] = *inst.callbacks.find(factory_from);
+        inst.callbacks.erase(factory_from);
+        inst.callbacks.emplace(factory_to, std::move(v));
+        inst.callback_sem.release();
+        return true;
     }
 
 private:
     wis::com_ptr<IDXGIInfoQueue> info_queue;
     std::binary_semaphore semaphore{ 1 };
     std::binary_semaphore callback_sem{ 1 };
-    std::unordered_map<wis::DebugCallback, std::pair<void*, std::size_t>> callbacks;
+    std::unordered_map<void*, std::pair<wis::DebugCallback, void*>> callbacks;
     std::atomic_size_t ref_count{ 0 };
 };
 

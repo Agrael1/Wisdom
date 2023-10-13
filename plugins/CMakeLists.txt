@@ -33,7 +33,15 @@ find_package(Vulkan)
 # UWP not supported
 if(Vulkan_FOUND AND NOT WINDOWS_STORE)
   add_subdirectory("VKAllocator")
-  add_subdirectory("Volk")
+  message("Loading wisvk utils...")
+  FetchContent_Declare(
+    wisvk
+    GIT_REPOSITORY https://github.com/Agrael1/Wisdom-VkUtils.git
+    GIT_TAG origin/master
+  )
+  set(WISVK_ONLY_HEADERS ON CACHE BOOL "" FORCE)
+  set(WISVK_INSTALL ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(wisvk)
 endif()
 
 add_subdirectory("DXC")

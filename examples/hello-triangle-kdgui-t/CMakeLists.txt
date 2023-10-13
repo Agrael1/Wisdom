@@ -27,7 +27,7 @@ endif()
 
 target_link_libraries(
 	${PROJECT_NAME}
-		PUBLIC Wisdom glm::glm PRIVATE KDFoundation KDGui
+		PUBLIC Wisdom glm::glm PRIVATE  KDUtils::KDGui KDUtils::KDUtils
 )
 set_target_properties(${PROJECT_NAME}
     PROPERTIES
