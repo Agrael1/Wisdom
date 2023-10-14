@@ -7,6 +7,27 @@
 
 using namespace tinyxml2;
 
+// maybe add an array
+std::string GetArgString(const ResolvedType& resolved, std::string_view impl, std::string_view name, std::string_view mod)
+{
+    std::string pre_mod;
+    std::string post_mod;
+    if (mod == "ptr") {
+        post_mod += '*';
+    }
+    if (mod == "cptr") {
+        pre_mod += "const";
+        post_mod += '*';
+    }
+    if (mod == "const") {
+        pre_mod += "const";
+    }
+
+    return resolved.first == TypeInfo::Handle
+            ? wis::format("{} {}{} {}{}", pre_mod, impl, resolved.second, post_mod, name)
+            : wis::format("{} {} {}{}", pre_mod, resolved.second, post_mod, name);
+}
+
 //-----------------------------------------------------------------------------
 
 Generator::Generator(std::filesystem::path file)
@@ -90,7 +111,13 @@ int Generator::GenerateCPPAPI()
     std::ofstream out_api(std::filesystem::absolute(cpp_output_path / "api/api.h"));
     if (!out_api.is_open())
         return 1;
-    out_api << output_api;            
+    out_api << output_api;
+
+    std::ofstream out_wisdom(std::filesystem::absolute(cpp_output_path / "wisdom.hpp"));
+    if (!out_wisdom.is_open())
+        return 1;
+    out_wisdom << GenerateCPPExportHeader();
+
     return 0;
 }
 
@@ -146,9 +173,108 @@ std::string Generator::GenerateCPPTypedefs()
     return c_types + '\n';
 }
 
+std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
+{
+    std::string output{ "namespace wis{\n\n" };
+    for (auto& h : handles) {
+        if (h->impl == ImplementedFor::Both)
+            output += wis::format("using {} = {}{};\n", h->name, impl, h->name);
+    }
+
+    for (auto& f : functions) {
+        if (f.this_type.empty()) {
+            output += MakeCPPPlatformFunc(f, impl);
+        }
+    }
+
+    return output + "}\n";
+}
+
+std::string Generator::MakeCPPPlatformFunc(WisFunction& func, std::string_view impl)
+{
+    // 1. return type
+    ResolvedType ret_t = func.return_types.empty()
+            ? ResolvedType{ TypeInfo::None, "void" }
+            : ResolveCPPType(func.return_types[0].type);
+
+    std::vector<ResolvedType> other_rets;
+    for (size_t i = 1; i < func.return_types.size(); i++) {
+        other_rets.push_back(ResolveCPPType(func.return_types[i].type));
+    }
+
+    if (ret_t.first == TypeInfo::String)
+        return {}; // skip string returns
+
+    // 2. this type
+    ResolvedType this_t = func.this_type.empty()
+            ? std::pair{ TypeInfo::None, "" }
+            : ResolveCPPType(func.this_type);
+
+    // 3. parameters
+    std::vector<ResolvedType> params_t;
+    for (auto& p : func.parameters) {
+        params_t.push_back(ResolveCPPType(p.type));
+    }
+
+    bool impl_based = this_t.first ==
+                    TypeInfo::Handle ||
+            ret_t.first == TypeInfo::Handle ||
+            std::ranges::find_if(params_t.begin(), params_t.end(), [](const ResolvedType& t) {
+                return t.first == TypeInfo::Handle;
+            }) != params_t.end() ||
+            std::ranges::find_if(other_rets.begin(), other_rets.end(), [](const ResolvedType& t) {
+                return t.first == TypeInfo::Handle;
+            }) != other_rets.end();
+    if (!impl_based)
+        return {};
+
+    return wis::format("constexpr auto {} = {}{};\n", func.name, impl, func.name);
+}
+
 std::string Generator::GenerateCPPExportHeader()
 {
-    return std::string();
+    std::string output_wisdom{
+        R"(#pragma once
+// Select default API
+// Override with WISDOM_FORCE_VULKAN
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
+#endif // WISDOM_WINDOWS
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX && __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+#if defined(WISDOM_VULKAN_FOUND) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+
+#if WISDOMDX12 && !FORCEVK_SWITCH
+#include "wisdom_dx12.h"
+
+)"
+    };
+
+    output_wisdom += GenerateCPPPlatformTypedefs("DX12");
+    output_wisdom += R"(
+#elif WISDOM_VULKAN_FOUND
+#include "wisdom_vk.h"
+
+)";
+    output_wisdom += GenerateCPPPlatformTypedefs("VK");
+    output_wisdom += R"(
+#else
+#error "No API selected"
+#endif
+)";
+    return output_wisdom;
 }
 
 //-----------------------------------------------------------------------------
@@ -411,7 +537,7 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
 
 std::string Generator::MakeCEnum(const WisEnum& s)
 {
-    std::string st_decl = !s.type.empty() ? wis::format("enum Wis{} : {} {{\n", s.name, standard_types.at(s.type)) : wis::format("enum Wis{} {{\n", s.name);
+    std::string st_decl = wis::format("enum Wis{} {{\n", s.name);
 
     for (auto& m : s.values) {
         st_decl += wis::format("    Wis{}{} = {},\n", s.name, m.name, m.value);
@@ -432,7 +558,7 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
 
 std::string Generator::MakeCBitmask(const WisBitmask& s)
 {
-    std::string st_decl = s.size ? wis::format("enum Wis{} : uint{}_t {{\n", s.name, s.size) : wis::format("enum Wis{} {{\n", s.name);
+    std::string st_decl = wis::format("enum Wis{} {{\n", s.name);
 
     for (auto& m : s.values) {
         if (m.type == WisBitmaskValue::Type::Value) {
@@ -528,27 +654,6 @@ struct FuncInfo {
     std::string_view impl;
     std::string_view decl;
 };
-
-// maybe add an array
-std::string GetArgString(const ResolvedType& resolved, std::string_view impl, std::string_view name, std::string_view mod)
-{
-    std::string pre_mod;
-    std::string post_mod;
-    if (mod == "ptr") {
-        post_mod += '*';
-    }
-    if (mod == "cptr") {
-        pre_mod += "const";
-        post_mod += '*';
-    }
-    if (mod == "const") {
-        pre_mod += "const";
-    }
-
-    return resolved.first == TypeInfo::Handle
-            ? wis::format("{} {}{} {}{}", pre_mod, impl, resolved.second, post_mod, name)
-            : wis::format("{} {} {}{}", pre_mod, resolved.second, post_mod, name);
-}
 
 std::string Generator::MakeFunctionDecl(const WisFunction& func)
 {
@@ -656,7 +761,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, const FuncInfo&
         auto& p = func.parameters[i];
 
         if (a.first == TypeInfo::Handle) {
-            args_str += wis::format("reinterpret_cast<wis::{}{}*>({}), ", fi.impl, p.type, p.name);
+            args_str += wis::format("*reinterpret_cast<wis::{}{}*>({}), ", fi.impl, p.type, p.name);
         } else if (a.first == TypeInfo::Regular || a.first == TypeInfo::String) {
             args_str += wis::format("{}, ", p.name);
         } else if (a.first == TypeInfo::Enum || a.first == TypeInfo::Delegate) {

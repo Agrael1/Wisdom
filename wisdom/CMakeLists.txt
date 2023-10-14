@@ -19,6 +19,7 @@ endif()
 
 set(HEADER_LIST
     "include/wisdom/wisdom.h"
+    "include/wisdom/wisdom.hpp"
     "include/wisdom/util/log_layer.h"
     "include/wisdom/util/flags.h"
     "include/wisdom/bridge/generator.h"

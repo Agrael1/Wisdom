@@ -86,5 +86,11 @@
       <ret type="Result" name="result"/>
       <arg type="AdapterDesc" mod="ptr" name="desc"/>
     </func>
+    <func name="CreateDevice">
+      <ret type="Result" name="result"/>
+      <ret type="Device" name="device"/>
+      <arg type="Factory" name="factory"/>
+      <arg type="Adapter" name="adapter"/>
+    </func>
   </functions>
 </registry>

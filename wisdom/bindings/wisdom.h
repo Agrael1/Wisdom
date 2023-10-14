@@ -10,7 +10,7 @@ typedef enum WisSeverity WisSeverity;
 typedef enum WisQueueType WisQueueType;
 typedef enum WisAdapterFlags WisAdapterFlags;
 
-enum WisStatus : uint32_t {
+enum WisStatus {
     WisStatusOk = 0,
     WisStatusError = 1,
     WisStatusInvalidArgument = 2,
@@ -18,7 +18,7 @@ enum WisStatus : uint32_t {
     WisStatusDeviceLost = 4,
 };
 
-enum WisAdapterPreference : int32_t {
+enum WisAdapterPreference {
     WisAdapterPreferenceNone = 0,
     WisAdapterPreferenceMinConsumption = 1,
     WisAdapterPreferencePerformance = 2,
@@ -33,7 +33,7 @@ enum WisSeverity {
     WisSeverityCritical = 5,
 };
 
-enum WisQueueType : uint32_t {
+enum WisQueueType {
     WisQueueTypeGraphics = 0,
     WisQueueTypeDXBundle = 1,
     WisQueueTypeCompute = 2,
@@ -43,7 +43,7 @@ enum WisQueueType : uint32_t {
     WisQueueTypeDXVideoEncode = 6,
 };
 
-enum WisAdapterFlags : uint32_t {
+enum WisAdapterFlags {
     WisAdapterFlagsNone = 0x0,
     WisAdapterFlagsRemote = 1 << 0,
     WisAdapterFlagsSoftware = 1 << 1,
@@ -96,3 +96,5 @@ typedef struct VKDevice_t* VKDevice;
  void  VKFactoryDestroy( VKFactory self);
  WisResult  DX12AdapterGetDesc( DX12Adapter self,  WisAdapterDesc *desc);
  WisResult  VKAdapterGetDesc( VKAdapter self,  WisAdapterDesc *desc);
+ WisResult  DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter,  DX12Device * out_device);
+ WisResult  VKCreateDevice( VKFactory factory,  VKAdapter adapter,  VKDevice * out_device);
