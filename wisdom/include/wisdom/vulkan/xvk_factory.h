@@ -1,8 +1,6 @@
 #pragma once
 #include <wisvk/vk_managed_handles.hpp>
 #include <wisvk/vk_loader.hpp>
-#include <wisdom/api/consts.h>
-#include <wisdom/vulkan/xvk_checks.h>
 #include <wisdom/vulkan/xvk_adapter.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
