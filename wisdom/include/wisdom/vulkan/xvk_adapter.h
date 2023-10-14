@@ -2,6 +2,7 @@
 #include <wisdom/api/consts.h>
 #include <wisdom/api/internal.h>
 #include <wisdom/vulkan/xvk_checks.h>
+#include <wisdom/vulkan/xvk_views.h>
 #include <wisvk/vk_loader.hpp>
 #include <span>
 
@@ -23,6 +24,7 @@ public:
     {
     }
     operator bool() const noexcept { return adapter != nullptr; }
+    operator VKAdapterHandle() const noexcept { return { adapter, instance_table }; }
 
 public:
     wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept

@@ -48,7 +48,11 @@ public:
     com_ptr() noexcept
         : ptr(nullptr) { }
     com_ptr(pointer p) noexcept
-        : ptr(p) { }
+        : ptr(p)
+    {
+        add_ref();
+    }
+
     com_ptr(void* p, take_ownership_t) noexcept
         : ptr(static_cast<pointer>(p)) { }
 

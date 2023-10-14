@@ -14,4 +14,6 @@
 //#endif
 
 #include <wisdom/dx12/impl/dx12_info.h>
+#include <wisdom/dx12/impl/dx12_device.h>
 #include <wisdom/vulkan/impl/vk_factory.h>
+#include <wisdom/vulkan/impl/vk_device.h>
