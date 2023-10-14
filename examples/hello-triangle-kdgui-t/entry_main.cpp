@@ -1,11 +1,7 @@
 // #include "app.h"
-#include <wisdom/vulkan/xvk_factory.h>
-#include <wisdom/vulkan/xvk_device.h>
-#include <wisdom/dx12/xdx12_factory.h>
-#include <wisdom/dx12/xdx12_device.h>
+#include <wisdom/wisdom.hpp>
 #include <iostream>
 
-#define PRE(X) VK##X
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
@@ -23,9 +19,9 @@ int main()
 
 
     {
-        auto [res, factory] = wis::PRE(CreateFactory)(true, &DebugCallback, &std::cout);
+        auto [res, factory] = wis::CreateFactory(true, &DebugCallback, &std::cout);
 
-        wis::PRE(Device) device;
+        wis::Device device;
 
         for (size_t i = 0;; i++) {
             auto [res, adapter] = factory.GetAdapter(i);
@@ -34,7 +30,7 @@ int main()
                 adapter.GetDesc(&desc);
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
-                auto [res, xdevice] = PRE(CreateDevice)(factory, adapter);
+                auto [res, xdevice] = wis::CreateDevice(factory, adapter);
                 if (res.status == wis::Status::Ok) {
                     device = std::move(xdevice);
                     break;

@@ -107,6 +107,8 @@ public:
     std::string GenerateCPPTypes();
     std::string GenerateCTypedefs();
     std::string GenerateCPPTypedefs();
+    std::string GenerateCPPPlatformTypedefs(std::string_view impl);
+    std::string MakeCPPPlatformFunc(WisFunction& func, std::string_view impl);
     std::string GenerateCPPExportHeader();
 
     void ParseTypes(tinyxml2::XMLElement* types);

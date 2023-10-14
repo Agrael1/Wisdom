@@ -53,3 +53,17 @@
     auto&& ret =     xself->GetDesc(reinterpret_cast<wis::AdapterDesc*>(desc));
     return reinterpret_cast<WisResult&>(ret);
 }
+ WisResult  DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter,  DX12Device * out_device)
+{
+    auto&& ret =     wis::DX12CreateDevice(*reinterpret_cast<wis::DX12Factory*>(factory), *reinterpret_cast<wis::DX12Adapter*>(adapter));
+    bool ok = std::get<0>(ret).status == wis::Status::Success;
+    *out_device = ok ? reinterpret_cast<DX12Device>(new wis::DX12Device(std::move(std::get<1>(ret)))) : reinterpret_cast<DX12Device>(nullptr);
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+ WisResult  VKCreateDevice( VKFactory factory,  VKAdapter adapter,  VKDevice * out_device)
+{
+    auto&& ret =     wis::VKCreateDevice(*reinterpret_cast<wis::VKFactory*>(factory), *reinterpret_cast<wis::VKAdapter*>(adapter));
+    bool ok = std::get<0>(ret).status == wis::Status::Success;
+    *out_device = ok ? reinterpret_cast<VKDevice>(new wis::VKDevice(std::move(std::get<1>(ret)))) : reinterpret_cast<VKDevice>(nullptr);
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
