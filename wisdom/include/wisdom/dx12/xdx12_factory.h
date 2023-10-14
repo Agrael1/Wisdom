@@ -100,7 +100,7 @@ private:
         auto hr = factory->EnumAdapterByGpuPreference(index,
                                                       preference,
                                                       __uuidof(*adapter), adapter.put_void());
-        return { hr, adapter };
+        return { hr, std::move(adapter) };
     }
 
     wis::com_with_result<IDXGIAdapter1>
@@ -108,7 +108,7 @@ private:
     {
         wis::com_ptr<IDXGIAdapter1> adapter;
         auto hr = factory->EnumAdapters1(index, adapter.put());
-        return { hr, adapter };
+        return { hr, std::move(adapter) };
     }
 
 private:

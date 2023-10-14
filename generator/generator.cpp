@@ -352,7 +352,7 @@ std::string MakeCArray(std::string_view type, std::string_view name, std::string
 }
 std::string MakeCPPArray(std::string_view type, std::string_view name, std::string_view arr_len)
 {
-    return wis::format("    std::array<{}, {}> {};\n", type, arr_len, name);
+    return wis::format("    std::array<{}, {}> {} {{}};\n", type, arr_len, name);
 }
 
 std::string Generator::MakeCStruct(const WisStruct& s)

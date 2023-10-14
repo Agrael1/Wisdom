@@ -232,14 +232,14 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
 
         for (size_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
-            adapter.adapter = VKAdapter{ phys_adapters[i] };
+            adapter.adapter = VKAdapter{ phys_adapters[i], instance_table.get() };
             adapter.index_performance = indices_perf[i];
             adapter.index_consumption = indices_cons[i];
         }
     } else {
         for (size_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
-            adapter.adapter = VKAdapter{ phys_adapters[i] };
+            adapter.adapter = VKAdapter{ phys_adapters[i], instance_table.get() };
             adapter.index_performance = i;
             adapter.index_consumption = i;
         }
