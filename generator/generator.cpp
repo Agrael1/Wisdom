@@ -65,6 +65,9 @@ int Generator::GenerateCAPI(std::filesystem::path file)
 
     output_api += "}\n";
 
+    //std::string output_exports = "#pragma once\n#include <wisdom/wisdom.h>\n\n";
+
+
     std::filesystem::path output_path = output_dir;
     std::filesystem::create_directories(output_path);
 
@@ -84,6 +87,14 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     if (!out_api.is_open())
         return 1;
     out_api << output_api;
+
+
+
+    //std::filesystem::create_directories(cpp_output_path);
+    //std::ofstream out_api(std::filesystem::absolute(cpp_output_path / "../wisdom.hpp"));
+    //if (!out_api.is_open())
+    //    return 1;
+    //out_api << output_api;
 
     return 0;
 }
@@ -138,6 +149,11 @@ std::string Generator::GenerateCPPTypedefs()
         c_types += wis::format("struct {};\n", s->name);
     }
     return c_types + '\n';
+}
+
+std::string Generator::GenerateCPPExportHeader()
+{
+    return std::string();
 }
 
 //-----------------------------------------------------------------------------
@@ -650,7 +666,9 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, const FuncInfo&
             args_str += wis::format("{}, ", p.name);
         } else if (a.first == TypeInfo::Enum || a.first == TypeInfo::Delegate) {
             args_str += wis::format("reinterpret_cast<wis::{}>({}), ", p.type, p.name);
-        } 
+        } else if (a.first == TypeInfo::Struct) {
+            args_str += wis::format("reinterpret_cast<wis::{}*>({}), ", p.type, p.name);
+        }
     }
     if (!args_str.empty() && args_str.back() == ' ') {
         args_str.pop_back();

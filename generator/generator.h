@@ -106,6 +106,7 @@ public:
     std::string GenerateCPPTypes();
     std::string GenerateCTypedefs();
     std::string GenerateCPPTypedefs();
+    std::string GenerateCPPExportHeader();
 
     void ParseTypes(tinyxml2::XMLElement* types);
     void ParseHandles(tinyxml2::XMLElement* handles);

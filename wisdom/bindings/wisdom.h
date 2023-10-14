@@ -80,3 +80,5 @@ typedef struct VKAdapter_t* VKAdapter;
  WisResult  VKFactoryGetAdapter( VKFactory self,  uint32_t index,  WisAdapterPreference preference,  VKAdapter * out_adapter);
  void  DX12FactoryDestroy( DX12Factory self);
  void  VKFactoryDestroy( VKFactory self);
+ WisResult  DX12AdapterGetDesc( DX12Adapter self,  WisAdapterDesc *desc);
+ WisResult  VKAdapterGetDesc( VKAdapter self,  WisAdapterDesc *desc);

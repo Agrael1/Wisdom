@@ -41,3 +41,15 @@
     auto* xself = reinterpret_cast<wis::VKFactory*>(self);
     delete xself;
 }
+ WisResult  DX12AdapterGetDesc( DX12Adapter self,  WisAdapterDesc *desc)
+{
+    auto* xself = reinterpret_cast<wis::DX12Adapter*>(self);
+    auto&& ret =     xself->GetDesc(reinterpret_cast<wis::AdapterDesc*>(desc));
+    return reinterpret_cast<WisResult&>(ret);
+}
+ WisResult  VKAdapterGetDesc( VKAdapter self,  WisAdapterDesc *desc)
+{
+    auto* xself = reinterpret_cast<wis::VKAdapter*>(self);
+    auto&& ret =     xself->GetDesc(reinterpret_cast<wis::AdapterDesc*>(desc));
+    return reinterpret_cast<WisResult&>(ret);
+}

@@ -72,5 +72,9 @@
       <arg type="AdapterPreference" name="preference" default="Performance"/>
     </func>
     <func for="Factory" name="Destroy"/>
+    <func for="Adapter" name="GetDesc">
+      <ret type="Result" name="result"/>
+      <arg type="AdapterDesc" mod="ptr" name="desc"/>
+    </func>
   </functions>
 </registry>
