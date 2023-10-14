@@ -1,5 +1,6 @@
 // #include "app.h"
-#include <wisdom/vulkan/xvk_factory.h>
+//#include <wisdom/vulkan/xvk_factory.h>
+#include <wisdom/dx12/xdx12_factory.h>
 #include <iostream>
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
@@ -16,9 +17,9 @@ void DebugCallback2(wis::Severity severity, const char* message, void* user_data
 int main()
 {
     {
-        auto[res, factory] = wis::VKCreateFactory(true, &DebugCallback, &std::cout);
+        auto[res, factory] = wis::DX12CreateFactory(true, &DebugCallback, &std::cout);
 
-        wis::VKFactory factory2;
+        wis::DX12Factory factory2;
         factory2 = std::move(factory);
     }
 

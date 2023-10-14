@@ -1,9 +1,9 @@
 #pragma once
 #include <wisvk/vk_managed_handles.hpp>
 #include <wisvk/vk_loader.hpp>
-#include <wisdom/api/internal.h>
 #include <wisdom/api/consts.h>
 #include <wisdom/vulkan/xvk_checks.h>
+#include <wisdom/vulkan/xvk_adapter.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
@@ -46,7 +46,7 @@ class VKFactory : public QueryInternal<VKFactory>
 
 public:
     VKFactory() noexcept = default;
-    VKFactory(wis::shared_handle<VkInstance> instance, uint32_t api_ver, bool debug_layer = false, std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback = {}) noexcept
+    explicit VKFactory(wis::shared_handle<VkInstance> instance, uint32_t api_ver, bool debug_layer = false, std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback = {}) noexcept
         : QueryInternal(std::move(instance))
     {
         instance_table = std::make_unique<wis::VkInstanceTable>();
@@ -69,6 +69,14 @@ public:
     VKFactory(VKFactory&&) noexcept = default;
     VKFactory& operator=(const VKFactory&) = delete;
     VKFactory& operator=(VKFactory&&) noexcept = default;
+
+    operator bool() const noexcept { return bool(factory); }
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, VKAdapter>
+        GetAdapter(uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept
+    {
+
+    }
 
 private:
     void EnableDebugLayer(std::unique_ptr<std::pair<wis::DebugCallback, void*>> xdebug_callback) noexcept
@@ -107,8 +115,9 @@ std::pair<wis::Result, wis::VKFactory> wis::VKCreateFactory(bool debug_layer, wi
     auto& gt = VKFactory::global_table;
 
     uint32_t version = 0;
-    if (!wis::succeeded(gt.vkEnumerateInstanceVersion(&version)))
-        return std::pair{ wis::Result{ wis::Status::Error, "Failed to enumerate vulkan instance version" }, wis::VKFactory{} };
+    auto hr = gt.vkEnumerateInstanceVersion(&version);
+    if (!wis::succeeded(hr))
+        return std::pair{ wis::make_result<FUNC, "Failed to enumerate instance version">(hr), wis::VKFactory{} };
 
     wis::lib_info(wis::format("Vulkan version: {}.{}.{}", VK_API_VERSION_MAJOR(version), VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
 
@@ -151,7 +160,7 @@ std::pair<wis::Result, wis::VKFactory> wis::VKCreateFactory(bool debug_layer, wi
     wis::shared_handle<VkInstance> instance;
     auto vr = gt.vkCreateInstance(&create_info, nullptr, instance.put_unsafe(gt.vkDestroyInstance));
     return !wis::succeeded(vr)
-            ? std::pair{ wis::Result{ wis::Status::Error, "Failed to create instance" }, wis::VKFactory{} }
+            ? std::pair{ wis::make_result<FUNC, "Failed to create instance">(hr), wis::VKFactory{} }
             : std::pair{ wis::success, VKFactory{ std::move(instance), version, debug_layer, std::move(debug_callback) } };
 }
 

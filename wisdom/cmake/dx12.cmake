@@ -25,7 +25,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_views.h"
 		"include/wisdom/dx12/dx12_descriptor_heap.h"
 		"include/wisdom/dx12/xdx12_convert.h"
-		"include/wisdom/dx12/xdx12_info.h" "include/wisdom/dx12/xdx12_checks.h")
+		"include/wisdom/dx12/xdx12_info.h" "include/wisdom/dx12/xdx12_checks.h" "include/wisdom/dx12/xdx12_adapter.h")
 	set(DX12INL
 		"include/wisdom/dx12/impl/dx12_allocator.inl"
 		"include/wisdom/dx12/impl/dx12_checks.inl"
