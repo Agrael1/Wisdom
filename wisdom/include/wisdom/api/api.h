@@ -45,7 +45,7 @@ struct Result{
 };
 
 struct AdapterDesc{
-    std::array<const char, 256> description;
+    std::array<const char, 256> description {};
     uint32_t vendor_id;
     uint32_t device_id;
     uint32_t subsys_id;

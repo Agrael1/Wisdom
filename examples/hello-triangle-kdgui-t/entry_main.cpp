@@ -1,5 +1,5 @@
 // #include "app.h"
-//#include <wisdom/vulkan/xvk_factory.h>
+#include <wisdom/vulkan/xvk_factory.h>
 #include <wisdom/dx12/xdx12_factory.h>
 #include <iostream>
 
@@ -17,10 +17,18 @@ void DebugCallback2(wis::Severity severity, const char* message, void* user_data
 int main()
 {
     {
-        auto[res, factory] = wis::DX12CreateFactory(true, &DebugCallback, &std::cout);
+        auto [res, factory] = wis::VKCreateFactory(true, &DebugCallback, &std::cout);
 
-        wis::DX12Factory factory2;
-        factory2 = std::move(factory);
+        for (size_t i = 0;; i++) {
+            auto [res, adapter] = factory.GetAdapter(i);
+            if (res.status == wis::Status::Ok) {
+                wis::AdapterDesc desc;
+                adapter.GetDesc(&desc);
+                std::cout << "Adapter: " << desc.description.data() << "\n";
+            } else {
+                break;
+            }
+        }
     }
 
     return 0;

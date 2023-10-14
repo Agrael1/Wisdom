@@ -79,7 +79,7 @@ public:
     [[nodiscard]] std::pair<wis::Result, VKAdapter>
     GetAdapter(uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept
     {
-        if (index > adapters.size()) {
+        if (index >= adapters.size()) {
             return std::pair{ wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN), VKAdapter{} };
         }
         auto& adapter = adapters[index];
