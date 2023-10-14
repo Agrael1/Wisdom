@@ -31,6 +31,12 @@ inline std::pair<wis::Result, wis::VKFactory> VKCreateFactory(bool debug_layer =
 
 class VKFactory : public QueryInternal<VKFactory>
 {
+    struct IndexedAdapter {
+        uint32_t index_consumption;
+        uint32_t index_performance;
+        VKAdapter adapter;
+    };
+
     friend std::pair<wis::Result, wis::VKFactory> VKCreateFactory(bool, wis::DebugCallback, void*) noexcept;
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -72,13 +78,25 @@ public:
 
     operator bool() const noexcept { return bool(factory); }
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, VKAdapter>
-        GetAdapter(uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept
+    [[nodiscard]] std::pair<wis::Result, VKAdapter>
+    GetAdapter(uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept
     {
-
+        if (index > adapters.size()) {
+            return std::pair{ wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN), VKAdapter{} };
+        }
+        auto& adapter = adapters[index];
+        switch (preference) {
+        default:
+            return std::pair{ wis::success, adapter.adapter };
+        case AdapterPreference::MinConsumption:
+            return std::pair{ wis::success, adapters[adapter.index_consumption].adapter };
+        case AdapterPreference::Performance:
+            return std::pair{ wis::success, adapters[adapter.index_performance].adapter };
+        }
     }
 
 private:
+    WIS_INLINE VkResult EnumeratePhysicalDevices() noexcept;
     void EnableDebugLayer(std::unique_ptr<std::pair<wis::DebugCallback, void*>> xdebug_callback) noexcept
     {
         debug_callback = std::move(xdebug_callback);
@@ -105,6 +123,7 @@ private:
     static WIS_INLINE std::vector<const char*> FoundLayers() noexcept;
 
 private:
+    mutable std::vector<IndexedAdapter> adapters{};
     std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback{};
 };
 } // namespace wis
@@ -115,9 +134,9 @@ std::pair<wis::Result, wis::VKFactory> wis::VKCreateFactory(bool debug_layer, wi
     auto& gt = VKFactory::global_table;
 
     uint32_t version = 0;
-    auto hr = gt.vkEnumerateInstanceVersion(&version);
-    if (!wis::succeeded(hr))
-        return std::pair{ wis::make_result<FUNC, "Failed to enumerate instance version">(hr), wis::VKFactory{} };
+    auto vr = gt.vkEnumerateInstanceVersion(&version);
+    if (!wis::succeeded(vr))
+        return std::pair{ wis::make_result<FUNC, "Failed to enumerate instance version">(vr), wis::VKFactory{} };
 
     wis::lib_info(wis::format("Vulkan version: {}.{}.{}", VK_API_VERSION_MAJOR(version), VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
 
@@ -158,10 +177,13 @@ std::pair<wis::Result, wis::VKFactory> wis::VKCreateFactory(bool debug_layer, wi
     }
 
     wis::shared_handle<VkInstance> instance;
-    auto vr = gt.vkCreateInstance(&create_info, nullptr, instance.put_unsafe(gt.vkDestroyInstance));
-    return !wis::succeeded(vr)
-            ? std::pair{ wis::make_result<FUNC, "Failed to create instance">(hr), wis::VKFactory{} }
-            : std::pair{ wis::success, VKFactory{ std::move(instance), version, debug_layer, std::move(debug_callback) } };
+    if (!wis::succeeded(vr = gt.vkCreateInstance(&create_info, nullptr, instance.put_unsafe(gt.vkDestroyInstance))))
+        std::pair{ wis::make_result<FUNC, "Failed to create instance">(vr), wis::VKFactory{} };
+
+    auto factory = wis::VKFactory{ std::move(instance), version, debug_layer, std::move(debug_callback) };
+    return !wis::succeeded(vr = factory.EnumeratePhysicalDevices())
+            ? std::pair{ wis::make_result<FUNC, "Failed to enumerate physical devices">(vr), wis::VKFactory{} }
+            : std::pair{ wis::success, std::move(factory) };
 }
 
 #define VKGT wis::Internal<wis::VKFactory>::global_table

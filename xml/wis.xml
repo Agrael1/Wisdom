@@ -59,11 +59,17 @@
   </handles>
   <functions>
     <func name="CreateFactory">
-      <ret type="Result" name="result"/>      
+      <ret type="Result" name="result"/>
       <ret type="Factory" name="factory"/>
       <arg type="bool" name="debug_layer" default="false"/>
       <arg type="DebugCallback" name="callback" default="nullptr"/>
       <arg type="void" name="user_data" mod="ptr"/>
+    </func>
+    <func for="Factory" name="GetAdapter">
+      <ret type="Result" name="result"/>
+      <ret type="Adapter" name="adapter"/>
+      <arg type="u32" name="index"/>
+      <arg type="AdapterPreference" name="preference" default="Performance"/>
     </func>
     <func for="Factory" name="Destroy"/>
   </functions>
