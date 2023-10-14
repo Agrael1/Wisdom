@@ -19,11 +19,9 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef WISDOM_MODULES
 #include <type_traits>
-#endif
 
-WIS_EXPORT namespace river::flags
+namespace river::flags
 {
     template<typename T>
     concept unsigned_enum = std::is_enum_v<T> && std::is_unsigned_v<std::underlying_type_t<T>>;

@@ -28,6 +28,16 @@ enum class Severity {
     Critical = 5,
 };
 
+enum class QueueType : uint32_t {
+    Graphics = 0,
+    DXBundle = 1,
+    Compute = 2,
+    Copy = 3,
+    VideoDecode = 4,
+    DXVideoProcess = 5,
+    DXVideoEncode = 6,
+};
+
 enum class AdapterFlags : uint32_t {
     None = 0x0,
     Remote = 1 << 0,

@@ -2,5 +2,8 @@
 
 int main()
 {
-    return Generator{}.GenerateCAPI();
+    Generator g;
+    g.GenerateCAPI();
+    g.GenerateCPPAPI();
+    return 0;
 }

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WISDOM_HEADER_ONLY
 #include <wisdom/vulkan/xvk_factory.h>
 #endif // !WISDOM_HEADER_ONLY

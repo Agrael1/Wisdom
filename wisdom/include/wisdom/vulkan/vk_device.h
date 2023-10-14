@@ -85,36 +85,36 @@ WIS_EXPORT class VKDevice : public QueryInternal<VKDevice>
         mutable std::atomic<uint8_t> last{ 0 };
     };
     enum class QueueTypes : uint8_t {
-        graphics,
-        compute,
-        copy,
-        video_decode
+        Graphics,
+        Compute,
+        Copy,
+        VideoDecode
     };
     struct QueueResidency {
         static constexpr size_t QueueIndex(QueueType type)
         {
             switch (type) {
             case wis::QueueType::Compute:
-                return +QueueTypes::compute;
+                return +QueueTypes::Compute;
             case wis::QueueType::Copy:
-                return +QueueTypes::copy;
+                return +QueueTypes::Copy;
             case wis::QueueType::VideoDecode:
-                return +QueueTypes::video_decode;
+                return +QueueTypes::VideoDecode;
             default:
-                return +QueueTypes::graphics;
+                return +QueueTypes::Graphics;
             }
         }
         static constexpr size_t QueueFlag(QueueTypes type)
         {
             using enum vk::QueueFlagBits;
             switch (type) {
-            case QueueTypes::copy:
+            case QueueTypes::Copy:
                 return +eTransfer;
-            case QueueTypes::compute:
+            case QueueTypes::Compute:
                 return +eCompute;
-            case QueueTypes::graphics:
+            case QueueTypes::Graphics:
                 return +eGraphics;
-            case QueueTypes::video_decode:
+            case QueueTypes::VideoDecode:
                 return +eVideoDecodeKHR;
             default:
                 return 0;

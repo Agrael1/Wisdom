@@ -162,15 +162,6 @@ public:
         release();
     }
 
-    // TBT
-    // template<class Type, typename Method, class...Args>
-    // com_with_result<Type> capture(Args&&...args) const noexcept
-    //{
-    //    com_ptr<Type> out;
-    //    auto hr = (ptr->*Method)(std::forward<Args>(args)..., guid_of_v<Type>, out.put_void());
-    //    return { hr, std::move(out) };
-    //}
-
 private:
     void copy_ref(T* other) noexcept
     {
