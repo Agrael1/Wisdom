@@ -76,5 +76,7 @@ typedef struct VKAdapter_t* VKAdapter;
 
  WisResult  DX12CreateFactory( bool debug_layer,  WisDebugCallback callback,  void *user_data,  DX12Factory * out_factory);
  WisResult  VKCreateFactory( bool debug_layer,  WisDebugCallback callback,  void *user_data,  VKFactory * out_factory);
+ WisResult  DX12FactoryGetAdapter( DX12Factory self,  uint32_t index,  WisAdapterPreference preference,  DX12Adapter * out_adapter);
+ WisResult  VKFactoryGetAdapter( VKFactory self,  uint32_t index,  WisAdapterPreference preference,  VKAdapter * out_adapter);
  void  DX12FactoryDestroy( DX12Factory self);
  void  VKFactoryDestroy( VKFactory self);
