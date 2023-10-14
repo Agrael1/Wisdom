@@ -1,4 +1,6 @@
 #pragma once
+#pragma push_macro("FUNC")
+#undef FUNC
 
 // #if __has_include(<generator>)
 // #include <generator>
@@ -270,3 +272,4 @@ namespace wis {
 using cppcoro::generator; // NOLINT
 }
 // #endif
+#pragma pop_macro("FUNC")

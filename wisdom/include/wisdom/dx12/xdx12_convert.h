@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/api/api.h>
-#include <dxgi.h>
+#include <dxgi1_6.h>
 
 namespace wis {
 inline constexpr wis::Status convert(HRESULT hr) noexcept
@@ -16,6 +16,18 @@ inline constexpr wis::Status convert(HRESULT hr) noexcept
         return wis::Status::DeviceLost;
     default:
         return wis::Status::Error;
+    }
+}
+inline constexpr DXGI_GPU_PREFERENCE convert_dx(wis::AdapterPreference pref) noexcept
+{
+    switch (pref) {
+    default:
+    case wis::AdapterPreference::None:
+        return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_UNSPECIFIED;
+    case wis::AdapterPreference::MinConsumption:
+        return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_MINIMUM_POWER;
+    case wis::AdapterPreference::Performance:
+        return DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
     }
 }
 } // namespace wis
