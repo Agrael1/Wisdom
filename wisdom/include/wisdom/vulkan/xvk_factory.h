@@ -126,7 +126,8 @@ private:
 };
 } // namespace wis
 
-std::pair<wis::Result, wis::VKFactory> wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
+[[nodiscard]] std::pair<wis::Result, wis::VKFactory> 
+wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     VKFactory::InitializeGlobalTable();
     auto& gt = VKFactory::global_table;

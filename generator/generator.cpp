@@ -3,23 +3,24 @@
 #include <fstream>
 #include <ranges>
 #include <array>
+#include <stdexcept>
 
 using namespace tinyxml2;
 
 //-----------------------------------------------------------------------------
 
-int Generator::GenerateCAPI(std::filesystem::path file)
+Generator::Generator(std::filesystem::path file)
 {
     structs.clear();
     enums.clear();
     bitmasks.clear();
 
     if (doc.LoadFile(file.string().c_str()) != XML_SUCCESS)
-        return 1;
+        throw std::runtime_error("Failed to load file");
 
     auto* root = doc.FirstChildElement("registry");
     if (!root)
-        return 1;
+        throw std::runtime_error("Failed to load root");
 
     auto* types = root->FirstChildElement("types");
     ParseTypes(types);
@@ -27,7 +28,10 @@ int Generator::GenerateCAPI(std::filesystem::path file)
     ParseHandles(handles);
     auto* funcs = root->FirstChildElement("functions");
     ParseFunctions(funcs);
+}
 
+int Generator::GenerateCAPI()
+{
     std::string output = "#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
     output += GenerateCTypes();
 
@@ -50,6 +54,22 @@ int Generator::GenerateCAPI(std::filesystem::path file)
         output_cpp += f;
     }
 
+    std::filesystem::path output_path = output_dir;
+    std::filesystem::create_directories(output_path);
+
+    std::ofstream out_cpp(std::filesystem::absolute(output_path / "wisdom.cpp"));
+    if (!out_cpp.is_open())
+        return 1;
+    out_cpp << output_cpp;
+
+    std::ofstream out(std::filesystem::absolute(output_path / "wisdom.h"));
+    if (!out.is_open())
+        return 1;
+    out << output;
+    return 0;
+}
+int Generator::GenerateCPPAPI()
+{
     std::string output_api = "#pragma once\n#include <array>\n\n";
     output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
@@ -65,37 +85,12 @@ int Generator::GenerateCAPI(std::filesystem::path file)
 
     output_api += "}\n";
 
-    //std::string output_exports = "#pragma once\n#include <wisdom/wisdom.h>\n\n";
-
-
-    std::filesystem::path output_path = output_dir;
-    std::filesystem::create_directories(output_path);
-
-    std::ofstream out_cpp(std::filesystem::absolute(output_path / "wisdom.cpp"));
-    if (!out_cpp.is_open())
-        return 1;
-    out_cpp << output_cpp;
-
-    std::ofstream out(std::filesystem::absolute(output_path / "wisdom.h"));
-    if (!out.is_open())
-        return 1;
-    out << output;
-
     std::filesystem::path cpp_output_path = cpp_output_dir;
     std::filesystem::create_directories(cpp_output_path);
-    std::ofstream out_api(std::filesystem::absolute(cpp_output_path / "api.h"));
+    std::ofstream out_api(std::filesystem::absolute(cpp_output_path / "api/api.h"));
     if (!out_api.is_open())
         return 1;
-    out_api << output_api;
-
-
-
-    //std::filesystem::create_directories(cpp_output_path);
-    //std::ofstream out_api(std::filesystem::absolute(cpp_output_path / "../wisdom.hpp"));
-    //if (!out_api.is_open())
-    //    return 1;
-    //out_api << output_api;
-
+    out_api << output_api;            
     return 0;
 }
 

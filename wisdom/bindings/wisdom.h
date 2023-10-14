@@ -7,6 +7,7 @@ typedef struct WisAdapterDesc WisAdapterDesc;
 typedef enum WisStatus WisStatus;
 typedef enum WisAdapterPreference WisAdapterPreference;
 typedef enum WisSeverity WisSeverity;
+typedef enum WisQueueType WisQueueType;
 typedef enum WisAdapterFlags WisAdapterFlags;
 
 enum WisStatus : uint32_t {
@@ -30,6 +31,16 @@ enum WisSeverity {
     WisSeverityWarning = 3,
     WisSeverityError = 4,
     WisSeverityCritical = 5,
+};
+
+enum WisQueueType : uint32_t {
+    WisQueueTypeGraphics = 0,
+    WisQueueTypeDXBundle = 1,
+    WisQueueTypeCompute = 2,
+    WisQueueTypeCopy = 3,
+    WisQueueTypeVideoDecode = 4,
+    WisQueueTypeDXVideoProcess = 5,
+    WisQueueTypeDXVideoEncode = 6,
 };
 
 enum WisAdapterFlags : uint32_t {
@@ -71,6 +82,9 @@ typedef struct VKFactory_t* VKFactory;
 
 typedef struct DX12Adapter_t* DX12Adapter;
 typedef struct VKAdapter_t* VKAdapter;
+
+typedef struct DX12Device_t* DX12Device;
+typedef struct VKDevice_t* VKDevice;
 
 //=================================FUNCTIONS=================================
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WISDOM_HEADER_ONLY
 #include <wisdom/dx12/xdx12_info.h>
 #endif // !WISDOM_HEADER_ONLY

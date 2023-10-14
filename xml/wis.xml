@@ -52,10 +52,20 @@
       <arg type="u8string" name="message" mod="ptr"/>
       <arg type="void" name="user_data" mod="ptr"/>
     </type>
+    <type name="QueueType" category="enum" type="u32">
+      <value name="Graphics" value="0"/>
+      <value name="Bundle" value="1" impl="dx"/>
+      <value name="Compute" value="2"/>
+      <value name="Copy" value="3"/>
+      <value name="VideoDecode" value="4"/>
+      <value name="VideoProcess" value="5" impl="dx"/>
+      <value name="VideoEncode" value="6" impl="dx"/>
+    </type>
   </types>
   <handles>
     <handle name="Factory"/>
     <handle name="Adapter"/>
+    <handle name="Device"/>
   </handles>
   <functions>
     <func name="CreateFactory">

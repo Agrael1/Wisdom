@@ -116,7 +116,8 @@ private:
     [[no_unique_address]] wis::DX12InfoToken token;
 };
 
-std::pair<wis::Result, wis::DX12Factory> wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
+[[nodiscard]] std::pair<wis::Result, wis::DX12Factory> 
+wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     wis::com_ptr<IDXGIFactory6> factory;
     auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,

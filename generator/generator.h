@@ -98,10 +98,11 @@ class Generator
     static constexpr std::string_view cpp_output_dir = CPP_OUTPUT_DIR;
 
 public:
-    Generator() = default;
+    Generator(std::filesystem::path file = input_file);
 
 public:
-    int GenerateCAPI(std::filesystem::path file = input_file);
+    int GenerateCAPI();
+    int GenerateCPPAPI();
     std::string GenerateCTypes();
     std::string GenerateCPPTypes();
     std::string GenerateCTypedefs();

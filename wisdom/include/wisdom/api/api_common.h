@@ -269,7 +269,7 @@ WIS_EXPORT namespace wis
 
     /// @brief Queue type for a command list and command queue queries
     /// @note  The order of the enum values is important, do not change it
-    enum class QueueType {
+    enum class QueueType 
         Direct = 0,
         Bundle = 1, //< Bundle queues are used for bundles in D3D12, but are not supported in Vulkan yet
         Compute = 2,
