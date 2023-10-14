@@ -3,8 +3,8 @@
 #include <wisdom/api/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <wisdom/dx12/xdx12_convert.h>
+#include <wisdom/dx12/xdx12_views.h>
 
-#include <dxgi1_6.h>
 
 namespace wis {
 class DX12Adapter;
@@ -23,7 +23,7 @@ public:
     {
     }
     operator bool() const noexcept { return bool(adapter); }
-
+    operator DX12AdapterHandle() const noexcept { return { adapter.get() }; }
 public:
     void GetDesc(AdapterDesc* pout_desc) const noexcept
     {

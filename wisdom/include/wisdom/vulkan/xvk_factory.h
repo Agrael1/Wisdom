@@ -75,7 +75,9 @@ public:
     VKFactory& operator=(VKFactory&&) noexcept = default;
 
     operator bool() const noexcept { return bool(factory); }
+    operator VKFactoryHandle() const noexcept { return { factory, instance_table.get() }; }
 
+public:
     [[nodiscard]] std::pair<wis::Result, VKAdapter>
     GetAdapter(uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept
     {

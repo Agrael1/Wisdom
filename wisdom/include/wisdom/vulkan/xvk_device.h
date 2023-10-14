@@ -34,18 +34,15 @@ class VKDevice : public QueryInternal<VKDevice>
 {
 public:
     VKDevice() noexcept = default;
-    explicit VKDevice(wis::shared_handle<VkInstance> instance,
+    WIS_INLINE explicit VKDevice(wis::shared_handle<VkInstance> instance,
                       wis::shared_handle<VkDevice> device,
                       wis::VKAdapterHandle adapter,
-                      std::unique_ptr<VkDeviceTable> device_table) noexcept
-        : QueryInternal(std::move(instance), std::move(device), adapter, std::move(device_table))
-    {
-    }
+                      std::unique_ptr<VkDeviceTable> device_table) noexcept;
     operator bool() const noexcept { return bool(device); }
 
 public:
 private:
-    detail::QueueResidency residency;
+    detail::QueueResidency queues;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::VKDevice>

@@ -61,12 +61,10 @@ public:
         return *this;
     }
 
-public:
-    operator bool() const noexcept
-    {
-        return bool(factory);
-    }
+    operator bool() const noexcept { return bool(factory); }
+    operator DX12FactoryHandle() const noexcept { return factory.get(); }
 
+public:
     [[nodiscard]] std::pair<wis::Result, wis::DX12Adapter>
     GetAdapter(uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept
     {
@@ -116,7 +114,7 @@ private:
     [[no_unique_address]] wis::DX12InfoToken token;
 };
 
-[[nodiscard]] std::pair<wis::Result, wis::DX12Factory> 
+[[nodiscard]] std::pair<wis::Result, wis::DX12Factory>
 wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     wis::com_ptr<IDXGIFactory6> factory;
