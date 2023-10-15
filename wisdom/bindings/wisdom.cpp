@@ -67,3 +67,75 @@
     *out_device = ok ? reinterpret_cast<VKDevice>(new wis::VKDevice(std::move(std::get<1>(ret)))) : reinterpret_cast<VKDevice>(nullptr);
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }
+ void  DX12DeviceDestroy( DX12Device self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    delete xself;
+}
+ void  VKDeviceDestroy( VKDevice self)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    delete xself;
+}
+ WisResult  DX12DeviceCreateFence( DX12Device self,  uint64_t initial_value,  DX12Fence * out_fence)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret =     xself->CreateFence(initial_value);
+    bool ok = std::get<0>(ret).status == wis::Status::Success;
+    *out_fence = ok ? reinterpret_cast<DX12Fence>(new wis::DX12Fence(std::move(std::get<1>(ret)))) : reinterpret_cast<DX12Fence>(nullptr);
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+ WisResult  VKDeviceCreateFence( VKDevice self,  uint64_t initial_value,  VKFence * out_fence)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret =     xself->CreateFence(initial_value);
+    bool ok = std::get<0>(ret).status == wis::Status::Success;
+    *out_fence = ok ? reinterpret_cast<VKFence>(new wis::VKFence(std::move(std::get<1>(ret)))) : reinterpret_cast<VKFence>(nullptr);
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+ void  DX12FenceDestroy( DX12Fence self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    delete xself;
+}
+ void  VKFenceDestroy( VKFence self)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    delete xself;
+}
+ uint64_t  DX12FenceGetCompletedValue( DX12Fence self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    auto&& ret =     xself->GetCompletedValue();
+    return reinterpret_cast<uint64_t&>(ret);
+}
+ uint64_t  VKFenceGetCompletedValue( VKFence self)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    auto&& ret =     xself->GetCompletedValue();
+    return reinterpret_cast<uint64_t&>(ret);
+}
+ WisResult  DX12FenceWait( DX12Fence self,  uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    auto&& ret =     xself->Wait(value);
+    return reinterpret_cast<WisResult&>(ret);
+}
+ WisResult  VKFenceWait( VKFence self,  uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    auto&& ret =     xself->Wait(value);
+    return reinterpret_cast<WisResult&>(ret);
+}
+ WisResult  DX12FenceSignal( DX12Fence self,  uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    auto&& ret =     xself->Signal(value);
+    return reinterpret_cast<WisResult&>(ret);
+}
+ WisResult  VKFenceSignal( VKFence self,  uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    auto&& ret =     xself->Signal(value);
+    return reinterpret_cast<WisResult&>(ret);
+}

@@ -1,11 +1,7 @@
 #pragma once
-#include <wisdom/api/consts.h>
-#include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_views.h>
+#include <wisdom/vulkan/xvk_fence.h>
+#include <wisdom/vulkan/xvk_command_queue.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
-#include <wisvk/vk_managed_handles.hpp>
-#include <wisvk/vk_loader.hpp>
-#include <memory>
 #include <vector>
 
 namespace wis {
@@ -15,9 +11,8 @@ class VKDevice;
 template<>
 struct Internal<VKDevice> {
     wis::shared_handle<VkInstance> instance;
-    wis::shared_handle<VkDevice> device;
+    wis::SharedDevice device;
     wis::VKAdapterHandle adapter;
-    std::unique_ptr<VkDeviceTable> device_table;
 
 public:
     auto* GetAdapter() const noexcept
@@ -35,12 +30,15 @@ class VKDevice : public QueryInternal<VKDevice>
 public:
     VKDevice() noexcept = default;
     WIS_INLINE explicit VKDevice(wis::shared_handle<VkInstance> instance,
-                      wis::shared_handle<VkDevice> device,
-                      wis::VKAdapterHandle adapter,
-                      std::unique_ptr<VkDeviceTable> device_table) noexcept;
+                                 wis::SharedDevice device,
+                                 wis::VKAdapterHandle adapter) noexcept;
     operator bool() const noexcept { return bool(device); }
+    operator VKDeviceHandle() const noexcept { return device; }
 
 public:
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKFence>
+    CreateFence(uint64_t initial_value = 0ull) const noexcept;
+
 private:
     detail::QueueResidency queues;
 };

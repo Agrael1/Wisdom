@@ -138,10 +138,9 @@ wis::detail::QueueResidency GetQueueFamilies(wis::VKAdapterHandle adapter_hnd) n
 }
 
 wis::VKDevice::VKDevice(wis::shared_handle<VkInstance> instance,
-                        wis::shared_handle<VkDevice> device,
-                        wis::VKAdapterHandle adapter,
-                        std::unique_ptr<VkDeviceTable> device_table) noexcept
-    : QueryInternal(std::move(instance), std::move(device), adapter, std::move(device_table))
+                        wis::SharedDevice device,
+                        wis::VKAdapterHandle adapter) noexcept
+    : QueryInternal(std::move(instance), std::move(device), adapter)
 {
     queues = GetQueueFamilies(adapter);
 }
@@ -198,12 +197,33 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
 
     std::unique_ptr<VkDeviceTable> device_table = std::make_unique<VkDeviceTable>();
     device_table->Init(device, Internal<VKFactory>::global_table);
-    auto dfn = device_table->vkDestroyDevice;
 
     return { wis::success, wis::VKDevice{
                                    std::move(std::get<0>(factory)),
-                                   wis::shared_handle<VkDevice>{ device, dfn },
+                                   wis::SharedDevice{ device, std::move(device_table) },
                                    std::move(adapter),
-                                   std::move(device_table),
                            } };
+}
+
+[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKFence>
+wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
+{
+    VkSemaphoreTypeCreateInfo timeline_desc{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
+        .pNext = nullptr,
+        .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
+        .initialValue = initial_value,
+    };
+
+    VkSemaphoreCreateInfo desc{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+        .pNext = &timeline_desc,
+        .flags = 0,
+    };
+    VkSemaphore sem;
+    VkResult result = VK_SUCCESS;
+
+    return wis::succeeded(result = device.table()->vkCreateSemaphore(device.get(), &desc, nullptr, &sem))
+            ? std::pair{ wis::success, VKFence{ device, sem } }
+            : std::pair{ wis::make_result<FUNC, "vkCreateSemaphore failed to create semaphore">(result), VKFence{} };
 }

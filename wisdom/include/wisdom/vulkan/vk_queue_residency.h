@@ -59,16 +59,15 @@ struct QueueResidency {
     };
     static constexpr size_t QueueIndex(QueueType type)
     {
-        using namespace river::flags;
         switch (type) {
         case wis::QueueType::Compute:
-            return +QueueTypes::Compute;
+            return size_t(QueueTypes::Compute);
         case wis::QueueType::Copy:
-            return +QueueTypes::Copy;
+            return size_t(QueueTypes::Copy);
         case wis::QueueType::VideoDecode:
-            return +QueueTypes::VideoDecode;
+            return size_t(QueueTypes::VideoDecode);
         default:
-            return +QueueTypes::Graphics;
+            return size_t(QueueTypes::Graphics);
         }
     }
     static constexpr size_t QueueFlag(QueueTypes type)

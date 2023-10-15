@@ -1,11 +1,5 @@
 #pragma once
-#include <wisdom/api/consts.h>
-#include <wisdom/api/internal.h>
-#include <wisdom/dx12/xdx12_checks.h>
-#include <wisdom/util/com_ptr.h>
-#include <wisdom/dx12/xdx12_views.h>
-
-#include <d3d12.h>
+#include <wisdom/dx12/xdx12_fence.h>
 
 namespace wis {
 class DX12Device;
@@ -28,6 +22,10 @@ public:
     operator bool() const noexcept { return bool(device); }
 
 public:
+    /// @brief Create a fence
+    /// @param initial_value The initial value of the fence
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Fence> 
+    CreateFence(uint64_t initial_value = 0ull) const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device> 

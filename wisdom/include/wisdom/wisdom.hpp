@@ -28,6 +28,7 @@ namespace wis{
 using Factory = DX12Factory;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
+using Fence = DX12Fence;
 constexpr auto CreateFactory = DX12CreateFactory;
 constexpr auto CreateDevice = DX12CreateDevice;
 }
@@ -40,6 +41,7 @@ namespace wis{
 using Factory = VKFactory;
 using Adapter = VKAdapter;
 using Device = VKDevice;
+using Fence = VKFence;
 constexpr auto CreateFactory = VKCreateFactory;
 constexpr auto CreateDevice = VKCreateDevice;
 }
