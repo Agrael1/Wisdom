@@ -86,6 +86,9 @@ typedef struct VKAdapter_t* VKAdapter;
 typedef struct DX12Device_t* DX12Device;
 typedef struct VKDevice_t* VKDevice;
 
+typedef struct DX12Fence_t* DX12Fence;
+typedef struct VKFence_t* VKFence;
+
 //=================================FUNCTIONS=================================
 
  WisResult  DX12CreateFactory( bool debug_layer,  WisDebugCallback callback,  void *user_data,  DX12Factory * out_factory);
@@ -98,3 +101,15 @@ typedef struct VKDevice_t* VKDevice;
  WisResult  VKAdapterGetDesc( VKAdapter self,  WisAdapterDesc *desc);
  WisResult  DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter,  DX12Device * out_device);
  WisResult  VKCreateDevice( VKFactory factory,  VKAdapter adapter,  VKDevice * out_device);
+ void  DX12DeviceDestroy( DX12Device self);
+ void  VKDeviceDestroy( VKDevice self);
+ WisResult  DX12DeviceCreateFence( DX12Device self,  uint64_t initial_value,  DX12Fence * out_fence);
+ WisResult  VKDeviceCreateFence( VKDevice self,  uint64_t initial_value,  VKFence * out_fence);
+ void  DX12FenceDestroy( DX12Fence self);
+ void  VKFenceDestroy( VKFence self);
+ uint64_t  DX12FenceGetCompletedValue( DX12Fence self);
+ uint64_t  VKFenceGetCompletedValue( VKFence self);
+ WisResult  DX12FenceWait( DX12Fence self,  uint64_t value);
+ WisResult  VKFenceWait( VKFence self,  uint64_t value);
+ WisResult  DX12FenceSignal( DX12Fence self,  uint64_t value);
+ WisResult  VKFenceSignal( VKFence self,  uint64_t value);

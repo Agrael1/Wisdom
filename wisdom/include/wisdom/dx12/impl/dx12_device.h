@@ -16,3 +16,13 @@ wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle ada
             ? std::pair{ wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr), wis::DX12Device{} }
             : std::pair{ wis::success, wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), wis::com_ptr(in_factory)) };
 }
+
+std::pair<wis::Result, wis::DX12Fence> 
+wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
+{
+    HRESULT hr;
+    wis::com_ptr<ID3D12Fence1> fence;
+    return wis::succeeded(hr = device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()))
+        ? std::pair{ wis::success, DX12Fence{ std::move(fence) } }
+        : std::pair{ wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr), DX12Fence{} };
+}

@@ -66,6 +66,7 @@
     <handle name="Factory"/>
     <handle name="Adapter"/>
     <handle name="Device"/>
+    <handle name="Fence"/>
   </handles>
   <functions>
     <func name="CreateFactory">
@@ -91,6 +92,25 @@
       <ret type="Device" name="device"/>
       <arg type="Factory" name="factory"/>
       <arg type="Adapter" name="adapter"/>
+    </func>
+    <func for="Device" name="Destroy"/>
+    <func for="Device" name="CreateFence">
+      <ret type="Result" name="result"/>
+      <ret type="Fence" name="fence"/>
+      <arg type="u64" name="initial_value" default="0"/>
+    </func>
+
+    <func for="Fence" name="Destroy"/>
+    <func for="Fence" name="GetCompletedValue">
+      <ret type="u64" name="value"/>
+    </func>
+    <func for="Fence" name="Wait">
+      <ret type="Result" name="result"/>
+      <arg type="u64" name="value"/>
+    </func>
+    <func for="Fence" name="Signal">
+      <ret type="Result" name="result"/>
+      <arg type="u64" name="value"/>
     </func>
   </functions>
 </registry>
