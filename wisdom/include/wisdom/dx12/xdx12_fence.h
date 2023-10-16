@@ -31,9 +31,9 @@ class Internal<DX12Fence>
         {
             return bool(hevent);
         }
-        bool wait() const noexcept
+        bool wait(uint32_t wait_ms) const noexcept
         {
-            return WaitForSingleObject(hevent, INFINITE) == WAIT_OBJECT_0;
+            return WaitForSingleObject(hevent, wait_ms) == WAIT_OBJECT_0;
         }
 
     public:
@@ -74,7 +74,7 @@ public:
     /// @brief Wait for the fence to reach a certain value.
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
-    wis::Result Wait(uint64_t value) const noexcept
+    wis::Result Wait(uint64_t value, uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept
     {
         if (GetCompletedValue() >= value)
             return wis::success;
@@ -83,7 +83,7 @@ public:
         if (!succeeded(hr))
             return wis::make_result<FUNC, "Failed to set event">(hr);
 
-        return fence_event.wait() ? wis::success : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+        return fence_event.wait(uint32_t(wait_ns / 1000)) ? wis::success : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
     }
 
     /// @brief Signal the fence from CPU.
@@ -92,8 +92,8 @@ public:
     {
         HRESULT hr = fence->Signal(value);
         return !succeeded(hr)
-            ? wis::make_result<FUNC, "Failed to signal fence">(hr)
-            : wis::success;
+                ? wis::make_result<FUNC, "Failed to signal fence">(hr)
+                : wis::success;
     }
 };
 } // namespace wis

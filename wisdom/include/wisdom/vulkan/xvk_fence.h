@@ -10,35 +10,20 @@ class VKFence;
 
 template<>
 struct Internal<VKFence> {
-    SharedDevice device;
-    VkSemaphore fence;
+    wis::managed_handle_ex<VkSemaphore> fence;
 };
 
 class VKFence : public QueryInternal<VKFence>
 {
 public:
     VKFence() = default;
-    explicit VKFence(SharedDevice in_device, VkSemaphore in_fence) noexcept
-        : QueryInternal(std::move(in_device), in_fence)
+    explicit VKFence(wis::managed_handle_ex<VkSemaphore> in_fence) noexcept
+        : QueryInternal(std::move(in_fence))
     {
-    }
-    ~VKFence()
-    {
-        device.table()->vkDestroySemaphore(device.get(), fence, nullptr);
-    }
-    VKFence(VKFence&& o) noexcept
-        : QueryInternal(std::move(o.device), std::exchange(o.fence, nullptr))
-    {
-    }
-    VKFence& operator=(VKFence&& o) noexcept
-    {
-        std::swap(device, o.device);
-        std::swap(fence, o.fence);
-        return *this;
     }
     operator VKFenceView() const noexcept
     {
-        return fence;
+        return fence.get();
     }
     operator bool() const noexcept
     {
@@ -51,21 +36,24 @@ public:
     [[nodiscard]] uint64_t
     GetCompletedValue() const noexcept
     {
+        auto& device  = fence.header().parent;
         uint64_t value = 0;
-        std::ignore = device.table()->vkGetSemaphoreCounterValue(device.get(), fence, &value); // always succeeds
+        std::ignore = device.table()->vkGetSemaphoreCounterValue(device.get(), fence.get(), &value); // always succeeds
         return value;
     }
 
     /// @brief Wait for the fence to reach a certain value.
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
-    wis::Result Wait(uint64_t value) const noexcept // NOLINT
+    wis::Result Wait(uint64_t value, uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept // NOLINT
     {
         if (GetCompletedValue() >= value)
             return wis::success;
 
-        VkSemaphoreWaitInfo waitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, nullptr, 0, 1, &fence, &value };
-        VkResult result = device.table()->vkWaitSemaphores(device.get(), &waitInfo, std::numeric_limits<uint64_t>::max());
+        auto& device = fence.header().parent;
+        auto xfence = this->fence.get();
+        VkSemaphoreWaitInfo waitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, nullptr, 0, 1, &xfence, &value };
+        VkResult result = device.table()->vkWaitSemaphores(device.get(), &waitInfo, wait_ns);
 
         return succeeded(result)
                 ? wis::success
@@ -76,10 +64,11 @@ public:
     /// @param value Value to signal.
     wis::Result Signal(uint64_t value) const noexcept
     {
+        auto& device = fence.header().parent;
         VkSemaphoreSignalInfo signalInfo{
             VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO,
             nullptr,
-            fence,
+            fence.get(),
             value
         };
         VkResult res = device.table()->vkSignalSemaphore(device.get(), &signalInfo);
