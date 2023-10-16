@@ -107,6 +107,7 @@
     <func for="Fence" name="Wait">
       <ret type="Result" name="result"/>
       <arg type="u64" name="value"/>
+      <arg type="u64" name="timeout_ns" default="18446744073709551615"/>
     </func>
     <func for="Fence" name="Signal">
       <ret type="Result" name="result"/>

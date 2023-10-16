@@ -174,9 +174,25 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
 
     auto exts = RequestExtensions(adapter);
 
+    // Loading features
+
+    VkPhysicalDeviceFeatures2 features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+        .pNext = nullptr,
+        .features = {},
+    };
+    vkGetPhysicalDeviceFeatures(std::get<0>(adapter), &features.features);
+
+    VkPhysicalDeviceTimelineSemaphoreFeaturesKHR timeline_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES_KHR,
+        .pNext = nullptr,
+        .timelineSemaphore = VK_TRUE,
+    };
+    features.pNext = &timeline_features;
+
     VkDeviceCreateInfo device_info{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        .pNext = nullptr,
+        .pNext = &features,
         .flags = 0,
         .queueCreateInfoCount = static_cast<uint32_t>(queue_infos.size()),
         .pQueueCreateInfos = queue_infos.data(),
@@ -186,6 +202,9 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
         .ppEnabledExtensionNames = exts.data(),
         .pEnabledFeatures = nullptr,
     };
+
+    // Creating device
+
 
     auto* xadapter = std::get<0>(adapter);
     auto* itbl = std::get<1>(factory);
@@ -224,6 +243,6 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
     VkResult result = VK_SUCCESS;
 
     return wis::succeeded(result = device.table()->vkCreateSemaphore(device.get(), &desc, nullptr, &sem))
-            ? std::pair{ wis::success, VKFence{ device, sem } }
+            ? std::pair{ wis::success, VKFence{ { sem, device, device.table()->vkDestroySemaphore } } }
             : std::pair{ wis::make_result<FUNC, "vkCreateSemaphore failed to create semaphore">(result), VKFence{} };
 }

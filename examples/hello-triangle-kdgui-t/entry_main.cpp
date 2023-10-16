@@ -40,6 +40,9 @@ int main()
                 break;
             }
         }
+
+        auto fence = device.CreateFence();
+
     }
 
     return 0;

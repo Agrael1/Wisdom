@@ -115,16 +115,16 @@
     auto&& ret =     xself->GetCompletedValue();
     return reinterpret_cast<uint64_t&>(ret);
 }
- WisResult  DX12FenceWait( DX12Fence self,  uint64_t value)
+ WisResult  DX12FenceWait( DX12Fence self,  uint64_t value,  uint64_t timeout_ns)
 {
     auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
-    auto&& ret =     xself->Wait(value);
+    auto&& ret =     xself->Wait(value, timeout_ns);
     return reinterpret_cast<WisResult&>(ret);
 }
- WisResult  VKFenceWait( VKFence self,  uint64_t value)
+ WisResult  VKFenceWait( VKFence self,  uint64_t value,  uint64_t timeout_ns)
 {
     auto* xself = reinterpret_cast<wis::VKFence*>(self);
-    auto&& ret =     xself->Wait(value);
+    auto&& ret =     xself->Wait(value, timeout_ns);
     return reinterpret_cast<WisResult&>(ret);
 }
  WisResult  DX12FenceSignal( DX12Fence self,  uint64_t value)
