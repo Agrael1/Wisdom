@@ -72,7 +72,7 @@
       <value name="VideoProcess" value="5" impl="dx"/>
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
-    <type name="FenceView" category="view" impl="both" for="Fence">
+    <type name="FenceView" category="variant">
       <member type="void" name="value" mod="ptr"/>
     </type>
   </types>

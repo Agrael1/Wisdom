@@ -48,21 +48,15 @@ struct WisStructMember {
     std::string_view modifier;
     std::string_view default_value;
 };
-
-
-
 struct WisStruct {
-    std::string name;
+    std::string_view name;
     std::vector<WisStructMember> members;
 };
-
-struct WisView {
+struct WisVariant {
     std::string_view name;
     ImplementedFor impl = ImplementedFor::Both;
     std::vector<WisStructMember> members;
 };
-
-
 
 struct WisFunctionParameter {
     std::string type;
@@ -100,7 +94,6 @@ struct WisHandle {
     ImplementedFor impl = ImplementedFor::Both;
 };
 
-
 using ResolvedType = std::pair<TypeInfo, std::string>;
 
 struct FuncInfo;
@@ -134,14 +127,14 @@ public:
     void ParseHandles(tinyxml2::XMLElement* handles);
     void ParseFunctions(tinyxml2::XMLElement* functions);
 
-    void ParseStruct(tinyxml2::XMLElement* type);
+    void ParseStruct(tinyxml2::XMLElement& type);
     void ParseEnum(tinyxml2::XMLElement& type);
     void ParseBitmask(tinyxml2::XMLElement& type);
     void ParseDelegate(tinyxml2::XMLElement* type);
-    void ParseView(tinyxml2::XMLElement* type);
+    void ParseVariant(tinyxml2::XMLElement& type);
 
     std::string MakeCStruct(const WisStruct& s);
-    std::string MakeCView(const WisView& s);
+    std::string MakeCVariant(const WisVariant& s);
     std::string MakeCEnum(const WisEnum& s);
     std::string MakeCBitmask(const WisBitmask& s);
     std::string MakeCPPStruct(const WisStruct& s);
@@ -156,25 +149,24 @@ public:
     ResolvedType ResolveType(const std::string& type);
 
     std::string MakeFunctionImpl(const WisFunction& func, const FuncInfo& fi);
-    std::string GetCFullTypename(std::string_view type, std::string_view impl);
+    std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
+    std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
 
 private:
     std::vector<WisStruct*> structs;
     std::vector<WisHandle*> handles;
     std::vector<WisFunction> functions;
     std::vector<WisFunction*> delegates;
-    std::vector<WisView*> views;
     std::vector<std::string> function_impl;
 
     std::vector<std::string> cpp_type_traits;
 
-    std::unordered_map<std::string_view, WisEnum> enum_map;
-
-    std::unordered_map<std::string, WisStruct> struct_map;
     std::unordered_map<std::string, WisHandle> handle_map;
     std::unordered_map<std::string, WisFunction> delegate_map;
 
-    std::unordered_map<std::string_view, WisView> view_map;
+    std::unordered_map<std::string_view, WisStruct> struct_map;
+    std::unordered_map<std::string_view, WisVariant> variant_map;
+    std::unordered_map<std::string_view, WisEnum> enum_map;
     std::unordered_map<std::string_view, WisBitmask> bitmask_map;
 
     const std::unordered_map<std::string_view, std::string_view> standard_types{
