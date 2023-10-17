@@ -8,6 +8,8 @@ inline constexpr wis::Status convert(VkResult hr) noexcept
     switch (hr) {
     case VK_SUCCESS:
         return wis::Status::Ok;
+    case VK_TIMEOUT:
+        return wis::Status::Timeout;
     case VK_ERROR_UNKNOWN:
         return wis::Status::InvalidArgument;
     case VK_ERROR_OUT_OF_HOST_MEMORY:

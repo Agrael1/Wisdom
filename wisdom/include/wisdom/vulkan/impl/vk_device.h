@@ -210,7 +210,6 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
 
     // Creating device
 
-
     auto* xadapter = std::get<0>(adapter);
     auto* itbl = std::get<1>(factory);
 
@@ -227,6 +226,29 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
                                    wis::SharedDevice{ device, std::move(device_table) },
                                    std::move(adapter),
                            } };
+}
+
+wis::Result
+wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences,
+                                     const uint64_t* values,
+                                     size_t count,
+                                     MutiWaitFlags wait_all,
+                                     uint64_t timeout) const noexcept
+{
+    VkSemaphoreWaitInfo waitInfo
+    { 
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, 
+        .pNext = nullptr,
+        .flags = VkSemaphoreWaitFlags(wait_all), 
+        .semaphoreCount = static_cast<uint32_t>(count),
+        .pSemaphores = reinterpret_cast<const VkSemaphore*>(fences),
+        .pValues = values 
+    };
+    VkResult result = device.table()->vkWaitSemaphores(device.get(), &waitInfo, timeout);
+
+    return succeeded(result)
+            ? wis::success
+            : wis::make_result<FUNC, "vkWaitSemaphores failed to wait for fences.">(result);
 }
 
 std::pair<wis::Result, wis::VKFence>
@@ -253,7 +275,7 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 }
 
 std::pair<wis::Result, wis::VKResourceAllocator>
-wis::VKDevice::CreateAllocator()const noexcept
+wis::VKDevice::CreateAllocator() const noexcept
 {
     uint32_t version = 0;
     auto& gt = wis::Internal<VKFactory>::global_table;

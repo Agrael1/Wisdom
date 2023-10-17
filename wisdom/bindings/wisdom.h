@@ -5,53 +5,60 @@
 typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
 typedef enum WisStatus WisStatus;
+typedef enum WisQueueType WisQueueType;
+typedef enum WisMutiWaitFlags WisMutiWaitFlags;
 typedef enum WisAdapterPreference WisAdapterPreference;
 typedef enum WisSeverity WisSeverity;
-typedef enum WisQueueType WisQueueType;
-typedef enum WisAdapterFlags WisAdapterFlags;
+typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
+typedef uint32_t WisAdapterFlags;
 
 enum WisStatus {
-    WisStatusOk = 0,
-    WisStatusError = 1,
-    WisStatusInvalidArgument = 2,
-    WisStatusOutOfMemory = 3,
-    WisStatusDeviceLost = 4,
-};
-
-enum WisAdapterPreference {
-    WisAdapterPreferenceNone = 0,
-    WisAdapterPreferenceMinConsumption = 1,
-    WisAdapterPreferencePerformance = 2,
-};
-
-enum WisSeverity {
-    WisSeverityDebug = 0,
-    WisSeverityTrace = 1,
-    WisSeverityInfo = 2,
-    WisSeverityWarning = 3,
-    WisSeverityError = 4,
-    WisSeverityCritical = 5,
+    StatusOk = 0,
+    StatusTimeout = 1,
+    StatusError = -1,
+    StatusInvalidArgument = -2,
+    StatusOutOfMemory = -3,
+    StatusDeviceLost = -4,
 };
 
 enum WisQueueType {
-    WisQueueTypeGraphics = 0,
-    WisQueueTypeDXBundle = 1,
-    WisQueueTypeCompute = 2,
-    WisQueueTypeCopy = 3,
-    WisQueueTypeVideoDecode = 4,
-    WisQueueTypeDXVideoProcess = 5,
-    WisQueueTypeDXVideoEncode = 6,
+    QueueTypeGraphics = 0,
+    QueueTypeDX12Bundle = 1,
+    QueueTypeCompute = 2,
+    QueueTypeCopy = 3,
+    QueueTypeVideoDecode = 4,
+    QueueTypeDX12VideoProcess = 5,
+    QueueTypeDX12VideoEncode = 6,
 };
 
-enum WisAdapterFlags {
-    WisAdapterFlagsNone = 0x0,
-    WisAdapterFlagsRemote = 1 << 0,
-    WisAdapterFlagsSoftware = 1 << 1,
-    WisAdapterFlagsDXACGCompatible = 1 << 2,
-    WisAdapterFlagsDXSupportsMonitoredFences = 1 << 3,
-    WisAdapterFlagsDXSupportsNonMonitoredFences = 1 << 4,
-    WisAdapterFlagsDXKeyedMutexConformance = 1 << 5,
-    WisAdapterFlagsMax = 0xFFFFFFFF,
+enum WisMutiWaitFlags {
+    MutiWaitFlagsAll = 0,
+    MutiWaitFlagsAny = 1,
+};
+
+enum WisAdapterPreference {
+    AdapterPreferenceNone = 0,
+    AdapterPreferenceMinConsumption = 1,
+    AdapterPreferencePerformance = 2,
+};
+
+enum WisSeverity {
+    SeverityDebug = 0,
+    SeverityTrace = 1,
+    SeverityInfo = 2,
+    SeverityWarning = 3,
+    SeverityError = 4,
+    SeverityCritical = 5,
+};
+
+enum WisAdapterFlagsBits {
+    AdapterFlagsNone = 0x0,
+    AdapterFlagsRemote = 1 << 0,
+    AdapterFlagsSoftware = 1 << 1,
+    AdapterFlagsDX12ACGCompatible = 1 << 2,
+    AdapterFlagsDX12SupportsMonitoredFences = 1 << 3,
+    AdapterFlagsDX12SupportsNonMonitoredFences = 1 << 4,
+    AdapterFlagsDX12KeyedMutexConformance = 1 << 5,
 };
 
 struct WisResult{
@@ -70,6 +77,14 @@ struct WisAdapterDesc{
     uint64_t shared_system_memory;
     uint64_t adapter_id;
     WisAdapterFlags flags;
+};
+
+struct DX12FenceView{
+    void* value;
+};
+
+struct VKFenceView{
+    void* value;
 };
 
 //=================================DELEGATES=================================
