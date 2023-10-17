@@ -26,3 +26,20 @@ wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
         ? std::pair{ wis::success, DX12Fence{ std::move(fence) } }
         : std::pair{ wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr), DX12Fence{} };
 }
+
+std::pair<wis::Result, wis::DX12ResourceAllocator>
+wis::DX12Device::CreateAllocator() const noexcept
+{
+    D3D12MA::ALLOCATOR_DESC desc{
+        .Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
+        .pDevice = device.get(),
+        .PreferredBlockSize = 0,
+        .pAllocationCallbacks = nullptr,
+        .pAdapter = adapter.get()
+    };
+    wis::com_ptr<D3D12MA::Allocator> allocator;
+    HRESULT hr;
+    return wis::succeeded(hr = D3D12MA::CreateAllocator(&desc, allocator.put()))
+        ? std::pair{ wis::success, DX12ResourceAllocator{ std::move(allocator) } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create allocator">(hr), DX12ResourceAllocator{} };
+}

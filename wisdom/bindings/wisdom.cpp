@@ -139,3 +139,29 @@
     auto&& ret =     xself->Signal(value);
     return reinterpret_cast<WisResult&>(ret);
 }
+ WisResult  DX12DeviceCreateAllocator( DX12Device self,  DX12ResourceAllocator * out_allocator)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret =     xself->CreateAllocator();
+    bool ok = std::get<0>(ret).status == wis::Status::Success;
+    *out_allocator = ok ? reinterpret_cast<DX12ResourceAllocator>(new wis::DX12ResourceAllocator(std::move(std::get<1>(ret)))) : reinterpret_cast<DX12ResourceAllocator>(nullptr);
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+ WisResult  VKDeviceCreateAllocator( VKDevice self,  VKResourceAllocator * out_allocator)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret =     xself->CreateAllocator();
+    bool ok = std::get<0>(ret).status == wis::Status::Success;
+    *out_allocator = ok ? reinterpret_cast<VKResourceAllocator>(new wis::VKResourceAllocator(std::move(std::get<1>(ret)))) : reinterpret_cast<VKResourceAllocator>(nullptr);
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+ void  DX12ResourceAllocatorDestroy( DX12ResourceAllocator self)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    delete xself;
+}
+ void  VKResourceAllocatorDestroy( VKResourceAllocator self)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    delete xself;
+}

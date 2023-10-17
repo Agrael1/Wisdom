@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/vulkan/xvk_fence.h>
+#include <wisdom/vulkan/xvk_allocator.h>
 #include <wisdom/vulkan/xvk_command_queue.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
 #include <vector>
@@ -38,6 +39,9 @@ public:
 public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKFence>
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKResourceAllocator>
+    CreateAllocator() const noexcept;
 
 private:
     detail::QueueResidency queues;
