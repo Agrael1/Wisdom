@@ -30,14 +30,11 @@ std::string GetArgString(const ResolvedType& resolved, std::string_view impl, st
 
 //-----------------------------------------------------------------------------
 
-Generator::Generator(std::filesystem::path file)
+Generator::Generator(XMLDocument& doc)
 {
-    structs.clear();
-    enums.clear();
-    bitmasks.clear();
-
-    if (doc.LoadFile(file.string().c_str()) != XML_SUCCESS)
-        throw std::runtime_error("Failed to load file");
+    // structs.clear();
+    // enums.clear();
+    // bitmasks.clear();
 
     auto* root = doc.FirstChildElement("registry");
     if (!root)
@@ -124,25 +121,28 @@ int Generator::GenerateCPPAPI()
 std::string Generator::GenerateCTypes()
 {
     std::string c_types = GenerateCTypedefs();
-    for (auto& s : enums) {
-        c_types += MakeCEnum(*s);
+    for (auto& [name, enum_t] : enum_map) {
+        c_types += MakeCEnum(enum_t);
     }
-    for (auto& s : bitmasks) {
-        c_types += MakeCBitmask(*s);
+    for (auto& [name, enum_t] : bitmask_map) {
+        c_types += MakeCBitmask(enum_t);
     }
     for (auto& s : structs) {
         c_types += MakeCStruct(*s);
+    }
+    for (auto& s : views) {
+        c_types += MakeCView(*s);
     }
     return c_types;
 }
 std::string Generator::GenerateCPPTypes()
 {
     std::string c_types = GenerateCPPTypedefs();
-    for (auto& s : enums) {
-        c_types += MakeCPPEnum(*s);
+    for (auto& [name, enum_t] : enum_map) {
+        c_types += MakeCPPEnum(enum_t);
     }
-    for (auto& s : bitmasks) {
-        c_types += MakeCPPBitmask(*s);
+    for (auto& [name, enum_t] : bitmask_map) {
+        c_types += MakeCPPBitmask(enum_t);
     }
     for (auto& s : structs) {
         c_types += MakeCPPStruct(*s);
@@ -156,11 +156,14 @@ std::string Generator::GenerateCTypedefs()
     for (auto& s : structs) {
         c_types += wis::format("typedef struct Wis{} Wis{};\n", s->name, s->name);
     }
-    for (auto& s : enums) {
-        c_types += wis::format("typedef enum Wis{} Wis{};\n", s->name, s->name);
+    for (auto& [name, _] : enum_map) {
+        auto full_name = GetCFullTypename(name, "");
+        c_types += wis::format("typedef enum {} {};\n", full_name, full_name);
     }
-    for (auto& s : bitmasks) {
-        c_types += wis::format("typedef enum Wis{} Wis{};\n", s->name, s->name);
+    for (auto& [name, bm] : bitmask_map) {
+        auto full_name = GetCFullTypename(name, "");
+        c_types += wis::format("typedef enum {}Bits {}Bits;\n", full_name, full_name);
+        c_types += wis::format("typedef {} {};\n", bm.type.empty() ? "uint32_t" : standard_types.at(bm.type), full_name);
     }
     return c_types + '\n';
 }
@@ -286,11 +289,13 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         if (std::string_view(category) == "struct") {
             ParseStruct(type);
         } else if (std::string_view(category) == "enum") {
-            ParseEnum(type);
+            ParseEnum(*type);
         } else if (std::string_view(category) == "bitmask") {
-            ParseBitmask(type);
+            ParseBitmask(*type);
         } else if (std::string_view(category) == "delegate") {
             ParseDelegate(type);
+        } else if (std::string_view(category) == "view") {
+            ParseView(type);
         }
     }
 }
@@ -391,62 +396,55 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     }
 }
 
-std::string_view ImplCode(std::string_view impl)
+static ImplementedFor ImplCode(std::string_view impl) noexcept
 {
     if (impl == "dx")
-        return "DX";
+        return ImplementedFor::DX12;
     if (impl == "vk")
-        return "VK";
-    return "";
+        return ImplementedFor::Vulkan;
+    return ImplementedFor::Both;
 }
 
-void Generator::ParseEnum(tinyxml2::XMLElement* type)
+void Generator::ParseEnum(tinyxml2::XMLElement& type)
 {
-    auto name = type->FindAttribute("name")->Value();
+    auto name = type.FindAttribute("name")->Value();
     auto& ref = enum_map[name];
-    enums.emplace_back(&ref);
     ref.name = name;
 
-    if (auto* size = type->FindAttribute("type"))
+    if (auto* size = type.FindAttribute("type"))
         ref.type = size->Value();
 
-    for (auto* member = type->FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
+    for (auto* member = type.FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
 
-        auto* name = member->FindAttribute("name")->Value();
-        auto* value = member->FindAttribute("value")->Value();
-        auto* impl = member->FindAttribute("impl");
-
-        m.name = impl ? wis::format("{}{}", ImplCode(impl->Value()), name) : name;
-        m.value = std::stoul(value);
+        m.name = member->FindAttribute("name")->Value();
+        m.value = std::stoll(member->FindAttribute("value")->Value());
+        if (auto* impl = member->FindAttribute("impl"))
+            m.impl = ImplCode(impl->Value());
     }
 }
 
-void Generator::ParseBitmask(tinyxml2::XMLElement* type)
+void Generator::ParseBitmask(tinyxml2::XMLElement& type)
 {
-    auto name = type->FindAttribute("name")->Value();
+    auto name = type.FindAttribute("name")->Value();
     auto& ref = bitmask_map[name];
-    bitmasks.emplace_back(&ref);
     ref.name = name;
 
-    if (auto* size = type->FindAttribute("size"))
-        ref.size = std::stoul(size->Value());
-    else
-        ref.size = 32;
+    if (auto* size = type.FindAttribute("type"))
+        ref.type = size->Value();
 
-    for (auto* member = type->FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
+    for (auto* member = type.FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
 
-        auto* name = member->FindAttribute("name")->Value();
-        auto* impl = member->FindAttribute("impl");
-
-        m.name = impl ? wis::format("{}{}", ImplCode(impl->Value()), name) : name;
+        m.name = member->FindAttribute("name")->Value();
+        if (auto* impl = member->FindAttribute("impl"))
+            m.impl = ImplCode(impl->Value());
 
         auto* value = member->FindAttribute("value");
         auto* bit = member->FindAttribute("bit");
 
         if (value) {
-            m.value = std::stoul(value->Value());
+            m.value = std::stoull(value->Value());
             m.type = WisBitmaskValue::Type::Value;
             continue;
         }
@@ -465,6 +463,35 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* type)
     ref.parameters = ParseFunctionArgs(type);
 }
 
+void Generator::ParseView(tinyxml2::XMLElement* type)
+{
+    auto name = type->FindAttribute("name")->Value();
+    auto& ref = view_map[name];
+    views.emplace_back(&ref);
+    ref.name = name;
+
+    for (auto* member = type->FirstChildElement("member"); member; member = member->NextSiblingElement("member")) {
+        auto& m = ref.members.emplace_back();
+
+        auto* type = member->FindAttribute("type")->Value();
+        auto* name = member->FindAttribute("name")->Value();
+
+        auto* arr = member->FindAttribute("array");
+
+        m.type = type;
+        m.name = name;
+        if (auto* arr = member->FindAttribute("array")) {
+            m.array_size = arr->Value();
+        }
+        if (auto* def = member->FindAttribute("default")) {
+            m.default_value = def->Value();
+        }
+        if (auto* mod = member->FindAttribute("mod")) {
+            m.modifier = mod->Value();
+        }
+    }
+}
+
 //-----------------------------------------------------------------------------
 
 std::string MakeCArray(std::string_view type, std::string_view name, std::string_view arr_len)
@@ -478,6 +505,7 @@ std::string MakeCPPArray(std::string_view type, std::string_view name, std::stri
 
 std::string Generator::MakeCStruct(const WisStruct& s)
 {
+    using namespace std::string_literals;
     auto st_decl = wis::format(
             "struct Wis{}{{\n", s.name);
 
@@ -487,7 +515,7 @@ std::string Generator::MakeCStruct(const WisStruct& s)
         if (auto it = standard_types.find(m.type); it != standard_types.end())
             res_type = it->second;
         else
-            res_type = "Wis" + m.type;
+            res_type = wis::format("Wis{}", m.type);
 
         if (m.modifier == "ptr")
             res_type += '*';
@@ -502,6 +530,43 @@ std::string Generator::MakeCStruct(const WisStruct& s)
     st_decl += "};\n\n";
     return st_decl;
 }
+std::string Generator::MakeCView(const WisView& s)
+{
+    using namespace std::string_literals;
+    size_t i = s.impl == ImplementedFor::Vulkan ? 1 : 0;
+    size_t length = s.impl == ImplementedFor::Both ? 2 : 1 + i;
+    constexpr std::array<std::string_view, 2> impls{ "DX12", "VK" };
+
+    std::string st_decls;
+
+    for (; i < length; i++) {
+        auto st_decl = wis::format(
+                "struct {}{}{{\n", impls[i], s.name);
+
+        for (auto& m : s.members) {
+
+            std::string res_type;
+            if (auto it = standard_types.find(m.type); it != standard_types.end())
+                res_type = it->second;
+            else
+                res_type = wis::format("Wis{}", m.type);
+
+            if (m.modifier == "ptr")
+                res_type += '*';
+
+            if (m.array_size.empty()) {
+                st_decl += wis::format("    {} {};\n", res_type, m.name);
+            } else {
+                st_decl += MakeCArray(res_type, m.name, m.array_size);
+            }
+        }
+
+        st_decl += "};\n\n";
+        st_decls += st_decl;
+    }
+
+    return st_decls;
+}
 std::string Generator::MakeCPPStruct(const WisStruct& s)
 {
     auto st_decl = wis::format(
@@ -513,7 +578,7 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
         if (auto it = standard_types.find(m.type); it != standard_types.end())
             res_type = it->second;
         else
-            res_type = "wis::" + m.type;
+            res_type = wis::format("wis::{}", m.type);
 
         if (m.modifier == "ptr")
             res_type += '*';
@@ -521,7 +586,7 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
         if (m.array_size.empty()) {
             std::string def = "";
             if (!m.default_value.empty()) {
-                def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
+                def = enum_map.contains(std::string(m.type)) || bitmask_map.contains(std::string(m.type))
                         ? wis::format(" = {}::{}", res_type, m.default_value)
                         : wis::format(" = {}", m.default_value);
             }
@@ -537,11 +602,13 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
 
 std::string Generator::MakeCEnum(const WisEnum& s)
 {
-    std::string st_decl = wis::format("enum Wis{} {{\n", s.name);
+    auto full_name = GetCFullTypename(s.name, "");
+    std::string st_decl = wis::format("enum {} {{\n", full_name);
 
     for (auto& m : s.values) {
-        st_decl += wis::format("    Wis{}{} = {},\n", s.name, m.name, m.value);
+        st_decl += wis::format("    {}{}{} = {},\n", s.name, impls[+m.impl], m.name, m.value);
     }
+
     st_decl += "};\n\n";
     return st_decl;
 }
@@ -550,7 +617,7 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
     std::string st_decl = !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type)) : wis::format("enum class {} {{\n", s.name);
 
     for (auto& m : s.values) {
-        st_decl += wis::format("    {} = {},\n", m.name, m.value);
+        st_decl += wis::format("    {}{} = {},\n", impls[+m.impl], m.name, m.value);
     }
     st_decl += "};\n\n";
     return st_decl;
@@ -558,32 +625,29 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
 
 std::string Generator::MakeCBitmask(const WisBitmask& s)
 {
-    std::string st_decl = wis::format("enum Wis{} {{\n", s.name);
+    auto full_name = GetCFullTypename(s.name, "");
+    std::string st_decl = wis::format("enum {}Bits {{\n", full_name);
 
     for (auto& m : s.values) {
-        if (m.type == WisBitmaskValue::Type::Value) {
-            st_decl += wis::format("    Wis{}{} = 0x{:X},\n", s.name, m.name, m.value);
-        } else {
-            st_decl += wis::format("    Wis{}{} = 1 << {},\n", s.name, m.name, m.bit);
-        }
+        st_decl += m.type == WisBitmaskValue::Type::Value
+                ? wis::format("    {}{}{} = 0x{:X},\n", s.name, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{}{} = 1 << {},\n", s.name, impls[+m.impl], m.name, m.bit);
     }
-    st_decl += wis::format("    Wis{}Max = 0x{:X},\n", s.name, (1ull << s.size) - 1);
-
     st_decl += "};\n\n";
     return st_decl;
 }
 std::string Generator::MakeCPPBitmask(const WisBitmask& s)
 {
-    std::string st_decl = s.size ? wis::format("enum class {} : uint{}_t {{\n", s.name, s.size) : wis::format("enum class {} {{\n", s.name);
+    auto full_name = GetCFullTypename(s.name, "");
+    std::string st_decl = !s.type.empty()
+            ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
+            : wis::format("enum class {} {{\n", s.name);
 
     for (auto& m : s.values) {
-        if (m.type == WisBitmaskValue::Type::Value) {
-            st_decl += wis::format("    {} = 0x{:X},\n", m.name, m.value);
-        } else {
-            st_decl += wis::format("    {} = 1 << {},\n", m.name, m.bit);
-        }
+        st_decl += m.type == WisBitmaskValue::Type::Value
+                ? wis::format("    {}{} = 0x{:X},\n", impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{} = 1 << {},\n", impls[+m.impl], m.name, m.bit);
     }
-    st_decl += wis::format("    Max = 0x{:X},\n", (1ull << s.size) - 1);
 
     st_decl += "};\n\n";
     cpp_type_traits.emplace_back(wis::format("template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));
@@ -611,9 +675,19 @@ ResolvedType Generator::ResolveType(const std::string& type)
             TypeInfo::Handle, wis::format("{}", type)
         };
     }
+    if (auto it = view_map.find(type); it != view_map.end()) {
+        return {
+            TypeInfo::Handle, wis::format("{}", type)
+        };
+    }
     if (auto it = delegate_map.find(type); it != delegate_map.end()) {
         return {
             TypeInfo::Delegate, wis::format("Wis{}", type)
+        };
+    }
+    if (auto it = enum_map.find(type); it != enum_map.end()) {
+        return {
+            TypeInfo::Regular, GetCFullTypename(type, "")
         };
     }
 
@@ -824,6 +898,21 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, const FuncInfo&
                               p.opt_name, out_type, type, i, out_type);
     }
     return st_decl + wis::format("    return reinterpret_cast<{}&>(std::get<0>(ret));\n}}\n", fi.return_type.second);
+}
+
+std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
+{
+    if (auto it = standard_types.find(type); it != standard_types.end())
+        return std::string(it->second);
+
+    if (auto it = enum_map.find(type); it != enum_map.end())
+        return "Wis" + std::string(type);
+
+    if (auto it = bitmask_map.find(type); it != bitmask_map.end())
+        return "Wis" + std::string(type);
+
+    if (auto it = view_map.find(type); it != view_map.end())
+        return std::string(impl) + std::string(type);
 }
 
 std::string Generator::MakeCPPDelegate(const WisFunction& func)

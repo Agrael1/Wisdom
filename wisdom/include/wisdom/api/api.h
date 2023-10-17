@@ -5,12 +5,28 @@ namespace wis {
 struct Result;
 struct AdapterDesc;
 
-enum class Status : uint32_t {
+enum class Status : int32_t {
     Ok = 0,
-    Error = 1,
-    InvalidArgument = 2,
-    OutOfMemory = 3,
-    DeviceLost = 4,
+    Timeout = 1,
+    Error = -1,
+    InvalidArgument = -2,
+    OutOfMemory = -3,
+    DeviceLost = -4,
+};
+
+enum class QueueType : uint32_t {
+    Graphics = 0,
+    DX12Bundle = 1,
+    Compute = 2,
+    Copy = 3,
+    VideoDecode = 4,
+    DX12VideoProcess = 5,
+    DX12VideoEncode = 6,
+};
+
+enum class MutiWaitFlags : uint32_t {
+    All = 0,
+    Any = 1,
 };
 
 enum class AdapterPreference : int32_t {
@@ -28,25 +44,14 @@ enum class Severity {
     Critical = 5,
 };
 
-enum class QueueType : uint32_t {
-    Graphics = 0,
-    DXBundle = 1,
-    Compute = 2,
-    Copy = 3,
-    VideoDecode = 4,
-    DXVideoProcess = 5,
-    DXVideoEncode = 6,
-};
-
-enum class AdapterFlags : uint32_t {
+enum class AdapterFlags {
     None = 0x0,
     Remote = 1 << 0,
     Software = 1 << 1,
-    DXACGCompatible = 1 << 2,
-    DXSupportsMonitoredFences = 1 << 3,
-    DXSupportsNonMonitoredFences = 1 << 4,
-    DXKeyedMutexConformance = 1 << 5,
-    Max = 0xFFFFFFFF,
+    DX12ACGCompatible = 1 << 2,
+    DX12SupportsMonitoredFences = 1 << 3,
+    DX12SupportsNonMonitoredFences = 1 << 4,
+    DX12KeyedMutexConformance = 1 << 5,
 };
 
 struct Result{

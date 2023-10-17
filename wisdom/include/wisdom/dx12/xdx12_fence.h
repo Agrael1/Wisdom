@@ -9,45 +9,50 @@
 namespace wis {
 class DX12Fence;
 
+struct unique_event {
+    unique_event() noexcept
+        : hevent(CreateEvent(nullptr, false, false, nullptr)) { }
+    unique_event(unique_event const&) = delete;
+    unique_event& operator=(unique_event const&) = delete;
+    unique_event(unique_event&& o) noexcept
+        : hevent(std::exchange(o.hevent, nullptr))
+    {
+    }
+    unique_event& operator=(unique_event&& o) noexcept
+    {
+        std::swap(hevent, o.hevent);
+        return *this;
+    }
+    ~unique_event() noexcept
+    {
+        if (hevent)
+            CloseHandle(hevent);
+    }
+    auto get() const noexcept
+    {
+        return hevent;
+    }
+    operator bool() const noexcept
+    {
+        return bool(hevent);
+    }
+    wis::Status wait(uint32_t wait_ms) const noexcept
+    {
+        auto st = WaitForSingleObject(hevent, wait_ms);
+        if (st == WAIT_OBJECT_0)
+            return wis::Status::Ok;
+        if (st == WAIT_TIMEOUT)
+            return wis::Status::Timeout;
+        return wis::Status::Error;
+    }
+
+public:
+    HANDLE hevent;
+};
+
 template<>
 class Internal<DX12Fence>
 {
-    struct unique_event {
-        unique_event() noexcept
-            : hevent(CreateEvent(nullptr, false, false, nullptr)) { }
-        unique_event(unique_event const&) = delete;
-        unique_event& operator=(unique_event const&) = delete;
-        unique_event(unique_event&& o) noexcept
-            : hevent(std::exchange(o.hevent, nullptr))
-        {
-        }
-        unique_event& operator=(unique_event&& o) noexcept
-        {
-            std::swap(hevent, o.hevent);
-            return *this;
-        }
-        ~unique_event() noexcept
-        {
-            if (hevent)
-                CloseHandle(hevent);
-        }
-        auto get() const noexcept
-        {
-            return hevent;
-        }
-        operator bool() const noexcept
-        {
-            return bool(hevent);
-        }
-        bool wait(uint32_t wait_ms) const noexcept
-        {
-            return WaitForSingleObject(hevent, wait_ms) == WAIT_OBJECT_0;
-        }
-
-    public:
-        HANDLE hevent;
-    };
-
 public:
     wis::com_ptr<ID3D12Fence1> fence;
     unique_event fence_event;
@@ -64,6 +69,11 @@ public:
     }
     DX12Fence(DX12Fence&& o) noexcept = default;
     DX12Fence& operator=(DX12Fence&& o) noexcept = default;
+
+    operator DX12FenceView() const noexcept
+    {
+        return fence.get();
+    }
 
     operator bool() const noexcept
     {
@@ -91,7 +101,12 @@ public:
         if (!succeeded(hr))
             return wis::make_result<FUNC, "Failed to set event">(hr);
 
-        return fence_event.wait(uint32_t(wait_ns / 1000)) ? wis::success : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+        auto st = fence_event.wait(uint32_t(wait_ns / 1000));
+        return st == wis::Status::Timeout
+                ? wis::Result{ st, "Wait timed out" }
+                : st != wis::Status::Error
+                ? wis::success
+                : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
     }
 
     /// @brief Signal the fence from CPU.

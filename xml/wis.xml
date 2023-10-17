@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-
+  <handles>
+    <handle name="Factory"/>
+    <handle name="Adapter"/>
+    <handle name="Device"/>
+    <handle name="Fence"/>
+    <handle name="ResourceAllocator"/>
+  </handles>
   <types comment="Type definitions">
-    <type name="Status" category="enum" type="u32">
+    <type name="Status" category="enum" type="i32">
       <value name="Ok" value="0"/>
-      <value name="Error" value="1"/>
-      <value name="InvalidArgument" value="2"/>
-      <value name="OutOfMemory" value="3"/>
-      <value name="DeviceLost" value="4"/>
+      <value name="Timeout" value="1"/>
+      <value name="Error" value="-1"/>
+      <value name="InvalidArgument" value="-2"/>
+      <value name="OutOfMemory" value="-3"/>
+      <value name="DeviceLost" value="-4"/>
+    </type>
+    <type name="MutiWaitFlags" category="enum" type="u32">
+      <value name="All" value="0"/>
+      <value name="Any" value="1"/>
     </type>
     <type name="Result" category="struct">
       <member type="Status" name="status" default="Ok"/>
@@ -61,14 +72,11 @@
       <value name="VideoProcess" value="5" impl="dx"/>
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
+    <type name="FenceView" category="view" impl="both" for="Fence">
+      <member type="void" name="value" mod="ptr"/>
+    </type>
   </types>
-  <handles>
-    <handle name="Factory"/>
-    <handle name="Adapter"/>
-    <handle name="Device"/>
-    <handle name="Fence"/>
-    <handle name="ResourceAllocator"/>
-  </handles>
+
   <functions>
     <func name="CreateFactory">
       <ret type="Result" name="result"/>
@@ -113,13 +121,12 @@
     <func for="Fence" name="Signal">
       <ret type="Result" name="result"/>
       <arg type="u64" name="value"/>
-    </func>
-
+    </func>    
     <func for="Device" name="CreateAllocator">
       <ret type="Result" name="result"/>
       <ret type="ResourceAllocator" name="allocator"/>
     </func>
     <func for="ResourceAllocator" name="Destroy"/>
-    
+
   </functions>
 </registry>

@@ -17,14 +17,40 @@ wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle ada
             : std::pair{ wis::success, wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), wis::com_ptr(in_factory)) };
 }
 
-std::pair<wis::Result, wis::DX12Fence> 
+wis::Result
+wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
+                                       const uint64_t* values,
+                                       size_t count,
+                                       MutiWaitFlags wait_all,
+                                       uint64_t timeout) const noexcept
+{
+    unique_event e;
+    HRESULT hr = S_OK;
+
+    if (!succeeded(hr = device->SetEventOnMultipleFenceCompletion(
+                           reinterpret_cast<ID3D12Fence* const*>(fences),
+                           values,
+                           count,
+                           static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all),
+                           e.get())))
+        return wis::make_result<FUNC, "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set event on multiple fence completion">(hr);
+
+    auto st = e.wait(timeout);
+    return st == wis::Status::Timeout
+            ? wis::Result{ st, "Wait timed out" }
+            : st != wis::Status::Error
+            ? wis::success
+            : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+}
+
+std::pair<wis::Result, wis::DX12Fence>
 wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
 {
     HRESULT hr;
     wis::com_ptr<ID3D12Fence1> fence;
     return wis::succeeded(hr = device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, __uuidof(*fence), fence.put_void()))
-        ? std::pair{ wis::success, DX12Fence{ std::move(fence) } }
-        : std::pair{ wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr), DX12Fence{} };
+            ? std::pair{ wis::success, DX12Fence{ std::move(fence) } }
+            : std::pair{ wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr), DX12Fence{} };
 }
 
 std::pair<wis::Result, wis::DX12ResourceAllocator>
@@ -40,6 +66,6 @@ wis::DX12Device::CreateAllocator() const noexcept
     wis::com_ptr<D3D12MA::Allocator> allocator;
     HRESULT hr;
     return wis::succeeded(hr = D3D12MA::CreateAllocator(&desc, allocator.put()))
-        ? std::pair{ wis::success, DX12ResourceAllocator{ std::move(allocator) } }
+            ? std::pair{ wis::success, DX12ResourceAllocator{ std::move(allocator) } }
             : std::pair{ wis::make_result<FUNC, "Failed to create allocator">(hr), DX12ResourceAllocator{} };
 }

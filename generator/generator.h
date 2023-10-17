@@ -6,43 +6,63 @@
 #include <unordered_map>
 #include <vector>
 #include <span>
+#include <array>
+
+enum ImplementedFor {
+    None = 0,
+    DX12 = 1,
+    Vulkan = 2,
+    Both = 3
+};
+struct WisEnumValue {
+    std::string_view name;
+    int64_t value;
+    ImplementedFor impl = ImplementedFor::Both;
+};
+struct WisEnum {
+    std::string_view name;
+    std::string_view type;
+    std::vector<WisEnumValue> values;
+};
+
+struct WisBitmaskValue {
+    std::string_view name;
+    enum class Type {
+        Bit,
+        Value
+    } type = Type::Value;
+    uint64_t value = 0;
+    uint32_t bit = 0;
+    ImplementedFor impl = ImplementedFor::Both;
+};
+struct WisBitmask {
+    std::string_view name;
+    std::string_view type;
+    std::vector<WisBitmaskValue> values;
+};
 
 struct WisStructMember {
-    std::string name;
-    std::string type;
-    std::string array_size;
-    std::string modifier;
-    std::string default_value;
+    std::string_view name;
+    std::string_view type;
+    std::string_view array_size;
+    std::string_view modifier;
+    std::string_view default_value;
 };
+
+
+
 struct WisStruct {
     std::string name;
     std::vector<WisStructMember> members;
 };
 
-struct WisEnumValue {
-    std::string name;
-    uint32_t value;
-};
-struct WisEnum {
-    std::string name;
-    std::string type;
-    std::vector<WisEnumValue> values;
+struct WisView {
+    std::string_view name;
+    ImplementedFor impl = ImplementedFor::Both;
+    std::vector<WisStructMember> members;
 };
 
-struct WisBitmaskValue {
-    std::string name;
-    enum class Type {
-        Bit,
-        Value
-    } type = Type::Value;
-    uint32_t value = 0;
-    uint32_t bit = 0;
-};
-struct WisBitmask {
-    std::string name;
-    uint32_t size = 0;
-    std::vector<WisBitmaskValue> values;
-};
+
 
 struct WisFunctionParameter {
     std::string type;
@@ -64,13 +84,6 @@ struct WisFunction {
     std::vector<WisFunctionParameter> parameters;
 };
 
-enum ImplementedFor {
-    None = 0,
-    DX12 = 1,
-    Vulkan = 2,
-    Both = 3
-};
-
 enum class TypeInfo {
     None,
     Result,
@@ -87,18 +100,24 @@ struct WisHandle {
     ImplementedFor impl = ImplementedFor::Both;
 };
 
+
 using ResolvedType = std::pair<TypeInfo, std::string>;
 
 struct FuncInfo;
 
 class Generator
 {
-    static constexpr std::string_view input_file = INPUT_FILE;
     static constexpr std::string_view output_dir = OUTPUT_DIR;
     static constexpr std::string_view cpp_output_dir = CPP_OUTPUT_DIR;
+    static constexpr inline std::array<std::string_view, 4> impls{
+        "",
+        "DX12",
+        "VK",
+        ""
+    };
 
 public:
-    Generator(std::filesystem::path file = input_file);
+    Generator(tinyxml2::XMLDocument& doc);
 
 public:
     int GenerateCAPI();
@@ -116,11 +135,13 @@ public:
     void ParseFunctions(tinyxml2::XMLElement* functions);
 
     void ParseStruct(tinyxml2::XMLElement* type);
-    void ParseEnum(tinyxml2::XMLElement* type);
-    void ParseBitmask(tinyxml2::XMLElement* type);
+    void ParseEnum(tinyxml2::XMLElement& type);
+    void ParseBitmask(tinyxml2::XMLElement& type);
     void ParseDelegate(tinyxml2::XMLElement* type);
+    void ParseView(tinyxml2::XMLElement* type);
 
     std::string MakeCStruct(const WisStruct& s);
+    std::string MakeCView(const WisView& s);
     std::string MakeCEnum(const WisEnum& s);
     std::string MakeCBitmask(const WisBitmask& s);
     std::string MakeCPPStruct(const WisStruct& s);
@@ -134,26 +155,27 @@ public:
     std::string MakeDelegate(const WisFunction& s);
     ResolvedType ResolveType(const std::string& type);
 
-    std::string MakeFunctionImpl(const WisFunction& func, const FuncInfo& fi );
+    std::string MakeFunctionImpl(const WisFunction& func, const FuncInfo& fi);
+    std::string GetCFullTypename(std::string_view type, std::string_view impl);
 
 private:
-    tinyxml2::XMLDocument doc;
-
     std::vector<WisStruct*> structs;
-    std::vector<WisEnum*> enums;
-    std::vector<WisBitmask*> bitmasks;
     std::vector<WisHandle*> handles;
     std::vector<WisFunction> functions;
     std::vector<WisFunction*> delegates;
+    std::vector<WisView*> views;
     std::vector<std::string> function_impl;
 
     std::vector<std::string> cpp_type_traits;
 
+    std::unordered_map<std::string_view, WisEnum> enum_map;
+
     std::unordered_map<std::string, WisStruct> struct_map;
     std::unordered_map<std::string, WisHandle> handle_map;
-    std::unordered_map<std::string, WisEnum> enum_map;
-    std::unordered_map<std::string, WisBitmask> bitmask_map;
     std::unordered_map<std::string, WisFunction> delegate_map;
+
+    std::unordered_map<std::string_view, WisView> view_map;
+    std::unordered_map<std::string_view, WisBitmask> bitmask_map;
 
     const std::unordered_map<std::string_view, std::string_view> standard_types{
         { "bool", "bool" },
