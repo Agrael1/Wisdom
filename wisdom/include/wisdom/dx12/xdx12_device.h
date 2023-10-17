@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/dx12/xdx12_fence.h>
+#include <wisdom/dx12/xdx12_allocator.h>
 
 namespace wis {
 class DX12Device;
@@ -22,10 +23,11 @@ public:
     operator bool() const noexcept { return bool(device); }
 
 public:
-    /// @brief Create a fence
-    /// @param initial_value The initial value of the fence
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Fence> 
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
+    CreateAllocator() const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device> 

@@ -13,15 +13,23 @@ template<>
 class Internal<DX12Fence>
 {
     struct unique_event {
-        unique_event()
+        unique_event() noexcept
             : hevent(CreateEvent(nullptr, false, false, nullptr)) { }
         unique_event(unique_event const&) = delete;
         unique_event& operator=(unique_event const&) = delete;
-        unique_event(unique_event&&) = default;
-        unique_event& operator=(unique_event&&) = default;
-        ~unique_event()
+        unique_event(unique_event&& o) noexcept
+            : hevent(std::exchange(o.hevent, nullptr))
         {
-            CloseHandle(hevent);
+        }
+        unique_event& operator=(unique_event&& o) noexcept
+        {
+            std::swap(hevent, o.hevent);
+            return *this;
+        }
+        ~unique_event() noexcept
+        {
+            if (hevent)
+                CloseHandle(hevent);
         }
         auto get() const noexcept
         {

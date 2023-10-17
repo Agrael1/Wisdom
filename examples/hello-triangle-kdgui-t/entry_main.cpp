@@ -1,4 +1,5 @@
 // #include "app.h"
+#undef WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 
@@ -42,7 +43,7 @@ int main()
         }
 
         auto fence = device.CreateFence();
-
+        auto allocator = device.CreateAllocator();
     }
 
     return 0;

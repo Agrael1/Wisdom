@@ -67,6 +67,7 @@
     <handle name="Adapter"/>
     <handle name="Device"/>
     <handle name="Fence"/>
+    <handle name="ResourceAllocator"/>
   </handles>
   <functions>
     <func name="CreateFactory">
@@ -113,5 +114,12 @@
       <ret type="Result" name="result"/>
       <arg type="u64" name="value"/>
     </func>
+
+    <func for="Device" name="CreateAllocator">
+      <ret type="Result" name="result"/>
+      <ret type="ResourceAllocator" name="allocator"/>
+    </func>
+    <func for="ResourceAllocator" name="Destroy"/>
+    
   </functions>
 </registry>

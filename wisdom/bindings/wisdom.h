@@ -89,6 +89,9 @@ typedef struct VKDevice_t* VKDevice;
 typedef struct DX12Fence_t* DX12Fence;
 typedef struct VKFence_t* VKFence;
 
+typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
+typedef struct VKResourceAllocator_t* VKResourceAllocator;
+
 //=================================FUNCTIONS=================================
 
  WisResult  DX12CreateFactory( bool debug_layer,  WisDebugCallback callback,  void *user_data,  DX12Factory * out_factory);
@@ -113,3 +116,7 @@ typedef struct VKFence_t* VKFence;
  WisResult  VKFenceWait( VKFence self,  uint64_t value,  uint64_t timeout_ns);
  WisResult  DX12FenceSignal( DX12Fence self,  uint64_t value);
  WisResult  VKFenceSignal( VKFence self,  uint64_t value);
+ WisResult  DX12DeviceCreateAllocator( DX12Device self,  DX12ResourceAllocator * out_allocator);
+ WisResult  VKDeviceCreateAllocator( VKDevice self,  VKResourceAllocator * out_allocator);
+ void  DX12ResourceAllocatorDestroy( DX12ResourceAllocator self);
+ void  VKResourceAllocatorDestroy( VKResourceAllocator self);

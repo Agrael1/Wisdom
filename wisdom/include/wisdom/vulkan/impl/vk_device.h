@@ -15,6 +15,11 @@
 constexpr inline std::array required_extensions{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+    VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, // for Allocator
+    "VK_KHR_bind_memory2", // for Allocator
+    "VK_KHR_get_physical_device_properties2", // for Allocator
+    "VK_KHR_maintenance4", // for Allocator
+
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
     // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
@@ -224,7 +229,7 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
                            } };
 }
 
-[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKFence>
+std::pair<wis::Result, wis::VKFence>
 wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 {
     VkSemaphoreTypeCreateInfo timeline_desc{
@@ -245,4 +250,57 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
     return wis::succeeded(result = device.table()->vkCreateSemaphore(device.get(), &desc, nullptr, &sem))
             ? std::pair{ wis::success, VKFence{ { sem, device, device.table()->vkDestroySemaphore } } }
             : std::pair{ wis::make_result<FUNC, "vkCreateSemaphore failed to create semaphore">(result), VKFence{} };
+}
+
+std::pair<wis::Result, wis::VKResourceAllocator>
+wis::VKDevice::CreateAllocator()const noexcept
+{
+    uint32_t version = 0;
+    auto& gt = wis::Internal<VKFactory>::global_table;
+    auto& it = *GetInstanceTable();
+    auto& dt = *device.table();
+    gt.vkEnumerateInstanceVersion(&version);
+
+    std::unique_ptr<VmaVulkanFunctions> vkfuncs{ new VmaVulkanFunctions{
+            .vkGetInstanceProcAddr = gt.vkGetInstanceProcAddr,
+            .vkGetDeviceProcAddr = gt.vkGetDeviceProcAddr,
+            .vkGetPhysicalDeviceProperties = it.vkGetPhysicalDeviceProperties,
+            .vkGetPhysicalDeviceMemoryProperties = it.vkGetPhysicalDeviceMemoryProperties,
+            .vkAllocateMemory = dt.vkAllocateMemory,
+            .vkFreeMemory = dt.vkFreeMemory,
+            .vkMapMemory = dt.vkMapMemory,
+            .vkUnmapMemory = dt.vkUnmapMemory,
+            .vkFlushMappedMemoryRanges = dt.vkFlushMappedMemoryRanges,
+            .vkInvalidateMappedMemoryRanges = dt.vkInvalidateMappedMemoryRanges,
+            .vkBindBufferMemory = dt.vkBindBufferMemory,
+            .vkBindImageMemory = dt.vkBindImageMemory,
+            .vkGetBufferMemoryRequirements = dt.vkGetBufferMemoryRequirements,
+            .vkGetImageMemoryRequirements = dt.vkGetImageMemoryRequirements,
+            .vkCreateBuffer = dt.vkCreateBuffer,
+            .vkDestroyBuffer = dt.vkDestroyBuffer,
+            .vkCreateImage = dt.vkCreateImage,
+            .vkDestroyImage = dt.vkDestroyImage,
+            .vkCmdCopyBuffer = dt.vkCmdCopyBuffer,
+            .vkGetBufferMemoryRequirements2KHR = dt.vkGetBufferMemoryRequirements2,
+            .vkGetImageMemoryRequirements2KHR = dt.vkGetImageMemoryRequirements2,
+            .vkBindBufferMemory2KHR = dt.vkBindBufferMemory2,
+            .vkBindImageMemory2KHR = dt.vkBindImageMemory2,
+            .vkGetPhysicalDeviceMemoryProperties2KHR = it.vkGetPhysicalDeviceMemoryProperties2,
+            .vkGetDeviceBufferMemoryRequirements = dt.vkGetDeviceBufferMemoryRequirements,
+            .vkGetDeviceImageMemoryRequirements = dt.vkGetDeviceImageMemoryRequirements,
+    } };
+
+    VmaAllocatorCreateInfo allocatorInfo{
+        .flags = 0,
+        .physicalDevice = std::get<0>(adapter),
+        .device = device.get(),
+        .pVulkanFunctions = vkfuncs.get(),
+        .instance = instance.get(),
+    };
+
+    VmaAllocator al;
+    VkResult vr;
+    return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
+            ? std::make_pair(wis::success, VKResourceAllocator{ wis::managed_handle_ex<VmaAllocator>{ device, al }, std::move(vkfuncs) })
+            : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr), VKResourceAllocator{});
 }

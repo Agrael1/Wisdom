@@ -1,6 +1,7 @@
 #pragma once
 #include <wisvk/vk_loader.hpp>
 #include <wisvk/vk_managed_handles.hpp>
+#include <vk_mem_alloc.h>
 #include <memory>
 
 namespace wis {
@@ -48,9 +49,34 @@ public:
     using managed_handle_base<HandleType, managed_header_ex<HandleType>, managed_handle_ex<HandleType>>::managed_handle_base;
 };
 
-struct SharedInstanceHeader : public managed_header<VkInstance> {
-    std::unique_ptr<VkInstanceTable> instance_table;
+template<>
+class managed_handle_ex<VmaAllocator> : public wis::managed_handle_base<VmaAllocator, wis::SharedDevice, managed_handle_ex<VmaAllocator>>
+{
+    using base = wis::managed_handle_base<VmaAllocator, wis::SharedDevice, managed_handle_ex<VmaAllocator>>;
+    friend base;
+
+public:
+    managed_handle_ex() = default;
+    explicit managed_handle_ex(wis::SharedDevice device, VmaAllocator handle) noexcept
+        : wis::managed_handle_base<VmaAllocator, wis::SharedDevice, managed_handle_ex<VmaAllocator>>(handle, std::move(device))
+    {
+    }
+
+    [[nodiscard]] const auto& parent() const noexcept
+    {
+        return header();
+    }
+
+protected:
+    void internal_destroy() noexcept
+    {
+        vmaDestroyAllocator(get());
+    }
 };
+
+//struct SharedInstanceHeader : public managed_header<VkInstance> {
+//    std::unique_ptr<VkInstanceTable> instance_table;
+//};
 
 // class SharedInstance : public shared_handle_base<VkInstance, SharedInstanceHeader, SharedInstance>
 //{
