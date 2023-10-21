@@ -12,7 +12,8 @@ enum ImplementedFor {
     None = 0,
     DX12 = 1,
     Vulkan = 2,
-    Both = 3
+    Both = 3,
+    Unspecified = Both | 4
 };
 struct WisEnumValue {
     std::string_view name;
@@ -55,27 +56,8 @@ struct WisStruct {
 struct WisVariant {
     std::string_view name;
     ImplementedFor impl = ImplementedFor::Both;
+    std::string_view this_type;
     std::vector<WisStructMember> members;
-};
-
-struct WisFunctionParameter {
-    std::string type;
-    std::string name;
-    std::string modifier;
-    std::string array_size;
-    std::string default_value;
-};
-struct WisReturnType {
-    std::string type;
-    std::string opt_name;
-    std::string modifier;
-    std::string array_size;
-};
-struct WisFunction {
-    std::string name;
-    std::string this_type;
-    std::vector<WisReturnType> return_types;
-    std::vector<WisFunctionParameter> parameters;
 };
 
 enum class TypeInfo {
@@ -84,28 +66,49 @@ enum class TypeInfo {
     Regular,
     Struct,
     Enum,
+    Bitmask,
     Handle,
     Delegate,
-    String
+    String,
+    View,
+    Variant,
+};
+struct WisFunctionParameter {
+    TypeInfo type_info = TypeInfo::None;
+    std::string_view type;
+    std::string_view name;
+    std::string_view modifier;
+    std::string_view default_value;
+};
+struct WisReturnType {
+    TypeInfo type_info = TypeInfo::None;
+    std::string_view type;
+    std::string_view opt_name;
+    std::string_view modifier;
+};
+struct WisFunction {
+    std::string_view name;
+    std::string_view this_type;
+    TypeInfo this_type_info = TypeInfo::None;
+    std::vector<WisReturnType> return_types;
+    std::vector<WisFunctionParameter> parameters;
+    ImplementedFor impl = ImplementedFor::Unspecified;
 };
 
 struct WisHandle {
-    std::string name;
+    std::string_view name;
     ImplementedFor impl = ImplementedFor::Both;
 };
-
-using ResolvedType = std::pair<TypeInfo, std::string>;
-
-struct FuncInfo;
 
 class Generator
 {
     static constexpr std::string_view output_dir = OUTPUT_DIR;
     static constexpr std::string_view cpp_output_dir = CPP_OUTPUT_DIR;
-    static constexpr inline std::array<std::string_view, 4> impls{
+    static constexpr inline std::array<std::string_view, 5> impls{
         "",
         "DX12",
         "VK",
+        "",
         ""
     };
 
@@ -124,6 +127,7 @@ public:
     std::string GenerateCPPExportHeader();
 
     void ParseTypes(tinyxml2::XMLElement* types);
+
     void ParseHandles(tinyxml2::XMLElement* handles);
     void ParseFunctions(tinyxml2::XMLElement* functions);
 
@@ -141,29 +145,33 @@ public:
     std::string MakeCPPEnum(const WisEnum& s);
     std::string MakeCPPBitmask(const WisBitmask& s);
     std::string MakeCPPDelegate(const WisFunction& s);
-    ResolvedType ResolveCPPType(const std::string& type);
 
     std::string MakeHandle(const WisHandle& s);
     std::string MakeFunctionDecl(const WisFunction& s);
     std::string MakeDelegate(const WisFunction& s);
-    ResolvedType ResolveType(const std::string& type);
+    std::string MakeFunctionImpl(const WisFunction& func, std::string_view decl, std::string_view impl);
 
-    std::string MakeFunctionImpl(const WisFunction& func, const FuncInfo& fi);
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
+    std::string GetCFullArg(const WisFunctionParameter& arg, std::string_view impl);
+    std::string GetCPPFullArg(const WisFunctionParameter& arg, std::string_view impl);
+
+    std::vector<WisReturnType> ParseFunctionReturn(tinyxml2::XMLElement* func);
+    std::vector<WisFunctionParameter> ParseFunctionArgs(tinyxml2::XMLElement* func);
+
+    ImplementedFor GetImplementedFor(std::string_view type);
+    TypeInfo GetTypeInfo(std::string_view type);
 
 private:
     std::vector<WisStruct*> structs;
-    std::vector<WisHandle*> handles;
     std::vector<WisFunction> functions;
-    std::vector<WisFunction*> delegates;
     std::vector<std::string> function_impl;
+    std::vector<std::string> function_decls;
 
     std::vector<std::string> cpp_type_traits;
 
-    std::unordered_map<std::string, WisHandle> handle_map;
-    std::unordered_map<std::string, WisFunction> delegate_map;
-
+    std::unordered_map<std::string_view, WisHandle> handle_map;
+    std::unordered_map<std::string_view, WisFunction> delegate_map;
     std::unordered_map<std::string_view, WisStruct> struct_map;
     std::unordered_map<std::string_view, WisVariant> variant_map;
     std::unordered_map<std::string_view, WisEnum> enum_map;
