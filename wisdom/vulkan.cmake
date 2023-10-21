@@ -29,7 +29,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/xvk_pipeline_state.h"
 		"include/wisdom/vulkan/vk_state_builder.h"
 		"include/wisdom/vulkan/vk_shader.h"
-		"include/wisdom/vulkan/vk_root_signature.h"
+		"include/wisdom/vulkan/xvk_root_signature.h"
 		"include/wisdom/vulkan/vk_buffer_views.h"
 		"include/wisdom/vulkan/vk_xshared_handle.h"
 		"include/wisdom/vulkan/vk_views.h"

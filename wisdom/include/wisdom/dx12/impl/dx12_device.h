@@ -2,6 +2,7 @@
 #ifndef WISDOM_HEADER_ONLY
 #include <wisdom/dx12/xdx12_device.h>
 #endif // !WISDOM_HEADER_ONLY
+#include <d3dx12/d3dx12_root_signature.h>
 
 std::pair<wis::Result, wis::DX12Device>
 wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept
@@ -68,4 +69,26 @@ wis::DX12Device::CreateAllocator() const noexcept
     return wis::succeeded(hr = D3D12MA::CreateAllocator(&desc, allocator.put()))
             ? std::pair{ wis::success, DX12ResourceAllocator{ std::move(allocator) } }
             : std::pair{ wis::make_result<FUNC, "Failed to create allocator">(hr), DX12ResourceAllocator{} };
+}
+
+std::pair<wis::Result, wis::DX12RootSignature>
+wis::DX12Device::CreateRootSignature() const noexcept
+{
+    wis::com_ptr<ID3D12RootSignature> rsig;
+
+    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+    desc.Init_1_1(0, nullptr, 0, nullptr, flags);
+
+    wis::com_ptr<ID3DBlob> signature;
+    wis::com_ptr<ID3DBlob> error;
+    HRESULT hr;
+
+    if (!wis::succeeded(hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put())))
+        return std::pair{ wis::make_result<FUNC, "Failed to serialize root signature">(hr), DX12RootSignature{} };
+
+    return (!wis::succeeded(hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), __uuidof(*rsig), rsig.put_void())))
+            ? std::pair{ wis::make_result<FUNC, "Failed to create root signature">(hr), DX12RootSignature{} }
+            : std::pair{ wis::success, DX12RootSignature{ std::move(rsig) } };
 }

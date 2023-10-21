@@ -25,6 +25,7 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 namespace wis{
 
+using RootSignature = DX12RootSignature;
 using Factory = DX12Factory;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
@@ -39,6 +40,7 @@ constexpr auto CreateDevice = wis::DX12CreateDevice;
 
 namespace wis{
 
+using RootSignature = VKRootSignature;
 using Factory = VKFactory;
 using Adapter = VKAdapter;
 using Device = VKDevice;

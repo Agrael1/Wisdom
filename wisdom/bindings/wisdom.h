@@ -92,6 +92,9 @@ struct VKFenceView{
 typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
 //==================================HANDLES==================================
 
+typedef struct DX12RootSignature_t* DX12RootSignature;
+typedef struct VKRootSignature_t* VKRootSignature;
+
 typedef struct DX12Factory_t* DX12Factory;
 typedef struct VKFactory_t* VKFactory;
 
@@ -111,18 +114,26 @@ typedef struct VKResourceAllocator_t* VKResourceAllocator;
 
 WisResult DX12CreateFactory( bool debug_layer,  DebugCallback callback,  void* user_data, DX12Factory* out_factory);
 WisResult VKCreateFactory( bool debug_layer,  DebugCallback callback,  void* user_data, VKFactory* out_factory);
+WisResult DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter, DX12Device* out_device);
+WisResult VKCreateDevice( VKFactory factory,  VKAdapter adapter, VKDevice* out_device);
 WisResult DX12GetAdapter(DX12Factory self,  uint32_t index,  WisAdapterPreference preference, DX12Adapter* out_adapter);
 WisResult VKGetAdapter(VKFactory self,  uint32_t index,  WisAdapterPreference preference, VKAdapter* out_adapter);
 void DX12FactoryDestroy(DX12Factory self);
 void VKFactoryDestroy(VKFactory self);
 WisResult DX12GetDesc(DX12Adapter self,  WisAdapterDesc* desc);
 WisResult VKGetDesc(VKAdapter self,  WisAdapterDesc* desc);
-WisResult DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter, DX12Device* out_device);
-WisResult VKCreateDevice( VKFactory factory,  VKAdapter adapter, VKDevice* out_device);
 void DX12DeviceDestroy(DX12Device self);
 void VKDeviceDestroy(VKDevice self);
 WisResult DX12CreateFence(DX12Device self,  uint64_t initial_value, DX12Fence* out_fence);
 WisResult VKCreateFence(VKDevice self,  uint64_t initial_value, VKFence* out_fence);
+WisResult DX12CreateRootSignature(DX12Device self, DX12RootSignature* out_root_signature);
+WisResult VKCreateRootSignature(VKDevice self, VKRootSignature* out_root_signature);
+WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator);
+WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
+WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
+WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
+void DX12RootSignatureDestroy(DX12RootSignature self);
+void VKRootSignatureDestroy(VKRootSignature self);
 void DX12FenceDestroy(DX12Fence self);
 void VKFenceDestroy(VKFence self);
 uint64_t DX12GetCompletedValue(DX12Fence self);
@@ -131,11 +142,7 @@ WisResult DX12Wait(DX12Fence self,  uint64_t value,  uint64_t timeout_ns);
 WisResult VKWait(VKFence self,  uint64_t value,  uint64_t timeout_ns);
 WisResult DX12Signal(DX12Fence self,  uint64_t value);
 WisResult VKSignal(VKFence self,  uint64_t value);
-WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator);
-WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
 void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
 void VKResourceAllocatorDestroy(VKResourceAllocator self);
-WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
-WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
-DX12FenceView AsDX12FenceView(DX12Fence* self);
-VKFenceView AsVKFenceView(VKFence* self);
+DX12FenceView AsDX12FenceView(DX12Fence self);
+VKFenceView AsVKFenceView(VKFence self);

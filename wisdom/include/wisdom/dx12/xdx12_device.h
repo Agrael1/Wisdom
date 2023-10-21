@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/dx12/xdx12_fence.h>
 #include <wisdom/dx12/xdx12_allocator.h>
+#include <wisdom/dx12/xdx12_root_signature.h>
 
 namespace wis {
 class DX12Device;
@@ -35,6 +36,9 @@ public:
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
     CreateAllocator() const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12RootSignature>
+    CreateRootSignature() const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device> 
