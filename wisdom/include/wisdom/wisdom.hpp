@@ -30,8 +30,8 @@ using Adapter = DX12Adapter;
 using Device = DX12Device;
 using Fence = DX12Fence;
 using ResourceAllocator = DX12ResourceAllocator;
-constexpr auto CreateFactory = DX12CreateFactory;
-constexpr auto CreateDevice = DX12CreateDevice;
+constexpr auto CreateFactory = wis::DX12CreateFactory;
+constexpr auto CreateDevice = wis::DX12CreateDevice;
 }
 
 #elif WISDOM_VULKAN_FOUND
@@ -44,8 +44,8 @@ using Adapter = VKAdapter;
 using Device = VKDevice;
 using Fence = VKFence;
 using ResourceAllocator = VKResourceAllocator;
-constexpr auto CreateFactory = VKCreateFactory;
-constexpr auto CreateDevice = VKCreateDevice;
+constexpr auto CreateFactory = wis::VKCreateFactory;
+constexpr auto CreateDevice = wis::VKCreateDevice;
 }
 
 #else
