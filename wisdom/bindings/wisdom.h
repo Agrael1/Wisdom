@@ -135,5 +135,7 @@ WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_alloca
 WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
 void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
 void VKResourceAllocatorDestroy(VKResourceAllocator self);
+WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
+WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
 DX12FenceView AsDX12FenceView(DX12Fence* self);
 VKFenceView AsVKFenceView(VKFence* self);

@@ -231,7 +231,7 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
 wis::Result
 wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences,
                                      const uint64_t* values,
-                                     size_t count,
+                                     uint32_t count,
                                      MutiWaitFlags wait_all,
                                      uint64_t timeout) const noexcept
 {
