@@ -40,7 +40,7 @@ public:
     [[nodicard]] WIS_INLINE wis::Result
     WaitForMultipleFences(const VKFenceView* fences,
                           const uint64_t* values,
-                          size_t count,
+                          uint32_t count,
                           MutiWaitFlags wait_all = MutiWaitFlags::All,
                           uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
 

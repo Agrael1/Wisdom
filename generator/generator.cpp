@@ -441,15 +441,6 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
 
     if (auto* this_t = type.FindAttribute("for")) {
         ref.this_type = this_t->Value();
-
-        for (auto&& impl : std::span{ impls }.subspan(1, 2)) {
-            auto full_name = GetCFullTypename(ref.this_type, impl);
-            auto view_name = full_name + name;
-            function_decls.emplace_back(wis::format("{} As{}({}* self);\n", view_name, view_name, full_name));
-            function_impl.emplace_back(
-                    wis::format("{} As{}({}* self)\n{{\n    return reinterpret_cast<{}&>(static_cast<wis::{}>(self));\n}}\n",
-                                view_name, view_name, full_name, view_name, view_name));
-        }
     }
 
     for (auto* member = type.FirstChildElement("member"); member; member = member->NextSiblingElement("member")) {
@@ -484,6 +475,15 @@ std::string Generator::MakeCVariant(const WisVariant& s)
 
     for (; i < length; i++) {
         auto full_name = GetCFullTypename(s.name, impls[i]);
+
+        if (!s.this_type.empty()) {
+            auto this_name = GetCFullTypename(s.this_type, impls[i]);
+            function_decls.emplace_back(wis::format("{} As{}({}* self);\n", full_name, full_name, this_name));
+            function_impl.emplace_back(
+                    wis::format("{} As{}({}* self)\n{{\n    return reinterpret_cast<{}&>(static_cast<wis::{}>(reinterpret_cast<wis::{}&>(*self)));\n}}\n",
+                                full_name, full_name, this_name, full_name, full_name, this_name));
+        }
+
         auto st_decl = wis::format("struct {}{{\n", full_name);
 
         for (auto& m : s.members) {
@@ -521,7 +521,7 @@ std::string Generator::MakeCStruct(const WisStruct& s)
 }
 std::string Generator::MakeCPPStruct(const WisStruct& s)
 {
-    auto full_name = GetCFullTypename(s.name);
+    auto full_name = GetCPPFullTypename(s.name);
     auto st_decl = wis::format("struct {}{{\n", full_name);
 
     for (auto& m : s.members) {
@@ -738,12 +738,8 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     if (auto it = bitmask_map.find(type); it != bitmask_map.end())
         return "Wis" + std::string(type);
 
-    if (auto it = variant_map.find(type); it != variant_map.end()) {
-        auto& [_, val] = *it;
-        return (val.this_type.empty())
-                ? std::string(impl) + std::string(type)
-                : GetCFullTypename(val.this_type, impl) + std::string(type);
-    }
+    if (auto it = variant_map.find(type); it != variant_map.end())
+        return std::string(impl) + std::string(type);
 
     if (auto it = struct_map.find(type); it != struct_map.end())
         return "Wis" + std::string(type);
@@ -768,12 +764,8 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     if (auto it = bitmask_map.find(type); it != bitmask_map.end())
         return "wis::" + std::string(type);
 
-    if (auto it = variant_map.find(type); it != variant_map.end()) {
-        auto& [_, val] = *it;
-        return (val.this_type.empty())
-                ? "wis::" + std::string(impl) + std::string(type)
-                : GetCPPFullTypename(val.this_type, impl) + std::string(type);
-    }
+    if (auto it = variant_map.find(type); it != variant_map.end())
+        return "wis::" + std::string(impl) + std::string(type);
 
     if (auto it = struct_map.find(type); it != struct_map.end())
         return "wis::" + std::string(type);

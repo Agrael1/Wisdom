@@ -72,7 +72,7 @@
       <value name="VideoProcess" value="5" impl="dx"/>
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
-    <type name="View" category="variant" for="Fence">
+    <type name="FenceView" category="variant" for="Fence">
       <member type="void" name="value" mod="ptr"/>
     </type>
   </types>
@@ -127,6 +127,13 @@
       <ret type="ResourceAllocator" name="allocator"/>
     </func>
     <func for="ResourceAllocator" name="Destroy"/>
-
+    <func for="Device" name="WaitForMultipleFences">
+      <ret type="Result" name="result"/>
+      <arg type="FenceView" mod="ptr" name="fences"/>
+      <arg type="u64" mod="ptr" name="values"/>
+      <arg type="u32" name="count"/>
+      <arg type="MutiWaitFlags" name="wait_all" default="All"/>
+      <arg type="u64" name="timeout" default="18446744073709551615"/>
+    </func>
   </functions>
 </registry>

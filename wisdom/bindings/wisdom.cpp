@@ -3,11 +3,11 @@
 
 DX12FenceView AsDX12FenceView(DX12Fence* self)
 {
-    return reinterpret_cast<DX12FenceView&>(static_cast<wis::DX12FenceView>(self));
+    return reinterpret_cast<DX12FenceView&>(static_cast<wis::DX12FenceView>(reinterpret_cast<wis::DX12Fence&>(*self)));
 }
 VKFenceView AsVKFenceView(VKFence* self)
 {
-    return reinterpret_cast<VKFenceView&>(static_cast<wis::VKFenceView>(self));
+    return reinterpret_cast<VKFenceView&>(static_cast<wis::VKFenceView>(reinterpret_cast<wis::VKFence&>(*self)));
 }
 WisResult DX12CreateFactory( bool debug_layer,  DebugCallback callback,  void* user_data, DX12Factory* out_factory)
 {
@@ -162,4 +162,16 @@ void VKResourceAllocatorDestroy(VKResourceAllocator self)
 {
     auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
     delete xself;
+}
+WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret = xself->WaitForMultipleFences(reinterpret_cast<wis::FenceView*>(fences), values, count, reinterpret_cast<wis::MutiWaitFlags>(wait_all), timeout);
+    return reinterpret_cast<WisResult&>(ret);
+}
+WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret = xself->WaitForMultipleFences(reinterpret_cast<wis::FenceView*>(fences), values, count, reinterpret_cast<wis::MutiWaitFlags>(wait_all), timeout);
+    return reinterpret_cast<WisResult&>(ret);
 }

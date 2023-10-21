@@ -20,7 +20,7 @@ wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle ada
 wis::Result
 wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
                                        const uint64_t* values,
-                                       size_t count,
+                                       uint32_t count,
                                        MutiWaitFlags wait_all,
                                        uint64_t timeout) const noexcept
 {
