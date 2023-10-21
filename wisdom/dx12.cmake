@@ -15,7 +15,7 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_fence.h"
 		"include/wisdom/dx12/dx12_rtv.h"
 		"include/wisdom/dx12/dx12_pipeline_state.h"
-		"include/wisdom/dx12/dx12_root_signature.h"
+		"include/wisdom/dx12/xdx12_root_signature.h"
 		"include/wisdom/dx12/dx12_shader.h"
 		"include/wisdom/dx12/dx12_allocator.h"
 		"include/wisdom/dx12/dx12_state_builder.h"

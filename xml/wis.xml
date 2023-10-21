@@ -6,6 +6,7 @@
     <handle name="Device"/>
     <handle name="Fence"/>
     <handle name="ResourceAllocator"/>
+    <handle name="RootSignature"/>
   </handles>
   <types comment="Type definitions">
     <type name="Status" category="enum" type="i32">
@@ -78,6 +79,8 @@
   </types>
 
   <functions>
+    
+    <!--Free functions-->
     <func name="CreateFactory">
       <ret type="Result" name="result"/>
       <ret type="Factory" name="factory"/>
@@ -85,6 +88,14 @@
       <arg type="DebugCallback" name="callback" default="nullptr"/>
       <arg type="void" name="user_data" mod="ptr"/>
     </func>
+    <func name="CreateDevice">
+      <ret type="Result" name="result"/>
+      <ret type="Device" name="device"/>
+      <arg type="Factory" name="factory"/>
+      <arg type="Adapter" name="adapter"/>
+    </func>
+    
+    <!--Factory-->
     <func for="Factory" name="GetAdapter">
       <ret type="Result" name="result"/>
       <ret type="Adapter" name="adapter"/>
@@ -96,19 +107,35 @@
       <ret type="Result" name="result"/>
       <arg type="AdapterDesc" mod="ptr" name="desc"/>
     </func>
-    <func name="CreateDevice">
-      <ret type="Result" name="result"/>
-      <ret type="Device" name="device"/>
-      <arg type="Factory" name="factory"/>
-      <arg type="Adapter" name="adapter"/>
-    </func>
+
+    <!--Device-->
     <func for="Device" name="Destroy"/>
     <func for="Device" name="CreateFence">
       <ret type="Result" name="result"/>
       <ret type="Fence" name="fence"/>
       <arg type="u64" name="initial_value" default="0"/>
     </func>
+    <func for="Device" name="CreateRootSignature">
+      <ret type="Result" name="result"/>
+      <ret type="RootSignature" name="root_signature"/>
+    </func>
+    <func for="Device" name="CreateAllocator">
+      <ret type="Result" name="result"/>
+      <ret type="ResourceAllocator" name="allocator"/>
+    </func>
+    <func for="Device" name="WaitForMultipleFences">
+      <ret type="Result" name="result"/>
+      <arg type="FenceView" mod="ptr" name="fences"/>
+      <arg type="u64" mod="ptr" name="values"/>
+      <arg type="u32" name="count"/>
+      <arg type="MutiWaitFlags" name="wait_all" default="All"/>
+      <arg type="u64" name="timeout" default="18446744073709551615"/>
+    </func>
 
+    <!--RootSignature-->
+    <func for="RootSignature" name="Destroy"/>
+    
+    <!--Fence-->
     <func for="Fence" name="Destroy"/>
     <func for="Fence" name="GetCompletedValue">
       <ret type="u64" name="value"/>
@@ -121,19 +148,10 @@
     <func for="Fence" name="Signal">
       <ret type="Result" name="result"/>
       <arg type="u64" name="value"/>
-    </func>    
-    <func for="Device" name="CreateAllocator">
-      <ret type="Result" name="result"/>
-      <ret type="ResourceAllocator" name="allocator"/>
     </func>
+
+    <!--ResourceAllocator-->
     <func for="ResourceAllocator" name="Destroy"/>
-    <func for="Device" name="WaitForMultipleFences">
-      <ret type="Result" name="result"/>
-      <arg type="FenceView" mod="ptr" name="fences"/>
-      <arg type="u64" mod="ptr" name="values"/>
-      <arg type="u32" name="count"/>
-      <arg type="MutiWaitFlags" name="wait_all" default="All"/>
-      <arg type="u64" name="timeout" default="18446744073709551615"/>
-    </func>
+
   </functions>
 </registry>

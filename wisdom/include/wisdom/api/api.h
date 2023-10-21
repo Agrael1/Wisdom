@@ -54,12 +54,12 @@ enum class AdapterFlags {
     DX12KeyedMutexConformance = 1 << 5,
 };
 
-struct wis::Result{
+struct Result{
     wis::Status status = wis::Status::Ok;
     const char* error = nullptr;
 };
 
-struct wis::AdapterDesc{
+struct AdapterDesc{
     std::array<const char, 256> description {};
     uint32_t vendor_id;
     uint32_t device_id;

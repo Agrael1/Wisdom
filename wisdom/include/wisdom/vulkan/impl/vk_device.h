@@ -235,14 +235,13 @@ wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences,
                                      MutiWaitFlags wait_all,
                                      uint64_t timeout) const noexcept
 {
-    VkSemaphoreWaitInfo waitInfo
-    { 
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, 
+    VkSemaphoreWaitInfo waitInfo{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
         .pNext = nullptr,
-        .flags = VkSemaphoreWaitFlags(wait_all), 
+        .flags = VkSemaphoreWaitFlags(wait_all),
         .semaphoreCount = static_cast<uint32_t>(count),
         .pSemaphores = reinterpret_cast<const VkSemaphore*>(fences),
-        .pValues = values 
+        .pValues = values
     };
     VkResult result = device.table()->vkWaitSemaphores(device.get(), &waitInfo, timeout);
 
@@ -325,4 +324,24 @@ wis::VKDevice::CreateAllocator() const noexcept
     return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
             ? std::make_pair(wis::success, VKResourceAllocator{ wis::managed_handle_ex<VmaAllocator>{ device, al }, std::move(vkfuncs) })
             : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr), VKResourceAllocator{});
+}
+
+std::pair<wis::Result, wis::VKRootSignature>
+wis::VKDevice::CreateRootSignature() const noexcept
+{
+    VkPipelineLayoutCreateInfo pipeline_layout_info{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .setLayoutCount = 0,
+        .pSetLayouts = nullptr,
+        .pushConstantRangeCount = 0,
+        .pPushConstantRanges = nullptr,
+    };
+    VkPipelineLayout layout;
+    auto vr = device.table()->vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
+
+    return succeeded(vr)
+            ? std::pair{ wis::success, VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create a pipeline layout">(vr), VKRootSignature{} };
 }

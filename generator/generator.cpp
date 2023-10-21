@@ -478,9 +478,9 @@ std::string Generator::MakeCVariant(const WisVariant& s)
 
         if (!s.this_type.empty()) {
             auto this_name = GetCFullTypename(s.this_type, impls[i]);
-            function_decls.emplace_back(wis::format("{} As{}({}* self);\n", full_name, full_name, this_name));
+            function_decls.emplace_back(wis::format("{} As{}({} self);\n", full_name, full_name, this_name));
             function_impl.emplace_back(
-                    wis::format("{} As{}({}* self)\n{{\n    return reinterpret_cast<{}&>(static_cast<wis::{}>(reinterpret_cast<wis::{}&>(*self)));\n}}\n",
+                    wis::format("{} As{}({} self)\n{{\n    return reinterpret_cast<{}&>(static_cast<wis::{}>(reinterpret_cast<wis::{}&>(*self)));\n}}\n",
                                 full_name, full_name, this_name, full_name, full_name, this_name));
         }
 
@@ -521,7 +521,7 @@ std::string Generator::MakeCStruct(const WisStruct& s)
 }
 std::string Generator::MakeCPPStruct(const WisStruct& s)
 {
-    auto full_name = GetCPPFullTypename(s.name);
+    auto full_name = s.name;
     auto st_decl = wis::format("struct {}{{\n", full_name);
 
     for (auto& m : s.members) {

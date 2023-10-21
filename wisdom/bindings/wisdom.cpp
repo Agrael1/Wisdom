@@ -1,11 +1,11 @@
 #include "wisdom.h"
 #include <wisdom/wisdom.h>
 
-DX12FenceView AsDX12FenceView(DX12Fence* self)
+DX12FenceView AsDX12FenceView(DX12Fence self)
 {
     return reinterpret_cast<DX12FenceView&>(static_cast<wis::DX12FenceView>(reinterpret_cast<wis::DX12Fence&>(*self)));
 }
-VKFenceView AsVKFenceView(VKFence* self)
+VKFenceView AsVKFenceView(VKFence self)
 {
     return reinterpret_cast<VKFenceView&>(static_cast<wis::VKFenceView>(reinterpret_cast<wis::VKFence&>(*self)));
 }
@@ -19,6 +19,18 @@ WisResult VKCreateFactory( bool debug_layer,  DebugCallback callback,  void* use
 {
     auto&& ret = wis::VKCreateFactory(debug_layer, reinterpret_cast<DebugCallback>(callback), user_data);
     *out_factory = reinterpret_cast<VKFactory>(new wis::VKFactory(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter, DX12Device* out_device)
+{
+    auto&& ret = wis::DX12CreateDevice(*reinterpret_cast<wis::Factory*>(factory), *reinterpret_cast<wis::Adapter*>(adapter));
+    *out_device = reinterpret_cast<DX12Device>(new wis::DX12Device(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult VKCreateDevice( VKFactory factory,  VKAdapter adapter, VKDevice* out_device)
+{
+    auto&& ret = wis::VKCreateDevice(*reinterpret_cast<wis::Factory*>(factory), *reinterpret_cast<wis::Adapter*>(adapter));
+    *out_device = reinterpret_cast<VKDevice>(new wis::VKDevice(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }
 WisResult DX12GetAdapter(DX12Factory self,  uint32_t index,  WisAdapterPreference preference, DX12Adapter* out_adapter)
@@ -57,18 +69,6 @@ WisResult VKGetDesc(VKAdapter self,  WisAdapterDesc* desc)
     auto&& ret = xself->GetDesc(reinterpret_cast<wis::AdapterDesc*>(desc));
     return reinterpret_cast<WisResult&>(ret);
 }
-WisResult DX12CreateDevice( DX12Factory factory,  DX12Adapter adapter, DX12Device* out_device)
-{
-    auto&& ret = wis::DX12CreateDevice(*reinterpret_cast<wis::Factory*>(factory), *reinterpret_cast<wis::Adapter*>(adapter));
-    *out_device = reinterpret_cast<DX12Device>(new wis::DX12Device(std::move(std::get<1>(ret))));
-    return reinterpret_cast<WisResult&>(std::get<0>(ret));
-}
-WisResult VKCreateDevice( VKFactory factory,  VKAdapter adapter, VKDevice* out_device)
-{
-    auto&& ret = wis::VKCreateDevice(*reinterpret_cast<wis::Factory*>(factory), *reinterpret_cast<wis::Adapter*>(adapter));
-    *out_device = reinterpret_cast<VKDevice>(new wis::VKDevice(std::move(std::get<1>(ret))));
-    return reinterpret_cast<WisResult&>(std::get<0>(ret));
-}
 void DX12DeviceDestroy(DX12Device self)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
@@ -92,6 +92,56 @@ WisResult VKCreateFence(VKDevice self,  uint64_t initial_value, VKFence* out_fen
     auto&& ret = xself->CreateFence(initial_value);
     *out_fence = reinterpret_cast<VKFence>(new wis::VKFence(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult DX12CreateRootSignature(DX12Device self, DX12RootSignature* out_root_signature)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret = xself->CreateRootSignature();
+    *out_root_signature = reinterpret_cast<DX12RootSignature>(new wis::DX12RootSignature(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult VKCreateRootSignature(VKDevice self, VKRootSignature* out_root_signature)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret = xself->CreateRootSignature();
+    *out_root_signature = reinterpret_cast<VKRootSignature>(new wis::VKRootSignature(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret = xself->CreateAllocator();
+    *out_allocator = reinterpret_cast<DX12ResourceAllocator>(new wis::DX12ResourceAllocator(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret = xself->CreateAllocator();
+    *out_allocator = reinterpret_cast<VKResourceAllocator>(new wis::VKResourceAllocator(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret = xself->WaitForMultipleFences(reinterpret_cast<wis::FenceView*>(fences), values, count, reinterpret_cast<wis::MutiWaitFlags>(wait_all), timeout);
+    return reinterpret_cast<WisResult&>(ret);
+}
+WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret = xself->WaitForMultipleFences(reinterpret_cast<wis::FenceView*>(fences), values, count, reinterpret_cast<wis::MutiWaitFlags>(wait_all), timeout);
+    return reinterpret_cast<WisResult&>(ret);
+}
+void DX12RootSignatureDestroy(DX12RootSignature self)
+{
+    auto* xself = reinterpret_cast<wis::DX12RootSignature*>(self);
+    delete xself;
+}
+void VKRootSignatureDestroy(VKRootSignature self)
+{
+    auto* xself = reinterpret_cast<wis::VKRootSignature*>(self);
+    delete xself;
 }
 void DX12FenceDestroy(DX12Fence self)
 {
@@ -139,20 +189,6 @@ WisResult VKSignal(VKFence self,  uint64_t value)
     auto&& ret = xself->Signal(value);
     return reinterpret_cast<WisResult&>(ret);
 }
-WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator)
-{
-    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& ret = xself->CreateAllocator();
-    *out_allocator = reinterpret_cast<DX12ResourceAllocator>(new wis::DX12ResourceAllocator(std::move(std::get<1>(ret))));
-    return reinterpret_cast<WisResult&>(std::get<0>(ret));
-}
-WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator)
-{
-    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& ret = xself->CreateAllocator();
-    *out_allocator = reinterpret_cast<VKResourceAllocator>(new wis::VKResourceAllocator(std::move(std::get<1>(ret))));
-    return reinterpret_cast<WisResult&>(std::get<0>(ret));
-}
 void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self)
 {
     auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
@@ -162,16 +198,4 @@ void VKResourceAllocatorDestroy(VKResourceAllocator self)
 {
     auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
     delete xself;
-}
-WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
-{
-    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& ret = xself->WaitForMultipleFences(reinterpret_cast<wis::FenceView*>(fences), values, count, reinterpret_cast<wis::MutiWaitFlags>(wait_all), timeout);
-    return reinterpret_cast<WisResult&>(ret);
-}
-WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
-{
-    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& ret = xself->WaitForMultipleFences(reinterpret_cast<wis::FenceView*>(fences), values, count, reinterpret_cast<wis::MutiWaitFlags>(wait_all), timeout);
-    return reinterpret_cast<WisResult&>(ret);
 }

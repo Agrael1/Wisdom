@@ -2,6 +2,7 @@
 #include <wisdom/vulkan/xvk_fence.h>
 #include <wisdom/vulkan/xvk_allocator.h>
 #include <wisdom/vulkan/xvk_command_queue.h>
+#include <wisdom/vulkan/xvk_root_signature.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
 #include <vector>
 
@@ -49,6 +50,9 @@ public:
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKResourceAllocator>
     CreateAllocator() const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKRootSignature>
+    CreateRootSignature() const noexcept;
 
 private:
     detail::QueueResidency queues;
