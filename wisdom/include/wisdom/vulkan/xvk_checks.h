@@ -11,7 +11,7 @@ inline bool succeeded(VkResult hr) noexcept
     return hr >= 0;
 }
 
-template<wis::string_literal func, wis::string_literal message>
+template<string_literal func, wis::string_literal message>
 constexpr inline wis::Result make_result(VkResult hr) noexcept
 {
     static constinit auto str = wis::make_error_string<func, message>();

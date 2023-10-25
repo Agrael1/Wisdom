@@ -52,7 +52,7 @@ public:
     CreateAllocator() const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKRootSignature>
-    CreateRootSignature() const noexcept;
+    CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept;
 
 private:
     detail::QueueResidency queues;

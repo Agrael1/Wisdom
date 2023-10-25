@@ -72,14 +72,26 @@ wis::DX12Device::CreateAllocator() const noexcept
 }
 
 std::pair<wis::Result, wis::DX12RootSignature>
-wis::DX12Device::CreateRootSignature() const noexcept
+wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept
 {
     wis::com_ptr<ID3D12RootSignature> rsig;
 
     D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
+    auto root_params = std::make_unique<D3D12_ROOT_PARAMETER1[]>(constants_size);
+    for (uint32_t i = 0; i < constants_size; ++i) {
+        auto& param = root_params[i];
+        auto& constant = root_constants[i];
+
+        param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+        param.ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage);
+        param.Constants.Num32BitValues = constant.size_bytes / 4;
+        param.Constants.RegisterSpace = 0;
+        param.Constants.ShaderRegister = DX12RootSignature::root_const_register;
+    }
+
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-    desc.Init_1_1(0, nullptr, 0, nullptr, flags);
+    desc.Init_1_1(constants_size, root_params.get(), 0, nullptr, flags);
 
     wis::com_ptr<ID3DBlob> signature;
     wis::com_ptr<ID3DBlob> error;

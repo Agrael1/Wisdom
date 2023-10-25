@@ -76,10 +76,24 @@
     <type name="FenceView" category="variant" for="Fence">
       <member type="void" name="value" mod="ptr"/>
     </type>
+    <type name="ShaderStages" category="enum">
+      <value name="All" value="0"/>
+      <value name="Vertex" value="1"/>
+      <value name="Hull" value="2"/>
+      <value name="Domain" value="3"/>
+      <value name="Geometry" value="4"/>
+      <value name="Pixel" value="5"/>
+      <value name="Amplification" value="6"/>
+      <value name="Mesh" value="7"/>
+    </type>
+    <type name="RootConstant" category="struct">
+      <member type="ShaderStages" name="stage"/>
+      <member type="u32" name="size_bytes"/>
+    </type>
   </types>
 
   <functions>
-    
+
     <!--Free functions-->
     <func name="CreateFactory">
       <ret type="Result" name="result"/>
@@ -94,7 +108,7 @@
       <arg type="Factory" name="factory"/>
       <arg type="Adapter" name="adapter"/>
     </func>
-    
+
     <!--Factory-->
     <func for="Factory" name="GetAdapter">
       <ret type="Result" name="result"/>
@@ -134,7 +148,7 @@
 
     <!--RootSignature-->
     <func for="RootSignature" name="Destroy"/>
-    
+
     <!--Fence-->
     <func for="Fence" name="Destroy"/>
     <func for="Fence" name="GetCompletedValue">

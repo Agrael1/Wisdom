@@ -4,6 +4,18 @@
 namespace wis {
 struct Result;
 struct AdapterDesc;
+struct RootConstant;
+
+enum class ShaderStages {
+    All = 0,
+    Vertex = 1,
+    Hull = 2,
+    Domain = 3,
+    Geometry = 4,
+    Pixel = 5,
+    Amplification = 6,
+    Mesh = 7,
+};
 
 enum class Status : int32_t {
     Ok = 0,
@@ -70,6 +82,11 @@ struct AdapterDesc{
     uint64_t shared_system_memory;
     uint64_t adapter_id;
     wis::AdapterFlags flags;
+};
+
+struct RootConstant{
+    wis::ShaderStages stage;
+    uint32_t size_bytes;
 };
 
 //=================================DELEGATES=================================
