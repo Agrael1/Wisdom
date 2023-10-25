@@ -4,6 +4,8 @@
 
 typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
+typedef struct WisRootConstant WisRootConstant;
+typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisQueueType WisQueueType;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -11,6 +13,17 @@ typedef enum WisAdapterPreference WisAdapterPreference;
 typedef enum WisSeverity WisSeverity;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
+
+enum WisShaderStages {
+    ShaderStagesAll = 0,
+    ShaderStagesVertex = 1,
+    ShaderStagesHull = 2,
+    ShaderStagesDomain = 3,
+    ShaderStagesGeometry = 4,
+    ShaderStagesPixel = 5,
+    ShaderStagesAmplification = 6,
+    ShaderStagesMesh = 7,
+};
 
 enum WisStatus {
     StatusOk = 0,
@@ -77,6 +90,11 @@ struct WisAdapterDesc{
     uint64_t shared_system_memory;
     uint64_t adapter_id;
     WisAdapterFlags flags;
+};
+
+struct WisRootConstant{
+    WisShaderStages stage;
+    uint32_t size_bytes;
 };
 
 struct DX12FenceView{

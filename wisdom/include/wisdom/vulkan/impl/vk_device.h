@@ -327,16 +327,25 @@ wis::VKDevice::CreateAllocator() const noexcept
 }
 
 std::pair<wis::Result, wis::VKRootSignature>
-wis::VKDevice::CreateRootSignature() const noexcept
+wis::VKDevice::CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept
 {
+    auto constants = std::make_unique<VkPushConstantRange[]>(constants_size);
+    for (uint32_t i = 0; i < constants_size; i++) {
+        auto& c = constants[i];
+        auto& r = root_constants[i];
+        c.stageFlags = convert(r.stage);
+        c.offset = 0;
+        c.size = r.size_bytes;
+    }
+
     VkPipelineLayoutCreateInfo pipeline_layout_info{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
         .setLayoutCount = 0,
         .pSetLayouts = nullptr,
-        .pushConstantRangeCount = 0,
-        .pPushConstantRanges = nullptr,
+        .pushConstantRangeCount = constants_size,
+        .pPushConstantRanges = constants.get(),
     };
     VkPipelineLayout layout;
     auto vr = device.table()->vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);

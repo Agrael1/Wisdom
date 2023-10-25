@@ -38,7 +38,7 @@ public:
     CreateAllocator() const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12RootSignature>
-    CreateRootSignature() const noexcept;
+    CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device> 
