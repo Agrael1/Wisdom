@@ -104,3 +104,18 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t cons
             ? std::pair{ wis::make_result<FUNC, "Failed to create root signature">(hr), DX12RootSignature{} }
             : std::pair{ wis::success, DX12RootSignature{ std::move(rsig) } };
 }
+
+std::pair<wis::Result, wis::DX12CommandQueue>
+wis::DX12Device::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
+{
+    wis::com_ptr<ID3D12CommandQueue> queue;
+    D3D12_COMMAND_QUEUE_DESC desc{
+        .Type = D3D12_COMMAND_LIST_TYPE(type),
+        .Priority = int(priority),
+    };
+
+    HRESULT hr;
+    return wis::succeeded(hr = device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
+            ? std::pair{ wis::success, DX12CommandQueue{ std::move(queue) } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create command queue">(hr), DX12CommandQueue{} };
+}

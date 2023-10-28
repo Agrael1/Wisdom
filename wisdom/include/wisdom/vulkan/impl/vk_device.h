@@ -393,7 +393,7 @@ wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexce
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
         .flags = VkDescriptorSetLayoutCreateFlags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT * int(ifeatures.has_descriptor_buffer) |
-                VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR),
+                                                  VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR),
         .bindingCount = 1,
         .pBindings = &binding,
     };
@@ -429,4 +429,25 @@ wis::VKDevice::CreateAllocatorI() const noexcept
     return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
             ? std::make_pair(wis::success, al)
             : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr), VmaAllocator{});
+}
+
+std::pair<wis::Result, wis::VKCommandQueue>
+wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
+{
+    (void)priority; // TODO: use priority
+
+    const auto* queue = queues.GetOfType(type);
+    if (queue == nullptr)
+        return { wis::make_result<FUNC, "The system does not support the requested queue type">(VkResult::VK_ERROR_UNKNOWN), wis::VKCommandQueue{} };
+
+    VkDeviceQueueInfo2 info{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+        .pNext = nullptr,
+        .flags = 0,
+        .queueFamilyIndex = queue->family_index,
+        .queueIndex = queue->GetNextInLine(),
+    };
+    VkQueue queue_handle;
+    device.table()->vkGetDeviceQueue2(device.get(), &info, &queue_handle);
+    return { wis::success, wis::VKCommandQueue{ device, VkQueue{ queue_handle } } };
 }

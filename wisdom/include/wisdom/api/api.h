@@ -27,6 +27,12 @@ enum class Status : int32_t {
     DeviceLost = -4,
 };
 
+enum class QueuePriority {
+    Common = 0,
+    High = 100,
+    Realtime = 10000,
+};
+
 enum class DescriptorType {
     None = 0,
     ConstantBuffer = 2,

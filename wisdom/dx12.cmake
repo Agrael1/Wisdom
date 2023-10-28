@@ -30,7 +30,7 @@ if(WIN32)
 		"include/wisdom/dx12/xdx12_adapter.h" 
 		"include/wisdom/dx12/xdx12_device.h" 
 		"include/wisdom/dx12/xdx12_views.h" 
-		"include/wisdom/dx12/impl/dx12_device.h" "include/wisdom/dx12/xdx12_fence.h" "include/wisdom/dx12/xdx12_allocator.h" "include/wisdom/dx12/xdx12_descriptors.h" "include/wisdom/dx12/xdx12_descriptor_heap.h")
+		"include/wisdom/dx12/impl/dx12_device.h" "include/wisdom/dx12/xdx12_fence.h" "include/wisdom/dx12/xdx12_allocator.h"   "include/wisdom/dx12/xdx12_command_queue.h")
 	set(DX12INL
 		"include/wisdom/dx12/impl/dx12_allocator.inl"
 		"include/wisdom/dx12/impl/dx12_checks.inl"
