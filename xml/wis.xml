@@ -8,6 +8,7 @@
     <handle name="ResourceAllocator"/>
     <handle name="RootSignature"/>
     <handle name="CommandQueue"/>
+    <handle name="Shader"/>
   </handles>
   <types comment="Type definitions">
     <type name="Status" category="enum" type="i32">
@@ -166,6 +167,12 @@
       <ret type="CommandQueue" name="queue"/>
       <arg type="QueueType" name="type"/>
       <arg type="QueuePriority" name="priority" default="Common"/>
+    </func>
+    <func for="Device" name="CreateShader">
+      <ret type="Result" name="result"/>
+      <ret type="Shader" name="shader"/>
+      <arg type="void" name="data" mod="ptr"/>
+      <arg type="u32" name="size_bytes"/>
     </func>
     <func for="Device" name="WaitForMultipleFences">
       <ret type="Result" name="result"/>

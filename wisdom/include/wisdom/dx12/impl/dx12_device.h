@@ -119,3 +119,11 @@ wis::DX12Device::CreateCommandQueue(wis::QueueType type, wis::QueuePriority prio
             ? std::pair{ wis::success, DX12CommandQueue{ std::move(queue) } }
             : std::pair{ wis::make_result<FUNC, "Failed to create command queue">(hr), DX12CommandQueue{} };
 }
+
+std::pair<wis::Result, wis::DX12Shader>
+wis::DX12Device::CreateShader(void* data, size_t size) const noexcept
+{
+    auto x = std::make_unique_for_overwrite<std::byte[]>(size);
+    std::copy_n(reinterpret_cast<std::byte*>(data), size, x.get());
+    return std::pair{ wis::success, DX12Shader{ std::move(x), size } };
+}

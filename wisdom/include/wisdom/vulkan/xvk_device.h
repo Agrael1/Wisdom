@@ -5,6 +5,7 @@
 #include <wisdom/vulkan/xvk_command_queue.h>
 #include <wisdom/vulkan/xvk_root_signature.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
+#include <wisdom/vulkan/xvk_shader.h>
 #include <vector>
 
 namespace wis {
@@ -71,6 +72,9 @@ public:
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandQueue>
     CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKShader>
+    CreateShader(void* bytecode, uint32_t size) const noexcept;
 
 private:
     std::pair<wis::Result, VkDescriptorSetLayout>

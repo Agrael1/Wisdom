@@ -161,6 +161,9 @@ typedef struct VKFence_t* VKFence;
 typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
 typedef struct VKResourceAllocator_t* VKResourceAllocator;
 
+typedef struct DX12Shader_t* DX12Shader;
+typedef struct VKShader_t* VKShader;
+
 //=================================FUNCTIONS=================================
 
 WisResult DX12CreateFactory( bool debug_layer,  DebugCallback callback,  void* user_data, DX12Factory* out_factory);
@@ -183,6 +186,8 @@ WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_alloca
 WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
 WisResult DX12CreateCommandQueue(DX12Device self,  WisQueueType type,  WisQueuePriority priority, DX12CommandQueue* out_queue);
 WisResult VKCreateCommandQueue(VKDevice self,  WisQueueType type,  WisQueuePriority priority, VKCommandQueue* out_queue);
+WisResult DX12CreateShader(DX12Device self,  void* data,  uint32_t size_bytes, DX12Shader* out_shader);
+WisResult VKCreateShader(VKDevice self,  void* data,  uint32_t size_bytes, VKShader* out_shader);
 WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
 WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
 void DX12RootSignatureDestroy(DX12RootSignature self);
