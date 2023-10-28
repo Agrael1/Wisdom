@@ -1,5 +1,5 @@
 #include "wisdom.h"
-#include <wisdom/wisdom.h>
+#include <wisdom/wisdom.hpp>
 
 DX12FenceView AsDX12FenceView(DX12Fence self)
 {
@@ -133,6 +133,20 @@ WisResult VKCreateCommandQueue(VKDevice self,  WisQueueType type,  WisQueuePrior
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
     auto&& ret = xself->CreateCommandQueue(reinterpret_cast<wis::QueueType>(type), reinterpret_cast<wis::QueuePriority>(priority));
     *out_queue = reinterpret_cast<VKCommandQueue>(new wis::VKCommandQueue(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult DX12CreateShader(DX12Device self,  void* data,  uint32_t size_bytes, DX12Shader* out_shader)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret = xself->CreateShader(data, size_bytes);
+    *out_shader = reinterpret_cast<DX12Shader>(new wis::DX12Shader(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult VKCreateShader(VKDevice self,  void* data,  uint32_t size_bytes, VKShader* out_shader)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret = xself->CreateShader(data, size_bytes);
+    *out_shader = reinterpret_cast<VKShader>(new wis::VKShader(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }
 WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)

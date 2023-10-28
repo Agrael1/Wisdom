@@ -451,3 +451,21 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priori
     device.table()->vkGetDeviceQueue2(device.get(), &info, &queue_handle);
     return { wis::success, wis::VKCommandQueue{ device, VkQueue{ queue_handle } } };
 }
+
+std::pair<wis::Result, wis::VKShader>
+wis::VKDevice::CreateShader(void* bytecode, uint32_t size) const noexcept
+{
+    VkShaderModuleCreateInfo desc{
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .codeSize = size / sizeof(uint32_t),
+        .pCode = reinterpret_cast<const uint32_t*>(bytecode),
+    };
+    VkShaderModule shader;
+    auto vr = device.table()->vkCreateShaderModule(device.get(), &desc, nullptr, &shader);
+
+    return succeeded(vr)
+            ? std::pair{ wis::success, wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table()->vkDestroyShaderModule } } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create a shader module">(vr), wis::VKShader{} };
+}

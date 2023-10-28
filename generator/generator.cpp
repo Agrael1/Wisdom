@@ -46,7 +46,7 @@ int Generator::GenerateCAPI()
     }
 
     // Function implementations
-    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.h>\n\n";
+    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
     for (auto& f : function_impl) {
         output_cpp += f;
     }
