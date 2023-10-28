@@ -3,6 +3,8 @@
 #include <wisvk/vk_managed_handles.hpp>
 #include <vk_mem_alloc.h>
 #include <memory>
+#include <vector>
+#include <span>
 
 namespace wis {
 struct SharedDeviceHeader : public managed_header<VkDevice> {
@@ -44,7 +46,8 @@ struct managed_header_ex<HandleType> {
 };
 
 template<typename HandleType>
-class managed_handle_ex : public managed_handle_base<HandleType, managed_header_ex<HandleType>, managed_handle_ex<HandleType>> {
+class managed_handle_ex : public managed_handle_base<HandleType, managed_header_ex<HandleType>, managed_handle_ex<HandleType>>
+{
 public:
     using managed_handle_base<HandleType, managed_header_ex<HandleType>, managed_handle_ex<HandleType>>::managed_handle_base;
 };
@@ -74,30 +77,70 @@ protected:
     }
 };
 
-//struct SharedInstanceHeader : public managed_header<VkInstance> {
-//    std::unique_ptr<VkInstanceTable> instance_table;
+//template<typename HandleType>
+//class managed_vector_ex
+//{
+//public:
+//    managed_vector_ex() noexcept = default;
+//    template<typename... Args>
+//    managed_vector_ex(size_t size, Args&&... args) noexcept
+//        : header(std::forward<Args>(args)...)
+//    {
+//        reserve(size);
+//    }
+//    managed_vector_ex(const managed_vector_ex&) = delete;
+//    managed_vector_ex(managed_vector_ex&&) noexcept = default;
+//    ~managed_vector_ex()
+//    {
+//        destroy();
+//    }
+//
+//    managed_vector_ex& operator=(const managed_vector_ex&) = delete;
+//    managed_vector_ex& operator=(managed_vector_ex&&) noexcept = default;
+//
+//    operator std::span<HandleType*>() noexcept
+//    {
+//        return data;
+//    }
+//    operator std::span<const HandleType*>() const noexcept
+//    {
+//        return data;
+//    }
+//    operator bool() const noexcept
+//    {
+//        return !data.empty();
+//    }
+//
+//public:
+//    bool reserve(size_t size) noexcept
+//    {
+//        data.reserve(size);
+//        return true; // TODO: check if allocation succeeded for allocators
+//    }
+//    void push_back(HandleType* handle) noexcept
+//    {
+//        data.push_back(handle);
+//    }
+//    void push_front(HandleType* handle) noexcept
+//    {
+//        data.insert(data.begin(), handle);
+//    }
+//    uint32_t size() const noexcept
+//    {
+//        return static_cast<uint32_t>(data.size());
+//    }
+//
+//private:
+//    void destroy()const noexcept
+//    {
+//        for (auto* handle : data) {
+//            header.deleter(header.parent.get(), handle);
+//        }
+//    }
+//
+//private:
+//    managed_header_ex<HandleType> header;
+//    std::vector<HandleType> data;
 //};
 
-// class SharedInstance : public shared_handle_base<VkInstance, SharedInstanceHeader, SharedInstance>
-//{
-// public:
-//     SharedInstance() noexcept = default;
-//     explicit SharedInstance(VkInstance device, std::unique_ptr<VkInstanceTable> device_table) noexcept
-//         : shared_handle_base(device,
-//                              nullptr,
-//                              std::move(device_table))
-//         , m_instance_table(m_control->m_header.instance_table.get())
-//     {
-//         m_control->m_header.deleter.m_pfn = m_control->m_header.instance_table->vkDestroyInstance;
-//     }
-//
-// public:
-//     auto* table() const noexcept
-//     {
-//         return m_instance_table;
-//     }
-//
-// protected:
-//     VkInstanceTable* m_instance_table;
-// };
 } // namespace wis

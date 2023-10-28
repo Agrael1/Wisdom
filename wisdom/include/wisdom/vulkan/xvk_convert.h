@@ -57,4 +57,17 @@ inline constexpr VkShaderStageFlagBits convert(wis::ShaderStages stage) noexcept
         return VK_SHADER_STAGE_ALL;
     }
 }
+inline constexpr VkDescriptorType convert(wis::DescriptorType type) noexcept
+{
+    switch (type) {
+    default:
+    case DescriptorType::ConstantBuffer:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    case DescriptorType::ShaderResource:
+        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    case DescriptorType::UnorderedAccess:
+        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    }
+}
+
 } // namespace wis

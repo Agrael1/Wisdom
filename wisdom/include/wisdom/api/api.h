@@ -5,6 +5,7 @@ namespace wis {
 struct Result;
 struct AdapterDesc;
 struct RootConstant;
+struct PushDescriptor;
 
 enum class ShaderStages {
     All = 0,
@@ -24,6 +25,13 @@ enum class Status : int32_t {
     InvalidArgument = -2,
     OutOfMemory = -3,
     DeviceLost = -4,
+};
+
+enum class DescriptorType {
+    None = 0,
+    ConstantBuffer = 2,
+    ShaderResource = 3,
+    UnorderedAccess = 4,
 };
 
 enum class QueueType : uint32_t {
@@ -66,6 +74,11 @@ enum class AdapterFlags {
     DX12KeyedMutexConformance = 1 << 5,
 };
 
+enum class DeviceFeatures {
+    None = 0x0,
+    PushDescriptors = 1 << 0,
+};
+
 struct Result{
     wis::Status status = wis::Status::Ok;
     const char* error = nullptr;
@@ -89,6 +102,13 @@ struct RootConstant{
     uint32_t size_bytes;
 };
 
+struct PushDescriptor{
+    wis::ShaderStages stage;
+    uint32_t bind_register;
+    wis::DescriptorType type;
+    uint32_t reserved;
+};
+
 //=================================DELEGATES=================================
 
 typedef void (*DebugCallback)( wis::Severity severity,  const char* message,  void* user_data);
@@ -96,4 +116,5 @@ typedef void (*DebugCallback)( wis::Severity severity,  const char* message,  vo
 
 template <typename T> struct is_flag_enum : public std::false_type {};
 template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
+template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
 }

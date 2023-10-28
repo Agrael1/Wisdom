@@ -1,5 +1,5 @@
 // #include "app.h"
-#undef WISDOM_FORCE_VULKAN
+//#undef WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 
@@ -44,6 +44,7 @@ int main()
 
         auto fence = device.CreateFence();
         auto allocator = device.CreateAllocator();
+        auto root_signature = device.CreateRootSignature();
     }
 
     return 0;

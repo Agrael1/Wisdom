@@ -93,17 +93,17 @@ WisResult VKCreateFence(VKDevice self,  uint64_t initial_value, VKFence* out_fen
     *out_fence = reinterpret_cast<VKFence>(new wis::VKFence(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }
-WisResult DX12CreateRootSignature(DX12Device self, DX12RootSignature* out_root_signature)
+WisResult DX12CreateRootSignature(DX12Device self,  WisRootConstant* constants,  uint32_t constants_size, DX12RootSignature* out_root_signature)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& ret = xself->CreateRootSignature();
+    auto&& ret = xself->CreateRootSignature(reinterpret_cast<wis::RootConstant*>(constants), constants_size);
     *out_root_signature = reinterpret_cast<DX12RootSignature>(new wis::DX12RootSignature(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }
-WisResult VKCreateRootSignature(VKDevice self, VKRootSignature* out_root_signature)
+WisResult VKCreateRootSignature(VKDevice self,  WisRootConstant* constants,  uint32_t constants_size, VKRootSignature* out_root_signature)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& ret = xself->CreateRootSignature();
+    auto&& ret = xself->CreateRootSignature(reinterpret_cast<wis::RootConstant*>(constants), constants_size);
     *out_root_signature = reinterpret_cast<VKRootSignature>(new wis::VKRootSignature(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }

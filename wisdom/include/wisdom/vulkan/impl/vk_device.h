@@ -13,23 +13,23 @@
 #include <unordered_set>
 
 constexpr inline std::array required_extensions{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME, // for Swapchain
+    VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, // for Fence
+
     VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, // for Allocator
-    "VK_KHR_bind_memory2", // for Allocator
-    "VK_KHR_get_physical_device_properties2", // for Allocator
-    "VK_KHR_maintenance4", // for Allocator
+    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, // for Allocator
+    VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, // for Allocator
+    VK_KHR_MAINTENANCE_4_EXTENSION_NAME, // for Allocator
+
+    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
 
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
     // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
     // VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
     // VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-    // VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-    // VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
     // VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
     // VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
-    // VK_KHR_MAINTENANCE1_EXTENSION_NAME,
     // VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
     // VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME,
     // VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
@@ -144,10 +144,60 @@ wis::detail::QueueResidency GetQueueFamilies(wis::VKAdapterHandle adapter_hnd) n
 
 wis::VKDevice::VKDevice(wis::shared_handle<VkInstance> instance,
                         wis::SharedDevice device,
-                        wis::VKAdapterHandle adapter) noexcept
-    : QueryInternal(std::move(instance), std::move(device), adapter)
+                        wis::VKAdapterHandle adapter,
+                        wis::DeviceFeatures features,
+                        InternalFeatures ifeatures) noexcept
+    : QueryInternal(std::move(instance), std::move(device), adapter, ifeatures), features(features)
 {
     queues = GetQueueFamilies(adapter);
+
+    VkPhysicalDeviceProperties2 props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+        .pNext = nullptr,
+        .properties = {},
+    };
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT dbp{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT,
+        .pNext = nullptr,
+    };
+    if (ifeatures.has_descriptor_buffer) {
+        props.pNext = &dbp;
+        std::get<1>(adapter)->vkGetPhysicalDeviceProperties2(std::get<0>(adapter), &props);
+        ifeatures.push_descriptor_bufferless = dbp.bufferlessPushDescriptors;
+    }
+
+    auto& gt = wis::Internal<VKFactory>::global_table;
+    auto& it = *GetInstanceTable();
+    auto& dt = *device.table();
+
+    allocator_functions = std::shared_ptr<VmaVulkanFunctions>{ new VmaVulkanFunctions{
+            .vkGetInstanceProcAddr = gt.vkGetInstanceProcAddr,
+            .vkGetDeviceProcAddr = gt.vkGetDeviceProcAddr,
+            .vkGetPhysicalDeviceProperties = it.vkGetPhysicalDeviceProperties,
+            .vkGetPhysicalDeviceMemoryProperties = it.vkGetPhysicalDeviceMemoryProperties,
+            .vkAllocateMemory = dt.vkAllocateMemory,
+            .vkFreeMemory = dt.vkFreeMemory,
+            .vkMapMemory = dt.vkMapMemory,
+            .vkUnmapMemory = dt.vkUnmapMemory,
+            .vkFlushMappedMemoryRanges = dt.vkFlushMappedMemoryRanges,
+            .vkInvalidateMappedMemoryRanges = dt.vkInvalidateMappedMemoryRanges,
+            .vkBindBufferMemory = dt.vkBindBufferMemory,
+            .vkBindImageMemory = dt.vkBindImageMemory,
+            .vkGetBufferMemoryRequirements = dt.vkGetBufferMemoryRequirements,
+            .vkGetImageMemoryRequirements = dt.vkGetImageMemoryRequirements,
+            .vkCreateBuffer = dt.vkCreateBuffer,
+            .vkDestroyBuffer = dt.vkDestroyBuffer,
+            .vkCreateImage = dt.vkCreateImage,
+            .vkDestroyImage = dt.vkDestroyImage,
+            .vkCmdCopyBuffer = dt.vkCmdCopyBuffer,
+            .vkGetBufferMemoryRequirements2KHR = dt.vkGetBufferMemoryRequirements2,
+            .vkGetImageMemoryRequirements2KHR = dt.vkGetImageMemoryRequirements2,
+            .vkBindBufferMemory2KHR = dt.vkBindBufferMemory2,
+            .vkBindImageMemory2KHR = dt.vkBindImageMemory2,
+            .vkGetPhysicalDeviceMemoryProperties2KHR = it.vkGetPhysicalDeviceMemoryProperties2,
+            .vkGetDeviceBufferMemoryRequirements = dt.vkGetDeviceBufferMemoryRequirements,
+            .vkGetDeviceImageMemoryRequirements = dt.vkGetDeviceImageMemoryRequirements,
+    } };
 }
 
 std::pair<wis::Result, wis::VKDevice>
@@ -156,6 +206,8 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
     constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
     wis::detail::uniform_allocator<VkDeviceQueueCreateInfo, max_queue_count> queue_infos{};
     auto queues = GetQueueFamilies(adapter);
+    auto* xadapter = std::get<0>(adapter);
+    auto* itbl = std::get<1>(factory);
 
     constexpr static auto priorities = []() {
         std::array<float, 64> priorities{};
@@ -177,23 +229,32 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
         };
     }
 
-    auto exts = RequestExtensions(adapter);
+    auto present_exts = RequestExtensions(adapter);
+    if (!present_exts.contains(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
+        return { wis::make_result<FUNC, "The system does not support timeline semaphores.">(VkResult::VK_ERROR_UNKNOWN), wis::VKDevice{} };
 
     // Loading features
-
     VkPhysicalDeviceFeatures2 features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
         .pNext = nullptr,
         .features = {},
     };
-    vkGetPhysicalDeviceFeatures(std::get<0>(adapter), &features.features);
 
     VkPhysicalDeviceTimelineSemaphoreFeaturesKHR timeline_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES_KHR,
         .pNext = nullptr,
-        .timelineSemaphore = VK_TRUE,
+        .timelineSemaphore = true,
     };
     features.pNext = &timeline_features;
+
+    VkPhysicalDeviceDescriptorBufferFeaturesEXT descbuffer_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
+        .pNext = nullptr,
+    };
+    if (present_exts.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME))
+        timeline_features.pNext = &descbuffer_features;
+
+    itbl->vkGetPhysicalDeviceFeatures2(xadapter, &features);
 
     VkDeviceCreateInfo device_info{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -203,15 +264,16 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
         .pQueueCreateInfos = queue_infos.data(),
         .enabledLayerCount = 0,
         .ppEnabledLayerNames = nullptr,
-        .enabledExtensionCount = static_cast<uint32_t>(exts.size()),
-        .ppEnabledExtensionNames = exts.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(present_exts.size()),
+        .ppEnabledExtensionNames = present_exts.data(),
         .pEnabledFeatures = nullptr,
     };
 
     // Creating device
-
-    auto* xadapter = std::get<0>(adapter);
-    auto* itbl = std::get<1>(factory);
+    InternalFeatures ifeatures{
+        .has_descriptor_buffer = present_exts.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME),
+    };
+    DeviceFeatures dfeatures = DeviceFeatures(+DeviceFeatures::PushDescriptors & int(ifeatures.has_descriptor_buffer));
 
     VkDevice device{};
     VkResult result = VK_SUCCESS;
@@ -220,12 +282,11 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
 
     std::unique_ptr<VkDeviceTable> device_table = std::make_unique<VkDeviceTable>();
     device_table->Init(device, Internal<VKFactory>::global_table);
+    wis::VKDevice vkdevice{
+        std::move(std::get<0>(factory)), wis::SharedDevice{ device, std::move(device_table) }, std::move(adapter), dfeatures, ifeatures
+    };
 
-    return { wis::success, wis::VKDevice{
-                                   std::move(std::get<0>(factory)),
-                                   wis::SharedDevice{ device, std::move(device_table) },
-                                   std::move(adapter),
-                           } };
+    return { wis::success, std::move(vkdevice) };
 }
 
 wis::Result
@@ -276,63 +337,23 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 std::pair<wis::Result, wis::VKResourceAllocator>
 wis::VKDevice::CreateAllocator() const noexcept
 {
-    uint32_t version = 0;
-    auto& gt = wis::Internal<VKFactory>::global_table;
-    auto& it = *GetInstanceTable();
-    auto& dt = *device.table();
-    gt.vkEnumerateInstanceVersion(&version);
-
-    std::unique_ptr<VmaVulkanFunctions> vkfuncs{ new VmaVulkanFunctions{
-            .vkGetInstanceProcAddr = gt.vkGetInstanceProcAddr,
-            .vkGetDeviceProcAddr = gt.vkGetDeviceProcAddr,
-            .vkGetPhysicalDeviceProperties = it.vkGetPhysicalDeviceProperties,
-            .vkGetPhysicalDeviceMemoryProperties = it.vkGetPhysicalDeviceMemoryProperties,
-            .vkAllocateMemory = dt.vkAllocateMemory,
-            .vkFreeMemory = dt.vkFreeMemory,
-            .vkMapMemory = dt.vkMapMemory,
-            .vkUnmapMemory = dt.vkUnmapMemory,
-            .vkFlushMappedMemoryRanges = dt.vkFlushMappedMemoryRanges,
-            .vkInvalidateMappedMemoryRanges = dt.vkInvalidateMappedMemoryRanges,
-            .vkBindBufferMemory = dt.vkBindBufferMemory,
-            .vkBindImageMemory = dt.vkBindImageMemory,
-            .vkGetBufferMemoryRequirements = dt.vkGetBufferMemoryRequirements,
-            .vkGetImageMemoryRequirements = dt.vkGetImageMemoryRequirements,
-            .vkCreateBuffer = dt.vkCreateBuffer,
-            .vkDestroyBuffer = dt.vkDestroyBuffer,
-            .vkCreateImage = dt.vkCreateImage,
-            .vkDestroyImage = dt.vkDestroyImage,
-            .vkCmdCopyBuffer = dt.vkCmdCopyBuffer,
-            .vkGetBufferMemoryRequirements2KHR = dt.vkGetBufferMemoryRequirements2,
-            .vkGetImageMemoryRequirements2KHR = dt.vkGetImageMemoryRequirements2,
-            .vkBindBufferMemory2KHR = dt.vkBindBufferMemory2,
-            .vkBindImageMemory2KHR = dt.vkBindImageMemory2,
-            .vkGetPhysicalDeviceMemoryProperties2KHR = it.vkGetPhysicalDeviceMemoryProperties2,
-            .vkGetDeviceBufferMemoryRequirements = dt.vkGetDeviceBufferMemoryRequirements,
-            .vkGetDeviceImageMemoryRequirements = dt.vkGetDeviceImageMemoryRequirements,
-    } };
-
-    VmaAllocatorCreateInfo allocatorInfo{
-        .flags = 0,
-        .physicalDevice = std::get<0>(adapter),
-        .device = device.get(),
-        .pVulkanFunctions = vkfuncs.get(),
-        .instance = instance.get(),
-    };
-
-    VmaAllocator al;
-    VkResult vr;
-    return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
-            ? std::make_pair(wis::success, VKResourceAllocator{ wis::managed_handle_ex<VmaAllocator>{ device, al }, std::move(vkfuncs) })
-            : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr), VKResourceAllocator{});
+    auto [result, allocator] = CreateAllocatorI();
+    return result.status == wis::Status::Ok
+            ? std::pair{ wis::success, VKResourceAllocator{ wis::managed_handle_ex<VmaAllocator>{ device, allocator }, allocator_functions } }
+            : std::pair{ result, VKResourceAllocator{} };
 }
 
 std::pair<wis::Result, wis::VKRootSignature>
-wis::VKDevice::CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept
+wis::VKDevice::CreateRootSignature(RootConstant* constants, uint32_t constants_size) const noexcept
 {
-    auto constants = std::make_unique<VkPushConstantRange[]>(constants_size);
+    // TODO: do something with allocation
+    size_t size = sizeof(VkPushConstantRange) * constants_size;
+    void* alloc = size ? _aligned_malloc(8, size) : nullptr;
+    auto vk_constants = reinterpret_cast<VkPushConstantRange*>(alloc);
+
     for (uint32_t i = 0; i < constants_size; i++) {
-        auto& c = constants[i];
-        auto& r = root_constants[i];
+        auto& c = vk_constants[i];
+        auto& r = constants[i];
         c.stageFlags = convert(r.stage);
         c.offset = 0;
         c.size = r.size_bytes;
@@ -345,12 +366,67 @@ wis::VKDevice::CreateRootSignature(RootConstant* root_constants, uint32_t consta
         .setLayoutCount = 0,
         .pSetLayouts = nullptr,
         .pushConstantRangeCount = constants_size,
-        .pPushConstantRanges = constants.get(),
+        .pPushConstantRanges = vk_constants,
     };
     VkPipelineLayout layout;
     auto vr = device.table()->vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
 
+    if (!succeeded(vr)) {
+        _aligned_free(alloc);
+        return { wis::make_result<FUNC, "Failed to create a pipeline layout">(vr), VKRootSignature{} };
+    }
+    _aligned_free(alloc);
+    return std::pair{ wis::success, VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } } };
+}
+
+std::pair<wis::Result, VkDescriptorSetLayout>
+wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept
+{
+    VkDescriptorSetLayoutBinding binding{
+        .binding = desc.bind_register,
+        .descriptorType = convert(desc.type),
+        .descriptorCount = 1,
+        .stageFlags = VkShaderStageFlags(convert(desc.stage)),
+        .pImmutableSamplers = nullptr,
+    };
+    VkDescriptorSetLayoutCreateInfo dsl{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = VkDescriptorSetLayoutCreateFlags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT * int(ifeatures.has_descriptor_buffer) |
+                VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR),
+        .bindingCount = 1,
+        .pBindings = &binding,
+    };
+
+    VkDescriptorSetLayout layout;
+    auto vr = device.table()->vkCreateDescriptorSetLayout(device.get(), &dsl, nullptr, &layout);
+
     return succeeded(vr)
-            ? std::pair{ wis::success, VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create a pipeline layout">(vr), VKRootSignature{} };
+            ? std::pair{ wis::success, layout }
+            : std::pair{ wis::make_result<FUNC, "Failed to create a descriptor set layout">(vr), VkDescriptorSetLayout{} };
+}
+
+std::pair<wis::Result, VmaAllocator>
+wis::VKDevice::CreateAllocatorI() const noexcept
+{
+    uint32_t version = 0;
+    auto& gt = wis::Internal<VKFactory>::global_table;
+    auto& it = *GetInstanceTable();
+    auto& dt = *device.table();
+    gt.vkEnumerateInstanceVersion(&version);
+
+    VmaAllocatorCreateInfo allocatorInfo{
+        .flags = 0,
+        .physicalDevice = std::get<0>(adapter),
+        .device = device.get(),
+        .pVulkanFunctions = allocator_functions.get(),
+        .instance = instance.get(),
+        .vulkanApiVersion = version,
+    };
+
+    VmaAllocator al;
+    VkResult vr;
+    return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
+            ? std::make_pair(wis::success, al)
+            : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr), VmaAllocator{});
 }
