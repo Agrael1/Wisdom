@@ -140,6 +140,13 @@ public:
         return this->data() + rsize;
     }
 
+    /// @brief Checks if the allocator contains an object
+    /// @param ref Reference to the object to check
+    bool contains(const T& ref) const noexcept
+    {
+        return std::ranges::find(*this, ref) != this->end();
+    }
+
 private:
     size_t rsize = 0;
 };

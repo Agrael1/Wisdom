@@ -10,7 +10,7 @@ class VKResourceAllocator;
 template<>
 struct Internal<VKResourceAllocator> {
     wis::managed_handle_ex<VmaAllocator> allocator;
-    std::unique_ptr<VmaVulkanFunctions> functions;
+    std::shared_ptr<VmaVulkanFunctions> functions;
 };
 
 /// @brief Resource allocator for Vulkan
@@ -19,7 +19,7 @@ class VKResourceAllocator : public QueryInternal<VKResourceAllocator>
 public:
     VKResourceAllocator() = default;
     VKResourceAllocator(wis::managed_handle_ex<VmaAllocator> allocator,
-                        std::unique_ptr<VmaVulkanFunctions> functions) noexcept
+                        std::shared_ptr<VmaVulkanFunctions> functions) noexcept
         : QueryInternal(std::move(allocator), std::move(functions))
     {
     }

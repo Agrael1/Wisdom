@@ -78,7 +78,7 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t cons
 
     D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    auto root_params = std::make_unique<D3D12_ROOT_PARAMETER1[]>(constants_size);
+    std::unique_ptr<D3D12_ROOT_PARAMETER1[]> root_params = constants_size ? std::make_unique<D3D12_ROOT_PARAMETER1[]>(constants_size) : nullptr;
     for (uint32_t i = 0; i < constants_size; ++i) {
         auto& param = root_params[i];
         auto& constant = root_constants[i];

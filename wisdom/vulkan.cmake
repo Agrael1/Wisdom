@@ -44,7 +44,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/xvk_device.h" 
 		"include/wisdom/vulkan/xvk_views.h" 
 		"include/wisdom/vulkan/vk_queue_residency.h" 
-		"include/wisdom/vulkan/xvk_swapchain.h" "include/wisdom/vulkan/xvk_fence.h" "include/wisdom/vulkan/xvk_command_queue.h" "include/wisdom/vulkan/xvk_handles.h" "include/wisdom/vulkan/xvk_allocator.h" "include/wisdom/vulkan/impl/vk_allocator.h")
+		"include/wisdom/vulkan/xvk_swapchain.h" "include/wisdom/vulkan/xvk_fence.h" "include/wisdom/vulkan/xvk_command_queue.h" "include/wisdom/vulkan/xvk_handles.h" "include/wisdom/vulkan/xvk_allocator.h" "include/wisdom/vulkan/impl/vk_allocator.h" "include/wisdom/vulkan/xvk_descriptors.h" "include/wisdom/vulkan/xvk_descriptor_heap.h")
 
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_VULKAN_FOUND VULKAN_HPP_NO_EXCEPTIONS)
 

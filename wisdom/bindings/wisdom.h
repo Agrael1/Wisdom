@@ -5,14 +5,18 @@
 typedef struct WisResult WisResult;
 typedef struct WisAdapterDesc WisAdapterDesc;
 typedef struct WisRootConstant WisRootConstant;
+typedef struct WisPushDescriptor WisPushDescriptor;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
+typedef enum WisDescriptorType WisDescriptorType;
 typedef enum WisQueueType WisQueueType;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
 typedef enum WisAdapterPreference WisAdapterPreference;
 typedef enum WisSeverity WisSeverity;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
+typedef enum WisDeviceFeaturesBits WisDeviceFeaturesBits;
+typedef uint32_t WisDeviceFeatures;
 
 enum WisShaderStages {
     ShaderStagesAll = 0,
@@ -32,6 +36,13 @@ enum WisStatus {
     StatusInvalidArgument = -2,
     StatusOutOfMemory = -3,
     StatusDeviceLost = -4,
+};
+
+enum WisDescriptorType {
+    DescriptorTypeNone = 0,
+    DescriptorTypeConstantBuffer = 2,
+    DescriptorTypeShaderResource = 3,
+    DescriptorTypeUnorderedAccess = 4,
 };
 
 enum WisQueueType {
@@ -74,6 +85,11 @@ enum WisAdapterFlagsBits {
     AdapterFlagsDX12KeyedMutexConformance = 1 << 5,
 };
 
+enum WisDeviceFeaturesBits {
+    DeviceFeaturesNone = 0x0,
+    DeviceFeaturesPushDescriptors = 1 << 0,
+};
+
 struct WisResult{
     WisStatus status;
     const char* error;
@@ -95,6 +111,13 @@ struct WisAdapterDesc{
 struct WisRootConstant{
     WisShaderStages stage;
     uint32_t size_bytes;
+};
+
+struct WisPushDescriptor{
+    WisShaderStages stage;
+    uint32_t bind_register;
+    WisDescriptorType type;
+    uint32_t reserved;
 };
 
 struct DX12FenceView{
@@ -122,6 +145,9 @@ typedef struct VKAdapter_t* VKAdapter;
 typedef struct DX12Device_t* DX12Device;
 typedef struct VKDevice_t* VKDevice;
 
+typedef struct DX12DescriptorLayout_t* DX12DescriptorLayout;
+typedef struct VKDescriptorLayout_t* VKDescriptorLayout;
+
 typedef struct DX12Fence_t* DX12Fence;
 typedef struct VKFence_t* VKFence;
 
@@ -144,8 +170,8 @@ void DX12DeviceDestroy(DX12Device self);
 void VKDeviceDestroy(VKDevice self);
 WisResult DX12CreateFence(DX12Device self,  uint64_t initial_value, DX12Fence* out_fence);
 WisResult VKCreateFence(VKDevice self,  uint64_t initial_value, VKFence* out_fence);
-WisResult DX12CreateRootSignature(DX12Device self, DX12RootSignature* out_root_signature);
-WisResult VKCreateRootSignature(VKDevice self, VKRootSignature* out_root_signature);
+WisResult DX12CreateRootSignature(DX12Device self,  WisRootConstant* constants,  uint32_t constants_size, DX12RootSignature* out_root_signature);
+WisResult VKCreateRootSignature(VKDevice self,  WisRootConstant* constants,  uint32_t constants_size, VKRootSignature* out_root_signature);
 WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator);
 WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
 WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);

@@ -7,6 +7,7 @@
     <handle name="Fence"/>
     <handle name="ResourceAllocator"/>
     <handle name="RootSignature"/>
+    <handle name="DescriptorLayout"/>
   </handles>
   <types comment="Type definitions">
     <type name="Status" category="enum" type="i32">
@@ -90,6 +91,22 @@
       <member type="ShaderStages" name="stage"/>
       <member type="u32" name="size_bytes"/>
     </type>
+    <type name="DescriptorType" category="enum">
+      <value name="None" value="0"/>
+      <value name="ConstantBuffer" value="2"/>
+      <value name="ShaderResource" value="3"/>
+      <value name="UnorderedAccess" value="4"/>
+    </type>
+    <type name="PushDescriptor" category="struct">
+      <member type="ShaderStages" name="stage"/>
+      <member type="u32" name="bind_register"/>
+      <member type="DescriptorType" name="type"/>
+      <member type="u32" name="reserved"/>
+    </type>
+    <type name="DeviceFeatures" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="PushDescriptors" bit="0"/>
+    </type>
   </types>
 
   <functions>
@@ -132,6 +149,8 @@
     <func for="Device" name="CreateRootSignature">
       <ret type="Result" name="result"/>
       <ret type="RootSignature" name="root_signature"/>
+      <arg type="RootConstant" name="constants" default="nullptr" mod="ptr"/>
+      <arg type="u32" name="constants_size" default="0"/>
     </func>
     <func for="Device" name="CreateAllocator">
       <ret type="Result" name="result"/>

@@ -1,12 +1,18 @@
 #pragma once
 #include <wisdom/vulkan/xvk_fence.h>
 #include <wisdom/vulkan/xvk_allocator.h>
+#include <wisdom/vulkan/xvk_descriptors.h>
 #include <wisdom/vulkan/xvk_command_queue.h>
 #include <wisdom/vulkan/xvk_root_signature.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
 #include <vector>
 
 namespace wis {
+struct InternalFeatures {
+    bool has_descriptor_buffer : 1 = false;
+    bool push_descriptor_bufferless : 1 = false;
+};
+;
 
 class VKDevice;
 
@@ -15,7 +21,9 @@ struct Internal<VKDevice> {
     wis::shared_handle<VkInstance> instance;
     wis::SharedDevice device;
     wis::VKAdapterHandle adapter;
+    InternalFeatures ifeatures;
 
+    std::shared_ptr<VmaVulkanFunctions> allocator_functions;
 public:
     auto* GetAdapter() const noexcept
     {
@@ -29,11 +37,17 @@ public:
 
 class VKDevice : public QueryInternal<VKDevice>
 {
+    friend std::pair<wis::Result, wis::VKDevice>
+    VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept;
+
 public:
     VKDevice() noexcept = default;
     WIS_INLINE explicit VKDevice(wis::shared_handle<VkInstance> instance,
                                  wis::SharedDevice device,
-                                 wis::VKAdapterHandle adapter) noexcept;
+                                 wis::VKAdapterHandle adapter,
+                                 wis::DeviceFeatures features = wis::DeviceFeatures::None,
+                                 InternalFeatures ifeatures = {}) noexcept;
+
     operator bool() const noexcept { return bool(device); }
     operator VKDeviceHandle() const noexcept { return device; }
 
@@ -52,10 +66,17 @@ public:
     CreateAllocator() const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKRootSignature>
-    CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept;
+    CreateRootSignature(RootConstant* constants = nullptr, uint32_t constants_size = 0) const noexcept;
 
 private:
+    std::pair<wis::Result, VkDescriptorSetLayout>
+    CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, VmaAllocator>
+    CreateAllocatorI() const noexcept;
+private:
     detail::QueueResidency queues;
+    wis::DeviceFeatures features;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::VKDevice>

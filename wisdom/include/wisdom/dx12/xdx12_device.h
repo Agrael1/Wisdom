@@ -2,6 +2,7 @@
 #include <wisdom/dx12/xdx12_fence.h>
 #include <wisdom/dx12/xdx12_allocator.h>
 #include <wisdom/dx12/xdx12_root_signature.h>
+#include <wisdom/dx12/xdx12_descriptors.h>
 
 namespace wis {
 class DX12Device;
@@ -31,17 +32,17 @@ public:
                           MutiWaitFlags wait_all = MutiWaitFlags::All,
                           uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Fence> 
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Fence>
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
     CreateAllocator() const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12RootSignature>
-    CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept;
+    CreateRootSignature(RootConstant* root_constants = nullptr, uint32_t constants_size = 0) const noexcept;
 };
 
-WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device> 
+WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device>
 DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept;
 } // namespace wis
 
