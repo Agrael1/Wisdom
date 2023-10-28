@@ -24,6 +24,7 @@ struct Internal<VKDevice> {
     InternalFeatures ifeatures;
 
     std::shared_ptr<VmaVulkanFunctions> allocator_functions;
+
 public:
     auto* GetAdapter() const noexcept
     {
@@ -68,12 +69,16 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKRootSignature>
     CreateRootSignature(RootConstant* constants = nullptr, uint32_t constants_size = 0) const noexcept;
 
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandQueue>
+    CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
+
 private:
     std::pair<wis::Result, VkDescriptorSetLayout>
     CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, VmaAllocator>
     CreateAllocatorI() const noexcept;
+
 private:
     detail::QueueResidency queues;
     wis::DeviceFeatures features;

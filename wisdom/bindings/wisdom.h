@@ -8,6 +8,7 @@ typedef struct WisRootConstant WisRootConstant;
 typedef struct WisPushDescriptor WisPushDescriptor;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
+typedef enum WisQueuePriority WisQueuePriority;
 typedef enum WisDescriptorType WisDescriptorType;
 typedef enum WisQueueType WisQueueType;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -36,6 +37,12 @@ enum WisStatus {
     StatusInvalidArgument = -2,
     StatusOutOfMemory = -3,
     StatusDeviceLost = -4,
+};
+
+enum WisQueuePriority {
+    QueuePriorityCommon = 0,
+    QueuePriorityHigh = 100,
+    QueuePriorityRealtime = 10000,
 };
 
 enum WisDescriptorType {
@@ -133,6 +140,9 @@ struct VKFenceView{
 typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
 //==================================HANDLES==================================
 
+typedef struct DX12CommandQueue_t* DX12CommandQueue;
+typedef struct VKCommandQueue_t* VKCommandQueue;
+
 typedef struct DX12RootSignature_t* DX12RootSignature;
 typedef struct VKRootSignature_t* VKRootSignature;
 
@@ -144,9 +154,6 @@ typedef struct VKAdapter_t* VKAdapter;
 
 typedef struct DX12Device_t* DX12Device;
 typedef struct VKDevice_t* VKDevice;
-
-typedef struct DX12DescriptorLayout_t* DX12DescriptorLayout;
-typedef struct VKDescriptorLayout_t* VKDescriptorLayout;
 
 typedef struct DX12Fence_t* DX12Fence;
 typedef struct VKFence_t* VKFence;
@@ -174,6 +181,8 @@ WisResult DX12CreateRootSignature(DX12Device self,  WisRootConstant* constants, 
 WisResult VKCreateRootSignature(VKDevice self,  WisRootConstant* constants,  uint32_t constants_size, VKRootSignature* out_root_signature);
 WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator);
 WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
+WisResult DX12CreateCommandQueue(DX12Device self,  WisQueueType type,  WisQueuePriority priority, DX12CommandQueue* out_queue);
+WisResult VKCreateCommandQueue(VKDevice self,  WisQueueType type,  WisQueuePriority priority, VKCommandQueue* out_queue);
 WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
 WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
 void DX12RootSignatureDestroy(DX12RootSignature self);

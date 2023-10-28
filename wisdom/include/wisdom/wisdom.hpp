@@ -25,11 +25,11 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 namespace wis{
 
+using CommandQueue = DX12CommandQueue;
 using RootSignature = DX12RootSignature;
 using Factory = DX12Factory;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
-using DescriptorLayout = DX12DescriptorLayout;
 using Fence = DX12Fence;
 using ResourceAllocator = DX12ResourceAllocator;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
@@ -41,11 +41,11 @@ constexpr auto CreateDevice = wis::DX12CreateDevice;
 
 namespace wis{
 
+using CommandQueue = VKCommandQueue;
 using RootSignature = VKRootSignature;
 using Factory = VKFactory;
 using Adapter = VKAdapter;
 using Device = VKDevice;
-using DescriptorLayout = VKDescriptorLayout;
 using Fence = VKFence;
 using ResourceAllocator = VKResourceAllocator;
 constexpr auto CreateFactory = wis::VKCreateFactory;

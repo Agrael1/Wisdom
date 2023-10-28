@@ -121,6 +121,20 @@ WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator)
     *out_allocator = reinterpret_cast<VKResourceAllocator>(new wis::VKResourceAllocator(std::move(std::get<1>(ret))));
     return reinterpret_cast<WisResult&>(std::get<0>(ret));
 }
+WisResult DX12CreateCommandQueue(DX12Device self,  WisQueueType type,  WisQueuePriority priority, DX12CommandQueue* out_queue)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& ret = xself->CreateCommandQueue(reinterpret_cast<wis::QueueType>(type), reinterpret_cast<wis::QueuePriority>(priority));
+    *out_queue = reinterpret_cast<DX12CommandQueue>(new wis::DX12CommandQueue(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
+WisResult VKCreateCommandQueue(VKDevice self,  WisQueueType type,  WisQueuePriority priority, VKCommandQueue* out_queue)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& ret = xself->CreateCommandQueue(reinterpret_cast<wis::QueueType>(type), reinterpret_cast<wis::QueuePriority>(priority));
+    *out_queue = reinterpret_cast<VKCommandQueue>(new wis::VKCommandQueue(std::move(std::get<1>(ret))));
+    return reinterpret_cast<WisResult&>(std::get<0>(ret));
+}
 WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);

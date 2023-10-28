@@ -1,5 +1,5 @@
 // #include "app.h"
-//#undef WISDOM_FORCE_VULKAN
+#undef WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 
@@ -17,8 +17,6 @@ void DebugCallback2(wis::Severity severity, const char* message, void* user_data
 
 int main()
 {
-
-
     {
         auto [res, factory] = wis::CreateFactory(true, &DebugCallback, &std::cout);
 
@@ -45,6 +43,7 @@ int main()
         auto fence = device.CreateFence();
         auto allocator = device.CreateAllocator();
         auto root_signature = device.CreateRootSignature();
+        auto command_queue = device.CreateCommandQueue(wis::QueueType::Graphics);
     }
 
     return 0;

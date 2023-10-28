@@ -7,7 +7,7 @@
     <handle name="Fence"/>
     <handle name="ResourceAllocator"/>
     <handle name="RootSignature"/>
-    <handle name="DescriptorLayout"/>
+    <handle name="CommandQueue"/>
   </handles>
   <types comment="Type definitions">
     <type name="Status" category="enum" type="i32">
@@ -97,6 +97,11 @@
       <value name="ShaderResource" value="3"/>
       <value name="UnorderedAccess" value="4"/>
     </type>
+    <type name="QueuePriority" category="enum">
+      <value name="Common" value="0"/>
+      <value name="High" value="100"/>
+      <value name="Realtime" value="10000"/>
+    </type>
     <type name="PushDescriptor" category="struct">
       <member type="ShaderStages" name="stage"/>
       <member type="u32" name="bind_register"/>
@@ -155,6 +160,12 @@
     <func for="Device" name="CreateAllocator">
       <ret type="Result" name="result"/>
       <ret type="ResourceAllocator" name="allocator"/>
+    </func>
+    <func for="Device" name="CreateCommandQueue">
+      <ret type="Result" name="result"/>
+      <ret type="CommandQueue" name="queue"/>
+      <arg type="QueueType" name="type"/>
+      <arg type="QueuePriority" name="priority" default="Common"/>
     </func>
     <func for="Device" name="WaitForMultipleFences">
       <ret type="Result" name="result"/>
