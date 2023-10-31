@@ -9,4 +9,5 @@ namespace wis {
     using VKDeviceHandle = std::tuple<wis::SharedDevice>;
 
     using VKFenceView = std::tuple<VkSemaphore>;
+    using VKShaderView = std::tuple<VkShaderModule>;
 }

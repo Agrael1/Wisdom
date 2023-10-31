@@ -469,3 +469,148 @@ wis::VKDevice::CreateShader(void* bytecode, uint32_t size) const noexcept
             ? std::pair{ wis::success, wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table()->vkDestroyShaderModule } } }
             : std::pair{ wis::make_result<FUNC, "Failed to create a shader module">(vr), wis::VKShader{} };
 }
+
+
+
+std::pair<wis::Result, wis::VKPipelineState>
+wis::VKDevice::CreateGraphicsPipeline() const noexcept
+{
+    wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
+    //for (const auto& i : desc.shaders) {
+    //    VkPipelineShaderStageCreateInfo stage{
+    //        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+    //        .pNext = nullptr,
+    //        .flags = 0,
+    //        .stage = convert(i.stage),
+    //        .module = i.shader.get(),
+    //        .pName = "main",
+    //        .pSpecializationInfo = nullptr,
+    //    };
+    //    shader_stages.allocate() = stage;
+    //}
+
+    // static constexpr size_t attr_descriptions_per_binding = 16;
+    // std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
+    // wis::internals::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * attr_descriptions_per_binding> attributes;
+
+    // std::bitset<max_vertex_bindings> binding_map;
+    // for (const auto& i : input_layout) {
+    //     auto& b = bindings.at(i.input_slot);
+    //     if (!binding_map[i.input_slot]) {
+    //         b.inputRate = vk::VertexInputRate(i.input_slot_class);
+    //         b.binding = i.input_slot;
+    //         b.stride = 0; // we don't care abot stride, since we bind dynamic vertex buffers
+    //         binding_map.set(i.input_slot);
+    //     }
+    //     auto& at = attributes.allocate();
+    //     at.binding = i.input_slot;
+    //     at.format = convert_vk(i.format);
+    //     at.location = i.location;
+    //     at.offset = i.aligned_byte_offset;
+    // }
+
+    //// remove empty bindings and compact the array
+    // size_t rsize = 0;
+    // for (size_t i = rsize; i < max_vertex_bindings; i++)
+    //     if (binding_map[i])
+    //         bindings[rsize++] = bindings[i];
+
+    // vk::PipelineVertexInputStateCreateInfo ia{
+    //     vk::PipelineVertexInputStateCreateFlagBits{},
+    //     uint32_t(rsize),
+    //     bindings.data(),
+    //     uint32_t(attributes.size()),
+    //     attributes.data()
+    // };
+
+    // vk::PipelineViewportStateCreateInfo viewport_state;
+    // viewport_state.viewportCount = 1;
+    // viewport_state.scissorCount = 1;
+
+    // vk::PipelineRasterizationStateCreateInfo rasterizer{
+    //     vk::PipelineRasterizationStateCreateFlags{},
+    //     false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eClockwise,
+    //     false, 0.0f, 0.0f, 0.0f, 1.0f
+    // };
+
+    // vk::PipelineColorBlendAttachmentState color_blend_attachment[2]{
+    //     // 1 for now, TODO: proper blending
+    //     vk::PipelineColorBlendAttachmentState{ false, // disabled
+    //                                            vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
+    //                                            vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+    //                                            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA },
+    //     vk::PipelineColorBlendAttachmentState{ false, // disabled
+    //                                            vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
+    //                                            vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+    //                                            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA },
+
+    //};
+    // vk::PipelineColorBlendStateCreateInfo color_blending{
+    //    vk::PipelineColorBlendStateCreateFlags{},
+    //    false,
+    //    vk::LogicOp::eCopy,
+    //    2,
+    //    color_blend_attachment,
+    //    { 0.0f, 0.0f, 0.0f, 0.0f }
+    //};
+
+    // vk::PipelineMultisampleStateCreateInfo multisampling{};
+    // multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+    // multisampling.sampleShadingEnable = false;
+
+    // vk::PipelineInputAssemblyStateCreateInfo input_assembly{
+    //     vk::PipelineInputAssemblyStateCreateFlags{},
+    //     vk::PrimitiveTopology::eTriangleList, false
+    // };
+
+    // static constexpr size_t max_dynstates = 5; // only four if not using vrs
+    // wis::internals::uniform_allocator<vk::DynamicState, max_dynstates> dynamic_state_enables;
+    // dynamic_state_enables.allocate(vk::DynamicState::eViewport);
+    // dynamic_state_enables.allocate(vk::DynamicState::eScissor);
+    // dynamic_state_enables.allocate(vk::DynamicState::ePrimitiveTopology);
+    // dynamic_state_enables.allocate(vk::DynamicState::eVertexInputBindingStride);
+    //// if (vrs_supported)
+    //// 	dynamic_state_enables.allocate(vk::DynamicState::eFragmentShadingRateKHR);
+
+    // vk::PipelineDynamicStateCreateInfo dss{
+    //     {}, uint32_t(dynamic_state_enables.size()), dynamic_state_enables.data()
+    // };
+
+    // vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
+    //     vk::PipelineDepthStencilStateCreateFlags{},
+    //     true, true,
+    //     vk::CompareOp::eLess,
+    //     false, false,
+    //     vk::StencilOpState{}, vk::StencilOpState{},
+    //     0.0f, 1.0f
+    // };
+
+    // vk::GraphicsPipelineCreateInfo pipeline_desc{
+    //     vk::PipelineCreateFlags{},
+    //     uint32_t(shader_stages.size()),
+    //     shader_stages.data(), // shader stages
+    //     &ia, // vertex input
+    //     &input_assembly, // input assembly
+    //     nullptr, // tessellation
+    //     &viewport_state, // viewport
+    //     &rasterizer, // rasterizer
+    //     &multisampling, // multisampling
+    //     &depth_stencil_state, // depth stencil
+    //     &color_blending, // color blending
+    //     &dss, // dynamic state
+    //     desc.sig, // pipeline layout
+    //     desc.pass.GetInternal().rp.get(), // render pass
+    // };
+
+    VkGraphicsPipelineCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+    };
+
+    VkPipeline pipeline;
+    auto result = device.table()->vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr, &pipeline);
+    return wis::succeeded(result)
+            ? std::pair{ wis::success, wis::VKPipelineState{ wis::managed_handle_ex<VkPipeline>{ pipeline, device, device.table()->vkDestroyPipeline } } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create a graphics pipeline">(result), wis::VKPipelineState{} };
+}

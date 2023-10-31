@@ -443,22 +443,28 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
         ref.this_type = this_t->Value();
     }
 
-    for (auto* member = type.FirstChildElement("member"); member; member = member->NextSiblingElement("member")) {
-        auto& m = ref.members.emplace_back();
+    for (auto* impl = type.FirstChildElement("impl"); impl; impl = impl->NextSiblingElement("impl")) {
+        auto impl_name = impl->FindAttribute("name")->Value();
+        auto& impl_ref = ref.impls.emplace_back();
+        impl_ref.impl = ImplCode(impl_name);
 
-        auto* type = member->FindAttribute("type")->Value();
-        auto* name = member->FindAttribute("name")->Value();
+        for (auto* member = impl->FirstChildElement("member"); member; member = member->NextSiblingElement("member")) {
+            auto& m = impl_ref.members.emplace_back();
 
-        auto* arr = member->FindAttribute("array");
+            auto* type = member->FindAttribute("type")->Value();
+            auto* name = member->FindAttribute("name")->Value();
 
-        m.type = type;
-        m.name = name;
+            auto* arr = member->FindAttribute("array");
 
-        if (auto* def = member->FindAttribute("default")) {
-            m.default_value = def->Value();
-        }
-        if (auto* mod = member->FindAttribute("mod")) {
-            m.modifier = mod->Value();
+            m.type = type;
+            m.name = name;
+
+            if (auto* def = member->FindAttribute("default")) {
+                m.default_value = def->Value();
+            }
+            if (auto* mod = member->FindAttribute("mod")) {
+                m.modifier = mod->Value();
+            }
         }
     }
 }
@@ -467,17 +473,13 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
 std::string Generator::MakeCVariant(const WisVariant& s)
 {
     using namespace std::string_literals;
-    size_t i = s.impl == ImplementedFor::Vulkan ? 1 : 0;
-    size_t length = s.impl == ImplementedFor::Both ? 2 : 1 + i;
-    constexpr std::array<std::string_view, 2> impls{ "DX12", "VK" };
-
     std::string st_decls;
 
-    for (; i < length; i++) {
-        auto full_name = GetCFullTypename(s.name, impls[i]);
+    auto make_impl = [this](const WisVariant& s, const WisVariantImpl& impl, std::string_view impl_tag) {
+        auto full_name = GetCFullTypename(s.name, impl_tag);
 
         if (!s.this_type.empty()) {
-            auto this_name = GetCFullTypename(s.this_type, impls[i]);
+            auto this_name = GetCFullTypename(s.this_type, impl_tag);
             function_decls.emplace_back(wis::format("{} As{}({} self);\n", full_name, full_name, this_name));
             function_impl.emplace_back(
                     wis::format("{} As{}({} self)\n{{\n    return reinterpret_cast<{}&>(static_cast<wis::{}>(reinterpret_cast<wis::{}&>(*self)));\n}}\n",
@@ -486,19 +488,28 @@ std::string Generator::MakeCVariant(const WisVariant& s)
 
         auto st_decl = wis::format("struct {}{{\n", full_name);
 
-        for (auto& m : s.members) {
-            auto mfull_name = GetCFullTypename(m.type, impls[i]);
+        for (auto& m : impl.members) {
+            auto mfull_name = GetCFullTypename(m.type, impl_tag);
             st_decl += wis::format("    {}{} {};\n", mfull_name, m.modifier == "ptr" ? "*" : "", m.name);
         }
 
         st_decl += "};\n\n";
-        st_decls += st_decl;
-    }
+        return st_decl;
+    };
 
+    for (auto& i : s.impls) {
+        if (i.impl == ImplementedFor::Both) {
+            st_decls += make_impl(s, i, impls[1]);
+            st_decls += make_impl(s, i, impls[2]);
+            return st_decls;
+        }
+        st_decls += make_impl(s, i, impls[+i.impl]);
+    }
     return st_decls;
 }
 
-std::string Generator::MakeCStruct(const WisStruct& s)
+std::string
+Generator::MakeCStruct(const WisStruct& s)
 {
     auto full_name = GetCFullTypename(s.name);
     auto st_decl = wis::format("struct {}{{\n", full_name);
@@ -703,7 +714,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
     // get result index
     auto result = std::ranges::find_if(func.return_types, [](const WisReturnType& t) {
-        return t.type_info == TypeInfo::Result;
+        return t.type == "Result";
     });
     int64_t result_idx = result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
 
@@ -833,8 +844,13 @@ TypeInfo Generator::GetTypeInfo(std::string_view type)
 
 ImplementedFor Generator::GetImplementedFor(std::string_view type)
 {
-    if (auto it = variant_map.find(type); it != variant_map.end())
-        return it->second.impl;
+    if (auto it = variant_map.find(type); it != variant_map.end()) {
+        ImplementedFor ret = ImplementedFor::None;
+        for (auto& i : it->second.impls) {
+            ret = ImplementedFor(+ret | +i.impl);
+        }
+        return ret;
+    }
 
     if (auto it = handle_map.find(type); it != handle_map.end())
         return it->second.impl;
