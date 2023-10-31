@@ -28,6 +28,7 @@ namespace wis{
 using CommandQueue = DX12CommandQueue;
 using RootSignature = DX12RootSignature;
 using Factory = DX12Factory;
+using PipelineState = DX12PipelineState;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
 using Fence = DX12Fence;
@@ -45,6 +46,7 @@ namespace wis{
 using CommandQueue = VKCommandQueue;
 using RootSignature = VKRootSignature;
 using Factory = VKFactory;
+using PipelineState = VKPipelineState;
 using Adapter = VKAdapter;
 using Device = VKDevice;
 using Fence = VKFence;

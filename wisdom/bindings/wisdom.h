@@ -135,6 +135,31 @@ struct VKFenceView{
     void* value;
 };
 
+struct DX12ShaderView{
+    void* bytecode;
+    uint32_t size_bytes;
+};
+
+struct VKShaderView{
+    void* value;
+};
+
+struct DX12GraphicsShaderStages{
+    DX12ShaderView vertex;
+    DX12ShaderView hull;
+    DX12ShaderView domain;
+    DX12ShaderView geometry;
+    DX12ShaderView pixel;
+};
+
+struct VKGraphicsShaderStages{
+    VKShaderView vertex;
+    VKShaderView hull;
+    VKShaderView domain;
+    VKShaderView geometry;
+    VKShaderView pixel;
+};
+
 //=================================DELEGATES=================================
 
 typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
@@ -148,6 +173,9 @@ typedef struct VKRootSignature_t* VKRootSignature;
 
 typedef struct DX12Factory_t* DX12Factory;
 typedef struct VKFactory_t* VKFactory;
+
+typedef struct DX12PipelineState_t* DX12PipelineState;
+typedef struct VKPipelineState_t* VKPipelineState;
 
 typedef struct DX12Adapter_t* DX12Adapter;
 typedef struct VKAdapter_t* VKAdapter;
@@ -202,5 +230,13 @@ WisResult DX12Signal(DX12Fence self,  uint64_t value);
 WisResult VKSignal(VKFence self,  uint64_t value);
 void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
 void VKResourceAllocatorDestroy(VKResourceAllocator self);
+void DX12CommandQueueDestroy(DX12CommandQueue self);
+void VKCommandQueueDestroy(VKCommandQueue self);
+void DX12ShaderDestroy(DX12Shader self);
+void VKShaderDestroy(VKShader self);
+void DX12PipelineStateDestroy(DX12PipelineState self);
+void VKPipelineStateDestroy(VKPipelineState self);
 DX12FenceView AsDX12FenceView(DX12Fence self);
 VKFenceView AsVKFenceView(VKFence self);
+DX12ShaderView AsDX12ShaderView(DX12Shader self);
+VKShaderView AsVKShaderView(VKShader self);

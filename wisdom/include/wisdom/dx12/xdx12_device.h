@@ -4,6 +4,7 @@
 #include <wisdom/dx12/xdx12_root_signature.h>
 #include <wisdom/dx12/xdx12_command_queue.h>
 #include <wisdom/dx12/xdx12_shader.h>
+#include <wisdom/dx12/xdx12_pipeline_state.h>
 
 namespace wis {
 class DX12Device;
@@ -47,6 +48,9 @@ public:
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Shader>
     CreateShader(void* data, size_t size) const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12PipelineState>
+    CreateGraphicsPipeline() const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device>

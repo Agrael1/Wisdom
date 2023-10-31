@@ -9,6 +9,7 @@
     <handle name="RootSignature"/>
     <handle name="CommandQueue"/>
     <handle name="Shader"/>
+    <handle name="PipelineState"/>
   </handles>
   <types comment="Type definitions">
     <type name="Status" category="enum" type="i32">
@@ -76,7 +77,9 @@
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
     <type name="FenceView" category="variant" for="Fence">
-      <member type="void" name="value" mod="ptr"/>
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
     </type>
     <type name="ShaderStages" category="enum">
       <value name="All" value="0"/>
@@ -112,6 +115,26 @@
     <type name="DeviceFeatures" category="bitmask">
       <value name="None" value="0"/>
       <value name="PushDescriptors" bit="0"/>
+    </type>
+
+    <type name="ShaderView" category="variant" for="Shader">
+      <impl name="dx">
+        <member type="void" name="bytecode" mod="ptr"/>
+        <member type="u32" name="size_bytes"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+
+    <type name="GraphicsShaderStages" category="variant">
+      <impl name="both">
+        <member type="ShaderView" name="vertex"/>
+        <member type="ShaderView" name="hull"/>
+        <member type="ShaderView" name="domain"/>
+        <member type="ShaderView" name="geometry"/>
+        <member type="ShaderView" name="pixel"/>
+      </impl>
     </type>
   </types>
 
@@ -203,6 +226,15 @@
 
     <!--ResourceAllocator-->
     <func for="ResourceAllocator" name="Destroy"/>
+
+    <!--CommandQueue-->
+    <func for="CommandQueue" name="Destroy"/>
+
+    <!--Shader-->
+    <func for="Shader" name="Destroy"/>
+
+    <!--PipelineState-->
+    <func for="PipelineState" name="Destroy"/>
 
   </functions>
 </registry>

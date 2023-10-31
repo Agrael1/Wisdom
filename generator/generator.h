@@ -53,11 +53,14 @@ struct WisStruct {
     std::string_view name;
     std::vector<WisStructMember> members;
 };
+struct WisVariantImpl {
+    ImplementedFor impl = ImplementedFor::Both;
+    std::vector<WisStructMember> members;
+};
 struct WisVariant {
     std::string_view name;
-    ImplementedFor impl = ImplementedFor::Both;
     std::string_view this_type;
-    std::vector<WisStructMember> members;
+    std::vector<WisVariantImpl> impls;
 };
 
 enum class TypeInfo {

@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_handles.h>
+#include <wisdom/vulkan/xvk_views.h>
 
 namespace wis {
 class VKShader;
@@ -17,6 +17,10 @@ public:
     explicit VKShader(wis::managed_handle_ex<VkShaderModule> shader) noexcept
         : QueryInternal(std::move(shader))
     {
+    }
+    operator VKShaderView() const noexcept
+    {
+        return shader.get();
     }
     operator bool() const noexcept
     {

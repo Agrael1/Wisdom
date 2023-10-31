@@ -7,8 +7,7 @@ class VKPipelineState;
 
 template<>
 struct Internal<VKPipelineState> {
-    SharedDevice device;
-    VkPipeline pipeline;
+    wis::managed_handle_ex<VkPipeline> pipeline;
 };
 
 /// @brief Pipeline state object
@@ -16,17 +15,9 @@ class VKPipelineState : public QueryInternal<VKPipelineState>
 {
 public:
     VKPipelineState() = default;
-    explicit VKPipelineState(SharedDevice device, VkPipeline pipeline) noexcept
-        : QueryInternal(std::move(device), std::move(pipeline))
+    explicit VKPipelineState(wis::managed_handle_ex<VkPipeline> pipeline) noexcept
+        : QueryInternal(std::move(pipeline))
     {
-    }
-    ~VKPipelineState()
-    {
-
-    }
-    operator VKPipelineStateView() const noexcept
-    {
-        return pipeline.get();
     }
     operator bool() const noexcept
     {
