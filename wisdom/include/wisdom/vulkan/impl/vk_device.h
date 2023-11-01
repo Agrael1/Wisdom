@@ -501,8 +501,8 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     wis::detail::VKFillShaderStage(shader_stages, desc->shaders.domain, VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
 
     // static constexpr size_t attr_descriptions_per_binding = 16;
-    // std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
-    // wis::internals::uniform_allocator<vk::VertexInputAttributeDescription, max_vertex_bindings * attr_descriptions_per_binding> attributes;
+    //std::array<VkVertexInputBindingDescription, max_vertex_bindings> bindings;
+    //wis::detail::uniform_allocator<VkVertexInputAttributeDescription, max_vertex_bindings * attr_descriptions_per_binding> attributes;
 
     // std::bitset<max_vertex_bindings> binding_map;
     // for (const auto& i : input_layout) {
