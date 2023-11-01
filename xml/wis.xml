@@ -12,6 +12,7 @@
     <handle name="PipelineState"/>
   </handles>
   <types comment="Type definitions">
+    <!--Enums-->
     <type name="Status" category="enum" type="i32">
       <value name="Ok" value="0"/>
       <value name="Timeout" value="1"/>
@@ -23,10 +24,6 @@
     <type name="MutiWaitFlags" category="enum" type="u32">
       <value name="All" value="0"/>
       <value name="Any" value="1"/>
-    </type>
-    <type name="Result" category="struct">
-      <member type="Status" name="status" default="Ok"/>
-      <member type="u8string" name="error" mod="ptr" default="nullptr"/>
     </type>
     <type name="AdapterPreference" category="enum" type="i32">
       <value name="None" value="0"/>
@@ -42,18 +39,6 @@
       <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
       <value name="KeyedMutexConformance" bit="5" impl="dx"/>
     </type>
-    <type name="AdapterDesc" category="struct" >
-      <member type="u8string" name="description" array="256"/>
-      <member type="u32" name="vendor_id"/>
-      <member type="u32" name="device_id"/>
-      <member type="u32" name="subsys_id"/>
-      <member type="u32" name="revision"/>
-      <member type="u64" name="dedicated_video_memory"/>
-      <member type="u64" name="dedicated_system_memory"/>
-      <member type="u64" name="shared_system_memory"/>
-      <member type="u64" name="adapter_id"/>
-      <member type="AdapterFlags" name="flags"/>
-    </type>
     <type name="Severity" category="enum">
       <value name="Debug" value="0"/>
       <value name="Trace" value="1"/>
@@ -61,11 +46,6 @@
       <value name="Warning" value="3"/>
       <value name="Error" value="4"/>
       <value name="Critical" value="5"/>
-    </type>
-    <type name="DebugCallback" category="delegate">
-      <arg type="Severity" name="severity"/>
-      <arg type="u8string" name="message" mod="ptr"/>
-      <arg type="void" name="user_data" mod="ptr"/>
     </type>
     <type name="QueueType" category="enum" type="u32">
       <value name="Graphics" value="0"/>
@@ -76,11 +56,6 @@
       <value name="VideoProcess" value="5" impl="dx"/>
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
-    <type name="FenceView" category="variant" for="Fence">
-      <impl name="both">
-        <member type="void" name="value" mod="ptr"/>
-      </impl>
-    </type>
     <type name="ShaderStages" category="enum">
       <value name="All" value="0"/>
       <value name="Vertex" value="1"/>
@@ -90,10 +65,6 @@
       <value name="Pixel" value="5"/>
       <value name="Amplification" value="6"/>
       <value name="Mesh" value="7"/>
-    </type>
-    <type name="RootConstant" category="struct">
-      <member type="ShaderStages" name="stage"/>
-      <member type="u32" name="size_bytes"/>
     </type>
     <type name="DescriptorType" category="enum">
       <value name="None" value="0"/>
@@ -106,17 +77,230 @@
       <value name="High" value="100"/>
       <value name="Realtime" value="10000"/>
     </type>
-    <type name="PushDescriptor" category="struct">
-      <member type="ShaderStages" name="stage"/>
-      <member type="u32" name="bind_register"/>
-      <member type="DescriptorType" name="type"/>
-      <member type="u32" name="reserved"/>
-    </type>
     <type name="DeviceFeatures" category="bitmask">
       <value name="None" value="0"/>
       <value name="PushDescriptors" bit="0"/>
     </type>
-
+    <type name="InputClass" category="enum">
+      <value name="PerVertex" value="0"/>
+      <value name="PerInstance" value="1"/>
+    </type>
+    <type name="DataFormat" category="enum" translates="dx">
+      <value name="Unknown" value="0"/>
+      <value name="RGBA32Float" value="2">
+        <impl name="vk" value="VK_FORMAT_R32G32B32A32_SFLOAT"/>
+      </value>
+      <value name="RGBA32Uint" value="3">
+        <impl name="vk" value="VK_FORMAT_R32G32B32A32_UINT"/>
+      </value>
+      <value name="RGBA32Sint" value="4">
+        <impl name="vk" value="VK_FORMAT_R32G32B32A32_SINT"/>
+      </value>
+      <value name="RGB32Float" value="6">
+        <impl name="vk" value="VK_FORMAT_R32G32B32_SFLOAT"/>
+      </value>
+      <value name="RGB32Uint" value="7">
+        <impl name="vk" value="VK_FORMAT_R32G32B32_UINT"/>
+      </value>
+      <value name="RGB32Sint" value="8">
+        <impl name="vk" value="VK_FORMAT_R32G32B32_SINT"/>
+      </value>
+      <value name="RGBA16Float" value="10">
+        <impl name="vk" value="VK_FORMAT_R16G16B16A16_SFLOAT"/>
+      </value>
+      <value name="RGBA16Unorm" value="11">
+        <impl name="vk" value="VK_FORMAT_R16G16B16A16_UNORM"/>
+      </value>
+      <value name="RGBA16Uint" value="12">
+        <impl name="vk" value="VK_FORMAT_R16G16B16A16_UINT"/>
+      </value>
+      <value name="RGBA16Snorm" value="13">
+        <impl name="vk" value="VK_FORMAT_R16G16B16A16_SNORM"/>
+      </value>
+      <value name="RGBA16Sint" value="14">
+        <impl name="vk" value="VK_FORMAT_R16G16B16A16_SINT"/>
+      </value>
+      <value name="RG32Float" value="16">
+        <impl name="vk" value="VK_FORMAT_R32G32_SFLOAT"/>
+      </value>
+      <value name="RG32Uint" value="17">
+        <impl name="vk" value="VK_FORMAT_R32G32_UINT"/>
+      </value>
+      <value name="RG32Sint" value="18">
+        <impl name="vk" value="VK_FORMAT_R32G32_SINT"/>
+      </value>
+      <value name="D32FloatS8Uint" value="20">
+        <impl name="vk" value="VK_FORMAT_D32_SFLOAT_S8_UINT"/>
+      </value>
+      <value name="RGB10A2Unorm" value="24">
+        <impl name="vk" value="VK_FORMAT_A2B10G10R10_UNORM_PACK32"/>
+      </value>
+      <value name="RGB10A2Uint" value="25">
+        <impl name="vk" value="VK_FORMAT_A2B10G10R10_UINT_PACK32"/>
+      </value>
+      <value name="RG11B10Float" value="26">
+        <impl name="vk" value="VK_FORMAT_B10G11R11_UFLOAT_PACK32"/>
+      </value>
+      <value name="RGBA8Unorm" value="28">
+        <impl name="vk" value="VK_FORMAT_R8G8B8A8_UNORM"/>
+      </value>
+      <value name="RGBA8UnormSrgb" value="29">
+        <impl name="vk" value="VK_FORMAT_R8G8B8A8_SRGB"/>
+      </value>
+      <value name="RGBA8Uint" value="30">
+        <impl name="vk" value="VK_FORMAT_R8G8B8A8_UINT"/>
+      </value>
+      <value name="RGBA8Snorm" value="31">
+        <impl name="vk" value="VK_FORMAT_R8G8B8A8_SNORM"/>
+      </value>
+      <value name="RGBA8Sint" value="32">
+        <impl name="vk" value="VK_FORMAT_R8G8B8A8_SINT"/>
+      </value>
+      <value name="RG16Float" value="34">
+        <impl name="vk" value="VK_FORMAT_R16G16_SFLOAT"/>
+      </value>
+      <value name="RG16Unorm" value="35">
+        <impl name="vk" value="VK_FORMAT_R16G16_UNORM"/>
+      </value>
+      <value name="RG16Uint" value="36">
+        <impl name="vk" value="VK_FORMAT_R16G16_UINT"/>
+      </value>
+      <value name="RG16Snorm" value="37">
+        <impl name="vk" value="VK_FORMAT_R16G16_SNORM"/>
+      </value>
+      <value name="RG16Sint" value="38">
+        <impl name="vk" value="VK_FORMAT_R16G16_SINT"/>
+      </value>
+      <value name="D32Float" value="40">
+        <impl name="vk" value="VK_FORMAT_D32_SFLOAT"/>
+      </value>
+      <value name="R32Float" value="41">
+        <impl name="vk" value="VK_FORMAT_R32_SFLOAT"/>
+      </value>
+      <value name="R32Uint" value="42">
+        <impl name="vk" value="VK_FORMAT_R32_UINT"/>
+      </value>
+      <value name="R32Sint" value="43">
+        <impl name="vk" value="VK_FORMAT_R32_SINT"/>
+      </value>
+      <value name="D24UnormS8Uint" value="45">
+        <impl name="vk" value="VK_FORMAT_D24_UNORM_S8_UINT"/>
+      </value>
+      <value name="RG8Unorm" value="49">
+        <impl name="vk" value="VK_FORMAT_R8G8_UNORM"/>
+      </value>
+      <value name="RG8Uint" value="50">
+        <impl name="vk" value="VK_FORMAT_R8G8_UINT"/>
+      </value>
+      <value name="RG8Snorm" value="51">
+        <impl name="vk" value="VK_FORMAT_R8G8_SNORM"/>
+      </value>
+      <value name="RG8Sint" value="52">
+        <impl name="vk" value="VK_FORMAT_R8G8_SINT"/>
+      </value>
+      <value name="R16Float" value="54">
+        <impl name="vk" value="VK_FORMAT_R16_SFLOAT"/>
+      </value>
+      <value name="D16Unorm" value="55">
+        <impl name="vk" value="VK_FORMAT_D16_UNORM"/>
+      </value>
+      <value name="R16Unorm" value="56">
+        <impl name="vk" value="VK_FORMAT_R16_UNORM"/>
+      </value>
+      <value name="R16Uint" value="57">
+        <impl name="vk" value="VK_FORMAT_R16_UINT"/>
+      </value>
+      <value name="R16Snorm" value="58">
+        <impl name="vk" value="VK_FORMAT_R16_SNORM"/>
+      </value>
+      <value name="R16Sint" value="59">
+        <impl name="vk" value="VK_FORMAT_R16_SINT"/>
+      </value>
+      <value name="R8Unorm" value="61">
+        <impl name="vk" value="VK_FORMAT_R8_UNORM"/>
+      </value>
+      <value name="R8Uint" value="62">
+        <impl name="vk" value="VK_FORMAT_R8_UINT"/>
+      </value>
+      <value name="R8Snorm" value="63">
+        <impl name="vk" value="VK_FORMAT_R8_SNORM"/>
+      </value>
+      <value name="R8Sint" value="64">
+        <impl name="vk" value="VK_FORMAT_R8_SINT"/>
+      </value>
+      <value name="A8Unorm" value="65">
+        <impl name="vk" value="VK_FORMAT_A8_UNORM_KHR"/>
+      </value>
+      <value name="RGB9E5UFloat" value="67">
+        <impl name="vk" value="VK_FORMAT_E5B9G9R9_UFLOAT_PACK32"/>
+      </value>
+      <value name="RG8BG8Unorm" value="68">
+        <impl name="vk" value="VK_FORMAT_B8G8R8G8_422_UNORM"/>
+      </value>
+      <value name="GR8GB8Unorm" value="69">
+        <impl name="vk" value="VK_FORMAT_G8B8G8R8_422_UNORM"/>
+      </value>
+      <value name="BC1RGBAUnorm" value="71">
+        <impl name="vk" value="VK_FORMAT_BC1_RGBA_UNORM_BLOCK"/>
+      </value>
+      <value name="BC1RGBAUnormSrgb" value="72">
+        <impl name="vk" value="VK_FORMAT_BC1_RGBA_SRGB_BLOCK"/>
+      </value>
+      <value name="BC2RGBAUnorm" value="74">
+        <impl name="vk" value="VK_FORMAT_BC2_UNORM_BLOCK"/>
+      </value>
+      <value name="BC2RGBAUnormSrgb" value="75">
+        <impl name="vk" value="VK_FORMAT_BC2_SRGB_BLOCK"/>
+      </value>
+      <value name="BC3RGBAUnorm" value="77">
+        <impl name="vk" value="VK_FORMAT_BC3_UNORM_BLOCK"/>
+      </value>
+      <value name="BC3RGBAUnormSrgb" value="78">
+        <impl name="vk" value="VK_FORMAT_BC3_SRGB_BLOCK"/>
+      </value>
+      <value name="BC4RUnorm" value="80">
+        <impl name="vk" value="VK_FORMAT_BC4_UNORM_BLOCK"/>
+      </value>
+      <value name="BC4RSnorm" value="81">
+        <impl name="vk" value="VK_FORMAT_BC4_SNORM_BLOCK"/>
+      </value>
+      <value name="BC5RGUnorm" value="83">
+        <impl name="vk" value="VK_FORMAT_BC5_UNORM_BLOCK"/>
+      </value>
+      <value name="BC5RGSnorm" value="84">
+        <impl name="vk" value="VK_FORMAT_BC5_SNORM_BLOCK"/>
+      </value>
+      <value name="B5R6G5Unorm" value="85">
+        <impl name="vk" value="VK_FORMAT_B5G6R5_UNORM_PACK16"/>
+      </value>
+      <value name="B5G5R5A1Unorm" value="86">
+        <impl name="vk" value="VK_FORMAT_B5G5R5A1_UNORM_PACK16"/>
+      </value>
+      <value name="BGRA8Unorm" value="87">
+        <impl name="vk" value="VK_FORMAT_B8G8R8A8_UNORM"/>
+      </value>
+      <value name="BGRA8UnormSrgb" value="91">
+        <impl name="vk" value="VK_FORMAT_B8G8R8A8_SRGB"/>
+      </value>
+      <value name="BC6HUfloat16" value="95">
+        <impl name="vk" value="VK_FORMAT_BC6H_UFLOAT_BLOCK"/>
+      </value>
+      <value name="BC6HSfloat16" value="96">
+        <impl name="vk" value="VK_FORMAT_BC6H_SFLOAT_BLOCK"/>
+      </value>
+      <value name="BC7RGBAUnorm" value="98">
+        <impl name="vk" value="VK_FORMAT_BC7_UNORM_BLOCK"/>
+      </value>
+      <value name="BC7RGBAUnormSrgb" value="99">
+        <impl name="vk" value="VK_FORMAT_BC7_SRGB_BLOCK"/>
+      </value>
+    </type>
+    <!--Views-->
+    <type name="FenceView" category="variant" for="Fence">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
     <type name="ShaderView" category="variant" for="Shader">
       <impl name="dx">
         <member type="void" name="bytecode" mod="ptr"/>
@@ -133,6 +317,41 @@
       <impl name="vk">
         <member type="void" name="value" mod="ptr"/>
       </impl>
+    </type>
+
+    <!--Structs-->
+    <type name="Result" category="struct">
+      <member type="Status" name="status" default="Ok"/>
+      <member type="u8string" name="error" mod="ptr" default="nullptr"/>
+    </type>
+    <type name="AdapterDesc" category="struct" >
+      <member type="u8string" name="description" array="256"/>
+      <member type="u32" name="vendor_id"/>
+      <member type="u32" name="device_id"/>
+      <member type="u32" name="subsys_id"/>
+      <member type="u32" name="revision"/>
+      <member type="u64" name="dedicated_video_memory"/>
+      <member type="u64" name="dedicated_system_memory"/>
+      <member type="u64" name="shared_system_memory"/>
+      <member type="u64" name="adapter_id"/>
+      <member type="AdapterFlags" name="flags"/>
+    </type>
+
+    <type name="DebugCallback" category="delegate">
+      <arg type="Severity" name="severity"/>
+      <arg type="u8string" name="message" mod="ptr"/>
+      <arg type="void" name="user_data" mod="ptr"/>
+    </type>
+    <type name="RootConstant" category="struct">
+      <member type="ShaderStages" name="stage"/>
+      <member type="u32" name="size_bytes"/>
+    </type>
+
+    <type name="PushDescriptor" category="struct">
+      <member type="ShaderStages" name="stage"/>
+      <member type="u32" name="bind_register"/>
+      <member type="DescriptorType" name="type"/>
+      <member type="u32" name="reserved"/>
     </type>
 
     <type name="GraphicsShaderStages" category="variant">

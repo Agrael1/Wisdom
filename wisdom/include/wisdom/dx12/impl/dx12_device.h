@@ -161,7 +161,7 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     // D3D12_INPUT_LAYOUT_DESC iadesc{};
     // iadesc.NumElements = input_layout.size();
 
-    // wis::internals::uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
+    wis::detail::uniform_allocator<D3D12_INPUT_ELEMENT_DESC, wis::max_vertex_bindings> ia_stage;
     // for (auto& i : input_layout) {
     //     ia.allocate(D3D12_INPUT_ELEMENT_DESC{
     //             .SemanticName = i.semantic_name,
