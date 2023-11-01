@@ -23,6 +23,10 @@ public:
         : QueryInternal(std::move(xroot))
     {
     }
+    operator DX12RootSignatureView() const noexcept
+    {
+        return root.get();
+    }
     operator bool() const noexcept
     {
         return bool(root);

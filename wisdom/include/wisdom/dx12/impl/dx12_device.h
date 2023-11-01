@@ -130,7 +130,7 @@ wis::DX12Device::CreateShader(void* data, size_t size) const noexcept
 }
 
 std::pair<wis::Result, wis::DX12PipelineState>
-wis::DX12Device::CreateGraphicsPipeline() const noexcept
+wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
     D3D12_PIPELINE_STATE_STREAM_DESC xdesc{};

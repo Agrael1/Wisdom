@@ -126,6 +126,14 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
+    <type name="RootSignatureView" category="variant" for="RootSignature">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
 
     <type name="GraphicsShaderStages" category="variant">
       <impl name="both">
@@ -134,6 +142,12 @@
         <member type="ShaderView" name="domain"/>
         <member type="ShaderView" name="geometry"/>
         <member type="ShaderView" name="pixel"/>
+      </impl>
+    </type>
+    <type name="GraphicsPipelineDesc" category="variant">
+      <impl name="both">
+        <member type="RootSignatureView" name="root_signature"/>
+        <member type="GraphicsShaderStages" name="shaders"/>
       </impl>
     </type>
   </types>
