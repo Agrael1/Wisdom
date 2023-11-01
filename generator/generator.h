@@ -142,6 +142,7 @@ public:
 
     std::string MakeCStruct(const WisStruct& s);
     std::string MakeCVariant(const WisVariant& s);
+    std::string MakeCPPVariant(const WisVariant& s, ImplementedFor impl);
     std::string MakeCEnum(const WisEnum& s);
     std::string MakeCBitmask(const WisBitmask& s);
     std::string MakeCPPStruct(const WisStruct& s);

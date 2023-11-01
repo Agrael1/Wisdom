@@ -473,7 +473,7 @@ wis::VKDevice::CreateShader(void* bytecode, uint32_t size) const noexcept
 
 
 std::pair<wis::Result, wis::VKPipelineState>
-wis::VKDevice::CreateGraphicsPipeline() const noexcept
+wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
 {
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
     //for (const auto& i : desc.shaders) {

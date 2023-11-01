@@ -6,6 +6,7 @@
 #include <wisdom/vulkan/xvk_root_signature.h>
 #include <wisdom/vulkan/xvk_pipeline_state.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
+#include <wisdom/vulkan/vk_structs.hpp>
 #include <wisdom/vulkan/xvk_shader.h>
 #include <vector>
 
@@ -78,7 +79,7 @@ public:
     CreateShader(void* bytecode, uint32_t size) const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKPipelineState>
-    CreateGraphicsPipeline() const noexcept;
+    CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
 
 private:
     std::pair<wis::Result, VkDescriptorSetLayout>

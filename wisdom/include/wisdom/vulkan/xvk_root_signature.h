@@ -20,6 +20,10 @@ public:
         : QueryInternal(std::move(root))
     {
     }
+    operator VKRootSingatureView() const noexcept
+    {
+        return root.get();
+    }
     operator bool() const noexcept
     {
         return bool(root);
