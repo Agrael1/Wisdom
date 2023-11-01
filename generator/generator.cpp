@@ -108,19 +108,11 @@ int Generator::GenerateCPPAPI()
         return 1;
 
     std::string dxapi = generator_string + "#pragma once\n#include <wisdom/dx12/xdx12_views.h>\n\nnamespace wis{\n";
-    for (auto& [name, i] : variant_map) {
-        if (i.this_type.empty())
-        {
-            dxapi += wis::format("struct {}{};\n", impls[+ImplementedFor::DX12], i.name);
+    for (auto i : variants) {
+        if (i->this_type.empty()) {
+            dxapi += MakeCPPVariant(*i, ImplementedFor::DX12);
         }
     }
-    for (auto& [name, i] : variant_map) {
-        if (i.this_type.empty())
-        {
-            dxapi += MakeCPPVariant(i, ImplementedFor::DX12);
-        }
-    }
-
     out_dxapi << dxapi + "}\n";
 
 
@@ -129,15 +121,9 @@ int Generator::GenerateCPPAPI()
         return 1;
 
     std::string vkapi = generator_string + "#pragma once\n#include <wisdom/vulkan/xvk_views.h>\n\nnamespace wis{\n";
-    for (auto& [name, i] : variant_map) {
-        if (i.this_type.empty()) {
-            dxapi += wis::format("struct {}{};\n", impls[+ImplementedFor::Vulkan], i.name);
-        }
-    }
-    for (auto& [name, i] : variant_map) {
-        if (i.this_type.empty())
-        {
-            vkapi += MakeCPPVariant(i, ImplementedFor::Vulkan);
+    for (auto i : variants) {
+        if (i->this_type.empty()) {
+            vkapi += MakeCPPVariant(*i, ImplementedFor::Vulkan);
         }
     }
 
@@ -498,6 +484,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
     auto name = type.FindAttribute("name")->Value();
     auto& ref = variant_map[name];
     ref.name = name;
+    variants.emplace_back(&ref);
 
     if (auto* this_t = type.FindAttribute("for")) {
         ref.this_type = this_t->Value();

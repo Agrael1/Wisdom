@@ -20,7 +20,7 @@ public:
         : QueryInternal(std::move(root))
     {
     }
-    operator VKRootSingatureView() const noexcept
+    operator VKRootSignatureView() const noexcept
     {
         return root.get();
     }
