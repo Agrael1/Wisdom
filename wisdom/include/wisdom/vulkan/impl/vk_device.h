@@ -470,24 +470,35 @@ wis::VKDevice::CreateShader(void* bytecode, uint32_t size) const noexcept
             : std::pair{ wis::make_result<FUNC, "Failed to create a shader module">(vr), wis::VKShader{} };
 }
 
+namespace wis::detail {
+inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, wis::max_shader_stages>& shader_stages,
+                              wis::VKShaderView shader, VkShaderStageFlagBits stage) noexcept
+{
+    auto sh = std::get<0>(shader);
+    if (sh == nullptr)
+        return;
 
+    shader_stages.allocate() = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .stage = stage,
+        .module = sh,
+        .pName = "main",
+        .pSpecializationInfo = nullptr,
+    };
+}
+} // namespace wis::detail
 
 std::pair<wis::Result, wis::VKPipelineState>
 wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
 {
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
-    //for (const auto& i : desc.shaders) {
-    //    VkPipelineShaderStageCreateInfo stage{
-    //        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-    //        .pNext = nullptr,
-    //        .flags = 0,
-    //        .stage = convert(i.stage),
-    //        .module = i.shader.get(),
-    //        .pName = "main",
-    //        .pSpecializationInfo = nullptr,
-    //    };
-    //    shader_stages.allocate() = stage;
-    //}
+    wis::detail::VKFillShaderStage(shader_stages, desc->shaders.vertex, VK_SHADER_STAGE_VERTEX_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc->shaders.pixel, VK_SHADER_STAGE_FRAGMENT_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc->shaders.geometry, VK_SHADER_STAGE_GEOMETRY_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc->shaders.hull, VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc->shaders.domain, VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
 
     // static constexpr size_t attr_descriptions_per_binding = 16;
     // std::array<vk::VertexInputBindingDescription, max_vertex_bindings> bindings;
@@ -606,6 +617,9 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
+        .stageCount = static_cast<uint32_t>(shader_stages.size()),
+        .pStages = shader_stages.data(),
+        .layout = std::get<0>(desc->root_signature),
     };
 
     VkPipeline pipeline;

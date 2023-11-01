@@ -3,6 +3,7 @@
 #include <wisdom/dx12/xdx12_device.h>
 #endif // !WISDOM_HEADER_ONLY
 #include <d3dx12/d3dx12_root_signature.h>
+#include <d3dx12/d3dx12_pipeline_state_stream.h>
 #include <wisdom/util/small_allocator.h>
 
 std::pair<wis::Result, wis::DX12Device>
@@ -129,72 +130,70 @@ wis::DX12Device::CreateShader(void* data, size_t size) const noexcept
     return std::pair{ wis::success, DX12Shader{ std::move(x), size } };
 }
 
+namespace wis::detail
+{
+template<typename Stage>
+inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream, wis::DX12ShaderView shader) noexcept
+{
+    auto d = std::get<0>(shader);
+    if (d) {
+        auto s = std::get<1>(shader);
+        pipeline_stream.allocate<Stage>() = { d, s };
+    }
+}
+}
+
+
 std::pair<wis::Result, wis::DX12PipelineState>
 wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
-    D3D12_PIPELINE_STATE_STREAM_DESC xdesc{};
 
     wis::detail::memory_pool pipeline_stream;
-    // if (desc.vs) {
-    //    auto& d = desc.vs.GetInternal().bytecode;
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_VS>() = { d.data(), d.size() };
-    //}
-    // if (desc.ps) {
-    //    auto& d = desc.ps.GetInternal().bytecode;
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_PS>() = { d.data(), d.size() };
-    //}
-    // if (desc.gs) {
-    //    auto& d = desc.gs.GetInternal().bytecode;
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_GS>() = { d.data(), d.size() };
-    //}
-    // if (desc.hs) {
-    //    auto& d = desc.hs.GetInternal().bytecode;
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_HS>() = { d.data(), d.size() };
-    //}
-    // if (desc.ds) {
-    //    auto& d = desc.ds.GetInternal().bytecode;
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DS>() = { d.data(), d.size() };
-    //}
+    wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_VS>(pipeline_stream, desc->shaders.vertex);
+    wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_PS>(pipeline_stream, desc->shaders.pixel);
+    wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_GS>(pipeline_stream, desc->shaders.geometry);
+    wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_HS>(pipeline_stream, desc->shaders.hull);
+    wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_DS>(pipeline_stream, desc->shaders.domain);
 
+    pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = std::get<0>(desc->root_signature);
 
-    //D3D12_INPUT_LAYOUT_DESC iadesc{};
-    //iadesc.NumElements = input_layout.size();
+    // D3D12_INPUT_LAYOUT_DESC iadesc{};
+    // iadesc.NumElements = input_layout.size();
 
-    //wis::internals::uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
-    //for (auto& i : input_layout) {
-    //    ia.allocate(D3D12_INPUT_ELEMENT_DESC{
-    //            .SemanticName = i.semantic_name,
-    //            .SemanticIndex = i.semantic_index,
-    //            .Format = DXGI_FORMAT(i.format),
-    //            .InputSlot = i.input_slot,
-    //            .AlignedByteOffset = i.aligned_byte_offset,
-    //            .InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
-    //            .InstanceDataStepRate = i.instance_data_step_rate });
-    //}
-    //iadesc.pInputElementDescs = ia.data();
+    // wis::internals::uniform_allocator<D3D12_INPUT_ELEMENT_DESC> ia;
+    // for (auto& i : input_layout) {
+    //     ia.allocate(D3D12_INPUT_ELEMENT_DESC{
+    //             .SemanticName = i.semantic_name,
+    //             .SemanticIndex = i.semantic_index,
+    //             .Format = DXGI_FORMAT(i.format),
+    //             .InputSlot = i.input_slot,
+    //             .AlignedByteOffset = i.aligned_byte_offset,
+    //             .InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
+    //             .InstanceDataStepRate = i.instance_data_step_rate });
+    // }
+    // iadesc.pInputElementDescs = ia.data();
 
+    // psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
 
+    // auto& rpi = *desc.render_pass.GetInternal().desc;
 
-    //psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = desc.sig.GetInternal().root.get();
-    //psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
+    // if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+    //     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL1>() = CD3DX12_DEPTH_STENCIL_DESC1{ CD3DX12_DEFAULT{} };
+    //     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(rpi.ds_format);
+    // }
+    // if (rpi.rt_formats.size()) {
+    //     D3D12_RT_FORMAT_ARRAY rta{
+    //         .NumRenderTargets = uint32_t(rpi.rt_formats.size())
+    //     };
+    //     std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
+    //     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
+    // }
 
-    //auto& rpi = *desc.render_pass.GetInternal().desc;
-
-    //if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL1>() = CD3DX12_DEPTH_STENCIL_DESC1{ CD3DX12_DEFAULT{} };
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(rpi.ds_format);
-    //}
-    //if (rpi.rt_formats.size()) {
-    //    D3D12_RT_FORMAT_ARRAY rta{
-    //        .NumRenderTargets = uint32_t(rpi.rt_formats.size())
-    //    };
-    //    std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
-    //    psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
-    //}
-
-    //xdesc.pPipelineStateSubobjectStream = psta.data<void>();
-    //xdesc.SizeInBytes = psta.size_bytes();
+    D3D12_PIPELINE_STATE_STREAM_DESC xdesc{
+        .SizeInBytes = pipeline_stream.size_bytes(),
+        .pPipelineStateSubobjectStream = pipeline_stream.data<void>(),
+    };
 
     HRESULT hr;
     return wis::succeeded(hr = device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
