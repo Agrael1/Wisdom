@@ -535,11 +535,41 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pScissors = nullptr,
     };
 
-    // vk::PipelineRasterizationStateCreateInfo rasterizer{
-    //     vk::PipelineRasterizationStateCreateFlags{},
-    //     false, false, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eClockwise,
-    //     false, 0.0f, 0.0f, 0.0f, 1.0f
-    // };
+    constexpr static VkPipelineRasterizationStateCreateInfo default_rasterizer{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .depthClampEnable = true,
+        .rasterizerDiscardEnable = false,
+        .polygonMode = VK_POLYGON_MODE_FILL,
+        .cullMode = VK_CULL_MODE_BACK_BIT,
+        .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+        .depthBiasEnable = false,
+        .depthBiasConstantFactor = 0.0f,
+        .depthBiasClamp = 0.0f,
+        .depthBiasSlopeFactor = 0.0f,
+        .lineWidth = 1.0f,
+    };
+
+    VkPipelineRasterizationStateCreateInfo rasterizer;
+
+    if (desc->rasterizer) {
+        rasterizer = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .depthClampEnable = desc->rasterizer->depth_clip_enable,
+            .rasterizerDiscardEnable = true,
+            .polygonMode = convert_vk(desc->rasterizer->fill_mode),
+            .cullMode = convert_vk(desc->rasterizer->cull_mode),
+            .frontFace = convert_vk(desc->rasterizer->front_face),
+            .depthBiasEnable = desc->rasterizer->depth_bias_enable,
+            .depthBiasConstantFactor = desc->rasterizer->depth_bias,
+            .depthBiasClamp = desc->rasterizer->depth_bias_clamp,
+            .depthBiasSlopeFactor = desc->rasterizer->depth_bias_slope_factor,
+            .lineWidth = 1.0f,
+        };
+    }
 
     // vk::PipelineColorBlendAttachmentState color_blend_attachment[2]{
     //     // 1 for now, TODO: proper blending
@@ -618,6 +648,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pStages = shader_stages.data(),
         .pVertexInputState = &input_assembly,
         .pViewportState = &viewport_state,
+        .pRasterizationState = desc->rasterizer ? &rasterizer : &default_rasterizer,
         .layout = std::get<0>(desc->root_signature),
     };
 
