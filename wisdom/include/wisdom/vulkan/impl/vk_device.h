@@ -162,9 +162,13 @@ wis::VKDevice::VKDevice(wis::shared_handle<VkInstance> instance,
     };
     if (ifeatures.has_descriptor_buffer) {
         props.pNext = &dbp;
-        std::get<1>(adapter)->vkGetPhysicalDeviceProperties2(std::get<0>(adapter), &props);
+    }
+    std::get<1>(adapter)->vkGetPhysicalDeviceProperties2(std::get<0>(adapter), &props);
+
+    if (ifeatures.has_descriptor_buffer) {
         ifeatures.push_descriptor_bufferless = dbp.bufferlessPushDescriptors;
     }
+    ifeatures.max_ia_attributes = props.properties.limits.maxVertexInputAttributes;
 
     auto& gt = wis::Internal<VKFactory>::global_table;
     auto& it = *GetInstanceTable();
@@ -346,15 +350,12 @@ wis::VKDevice::CreateAllocator() const noexcept
 std::pair<wis::Result, wis::VKRootSignature>
 wis::VKDevice::CreateRootSignature(RootConstant* constants, uint32_t constants_size) const noexcept
 {
-    // TODO: do something with allocation
-    size_t size = sizeof(VkPushConstantRange) * constants_size;
-    void* alloc = size ? _aligned_malloc(8, size) : nullptr;
-    auto vk_constants = reinterpret_cast<VkPushConstantRange*>(alloc);
+    wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size };
 
     for (uint32_t i = 0; i < constants_size; i++) {
-        auto& c = vk_constants[i];
+        auto& c = vk_constants.data()[i];
         auto& r = constants[i];
-        c.stageFlags = convert(r.stage);
+        c.stageFlags = convert_vk(r.stage);
         c.offset = 0;
         c.size = r.size_bytes;
     }
@@ -366,17 +367,14 @@ wis::VKDevice::CreateRootSignature(RootConstant* constants, uint32_t constants_s
         .setLayoutCount = 0,
         .pSetLayouts = nullptr,
         .pushConstantRangeCount = constants_size,
-        .pPushConstantRanges = vk_constants,
+        .pPushConstantRanges = vk_constants.data(),
     };
     VkPipelineLayout layout;
     auto vr = device.table()->vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
 
-    if (!succeeded(vr)) {
-        _aligned_free(alloc);
-        return { wis::make_result<FUNC, "Failed to create a pipeline layout">(vr), VKRootSignature{} };
-    }
-    _aligned_free(alloc);
-    return std::pair{ wis::success, VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } } };
+    return !succeeded(vr)
+            ? std::pair{ wis::make_result<FUNC, "Failed to create a pipeline layout">(vr), VKRootSignature{} }
+            : std::pair{ wis::success, VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } } };
 }
 
 std::pair<wis::Result, VkDescriptorSetLayout>
@@ -384,9 +382,9 @@ wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexce
 {
     VkDescriptorSetLayoutBinding binding{
         .binding = desc.bind_register,
-        .descriptorType = convert(desc.type),
+        .descriptorType = convert_vk(desc.type),
         .descriptorCount = 1,
-        .stageFlags = VkShaderStageFlags(convert(desc.stage)),
+        .stageFlags = VkShaderStageFlags(convert_vk(desc.stage)),
         .pImmutableSamplers = nullptr,
     };
     VkDescriptorSetLayoutCreateInfo dsl{
@@ -500,43 +498,42 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     wis::detail::VKFillShaderStage(shader_stages, desc->shaders.hull, VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
     wis::detail::VKFillShaderStage(shader_stages, desc->shaders.domain, VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
 
-    // static constexpr size_t attr_descriptions_per_binding = 16;
-    //std::array<VkVertexInputBindingDescription, max_vertex_bindings> bindings;
-    //wis::detail::uniform_allocator<VkVertexInputAttributeDescription, max_vertex_bindings * attr_descriptions_per_binding> attributes;
+    uint32_t ia_count = desc->input_layout.attribute_count;
+    if (ia_count > ifeatures.max_ia_attributes)
+        return { wis::make_result<FUNC, "The system does not support the requested number of vertex attributes">(VkResult::VK_ERROR_UNKNOWN), wis::VKPipelineState{} };
 
-    // std::bitset<max_vertex_bindings> binding_map;
-    // for (const auto& i : input_layout) {
-    //     auto& b = bindings.at(i.input_slot);
-    //     if (!binding_map[i.input_slot]) {
-    //         b.inputRate = vk::VertexInputRate(i.input_slot_class);
-    //         b.binding = i.input_slot;
-    //         b.stride = 0; // we don't care abot stride, since we bind dynamic vertex buffers
-    //         binding_map.set(i.input_slot);
-    //     }
-    //     auto& at = attributes.allocate();
-    //     at.binding = i.input_slot;
-    //     at.format = convert_vk(i.format);
-    //     at.location = i.location;
-    //     at.offset = i.aligned_byte_offset;
-    // }
+    wis::detail::limited_allocator<VkVertexInputAttributeDescription, wis::max_vertex_bindings> attributes{ ia_count };
 
-    //// remove empty bindings and compact the array
-    // size_t rsize = 0;
-    // for (size_t i = rsize; i < max_vertex_bindings; i++)
-    //     if (binding_map[i])
-    //         bindings[rsize++] = bindings[i];
+    uint32_t byte_offset = 0;
+    auto* ia_data = attributes.data();
+    for (uint32_t i = 0; i < ia_count; i++) {
+        auto& ia = ia_data[i];
+        auto& a = desc->input_layout.attributes[i];
+        ia.binding = a.input_slot;
+        ia.format = convert_vk(a.format);
+        ia.location = a.location;
+        ia.offset = a.offset_bytes;
+    }
 
-    // vk::PipelineVertexInputStateCreateInfo ia{
-    //     vk::PipelineVertexInputStateCreateFlagBits{},
-    //     uint32_t(rsize),
-    //     bindings.data(),
-    //     uint32_t(attributes.size()),
-    //     attributes.data()
-    // };
+    VkPipelineVertexInputStateCreateInfo input_assembly{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .vertexBindingDescriptionCount = desc->input_layout.slot_count,
+        .pVertexBindingDescriptions = reinterpret_cast<const VkVertexInputBindingDescription*>(desc->input_layout.slots),
+        .vertexAttributeDescriptionCount = ia_count,
+        .pVertexAttributeDescriptions = ia_data,
+    };
 
-    // vk::PipelineViewportStateCreateInfo viewport_state;
-    // viewport_state.viewportCount = 1;
-    // viewport_state.scissorCount = 1;
+    VkPipelineViewportStateCreateInfo viewport_state{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .viewportCount = 1,
+        .pViewports = nullptr,
+        .scissorCount = 1,
+        .pScissors = nullptr,
+    };
 
     // vk::PipelineRasterizationStateCreateInfo rasterizer{
     //     vk::PipelineRasterizationStateCreateFlags{},
@@ -619,6 +616,8 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .flags = 0,
         .stageCount = static_cast<uint32_t>(shader_stages.size()),
         .pStages = shader_stages.data(),
+        .pVertexInputState = &input_assembly,
+        .pViewportState = &viewport_state,
         .layout = std::get<0>(desc->root_signature),
     };
 

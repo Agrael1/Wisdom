@@ -14,8 +14,9 @@ namespace wis {
 struct InternalFeatures {
     bool has_descriptor_buffer : 1 = false;
     bool push_descriptor_bufferless : 1 = false;
+    uint32_t max_ia_attributes = 0;
 };
-;
+
 
 class VKDevice;
 
@@ -56,6 +57,8 @@ public:
     operator VKDeviceHandle() const noexcept { return device; }
 
 public:
+
+
     [[nodicard]] WIS_INLINE wis::Result
     WaitForMultipleFences(const VKFenceView* fences,
                           const uint64_t* values,

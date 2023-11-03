@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 
 namespace wis {
-inline constexpr wis::Status convert(VkResult hr) noexcept
+inline constexpr wis::Status convert_vk(VkResult hr) noexcept
 {
     switch (hr) {
     case VK_SUCCESS:
@@ -21,7 +21,7 @@ inline constexpr wis::Status convert(VkResult hr) noexcept
         return wis::Status::Error;
     }
 }
-inline constexpr wis::Severity convert(VkDebugUtilsMessageSeverityFlagBitsEXT sev) noexcept
+inline constexpr wis::Severity convert_vk(VkDebugUtilsMessageSeverityFlagBitsEXT sev) noexcept
 {
     switch (sev) {
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -36,7 +36,7 @@ inline constexpr wis::Severity convert(VkDebugUtilsMessageSeverityFlagBitsEXT se
         return wis::Severity::Critical;
     }
 }
-inline constexpr VkShaderStageFlagBits convert(wis::ShaderStages stage) noexcept
+inline constexpr VkShaderStageFlagBits convert_vk(wis::ShaderStages stage) noexcept
 {
     switch (stage) {
     case wis::ShaderStages::Vertex:
@@ -57,7 +57,7 @@ inline constexpr VkShaderStageFlagBits convert(wis::ShaderStages stage) noexcept
         return VK_SHADER_STAGE_ALL;
     }
 }
-inline constexpr VkDescriptorType convert(wis::DescriptorType type) noexcept
+inline constexpr VkDescriptorType convert_vk(wis::DescriptorType type) noexcept
 {
     switch (type) {
     default:

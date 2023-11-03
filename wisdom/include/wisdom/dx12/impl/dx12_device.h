@@ -80,9 +80,10 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t cons
 
     D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    std::unique_ptr<D3D12_ROOT_PARAMETER1[]> root_params = constants_size ? std::make_unique<D3D12_ROOT_PARAMETER1[]>(constants_size) : nullptr;
+    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 16> root_params{ constants_size };
+
     for (uint32_t i = 0; i < constants_size; ++i) {
-        auto& param = root_params[i];
+        auto& param = root_params.data()[i];
         auto& constant = root_constants[i];
 
         param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
@@ -93,7 +94,7 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t cons
     }
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-    desc.Init_1_1(constants_size, root_params.get(), 0, nullptr, flags);
+    desc.Init_1_1(constants_size, root_params.data(), 0, nullptr, flags);
 
     wis::com_ptr<ID3DBlob> signature;
     wis::com_ptr<ID3DBlob> error;
@@ -130,8 +131,7 @@ wis::DX12Device::CreateShader(void* data, size_t size) const noexcept
     return std::pair{ wis::success, DX12Shader{ std::move(x), size } };
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 template<typename Stage>
 inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream, wis::DX12ShaderView shader) noexcept
 {
@@ -141,14 +141,14 @@ inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream,
         pipeline_stream.allocate<Stage>() = { d, s };
     }
 }
-}
-
+} // namespace wis::detail
 
 std::pair<wis::Result, wis::DX12PipelineState>
 wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
 
+    //--Shader stages
     wis::detail::memory_pool pipeline_stream;
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_VS>(pipeline_stream, desc->shaders.vertex);
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_PS>(pipeline_stream, desc->shaders.pixel);
@@ -158,23 +158,35 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
 
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = std::get<0>(desc->root_signature);
 
-    // D3D12_INPUT_LAYOUT_DESC iadesc{};
-    // iadesc.NumElements = input_layout.size();
+    //--Input layout
+    wis::detail::limited_allocator<D3D12_INPUT_ELEMENT_DESC, wis::max_vertex_bindings * 2> ia_stage;
 
-    wis::detail::uniform_allocator<D3D12_INPUT_ELEMENT_DESC, wis::max_vertex_bindings> ia_stage;
-    // for (auto& i : input_layout) {
-    //     ia.allocate(D3D12_INPUT_ELEMENT_DESC{
-    //             .SemanticName = i.semantic_name,
-    //             .SemanticIndex = i.semantic_index,
-    //             .Format = DXGI_FORMAT(i.format),
-    //             .InputSlot = i.input_slot,
-    //             .AlignedByteOffset = i.aligned_byte_offset,
-    //             .InputSlotClass = D3D12_INPUT_CLASSIFICATION(i.input_slot_class),
-    //             .InstanceDataStepRate = i.instance_data_step_rate });
-    // }
-    // iadesc.pInputElementDescs = ia.data();
+    auto slots = std::span{
+        desc->input_layout.slots, desc->input_layout.slots + desc->input_layout.slot_count
+    };
+    auto attrs = std::span{
+        desc->input_layout.attributes, desc->input_layout.attributes + desc->input_layout.attribute_count
+    };
 
-    // psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = iadesc;
+    for (auto& i : attrs) {
+        auto slot = std::find_if(slots.begin(), slots.end(), [&](auto& s) { return s.slot == i.input_slot; });
+        if (slot == slots.end())
+            continue;
+
+        *ia_stage.allocate() = {
+            .SemanticName = i.semantic_name,
+            .SemanticIndex = i.semantic_index,
+            .Format = convert_dx(i.format),
+            .InputSlot = i.input_slot,
+            .AlignedByteOffset = i.offset_bytes,
+            .InputSlotClass = D3D12_INPUT_CLASSIFICATION(slot->input_class),
+            .InstanceDataStepRate = slot->stride_bytes
+        };
+    }
+    pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = {
+        .pInputElementDescs = ia_stage.data(),
+        .NumElements = ia_stage.size(),
+    };
 
     // auto& rpi = *desc.render_pass.GetInternal().desc;
 
