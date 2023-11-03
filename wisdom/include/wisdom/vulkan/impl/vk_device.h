@@ -515,7 +515,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         ia.offset = a.offset_bytes;
     }
 
-    VkPipelineVertexInputStateCreateInfo input_assembly{
+    VkPipelineVertexInputStateCreateInfo vertex_input{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
@@ -571,6 +571,14 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         };
     }
 
+    VkPipelineInputAssemblyStateCreateInfo input_assembly{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        .primitiveRestartEnable = true,
+    };
+
     // vk::PipelineColorBlendAttachmentState color_blend_attachment[2]{
     //     // 1 for now, TODO: proper blending
     //     vk::PipelineColorBlendAttachmentState{ false, // disabled
@@ -595,24 +603,6 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     // vk::PipelineMultisampleStateCreateInfo multisampling{};
     // multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
     // multisampling.sampleShadingEnable = false;
-
-    // vk::PipelineInputAssemblyStateCreateInfo input_assembly{
-    //     vk::PipelineInputAssemblyStateCreateFlags{},
-    //     vk::PrimitiveTopology::eTriangleList, false
-    // };
-
-    // static constexpr size_t max_dynstates = 5; // only four if not using vrs
-    // wis::internals::uniform_allocator<vk::DynamicState, max_dynstates> dynamic_state_enables;
-    // dynamic_state_enables.allocate(vk::DynamicState::eViewport);
-    // dynamic_state_enables.allocate(vk::DynamicState::eScissor);
-    // dynamic_state_enables.allocate(vk::DynamicState::ePrimitiveTopology);
-    // dynamic_state_enables.allocate(vk::DynamicState::eVertexInputBindingStride);
-    //// if (vrs_supported)
-    //// 	dynamic_state_enables.allocate(vk::DynamicState::eFragmentShadingRateKHR);
-
-    // vk::PipelineDynamicStateCreateInfo dss{
-    //     {}, uint32_t(dynamic_state_enables.size()), dynamic_state_enables.data()
-    // };
 
     // vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
     //     vk::PipelineDepthStencilStateCreateFlags{},
@@ -640,15 +630,34 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     //     desc.pass.GetInternal().rp.get(), // render pass
     // };
 
+    static constexpr size_t max_dynstates = 4;
+    wis::detail::uniform_allocator<VkDynamicState, max_dynstates> dynamic_state_enables;
+    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VIEWPORT);
+    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_SCISSOR);
+    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY);
+    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
+
+    VkPipelineDynamicStateCreateInfo dynamic_state{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .dynamicStateCount = uint32_t(dynamic_state_enables.size()),
+        .pDynamicStates = dynamic_state_enables.data()
+    };
+
+    VkPipelineCreateFlags flags = VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT * int(ifeatures.has_descriptor_buffer);
+
     VkGraphicsPipelineCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = nullptr,
-        .flags = 0,
+        .flags = flags,
         .stageCount = static_cast<uint32_t>(shader_stages.size()),
         .pStages = shader_stages.data(),
-        .pVertexInputState = &input_assembly,
+        .pVertexInputState = &vertex_input,
+        .pInputAssemblyState = &input_assembly,
         .pViewportState = &viewport_state,
         .pRasterizationState = desc->rasterizer ? &rasterizer : &default_rasterizer,
+        .pDynamicState = &dynamic_state,
         .layout = std::get<0>(desc->root_signature),
     };
 
