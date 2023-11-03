@@ -442,13 +442,17 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
 
+        std::string_view def_value = "{}";
+        if (auto xdefault = impl_type->FindAttribute("default"))
+            def_value = xdefault->Value();
+
         if (auto direct = impl_type->FindAttribute("direct")) {
             auto cvt = wis::format(
                     "inline constexpr {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n", impl_name, impl_for, name, impl_name);
             cpp_conversion.emplace_back(std::move(cvt), impl_for_code);
             continue;
         }
-        cvts.emplace(impl_for, wis::format("inline constexpr {} convert_{}({} value) noexcept{{\n    switch(value){{\n", impl_name, impl_for, name));
+        cvts.emplace(impl_for, wis::format("inline constexpr {} convert_{}({} value) noexcept{{\n    switch(value){{\n    default: return {};\n", impl_name, impl_for, name, def_value));
     }
 
     for (auto* member = type.FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
@@ -467,7 +471,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         }
     }
     for (auto&& [k, v] : cvts) {
-        v += "    default: return {};\n}\n}\n";
+        v += "    }\n}\n";
         cpp_conversion.emplace_back(std::move(v), ImplCode(k));
     }
 }

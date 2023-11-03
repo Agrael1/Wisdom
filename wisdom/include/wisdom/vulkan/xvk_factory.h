@@ -43,7 +43,7 @@ class VKFactory : public QueryInternal<VKFactory>
             void* pUserData) noexcept
     {
         auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
-        callback(convert(messageSeverity),
+        callback(convert_vk(messageSeverity),
                  wis::format("\n[Validation layer]: {}\n [Message]:{}", pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "", pCallbackData->pMessage).c_str(), user_data);
         return false;
     }
