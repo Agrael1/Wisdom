@@ -150,4 +150,118 @@ public:
 private:
     size_t rsize = 0;
 };
+
+template<typename Type, size_t initial_alloc = 16u>
+    requires ::std::is_trivially_destructible_v<Type>
+class limited_allocator
+{
+public:
+    limited_allocator() noexcept
+        : allocator{}, allocated{ 0 }, is_heap{ false }
+    {
+    }
+    limited_allocator(uint32_t limit, bool exact = true) noexcept
+        : allocator{}, allocated{ 0 }, is_heap{ false }, limit{ limit }
+    {
+        if (!exact)
+            return;
+        if (limit > initial_alloc) {
+            is_heap = true;
+            ptr = allocate_heap(limit);
+            capacity = limit;
+        }
+    }
+    limited_allocator(const limited_allocator&) = delete;
+    limited_allocator(limited_allocator&&) = delete;
+    ~limited_allocator() noexcept
+    {
+        if (is_heap) {
+            deallocate_heap(ptr);
+        }
+    }
+
+public:
+    Type* allocate() noexcept
+    {
+        return is_heap ? allocate_on_heap() : allocate_on_stack();
+    }
+    uint32_t size() const noexcept
+    {
+        return is_heap ? count : allocated;
+    }
+    Type* data() noexcept
+    {
+        return is_heap ? ptr : allocator.data();
+    }
+
+private:
+    Type* allocate_on_stack() noexcept
+    {
+        if (allocated <= initial_alloc) {
+            return &allocator[allocated++];
+        } else if (allocated <= limit) {
+            reallocate();
+            return allocate_on_heap();
+        } else {
+            return nullptr;
+        }
+    }
+    Type* allocate_on_heap() noexcept
+    {
+        if (count < capacity) {
+            return &ptr[count++];
+        } else if (count < limit) {
+            reallocate();
+            return &ptr[count++];
+        } else {
+            return nullptr;
+        }
+    }
+    void reallocate() noexcept
+    {
+        if (is_heap) {
+            uint32_t xcapacity = this->capacity + this->capacity >> 1;
+            xcapacity = std::min(limit, xcapacity);
+            ptr = reallocate_heap(ptr, xcapacity);
+        } else {
+            uint32_t xcapacity = initial_alloc + initial_alloc >> 1;
+            xcapacity = std::min(limit, xcapacity);
+            auto* xptr = allocate_heap(xcapacity);
+            std::ranges::copy(allocator, xptr);
+            is_heap = true;
+            size = allocated;
+            ptr = xptr;
+            capacity = xcapacity;
+        }
+    }
+
+private:
+    static Type* allocate_heap(size_t count) noexcept
+    {
+        return reinterpret_cast<Type*>(malloc(sizeof(Type) * count));
+    }
+    static Type* reallocate_heap(Type* ptr, size_t count) noexcept
+    {
+        return reinterpret_cast<Type*>(realloc(ptr, sizeof(Type) * count));
+    }
+    static void deallocate_heap(Type* ptr) noexcept
+    {
+        free(ptr);
+    }
+
+private:
+    union {
+        struct {
+            std::array<Type, initial_alloc> allocator;
+            uint32_t allocated;
+        };
+        struct {
+            Type* ptr;
+            uint32_t count;
+            uint32_t capacity;
+        };
+    };
+    uint32_t limit : sizeof(uint32_t) * CHAR_BIT - 1 = uint32_t(0x7FFFFFFF);
+    uint32_t is_heap : 1 = 0;
+};
 } // namespace wis::detail

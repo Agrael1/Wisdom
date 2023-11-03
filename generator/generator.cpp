@@ -102,29 +102,35 @@ int Generator::GenerateCPPAPI()
         return 1;
     out_wisdom << GenerateCPPExportHeader();
 
-
     std::ofstream out_dxapi(std::filesystem::absolute(cpp_output_path / "dx12/dx12_structs.hpp"));
     if (!out_dxapi.is_open())
         return 1;
 
-    std::string dxapi = generator_string + "#pragma once\n#include <wisdom/dx12/xdx12_views.h>\n\nnamespace wis{\n";
+    std::string dxapi = generator_string + "#pragma once\n#include <wisdom/dx12/xdx12_views.h>\n#include <wisdom/api/api.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {
             dxapi += MakeCPPVariant(*i, ImplementedFor::DX12);
         }
     }
+    for (auto& c : cpp_conversion) {
+        if (c.impl == ImplementedFor::DX12)
+            dxapi += c.value;
+    }
     out_dxapi << dxapi + "}\n";
-
 
     std::ofstream out_vkapi(std::filesystem::absolute(cpp_output_path / "vulkan/vk_structs.hpp"));
     if (!out_vkapi.is_open())
         return 1;
 
-    std::string vkapi = generator_string + "#pragma once\n#include <wisdom/vulkan/xvk_views.h>\n\nnamespace wis{\n";
+    std::string vkapi = generator_string + "#pragma once\n#include <wisdom/vulkan/xvk_views.h>\n#include <wisdom/api/api.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {
             vkapi += MakeCPPVariant(*i, ImplementedFor::Vulkan);
         }
+    }
+    for (auto& c : cpp_conversion) {
+        if (c.impl == ImplementedFor::Vulkan)
+            vkapi += c.value;
     }
 
     out_vkapi << vkapi + "}\n";
@@ -179,10 +185,8 @@ std::string Generator::GenerateCTypedefs()
         c_types += wis::format("typedef {} {};\n", bm.type.empty() ? "uint32_t" : standard_types.at(bm.type), full_name);
     }
     for (auto& [name, s] : variant_map) {
-        for (auto& impl : s.impls)
-        {
-            if (impl.impl == ImplementedFor::Both)
-            {
+        for (auto& impl : s.impls) {
+            if (impl.impl == ImplementedFor::Both) {
                 c_types += wis::format("typedef struct DX12{} DX12{};\n", s.name, s.name);
                 c_types += wis::format("typedef struct VK{} VK{};\n", s.name, s.name);
                 break;
@@ -424,12 +428,28 @@ void Generator::ParseStruct(tinyxml2::XMLElement& type)
 
 void Generator::ParseEnum(tinyxml2::XMLElement& type)
 {
+    std::unordered_map<std::string_view, std::string> cvts;
+
     auto name = type.FindAttribute("name")->Value();
     auto& ref = enum_map[name];
     ref.name = name;
 
     if (auto* size = type.FindAttribute("type"))
         ref.type = size->Value();
+
+    for (auto* impl_type = type.FirstChildElement("impl_type"); impl_type; impl_type = impl_type->NextSiblingElement("impl_type")) {
+        auto impl_for = impl_type->FindAttribute("for")->Value();
+        auto impl_for_code = ImplCode(impl_for);
+        auto impl_name = impl_type->FindAttribute("name")->Value();
+
+        if (auto direct = impl_type->FindAttribute("direct")) {
+            auto cvt = wis::format(
+                    "inline constexpr {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n", impl_name, impl_for, name, impl_name);
+            cpp_conversion.emplace_back(std::move(cvt), impl_for_code);
+            continue;
+        }
+        cvts.emplace(impl_for, wis::format("inline constexpr {} convert_{}({} value) noexcept{{\n    switch(value){{\n", impl_name, impl_for, name));
+    }
 
     for (auto* member = type.FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
@@ -438,6 +458,17 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         m.value = std::stoll(member->FindAttribute("value")->Value());
         if (auto* impl = member->FindAttribute("impl"))
             m.impl = ImplCode(impl->Value());
+
+        for (auto* impl = member->FirstChildElement("impl"); impl; impl = impl->NextSiblingElement("impl")) {
+            auto impl_name = impl->FindAttribute("name")->Value();
+            auto value = impl->FindAttribute("value")->Value();
+
+            cvts[impl_name] += wis::format("    case {}::{}: return {};\n", name, m.name, value);
+        }
+    }
+    for (auto&& [k, v] : cvts) {
+        v += "    default: return {};\n}\n}\n";
+        cpp_conversion.emplace_back(std::move(v), ImplCode(k));
     }
 }
 

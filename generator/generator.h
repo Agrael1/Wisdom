@@ -102,6 +102,11 @@ struct WisHandle {
     std::string_view name;
     ImplementedFor impl = ImplementedFor::Both;
 };
+struct WisConversion
+{
+    std::string value;
+    ImplementedFor impl = ImplementedFor::None;
+};
 
 class Generator
 {
@@ -173,6 +178,7 @@ private:
     std::vector<std::string> function_decls;
 
     std::vector<std::string> cpp_type_traits;
+    std::vector<WisConversion> cpp_conversion;
     std::vector<WisVariant*> variants;
 
     std::unordered_map<std::string_view, WisHandle> handle_map;

@@ -85,7 +85,9 @@
       <value name="PerVertex" value="0"/>
       <value name="PerInstance" value="1"/>
     </type>
-    <type name="DataFormat" category="enum" translates="dx">
+    <type name="DataFormat" category="enum">
+      <impl_type for="dx" name="DXGI_FORMAT" direct="true "/>
+      <impl_type for="vk" name="VkFormat"/>
       <value name="Unknown" value="0"/>
       <value name="RGBA32Float" value="2">
         <impl name="vk" value="VK_FORMAT_R32G32B32A32_SFLOAT"/>
@@ -228,9 +230,6 @@
       <value name="R8Sint" value="64">
         <impl name="vk" value="VK_FORMAT_R8_SINT"/>
       </value>
-      <value name="A8Unorm" value="65">
-        <impl name="vk" value="VK_FORMAT_A8_UNORM_KHR"/>
-      </value>
       <value name="RGB9E5UFloat" value="67">
         <impl name="vk" value="VK_FORMAT_E5B9G9R9_UFLOAT_PACK32"/>
       </value>
@@ -336,6 +335,25 @@
       <member type="u64" name="adapter_id"/>
       <member type="AdapterFlags" name="flags"/>
     </type>
+    <type name="InputSlotDesriptor" category="struct">
+      <member type="u32" name="slot"/>
+      <member type="u32" name="stride_bytes"/>
+      <member type="InputClass" name="input_class"/>
+    </type>
+    <type name="InputAttribute" category="struct">
+      <member type="u32" name="input_slot"/>
+      <member type="u8string" name="semantic_name" mod="ptr"/>
+      <member type="u32" name="semantic_index"/>
+      <member type="u32" name="location"/>
+      <member type="DataFormat" name="format"/>
+      <member type="u32" name="offset_bytes"/>
+    </type>
+    <type name="InputLayout" category="struct">
+      <member type="InputSlotDesriptor" name="slots" mod="ptr"/>
+      <member type="u32" name="slot_count" comment="Max number is 16"/>
+      <member type="InputAttribute" name="attributes" mod="ptr"/>
+      <member type="u32" name="attribute_count"/>
+    </type>
 
     <type name="DebugCallback" category="delegate">
       <arg type="Severity" name="severity"/>
@@ -366,6 +384,7 @@
     <type name="GraphicsPipelineDesc" category="variant">
       <impl name="both">
         <member type="RootSignatureView" name="root_signature"/>
+        <member type="InputLayout" name="input_layout"/>
         <member type="GraphicsShaderStages" name="shaders"/>
       </impl>
     </type>
