@@ -25,10 +25,17 @@
       <value name="All" value="0"/>
       <value name="Any" value="1"/>
     </type>
-    <type name="AdapterPreference" category="enum" type="i32">
-      <value name="None" value="0"/>
-      <value name="MinConsumption" value="1"/>
-      <value name="Performance" value="2"/>
+    <type name="AdapterPreference" category="enum">
+      <impl_type for="dx" name="DXGI_GPU_PREFERENCE"/>
+      <value name="None" value="0">
+        <impl name="dx" value="DXGI_GPU_PREFERENCE_UNSPECIFIED"/>
+      </value>
+      <value name="MinConsumption" value="1">
+        <impl name="dx" value="DXGI_GPU_PREFERENCE_MINIMUM_POWER"/>
+      </value>
+      <value name="Performance" value="2">
+        <impl name="dx" value="DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE"/>
+      </value>
     </type>
     <type name="AdapterFlags" category="bitmask">
       <value name="None" value="0"/>
@@ -57,14 +64,32 @@
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
     <type name="ShaderStages" category="enum">
-      <value name="All" value="0"/>
-      <value name="Vertex" value="1"/>
-      <value name="Hull" value="2"/>
-      <value name="Domain" value="3"/>
-      <value name="Geometry" value="4"/>
-      <value name="Pixel" value="5"/>
-      <value name="Amplification" value="6"/>
-      <value name="Mesh" value="7"/>
+      <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
+      <impl_type for="vk" name="VkShaderStageFlagBits" default="VK_SHADER_STAGE_ALL"/>
+      <value name="All" value="0">
+        <impl name="vk" value="VK_SHADER_STAGE_ALL"/>
+      </value>
+      <value name="Vertex" value="1">
+        <impl name="vk" value="VK_SHADER_STAGE_VERTEX_BIT"/>
+      </value>
+      <value name="Hull" value="2">
+        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"/>
+      </value>
+      <value name="Domain" value="3">
+        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"/>
+      </value>
+      <value name="Geometry" value="4">
+        <impl name="vk" value="VK_SHADER_STAGE_GEOMETRY_BIT"/>
+      </value>
+      <value name="Pixel" value="5">
+        <impl name="vk" value="VK_SHADER_STAGE_FRAGMENT_BIT"/>
+      </value>
+      <value name="Amplification" value="6">
+        <impl name="vk" value="VK_SHADER_STAGE_TASK_BIT_NV"/>
+      </value>
+      <value name="Mesh" value="7">
+        <impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_NV"/>
+      </value>
     </type>
     <type name="DescriptorType" category="enum">
       <value name="None" value="0"/>

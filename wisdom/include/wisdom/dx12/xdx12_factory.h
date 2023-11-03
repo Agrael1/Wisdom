@@ -4,6 +4,7 @@
 #include <wisdom/dx12/xdx12_convert.h>
 #include <wisdom/dx12/xdx12_info.h>
 #include <wisdom/dx12/xdx12_adapter.h>
+#include <wisdom/dx12/dx12_structs.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/error_messages.h>
 
