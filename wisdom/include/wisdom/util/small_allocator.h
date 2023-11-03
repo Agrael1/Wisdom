@@ -223,13 +223,14 @@ private:
             uint32_t xcapacity = this->capacity + this->capacity >> 1;
             xcapacity = std::min(limit, xcapacity);
             ptr = reallocate_heap(ptr, xcapacity);
+            capacity = xcapacity;
         } else {
             uint32_t xcapacity = initial_alloc + initial_alloc >> 1;
             xcapacity = std::min(limit, xcapacity);
             auto* xptr = allocate_heap(xcapacity);
             std::ranges::copy(allocator, xptr);
             is_heap = true;
-            size = allocated;
+            count = allocated;
             ptr = xptr;
             capacity = xcapacity;
         }

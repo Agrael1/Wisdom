@@ -159,7 +159,7 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() = std::get<0>(desc->root_signature);
 
     //--Input layout
-    wis::detail::limited_allocator<D3D12_INPUT_ELEMENT_DESC, wis::max_vertex_bindings * 2> ia_stage;
+    wis::detail::limited_allocator<D3D12_INPUT_ELEMENT_DESC, wis::max_vertex_bindings> ia_stage{ desc->input_layout.attribute_count };
 
     auto slots = std::span{
         desc->input_layout.slots, desc->input_layout.slots + desc->input_layout.slot_count
@@ -187,6 +187,20 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         .pInputElementDescs = ia_stage.data(),
         .NumElements = ia_stage.size(),
     };
+
+    //--Rasterizer
+    if (desc->rasterizer) {
+        bool bias = desc->rasterizer->depth_bias_enable;
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2>() = CD3DX12_RASTERIZER_DESC2{ D3D12_RASTERIZER_DESC2{
+                .FillMode = convert_dx(desc->rasterizer->fill_mode),
+                .CullMode = convert_dx(desc->rasterizer->cull_mode),
+                .FrontCounterClockwise = convert_dx(desc->rasterizer->front_face),
+                .DepthBias = bias ? desc->rasterizer->depth_bias : 0.0f,
+                .DepthBiasClamp = bias ? desc->rasterizer->depth_bias_clamp : 0.0f,
+                .SlopeScaledDepthBias = bias ? desc->rasterizer->depth_bias_slope_factor : 0.0f,
+                .DepthClipEnable = desc->rasterizer->depth_clip_enable,
+        } };
+    }
 
     // auto& rpi = *desc.render_pass.GetInternal().desc;
 

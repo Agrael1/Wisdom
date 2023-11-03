@@ -319,6 +319,39 @@
         <impl name="vk" value="VK_FORMAT_BC7_SRGB_BLOCK"/>
       </value>
     </type>
+    <type name="FillMode" category="enum">
+      <impl_type for="dx" name="D3D12_FILL_MODE" direct="true"/>
+      <impl_type for="vk" name="VkPolygonMode"/>
+      <value name="Lines" value="2">
+        <impl name="vk" value="VK_POLYGON_MODE_LINE"/>
+      </value>
+      <value name="Solid" value="3">
+        <impl name="vk" value="VK_POLYGON_MODE_FILL"/>
+      </value>
+    </type>
+    <type name="CullMode" category="enum">
+      <impl_type for="dx" name="D3D12_CULL_MODE" direct="true"/>
+      <impl_type for="vk" name="VkCullModeFlags"/>
+      <value name="None" value="1">
+        <impl name="vk" value="VK_CULL_MODE_NONE"/>
+      </value>
+      <value name="Front" value="2">
+        <impl name="vk" value="VK_CULL_MODE_FRONT_BIT"/>
+      </value>
+      <value name="Back" value="3">
+        <impl name="vk" value="VK_CULL_MODE_BACK_BIT"/>
+      </value>
+    </type>
+    <type name="WindingOrder" category="enum">
+      <impl_type for="dx" name="BOOL" direct="true"/>
+      <impl_type for="vk" name="VkFrontFace"/>
+      <value name="Clockwise" value="0">
+        <impl name="vk" value="VK_FRONT_FACE_CLOCKWISE"/>
+      </value>
+      <value name="CounterClockwise" value="1">
+        <impl name="vk" value="VK_FRONT_FACE_COUNTER_CLOCKWISE"/>
+      </value>
+    </type>
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -360,7 +393,7 @@
       <member type="u64" name="adapter_id"/>
       <member type="AdapterFlags" name="flags"/>
     </type>
-    <type name="InputSlotDesriptor" category="struct">
+    <type name="InputSlotDesc" category="struct">
       <member type="u32" name="slot"/>
       <member type="u32" name="stride_bytes"/>
       <member type="InputClass" name="input_class"/>
@@ -374,10 +407,20 @@
       <member type="u32" name="offset_bytes"/>
     </type>
     <type name="InputLayout" category="struct">
-      <member type="InputSlotDesriptor" name="slots" mod="ptr"/>
+      <member type="InputSlotDesc" name="slots" mod="ptr"/>
       <member type="u32" name="slot_count" comment="Max number is 16"/>
       <member type="InputAttribute" name="attributes" mod="ptr"/>
       <member type="u32" name="attribute_count"/>
+    </type>
+    <type name="RasterizerDesc" category="struct">
+      <member type="FillMode" name="fill_mode" default="Solid"/>
+      <member type="CullMode" name="cull_mode" default="Back"/>
+      <member type="WindingOrder" name="front_face" default="Clockwise"/>
+      <member type="bool" name="depth_bias_enable" default="false"/>
+      <member type="f32" name="depth_bias" default="0.0f"/>
+      <member type="f32" name="depth_bias_clamp" default="0.0f"/>
+      <member type="f32" name="depth_bias_slope_factor" default="0.0f"/>
+      <member type="bool" name="depth_clip_enable" default="true"/>
     </type>
 
     <type name="DebugCallback" category="delegate">
@@ -411,6 +454,7 @@
         <member type="RootSignatureView" name="root_signature"/>
         <member type="InputLayout" name="input_layout"/>
         <member type="GraphicsShaderStages" name="shaders"/>
+        <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr"/>
       </impl>
     </type>
   </types>
