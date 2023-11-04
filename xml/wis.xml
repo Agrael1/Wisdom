@@ -790,6 +790,11 @@
       <arg type="MutiWaitFlags" name="wait_all" default="All"/>
       <arg type="u64" name="timeout" default="18446744073709551615"/>
     </func>
+    <func for="Device" name="CreatePipelineState">
+      <ret type="Result" name="result"/>
+      <ret type="PipelineState" name="pipeline_state"/>
+      <arg type="GraphicsPipelineDesc" name="desc" mod="ptr"/>
+    </func>
 
     <!--RootSignature-->
     <func for="RootSignature" name="Destroy"/>
