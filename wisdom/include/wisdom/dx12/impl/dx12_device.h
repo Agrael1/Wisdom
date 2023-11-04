@@ -202,6 +202,27 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         } };
     }
 
+    //D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msaa{
+    //    .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+    //    .SampleCount = 1,
+    //    .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
+    //    .NumQualityLevels = 0,
+    //};
+
+    //device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msaa, sizeof(msaa));
+
+    //--Multisample
+    if (desc->sample)
+    {
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC>() = DXGI_SAMPLE_DESC{
+            .Count = convert_dx(desc->sample->rate),
+            .Quality = 1,
+        };
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_MASK>() = desc->sample->sample_mask;
+    }
+
+
+
     // auto& rpi = *desc.render_pass.GetInternal().desc;
 
     // if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
