@@ -202,20 +202,11 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         } };
     }
 
-    // D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msaa{
-    //     .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-    //     .SampleCount = 1,
-    //     .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
-    //     .NumQualityLevels = 0,
-    // };
-
-    // device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msaa, sizeof(msaa));
-
     //--Multisample
     if (desc->sample) {
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC>() = DXGI_SAMPLE_DESC{
             .Count = convert_dx(desc->sample->rate),
-            .Quality = 1,
+            .Quality = 0,
         };
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_MASK>() = desc->sample->sample_mask;
     }
@@ -259,6 +250,36 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         };
         std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
+    }
+
+    //--Blend
+    if (desc->blend) {
+        auto& blend = *desc->blend;
+        D3D12_BLEND_DESC bdesc{
+            .AlphaToCoverageEnable = false,
+            .IndependentBlendEnable = !blend.logic_op_enable,
+        };
+        if (blend.logic_op_enable) {
+            bdesc.RenderTarget[0].LogicOpEnable = true;
+            bdesc.RenderTarget[0].LogicOp = convert_dx(blend.logic_op);
+        } else {
+            for (size_t i = 0; i < blend.attachment_count; i++) {
+                auto& a = blend.attachments[i];
+                bdesc.RenderTarget[i] = D3D12_RENDER_TARGET_BLEND_DESC{
+                    .BlendEnable = a.blend_enable,
+                    .LogicOpEnable = false,
+                    .SrcBlend = convert_dx(a.src_color_blend),
+                    .DestBlend = convert_dx(a.dst_color_blend),
+                    .BlendOp = convert_dx(a.color_blend_op),
+                    .SrcBlendAlpha = convert_dx(a.src_alpha_blend),
+                    .DestBlendAlpha = convert_dx(a.dst_alpha_blend),
+                    .BlendOpAlpha = convert_dx(a.alpha_blend_op),
+                    .LogicOp = D3D12_LOGIC_OP_NOOP,
+                    .RenderTargetWriteMask = UINT8(a.color_write_mask),
+                };
+            }
+        }
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC>() = CD3DX12_BLEND_DESC{ bdesc };
     }
 
     D3D12_PIPELINE_STATE_STREAM_DESC xdesc{

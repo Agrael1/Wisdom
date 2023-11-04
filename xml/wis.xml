@@ -101,6 +101,14 @@
       <value name="None" value="0"/>
       <value name="PushDescriptors" bit="0"/>
     </type>
+    <type name="ColorComponents" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="R" bit="0"/>
+      <value name="G" bit="1"/>
+      <value name="B" bit="2"/>
+      <value name="A" bit="3"/>
+      <value name="All" value="15"/>
+    </type>
     <type name="InputClass" category="enum">
       <value name="PerVertex" value="0"/>
       <value name="PerInstance" value="1"/>
@@ -422,8 +430,132 @@
         <impl name="vk" value="VK_STENCIL_OP_DECREMENT_AND_WRAP"/>
       </value>
     </type>
-
-
+    <type name="BlendFactor" category="enum">
+      <impl_type for="dx" name="D3D12_BLEND" direct="true"/>
+      <impl_type for="vk" name="VkBlendFactor"/>
+      <value name="Zero" value="1">
+        <impl name="vk" value="VK_BLEND_FACTOR_ZERO"/>
+      </value>
+      <value name="One" value="2">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE"/>
+      </value>
+      <value name="SrcColor" value="3">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC_COLOR"/>
+      </value>
+      <value name="InvSrcColor" value="4">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR"/>
+      </value>
+      <value name="SrcAlpha" value="5">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC_ALPHA"/>
+      </value>
+      <value name="InvSrcAlpha" value="6">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA"/>
+      </value>
+      <value name="DestAlpha" value="7">
+        <impl name="vk" value="VK_BLEND_FACTOR_DST_ALPHA"/>
+      </value>
+      <value name="InvDestAlpha" value="8">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA"/>
+      </value>
+      <value name="DestColor" value="9">
+        <impl name="vk" value="VK_BLEND_FACTOR_DST_COLOR"/>
+      </value>
+      <value name="InvDestColor" value="10">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR"/>
+      </value>
+      <value name="SrcAlphaSat" value="11">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC_ALPHA_SATURATE"/>
+      </value>
+      <value name="BlendFactor" value="14">
+        <impl name="vk" value="VK_BLEND_FACTOR_CONSTANT_COLOR"/>
+      </value>
+      <value name="InvBlendFactor" value="15">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR"/>
+      </value>
+      <value name="Src1Color" value="16">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC1_COLOR"/>
+      </value>
+      <value name="InvSrc1Color" value="17">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR"/>
+      </value>
+      <value name="Src1Alpha" value="18">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC1_ALPHA"/>
+      </value>
+      <value name="InvSrc1Alpha" value="19">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA"/>
+      </value>
+    </type>
+    <type name="BlendOp" category="enum">
+      <impl_type for="dx" name="D3D12_BLEND_OP" direct="true"/>
+      <impl_type for="vk" name="VkBlendOp"/>
+      <value name="Add" value="1">
+        <impl name="vk" value="VK_BLEND_OP_ADD"/>
+      </value>
+      <value name="Subtract" value="2">
+        <impl name="vk" value="VK_BLEND_OP_SUBTRACT"/>
+      </value>
+      <value name="RevSubtract" value="3">
+        <impl name="vk" value="VK_BLEND_OP_REVERSE_SUBTRACT"/>
+      </value>
+      <value name="Min" value="4">
+        <impl name="vk" value="VK_BLEND_OP_MIN"/>
+      </value>
+      <value name="Max" value="5">
+        <impl name="vk" value="VK_BLEND_OP_MAX"/>
+      </value>
+    </type>
+    <type name="LogicOp" category="enum">
+      <impl_type for="dx" name="D3D12_LOGIC_OP" direct="true"/>
+      <impl_type for="vk" name="VkLogicOp"/>
+      <value name="Clear" value="0">
+        <impl name="vk" value="VK_LOGIC_OP_CLEAR"/>
+      </value>
+      <value name="Set" value="1">
+        <impl name="vk" value="VK_LOGIC_OP_SET"/>
+      </value>
+      <value name="Copy" value="2">
+        <impl name="vk" value="VK_LOGIC_OP_COPY"/>
+      </value>
+      <value name="CopyInverted" value="3">
+        <impl name="vk" value="VK_LOGIC_OP_COPY_INVERTED"/>
+      </value>
+      <value name="Noop" value="4">
+        <impl name="vk" value="VK_LOGIC_OP_NO_OP"/>
+      </value>
+      <value name="Invert" value="5">
+        <impl name="vk" value="VK_LOGIC_OP_INVERT"/>
+      </value>
+      <value name="And" value="6">
+        <impl name="vk" value="VK_LOGIC_OP_AND"/>
+      </value>
+      <value name="Nand" value="7">
+        <impl name="vk" value="VK_LOGIC_OP_NAND"/>
+      </value>
+      <value name="Or" value="8">
+        <impl name="vk" value="VK_LOGIC_OP_OR"/>
+      </value>
+      <value name="Nor" value="9">
+        <impl name="vk" value="VK_LOGIC_OP_NOR"/>
+      </value>
+      <value name="Xor" value="10">
+        <impl name="vk" value="VK_LOGIC_OP_XOR"/>
+      </value>
+      <value name="Equiv" value="11">
+        <impl name="vk" value="VK_LOGIC_OP_EQUIVALENT"/>
+      </value>
+      <value name="AndReverse" value="12">
+        <impl name="vk" value="VK_LOGIC_OP_AND_REVERSE"/>
+      </value>
+      <value name="AndInverted" value="13">
+        <impl name="vk" value="VK_LOGIC_OP_AND_INVERTED"/>
+      </value>
+      <value name="OrReverse" value="14">
+        <impl name="vk" value="VK_LOGIC_OP_OR_REVERSE"/>
+      </value>
+      <value name="OrInverted" value="15">
+        <impl name="vk" value="VK_LOGIC_OP_OR_INVERTED"/>
+      </value>
+    </type>
 
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
@@ -530,6 +662,22 @@
       <member type="StencilDesc" name="stencil_back" default="{}"/>
       <member type="bool" name="depth_bound_test" default="false"/>
     </type>
+    <type name="BlendAttachmentDesc" category="struct">
+      <member type="bool" name="blend_enable" default="false"/>
+      <member type="BlendFactor" name="src_color_blend" default="One"/>
+      <member type="BlendFactor" name="dst_color_blend" default="Zero"/>
+      <member type="BlendOp" name="color_blend_op" default="Add"/>
+      <member type="BlendFactor" name="src_alpha_blend" default="One"/>
+      <member type="BlendFactor" name="dst_alpha_blend" default="Zero"/>
+      <member type="BlendOp" name="alpha_blend_op" default="Add"/>
+      <member type="ColorComponents" name="color_write_mask" default="All"/>
+    </type>
+    <type name="BlendStateDesc" category="struct">
+      <member type="bool" name="logic_op_enable" default="false"/>
+      <member type="LogicOp" name="logic_op" default="Noop"/>
+      <member type="BlendAttachmentDesc" name="attachments" array="8"/>
+      <member type="u32" name="attachment_count"/>
+    </type>
 
     <type name="RenderPassDesc" category="struct">
 
@@ -568,6 +716,7 @@
         <member type="GraphicsShaderStages" name="shaders"/>
         <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr"/>
         <member type="SampleDesc" name="sample" mod="ptr" default="nullptr"/>
+        <member type="BlendStateDesc" name="blend" mod="ptr" default="nullptr"/>
         <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr"/>
         <member type="RenderPassView" name="render_pass"/>
       </impl>
