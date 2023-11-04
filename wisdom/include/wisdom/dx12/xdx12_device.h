@@ -5,6 +5,7 @@
 #include <wisdom/dx12/xdx12_command_queue.h>
 #include <wisdom/dx12/xdx12_shader.h>
 #include <wisdom/dx12/xdx12_pipeline_state.h>
+#include <wisdom/dx12/xdx12_render_pass.h>
 #include <wisdom/dx12/dx12_structs.hpp>
 
 namespace wis {

@@ -202,18 +202,17 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         } };
     }
 
-    //D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msaa{
-    //    .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-    //    .SampleCount = 1,
-    //    .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
-    //    .NumQualityLevels = 0,
-    //};
+    // D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msaa{
+    //     .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+    //     .SampleCount = 1,
+    //     .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
+    //     .NumQualityLevels = 0,
+    // };
 
-    //device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msaa, sizeof(msaa));
+    // device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msaa, sizeof(msaa));
 
     //--Multisample
-    if (desc->sample)
-    {
+    if (desc->sample) {
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC>() = DXGI_SAMPLE_DESC{
             .Count = convert_dx(desc->sample->rate),
             .Quality = 1,
@@ -221,21 +220,46 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_MASK>() = desc->sample->sample_mask;
     }
 
+    //--Depth stencil
+    if (desc->depth_stencil) {
+        auto& ds = *desc->depth_stencil;
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2>() = CD3DX12_DEPTH_STENCIL_DESC2{ D3D12_DEPTH_STENCIL_DESC2{
+                .DepthEnable = ds.depth_enable,
+                .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
+                .DepthFunc = convert_dx(ds.depth_comp),
+                .StencilEnable = ds.stencil_enable,
+                .FrontFace = D3D12_DEPTH_STENCILOP_DESC1{
+                        .StencilFailOp = convert_dx(ds.stencil_front.fail_op),
+                        .StencilDepthFailOp = convert_dx(ds.stencil_front.depth_fail_op),
+                        .StencilPassOp = convert_dx(ds.stencil_front.pass_op),
+                        .StencilFunc = convert_dx(ds.stencil_front.comparison),
+                        .StencilReadMask = ds.stencil_front.read_mask,
+                        .StencilWriteMask = ds.stencil_front.write_mask,
+                },
+                .BackFace = D3D12_DEPTH_STENCILOP_DESC1{
+                        .StencilFailOp = convert_dx(ds.stencil_back.fail_op),
+                        .StencilDepthFailOp = convert_dx(ds.stencil_back.depth_fail_op),
+                        .StencilPassOp = convert_dx(ds.stencil_back.pass_op),
+                        .StencilFunc = convert_dx(ds.stencil_back.comparison),
+                        .StencilReadMask = ds.stencil_back.read_mask,
+                        .StencilWriteMask = ds.stencil_back.write_mask,
+                },
+                .DepthBoundsTestEnable = ds.depth_bound_test,
+        } };
+    }
 
-
-    // auto& rpi = *desc.render_pass.GetInternal().desc;
-
-    // if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
-    //     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL1>() = CD3DX12_DEPTH_STENCIL_DESC1{ CD3DX12_DEFAULT{} };
-    //     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(rpi.ds_format);
-    // }
-    // if (rpi.rt_formats.size()) {
-    //     D3D12_RT_FORMAT_ARRAY rta{
-    //         .NumRenderTargets = uint32_t(rpi.rt_formats.size())
-    //     };
-    //     std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
-    //     psta.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
-    // }
+    //--Render targets
+    auto& rpi = *std::get<0>(desc->render_pass);
+    if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(rpi.ds_format);
+    }
+    if (rpi.rt_formats.size()) {
+        D3D12_RT_FORMAT_ARRAY rta{
+            .NumRenderTargets = uint32_t(rpi.rt_formats.size())
+        };
+        std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
+    }
 
     D3D12_PIPELINE_STATE_STREAM_DESC xdesc{
         .SizeInBytes = pipeline_stream.size_bytes(),

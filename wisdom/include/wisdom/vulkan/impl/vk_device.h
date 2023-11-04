@@ -631,31 +631,49 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         };
     }
 
-    // vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
-    //     vk::PipelineDepthStencilStateCreateFlags{},
-    //     true, true,
-    //     vk::CompareOp::eLess,
-    //     false, false,
-    //     vk::StencilOpState{}, vk::StencilOpState{},
-    //     0.0f, 1.0f
-    // };
+    constexpr VkPipelineDepthStencilStateCreateInfo default_depth_stencil{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .depthTestEnable = false,
+        .depthBoundsTestEnable = false,
+        .stencilTestEnable = false,
+    };
+    VkPipelineDepthStencilStateCreateInfo depth_stencil_state;
 
-    // vk::GraphicsPipelineCreateInfo pipeline_desc{
-    //     vk::PipelineCreateFlags{},
-    //     uint32_t(shader_stages.size()),
-    //     shader_stages.data(), // shader stages
-    //     &ia, // vertex input
-    //     &input_assembly, // input assembly
-    //     nullptr, // tessellation
-    //     &viewport_state, // viewport
-    //     &rasterizer, // rasterizer
-    //     &multisampling, // multisampling
-    //     &depth_stencil_state, // depth stencil
-    //     &color_blending, // color blending
-    //     &dss, // dynamic state
-    //     desc.sig, // pipeline layout
-    //     desc.pass.GetInternal().rp.get(), // render pass
-    // };
+    if (desc->depth_stencil) {
+        auto& ds = *desc->depth_stencil;
+        depth_stencil_state = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .depthTestEnable = ds.depth_enable,
+            .depthWriteEnable = ds.depth_write_enable,
+            .depthCompareOp = convert_vk(ds.depth_comp),
+            .depthBoundsTestEnable = ds.depth_bound_test,
+            .stencilTestEnable = ds.stencil_enable,
+            .front = VkStencilOpState{
+                    .failOp = convert_vk(ds.stencil_front.fail_op),
+                    .passOp = convert_vk(ds.stencil_front.pass_op),
+                    .depthFailOp = convert_vk(ds.stencil_front.depth_fail_op),
+                    .compareOp = convert_vk(ds.stencil_front.comparison),
+                    .compareMask = ds.stencil_front.read_mask,
+                    .writeMask = ds.stencil_front.write_mask,
+                    .reference = 0,
+            },
+            .back = VkStencilOpState{
+                    .failOp = convert_vk(ds.stencil_back.fail_op),
+                    .passOp = convert_vk(ds.stencil_back.pass_op),
+                    .depthFailOp = convert_vk(ds.stencil_back.depth_fail_op),
+                    .compareOp = convert_vk(ds.stencil_back.comparison),
+                    .compareMask = ds.stencil_back.read_mask,
+                    .writeMask = ds.stencil_back.write_mask,
+                    .reference = 0,
+            },
+            .minDepthBounds = 0.0f,
+            .maxDepthBounds = 1.0f,
+        };
+    }
 
     static constexpr size_t max_dynstates = 4;
     wis::detail::uniform_allocator<VkDynamicState, max_dynstates> dynamic_state_enables;
@@ -685,8 +703,10 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pViewportState = &viewport_state,
         .pRasterizationState = desc->rasterizer ? &rasterizer : &default_rasterizer,
         .pMultisampleState = desc->sample ? &multisampling : &default_multisampling,
+        .pDepthStencilState = desc->depth_stencil ? &depth_stencil_state : &default_depth_stencil,
         .pDynamicState = &dynamic_state,
         .layout = std::get<0>(desc->root_signature),
+        .renderPass = std::get<0>(desc->render_pass),
     };
 
     VkPipeline pipeline;
