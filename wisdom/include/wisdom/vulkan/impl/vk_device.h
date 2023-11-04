@@ -21,7 +21,8 @@ constexpr inline std::array required_extensions{
     VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, // for Allocator
     VK_KHR_MAINTENANCE_4_EXTENSION_NAME, // for Allocator
 
-    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME, // for PushDescriptor
+    VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
 
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
@@ -579,32 +580,49 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .primitiveRestartEnable = true,
     };
 
-    // vk::PipelineColorBlendAttachmentState color_blend_attachment[2]{
-    //     // 1 for now, TODO: proper blending
-    //     vk::PipelineColorBlendAttachmentState{ false, // disabled
-    //                                            vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
-    //                                            vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-    //                                            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA },
-    //     vk::PipelineColorBlendAttachmentState{ false, // disabled
-    //                                            vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
-    //                                            vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-    //                                            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA },
+    constexpr static VkPipelineColorBlendStateCreateInfo default_color_blending{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .logicOpEnable = false,
+        .logicOp = VK_LOGIC_OP_NO_OP,
+        .attachmentCount = 0,
+        .pAttachments = nullptr,
+        .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
+    };
 
-    //};
-    // VkPipelineColorBlendStateCreateInfo color_blending{
-    //    .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-    //    .pNext = nullptr,
-    //    .flags = 0,
-    //
-    //    vk::PipelineColorBlendStateCreateFlags{},
-    //    false,
-    //    vk::LogicOp::eCopy,
-    //    2,
-    //    color_blend_attachment,
-    //    { 0.0f, 0.0f, 0.0f, 0.0f }
-    //};
+    VkPipelineColorBlendAttachmentState color_blend_attachment[max_render_targets]{};
+    VkPipelineColorBlendStateCreateInfo color_blending;
+    if (desc->blend) {
+        auto& blend = *desc->blend;
+        if (!blend.logic_op_enable) {
+            for (uint32_t i = 0; i < blend.attachment_count; i++) {
+                auto& a = blend.attachments[i];
+                auto& b = color_blend_attachment[i];
+                b.blendEnable = a.blend_enable;
+                b.srcColorBlendFactor = convert_vk(a.src_color_blend);
+                b.dstColorBlendFactor = convert_vk(a.dst_color_blend);
+                b.colorBlendOp = convert_vk(a.color_blend_op);
+                b.srcAlphaBlendFactor = convert_vk(a.src_alpha_blend);
+                b.dstAlphaBlendFactor = convert_vk(a.dst_alpha_blend);
+                b.alphaBlendOp = convert_vk(a.alpha_blend_op);
+                b.colorWriteMask = VkColorComponentFlags(a.color_write_mask);
+            }
+        }
 
-    constexpr VkPipelineMultisampleStateCreateInfo default_multisampling{
+        color_blending = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .logicOpEnable = blend.logic_op_enable,
+            .logicOp = convert_vk(blend.logic_op),
+            .attachmentCount = blend.logic_op_enable ? 0u : blend.attachment_count,
+            .pAttachments = blend.logic_op_enable ? nullptr : color_blend_attachment,
+            .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
+        };
+    }
+
+    constexpr static VkPipelineMultisampleStateCreateInfo default_multisampling{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
@@ -631,7 +649,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         };
     }
 
-    constexpr VkPipelineDepthStencilStateCreateInfo default_depth_stencil{
+    constexpr static VkPipelineDepthStencilStateCreateInfo default_depth_stencil{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
@@ -675,12 +693,14 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         };
     }
 
-    static constexpr size_t max_dynstates = 4;
+    static constexpr size_t max_dynstates = 6;
     wis::detail::uniform_allocator<VkDynamicState, max_dynstates> dynamic_state_enables;
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VIEWPORT);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_SCISSOR);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
+    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT);
+    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_BLEND_CONSTANTS);
 
     VkPipelineDynamicStateCreateInfo dynamic_state{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
@@ -704,6 +724,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pRasterizationState = desc->rasterizer ? &rasterizer : &default_rasterizer,
         .pMultisampleState = desc->sample ? &multisampling : &default_multisampling,
         .pDepthStencilState = desc->depth_stencil ? &depth_stencil_state : &default_depth_stencil,
+        .pColorBlendState = desc->blend ? &color_blending : &default_color_blending,
         .pDynamicState = &dynamic_state,
         .layout = std::get<0>(desc->root_signature),
         .renderPass = std::get<0>(desc->render_pass),
