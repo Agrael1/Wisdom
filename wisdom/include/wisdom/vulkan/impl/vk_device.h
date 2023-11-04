@@ -591,7 +591,11 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     //                                            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA },
 
     //};
-    // vk::PipelineColorBlendStateCreateInfo color_blending{
+    // VkPipelineColorBlendStateCreateInfo color_blending{
+    //    .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+    //    .pNext = nullptr,
+    //    .flags = 0,
+    //
     //    vk::PipelineColorBlendStateCreateFlags{},
     //    false,
     //    vk::LogicOp::eCopy,
@@ -600,9 +604,32 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     //    { 0.0f, 0.0f, 0.0f, 0.0f }
     //};
 
-    // vk::PipelineMultisampleStateCreateInfo multisampling{};
-    // multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
-    // multisampling.sampleShadingEnable = false;
+    constexpr VkPipelineMultisampleStateCreateInfo default_multisampling{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
+        .sampleShadingEnable = false,
+        .minSampleShading = 1.0f,
+        .pSampleMask = nullptr,
+        .alphaToCoverageEnable = false,
+        .alphaToOneEnable = false,
+    };
+
+    VkPipelineMultisampleStateCreateInfo multisampling;
+    if (desc->sample) {
+        multisampling = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .rasterizationSamples = convert_vk(desc->sample->rate),
+            .sampleShadingEnable = true,
+            .minSampleShading = desc->sample->quality,
+            .pSampleMask = &desc->sample->sample_mask,
+            .alphaToCoverageEnable = false,
+            .alphaToOneEnable = false,
+        };
+    }
 
     // vk::PipelineDepthStencilStateCreateInfo depth_stencil_state{
     //     vk::PipelineDepthStencilStateCreateFlags{},
@@ -657,6 +684,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pInputAssemblyState = &input_assembly,
         .pViewportState = &viewport_state,
         .pRasterizationState = desc->rasterizer ? &rasterizer : &default_rasterizer,
+        .pMultisampleState = desc->sample ? &multisampling : &default_multisampling,
         .pDynamicState = &dynamic_state,
         .layout = std::get<0>(desc->root_signature),
     };

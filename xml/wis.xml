@@ -352,6 +352,28 @@
         <impl name="vk" value="VK_FRONT_FACE_COUNTER_CLOCKWISE"/>
       </value>
     </type>
+    <type name="SampleRate" category="enum">
+      <impl_type for="dx" name="uint32_t" direct="true"/>
+      <impl_type for="vk" name="VkSampleCountFlagBits"/>
+      <value name="S1" value="1">
+        <impl name="vk" value="VK_SAMPLE_COUNT_1_BIT"/>
+      </value>
+      <value name="S2" value="2">
+        <impl name="vk" value="VK_SAMPLE_COUNT_2_BIT"/>
+      </value>
+      <value name="S4" value="4">
+        <impl name="vk" value="VK_SAMPLE_COUNT_4_BIT"/>
+      </value>
+      <value name="S8" value="8">
+        <impl name="vk" value="VK_SAMPLE_COUNT_8_BIT"/>
+      </value>
+      <value name="S16" value="16">
+        <impl name="vk" value="VK_SAMPLE_COUNT_16_BIT"/>
+      </value>
+    </type>
+    
+    
+    
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -422,6 +444,12 @@
       <member type="f32" name="depth_bias_slope_factor" default="0.0f"/>
       <member type="bool" name="depth_clip_enable" default="true"/>
     </type>
+    <type name="SampleDesc" category="struct">
+      <member type="SampleRate" name="rate" default="S1"/>
+      <member type="f32" name="quality" default="0.0f"/>
+      <member type="u32" name="sample_mask" default="0xffffffff"/>
+    </type>
+    
 
     <type name="DebugCallback" category="delegate">
       <arg type="Severity" name="severity"/>
@@ -455,6 +483,7 @@
         <member type="InputLayout" name="input_layout"/>
         <member type="GraphicsShaderStages" name="shaders"/>
         <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr"/>
+        <member type="SampleDesc" name="sample" mod="ptr" default="nullptr"/>
       </impl>
     </type>
   </types>
