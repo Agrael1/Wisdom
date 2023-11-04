@@ -25,7 +25,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 		"include/wisdom/vulkan/vk_resource.h"
 		"include/wisdom/vulkan/vk_rtv.h"
 		"include/wisdom/vulkan/vk_command_list.h"
-		"include/wisdom/vulkan/vk_render_pass.h"
+		"include/wisdom/vulkan/xvk_render_pass.h"
 		"include/wisdom/vulkan/xvk_pipeline_state.h"
 		"include/wisdom/vulkan/vk_state_builder.h"
 		"include/wisdom/vulkan/xvk_shader.h"

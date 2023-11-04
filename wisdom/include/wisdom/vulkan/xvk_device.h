@@ -5,6 +5,7 @@
 #include <wisdom/vulkan/xvk_command_queue.h>
 #include <wisdom/vulkan/xvk_root_signature.h>
 #include <wisdom/vulkan/xvk_pipeline_state.h>
+#include <wisdom/vulkan/xvk_render_pass.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
 #include <wisdom/vulkan/vk_structs.hpp>
 #include <wisdom/vulkan/xvk_shader.h>
@@ -83,6 +84,9 @@ public:
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKPipelineState>
     CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
+
+    //[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKRenderPass>
+    //CreateRenderPass(const wis::RenderPassDesc* desc) const noexcept;
 
 private:
     std::pair<wis::Result, VkDescriptorSetLayout>

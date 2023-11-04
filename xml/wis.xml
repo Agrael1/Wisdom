@@ -10,6 +10,7 @@
     <handle name="CommandQueue"/>
     <handle name="Shader"/>
     <handle name="PipelineState"/>
+    <handle name="RenderPass"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -26,16 +27,10 @@
       <value name="Any" value="1"/>
     </type>
     <type name="AdapterPreference" category="enum">
-      <impl_type for="dx" name="DXGI_GPU_PREFERENCE"/>
-      <value name="None" value="0">
-        <impl name="dx" value="DXGI_GPU_PREFERENCE_UNSPECIFIED"/>
-      </value>
-      <value name="MinConsumption" value="1">
-        <impl name="dx" value="DXGI_GPU_PREFERENCE_MINIMUM_POWER"/>
-      </value>
-      <value name="Performance" value="2">
-        <impl name="dx" value="DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE"/>
-      </value>
+      <impl_type for="dx" name="DXGI_GPU_PREFERENCE" direct="true"/>
+      <value name="None" value="0"/>
+      <value name="MinConsumption" value="1"/>
+      <value name="Performance" value="2"/>
     </type>
     <type name="AdapterFlags" category="bitmask">
       <value name="None" value="0"/>
@@ -371,9 +366,65 @@
         <impl name="vk" value="VK_SAMPLE_COUNT_16_BIT"/>
       </value>
     </type>
-    
-    
-    
+    <type name="Compare" category="enum">
+      <impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
+      <impl_type for="vk" name="VkCompareOp"/>
+      <value name="Never" value="1">
+        <impl name="vk" value="VK_COMPARE_OP_NEVER"/>
+      </value>
+      <value name="Less" value="2">
+        <impl name="vk" value="VK_COMPARE_OP_LESS"/>
+      </value>
+      <value name="Equal" value="3">
+        <impl name="vk" value="VK_COMPARE_OP_EQUAL"/>
+      </value>
+      <value name="LessEqual" value="4">
+        <impl name="vk" value="VK_COMPARE_OP_LESS_OR_EQUAL"/>
+      </value>
+      <value name="Greater" value="5">
+        <impl name="vk" value="VK_COMPARE_OP_GREATER"/>
+      </value>
+      <value name="NotEqual" value="6">
+        <impl name="vk" value="VK_COMPARE_OP_NOT_EQUAL"/>
+      </value>
+      <value name="GreaterEqual" value="7">
+        <impl name="vk" value="VK_COMPARE_OP_GREATER_OR_EQUAL"/>
+      </value>
+      <value name="Always" value="8">
+        <impl name="vk" value="VK_COMPARE_OP_ALWAYS"/>
+      </value>
+    </type>
+    <type name="StencilOp" category="enum">
+      <impl_type for="dx" name="D3D12_STENCIL_OP" direct="true"/>
+      <impl_type for="vk" name="VkStencilOp"/>
+      <value name="Keep" value="1">
+        <impl name="vk" value="VK_STENCIL_OP_KEEP"/>
+      </value>
+      <value name="Zero" value="2">
+        <impl name="vk" value="VK_STENCIL_OP_ZERO"/>
+      </value>
+      <value name="Replace" value="3">
+        <impl name="vk" value="VK_STENCIL_OP_REPLACE"/>
+      </value>
+      <value name="IncClamp" value="4">
+        <impl name="vk" value="VK_STENCIL_OP_INCREMENT_AND_CLAMP"/>
+      </value>
+      <value name="DecClamp" value="5">
+        <impl name="vk" value="VK_STENCIL_OP_DECREMENT_AND_CLAMP"/>
+      </value>
+      <value name="Invert" value="6">
+        <impl name="vk" value="VK_STENCIL_OP_INVERT"/>
+      </value>
+      <value name="IncWrap" value="7">
+        <impl name="vk" value="VK_STENCIL_OP_INCREMENT_AND_WRAP"/>
+      </value>
+      <value name="DecWrap" value="8">
+        <impl name="vk" value="VK_STENCIL_OP_DECREMENT_AND_WRAP"/>
+      </value>
+    </type>
+
+
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -397,11 +448,24 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
+    <type name="RenderPassView" category="variant" for="RenderPass">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value1" mod="ptr"/>
+        <member type="void" name="value2" mod="ptr"/>
+      </impl>
+    </type>
 
     <!--Structs-->
     <type name="Result" category="struct">
       <member type="Status" name="status" default="Ok"/>
       <member type="u8string" name="error" mod="ptr" default="nullptr"/>
+    </type>
+    <type name="Size2D" category="struct">
+      <member type="u32" name="width"/>
+      <member type="u32" name="height"/>
     </type>
     <type name="AdapterDesc" category="struct" >
       <member type="u8string" name="description" array="256"/>
@@ -449,7 +513,27 @@
       <member type="f32" name="quality" default="0.0f"/>
       <member type="u32" name="sample_mask" default="0xffffffff"/>
     </type>
-    
+    <type name="StencilDesc" category="struct">
+      <member type="StencilOp" name="fail_op" default="Keep"/>
+      <member type="StencilOp" name="depth_fail_op" default="Keep"/>
+      <member type="StencilOp" name="pass_op" default="Keep"/>
+      <member type="Compare" name="comparison" default="Always"/>
+      <member type="u8" name="read_mask" default="0xff"/>
+      <member type="u8" name="write_mask" default="0xff"/>
+    </type>
+    <type name="DepthStencilDesc" category="struct">
+      <member type="bool" name="depth_enable" default="false"/>
+      <member type="bool" name="depth_write_enable" default="false"/>
+      <member type="Compare" name="depth_comp" default="Less"/>
+      <member type="bool" name="stencil_enable" default="false"/>
+      <member type="StencilDesc" name="stencil_front" default="{}"/>
+      <member type="StencilDesc" name="stencil_back" default="{}"/>
+      <member type="bool" name="depth_bound_test" default="false"/>
+    </type>
+
+    <type name="RenderPassDesc" category="struct">
+
+    </type>
 
     <type name="DebugCallback" category="delegate">
       <arg type="Severity" name="severity"/>
@@ -484,6 +568,8 @@
         <member type="GraphicsShaderStages" name="shaders"/>
         <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr"/>
         <member type="SampleDesc" name="sample" mod="ptr" default="nullptr"/>
+        <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr"/>
+        <member type="RenderPassView" name="render_pass"/>
       </impl>
     </type>
   </types>
@@ -586,5 +672,7 @@
     <!--PipelineState-->
     <func for="PipelineState" name="Destroy"/>
 
+    <!--RenderPass-->
+    <func for="RenderPass" name="Destroy"/>
   </functions>
 </registry>
