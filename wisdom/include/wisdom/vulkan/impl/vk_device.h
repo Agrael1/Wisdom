@@ -23,6 +23,7 @@ constexpr inline std::array required_extensions{
 
     VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME, // for PushDescriptor
     VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
 
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
@@ -214,6 +215,18 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
     auto* xadapter = std::get<0>(adapter);
     auto* itbl = std::get<1>(factory);
 
+    void** next_chain = nullptr;
+
+    auto set_next = [&next_chain](void* next) {
+        struct R {
+            VkStructureType a;
+            void* pnext;
+        };
+        auto x = reinterpret_cast<R*>(next);
+        *next_chain = next;
+        next_chain = &x->pnext;
+    };
+
     constexpr static auto priorities = []() {
         std::array<float, 64> priorities{};
         priorities.fill(1.0f);
@@ -244,20 +257,28 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
         .pNext = nullptr,
         .features = {},
     };
+    next_chain = &features.pNext;
 
     VkPhysicalDeviceTimelineSemaphoreFeaturesKHR timeline_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES_KHR,
         .pNext = nullptr,
         .timelineSemaphore = true,
     };
-    features.pNext = &timeline_features;
+    set_next(&timeline_features);
 
     VkPhysicalDeviceDescriptorBufferFeaturesEXT descbuffer_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
         .pNext = nullptr,
     };
     if (present_exts.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME))
-        timeline_features.pNext = &descbuffer_features;
+        set_next(&descbuffer_features);
+
+    VkPhysicalDeviceDynamicRenderingFeaturesKHR dyn_render{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
+        .pNext = nullptr,
+    };
+    if (present_exts.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+        set_next(&dyn_render);
 
     itbl->vkGetPhysicalDeviceFeatures2(xadapter, &features);
 
@@ -277,6 +298,7 @@ wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) 
     // Creating device
     InternalFeatures ifeatures{
         .has_descriptor_buffer = present_exts.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME),
+        .dynamic_rendering = bool(dyn_render.dynamicRendering),
     };
     DeviceFeatures dfeatures = DeviceFeatures(+DeviceFeatures::PushDescriptors & int(ifeatures.has_descriptor_buffer));
 
@@ -710,6 +732,22 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pDynamicStates = dynamic_state_enables.data()
     };
 
+    uint32_t rt_size = std::min(desc->attachments.attachments_count, wis::max_render_targets);
+    VkFormat rt_formats[8];
+    for (uint32_t i = 0; i < rt_size; i++) {
+        rt_formats[i] = convert_vk(desc->attachments.attachment_formats[i]);
+    }
+
+    VkPipelineRenderingCreateInfo dynamic_rendering{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+        .pNext = nullptr,
+        .viewMask = 0xff,
+        .colorAttachmentCount = desc->attachments.attachments_count,
+        .pColorAttachmentFormats = rt_formats,
+        .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),
+        .stencilAttachmentFormat = VK_FORMAT_UNDEFINED //TODO: formats for pure stencils
+    };
+
     VkPipelineCreateFlags flags = VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT * int(ifeatures.has_descriptor_buffer);
 
     VkGraphicsPipelineCreateInfo info{
@@ -727,7 +765,6 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pColorBlendState = desc->blend ? &color_blending : &default_color_blending,
         .pDynamicState = &dynamic_state,
         .layout = std::get<0>(desc->root_signature),
-        .renderPass = std::get<0>(desc->render_pass),
     };
 
     VkPipeline pipeline;

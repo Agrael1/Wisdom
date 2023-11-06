@@ -240,17 +240,15 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     }
 
     //--Render targets
-    auto& rpi = *std::get<0>(desc->render_pass);
-    if (rpi.ds_format != DXGI_FORMAT_UNKNOWN) {
-        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(rpi.ds_format);
+    pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(convert_dx(desc->attachments.depth_attachment));
+
+    D3D12_RT_FORMAT_ARRAY rta{
+        .NumRenderTargets = uint32_t(std::min(desc->attachments.attachments_count, wis::max_render_targets))
+    };
+    for (size_t i = 0; i < rta.NumRenderTargets; i++) {
+        rta.RTFormats[i] = convert_dx(desc->attachments.attachment_formats[i]);
     }
-    if (rpi.rt_formats.size()) {
-        D3D12_RT_FORMAT_ARRAY rta{
-            .NumRenderTargets = uint32_t(rpi.rt_formats.size())
-        };
-        std::memcpy(rta.RTFormats, rpi.rt_formats.data(), rpi.rt_formats.size() * sizeof(DXGI_FORMAT));
-        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
-    }
+    pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
 
     //--Blend
     if (desc->blend) {
@@ -282,13 +280,13 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC>() = CD3DX12_BLEND_DESC{ bdesc };
     }
 
-    D3D12_PIPELINE_STATE_STREAM_DESC xdesc{
+    D3D12_PIPELINE_STATE_STREAM_DESC psstream_desc{
         .SizeInBytes = pipeline_stream.size_bytes(),
         .pPipelineStateSubobjectStream = pipeline_stream.data<void>(),
     };
 
     HRESULT hr;
-    return wis::succeeded(hr = device->CreatePipelineState(&xdesc, __uuidof(*state), state.put_void()))
+    return wis::succeeded(hr = device->CreatePipelineState(&psstream_desc, __uuidof(*state), state.put_void()))
             ? std::pair{ wis::success, DX12PipelineState{ std::move(state) } }
             : std::pair{ wis::make_result<FUNC, "Failed to create pipeline state">(hr), DX12PipelineState{} };
 }

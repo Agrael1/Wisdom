@@ -11,5 +11,4 @@ namespace wis {
     using VKFenceView = std::tuple<VkSemaphore>;
     using VKShaderView = std::tuple<VkShaderModule>;
     using VKRootSignatureView = std::tuple<VkPipelineLayout>;
-    using VKRenderPassView = std::tuple<VkRenderPass, VkFramebuffer>;
 }

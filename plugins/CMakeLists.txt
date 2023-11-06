@@ -22,9 +22,9 @@ if(WIN32)
     message(FATAL_ERROR "Please install this executable, and run CMake again.")
   endif()
 
-  add_subdirectory("DX12Allocator")
-  add_subdirectory("WinRT")
+  #add_subdirectory("WinRT")
   add_subdirectory("DX12Agility")
+  add_subdirectory("DX12Allocator")
   # add_subdirectory("Wil")
 endif()
 
@@ -44,7 +44,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
   FetchContent_MakeAvailable(wisvk)
 endif()
 
-add_subdirectory("DXC")
+#add_subdirectory("DXC")
 
 set(PLUGINS_LOADED
     TRUE

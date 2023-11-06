@@ -10,7 +10,6 @@
     <handle name="CommandQueue"/>
     <handle name="Shader"/>
     <handle name="PipelineState"/>
-    <handle name="RenderPass"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -580,15 +579,6 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
-    <type name="RenderPassView" category="variant" for="RenderPass">
-      <impl name="dx">
-        <member type="void" name="value" mod="ptr"/>
-      </impl>
-      <impl name="vk">
-        <member type="void" name="value1" mod="ptr"/>
-        <member type="void" name="value2" mod="ptr"/>
-      </impl>
-    </type>
 
     <!--Structs-->
     <type name="Result" category="struct">
@@ -678,9 +668,10 @@
       <member type="BlendAttachmentDesc" name="attachments" array="8"/>
       <member type="u32" name="attachment_count"/>
     </type>
-
-    <type name="RenderPassDesc" category="struct">
-
+    <type name="RenderAttachmentsDesc" category="struct">
+      <member type="DataFormat" name="attachment_formats" mod="ptr"/>
+      <member type="u32" name="attachments_count"/>
+      <member type="DataFormat" name="depth_attachment"/>
     </type>
 
     <type name="DebugCallback" category="delegate">
@@ -714,11 +705,11 @@
         <member type="RootSignatureView" name="root_signature"/>
         <member type="InputLayout" name="input_layout"/>
         <member type="GraphicsShaderStages" name="shaders"/>
+        <member type="RenderAttachmentsDesc" name="attachments"/>
         <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr"/>
         <member type="SampleDesc" name="sample" mod="ptr" default="nullptr"/>
         <member type="BlendStateDesc" name="blend" mod="ptr" default="nullptr"/>
         <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr"/>
-        <member type="RenderPassView" name="render_pass"/>
       </impl>
     </type>
   </types>
