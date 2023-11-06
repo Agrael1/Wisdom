@@ -20,7 +20,6 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_allocator.h"
 		"include/wisdom/dx12/dx12_state_builder.h"
 
-		"include/wisdom/dx12/xdx12_render_pass.h"
 		"include/wisdom/dx12/dx12_format.h"
 		"include/wisdom/dx12/dx12_views.h"
 		"include/wisdom/dx12/dx12_descriptor_heap.h"
@@ -43,7 +42,7 @@ if(WIN32)
 
 	target_link_libraries(${PROJECT_NAME}
 		PUBLIC
-			WinRT
+			#WinRT
 			DX12Agility
 			DX12Allocator
 			d3d12

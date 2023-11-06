@@ -7,6 +7,7 @@ if(NOT PLUGINS_LOADED)
       GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
       GIT_TAG origin/master
     )
+    set(D3D12MA_AGILITY_SDK_DIRECTORY "${DXA_DIR}" CACHE INTERNAL "" FORCE)
     FetchContent_MakeAvailable(dxma)
     set(dxma_SOURCES ${dxma_SOURCE_DIR} CACHE INTERNAL "")
 endif()
