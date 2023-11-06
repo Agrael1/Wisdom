@@ -25,7 +25,12 @@ if(MSVC)
   target_sources(${PROJECT_NAME}
                  PRIVATE ${vkma_SOURCES}/src/vk_mem_alloc.natvis)
 endif()
-target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${Vulkan_INCLUDE_DIRS}
+)
+target_compile_definitions(
+  ${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES
+)
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCES}/include>
                          $<INSTALL_INTERFACE:include>)

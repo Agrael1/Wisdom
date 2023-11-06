@@ -32,7 +32,6 @@ find_package(Vulkan)
 
 # UWP not supported
 if(Vulkan_FOUND AND NOT WINDOWS_STORE)
-  add_subdirectory("VKAllocator")
   message("Loading wisvk utils...")
   FetchContent_Declare(
     wisvk
@@ -42,6 +41,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
   set(WISVK_ONLY_HEADERS ON CACHE BOOL "" FORCE)
   set(WISVK_INSTALL ON CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(wisvk)
+  add_subdirectory("VKAllocator")
 endif()
 
 #add_subdirectory("DXC")
