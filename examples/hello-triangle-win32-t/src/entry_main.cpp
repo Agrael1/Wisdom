@@ -43,6 +43,7 @@ int main()
         auto allocator = device.CreateAllocator();
         auto root_signature = device.CreateRootSignature();
         auto command_queue = device.CreateCommandQueue(wis::QueueType::Graphics);
+
     }
 
     return 0;

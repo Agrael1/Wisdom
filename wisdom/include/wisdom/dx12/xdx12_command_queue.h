@@ -9,7 +9,6 @@ class DX12CommandQueue;
 
 template<>
 struct Internal<DX12CommandQueue> {
-public:
     wis::com_ptr<ID3D12CommandQueue> queue;
 };
 
@@ -27,23 +26,13 @@ public:
     }
 
 public:
-    /// @brief Execute a command list on the GPU.
-    /// @param list List to execute.
-    // void ExecuteCommandList(DX12CommandListView list) const noexcept
-    //{
-    //     queue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&list));
-    //     log_context();
-    // }
+    void ExecuteCommandLists(const DX12CommandListView* lists, uint32_t count) const noexcept
+    {
+        queue->ExecuteCommandLists(count, reinterpret_cast<ID3D12CommandList* const*>(lists));
+        check_context();
+    }
 
-    /// @brief Execute a command list on the GPU.
-    /// @param list List to execute.
-    // void DXExecuteCommandLists(std::span<DX12CommandListView> lists) const noexcept
-    //{
-    //     queue->ExecuteCommandLists(lists.size(), reinterpret_cast<ID3D12CommandList* const*>(lists.data()));
-    //     log_context();
-    // }
-
-    wis::Result Signal(DX12FenceView fence, uint64_t value) const noexcept
+    wis::Result SignalQueue(DX12FenceView fence, uint64_t value) const noexcept
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Signal(std::get<0>(fence), value))

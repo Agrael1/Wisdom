@@ -36,25 +36,19 @@ public:
     }
 
 public:
-    ///// @brief Execute a command list on the GPU.
-    ///// @param list List to execute.
-    // void ExecuteCommandList(VKCommandListView command_list) const noexcept
-    //{
-    //     vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eAllCommands;
-    //
-    //     vk::SubmitInfo submit_info = {};
-    //     submit_info.commandBufferCount = 1;
-    //     submit_info.pCommandBuffers = &command_list;
-    //     submit_info.pWaitDstStageMask = &wait_dst_stage_mask;
-    //
-    //     queue.submit(submit_info);
-    // }
-    
-    /// @brief Signal a fence with some value.
-    /// @param fence Fence to signal.
-    /// @param value Value to signal with.
-    /// @return true if call succeeded.
-    wis::Result Signal(VKFenceView fence, uint64_t value) const noexcept
+    void ExecuteCommandLists(const VKCommandListView* lists, uint32_t count) const noexcept
+    {
+        VkSubmitInfo submit_info{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .commandBufferCount = count,
+            .pCommandBuffers = reinterpret_cast<const VkCommandBuffer*>(lists),
+        };
+
+        std::ignore = device.table()->vkQueueSubmit(queue, 1, &submit_info, nullptr);
+    }
+
+    wis::Result SignalQueue(VKFenceView fence, uint64_t value) const noexcept
     {
         VkSemaphore sem = std::get<0>(fence);
         VkTimelineSemaphoreSubmitInfoKHR submit{
@@ -79,8 +73,8 @@ public:
         };
         VkResult result = device.table()->vkQueueSubmit(queue, 1, &info, nullptr);
         return succeeded(result)
-            ? wis::success
-            : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+                ? wis::success
+                : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
     }
 };
 } // namespace wis

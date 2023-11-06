@@ -6,9 +6,9 @@ if(WIN32)
 		"include/wisdom/dx12/dx12_factory.h"
 		"include/wisdom/dx12/dx12_checks.h"
 		"include/wisdom/dx12/dx12_info.h"
-		"include/wisdom/dx12/dx12_adapter.h"
+		
 		"include/wisdom/dx12/dx12_device.h"
-		"include/wisdom/dx12/dx12_command_queue.h"
+		
 		"include/wisdom/dx12/dx12_swapchain.h"
 		"include/wisdom/dx12/dx12_resource.h"
 		"include/wisdom/dx12/dx12_command_list.h"
@@ -18,7 +18,7 @@ if(WIN32)
 		"include/wisdom/dx12/xdx12_root_signature.h"
 		"include/wisdom/dx12/xdx12_shader.h"
 		"include/wisdom/dx12/dx12_allocator.h"
-		"include/wisdom/dx12/dx12_state_builder.h"
+		
 
 		"include/wisdom/dx12/dx12_format.h"
 		"include/wisdom/dx12/dx12_views.h"
@@ -29,7 +29,7 @@ if(WIN32)
 		"include/wisdom/dx12/xdx12_adapter.h" 
 		"include/wisdom/dx12/xdx12_device.h" 
 		"include/wisdom/dx12/xdx12_views.h" 
-		"include/wisdom/dx12/impl/dx12_device.h" "include/wisdom/dx12/xdx12_fence.h" "include/wisdom/dx12/xdx12_allocator.h"   "include/wisdom/dx12/xdx12_command_queue.h" "include/wisdom/dx12/xdx12_pipeline_state.h")
+		"include/wisdom/dx12/impl/dx12_device.h" "include/wisdom/dx12/xdx12_fence.h" "include/wisdom/dx12/xdx12_allocator.h"   "include/wisdom/dx12/xdx12_command_queue.h" "include/wisdom/dx12/xdx12_pipeline_state.h" "include/wisdom/dx12/xdx12_command_list.h")
 	set(DX12INL
 		"include/wisdom/dx12/impl/dx12_allocator.inl"
 		"include/wisdom/dx12/impl/dx12_checks.inl"

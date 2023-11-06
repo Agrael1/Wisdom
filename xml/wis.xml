@@ -10,6 +10,7 @@
     <handle name="CommandQueue"/>
     <handle name="Shader"/>
     <handle name="PipelineState"/>
+    <handle name="CommandList"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -562,6 +563,11 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
+    <type name="CommandListView" category="variant" for="CommandList">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
     <type name="ShaderView" category="variant" for="Shader">
       <impl name="dx">
         <member type="void" name="bytecode" mod="ptr"/>
@@ -786,6 +792,11 @@
       <ret type="PipelineState" name="pipeline_state"/>
       <arg type="GraphicsPipelineDesc" name="desc" mod="ptr"/>
     </func>
+    <func for="Device" name="CreateCommandList">
+      <ret type="Result" name="result"/>
+      <ret type="CommandList" name="command_list"/>
+      <arg type="QueueType" name="type"/>
+    </func>
 
     <!--RootSignature-->
     <func for="RootSignature" name="Destroy"/>
@@ -810,6 +821,15 @@
 
     <!--CommandQueue-->
     <func for="CommandQueue" name="Destroy"/>
+    <func for="CommandQueue" name="SignalQueue">
+      <ret type="Result" name="result"/>
+      <arg type="FenceView" name="fence"/>
+      <arg type="u64" name="value"/>
+    </func>
+    <func for="CommandQueue" name="ExecuteCommandLists">
+      <arg type="CommandListView" name="lists" mod="ptr"/>
+      <arg type="u32" name="count"/>
+    </func>
 
     <!--Shader-->
     <func for="Shader" name="Destroy"/>
@@ -817,7 +837,7 @@
     <!--PipelineState-->
     <func for="PipelineState" name="Destroy"/>
 
-    <!--RenderPass-->
-    <func for="RenderPass" name="Destroy"/>
+    <!--CommandList-->
+    <func for="CommandList" name="Destroy"/>
   </functions>
 </registry>

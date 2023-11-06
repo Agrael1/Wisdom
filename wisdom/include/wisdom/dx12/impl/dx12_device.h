@@ -290,3 +290,19 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
             ? std::pair{ wis::success, DX12PipelineState{ std::move(state) } }
             : std::pair{ wis::make_result<FUNC, "Failed to create pipeline state">(hr), DX12PipelineState{} };
 }
+
+std::pair<wis::Result, wis::DX12CommandList>
+wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
+{
+    D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(type);
+    wis::com_ptr<ID3D12CommandAllocator> allocator;
+    wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
+
+    HRESULT hr;
+    if (!wis::succeeded(hr = device->CreateCommandAllocator(clty, __uuidof(*allocator), allocator.put_void())))
+        return std::pair{ wis::make_result<FUNC, "Failed to create command allocator">(hr), DX12CommandList{} };
+
+    return !wis::succeeded(hr = device->CreateCommandList(0, clty, allocator.get(), nullptr, __uuidof(*command_list), command_list.put_void()))
+            ? std::pair{ wis::make_result<FUNC, "Failed to create command list">(hr), DX12CommandList{} }
+            : std::pair{ wis::success, DX12CommandList{ std::move(allocator), std::move(command_list) } };
+}

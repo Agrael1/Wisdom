@@ -745,7 +745,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .colorAttachmentCount = desc->attachments.attachments_count,
         .pColorAttachmentFormats = rt_formats,
         .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),
-        .stencilAttachmentFormat = VK_FORMAT_UNDEFINED //TODO: formats for pure stencils
+        .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
     };
 
     VkPipelineCreateFlags flags = VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT * int(ifeatures.has_descriptor_buffer);
@@ -772,4 +772,34 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     return wis::succeeded(result)
             ? std::pair{ wis::success, wis::VKPipelineState{ wis::managed_handle_ex<VkPipeline>{ pipeline, device, device.table()->vkDestroyPipeline } } }
             : std::pair{ wis::make_result<FUNC, "Failed to create a graphics pipeline">(result), wis::VKPipelineState{} };
+}
+
+std::pair<wis::Result, wis::VKCommandList>
+wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
+{
+    VkCommandPoolCreateInfo cmd_pool_create_info{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .queueFamilyIndex = queues.GetOfType(type)->family_index,
+    };
+    VkCommandPool cmd_pool;
+    auto result = device.table()->vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
+    if (!succeeded(result))
+        return { wis::make_result<FUNC, "Failed to create a command pool">(result), wis::VKCommandList{} };
+
+    VkCommandBufferAllocateInfo cmd_buf_alloc_info{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext = nullptr,
+        .commandPool = cmd_pool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
+    };
+
+    VkCommandBuffer cmd_buf;
+    result = device.table()->vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
+
+    return succeeded(result)
+            ? std::pair{ wis::success, wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table()->vkDestroyCommandPool }, cmd_buf } }
+            : std::pair{ wis::make_result<FUNC, "Failed to allocate a command buffer">(result), wis::VKCommandList{} };
 }

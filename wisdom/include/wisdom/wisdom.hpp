@@ -34,6 +34,7 @@ using Device = DX12Device;
 using Fence = DX12Fence;
 using ResourceAllocator = DX12ResourceAllocator;
 using Shader = DX12Shader;
+using CommandList = DX12CommandList;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
 }
@@ -52,6 +53,7 @@ using Device = VKDevice;
 using Fence = VKFence;
 using ResourceAllocator = VKResourceAllocator;
 using Shader = VKShader;
+using CommandList = VKCommandList;
 constexpr auto CreateFactory = wis::VKCreateFactory;
 constexpr auto CreateDevice = wis::VKCreateDevice;
 }

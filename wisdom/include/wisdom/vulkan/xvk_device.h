@@ -4,6 +4,7 @@
 #include <wisdom/vulkan/xvk_descriptors.h>
 #include <wisdom/vulkan/xvk_command_queue.h>
 #include <wisdom/vulkan/xvk_root_signature.h>
+#include <wisdom/vulkan/xvk_command_list.h>
 #include <wisdom/vulkan/xvk_pipeline_state.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
 #include <wisdom/vulkan/vk_structs.hpp>
@@ -17,7 +18,6 @@ struct InternalFeatures {
     bool dynamic_rendering : 1 = false;
     uint32_t max_ia_attributes = 0;
 };
-
 
 class VKDevice;
 
@@ -58,8 +58,6 @@ public:
     operator VKDeviceHandle() const noexcept { return device; }
 
 public:
-
-
     [[nodicard]] WIS_INLINE wis::Result
     WaitForMultipleFences(const VKFenceView* fences,
                           const uint64_t* values,
@@ -84,6 +82,9 @@ public:
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKPipelineState>
     CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandList>
+    CreateCommandList(wis::QueueType type) const noexcept;
 
 private:
     std::pair<wis::Result, VkDescriptorSetLayout>
