@@ -128,16 +128,20 @@ private:
 };
 } // namespace wis
 
-[[nodiscard]] std::pair<wis::Result, wis::VKFactory> 
+[[nodiscard]] std::pair<wis::Result, wis::VKFactory>
 wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     VKFactory::InitializeGlobalTable();
     auto& gt = VKFactory::global_table;
-
+    VkResult vr{};
     uint32_t version = 0;
-    auto vr = gt.vkEnumerateInstanceVersion(&version);
-    if (!wis::succeeded(vr))
-        return std::pair{ wis::make_result<FUNC, "Failed to enumerate instance version">(vr), wis::VKFactory{} };
+    if (gt.vkEnumerateInstanceVersion) {
+        vr = gt.vkEnumerateInstanceVersion(&version);
+        if (!wis::succeeded(vr))
+            return std::pair{ wis::make_result<FUNC, "Failed to enumerate instance version">(vr), wis::VKFactory{} };
+    } else {
+        version = VK_API_VERSION_1_0;
+    }
 
     wis::lib_info(wis::format("Vulkan version: {}.{}.{}", VK_API_VERSION_MAJOR(version), VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
 
