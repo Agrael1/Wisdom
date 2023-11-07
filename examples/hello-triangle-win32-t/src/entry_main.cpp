@@ -1,5 +1,5 @@
 // #include "app.h"
-#undef WISDOM_FORCE_VULKAN
+#define WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 
@@ -17,7 +17,7 @@ void DebugCallback2(wis::Severity severity, const char* message, void* user_data
 int main()
 {
     {
-        auto [res, factory] = wis::CreateFactory(true, &DebugCallback, &std::cout);
+        auto [res, factory] = wis::CreateFactory(false, &DebugCallback, &std::cout);
 
         wis::Device device;
 

@@ -15,12 +15,12 @@ template<string_literal func, wis::string_literal message>
 constexpr inline wis::Result make_result(VkResult hr) noexcept
 {
     static constinit auto str = wis::make_error_string<func, message>();
-    return wis::Result{ convert(hr), str.c_str() };
+    return wis::Result{ convert_vk(hr), str.c_str() };
 }
 
 template<wis::string_literal message>
 constexpr inline wis::Result make_result(VkResult hr) noexcept
 {
-    return wis::Result{ convert(hr), message.c_str() };
+    return wis::Result{ convert_vk(hr), message.c_str() };
 }
 }

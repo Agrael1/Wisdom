@@ -7,7 +7,7 @@ if(Vulkan_FOUND AND NOT WINDOWS_STORE)
 	target_link_libraries(${PROJECT_NAME}
 		PUBLIC VKAllocator wis::wisvk
 	)
-	target_include_directories(${PROJECT_NAME} PRIVATE
+	target_include_directories(${PROJECT_NAME} PUBLIC
 		${Vulkan_INCLUDE_DIRS}
 	)
 
