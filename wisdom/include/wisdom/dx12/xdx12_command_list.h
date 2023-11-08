@@ -17,7 +17,7 @@ class DX12CommandList : public QueryInternal<DX12CommandList>
 {
 public:
     DX12CommandList() noexcept = default;
-    DX12CommandList(wis::com_ptr<ID3D12CommandAllocator> allocator,
+    explicit DX12CommandList(wis::com_ptr<ID3D12CommandAllocator> allocator,
                     wis::com_ptr<ID3D12CommandList> list) noexcept
         : QueryInternal(std::move(allocator), std::move(list))
     {

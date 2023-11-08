@@ -52,16 +52,18 @@ public:
     using managed_handle_base<HandleType, managed_header_ex<HandleType>, managed_handle_ex<HandleType>>::managed_handle_base;
 };
 
+/// Specializations
+
 template<>
-class managed_handle_ex<VmaAllocator> : public wis::managed_handle_base<VmaAllocator, wis::SharedDevice, managed_handle_ex<VmaAllocator>>
+class shared_handle<VmaAllocator> : public wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>
 {
-    using base = wis::managed_handle_base<VmaAllocator, wis::SharedDevice, managed_handle_ex<VmaAllocator>>;
+    using base = wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>;
     friend base;
 
 public:
-    managed_handle_ex() = default;
-    explicit managed_handle_ex(wis::SharedDevice device, VmaAllocator handle) noexcept
-        : wis::managed_handle_base<VmaAllocator, wis::SharedDevice, managed_handle_ex<VmaAllocator>>(handle, std::move(device))
+    shared_handle() = default;
+    explicit shared_handle(wis::SharedDevice device, VmaAllocator handle) noexcept
+        : wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>(handle, std::move(device))
     {
     }
 
@@ -77,70 +79,16 @@ protected:
     }
 };
 
-//template<typename HandleType>
-//class managed_vector_ex
-//{
-//public:
-//    managed_vector_ex() noexcept = default;
-//    template<typename... Args>
-//    managed_vector_ex(size_t size, Args&&... args) noexcept
-//        : header(std::forward<Args>(args)...)
-//    {
-//        reserve(size);
-//    }
-//    managed_vector_ex(const managed_vector_ex&) = delete;
-//    managed_vector_ex(managed_vector_ex&&) noexcept = default;
-//    ~managed_vector_ex()
-//    {
-//        destroy();
-//    }
-//
-//    managed_vector_ex& operator=(const managed_vector_ex&) = delete;
-//    managed_vector_ex& operator=(managed_vector_ex&&) noexcept = default;
-//
-//    operator std::span<HandleType*>() noexcept
-//    {
-//        return data;
-//    }
-//    operator std::span<const HandleType*>() const noexcept
-//    {
-//        return data;
-//    }
-//    operator bool() const noexcept
-//    {
-//        return !data.empty();
-//    }
-//
-//public:
-//    bool reserve(size_t size) noexcept
-//    {
-//        data.reserve(size);
-//        return true; // TODO: check if allocation succeeded for allocators
-//    }
-//    void push_back(HandleType* handle) noexcept
-//    {
-//        data.push_back(handle);
-//    }
-//    void push_front(HandleType* handle) noexcept
-//    {
-//        data.insert(data.begin(), handle);
-//    }
-//    uint32_t size() const noexcept
-//    {
-//        return static_cast<uint32_t>(data.size());
-//    }
-//
-//private:
-//    void destroy()const noexcept
-//    {
-//        for (auto* handle : data) {
-//            header.deleter(header.parent.get(), handle);
-//        }
-//    }
-//
-//private:
-//    managed_header_ex<HandleType> header;
-//    std::vector<HandleType> data;
-//};
+struct swapchain_header_ex {
+    wis::shared_handle<VkSurfaceKHR> surface;
+    wis::SharedDevice parent;
+    deleter_of_t<VkSwapchainKHR> deleter;
+};
 
+template<>
+class managed_handle_ex<VkSwapchainKHR> : public managed_handle_base<VkSwapchainKHR, swapchain_header_ex, managed_handle_ex<VkSwapchainKHR>>
+{
+public:
+    using managed_handle_base<VkSwapchainKHR, swapchain_header_ex, managed_handle_ex<VkSwapchainKHR>>::managed_handle_base;
+};
 } // namespace wis
