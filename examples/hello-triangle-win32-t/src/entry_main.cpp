@@ -1,5 +1,5 @@
 // #include "app.h"
-#define WISDOM_FORCE_VULKAN
+// #define WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 

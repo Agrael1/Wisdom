@@ -1,15 +1,14 @@
 #pragma once
 #include <wisdom/api/api.h>
 #include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_handles.h>
-#include <wisdom/vulkan/xvk_views.h>
+#include <wisdom/vulkan/xvk_resource.h>
 
 namespace wis {
 class VKResourceAllocator;
 
 template<>
 struct Internal<VKResourceAllocator> {
-    wis::managed_handle_ex<VmaAllocator> allocator;
+    wis::shared_handle<VmaAllocator> allocator;
     std::shared_ptr<VmaVulkanFunctions> functions;
 };
 
@@ -18,7 +17,7 @@ class VKResourceAllocator : public QueryInternal<VKResourceAllocator>
 {
 public:
     VKResourceAllocator() = default;
-    VKResourceAllocator(wis::managed_handle_ex<VmaAllocator> allocator,
+    VKResourceAllocator(wis::shared_handle<VmaAllocator> allocator,
                         std::shared_ptr<VmaVulkanFunctions> functions) noexcept
         : QueryInternal(std::move(allocator), std::move(functions))
     {
@@ -156,25 +155,23 @@ public:
     //        return CreateTexture(tex_desc, TextureFlags::DepthStencil);
     //    }
     //
-    // private:
-    //    [[nodiscard]] VKBuffer
-    //    CreateBuffer(const vk::BufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
-    //    {
-    //        VmaAllocation allocation;
-    //        VkBuffer buffer;
-    //        return wis::succeeded(vmaCreateBuffer(
-    //                       allocator.get(),
-    //                       reinterpret_cast<const VkBufferCreateInfo*>(&desc),
-    //                       &alloc_desc,
-    //                       &buffer,
-    //                       &allocation,
-    //                       nullptr))
-    //                ? VKBuffer{
-    //                      wis::shared_handle<vk::Buffer>{ buffer, allocator.getParent() },
-    //                      wis::shared_handle<VmaAllocation>{ allocation, allocator }, desc.size
-    //                  }
-    //                : VKBuffer{};
-    //    }
+private:
+    [[nodiscard]] std::pair<wis::Result, VKBuffer>
+    CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+    {
+        VmaAllocation allocation;
+        VkBuffer buffer;
+        VkResult result = vmaCreateBuffer(
+                allocator.get(),
+                &desc,
+                &alloc_desc,
+                &buffer,
+                &allocation,
+                nullptr);
+        return wis::succeeded(result)
+                ? std::make_pair(wis::success, VKBuffer{ allocator, buffer, allocation })
+                : std::make_pair(wis::make_result<FUNC, "Buffer allocation failed">(result), VKBuffer{});
+    }
     //    [[nodiscard]] VKTexture
     //    CreateTexture(const vk::ImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
     //    {

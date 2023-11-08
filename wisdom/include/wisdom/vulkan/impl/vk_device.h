@@ -366,7 +366,7 @@ wis::VKDevice::CreateAllocator() const noexcept
 {
     auto [result, allocator] = CreateAllocatorI();
     return result.status == wis::Status::Ok
-            ? std::pair{ wis::success, VKResourceAllocator{ wis::managed_handle_ex<VmaAllocator>{ device, allocator }, allocator_functions } }
+            ? std::pair{ wis::success, VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, allocator }, allocator_functions } }
             : std::pair{ result, VKResourceAllocator{} };
 }
 
@@ -802,4 +802,25 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     return succeeded(result)
             ? std::pair{ wis::success, wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table()->vkDestroyCommandPool }, cmd_buf } }
             : std::pair{ wis::make_result<FUNC, "Failed to allocate a command buffer">(result), wis::VKCommandList{} };
+}
+
+std::pair<wis::Result, wis::VKSwapChain>
+wis::VKDevice::CreateSwapChain() const noexcept
+{
+    wis::shared_handle<VkSurfaceKHR> surface;
+    
+
+
+    VkSwapchainCreateInfoKHR swap_info{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        
+    };
+
+    VkSwapchainKHR swapchain;
+    VkResult result = device.table()->vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
+
+    return succeeded(result)
+            ? std::pair{ wis::success, wis::VKSwapChain{ wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR } } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create a swapchain">(result), wis::VKSwapChain{} };
 }

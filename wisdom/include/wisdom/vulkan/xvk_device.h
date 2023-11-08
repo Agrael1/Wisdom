@@ -9,6 +9,7 @@
 #include <wisdom/vulkan/vk_queue_residency.h>
 #include <wisdom/vulkan/vk_structs.hpp>
 #include <wisdom/vulkan/xvk_shader.h>
+#include <wisdom/vulkan/xvk_swapchain.h>
 #include <vector>
 
 namespace wis {
@@ -86,8 +87,11 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandList>
     CreateCommandList(wis::QueueType type) const noexcept;
 
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
+    CreateSwapChain() const noexcept;
+
 private:
-    std::pair<wis::Result, VkDescriptorSetLayout>
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, VkDescriptorSetLayout>
     CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, VmaAllocator>

@@ -11,6 +11,8 @@
     <handle name="Shader"/>
     <handle name="PipelineState"/>
     <handle name="CommandList"/>
+    <handle name="Buffer"/>
+    <handle name="SwapChain"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -689,6 +691,12 @@
       <member type="ShaderStages" name="stage"/>
       <member type="u32" name="size_bytes"/>
     </type>
+    <type name="SwapchainDesc" category="struct">
+      <member type="Size2D" name="size"/>
+      <member type="DataFormat" name="format"/>
+      <member type="u32" name="buffer_count"/>
+      <member type="bool" name="stereo"/>
+    </type>
 
     <type name="PushDescriptor" category="struct">
       <member type="ShaderStages" name="stage"/>
@@ -839,5 +847,11 @@
 
     <!--CommandList-->
     <func for="CommandList" name="Destroy"/>
+
+    <!--Buffer-->
+    <func for="Buffer" name="Destroy"/>
+
+    <!--Swapchain-->
+    <func for="Swapchain" name="Destroy"/>
   </functions>
 </registry>
