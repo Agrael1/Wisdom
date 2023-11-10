@@ -34,6 +34,10 @@ public:
     {
         return bool(queue);
     }
+    operator VKQueueView() const noexcept
+    {
+        return queue;
+    }
 
 public:
     void ExecuteCommandLists(const VKCommandListView* lists, uint32_t count) const noexcept

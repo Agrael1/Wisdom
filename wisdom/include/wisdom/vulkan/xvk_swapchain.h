@@ -5,21 +5,36 @@
 
 namespace wis {
 class VKSwapChain;
+class VKDevice;
 
 template<>
 struct Internal<VKSwapChain> {
     wis::managed_handle_ex<VkSwapchainKHR> swapchain;
+    std::vector<VkImage> back_buffers;
 };
 
 class VKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
     VKSwapChain() = default;
-    VKSwapChain(wis::managed_handle_ex<VkSwapchainKHR> swapchain) noexcept
-        : QueryInternal(std::move(swapchain))
+    VKSwapChain(wis::managed_handle_ex<VkSwapchainKHR> in_swapchain) noexcept
+        : QueryInternal(std::move(in_swapchain))
     {
+        auto& device = swapchain.header().parent;
+
+        uint32_t image_count;
+        auto vr = device.table()->vkGetSwapchainImagesKHR(device.get(), swapchain.get(), &image_count, nullptr);
+
+        back_buffers.reserve(image_count);
+    }
+    operator bool() const noexcept
+    {
+        return bool(swapchain);
     }
 };
+
+[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
+VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, void* hwnd) noexcept;
 } // namespace wis
 
 // namespace wis {
