@@ -1,5 +1,6 @@
 // #include "app.h"
-// #define WISDOM_FORCE_VULKAN
+#include <example/window.h>
+#undef WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 
@@ -16,6 +17,8 @@ void DebugCallback2(wis::Severity severity, const char* message, void* user_data
 
 int main()
 {
+    Window window(1920, 1080, "Example");
+
     {
         auto [res, factory] = wis::CreateFactory(false, &DebugCallback, &std::cout);
 
@@ -44,6 +47,14 @@ int main()
         auto root_signature = device.CreateRootSignature();
         auto command_queue = device.CreateCommandQueue(wis::QueueType::Graphics);
         auto command_list = device.CreateCommandList(wis::QueueType::Graphics);
+
+        wis::SwapchainDesc desc{
+            .size = { uint32_t(window.GetWidth()), uint32_t(window.GetHeight()) },
+            .format = wis::DataFormat::BGRA8Unorm,
+            .buffer_count = 2,
+            .stereo = true
+        };
+        auto swap = wis::DX12CreateSwapchainWin32(device, command_queue.second, &desc, window.GetHandle());
     }
 
     return 0;

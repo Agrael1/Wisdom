@@ -13,12 +13,13 @@
 //}
 //#endif
 
-#define WISDOM_HEADER_ONLY
+//#define WISDOM_HEADER_ONLY
 #include <wisdom/wisdom_vk.h>
 #include <wisdom/wisdom_dx12.h>
 
-//#include <wisdom/dx12/impl/dx12_info.h>
-//#include <wisdom/dx12/impl/dx12_device.h>
-//#include <wisdom/vulkan/impl/vk_factory.h>
-//#include <wisdom/vulkan/impl/vk_device.h>
-//#include <wisdom/vulkan/impl/vk_allocator.h>
+#include <wisdom/dx12/impl/dx12_info.h>
+#include <wisdom/dx12/impl/dx12_device.h>
+#include <wisdom/dx12/impl/dx12_swapchain.h>
+#include <wisdom/vulkan/impl/vk_factory.h>
+#include <wisdom/vulkan/impl/vk_device.h>
+#include <wisdom/vulkan/impl/vk_allocator.h>

@@ -24,6 +24,10 @@ public:
     {
         return bool(queue);
     }
+    operator DX12QueueView() const noexcept
+    {
+        return queue.get();
+    }
 
 public:
     void ExecuteCommandLists(const DX12CommandListView* lists, uint32_t count) const noexcept

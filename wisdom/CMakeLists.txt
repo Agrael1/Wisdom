@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME} STATIC)
 # load dx12 and vulkan
 include(dx12.cmake)
 include(vulkan.cmake)
+include(platform.cmake)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS"
    OR CMAKE_SYSTEM_NAME STREQUAL "tvOS"
