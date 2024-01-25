@@ -8,6 +8,7 @@
 #include <dxgi1_6.h>
 
 #include <vector>
+#include <memory>
 
 namespace wis {
 class DX12SwapChain;
@@ -16,27 +17,29 @@ class DX12Device;
 struct DX12SwapchainHelpers {
     static WIS_INLINE void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept;
     static WIS_INLINE wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept;
-    static WIS_INLINE std::vector<wis::com_ptr<ID3D12Resource>> GetBuffers(IDXGISwapChain4* swap) noexcept;
 };
 
 template<>
 struct Internal<DX12SwapChain> {
     wis::com_ptr<IDXGISwapChain4> chain;
-    std::vector<wis::com_ptr<ID3D12Resource>> back_buffers;
+    std::unique_ptr<wis::com_ptr<ID3D12Resource>[]> back_buffers;
 };
 
 class DX12SwapChain : public QueryInternal<DX12SwapChain>
 {
 public:
     DX12SwapChain() noexcept = default;
-    explicit DX12SwapChain(wis::com_ptr<IDXGISwapChain4> in_chain,
-                           std::vector<wis::com_ptr<ID3D12Resource>> back_buffers) noexcept
-        : QueryInternal(std::move(in_chain), std::move(back_buffers))
+    explicit DX12SwapChain(wis::com_ptr<IDXGISwapChain4> in_chain) noexcept
+        : QueryInternal(std::move(in_chain))
     {
+        GetBuffers();
     }
     operator bool() const noexcept { return bool(chain); }
 
 public:
+private:
+    WIS_INLINE void
+    GetBuffers() noexcept;
 };
 
 [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12SwapChain>

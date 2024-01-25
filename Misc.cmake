@@ -35,7 +35,7 @@ endfunction()
 
 
 function(load_nuget_dependency NUGET PLUGIN_NAME ALIAS OUT_DIR)
-	exec_program(${NUGET} ARGS install "${PLUGIN_NAME}" -OutputDirectory ${OUT_DIR})
+	execute_process(COMMAND ${NUGET} install "${PLUGIN_NAME}" -OutputDirectory ${OUT_DIR})
 
 	file(GLOB PLUGIN_DIRS ${OUT_DIR}/${PLUGIN_NAME}.*)
 	list(LENGTH PLUGIN_DIRS PLUGIN_DIRS_L)

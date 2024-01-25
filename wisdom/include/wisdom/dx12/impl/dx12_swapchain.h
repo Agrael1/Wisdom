@@ -4,6 +4,15 @@
 #endif // !WISDOM_HEADER_ONLY
 #include <wisdom/dx12/xdx12_device.h>
 
+namespace wis::detail {
+template<class Type, std::enable_if_t<std::is_unbounded_array_v<Type>, int> = 0>
+[[nodiscard]] constexpr std::unique_ptr<Type> make_unique_for_overwrite(size_t size)
+{
+    // make a unique_ptr with default initialization
+    using Elem = std::remove_extent_t<Type>;
+    return std::unique_ptr<Type>(new (std::nothrow) Elem[size]);
+}
+}
 
 void wis::DX12SwapchainHelpers::ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
 {
@@ -35,16 +44,17 @@ wis::com_ptr<ID3D11Device> wis::DX12SwapchainHelpers::CreateD3D11Device() noexce
                       featureLevels, 3, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
     return device11;
 }
-std::vector<wis::com_ptr<ID3D12Resource>> wis::DX12SwapchainHelpers::GetBuffers(IDXGISwapChain4* swap) noexcept
+
+void wis::DX12SwapChain::GetBuffers() noexcept
 {
-    HRESULT hr;
-    std::vector<wis::com_ptr<ID3D12Resource>> back_buffers;
+    DXGI_SWAP_CHAIN_DESC1 desc;
+    chain->GetDesc1(&desc);
 
     wis::com_ptr<ID3D12Resource> back_buffer;
-    for (auto i = 0u; wis::succeeded(swap->GetBuffer(i, __uuidof(*back_buffer), (void**)&back_buffer)); ++i) {
-        back_buffers.emplace_back(std::move(back_buffer));
+    back_buffers = wis::detail::make_unique_for_overwrite<wis::com_ptr<ID3D12Resource>[]>(desc.BufferCount);
+    for (auto i = 0u; wis::succeeded(chain->GetBuffer(i, __uuidof(*back_buffer), (void**)&back_buffer)); ++i) {
+        back_buffers[i] = std::move(back_buffer);
     }
-    return back_buffers;
 }
 
 std::pair<wis::Result, wis::DX12SwapChain>
@@ -81,6 +91,6 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
     }
     auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
     return wis::succeeded(hrx)
-            ? std::pair{ wis::success, DX12SwapChain{ std::move(swap4), DX12SwapchainHelpers::GetBuffers(swap4.get()) } }
+            ? std::pair{ wis::success, DX12SwapChain{ std::move(swap4) } }
             : std::pair{ wis::make_result<FUNC, "Failed to create swapchain">(hr), DX12SwapChain{} };
 }
