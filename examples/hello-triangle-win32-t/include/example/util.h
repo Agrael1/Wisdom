@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/bridge/source_location.h>
-#include <wisdom/util/exception.h>
+//#include <wisdom/util/exception.h>
 #include <winrt/base.h>
 
 namespace wis {
@@ -8,25 +8,25 @@ namespace wis {
 /// @return HRESULT of the last windows error
 WIS_INLINE winrt::hresult last_windows_error() noexcept;
 
-class hr_exception : public wis::exception
-{
-public:
-    WIS_INLINE hr_exception(winrt::hresult hr, wis::source_location sl = wis::source_location::current());
-
-    WIS_INLINE const char* what() const noexcept override;
-    std::string_view type() const noexcept override
-    {
-        return "Vertas Window Exception";
-    }
-    winrt::hresult error_code() const noexcept
-    {
-        return hResult;
-    }
-    WIS_INLINE std::string description() const noexcept;
-
-private:
-    winrt::hresult hResult;
-};
+//class hr_exception : public wis::exception
+//{
+//public:
+//    WIS_INLINE hr_exception(winrt::hresult hr, wis::source_location sl = wis::source_location::current());
+//
+//    WIS_INLINE const char* what() const noexcept override;
+//    std::string_view type() const noexcept override
+//    {
+//        return "Vertas Window Exception";
+//    }
+//    winrt::hresult error_code() const noexcept
+//    {
+//        return hResult;
+//    }
+//    WIS_INLINE std::string description() const noexcept;
+//
+//private:
+//    winrt::hresult hResult;
+//};
 
 /// @brief Check if the given boolean is true, logging any errors and throwing a windows exception if it is not true
 /// @param check Value to check
@@ -35,7 +35,7 @@ inline void check_windows(bool check, wis::source_location sl = wis::source_loca
 {
     if (check)
         return;
-    throw wis::hr_exception{ last_windows_error(), sl };
+    throw last_windows_error();
 }
 
 } // namespace wis

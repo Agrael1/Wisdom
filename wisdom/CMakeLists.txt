@@ -6,9 +6,9 @@ include(cmake/documentation.cmake)
 add_library(${PROJECT_NAME} STATIC)
 
 # load dx12 and vulkan
+include(platform.cmake)
 include(dx12.cmake)
 include(vulkan.cmake)
-include(platform.cmake)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS"
    OR CMAKE_SYSTEM_NAME STREQUAL "tvOS"
@@ -44,70 +44,47 @@ set(HEADER_LIST
     "include/wisdom/bridge/source_location.h"
     "include/wisdom/global/assertions.h" "include/wisdom/util/error_messages.h" "include/wisdom/util/com_ptr.h" "include/wisdom/api/consts.h")
 
-# Add source to this project's executable.
+# Add source to this project's executable. TODO: Remove this
 target_sources(
   ${PROJECT_NAME}
   PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include FILES
          ${HEADER_LIST}
   PRIVATE "src/wisdom/empty.cpp")
 
-if(WISDOM_BUILD_TYPE STREQUAL "modules")
-  target_sources(
-    ${PROJECT_NAME}
-    PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
-           FILES "modules/api.ixx")
-endif()
-
 # target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+
+
 target_compile_definitions(
   ${PROJECT_NAME}
   PUBLIC DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
          DEBUG_LAYER=$<BOOL:${WISDOM_DEBUG_LAYER}>
-         WISDOMDX12=$<BOOL:${WISDOMDX12}>
-         WISDOMVK=$<BOOL:${WISDOMVK}>
-         WISDOMMTL=$<BOOL:${WISDOMMTL}>
+         WISDOM_DX12=$<BOOL:${WISDOM_DX12}>
+         WISDOM_VULKAN=$<BOOL:${WISDOM_VULKAN}>
+         WISDOM_METAL=$<BOOL:${WISDOM_METAL}>
          WISDOM_VERSION=${WISDOM_VERSION}
          WISDOM_LOG_LEVEL=${SEV_INDEX}
          NOMINMAX)
 
-if(WISDOM_BUILD_TYPE STREQUAL "modules")
-  target_compile_definitions(
-    ${PROJECT_NAME} PUBLIC WIS_EXPORT=export WISDOM_HEADER_ONLY WIS_INLINE=;)
-  target_sources(
-    ${PROJECT_NAME}
-    PUBLIC FILE_SET CXX_MODULES BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/modules
-           FILES "modules/wisdom.ixx")
-else()
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_EXPORT=; WIS_INLINE=;)
-endif()
-
+# Inline definition
 if(WISDOM_BUILD_TYPE STREQUAL "headers")
   target_compile_definitions(
-    ${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY WIS_EXPORT=; WIS_INLINE=inline
-  )# hack, because cmake does not allow empty definitions
+    ${PROJECT_NAME} PUBLIC WISDOM_HEADER_ONLY WIS_INLINE=inline
+  )
+else()
+  target_compile_definitions(${PROJECT_NAME} PUBLIC WIS_INLINE=;)
 endif()
 
-if(WISDOM_FORCE_VULKAN)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_FORCE_VULKAN)
-endif()
-
-if(APPLE)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_MAC
-                                                    VK_USE_PLATFORM_METAL_EXT)
-elseif(UNIX AND NOT APPLE)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_LINUX
-                                                    VK_USE_PLATFORM_XCB_KHR)
-endif()
-
+# Formatting library
 if(WISDOM_USE_FMT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_USE_FMT)
   target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 endif()
 
+# API generation
 if(WISDOM_GENERATE_API)
   add_custom_target(
     GenerateAPI

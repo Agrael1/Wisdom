@@ -14,13 +14,13 @@ static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
 static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #endif // WISDOM_LINUX
 
-#if defined(WISDOM_VULKAN_FOUND) && defined(WISDOM_FORCE_VULKAN)
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
 #define FORCEVK_SWITCH 1
 #else
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
 
-#if WISDOMDX12 && !FORCEVK_SWITCH
+#if WISDOM_DX12 && !FORCEVK_SWITCH
 #include "wisdom_dx12.h"
 
 namespace wis{
@@ -41,7 +41,7 @@ constexpr auto CreateFactory = wis::DX12CreateFactory;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
 }
 
-#elif WISDOM_VULKAN_FOUND
+#elif WISDOM_VULKAN
 #include "wisdom_vk.h"
 
 namespace wis{

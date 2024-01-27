@@ -2,6 +2,7 @@
 #include <example/window.h>
 #undef WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
+#include <wisdom/platform/win32.h>
 #include <iostream>
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
@@ -54,7 +55,7 @@ int main()
             .buffer_count = 2,
             .stereo = true
         };
-        auto swap = wis::DX12CreateSwapchainWin32(device, command_queue.second, &desc, window.GetHandle());
+        auto swap = wis::CreateSwapchainWin32(device, command_queue.second, &desc, window.GetHandle());
     }
 
     return 0;

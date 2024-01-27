@@ -45,6 +45,8 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
   set(WISVK_INSTALL ON CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(wisvk)
   add_subdirectory("VKAllocator")
+else()
+  set(WISDOM_FORCE_VULKAN FALSE CACHE BOOL "Force Vulkan" FORCE)
 endif()
 
 add_subdirectory("DXC")
