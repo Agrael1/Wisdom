@@ -11,6 +11,9 @@
 #   WISDOM_USE_FMT: Use fmtlib (default: OFF for any system that has std::format)
 #   WISDOM_USE_WAYLAND: Use Wayland window system (default: ON for Linux)
 #   WISDOM_USE_X11: "Use X11 window system (default: ON for Linux)
+# Functions:
+#   wis_install_deps: install dependencies for executables
+
 
 cmake_minimum_required(VERSION 3.25)
 
@@ -19,8 +22,8 @@ project("Wisdom" VERSION 0.1.0)
 # Additional CMake functions.
 include(cmake/platform.cmake)
 include(cmake/settings.cmake)
-include(Misc.cmake)
-include(cmake/Functions.cmake)
+include(cmake/functions.cmake)
+include(cmake/misc.cmake)
 
 # Include sub-projects.
 add_subdirectory("plugins")
