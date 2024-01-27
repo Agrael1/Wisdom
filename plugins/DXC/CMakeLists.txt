@@ -4,7 +4,7 @@ cmake_policy(SET CMP0135 NEW)
 
 if(WISDOM_USE_SYSTEM_DXC)
     if(NOT Vulkan_dxc_EXECUTABLE)
-    set(Vulkan_dxc_EXECUTABLE "dxc" CACHE INTERNAL "")
+        set(Vulkan_dxc_EXECUTABLE "dxc" CACHE INTERNAL "")
     endif()
     
     find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE})
@@ -18,7 +18,7 @@ else()
     message("Loading DXC...")
     
     # Download latest DXC from AppVeyor
-    if(WIN32)
+    if(WISDOM_WINDOWS)
         set(DXC_FILE https://ci.appveyor.com/api/projects/dnovillo/directxshadercompiler/artifacts/build%2FRelease%2Fdxc-artifacts.zip?branch=main&pr=false&job=image%3A%20Visual%20Studio%202022)
     else()
         set(DXC_FILE https://ci.appveyor.com/api/projects/dnovillo/directxshadercompiler/artifacts/build%2Fdxc-artifacts.tar.gz?branch=main&pr=false&job=image%3A%20Ubuntu)
@@ -30,7 +30,7 @@ else()
       dxc
       URL ${DXC_FILE}
     )
-    FetchContent_MakeAvailable(dxc)
+    FetchContent_GetProperties(dxc)
     if(WIN32)
         set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc.exe CACHE INTERNAL "")
     else()
