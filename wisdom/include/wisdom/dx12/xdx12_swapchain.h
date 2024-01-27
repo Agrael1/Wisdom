@@ -41,9 +41,6 @@ private:
     WIS_INLINE void
     GetBuffers() noexcept;
 };
-
-[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12SwapChain>
-DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, void* hwnd) noexcept;
 } // namespace wis
 
 #ifdef WISDOM_HEADER_ONLY

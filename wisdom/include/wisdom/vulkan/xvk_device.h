@@ -31,6 +31,7 @@ struct Internal<VKDevice> {
 
     std::shared_ptr<VmaVulkanFunctions> allocator_functions;
 
+    detail::QueueResidency queues;
 public:
     auto* GetAdapter() const noexcept
     {
@@ -98,7 +99,6 @@ private:
     CreateAllocatorI() const noexcept;
 
 private:
-    detail::QueueResidency queues;
     wis::DeviceFeatures features;
 };
 

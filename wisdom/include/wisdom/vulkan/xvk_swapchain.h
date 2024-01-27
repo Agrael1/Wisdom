@@ -32,9 +32,6 @@ public:
         return bool(swapchain);
     }
 };
-
-[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
-VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, void* hwnd) noexcept;
 } // namespace wis
 
 // namespace wis {
