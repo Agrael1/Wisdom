@@ -696,6 +696,7 @@
       <member type="DataFormat" name="format"/>
       <member type="u32" name="buffer_count"/>
       <member type="bool" name="stereo"/>
+      <member type="bool" name="vsync"/>
     </type>
 
     <type name="PushDescriptor" category="struct">

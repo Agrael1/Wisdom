@@ -805,20 +805,113 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
 }
 
 std::pair<wis::Result, wis::VKSwapChain>
-wis::VKDevice::CreateSwapChain() const noexcept
+wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const SwapchainDesc* desc) const noexcept
 {
-    wis::shared_handle<VkSurfaceKHR> surface;
-    
+    auto itable = GetInstanceTable();
+    auto dtable = device.table();
 
+    int32_t present_queue = -1;
+    for (uint16_t i = 0; i < size_t(wis::detail::QueueTypes::Count); i++) {
+        const auto& x = queues.available_queues[i];
+        if (x.Empty())
+            continue;
+
+        VkBool32 supported = false;
+        auto result = itable->vkGetPhysicalDeviceSurfaceSupportKHR(std::get<0>(adapter), x.family_index, surface.get(), &supported);
+        if (!succeeded(result))
+            return { wis::make_result<FUNC, "Failed to check if the queue supports presentation to the surface">(result), wis::VKSwapChain{} };
+
+        if (supported) {
+            present_queue = i;
+            lib_info(format("Present queue {} selected", i));
+            break;
+        }
+    }
+    if (present_queue == -1) {
+        lib_error("None of the queues support presenting to the surface");
+        return { wis::make_result<FUNC, "None of the queues support presenting to the surface">(VkResult::VK_ERROR_UNKNOWN), wis::VKSwapChain{} };
+    }
+
+    const auto& queue = queues.available_queues[present_queue];
+    VkDeviceQueueInfo2 info{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+        .pNext = nullptr,
+        .flags = 0,
+        .queueFamilyIndex = queue.family_index,
+        .queueIndex = queue.GetNextInLine(),
+    };
+    VkQueue qpresent_queue;
+    dtable->vkGetDeviceQueue2(device.get(), &info, &qpresent_queue);
+
+    uint32_t format_count = 0;
+    itable->vkGetPhysicalDeviceSurfaceFormatsKHR(std::get<0>(adapter), surface.get(), &format_count, nullptr);
+    std::vector<VkSurfaceFormatKHR> surface_formats(format_count);
+    auto result = itable->vkGetPhysicalDeviceSurfaceFormatsKHR(std::get<0>(adapter), surface.get(), &format_count, surface_formats.data());
+
+    if (!succeeded(result))
+        return { wis::make_result<FUNC, "Failed to get surface formats">(result), wis::VKSwapChain{} };
+
+    auto format = std::ranges::find_if(surface_formats,
+                                       [=](VkSurfaceFormatKHR fmt) {
+                                           return fmt.format == convert_vk(desc->format);
+                                       });
+
+    if (format == surface_formats.end() || format->format == VkFormat::VK_FORMAT_UNDEFINED) {
+        lib_error(wis::format("Supplied format {} is not supported by surface", +desc->format));
+        return { wis::make_result<FUNC, "Supplied format is not supported by surface">(VkResult::VK_ERROR_UNKNOWN), wis::VKSwapChain{} };
+    }
+
+    VkSurfaceCapabilitiesKHR cap{};
+
+    result = itable->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(std::get<0>(adapter), surface.get(), &cap);
+    if (!succeeded(result))
+        return { wis::make_result<FUNC, "Failed to get surface capabilities">(result), wis::VKSwapChain{} };
+
+    bool stereo = cap.maxImageArrayLayers > 1 && desc->stereo;
+    if (stereo)
+        lib_info("Stereo mode is ativated");
+
+    uint32_t layers = stereo ? 2u : 1u;
+
+    auto GetPresentMode = [&](VkSurfaceKHR surface, bool vsync) noexcept {
+        constexpr VkPresentModeKHR eFifoRelaxed = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+        constexpr VkPresentModeKHR eFifo = VK_PRESENT_MODE_FIFO_KHR;
+        constexpr VkPresentModeKHR eImmediate = VK_PRESENT_MODE_IMMEDIATE_KHR;
+
+        uint32_t format_count = 0;
+        itable->vkGetPhysicalDeviceSurfacePresentModesKHR(std::get<0>(adapter), surface, &format_count, nullptr);
+        std::vector<VkPresentModeKHR> modes(format_count);
+        itable->vkGetPhysicalDeviceSurfacePresentModesKHR(std::get<0>(adapter), surface, &format_count, modes.data());
+
+        return vsync ? std::ranges::count(modes, eFifoRelaxed) ? eFifoRelaxed : eFifo
+                     : eImmediate;
+    };
+
+    auto present_mode = GetPresentMode(surface.get(), desc->vsync);
 
     VkSwapchainCreateInfoKHR swap_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .pNext = nullptr,
-        
+        .flags = 0,
+        .surface = surface.get(),
+        .minImageCount = desc->buffer_count,
+        .imageFormat = convert_vk(desc->format),
+        .imageColorSpace = format->colorSpace,
+        .imageExtent = { desc->size.width, desc->size.height },
+        .imageArrayLayers = layers,
+        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 0,
+        .pQueueFamilyIndices = nullptr,
+        .preTransform = cap.currentTransform,
+        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .presentMode = present_mode,
+        .clipped = true,
+        .oldSwapchain = nullptr,
     };
 
     VkSwapchainKHR swapchain;
-    VkResult result = device.table()->vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
+    result = device.table()->vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
 
     return succeeded(result)
             ? std::pair{ wis::success, wis::VKSwapChain{ wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR } } }
