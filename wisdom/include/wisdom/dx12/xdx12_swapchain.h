@@ -23,6 +23,7 @@ template<>
 struct Internal<DX12SwapChain> {
     wis::com_ptr<IDXGISwapChain4> chain;
     std::unique_ptr<wis::com_ptr<ID3D12Resource>[]> back_buffers;
+    size_t back_buffer_count = 0;
 };
 
 class DX12SwapChain : public QueryInternal<DX12SwapChain>

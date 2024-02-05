@@ -1,6 +1,7 @@
 // #include "app.h"
 #include <example/window.h>
-#undef WISDOM_FORCE_VULKAN
+#define WISDOM_FORCE_VULKAN
+//#undef WISDOM_FORCE_VULKAN
 #include <wisdom/wisdom.hpp>
 #include <wisdom/platform/win32.h>
 #include <iostream>
@@ -53,7 +54,8 @@ int main()
             .size = { uint32_t(window.GetWidth()), uint32_t(window.GetHeight()) },
             .format = wis::DataFormat::BGRA8Unorm,
             .buffer_count = 2,
-            .stereo = true
+            .stereo = true,
+            .vsync = true,
         };
         auto swap = wis::CreateSwapchainWin32(device, command_queue.second, &desc, window.GetHandle());
     }

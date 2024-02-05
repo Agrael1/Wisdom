@@ -3,16 +3,8 @@
 #include <wisdom/dx12/xdx12_swapchain.h>
 #endif // !WISDOM_HEADER_ONLY
 #include <wisdom/dx12/xdx12_device.h>
+#include <wisdom/util/misc.h>
 
-namespace wis::detail {
-template<class Type, std::enable_if_t<std::is_unbounded_array_v<Type>, int> = 0>
-[[nodiscard]] constexpr std::unique_ptr<Type> make_unique_for_overwrite(size_t size)
-{
-    // make a unique_ptr with default initialization
-    using Elem = std::remove_extent_t<Type>;
-    return std::unique_ptr<Type>(new (std::nothrow) Elem[size]);
-}
-}
 
 void wis::DX12SwapchainHelpers::ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
 {

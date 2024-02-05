@@ -32,6 +32,7 @@ struct Internal<VKDevice> {
     std::shared_ptr<VmaVulkanFunctions> allocator_functions;
 
     detail::QueueResidency queues;
+
 public:
     auto* GetAdapter() const noexcept
     {
@@ -88,8 +89,9 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandList>
     CreateCommandList(wis::QueueType type) const noexcept;
 
+public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
-    CreateSwapChain() const noexcept;
+    VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const SwapchainDesc* desc) const noexcept;
 
 private:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, VkDescriptorSetLayout>
