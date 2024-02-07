@@ -410,4 +410,10 @@ template <typename T> struct is_flag_enum : public std::false_type {};
 template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
 template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
+//============================== CONSTS ==============================
+
+
+static inline constexpr Result success{
+    wis::Status::Ok, "Operation succeeded"
+};
 }

@@ -6,7 +6,7 @@
 namespace wis {
 /// @brief Get the last windows error
 /// @return HRESULT of the last windows error
-WIS_INLINE winrt::hresult last_windows_error() noexcept;
+winrt::hresult last_windows_error() noexcept;
 
 //class hr_exception : public wis::exception
 //{

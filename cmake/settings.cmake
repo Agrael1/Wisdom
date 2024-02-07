@@ -24,6 +24,19 @@ set_property(CACHE WISDOM_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
 list(FIND BUILD_TYPES ${WISDOM_BUILD_TYPE} BUILD_INDEX)
 message("[Wisdom] Build is ${WISDOM_BUILD_TYPE} [${BUILD_INDEX}]")
 
+set(WISDOM_${WISDOM_BUILD_TYPE} TRUE)
+if(WISDOM_headers)
+    set(WISDOM_BTYPE INTERFACE)
+    set(WISDOM_PUBLIC INTERFACE)
+    set(WISDOM_PRIVATE INTERFACE)
+else()# static or modules
+	set(WISDOM_BTYPE STATIC)
+	set(WISDOM_PUBLIC PUBLIC)
+	set(WISDOM_PRIVATE PRIVATE)
+endif()
+
+
+
 # Log level
 set(WISDOM_LOG_LEVEL
     ${CURR_LEVEL}
@@ -73,7 +86,7 @@ else()
   option(WISDOM_USE_FMT "Build Wisdom with fmtlib" OFF)
 endif()
 
-if(WISDOM_BUILD_TYPE STREQUAL "modules")
+if(WISDOM_modules)
   if(CMAKE_MINOR_VERSION LESS 27)
     message(
       WARNING
@@ -91,3 +104,4 @@ if(WISDOM_BUILD_TYPE STREQUAL "modules")
 endif()
 
 set(WISDOM_VERSION "v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
+

@@ -913,7 +913,13 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const
     VkSwapchainKHR swapchain;
     result = device.table()->vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
 
-    return succeeded(result)
-            ? std::pair{ wis::success, wis::VKSwapChain{ wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR } } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create a swapchain">(result), wis::VKSwapChain{} };
+    if (!succeeded(result))
+        return { wis::make_result<FUNC, "Failed to create a swapchain">(result), wis::VKSwapChain{} };
+
+    detail::VKSwapChainCreateInfo create_info{
+        .swapchain = wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR },
+        .present_queue = wis::VKCommandQueue{ device, VkQueue{ qpresent_queue } },
+    };
+
+    return std::pair{ wis::success, wis::VKSwapChain{ std::move(create_info) } };
 }

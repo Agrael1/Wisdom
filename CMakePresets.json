@@ -68,7 +68,7 @@
         "value": "x64",
         "strategy": "external"
       },
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "WISDOM_FORCE_VULKAN": true }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "WISDOM_FORCE_VULKAN": true, "WISDOM_BUILD_TYPE": "headers" }
     },
     {
       "name": "x64-release",
