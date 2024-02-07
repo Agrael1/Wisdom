@@ -15,3 +15,11 @@ if(WISDOM_LINUX)
   set(WISDOM_WAYLAND ${WISDOM_USE_WAYLAND})
   set(WISDOM_X11 ${WISDOM_USE_X11})
 endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS"
+   OR CMAKE_SYSTEM_NAME STREQUAL "tvOS"
+   AND NOT WISDOM_FORCE_VULKAN)
+  message("Platform Library is Metal")
+  set(WISDOMMTL TRUE)
+  message(FATAL_ERROR "Metal is not implemented")
+endif()

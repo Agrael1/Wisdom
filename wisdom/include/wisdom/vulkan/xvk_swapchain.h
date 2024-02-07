@@ -2,35 +2,48 @@
 #include <wisdom/api/consts.h>
 #include <wisdom/api/internal.h>
 #include <wisdom/vulkan/xvk_views.h>
+#include <wisdom/vulkan/xvk_command_queue.h>
 
 namespace wis {
 class VKSwapChain;
 class VKDevice;
 
+namespace detail {
+struct VKSwapChainCreateInfo {
+    wis::managed_handle_ex<VkSwapchainKHR> swapchain;
+    VKCommandQueue present_queue;
+};
+} // namespace detail
+
 template<>
 struct Internal<VKSwapChain> {
     wis::managed_handle_ex<VkSwapchainKHR> swapchain;
-    std::vector<VkImage> back_buffers;
+    std::unique_ptr<VkImage[]> back_buffers;
+    uint32_t back_buffer_count = 0;
 };
 
 class VKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
     VKSwapChain() = default;
-    VKSwapChain(wis::managed_handle_ex<VkSwapchainKHR> in_swapchain) noexcept
-        : QueryInternal(std::move(in_swapchain))
+    VKSwapChain(detail::VKSwapChainCreateInfo info) noexcept
+        : QueryInternal(std::move(info.swapchain)),
+          present_queue(std::move(info.present_queue))
     {
         auto& device = swapchain.header().parent;
-
-        uint32_t image_count;
-        auto vr = device.table()->vkGetSwapchainImagesKHR(device.get(), swapchain.get(), &image_count, nullptr);
-
-        back_buffers.reserve(image_count);
+        auto vr = device.table()->vkGetSwapchainImagesKHR(device.get(), swapchain.get(), &back_buffer_count, nullptr);
     }
     operator bool() const noexcept
     {
         return bool(swapchain);
     }
+
+private:
+    WIS_INLINE void
+    GetBuffers() noexcept;
+
+private:
+    VKCommandQueue present_queue;
 };
 } // namespace wis
 
