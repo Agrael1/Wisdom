@@ -33,13 +33,13 @@ WIS_EXPORT namespace wis
 
     public:
         void operator()(parent_of_t<HandleType> parent, HandleType handle) const noexcept
-            requires(has_parent_v<HandleType>)
+                requires(has_parent_v<HandleType>)
         {
             m_pfn(parent, handle, m_pallocator);
         }
 
         void operator()(HandleType handle) const noexcept
-            requires(!has_parent_v<HandleType>)
+                requires(!has_parent_v<HandleType>)
         {
             m_pfn(handle, m_pallocator);
         }
@@ -83,14 +83,14 @@ WIS_EXPORT namespace wis
     };
 
     template<typename HandleType>
-        requires has_parent_v<HandleType>
+    requires has_parent_v<HandleType>
     struct managed_header<HandleType> {
         shared_handle<parent_of_t<HandleType>> parent;
         deleter_of_t<HandleType> deleter;
     };
 
     template<typename HandleType>
-        requires has_parent_v<HandleType> && has_pool_v<HandleType>
+    requires has_parent_v<HandleType> && has_pool_v<HandleType>
     struct managed_header<HandleType> {
         shared_handle<parent_of_t<HandleType>> parent;
         shared_handle<pool_of_t<HandleType>> pool;
@@ -242,7 +242,7 @@ WIS_EXPORT namespace wis
             return m_control->m_header;
         }
         const shared_handle<parent_of_t<HandleType>>& parent() const noexcept
-            requires(has_parent_v<HandleType>)
+                requires(has_parent_v<HandleType>)
         {
             return m_control->m_header.parent;
         }
@@ -255,21 +255,21 @@ WIS_EXPORT namespace wis
         }
 
         void internal_destroy() noexcept
-            requires(!has_header_v<HandleType>)
+                requires(!has_header_v<HandleType>)
         {
         }
         void internal_destroy() noexcept
-            requires(!has_parent_v<HandleType>)
+                requires(!has_parent_v<HandleType>)
         {
             m_control->m_header.deleter(m_handle);
         }
         void internal_destroy() noexcept
-            requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
+                requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
         {
             m_control->m_header.deleter(m_control->m_header.parent.get(), m_handle);
         }
         void internal_destroy() noexcept
-            requires(has_pool_v<HandleType>)
+                requires(has_pool_v<HandleType>)
         {
             m_control->m_header.deleter(m_control->m_header.parent.get(), m_control->m_header.pool.get(), m_handle);
         }
@@ -357,28 +357,28 @@ WIS_EXPORT namespace wis
             return m_header;
         }
         const shared_handle<parent_of_t<HandleType>>& parent() const noexcept
-            requires(has_parent_v<HandleType>)
+                requires(has_parent_v<HandleType>)
         {
             return m_header.parent;
         }
 
     protected:
         void internal_destroy() noexcept
-            requires(!has_header_v<HandleType>)
+                requires(!has_header_v<HandleType>)
         {
         }
         void internal_destroy() noexcept
-            requires(!has_parent_v<HandleType> && !has_pool_v<HandleType>)
+                requires(!has_parent_v<HandleType> && !has_pool_v<HandleType>)
         {
             m_header.deleter(m_handle);
         }
         void internal_destroy() noexcept
-            requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
+                requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
         {
             m_header.deleter(m_header.parent.get(), m_handle);
         }
         void internal_destroy() noexcept
-            requires(has_pool_v<HandleType>)
+                requires(has_pool_v<HandleType>)
         {
             m_header.deleter(m_header.parent.get(), m_header.pool.get(), m_handle);
         }

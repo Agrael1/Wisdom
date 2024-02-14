@@ -1,7 +1,7 @@
 //#if WISDOM_VULKAN_FOUND
 //#include <wisdom/vulkan/vk_managed_handles.h>
 //
-//void a()
+// void a()
 //{
 //    VkInstance b{};
 //    wis::shared_handle<VkInstance> a{ b, &vkDestroyInstance };

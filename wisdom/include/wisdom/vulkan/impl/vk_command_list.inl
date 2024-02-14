@@ -1,4 +1,4 @@
- #include <wisdom/vulkan/vk_command_list.h>
+#include <wisdom/vulkan/vk_command_list.h>
 #ifndef WISDOM_MODULES
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/global/definitions.h>
@@ -25,9 +25,12 @@ void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView 
     };
     vk::DependencyInfo depinfo{
         vk::DependencyFlagBits::eByRegion,
-        0, nullptr,
-        1, &desc,
-        0, nullptr,
+        0,
+        nullptr,
+        1,
+        &desc,
+        0,
+        nullptr,
     };
     command_list.pipelineBarrier2(&depinfo);
 }

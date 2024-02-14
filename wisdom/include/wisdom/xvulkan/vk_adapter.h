@@ -8,21 +8,23 @@
 namespace wis {
 class VKAdapter;
 
-template <> struct Internal<VKAdapter> {
-  VkPhysicalDevice adapter{};
-  VkInstanceTable* instance_table{};
+template<>
+struct Internal<VKAdapter> {
+    VkPhysicalDevice adapter{};
+    VkInstanceTable* instance_table{};
 };
 
-class VKAdapter : public QueryInternal<VKAdapter> {
+class VKAdapter : public QueryInternal<VKAdapter>
+{
 public:
-  VKAdapter() noexcept = default;
-  explicit VKAdapter(VkPhysicalDevice adapter, VkInstanceTable* instance_table) noexcept
-      : QueryInternal(adapter, instance_table) {}
-  operator bool() const noexcept { return adapter != nullptr; }
-  operator VKAdapterHandle() const noexcept { return {adapter, instance_table}; }
+    VKAdapter() noexcept = default;
+    explicit VKAdapter(VkPhysicalDevice adapter, VkInstanceTable* instance_table) noexcept
+        : QueryInternal(adapter, instance_table) { }
+    operator bool() const noexcept { return adapter != nullptr; }
+    operator VKAdapterHandle() const noexcept { return { adapter, instance_table }; }
 
 public:
-  WIS_INLINE [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept;
+    WIS_INLINE [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept;
 };
 } // namespace wis
 

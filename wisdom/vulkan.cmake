@@ -13,11 +13,13 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/vk_convert.h"
 			"include/wisdom/xvulkan/vk_fence.h"
 			"include/wisdom/xvulkan/vk_device.h"
+			"include/wisdom/xvulkan/vk_command_queue.h"
 		SOURCES
 			"include/wisdom/xvulkan/impl/vk_factory.cpp"
 			"include/wisdom/xvulkan/impl/vk_adapter.cpp"
 			"include/wisdom/xvulkan/impl/vk_fence.cpp"
 			"include/wisdom/xvulkan/impl/vk_device.cpp"
+			"include/wisdom/xvulkan/impl/vk_command_queue.cpp"
 			
 		DEFINITIONS 
 			WISDOM_VULKAN=1

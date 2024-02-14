@@ -39,7 +39,7 @@ struct managed_header_ex : public managed_header<HandleType> {
 };
 
 template<typename HandleType>
-    requires std::same_as<parent_of_t<HandleType>, VkDevice>
+requires std::same_as<parent_of_t<HandleType>, VkDevice>
 struct managed_header_ex<HandleType> {
     SharedDevice parent;
     deleter_of_t<HandleType> deleter;

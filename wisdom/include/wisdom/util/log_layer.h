@@ -7,7 +7,7 @@
 
 namespace wis {
 template<typename T>
-    requires std::is_enum_v<T>
+requires std::is_enum_v<T>
 constexpr inline auto operator+(T t) noexcept
 {
     return static_cast<std::underlying_type_t<T>>(t);

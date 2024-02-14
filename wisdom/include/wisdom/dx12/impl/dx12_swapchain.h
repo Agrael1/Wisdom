@@ -5,7 +5,6 @@
 #include <wisdom/dx12/xdx12_device.h>
 #include <wisdom/util/misc.h>
 
-
 void wis::DX12SwapchainHelpers::ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
 {
     swap_desc.Width = desc->size.width;

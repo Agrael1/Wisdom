@@ -17,6 +17,7 @@ class DX12RootSignature : public QueryInternal<DX12RootSignature>
 {
 public:
     static constexpr inline auto root_const_register = 16;
+
 public:
     DX12RootSignature() = default;
     explicit DX12RootSignature(wis::com_ptr<ID3D12RootSignature> xroot) noexcept

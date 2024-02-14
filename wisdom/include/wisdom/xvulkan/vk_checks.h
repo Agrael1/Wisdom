@@ -23,4 +23,4 @@ constexpr inline wis::Result make_result(VkResult hr) noexcept
 {
     return wis::Result{ convert_vk(hr), message.c_str() };
 }
-}
+} // namespace wis

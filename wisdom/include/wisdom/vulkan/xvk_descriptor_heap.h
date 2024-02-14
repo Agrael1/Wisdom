@@ -1,13 +1,10 @@
 #pragma once
 
-namespace wis
-{
+namespace wis {
 class VKDescriptorTable
 {
-
 };
 class VKDescriptorPool
 {
-
 };
-}
+} // namespace wis

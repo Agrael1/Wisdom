@@ -15,7 +15,7 @@ wis::DX12ResourceAllocator::DX12ResourceAllocator(const wis::DX12Device& device)
     };
     wis::succeeded(D3D12MA::CreateAllocator(&desc, allocator.put()));
 }
-wis::DX12Buffer wis::DX12ResourceAllocator::CreatePersistentBuffer(size_t size, BufferFlags)const noexcept
+wis::DX12Buffer wis::DX12ResourceAllocator::CreatePersistentBuffer(size_t size, BufferFlags) const noexcept
 {
     using namespace river::flags;
     winrt::com_ptr<ID3D12Resource> rc;
@@ -27,10 +27,10 @@ wis::DX12Buffer wis::DX12ResourceAllocator::CreatePersistentBuffer(size_t size, 
     D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COPY_DEST;
 
     return wis::succeeded(allocator->CreateResource2(&all_desc, &desc,
-                               state, nullptr,
-                               al.put(), __uuidof(*rc), rc.put_void()))
-        ? DX12Buffer{ std::move(rc), std::move(al) }
-        : DX12Buffer{};
+                                                     state, nullptr,
+                                                     al.put(), __uuidof(*rc), rc.put_void()))
+            ? DX12Buffer{ std::move(rc), std::move(al) }
+            : DX12Buffer{};
 }
 wis::DX12Buffer wis::DX12ResourceAllocator::CreateUploadBuffer(size_t size) const noexcept
 {
@@ -40,9 +40,9 @@ wis::DX12Buffer wis::DX12ResourceAllocator::CreateUploadBuffer(size_t size) cons
     D3D12MA::ALLOCATION_DESC all_desc = {};
     all_desc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
 
-     return wis::succeeded(allocator->CreateResource(&all_desc, &desc,
-                              D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                              al.put(), __uuidof(*rc), rc.put_void()))
-         ? DX12Buffer{ std::move(rc), std::move(al) }
-         : DX12Buffer{};
+    return wis::succeeded(allocator->CreateResource(&all_desc, &desc,
+                                                    D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                    al.put(), __uuidof(*rc), rc.put_void()))
+            ? DX12Buffer{ std::move(rc), std::move(al) }
+            : DX12Buffer{};
 }
