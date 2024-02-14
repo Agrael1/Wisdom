@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/vulkan/xvk_views.h>
-#include <wisdom/api/api.h>
+#include <wisdom/generated/api/api.h>
 
 namespace wis{
 struct VKGraphicsShaderStages{

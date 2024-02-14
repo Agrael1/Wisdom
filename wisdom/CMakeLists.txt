@@ -8,7 +8,7 @@ add_library(${PROJECT_NAME} ${WISDOM_BTYPE})
 # load dx12 and vulkan
 include(platform.cmake)
 include(dx12.cmake)
-#include(vulkan.cmake)
+include(vulkan.cmake)
 
 # Add common sources
 target_sources(${PROJECT_NAME}
@@ -43,7 +43,7 @@ target_sources(${PROJECT_NAME}
         "include/wisdom/bridge/source_location.h"
         "include/wisdom/global/assertions.h"
         "include/wisdom/util/error_messages.h"
-        "include/wisdom/api/consts.h"
+        
 )
 
 # target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")

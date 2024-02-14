@@ -8,6 +8,7 @@
 
 #include <mutex>
 #include <vector>
+#include "vk_factory.h"
 
 namespace wis {
 class VKFactory;

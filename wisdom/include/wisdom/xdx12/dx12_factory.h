@@ -14,23 +14,23 @@ template <> struct Internal<DX12Factory> {
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Factory>
 DX12CreateFactory(bool debug_layer = false, wis::DebugCallback callback = nullptr,
-                  void *user_data = nullptr) noexcept;
+                  void* user_data = nullptr) noexcept;
 
 /// @brief Main Factory class
 class DX12Factory : public QueryInternal<DX12Factory> {
   friend std::pair<wis::Result, wis::DX12Factory> DX12CreateFactory(bool, wis::DebugCallback,
-                                                                    void *) noexcept;
+                                                                    void*) noexcept;
 
 public:
   DX12Factory() noexcept = default;
   WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer = false,
                                   wis::DebugCallback callback = nullptr,
-                                  void *user_data = nullptr) noexcept;
+                                  void* user_data = nullptr) noexcept;
   WIS_INLINE ~DX12Factory() noexcept;
-  WIS_INLINE DX12Factory(DX12Factory &&other) noexcept;
-  WIS_INLINE DX12Factory &operator=(DX12Factory &&other) noexcept;
-  DX12Factory(const DX12Factory &) = delete;
-  DX12Factory &operator=(const DX12Factory &) = delete;
+  WIS_INLINE DX12Factory(DX12Factory&& other) noexcept;
+  WIS_INLINE DX12Factory& operator=(DX12Factory&& other) noexcept;
+  DX12Factory(const DX12Factory&) = delete;
+  DX12Factory& operator=(const DX12Factory&) = delete;
 
   operator bool() const noexcept { return bool(factory); }
   operator DX12FactoryHandle() const noexcept { return factory.get(); }
@@ -41,7 +41,7 @@ public:
              AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
 private:
-  WIS_INLINE void EnableDebugLayer(DebugCallback callback, void *user_data) noexcept;
+  WIS_INLINE void EnableDebugLayer(DebugCallback callback, void* user_data) noexcept;
 
   WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapterByGPUPreference(
       uint32_t index, DXGI_GPU_PREFERENCE preference =

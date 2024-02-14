@@ -151,7 +151,7 @@ static inline constexpr Result success{
 
   std::string vkapi = generator_string +
                       "#pragma once\n#include <wisdom/vulkan/xvk_views.h>\n#include "
-                      "<wisdom/api/api.h>\n\nnamespace wis{\n";
+                      "<wisdom/generated/api/api.h>\n\nnamespace wis{\n";
   for (auto i : variants) {
     if (i->this_type.empty()) {
       vkapi += MakeCPPVariant(*i, ImplementedFor::Vulkan);

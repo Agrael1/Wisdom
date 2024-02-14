@@ -5,6 +5,7 @@
 //#include <wisdom/wisdom.hpp>
 //#include <wisdom/platform/win32.h>
 #include <wisdom/xdx12/dx12_factory.h>
+#include <wisdom/xvulkan/vk_factory.h>
 #include <iostream>
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
@@ -23,6 +24,8 @@ int main()
     Window window(1920, 1080, "Example");
 
     auto [res, factory] = wis::DX12CreateFactory(false, &DebugCallback, &std::cout);
+
+    auto [vres, vfactory] = wis::VKCreateFactory(false, &DebugCallback, &std::cout);
     /*{
         auto [res, factory] = wis::CreateFactory(false, &DebugCallback, &std::cout);
 
