@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WISDOM_HEADER_ONLY
 #include <wisdom/xvulkan/vk_adapter.h>
 #endif // !WISDOM_HEADER_ONLY
