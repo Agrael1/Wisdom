@@ -1,7 +1,7 @@
 #pragma once
-#include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_views.h>
-#include <wisdom/vulkan/xvk_handles.h>
+#include <wisdom/global/internal.h>
+#include <wisdom/xvulkan/vk_views.h>
+#include <wisdom/xvulkan/vk_handles.h>
 
 namespace wis {
 class VKRootSignature;

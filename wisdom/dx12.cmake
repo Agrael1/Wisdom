@@ -15,6 +15,7 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/xdx12/dx12_device.h"
 			"include/wisdom/xdx12/dx12_command_queue.h"
 			"include/wisdom/xdx12/dx12_command_list.h"
+			"include/wisdom/xdx12/dx12_root_signature.h"
 		SOURCES
 			"include/wisdom/xdx12/impl/dx12_factory.cpp"
 			"include/wisdom/xdx12/impl/dx12_info.cpp"
