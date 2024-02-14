@@ -11,9 +11,11 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/xdx12/dx12_info.h"
 			"include/wisdom/xdx12/dx12_checks.h"
 			"include/wisdom/xdx12/dx12_convert.h"
+			"include/wisdom/xdx12/dx12_fence.h"
 		SOURCES
 			"include/wisdom/xdx12/impl/dx12_factory.cpp"
 			"include/wisdom/xdx12/impl/dx12_info.cpp"
+			"include/wisdom/xdx12/impl/dx12_fence.cpp"
 		LIBS
 			DX12Agility
 			DX12Allocator
