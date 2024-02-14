@@ -57,6 +57,23 @@ wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
               };
 }
 
+std::pair<wis::Result, wis::DX12CommandQueue>
+wis::DX12Device::CreateCommandQueue(wis::QueueType type,
+                                    wis::QueuePriority priority) const noexcept
+{
+    wis::com_ptr<ID3D12CommandQueue> queue;
+    D3D12_COMMAND_QUEUE_DESC desc{
+        .Type = D3D12_COMMAND_LIST_TYPE(type),
+        .Priority = int(priority),
+    };
+
+    HRESULT hr;
+    return wis::succeeded(hr = device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
+            ? std::pair{ wis::success, DX12CommandQueue{ std::move(queue) } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create command queue">(hr),
+                         DX12CommandQueue{} };
+}
+
 // std::pair<wis::Result, wis::DX12ResourceAllocator>
 // wis::DX12Device::CreateAllocator() const noexcept {
 //   D3D12MA::ALLOCATOR_DESC desc{.Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
@@ -112,21 +129,7 @@ wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
 //              : std::pair{wis::success, DX12RootSignature{std::move(rsig)}};
 // }
 //
-// std::pair<wis::Result, wis::DX12CommandQueue>
-// wis::DX12Device::CreateCommandQueue(wis::QueueType type,
-//                                     wis::QueuePriority priority) const noexcept {
-//   wis::com_ptr<ID3D12CommandQueue> queue;
-//   D3D12_COMMAND_QUEUE_DESC desc{
-//       .Type = D3D12_COMMAND_LIST_TYPE(type),
-//       .Priority = int(priority),
-//   };
-//
-//   HRESULT hr;
-//   return wis::succeeded(hr = device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
-//              ? std::pair{wis::success, DX12CommandQueue{std::move(queue)}}
-//              : std::pair{wis::make_result<FUNC, "Failed to create command queue">(hr),
-//                          DX12CommandQueue{}};
-// }
+
 //
 // std::pair<wis::Result, wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
 //                                                                       size_t size) const noexcept {

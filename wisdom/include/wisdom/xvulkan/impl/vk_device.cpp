@@ -366,6 +366,29 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
               };
 }
 
+std::pair<wis::Result, wis::VKCommandQueue>
+wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
+{
+    (void)priority; // TODO: use priority
+
+    const auto* queue = queues.GetOfType(type);
+    if (queue == nullptr)
+        return { wis::make_result<FUNC, "The system does not support the requested queue type">(
+                         VkResult::VK_ERROR_UNKNOWN),
+                 wis::VKCommandQueue{} };
+
+    VkDeviceQueueInfo2 info{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+        .pNext = nullptr,
+        .flags = 0,
+        .queueFamilyIndex = queue->family_index,
+        .queueIndex = queue->GetNextInLine(),
+    };
+    VkQueue queue_handle;
+    device.table()->vkGetDeviceQueue2(device.get(), &info, &queue_handle);
+    return { wis::success, wis::VKCommandQueue{ device, VkQueue{ queue_handle } } };
+}
+
 // std::pair<wis::Result, wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept {
 //   auto [result, allocator] = CreateAllocatorI();
 //   return result.status == wis::Status::Ok
@@ -462,27 +485,6 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 //                               VmaAllocator{});
 // }
 //
-// std::pair<wis::Result, wis::VKCommandQueue>
-// wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept {
-//   (void)priority; // TODO: use priority
-//
-//   const auto* queue = queues.GetOfType(type);
-//   if (queue == nullptr)
-//     return {wis::make_result<FUNC, "The system does not support the requested queue type">(
-//                 VkResult::VK_ERROR_UNKNOWN),
-//             wis::VKCommandQueue{}};
-//
-//   VkDeviceQueueInfo2 info{
-//       .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
-//       .pNext = nullptr,
-//       .flags = 0,
-//       .queueFamilyIndex = queue->family_index,
-//       .queueIndex = queue->GetNextInLine(),
-//   };
-//   VkQueue queue_handle;
-//   device.table()->vkGetDeviceQueue2(device.get(), &info, &queue_handle);
-//   return {wis::success, wis::VKCommandQueue{device, VkQueue{queue_handle}}};
-// }
 //
 // std::pair<wis::Result, wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
 //                                                                   uint32_t size) const noexcept {

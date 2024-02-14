@@ -1,8 +1,8 @@
 #pragma once
 #include <wisdom/xdx12/dx12_fence.h>
+#include <wisdom/xdx12/dx12_command_queue.h>
 //#include <wisdom/dx12/xdx12_allocator.h>
 //#include <wisdom/dx12/xdx12_root_signature.h>
-//#include <wisdom/dx12/xdx12_command_queue.h>
 //#include <wisdom/dx12/xdx12_shader.h>
 //#include <wisdom/dx12/xdx12_pipeline_state.h>
 //#include <wisdom/dx12/xdx12_command_list.h>
@@ -39,14 +39,15 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Fence>
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
 
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12CommandQueue>
+    CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
+
     /*[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
     CreateAllocator() const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12RootSignature>
     CreateRootSignature(RootConstant* root_constants = nullptr, uint32_t constants_size = 0) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12CommandQueue>
-    CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Shader>
     CreateShader(void* data, size_t size) const noexcept;
