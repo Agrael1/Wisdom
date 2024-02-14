@@ -6,8 +6,7 @@
 #include <wisdom/xdx12/dx12_checks.h>
 
 wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer,
-                              wis::DebugCallback callback,
-                              void *user_data) noexcept
+                              wis::DebugCallback callback, void* user_data) noexcept
     : QueryInternal(std::move(factory)) {
   if constexpr (wis::debug_layer) {
     if (debug_layer && callback)
@@ -16,7 +15,7 @@ wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_la
 }
 
 [[nodiscard]] std::pair<wis::Result, wis::DX12Factory>
-wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void *user_data) noexcept {
+wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept {
   wis::com_ptr<IDXGIFactory6> factory;
   auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG, __uuidof(*factory),
                                factory.put_void());
@@ -39,7 +38,7 @@ wis::DX12Factory::~DX12Factory() noexcept {
   }
 }
 
-wis::DX12Factory::DX12Factory(DX12Factory &&other) noexcept
+wis::DX12Factory::DX12Factory(DX12Factory&& other) noexcept
     : QueryInternal<DX12Factory>(std::move(other)) {
   if constexpr (wis::debug_layer) {
     if (DX12Info::RebindCallback(this, &other))
@@ -56,7 +55,7 @@ wis::DX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const
               : std::pair{wis::success, wis::DX12Adapter(std::move(gen.ptr))};
 }
 
-void wis::DX12Factory::EnableDebugLayer(DebugCallback callback, void *user_data) noexcept {
+void wis::DX12Factory::EnableDebugLayer(DebugCallback callback, void* user_data) noexcept {
   if (callback) {
     token.Acquire();
     DX12Info::AddCallback(this, callback, user_data);
@@ -71,7 +70,7 @@ void wis::DX12Factory::EnableDebugLayer(DebugCallback callback, void *user_data)
     dc->SetEnableGPUBasedValidation(true);
 }
 
-wis::DX12Factory & wis::DX12Factory::operator =(DX12Factory && other) noexcept {
+wis::DX12Factory& wis::DX12Factory::operator=(DX12Factory&& other) noexcept {
   QueryInternal<DX12Factory>::operator=(std::move(other));
   if constexpr (wis::debug_layer) {
     if (DX12Info::RebindCallback(this, &other))

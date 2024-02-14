@@ -39,7 +39,7 @@ void DX12Info::Uninitialize() noexcept {
 }
 
 void DX12Info::Poll() noexcept {
-  auto &inst = instance();
+  auto& inst = instance();
   if (!inst.info_queue || inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
     return;
 
@@ -61,14 +61,14 @@ void DX12Info::Poll() noexcept {
   inst.semaphore.release();
 }
 
-void DX12Info::AddCallback(void *factory, DebugCallback callback, void *user_data) noexcept {
-  auto &inst = instance();
+void DX12Info::AddCallback(void* factory, DebugCallback callback, void* user_data) noexcept {
+  auto& inst = instance();
   inst.callback_sem.acquire();
-  inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void *>{callback, user_data});
+  inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*>{callback, user_data});
   inst.callback_sem.release();
 }
-void DX12Info::RemoveCallback(void *factrory) noexcept {
-  auto &inst = instance();
+void DX12Info::RemoveCallback(void* factrory) noexcept {
+  auto& inst = instance();
   if (!inst.callbacks.contains(factrory))
     return;
 
@@ -76,13 +76,13 @@ void DX12Info::RemoveCallback(void *factrory) noexcept {
   inst.callbacks.erase(factrory);
   inst.callback_sem.release();
 }
-bool DX12Info::RebindCallback(void *factory_from, void *factory_to) noexcept {
-  auto &inst = instance();
+bool DX12Info::RebindCallback(void* factory_from, void* factory_to) noexcept {
+  auto& inst = instance();
   if (!inst.callbacks.contains(factory_from))
     return false;
 
   inst.callback_sem.acquire();
-  auto &&[k, v] = *inst.callbacks.find(factory_from);
+  auto&& [k, v] = *inst.callbacks.find(factory_from);
   inst.callbacks.erase(factory_from);
   inst.callbacks.emplace(factory_to, std::move(v));
   inst.callback_sem.release();
@@ -123,7 +123,7 @@ void wis::DX12Info::PollInternal() noexcept {
 
     // allocate memory for message
     message.resize(messageLength);
-    auto *pMessage = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE *>(message.data());
+    auto* pMessage = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE*>(message.data());
 
     // get message and push it into vector
     hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, pMessage, &messageLength);
@@ -132,7 +132,7 @@ void wis::DX12Info::PollInternal() noexcept {
 
     // call callbacks
     callback_sem.acquire();
-    for (auto &&[k, v] : callbacks) {
+    for (auto&& [k, v] : callbacks) {
       v.first(Convert(pMessage->Severity), pMessage->pDescription, v.second);
     }
     callback_sem.release();

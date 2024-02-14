@@ -11,15 +11,15 @@ class DX12Info {
   friend struct DX12InfoToken;
 
 public:
-  static DX12Info &instance() noexcept {
+  static DX12Info& instance() noexcept {
     static DX12Info instance;
     return instance;
   }
 
 private:
   DX12Info() noexcept = default;
-  DX12Info(const DX12Info &) = delete;
-  DX12Info &operator=(const DX12Info &) = delete;
+  DX12Info(const DX12Info&) = delete;
+  DX12Info& operator=(const DX12Info&) = delete;
 
   WIS_INLINE void Uninitialize() noexcept;
   WIS_INLINE void PollInternal() noexcept;
@@ -27,16 +27,16 @@ private:
 
 public:
   WIS_INLINE static void Poll() noexcept;
-  WIS_INLINE static void AddCallback(void *factory, DebugCallback callback,
-                                     void *user_data = nullptr) noexcept;
-  WIS_INLINE static void RemoveCallback(void *factrory) noexcept;
-  WIS_INLINE static bool RebindCallback(void *factory_from, void *factory_to) noexcept;
+  WIS_INLINE static void AddCallback(void* factory, DebugCallback callback,
+                                     void* user_data = nullptr) noexcept;
+  WIS_INLINE static void RemoveCallback(void* factrory) noexcept;
+  WIS_INLINE static bool RebindCallback(void* factory_from, void* factory_to) noexcept;
 
 private:
   wis::com_ptr<IDXGIInfoQueue> info_queue;
   std::binary_semaphore semaphore{1};
   std::binary_semaphore callback_sem{1};
-  std::unordered_map<void *, std::pair<wis::DebugCallback, void *>> callbacks;
+  std::unordered_map<void*, std::pair<wis::DebugCallback, void*>> callbacks;
   std::atomic_size_t ref_count{0};
 };
 
