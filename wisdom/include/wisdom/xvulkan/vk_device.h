@@ -2,10 +2,10 @@
 #include <wisdom/xvulkan/vk_fence.h>
 #include <wisdom/xvulkan/vk_queue_residency.h>
 #include <wisdom/xvulkan/vk_command_queue.h>
+#include <wisdom/xvulkan/vk_command_list.h>
 // #include <wisdom/vulkan/xvk_allocator.h>
 // #include <wisdom/vulkan/xvk_descriptors.h>
 // #include <wisdom/vulkan/xvk_root_signature.h>
-// #include <wisdom/vulkan/xvk_command_list.h>
 // #include <wisdom/vulkan/xvk_pipeline_state.h>
 // #include <wisdom/vulkan/vk_structs.hpp>
 // #include <wisdom/vulkan/xvk_shader.h>
@@ -74,6 +74,9 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandQueue>
     CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
 
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandList>
+    CreateCommandList(wis::QueueType type) const noexcept;
+
     /*[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKResourceAllocator>
     CreateAllocator() const noexcept;
 
@@ -86,8 +89,7 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKPipelineState>
     CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandList>
-    CreateCommandList(wis::QueueType type) const noexcept;
+
 
 public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
