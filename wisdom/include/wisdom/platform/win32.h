@@ -3,11 +3,11 @@
 //#ifdef WISDOM_DX12
 //#include <wisdom/dx12/xdx12_swapchain.h>
 //
-//namespace wis {
+// namespace wis {
 //[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12SwapChain>
-//DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept;
+// DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept;
 //[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12SwapChain>
-//DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept;
+// DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept;
 //}
 //
 //#endif // WISDOM_DX12
@@ -20,12 +20,12 @@
 ////}
 ////#endif // WISDOM_VULKAN
 //
-//namespace wis {
+// namespace wis {
 //#if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
-//constexpr auto CreateSwapchainWin32 = DX12CreateSwapchainWin32;
-//constexpr auto CreateSwapchainUWP = DX12CreateSwapchainUWP;
+// constexpr auto CreateSwapchainWin32 = DX12CreateSwapchainWin32;
+// constexpr auto CreateSwapchainUWP = DX12CreateSwapchainUWP;
 //#elif defined(WISDOM_VULKAN)
-//constexpr auto CreateSwapchainWin32 = VKCreateSwapchainWin32;
+// constexpr auto CreateSwapchainWin32 = VKCreateSwapchainWin32;
 //#endif // WISDOM_DX12
 //} // namespace wis
 //

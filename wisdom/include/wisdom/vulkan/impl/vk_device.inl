@@ -578,7 +578,7 @@ wis::VKDevice::RequestExtensions() noexcept
 {
     auto [result, extensions] = adapter.enumerateDeviceExtensionProperties();
     if (!succeeded(result)) {
-		return {};
+        return {};
     };
     std::unordered_set<std::string_view, wis::string_hash> ext_set;
     ext_set.reserve(extensions.size());

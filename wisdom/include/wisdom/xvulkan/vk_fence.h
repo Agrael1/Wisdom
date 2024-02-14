@@ -39,7 +39,7 @@ public:
     /// @return Boolean indicating whether the fence reached the value.
     WIS_INLINE [[nodiscard]] wis::Result
     Wait(uint64_t value,
-                     uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+         uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.

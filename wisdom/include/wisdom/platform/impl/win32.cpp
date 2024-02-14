@@ -4,8 +4,8 @@
 //#include <wisdom/util/log_layer.h>
 //
 //
-//std::pair<wis::Result, wis::DX12SwapChain>
-//wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
+// std::pair<wis::Result, wis::DX12SwapChain>
+// wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 //{
 //    DXGI_SWAP_CHAIN_DESC1 swap_desc;
 //    DX12SwapchainHelpers::ToSwapchainDesc(swap_desc, desc);
@@ -41,8 +41,8 @@
 //            : std::pair{ wis::make_result<FUNC, "Failed to create swapchain">(hr), DX12SwapChain{} };
 //}
 //
-//std::pair<wis::Result, wis::DX12SwapChain>
-//wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
+// std::pair<wis::Result, wis::DX12SwapChain>
+// wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
 //{
 //    DXGI_SWAP_CHAIN_DESC1 swap_desc;
 //    DX12SwapchainHelpers::ToSwapchainDesc(swap_desc, desc);

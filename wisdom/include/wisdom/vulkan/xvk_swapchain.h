@@ -27,8 +27,7 @@ class VKSwapChain : public QueryInternal<VKSwapChain>
 public:
     VKSwapChain() = default;
     VKSwapChain(detail::VKSwapChainCreateInfo info) noexcept
-        : QueryInternal(std::move(info.swapchain)),
-          present_queue(std::move(info.present_queue))
+        : QueryInternal(std::move(info.swapchain)), present_queue(std::move(info.present_queue))
     {
         auto& device = swapchain.header().parent;
         auto vr = device.table()->vkGetSwapchainImagesKHR(device.get(), swapchain.get(), &back_buffer_count, nullptr);

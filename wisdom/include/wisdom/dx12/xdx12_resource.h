@@ -17,13 +17,12 @@ struct Internal<DX12Buffer> {
 class DX12Buffer : public QueryInternal<DX12Buffer>
 {
 public:
-    DX12Buffer()noexcept = default;
+    DX12Buffer() noexcept = default;
     explicit DX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al) noexcept
         : QueryInternal(std::move(rc), std::move(al)) { }
     operator bool() const noexcept { return bool(resource); }
 
 public:
-
 };
 
 using DX12Texture = DX12Buffer;
