@@ -46,7 +46,7 @@ wis::DX12Factory::DX12Factory(DX12Factory&& other) noexcept
   }
 }
 
-[[nodiscard]] inline std::pair<wis::Result, wis::DX12Adapter>
+[[nodiscard]] std::pair<wis::Result, wis::DX12Adapter>
 wis::DX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept {
   auto gen = has_preference ? GetAdapterByGPUPreference(index, convert_dx(preference))
                             : GetAdapter1(index);
@@ -79,7 +79,7 @@ wis::DX12Factory& wis::DX12Factory::operator=(DX12Factory&& other) noexcept {
   return *this;
 }
 
-inline wis::com_with_result<IDXGIAdapter1>
+wis::com_with_result<IDXGIAdapter1>
 wis::DX12Factory::GetAdapterByGPUPreference(uint32_t index,
                                             DXGI_GPU_PREFERENCE preference) const noexcept {
   wis::com_ptr<IDXGIAdapter1> adapter;
@@ -88,7 +88,7 @@ wis::DX12Factory::GetAdapterByGPUPreference(uint32_t index,
   return {hr, std::move(adapter)};
 }
 
-inline wis::com_with_result<IDXGIAdapter1>
+wis::com_with_result<IDXGIAdapter1>
 wis::DX12Factory::GetAdapter1(uint32_t index) const noexcept {
   wis::com_ptr<IDXGIAdapter1> adapter;
   auto hr = factory->EnumAdapters1(index, adapter.put());

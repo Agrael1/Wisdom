@@ -262,7 +262,7 @@ wis::VKFactory::~VKFactory() noexcept {
   }
 }
 
-[[nodiscard]] inline std::pair<wis::Result, wis::VKAdapter>
+[[nodiscard]] std::pair<wis::Result, wis::VKAdapter>
 wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept {
   if (index >= adapters.size()) {
     return std::pair{wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN), VKAdapter{}};
