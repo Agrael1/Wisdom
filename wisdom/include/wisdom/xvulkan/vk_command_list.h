@@ -1,6 +1,6 @@
 #pragma once
-#include <wisdom/vulkan/xvk_views.h>
-#include <wisdom/api/internal.h>
+#include <wisdom/xvulkan/vk_views.h>
+#include <wisdom/global/internal.h>
 
 namespace wis {
 class VKCommandList;

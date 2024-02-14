@@ -276,18 +276,18 @@ enum class DeviceFeatures {
     PushDescriptors = 1 << 0,
 };
 
-struct Result {
+struct Result{
     wis::Status status = wis::Status::Ok;
     const char* error = nullptr;
 };
 
-struct Size2D {
+struct Size2D{
     uint32_t width;
     uint32_t height;
 };
 
-struct AdapterDesc {
-    std::array<const char, 256> description{};
+struct AdapterDesc{
+    std::array<const char, 256> description {};
     uint32_t vendor_id;
     uint32_t device_id;
     uint32_t subsys_id;
@@ -299,13 +299,13 @@ struct AdapterDesc {
     wis::AdapterFlags flags;
 };
 
-struct InputSlotDesc {
+struct InputSlotDesc{
     uint32_t slot;
     uint32_t stride_bytes;
     wis::InputClass input_class;
 };
 
-struct InputAttribute {
+struct InputAttribute{
     uint32_t input_slot;
     const char* semantic_name;
     uint32_t semantic_index;
@@ -314,14 +314,14 @@ struct InputAttribute {
     uint32_t offset_bytes;
 };
 
-struct InputLayout {
+struct InputLayout{
     wis::InputSlotDesc* slots;
     uint32_t slot_count;
     wis::InputAttribute* attributes;
     uint32_t attribute_count;
 };
 
-struct RasterizerDesc {
+struct RasterizerDesc{
     wis::FillMode fill_mode = wis::FillMode::Solid;
     wis::CullMode cull_mode = wis::CullMode::Back;
     wis::WindingOrder front_face = wis::WindingOrder::Clockwise;
@@ -332,13 +332,13 @@ struct RasterizerDesc {
     bool depth_clip_enable = true;
 };
 
-struct SampleDesc {
+struct SampleDesc{
     wis::SampleRate rate = wis::SampleRate::S1;
     float quality = 0.0f;
     uint32_t sample_mask = 0xffffffff;
 };
 
-struct StencilDesc {
+struct StencilDesc{
     wis::StencilOp fail_op = wis::StencilOp::Keep;
     wis::StencilOp depth_fail_op = wis::StencilOp::Keep;
     wis::StencilOp pass_op = wis::StencilOp::Keep;
@@ -347,7 +347,7 @@ struct StencilDesc {
     uint8_t write_mask = 0xff;
 };
 
-struct DepthStencilDesc {
+struct DepthStencilDesc{
     bool depth_enable = false;
     bool depth_write_enable = false;
     wis::Compare depth_comp = wis::Compare::Less;
@@ -357,7 +357,7 @@ struct DepthStencilDesc {
     bool depth_bound_test = false;
 };
 
-struct BlendAttachmentDesc {
+struct BlendAttachmentDesc{
     bool blend_enable = false;
     wis::BlendFactor src_color_blend = wis::BlendFactor::One;
     wis::BlendFactor dst_color_blend = wis::BlendFactor::Zero;
@@ -368,25 +368,25 @@ struct BlendAttachmentDesc {
     wis::ColorComponents color_write_mask = wis::ColorComponents::All;
 };
 
-struct BlendStateDesc {
+struct BlendStateDesc{
     bool logic_op_enable = false;
     wis::LogicOp logic_op = wis::LogicOp::Noop;
-    std::array<wis::BlendAttachmentDesc, 8> attachments{};
+    std::array<wis::BlendAttachmentDesc, 8> attachments {};
     uint32_t attachment_count;
 };
 
-struct RenderAttachmentsDesc {
+struct RenderAttachmentsDesc{
     wis::DataFormat* attachment_formats;
     uint32_t attachments_count;
     wis::DataFormat depth_attachment;
 };
 
-struct RootConstant {
+struct RootConstant{
     wis::ShaderStages stage;
     uint32_t size_bytes;
 };
 
-struct SwapchainDesc {
+struct SwapchainDesc{
     wis::Size2D size;
     wis::DataFormat format;
     uint32_t buffer_count;
@@ -394,7 +394,7 @@ struct SwapchainDesc {
     bool vsync;
 };
 
-struct PushDescriptor {
+struct PushDescriptor{
     wis::ShaderStages stage;
     uint32_t bind_register;
     wis::DescriptorType type;
@@ -403,24 +403,17 @@ struct PushDescriptor {
 
 //=================================DELEGATES=================================
 
-typedef void (*DebugCallback)(wis::Severity severity, const char* message, void* user_data);
+typedef void (*DebugCallback)( wis::Severity severity,  const char* message,  void* user_data);
 //==============================TYPE TRAITS==============================
 
-template<typename T>
-struct is_flag_enum : public std::false_type {
-};
-template<>
-struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
-};
-template<>
-struct is_flag_enum<wis::ColorComponents> : public std::true_type {
-};
-template<>
-struct is_flag_enum<wis::DeviceFeatures> : public std::true_type {
-};
+template <typename T> struct is_flag_enum : public std::false_type {};
+template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
+template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
+template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
 //============================== CONSTS ==============================
+
 
 static inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
-} // namespace wis
+}
