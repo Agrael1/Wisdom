@@ -1,5 +1,5 @@
 #pragma once
-#include <wisdom/vulkan/xvk_views.h>
+#include <wisdom/xvulkan/vk_views.h>
 #include <wisdom/generated/api/api.h>
 
 namespace wis{

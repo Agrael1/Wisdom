@@ -15,6 +15,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/vk_device.h"
 			"include/wisdom/xvulkan/vk_command_queue.h"
 			"include/wisdom/xvulkan/vk_command_list.h"
+			"include/wisdom/xvulkan/vk_root_signature.h"
 		SOURCES
 			"include/wisdom/xvulkan/impl/vk_factory.cpp"
 			"include/wisdom/xvulkan/impl/vk_adapter.cpp"

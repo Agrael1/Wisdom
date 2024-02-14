@@ -150,7 +150,7 @@ static inline constexpr Result success{
     return 1;
 
   std::string vkapi = generator_string +
-                      "#pragma once\n#include <wisdom/vulkan/xvk_views.h>\n#include "
+                      "#pragma once\n#include <wisdom/xvulkan/vk_views.h>\n#include "
                       "<wisdom/generated/api/api.h>\n\nnamespace wis{\n";
   for (auto i : variants) {
     if (i->this_type.empty()) {

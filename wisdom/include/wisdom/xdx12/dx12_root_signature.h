@@ -1,9 +1,7 @@
 #pragma once
-#include <wisdom/api/internal.h>
-#include <wisdom/dx12/xdx12_views.h>
+#include <wisdom/global/internal.h>
+#include <wisdom/xdx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
-#include <d3dx12/d3dx12_root_signature.h>
-#include <memory>
 
 namespace wis {
 class DX12RootSignature;

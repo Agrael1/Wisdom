@@ -2,11 +2,11 @@
 #include <wisdom/xdx12/dx12_fence.h>
 #include <wisdom/xdx12/dx12_command_queue.h>
 #include <wisdom/xdx12/dx12_command_list.h>
-//#include <wisdom/dx12/xdx12_allocator.h>
-//#include <wisdom/dx12/xdx12_root_signature.h>
-//#include <wisdom/dx12/xdx12_shader.h>
-//#include <wisdom/dx12/xdx12_pipeline_state.h>
-//#include <wisdom/dx12/dx12_structs.hpp>
+#include <wisdom/xdx12/dx12_pipeline_state.h>
+#include <wisdom/xdx12/dx12_root_signature.h>
+#include <wisdom/generated/dx12/dx12_structs.hpp>
+// #include <wisdom/dx12/xdx12_allocator.h>
+// #include <wisdom/dx12/xdx12_shader.h>
 
 namespace wis {
 class DX12Device;
@@ -45,18 +45,20 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12CommandList>
     CreateCommandList(wis::QueueType type) const noexcept;
 
-    /*[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
-    CreateAllocator() const noexcept;
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12PipelineState>
+    CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12RootSignature>
     CreateRootSignature(RootConstant* root_constants = nullptr, uint32_t constants_size = 0) const noexcept;
 
+    /*[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
+    CreateAllocator() const noexcept;
+
+
+
 
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Shader>
     CreateShader(void* data, size_t size) const noexcept;
-
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12PipelineState>
-    CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept;
 */
 };
 
@@ -65,5 +67,5 @@ DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter)
 } // namespace wis
 
 #ifdef WISDOM_HEADER_ONLY
-#include <wisdom/dx12/impl/dx12_device.h>
+#include "impl/dx12_device.h"
 #endif // !WISDOM_HEADER_ONLY

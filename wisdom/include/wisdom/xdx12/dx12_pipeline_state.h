@@ -1,5 +1,5 @@
 #pragma once
-#include <wisdom/api/internal.h>
+#include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <d3d12.h>
 
