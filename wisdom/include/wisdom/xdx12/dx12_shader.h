@@ -1,6 +1,6 @@
 #pragma once
-#include <wisdom/api/internal.h>
-#include <wisdom/dx12/xdx12_views.h>
+#include <wisdom/global/internal.h>
+#include <wisdom/xdx12/dx12_views.h>
 #include <memory>
 
 namespace wis {
