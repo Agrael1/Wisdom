@@ -6,6 +6,7 @@
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
 #include <d3dx12/d3dx12_root_signature.h>
 #include <wisdom/util/small_allocator.h>
+#include <wisdom/util/misc.h>
 
 std::pair<wis::Result, wis::DX12Device>
 wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept
@@ -311,6 +312,18 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
                          DX12PipelineState{} };
 }
 
+std::pair<wis::Result, wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
+                                                                      size_t size) const noexcept
+{
+    auto x = wis::detail::make_unique_for_overwrite<std::byte[]>(size);
+    if (!x)
+        return std::pair{ wis::make_result<FUNC, "Failed to allocate memory for shader bytecode">(E_OUTOFMEMORY),
+                          DX12Shader{} };
+
+    std::copy_n(reinterpret_cast<std::byte*>(data), size, x.get());
+    return std::pair{ wis::success, DX12Shader{ std::move(x), size } };
+}
+
 // std::pair<wis::Result, wis::DX12ResourceAllocator>
 // wis::DX12Device::CreateAllocator() const noexcept {
 //   D3D12MA::ALLOCATOR_DESC desc{.Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
@@ -324,14 +337,5 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
 //              ? std::pair{wis::success, DX12ResourceAllocator{std::move(allocator)}}
 //              : std::pair{wis::make_result<FUNC, "Failed to create allocator">(hr),
 //                          DX12ResourceAllocator{}};
-// }
-//
-
-//
-// std::pair<wis::Result, wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
-//                                                                       size_t size) const noexcept {
-//   auto x = std::make_unique_for_overwrite<std::byte[]>(size);
-//   std::copy_n(reinterpret_cast<std::byte*>(data), size, x.get());
-//   return std::pair{wis::success, DX12Shader{std::move(x), size}};
 // }
 //

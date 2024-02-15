@@ -1,6 +1,6 @@
 #pragma once
-#include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_views.h>
+#include <wisdom/global/internal.h>
+#include <wisdom/xvulkan/vk_views.h>
 
 namespace wis {
 class VKShader;
