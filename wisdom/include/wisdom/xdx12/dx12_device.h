@@ -5,8 +5,8 @@
 #include <wisdom/xdx12/dx12_pipeline_state.h>
 #include <wisdom/xdx12/dx12_root_signature.h>
 #include <wisdom/xdx12/dx12_shader.h>
+#include <wisdom/xdx12/dx12_allocator.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
-// #include <wisdom/dx12/xdx12_allocator.h>
 
 namespace wis {
 class DX12Device;
@@ -54,8 +54,8 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Shader>
     CreateShader(void* data, size_t size) const noexcept;
 
-    /*[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
-    CreateAllocator() const noexcept;*/
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
+    CreateAllocator() const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device>

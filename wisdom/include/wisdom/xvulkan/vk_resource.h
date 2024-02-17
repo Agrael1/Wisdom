@@ -10,7 +10,7 @@ struct Internal<VKBuffer> {
     wis::shared_handle<VmaAllocator> allocator;
     VmaAllocation allocation;
     VkBuffer buffer;
-    ~Internal()
+    ~Internal() noexcept
     {
         if (buffer) {
             vmaDestroyBuffer(allocator.get(), buffer, allocation);

@@ -6,8 +6,8 @@
 #include <wisdom/xvulkan/vk_pipeline_state.h>
 #include <wisdom/xvulkan/vk_root_signature.h>
 #include <wisdom/xvulkan/vk_shader.h>
+#include <wisdom/xvulkan/vk_allocator.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
-// #include <wisdom/vulkan/xvk_allocator.h>
 // #include <wisdom/vulkan/xvk_descriptors.h>
 // #include <wisdom/vulkan/xvk_swapchain.h>
 // #include <vector>
@@ -86,17 +86,10 @@ public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKShader>
     CreateShader(void* bytecode, uint32_t size) const noexcept;
 
-    /*[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKResourceAllocator>
+    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKResourceAllocator>
     CreateAllocator() const noexcept;
 
-
-
-
-
-
-
-
-
+/*
 public:
     [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
     VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const SwapchainDesc* desc) const noexcept;*/

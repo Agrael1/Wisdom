@@ -1,7 +1,6 @@
 #pragma once
-#include <wisdom/api/api.h>
-#include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_resource.h>
+#include <wisdom/xvulkan/vk_resource.h>
+#include <wisdom/xvulkan/vk_checks.h>
 
 namespace wis {
 class VKResourceAllocator;
@@ -156,22 +155,9 @@ public:
     //    }
     //
 private:
-    [[nodiscard]] std::pair<wis::Result, VKBuffer>
-    CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
-    {
-        VmaAllocation allocation;
-        VkBuffer buffer;
-        VkResult result = vmaCreateBuffer(
-                allocator.get(),
-                &desc,
-                &alloc_desc,
-                &buffer,
-                &allocation,
-                nullptr);
-        return wis::succeeded(result)
-                ? std::make_pair(wis::success, VKBuffer{ allocator, buffer, allocation })
-                : std::make_pair(wis::make_result<FUNC, "Buffer allocation failed">(result), VKBuffer{});
-    }
+    WIS_INLINE [[nodiscard]] std::pair<wis::Result, VKBuffer>
+    CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+
     //    [[nodiscard]] VKTexture
     //    CreateTexture(const vk::ImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
     //    {
@@ -194,6 +180,6 @@ private:
 };
 } // namespace wis
 
-#ifndef WISDOM_HEADER_ONLY
-#include <wisdom/vulkan/impl/vk_allocator.h>
+#ifdef WISDOM_HEADER_ONLY
+#include "impl/vk_allocator.cpp"
 #endif // !WISDOM_HEADER_ONLY

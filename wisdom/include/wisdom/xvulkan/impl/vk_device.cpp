@@ -775,15 +775,40 @@ std::pair<wis::Result, wis::VKShader> wis::VKDevice::CreateShader(void* bytecode
                          wis::VKShader{} };
 }
 
-// std::pair<wis::Result, wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept {
-//   auto [result, allocator] = CreateAllocatorI();
-//   return result.status == wis::Status::Ok
-//              ? std::pair{wis::success,
-//                          VKResourceAllocator{wis::shared_handle<VmaAllocator>{device, allocator},
-//                                              allocator_functions}}
-//              : std::pair{result, VKResourceAllocator{}};
-// }
-//
+std::pair<wis::Result, wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
+{
+    auto [result, allocator] = CreateAllocatorI();
+    return result.status == wis::Status::Ok
+            ? std::pair{ wis::success,
+                         VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, allocator },
+                                              allocator_functions } }
+            : std::pair{ result, VKResourceAllocator{} };
+}
+
+std::pair<wis::Result, VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
+{
+    uint32_t version = 0;
+    auto& gt = wis::Internal<VKFactory>::global_table;
+    auto& it = *GetInstanceTable();
+    auto& dt = *device.table();
+    gt.vkEnumerateInstanceVersion(&version);
+
+    VmaAllocatorCreateInfo allocatorInfo{
+        .flags = 0,
+        .physicalDevice = std::get<0>(adapter),
+        .device = device.get(),
+        .pVulkanFunctions = allocator_functions.get(),
+        .instance = instance.get(),
+        .vulkanApiVersion = version,
+    };
+
+    VmaAllocator al;
+    VkResult vr;
+    return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
+            ? std::make_pair(wis::success, al)
+            : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr),
+                             VmaAllocator{});
+}
 
 // std::pair<wis::Result, VkDescriptorSetLayout>
 // wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept {
@@ -813,31 +838,6 @@ std::pair<wis::Result, wis::VKShader> wis::VKDevice::CreateShader(void* bytecode
 //              : std::pair{wis::make_result<FUNC, "Failed to create a descriptor set layout">(vr),
 //                          VkDescriptorSetLayout{}};
 // }
-//
-// std::pair<wis::Result, VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept {
-//   uint32_t version = 0;
-//   auto& gt = wis::Internal<VKFactory>::global_table;
-//   auto& it = *GetInstanceTable();
-//   auto& dt = *device.table();
-//   gt.vkEnumerateInstanceVersion(&version);
-//
-//   VmaAllocatorCreateInfo allocatorInfo{
-//       .flags = 0,
-//       .physicalDevice = std::get<0>(adapter),
-//       .device = device.get(),
-//       .pVulkanFunctions = allocator_functions.get(),
-//       .instance = instance.get(),
-//       .vulkanApiVersion = version,
-//   };
-//
-//   VmaAllocator al;
-//   VkResult vr;
-//   return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
-//              ? std::make_pair(wis::success, al)
-//              : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr),
-//                               VmaAllocator{});
-// }
-//
 //
 
 // std::pair<wis::Result, wis::VKSwapChain>

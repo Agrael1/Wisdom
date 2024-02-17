@@ -47,8 +47,9 @@ int main() {
     auto fence = device.CreateFence();
     auto command_queue = device.CreateCommandQueue(wis::QueueType::Graphics);
     auto command_list = device.CreateCommandList(wis::QueueType::Graphics);
-    /*auto allocator = device.CreateAllocator();
     auto root_signature = device.CreateRootSignature();
+    auto allocator = device.CreateAllocator();
+    /*
 
     wis::SwapchainDesc desc{
         .size = { uint32_t(window.GetWidth()), uint32_t(window.GetHeight()) },
@@ -87,8 +88,9 @@ int main() {
     auto fence = device.CreateFence();
     auto command_queue = device.CreateCommandQueue(wis::QueueType::Graphics);
     auto command_list = device.CreateCommandList(wis::QueueType::Graphics);
-    /*auto allocator = device.CreateAllocator();
     auto root_signature = device.CreateRootSignature();
+    auto allocator = device.CreateAllocator();
+    /*
 
     wis::SwapchainDesc desc{
         .size = { uint32_t(window.GetWidth()), uint32_t(window.GetHeight()) },
