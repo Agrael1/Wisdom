@@ -324,18 +324,18 @@ std::pair<wis::Result, wis::DX12Shader> wis::DX12Device::CreateShader(void* data
     return std::pair{ wis::success, DX12Shader{ std::move(x), size } };
 }
 
-// std::pair<wis::Result, wis::DX12ResourceAllocator>
-// wis::DX12Device::CreateAllocator() const noexcept {
-//   D3D12MA::ALLOCATOR_DESC desc{.Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
-//                                .pDevice = device.get(),
-//                                .PreferredBlockSize = 0,
-//                                .pAllocationCallbacks = nullptr,
-//                                .pAdapter = adapter.get()};
-//   wis::com_ptr<D3D12MA::Allocator> allocator;
-//   HRESULT hr;
-//   return wis::succeeded(hr = D3D12MA::CreateAllocator(&desc, allocator.put()))
-//              ? std::pair{wis::success, DX12ResourceAllocator{std::move(allocator)}}
-//              : std::pair{wis::make_result<FUNC, "Failed to create allocator">(hr),
-//                          DX12ResourceAllocator{}};
-// }
-//
+std::pair<wis::Result, wis::DX12ResourceAllocator>
+wis::DX12Device::CreateAllocator() const noexcept
+{
+    D3D12MA::ALLOCATOR_DESC desc{ .Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
+                                  .pDevice = device.get(),
+                                  .PreferredBlockSize = 0,
+                                  .pAllocationCallbacks = nullptr,
+                                  .pAdapter = adapter.get() };
+    wis::com_ptr<D3D12MA::Allocator> allocator;
+    HRESULT hr;
+    return wis::succeeded(hr = D3D12MA::CreateAllocator(&desc, allocator.put()))
+            ? std::pair{ wis::success, DX12ResourceAllocator{ std::move(allocator) } }
+            : std::pair{ wis::make_result<FUNC, "Failed to create allocator">(hr),
+                         DX12ResourceAllocator{} };
+}
