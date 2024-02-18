@@ -19,6 +19,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/vk_resource.h"
 			"include/wisdom/xvulkan/vk_shader.h"
 			"include/wisdom/xvulkan/vk_allocator.h"
+			"include/wisdom/xvulkan/vk_swapchain.h"
 		SOURCES
 			"include/wisdom/xvulkan/impl/vk_factory.cpp"
 			"include/wisdom/xvulkan/impl/vk_allocator.cpp"
@@ -26,6 +27,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/impl/vk_fence.cpp"
 			"include/wisdom/xvulkan/impl/vk_device.cpp"
 			"include/wisdom/xvulkan/impl/vk_command_queue.cpp"
+			"include/wisdom/xvulkan/impl/vk_swapchain.cpp"
 			
 		DEFINITIONS 
 			WISDOM_VULKAN=1
