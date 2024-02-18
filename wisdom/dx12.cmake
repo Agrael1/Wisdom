@@ -19,12 +19,14 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/xdx12/dx12_resource.h"
 			"include/wisdom/xdx12/dx12_shader.h"
 			"include/wisdom/xdx12/dx12_allocator.h"
+			"include/wisdom/xdx12/dx12_swapchain.h"
 		SOURCES
 			"include/wisdom/xdx12/impl/dx12_allocator.cpp"
 			"include/wisdom/xdx12/impl/dx12_factory.cpp"
 			"include/wisdom/xdx12/impl/dx12_info.cpp"
 			"include/wisdom/xdx12/impl/dx12_fence.cpp"
 			"include/wisdom/xdx12/impl/dx12_device.cpp"
+			"include/wisdom/xdx12/impl/dx12_swapchain.cpp"
 		LIBS
 			DX12Agility
 			DX12Allocator

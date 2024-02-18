@@ -1,8 +1,7 @@
 #pragma once
-#include <wisdom/api/consts.h>
-#include <wisdom/api/internal.h>
-#include <wisdom/vulkan/xvk_views.h>
-#include <wisdom/vulkan/xvk_command_queue.h>
+#include <wisdom/global/internal.h>
+#include <wisdom/xvulkan/vk_views.h>
+#include <wisdom/xvulkan/vk_command_queue.h>
 
 namespace wis {
 class VKSwapChain;
@@ -18,8 +17,8 @@ struct VKSwapChainCreateInfo {
 template<>
 struct Internal<VKSwapChain> {
     wis::managed_handle_ex<VkSwapchainKHR> swapchain;
-    std::unique_ptr<VkImage[]> back_buffers;
-    uint32_t back_buffer_count = 0;
+    //std::unique_ptr<VkImage[]> back_buffers;
+    //uint32_t back_buffer_count = 0;
 };
 
 class VKSwapChain : public QueryInternal<VKSwapChain>
@@ -29,8 +28,6 @@ public:
     VKSwapChain(detail::VKSwapChainCreateInfo info) noexcept
         : QueryInternal(std::move(info.swapchain)), present_queue(std::move(info.present_queue))
     {
-        auto& device = swapchain.header().parent;
-        auto vr = device.table()->vkGetSwapchainImagesKHR(device.get(), swapchain.get(), &back_buffer_count, nullptr);
     }
     operator bool() const noexcept
     {
@@ -38,8 +35,8 @@ public:
     }
 
 private:
-    WIS_INLINE void
-    GetBuffers() noexcept;
+    //WIS_INLINE void
+    //GetBuffers() noexcept;
 
 private:
     VKCommandQueue present_queue;
