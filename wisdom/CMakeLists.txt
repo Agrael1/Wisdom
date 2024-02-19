@@ -19,7 +19,7 @@ target_sources(${PROJECT_NAME}
         "include/wisdom/global/internal.h"
         "include/wisdom/util/com_ptr.h"
 
-        "include/wisdom/wisdom.h"
+        
         "include/wisdom/wisdom.hpp"
         "include/wisdom/util/log_layer.h"
         "include/wisdom/util/flags.h"
@@ -31,7 +31,7 @@ target_sources(${PROJECT_NAME}
         "include/wisdom/api/api_adapter.h"
         "include/wisdom/api/api_swapchain.h"
         "include/wisdom/api/api_barrier.h"
-        "include/wisdom/shader_compiler.h"
+        "include/wisdom/util/shader_compiler.h"
         "include/wisdom/api/api_shader.h"
         "include/wisdom/api/api_input_layout.h"
         "include/wisdom/util/profile.h"

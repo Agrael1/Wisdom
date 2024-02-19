@@ -37,7 +37,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			wis::wisvk
 	)
 
-	target_include_directories(${PROJECT_NAME} PUBLIC
+	target_include_directories(${PROJECT_NAME} ${WISDOM_PUBLIC}
 		${Vulkan_INCLUDE_DIRS}
 	)
 endif()

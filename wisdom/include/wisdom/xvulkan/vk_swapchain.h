@@ -1,47 +1,91 @@
 #pragma once
 #include <wisdom/global/internal.h>
-#include <wisdom/xvulkan/vk_views.h>
-#include <wisdom/xvulkan/vk_command_queue.h>
+#include <wisdom/xvulkan/vk_resource.h>
+#include <wisdom/xvulkan/vk_command_list.h>
 
 namespace wis {
 class VKSwapChain;
 class VKDevice;
 
 namespace detail {
-struct VKSwapChainCreateInfo {
+struct SwapChainCreateInfo {
     wis::managed_handle_ex<VkSwapchainKHR> swapchain;
-    VKCommandQueue present_queue;
+    std::unique_ptr<VKTexture[]> back_buffers;
+    uint32_t back_buffer_count = 0;
+    VkFormat format = VK_FORMAT_UNDEFINED;
+
+    VkCommandBuffer initialization = nullptr;
+    VkCommandPool command_pool = nullptr;
+    VkQueue present_queue = nullptr;
+
+    SwapChainCreateInfo() = default;
+    SwapChainCreateInfo(wis::managed_handle_ex<VkSwapchainKHR> swapchain,
+                        VkCommandBuffer initialization,
+                        VkCommandPool command_pool,
+                        VkQueue present_queue,
+                        VkFormat format) noexcept
+        : swapchain(std::move(swapchain))
+        , initialization(initialization)
+        , command_pool(command_pool)
+        , present_queue(present_queue)
+        , format(format)
+    {
+    }
+    SwapChainCreateInfo(const SwapChainCreateInfo&) = delete;
+    SwapChainCreateInfo(SwapChainCreateInfo&& o) noexcept
+        : swapchain(std::move(o.swapchain))
+        , back_buffers(std::move(o.back_buffers))
+        , back_buffer_count(o.back_buffer_count)
+        , initialization(std::exchange(o.initialization, nullptr))
+        , command_pool(std::exchange(o.command_pool, nullptr))
+        , present_queue(std::exchange(o.present_queue, nullptr))
+        , format(o.format)
+    {
+    }
+
+    ~SwapChainCreateInfo() noexcept
+    {
+        if (!swapchain)
+            return;
+
+        auto& table = *swapchain.header().parent.table();
+        if (command_pool) {
+            table.vkDestroyCommandPool(swapchain.header().parent.get(), command_pool, nullptr);
+        }
+    }
+
+public:
+    [[nodiscard]] WIS_INLINE wis::Result CreateBackBuffers() noexcept;
 };
 } // namespace detail
 
 template<>
-struct Internal<VKSwapChain> {
-    wis::managed_handle_ex<VkSwapchainKHR> swapchain;
-    //std::unique_ptr<VkImage[]> back_buffers;
-    //uint32_t back_buffer_count = 0;
+struct Internal<VKSwapChain> : detail::SwapChainCreateInfo {
 };
 
 class VKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
     VKSwapChain() = default;
-    VKSwapChain(detail::VKSwapChainCreateInfo info) noexcept
-        : QueryInternal(std::move(info.swapchain)), present_queue(std::move(info.present_queue))
+    explicit VKSwapChain(SwapChainCreateInfo internals) noexcept
+        : QueryInternal(std::move(internals))
     {
     }
     operator bool() const noexcept
     {
         return bool(swapchain);
     }
+private:
+    // WIS_INLINE void
+    // GetBuffers() noexcept;
 
 private:
-    //WIS_INLINE void
-    //GetBuffers() noexcept;
-
-private:
-    VKCommandQueue present_queue;
 };
 } // namespace wis
+
+#ifdef WISDOM_HEADER_ONLY
+#include "impl/vk_swapchain.cpp"
+#endif // !WISDOM_HEADER_ONLY
 
 // namespace wis {
 // class VKSwapChain;

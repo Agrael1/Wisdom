@@ -102,7 +102,7 @@ private:
     wis::DeviceFeatures features;
 };
 
-WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::VKDevice>
+[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKDevice>
 VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept;
 
 } // namespace wis

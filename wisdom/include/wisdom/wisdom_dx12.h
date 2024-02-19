@@ -1,5 +1,5 @@
 #pragma once
 
-#include "dx12/xdx12_factory.h"
-#include "dx12/xdx12_swapchain.h"
-#include "dx12/xdx12_device.h"
+#include "xdx12/dx12_factory.h"
+#include "xdx12/dx12_swapchain.h"
+#include "xdx12/dx12_device.h"

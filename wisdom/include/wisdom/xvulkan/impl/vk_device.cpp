@@ -13,7 +13,7 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/xvulkan/vk_factory.h>
 
-constexpr inline std::array required_extensions{
+constexpr static inline std::array required_extensions{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, // for Swapchain
     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, // for Fence
 
@@ -936,13 +936,44 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     if (!succeeded(result))
         return { wis::make_result<FUNC, "Failed to create a swapchain">(result), wis::VKSwapChain{} };
 
-    detail::VKSwapChainCreateInfo create_info{
-        .swapchain = wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device,
-                                                             device.table()->vkDestroySwapchainKHR },
-        .present_queue = wis::VKCommandQueue{ device, VkQueue{ qpresent_queue } },
+    VkCommandPoolCreateInfo cmd_pool_create_info{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .queueFamilyIndex = queues.GetOfType(wis::QueueType::Graphics)->family_index,
+    };
+    VkCommandPool cmd_pool;
+    result = device.table()->vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
+    if (!succeeded(result))
+        return { wis::make_result<FUNC, "Failed to create a command pool">(result),
+                 wis::VKSwapChain{} };
+
+    VkCommandBufferAllocateInfo cmd_buf_alloc_info{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext = nullptr,
+        .commandPool = cmd_pool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
     };
 
-    return std::pair{ wis::success, wis::VKSwapChain{ std::move(create_info) } };
+    VkCommandBuffer cmd_buf;
+    result = device.table()->vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
+    if (!succeeded(result))
+        return { wis::make_result<FUNC, "Failed to allocate a command buffer">(result),
+                 wis::VKSwapChain{} };
+
+    wis::detail::SwapChainCreateInfo sci{
+        wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR },
+        cmd_buf, cmd_pool, qpresent_queue, swap_info.imageFormat
+    };
+
+    auto rres = sci.CreateBackBuffers();
+    if (rres.status != wis::Status::Ok)
+        return { rres, wis::VKSwapChain{} };
+
+    return std::pair{
+        wis::success, wis::VKSwapChain{ std::move(sci) }
+    };
 }
 
 // std::pair<wis::Result, VkDescriptorSetLayout>

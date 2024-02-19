@@ -2,7 +2,6 @@
 #include <example/window.h>
 // #define WISDOM_FORCE_VULKAN
 // #undef WISDOM_FORCE_VULKAN
-// #include <wisdom/wisdom.hpp>
 #include <wisdom/platform/win32.h>
 #include <iostream>
 #include <wisdom/xdx12/dx12_device.h>

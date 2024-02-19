@@ -143,5 +143,5 @@ private:
 } // namespace wis
 
 #ifdef WISDOM_HEADER_ONLY
-#include "impl/dx12_allocator.h"
+#include "impl/dx12_allocator.cpp"
 #endif // !WISDOM_HEADER_ONLY
