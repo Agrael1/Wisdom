@@ -63,5 +63,5 @@ DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter)
 } // namespace wis
 
 #ifdef WISDOM_HEADER_ONLY
-#include "impl/dx12_device.h"
+#include "impl/dx12_device.cpp"
 #endif // !WISDOM_HEADER_ONLY

@@ -33,5 +33,5 @@ private:
 } // namespace wis
 
 #ifdef WISDOM_HEADER_ONLY
-#include "impl/dx12_swapchain.h"
+#include "impl/dx12_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY
