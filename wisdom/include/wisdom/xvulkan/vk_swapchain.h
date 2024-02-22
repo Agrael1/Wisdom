@@ -18,12 +18,17 @@ struct VKSwapChainCreateInfo {
     VkCommandPool command_pool = nullptr;
     VkQueue present_queue = nullptr;
 
+    mutable uint32_t present_index = 0;
+    VkSemaphore present_semaphore = nullptr;
+    VkSemaphore graphics_semaphore = nullptr;
+
+public:
     VKSwapChainCreateInfo() = default;
     VKSwapChainCreateInfo(wis::managed_handle_ex<VkSwapchainKHR> swapchain,
-                        VkCommandBuffer initialization,
-                        VkCommandPool command_pool,
-                        VkQueue present_queue,
-                        VkFormat format) noexcept
+                          VkCommandBuffer initialization,
+                          VkCommandPool command_pool,
+                          VkQueue present_queue,
+                          VkFormat format) noexcept
         : swapchain(std::move(swapchain))
         , initialization(initialization)
         , command_pool(command_pool)
@@ -56,6 +61,7 @@ struct VKSwapChainCreateInfo {
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() noexcept;
 };
 } // namespace detail
 
@@ -75,11 +81,14 @@ public:
     {
         return bool(swapchain);
     }
-private:
-    // WIS_INLINE void
-    // GetBuffers() noexcept;
 
-private:
+public:
+    /// @brief Get the current image index in the swapchain
+    /// @return Index of the current image
+    [[nodiscard]] uint32_t GetNextIndex() const noexcept
+    {
+        return present_index;
+    }
 };
 } // namespace wis
 

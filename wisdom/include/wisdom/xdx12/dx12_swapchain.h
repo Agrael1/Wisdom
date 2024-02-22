@@ -36,9 +36,13 @@ public:
     operator bool() const noexcept { return bool(chain); }
 
 public:
-private:
-    //WIS_INLINE void
-    //GetBuffers() noexcept;
+    /// @brief Get the current image index in the swapchain
+    /// @return Index of the current image
+    [[nodiscard]] uint32_t
+    GetNextIndex() const noexcept
+    {
+        return chain->GetCurrentBackBufferIndex();
+    }
 };
 } // namespace wis
 

@@ -30,5 +30,23 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
     for (uint32_t i = 0; i < back_buffer_count; ++i) {
         back_buffers[i] = VKTexture{ format, allocator.data()[i] };
     }
-    return wis::success;
+    return AquireNextIndex();
+}
+
+wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() noexcept
+{
+    auto& table = *swapchain.header().parent.table();
+    auto device = swapchain.header().parent.get();
+    auto result = table.vkAcquireNextImageKHR(device, swapchain.get(), std::numeric_limits<uint64_t>::max(), present_semaphore, nullptr, &present_index);
+
+    VkPipelineStageFlags stage_mask = VkPipelineStageFlagBits::VK_PIPELINE_STAGE_TRANSFER_BIT;
+    VkSubmitInfo signal_submit_info{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &present_semaphore,
+        .pWaitDstStageMask = &stage_mask,
+    };
+    result = table.vkQueueSubmit(present_queue, 1, &signal_submit_info, nullptr);
+    return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
 }
