@@ -8,7 +8,7 @@ class VKSwapChain;
 class VKDevice;
 
 namespace detail {
-struct SwapChainCreateInfo {
+struct VKSwapChainCreateInfo {
     wis::managed_handle_ex<VkSwapchainKHR> swapchain;
     std::unique_ptr<VKTexture[]> back_buffers;
     uint32_t back_buffer_count = 0;
@@ -18,8 +18,8 @@ struct SwapChainCreateInfo {
     VkCommandPool command_pool = nullptr;
     VkQueue present_queue = nullptr;
 
-    SwapChainCreateInfo() = default;
-    SwapChainCreateInfo(wis::managed_handle_ex<VkSwapchainKHR> swapchain,
+    VKSwapChainCreateInfo() = default;
+    VKSwapChainCreateInfo(wis::managed_handle_ex<VkSwapchainKHR> swapchain,
                         VkCommandBuffer initialization,
                         VkCommandPool command_pool,
                         VkQueue present_queue,
@@ -31,8 +31,8 @@ struct SwapChainCreateInfo {
         , format(format)
     {
     }
-    SwapChainCreateInfo(const SwapChainCreateInfo&) = delete;
-    SwapChainCreateInfo(SwapChainCreateInfo&& o) noexcept
+    VKSwapChainCreateInfo(const VKSwapChainCreateInfo&) = delete;
+    VKSwapChainCreateInfo(VKSwapChainCreateInfo&& o) noexcept
         : swapchain(std::move(o.swapchain))
         , back_buffers(std::move(o.back_buffers))
         , back_buffer_count(o.back_buffer_count)
@@ -43,7 +43,7 @@ struct SwapChainCreateInfo {
     {
     }
 
-    ~SwapChainCreateInfo() noexcept
+    ~VKSwapChainCreateInfo() noexcept
     {
         if (!swapchain)
             return;
@@ -55,19 +55,19 @@ struct SwapChainCreateInfo {
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::Result CreateBackBuffers() noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
 };
 } // namespace detail
 
 template<>
-struct Internal<VKSwapChain> : detail::SwapChainCreateInfo {
+struct Internal<VKSwapChain> : detail::VKSwapChainCreateInfo {
 };
 
 class VKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
     VKSwapChain() = default;
-    explicit VKSwapChain(SwapChainCreateInfo internals) noexcept
+    explicit VKSwapChain(detail::VKSwapChainCreateInfo internals) noexcept
         : QueryInternal(std::move(internals))
     {
     }

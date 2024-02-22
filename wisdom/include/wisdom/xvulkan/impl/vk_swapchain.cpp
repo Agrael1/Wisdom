@@ -7,7 +7,7 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/util/small_allocator.h>
 
-wis::Result wis::detail::SwapChainCreateInfo::CreateBackBuffers() noexcept
+wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
 {
     auto& table = *swapchain.header().parent.table();
     uint32_t new_back_buffer_count = 0;
