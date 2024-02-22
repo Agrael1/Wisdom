@@ -962,12 +962,12 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
         return { wis::make_result<FUNC, "Failed to allocate a command buffer">(result),
                  wis::VKSwapChain{} };
 
-    wis::detail::SwapChainCreateInfo sci{
+    wis::detail::VKSwapChainCreateInfo sci{
         wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR },
         cmd_buf, cmd_pool, qpresent_queue, swap_info.imageFormat
     };
 
-    auto rres = sci.CreateBackBuffers();
+    auto rres = sci.InitBackBuffers();
     if (rres.status != wis::Status::Ok)
         return { rres, wis::VKSwapChain{} };
 

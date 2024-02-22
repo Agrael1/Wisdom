@@ -34,7 +34,7 @@ wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
     D3D11CreateDevice(nullptr,
                       D3D_DRIVER_TYPE_HARDWARE,
                       nullptr, 0,
-                      featureLevels, 3, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
+                      featureLevels, 2, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
     return device11;
 }
 
@@ -72,9 +72,21 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
         };
     }
     auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
-    return wis::succeeded(hrx)
-            ? std::pair{ wis::success, DX12SwapChain{ std::move(swap4) } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create swapchain">(hr), DX12SwapChain{} };
+    if (!wis::succeeded(hrx)) {
+        return std::pair{
+            wis::make_result<FUNC, "Failed to create swapchain for HWND">(hr), DX12SwapChain{}
+        };
+    }
+
+    wis::detail::DX12SwapChainCreateInfo create_info{
+        .chain = std::move(swap4),
+    };
+    if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
+        return std::pair{ resw, DX12SwapChain{} };
+
+    return std::pair{
+        wis::success, DX12SwapChain{ std::move(create_info) }
+    };
 }
 
 std::pair<wis::Result, wis::DX12SwapChain>
@@ -108,9 +120,21 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
         };
     }
     auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
-    return wis::succeeded(hrx)
-            ? std::pair{ wis::success, DX12SwapChain{ std::move(swap4) } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create swapchain">(hr), DX12SwapChain{} };
+    if (!wis::succeeded(hrx)) {
+        return std::pair{
+            wis::make_result<FUNC, "Failed to create swapchain for core window">(hr), DX12SwapChain{}
+        };
+    }
+
+    wis::detail::DX12SwapChainCreateInfo create_info{
+        .chain = std::move(swap4),
+    };
+    if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
+        return std::pair{ resw, DX12SwapChain{} };
+
+    return std::pair{
+        wis::success, DX12SwapChain{ std::move(create_info) }
+    };
 }
 
 #ifdef WISDOM_VULKAN
