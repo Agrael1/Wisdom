@@ -14,13 +14,13 @@ struct VKSwapChainCreateInfo {
     uint32_t back_buffer_count = 0;
     VkFormat format = VK_FORMAT_UNDEFINED;
 
-    VkCommandBuffer initialization = nullptr;
-    VkCommandPool command_pool = nullptr;
-    VkQueue present_queue = nullptr;
+    h::VkCommandBuffer initialization = nullptr;
+    h::VkCommandPool command_pool = nullptr;
+    h::VkQueue present_queue = nullptr;
 
     mutable uint32_t present_index = 0;
-    VkSemaphore present_semaphore = nullptr;
-    VkSemaphore graphics_semaphore = nullptr;
+    h::VkSemaphore present_semaphore = nullptr;
+    h::VkSemaphore graphics_semaphore = nullptr;
 
 public:
     VKSwapChainCreateInfo() = default;
@@ -37,16 +37,9 @@ public:
     {
     }
     VKSwapChainCreateInfo(const VKSwapChainCreateInfo&) = delete;
-    VKSwapChainCreateInfo(VKSwapChainCreateInfo&& o) noexcept
-        : swapchain(std::move(o.swapchain))
-        , back_buffers(std::move(o.back_buffers))
-        , back_buffer_count(o.back_buffer_count)
-        , initialization(std::exchange(o.initialization, nullptr))
-        , command_pool(std::exchange(o.command_pool, nullptr))
-        , present_queue(std::exchange(o.present_queue, nullptr))
-        , format(o.format)
-    {
-    }
+    VKSwapChainCreateInfo& operator=(const VKSwapChainCreateInfo&) = delete;
+    VKSwapChainCreateInfo(VKSwapChainCreateInfo&&) noexcept = default;
+    VKSwapChainCreateInfo& operator=(VKSwapChainCreateInfo&&) noexcept = default;
 
     ~VKSwapChainCreateInfo() noexcept
     {
@@ -54,14 +47,18 @@ public:
             return;
 
         auto& table = *swapchain.header().parent.table();
-        if (command_pool) {
-            table.vkDestroyCommandPool(swapchain.header().parent.get(), command_pool, nullptr);
-        }
+        auto device = swapchain.header().parent.get();
+        ReleaseSemaphore();
+        table.vkDestroyCommandPool(device, command_pool, nullptr);
+        table.vkDestroySemaphore(device, present_semaphore, nullptr);
+        table.vkDestroySemaphore(device, graphics_semaphore, nullptr);
     }
 
 public:
+    [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() noexcept;
+    WIS_INLINE void ReleaseSemaphore() noexcept;
 };
 } // namespace detail
 

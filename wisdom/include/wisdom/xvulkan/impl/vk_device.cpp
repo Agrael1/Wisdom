@@ -967,9 +967,14 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
         cmd_buf, cmd_pool, qpresent_queue, swap_info.imageFormat
     };
 
-    auto rres = sci.InitBackBuffers();
+    auto rres = sci.InitSemaphores();
     if (rres.status != wis::Status::Ok)
         return { rres, wis::VKSwapChain{} };
+
+    rres = sci.InitBackBuffers();
+    if (rres.status != wis::Status::Ok)
+        return { rres, wis::VKSwapChain{} };
+
 
     return std::pair{
         wis::success, wis::VKSwapChain{ std::move(sci) }
