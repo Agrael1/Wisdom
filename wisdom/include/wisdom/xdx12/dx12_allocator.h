@@ -16,8 +16,8 @@ class DX12ResourceAllocator : public QueryInternal<DX12ResourceAllocator>
 {
 public:
     DX12ResourceAllocator() = default;
-    explicit DX12ResourceAllocator(wis::com_ptr<D3D12MA::Allocator>) noexcept
-        : QueryInternal(std::move(allocator))
+    explicit DX12ResourceAllocator(wis::com_ptr<D3D12MA::Allocator> in_allocator) noexcept
+        : QueryInternal(std::move(in_allocator))
     {
     }
     operator bool() const noexcept
@@ -137,7 +137,7 @@ public:
     //        return CreateTexture(t_desc, TextureFlags::DepthStencil);
     //    }
 private:
-    [[nodiscard]] std::pair<wis::Result, DX12Buffer>
+    [[nodiscard]] wis::ResultValue<DX12Buffer>
     CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 };
 } // namespace wis

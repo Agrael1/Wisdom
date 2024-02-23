@@ -105,6 +105,16 @@ int Generator::GenerateCPPAPI() {
 static inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
+
+template<typename RetTy>
+struct ResultValue{
+    Result status;
+    RetTy value;
+    
+    constexpr ResultValue(RetTy value)noexcept :status(success), value(std::move(value)){}
+    constexpr ResultValue(Result status)noexcept :status(status){}
+    constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)){}
+};
 )";
   output_api += "}\n";
 

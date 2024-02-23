@@ -206,7 +206,7 @@ wis::VKDevice::VKDevice(wis::shared_handle<VkInstance> instance,
     } };
 }
 
-std::pair<wis::Result, wis::VKDevice>
+wis::ResultValue<wis::VKDevice>
 wis::VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept
 {
     constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
@@ -338,7 +338,7 @@ wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences,
             : wis::make_result<FUNC, "vkWaitSemaphores failed to wait for fences.">(result);
 }
 
-std::pair<wis::Result, wis::VKFence>
+wis::ResultValue<wis::VKFence>
 wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 {
     VkSemaphoreTypeCreateInfo timeline_desc{
@@ -361,7 +361,7 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
             : std::pair{ wis::make_result<FUNC, "vkCreateSemaphore failed to create semaphore">(result), VKFence{} };
 }
 
-std::pair<wis::Result, wis::VKResourceAllocator>
+wis::ResultValue<wis::VKResourceAllocator>
 wis::VKDevice::CreateAllocator() const noexcept
 {
     auto [result, allocator] = CreateAllocatorI();
@@ -370,7 +370,7 @@ wis::VKDevice::CreateAllocator() const noexcept
             : std::pair{ result, VKResourceAllocator{} };
 }
 
-std::pair<wis::Result, wis::VKRootSignature>
+wis::ResultValue<wis::VKRootSignature>
 wis::VKDevice::CreateRootSignature(RootConstant* constants, uint32_t constants_size) const noexcept
 {
     wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size };
@@ -400,7 +400,7 @@ wis::VKDevice::CreateRootSignature(RootConstant* constants, uint32_t constants_s
             : std::pair{ wis::success, VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } } };
 }
 
-std::pair<wis::Result, VkDescriptorSetLayout>
+wis::ResultValue<VkDescriptorSetLayout>
 wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept
 {
     VkDescriptorSetLayoutBinding binding{
@@ -427,7 +427,7 @@ wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexce
             : std::pair{ wis::make_result<FUNC, "Failed to create a descriptor set layout">(vr), VkDescriptorSetLayout{} };
 }
 
-std::pair<wis::Result, VmaAllocator>
+wis::ResultValue<VmaAllocator>
 wis::VKDevice::CreateAllocatorI() const noexcept
 {
     uint32_t version = 0;
@@ -452,7 +452,7 @@ wis::VKDevice::CreateAllocatorI() const noexcept
             : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr), VmaAllocator{});
 }
 
-std::pair<wis::Result, wis::VKCommandQueue>
+wis::ResultValue<wis::VKCommandQueue>
 wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
 {
     (void)priority; // TODO: use priority
@@ -473,7 +473,7 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priori
     return { wis::success, wis::VKCommandQueue{ device, VkQueue{ queue_handle } } };
 }
 
-std::pair<wis::Result, wis::VKShader>
+wis::ResultValue<wis::VKShader>
 wis::VKDevice::CreateShader(void* bytecode, uint32_t size) const noexcept
 {
     VkShaderModuleCreateInfo desc{
@@ -511,7 +511,7 @@ inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderSta
 }
 } // namespace wis::detail
 
-std::pair<wis::Result, wis::VKPipelineState>
+wis::ResultValue<wis::VKPipelineState>
 wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
 {
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
@@ -774,7 +774,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
             : std::pair{ wis::make_result<FUNC, "Failed to create a graphics pipeline">(result), wis::VKPipelineState{} };
 }
 
-std::pair<wis::Result, wis::VKCommandList>
+wis::ResultValue<wis::VKCommandList>
 wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
 {
     VkCommandPoolCreateInfo cmd_pool_create_info{
@@ -804,7 +804,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
             : std::pair{ wis::make_result<FUNC, "Failed to allocate a command buffer">(result), wis::VKCommandList{} };
 }
 
-std::pair<wis::Result, wis::VKSwapChain>
+wis::ResultValue<wis::VKSwapChain>
 wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const SwapchainDesc* desc) const noexcept
 {
     auto itable = GetInstanceTable();

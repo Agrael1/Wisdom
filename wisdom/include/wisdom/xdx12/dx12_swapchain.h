@@ -17,8 +17,7 @@ struct DX12SwapChainCreateInfo {
 
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
 };
-}
-
+} // namespace detail
 
 template<>
 struct Internal<DX12SwapChain> : public detail::DX12SwapChainCreateInfo {
@@ -31,7 +30,6 @@ public:
     explicit DX12SwapChain(detail::DX12SwapChainCreateInfo&& swap_i) noexcept
         : QueryInternal(std::move(swap_i))
     {
-        
     }
     operator bool() const noexcept { return bool(chain); }
 

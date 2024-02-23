@@ -40,7 +40,7 @@ wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 
 } // namespace wis::detail
 
-std::pair<wis::Result, wis::DX12SwapChain>
+wis::ResultValue<wis::DX12SwapChain>
 wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
@@ -53,9 +53,7 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
 
     // until microsoft fixes this
     if (desc->stereo && !wis::succeeded(hr = devicei.factory->CreateSwapChainForHwnd(detail::CreateD3D11Device().get(), hwnd, &swap_desc, nullptr, nullptr, swap.put()))) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr), DX12SwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
     }
 
     hr = devicei.factory->CreateSwapChainForHwnd(
@@ -67,29 +65,23 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
             swap.put());
 
     if (!wis::succeeded(hr)) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr), DX12SwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
     }
     auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
     if (!wis::succeeded(hrx)) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create swapchain for HWND">(hr), DX12SwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create swapchain for HWND">(hr);
     }
 
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
-        return std::pair{ resw, DX12SwapChain{} };
+        return resw;
 
-    return std::pair{
-        wis::success, DX12SwapChain{ std::move(create_info) }
-    };
+    return DX12SwapChain{ std::move(create_info) };
 }
 
-std::pair<wis::Result, wis::DX12SwapChain>
+wis::ResultValue<wis::DX12SwapChain>
 wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
@@ -102,9 +94,7 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
 
     // until microsoft fixes this
     if (desc->stereo && !wis::succeeded(hr = devicei.factory->CreateSwapChainForCoreWindow(detail::CreateD3D11Device().get(), window, &swap_desc, nullptr, swap.put()))) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr), DX12SwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
     }
 
     hr = devicei.factory->CreateSwapChainForCoreWindow(
@@ -115,32 +105,26 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
             swap.put());
 
     if (!wis::succeeded(hr)) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create swapchain for core window">(hr), DX12SwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
     }
     auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
     if (!wis::succeeded(hrx)) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create swapchain for core window">(hr), DX12SwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
     }
 
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
-        return std::pair{ resw, DX12SwapChain{} };
+        return resw;
 
-    return std::pair{
-        wis::success, DX12SwapChain{ std::move(create_info) }
-    };
+    return DX12SwapChain{ std::move(create_info) };
 }
 
 #ifdef WISDOM_VULKAN
 #include <wisdom/xvulkan/vk_device.h>
 
-std::pair<wis::Result, wis::VKSwapChain>
+wis::ResultValue<wis::VKSwapChain>
 wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 {
     VkWin32SurfaceCreateInfoKHR surface_desc{
@@ -157,9 +141,7 @@ wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, cons
     VkSurfaceKHR surface;
     auto result = instance_table->vkCreateWin32SurfaceKHR(device.GetInternal().instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(result)) {
-        return std::pair{
-            wis::make_result<FUNC, "Failed to create Win32 surface">(result), VKSwapChain{}
-        };
+        return wis::make_result<FUNC, "Failed to create Win32 surface">(result);
     }
     wis::shared_handle<VkSurfaceKHR> surface_handle{ surface, device.GetInternal().instance, instance_table->vkDestroySurfaceKHR };
     return device.VKCreateSwapChain(surface_handle, desc);

@@ -149,8 +149,8 @@ wis::detail::QueueResidency GetQueueFamilies(wis::VKAdapterHandle adapter_hnd) n
     return queues;
 }
 
-std::pair<wis::Result, wis::VKDevice> wis::VKCreateDevice(wis::VKFactoryHandle factory,
-                                                          wis::VKAdapterHandle adapter) noexcept
+wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKFactoryHandle factory,
+                                                    wis::VKAdapterHandle adapter) noexcept
 {
     constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
     wis::detail::uniform_allocator<VkDeviceQueueCreateInfo, max_queue_count> queue_infos{};
@@ -340,7 +340,7 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
             : wis::make_result<FUNC, "vkWaitSemaphores failed to wait for fences.">(result);
 }
 
-std::pair<wis::Result, wis::VKFence>
+wis::ResultValue<wis::VKFence>
 wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 {
     VkSemaphoreTypeCreateInfo timeline_desc{
@@ -356,18 +356,15 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
         .flags = 0,
     };
     VkSemaphore sem;
-    VkResult result = VK_SUCCESS;
+    VkResult result = device.table()->vkCreateSemaphore(device.get(), &desc, nullptr, &sem);
 
-    return wis::succeeded(result =
-                                  device.table()->vkCreateSemaphore(device.get(), &desc, nullptr, &sem))
-            ? std::pair{ wis::success, VKFence{ { sem, device, device.table()->vkDestroySemaphore } } }
-            : std::pair{
-                  wis::make_result<FUNC, "vkCreateSemaphore failed to create semaphore">(result),
-                  VKFence{}
-              };
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "vkCreateSemaphore failed to create a timeline semaphore.">(result);
+
+    return VKFence{ { sem, device, device.table()->vkDestroySemaphore } };
 }
 
-std::pair<wis::Result, wis::VKCommandQueue>
+wis::ResultValue<wis::VKCommandQueue>
 wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
 {
     (void)priority; // TODO: use priority
@@ -387,10 +384,10 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priori
     };
     VkQueue queue_handle;
     device.table()->vkGetDeviceQueue2(device.get(), &info, &queue_handle);
-    return { wis::success, wis::VKCommandQueue{ device, VkQueue{ queue_handle } } };
+    return wis::VKCommandQueue{ device, VkQueue{ queue_handle } };
 }
 
-std::pair<wis::Result, wis::VKRootSignature>
+wis::ResultValue<wis::VKRootSignature>
 wis::VKDevice::CreateRootSignature(RootConstant* constants,
                                    uint32_t constants_size) const noexcept
 {
@@ -417,12 +414,10 @@ wis::VKDevice::CreateRootSignature(RootConstant* constants,
     auto vr =
             device.table()->vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
 
-    return !succeeded(vr)
-            ? std::pair{ wis::make_result<FUNC, "Failed to create a pipeline layout">(vr),
-                         VKRootSignature{} }
-            : std::pair{ wis::success,
-                         VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{
-                                 layout, device, device.table()->vkDestroyPipelineLayout } } };
+    if (!succeeded(vr))
+        return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
+
+    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } };
 }
 
 namespace wis::detail {
@@ -446,7 +441,7 @@ inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderSta
 }
 } // namespace wis::detail
 
-std::pair<wis::Result, wis::VKPipelineState>
+wis::ResultValue<wis::VKPipelineState>
 wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
 {
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
@@ -718,13 +713,16 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     VkPipeline pipeline;
     auto result = device.table()->vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr,
                                                             &pipeline);
-    return wis::succeeded(result)
-            ? std::pair{ wis::success, wis::VKPipelineState{ wis::managed_handle_ex<VkPipeline>{ pipeline, device, device.table()->vkDestroyPipeline } } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create a graphics pipeline">(result),
-                         wis::VKPipelineState{} };
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to create a graphics pipeline">(result);
+
+    return wis::VKPipelineState{
+        wis::managed_handle_ex<VkPipeline>{
+                pipeline, device, device.table()->vkDestroyPipeline }
+    };
 }
 
-std::pair<wis::Result, wis::VKCommandList>
+wis::ResultValue<wis::VKCommandList>
 wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
 {
     VkCommandPoolCreateInfo cmd_pool_create_info{
@@ -751,14 +749,14 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     VkCommandBuffer cmd_buf;
     result = device.table()->vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
 
-    return succeeded(result)
-            ? std::pair{ wis::success, wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table()->vkDestroyCommandPool }, cmd_buf } }
-            : std::pair{ wis::make_result<FUNC, "Failed to allocate a command buffer">(result),
-                         wis::VKCommandList{} };
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
+
+    return wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table()->vkDestroyCommandPool }, cmd_buf };
 }
 
-std::pair<wis::Result, wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
-                                                                  uint32_t size) const noexcept
+wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
+                                                            uint32_t size) const noexcept
 {
     VkShaderModuleCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -770,23 +768,24 @@ std::pair<wis::Result, wis::VKShader> wis::VKDevice::CreateShader(void* bytecode
     VkShaderModule shader;
     auto vr = device.table()->vkCreateShaderModule(device.get(), &desc, nullptr, &shader);
 
-    return succeeded(vr)
-            ? std::pair{ wis::success, wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table()->vkDestroyShaderModule } } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create a shader module">(vr),
-                         wis::VKShader{} };
+    if (!succeeded(vr))
+        return wis::make_result<FUNC, "Failed to create a shader module">(vr);
+
+    return wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table()->vkDestroyShaderModule } };
 }
 
-std::pair<wis::Result, wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
+wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
 {
     auto [result, allocator] = CreateAllocatorI();
-    return result.status == wis::Status::Ok
-            ? std::pair{ wis::success,
-                         VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, allocator },
-                                              allocator_functions } }
-            : std::pair{ result, VKResourceAllocator{} };
+
+    if (result.status != wis::Status::Ok)
+        return result;
+
+    return VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, allocator },
+                                allocator_functions };
 }
 
-std::pair<wis::Result, VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
+wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 {
     uint32_t version = 0;
     auto& gt = wis::Internal<VKFactory>::global_table;
@@ -804,14 +803,15 @@ std::pair<wis::Result, VmaAllocator> wis::VKDevice::CreateAllocatorI() const noe
     };
 
     VmaAllocator al;
-    VkResult vr;
-    return wis::succeeded(vr = vmaCreateAllocator(&allocatorInfo, &al))
-            ? std::make_pair(wis::success, al)
-            : std::make_pair(wis::make_result<FUNC, "Failed to create an Allocator">(vr),
-                             VmaAllocator{});
+    VkResult vr = vmaCreateAllocator(&allocatorInfo, &al);
+
+    if (!succeeded(vr))
+        return wis::make_result<FUNC, "Failed to create an Allocator">(vr);
+
+    return al;
 }
 
-std::pair<wis::Result, wis::VKSwapChain>
+wis::ResultValue<wis::VKSwapChain>
 wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
                                  const SwapchainDesc* desc) const noexcept
 {
@@ -828,10 +828,9 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
         auto result = itable->vkGetPhysicalDeviceSurfaceSupportKHR(std::get<0>(adapter), x.family_index,
                                                                    surface.get(), &supported);
         if (!succeeded(result))
-            return { wis::make_result<FUNC,
-                                      "Failed to check if the queue supports presentation to the surface">(
-                             result),
-                     wis::VKSwapChain{} };
+            return wis::make_result<FUNC,
+                                    "Failed to check if the queue supports presentation to the surface">(
+                    result);
 
         if (supported) {
             present_queue = i;
@@ -841,9 +840,8 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     }
     if (present_queue == -1) {
         lib_error("None of the queues support presenting to the surface");
-        return { wis::make_result<FUNC, "None of the queues support presenting to the surface">(
-                         VkResult::VK_ERROR_UNKNOWN),
-                 wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "None of the queues support presenting to the surface">(
+                VkResult::VK_ERROR_UNKNOWN);
     }
 
     const auto& queue = queues.available_queues[present_queue];
@@ -865,7 +863,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
                                                                &format_count, surface_formats.data());
 
     if (!succeeded(result))
-        return { wis::make_result<FUNC, "Failed to get surface formats">(result), wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "Failed to get surface formats">(result);
 
     auto format = std::ranges::find_if(surface_formats, [=](VkSurfaceFormatKHR fmt) {
         return fmt.format == convert_vk(desc->format);
@@ -873,9 +871,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
 
     if (format == surface_formats.end() || format->format == VkFormat::VK_FORMAT_UNDEFINED) {
         lib_error(wis::format("Supplied format {} is not supported by surface", +desc->format));
-        return { wis::make_result<FUNC, "Supplied format is not supported by surface">(
-                         VkResult::VK_ERROR_UNKNOWN),
-                 wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "Supplied format is not supported by surface">(VkResult::VK_ERROR_UNKNOWN);
     }
 
     VkSurfaceCapabilitiesKHR cap{};
@@ -883,8 +879,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     result =
             itable->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(std::get<0>(adapter), surface.get(), &cap);
     if (!succeeded(result))
-        return { wis::make_result<FUNC, "Failed to get surface capabilities">(result),
-                 wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "Failed to get surface capabilities">(result);
 
     bool stereo = cap.maxImageArrayLayers > 1 && desc->stereo;
     if (stereo)
@@ -934,7 +929,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     result = device.table()->vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
 
     if (!succeeded(result))
-        return { wis::make_result<FUNC, "Failed to create a swapchain">(result), wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "Failed to create a swapchain">(result);
 
     VkCommandPoolCreateInfo cmd_pool_create_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -945,8 +940,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     VkCommandPool cmd_pool;
     result = device.table()->vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
     if (!succeeded(result))
-        return { wis::make_result<FUNC, "Failed to create a command pool">(result),
-                 wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "Failed to create a command pool">(result);
 
     VkCommandBufferAllocateInfo cmd_buf_alloc_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -959,8 +953,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     VkCommandBuffer cmd_buf;
     result = device.table()->vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
     if (!succeeded(result))
-        return { wis::make_result<FUNC, "Failed to allocate a command buffer">(result),
-                 wis::VKSwapChain{} };
+        return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
     wis::detail::VKSwapChainCreateInfo sci{
         wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR },
@@ -969,19 +962,16 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
 
     auto rres = sci.InitSemaphores();
     if (rres.status != wis::Status::Ok)
-        return { rres, wis::VKSwapChain{} };
+        return rres;
 
     rres = sci.InitBackBuffers();
     if (rres.status != wis::Status::Ok)
-        return { rres, wis::VKSwapChain{} };
+        return rres;
 
-
-    return std::pair{
-        wis::success, wis::VKSwapChain{ std::move(sci) }
-    };
+    return wis::VKSwapChain{ std::move(sci) };
 }
 
-// std::pair<wis::Result, VkDescriptorSetLayout>
+// wis::ResultValue< VkDescriptorSetLayout>
 // wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept {
 //   VkDescriptorSetLayoutBinding binding{
 //       .binding = desc.bind_register,

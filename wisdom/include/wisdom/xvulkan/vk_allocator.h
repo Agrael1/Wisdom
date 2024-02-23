@@ -155,7 +155,7 @@ public:
     //    }
     //
 private:
-    WIS_INLINE [[nodiscard]] std::pair<wis::Result, VKBuffer>
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
     CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 
     //    [[nodiscard]] VKTexture

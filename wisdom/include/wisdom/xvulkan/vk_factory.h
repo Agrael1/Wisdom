@@ -13,7 +13,7 @@ class VKFactory;
 template<>
 struct Internal<VKFactory> {
     wis::shared_handle<VkInstance> factory;
-    VkDebugUtilsMessengerEXT messenger{};
+    h::VkDebugUtilsMessengerEXT messenger;
     uint32_t api_version{};
     std::unique_ptr<wis::VkInstanceTable> instance_table{};
 
@@ -23,7 +23,7 @@ public:
     static inline std::once_flag global_flag;
 };
 
-WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::VKFactory>
+WIS_INLINE [[nodiscard]] wis::ResultValue<wis::VKFactory>
 VKCreateFactory(bool debug_layer = false, wis::DebugCallback callback = nullptr,
                 void* user_data = nullptr) noexcept;
 
@@ -35,8 +35,8 @@ class VKFactory : public QueryInternal<VKFactory>
         VKAdapter adapter;
     };
 
-    friend std::pair<wis::Result, wis::VKFactory> VKCreateFactory(bool, wis::DebugCallback,
-                                                                  void*) noexcept;
+    friend wis::ResultValue<wis::VKFactory> VKCreateFactory(bool, wis::DebugCallback,
+                                                            void*) noexcept;
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -58,7 +58,7 @@ public:
     operator VKFactoryHandle() const noexcept { return { factory, instance_table.get() }; }
 
 public:
-    WIS_INLINE [[nodiscard]] std::pair<wis::Result, VKAdapter>
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKAdapter>
     GetAdapter(uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 

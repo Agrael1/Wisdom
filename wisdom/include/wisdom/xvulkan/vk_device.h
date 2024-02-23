@@ -44,7 +44,7 @@ public:
 
 class VKDevice : public QueryInternal<VKDevice>
 {
-    friend std::pair<wis::Result, wis::VKDevice>
+    friend wis::ResultValue<wis::VKDevice>
     VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept;
 
 public:
@@ -66,43 +66,43 @@ public:
                           MutiWaitFlags wait_all = MutiWaitFlags::All,
                           uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKFence>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFence>
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandQueue>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKCommandQueue>
     CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKCommandList>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKCommandList>
     CreateCommandList(wis::QueueType type) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKPipelineState>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKPipelineState>
     CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKRootSignature>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
     CreateRootSignature(RootConstant* constants = nullptr, uint32_t constants_size = 0) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKShader>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKShader>
     CreateShader(void* bytecode, uint32_t size) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKResourceAllocator>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKResourceAllocator>
     CreateAllocator() const noexcept;
 
 public:
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKSwapChain>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const SwapchainDesc* desc) const noexcept;
 
 private:
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, VkDescriptorSetLayout>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
     CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, VmaAllocator>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VmaAllocator>
     CreateAllocatorI() const noexcept;
 
 private:
     wis::DeviceFeatures features;
 };
 
-[[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::VKDevice>
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
 VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept;
 
 } // namespace wis
