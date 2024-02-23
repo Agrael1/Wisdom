@@ -13,15 +13,15 @@ struct Internal<DX12Factory> {
     wis::com_ptr<IDXGIFactory6> factory;
 };
 
-WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Factory>
+WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Factory>
 DX12CreateFactory(bool debug_layer = false, wis::DebugCallback callback = nullptr,
                   void* user_data = nullptr) noexcept;
 
 /// @brief Main Factory class
 class DX12Factory : public QueryInternal<DX12Factory>
 {
-    friend std::pair<wis::Result, wis::DX12Factory> DX12CreateFactory(bool, wis::DebugCallback,
-                                                                      void*) noexcept;
+    friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool, wis::DebugCallback,
+                                                                void*) noexcept;
 
 public:
     DX12Factory() noexcept = default;
@@ -38,7 +38,7 @@ public:
     operator DX12FactoryHandle() const noexcept { return factory.get(); }
 
 public:
-    WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Adapter>
+    WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Adapter>
     GetAdapter(uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 

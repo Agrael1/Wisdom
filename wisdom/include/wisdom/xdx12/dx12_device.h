@@ -36,29 +36,29 @@ public:
                           MutiWaitFlags wait_all = MutiWaitFlags::All,
                           uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Fence>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Fence>
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12CommandQueue>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12CommandQueue>
     CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12CommandList>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12CommandList>
     CreateCommandList(wis::QueueType type) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12PipelineState>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12PipelineState>
     CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12RootSignature>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
     CreateRootSignature(RootConstant* root_constants = nullptr, uint32_t constants_size = 0) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12Shader>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Shader>
     CreateShader(void* data, size_t size) const noexcept;
 
-    [[nodiscard]] WIS_INLINE std::pair<wis::Result, wis::DX12ResourceAllocator>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12ResourceAllocator>
     CreateAllocator() const noexcept;
 };
 
-WIS_INLINE [[nodiscard]] std::pair<wis::Result, wis::DX12Device>
+WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>
 DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept;
 } // namespace wis
 

@@ -17,10 +17,10 @@ struct VKSwapChainCreateInfo {
     h::VkCommandBuffer initialization = nullptr;
     h::VkCommandPool command_pool = nullptr;
     h::VkQueue present_queue = nullptr;
-
-    mutable uint32_t present_index = 0;
     h::VkSemaphore present_semaphore = nullptr;
     h::VkSemaphore graphics_semaphore = nullptr;
+
+    mutable uint32_t present_index = 0;
 
 public:
     VKSwapChainCreateInfo() = default;

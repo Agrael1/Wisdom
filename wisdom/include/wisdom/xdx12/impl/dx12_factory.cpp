@@ -15,7 +15,7 @@ wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_la
     }
 }
 
-[[nodiscard]] std::pair<wis::Result, wis::DX12Factory>
+[[nodiscard]] wis::ResultValue<wis::DX12Factory>
 wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     wis::com_ptr<IDXGIFactory6> factory;
@@ -50,14 +50,17 @@ wis::DX12Factory::DX12Factory(DX12Factory&& other) noexcept
     }
 }
 
-[[nodiscard]] std::pair<wis::Result, wis::DX12Adapter>
+[[nodiscard]] wis::ResultValue<wis::DX12Adapter>
 wis::DX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     auto gen = has_preference ? GetAdapterByGPUPreference(index, convert_dx(preference))
                               : GetAdapter1(index);
-    return !gen ? std::pair{ wis::make_result<FUNC, "Failed to get adapter">(gen.result),
-                             wis::DX12Adapter{} }
-                : std::pair{ wis::success, wis::DX12Adapter(std::move(gen.ptr)) };
+
+    if (!gen) {
+        return { wis::make_result<FUNC, "Failed to get adapter">(gen.result), wis::DX12Adapter{} };
+    }
+
+    return { wis::success, wis::DX12Adapter(std::move(gen.ptr)) };
 }
 
 void wis::DX12Factory::EnableDebugLayer(DebugCallback callback, void* user_data) noexcept

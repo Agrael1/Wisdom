@@ -16,7 +16,7 @@ class VKCommandList : public QueryInternal<VKCommandList>
 public:
     VKCommandList() noexcept = default;
     explicit VKCommandList(wis::managed_handle_ex<VkCommandPool> allocator,
-                  VkCommandBuffer command_list) noexcept
+                           VkCommandBuffer command_list) noexcept
         : QueryInternal(std::move(allocator), command_list) { }
     operator bool() const noexcept
     {

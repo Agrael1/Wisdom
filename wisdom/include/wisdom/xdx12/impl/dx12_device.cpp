@@ -8,7 +8,7 @@
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/util/misc.h>
 
-std::pair<wis::Result, wis::DX12Device>
+wis::ResultValue<wis::DX12Device>
 wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept
 {
     auto in_factory = std::get<0>(factory);
@@ -16,12 +16,13 @@ wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle ada
 
     wis::com_ptr<ID3D12Device10> device;
 
-    HRESULT hr;
-    return !wis::succeeded(hr = D3D12CreateDevice(in_adapter, D3D_FEATURE_LEVEL_11_0,
-                                                  __uuidof(ID3D12Device9), device.put_void()))
-            ? std::pair{ wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr),
-                         wis::DX12Device{} }
-            : std::pair{ wis::success, wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), wis::com_ptr(in_factory)) };
+    HRESULT hr = D3D12CreateDevice(in_adapter, D3D_FEATURE_LEVEL_11_0,
+                                   __uuidof(ID3D12Device9), device.put_void());
+
+    if (!wis::succeeded(hr)) 
+        return wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr);
+
+    return wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), wis::com_ptr(in_factory));
 }
 
 wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
@@ -44,21 +45,20 @@ wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
                                        : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
 }
 
-std::pair<wis::Result, wis::DX12Fence>
+wis::ResultValue<wis::DX12Fence>
 wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
 {
-    HRESULT hr;
     wis::com_ptr<ID3D12Fence1> fence;
-    return wis::succeeded(hr = device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE,
-                                                   __uuidof(*fence), fence.put_void()))
-            ? std::pair{ wis::success, DX12Fence{ std::move(fence) } }
-            : std::pair{
-                  wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr),
-                  DX12Fence{}
-              };
+    HRESULT hr = device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE,
+                                     __uuidof(*fence), fence.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr);
+
+    return DX12Fence{ std::move(fence) };
 }
 
-std::pair<wis::Result, wis::DX12CommandQueue>
+wis::ResultValue<wis::DX12CommandQueue>
 wis::DX12Device::CreateCommandQueue(wis::QueueType type,
                                     wis::QueuePriority priority) const noexcept
 {
@@ -68,36 +68,35 @@ wis::DX12Device::CreateCommandQueue(wis::QueueType type,
         .Priority = int(priority),
     };
 
-    HRESULT hr;
-    return wis::succeeded(hr = device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void()))
-            ? std::pair{ wis::success, DX12CommandQueue{ std::move(queue) } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create command queue">(hr),
-                         DX12CommandQueue{} };
+    HRESULT hr = device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void());
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "ID3D12Device10::CreateCommandQueue failed to create command queue">(hr);
+
+    return DX12CommandQueue{ std::move(queue) };
 }
 
-std::pair<wis::Result, wis::DX12CommandList>
+wis::ResultValue<wis::DX12CommandList>
 wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
 {
     D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(type);
     wis::com_ptr<ID3D12CommandAllocator> allocator;
     wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
 
-    HRESULT hr;
-    if (!wis::succeeded(
-                hr = device->CreateCommandAllocator(clty, __uuidof(*allocator), allocator.put_void())))
-        return std::pair{ wis::make_result<FUNC, "Failed to create command allocator">(hr),
-                          DX12CommandList{} };
+    HRESULT hr= device->CreateCommandAllocator(clty, __uuidof(*allocator), allocator.put_void());
 
-    return !wis::succeeded(hr = device->CreateCommandList(0, clty, allocator.get(), nullptr,
-                                                          __uuidof(*command_list),
-                                                          command_list.put_void()))
-            ? std::pair{ wis::make_result<FUNC, "Failed to create command list">(hr),
-                         DX12CommandList{} }
-            : std::pair{ wis::success,
-                         DX12CommandList{ std::move(allocator), std::move(command_list) } };
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create command allocator">(hr);
+
+    hr = device->CreateCommandList(0, clty, allocator.get(), nullptr,
+                                   __uuidof(*command_list), command_list.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create command list">(hr);
+
+    return DX12CommandList{ std::move(allocator), std::move(command_list) };
 }
 
-std::pair<wis::Result, wis::DX12RootSignature>
+wis::ResultValue<wis::DX12RootSignature>
 wis::DX12Device::CreateRootSignature(RootConstant* root_constants,
                                      uint32_t constants_size) const noexcept
 {
@@ -123,19 +122,18 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants,
 
     wis::com_ptr<ID3DBlob> signature;
     wis::com_ptr<ID3DBlob> error;
-    HRESULT hr;
+    HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
 
-    if (!wis::succeeded(
-                hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put())))
-        return std::pair{ wis::make_result<FUNC, "Failed to serialize root signature">(hr),
-                          DX12RootSignature{} };
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to serialize root signature">(hr);
 
-    return (!wis::succeeded(hr = device->CreateRootSignature(0, signature->GetBufferPointer(),
-                                                             signature->GetBufferSize(),
-                                                             __uuidof(*rsig), rsig.put_void())))
-            ? std::pair{ wis::make_result<FUNC, "Failed to create root signature">(hr),
-                         DX12RootSignature{} }
-            : std::pair{ wis::success, DX12RootSignature{ std::move(rsig) } };
+    hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
+                                     __uuidof(*rsig), rsig.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create root signature">(hr);
+
+    return DX12RootSignature{ std::move(rsig) };
 }
 
 namespace wis::detail {
@@ -151,7 +149,7 @@ inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream,
 }
 } // namespace wis::detail
 
-std::pair<wis::Result, wis::DX12PipelineState>
+wis::ResultValue<wis::DX12PipelineState>
 wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
@@ -304,27 +302,27 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
         .pPipelineStateSubobjectStream = pipeline_stream.data<void>(),
     };
 
-    HRESULT hr;
-    return wis::succeeded(
-                   hr = device->CreatePipelineState(&psstream_desc, __uuidof(*state), state.put_void()))
-            ? std::pair{ wis::success, DX12PipelineState{ std::move(state) } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create pipeline state">(hr),
-                         DX12PipelineState{} };
+    HRESULT hr = device->CreatePipelineState(&psstream_desc, __uuidof(*state), state.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create pipeline state">(hr);
+
+    return DX12PipelineState{ std::move(state) };
 }
 
-std::pair<wis::Result, wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
-                                                                      size_t size) const noexcept
+wis::ResultValue<wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
+                                                                size_t size) const noexcept
 {
     auto x = wis::detail::make_unique_for_overwrite<std::byte[]>(size);
+
     if (!x)
-        return std::pair{ wis::make_result<FUNC, "Failed to allocate memory for shader bytecode">(E_OUTOFMEMORY),
-                          DX12Shader{} };
+        return wis::make_result<FUNC, "Failed to allocate memory for shader bytecode">(E_OUTOFMEMORY);
 
     std::copy_n(reinterpret_cast<std::byte*>(data), size, x.get());
-    return std::pair{ wis::success, DX12Shader{ std::move(x), size } };
+    return DX12Shader{ std::move(x), size };
 }
 
-std::pair<wis::Result, wis::DX12ResourceAllocator>
+wis::ResultValue<wis::DX12ResourceAllocator>
 wis::DX12Device::CreateAllocator() const noexcept
 {
     D3D12MA::ALLOCATOR_DESC desc{ .Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
@@ -333,9 +331,10 @@ wis::DX12Device::CreateAllocator() const noexcept
                                   .pAllocationCallbacks = nullptr,
                                   .pAdapter = adapter.get() };
     wis::com_ptr<D3D12MA::Allocator> allocator;
-    HRESULT hr;
-    return wis::succeeded(hr = D3D12MA::CreateAllocator(&desc, allocator.put()))
-            ? std::pair{ wis::success, DX12ResourceAllocator{ std::move(allocator) } }
-            : std::pair{ wis::make_result<FUNC, "Failed to create allocator">(hr),
-                         DX12ResourceAllocator{} };
+    HRESULT hr = D3D12MA::CreateAllocator(&desc, allocator.put());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create allocator">(hr);
+
+    return DX12ResourceAllocator{ std::move(allocator) };
 }

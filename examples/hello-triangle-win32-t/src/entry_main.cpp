@@ -60,7 +60,7 @@ int main()
             .vsync = true,
         };
 
-        auto swap = wis::VKCreateSwapchainWin32(device, command_queue.second, &desc,
+        auto swap = wis::VKCreateSwapchainWin32(device, command_queue.value, &desc,
                                               window.GetHandle());
     }
 
@@ -101,7 +101,7 @@ int main()
             .vsync = true,
         };
 
-        auto swap = wis::DX12CreateSwapchainWin32(device, command_queue.second, &desc,
+        auto swap = wis::DX12CreateSwapchainWin32(device, command_queue.value, &desc,
                                               window.GetHandle());
     }
 

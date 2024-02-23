@@ -35,7 +35,7 @@ struct movable_handle {
     {
         return handle;
     }
-    constexpr auto* operator &() noexcept
+    constexpr auto* operator&() noexcept
     {
         return &handle;
     }
@@ -139,7 +139,7 @@ using VkSurfaceKHR = wis::movable_handle<::VkSurfaceKHR>;
 #if defined(VK_NV_external_sci_sync2)
 using VkSemaphoreSciSyncPoolNV = wis::movable_handle<::VkSemaphoreSciSyncPoolNV>;
 #endif
-}
+} // namespace h
 } // namespace wis
 
 namespace wis {

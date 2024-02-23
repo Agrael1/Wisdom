@@ -174,7 +174,7 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
     return out;
 }
 
-[[nodiscard]] std::pair<wis::Result, wis::VKFactory>
+[[nodiscard]] wis::ResultValue<wis::VKFactory>
 wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
 {
     VKFactory::InitializeGlobalTable();
@@ -184,8 +184,7 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
     if (gt.vkEnumerateInstanceVersion) {
         vr = gt.vkEnumerateInstanceVersion(&version);
         if (!wis::succeeded(vr))
-            return std::pair{ wis::make_result<FUNC, "Failed to enumerate instance version">(vr),
-                              wis::VKFactory{} };
+            return wis::make_result<FUNC, "Failed to enumerate instance version">(vr);
     } else {
         version = VK_API_VERSION_1_0;
     }
@@ -231,14 +230,18 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
     wis::shared_handle<VkInstance> instance;
     if (!wis::succeeded(vr = gt.vkCreateInstance(&create_info, nullptr,
                                                  instance.put_unsafe(gt.vkDestroyInstance))))
-        return std::pair{ wis::make_result<FUNC, "Failed to create instance">(vr), wis::VKFactory{} };
+        return wis::make_result<FUNC, "Failed to create instance">(vr);
 
     auto factory =
             wis::VKFactory{ std::move(instance), version, debug_layer, std::move(debug_callback) };
-    return !wis::succeeded(vr = factory.EnumeratePhysicalDevices())
-            ? std::pair{ wis::make_result<FUNC, "Failed to enumerate physical devices">(vr),
-                         wis::VKFactory{} }
-            : std::pair{ wis::success, std::move(factory) };
+
+    vr = factory.EnumeratePhysicalDevices();
+
+    // TODO: rework
+    if (!wis::succeeded(vr))
+        return wis::make_result<FUNC, "Failed to enumerate physical devices">(vr);
+
+    return std::move(factory);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallbackThunk(
@@ -279,20 +282,20 @@ wis::VKFactory::~VKFactory() noexcept
     }
 }
 
-[[nodiscard]] std::pair<wis::Result, wis::VKAdapter>
+[[nodiscard]] wis::ResultValue<wis::VKAdapter>
 wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     if (index >= adapters.size()) {
-        return std::pair{ wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN), VKAdapter{} };
+        return { wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN), VKAdapter{} };
     }
     auto& adapter = adapters[index];
     switch (preference) {
     default:
-        return std::pair{ wis::success, adapter.adapter };
+        return adapter.adapter;
     case AdapterPreference::MinConsumption:
-        return std::pair{ wis::success, adapters[adapter.index_consumption].adapter };
+        return adapters[adapter.index_consumption].adapter;
     case AdapterPreference::Performance:
-        return std::pair{ wis::success, adapters[adapter.index_performance].adapter };
+        return adapters[adapter.index_performance].adapter;
     }
 }
 

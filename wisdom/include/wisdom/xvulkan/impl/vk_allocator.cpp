@@ -3,7 +3,7 @@
 #include <wisdom/xvulkan/vk_allocator.h>
 #endif // !WISDOM_HEADER_ONLY
 
-[[nodiscard]] std::pair<wis::Result, wis::VKBuffer>
+[[nodiscard]] wis::ResultValue<wis::VKBuffer>
 wis::VKResourceAllocator::CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
 {
     VmaAllocation allocation;
@@ -15,7 +15,9 @@ wis::VKResourceAllocator::CreateBuffer(const VkBufferCreateInfo& desc, const Vma
             &buffer,
             &allocation,
             nullptr);
-    return wis::succeeded(result)
-            ? std::make_pair(wis::success, VKBuffer{ allocator, buffer, allocation })
-            : std::make_pair(wis::make_result<FUNC, "Buffer allocation failed">(result), VKBuffer{});
+
+    if (!wis::succeeded(result))
+        return wis::make_result<FUNC, "Buffer allocation failed">(result);
+
+    return VKBuffer{ allocator, buffer, allocation };
 }

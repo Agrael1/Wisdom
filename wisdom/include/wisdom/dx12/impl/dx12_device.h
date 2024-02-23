@@ -6,7 +6,7 @@
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
 #include <wisdom/util/small_allocator.h>
 
-std::pair<wis::Result, wis::DX12Device>
+wis::ResultValue<wis::DX12Device>
 wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept
 {
     auto in_factory = std::get<0>(factory);
@@ -46,7 +46,7 @@ wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
             : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
 }
 
-std::pair<wis::Result, wis::DX12Fence>
+wis::ResultValue<wis::DX12Fence>
 wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
 {
     HRESULT hr;
@@ -56,7 +56,7 @@ wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
             : std::pair{ wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr), DX12Fence{} };
 }
 
-std::pair<wis::Result, wis::DX12ResourceAllocator>
+wis::ResultValue<wis::DX12ResourceAllocator>
 wis::DX12Device::CreateAllocator() const noexcept
 {
     D3D12MA::ALLOCATOR_DESC desc{
@@ -73,7 +73,7 @@ wis::DX12Device::CreateAllocator() const noexcept
             : std::pair{ wis::make_result<FUNC, "Failed to create allocator">(hr), DX12ResourceAllocator{} };
 }
 
-std::pair<wis::Result, wis::DX12RootSignature>
+wis::ResultValue<wis::DX12RootSignature>
 wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t constants_size) const noexcept
 {
     wis::com_ptr<ID3D12RootSignature> rsig;
@@ -108,7 +108,7 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants, uint32_t cons
             : std::pair{ wis::success, DX12RootSignature{ std::move(rsig) } };
 }
 
-std::pair<wis::Result, wis::DX12CommandQueue>
+wis::ResultValue<wis::DX12CommandQueue>
 wis::DX12Device::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
 {
     wis::com_ptr<ID3D12CommandQueue> queue;
@@ -123,7 +123,7 @@ wis::DX12Device::CreateCommandQueue(wis::QueueType type, wis::QueuePriority prio
             : std::pair{ wis::make_result<FUNC, "Failed to create command queue">(hr), DX12CommandQueue{} };
 }
 
-std::pair<wis::Result, wis::DX12Shader>
+wis::ResultValue<wis::DX12Shader>
 wis::DX12Device::CreateShader(void* data, size_t size) const noexcept
 {
     auto x = std::make_unique_for_overwrite<std::byte[]>(size);
@@ -143,7 +143,7 @@ inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream,
 }
 } // namespace wis::detail
 
-std::pair<wis::Result, wis::DX12PipelineState>
+wis::ResultValue<wis::DX12PipelineState>
 wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
@@ -291,7 +291,7 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
             : std::pair{ wis::make_result<FUNC, "Failed to create pipeline state">(hr), DX12PipelineState{} };
 }
 
-std::pair<wis::Result, wis::DX12CommandList>
+wis::ResultValue<wis::DX12CommandList>
 wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
 {
     D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(type);
