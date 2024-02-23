@@ -50,3 +50,31 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() noexcept
     result = table.vkQueueSubmit(present_queue, 1, &signal_submit_info, nullptr);
     return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
 }
+wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
+{
+    auto& table = *swapchain.header().parent.table();
+    VkSemaphoreCreateInfo semaphore_info{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+    };
+    auto result = table.vkCreateSemaphore(swapchain.header().parent.get(), &semaphore_info, nullptr, &present_semaphore);
+    if (!wis::succeeded(result))
+        return { wis::make_result<FUNC, "vkCreateSemaphore failed for present_semaphore">(result) };
+
+    result = table.vkCreateSemaphore(swapchain.header().parent.get(), &semaphore_info, nullptr, &graphics_semaphore);
+    return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkCreateSemaphore failed for graphics_semaphore">(result);
+}
+
+void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphore() noexcept
+{
+    VkSubmitInfo signal_submit_info{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores = &present_semaphore,
+    };
+    auto& table = *swapchain.header().parent.table();
+    table.vkQueueSubmit(present_queue, 1, &signal_submit_info, nullptr);
+    table.vkQueueWaitIdle(present_queue);
+}
