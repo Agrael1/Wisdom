@@ -84,7 +84,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
-    VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc) const noexcept;
+    VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;
 
 private:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>

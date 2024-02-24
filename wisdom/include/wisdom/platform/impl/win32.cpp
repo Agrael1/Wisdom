@@ -74,6 +74,7 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
 
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
+        .stereo = desc->stereo,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;
@@ -114,6 +115,7 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
 
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
+        .stereo = desc->stereo,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;
@@ -145,6 +147,6 @@ wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, cons
         return wis::make_result<FUNC, "Failed to create Win32 surface">(result);
     }
     wis::SharedSurface surface_handle{ surface, instance, instance_table.vkDestroySurfaceKHR };
-    return device.VKCreateSwapChain(surface_handle, desc);
+    return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
 }
 #endif // WISDOM_VULKAN
