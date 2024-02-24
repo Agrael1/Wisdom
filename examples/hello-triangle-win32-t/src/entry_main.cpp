@@ -35,7 +35,7 @@ int main()
                 res = adapter.GetDesc(&desc);
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
-                auto [res, xdevice] = wis::VKCreateDevice(factory, adapter);
+                auto [res, xdevice] = wis::VKCreateDevice(std::move(adapter));
                 if (res.status == wis::Status::Ok) {
                     device = std::move(xdevice);
                     break;

@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/xvulkan/vk_fence.h>
+#include <wisdom/xvulkan/vk_adapter.h>
 #include <wisdom/xvulkan/vk_queue_residency.h>
 #include <wisdom/xvulkan/vk_command_queue.h>
 #include <wisdom/xvulkan/vk_command_list.h>
@@ -22,9 +23,8 @@ class VKDevice;
 
 template<>
 struct Internal<VKDevice> {
-    wis::shared_handle<VkInstance> instance;
+    wis::VKAdapter adapter;
     wis::SharedDevice device;
-    wis::VKAdapterHandle adapter;
     InternalFeatures ifeatures;
 
     std::shared_ptr<VmaVulkanFunctions> allocator_functions;
@@ -32,26 +32,21 @@ struct Internal<VKDevice> {
     detail::QueueResidency queues;
 
 public:
-    auto* GetAdapter() const noexcept
+    auto& GetInstanceTable() const noexcept
     {
-        return std::get<0>(adapter);
-    }
-    auto* GetInstanceTable() const noexcept
-    {
-        return std::get<1>(adapter);
+        return adapter.GetInternal().instance.table();
     }
 };
 
 class VKDevice : public QueryInternal<VKDevice>
 {
     friend wis::ResultValue<wis::VKDevice>
-    VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept;
+    VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
 
 public:
     VKDevice() noexcept = default;
-    WIS_INLINE explicit VKDevice(wis::shared_handle<VkInstance> instance,
-                                 wis::SharedDevice device,
-                                 wis::VKAdapterHandle adapter,
+    WIS_INLINE explicit VKDevice(wis::SharedDevice device,
+                                 wis::VKAdapter adapter,
                                  wis::DeviceFeatures features = wis::DeviceFeatures::None,
                                  InternalFeatures ifeatures = {}) noexcept;
 
@@ -89,7 +84,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
-    VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface, const SwapchainDesc* desc) const noexcept;
+    VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc) const noexcept;
 
 private:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
@@ -103,7 +98,7 @@ private:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDevice(wis::VKFactoryHandle factory, wis::VKAdapterHandle adapter) noexcept;
+VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
 
 } // namespace wis
 

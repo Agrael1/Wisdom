@@ -9,6 +9,8 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
         return wis::make_result<FUNC, "AdapterDesc was nullptr">(VK_ERROR_UNKNOWN);
 
     auto& out_desc = *pout_desc;
+    auto& instance_table = instance.table();
+
     VkPhysicalDeviceIDProperties id_props{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES,
         .pNext = nullptr,
@@ -23,12 +25,12 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
         .pNext = &id_props,
         .properties = {},
     };
-    instance_table->vkGetPhysicalDeviceProperties2(adapter, &properties);
+    instance_table.vkGetPhysicalDeviceProperties2(adapter, &properties);
 
     auto& desc = properties.properties;
 
     VkPhysicalDeviceMemoryProperties memory_props{};
-    instance_table->vkGetPhysicalDeviceMemoryProperties(adapter, &memory_props);
+    instance_table.vkGetPhysicalDeviceMemoryProperties(adapter, &memory_props);
 
     uint64_t local_mem = 0;
     uint64_t system_mem = 0;

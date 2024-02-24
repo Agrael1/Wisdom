@@ -22,10 +22,15 @@ struct string_hash {
 
 namespace wis::detail {
 template<class Type, std::enable_if_t<std::is_unbounded_array_v<Type>, int> = 0>
-[[nodiscard]] constexpr std::unique_ptr<Type> make_unique_for_overwrite(size_t size)
+[[nodiscard]] constexpr std::unique_ptr<Type> make_unique_for_overwrite(size_t size) noexcept
 {
     // make a unique_ptr with default initialization
     using Elem = std::remove_extent_t<Type>;
     return std::unique_ptr<Type>(new (std::nothrow) Elem[size]);
+}
+template<class Type, class... Types, std::enable_if_t<!std::is_array_v<Type>, int> = 0>
+[[nodiscard]] constexpr std::unique_ptr<Type> make_unique(Types&&... Args) noexcept
+{ // make a unique_ptr
+    return std::unique_ptr<Type>(new (std::nothrow) Type(std::forward<Types>(Args)...));
 }
 } // namespace wis::detail

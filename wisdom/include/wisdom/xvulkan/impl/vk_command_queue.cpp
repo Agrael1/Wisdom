@@ -13,7 +13,7 @@ void wis::VKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
         .pCommandBuffers = reinterpret_cast<const VkCommandBuffer*>(lists),
     };
 
-    std::ignore = device.table()->vkQueueSubmit(queue, 1, &submit_info, nullptr);
+    std::ignore = device.table().vkQueueSubmit(queue, 1, &submit_info, nullptr);
 }
 
 wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) const noexcept
@@ -39,7 +39,7 @@ wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) 
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &sem
     };
-    VkResult result = device.table()->vkQueueSubmit(queue, 1, &info, nullptr);
+    VkResult result = device.table().vkQueueSubmit(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
                              : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
