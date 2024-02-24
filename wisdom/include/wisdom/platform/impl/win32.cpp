@@ -47,6 +47,8 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
     detail::ToSwapchainDesc(swap_desc, desc);
     auto& devicei = device.GetInternal();
 
+    swap_desc.Stereo &= devicei.factory->IsWindowedStereoEnabled();
+
     HRESULT hr;
 
     wis::com_ptr<IDXGISwapChain1> swap;
@@ -88,6 +90,8 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
     auto& devicei = device.GetInternal();
+
+    swap_desc.Stereo &= devicei.factory->IsWindowedStereoEnabled();
 
     HRESULT hr;
 

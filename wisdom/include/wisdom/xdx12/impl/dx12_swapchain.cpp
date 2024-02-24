@@ -37,6 +37,10 @@ wis::Result wis::DX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
     if (width == 0 || height == 0)
         return wis::make_result<FUNC, "Invalid size">(E_INVALIDARG);
 
+    for (uint32_t n = 0; n < back_buffer_count; n++) {
+        back_buffers[n] = {};
+    }
+
     HRESULT hr = chain->ResizeBuffers(back_buffer_count, width, height, DXGI_FORMAT_UNKNOWN, 0);
 
     if (!wis::succeeded(hr))
