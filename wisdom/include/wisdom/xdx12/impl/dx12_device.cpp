@@ -9,10 +9,12 @@
 #include <wisdom/util/misc.h>
 
 wis::ResultValue<wis::DX12Device>
-wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept
+wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
 {
-    auto in_factory = std::get<0>(factory);
     auto in_adapter = std::get<0>(adapter);
+
+    wis::com_ptr<IDXGIFactory4> in_factory;
+    in_adapter->GetParent(__uuidof(*in_factory), in_factory.put_void());
 
     wis::com_ptr<ID3D12Device10> device;
 
@@ -22,7 +24,7 @@ wis::DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle ada
     if (!wis::succeeded(hr)) 
         return wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr);
 
-    return wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), wis::com_ptr(in_factory));
+    return wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), std::move(in_factory));
 }
 
 wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
