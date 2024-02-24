@@ -59,7 +59,7 @@ public:
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>
-DX12CreateDevice(wis::DX12FactoryHandle factory, wis::DX12AdapterHandle adapter) noexcept;
+DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept;
 } // namespace wis
 
 #ifdef WISDOM_HEADER_ONLY
