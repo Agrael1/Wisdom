@@ -1,6 +1,8 @@
 #include <example/app.h>
 #include <iostream>
 #include <wisdom/platform/win32.h>
+#include <wisdom/util/log_layer.h>
+#include <wisdom/bridge/format.h>
 
 struct LogProvider : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
@@ -23,7 +25,7 @@ Test::App::App(uint32_t width, uint32_t height)
     auto [result, hfactory] = wis::CreateFactory(true, DebugCallback, &std::cout);
     factory = std::move(hfactory);
 
-    wis::VKDevice hdevice;
+    wis::Device hdevice;
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -32,7 +34,7 @@ Test::App::App(uint32_t width, uint32_t height)
             res = adapter.GetDesc(&desc);
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
-            auto [res, xdevice] = wis::VKCreateDevice(std::move(adapter));
+            auto [res, xdevice] = wis::CreateDevice(std::move(adapter));
             if (res.status == wis::Status::Ok) {
                 hdevice = std::move(xdevice);
                 break;
@@ -56,7 +58,7 @@ Test::App::App(uint32_t width, uint32_t height)
         .vsync = true,
     };
 
-    auto [res3, hswap] = wis::VKCreateSwapchainWin32(device, queue, &desc,
+    auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
                                                  wnd.GetHandle());
     swap = std::move(hswap);
 

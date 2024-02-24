@@ -2,6 +2,7 @@
 #include <wisdom/global/internal.h>
 #include <wisdom/generated/api/api.h>
 #include <wisdom/xdx12/dx12_views.h>
+#include <wisdom/xdx12/dx12_checks.h>
 #include <wisdom/xdx12/dx12_resource.h>
 #include <memory>
 
@@ -53,6 +54,17 @@ public:
     /// @return true if succeeded
     [[nodiscard]] WIS_INLINE wis::Result
     Resize(uint32_t width, uint32_t height) noexcept;
+
+     /// @brief Present the swapchain
+    /// @return true if succeeded
+    [[nodiscard]] wis::Result Present() noexcept
+    {
+        auto hr = chain->Present(1, 0);
+        if (!wis::succeeded(hr)) {
+            return wis::make_result <FUNC, "Presentation failed">(hr);
+        }
+        return wis::success;
+    }
 };
 } // namespace wis
 
