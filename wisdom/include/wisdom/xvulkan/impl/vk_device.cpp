@@ -43,7 +43,7 @@ constexpr static inline std::array required_extensions{
     // VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
 };
 
-auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
+inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
 {
     std::vector<VkExtensionProperties> ext_props;
     uint32_t count = 0;
@@ -74,7 +74,7 @@ auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& ita
     return avail_exts;
 }
 
-wis::detail::QueueResidency GetQueueFamilies(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
+inline wis::detail::QueueResidency GetQueueFamilies(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
 {
     using namespace river::flags;
     using namespace wis::detail;
@@ -811,7 +811,8 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 
 wis::ResultValue<wis::VKSwapChain>
 wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
-                                 const SwapchainDesc* desc) const noexcept
+                                 const SwapchainDesc* desc,
+                                 VkQueue graphics_queue) const noexcept
 {
     auto& itable = GetInstanceTable();
     auto& dtable = device.table();
@@ -955,7 +956,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
     wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, swapchain,
-                                            cmd_buf, cmd_pool, qpresent_queue, swap_info.imageFormat };
+                                            cmd_buf, cmd_pool, qpresent_queue, graphics_queue, *format, present_mode, stereo };
 
     auto rres = sci.InitSemaphores();
     if (rres.status != wis::Status::Ok)

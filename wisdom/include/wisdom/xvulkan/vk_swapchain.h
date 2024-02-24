@@ -16,13 +16,17 @@ struct VKSwapChainCreateInfo {
     h::VkCommandBuffer initialization = nullptr;
     h::VkCommandPool command_pool = nullptr;
     h::VkQueue present_queue = nullptr;
-    h::VkSemaphore present_semaphore = nullptr;
-    h::VkSemaphore graphics_semaphore = nullptr;
+    h::VkQueue graphics_queue = nullptr;
+    h::VkSemaphore present_semaphore = nullptr; // if signalled, it means the presentation is done
+    h::VkSemaphore graphics_semaphore = nullptr; // if signalled, it means the rendering is done
 
     std::unique_ptr<VKTexture[]> back_buffers;
+    VkSurfaceFormatKHR format{};
+
     uint32_t back_buffer_count = 0;
-    VkFormat format = VK_FORMAT_UNDEFINED;
     mutable uint32_t present_index = 0;
+    VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
+    bool stereo = false;
 
 public:
     VKSwapChainCreateInfo() = default;
@@ -32,14 +36,20 @@ public:
                           VkCommandBuffer initialization,
                           VkCommandPool command_pool,
                           VkQueue present_queue,
-                          VkFormat format) noexcept
+                          VkQueue graphics_queue,
+                          VkSurfaceFormatKHR format,
+                          VkPresentModeKHR present_mode,
+                          bool stereo) noexcept
         : surface(std::move(surface))
         , device(std::move(device))
         , swapchain(swapchain)
         , initialization(initialization)
         , command_pool(command_pool)
         , present_queue(present_queue)
+        , graphics_queue(graphics_queue)
         , format(format)
+        , present_mode(present_mode)
+        , stereo(stereo)
     {
     }
     VKSwapChainCreateInfo(const VKSwapChainCreateInfo&) = delete;
@@ -65,7 +75,7 @@ public:
 public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
-    [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() const noexcept;
     WIS_INLINE void ReleaseSemaphore() noexcept;
 };
 } // namespace detail
@@ -88,12 +98,13 @@ public:
     }
 
 public:
-    /// @brief Get the current image index in the swapchain
-    /// @return Index of the current image
-    [[nodiscard]] uint32_t GetNextIndex() const noexcept
-    {
-        return present_index;
-    }
+    [[nodiscard]] uint32_t GetNextIndex() const noexcept { return present_index; }
+
+    [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
+
+    [[nodiscard]] WIS_INLINE wis::Result Resize(uint32_t width, uint32_t height) noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::Result Present() const noexcept;
 };
 } // namespace wis
 
@@ -191,51 +202,9 @@ public:
 //     /// @return true if succeeded
 //     WIS_INLINE bool Present() noexcept;
 //
-//     /// @brief Check if stereo is supported
-//     /// @return true if stereo is supported
-//     [[nodiscard]] bool StereoSupported() const noexcept
-//     {
-//         return stereo;
-//     }
+
 //
-//     /// @brief Resize the swapchain
-//     /// For the method to succeed, all swapchain buffers must be released first
-//     /// @param width New width
-//     /// @param height New height
-//     /// @return true if succeeded
-//     [[nodiscard]] bool Resize(uint32_t width, uint32_t height) noexcept
-//     {
-//         uint32_t nbuffers = back_buffers.size();
-//         back_buffers.clear();
-//
-//         vk::SwapchainKHR gswap = swap.get();
-//         while (true) {
-//
-//             vk::SwapchainCreateInfoKHR desc{
-//                 vk::SwapchainCreateFlagBitsKHR{}, GetSurface(),
-//                 nbuffers, format.format, format.colorSpace,
-//                 vk::Extent2D{ width, height },
-//                 stereo ? 2u : 1u,
-//                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
-//                 vk::SharingMode::eExclusive, 0u, nullptr,
-//                 vk::SurfaceTransformFlagBitsKHR::eIdentity,
-//                 vk::CompositeAlphaFlagBitsKHR::eOpaque,
-//                 present_mode, true, gswap // NOLINT
-//             };
-//
-//             auto r = device.createSwapchainKHR(&desc, nullptr, &gswap);
-//             if (r != vk::Result::eSuccess) {
-//                 gswap = nullptr;
-//                 continue;
-//             }
-//             swap = wis::shared_handle<vk::SwapchainKHR>{
-//                 gswap,
-//                 swap.getParent(), swap.getSurface()
-//             };
-//             CreateImages();
-//             return true;
-//         }
-//     }
+
 //
 // private:
 //     void CreateImages() noexcept

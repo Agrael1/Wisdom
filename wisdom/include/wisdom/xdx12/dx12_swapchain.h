@@ -13,7 +13,8 @@ namespace detail {
 struct DX12SwapChainCreateInfo {
     wis::com_ptr<IDXGISwapChain4> chain;
     std::unique_ptr<DX12Texture[]> back_buffers;
-    size_t back_buffer_count = 0;
+    uint32_t back_buffer_count = 0;
+    bool stereo = false;
 
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
 };
@@ -41,6 +42,17 @@ public:
     {
         return chain->GetCurrentBackBufferIndex();
     }
+    /// @brief Check if stereo is supported
+    /// @return true if stereo is supported
+    [[nodiscard]] bool StereoSupported() const noexcept{return stereo;}
+
+    /// @brief Resize the swapchain
+    /// For the method to succeed, all swapchain buffers must be released first
+    /// @param width New width
+    /// @param height New height
+    /// @return true if succeeded
+    [[nodiscard]] WIS_INLINE wis::Result
+    Resize(uint32_t width, uint32_t height) noexcept;
 };
 } // namespace wis
 
