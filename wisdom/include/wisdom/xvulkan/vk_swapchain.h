@@ -9,27 +9,33 @@ class VKDevice;
 
 namespace detail {
 struct VKSwapChainCreateInfo {
-    wis::managed_handle_ex<VkSwapchainKHR> swapchain;
-    std::unique_ptr<VKTexture[]> back_buffers;
-    uint32_t back_buffer_count = 0;
-    VkFormat format = VK_FORMAT_UNDEFINED;
+    wis::SharedSurface surface;
+    wis::SharedDevice device;
 
+    h::VkSwapchainKHR swapchain = nullptr;
     h::VkCommandBuffer initialization = nullptr;
     h::VkCommandPool command_pool = nullptr;
     h::VkQueue present_queue = nullptr;
     h::VkSemaphore present_semaphore = nullptr;
     h::VkSemaphore graphics_semaphore = nullptr;
 
+    std::unique_ptr<VKTexture[]> back_buffers;
+    uint32_t back_buffer_count = 0;
+    VkFormat format = VK_FORMAT_UNDEFINED;
     mutable uint32_t present_index = 0;
 
 public:
     VKSwapChainCreateInfo() = default;
-    VKSwapChainCreateInfo(wis::managed_handle_ex<VkSwapchainKHR> swapchain,
+    VKSwapChainCreateInfo(wis::SharedSurface surface,
+                          wis::SharedDevice device,
+                          VkSwapchainKHR swapchain,
                           VkCommandBuffer initialization,
                           VkCommandPool command_pool,
                           VkQueue present_queue,
                           VkFormat format) noexcept
-        : swapchain(std::move(swapchain))
+        : surface(std::move(surface))
+        , device(std::move(device))
+        , swapchain(swapchain)
         , initialization(initialization)
         , command_pool(command_pool)
         , present_queue(present_queue)
@@ -46,12 +52,14 @@ public:
         if (!swapchain)
             return;
 
-        auto& table = *swapchain.header().parent.table();
-        auto device = swapchain.header().parent.get();
+        auto& table = device.table();
+        auto hdevice = device.get();
+
         ReleaseSemaphore();
-        table.vkDestroyCommandPool(device, command_pool, nullptr);
-        table.vkDestroySemaphore(device, present_semaphore, nullptr);
-        table.vkDestroySemaphore(device, graphics_semaphore, nullptr);
+        table.vkDestroySemaphore(hdevice, present_semaphore, nullptr);
+        table.vkDestroySemaphore(hdevice, graphics_semaphore, nullptr);
+        table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
+        table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
     }
 
 public:

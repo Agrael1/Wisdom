@@ -9,9 +9,9 @@
 
 wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
 {
-    auto& table = *swapchain.header().parent.table();
+    auto& table = device.table();
     uint32_t new_back_buffer_count = 0;
-    auto result = table.vkGetSwapchainImagesKHR(swapchain.header().parent.get(), swapchain.get(), &new_back_buffer_count, nullptr);
+    auto result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, nullptr);
 
     if (new_back_buffer_count > back_buffer_count) {
         back_buffers = wis::detail::make_unique_for_overwrite<VKTexture[]>(new_back_buffer_count);
@@ -22,7 +22,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
     }
 
     wis::detail::limited_allocator<VkImage> allocator{ new_back_buffer_count };
-    result = table.vkGetSwapchainImagesKHR(swapchain.header().parent.get(), swapchain.get(), &new_back_buffer_count, allocator.data());
+    result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, allocator.data());
 
     if (!wis::succeeded(result))
         return { wis::make_result<FUNC, "vkGetSwapchainImagesKHR failed">(result) };
@@ -35,9 +35,8 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
 
 wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() noexcept
 {
-    auto& table = *swapchain.header().parent.table();
-    auto device = swapchain.header().parent.get();
-    auto result = table.vkAcquireNextImageKHR(device, swapchain.get(), std::numeric_limits<uint64_t>::max(), present_semaphore, nullptr, &present_index);
+    auto& table = device.table();
+    auto result = table.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), present_semaphore, nullptr, &present_index);
 
     VkPipelineStageFlags stage_mask = VkPipelineStageFlagBits::VK_PIPELINE_STAGE_TRANSFER_BIT;
     VkSubmitInfo signal_submit_info{
@@ -52,17 +51,17 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() noexcept
 }
 wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
 {
-    auto& table = *swapchain.header().parent.table();
+    auto& table = device.table();
     VkSemaphoreCreateInfo semaphore_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
     };
-    auto result = table.vkCreateSemaphore(swapchain.header().parent.get(), &semaphore_info, nullptr, &present_semaphore);
+    auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &present_semaphore);
     if (!wis::succeeded(result))
         return { wis::make_result<FUNC, "vkCreateSemaphore failed for present_semaphore">(result) };
 
-    result = table.vkCreateSemaphore(swapchain.header().parent.get(), &semaphore_info, nullptr, &graphics_semaphore);
+    result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &graphics_semaphore);
     return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkCreateSemaphore failed for graphics_semaphore">(result);
 }
 
@@ -74,7 +73,7 @@ void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphore() noexcept
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &present_semaphore,
     };
-    auto& table = *swapchain.header().parent.table();
+    auto& table = device.table();
     table.vkQueueSubmit(present_queue, 1, &signal_submit_info, nullptr);
     table.vkQueueWaitIdle(present_queue);
 }

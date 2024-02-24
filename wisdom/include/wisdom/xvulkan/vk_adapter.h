@@ -10,18 +10,18 @@ class VKAdapter;
 
 template<>
 struct Internal<VKAdapter> {
-    VkPhysicalDevice adapter{};
-    VkInstanceTable* instance_table{};
+    wis::SharedInstance instance;
+    VkPhysicalDevice adapter;
 };
 
 class VKAdapter : public QueryInternal<VKAdapter>
 {
 public:
     VKAdapter() noexcept = default;
-    explicit VKAdapter(VkPhysicalDevice adapter, VkInstanceTable* instance_table) noexcept
-        : QueryInternal(adapter, instance_table) { }
+    explicit VKAdapter(wis::SharedInstance instance, VkPhysicalDevice adapter) noexcept
+        : QueryInternal(std::move(instance), adapter) { }
+
     operator bool() const noexcept { return adapter != nullptr; }
-    operator VKAdapterHandle() const noexcept { return { adapter, instance_table }; }
 
 public:
     WIS_INLINE [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept;

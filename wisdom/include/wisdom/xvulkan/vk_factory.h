@@ -12,10 +12,9 @@ class VKFactory;
 
 template<>
 struct Internal<VKFactory> {
-    wis::shared_handle<VkInstance> factory;
+    wis::SharedInstance factory;
     h::VkDebugUtilsMessengerEXT messenger;
     uint32_t api_version{};
-    std::unique_ptr<wis::VkInstanceTable> instance_table{};
 
 public:
     static inline wis::LibToken lib_token;
@@ -45,7 +44,7 @@ class VKFactory : public QueryInternal<VKFactory>
 public:
     VKFactory() noexcept = default;
     WIS_INLINE explicit VKFactory(
-            wis::shared_handle<VkInstance> instance, uint32_t api_ver, bool debug_layer = false,
+            wis::SharedInstance instance, uint32_t api_ver, bool debug_layer = false,
             std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback = {}) noexcept;
     WIS_INLINE ~VKFactory() noexcept;
 
@@ -55,7 +54,7 @@ public:
     VKFactory& operator=(VKFactory&&) noexcept = default;
 
     operator bool() const noexcept { return bool(factory); }
-    operator VKFactoryHandle() const noexcept { return { factory, instance_table.get() }; }
+    operator VKFactoryHandle() const noexcept { return { factory }; }
 
 public:
     WIS_INLINE [[nodiscard]] wis::ResultValue<VKAdapter>

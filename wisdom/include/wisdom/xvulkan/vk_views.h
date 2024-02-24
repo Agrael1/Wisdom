@@ -4,9 +4,9 @@
 #include <wisvk/vk_loader.hpp>
 
 namespace wis {
-using VKAdapterHandle = std::tuple<VkPhysicalDevice, VkInstanceTable*>;
-using VKFactoryHandle = std::tuple<wis::shared_handle<VkInstance>, VkInstanceTable*>;
+using VKFactoryHandle = std::tuple<wis::SharedInstance>;
 using VKDeviceHandle = std::tuple<wis::SharedDevice>;
+
 
 using VKFenceView = std::tuple<VkSemaphore>;
 using VKShaderView = std::tuple<VkShaderModule>;

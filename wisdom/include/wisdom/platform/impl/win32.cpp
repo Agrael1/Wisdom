@@ -137,13 +137,14 @@ wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, cons
     wis::lib_info("Initializing Win32 Surface");
 
     auto& devicei = device.GetInternal();
-    const auto* instance_table = devicei.GetInstanceTable();
+    const auto& instance_table = devicei.GetInstanceTable();
+    const auto& instance = devicei.adapter.GetInternal().instance;
     VkSurfaceKHR surface;
-    auto result = instance_table->vkCreateWin32SurfaceKHR(device.GetInternal().instance.get(), &surface_desc, nullptr, &surface);
+    auto result = instance_table.vkCreateWin32SurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(result)) {
         return wis::make_result<FUNC, "Failed to create Win32 surface">(result);
     }
-    wis::shared_handle<VkSurfaceKHR> surface_handle{ surface, device.GetInternal().instance, instance_table->vkDestroySurfaceKHR };
+    wis::SharedSurface surface_handle{ surface, instance, instance_table.vkDestroySurfaceKHR };
     return device.VKCreateSwapChain(surface_handle, desc);
 }
 #endif // WISDOM_VULKAN

@@ -10,8 +10,6 @@
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/misc.h>
 
-#define VKGT wis::Internal<wis::VKFactory>::global_table
-
 namespace {
 struct FactoryData {
 public:
@@ -52,11 +50,11 @@ private:
     {
         std::vector<VkExtensionProperties> vextensions;
         uint32_t count = 0;
-        auto vr = VKGT.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+        auto vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
         do
             vextensions.resize(count);
-        while ((vr = VKGT.vkEnumerateInstanceExtensionProperties(nullptr, &count,
-                                                                 vextensions.data())) == VK_INCOMPLETE);
+        while ((vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceExtensionProperties(nullptr, &count,
+                                                                                                        vextensions.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -68,10 +66,10 @@ private:
     {
         std::vector<VkLayerProperties> vlayers;
         uint32_t count = 0;
-        auto vr = VKGT.vkEnumerateInstanceLayerProperties(&count, nullptr);
+        auto vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceLayerProperties(&count, nullptr);
         do
             vlayers.resize(count);
-        while ((vr = VKGT.vkEnumerateInstanceLayerProperties(&count, vlayers.data())) == VK_INCOMPLETE);
+        while ((vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceLayerProperties(&count, vlayers.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -227,17 +225,20 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
         create_info.pNext = &create_instance_debug;
     }
 
-    wis::shared_handle<VkInstance> instance;
-    if (!wis::succeeded(vr = gt.vkCreateInstance(&create_info, nullptr,
-                                                 instance.put_unsafe(gt.vkDestroyInstance))))
+    VkInstance instance;
+    vr = gt.vkCreateInstance(&create_info, nullptr, &instance);
+    if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to create instance">(vr);
 
-    auto factory =
-            wis::VKFactory{ std::move(instance), version, debug_layer, std::move(debug_callback) };
+    auto table = wis::detail::make_unique<wis::VkInstanceTable>();
+    if (!table)
+        return wis::make_result<FUNC, "Failed to create instance table">(VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    table->Init(instance, gt);
+
+    auto factory = wis::VKFactory{ wis::SharedInstance{ instance, gt.vkDestroyInstance, std::move(table) }, version, debug_layer, std::move(debug_callback) };
 
     vr = factory.EnumeratePhysicalDevices();
-
-    // TODO: rework
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to enumerate physical devices">(vr);
 
@@ -260,13 +261,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallbackThunk(
 }
 
 wis::VKFactory::VKFactory(
-        wis::shared_handle<VkInstance> instance, uint32_t api_ver, bool debug_layer,
+        wis::SharedInstance instance, uint32_t api_ver, bool debug_layer,
         std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback) noexcept
     : QueryInternal(std::move(instance))
 {
-    instance_table = std::make_unique<wis::VkInstanceTable>();
     api_version = api_ver;
-    instance_table->Init(factory.get(), global_table);
     if constexpr (wis::debug_layer) {
         if (debug_layer && debug_callback) {
             EnableDebugLayer(std::move(debug_callback));
@@ -277,7 +276,7 @@ wis::VKFactory::VKFactory(
 wis::VKFactory::~VKFactory() noexcept
 {
     if (debug_callback) {
-        instance_table->vkDestroyDebugUtilsMessengerEXT(factory.get(), messenger, nullptr);
+        factory.table().vkDestroyDebugUtilsMessengerEXT(factory.get(), messenger, nullptr);
         factory.reset();
     }
 }
@@ -301,12 +300,14 @@ wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const n
 
 VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
 {
+    auto& itable = factory.table();
+
     std::vector<VkPhysicalDevice> phys_adapters;
     uint32_t count = 0;
-    auto vr = instance_table->vkEnumeratePhysicalDevices(factory.get(), &count, nullptr);
+    auto vr = factory.table().vkEnumeratePhysicalDevices(factory.get(), &count, nullptr);
     do
         phys_adapters.resize(count);
-    while ((vr = instance_table->vkEnumeratePhysicalDevices(factory.get(), &count,
+    while ((vr = itable.vkEnumeratePhysicalDevices(factory.get(), &count,
                                                             phys_adapters.data())) == VK_INCOMPLETE);
     if (!wis::succeeded(vr))
         return vr;
@@ -319,10 +320,11 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
         std::vector<uint32_t> indices_perf(indices.begin(), indices.end());
 
         auto less_consumption = [this](VkPhysicalDevice a, VkPhysicalDevice b) {
+            auto& itable = factory.table();
             VkPhysicalDeviceProperties a_properties{};
             VkPhysicalDeviceProperties b_properties{};
-            instance_table->vkGetPhysicalDeviceProperties(a, &a_properties);
-            instance_table->vkGetPhysicalDeviceProperties(b, &b_properties);
+            itable.vkGetPhysicalDeviceProperties(a, &a_properties);
+            itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
             return order_power(a_properties.deviceType) > order_power(b_properties.deviceType)
                     ? true
@@ -330,10 +332,11 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
                             b_properties.limits.maxMemoryAllocationCount;
         };
         auto less_performance = [this](VkPhysicalDevice a, VkPhysicalDevice b) {
+            auto& itable = factory.table();
             VkPhysicalDeviceProperties a_properties{};
             VkPhysicalDeviceProperties b_properties{};
-            instance_table->vkGetPhysicalDeviceProperties(a, &a_properties);
-            instance_table->vkGetPhysicalDeviceProperties(b, &b_properties);
+            itable.vkGetPhysicalDeviceProperties(a, &a_properties);
+            itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
             return order_performance(a_properties.deviceType) > order_performance(b_properties.deviceType)
                     ? true
@@ -352,14 +355,18 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
 
         for (size_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
-            adapter.adapter = VKAdapter{ phys_adapters[i], instance_table.get() };
+            adapter.adapter = VKAdapter{
+                factory, phys_adapters[i]
+            };
             adapter.index_performance = indices_perf[i];
             adapter.index_consumption = indices_cons[i];
         }
     } else {
         for (size_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
-            adapter.adapter = VKAdapter{ phys_adapters[i], instance_table.get() };
+            adapter.adapter = VKAdapter{
+                factory, phys_adapters[i]
+            };
             adapter.index_performance = i;
             adapter.index_consumption = i;
         }
@@ -370,6 +377,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
 void wis::VKFactory::EnableDebugLayer(
         std::unique_ptr<std::pair<wis::DebugCallback, void*>> xdebug_callback) noexcept
 {
+    auto& itable = factory.table();
     debug_callback = std::move(xdebug_callback);
     VkDebugUtilsMessengerCreateInfoEXT create_info{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -383,7 +391,7 @@ void wis::VKFactory::EnableDebugLayer(
         .pUserData = debug_callback.get()
     };
 
-    auto vr = instance_table->vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
+    auto vr = itable.vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
                                                              &messenger);
     if (!wis::succeeded(vr)) {
         wis::lib_error("Failed to create debug messenger");

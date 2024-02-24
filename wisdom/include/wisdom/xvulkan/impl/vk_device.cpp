@@ -43,16 +43,13 @@ constexpr static inline std::array required_extensions{
     // VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
 };
 
-auto RequestExtensions(wis::VKAdapterHandle adapter_hnd) noexcept
+auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
 {
-    auto* adapter = std::get<0>(adapter_hnd);
-    auto* itbl = std::get<1>(adapter_hnd);
-
     std::vector<VkExtensionProperties> ext_props;
     uint32_t count = 0;
-    itbl->vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, nullptr);
+    itable.vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, nullptr);
     ext_props.resize(count);
-    itbl->vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, ext_props.data());
+    itable.vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, ext_props.data());
 
     std::unordered_set<std::string_view, wis::string_hash> ext_set;
     ext_set.reserve(count);
@@ -77,20 +74,17 @@ auto RequestExtensions(wis::VKAdapterHandle adapter_hnd) noexcept
     return avail_exts;
 }
 
-wis::detail::QueueResidency GetQueueFamilies(wis::VKAdapterHandle adapter_hnd) noexcept
+wis::detail::QueueResidency GetQueueFamilies(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
 {
     using namespace river::flags;
     using namespace wis::detail;
 
-    auto* adapter = std::get<0>(adapter_hnd);
-    auto* itbl = std::get<1>(adapter_hnd);
-
     std::vector<VkQueueFamilyProperties> family_props;
     VkResult result = VK_SUCCESS;
     uint32_t count = 0;
-    itbl->vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
+    itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
     family_props.resize(count);
-    itbl->vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.data());
+    itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.data());
 
     wis::lib_info(wis::format("The system supports {} queue families", family_props.size()));
     assert(family_props.size() < 256);
@@ -149,14 +143,16 @@ wis::detail::QueueResidency GetQueueFamilies(wis::VKAdapterHandle adapter_hnd) n
     return queues;
 }
 
-wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKFactoryHandle factory,
-                                                    wis::VKAdapterHandle adapter) noexcept
+wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noexcept
 {
     constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
     wis::detail::uniform_allocator<VkDeviceQueueCreateInfo, max_queue_count> queue_infos{};
-    auto queues = GetQueueFamilies(adapter);
-    auto* xadapter = std::get<0>(adapter);
-    auto* itbl = std::get<1>(factory);
+
+    auto& adapter_i = adapter.GetInternal();
+    auto hadapter = adapter_i.adapter;
+    auto& itable = adapter_i.instance.table();
+
+    auto queues = GetQueueFamilies(hadapter, itable);
 
     void** next_chain = nullptr;
 
@@ -190,11 +186,9 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKFactoryHandle factory
         };
     }
 
-    auto present_exts = RequestExtensions(adapter);
+    auto present_exts = RequestExtensions(hadapter, itable);
     if (!present_exts.contains(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
-        return { wis::make_result<FUNC, "The system does not support timeline semaphores.">(
-                         VkResult::VK_ERROR_UNKNOWN),
-                 wis::VKDevice{} };
+        return wis::make_result<FUNC, "The system does not support timeline semaphores.">(VkResult::VK_ERROR_UNKNOWN);
 
     // Loading features
     VkPhysicalDeviceFeatures2 features{
@@ -225,7 +219,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKFactoryHandle factory
     if (present_exts.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
         set_next(&dyn_render);
 
-    itbl->vkGetPhysicalDeviceFeatures2(xadapter, &features);
+    itable.vkGetPhysicalDeviceFeatures2(hadapter, &features);
 
     VkDeviceCreateInfo device_info{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -250,25 +244,33 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKFactoryHandle factory
 
     VkDevice device{};
     VkResult result = VK_SUCCESS;
-    if (!wis::succeeded(result = itbl->vkCreateDevice(xadapter, &device_info, nullptr, &device)))
-        return { wis::make_result<FUNC, "vkCreateDevice failed to create device">(result),
-                 wis::VKDevice{} };
+    if (!wis::succeeded(result = itable.vkCreateDevice(hadapter, &device_info, nullptr, &device)))
+        return wis::make_result<FUNC, "vkCreateDevice failed to create device">(result);
 
-    std::unique_ptr<VkDeviceTable> device_table = std::make_unique<VkDeviceTable>();
+    std::unique_ptr<VkDeviceTable> device_table = wis::detail::make_unique<VkDeviceTable>();
+    if (!device_table)
+        return wis::make_result<FUNC, "Failed to allocate device table">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
     device_table->Init(device, Internal<VKFactory>::global_table);
-    wis::VKDevice vkdevice{ std::move(std::get<0>(factory)),
-                            wis::SharedDevice{ device, std::move(device_table) }, std::move(adapter),
+
+    wis::VKDevice vkdevice{ wis::SharedDevice{ device, std::move(device_table) },
+                            std::move(adapter),
                             dfeatures, ifeatures };
 
     return { wis::success, std::move(vkdevice) };
 }
 
-wis::VKDevice::VKDevice(wis::shared_handle<VkInstance> instance, wis::SharedDevice device,
-                        wis::VKAdapterHandle adapter, wis::DeviceFeatures features,
-                        InternalFeatures ifeatures) noexcept
-    : QueryInternal(std::move(instance), std::move(device), adapter, ifeatures), features(features)
+wis::VKDevice::VKDevice(wis::SharedDevice in_device,
+                        wis::VKAdapter in_adapter,
+                        wis::DeviceFeatures in_features,
+                        InternalFeatures in_ifeatures) noexcept
+    : QueryInternal(std::move(in_adapter), std::move(in_device), in_ifeatures), features(in_features)
 {
-    queues = GetQueueFamilies(adapter);
+    auto& gtable = wis::Internal<VKFactory>::global_table;
+    auto& itable = GetInstanceTable();
+    auto& dtable = device.table();
+
+    queues = GetQueueFamilies(adapter.GetInternal().adapter, itable);
 
     VkPhysicalDeviceProperties2 props{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
@@ -282,44 +284,40 @@ wis::VKDevice::VKDevice(wis::shared_handle<VkInstance> instance, wis::SharedDevi
     if (ifeatures.has_descriptor_buffer) {
         props.pNext = &dbp;
     }
-    std::get<1>(adapter)->vkGetPhysicalDeviceProperties2(std::get<0>(adapter), &props);
+    itable.vkGetPhysicalDeviceProperties2(adapter.GetInternal().adapter, &props);
 
     if (ifeatures.has_descriptor_buffer) {
         ifeatures.push_descriptor_bufferless = dbp.bufferlessPushDescriptors;
     }
     ifeatures.max_ia_attributes = props.properties.limits.maxVertexInputAttributes;
 
-    auto& gt = wis::Internal<VKFactory>::global_table;
-    auto& it = *GetInstanceTable();
-    auto& dt = *device.table();
-
     allocator_functions = std::shared_ptr<VmaVulkanFunctions>{ new VmaVulkanFunctions{
-            .vkGetInstanceProcAddr = gt.vkGetInstanceProcAddr,
-            .vkGetDeviceProcAddr = gt.vkGetDeviceProcAddr,
-            .vkGetPhysicalDeviceProperties = it.vkGetPhysicalDeviceProperties,
-            .vkGetPhysicalDeviceMemoryProperties = it.vkGetPhysicalDeviceMemoryProperties,
-            .vkAllocateMemory = dt.vkAllocateMemory,
-            .vkFreeMemory = dt.vkFreeMemory,
-            .vkMapMemory = dt.vkMapMemory,
-            .vkUnmapMemory = dt.vkUnmapMemory,
-            .vkFlushMappedMemoryRanges = dt.vkFlushMappedMemoryRanges,
-            .vkInvalidateMappedMemoryRanges = dt.vkInvalidateMappedMemoryRanges,
-            .vkBindBufferMemory = dt.vkBindBufferMemory,
-            .vkBindImageMemory = dt.vkBindImageMemory,
-            .vkGetBufferMemoryRequirements = dt.vkGetBufferMemoryRequirements,
-            .vkGetImageMemoryRequirements = dt.vkGetImageMemoryRequirements,
-            .vkCreateBuffer = dt.vkCreateBuffer,
-            .vkDestroyBuffer = dt.vkDestroyBuffer,
-            .vkCreateImage = dt.vkCreateImage,
-            .vkDestroyImage = dt.vkDestroyImage,
-            .vkCmdCopyBuffer = dt.vkCmdCopyBuffer,
-            .vkGetBufferMemoryRequirements2KHR = dt.vkGetBufferMemoryRequirements2,
-            .vkGetImageMemoryRequirements2KHR = dt.vkGetImageMemoryRequirements2,
-            .vkBindBufferMemory2KHR = dt.vkBindBufferMemory2,
-            .vkBindImageMemory2KHR = dt.vkBindImageMemory2,
-            .vkGetPhysicalDeviceMemoryProperties2KHR = it.vkGetPhysicalDeviceMemoryProperties2,
-            .vkGetDeviceBufferMemoryRequirements = dt.vkGetDeviceBufferMemoryRequirements,
-            .vkGetDeviceImageMemoryRequirements = dt.vkGetDeviceImageMemoryRequirements,
+            .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
+            .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
+            .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
+            .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
+            .vkAllocateMemory = dtable.vkAllocateMemory,
+            .vkFreeMemory = dtable.vkFreeMemory,
+            .vkMapMemory = dtable.vkMapMemory,
+            .vkUnmapMemory = dtable.vkUnmapMemory,
+            .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
+            .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
+            .vkBindBufferMemory = dtable.vkBindBufferMemory,
+            .vkBindImageMemory = dtable.vkBindImageMemory,
+            .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
+            .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
+            .vkCreateBuffer = dtable.vkCreateBuffer,
+            .vkDestroyBuffer = dtable.vkDestroyBuffer,
+            .vkCreateImage = dtable.vkCreateImage,
+            .vkDestroyImage = dtable.vkDestroyImage,
+            .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
+            .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
+            .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
+            .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
+            .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
+            .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
+            .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
+            .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
     } };
 }
 
@@ -333,7 +331,7 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
                                   .semaphoreCount = static_cast<uint32_t>(count),
                                   .pSemaphores = reinterpret_cast<const VkSemaphore*>(fences),
                                   .pValues = values };
-    VkResult result = device.table()->vkWaitSemaphores(device.get(), &waitInfo, timeout);
+    VkResult result = device.table().vkWaitSemaphores(device.get(), &waitInfo, timeout);
 
     return succeeded(result)
             ? wis::success
@@ -356,12 +354,12 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
         .flags = 0,
     };
     VkSemaphore sem;
-    VkResult result = device.table()->vkCreateSemaphore(device.get(), &desc, nullptr, &sem);
+    VkResult result = device.table().vkCreateSemaphore(device.get(), &desc, nullptr, &sem);
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "vkCreateSemaphore failed to create a timeline semaphore.">(result);
 
-    return VKFence{ { sem, device, device.table()->vkDestroySemaphore } };
+    return VKFence{ { sem, device, device.table().vkDestroySemaphore } };
 }
 
 wis::ResultValue<wis::VKCommandQueue>
@@ -383,7 +381,7 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priori
         .queueIndex = queue->GetNextInLine(),
     };
     VkQueue queue_handle;
-    device.table()->vkGetDeviceQueue2(device.get(), &info, &queue_handle);
+    device.table().vkGetDeviceQueue2(device.get(), &info, &queue_handle);
     return wis::VKCommandQueue{ device, VkQueue{ queue_handle } };
 }
 
@@ -411,13 +409,12 @@ wis::VKDevice::CreateRootSignature(RootConstant* constants,
         .pPushConstantRanges = vk_constants.data(),
     };
     VkPipelineLayout layout;
-    auto vr =
-            device.table()->vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
+    auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
 
     if (!succeeded(vr))
         return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
 
-    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table()->vkDestroyPipelineLayout } };
+    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout } };
 }
 
 namespace wis::detail {
@@ -711,14 +708,14 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     };
 
     VkPipeline pipeline;
-    auto result = device.table()->vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr,
-                                                            &pipeline);
+    auto result = device.table().vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr,
+                                                           &pipeline);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a graphics pipeline">(result);
 
     return wis::VKPipelineState{
         wis::managed_handle_ex<VkPipeline>{
-                pipeline, device, device.table()->vkDestroyPipeline }
+                pipeline, device, device.table().vkDestroyPipeline }
     };
 }
 
@@ -733,7 +730,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     };
     VkCommandPool cmd_pool;
     auto result =
-            device.table()->vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
+            device.table().vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
     if (!succeeded(result))
         return { wis::make_result<FUNC, "Failed to create a command pool">(result),
                  wis::VKCommandList{} };
@@ -747,12 +744,12 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     };
 
     VkCommandBuffer cmd_buf;
-    result = device.table()->vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
+    result = device.table().vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    return wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table()->vkDestroyCommandPool }, cmd_buf };
+    return wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table().vkDestroyCommandPool }, cmd_buf };
 }
 
 wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
@@ -766,12 +763,12 @@ wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
         .pCode = reinterpret_cast<const uint32_t*>(bytecode),
     };
     VkShaderModule shader;
-    auto vr = device.table()->vkCreateShaderModule(device.get(), &desc, nullptr, &shader);
+    auto vr = device.table().vkCreateShaderModule(device.get(), &desc, nullptr, &shader);
 
     if (!succeeded(vr))
         return wis::make_result<FUNC, "Failed to create a shader module">(vr);
 
-    return wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table()->vkDestroyShaderModule } };
+    return wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table().vkDestroyShaderModule } };
 }
 
 wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
@@ -789,16 +786,17 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 {
     uint32_t version = 0;
     auto& gt = wis::Internal<VKFactory>::global_table;
-    auto& it = *GetInstanceTable();
-    auto& dt = *device.table();
+    auto& it = GetInstanceTable();
+    auto& dt = device.table();
+    auto& adapter_i = adapter.GetInternal();
     gt.vkEnumerateInstanceVersion(&version);
 
     VmaAllocatorCreateInfo allocatorInfo{
         .flags = 0,
-        .physicalDevice = std::get<0>(adapter),
+        .physicalDevice = adapter_i.adapter,
         .device = device.get(),
         .pVulkanFunctions = allocator_functions.get(),
-        .instance = instance.get(),
+        .instance = adapter_i.instance.get(),
         .vulkanApiVersion = version,
     };
 
@@ -812,11 +810,12 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 }
 
 wis::ResultValue<wis::VKSwapChain>
-wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
+wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
                                  const SwapchainDesc* desc) const noexcept
 {
-    auto itable = GetInstanceTable();
-    auto dtable = device.table();
+    auto& itable = GetInstanceTable();
+    auto& dtable = device.table();
+    auto hadapter = adapter.GetInternal().adapter;
 
     int32_t present_queue = -1;
     for (uint16_t i = 0; i < size_t(wis::detail::QueueTypes::Count); i++) {
@@ -825,8 +824,8 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
             continue;
 
         VkBool32 supported = false;
-        auto result = itable->vkGetPhysicalDeviceSurfaceSupportKHR(std::get<0>(adapter), x.family_index,
-                                                                   surface.get(), &supported);
+        auto result = itable.vkGetPhysicalDeviceSurfaceSupportKHR(hadapter, x.family_index,
+                                                                  surface.get(), &supported);
         if (!succeeded(result))
             return wis::make_result<FUNC,
                                     "Failed to check if the queue supports presentation to the surface">(
@@ -853,14 +852,14 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
         .queueIndex = queue.GetNextInLine(),
     };
     VkQueue qpresent_queue;
-    dtable->vkGetDeviceQueue2(device.get(), &info, &qpresent_queue);
+    dtable.vkGetDeviceQueue2(device.get(), &info, &qpresent_queue);
 
     uint32_t format_count = 0;
-    itable->vkGetPhysicalDeviceSurfaceFormatsKHR(std::get<0>(adapter), surface.get(), &format_count,
-                                                 nullptr);
+    itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count,
+                                                nullptr);
     std::vector<VkSurfaceFormatKHR> surface_formats(format_count);
-    auto result = itable->vkGetPhysicalDeviceSurfaceFormatsKHR(std::get<0>(adapter), surface.get(),
-                                                               &format_count, surface_formats.data());
+    auto result = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(),
+                                                              &format_count, surface_formats.data());
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to get surface formats">(result);
@@ -877,7 +876,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     VkSurfaceCapabilitiesKHR cap{};
 
     result =
-            itable->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(std::get<0>(adapter), surface.get(), &cap);
+            itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(hadapter, surface.get(), &cap);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to get surface capabilities">(result);
 
@@ -893,11 +892,11 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
         constexpr VkPresentModeKHR eImmediate = VK_PRESENT_MODE_IMMEDIATE_KHR;
 
         uint32_t format_count = 0;
-        itable->vkGetPhysicalDeviceSurfacePresentModesKHR(std::get<0>(adapter), surface, &format_count,
-                                                          nullptr);
+        itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface, &format_count,
+                                                         nullptr);
         std::vector<VkPresentModeKHR> modes(format_count);
-        itable->vkGetPhysicalDeviceSurfacePresentModesKHR(std::get<0>(adapter), surface, &format_count,
-                                                          modes.data());
+        itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface, &format_count,
+                                                         modes.data());
 
         return vsync ? std::ranges::count(modes, eFifoRelaxed) ? eFifoRelaxed : eFifo : eImmediate;
     };
@@ -926,7 +925,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     };
 
     VkSwapchainKHR swapchain;
-    result = device.table()->vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
+    result = dtable.vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a swapchain">(result);
@@ -938,7 +937,7 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
         .queueFamilyIndex = queues.GetOfType(wis::QueueType::Graphics)->family_index,
     };
     VkCommandPool cmd_pool;
-    result = device.table()->vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
+    result = dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a command pool">(result);
 
@@ -951,14 +950,12 @@ wis::VKDevice::VKCreateSwapChain(wis::shared_handle<VkSurfaceKHR> surface,
     };
 
     VkCommandBuffer cmd_buf;
-    result = device.table()->vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
+    result = dtable.vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    wis::detail::VKSwapChainCreateInfo sci{
-        wis::managed_handle_ex<VkSwapchainKHR>{ swapchain, surface, device, device.table()->vkDestroySwapchainKHR },
-        cmd_buf, cmd_pool, qpresent_queue, swap_info.imageFormat
-    };
+    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, swapchain,
+                                            cmd_buf, cmd_pool, qpresent_queue, swap_info.imageFormat };
 
     auto rres = sci.InitSemaphores();
     if (rres.status != wis::Status::Ok)
