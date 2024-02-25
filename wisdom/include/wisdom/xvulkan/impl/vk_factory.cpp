@@ -206,8 +206,7 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
                                               static_cast<uint32_t>(found_extension.size()),
                                       .ppEnabledExtensionNames = found_extension.data() };
 
-    std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback =
-            std::make_unique<std::pair<wis::DebugCallback, void*>>(callback, user_data);
+    std::pair<wis::DebugCallback, void*> debug_callback(callback, user_data);
 
     VkDebugUtilsMessengerCreateInfoEXT create_instance_debug{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -218,7 +217,7 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
                 VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = VKFactory::DebugCallbackThunk,
-        .pUserData = debug_callback.get()
+        .pUserData = &debug_callback
     };
 
     if (debug_layer) {
@@ -236,7 +235,7 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
 
     table->Init(instance, gt);
 
-    auto factory = wis::VKFactory{ wis::SharedInstance{ instance, gt.vkDestroyInstance, std::move(table) }, version, debug_layer, std::move(debug_callback) };
+    auto factory = wis::VKFactory{ wis::SharedInstance{ instance, gt.vkDestroyInstance, std::move(table) }, version, debug_layer };
 
     vr = factory.EnumeratePhysicalDevices();
     if (!wis::succeeded(vr))
@@ -261,24 +260,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallbackThunk(
 }
 
 wis::VKFactory::VKFactory(
-        wis::SharedInstance instance, uint32_t api_ver, bool debug_layer,
-        std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback) noexcept
-    : QueryInternal(std::move(instance))
+        wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
+    : QueryInternal(std::move(instance), api_ver, debug)
 {
-    api_version = api_ver;
-    if constexpr (wis::debug_layer) {
-        if (debug_layer && debug_callback) {
-            EnableDebugLayer(std::move(debug_callback));
-        }
-    }
-}
-
-wis::VKFactory::~VKFactory() noexcept
-{
-    if (debug_callback) {
-        factory.table().vkDestroyDebugUtilsMessengerEXT(factory.get(), messenger, nullptr);
-        factory.reset();
-    }
 }
 
 [[nodiscard]] wis::ResultValue<wis::VKAdapter>
@@ -298,6 +282,34 @@ wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const n
     }
 }
 
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDebugMessenger>
+wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
+{
+    auto debug_callback = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);
+    if (!debug_callback)
+        return wis::make_result<FUNC, "Failed to create debug callback data">(VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    VkDebugUtilsMessengerCreateInfoEXT create_info{
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+        .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
+        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        .pfnUserCallback = VKFactory::DebugCallbackThunk,
+        .pUserData = debug_callback.get()
+    };
+
+    VkDebugUtilsMessengerEXT messenger;
+    auto vr = factory.table().vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
+                                                             &messenger);
+    if (!wis::succeeded(vr))
+        return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
+
+    return wis::VKDebugMessenger{ factory, messenger, std::move(debug_callback) };
+}
+
 VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
 {
     auto& itable = factory.table();
@@ -308,7 +320,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
     do
         phys_adapters.resize(count);
     while ((vr = itable.vkEnumeratePhysicalDevices(factory.get(), &count,
-                                                            phys_adapters.data())) == VK_INCOMPLETE);
+                                                   phys_adapters.data())) == VK_INCOMPLETE);
     if (!wis::succeeded(vr))
         return vr;
 
@@ -372,28 +384,4 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
         }
     }
     return VK_SUCCESS;
-}
-
-void wis::VKFactory::EnableDebugLayer(
-        std::unique_ptr<std::pair<wis::DebugCallback, void*>> xdebug_callback) noexcept
-{
-    auto& itable = factory.table();
-    debug_callback = std::move(xdebug_callback);
-    VkDebugUtilsMessengerCreateInfoEXT create_info{
-        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-        .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
-        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-        .pfnUserCallback = VKFactory::DebugCallbackThunk,
-        .pUserData = debug_callback.get()
-    };
-
-    auto vr = itable.vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
-                                                             &messenger);
-    if (!wis::succeeded(vr)) {
-        wis::lib_error("Failed to create debug messenger");
-    }
 }

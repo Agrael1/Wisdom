@@ -25,6 +25,9 @@ Test::App::App(uint32_t width, uint32_t height)
     auto [result, hfactory] = wis::CreateFactory(true, DebugCallback, &std::cout);
     factory = std::move(hfactory);
 
+    auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
+    info = std::move(hinfo);
+
     wis::Device hdevice;
 
     for (size_t i = 0;; i++) {

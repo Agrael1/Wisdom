@@ -37,6 +37,7 @@ using Shader = DX12Shader;
 using CommandList = DX12CommandList;
 using SwapChain = DX12SwapChain;
 using Buffer = DX12Buffer;
+using DebugMessenger = DX12DebugMessenger;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
 }
@@ -58,6 +59,7 @@ using Shader = VKShader;
 using CommandList = VKCommandList;
 using SwapChain = VKSwapChain;
 using Buffer = VKBuffer;
+using DebugMessenger = VKDebugMessenger;
 constexpr auto CreateFactory = wis::VKCreateFactory;
 constexpr auto CreateDevice = wis::VKCreateDevice;
 }
