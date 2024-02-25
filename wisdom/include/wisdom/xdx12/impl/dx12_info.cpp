@@ -88,9 +88,10 @@ bool DX12Info::RebindCallback(void* factory_from, void* factory_to) noexcept
         return false;
 
     inst.callback_sem.acquire();
-    auto&& [k, v] = *inst.callbacks.find(factory_from);
+    auto pair = *inst.callbacks.find(factory_from);
+
     inst.callbacks.erase(factory_from);
-    inst.callbacks.emplace(factory_to, std::move(v));
+    inst.callbacks.emplace(factory_to, std::move(pair.second));
     inst.callback_sem.release();
     return true;
 }

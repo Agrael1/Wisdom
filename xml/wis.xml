@@ -13,6 +13,7 @@
     <handle name="CommandList"/>
     <handle name="Buffer"/>
     <handle name="SwapChain"/>
+    <handle name="DebugMessenger"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->

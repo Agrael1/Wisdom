@@ -2,6 +2,7 @@
 #include <dxgidebug.h>
 #include <semaphore>
 #include <unordered_map>
+#include <utility>
 #include <wisdom/generated/api/api.h>
 #include <wisdom/util/com_ptr.h>
 
@@ -43,6 +44,29 @@ private:
 };
 
 struct DX12InfoToken {
+    DX12InfoToken() noexcept = default;
+    DX12InfoToken(bool) noexcept
+        : bound(true)
+    {
+        Acquire();
+    }
+    DX12InfoToken(DX12InfoToken&& other) noexcept
+        : bound(std::exchange(other.bound, false))
+    {
+    }
+    DX12InfoToken& operator=(DX12InfoToken&& other) noexcept
+    {
+        if (bound)
+            Release();
+        bound = std::exchange(other.bound, false);
+        return *this;
+    }
+    ~DX12InfoToken()
+    {
+        if (bound)
+            Release();
+    }
+
     void Acquire() noexcept
     {
         if (!DX12Info::instance().ref_count.fetch_add(1, std::memory_order_relaxed)) {
@@ -56,6 +80,10 @@ struct DX12InfoToken {
             DX12Info::instance().Uninitialize();
         }
     }
+    operator bool() const noexcept { return bound; }
+
+private:
+    bool bound = false;
 };
 } // namespace wis
 

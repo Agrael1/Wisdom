@@ -20,6 +20,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/vk_shader.h"
 			"include/wisdom/xvulkan/vk_allocator.h"
 			"include/wisdom/xvulkan/vk_swapchain.h"
+			"include/wisdom/xvulkan/vk_debug.h"
 		SOURCES
 			"include/wisdom/xvulkan/impl/vk_factory.cpp"
 			"include/wisdom/xvulkan/impl/vk_allocator.cpp"

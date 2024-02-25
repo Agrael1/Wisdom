@@ -3,6 +3,7 @@
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/xvulkan/vk_adapter.h>
+#include <wisdom/xvulkan/vk_debug.h>
 
 #include <mutex>
 #include <vector>
@@ -13,9 +14,8 @@ class VKFactory;
 template<>
 struct Internal<VKFactory> {
     wis::SharedInstance factory;
-    h::VkDebugUtilsMessengerEXT messenger;
     uint32_t api_version{};
-
+    bool debug_layer = false;
 public:
     static inline wis::LibToken lib_token;
     static inline wis::VkGlobalTable global_table{};
@@ -44,9 +44,7 @@ class VKFactory : public QueryInternal<VKFactory>
 public:
     VKFactory() noexcept = default;
     WIS_INLINE explicit VKFactory(
-            wis::SharedInstance instance, uint32_t api_ver, bool debug_layer = false,
-            std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback = {}) noexcept;
-    WIS_INLINE ~VKFactory() noexcept;
+            wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
 
     VKFactory(const VKFactory&) = delete;
     VKFactory(VKFactory&&) noexcept = default;
@@ -57,15 +55,15 @@ public:
     operator VKFactoryHandle() const noexcept { return { factory }; }
 
 public:
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKAdapter>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKAdapter>
     GetAdapter(uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKDebugMessenger>
+    CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
+
 private:
     WIS_INLINE VkResult EnumeratePhysicalDevices() noexcept;
-
-    WIS_INLINE void
-    EnableDebugLayer(std::unique_ptr<std::pair<wis::DebugCallback, void*>> xdebug_callback) noexcept;
 
     static void InitializeGlobalTable() noexcept
     {
@@ -77,7 +75,6 @@ private:
 
 private:
     mutable std::vector<IndexedAdapter> adapters{};
-    std::unique_ptr<std::pair<wis::DebugCallback, void*>> debug_callback{};
 };
 } // namespace wis
 
