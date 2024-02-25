@@ -18,7 +18,6 @@ public:
 private:
     Window wnd;
 
-    wis::Factory factory;
     wis::DebugMessenger info;
 
     wis::Device device;

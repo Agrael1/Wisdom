@@ -16,14 +16,12 @@ struct Internal<DX12Factory> {
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Factory>
-DX12CreateFactory(bool debug_layer = false, wis::DebugCallback callback = nullptr,
-                  void* user_data = nullptr) noexcept;
+DX12CreateFactory(bool debug_layer = false) noexcept;
 
 /// @brief Main Factory class
 class DX12Factory : public QueryInternal<DX12Factory>
 {
-    friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool, wis::DebugCallback,
-                                                                void*) noexcept;
+    friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool) noexcept;
 public:
     DX12Factory() noexcept = default;
     WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer = false) noexcept;

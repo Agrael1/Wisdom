@@ -23,8 +23,7 @@ public:
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::VKFactory>
-VKCreateFactory(bool debug_layer = false, wis::DebugCallback callback = nullptr,
-                void* user_data = nullptr) noexcept;
+VKCreateFactory(bool debug_layer = false) noexcept;
 
 class VKFactory : public QueryInternal<VKFactory>
 {
@@ -34,8 +33,7 @@ class VKFactory : public QueryInternal<VKFactory>
         VKAdapter adapter;
     };
 
-    friend wis::ResultValue<wis::VKFactory> VKCreateFactory(bool, wis::DebugCallback,
-                                                            void*) noexcept;
+    friend wis::ResultValue<wis::VKFactory> VKCreateFactory(bool) noexcept;
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageType,

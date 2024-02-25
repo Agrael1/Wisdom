@@ -22,8 +22,7 @@ Test::App::App(uint32_t width, uint32_t height)
 {
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
-    auto [result, hfactory] = wis::CreateFactory(true, DebugCallback, &std::cout);
-    factory = std::move(hfactory);
+    auto [result, factory] = wis::CreateFactory(true);
 
     auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
     info = std::move(hinfo);
