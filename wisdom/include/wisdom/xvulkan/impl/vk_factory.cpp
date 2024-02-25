@@ -173,7 +173,7 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 }
 
 [[nodiscard]] wis::ResultValue<wis::VKFactory>
-wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
+wis::VKCreateFactory(bool debug_layer) noexcept
 {
     VKFactory::InitializeGlobalTable();
     auto& gt = VKFactory::global_table;
@@ -205,24 +205,6 @@ wis::VKCreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_d
                                       .enabledExtensionCount =
                                               static_cast<uint32_t>(found_extension.size()),
                                       .ppEnabledExtensionNames = found_extension.data() };
-
-    std::pair<wis::DebugCallback, void*> debug_callback(callback, user_data);
-
-    VkDebugUtilsMessengerCreateInfoEXT create_instance_debug{
-        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-        .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
-        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-        .pfnUserCallback = VKFactory::DebugCallbackThunk,
-        .pUserData = &debug_callback
-    };
-
-    if (debug_layer) {
-        create_info.pNext = &create_instance_debug;
-    }
 
     VkInstance instance;
     vr = gt.vkCreateInstance(&create_info, nullptr, &instance);

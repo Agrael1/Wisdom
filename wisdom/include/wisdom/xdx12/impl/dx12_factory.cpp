@@ -13,7 +13,7 @@ wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_la
 }
 
 [[nodiscard]] wis::ResultValue<wis::DX12Factory>
-wis::DX12CreateFactory(bool debug_layer, wis::DebugCallback callback, void* user_data) noexcept
+wis::DX12CreateFactory(bool debug_layer) noexcept
 {
     wis::com_ptr<IDXGIFactory6> factory;
     auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG, __uuidof(*factory),
