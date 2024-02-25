@@ -127,7 +127,7 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
     return DX12SwapChain{ std::move(create_info) };
 }
 
-#ifdef WISDOM_VULKAN
+#if WISDOM_VULKAN
 #include <wisdom/xvulkan/vk_device.h>
 
 wis::ResultValue<wis::VKSwapChain>
