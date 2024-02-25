@@ -282,7 +282,7 @@ static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
 static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #endif // WISDOM_LINUX
 
-#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#if WISDOM_VULKAN && defined(WISDOM_FORCE_VULKAN)
 #define FORCEVK_SWITCH 1
 #else
 #define FORCEVK_SWITCH 0

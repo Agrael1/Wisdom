@@ -48,13 +48,14 @@ private:
 
     void LoadExtensions() noexcept
     {
+        auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
         std::vector<VkExtensionProperties> vextensions;
         uint32_t count = 0;
-        auto vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+        auto vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
         do
             vextensions.resize(count);
-        while ((vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceExtensionProperties(nullptr, &count,
-                                                                                                        vextensions.data())) == VK_INCOMPLETE);
+        while ((vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count,
+                                                               vextensions.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -64,12 +65,13 @@ private:
     }
     void LoadLayers() noexcept
     {
+        auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
         std::vector<VkLayerProperties> vlayers;
         uint32_t count = 0;
-        auto vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceLayerProperties(&count, nullptr);
+        auto vr = gt.vkEnumerateInstanceLayerProperties(&count, nullptr);
         do
             vlayers.resize(count);
-        while ((vr = wis::Internal<wis::VKFactory>::global_table.vkEnumerateInstanceLayerProperties(&count, vlayers.data())) == VK_INCOMPLETE);
+        while ((vr = gt.vkEnumerateInstanceLayerProperties(&count, vlayers.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -175,8 +177,8 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 [[nodiscard]] wis::ResultValue<wis::VKFactory>
 wis::VKCreateFactory(bool debug_layer) noexcept
 {
-    VKFactory::InitializeGlobalTable();
-    auto& gt = VKFactory::global_table;
+    detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
+    auto& gt = detail::VKFactoryGlobals::Instance().global_table;
     VkResult vr{};
     uint32_t version = 0;
     if (gt.vkEnumerateInstanceVersion) {

@@ -251,7 +251,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     if (!device_table)
         return wis::make_result<FUNC, "Failed to allocate device table">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    device_table->Init(device, Internal<VKFactory>::global_table);
+    device_table->Init(device, wis::detail::VKFactoryGlobals::Instance().global_table);
 
     wis::VKDevice vkdevice{ wis::SharedDevice{ device, std::move(device_table) },
                             std::move(adapter),
@@ -266,7 +266,7 @@ wis::VKDevice::VKDevice(wis::SharedDevice in_device,
                         InternalFeatures in_ifeatures) noexcept
     : QueryInternal(std::move(in_adapter), std::move(in_device), in_ifeatures), features(in_features)
 {
-    auto& gtable = wis::Internal<VKFactory>::global_table;
+    auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
     auto& itable = GetInstanceTable();
     auto& dtable = device.table();
 
@@ -785,7 +785,7 @@ wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() cons
 wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 {
     uint32_t version = 0;
-    auto& gt = wis::Internal<VKFactory>::global_table;
+    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
     auto& it = GetInstanceTable();
     auto& dt = device.table();
     auto& adapter_i = adapter.GetInternal();

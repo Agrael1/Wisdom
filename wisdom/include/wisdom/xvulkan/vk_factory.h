@@ -11,15 +11,29 @@
 namespace wis {
 class VKFactory;
 
+namespace detail {
+struct VKFactoryGlobals {
+    static VKFactoryGlobals& Instance() noexcept
+    {
+        static VKFactoryGlobals instance;
+        return instance;
+    }
+    void InitializeGlobalTable() noexcept
+    {
+        std::call_once(global_flag, [this]() { global_table.Init(lib_token); });
+    }
+
+    std::once_flag global_flag;
+    wis::VkGlobalTable global_table{};
+    wis::LibToken lib_token;
+};
+} // namespace detail
+
 template<>
 struct Internal<VKFactory> {
     wis::SharedInstance factory;
     uint32_t api_version{};
     bool debug_layer = false;
-public:
-    static inline wis::LibToken lib_token;
-    static inline wis::VkGlobalTable global_table{};
-    static inline std::once_flag global_flag;
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::VKFactory>
@@ -62,11 +76,6 @@ public:
 
 private:
     WIS_INLINE VkResult EnumeratePhysicalDevices() noexcept;
-
-    static void InitializeGlobalTable() noexcept
-    {
-        std::call_once(global_flag, []() { global_table.Init(lib_token); });
-    }
 
     static WIS_INLINE std::vector<const char*> FoundExtensions() noexcept;
     static WIS_INLINE std::vector<const char*> FoundLayers() noexcept;
