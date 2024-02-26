@@ -151,6 +151,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     auto& adapter_i = adapter.GetInternal();
     auto hadapter = adapter_i.adapter;
     auto& itable = adapter_i.instance.table();
+    auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
 
     auto queues = GetQueueFamilies(hadapter, itable);
 
@@ -242,18 +243,19 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     DeviceFeatures dfeatures =
             DeviceFeatures(+DeviceFeatures::PushDescriptors & int(ifeatures.has_descriptor_buffer));
 
-    VkDevice device{};
+    VkDevice unsafe_device;
     VkResult result = VK_SUCCESS;
-    if (!wis::succeeded(result = itable.vkCreateDevice(hadapter, &device_info, nullptr, &device)))
+    if (!wis::succeeded(result = itable.vkCreateDevice(hadapter, &device_info, nullptr, &unsafe_device)))
         return wis::make_result<FUNC, "vkCreateDevice failed to create device">(result);
 
+    wis::managed_handle<VkDevice> device{ unsafe_device, (PFN_vkDestroyDevice)gtable.vkGetDeviceProcAddr(unsafe_device, "vkDestroyDevice") };
     std::unique_ptr<VkDeviceTable> device_table = wis::detail::make_unique<VkDeviceTable>();
     if (!device_table)
         return wis::make_result<FUNC, "Failed to allocate device table">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    device_table->Init(device, wis::detail::VKFactoryGlobals::Instance().global_table);
+    device_table->Init(device.get(), gtable);
 
-    wis::VKDevice vkdevice{ wis::SharedDevice{ device, std::move(device_table) },
+    wis::VKDevice vkdevice{ wis::SharedDevice{ device.release(), std::move(device_table) },
                             std::move(adapter),
                             dfeatures, ifeatures };
 
@@ -453,12 +455,9 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
 
     uint32_t ia_count = desc->input_layout.attribute_count;
     if (ia_count > ifeatures.max_ia_attributes)
-        return {
-            wis::make_result<FUNC,
-                             "The system does not support the requested number of vertex attributes">(
-                    VkResult::VK_ERROR_UNKNOWN),
-            wis::VKPipelineState{}
-        };
+        return wis::make_result<FUNC,
+                                "The system does not support the requested number of vertex attributes">(
+                VkResult::VK_ERROR_UNKNOWN);
 
     wis::detail::limited_allocator<VkVertexInputAttributeDescription, wis::max_vertex_bindings>
             attributes{ ia_count };
@@ -728,17 +727,16 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
         .flags = 0,
         .queueFamilyIndex = queues.GetOfType(type)->family_index,
     };
-    VkCommandPool cmd_pool;
+    wis::scoped_handle<VkCommandPool> cmd_pool;
     auto result =
-            device.table().vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
+            device.table().vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), device.table().vkDestroyCommandPool));
     if (!succeeded(result))
-        return { wis::make_result<FUNC, "Failed to create a command pool">(result),
-                 wis::VKCommandList{} };
+        return wis::make_result<FUNC, "Failed to create a command pool">(result);
 
     VkCommandBufferAllocateInfo cmd_buf_alloc_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         .pNext = nullptr,
-        .commandPool = cmd_pool,
+        .commandPool = cmd_pool.get(),
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = 1,
     };
@@ -749,7 +747,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    return wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool, device, device.table().vkDestroyCommandPool }, cmd_buf };
+    return wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool.release(), device, device.table().vkDestroyCommandPool }, cmd_buf };
 }
 
 wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
@@ -925,8 +923,8 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         .oldSwapchain = nullptr,
     };
 
-    VkSwapchainKHR swapchain;
-    result = dtable.vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, &swapchain);
+    wis::scoped_handle<VkSwapchainKHR> swapchain;
+    result = dtable.vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, swapchain.put(device.get(), dtable.vkDestroySwapchainKHR));
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a swapchain">(result);
@@ -937,15 +935,15 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         .flags = 0,
         .queueFamilyIndex = queues.GetOfType(wis::QueueType::Graphics)->family_index,
     };
-    VkCommandPool cmd_pool;
-    result = dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, &cmd_pool);
+    wis::scoped_handle<VkCommandPool> cmd_pool;
+    result = dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a command pool">(result);
 
     VkCommandBufferAllocateInfo cmd_buf_alloc_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         .pNext = nullptr,
-        .commandPool = cmd_pool,
+        .commandPool = cmd_pool.get(),
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = 1,
     };
@@ -955,8 +953,8 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, swapchain,
-                                            cmd_buf, cmd_pool, qpresent_queue, graphics_queue, *format, present_mode, stereo };
+    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, swapchain.release(),
+                                            cmd_buf, cmd_pool.release(), qpresent_queue, graphics_queue, *format, present_mode, stereo };
 
     auto rres = sci.InitSemaphores();
     if (rres.status != wis::Status::Ok)
