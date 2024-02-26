@@ -208,8 +208,8 @@ wis::VKCreateFactory(bool debug_layer) noexcept
                                               static_cast<uint32_t>(found_extension.size()),
                                       .ppEnabledExtensionNames = found_extension.data() };
 
-    VkInstance instance;
-    vr = gt.vkCreateInstance(&create_info, nullptr, &instance);
+    wis::managed_handle<VkInstance> instance;
+    vr = gt.vkCreateInstance(&create_info, nullptr, instance.put(gt.vkDestroyInstance));
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to create instance">(vr);
 
@@ -217,9 +217,9 @@ wis::VKCreateFactory(bool debug_layer) noexcept
     if (!table)
         return wis::make_result<FUNC, "Failed to create instance table">(VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    table->Init(instance, gt);
+    table->Init(instance.get(), gt);
 
-    auto factory = wis::VKFactory{ wis::SharedInstance{ instance, gt.vkDestroyInstance, std::move(table) }, version, debug_layer };
+    auto factory = wis::VKFactory{ wis::SharedInstance{ instance.release(), gt.vkDestroyInstance, std::move(table) }, version, debug_layer };
 
     vr = factory.EnumeratePhysicalDevices();
     if (!wis::succeeded(vr))
@@ -253,7 +253,7 @@ wis::VKFactory::VKFactory(
 wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     if (index >= adapters.size()) {
-        return { wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN), VKAdapter{} };
+        return wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN);
     }
     auto& adapter = adapters[index];
     switch (preference) {

@@ -71,9 +71,61 @@ class managed_handle_ex : public managed_handle_base<HandleType, managed_header_
                                                      managed_handle_ex<HandleType>>
 {
 public:
+    managed_handle_ex() = default;
     using managed_handle_base<HandleType, managed_header_ex<HandleType>,
                               managed_handle_ex<HandleType>>::managed_handle_base;
 };
+
+template<typename HandleType>
+struct scoped_header {
+};
+
+template<typename HandleType>
+    requires std::same_as<parent_of_t<HandleType>, nullptr_t>
+struct scoped_header<HandleType> {
+    deleter_of_t<HandleType> deleter;
+};
+template<typename HandleType>
+    requires requires { !std::is_same_v<parent_of_t<HandleType>, nullptr_t>; }
+struct scoped_header<HandleType> {
+    parent_of_t<HandleType> parent;
+    deleter_of_t<HandleType> deleter;
+};
+
+template<typename HandleType>
+class scoped_handle : public managed_handle_base<HandleType, scoped_header<HandleType>,
+                                                 scoped_handle<HandleType>>
+{
+public:
+    scoped_handle() = default;
+    using managed_handle_base<HandleType, scoped_header<HandleType>,
+                        scoped_handle<HandleType>>::managed_handle_base;
+    friend managed_handle_base<HandleType, scoped_header<HandleType>,
+                              scoped_handle<HandleType>>;
+
+protected:
+    void internal_destroy() noexcept
+        requires(!has_header_v<HandleType>)
+    {
+    }
+    void internal_destroy() noexcept
+        requires(!has_parent_v<HandleType> && !has_pool_v<HandleType>)
+    {
+        this->m_header.deleter(this->m_handle);
+    }
+    void internal_destroy() noexcept
+        requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
+    {
+        this->m_header.deleter(this->m_header.parent, this->m_handle);
+    }
+    void internal_destroy() noexcept
+        requires(has_pool_v<HandleType>)
+    {
+        this->m_header.deleter(this->m_header.parent, this->m_header.pool.get(), this->m_handle);
+    }
+};
+
+
 
 /// Specializations
 
