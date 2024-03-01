@@ -26,19 +26,12 @@ public:
     }
 
 public:
-    //    /// @brief Create a buffer that is persistently mapped to the GPU
-    //    /// @param size Size of the buffer
-    //    /// @param flags Type of buffer
-    //    /// @return Buffer object
-    //    [[nodiscard]] WIS_INLINE DX12Buffer
-    //    CreatePersistentBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None) const noexcept;
-    //
-    //    /// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
-    //    /// @param size Size of the buffer
-    //    /// @return Buffer object
-    //    [[nodiscard]] WIS_INLINE DX12Buffer
-    //    CreateUploadBuffer(size_t size) const noexcept;
-    //
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
+    CreateCommitedBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
+    CreateUploadBuffer(size_t size) const noexcept;
+
     //    /// @brief Create a buffer that is accessible by the CPU and GPU
     //    /// @param size Size of the buffer
     //    /// @param flags Type of buffer
@@ -137,8 +130,8 @@ public:
     //        return CreateTexture(t_desc, TextureFlags::DepthStencil);
     //    }
 private:
-    [[nodiscard]] wis::ResultValue<DX12Buffer>
-    CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Buffer>
+    CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 };
 } // namespace wis
 

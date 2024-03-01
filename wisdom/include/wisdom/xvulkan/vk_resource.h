@@ -6,11 +6,22 @@
 namespace wis {
 class VKBuffer;
 
+namespace h {
+using VmaAllocation = wis::movable_handle<VmaAllocation>;
+}
+
+
 template<>
 struct Internal<VKBuffer> {
     wis::shared_handle<VmaAllocator> allocator;
-    VmaAllocation allocation;
-    VkBuffer buffer;
+    h::VmaAllocation allocation;
+    h::VkBuffer buffer;
+
+    Internal() noexcept = default;
+    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation) noexcept
+        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer) { }
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&&) noexcept = default;
     ~Internal() noexcept
     {
         if (buffer && allocation) {
@@ -26,7 +37,7 @@ public:
     explicit VKBuffer(wis::shared_handle<VmaAllocator> allocator,
                       VkBuffer buffer,
                       VmaAllocation allocation = nullptr) noexcept
-        : QueryInternal<VKBuffer>(std::move(allocator), allocation, buffer)
+        : QueryInternal<VKBuffer>(std::move(allocator), buffer, allocation)
     {
     }
     operator bool() const noexcept

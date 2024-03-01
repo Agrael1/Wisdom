@@ -276,6 +276,13 @@ enum class DeviceFeatures {
     PushDescriptors = 1 << 0,
 };
 
+enum class BufferFlags {
+    None = 0x0,
+    ConstantBuffer = 1 << 4,
+    IndexBuffer = 1 << 6,
+    VertexBuffer = 1 << 7,
+};
+
 struct Result{
     wis::Status status = wis::Status::Ok;
     const char* error = nullptr;
@@ -410,6 +417,7 @@ template <typename T> struct is_flag_enum : public std::false_type {};
 template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
 template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
+template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
 //============================== CONSTS ==============================
 
 

@@ -27,22 +27,13 @@ public:
     }
 
 public:
-    //    /// @brief Create a buffer that is persistently mapped to the GPU
-    //    /// @param size Size of the buffer
-    //    /// @param flags Type of buffer
-    //    /// @return Buffer object
-    //    [[nodiscard]] VKBuffer
-    //    CreatePersistentBuffer(size_t size, BufferFlags flags = BufferFlags::None) const noexcept
-    //    {
-    //        vk::BufferCreateInfo desc{
-    //            {}, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits(flags), vk::SharingMode::eExclusive, 0, nullptr, nullptr
-    //        };
-    //        VmaAllocationCreateInfo alloc{
-    //            .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO
-    //        };
-    //        return CreateBuffer(desc, alloc);
-    //    }
-    //
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    CreateCommitedBuffer(size_t size, BufferFlags flags = BufferFlags::None) const noexcept;
+
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    CreateUploadBuffer(size_t size) const noexcept;
+
+    
     //    /// @brief Create a buffer that is accessible by the CPU and GPU
     //    /// @param size Size of the buffer
     //    /// @param flags Type of buffer
@@ -63,24 +54,7 @@ public:
     //        return CreateBuffer(desc, alloc);
     //    }
     //
-    //    /// @brief Create a buffer that is accessible by the CPU and serves as a staging buffer for GPU uploads
-    //    /// @param size Size of the buffer
-    //    /// @return Buffer object
-    //    [[nodiscard]] VKBuffer
-    //    CreateUploadBuffer(size_t size) const noexcept
-    //    {
-    //        vk::BufferCreateInfo desc{
-    //            vk::BufferCreateFlags{}, size, vk::BufferUsageFlagBits::eTransferSrc,
-    //            vk::SharingMode::eExclusive, 0, nullptr, nullptr
-    //        };
-    //        VmaAllocationCreateInfo alloc{
-    //            .flags = VmaAllocationCreateFlagBits::VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
-    //            .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-    //            .requiredFlags = VkMemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent) // ensure mapping does not need to be flushed
-    //        };
-    //
-    //        return CreateBuffer(desc, alloc);
-    //    }
+
     //
     //    /// @brief Create a constant buffer that is accessible by the CPU and GPU
     //    /// This function is equivalent to CreateHostVisibleBuffer, but ensures that the buffer size is 256 byte aligned in debug mode

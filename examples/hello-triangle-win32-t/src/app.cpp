@@ -4,6 +4,9 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
 
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
+
 struct LogProvider : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
     {
@@ -61,11 +64,13 @@ Test::App::App(uint32_t width, uint32_t height)
     };
 
     auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
-                                                 wnd.GetHandle());
+                                                   wnd.GetHandle());
     swap = std::move(hswap);
 
     auto [res4, hfence] = device.CreateFence();
     fence = std::move(hfence);
+
+    CreateResources();
 }
 
 int Test::App::Start()
@@ -79,6 +84,33 @@ int Test::App::Start()
 
         Frame();
     }
+}
+
+void Test::App::CreateResources()
+{
+    struct Vertex {
+        glm::vec3 pos;
+        glm::vec4 col;
+    };
+    auto aspect_ratio = float(wnd.GetWidth()) / float(wnd.GetHeight());
+    Vertex triangleVertices[] = {
+        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+        { { 0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+    };
+
+    {
+        auto [res, alloc] = device.CreateAllocator();
+        allocator = std::move(alloc);
+    }
+    auto [resx, ubuf] = allocator.CreateUploadBuffer(sizeof(triangleVertices));
+
+    {
+        auto [res, vbuf] = allocator.CreateCommitedBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
+        vertex_buffer = std::move(vbuf);
+    }
+
+    // upload buffer
 }
 
 void Test::App::ProcessEvent(Event e)
