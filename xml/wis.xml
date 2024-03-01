@@ -560,6 +560,13 @@
       </value>
     </type>
 
+    <type name="BufferFlags" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="ConstantBuffer" bit="4"/>
+      <value name="IndexBuffer" bit="6"/>
+      <value name="VertexBuffer" bit="7"/>
+    </type>
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">

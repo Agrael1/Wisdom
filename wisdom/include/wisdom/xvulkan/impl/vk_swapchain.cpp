@@ -55,7 +55,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
     return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkCreateSemaphore failed for graphics_semaphore">(result);
 }
 
-void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphore() noexcept
+void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphore() const noexcept
 {
     auto& dtable = device.table();
     dtable.vkQueueWaitIdle(present_queue);

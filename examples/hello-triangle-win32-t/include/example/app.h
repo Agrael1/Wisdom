@@ -10,6 +10,8 @@ public:
 
 public:
     int Start();
+    void CreateResources();
+
     void Frame();
     void ProcessEvent(Event e);
     void OnResize(uint32_t width, uint32_t height);
@@ -26,5 +28,8 @@ private:
 
     wis::Fence fence;
     uint64_t fence_value = 1;
+
+    wis::Buffer vertex_buffer;
+    wis::ResourceAllocator allocator;
 };
 } // namespace Test

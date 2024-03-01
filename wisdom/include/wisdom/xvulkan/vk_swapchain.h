@@ -76,7 +76,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() const noexcept;
-    WIS_INLINE void ReleaseSemaphore() noexcept;
+    WIS_INLINE void ReleaseSemaphore() const noexcept;
 };
 } // namespace detail
 

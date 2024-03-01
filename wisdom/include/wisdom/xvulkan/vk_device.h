@@ -94,7 +94,7 @@ private:
     CreateAllocatorI() const noexcept;
 
 private:
-    wis::DeviceFeatures features;
+    wis::DeviceFeatures features{};
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
