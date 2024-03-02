@@ -9,7 +9,7 @@ class DX12CommandList;
 template<>
 struct Internal<DX12CommandList> {
     wis::com_ptr<ID3D12CommandAllocator> allocator;
-    wis::com_ptr<ID3D12CommandList> list;
+    wis::com_ptr<ID3D12GraphicsCommandList9> list;
 };
 
 class DX12CommandList : public QueryInternal<DX12CommandList>
@@ -17,7 +17,7 @@ class DX12CommandList : public QueryInternal<DX12CommandList>
 public:
     DX12CommandList() noexcept = default;
     explicit DX12CommandList(wis::com_ptr<ID3D12CommandAllocator> allocator,
-                             wis::com_ptr<ID3D12CommandList> list) noexcept
+                             wis::com_ptr<ID3D12GraphicsCommandList9> list) noexcept
         : QueryInternal(std::move(allocator), std::move(list))
     {
     }
@@ -31,5 +31,16 @@ public:
     }
 
 public:
+    bool Closed() const noexcept { return closed; }
+    WIS_INLINE bool Close() noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Reset(DX12PipelineHandle pipeline = nullptr) noexcept;
+    WIS_INLINE void CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
+
+protected:
+    bool closed = true;
 };
 } // namespace wis
+
+#ifdef WISDOM_HEADER_ONLY
+#include "impl/dx12_command_list.cpp"
+#endif // !WISDOM_HEADER_ONLY

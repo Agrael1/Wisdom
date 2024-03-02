@@ -605,6 +605,11 @@
       <member type="u32" name="width"/>
       <member type="u32" name="height"/>
     </type>
+    <type name="BufferRegion" category="struct">
+      <member type="u64" name="src_offset" default="0"/>
+      <member type="u64" name="dst_offset" default="0"/>
+      <member type="u64" name="size_bytes"/>
+    </type>
     <type name="AdapterDesc" category="struct" >
       <member type="u8string" name="description" array="256"/>
       <member type="u32" name="vendor_id"/>

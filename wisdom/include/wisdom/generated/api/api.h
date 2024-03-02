@@ -4,6 +4,7 @@
 namespace wis {
 struct Result;
 struct Size2D;
+struct BufferRegion;
 struct AdapterDesc;
 struct InputSlotDesc;
 struct InputAttribute;
@@ -291,6 +292,12 @@ struct Result{
 struct Size2D{
     uint32_t width;
     uint32_t height;
+};
+
+struct BufferRegion{
+    uint64_t src_offset = 0;
+    uint64_t dst_offset = 0;
+    uint64_t size_bytes;
 };
 
 struct AdapterDesc{

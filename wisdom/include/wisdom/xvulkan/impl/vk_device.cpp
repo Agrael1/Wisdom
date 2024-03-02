@@ -713,8 +713,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         return wis::make_result<FUNC, "Failed to create a graphics pipeline">(result);
 
     return wis::VKPipelineState{
-        wis::managed_handle_ex<VkPipeline>{
-                pipeline, device, device.table().vkDestroyPipeline }
+        wis::SharedPipeline{ pipeline, device, device.table().vkDestroyPipeline }
     };
 }
 
@@ -747,7 +746,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    return wis::VKCommandList{ wis::managed_handle_ex<VkCommandPool>{ cmd_pool.release(), device, device.table().vkDestroyCommandPool }, cmd_buf };
+    return wis::VKCommandList{ device, cmd_pool.release(), cmd_buf };
 }
 
 wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
