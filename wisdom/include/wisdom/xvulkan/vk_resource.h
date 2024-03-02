@@ -40,6 +40,10 @@ public:
         : QueryInternal<VKBuffer>(std::move(allocator), buffer, allocation)
     {
     }
+    operator VKBufferView() const noexcept
+    {
+        return { buffer };
+    }
     operator bool() const noexcept
     {
         return bool(buffer);

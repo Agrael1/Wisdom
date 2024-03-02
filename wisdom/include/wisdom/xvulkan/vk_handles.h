@@ -49,6 +49,20 @@ protected:
     VkInstanceTable* m_device_table = nullptr;
 };
 
+struct SharedPipelineHeader {
+    SharedDevice parent;
+    deleter_of_t<VkPipeline> deleter;
+};
+class SharedPipeline : public shared_handle_base<VkPipeline, SharedPipelineHeader, SharedPipeline>
+{
+public:
+    SharedPipeline() noexcept = default;
+    explicit SharedPipeline(VkPipeline pipeline, SharedDevice device, PFN_vkDestroyPipeline deleter) noexcept
+        : shared_handle_base(pipeline, device, deleter)
+    {
+    }
+};
+
 template<typename HandleType>
 struct managed_header_ex : public managed_header<HandleType> {
 };

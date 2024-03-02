@@ -70,6 +70,9 @@ Test::App::App(uint32_t width, uint32_t height)
     auto [res4, hfence] = device.CreateFence();
     fence = std::move(hfence);
 
+    auto [res5, hcmd_list] = device.CreateCommandList(wis::QueueType::Graphics);
+    cmd_list = std::move(hcmd_list);
+
     CreateResources();
 }
 
@@ -110,6 +113,8 @@ void Test::App::CreateResources()
         vertex_buffer = std::move(vbuf);
     }
 
+    //cmd_list.Reset();
+    //cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
     // upload buffer
 }
 

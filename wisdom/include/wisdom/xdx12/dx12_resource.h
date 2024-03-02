@@ -19,6 +19,8 @@ public:
     DX12Buffer() noexcept = default;
     explicit DX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al) noexcept
         : QueryInternal(std::move(rc), std::move(al)) { }
+
+    operator DX12BufferView() const noexcept { return resource.get(); }
     operator bool() const noexcept { return bool(resource); }
 
 public:

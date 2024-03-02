@@ -28,6 +28,7 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/xdx12/impl/dx12_fence.cpp"
 			"include/wisdom/xdx12/impl/dx12_device.cpp"
 			"include/wisdom/xdx12/impl/dx12_swapchain.cpp"
+			"include/wisdom/xdx12/impl/dx12_command_list.cpp"
 		LIBS
 			DX12Agility
 			DX12Allocator

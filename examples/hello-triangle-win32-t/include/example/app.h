@@ -24,6 +24,7 @@ private:
 
     wis::Device device;
     wis::CommandQueue queue;
+    wis::CommandList cmd_list;
     wis::SwapChain swap;
 
     wis::Fence fence;

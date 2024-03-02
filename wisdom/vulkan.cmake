@@ -28,6 +28,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/impl/vk_fence.cpp"
 			"include/wisdom/xvulkan/impl/vk_device.cpp"
 			"include/wisdom/xvulkan/impl/vk_command_queue.cpp"
+			"include/wisdom/xvulkan/impl/vk_command_list.cpp"
 			"include/wisdom/xvulkan/impl/vk_swapchain.cpp"
 			
 		DEFINITIONS 
