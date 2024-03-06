@@ -1,5 +1,6 @@
 #pragma once
 #include <wisdom/global/internal.h>
+#include <wisdom/generated/api/api.h>
 #include <wisdom/xdx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
 
@@ -37,7 +38,7 @@ public:
     WIS_INLINE void CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
 
 protected:
-    bool closed = true;
+    bool closed = false;
 };
 } // namespace wis
 

@@ -720,6 +720,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
 wis::ResultValue<wis::VKCommandList>
 wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
 {
+    auto& dtable = device.table();
     VkCommandPoolCreateInfo cmd_pool_create_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
         .pNext = nullptr,
@@ -728,7 +729,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     };
     wis::scoped_handle<VkCommandPool> cmd_pool;
     auto result =
-            device.table().vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), device.table().vkDestroyCommandPool));
+            dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a command pool">(result);
 
@@ -741,10 +742,21 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     };
 
     VkCommandBuffer cmd_buf;
-    result = device.table().vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
+    result = dtable.vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
+
+    VkCommandBufferBeginInfo desc{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .pNext = nullptr,
+        .flags = {},
+        .pInheritanceInfo = nullptr,
+    };
+    result = dtable.vkBeginCommandBuffer(cmd_buf, &desc);
+    if (!succeeded(result)) {
+        return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
+    }
 
     return wis::VKCommandList{ device, cmd_pool.release(), cmd_buf };
 }

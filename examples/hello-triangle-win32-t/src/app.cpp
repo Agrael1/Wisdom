@@ -118,7 +118,6 @@ void Test::App::CreateResources()
         std::copy(std::begin(triangleVertices), std::end(triangleVertices), memory);
         ubuf.Unmap();
 
-        auto res = cmd_list.Reset();
         cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
         cmd_list.Close();
 
