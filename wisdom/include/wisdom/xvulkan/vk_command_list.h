@@ -49,7 +49,7 @@ public:
     WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
 
 protected:
-    bool closed = true;
+    bool closed = false;
 };
 
 } // namespace wis

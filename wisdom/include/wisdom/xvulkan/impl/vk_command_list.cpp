@@ -3,6 +3,8 @@
 #include <wisdom/xvulkan/vk_command_list.h>
 #endif // !WISDOM_HEADER_ONLY
 
+#include <wisdom/xvulkan/vk_checks.h>
+
 void wis::VKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
 {
     VkBufferCopy copy{
