@@ -113,9 +113,20 @@ void Test::App::CreateResources()
         vertex_buffer = std::move(vbuf);
     }
 
-    //cmd_list.Reset();
-    //cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
-    // upload buffer
+    {
+        auto memory = ubuf.Map<Vertex>();
+        std::copy(std::begin(triangleVertices), std::end(triangleVertices), memory);
+        ubuf.Unmap();
+
+        auto res = cmd_list.Reset();
+        cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
+        cmd_list.Close();
+
+        wis::CommandListView cmd_lists[] = { cmd_list };
+        queue.ExecuteCommandLists(cmd_lists, 1);
+    }
+
+    WaitForGPU();
 }
 
 void Test::App::ProcessEvent(Event e)

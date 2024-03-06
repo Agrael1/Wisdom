@@ -254,6 +254,9 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl) {
       output += MakeCPPPlatformFunc(f, impl);
     }
   }
+  for (auto& v : variants) {
+    output += wis::format("using {} = {}{};\n", v->name, impl, v->name);
+  }
 
   return output + "}\n";
 }

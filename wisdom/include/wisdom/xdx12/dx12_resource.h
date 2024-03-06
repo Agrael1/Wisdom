@@ -26,6 +26,34 @@ public:
 public:
 };
 
+class DX12UploadBuffer : public DX12Buffer
+{
+public:
+    DX12UploadBuffer() noexcept = default;
+    explicit DX12UploadBuffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al) noexcept
+        : DX12Buffer(std::move(rc), std::move(al)) { }
+    explicit DX12UploadBuffer(DX12Buffer&& buffer) noexcept
+        : DX12Buffer(std::move(buffer)) { }
+public:
+    void* Map() const noexcept
+    {
+        void* data;
+        resource->Map(0, nullptr, &data);
+        return data;
+    }
+    void Unmap() const noexcept
+    {
+        resource->Unmap(0, nullptr);
+    }
+
+public:
+    template<typename T>
+    T* Map() const noexcept
+    {
+        return static_cast<T*>(Map());
+    }
+};
+
 using DX12Texture = DX12Buffer;
 
 } // namespace wis

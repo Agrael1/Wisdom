@@ -39,7 +39,7 @@ wis::VKResourceAllocator::CreateCommitedBuffer(size_t size, BufferFlags flags) c
     return CreateBuffer(desc, alloc);
 }
 
-wis::ResultValue<wis::VKBuffer>
+wis::ResultValue<wis::VKUploadBuffer>
 wis::VKResourceAllocator::CreateUploadBuffer(size_t size) const noexcept
 {
     VkBufferCreateInfo desc{
@@ -55,6 +55,6 @@ wis::VKResourceAllocator::CreateUploadBuffer(size_t size) const noexcept
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) // ensure mapping does not need to be flushed
     };
-
-    return CreateBuffer(desc, alloc);
+    auto result = CreateBuffer(desc, alloc);
+    return { result.status, VKUploadBuffer{ std::move(result.value) } };
 }

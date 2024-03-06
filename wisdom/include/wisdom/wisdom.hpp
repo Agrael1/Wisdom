@@ -31,6 +31,7 @@ using Factory = DX12Factory;
 using PipelineState = DX12PipelineState;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
+using UploadBuffer = DX12UploadBuffer;
 using Fence = DX12Fence;
 using ResourceAllocator = DX12ResourceAllocator;
 using Shader = DX12Shader;
@@ -40,6 +41,12 @@ using Buffer = DX12Buffer;
 using DebugMessenger = DX12DebugMessenger;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
+using FenceView = DX12FenceView;
+using CommandListView = DX12CommandListView;
+using ShaderView = DX12ShaderView;
+using RootSignatureView = DX12RootSignatureView;
+using GraphicsShaderStages = DX12GraphicsShaderStages;
+using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 }
 
 #elif WISDOM_VULKAN
@@ -53,6 +60,7 @@ using Factory = VKFactory;
 using PipelineState = VKPipelineState;
 using Adapter = VKAdapter;
 using Device = VKDevice;
+using UploadBuffer = VKUploadBuffer;
 using Fence = VKFence;
 using ResourceAllocator = VKResourceAllocator;
 using Shader = VKShader;
@@ -62,6 +70,12 @@ using Buffer = VKBuffer;
 using DebugMessenger = VKDebugMessenger;
 constexpr auto CreateFactory = wis::VKCreateFactory;
 constexpr auto CreateDevice = wis::VKCreateDevice;
+using FenceView = VKFenceView;
+using CommandListView = VKCommandListView;
+using ShaderView = VKShaderView;
+using RootSignatureView = VKRootSignatureView;
+using GraphicsShaderStages = VKGraphicsShaderStages;
+using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 }
 
 #else

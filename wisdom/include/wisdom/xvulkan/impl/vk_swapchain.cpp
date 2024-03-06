@@ -65,6 +65,18 @@ void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphore() const noexcept
 wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
 {
     auto& dtable = device.table();
+
+    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    VkSubmitInfo wait{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &present_semaphore.handle,
+        .pWaitDstStageMask = &wait_stages,
+    };
+    dtable.vkQueueSubmit(graphics_queue, 1, &wait, nullptr);
+
     dtable.vkQueueWaitIdle(present_queue);
     dtable.vkQueueWaitIdle(graphics_queue);
 
@@ -93,6 +105,7 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
     if (!succeeded(result)) {
         return wis::make_result<FUNC, "vkCreateSwapchainKHR failed">(result);
     }
+
     auto rres = InitBackBuffers();
     return rres;
 }

@@ -30,7 +30,7 @@ public:
     WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
     CreateCommitedBuffer(size_t size, BufferFlags flags = BufferFlags::None) const noexcept;
 
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKUploadBuffer>
     CreateUploadBuffer(size_t size) const noexcept;
 
     
