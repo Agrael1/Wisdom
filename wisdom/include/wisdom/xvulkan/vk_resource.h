@@ -10,7 +10,6 @@ namespace h {
 using VmaAllocation = wis::movable_handle<VmaAllocation>;
 }
 
-
 template<>
 struct Internal<VKBuffer> {
     wis::shared_handle<VmaAllocator> allocator;
@@ -50,6 +49,41 @@ public:
     }
 
 public:
+};
+
+class VKUploadBuffer : public VKBuffer
+{
+public:
+    VKUploadBuffer() noexcept = default;
+    explicit VKUploadBuffer(wis::shared_handle<VmaAllocator> allocator,
+                            VkBuffer buffer,
+                            VmaAllocation allocation = nullptr) noexcept
+        : VKBuffer(std::move(allocator), buffer, allocation)
+    {
+    }
+    explicit VKUploadBuffer(VKBuffer&& buffer) noexcept
+        : VKBuffer(std::move(buffer))
+    {
+    }
+
+public:
+    void* Map() const noexcept
+    {
+        void* data;
+        vmaMapMemory(allocator.get(), allocation, &data);
+        return data;
+    }
+    void Unmap() const noexcept
+    {
+        vmaUnmapMemory(allocator.get(), allocation);
+    }
+
+public:
+    template<typename T>
+    T* Map() const noexcept
+    {
+        return static_cast<T*>(Map());
+    }
 };
 
 class VKTexture;

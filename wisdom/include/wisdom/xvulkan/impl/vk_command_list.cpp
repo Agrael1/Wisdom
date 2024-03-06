@@ -37,6 +37,7 @@ wis::Result wis::VKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept {
     closed = false;
     if (pipeline)
         dtable.vkCmdBindPipeline(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
+    return wis::success;
 }
 
 bool wis::VKCommandList::Close() noexcept {

@@ -12,6 +12,7 @@
     <handle name="PipelineState"/>
     <handle name="CommandList"/>
     <handle name="Buffer"/>
+    <handle name="UploadBuffer"/>
     <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>
   </handles>
@@ -863,6 +864,9 @@
 
     <!--Buffer-->
     <func for="Buffer" name="Destroy"/>
+    
+    <!--UploadBuffer-->
+    <func for="UploadBuffer" name="Destroy"/>
 
     <!--Swapchain-->
     <func for="Swapchain" name="Destroy"/>

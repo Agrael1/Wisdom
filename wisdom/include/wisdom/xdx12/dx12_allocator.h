@@ -29,7 +29,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
     CreateCommitedBuffer(size_t size, [[maybe_unused]] BufferFlags flags = BufferFlags::None) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12UploadBuffer>
     CreateUploadBuffer(size_t size) const noexcept;
 
     //    /// @brief Create a buffer that is accessible by the CPU and GPU
