@@ -37,7 +37,7 @@ public:
             .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES,
             .pNext = nullptr,
             .deviceUUID = {},
-            .driverUUID = {},
+            .dwisUUID = {},
             .deviceLUID = {},
             .deviceNodeMask = 0,
             .deviceLUIDValid = false,
@@ -83,7 +83,7 @@ public:
 
         out_desc.device_id = desc.deviceID;
         out_desc.subsys_id = desc.apiVersion;
-        out_desc.revision = desc.driverVersion;
+        out_desc.revision = desc.dwisVersion;
 
         out_desc.dedicated_video_memory = local_mem;
         out_desc.dedicated_system_memory = 0;

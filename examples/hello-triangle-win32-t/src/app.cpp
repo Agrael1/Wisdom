@@ -30,8 +30,6 @@ Test::App::App(uint32_t width, uint32_t height)
     auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
     info = std::move(hinfo);
 
-    wis::Device hdevice;
-
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
         if (res.status == wis::Status::Ok) {
@@ -39,9 +37,9 @@ Test::App::App(uint32_t width, uint32_t height)
             res = adapter.GetDesc(&desc);
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
-            auto [res, xdevice] = wis::CreateDevice(std::move(adapter));
+            auto [res, hdevice] = wis::CreateDevice(std::move(adapter));
             if (res.status == wis::Status::Ok) {
-                hdevice = std::move(xdevice);
+                device = std::move(hdevice);
                 break;
             };
 
@@ -49,8 +47,6 @@ Test::App::App(uint32_t width, uint32_t height)
             break;
         }
     }
-
-    device = std::move(hdevice);
 
     auto [res2, hqueue] = device.CreateCommandQueue(wis::QueueType::Graphics);
     queue = std::move(hqueue);
@@ -113,6 +109,7 @@ void Test::App::CreateResources()
         vertex_buffer = std::move(vbuf);
     }
 
+    // Upload vertex data to a buffer
     {
         auto memory = ubuf.Map<Vertex>();
         std::copy(std::begin(triangleVertices), std::end(triangleVertices), memory);

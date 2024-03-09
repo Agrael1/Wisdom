@@ -219,4 +219,10 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept{
     case LogicOp::OrInverted: return VK_LOGIC_OP_OR_INVERTED;
     }
 }
+inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept{
+    VkPipelineStageFlags2 output = {};
+    if(value & BarrierSync::All) output |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    if(value & BarrierSync::Draw) output |= VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+    return output;
+}
 }

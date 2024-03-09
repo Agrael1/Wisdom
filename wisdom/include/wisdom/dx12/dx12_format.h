@@ -45,7 +45,7 @@ inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(PassStoreOperat
 }
 inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureFlags op) noexcept
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     D3D12_RESOURCE_FLAGS ret = D3D12_RESOURCE_FLAG_NONE;
     if (!(op & TextureFlags::ShaderResource))
         ret |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;

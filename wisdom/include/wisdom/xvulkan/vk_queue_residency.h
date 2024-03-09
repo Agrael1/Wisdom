@@ -56,7 +56,6 @@ struct QueueResidency {
     }
     static constexpr size_t QueueFlag(QueueTypes type)
     {
-        using namespace river::flags;
         switch (type) {
         case QueueTypes::Copy:
             return VkQueueFlagBits::VK_QUEUE_TRANSFER_BIT;

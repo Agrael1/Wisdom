@@ -76,8 +76,8 @@ inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTab
 
 inline wis::detail::QueueResidency GetQueueFamilies(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
 {
-    using namespace river::flags;
     using namespace wis::detail;
+    using wis::operator+;
 
     std::vector<VkQueueFamilyProperties> family_props;
     VkResult result = VK_SUCCESS;

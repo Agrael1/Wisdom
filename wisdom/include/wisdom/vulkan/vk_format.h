@@ -150,7 +150,7 @@ constexpr inline vk::Format vk_format_map[]{
 
 inline constexpr vk::Format vk_format(wis::DataFormat df)
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     return vk_format_map[+df];
 }
 
@@ -216,7 +216,7 @@ inline constexpr vk::ImageLayout convert_vk(TextureState state)
 }
 inline constexpr vk::AccessFlags2 convert_vk(ResourceAccess access)
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     uint32_t result{};
     if (access == ResourceAccess::Common)
         return vk::AccessFlags2(+vk::AccessFlagBits::eMemoryRead | +vk::AccessFlagBits::eMemoryWrite);
@@ -319,7 +319,7 @@ inline constexpr vk::AttachmentStoreOp convert(PassStoreOperation state)
 }
 inline constexpr vk::PipelineStageFlags2 convert_vk(BarrierSync state)
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     using enum wis::BarrierSync;
 
     uint64_t result{};

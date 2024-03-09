@@ -9,8 +9,8 @@ class VKCommandList;
 template<>
 struct Internal<VKCommandList> {
     wis::SharedDevice device;
-    h::VkCommandPool allocator;
-    h::VkCommandBuffer command_list;
+    h::VkCommandPool allocator = nullptr;
+    h::VkCommandBuffer command_list = nullptr;
 
     wis::SharedPipeline pipeline;
 
@@ -47,6 +47,10 @@ public:
     WIS_INLINE bool Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(VKPipelineHandle pipeline = {}) noexcept;
     WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
+
+
+    WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
+    WIS_INLINE void TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept;
 
 protected:
     bool closed = false;
