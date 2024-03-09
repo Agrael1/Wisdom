@@ -45,7 +45,6 @@ void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureVi
 
     if (!texture.image || (vk_state_before == vk_state_after && acc_before == acc_after))
         return;
-
     vk::ImageMemoryBarrier2 image_memory_barrier{
         convert_vk(barrier.sync_before),
         acc_before,

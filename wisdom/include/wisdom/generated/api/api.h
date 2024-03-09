@@ -19,6 +19,7 @@ struct RenderAttachmentsDesc;
 struct RootConstant;
 struct SwapchainDesc;
 struct PushDescriptor;
+struct SubresourceRange;
 struct BufferBarrier;
 struct TextureBarrier;
 
@@ -255,6 +256,23 @@ enum class LogicOp {
     OrInverted = 15,
 };
 
+enum class TextureState {
+    Undefined = 4294967295,
+    Common = 0,
+    Read = 1,
+    RenderTarget = 2,
+    UnorderedAccess = 3,
+    DepthStencilWrite = 4,
+    DepthStencilRead = 5,
+    ShaderResource = 6,
+    CopySource = 7,
+    CopyDest = 8,
+    Present = 9,
+    ShadingRate = 10,
+    VideoDecodeRead = 11,
+    VideoDecodeWrite = 12,
+};
+
 enum class AdapterFlags {
     None = 0x0,
     Remote = 1 << 0,
@@ -284,6 +302,29 @@ enum class BufferFlags {
     ConstantBuffer = 1 << 4,
     IndexBuffer = 1 << 6,
     VertexBuffer = 1 << 7,
+};
+
+enum class ResourceAccess {
+    Common = 0x0,
+    VertexBuffer = 1 << 0,
+    ConstantBuffer = 1 << 1,
+    IndexBuffer = 1 << 2,
+    RenderTarget = 1 << 3,
+    UnorderedAccess = 1 << 4,
+    DepthWrite = 1 << 5,
+    DepthRead = 1 << 6,
+    ShaderResource = 1 << 7,
+    StreamOutput = 1 << 8,
+    IndirectArgument = 1 << 9,
+    CopyDest = 1 << 10,
+    CopySource = 1 << 11,
+    ConditionalRendering = 1 << 12,
+    AccelerationStrucureRead = 1 << 13,
+    AccelerationStrucureWrite = 1 << 14,
+    ShadingRate = 1 << 15,
+    VideoDecodeRead = 1 << 16,
+    VideoDecodeWrite = 1 << 17,
+    NoAccess = 1 << 31,
 };
 
 enum class BarrierSync {
@@ -423,14 +464,28 @@ struct PushDescriptor{
     uint32_t reserved;
 };
 
+struct SubresourceRange{
+    uint32_t base_mip_level;
+    uint32_t level_count;
+    uint32_t base_array_layer;
+    uint32_t layer_count;
+};
+
 struct BufferBarrier{
     wis::BarrierSync sync_before;
     wis::BarrierSync sync_after;
+    wis::ResourceAccess access_before;
+    wis::ResourceAccess access_after;
 };
 
 struct TextureBarrier{
     wis::BarrierSync sync_before;
     wis::BarrierSync sync_after;
+    wis::ResourceAccess access_before;
+    wis::ResourceAccess access_after;
+    wis::TextureState state_before;
+    wis::TextureState state_after;
+    wis::SubresourceRange subresource_range;
 };
 
 //=================================DELEGATES=================================
@@ -443,6 +498,7 @@ template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
 template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
 template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
+template <> struct is_flag_enum<wis::ResourceAccess>:public std::true_type {};
 template <> struct is_flag_enum<wis::BarrierSync>:public std::true_type {};
 //============================== CONSTS ==============================
 
