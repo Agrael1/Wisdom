@@ -9,7 +9,6 @@
 #endif
 
 namespace wis {
-
 inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState op) noexcept
 {
     if (op == TextureState::Present)

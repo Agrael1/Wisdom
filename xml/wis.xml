@@ -582,6 +582,152 @@
       </value>
     </type>
 
+    <type name="ResourceAccess" category="bitmask">
+      <impl_type for="dx" name="D3D12_BARRIER_ACCESS"/>
+      <impl_type for="vk" name="VkAccessFlags2"/>
+      <value name="Common" value="0">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_COMMON"/>
+        <impl name="vk" value="VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT"/>
+      </value>
+      <value name="VertexBuffer" bit="0">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_VERTEX_BUFFER"/>
+        <impl name="vk" value="VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT"/>
+      </value>
+      <value name="ConstantBuffer" bit="1">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_CONSTANT_BUFFER"/>
+        <impl name="vk" value="VK_ACCESS_2_UNIFORM_READ_BIT"/>
+      </value>      
+      <value name="IndexBuffer" bit="2">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_INDEX_BUFFER"/>
+        <impl name="vk" value="VK_ACCESS_2_INDEX_READ_BIT"/>
+      </value>      
+      <value name="RenderTarget" bit="3">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_RENDER_TARGET"/>
+        <impl name="vk" value="VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT"/>
+      </value>      
+      <value name="UnorderedAccess" bit="4">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_UNORDERED_ACCESS"/>
+        <impl name="vk" value="VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
+      </value>      
+      <value name="DepthWrite" bit="5">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE"/>
+        <impl name="vk" value="VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT"/>
+      </value>      
+      <value name="DepthRead" bit="6">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ"/>
+        <impl name="vk" value="VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT"/>
+      </value>      
+      <value name="ShaderResource" bit="7">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_SHADER_RESOURCE"/>
+        <impl name="vk" value="VK_ACCESS_2_SHADER_READ_BIT"/>
+      </value>      
+      <value name="StreamOutput" bit="8">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_STREAM_OUTPUT"/>
+        <impl name="vk" value="VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT"/>
+      </value>      
+      <value name="IndirectArgument" bit="9">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT"/>
+        <impl name="vk" value="VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT"/>
+      </value> 
+      <value name="CopyDest" bit="10">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_DEST"/>
+        <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT"/>
+      </value>
+      <value name="CopySource" bit="11">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_SOURCE"/>
+        <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT"/>
+      </value>
+      <value name="ConditionalRendering" bit="12">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_PREDICATION"/>
+        <impl name="vk" value="VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT"/>
+      </value>
+      <value name="AccelerationStrucureRead" bit="13">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ"/>
+        <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR"/>
+      </value>
+      <value name="AccelerationStrucureWrite" bit="14">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE"/>
+        <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR"/>
+      </value>
+      <value name="ShadingRate" bit="15">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE"/>
+        <impl name="vk" value="VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR"/>
+      </value>
+      <value name="VideoDecodeRead" bit="16">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ"/>
+        <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR"/>
+      </value>
+      <value name="VideoDecodeWrite" bit="17">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
+        <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
+      </value>
+      <value name="NoAccess" bit="31">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_NO_ACCESS"/>
+        <impl name="vk" value="VK_ACCESS_2_NONE"/>
+      </value>
+    </type>
+
+    <type name="TextureState" category="enum">
+      <impl_type for="dx" name="D3D12_BARRIER_LAYOUT"/>
+      <impl_type for="vk" name="VkImageLayout"/>
+      <value name="Undefined" value="4294967295">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_UNDEFINED"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_UNDEFINED"/>
+      </value>
+      <value name="Common" value="0">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_COMMON"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_GENERAL"/>
+      </value>
+      <value name="Read" value="1">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_GENERIC_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="RenderTarget" value="2">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_RENDER_TARGET"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="UnorderedAccess" value="3">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="DepthStencilWrite" value="4">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="DepthStencilRead" value="5">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="ShaderResource" value="6">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_SHADER_RESOURCE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="CopySource" value="7">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_COPY_SOURCE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL"/>
+      </value>
+      <value name="CopyDest" value="8">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_COPY_DEST"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL"/>
+      </value>
+      <value name="Present" value="9">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_PRESENT"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_PRESENT_SRC_KHR"/>
+      </value>
+      <value name="ShadingRate" value="10">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR"/>
+      </value>
+      <value name="VideoDecodeRead" value="11">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR"/>
+      </value>
+      <value name="VideoDecodeWrite" value="12">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR"/>
+      </value>
+    </type>
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -733,15 +879,29 @@
       <member type="DescriptorType" name="type"/>
       <member type="u32" name="reserved"/>
     </type>
+    
+    <type name="SubresourceRange" category="struct">
+      <member type="u32" name="base_mip_level"/>
+      <member type="u32" name="level_count"/>
+      <member type="u32" name="base_array_layer"/>
+      <member type="u32" name="layer_count"/>
+    </type>
 
     <type name="BufferBarrier" category="struct">
       <member type="BarrierSync" name="sync_before"/>
       <member type="BarrierSync" name="sync_after"/>
+      <member type="ResourceAccess" name="access_before"/>
+      <member type="ResourceAccess" name="access_after"/>
     </type>
     
     <type name="TextureBarrier" category="struct">
       <member type="BarrierSync" name="sync_before"/>
       <member type="BarrierSync" name="sync_after"/>
+      <member type="ResourceAccess" name="access_before"/>
+      <member type="ResourceAccess" name="access_after"/>
+      <member type="TextureState" name="state_before"/>
+      <member type="TextureState" name="state_after"/>
+      <member type="SubresourceRange" name="subresource_range"/>
     </type>
 
     <type name="GraphicsShaderStages" category="variant">

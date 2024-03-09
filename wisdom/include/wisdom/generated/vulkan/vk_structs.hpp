@@ -225,4 +225,46 @@ inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept{
     if(value & BarrierSync::Draw) output |= VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
     return output;
 }
+inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept{
+    VkAccessFlags2 output = {};
+    if(value & ResourceAccess::VertexBuffer) output |= VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+    if(value & ResourceAccess::ConstantBuffer) output |= VK_ACCESS_2_UNIFORM_READ_BIT;
+    if(value & ResourceAccess::IndexBuffer) output |= VK_ACCESS_2_INDEX_READ_BIT;
+    if(value & ResourceAccess::RenderTarget) output |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+    if(value & ResourceAccess::UnorderedAccess) output |= VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT;
+    if(value & ResourceAccess::DepthWrite) output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    if(value & ResourceAccess::DepthRead) output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+    if(value & ResourceAccess::ShaderResource) output |= VK_ACCESS_2_SHADER_READ_BIT;
+    if(value & ResourceAccess::StreamOutput) output |= VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
+    if(value & ResourceAccess::IndirectArgument) output |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+    if(value & ResourceAccess::CopyDest) output |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    if(value & ResourceAccess::CopySource) output |= VK_ACCESS_2_TRANSFER_READ_BIT;
+    if(value & ResourceAccess::ConditionalRendering) output |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
+    if(value & ResourceAccess::AccelerationStrucureRead) output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+    if(value & ResourceAccess::AccelerationStrucureWrite) output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+    if(value & ResourceAccess::ShadingRate) output |= VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
+    if(value & ResourceAccess::VideoDecodeRead) output |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
+    if(value & ResourceAccess::VideoDecodeWrite) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+    if(value & ResourceAccess::NoAccess) output |= VK_ACCESS_2_NONE;
+    return output;
+}
+inline constexpr VkImageLayout convert_vk(TextureState value) noexcept{
+    switch(value){
+    default: return {};
+    case TextureState::Undefined: return VK_IMAGE_LAYOUT_UNDEFINED;
+    case TextureState::Common: return VK_IMAGE_LAYOUT_GENERAL;
+    case TextureState::Read: return VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+    case TextureState::RenderTarget: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case TextureState::UnorderedAccess: return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+    case TextureState::DepthStencilWrite: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    case TextureState::DepthStencilRead: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+    case TextureState::ShaderResource: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    case TextureState::CopySource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    case TextureState::CopyDest: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    case TextureState::Present: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    case TextureState::ShadingRate: return VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+    case TextureState::VideoDecodeRead: return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
+    case TextureState::VideoDecodeWrite: return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+    }
+}
 }
