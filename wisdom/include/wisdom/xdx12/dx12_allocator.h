@@ -56,7 +56,7 @@ public:
     //    [[nodiscard]] DX12Texture
     //    CreateTexture(const TextureDescriptor& desc, TextureFlags flags = TextureFlags::None) const noexcept
     //    {
-    //        using namespace river::flags;
+    //        using namespace wis::flags;
     //        winrt::com_ptr<ID3D12Resource> rc;
     //        winrt::com_ptr<D3D12MA::Allocation> al;
     //

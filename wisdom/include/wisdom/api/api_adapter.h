@@ -25,7 +25,7 @@ WIS_EXPORT namespace wis
         /// @return true if the adapter is a software adapter
         [[nodiscard]] bool IsSoftware() const noexcept
         {
-            using namespace river::flags;
+            using namespace wis::flags;
             return (flags & AdapterFlags::Software) != 0u;
         }
 
@@ -50,7 +50,7 @@ WIS_EXPORT namespace wis
         uint32_t vendor_id; //< Adapter vendor id
         uint32_t device_id; //< Adapter device id
         uint32_t subsys_id; //< Adapter subsystem id (DX12)/ api version (Vulkan)
-        uint32_t revision; //< Adapter revision (DX12)/ driver version (Vulkan)
+        uint32_t revision; //< Adapter revision (DX12)/ dwis version (Vulkan)
 
         uint64_t dedicated_video_memory; //< Dedicated video memory
         uint64_t dedicated_system_memory; //< Dedicated system memory (DX12 only)

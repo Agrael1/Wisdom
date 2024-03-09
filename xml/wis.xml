@@ -568,6 +568,20 @@
       <value name="VertexBuffer" bit="7"/>
     </type>
 
+    <type name="BarrierSync" category="bitmask">
+      <impl_type for="dx" name="D3D12_BARRIER_SYNC"/>
+      <impl_type for="vk" name="VkPipelineStageFlags2"/>
+      <value name="None" value="0"/>
+      <value name="All" bit="0">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_ALL"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT"/>
+      </value>
+      <value name="Draw" bit="1">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_DRAW"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT"/>
+      </value>
+    </type>
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -720,6 +734,16 @@
       <member type="u32" name="reserved"/>
     </type>
 
+    <type name="BufferBarrier" category="struct">
+      <member type="BarrierSync" name="sync_before"/>
+      <member type="BarrierSync" name="sync_after"/>
+    </type>
+    
+    <type name="TextureBarrier" category="struct">
+      <member type="BarrierSync" name="sync_before"/>
+      <member type="BarrierSync" name="sync_after"/>
+    </type>
+
     <type name="GraphicsShaderStages" category="variant">
       <impl name="both">
         <member type="ShaderView" name="vertex"/>
@@ -864,7 +888,7 @@
 
     <!--Buffer-->
     <func for="Buffer" name="Destroy"/>
-    
+
     <!--UploadBuffer-->
     <func for="UploadBuffer" name="Destroy"/>
 

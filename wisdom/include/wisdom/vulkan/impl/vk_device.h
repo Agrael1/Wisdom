@@ -78,7 +78,7 @@ auto RequestExtensions(wis::VKAdapterHandle adapter_hnd) noexcept
 
 wis::detail::QueueResidency GetQueueFamilies(wis::VKAdapterHandle adapter_hnd) noexcept
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     using namespace wis::detail;
 
     auto* adapter = std::get<0>(adapter_hnd);

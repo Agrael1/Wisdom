@@ -17,7 +17,7 @@ wis::DX12ResourceAllocator::DX12ResourceAllocator(const wis::DX12Device& device)
 }
 wis::DX12Buffer wis::DX12ResourceAllocator::CreatePersistentBuffer(size_t size, BufferFlags) const noexcept
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     winrt::com_ptr<ID3D12Resource> rc;
     winrt::com_ptr<D3D12MA::Allocation> al;
     auto desc = CD3DX12_RESOURCE_DESC1::Buffer(size);

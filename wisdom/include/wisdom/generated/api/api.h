@@ -19,6 +19,8 @@ struct RenderAttachmentsDesc;
 struct RootConstant;
 struct SwapchainDesc;
 struct PushDescriptor;
+struct BufferBarrier;
+struct TextureBarrier;
 
 enum class ShaderStages {
     All = 0,
@@ -284,6 +286,12 @@ enum class BufferFlags {
     VertexBuffer = 1 << 7,
 };
 
+enum class BarrierSync {
+    None = 0x0,
+    All = 1 << 0,
+    Draw = 1 << 1,
+};
+
 struct Result{
     wis::Status status = wis::Status::Ok;
     const char* error = nullptr;
@@ -415,6 +423,16 @@ struct PushDescriptor{
     uint32_t reserved;
 };
 
+struct BufferBarrier{
+    wis::BarrierSync sync_before;
+    wis::BarrierSync sync_after;
+};
+
+struct TextureBarrier{
+    wis::BarrierSync sync_before;
+    wis::BarrierSync sync_after;
+};
+
 //=================================DELEGATES=================================
 
 typedef void (*DebugCallback)( wis::Severity severity,  const char* message,  void* user_data);
@@ -425,6 +443,7 @@ template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
 template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
 template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
+template <> struct is_flag_enum<wis::BarrierSync>:public std::true_type {};
 //============================== CONSTS ==============================
 
 

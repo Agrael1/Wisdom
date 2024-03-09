@@ -232,7 +232,7 @@ inline winrt::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 
     winrt::com_ptr<ID3D11Device> device11;
     D3D11CreateDevice(nullptr,
-                      D3D_DRIVER_TYPE_HARDWARE,
+                      D3D_Dwis_TYPE_HARDWARE,
                       nullptr, 0,
                       featureLevels, 3, D3D11_SDK_VERSION, device11.put(), nullptr, nullptr);
     return device11;

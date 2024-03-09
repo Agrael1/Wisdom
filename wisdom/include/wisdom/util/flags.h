@@ -31,10 +31,15 @@ constexpr bool is_flag()
 {
     return true;
 }
+template<typename T>
+consteval bool is_flag()
+{
+    return wis::is_flag_enum<T>::value;
+}
 } // namespace details
 
 template<typename T>
-concept Flag = unsigned_enum<T> && details::is_flag<T>();
+concept Flag = details::is_flag<T>();
 
 template<Flag T>
 constexpr auto underlying_value(T enum_value)
@@ -129,3 +134,13 @@ constexpr bool has(T lhs, T flag)
     return (lhs & flag) == flag;
 }
 } // namespace river::flags
+
+namespace wis {
+using namespace river::flags;
+
+template<typename T> requires std::is_enum_v<T>
+constexpr auto operator+(T enum_value) noexcept
+{
+    return static_cast<std::underlying_type_t<T>>(enum_value);
+}
+} // namespace wis

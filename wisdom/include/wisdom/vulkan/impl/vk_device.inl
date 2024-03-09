@@ -525,7 +525,7 @@ wis::VKPipelineState wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphics
 
 void wis::VKDevice::GetQueueFamilies() noexcept
 {
-    using namespace river::flags;
+    using namespace wis::flags;
     auto family_props = adapter.getQueueFamilyProperties();
     wis::lib_info(wis::format("The system supports {} queue families", family_props.size()));
     assert(family_props.size() < 256);

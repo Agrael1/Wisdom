@@ -58,4 +58,10 @@ inline constexpr D3D12_BLEND_OP convert_dx(BlendOp value) noexcept {
 inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept {
     return static_cast<D3D12_LOGIC_OP>(value);
 }
+inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept{
+    D3D12_BARRIER_SYNC output = {};
+    if(value & BarrierSync::All) output |= D3D12_BARRIER_SYNC_ALL;
+    if(value & BarrierSync::Draw) output |= D3D12_BARRIER_SYNC_DRAW;
+    return output;
+}
 }
