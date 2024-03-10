@@ -142,6 +142,8 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
 void Test::App::Frame()
 {
+
+
     auto result = swap.Present();
     if (result.status != wis::Status::Ok)
         throw std::runtime_error("Failed to present swapchain");

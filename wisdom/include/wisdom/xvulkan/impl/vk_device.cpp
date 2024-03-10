@@ -16,6 +16,7 @@
 constexpr static inline std::array required_extensions{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, // for Swapchain
     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, // for Fence
+    VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, // for barriers
 
     VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, // for Allocator
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, // for Allocator
@@ -25,6 +26,7 @@ constexpr static inline std::array required_extensions{
     VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME, // for PushDescriptor
     VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
+
 
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
@@ -191,6 +193,11 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     if (!present_exts.contains(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
         return wis::make_result<FUNC, "The system does not support timeline semaphores.">(VkResult::VK_ERROR_UNKNOWN);
 
+    if (!present_exts.contains(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
+        return wis::make_result<FUNC, "The system does not support synchronization primitives.">(VkResult::VK_ERROR_UNKNOWN);
+
+
+
     // Loading features
     VkPhysicalDeviceFeatures2 features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
@@ -205,6 +212,13 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .timelineSemaphore = true,
     };
     set_next(&timeline_features);
+
+    VkPhysicalDeviceSynchronization2Features sync_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+        .pNext = nullptr,
+        .synchronization2 = true,
+    };
+    set_next(&sync_features);
 
     VkPhysicalDeviceDescriptorBufferFeaturesEXT descbuffer_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
@@ -943,7 +957,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     VkCommandPoolCreateInfo cmd_pool_create_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
         .pNext = nullptr,
-        .flags = 0,
+        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = queues.GetOfType(wis::QueueType::Graphics)->family_index,
     };
     wis::scoped_handle<VkCommandPool> cmd_pool;

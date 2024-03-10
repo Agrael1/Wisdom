@@ -3,6 +3,16 @@
 #include <wisdom/generated/api/api.h>
 
 namespace wis{
+struct DX12BufferBarrier2{
+    wis::BufferBarrier barrier;
+    wis::DX12BufferView buffer;
+};
+
+struct DX12TextureBarrier2{
+    wis::TextureBarrier barrier;
+    wis::DX12TextureView texture;
+};
+
 struct DX12GraphicsShaderStages{
     wis::DX12ShaderView vertex;
     wis::DX12ShaderView hull;

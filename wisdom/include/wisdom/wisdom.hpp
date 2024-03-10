@@ -42,9 +42,13 @@ using DebugMessenger = DX12DebugMessenger;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
 using FenceView = DX12FenceView;
+using BufferView = DX12BufferView;
+using TextureView = DX12TextureView;
 using CommandListView = DX12CommandListView;
 using ShaderView = DX12ShaderView;
 using RootSignatureView = DX12RootSignatureView;
+using BufferBarrier2 = DX12BufferBarrier2;
+using TextureBarrier2 = DX12TextureBarrier2;
 using GraphicsShaderStages = DX12GraphicsShaderStages;
 using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 }
@@ -71,9 +75,13 @@ using DebugMessenger = VKDebugMessenger;
 constexpr auto CreateFactory = wis::VKCreateFactory;
 constexpr auto CreateDevice = wis::VKCreateDevice;
 using FenceView = VKFenceView;
+using BufferView = VKBufferView;
+using TextureView = VKTextureView;
 using CommandListView = VKCommandListView;
 using ShaderView = VKShaderView;
 using RootSignatureView = VKRootSignatureView;
+using BufferBarrier2 = VKBufferBarrier2;
+using TextureBarrier2 = VKTextureBarrier2;
 using GraphicsShaderStages = VKGraphicsShaderStages;
 using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 }

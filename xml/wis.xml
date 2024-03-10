@@ -596,39 +596,39 @@
       <value name="ConstantBuffer" bit="1">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_CONSTANT_BUFFER"/>
         <impl name="vk" value="VK_ACCESS_2_UNIFORM_READ_BIT"/>
-      </value>      
+      </value>
       <value name="IndexBuffer" bit="2">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_INDEX_BUFFER"/>
         <impl name="vk" value="VK_ACCESS_2_INDEX_READ_BIT"/>
-      </value>      
+      </value>
       <value name="RenderTarget" bit="3">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RENDER_TARGET"/>
         <impl name="vk" value="VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT"/>
-      </value>      
+      </value>
       <value name="UnorderedAccess" bit="4">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_UNORDERED_ACCESS"/>
         <impl name="vk" value="VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
-      </value>      
+      </value>
       <value name="DepthWrite" bit="5">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT"/>
-      </value>      
+      </value>
       <value name="DepthRead" bit="6">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ"/>
         <impl name="vk" value="VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT"/>
-      </value>      
+      </value>
       <value name="ShaderResource" bit="7">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_SHADER_RESOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_SHADER_READ_BIT"/>
-      </value>      
+      </value>
       <value name="StreamOutput" bit="8">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_STREAM_OUTPUT"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT"/>
-      </value>      
+      </value>
       <value name="IndirectArgument" bit="9">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT"/>
         <impl name="vk" value="VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT"/>
-      </value> 
+      </value>
       <value name="CopyDest" bit="10">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_DEST"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT"/>
@@ -667,7 +667,7 @@
       </value>
     </type>
 
-    <type name="TextureState" category="enum">
+    <type name="TextureState" category="enum" type="u32">
       <impl_type for="dx" name="D3D12_BARRIER_LAYOUT"/>
       <impl_type for="vk" name="VkImageLayout"/>
       <value name="Undefined" value="4294967295">
@@ -732,6 +732,20 @@
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
         <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="BufferView" category="variant" for="Buffer">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="TextureView" category="variant" for="Texture">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value" mod="ptr"/>
+        <member type="u32" name="value2"/>
       </impl>
     </type>
     <type name="CommandListView" category="variant" for="CommandList">
@@ -879,7 +893,7 @@
       <member type="DescriptorType" name="type"/>
       <member type="u32" name="reserved"/>
     </type>
-    
+
     <type name="SubresourceRange" category="struct">
       <member type="u32" name="base_mip_level"/>
       <member type="u32" name="level_count"/>
@@ -892,8 +906,17 @@
       <member type="BarrierSync" name="sync_after"/>
       <member type="ResourceAccess" name="access_before"/>
       <member type="ResourceAccess" name="access_after"/>
+      <member type="u64" name="offset" default ="0"/>
+      <member type="u64" name="size" default="UINT64_MAX"/>
     </type>
-    
+
+    <type name="BufferBarrier2" category="variant">
+      <impl name="both">
+        <member type="BufferBarrier" name="barrier"/>
+        <member type="BufferView" name="buffer"/>
+      </impl>
+    </type>
+
     <type name="TextureBarrier" category="struct">
       <member type="BarrierSync" name="sync_before"/>
       <member type="BarrierSync" name="sync_after"/>
@@ -902,6 +925,13 @@
       <member type="TextureState" name="state_before"/>
       <member type="TextureState" name="state_after"/>
       <member type="SubresourceRange" name="subresource_range"/>
+    </type>
+    
+    <type name="TextureBarrier2" category="variant">
+      <impl name="both">
+        <member type="TextureBarrier" name="barrier"/>
+        <member type="TextureView" name="texture"/>
+      </impl>
     </type>
 
     <type name="GraphicsShaderStages" category="variant">

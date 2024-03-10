@@ -256,7 +256,7 @@ enum class LogicOp {
     OrInverted = 15,
 };
 
-enum class TextureState {
+enum class TextureState : uint32_t {
     Undefined = 4294967295,
     Common = 0,
     Read = 1,
@@ -476,6 +476,8 @@ struct BufferBarrier{
     wis::BarrierSync sync_after;
     wis::ResourceAccess access_before;
     wis::ResourceAccess access_after;
+    uint64_t offset = 0;
+    uint64_t size = UINT64_MAX;
 };
 
 struct TextureBarrier{

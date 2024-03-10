@@ -135,7 +135,7 @@ public:
     }
     operator VKTextureView() const noexcept
     {
-        return { buffer };
+        return { buffer, format };
     }
     operator bool() const noexcept
     {

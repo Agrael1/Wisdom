@@ -14,4 +14,5 @@ using DX12RootSignatureView = std::tuple<ID3D12RootSignature*>;
 using DX12CommandListView = std::tuple<ID3D12CommandList*>;
 using DX12QueueView = std::tuple<ID3D12CommandQueue*>;
 using DX12BufferView = std::tuple<ID3D12Resource*>;
+using DX12TextureView = DX12BufferView;
 } // namespace wis
