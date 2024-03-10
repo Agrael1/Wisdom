@@ -50,5 +50,21 @@ inline constexpr VkDescriptorType convert_vk(wis::DescriptorType type) noexcept
         return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
     }
 }
-
+inline constexpr VkImageAspectFlags aspect_flags(VkFormat format)
+{
+    switch (format) {
+    case VK_FORMAT_D32_SFLOAT_S8_UINT:
+    case VK_FORMAT_D24_UNORM_S8_UINT:
+    case VK_FORMAT_D16_UNORM_S8_UINT:
+        return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+    case VK_FORMAT_D16_UNORM:
+    case VK_FORMAT_D32_SFLOAT:
+    case VK_FORMAT_X8_D24_UNORM_PACK32:
+        return VK_IMAGE_ASPECT_DEPTH_BIT;
+    case VK_FORMAT_S8_UINT:
+        return VK_IMAGE_ASPECT_STENCIL_BIT;
+    default:
+        return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
 } // namespace wis

@@ -21,15 +21,79 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
         back_buffer_count = new_back_buffer_count;
     }
 
-    wis::detail::limited_allocator<VkImage> allocator{ new_back_buffer_count };
-    result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, allocator.data());
+    wis::detail::limited_allocator<VkImage> allocator{ new_back_buffer_count, true };
+    auto* image_data = allocator.data();
+    result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, image_data);
 
     if (!wis::succeeded(result))
         return { wis::make_result<FUNC, "vkGetSwapchainImagesKHR failed">(result) };
 
     for (uint32_t i = 0; i < back_buffer_count; ++i) {
-        back_buffers[i] = VKTexture{ format.format, allocator.data()[i] };
+        back_buffers[i] = VKTexture{ format.format, image_data[i] };
     }
+
+    result = table.vkResetCommandBuffer(initialization, 0);
+    if (!succeeded(result)) {
+        return make_result<FUNC, "vkResetCommandBuffer failed">(result);
+    }
+
+    VkCommandBufferBeginInfo desc{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .pNext = nullptr,
+        .flags = {},
+        .pInheritanceInfo = nullptr,
+    };
+    result = table.vkBeginCommandBuffer(initialization, &desc);
+    if (!succeeded(result)) {
+        return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
+    }
+
+
+    wis::detail::limited_allocator<VkImageMemoryBarrier2> barrier_allocator{ new_back_buffer_count, true };
+    auto barrier_data = barrier_allocator.data();
+
+    for (size_t i = 0; i < new_back_buffer_count; i++) {
+        barrier_data[i] = VkImageMemoryBarrier2{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .pNext = nullptr,
+            .srcAccessMask = VK_ACCESS_2_NONE,
+            .dstAccessMask = VK_ACCESS_2_NONE,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = image_data[i],
+            .subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 + uint32_t(stereo) },
+        };
+    }
+    VkDependencyInfo dependency{
+        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+        .pNext = nullptr,
+        .dependencyFlags = 0,
+        .imageMemoryBarrierCount = new_back_buffer_count,
+        .pImageMemoryBarriers = barrier_data,
+    };
+    table.vkCmdPipelineBarrier2(initialization, &dependency);
+
+    result = table.vkEndCommandBuffer(initialization);
+    if (!succeeded(result)) {
+        return make_result<FUNC, "vkEndCommandBuffer failed">(result);
+    }
+
+    VkSubmitInfo submit{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 0,
+        .pWaitSemaphores = nullptr,
+        .pWaitDstStageMask = nullptr,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &initialization,
+        .signalSemaphoreCount = 0,
+        .pSignalSemaphores = nullptr,
+    };
+    table.vkQueueSubmit(present_queue, 1, &submit, nullptr);
+    table.vkQueueWaitIdle(present_queue);
+
     return AquireNextIndex();
 }
 

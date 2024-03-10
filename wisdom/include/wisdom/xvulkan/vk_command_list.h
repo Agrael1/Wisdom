@@ -5,6 +5,8 @@
 
 namespace wis {
 class VKCommandList;
+struct VKBufferBarrier2;
+struct VKTextureBarrier2;
 
 template<>
 struct Internal<VKCommandList> {
@@ -50,7 +52,13 @@ public:
 
 
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
+    // 8 buffers at once max for efficiency
+    WIS_INLINE void BufferBarriers(wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept;
+
+
     WIS_INLINE void TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept;
+    // 8 textures at once max for efficiency
+    WIS_INLINE void TextureBarriers(wis::VKTextureBarrier2* barrier, uint32_t barrier_count) noexcept;
 
 protected:
     bool closed = false;

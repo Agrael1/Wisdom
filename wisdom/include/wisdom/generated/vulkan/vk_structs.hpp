@@ -3,6 +3,16 @@
 #include <wisdom/generated/api/api.h>
 
 namespace wis{
+struct VKBufferBarrier2{
+    wis::BufferBarrier barrier;
+    wis::VKBufferView buffer;
+};
+
+struct VKTextureBarrier2{
+    wis::TextureBarrier barrier;
+    wis::VKTextureView texture;
+};
+
 struct VKGraphicsShaderStages{
     wis::VKShaderView vertex;
     wis::VKShaderView hull;
