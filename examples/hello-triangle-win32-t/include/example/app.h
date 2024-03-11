@@ -32,5 +32,8 @@ private:
 
     wis::Buffer vertex_buffer;
     wis::ResourceAllocator allocator;
+
+    wis::Shader vertex_shader;
+    wis::Shader pixel_shader;
 };
 } // namespace Test

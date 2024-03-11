@@ -41,6 +41,7 @@ enum class Status : int32_t {
     InvalidArgument = -2,
     OutOfMemory = -3,
     DeviceLost = -4,
+    Occluded = -5,
 };
 
 enum class QueuePriority {
@@ -254,6 +255,11 @@ enum class LogicOp {
     AndInverted = 13,
     OrReverse = 14,
     OrInverted = 15,
+};
+
+enum class ShaderIntermediate {
+    DXIL = 0,
+    SPIRV = 1,
 };
 
 enum class TextureState : uint32_t {

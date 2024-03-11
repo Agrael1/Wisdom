@@ -6,6 +6,8 @@
 
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
+#include <filesystem>
+#include <fstream>
 
 struct LogProvider : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
@@ -85,6 +87,23 @@ int Test::App::Start()
     }
 }
 
+std::string LoadShader(std::filesystem::path p)
+{
+    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL)
+        p += u".cso";
+    else
+        p += u".spv";
+
+    std::ifstream t{ p, std::ios::binary };
+    t.seekg(0, std::ios::end);
+    size_t size = t.tellg();
+    std::string ret;
+    ret.resize(size);
+    t.seekg(0);
+    t.read(ret.data(), size);
+    return ret;
+}
+
 void Test::App::CreateResources()
 {
     struct Vertex {
@@ -129,6 +148,17 @@ void Test::App::CreateResources()
         queue.ExecuteCommandLists(cmd_lists, 1);
     }
 
+    {
+        auto s1 = LoadShader(SHADER_DIR "/example.vs");
+        auto s2 = LoadShader(SHADER_DIR "/example.ps");
+        auto[result, vs] = device.CreateShader(s1.data(), uint32_t(s1.size()));
+        auto [result2, ps] = device.CreateShader(s2.data(), uint32_t(s2.size()));
+
+        vertex_shader = std::move(vs);
+        pixel_shader = std::move(ps);
+    }
+
+
     WaitForGPU();
 }
 
@@ -150,7 +180,7 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 void Test::App::Frame()
 {
     auto result = swap.Present();
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)
         throw std::runtime_error("Failed to present swapchain");
 
     WaitForGPU();

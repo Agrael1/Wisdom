@@ -782,7 +782,7 @@ wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .codeSize = size / sizeof(uint32_t),
+        .codeSize = size,
         .pCode = reinterpret_cast<const uint32_t*>(bytecode),
     };
     VkShaderModule shader;

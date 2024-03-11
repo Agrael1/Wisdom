@@ -144,6 +144,7 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
     dtable.vkQueueWaitIdle(present_queue);
     dtable.vkQueueWaitIdle(graphics_queue);
 
+    VkSwapchainKHR old_swapchain = swapchain;
     VkSwapchainCreateInfoKHR desc{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .pNext = nullptr,
@@ -162,13 +163,15 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
         .presentMode = present_mode,
         .clipped = VK_TRUE,
-        .oldSwapchain = swapchain,
+        .oldSwapchain = old_swapchain,
     };
 
     auto result = dtable.vkCreateSwapchainKHR(device.get(), &desc, nullptr, &swapchain);
     if (!succeeded(result)) {
         return wis::make_result<FUNC, "vkCreateSwapchainKHR failed">(result);
     }
+
+    dtable.vkDestroySwapchainKHR(device.get(), old_swapchain, nullptr);
 
     auto rres = InitBackBuffers();
     return rres;
