@@ -45,4 +45,4 @@ target_include_directories(${PROJECT_NAME}
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_definitions(${PROJECT_NAME} PUBLIC SHADER_DIR="${SHADER_DIR}")
 
-#add_dependencies(${PROJECT_NAME} compile_shaders_kd)
+add_dependencies(${PROJECT_NAME} compile_shaders_kd)

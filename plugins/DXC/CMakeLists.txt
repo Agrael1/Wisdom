@@ -19,9 +19,9 @@ else()
     
     # Download latest DXC from AppVeyor
     if(WISDOM_WINDOWS)
-        set(DXC_FILE https://ci.appveyor.com/api/projects/dnovillo/directxshadercompiler/artifacts/build%2FRelease%2Fdxc-artifacts.zip?branch=main&pr=false&job=image%3A%20Visual%20Studio%202022)
+        set(DXC_FILE https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2403/dxc_2024_03_07.zip)
     else()
-        set(DXC_FILE https://ci.appveyor.com/api/projects/dnovillo/directxshadercompiler/artifacts/build%2Fdxc-artifacts.tar.gz?branch=main&pr=false&job=image%3A%20Ubuntu)
+        set(DXC_FILE https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2403/linux_dxc_2024_03_07.x86_64.tar.gz)
     endif()
     
     set(DOWNLOAD_EXTRACT_TIMESTAMP ON)
@@ -31,9 +31,13 @@ else()
       URL ${DXC_FILE}
     )
     FetchContent_GetProperties(dxc)
+    if(NOT dxc_POPULATED)
+	  FetchContent_Populate(dxc)
+    endif()    
+
     if(WIN32)
-        set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc.exe CACHE INTERNAL "")
+        set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/x64/dxc.exe CACHE INTERNAL "")
     else()
-        set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/dxc CACHE INTERNAL "")
+        set(dxc_EXECUTABLE ${dxc_SOURCE_DIR}/bin/x64/dxc CACHE INTERNAL "")
     endif()
 endif()

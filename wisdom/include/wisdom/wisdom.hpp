@@ -25,7 +25,7 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 namespace wis{
 
-using CommandQueue = DX12CommandQueue;
+inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;using CommandQueue = DX12CommandQueue;
 using RootSignature = DX12RootSignature;
 using Factory = DX12Factory;
 using PipelineState = DX12PipelineState;
@@ -58,7 +58,7 @@ using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 
 namespace wis{
 
-using CommandQueue = VKCommandQueue;
+inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;using CommandQueue = VKCommandQueue;
 using RootSignature = VKRootSignature;
 using Factory = VKFactory;
 using PipelineState = VKPipelineState;

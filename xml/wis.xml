@@ -25,6 +25,7 @@
       <value name="InvalidArgument" value="-2"/>
       <value name="OutOfMemory" value="-3"/>
       <value name="DeviceLost" value="-4"/>
+      <value name="Occluded" value="-5"/>
     </type>
     <type name="MutiWaitFlags" category="enum" type="u32">
       <value name="All" value="0"/>
@@ -667,6 +668,11 @@
       </value>
     </type>
 
+    <type name="ShaderIntermediate" category="enum">
+      <value name="DXIL" value="0"/>
+      <value name="SPIRV" value="1"/>
+    </type>
+
     <type name="TextureState" category="enum" type="u32">
       <impl_type for="dx" name="D3D12_BARRIER_LAYOUT"/>
       <impl_type for="vk" name="VkImageLayout"/>
@@ -926,7 +932,7 @@
       <member type="TextureState" name="state_after"/>
       <member type="SubresourceRange" name="subresource_range"/>
     </type>
-    
+
     <type name="TextureBarrier2" category="variant">
       <impl name="both">
         <member type="TextureBarrier" name="barrier"/>

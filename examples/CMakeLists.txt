@@ -34,7 +34,7 @@ include(FetchContent)
 #    find_package(KDGui CONFIG)
 #endif()
 #
-#add_subdirectory(shaders)
+add_subdirectory(shaders)
 #
 #find_package(Vulkan)
 #

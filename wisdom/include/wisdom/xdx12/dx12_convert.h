@@ -15,6 +15,8 @@ inline constexpr wis::Status convert(HRESULT hr) noexcept
         return wis::Status::OutOfMemory;
     case DXGI_ERROR_DEVICE_REMOVED:
         return wis::Status::DeviceLost;
+    case DXGI_STATUS_OCCLUDED:
+        return wis::Status::Occluded;
     default:
         return wis::Status::Error;
     }

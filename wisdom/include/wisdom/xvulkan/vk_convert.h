@@ -17,6 +17,8 @@ inline constexpr wis::Status convert_vk(VkResult hr) noexcept
         return wis::Status::OutOfMemory;
     case VK_ERROR_DEVICE_LOST:
         return wis::Status::DeviceLost;
+    case VK_ERROR_OUT_OF_DATE_KHR:
+        return wis::Status::Occluded;
     default:
         return wis::Status::Error;
     }

@@ -254,6 +254,10 @@ std::string Generator::GenerateCPPTypedefs()
 std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
 {
     std::string output{ "namespace wis{\n\n" };
+
+    output += wis::format("inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::{};", 
+        impl == "VK" ? "SPIRV" : "DXIL"
+        );
     for (auto& [name, h] : handle_map) {
         if (h.impl == ImplementedFor::Both)
             output += wis::format("using {} = {}{};\n", name, impl, name);
