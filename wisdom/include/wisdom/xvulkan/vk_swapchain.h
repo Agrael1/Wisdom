@@ -12,6 +12,9 @@ struct VKSwapChainCreateInfo {
     wis::SharedSurface surface;
     wis::SharedDevice device;
 
+    VkPhysicalDevice adapter = nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR getCaps = nullptr;
+
     h::VkSwapchainKHR swapchain = nullptr;
     h::VkCommandBuffer initialization = nullptr;
     h::VkCommandPool command_pool = nullptr;
@@ -26,12 +29,15 @@ struct VKSwapChainCreateInfo {
     uint32_t back_buffer_count = 0;
     mutable uint32_t present_index = 0;
     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
+
     bool stereo = false;
 
 public:
     VKSwapChainCreateInfo() = default;
     VKSwapChainCreateInfo(wis::SharedSurface surface,
                           wis::SharedDevice device,
+                          VkPhysicalDevice adapter,
+                          PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR getCaps,
                           VkSwapchainKHR swapchain,
                           VkCommandBuffer initialization,
                           VkCommandPool command_pool,
@@ -42,6 +48,8 @@ public:
                           bool stereo) noexcept
         : surface(std::move(surface))
         , device(std::move(device))
+        , adapter(adapter)
+        , getCaps(getCaps)
         , swapchain(swapchain)
         , initialization(initialization)
         , command_pool(command_pool)

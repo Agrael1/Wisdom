@@ -978,7 +978,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, swapchain.release(),
+    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, adapter.GetInternal().adapter, itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR, swapchain.release(),
                                             cmd_buf, cmd_pool.release(), qpresent_queue, graphics_queue, *format, present_mode, stereo };
 
     auto rres = sci.InitSemaphores();
