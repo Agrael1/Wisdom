@@ -116,6 +116,13 @@ void Test::App::CreateResources()
         ubuf.Unmap();
 
         cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
+        cmd_list.BufferBarrier({
+                                       .sync_before = wis::BarrierSync::None,
+                                       .sync_after = wis::BarrierSync::Draw,
+                                       .access_before = wis::ResourceAccess::Common,
+                                       .access_after = wis::ResourceAccess::VertexBuffer,
+                               },
+                               vertex_buffer);
         cmd_list.Close();
 
         wis::CommandListView cmd_lists[] = { cmd_list };
@@ -142,8 +149,6 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
 void Test::App::Frame()
 {
-
-
     auto result = swap.Present();
     if (result.status != wis::Status::Ok)
         throw std::runtime_error("Failed to present swapchain");
