@@ -203,7 +203,16 @@ wis::Result wis::VKSwapChain::Present() const noexcept
     };
 
     auto result = dtable.vkQueuePresentKHR(present_queue, &present_info);
-    return wis::succeeded(result)
-            ? AquireNextIndex()
-            : wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
+    if (!wis::succeeded(result)) {
+        VkSubmitInfo wait{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &present_semaphore.handle,
+        };
+        dtable.vkQueueSubmit(present_queue, 1, &wait, nullptr);
+        return wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
+    }
+
+    return AquireNextIndex();
 }
