@@ -48,7 +48,6 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
         return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
     }
 
-
     wis::detail::limited_allocator<VkImageMemoryBarrier2> barrier_allocator{ new_back_buffer_count, true };
     auto barrier_data = barrier_allocator.data();
 
@@ -143,6 +142,12 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
 
     dtable.vkQueueWaitIdle(present_queue);
     dtable.vkQueueWaitIdle(graphics_queue);
+
+    VkSurfaceCapabilitiesKHR caps{};
+    getCaps(adapter, surface.get(), &caps);
+
+    width = std::clamp(width, caps.minImageExtent.width, caps.maxImageExtent.width);
+    height = std::clamp(height, caps.minImageExtent.height, caps.maxImageExtent.height);
 
     VkSwapchainKHR old_swapchain = swapchain;
     VkSwapchainCreateInfoKHR desc{
