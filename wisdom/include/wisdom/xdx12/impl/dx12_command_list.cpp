@@ -5,6 +5,7 @@
 
 #include <wisdom/xdx12/dx12_checks.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
+#include <wisdom/util/small_allocator.h>
 
 void wis::DX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept
 {

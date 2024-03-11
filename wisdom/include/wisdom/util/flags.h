@@ -21,6 +21,11 @@ SOFTWARE.
 #pragma once
 #include <type_traits>
 
+namespace wis {
+template<typename T>
+struct is_flag_enum;
+}
+
 namespace river::flags {
 template<typename T>
 concept unsigned_enum = std::is_enum_v<T> && std::is_unsigned_v<std::underlying_type_t<T>>;

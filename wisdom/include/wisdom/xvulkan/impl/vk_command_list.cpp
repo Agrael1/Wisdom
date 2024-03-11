@@ -5,6 +5,7 @@
 
 #include <wisdom/xvulkan/vk_checks.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
+#include <wisdom/util/small_allocator.h>
 
 void wis::VKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
 {
