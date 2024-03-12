@@ -148,6 +148,7 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
 
     width = std::clamp(width, caps.minImageExtent.width, caps.maxImageExtent.width);
     height = std::clamp(height, caps.minImageExtent.height, caps.maxImageExtent.height);
+    stereo = stereo_requested && caps.maxImageArrayLayers > 1;
 
     VkSwapchainKHR old_swapchain = swapchain;
     VkSwapchainCreateInfoKHR desc{
