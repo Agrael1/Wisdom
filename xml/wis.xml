@@ -15,6 +15,7 @@
     <handle name="UploadBuffer"/>
     <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>
+    <handle name="RenderTarget"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -734,6 +735,16 @@
       </value>
     </type>
 
+    <type name="TextureLayout" category="enum">
+      <value name="Texture1D" value="2"/>
+      <value name="Texture1DArray" value="3"/>
+      <value name="Texture2D" value="4"/>
+      <value name="Texture2DArray" value="5"/>
+      <value name="Texture2DMS" value="6"/>
+      <value name="Texture2DMSArray" value="7"/>
+      <value name="Texture3D" value="8"/>
+    </type>
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -752,6 +763,11 @@
       <impl name="vk">
         <member type="void" name="value" mod="ptr"/>
         <member type="u32" name="value2"/>
+      </impl>
+    </type>
+    <type name="RenderTargetView" category="variant" for="RenderTarget">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
     <type name="CommandListView" category="variant" for="CommandList">
@@ -903,6 +919,14 @@
     <type name="SubresourceRange" category="struct">
       <member type="u32" name="base_mip_level"/>
       <member type="u32" name="level_count"/>
+      <member type="u32" name="base_array_layer"/>
+      <member type="u32" name="layer_count"/>
+    </type>
+    
+    <type name="RenderTargetDesc" category="struct">
+      <member type="DataFormat" name="format"/>
+      <member type="TextureLayout" name="layout"/>
+      <member type="u32" name="mip"/>
       <member type="u32" name="base_array_layer"/>
       <member type="u32" name="layer_count"/>
     </type>

@@ -16,4 +16,5 @@ using VKCommandListView = std::tuple<VkCommandBuffer>;
 using VKQueueView = std::tuple<VkQueue>;
 using VKTextureView = std::tuple<VkImage, VkFormat>;
 using VKBufferView = std::tuple<VkBuffer>;
+using VKRenderTargetView = std::tuple<VkImageView>;
 } // namespace wis

@@ -82,6 +82,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKResourceAllocator>
     CreateAllocator() const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRenderTarget>
+    CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;

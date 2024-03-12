@@ -56,6 +56,9 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12ResourceAllocator>
     CreateAllocator() const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RenderTarget>
+    CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>

@@ -34,6 +34,7 @@ public:
         : DX12Buffer(std::move(rc), std::move(al)) { }
     explicit DX12UploadBuffer(DX12Buffer&& buffer) noexcept
         : DX12Buffer(std::move(buffer)) { }
+
 public:
     void* Map() const noexcept
     {
@@ -55,5 +56,27 @@ public:
 };
 
 using DX12Texture = DX12Buffer;
+
+// =================================================================================================
+class DX12RenderTarget;
+
+template<>
+struct Internal<DX12RenderTarget> {
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+    D3D12_CPU_DESCRIPTOR_HANDLE handle{};
+};
+
+class DX12RenderTarget : public QueryInternal<DX12RenderTarget>
+{
+public:
+    DX12RenderTarget() = default;
+    explicit DX12RenderTarget(wis::com_ptr<ID3D12DescriptorHeap> desc, D3D12_CPU_DESCRIPTOR_HANDLE handle) noexcept
+        : QueryInternal(std::move(desc), handle) { }
+
+    operator bool() const noexcept
+    {
+        return bool(heap);
+    }
+};
 
 } // namespace wis
