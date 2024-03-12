@@ -194,7 +194,7 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
                                  .InputSlot = i.input_slot,
                                  .AlignedByteOffset = i.offset_bytes,
                                  .InputSlotClass = D3D12_INPUT_CLASSIFICATION(slot->input_class),
-                                 .InstanceDataStepRate = slot->stride_bytes };
+                                 .InstanceDataStepRate = slot->input_class == wis::InputClass::PerInstance ? slot->stride_bytes : 0 };
     }
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = {
         .pInputElementDescs = ia_stage.data(),

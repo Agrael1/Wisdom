@@ -220,6 +220,14 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     };
     set_next(&sync_features);
 
+    VkPhysicalDeviceExtendedDynamicState2FeaturesEXT extdyn_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
+        .pNext = nullptr,
+        .extendedDynamicState2 = true,
+    };
+    if (present_exts.contains(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME)) // TODO: Check if there is such extension
+        set_next(&extdyn_features);
+
     VkPhysicalDeviceDescriptorBufferFeaturesEXT descbuffer_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
         .pNext = nullptr,
@@ -549,7 +557,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pNext = nullptr,
         .flags = 0,
         .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-        .primitiveRestartEnable = true,
+        .primitiveRestartEnable = false,
     };
 
     constexpr static VkPipelineColorBlendStateCreateInfo default_color_blending{

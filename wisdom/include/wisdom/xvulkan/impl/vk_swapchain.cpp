@@ -6,6 +6,7 @@
 
 #include <wisdom/util/misc.h>
 #include <wisdom/util/small_allocator.h>
+#include <algorithm>
 
 wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
 {
