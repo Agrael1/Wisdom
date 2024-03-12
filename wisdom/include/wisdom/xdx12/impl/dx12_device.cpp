@@ -21,7 +21,7 @@ wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
     HRESULT hr = D3D12CreateDevice(in_adapter, D3D_FEATURE_LEVEL_11_0,
                                    __uuidof(ID3D12Device9), device.put_void());
 
-    if (!wis::succeeded(hr)) 
+    if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr);
 
     return wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), std::move(in_factory));
@@ -84,7 +84,7 @@ wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
     wis::com_ptr<ID3D12CommandAllocator> allocator;
     wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
 
-    HRESULT hr= device->CreateCommandAllocator(clty, __uuidof(*allocator), allocator.put_void());
+    HRESULT hr = device->CreateCommandAllocator(clty, __uuidof(*allocator), allocator.put_void());
 
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to create command allocator">(hr);
@@ -339,4 +339,67 @@ wis::DX12Device::CreateAllocator() const noexcept
         return wis::make_result<FUNC, "Failed to create allocator">(hr);
 
     return DX12ResourceAllocator{ std::move(allocator) };
+}
+
+wis::ResultValue<wis::DX12RenderTarget>
+wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept {
+    D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
+        .Format = convert_dx(desc.format),
+        .ViewDimension = D3D12_RTV_DIMENSION(desc.layout),
+        .Texture2DArray{
+                .MipSlice = desc.mip,
+                .FirstArraySlice = desc.base_array_layer,
+                .ArraySize = desc.layer_count,
+                .PlaneSlice = 0 }
+    };
+    switch (desc.layout) {
+    case wis::TextureLayout::Texture1D:
+        rtv_desc.Texture1D = {
+            .MipSlice = desc.mip
+        };
+        break;
+    case wis::TextureLayout::Texture1DArray:
+        rtv_desc.Texture1DArray = {
+            .MipSlice = desc.mip,
+            .FirstArraySlice = desc.base_array_layer,
+            .ArraySize = desc.layer_count
+        };
+        break;
+    case wis::TextureLayout::Texture2D:
+        rtv_desc.Texture2D = {
+            .MipSlice = desc.mip
+        };
+        break;
+    case wis::TextureLayout::Texture2DMSArray:
+        rtv_desc.Texture2DMSArray = {
+            .FirstArraySlice = desc.base_array_layer,
+            .ArraySize = desc.layer_count
+        };
+        break;
+    case wis::TextureLayout::Texture3D:
+        rtv_desc.Texture3D = {
+            .MipSlice = desc.mip,
+            .FirstWSlice = desc.base_array_layer,
+            .WSize = desc.layer_count
+        };
+        break;
+    default:
+        break;
+    }
+
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+        .NumDescriptors = 1,
+        .Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+        .NodeMask = 0u
+    };
+
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+    auto hr = device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void());
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create descriptor heap for render target view">(hr);
+
+    auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+    device->CreateRenderTargetView(std::get<0>(texture), &rtv_desc, handle);
+    return DX12RenderTarget{ std::move(heap), handle };
 }

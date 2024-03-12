@@ -238,6 +238,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     VkPhysicalDeviceDynamicRenderingFeaturesKHR dyn_render{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
         .pNext = nullptr,
+        .dynamicRendering = true,
     };
     if (present_exts.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
         set_next(&dyn_render);
@@ -998,6 +999,94 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         return rres;
 
     return wis::VKSwapChain{ std::move(sci) };
+}
+
+wis::ResultValue<wis::VKRenderTarget>
+wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
+{
+    auto vk_format = convert_vk(desc.format);
+    VkImageViewCreateInfo info
+    {
+        .image = std::get<0>(texture),
+        .format = vk_format,
+    };
+    info.subresourceRange.aspectMask = aspect_flags(vk_format);
+
+
+    switch (desc.layout) {
+    case wis::TextureLayout::Texture1D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_1D;
+        {
+            info.subresourceRange.baseMipLevel = desc.mip,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = 0,
+            info.subresourceRange.layerCount = 1;
+        };
+        break;
+    case wis::TextureLayout::Texture2D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        {
+            info.subresourceRange.baseMipLevel = desc.mip,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = 0,
+            info.subresourceRange.layerCount = 1;
+        };
+        break;
+    case wis::TextureLayout::Texture3D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_3D;
+        {
+            info.subresourceRange.baseMipLevel = desc.mip,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = desc.base_array_layer,
+            info.subresourceRange.layerCount = desc.layer_count;
+        };
+        break;
+    case wis::TextureLayout::Texture1DArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        {
+            info.subresourceRange.baseMipLevel = desc.mip,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = desc.base_array_layer,
+            info.subresourceRange.layerCount = desc.layer_count;
+        };
+        break;
+    case wis::TextureLayout::Texture2DArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        {
+            info.subresourceRange.baseMipLevel = desc.mip,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = desc.base_array_layer,
+            info.subresourceRange.layerCount = desc.layer_count;
+        };
+        break;
+    case wis::TextureLayout::Texture2DMS:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        {
+            info.subresourceRange.baseMipLevel = 0,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = 0,
+            info.subresourceRange.layerCount = 1;
+        };
+        break;
+    case wis::TextureLayout::Texture2DMSArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        {
+            info.subresourceRange.baseMipLevel = 0,
+            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseArrayLayer = desc.base_array_layer,
+            info.subresourceRange.layerCount = desc.layer_count;
+        };
+        break;
+    default:
+        break;
+    }
+
+    VkImageView view;
+    auto result = device.table().vkCreateImageView(device.get(), &info, nullptr, &view);
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to create an image view">(result);
+
+    return VKRenderTarget{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView } };
 }
 
 // wis::ResultValue< VkDescriptorSetLayout>

@@ -163,3 +163,17 @@ void wis::VKCommandList::TextureBarriers(wis::VKTextureBarrier2* barriers, uint3
     };
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
+
+void wis::VKCommandList::BeginRenderPass() noexcept
+{
+    //auto& dtable = device.table();
+    //
+    //VkRenderingInfo info{
+    //    .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+    //    .pNext = nullptr,
+    //
+    //};
+    //
+    //
+    //dtable.vkCmdBeginRendering(command_list, &info);
+}

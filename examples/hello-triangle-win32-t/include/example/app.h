@@ -27,6 +27,8 @@ private:
     wis::CommandList cmd_list;
     wis::SwapChain swap;
 
+    wis::RenderTarget render_targets[2];
+
     wis::Fence fence;
     uint64_t fence_value = 1;
 

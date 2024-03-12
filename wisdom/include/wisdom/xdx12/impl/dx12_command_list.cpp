@@ -120,3 +120,9 @@ void wis::DX12CommandList::TextureBarriers(wis::DX12TextureBarrier2* barrier, ui
     };
     list->Barrier(1, &bg);
 }
+
+void wis::DX12CommandList::BeginRenderPass() noexcept
+{
+    //wis::detail::limited_allocator<D3D12_RENDER_PASS_RENDER_TARGET_DESC, 8> allocator(8, true);
+    //list->BeginRenderPass();
+}

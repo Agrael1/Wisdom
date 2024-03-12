@@ -47,6 +47,8 @@ public:
     // 8 textures at once max for efficiency
     WIS_INLINE void TextureBarriers(wis::DX12TextureBarrier2* barrier, uint32_t barrier_count) noexcept;
 
+    WIS_INLINE void BeginRenderPass() noexcept;
+
 protected:
     bool closed = false;
 };

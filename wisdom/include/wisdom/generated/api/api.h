@@ -20,6 +20,7 @@ struct RootConstant;
 struct SwapchainDesc;
 struct PushDescriptor;
 struct SubresourceRange;
+struct RenderTargetDesc;
 struct BufferBarrier;
 struct TextureBarrier;
 
@@ -279,6 +280,16 @@ enum class TextureState : uint32_t {
     VideoDecodeWrite = 12,
 };
 
+enum class TextureLayout {
+    Texture1D = 2,
+    Texture1DArray = 3,
+    Texture2D = 4,
+    Texture2DArray = 5,
+    Texture2DMS = 6,
+    Texture2DMSArray = 7,
+    Texture3D = 8,
+};
+
 enum class AdapterFlags {
     None = 0x0,
     Remote = 1 << 0,
@@ -473,6 +484,14 @@ struct PushDescriptor{
 struct SubresourceRange{
     uint32_t base_mip_level;
     uint32_t level_count;
+    uint32_t base_array_layer;
+    uint32_t layer_count;
+};
+
+struct RenderTargetDesc{
+    wis::DataFormat format;
+    wis::TextureLayout layout;
+    uint32_t mip;
     uint32_t base_array_layer;
     uint32_t layer_count;
 };

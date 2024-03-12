@@ -142,4 +142,27 @@ public:
         return bool(buffer);
     }
 };
+
+// =================================================================================================
+class VKRenderTarget;
+
+template<>
+struct Internal<VKRenderTarget> {
+    wis::managed_handle_ex<VkImageView> view;
+};
+
+class VKRenderTarget : public QueryInternal<VKRenderTarget>
+{
+public:
+    VKRenderTarget() = default;
+    explicit VKRenderTarget(wis::managed_handle_ex<VkImageView> view) noexcept
+        : QueryInternal(std::move(view))
+    {
+    }
+    operator bool() const noexcept
+    {
+        return bool(view);
+    }
+};
+
 } // namespace wis

@@ -186,9 +186,12 @@ void Test::App::CreateResources()
             }
         };
         auto [res2, hpipeline] = device.CreateGraphicsPipeline(&desc);
+        pipeline = std::move(hpipeline);
     }
 
     WaitForGPU();
+
+    cmd_list.Reset(pipeline);
 }
 
 void Test::App::ProcessEvent(Event e)
