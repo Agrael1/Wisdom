@@ -31,7 +31,7 @@ struct VKSwapChainCreateInfo {
     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 
     bool stereo = false;
-
+    bool stereo_requested = false;
 public:
     VKSwapChainCreateInfo() = default;
     VKSwapChainCreateInfo(wis::SharedSurface surface,
@@ -45,7 +45,7 @@ public:
                           VkQueue graphics_queue,
                           VkSurfaceFormatKHR format,
                           VkPresentModeKHR present_mode,
-                          bool stereo) noexcept
+                          bool stereo, bool stereo_requested) noexcept
         : surface(std::move(surface))
         , device(std::move(device))
         , adapter(adapter)
@@ -58,6 +58,7 @@ public:
         , format(format)
         , present_mode(present_mode)
         , stereo(stereo)
+        , stereo_requested(stereo_requested)
     {
     }
     VKSwapChainCreateInfo(const VKSwapChainCreateInfo&) = delete;
