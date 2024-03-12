@@ -35,5 +35,8 @@ private:
 
     wis::Shader vertex_shader;
     wis::Shader pixel_shader;
+
+    wis::RootSignature root;
+    wis::PipelineState pipeline;
 };
 } // namespace Test

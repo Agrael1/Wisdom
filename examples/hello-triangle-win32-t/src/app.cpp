@@ -136,7 +136,7 @@ void Test::App::CreateResources()
 
         cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
         cmd_list.BufferBarrier({
-                                       .sync_before = wis::BarrierSync::None,
+                                       .sync_before = wis::BarrierSync::All,
                                        .sync_after = wis::BarrierSync::Draw,
                                        .access_before = wis::ResourceAccess::Common,
                                        .access_after = wis::ResourceAccess::VertexBuffer,
@@ -151,13 +151,42 @@ void Test::App::CreateResources()
     {
         auto s1 = LoadShader(SHADER_DIR "/example.vs");
         auto s2 = LoadShader(SHADER_DIR "/example.ps");
-        auto[result, vs] = device.CreateShader(s1.data(), uint32_t(s1.size()));
+        auto [result, vs] = device.CreateShader(s1.data(), uint32_t(s1.size()));
         auto [result2, ps] = device.CreateShader(s2.data(), uint32_t(s2.size()));
 
         vertex_shader = std::move(vs);
         pixel_shader = std::move(ps);
     }
 
+    {
+        auto [result, hroot] = device.CreateRootSignature();
+        root = std::move(hroot);
+
+        wis::InputSlotDesc input_slots[] = {
+            { .slot = 0, .stride_bytes = sizeof(Vertex), .input_class = wis::InputClass::PerVertex },
+        };
+        wis::InputAttribute input_attributes[] = {
+            { .input_slot = 0, .semantic_name = "POSITION", .semantic_index = 0, .location = 0, .format = wis::DataFormat::RGB32Float, .offset_bytes = 0 },
+            { .input_slot = 0, .semantic_name = "COLOR", .semantic_index = 0, .location = 1, .format = wis::DataFormat::RGBA32Float, .offset_bytes = 12 },
+        };
+        wis::DataFormat attachment_formats[] = { wis::DataFormat::BGRA8Unorm };
+
+        wis::GraphicsPipelineDesc desc{
+            .root_signature = root,
+            .input_layout = {
+                    .slots = input_slots,
+                    .slot_count = 1,
+                    .attributes = input_attributes,
+                    .attribute_count = 2,
+            },
+            .shaders = { .vertex = vertex_shader, .pixel = pixel_shader },
+            .attachments = {
+                    .attachment_formats = attachment_formats,
+                    .attachments_count = 1,
+            }
+        };
+        auto [res2, hpipeline] = device.CreateGraphicsPipeline(&desc);
+    }
 
     WaitForGPU();
 }
