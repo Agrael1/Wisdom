@@ -53,17 +53,31 @@ Test::App::App(uint32_t width, uint32_t height)
     auto [res2, hqueue] = device.CreateCommandQueue(wis::QueueType::Graphics);
     queue = std::move(hqueue);
 
-    wis::SwapchainDesc desc{
-        .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
-        .format = wis::DataFormat::BGRA8Unorm,
-        .buffer_count = 2,
-        .stereo = true,
-        .vsync = true,
-    };
+    {
+        wis::SwapchainDesc desc{
+            .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
+            .format = wis::DataFormat::BGRA8Unorm,
+            .buffer_count = 2,
+            .stereo = true,
+            .vsync = true,
+        };
 
-    auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
-                                                   wnd.GetHandle());
-    swap = std::move(hswap);
+        auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
+                                                       wnd.GetHandle());
+        swap = std::move(hswap);
+        back_buffers = swap.GetBufferSpan();
+
+        wis::RenderTargetDesc rt_desc{
+            .format = wis::DataFormat::BGRA8Unorm,
+            .layout = wis::TextureLayout::Texture2D,
+            .mip = 0,
+            .base_array_layer = 0,
+            .layer_count = 1,
+        };
+        for (size_t i = 0; i < render_targets.size(); i++) {
+            auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
+        }
+    }
 
     auto [res4, hfence] = device.CreateFence();
     fence = std::move(hfence);
@@ -191,7 +205,7 @@ void Test::App::CreateResources()
 
     WaitForGPU();
 
-    cmd_list.Reset(pipeline);
+    auto res = cmd_list.Reset(pipeline);
 }
 
 void Test::App::ProcessEvent(Event e)
@@ -207,10 +221,24 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     auto result = swap.Resize(width, height);
     if (result.status != wis::Status::Ok)
         throw std::runtime_error("Failed to resize swapchain");
+
+    wis::RenderTargetDesc rt_desc{
+        .format = wis::DataFormat::BGRA8Unorm,
+        .layout = wis::TextureLayout::Texture2D,
+        .mip = 0,
+        .base_array_layer = 0,
+        .layer_count = 1,
+    };
+
+    back_buffers = swap.GetBufferSpan();
+    for (size_t i = 0; i < render_targets.size(); i++) {
+        auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
+    }
 }
 
 void Test::App::Frame()
 {
+
     auto result = swap.Present();
     if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)
         throw std::runtime_error("Failed to present swapchain");

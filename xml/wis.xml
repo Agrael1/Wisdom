@@ -12,6 +12,7 @@
     <handle name="PipelineState"/>
     <handle name="CommandList"/>
     <handle name="Buffer"/>
+    <handle name="Texture"/>
     <handle name="UploadBuffer"/>
     <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>

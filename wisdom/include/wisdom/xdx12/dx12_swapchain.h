@@ -45,7 +45,7 @@ public:
     }
     /// @brief Check if stereo is supported
     /// @return true if stereo is supported
-    [[nodiscard]] bool StereoSupported() const noexcept{return stereo;}
+    [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
 
     /// @brief Resize the swapchain
     /// For the method to succeed, all swapchain buffers must be released first
@@ -55,15 +55,24 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result
     Resize(uint32_t width, uint32_t height) noexcept;
 
-     /// @brief Present the swapchain
+    /// @brief Present the swapchain
     /// @return true if succeeded
     [[nodiscard]] wis::Result Present() noexcept
     {
         auto hr = chain->Present(1, 0);
         if (!wis::succeeded(hr)) {
-            return wis::make_result <FUNC, "Presentation failed">(hr);
+            return wis::make_result<FUNC, "Presentation failed">(hr);
         }
         return wis::success;
+    }
+
+    [[nodiscard]] std::pair<const DX12Texture*, uint32_t> GetBuffers() const noexcept
+    {
+        return { back_buffers.get(), back_buffer_count };
+    }
+    [[nodiscard]] std::span<const DX12Texture> GetBufferSpan() const noexcept
+    {
+        return { back_buffers.get(), back_buffer_count };
     }
 };
 } // namespace wis
