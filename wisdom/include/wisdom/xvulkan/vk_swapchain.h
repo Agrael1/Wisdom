@@ -32,6 +32,7 @@ struct VKSwapChainCreateInfo {
 
     bool stereo = false;
     bool stereo_requested = false;
+
 public:
     VKSwapChainCreateInfo() = default;
     VKSwapChainCreateInfo(wis::SharedSurface surface,
@@ -114,6 +115,15 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result Resize(uint32_t width, uint32_t height) noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result Present() const noexcept;
+
+    [[nodiscard]] std::pair<const VKTexture*, uint32_t> GetBuffers() const noexcept
+    {
+        return { back_buffers.get(), back_buffer_count };
+    }
+    [[nodiscard]] std::span<const VKTexture> GetBufferSpan() const noexcept
+    {
+        return { back_buffers.get(), back_buffer_count };
+    }
 };
 } // namespace wis
 

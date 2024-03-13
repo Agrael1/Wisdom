@@ -27,7 +27,6 @@ constexpr static inline std::array required_extensions{
     VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
 
-
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
     // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
@@ -195,8 +194,6 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
 
     if (!present_exts.contains(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
         return wis::make_result<FUNC, "The system does not support synchronization primitives.">(VkResult::VK_ERROR_UNKNOWN);
-
-
 
     // Loading features
     VkPhysicalDeviceFeatures2 features{
@@ -1005,13 +1002,13 @@ wis::ResultValue<wis::VKRenderTarget>
 wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
 {
     auto vk_format = convert_vk(desc.format);
-    VkImageViewCreateInfo info
-    {
+    VkImageViewCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext = nullptr,
         .image = std::get<0>(texture),
         .format = vk_format,
     };
     info.subresourceRange.aspectMask = aspect_flags(vk_format);
-
 
     switch (desc.layout) {
     case wis::TextureLayout::Texture1D:
