@@ -39,7 +39,7 @@ public:
     /// @brief Get the current image index in the swapchain
     /// @return Index of the current image
     [[nodiscard]] uint32_t
-    GetNextIndex() const noexcept
+    GetCurrentIndex() const noexcept
     {
         return chain->GetCurrentBackBufferIndex();
     }

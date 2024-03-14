@@ -77,6 +77,10 @@ public:
     {
         return bool(heap);
     }
+    operator DX12RenderTargetView() const noexcept
+    {
+        return handle;
+    }
 };
 
 } // namespace wis

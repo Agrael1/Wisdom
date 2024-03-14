@@ -20,6 +20,7 @@ wis::Result wis::DX12CommandList::Reset(wis::DX12PipelineHandle pipeline) noexce
         return wis::make_result<FUNC, "Reset failed (allocator)">(hr);
     }
     hr = list->Reset(allocator.get(), std::get<0>(pipeline));
+    closed = false;
     return wis::succeeded(hr) ? wis::success : wis::make_result<FUNC, "Reset failed (command list)">(hr);
 }
 
@@ -121,8 +122,31 @@ void wis::DX12CommandList::TextureBarriers(wis::DX12TextureBarrier2* barrier, ui
     list->Barrier(1, &bg);
 }
 
-void wis::DX12CommandList::BeginRenderPass() noexcept
+void wis::DX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pass_desc) noexcept
 {
-    //wis::detail::limited_allocator<D3D12_RENDER_PASS_RENDER_TARGET_DESC, 8> allocator(8, true);
-    //list->BeginRenderPass();
+    wis::detail::limited_allocator<D3D12_RENDER_PASS_RENDER_TARGET_DESC, 8> allocator(8, true);
+    auto* data = allocator.data();
+
+    for (size_t i = 0; i < pass_desc->target_count; i++) {
+        auto& target = pass_desc->targets[i];
+        data[i] = {
+            .cpuDescriptor = std::get<0>(target.target),
+            .BeginningAccess = {
+                    .Type = convert_dx(target.load_op),
+            },
+            .EndingAccess = {
+                    .Type = convert_dx(target.store_op),
+            }
+        };
+        if (data[i].BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR) {
+            std::copy(std::begin(target.clear_value), std::end(target.clear_value), std::begin(data[i].BeginningAccess.Clear.ClearValue.Color));
+        }
+    }
+
+    list->BeginRenderPass(pass_desc->target_count, data, nullptr, convert_dx(pass_desc->flags));
+}
+
+void wis::DX12CommandList::EndRenderPass() noexcept
+{
+    list->EndRenderPass();
 }

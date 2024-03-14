@@ -27,10 +27,23 @@ struct DX12GraphicsPipelineDesc{
     wis::InputLayout input_layout;
     wis::DX12GraphicsShaderStages shaders;
     wis::RenderAttachmentsDesc attachments;
-    wis::RasterizerDesc* rasterizer;
-    wis::SampleDesc* sample;
-    wis::BlendStateDesc* blend;
-    wis::DepthStencilDesc* depth_stencil;
+    wis::RasterizerDesc* rasterizer = nullptr;
+    wis::SampleDesc* sample = nullptr;
+    wis::BlendStateDesc* blend = nullptr;
+    wis::DepthStencilDesc* depth_stencil = nullptr;
+};
+
+struct DX12RenderPassRenderTargetDesc{
+    wis::DX12RenderTargetView target;
+    wis::LoadOperation load_op = wis::LoadOperation::Load;
+    wis::StoreOperation store_op = wis::StoreOperation::Store;
+    std::array<float, 4> clear_value {};
+};
+
+struct DX12RenderPassDesc{
+    wis::DX12RenderPassRenderTargetDesc* targets;
+    uint32_t target_count;
+    wis::RenderPassFlags flags;
 };
 
 inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept {
@@ -95,6 +108,7 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept{
     if(value & ResourceAccess::ShadingRate) output |= D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE;
     if(value & ResourceAccess::VideoDecodeRead) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
     if(value & ResourceAccess::VideoDecodeWrite) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
+    if(value & ResourceAccess::Present) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
     if(value & ResourceAccess::NoAccess) output |= D3D12_BARRIER_ACCESS_NO_ACCESS;
     return output;
 }
@@ -115,6 +129,28 @@ inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept{
     case TextureState::ShadingRate: return D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE;
     case TextureState::VideoDecodeRead: return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ;
     case TextureState::VideoDecodeWrite: return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
+    }
+}
+inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexcept{
+    D3D12_RENDER_PASS_FLAGS output = {};
+    if(value & RenderPassFlags::Suspending) output |= D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS;
+    if(value & RenderPassFlags::Resuming) output |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
+    return output;
+}
+inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept{
+    switch(value){
+    default: return {};
+    case LoadOperation::Load: return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+    case LoadOperation::Clear: return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+    case LoadOperation::DontCare: return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
+    }
+}
+inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation value) noexcept{
+    switch(value){
+    default: return {};
+    case StoreOperation::Store: return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+    case StoreOperation::DontCare: return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
+    case StoreOperation::Resolve: return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
     }
 }
 }

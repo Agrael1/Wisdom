@@ -54,6 +54,8 @@ using BufferBarrier2 = DX12BufferBarrier2;
 using TextureBarrier2 = DX12TextureBarrier2;
 using GraphicsShaderStages = DX12GraphicsShaderStages;
 using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
+using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
+using RenderPassDesc = DX12RenderPassDesc;
 }
 
 #elif WISDOM_VULKAN
@@ -90,6 +92,8 @@ using BufferBarrier2 = VKBufferBarrier2;
 using TextureBarrier2 = VKTextureBarrier2;
 using GraphicsShaderStages = VKGraphicsShaderStages;
 using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
+using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
+using RenderPassDesc = VKRenderPassDesc;
 }
 
 #else

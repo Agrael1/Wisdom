@@ -84,7 +84,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
-    [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers(VkExtent2D image_size) noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() const noexcept;
     WIS_INLINE void ReleaseSemaphore() const noexcept;
 };
@@ -108,7 +108,7 @@ public:
     }
 
 public:
-    [[nodiscard]] uint32_t GetNextIndex() const noexcept { return present_index; }
+    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept { return present_index; }
 
     [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
 

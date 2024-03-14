@@ -80,6 +80,8 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
         .srcAccessMask = convert_vk(barrier.access_before),
         .dstStageMask = convert_vk(barrier.sync_after),
         .dstAccessMask = convert_vk(barrier.access_after),
+        .oldLayout = convert_vk(barrier.state_before),
+        .newLayout = convert_vk(barrier.state_after),
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image = texture,
@@ -164,16 +166,50 @@ void wis::VKCommandList::TextureBarriers(wis::VKTextureBarrier2* barriers, uint3
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::BeginRenderPass() noexcept
+void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc) noexcept
 {
-    //auto& dtable = device.table();
-    //
-    //VkRenderingInfo info{
-    //    .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
-    //    .pNext = nullptr,
-    //
-    //};
-    //
-    //
-    //dtable.vkCmdBeginRendering(command_list, &info);
+    if (!pass_desc->target_count)
+        return;
+
+    auto& dtable = device.table();
+    wis::detail::limited_allocator<VkRenderingAttachmentInfo, 8> allocator(pass_desc->target_count, true);
+    auto* data = allocator.data();
+    wis::Size2D extent = std::get<1>(pass_desc->targets[0].target);
+
+    for (size_t i = 0; i < pass_desc->target_count; i++) {
+        auto& target = pass_desc->targets[i];
+        data[i] = VkRenderingAttachmentInfo{
+            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext = nullptr,
+            .imageView = std::get<0>(target.target),
+            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .loadOp = convert_vk(target.load_op),
+            .storeOp = convert_vk(target.store_op),
+        };
+        if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+            data[i].clearValue = {
+                .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
+            };
+    }
+
+    VkRenderingInfo info{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .pNext = nullptr,
+        .flags = convert_vk(pass_desc->flags),
+        .renderArea = {
+                .offset = { 0, 0 },
+                .extent = { extent.width, extent.height },
+        },
+        .layerCount = 1,
+        .viewMask = 0,
+        .colorAttachmentCount = allocator.size(),
+        .pColorAttachments = data,
+    };
+
+    dtable.vkCmdBeginRendering(command_list, &info);
+}
+
+void wis::VKCommandList::EndRenderPass() noexcept
+{
+    device.table().vkCmdEndRendering(command_list);
 }

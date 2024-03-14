@@ -8,7 +8,7 @@
 #include <wisdom/util/small_allocator.h>
 #include <algorithm>
 
-wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
+wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image_size) noexcept
 {
     auto& table = device.table();
     uint32_t new_back_buffer_count = 0;
@@ -30,7 +30,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers() noexcept
         return { wis::make_result<FUNC, "vkGetSwapchainImagesKHR failed">(result) };
 
     for (uint32_t i = 0; i < back_buffer_count; ++i) {
-        back_buffers[i] = VKTexture{ format.format, image_data[i] };
+        back_buffers[i] = VKTexture{ format.format, image_data[i], { image_size.width, image_size.height } };
     }
 
     result = table.vkResetCommandBuffer(initialization, 0);
@@ -180,7 +180,7 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
 
     dtable.vkDestroySwapchainKHR(device.get(), old_swapchain, nullptr);
 
-    auto rres = InitBackBuffers();
+    auto rres = InitBackBuffers(desc.imageExtent);
     return rres;
 }
 

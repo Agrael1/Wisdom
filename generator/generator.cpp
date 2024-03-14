@@ -255,9 +255,8 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
 {
     std::string output{ "namespace wis{\n\n" };
 
-    output += wis::format("inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::{};", 
-        impl == "VK" ? "SPIRV" : "DXIL"
-        );
+    output += wis::format("inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::{};",
+                          impl == "VK" ? "SPIRV" : "DXIL");
     for (auto& [name, h] : handle_map) {
         if (h.impl == ImplementedFor::Both)
             output += wis::format("using {} = {}{};\n", name, impl, name);
@@ -568,7 +567,8 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
             continue;
         }
         cvts.emplace(impl_for, wis::format("inline constexpr {} convert_{}({} value) noexcept{{\n    "
-                                           "{} output = {};\n", impl_name, impl_for, name, impl_name, def_value));
+                                           "{} output = {};\n",
+                                           impl_name, impl_for, name, impl_name, def_value));
     }
 
     for (auto* member = type.FirstChildElement("value"); member;
@@ -641,6 +641,9 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
             m.type = type;
             m.name = name;
 
+            if (arr) {
+                m.array_size = arr->Value();
+            }
             if (auto* def = member->FindAttribute("default")) {
                 m.default_value = def->Value();
             }
@@ -676,7 +679,14 @@ std::string Generator::MakeCVariant(const WisVariant& s)
 
         for (auto& m : impl.members) {
             auto mfull_name = GetCFullTypename(m.type, impl_tag);
-            st_decl += wis::format("    {}{} {};\n", mfull_name, m.modifier == "ptr" ? "*" : "", m.name);
+            std::string res_type;
+
+            if (m.modifier == "ptr")
+                res_type = '*';
+
+            st_decl += m.array_size.empty()
+                    ? wis::format("    {} {};\n", mfull_name + res_type, m.name)
+                    : wis::format("    {} {}[{}];\n", mfull_name, m.name, m.array_size);
         }
 
         st_decl += "};\n\n";
@@ -706,7 +716,22 @@ std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
 
         for (auto& m : impl.members) {
             auto mfull_name = GetCPPFullTypename(m.type, impl_tag);
-            st_decl += wis::format("    {}{} {};\n", mfull_name, m.modifier == "ptr" ? "*" : "", m.name);
+
+            std::string mod;
+            if (m.modifier == "ptr")
+                mod = '*';
+
+            if (m.array_size.empty()) {
+                std::string def = "";
+                if (!m.default_value.empty()) {
+                    def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
+                            ? wis::format(" = {}::{}", mfull_name, m.default_value)
+                            : wis::format(" = {}", m.default_value);
+                }
+                st_decl += wis::format("    {} {}{};\n", mfull_name + mod, m.name, def);
+            } else {
+                st_decl += wis::format("    std::array<{}, {}> {} {{}};\n", mfull_name, m.array_size, m.name);
+            }
         }
 
         st_decl += "};\n\n";
