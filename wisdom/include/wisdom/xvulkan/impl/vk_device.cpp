@@ -991,7 +991,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     if (rres.status != wis::Status::Ok)
         return rres;
 
-    rres = sci.InitBackBuffers();
+    rres = sci.InitBackBuffers(swap_info.imageExtent);
     if (rres.status != wis::Status::Ok)
         return rres;
 
@@ -1083,7 +1083,7 @@ wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc d
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create an image view">(result);
 
-    return VKRenderTarget{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView } };
+    return VKRenderTarget{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView }, std::get<2>(texture) };
 }
 
 // wis::ResultValue< VkDescriptorSetLayout>

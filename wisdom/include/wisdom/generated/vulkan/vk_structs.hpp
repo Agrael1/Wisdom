@@ -27,10 +27,23 @@ struct VKGraphicsPipelineDesc{
     wis::InputLayout input_layout;
     wis::VKGraphicsShaderStages shaders;
     wis::RenderAttachmentsDesc attachments;
-    wis::RasterizerDesc* rasterizer;
-    wis::SampleDesc* sample;
-    wis::BlendStateDesc* blend;
-    wis::DepthStencilDesc* depth_stencil;
+    wis::RasterizerDesc* rasterizer = nullptr;
+    wis::SampleDesc* sample = nullptr;
+    wis::BlendStateDesc* blend = nullptr;
+    wis::DepthStencilDesc* depth_stencil = nullptr;
+};
+
+struct VKRenderPassRenderTargetDesc{
+    wis::VKRenderTargetView target;
+    wis::LoadOperation load_op = wis::LoadOperation::Load;
+    wis::StoreOperation store_op = wis::StoreOperation::Store;
+    std::array<float, 4> clear_value {};
+};
+
+struct VKRenderPassDesc{
+    wis::VKRenderPassRenderTargetDesc* targets;
+    uint32_t target_count;
+    wis::RenderPassFlags flags;
 };
 
 inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept{
@@ -256,6 +269,7 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept{
     if(value & ResourceAccess::ShadingRate) output |= VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
     if(value & ResourceAccess::VideoDecodeRead) output |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
     if(value & ResourceAccess::VideoDecodeWrite) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+    if(value & ResourceAccess::Present) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
     if(value & ResourceAccess::NoAccess) output |= VK_ACCESS_2_NONE;
     return output;
 }
@@ -276,6 +290,28 @@ inline constexpr VkImageLayout convert_vk(TextureState value) noexcept{
     case TextureState::ShadingRate: return VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
     case TextureState::VideoDecodeRead: return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
     case TextureState::VideoDecodeWrite: return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+    }
+}
+inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept{
+    VkRenderingFlags output = {};
+    if(value & RenderPassFlags::Suspending) output |= VK_RENDERING_SUSPENDING_BIT;
+    if(value & RenderPassFlags::Resuming) output |= VK_RENDERING_RESUMING_BIT;
+    return output;
+}
+inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept{
+    switch(value){
+    default: return {};
+    case LoadOperation::Load: return VK_ATTACHMENT_LOAD_OP_LOAD;
+    case LoadOperation::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
+    case LoadOperation::DontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+}
+inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept{
+    switch(value){
+    default: return {};
+    case StoreOperation::Store: return VK_ATTACHMENT_STORE_OP_STORE;
+    case StoreOperation::DontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    case StoreOperation::Resolve: return VK_ATTACHMENT_STORE_OP_STORE;
     }
 }
 }

@@ -280,6 +280,12 @@ enum class TextureState : uint32_t {
     VideoDecodeWrite = 12,
 };
 
+enum class LoadOperation {
+    Load = 0,
+    Clear = 1,
+    DontCare = 2,
+};
+
 enum class TextureLayout {
     Texture1D = 2,
     Texture1DArray = 3,
@@ -288,6 +294,12 @@ enum class TextureLayout {
     Texture2DMS = 6,
     Texture2DMSArray = 7,
     Texture3D = 8,
+};
+
+enum class StoreOperation {
+    Store = 0,
+    DontCare = 1,
+    Resolve = 2,
 };
 
 enum class AdapterFlags {
@@ -321,6 +333,12 @@ enum class BufferFlags {
     VertexBuffer = 1 << 7,
 };
 
+enum class RenderPassFlags {
+    None = 0x0,
+    Suspending = 1 << 1,
+    Resuming = 1 << 2,
+};
+
 enum class ResourceAccess {
     Common = 0x0,
     VertexBuffer = 1 << 0,
@@ -341,6 +359,7 @@ enum class ResourceAccess {
     ShadingRate = 1 << 15,
     VideoDecodeRead = 1 << 16,
     VideoDecodeWrite = 1 << 17,
+    Present = 1 << 18,
     NoAccess = 1 << 31,
 };
 
@@ -525,6 +544,7 @@ template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
 template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
 template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
+template <> struct is_flag_enum<wis::RenderPassFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ResourceAccess>:public std::true_type {};
 template <> struct is_flag_enum<wis::BarrierSync>:public std::true_type {};
 //============================== CONSTS ==============================

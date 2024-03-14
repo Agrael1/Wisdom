@@ -76,6 +76,7 @@ Test::App::App(uint32_t width, uint32_t height)
         };
         for (size_t i = 0; i < render_targets.size(); i++) {
             auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
+            render_targets[i] = std::move(hrt);
         }
     }
 
@@ -204,8 +205,6 @@ void Test::App::CreateResources()
     }
 
     WaitForGPU();
-
-    auto res = cmd_list.Reset(pipeline);
 }
 
 void Test::App::ProcessEvent(Event e)
@@ -233,11 +232,65 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
     back_buffers = swap.GetBufferSpan();
     for (size_t i = 0; i < render_targets.size(); i++) {
         auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
+        render_targets[i] = std::move(hrt);
     }
 }
 
 void Test::App::Frame()
 {
+    auto res = cmd_list.Reset(pipeline);
+
+    cmd_list.TextureBarrier({
+                                    .sync_before = wis::BarrierSync::All,
+                                    .sync_after = wis::BarrierSync::Draw,
+                                    .access_before = wis::ResourceAccess::Common,
+                                    .access_after = wis::ResourceAccess::RenderTarget,
+                                    .state_before = wis::TextureState::Present,
+                                    .state_after = wis::TextureState::RenderTarget,
+                                    .subresource_range = {
+                                            .base_mip_level = 0,
+                                            .level_count = 1,
+                                            .base_array_layer = 0,
+                                            .layer_count = 1,
+                                    },
+                            },
+                            back_buffers[swap.GetCurrentIndex()]);
+
+    wis::RenderPassRenderTargetDesc targets{
+        .target = render_targets[swap.GetCurrentIndex()],
+        .load_op = wis::LoadOperation::Clear,
+        .store_op = wis::StoreOperation::Store,
+        .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f },
+    };
+    wis::RenderPassDesc rp{
+        .targets = &targets,
+        .target_count = 1,
+        .flags = wis::RenderPassFlags::None,
+    };
+    cmd_list.BeginRenderPass(&rp);
+    cmd_list.EndRenderPass();
+
+
+    cmd_list.TextureBarrier({
+                                    .sync_before = wis::BarrierSync::Draw,
+                                    .sync_after = wis::BarrierSync::All,
+                                    .access_before = wis::ResourceAccess::RenderTarget,
+                                    .access_after = wis::ResourceAccess::Common,
+                                    .state_before = wis::TextureState::RenderTarget,
+                                    .state_after = wis::TextureState::Present,
+                                    .subresource_range = {
+                                            .base_mip_level = 0,
+                                            .level_count = 1,
+                                            .base_array_layer = 0,
+                                            .layer_count = 1,
+                                    },
+                            },
+                            back_buffers[swap.GetCurrentIndex()]);
+
+    cmd_list.Close();
+
+    wis::CommandListView lists[] = { cmd_list };
+    queue.ExecuteCommandLists(lists, 1);
 
     auto result = swap.Present();
     if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)

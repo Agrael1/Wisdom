@@ -2,6 +2,7 @@
 #include <tuple>
 #include <wisdom/xvulkan/vk_handles.h>
 #include <wisvk/vk_loader.hpp>
+#include <wisdom/generated/api/api.h>
 
 namespace wis {
 using VKFactoryHandle = std::tuple<wis::SharedInstance>;
@@ -14,7 +15,7 @@ using VKShaderView = std::tuple<VkShaderModule>;
 using VKRootSignatureView = std::tuple<VkPipelineLayout>;
 using VKCommandListView = std::tuple<VkCommandBuffer>;
 using VKQueueView = std::tuple<VkQueue>;
-using VKTextureView = std::tuple<VkImage, VkFormat>;
+using VKTextureView = std::tuple<VkImage, VkFormat, wis::Size2D>;
 using VKBufferView = std::tuple<VkBuffer>;
-using VKRenderTargetView = std::tuple<VkImageView>;
+using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
 } // namespace wis

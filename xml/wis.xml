@@ -664,6 +664,10 @@
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
       </value>
+      <value name="Present" bit="18">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
+        <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
+      </value>
       <value name="NoAccess" bit="31">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_NO_ACCESS"/>
         <impl name="vk" value="VK_ACCESS_2_NONE"/>
@@ -746,6 +750,53 @@
       <value name="Texture3D" value="8"/>
     </type>
 
+    <type name="RenderPassFlags" category="bitmask">
+      <impl_type for="vk" name="VkRenderingFlags"/>
+      <impl_type for="dx" name="D3D12_RENDER_PASS_FLAGS"/>
+      <value name="None" value="0"/>
+      <value name="Suspending" bit="1">
+        <impl name="dx" value="D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS"/>
+        <impl name="vk" value="VK_RENDERING_SUSPENDING_BIT"/>
+      </value>
+      <value name="Resuming" bit="2">
+        <impl name="dx" value="D3D12_RENDER_PASS_FLAG_RESUMING_PASS"/>
+        <impl name="vk" value="VK_RENDERING_RESUMING_BIT"/>
+      </value>
+    </type>
+
+    <type name="LoadOperation" category="enum">
+      <impl_type for="vk" name="VkAttachmentLoadOp"/>
+      <impl_type for="dx" name="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE"/>
+      <value name="Load" value="0">
+        <impl name="dx" value="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE"/>
+        <impl name="vk" value="VK_ATTACHMENT_LOAD_OP_LOAD"/>
+      </value>
+      <value name="Clear" value="1">
+        <impl name="dx" value="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR"/>
+        <impl name="vk" value="VK_ATTACHMENT_LOAD_OP_CLEAR"/>
+      </value>
+      <value name="DontCare" value="2">
+        <impl name="dx" value="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD"/>
+        <impl name="vk" value="VK_ATTACHMENT_LOAD_OP_DONT_CARE"/>
+      </value>
+    </type>
+    <type name="StoreOperation" category="enum">
+      <impl_type for="vk" name="VkAttachmentStoreOp"/>
+      <impl_type for="dx" name="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE"/>
+      <value name="Store" value="0">
+        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE"/>
+        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_STORE"/>
+      </value>
+      <value name="DontCare" value="1">
+        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD"/>
+        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_DONT_CARE"/>
+      </value>
+      <value name="Resolve" value="2">
+        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE"/>
+        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_STORE"/>
+      </value>
+    </type>
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -764,6 +815,7 @@
       <impl name="vk">
         <member type="void" name="value" mod="ptr"/>
         <member type="u32" name="value2"/>
+        <member type="Size2D" name="value3"/>
       </impl>
     </type>
     <type name="RenderTargetView" category="variant" for="RenderTarget">
@@ -923,7 +975,7 @@
       <member type="u32" name="base_array_layer"/>
       <member type="u32" name="layer_count"/>
     </type>
-    
+
     <type name="RenderTargetDesc" category="struct">
       <member type="DataFormat" name="format"/>
       <member type="TextureLayout" name="layout"/>
@@ -986,6 +1038,22 @@
         <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr"/>
       </impl>
     </type>
+    <type name="RenderPassRenderTargetDesc" category="variant">
+      <impl name="both">
+        <member type="RenderTargetView" name="target"/>
+        <member type="LoadOperation" name="load_op" default="Load"/>
+        <member type="StoreOperation" name="store_op" default="Store"/>
+        <member type="f32" name="clear_value" array="4"/>
+      </impl>
+    </type>
+    <type name="RenderPassDesc" category="variant">
+      <impl name="both">
+        <member type="RenderPassRenderTargetDesc" name="targets" mod="ptr"/>
+        <member type="u32" name="target_count"/>
+        <member type="RenderPassFlags" name="flags"/>
+      </impl>
+    </type>
+
   </types>
 
   <functions>

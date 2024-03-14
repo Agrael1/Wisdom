@@ -8,6 +8,7 @@ namespace wis {
 class DX12CommandList;
 struct DX12BufferBarrier2;
 struct DX12TextureBarrier2;
+struct DX12RenderPassDesc;
 
 template<>
 struct Internal<DX12CommandList> {
@@ -47,7 +48,9 @@ public:
     // 8 textures at once max for efficiency
     WIS_INLINE void TextureBarriers(wis::DX12TextureBarrier2* barrier, uint32_t barrier_count) noexcept;
 
-    WIS_INLINE void BeginRenderPass() noexcept;
+    WIS_INLINE void BeginRenderPass(const wis::DX12RenderPassDesc* pass_desc) noexcept;
+
+    WIS_INLINE void EndRenderPass() noexcept;
 
 protected:
     bool closed = false;
