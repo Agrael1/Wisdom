@@ -202,7 +202,7 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
         },
         .layerCount = 1,
         .viewMask = 0,
-        .colorAttachmentCount = allocator.size(),
+        .colorAttachmentCount = pass_desc->target_count,
         .pColorAttachments = data,
     };
 
