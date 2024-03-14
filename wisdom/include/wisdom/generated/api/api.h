@@ -21,6 +21,8 @@ struct SwapchainDesc;
 struct PushDescriptor;
 struct SubresourceRange;
 struct RenderTargetDesc;
+struct Viewport;
+struct Scissor;
 struct BufferBarrier;
 struct TextureBarrier;
 
@@ -513,6 +515,22 @@ struct RenderTargetDesc{
     uint32_t mip;
     uint32_t base_array_layer;
     uint32_t layer_count;
+};
+
+struct Viewport{
+    float top_leftx;
+    float top_lefty;
+    float width;
+    float height;
+    float min_depth;
+    float max_depth;
+};
+
+struct Scissor{
+    int32_t left;
+    int32_t top;
+    int32_t right;
+    int32_t bottom;
 };
 
 struct BufferBarrier{

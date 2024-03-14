@@ -984,6 +984,22 @@
       <member type="u32" name="layer_count"/>
     </type>
 
+    <type name="Viewport" category="struct">
+      <member type="f32" name="top_leftx"/>
+      <member type="f32" name="top_lefty"/>
+      <member type="f32" name="width"/>
+      <member type="f32" name="height"/>
+      <member type="f32" name="min_depth"/>
+      <member type="f32" name="max_depth"/>
+    </type>
+    
+    <type name="Scissor" category="struct">
+      <member type="i32" name="left"/>
+      <member type="i32" name="top"/>
+      <member type="i32" name="right"/>
+      <member type="i32" name="bottom"/>
+    </type>
+
     <type name="BufferBarrier" category="struct">
       <member type="BarrierSync" name="sync_before"/>
       <member type="BarrierSync" name="sync_after"/>

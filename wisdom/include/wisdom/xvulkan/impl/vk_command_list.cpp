@@ -113,7 +113,7 @@ void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView 
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::BufferBarriers(wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept
+void wis::VKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<VkBufferMemoryBarrier2, 8> allocator(barrier_count, true);
     auto* data = allocator.data();
@@ -148,7 +148,7 @@ void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureVi
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::TextureBarriers(wis::VKTextureBarrier2* barriers, uint32_t barrier_count) noexcept
+void wis::VKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<VkImageMemoryBarrier2, 8> allocator(barrier_count, true);
     auto* data = allocator.data();
@@ -212,4 +212,31 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
 void wis::VKCommandList::EndRenderPass() noexcept
 {
     device.table().vkCmdEndRendering(command_list);
+}
+
+void wis::VKCommandList::RSSetViewport(wis::Viewport vp) noexcept
+{
+    VkViewport vkvp{
+        .x = vp.top_leftx,
+        .y = vp.top_lefty,
+        .width = vp.width,
+        .height = vp.height,
+        .minDepth = vp.min_depth,
+        .maxDepth = vp.max_depth,
+    };
+    device.table().vkCmdSetViewport(command_list, 0, 1, &vkvp);
+}
+void wis::VKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
+{
+    static_assert(sizeof(VkViewport) == sizeof(wis::Viewport));
+    device.table().vkCmdSetViewport(command_list, 0, count, reinterpret_cast<const VkViewport*>(vp));
+}
+
+void wis::VKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
+{
+    VkRect2D rect{
+        .offset = { scissor.left, scissor.top },
+        .extent = { scissor.right - scissor.left, scissor.bottom - scissor.top },
+    };
+    device.table().vkCmdSetScissor(command_list, 0, 1, &rect);
 }
