@@ -42,15 +42,21 @@ public:
 
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
-    WIS_INLINE void BufferBarriers(wis::DX12BufferBarrier2* barriers, uint32_t barrier_count) noexcept;
+    WIS_INLINE void BufferBarriers(const wis::DX12BufferBarrier2* barriers, uint32_t barrier_count) noexcept;
 
     WIS_INLINE void TextureBarrier(wis::TextureBarrier barrier, DX12TextureView texture) noexcept;
     // 8 textures at once max for efficiency
-    WIS_INLINE void TextureBarriers(wis::DX12TextureBarrier2* barrier, uint32_t barrier_count) noexcept;
+    WIS_INLINE void TextureBarriers(const wis::DX12TextureBarrier2* barrier, uint32_t barrier_count) noexcept;
 
     WIS_INLINE void BeginRenderPass(const wis::DX12RenderPassDesc* pass_desc) noexcept;
 
     WIS_INLINE void EndRenderPass() noexcept;
+
+    WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
+
+    WIS_INLINE void RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept;
+
+    WIS_INLINE void RSSetScissor(wis::Scissor sc) noexcept;
 
 protected:
     bool closed = false;

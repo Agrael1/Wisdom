@@ -78,7 +78,7 @@ void wis::DX12CommandList::BufferBarrier(wis::BufferBarrier barrier, DX12BufferV
     list->Barrier(1, &bg);
 }
 
-void wis::DX12CommandList::BufferBarriers(wis::DX12BufferBarrier2* barriers, uint32_t barrier_count) noexcept
+void wis::DX12CommandList::BufferBarriers(const wis::DX12BufferBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<D3D12_BUFFER_BARRIER, 8> allocator(barrier_count, true);
     auto* data = allocator.data();
@@ -105,7 +105,7 @@ void wis::DX12CommandList::TextureBarrier(wis::TextureBarrier barrier, DX12Textu
     };
     list->Barrier(1, &bg);
 }
-void wis::DX12CommandList::TextureBarriers(wis::DX12TextureBarrier2* barrier, uint32_t barrier_count) noexcept
+void wis::DX12CommandList::TextureBarriers(const wis::DX12TextureBarrier2* barrier, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<D3D12_TEXTURE_BARRIER, 8> allocator(barrier_count, true);
     auto* data = allocator.data();
@@ -149,4 +149,33 @@ void wis::DX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pass_d
 void wis::DX12CommandList::EndRenderPass() noexcept
 {
     list->EndRenderPass();
+}
+
+void wis::DX12CommandList::RSSetViewport(wis::Viewport vp) noexcept
+{
+    D3D12_VIEWPORT viewport{
+        .TopLeftX = vp.top_leftx,
+        .TopLeftY = vp.top_lefty,
+        .Width = vp.width,
+        .Height = vp.height,
+        .MinDepth = vp.min_depth,
+        .MaxDepth = vp.max_depth
+    };
+    list->RSSetViewports(1, &viewport);
+}
+void wis::DX12CommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
+{
+    static_assert(sizeof(D3D12_VIEWPORT) == sizeof(wis::Viewport));
+    list->RSSetViewports(count, reinterpret_cast <const D3D12_VIEWPORT*>(vp));
+}
+
+void wis::DX12CommandList::RSSetScissor(wis::Scissor sc) noexcept
+{
+    D3D12_RECT rect{
+        .left = static_cast<LONG>(sc.left),
+        .top = static_cast<LONG>(sc.top),
+        .right = static_cast<LONG>(sc.right),
+        .bottom = static_cast<LONG>(sc.bottom)
+    };
+    list->RSSetScissorRects(1, &rect);
 }
