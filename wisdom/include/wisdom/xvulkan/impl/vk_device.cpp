@@ -554,7 +554,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        .topology = convert_vk(desc->topology_type),
         .primitiveRestartEnable = false,
     };
 

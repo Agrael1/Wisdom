@@ -31,6 +31,7 @@ struct DX12GraphicsPipelineDesc{
     wis::SampleDesc* sample = nullptr;
     wis::BlendStateDesc* blend = nullptr;
     wis::DepthStencilDesc* depth_stencil = nullptr;
+    wis::TopologyType topology_type = wis::TopologyType::Triangle;
 };
 
 struct DX12RenderPassRenderTargetDesc{
@@ -151,6 +152,30 @@ inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation 
     case StoreOperation::Store: return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
     case StoreOperation::DontCare: return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
     case StoreOperation::Resolve: return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
+    }
+}
+inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noexcept{
+    switch(value){
+    default: return {};
+    case PrimitiveTopology::PointList: return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+    case PrimitiveTopology::LineList: return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+    case PrimitiveTopology::LineStrip: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+    case PrimitiveTopology::TriangleList: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    case PrimitiveTopology::TriangleStrip: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+    case PrimitiveTopology::TriangleFan: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN;
+    case PrimitiveTopology::LineListAdj: return D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+    case PrimitiveTopology::LineStripAdj: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+    case PrimitiveTopology::TriangleListAdj: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+    case PrimitiveTopology::TriangleStripAdj: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+    }
+}
+inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) noexcept{
+    switch(value){
+    default: return {};
+    case TopologyType::Point: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+    case TopologyType::Line: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    case TopologyType::Triangle: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    case TopologyType::Patch: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     }
 }
 }

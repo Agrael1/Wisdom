@@ -155,7 +155,6 @@ wis::ResultValue<wis::DX12PipelineState>
 wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
-
     //--Shader stages
     wis::detail::memory_pool pipeline_stream;
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_VS>(pipeline_stream,
@@ -168,6 +167,11 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
                                                                        desc->shaders.hull);
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_DS>(pipeline_stream,
                                                                        desc->shaders.domain);
+    //--Topology
+    pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY>() =
+            convert_dx(desc->topology_type);
+
+    //--Root signature
 
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() =
             std::get<0>(desc->root_signature);

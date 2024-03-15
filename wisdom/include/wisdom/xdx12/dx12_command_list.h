@@ -52,6 +52,8 @@ public:
 
     WIS_INLINE void EndRenderPass() noexcept;
 
+    WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept;
+
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
 
     WIS_INLINE void RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept;
