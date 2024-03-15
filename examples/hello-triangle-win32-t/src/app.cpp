@@ -268,6 +268,7 @@ void Test::App::Frame()
         .flags = wis::RenderPassFlags::None,
     };
     cmd_list.BeginRenderPass(&rp);
+    cmd_list.SetRootSignature(root);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     cmd_list.RSSetViewport({ 0, 0, float(wnd.GetWidth()), float(wnd.GetHeight()), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, wnd.GetWidth(), wnd.GetHeight() });

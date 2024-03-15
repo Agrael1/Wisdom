@@ -184,3 +184,8 @@ void wis::DX12CommandList::IASetPrimitiveTopology(wis::PrimitiveTopology vp) noe
 {
     list->IASetPrimitiveTopology(convert_dx(vp));
 }
+
+void wis::DX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_signature) noexcept
+{
+    list->SetGraphicsRootSignature(std::get<0>(root_signature));
+}
