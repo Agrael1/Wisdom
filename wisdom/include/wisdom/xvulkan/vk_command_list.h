@@ -16,6 +16,7 @@ struct Internal<VKCommandList> {
     h::VkCommandBuffer command_list = nullptr;
 
     wis::SharedPipeline pipeline;
+    VkPipelineLayout pipeline_layout = nullptr;
 
     Internal() noexcept = default;
     Internal(wis::SharedDevice device, VkCommandPool allocator, VkCommandBuffer command_list) noexcept
@@ -65,6 +66,8 @@ public:
     WIS_INLINE void BeginRenderPass(const wis::VKRenderPassDesc* render_targets) noexcept;
 
     WIS_INLINE void EndRenderPass() noexcept;
+
+    WIS_INLINE void SetRootSignature(wis::VKRootSignatureView root_signature) noexcept;
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept;
 

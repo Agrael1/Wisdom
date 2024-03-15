@@ -245,3 +245,8 @@ void wis::VKCommandList::IASetPrimitiveTopology(wis::PrimitiveTopology topology)
 {
     device.table().vkCmdSetPrimitiveTopology(command_list, convert_vk(topology));
 }
+
+void wis::VKCommandList::SetRootSignature(wis::VKRootSignatureView root_signature) noexcept
+{
+    pipeline_layout = std::get<0>(root_signature);
+}

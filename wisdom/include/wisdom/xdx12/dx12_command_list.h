@@ -52,6 +52,8 @@ public:
 
     WIS_INLINE void EndRenderPass() noexcept;
 
+    WIS_INLINE void SetRootSignature(wis::DX12RootSignatureView root_signature) noexcept;
+
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept;
 
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
