@@ -236,7 +236,12 @@ void wis::VKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
 {
     VkRect2D rect{
         .offset = { scissor.left, scissor.top },
-        .extent = { scissor.right - scissor.left, scissor.bottom - scissor.top },
+        .extent = { uint32_t(scissor.right - scissor.left), uint32_t(scissor.bottom - scissor.top) },
     };
     device.table().vkCmdSetScissor(command_list, 0, 1, &rect);
+}
+
+void wis::VKCommandList::IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept
+{
+    device.table().vkCmdSetPrimitiveTopology(command_list, convert_vk(topology));
 }

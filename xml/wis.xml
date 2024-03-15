@@ -797,6 +797,72 @@
       </value>
     </type>
 
+    <type name="PrimitiveTopology" category="enum">
+      <impl_type for="dx" name="D3D_PRIMITIVE_TOPOLOGY"/>
+      <impl_type for="vk" name="VkPrimitiveTopology"/>
+      <value name="PointList" value="1">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_POINTLIST"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_POINT_LIST"/>
+      </value>
+      <value name="LineList" value="2">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINELIST"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_LIST"/>
+      </value>
+      <value name="LineStrip" value="3">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINESTRIP"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_STRIP"/>
+      </value>
+      <value name="TriangleList" value="4">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST"/>
+      </value>
+      <value name="TriangleStrip" value="5">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP"/>
+      </value>
+      <value name="TriangleFan" value="6">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN"/>
+      </value>
+      <value name="LineListAdj" value="10">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY"/>
+      </value>
+      <value name="LineStripAdj" value="11">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY"/>
+      </value>
+      <value name="TriangleListAdj" value="12">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY"/>
+      </value>
+      <value name="TriangleStripAdj" value="13">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY"/>
+      </value>
+    </type>
+
+    <type name="TopologyType" category="enum">
+      <impl_type for="dx" name="D3D12_PRIMITIVE_TOPOLOGY_TYPE"/>
+      <impl_type for="vk" name="VkPrimitiveTopology"/>
+      <value name="Point" value="1">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_POINT_LIST"/>
+      </value>
+      <value name="Line" value="2">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_LIST"/>
+      </value>
+      <value name="Triangle" value="3">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST"/>
+      </value>
+      <value name="Patch" value="4">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_PATCH_LIST"/>
+      </value>
+    </type>
+
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -992,7 +1058,7 @@
       <member type="f32" name="min_depth"/>
       <member type="f32" name="max_depth"/>
     </type>
-    
+
     <type name="Scissor" category="struct">
       <member type="i32" name="left"/>
       <member type="i32" name="top"/>
@@ -1052,6 +1118,7 @@
         <member type="SampleDesc" name="sample" mod="ptr" default="nullptr"/>
         <member type="BlendStateDesc" name="blend" mod="ptr" default="nullptr"/>
         <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr"/>
+        <member type="TopologyType" name="topology_type" default="Triangle"/>
       </impl>
     </type>
     <type name="RenderPassRenderTargetDesc" category="variant">

@@ -31,6 +31,7 @@ struct VKGraphicsPipelineDesc{
     wis::SampleDesc* sample = nullptr;
     wis::BlendStateDesc* blend = nullptr;
     wis::DepthStencilDesc* depth_stencil = nullptr;
+    wis::TopologyType topology_type = wis::TopologyType::Triangle;
 };
 
 struct VKRenderPassRenderTargetDesc{
@@ -312,6 +313,30 @@ inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept{
     case StoreOperation::Store: return VK_ATTACHMENT_STORE_OP_STORE;
     case StoreOperation::DontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
     case StoreOperation::Resolve: return VK_ATTACHMENT_STORE_OP_STORE;
+    }
+}
+inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcept{
+    switch(value){
+    default: return {};
+    case PrimitiveTopology::PointList: return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case PrimitiveTopology::LineList: return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case PrimitiveTopology::LineStrip: return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    case PrimitiveTopology::TriangleList: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case PrimitiveTopology::TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    case PrimitiveTopology::TriangleFan: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+    case PrimitiveTopology::LineListAdj: return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+    case PrimitiveTopology::LineStripAdj: return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
+    case PrimitiveTopology::TriangleListAdj: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+    case PrimitiveTopology::TriangleStripAdj: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
+    }
+}
+inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept{
+    switch(value){
+    default: return {};
+    case TopologyType::Point: return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case TopologyType::Line: return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case TopologyType::Triangle: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case TopologyType::Patch: return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
     }
 }
 }

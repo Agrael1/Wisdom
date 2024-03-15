@@ -179,3 +179,8 @@ void wis::DX12CommandList::RSSetScissor(wis::Scissor sc) noexcept
     };
     list->RSSetScissorRects(1, &rect);
 }
+
+void wis::DX12CommandList::IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept
+{
+    list->IASetPrimitiveTopology(convert_dx(vp));
+}

@@ -304,6 +304,26 @@ enum class StoreOperation {
     Resolve = 2,
 };
 
+enum class PrimitiveTopology {
+    PointList = 1,
+    LineList = 2,
+    LineStrip = 3,
+    TriangleList = 4,
+    TriangleStrip = 5,
+    TriangleFan = 6,
+    LineListAdj = 10,
+    LineStripAdj = 11,
+    TriangleListAdj = 12,
+    TriangleStripAdj = 13,
+};
+
+enum class TopologyType {
+    Point = 1,
+    Line = 2,
+    Triangle = 3,
+    Patch = 4,
+};
+
 enum class AdapterFlags {
     None = 0x0,
     Remote = 1 << 0,
