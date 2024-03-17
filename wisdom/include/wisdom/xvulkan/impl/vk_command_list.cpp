@@ -250,3 +250,26 @@ void wis::VKCommandList::SetRootSignature(wis::VKRootSignatureView root_signatur
 {
     pipeline_layout = std::get<0>(root_signature);
 }
+
+void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
+{
+    wis::detail::limited_allocator<VkBuffer, 8> allocator(count, true);
+    auto* buffers = allocator.data();
+
+    wis::detail::limited_allocator<VkDeviceSize, 8> offset_allocator(count, true);
+    auto* offsets = offset_allocator.data();
+
+    wis::detail::limited_allocator<VkDeviceSize, 8> size_allocator(count, true);
+    auto* sizes = size_allocator.data();
+
+    wis::detail::limited_allocator<VkDeviceSize, 8> stride_allocator(count, true);
+    auto* strides = size_allocator.data();
+
+
+    for (size_t i = 0; i < count; i++) {
+        buffers[i] = std::get<0>(resources[i].buffer);
+        sizes[i] = resources[i].size;
+        strides[i] = resources[i].stride;
+    }
+    device.table().vkCmdBindVertexBuffers2(command_list, start_slot, count, buffers, offsets, sizes, strides);
+}

@@ -47,6 +47,12 @@ struct VKRenderPassDesc{
     wis::RenderPassFlags flags;
 };
 
+struct VKVertexBufferBinding{
+    wis::VKBufferView buffer;
+    uint32_t size;
+    uint32_t stride;
+};
+
 inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept{
     switch(value){
     default: return VK_SHADER_STAGE_ALL;

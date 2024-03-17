@@ -1136,6 +1136,13 @@
         <member type="RenderPassFlags" name="flags"/>
       </impl>
     </type>
+    <type name="VertexBufferBinding" category="variant">
+      <impl name="both">
+        <member type="BufferView" name="buffer"/>
+        <member type="u32" name="size"/>
+        <member type="u32" name="stride"/>
+      </impl>
+    </type>
 
   </types>
 
