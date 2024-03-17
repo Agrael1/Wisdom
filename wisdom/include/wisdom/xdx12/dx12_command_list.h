@@ -9,6 +9,7 @@ class DX12CommandList;
 struct DX12BufferBarrier2;
 struct DX12TextureBarrier2;
 struct DX12RenderPassDesc;
+struct DX12VertexBufferBinding;
 
 template<>
 struct Internal<DX12CommandList> {
@@ -55,6 +56,8 @@ public:
     WIS_INLINE void SetRootSignature(wis::DX12RootSignatureView root_signature) noexcept;
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept;
+
+    WIS_INLINE void IASetVertexBuffers(wis::DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept;
 
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
 

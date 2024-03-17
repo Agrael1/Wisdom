@@ -8,6 +8,7 @@ class VKCommandList;
 struct VKBufferBarrier2;
 struct VKTextureBarrier2;
 struct VKRenderPassDesc;
+struct VKVertexBufferBinding;
 
 template<>
 struct Internal<VKCommandList> {
@@ -70,6 +71,8 @@ public:
     WIS_INLINE void SetRootSignature(wis::VKRootSignatureView root_signature) noexcept;
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept;
+
+    WIS_INLINE void IASetVertexBuffers(wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept;
 
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
 

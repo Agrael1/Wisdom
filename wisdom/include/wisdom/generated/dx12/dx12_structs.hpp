@@ -47,6 +47,12 @@ struct DX12RenderPassDesc{
     wis::RenderPassFlags flags;
 };
 
+struct DX12VertexBufferBinding{
+    wis::DX12BufferView buffer;
+    uint32_t size;
+    uint32_t stride;
+};
+
 inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept {
     return static_cast<DXGI_GPU_PREFERENCE>(value);
 }

@@ -141,6 +141,12 @@ void Test::App::CreateResources()
     {
         auto [res, vbuf] = allocator.CreateCommitedBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
         vertex_buffer = std::move(vbuf);
+
+        vertex_binding = wis::VertexBufferBinding{
+            .buffer = vertex_buffer,
+            .size = sizeof(triangleVertices),
+            .stride = sizeof(Vertex),
+        };
     }
 
     // Upload vertex data to a buffer
@@ -270,10 +276,11 @@ void Test::App::Frame()
     cmd_list.BeginRenderPass(&rp);
     cmd_list.SetRootSignature(root);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
+
+    cmd_list.IASetVertexBuffers(&vertex_binding, 1);
     cmd_list.RSSetViewport({ 0, 0, float(wnd.GetWidth()), float(wnd.GetHeight()), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, wnd.GetWidth(), wnd.GetHeight() });
     cmd_list.EndRenderPass();
-
 
     cmd_list.TextureBarrier({
                                     .sync_before = wis::BarrierSync::Draw,

@@ -151,6 +151,26 @@ void wis::DX12CommandList::EndRenderPass() noexcept
     list->EndRenderPass();
 }
 
+void wis::DX12CommandList::IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept
+{
+    list->IASetPrimitiveTopology(convert_dx(vp));
+}
+
+void wis::DX12CommandList::IASetVertexBuffers(wis::DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
+{
+    wis::detail::limited_allocator<D3D12_VERTEX_BUFFER_VIEW, 8> allocator(count, true);
+    auto* data = allocator.data();
+    for (size_t i = 0; i < count; i++) {
+        data[i] = {
+            .BufferLocation = std::get<0>(resources[i].buffer)->GetGPUVirtualAddress(),
+            .SizeInBytes = resources[i].size,
+            .StrideInBytes = resources[i].stride
+        };
+    }
+
+    list->IASetVertexBuffers(start_slot, count, data);
+}
+
 void wis::DX12CommandList::RSSetViewport(wis::Viewport vp) noexcept
 {
     D3D12_VIEWPORT viewport{
@@ -166,7 +186,7 @@ void wis::DX12CommandList::RSSetViewport(wis::Viewport vp) noexcept
 void wis::DX12CommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
 {
     static_assert(sizeof(D3D12_VIEWPORT) == sizeof(wis::Viewport));
-    list->RSSetViewports(count, reinterpret_cast <const D3D12_VIEWPORT*>(vp));
+    list->RSSetViewports(count, reinterpret_cast<const D3D12_VIEWPORT*>(vp));
 }
 
 void wis::DX12CommandList::RSSetScissor(wis::Scissor sc) noexcept
@@ -178,11 +198,6 @@ void wis::DX12CommandList::RSSetScissor(wis::Scissor sc) noexcept
         .bottom = static_cast<LONG>(sc.bottom)
     };
     list->RSSetScissorRects(1, &rect);
-}
-
-void wis::DX12CommandList::IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept
-{
-    list->IASetPrimitiveTopology(convert_dx(vp));
 }
 
 void wis::DX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_signature) noexcept

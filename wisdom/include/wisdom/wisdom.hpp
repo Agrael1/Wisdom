@@ -56,6 +56,7 @@ using GraphicsShaderStages = DX12GraphicsShaderStages;
 using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
 using RenderPassDesc = DX12RenderPassDesc;
+using VertexBufferBinding = DX12VertexBufferBinding;
 }
 
 #elif WISDOM_VULKAN
@@ -94,6 +95,7 @@ using GraphicsShaderStages = VKGraphicsShaderStages;
 using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
 using RenderPassDesc = VKRenderPassDesc;
+using VertexBufferBinding = VKVertexBufferBinding;
 }
 
 #else
