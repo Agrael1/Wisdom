@@ -218,9 +218,9 @@ void wis::VKCommandList::RSSetViewport(wis::Viewport vp) noexcept
 {
     VkViewport vkvp{
         .x = vp.top_leftx,
-        .y = vp.top_lefty,
+        .y = vp.top_lefty + vp.height,
         .width = vp.width,
-        .height = vp.height,
+        .height = -vp.height,
         .minDepth = vp.min_depth,
         .maxDepth = vp.max_depth,
     };
@@ -228,8 +228,20 @@ void wis::VKCommandList::RSSetViewport(wis::Viewport vp) noexcept
 }
 void wis::VKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
 {
-    static_assert(sizeof(VkViewport) == sizeof(wis::Viewport));
-    device.table().vkCmdSetViewport(command_list, 0, count, reinterpret_cast<const VkViewport*>(vp));
+    wis::detail::limited_allocator<VkViewport, 8> allocator(count, true);
+    auto* viewports = allocator.data();
+
+    for (size_t i = 0; i < count; i++) {
+        viewports[i] = {
+            .x = vp[i].top_leftx,
+            .y = vp[i].top_lefty + vp[i].height,
+            .width = vp[i].width,
+            .height = -vp[i].height,
+            .minDepth = vp[i].min_depth,
+            .maxDepth = vp[i].max_depth,
+        };
+    }
+    device.table().vkCmdSetViewport(command_list, 0, count, viewports);
 }
 
 void wis::VKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
@@ -263,8 +275,7 @@ void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resource
     auto* sizes = size_allocator.data();
 
     wis::detail::limited_allocator<VkDeviceSize, 8> stride_allocator(count, true);
-    auto* strides = size_allocator.data();
-
+    auto* strides = stride_allocator.data();
 
     for (size_t i = 0; i < count; i++) {
         buffers[i] = std::get<0>(resources[i].buffer);
@@ -272,4 +283,21 @@ void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resource
         strides[i] = resources[i].stride;
     }
     device.table().vkCmdBindVertexBuffers2(command_list, start_slot, count, buffers, offsets, sizes, strides);
+}
+
+void wis::VKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
+                                              uint32_t instance_count,
+                                              uint32_t start_index,
+                                              uint32_t base_vertex,
+                                              uint32_t start_instance) noexcept
+{
+    device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
+}
+
+void wis::VKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
+                                       uint32_t instance_count,
+                                       uint32_t base_vertex,
+                                       uint32_t start_instance) noexcept
+{
+    device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }

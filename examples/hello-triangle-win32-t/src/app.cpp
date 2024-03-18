@@ -280,6 +280,8 @@ void Test::App::Frame()
     cmd_list.IASetVertexBuffers(&vertex_binding, 1);
     cmd_list.RSSetViewport({ 0, 0, float(wnd.GetWidth()), float(wnd.GetHeight()), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, wnd.GetWidth(), wnd.GetHeight() });
+
+    cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
 
     cmd_list.TextureBarrier({

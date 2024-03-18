@@ -53,16 +53,13 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result Reset(VKPipelineHandle pipeline = {}) noexcept;
     WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
 
-
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
     WIS_INLINE void BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept;
 
-
     WIS_INLINE void TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept;
     // 8 textures at once max for efficiency
     WIS_INLINE void TextureBarriers(const wis::VKTextureBarrier2* barrier, uint32_t barrier_count) noexcept;
-
 
     WIS_INLINE void BeginRenderPass(const wis::VKRenderPassDesc* render_targets) noexcept;
 
@@ -79,6 +76,17 @@ public:
     WIS_INLINE void RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept;
 
     WIS_INLINE void RSSetScissor(wis::Scissor scissor) noexcept;
+
+    WIS_INLINE void DrawIndexedInstanced(uint32_t vertex_count_per_instance,
+                                         uint32_t instance_count = 1,
+                                         uint32_t start_index = 0,
+                                         uint32_t base_vertex = 0,
+                                         uint32_t start_instance = 0) noexcept;
+
+    WIS_INLINE void DrawInstanced(uint32_t vertex_count_per_instance,
+                                  uint32_t instance_count = 1,
+                                  uint32_t start_vertex = 0,
+                                  uint32_t start_instance = 0) noexcept;
 
 protected:
     bool closed = false;
