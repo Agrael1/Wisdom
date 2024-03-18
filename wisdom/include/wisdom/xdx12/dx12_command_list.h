@@ -65,6 +65,17 @@ public:
 
     WIS_INLINE void RSSetScissor(wis::Scissor sc) noexcept;
 
+    WIS_INLINE void DrawIndexedInstanced(uint32_t vertex_count_per_instance,
+                                         uint32_t instance_count = 1,
+                                         uint32_t start_index = 0,
+                                         uint32_t base_vertex = 0,
+                                         uint32_t start_instance = 0) noexcept;
+
+    WIS_INLINE void DrawInstanced(uint32_t vertex_count_per_instance,
+                                  uint32_t instance_count = 1,
+                                  uint32_t start_vertex = 0,
+                                  uint32_t start_instance = 0) noexcept;
+
 protected:
     bool closed = false;
 };

@@ -522,7 +522,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .rasterizerDiscardEnable = false,
         .polygonMode = VK_POLYGON_MODE_FILL,
         .cullMode = VK_CULL_MODE_BACK_BIT,
-        .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+        .frontFace = VK_FRONT_FACE_CLOCKWISE,
         .depthBiasEnable = false,
         .depthBiasConstantFactor = 0.0f,
         .depthBiasClamp = 0.0f,
@@ -679,7 +679,10 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_SCISSOR);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
-    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT);
+
+    if (std::get<0>(desc->shaders.hull))
+        dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT);
+
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_BLEND_CONSTANTS);
 
     VkPipelineDynamicStateCreateInfo dynamic_state{
