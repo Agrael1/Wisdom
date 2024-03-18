@@ -18,7 +18,7 @@ wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_des
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
 
-    return DX12Buffer{ std::move(rc), std::move(al) };
+    return DX12Buffer{ std::move(rc), std::move(al), allocator };
 }
 
 wis::ResultValue<wis::DX12Buffer>
