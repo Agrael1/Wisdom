@@ -26,7 +26,7 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
             back_buffer_count = n + 1;
             break;
         }
-        back_buffers[n] = wis::DX12Texture(std::move(rc), nullptr);
+        back_buffers[n] = wis::DX12Texture(std::move(rc), nullptr, nullptr);
     }
     back_buffer_count = frame_count;
     return wis::success;
@@ -51,7 +51,7 @@ wis::Result wis::DX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
         if (!wis::succeeded(hr = chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void())))
             return wis::make_result<FUNC, "Failed to get back buffer">(hr);
 
-        back_buffers[n] = wis::DX12Texture(std::move(rc), nullptr);
+        back_buffers[n] = wis::DX12Texture(std::move(rc), nullptr, nullptr);
     }
     return wis::success;
 }

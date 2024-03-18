@@ -63,6 +63,12 @@ public:
         add_ref();
     }
 
+    com_ptr(const com_ptr<T>& other) noexcept
+        : ptr(other.ptr)
+    {
+        add_ref();
+    }
+
     template<class U>
     com_ptr(com_ptr<U>&& other) noexcept
         : ptr(std::exchange(other.ptr, {}))
