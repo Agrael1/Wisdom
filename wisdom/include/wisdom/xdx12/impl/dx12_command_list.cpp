@@ -221,3 +221,8 @@ void wis::DX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
 {
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
+
+void wis::DX12CommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+{
+    list->SetGraphicsRoot32BitConstants(0, size_4bytes, data, offset_4bytes);
+}
