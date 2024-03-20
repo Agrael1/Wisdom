@@ -48,12 +48,12 @@ static const float3 lut3d[3 * 3 * 3] =
     
     float3(0, 1, 1),
     float3(0.5, 1, 1),
-    float3(1, 1, 1),
+    float3(0, 0, 0),
 };
 
 float4 SampleCubeX(float3 xsample, float3 dims)
 {
-    float3 c = xsample * (dims - 1.0f);
+    float3 c = xsample * (dims - float3(1.0f, 1.0f, 1.0f));
     int index = int(c.z * dims.x * dims.y + c.y * dims.x + c.x);
     return float4(lut3d[index], 1.0f);
 }
@@ -65,7 +65,7 @@ float4 cscApplyLut3DTetra(const float3 color, const float3 dims)
     float3 re_dims = dims - float3(1.0f, 1.0f, 1.0f);
     float3 restored = re_color * re_dims; //restore position in table
     
-    float3 black = floor(re_color);
+    float3 black = floor(restored);
     float3 white = black + float3(1.0f, 1.0f, 1.0f);
     
     float3 fracts = frac(restored); // get normalized fractions
@@ -75,7 +75,7 @@ float4 cscApplyLut3DTetra(const float3 color, const float3 dims)
     
     // select tetrahedron
     bool3 cmp = fracts.rgb >= fracts.gbr; // (r>g, g>b, b>r)
-    int res = int(cmp.x) * 4 + int(cmp.y) * 2 + int(cmp.z) - 1;
+    int res = min(int(cmp.x) * 4 + int(cmp.y) * 2 + int(cmp.z) - 1, 5);
     
     // variants:
     // r<g, g<b, b>r t2 (001) // B C          c.z  c.z + c.y
@@ -102,12 +102,12 @@ float4 cscApplyLut3DTetra(const float3 color, const float3 dims)
     swizzle_cmy[5] = float3(whitef.x, whitef.y, blackf.z);
     
     float3 swizzle_xyz[6];
-    swizzle_xyz[0] = float3(restored.z, restored.y, restored.x);
-    swizzle_xyz[1] = float3(restored.y, restored.x, restored.z);
-    swizzle_xyz[2] = float3(restored.y, restored.z, restored.x);
-    swizzle_xyz[3] = float3(restored.x, restored.z, restored.y);
-    swizzle_xyz[4] = float3(restored.z, restored.x, restored.y);
-    swizzle_xyz[5] = float3(restored.x, restored.y, restored.z);
+    swizzle_xyz[0] = float3(fracts.z, fracts.y, fracts.x);
+    swizzle_xyz[1] = float3(fracts.y, fracts.x, fracts.z);
+    swizzle_xyz[2] = float3(fracts.y, fracts.z, fracts.x);
+    swizzle_xyz[3] = float3(fracts.x, fracts.z, fracts.y);
+    swizzle_xyz[4] = float3(fracts.z, fracts.x, fracts.y);
+    swizzle_xyz[5] = float3(fracts.x, fracts.y, fracts.z);
     
     float3 point_rgb = swizzle_rgb[res];
     float3 point_cmy = swizzle_cmy[res];
