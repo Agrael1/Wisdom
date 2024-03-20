@@ -127,9 +127,9 @@ void Test::App::CreateResources()
     };
     auto aspect_ratio = float(wnd.GetWidth()) / float(wnd.GetHeight());
     Vertex triangleVertices[] = {
-        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
         { { 0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } }
     };
 
     {
