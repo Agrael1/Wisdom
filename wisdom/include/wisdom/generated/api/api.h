@@ -4,6 +4,7 @@
 namespace wis {
 struct Result;
 struct Size2D;
+struct Size3D;
 struct BufferRegion;
 struct AdapterDesc;
 struct InputSlotDesc;
@@ -18,6 +19,7 @@ struct BlendStateDesc;
 struct RenderAttachmentsDesc;
 struct RootConstant;
 struct SwapchainDesc;
+struct TextureDesc;
 struct PushDescriptor;
 struct SubresourceRange;
 struct RenderTargetDesc;
@@ -241,6 +243,16 @@ enum class BlendOp {
     Max = 5,
 };
 
+enum class SampleCount {
+    S1 = 1,
+    S2 = 2,
+    S4 = 4,
+    S8 = 8,
+    S16 = 16,
+    S32 = 32,
+    S64 = 64,
+};
+
 enum class LogicOp {
     Clear = 0,
     Set = 1,
@@ -355,6 +367,16 @@ enum class BufferFlags {
     VertexBuffer = 1 << 7,
 };
 
+enum class TextureUsage {
+    None = 0x0,
+    RenderTarget = 1 << 0,
+    DepthStencil = 1 << 1,
+    CopySrc = 1 << 2,
+    CopyDst = 1 << 3,
+    ShaderResource = 1 << 4,
+    UnorderedAccess = 1 << 5,
+};
+
 enum class RenderPassFlags {
     None = 0x0,
     Suspending = 1 << 1,
@@ -399,6 +421,12 @@ struct Result{
 struct Size2D{
     uint32_t width;
     uint32_t height;
+};
+
+struct Size3D{
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth_or_layers;
 };
 
 struct BufferRegion{
@@ -515,6 +543,16 @@ struct SwapchainDesc{
     bool vsync;
 };
 
+struct TextureDesc{
+    wis::DataFormat format;
+    wis::Size3D size;
+    uint32_t mip_levels;
+    wis::TextureLayout layout = wis::TextureLayout::Texture2D;
+    wis::SampleCount sample_count = wis::SampleCount::S1;
+    wis::TextureUsage usage = wis::TextureUsage::None;
+    wis::TextureState initial_state = wis::TextureState::Undefined;
+};
+
 struct PushDescriptor{
     wis::ShaderStages stage;
     uint32_t bind_register;
@@ -582,6 +620,7 @@ template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
 template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
 template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
+template <> struct is_flag_enum<wis::TextureUsage>:public std::true_type {};
 template <> struct is_flag_enum<wis::RenderPassFlags>:public std::true_type {};
 template <> struct is_flag_enum<wis::ResourceAccess>:public std::true_type {};
 template <> struct is_flag_enum<wis::BarrierSync>:public std::true_type {};

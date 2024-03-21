@@ -184,4 +184,17 @@ inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) no
     case TopologyType::Patch: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     }
 }
+inline constexpr uint32_t convert_dx(SampleCount value) noexcept {
+    return static_cast<uint32_t>(value);
+}
+inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept{
+    D3D12_RESOURCE_FLAGS output = {};
+    if(value & TextureUsage::RenderTarget) output |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    if(value & TextureUsage::DepthStencil) output |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    if(value & TextureUsage::CopySrc) output |= D3D12_RESOURCE_FLAG_NONE;
+    if(value & TextureUsage::CopyDst) output |= D3D12_RESOURCE_FLAG_NONE;
+    if(value & TextureUsage::ShaderResource) output |= D3D12_RESOURCE_FLAG_NONE;
+    if(value & TextureUsage::UnorderedAccess) output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    return output;
+}
 }

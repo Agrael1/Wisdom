@@ -345,4 +345,26 @@ inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept{
     case TopologyType::Patch: return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
     }
 }
+inline constexpr VkSampleCountFlagBits convert_vk(SampleCount value) noexcept{
+    switch(value){
+    default: return {};
+    case SampleCount::S1: return VK_SAMPLE_COUNT_1_BIT;
+    case SampleCount::S2: return VK_SAMPLE_COUNT_2_BIT;
+    case SampleCount::S4: return VK_SAMPLE_COUNT_4_BIT;
+    case SampleCount::S8: return VK_SAMPLE_COUNT_8_BIT;
+    case SampleCount::S16: return VK_SAMPLE_COUNT_16_BIT;
+    case SampleCount::S32: return VK_SAMPLE_COUNT_32_BIT;
+    case SampleCount::S64: return VK_SAMPLE_COUNT_64_BIT;
+    }
+}
+inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept{
+    VkImageUsageFlags output = {};
+    if(value & TextureUsage::RenderTarget) output |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if(value & TextureUsage::DepthStencil) output |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    if(value & TextureUsage::CopySrc) output |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    if(value & TextureUsage::CopyDst) output |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if(value & TextureUsage::ShaderResource) output |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if(value & TextureUsage::UnorderedAccess) output |= VK_IMAGE_USAGE_STORAGE_BIT;
+    return output;
+}
 }
