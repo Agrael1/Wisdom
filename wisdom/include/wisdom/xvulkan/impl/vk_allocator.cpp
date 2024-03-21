@@ -3,6 +3,8 @@
 #include <wisdom/xvulkan/vk_allocator.h>
 #endif // !WISDOM_HEADER_ONLY
 
+#include <wisdom/generated/vulkan/vk_structs.hpp>
+
 wis::ResultValue<wis::VKBuffer>
 wis::VKResourceAllocator::CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
 {

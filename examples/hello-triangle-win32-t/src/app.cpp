@@ -169,6 +169,20 @@ void Test::App::CreateResources()
         queue.ExecuteCommandLists(cmd_lists, 1);
     }
 
+    // Create Texture
+    {
+        using namespace wis;
+        wis::TextureDesc desc{
+            .format = wis::DataFormat::BGRA8Unorm,
+            .size = { 256, 256, 1 },
+            .mip_levels = 1,
+            .usage = wis::TextureUsage::CopyDst | wis::TextureUsage::ShaderResource,
+            .initial_state = wis::TextureState::CopyDest,
+        };
+        auto [res, htexture] = allocator.CreateTexture(desc);
+        texture = std::move(htexture);
+    }
+
     {
         auto s1 = LoadShader(SHADER_DIR "/example.vs");
         auto s2 = LoadShader(SHADER_DIR "/example.ps");

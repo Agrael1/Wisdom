@@ -42,5 +42,7 @@ private:
 
     wis::RootSignature root;
     wis::PipelineState pipeline;
+
+    wis::Texture texture;
 };
 } // namespace Test

@@ -4,6 +4,7 @@
 #endif // !WISDOM_HEADER_ONLY
 
 #include <d3dx12/d3dx12_core.h>
+#include <wisdom/generated/dx12/dx12_structs.hpp>
 
 wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
