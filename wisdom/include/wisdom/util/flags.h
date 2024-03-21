@@ -65,9 +65,9 @@ constexpr auto operator~(T value)
 }
 
 template<Flag T>
-constexpr auto operator|(T lhs, T rhs)
+constexpr T operator|(T lhs, T rhs)
 {
-    return static_cast<std::underlying_type_t<T>>(underlying_value(lhs) | underlying_value(rhs));
+    return static_cast<T>(underlying_value(lhs) | underlying_value(rhs));
 }
 template<Flag T>
 constexpr auto operator|(std::underlying_type_t<T> lhs, T rhs)
