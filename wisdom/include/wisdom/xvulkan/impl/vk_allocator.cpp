@@ -58,3 +58,92 @@ wis::VKResourceAllocator::CreateUploadBuffer(size_t size) const noexcept
     auto result = CreateBuffer(desc, alloc);
     return { result.status, VKUploadBuffer{ std::move(result.value) } };
 }
+
+
+wis::ResultValue<wis::VKTexture>
+wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
+{
+    VkImageCreateInfo img_desc{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .format = convert_vk(desc.format),
+        .usage = convert_vk(desc.usage),
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .initialLayout = convert_vk(desc.initial_state),
+    };
+
+    switch (desc.layout) {
+    case wis::TextureLayout::Texture1D:
+        img_desc.imageType = VK_IMAGE_TYPE_1D;
+        img_desc.extent = { desc.size.width, 1, 1 };
+        img_desc.mipLevels = desc.mip_levels;
+        img_desc.arrayLayers = 1;
+        break;
+    case wis::TextureLayout::Texture2D:
+        img_desc.imageType = VK_IMAGE_TYPE_2D;
+        img_desc.extent = { desc.size.width, desc.size.height, 1 };
+        img_desc.mipLevels = desc.mip_levels;
+        img_desc.arrayLayers = 1;
+        break;
+    case wis::TextureLayout::Texture1DArray:
+        img_desc.imageType = VK_IMAGE_TYPE_1D;
+        img_desc.extent = { desc.size.width, 1, 1 };
+        img_desc.mipLevels = desc.mip_levels;
+        img_desc.arrayLayers = desc.size.depth_or_layers;
+        break;
+    default:
+    case wis::TextureLayout::Texture2DArray:
+        img_desc.imageType = VK_IMAGE_TYPE_2D;
+        img_desc.extent = { desc.size.width, desc.size.height, 1 };
+        img_desc.mipLevels = desc.mip_levels;
+        img_desc.arrayLayers = desc.size.depth_or_layers;
+        break;
+    case wis::TextureLayout::Texture3D:
+        img_desc.imageType = VK_IMAGE_TYPE_3D;
+        img_desc.flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+        img_desc.extent = { desc.size.width, desc.size.height, desc.size.depth_or_layers };
+        img_desc.mipLevels = desc.mip_levels;
+        img_desc.arrayLayers = 1;
+        break;
+    case wis::TextureLayout::Texture2DMS:
+        img_desc.imageType = VK_IMAGE_TYPE_2D;
+        img_desc.extent = { desc.size.width, desc.size.height, 1 };
+        img_desc.mipLevels = 1;
+        img_desc.arrayLayers = 1;
+        img_desc.samples = convert_vk(desc.sample_count);
+        break;
+    case wis::TextureLayout::Texture2DMSArray:
+        img_desc.imageType = VK_IMAGE_TYPE_2D;
+        img_desc.extent = { desc.size.width, desc.size.height, 1 };
+        img_desc.mipLevels = 1;
+        img_desc.arrayLayers = desc.size.depth_or_layers;
+        img_desc.samples = convert_vk(desc.sample_count);
+        break;
+    }
+
+    VmaAllocationCreateInfo alloc{
+        .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+    };
+    return CreateTexture(img_desc, alloc);
+}
+
+wis::ResultValue<wis::VKTexture>
+wis::VKResourceAllocator::CreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+{
+    VmaAllocation allocation;
+    VkImage buffer;
+
+    auto result = vmaCreateImage(
+            allocator.get(),
+            reinterpret_cast<const VkImageCreateInfo*>(&desc),
+            &alloc_desc,
+            &buffer,
+            &allocation,
+            nullptr);
+
+    if (!wis::succeeded(result))
+        return wis::make_result<FUNC, "Texture allocation failed">(result);
+
+    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
+}
