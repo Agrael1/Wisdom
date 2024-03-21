@@ -106,16 +106,5 @@ wis::DX12ResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
         .HeapType = D3D12_HEAP_TYPE_DEFAULT,
     };
 
-    wis::com_ptr<ID3D12Resource> rc;
-    wis::com_ptr<D3D12MA::Allocation> al;
-
-    auto hr = allocator->CreateResource3(&all_desc, &tex_desc,
-                                         convert_dx(desc.initial_state), nullptr,
-                                         0, nullptr, al.put(), __uuidof(*rc), rc.put_void());
-
-    if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Texture Allocation failed">(hr);
-    }
-
-    return DX12Texture{ std::move(rc), std::move(al), allocator };
+    return CreateBuffer(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
 }

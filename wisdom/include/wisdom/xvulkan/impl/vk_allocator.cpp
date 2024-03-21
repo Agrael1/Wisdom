@@ -70,9 +70,10 @@ wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
         .pNext = nullptr,
         .flags = 0,
         .format = convert_vk(desc.format),
+        .samples = VK_SAMPLE_COUNT_1_BIT,
         .usage = convert_vk(desc.usage),
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-        .initialLayout = convert_vk(desc.initial_state),
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
 
     switch (desc.layout) {

@@ -176,8 +176,7 @@ void Test::App::CreateResources()
             .format = wis::DataFormat::BGRA8Unorm,
             .size = { 256, 256, 1 },
             .mip_levels = 1,
-            .usage = wis::TextureUsage::CopyDst | wis::TextureUsage::ShaderResource,
-            .initial_state = wis::TextureState::CopyDest,
+            .usage = wis::TextureUsage::CopyDst | wis::TextureUsage::ShaderResource
         };
         auto [res, htexture] = allocator.CreateTexture(desc);
         texture = std::move(htexture);

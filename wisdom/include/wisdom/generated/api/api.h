@@ -550,7 +550,6 @@ struct TextureDesc{
     wis::TextureLayout layout = wis::TextureLayout::Texture2D;
     wis::SampleCount sample_count = wis::SampleCount::S1;
     wis::TextureUsage usage = wis::TextureUsage::None;
-    wis::TextureState initial_state = wis::TextureState::Undefined;
 };
 
 struct PushDescriptor{
