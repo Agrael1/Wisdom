@@ -1097,7 +1097,6 @@
       <member type="TextureLayout" name="layout" default="Texture2D"/>
       <member type="SampleCount" name="sample_count" default="S1"/>
       <member type="TextureUsage" name="usage" default="None"/>
-      <member type="TextureState" name="initial_state" default="Undefined"/>
     </type>
 
     <type name="PushDescriptor" category="struct">
