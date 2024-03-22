@@ -186,8 +186,8 @@ void Test::App::CreateResources()
 
         cmd_list.TextureBarrier({
                                         .sync_before = wis::BarrierSync::All,
-                                        .sync_after = wis::BarrierSync::Draw,
-                                        .access_before = wis::ResourceAccess::Common,
+                                        .sync_after = wis::BarrierSync::All,
+                                        .access_before = wis::ResourceAccess::NoAccess,
                                         .access_after = wis::ResourceAccess::CopyDest,
                                         .state_before = wis::TextureState::Undefined,
                                         .state_after = wis::TextureState::CopyDest,
