@@ -25,14 +25,19 @@ set_property(TARGET ${PROJECT_NAME}SDKLayers PROPERTY
              IMPORTED_LOCATION ${DXA_BIN}/d3d12SDKLayers.dll)
 
 #Header interface library
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} SYSTEM BEFORE 
-    INTERFACE         
+    PUBLIC         
         $<BUILD_INTERFACE:${DXA_HEADERS}>
+        $<BUILD_INTERFACE:${DXA_HEADERS}/d3dx12>
         $<INSTALL_INTERFACE:include>
 )
+target_sources(${PROJECT_NAME}
+    PRIVATE 
+		${DXA_SRC}/d3dx12/d3dx12_property_format_table.cpp
+)
 
-target_install_interface(${PROJECT_NAME})
+target_install(${PROJECT_NAME})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY
              DX12SDKVER ${VERSION_MINOR})

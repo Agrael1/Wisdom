@@ -137,6 +137,7 @@ void Test::App::CreateResources()
         allocator = std::move(alloc);
     }
     auto [resx, ubuf] = allocator.CreateUploadBuffer(sizeof(triangleVertices));
+    auto [resx2, ubuf2] = allocator.CreateUploadBuffer(2 * 2 * 4);
 
     {
         auto [res, vbuf] = allocator.CreateCommitedBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
@@ -148,12 +149,31 @@ void Test::App::CreateResources()
             .stride = sizeof(Vertex),
         };
     }
+    // Create Texture
+    {
+        using namespace wis;
+        wis::TextureDesc desc{
+            .format = wis::DataFormat::BGRA8Unorm,
+            .size = { 2, 2, 1 },
+            .mip_levels = 1,
+            .usage = wis::TextureUsage::CopyDst | wis::TextureUsage::ShaderResource
+        };
+        auto [res, htexture] = allocator.CreateTexture(desc);
+        texture = std::move(htexture);
+    }
 
     // Upload vertex data to a buffer
     {
         auto memory = ubuf.Map<Vertex>();
         std::copy(std::begin(triangleVertices), std::end(triangleVertices), memory);
         ubuf.Unmap();
+
+        auto texture_mem = ubuf2.Map<uint32_t>();
+        texture_mem[0] = 0xFF0000FF;
+        texture_mem[1] = 0xFF00FF00;
+        texture_mem[2] = 0xFFFF0000;
+        texture_mem[3] = 0xFF00FFFF;
+        ubuf2.Unmap();
 
         cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
         cmd_list.BufferBarrier({
@@ -163,24 +183,38 @@ void Test::App::CreateResources()
                                        .access_after = wis::ResourceAccess::VertexBuffer,
                                },
                                vertex_buffer);
+
+        cmd_list.TextureBarrier({
+                                        .sync_before = wis::BarrierSync::All,
+                                        .sync_after = wis::BarrierSync::Draw,
+                                        .access_before = wis::ResourceAccess::Common,
+                                        .access_after = wis::ResourceAccess::CopyDest,
+                                        .state_before = wis::TextureState::Undefined,
+                                        .state_after = wis::TextureState::CopyDest,
+                                        .subresource_range = {
+                                                .base_mip_level = 0,
+                                                .level_count = 1,
+                                                .base_array_layer = 0,
+                                                .layer_count = 1,
+                                        },
+                                },
+                                texture);
+
+        wis::BufferTextureCopyRegion region{
+            .src = {
+                    .size = { 2, 2, 1 },
+            },
+            .dst = {
+                    .format = wis::DataFormat::BGRA8Unorm,
+            }
+        };
+        cmd_list.CopyBufferToTexture(ubuf2, texture, &region, 1);
         cmd_list.Close();
 
         wis::CommandListView cmd_lists[] = { cmd_list };
         queue.ExecuteCommandLists(cmd_lists, 1);
     }
-
-    // Create Texture
-    {
-        using namespace wis;
-        wis::TextureDesc desc{
-            .format = wis::DataFormat::BGRA8Unorm,
-            .size = { 256, 256, 1 },
-            .mip_levels = 1,
-            .usage = wis::TextureUsage::CopyDst | wis::TextureUsage::ShaderResource
-        };
-        auto [res, htexture] = allocator.CreateTexture(desc);
-        texture = std::move(htexture);
-    }
+    ubuf_2 = std::move(ubuf2);
 
     {
         auto s1 = LoadShader(SHADER_DIR "/example.vs");
@@ -258,6 +292,15 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 void Test::App::Frame()
 {
     auto res = cmd_list.Reset(pipeline);
+    wis::BufferTextureCopyRegion region{
+        .src = {
+                .size = { 2, 2, 1 },
+        },
+        .dst = {
+                .format = wis::DataFormat::BGRA8Unorm,
+        }
+    };
+    cmd_list.CopyBufferToTexture(ubuf_2, texture, &region, 1);
 
     cmd_list.TextureBarrier({
                                     .sync_before = wis::BarrierSync::All,
@@ -312,7 +355,6 @@ void Test::App::Frame()
                                     },
                             },
                             back_buffers[swap.GetCurrentIndex()]);
-
     cmd_list.Close();
 
     wis::CommandListView lists[] = { cmd_list };
