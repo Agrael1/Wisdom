@@ -1099,6 +1099,21 @@
       <member type="TextureUsage" name="usage" default="None"/>
     </type>
 
+    <type name="SourceBufferRegion" category="struct">
+      <member type="u64" name="offset"/>
+      <member type="Size3D" name="size"/>
+    </type>
+    <type name="TextureCopyDest" category="struct">
+      <member type="Size3D" name="offset"/>
+      <member type="u32" name="mip"/>
+      <member type="u32" name="array_layer"/>
+      <member type="DataFormat" name="format"/>
+    </type>
+    <type name="BufferTextureCopyRegion" category="struct">
+      <member type="SourceBufferRegion" name="src"/>
+      <member type="TextureCopyDest" name="dst"/>
+    </type>
+
     <type name="PushDescriptor" category="struct">
       <member type="ShaderStages" name="stage"/>
       <member type="u32" name="bind_register"/>

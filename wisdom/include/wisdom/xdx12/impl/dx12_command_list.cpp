@@ -6,10 +6,55 @@
 #include <wisdom/xdx12/dx12_checks.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/util/small_allocator.h>
+#include <d3dx12/d3dx12_resource_helpers.h>
 
 void wis::DX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept
 {
     list->CopyBufferRegion(std::get<0>(destination), region.dst_offset, std::get<0>(source), region.src_offset, region.size_bytes);
+}
+void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+{
+    auto texture = std::get<0>(dest_texture);
+    auto texture_desc = texture->GetDesc();
+
+    wis::com_ptr<ID3D12Device> device;
+    auto hr = texture->GetDevice(__uuidof(*device), device.put_void());
+
+    for (uint32_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
+        UINT num_rows = 0;
+        UINT64 row_size = 0;
+        UINT64 required_size = 0;
+
+        
+
+        UINT dest_subresource = D3D12CalcSubresource(region.dst.mip, region.dst.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        D3D12_TEXTURE_COPY_LOCATION dst{
+            .pResource = texture,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = dest_subresource
+        };
+
+        UINT row_pitch = 0;
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(texture_desc.Format, region.src.size.width, row_pitch);
+
+        D3D12_TEXTURE_COPY_LOCATION src{
+            .pResource = std::get<0>(src_buffer),
+            .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+            .PlacedFootprint = {
+                    .Offset = region.src.offset,
+                    .Footprint = {
+                            .Format = texture_desc.Format,
+                            .Width = region.src.size.width,
+                            .Height = region.src.size.height,
+                            .Depth = region.src.size.depth_or_layers,
+                            .RowPitch = row_pitch
+                    } }
+        };
+
+        list->CopyTextureRegion(&dst, region.dst.offset.width, region.dst.offset.height, region.dst.offset.depth_or_layers, &src, nullptr);
+    }
 }
 
 wis::Result wis::DX12CommandList::Reset(wis::DX12PipelineHandle pipeline) noexcept

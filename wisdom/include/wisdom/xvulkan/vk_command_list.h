@@ -52,6 +52,7 @@ public:
     WIS_INLINE bool Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(VKPipelineHandle pipeline = {}) noexcept;
     WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
+    WIS_INLINE void CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept;
 
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
     // 8 buffers at once max for efficiency

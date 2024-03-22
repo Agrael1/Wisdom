@@ -34,6 +34,7 @@ private:
     uint64_t fence_value = 1;
 
     wis::Buffer vertex_buffer;
+    wis::Buffer ubuf_2;
     wis::VertexBufferBinding vertex_binding;
     wis::ResourceAllocator allocator;
 

@@ -4,6 +4,7 @@
 #endif // !WISDOM_HEADER_ONLY
 
 #include <d3dx12/d3dx12_core.h>
+#include <d3dx12/d3dx12_resource_helpers.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 
 wis::ResultValue<wis::DX12Buffer>

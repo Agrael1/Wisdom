@@ -41,6 +41,8 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result Reset(DX12PipelineHandle pipeline = nullptr) noexcept;
     WIS_INLINE void CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
 
+    WIS_INLINE void CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept;
+
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
     WIS_INLINE void BufferBarriers(const wis::DX12BufferBarrier2* barriers, uint32_t barrier_count) noexcept;

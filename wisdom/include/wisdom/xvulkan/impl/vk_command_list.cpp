@@ -17,6 +17,41 @@ void wis::VKCommandList::CopyBuffer(VKBufferView source, VKBufferView destinatio
     device.table().vkCmdCopyBuffer(command_list, std::get<0>(source), std::get<0>(destination), 1, &copy);
 }
 
+void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+{
+    wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
+    auto* copies = allocator.data();
+
+    for (size_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        copies[i] = VkBufferImageCopy2{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+            .bufferOffset = region.src.offset,
+            .bufferRowLength = {},
+            .bufferImageHeight = {},
+            .imageSubresource = {
+                    .aspectMask = aspect_flags(std::get<1>(dest_texture)),
+                    .mipLevel = region.dst.mip,
+                    .baseArrayLayer = region.dst.array_layer,
+                    .layerCount = 1u,
+            },
+            .imageOffset = { int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
+            .imageExtent = { region.src.size.width, region.src.size.height, region.src.size.depth_or_layers },
+        };
+    }
+
+    VkCopyBufferToImageInfo2 copy{
+        .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
+        .pNext = nullptr,
+        .srcBuffer = std::get<0>(src_buffer),
+        .dstImage = std::get<0>(dest_texture),
+        .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .regionCount = region_count,
+        .pRegions = copies,
+    };
+    device.table().vkCmdCopyBufferToImage2(command_list, &copy);
+}
+
 wis::Result wis::VKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept
 {
     Close();
@@ -304,5 +339,5 @@ void wis::VKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
 
 void wis::VKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
 {
-    device.table().vkCmdPushConstants(command_list, pipeline_layout, VK_SHADER_STAGE_ALL, offset_4bytes*4, size_4bytes*4, data);
+    device.table().vkCmdPushConstants(command_list, pipeline_layout, VK_SHADER_STAGE_ALL, offset_4bytes * 4, size_4bytes * 4, data);
 }
