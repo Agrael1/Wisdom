@@ -89,7 +89,7 @@ public:
                                   uint32_t start_vertex = 0,
                                   uint32_t start_instance = 0) noexcept;
 
-    WIS_INLINE void SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept;
+    WIS_INLINE void SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
 
 protected:
     bool closed = false;

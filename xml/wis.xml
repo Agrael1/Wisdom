@@ -92,6 +92,7 @@
       <value name="Mesh" value="7">
         <impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_NV"/>
       </value>
+      <value name="Count" value="8"/>
     </type>
     <type name="DescriptorType" category="enum">
       <value name="None" value="0"/>

@@ -248,6 +248,7 @@ void wis::DX12CommandList::RSSetScissor(wis::Scissor sc) noexcept
 void wis::DX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_signature) noexcept
 {
     list->SetGraphicsRootSignature(std::get<0>(root_signature));
+    root_stage_map = std::get<1>(root_signature);
 }
 
 void wis::DX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -267,7 +268,7 @@ void wis::DX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::DX12CommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+void wis::DX12CommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
-    list->SetGraphicsRoot32BitConstants(0, size_4bytes, data, offset_4bytes);
+    list->SetGraphicsRoot32BitConstants(UINT(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
 }

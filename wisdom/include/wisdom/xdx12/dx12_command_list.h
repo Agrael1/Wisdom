@@ -15,6 +15,7 @@ template<>
 struct Internal<DX12CommandList> {
     wis::com_ptr<ID3D12CommandAllocator> allocator;
     wis::com_ptr<ID3D12GraphicsCommandList9> list;
+    std::array<int8_t, size_t(wis::ShaderStages::Count)> root_stage_map;
 };
 
 class DX12CommandList : public QueryInternal<DX12CommandList>
@@ -78,7 +79,7 @@ public:
                                   uint32_t start_vertex = 0,
                                   uint32_t start_instance = 0) noexcept;
 
-    WIS_INLINE void SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept;
+    WIS_INLINE void SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
 
 
 protected:

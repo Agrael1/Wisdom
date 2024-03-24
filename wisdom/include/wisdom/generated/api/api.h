@@ -40,6 +40,7 @@ enum class ShaderStages {
     Pixel = 5,
     Amplification = 6,
     Mesh = 7,
+    Count = 8,
 };
 
 enum class Status : int32_t {
