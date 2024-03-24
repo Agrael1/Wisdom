@@ -45,5 +45,7 @@ private:
     wis::PipelineState pipeline;
 
     wis::Texture texture;
+
+    float rotation = 0.0f;
 };
 } // namespace Test

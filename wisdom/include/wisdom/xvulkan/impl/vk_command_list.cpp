@@ -337,7 +337,7 @@ void wis::VKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::VKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+void wis::VKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
-    device.table().vkCmdPushConstants(command_list, pipeline_layout, VK_SHADER_STAGE_ALL, offset_4bytes * 4, size_4bytes * 4, data);
+    device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }

@@ -106,7 +106,9 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants,
 
     D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 16> root_params{ constants_size };
+    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 8> root_params{ constants_size, true };
+    std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map{};
+    std::fill(stage_map.begin(), stage_map.end(), -1);
 
     for (uint32_t i = 0; i < constants_size; ++i) {
         auto& param = root_params.data()[i];
@@ -117,6 +119,8 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants,
         param.Constants.Num32BitValues = constant.size_bytes / 4;
         param.Constants.RegisterSpace = 0;
         param.Constants.ShaderRegister = DX12RootSignature::root_const_register;
+
+        stage_map[+constant.stage] = i;
     }
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
@@ -135,7 +139,7 @@ wis::DX12Device::CreateRootSignature(RootConstant* root_constants,
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to create root signature">(hr);
 
-    return DX12RootSignature{ std::move(rsig) };
+    return DX12RootSignature{ std::move(rsig), stage_map };
 }
 
 namespace wis::detail {

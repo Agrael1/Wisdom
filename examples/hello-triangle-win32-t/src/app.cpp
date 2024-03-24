@@ -214,7 +214,6 @@ void Test::App::CreateResources()
         wis::CommandListView cmd_lists[] = { cmd_list };
         queue.ExecuteCommandLists(cmd_lists, 1);
     }
-    ubuf_2 = std::move(ubuf2);
 
     {
         auto s1 = LoadShader(SHADER_DIR "/example.vs");
@@ -227,9 +226,17 @@ void Test::App::CreateResources()
     }
 
     {
-        auto [result, hroot] = device.CreateRootSignature();
+        wis::RootConstant root_constants[] = {
+            {
+                    .stage = wis::ShaderStages::Vertex,
+                    .size_bytes = 4,
+            },
+        };
+        auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]));
         root = std::move(hroot);
+    }
 
+    {
         wis::InputSlotDesc input_slots[] = {
             { .slot = 0, .stride_bytes = sizeof(Vertex), .input_class = wis::InputClass::PerVertex },
         };
@@ -291,17 +298,11 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
 void Test::App::Frame()
 {
-    auto res = cmd_list.Reset(pipeline);
-    wis::BufferTextureCopyRegion region{
-        .src = {
-                .size = { 2, 2, 1 },
-        },
-        .dst = {
-                .format = wis::DataFormat::BGRA8Unorm,
-        }
-    };
-    cmd_list.CopyBufferToTexture(ubuf_2, texture, &region, 1);
+    rotation += 0.01f;
+    if (rotation > 1)
+        rotation -= 1;
 
+    auto res = cmd_list.Reset(pipeline);
     cmd_list.TextureBarrier({
                                     .sync_before = wis::BarrierSync::All,
                                     .sync_after = wis::BarrierSync::Draw,
@@ -331,6 +332,9 @@ void Test::App::Frame()
     };
     cmd_list.BeginRenderPass(&rp);
     cmd_list.SetRootSignature(root);
+    cmd_list.SetRootConstants(&rotation, 1, 0, wis::ShaderStages::Vertex);
+
+
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
     cmd_list.IASetVertexBuffers(&vertex_binding, 1);
