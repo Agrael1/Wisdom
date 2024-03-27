@@ -1,5 +1,5 @@
 #pragma once
-#include <wisdom/xvulkan/vk_views.h>
+#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/generated/api/api.h>
 #include <wisdom/util/flags.h>
 
