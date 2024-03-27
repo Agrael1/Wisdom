@@ -115,6 +115,10 @@ public:
     }
 
 public:
+    static consteval auto iid() noexcept
+    {
+        return guid_of_v<T>;
+    }
     pointer get() const noexcept
     {
         return ptr;

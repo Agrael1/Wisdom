@@ -240,6 +240,13 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     if (present_exts.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
         set_next(&dyn_render);
 
+    VkPhysicalDeviceBufferDeviceAddressFeatures buffer_address_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
+        .pNext = nullptr,
+        .bufferDeviceAddress = true,
+    };
+    set_next(&buffer_address_features);
+
     itable.vkGetPhysicalDeviceFeatures2(hadapter, &features);
 
     VkDeviceCreateInfo device_info{
@@ -275,8 +282,12 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
 
     device_table->Init(device.get(), gtable);
 
+    auto feature_details = wis::detail::make_unique<FeatureDetails>();
+    if (!feature_details)
+        return wis::make_result<FUNC, "Failed to allocate feature details">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
     wis::VKDevice vkdevice{ wis::SharedDevice{ device.release(), std::move(device_table) },
-                            std::move(adapter),
+                            std::move(adapter), std::move(feature_details),
                             dfeatures, ifeatures };
 
     return { wis::success, std::move(vkdevice) };
@@ -284,6 +295,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
 
 wis::VKDevice::VKDevice(wis::SharedDevice in_device,
                         wis::VKAdapter in_adapter,
+                        std::unique_ptr<FeatureDetails> feature_details,
                         wis::DeviceFeatures in_features,
                         InternalFeatures in_ifeatures) noexcept
     : QueryInternal(std::move(in_adapter), std::move(in_device), in_ifeatures), features(in_features)
@@ -299,48 +311,36 @@ wis::VKDevice::VKDevice(wis::SharedDevice in_device,
         .pNext = nullptr,
         .properties = {},
     };
-    VkPhysicalDeviceDescriptorBufferPropertiesEXT dbp{
+
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT,
         .pNext = nullptr,
     };
     if (ifeatures.has_descriptor_buffer) {
-        props.pNext = &dbp;
+        props.pNext = &descriptor_buffer_properties;
     }
     itable.vkGetPhysicalDeviceProperties2(adapter.GetInternal().adapter, &props);
 
     if (ifeatures.has_descriptor_buffer) {
-        ifeatures.push_descriptor_bufferless = dbp.bufferlessPushDescriptors;
+        feature_details->descriptor_buffer_alignment = descriptor_buffer_properties.descriptorBufferOffsetAlignment;
+        feature_details->mutable_descriptor_size = std::max({
+                descriptor_buffer_properties.uniformBufferDescriptorSize,
+                descriptor_buffer_properties.storageBufferDescriptorSize,
+
+                descriptor_buffer_properties.sampledImageDescriptorSize,
+                descriptor_buffer_properties.storageImageDescriptorSize,
+
+                descriptor_buffer_properties.storageTexelBufferDescriptorSize,
+                descriptor_buffer_properties.uniformTexelBufferDescriptorSize,
+        });
+        feature_details->sampler_descriptor_size = descriptor_buffer_properties.samplerDescriptorSize;
+    }
+    if (ifeatures.has_descriptor_buffer) {
+        ifeatures.push_descriptor_bufferless = descriptor_buffer_properties.bufferlessPushDescriptors;
     }
     ifeatures.max_ia_attributes = props.properties.limits.maxVertexInputAttributes;
 
-    allocator_functions = std::shared_ptr<VmaVulkanFunctions>{ new VmaVulkanFunctions{
-            .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
-            .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
-            .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
-            .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
-            .vkAllocateMemory = dtable.vkAllocateMemory,
-            .vkFreeMemory = dtable.vkFreeMemory,
-            .vkMapMemory = dtable.vkMapMemory,
-            .vkUnmapMemory = dtable.vkUnmapMemory,
-            .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
-            .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
-            .vkBindBufferMemory = dtable.vkBindBufferMemory,
-            .vkBindImageMemory = dtable.vkBindImageMemory,
-            .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
-            .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
-            .vkCreateBuffer = dtable.vkCreateBuffer,
-            .vkDestroyBuffer = dtable.vkDestroyBuffer,
-            .vkCreateImage = dtable.vkCreateImage,
-            .vkDestroyImage = dtable.vkDestroyImage,
-            .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
-            .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
-            .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
-            .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
-            .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
-            .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
-            .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
-            .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
-    } };
+    this->feature_details = std::move(feature_details);
 }
 
 wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
@@ -412,6 +412,7 @@ wis::VKDevice::CreateRootSignature(RootConstant* constants,
                                    uint32_t constants_size) const noexcept
 {
     wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size };
+    wis::detail::limited_allocator<VkDescriptorSetLayout, 8> vk_dsl{ constants_size };
 
     for (uint32_t i = 0; i < constants_size; i++) {
         auto& c = vk_constants.data()[i];
@@ -805,26 +806,58 @@ wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
 
 wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
 {
-    auto [result, allocator] = CreateAllocatorI();
-
+    auto [result, hallocator] = CreateAllocatorI();
     if (result.status != wis::Status::Ok)
         return result;
 
-    return VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, allocator },
+    return VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, hallocator },
                                 allocator_functions };
 }
 
 wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 {
     uint32_t version = 0;
-    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
-    auto& it = GetInstanceTable();
-    auto& dt = device.table();
+    auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
+    auto& itable = GetInstanceTable();
+    auto& dtable = device.table();
     auto& adapter_i = adapter.GetInternal();
-    gt.vkEnumerateInstanceVersion(&version);
+    gtable.vkEnumerateInstanceVersion(&version);
+
+    if (!allocator_functions)
+        allocator_functions = std::shared_ptr<VmaVulkanFunctions>{ new (std::nothrow) VmaVulkanFunctions{
+                .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
+                .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
+                .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
+                .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
+                .vkAllocateMemory = dtable.vkAllocateMemory,
+                .vkFreeMemory = dtable.vkFreeMemory,
+                .vkMapMemory = dtable.vkMapMemory,
+                .vkUnmapMemory = dtable.vkUnmapMemory,
+                .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
+                .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
+                .vkBindBufferMemory = dtable.vkBindBufferMemory,
+                .vkBindImageMemory = dtable.vkBindImageMemory,
+                .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
+                .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
+                .vkCreateBuffer = dtable.vkCreateBuffer,
+                .vkDestroyBuffer = dtable.vkDestroyBuffer,
+                .vkCreateImage = dtable.vkCreateImage,
+                .vkDestroyImage = dtable.vkDestroyImage,
+                .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
+                .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
+                .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
+                .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
+                .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
+                .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
+                .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
+                .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
+        } };
+
+    if (!allocator_functions)
+        return wis::make_result<FUNC, "Failed to allocate allocator functions.">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
     VmaAllocatorCreateInfo allocatorInfo{
-        .flags = 0,
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
         .physicalDevice = adapter_i.adapter,
         .device = device.get(),
         .pVulkanFunctions = allocator_functions.get(),
@@ -1087,6 +1120,47 @@ wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc d
         return wis::make_result<FUNC, "Failed to create an image view">(result);
 
     return VKRenderTarget{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView }, std::get<2>(texture) };
+}
+
+wis::ResultValue<wis::VKDescriptorBuffer>
+wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+{
+    if (!allocator) {
+        auto [res, hallocator] = CreateAllocatorI();
+        if (res.status != wis::Status::Ok)
+            return res;
+        allocator = wis::shared_handle<VmaAllocator>{ device, hallocator };
+    }
+    if (!allocator)
+        return wis::make_result<FUNC, "Failed to create an allocator">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor ? feature_details->mutable_descriptor_size : feature_details->sampler_descriptor_size;
+
+    VkBufferCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .size = descriptor_count * descriptor_size,
+        .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 0,
+        .pQueueFamilyIndices = nullptr,
+    };
+
+    VmaAllocationCreateInfo alloc_info{
+        .flags = 0,
+        .usage = VMA_MEMORY_USAGE_AUTO,
+        .requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        .preferredFlags = 0,
+    };
+    VkBuffer buffer;
+    VmaAllocation allocation;
+
+    auto result = vmaCreateBufferWithAlignment(allocator.get(), &info, &alloc_info, feature_details->descriptor_buffer_alignment, &buffer, &allocation, nullptr);
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
+
+    return VKDescriptorBuffer{ allocator, buffer, allocation, descriptor_size };
 }
 
 // wis::ResultValue< VkDescriptorSetLayout>

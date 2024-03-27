@@ -25,7 +25,9 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 namespace wis{
 
-inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;using CommandQueue = DX12CommandQueue;
+inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
+
+using CommandQueue = DX12CommandQueue;
 using RootSignature = DX12RootSignature;
 using Factory = DX12Factory;
 using PipelineState = DX12PipelineState;
@@ -41,6 +43,7 @@ using Buffer = DX12Buffer;
 using Texture = DX12Texture;
 using DebugMessenger = DX12DebugMessenger;
 using RenderTarget = DX12RenderTarget;
+using DescriptorBuffer = DX12DescriptorBuffer;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
 using FenceView = DX12FenceView;
@@ -64,7 +67,9 @@ using VertexBufferBinding = DX12VertexBufferBinding;
 
 namespace wis{
 
-inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;using CommandQueue = VKCommandQueue;
+inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
+
+using CommandQueue = VKCommandQueue;
 using RootSignature = VKRootSignature;
 using Factory = VKFactory;
 using PipelineState = VKPipelineState;
@@ -80,6 +85,7 @@ using Buffer = VKBuffer;
 using Texture = VKTexture;
 using DebugMessenger = VKDebugMessenger;
 using RenderTarget = VKRenderTarget;
+using DescriptorBuffer = VKDescriptorBuffer;
 constexpr auto CreateFactory = wis::VKCreateFactory;
 constexpr auto CreateDevice = wis::VKCreateDevice;
 using FenceView = VKFenceView;

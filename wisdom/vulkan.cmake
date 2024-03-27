@@ -16,6 +16,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/xvulkan/vk_command_queue.h"
 			"include/wisdom/xvulkan/vk_command_list.h"
 			"include/wisdom/xvulkan/vk_root_signature.h"
+			"include/wisdom/xvulkan/vk_descriptor_buffer.h"
 			"include/wisdom/xvulkan/vk_resource.h"
 			"include/wisdom/xvulkan/vk_shader.h"
 			"include/wisdom/xvulkan/vk_allocator.h"
