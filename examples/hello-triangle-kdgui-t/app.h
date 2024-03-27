@@ -1,5 +1,5 @@
 #pragma once
-#include <wisdom/dx12/xdx12_factory.h>
+#include <wisdom/dx12/dx12_factory.h>
 #include "window.h"
 #include <optional>
 

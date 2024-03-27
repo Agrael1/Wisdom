@@ -145,7 +145,7 @@ struct ResultValue{
         return 1;
 
     std::string dxapi = generator_string +
-            "#pragma once\n#include <wisdom/xdx12/dx12_views.h>\n#include "
+            "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
@@ -164,7 +164,7 @@ struct ResultValue{
         return 1;
 
     std::string vkapi = generator_string +
-            "#pragma once\n#include <wisdom/xvulkan/vk_views.h>\n#include "
+            "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
     for (auto i : variants) {

@@ -3,7 +3,7 @@
 #include <wisdom/platform/win32.h>
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 
-#include <wisdom/xdx12/dx12_device.h>
+#include <wisdom/dx12/dx12_device.h>
 #include <wisdom/util/log_layer.h>
 #include <d3d11.h>
 
@@ -128,7 +128,7 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
 }
 
 #if WISDOM_VULKAN
-#include <wisdom/xvulkan/vk_device.h>
+#include <wisdom/vulkan/vk_device.h>
 
 wis::ResultValue<wis::VKSwapChain>
 wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept

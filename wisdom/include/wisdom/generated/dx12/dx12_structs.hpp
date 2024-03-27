@@ -1,5 +1,5 @@
 #pragma once
-#include <wisdom/xdx12/dx12_views.h>
+#include <wisdom/dx12/dx12_views.h>
 #include <wisdom/generated/api/api.h>
 #include <wisdom/util/flags.h>
 

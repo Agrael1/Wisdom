@@ -1,7 +1,7 @@
 #pragma once
 #ifdef WISDOM_WINDOWS
 #if WISDOM_DX12
-#include <wisdom/xdx12/dx12_swapchain.h>
+#include <wisdom/dx12/dx12_swapchain.h>
 
 namespace wis {
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12SwapChain>
@@ -12,7 +12,7 @@ DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const
 
 #endif // WISDOM_DX12
 #if WISDOM_VULKAN
-#include <wisdom/xvulkan/vk_swapchain.h>
+#include <wisdom/vulkan/vk_swapchain.h>
 
 namespace wis {
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
