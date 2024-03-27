@@ -6,6 +6,7 @@
 #include <wisdom/xdx12/dx12_root_signature.h>
 #include <wisdom/xdx12/dx12_shader.h>
 #include <wisdom/xdx12/dx12_allocator.h>
+#include <wisdom/xdx12/dx12_descriptor_buffer.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 
 namespace wis {
@@ -59,6 +60,9 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RenderTarget>
     CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
+    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>

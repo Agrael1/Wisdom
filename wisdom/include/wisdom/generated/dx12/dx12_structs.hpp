@@ -144,6 +144,12 @@ inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexc
     if(value & RenderPassFlags::Resuming) output |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
     return output;
 }
+inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(DescriptorHeapType value) noexcept {
+    return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
+}
+inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(DescriptorMemory value) noexcept {
+    return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
+}
 inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept{
     switch(value){
     default: return {};

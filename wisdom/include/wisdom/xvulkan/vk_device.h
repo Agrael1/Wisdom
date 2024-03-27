@@ -9,6 +9,7 @@
 #include <wisdom/xvulkan/vk_shader.h>
 #include <wisdom/xvulkan/vk_allocator.h>
 #include <wisdom/xvulkan/vk_swapchain.h>
+#include <wisdom/xvulkan/vk_descriptor_buffer.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 
 namespace wis {
@@ -19,6 +20,12 @@ struct InternalFeatures {
     uint32_t max_ia_attributes = 0;
 };
 
+struct FeatureDetails {
+    uint32_t mutable_descriptor_size = 0;
+    uint32_t sampler_descriptor_size = 0;
+    uint32_t descriptor_buffer_alignment = 0;
+};
+
 class VKDevice;
 
 template<>
@@ -27,9 +34,12 @@ struct Internal<VKDevice> {
     wis::SharedDevice device;
     InternalFeatures ifeatures;
 
-    std::shared_ptr<VmaVulkanFunctions> allocator_functions;
+    mutable wis::shared_handle<VmaAllocator> allocator;
+    mutable std::shared_ptr<VmaVulkanFunctions> allocator_functions;
 
     detail::QueueResidency queues;
+
+    std::unique_ptr<FeatureDetails> feature_details;
 
 public:
     auto& GetInstanceTable() const noexcept
@@ -47,6 +57,7 @@ public:
     VKDevice() noexcept = default;
     WIS_INLINE explicit VKDevice(wis::SharedDevice device,
                                  wis::VKAdapter adapter,
+                                 std::unique_ptr<FeatureDetails> feature_details,
                                  wis::DeviceFeatures features = wis::DeviceFeatures::None,
                                  InternalFeatures ifeatures = {}) noexcept;
 
@@ -84,6 +95,9 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRenderTarget>
     CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
+    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>

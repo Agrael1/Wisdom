@@ -47,5 +47,7 @@ private:
     wis::Texture texture;
 
     float rotation = 0.0f;
+
+    wis::DescriptorBuffer desc_buffer;
 };
 } // namespace Test

@@ -17,6 +17,7 @@
     <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>
     <handle name="RenderTarget"/>
+    <handle name="DescriptorBuffer"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -763,6 +764,18 @@
         <impl name="dx" value="D3D12_RENDER_PASS_FLAG_RESUMING_PASS"/>
         <impl name="vk" value="VK_RENDERING_RESUMING_BIT"/>
       </value>
+    </type>
+
+    <type name="DescriptorHeapType" category="enum">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE" direct="true"/>
+      <value name="Descriptor" value="0"/>
+      <value name="Sampler" value="1"/>
+    </type>
+
+    <type name="DescriptorMemory" category="enum">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS" direct="true"/>
+      <value name="CpuOnly" value="0"/>
+      <value name="ShaderVisible" value="1"/>
     </type>
 
     <type name="LoadOperation" category="enum">

@@ -15,6 +15,7 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/xdx12/dx12_device.h"
 			"include/wisdom/xdx12/dx12_command_queue.h"
 			"include/wisdom/xdx12/dx12_command_list.h"
+			"include/wisdom/xdx12/dx12_descriptor_buffer.h"
 			"include/wisdom/xdx12/dx12_root_signature.h"
 			"include/wisdom/xdx12/dx12_resource.h"
 			"include/wisdom/xdx12/dx12_shader.h"

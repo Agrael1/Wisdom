@@ -184,6 +184,11 @@ enum class FillMode {
     Solid = 3,
 };
 
+enum class DescriptorMemory {
+    CpuOnly = 0,
+    ShaderVisible = 1,
+};
+
 enum class WindingOrder {
     Clockwise = 0,
     CounterClockwise = 1,
@@ -312,6 +317,11 @@ enum class TextureLayout {
     Texture2DMS = 6,
     Texture2DMSArray = 7,
     Texture3D = 8,
+};
+
+enum class DescriptorHeapType {
+    Descriptor = 0,
+    Sampler = 1,
 };
 
 enum class StoreOperation {

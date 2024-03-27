@@ -1,5 +1,0 @@
----
-# this file primarily removes checks that would prevent us from doing math with
-# numbers like a normal person
-Checks: '-readability-implicit-bool-conversion'
-InheritParentConfig: true

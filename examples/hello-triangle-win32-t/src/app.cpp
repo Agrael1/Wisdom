@@ -162,6 +162,12 @@ void Test::App::CreateResources()
         texture = std::move(htexture);
     }
 
+    // Create descriptor buffer
+    {
+        auto [res, hdesc] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 1);
+        desc_buffer = std::move(hdesc);
+    }
+
     // Upload vertex data to a buffer
     {
         auto memory = ubuf.Map<Vertex>();

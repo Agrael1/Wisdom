@@ -411,3 +411,20 @@ wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDe
     device->CreateRenderTargetView(std::get<0>(texture), &rtv_desc, handle);
     return DX12RenderTarget{ std::move(heap), handle };
 }
+
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
+wis::DX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+{
+    D3D12_DESCRIPTOR_HEAP_DESC desc{
+        .Type = convert_dx(heap_type),
+        .NumDescriptors = descriptor_count,
+        .Flags = convert_dx(memory_type),
+        .NodeMask = 0,
+    };
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+    auto hr = device->CreateDescriptorHeap(&desc, heap.iid(), heap.put_void());
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create descriptor buffer">(hr);
+
+    return DX12DescriptorBuffer{ std::move(heap), device->GetDescriptorHandleIncrementSize(desc.Type) };
+}
