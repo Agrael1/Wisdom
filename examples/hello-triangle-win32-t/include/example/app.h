@@ -50,5 +50,7 @@ private:
 
     wis::DescriptorBuffer desc_buffer;
     wis::DescriptorBuffer sampler_buffer;
+
+    wis::Sampler sampler;
 };
 } // namespace Test

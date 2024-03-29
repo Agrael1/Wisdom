@@ -158,4 +158,25 @@ public:
     }
 };
 
+class VKSampler;
+
+template<>
+struct Internal<VKSampler> {
+    wis::managed_handle_ex<VkSampler> sampler;
+};
+
+class VKSampler : public QueryInternal<VKSampler>
+{
+public:
+    VKSampler() noexcept = default;
+    explicit VKSampler(wis::managed_handle_ex<VkSampler> sampler) noexcept
+        : QueryInternal(std::move(sampler)) { }
+
+    operator bool() const noexcept { return bool(sampler); }
+    operator VKSamplerView() const noexcept
+    {
+        return sampler.get();
+    }
+};
+
 } // namespace wis

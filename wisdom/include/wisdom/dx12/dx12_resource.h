@@ -19,8 +19,9 @@ class DX12Buffer : public QueryInternal<DX12Buffer>
 public:
     DX12Buffer() noexcept = default;
     explicit DX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
-        : QueryInternal(std::move(allocator), std::move(al), std::move(rc)) 
-    {}
+        : QueryInternal(std::move(allocator), std::move(al), std::move(rc))
+    {
+    }
 
     operator DX12BufferView() const noexcept { return resource.get(); }
     operator bool() const noexcept { return bool(resource); }
@@ -82,6 +83,29 @@ public:
     operator DX12RenderTargetView() const noexcept
     {
         return handle;
+    }
+};
+
+// =================================================================================================
+
+class DX12Sampler;
+
+template<>
+struct Internal<DX12Sampler> {
+    std::optional<D3D12_SAMPLER_DESC> desc{};
+};
+
+class DX12Sampler : public QueryInternal<DX12Sampler>
+{
+public:
+    DX12Sampler() noexcept = default;
+    explicit DX12Sampler(D3D12_SAMPLER_DESC desc) noexcept
+        : QueryInternal(desc) { }
+
+    operator bool() const noexcept { return bool(desc); }
+    operator DX12SamplerView() const noexcept
+    {
+        return bool(desc) ? &desc.value() : nullptr;
     }
 };
 
