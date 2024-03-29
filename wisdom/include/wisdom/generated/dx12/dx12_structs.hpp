@@ -59,6 +59,15 @@ inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcep
 inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStages value) noexcept {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }
+inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) noexcept{
+    switch(value){
+    default: return {};
+    case DescriptorType::ShaderResource: return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case DescriptorType::ConstantBuffer: return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    case DescriptorType::UnorderedAccess: return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case DescriptorType::Sampler: return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+    }
+}
 inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept {
     return static_cast<DXGI_FORMAT>(value);
 }

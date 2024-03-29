@@ -7,6 +7,7 @@
 #include <d3dx12/d3dx12_root_signature.h>
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/util/misc.h>
+#include <numeric>
 
 wis::ResultValue<wis::DX12Device>
 wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
@@ -99,28 +100,68 @@ wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
 }
 
 wis::ResultValue<wis::DX12RootSignature>
-wis::DX12Device::CreateRootSignature(RootConstant* root_constants,
-                                     uint32_t constants_size) const noexcept
+wis::DX12Device::CreateRootSignature(const RootConstant* root_constants,
+                                     uint32_t constants_size,
+                                     const wis::DescriptorTable* tables,
+                                     uint32_t tables_count) const noexcept
 {
     wis::com_ptr<ID3D12RootSignature> rsig;
 
     D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 8> root_params{ constants_size, true };
+    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 16> root_params{ constants_size + tables_count, true };
+
     std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map{};
     std::fill(stage_map.begin(), stage_map.end(), -1);
 
     for (uint32_t i = 0; i < constants_size; ++i) {
-        auto& param = root_params.data()[i];
         auto& constant = root_constants[i];
-
-        param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-        param.ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage);
-        param.Constants.Num32BitValues = constant.size_bytes / 4;
-        param.Constants.RegisterSpace = 0;
-        param.Constants.ShaderRegister = DX12RootSignature::root_const_register;
-
+        root_params.data()[i] = {
+            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+            .Constants = {
+                    .ShaderRegister = DX12RootSignature::root_const_register,
+                    .RegisterSpace = 0,
+                    .Num32BitValues = constant.size_bytes / 4,
+            },
+            .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
+        };
         stage_map[+constant.stage] = i;
+    }
+
+    size_t memory_size = 0;
+    for (uint32_t i = 0; i < tables_count; ++i) {
+        auto& table = tables[i];
+        memory_size += table.entry_count;
+    }
+
+    auto memory = wis::detail::make_unique_for_overwrite<D3D12_DESCRIPTOR_RANGE1[]>(memory_size);
+    if (!memory)
+        return wis::make_result<FUNC, "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
+
+    uint32_t offset = 0;
+    for (uint32_t i = constants_size; i < constants_size + tables_count; ++i) {
+        auto& table = tables[i - constants_size];
+
+        for (size_t j = offset; j < table.entry_count + offset; j++) {
+            auto& entry = table.entries[j - offset];
+            memory[j] = {
+                .RangeType = convert_dx(entry.type),
+                .NumDescriptors = entry.count,
+                .BaseShaderRegister = entry.bind_register,
+                .RegisterSpace = 0,
+                .OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
+            };
+        }
+
+        root_params.data()[i] = {
+            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+            .DescriptorTable = {
+                    .NumDescriptorRanges = table.entry_count,
+                    .pDescriptorRanges = memory.get() + offset,
+            },
+            .ShaderVisibility = D3D12_SHADER_VISIBILITY(table.stage),
+        };
+        offset += table.entry_count;
     }
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
@@ -350,7 +391,8 @@ wis::DX12Device::CreateAllocator() const noexcept
 }
 
 wis::ResultValue<wis::DX12RenderTarget>
-wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept {
+wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
+{
     D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
         .Format = convert_dx(desc.format),
         .ViewDimension = D3D12_RTV_DIMENSION(desc.layout),

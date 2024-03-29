@@ -96,10 +96,24 @@
       <value name="Count" value="8"/>
     </type>
     <type name="DescriptorType" category="enum">
-      <value name="None" value="0"/>
-      <value name="ConstantBuffer" value="2"/>
-      <value name="ShaderResource" value="3"/>
-      <value name="UnorderedAccess" value="4"/>
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
+      <impl_type for="vk" name="VkDescriptorType"/>
+      <value name="ShaderResource" value="0">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      </value>
+      <value name="ConstantBuffer" value="1">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_CBV"/>
+      </value>
+      <value name="UnorderedAccess" value="2">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
+      </value>
+      <value name="Sampler" value="3">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
+      </value>
     </type>
     <type name="QueuePriority" category="enum">
       <value name="Common" value="0"/>
@@ -1244,6 +1258,18 @@
       </impl>
     </type>
 
+    <type name="DescriptorTableEntry" category="struct">
+      <member type="DescriptorType" name="type"/>
+      <member type="u32" name="bind_register"/>
+      <member type="u32" name="count"/>
+    </type>
+
+    <type name="DescriptorTable" category="struct">
+      <member type="DescriptorHeapType" name="type"/>
+      <member type="DescriptorTableEntry" name="entries" mod="ptr"/>
+      <member type="u32" name="entry_count"/>
+      <member type="ShaderStages" name="stage"/>
+    </type>
   </types>
 
   <functions>

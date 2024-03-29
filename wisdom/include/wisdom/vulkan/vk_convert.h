@@ -39,19 +39,6 @@ inline constexpr wis::Severity convert_vk(VkDebugUtilsMessageSeverityFlagBitsEXT
     }
 }
 
-// TODO: move to generated
-inline constexpr VkDescriptorType convert_vk(wis::DescriptorType type) noexcept
-{
-    switch (type) {
-    default:
-    case DescriptorType::ConstantBuffer:
-        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    case DescriptorType::ShaderResource:
-        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    case DescriptorType::UnorderedAccess:
-        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-    }
-}
 inline constexpr VkImageAspectFlags aspect_flags(VkFormat format)
 {
     switch (format) {

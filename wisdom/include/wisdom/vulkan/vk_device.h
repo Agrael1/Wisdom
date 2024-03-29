@@ -85,7 +85,10 @@ public:
     CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
-    CreateRootSignature(RootConstant* constants = nullptr, uint32_t constants_size = 0) const noexcept;
+    CreateRootSignature(const RootConstant* constants = nullptr,
+                        uint32_t constants_size = 0,
+                        const wis::DescriptorTable* tables = nullptr,
+                        uint32_t tables_count = 0) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKShader>
     CreateShader(void* bytecode, uint32_t size) const noexcept;
@@ -109,6 +112,9 @@ private:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VmaAllocator>
     CreateAllocatorI() const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
+    CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept;
 
 private:
     wis::DeviceFeatures features{};

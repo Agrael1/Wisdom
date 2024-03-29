@@ -408,11 +408,13 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priori
 }
 
 wis::ResultValue<wis::VKRootSignature>
-wis::VKDevice::CreateRootSignature(RootConstant* constants,
-                                   uint32_t constants_size) const noexcept
+wis::VKDevice::CreateRootSignature(const RootConstant* constants,
+                                   uint32_t constants_size,
+                                   const wis::DescriptorTable* tables,
+                                   uint32_t tables_count) const noexcept
 {
-    wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size };
-    wis::detail::limited_allocator<VkDescriptorSetLayout, 8> vk_dsl{ constants_size };
+    wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
+    wis::detail::limited_allocator<VkDescriptorSetLayout, 8> vk_dsl{ tables_count, true };
 
     for (uint32_t i = 0; i < constants_size; i++) {
         auto& c = vk_constants.data()[i];
@@ -422,12 +424,22 @@ wis::VKDevice::CreateRootSignature(RootConstant* constants,
         c.size = r.size_bytes;
     }
 
+    for (size_t i = 0; i < tables_count; i++) {
+        auto [res, h] = CreateDescriptorSetLayout(&tables[i]);
+        if (res.status != wis::Status::Ok) {
+            for (size_t j = 0; j < i; j++)
+                device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl.data()[j], nullptr);
+
+            return res;
+        }
+    }
+
     VkPipelineLayoutCreateInfo pipeline_layout_info{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .setLayoutCount = 0,
-        .pSetLayouts = nullptr,
+        .setLayoutCount = tables_count,
+        .pSetLayouts = vk_dsl.data(),
         .pushConstantRangeCount = constants_size,
         .pPushConstantRanges = vk_constants.data(),
     };
@@ -1161,6 +1173,63 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
 
     return VKDescriptorBuffer{ allocator, buffer, allocation, descriptor_size };
+}
+
+wis::ResultValue<VkDescriptorSetLayout>
+wis::VKDevice::CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
+{
+    constexpr static VkDescriptorType cbvSrvUavTypes[] = {
+        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+        VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
+        VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+        VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+        // VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR /* Need to check support if this is desired. */
+    };
+
+    constexpr static VkMutableDescriptorTypeListVALVE a{
+        .descriptorTypeCount = sizeof(cbvSrvUavTypes) / sizeof(VkDescriptorType),
+        .pDescriptorTypes = cbvSrvUavTypes
+    };
+
+    wis::detail::limited_allocator<VkDescriptorSetLayoutBinding, 32> bindings{ table->entry_count, true };
+    wis::detail::limited_allocator<VkMutableDescriptorTypeListVALVE, 32> bindings_mutable{ table->entry_count, true };
+
+    for (size_t i = 0; i < table->entry_count; i++) {
+        bindings_mutable.data()[i] = a;
+
+        auto& entry = table->entries[i];
+        bindings.data()[i] = {
+            .binding = entry.bind_register,
+            .descriptorType = VK_DESCRIPTOR_TYPE_MUTABLE_VALVE,
+            .descriptorCount = entry.count,
+            .stageFlags = uint32_t(convert_vk(table->stage)),
+            .pImmutableSamplers = nullptr,
+        };
+    }
+    VkMutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
+        .sType = VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .mutableDescriptorTypeListCount = table->entry_count,
+        .pMutableDescriptorTypeLists = bindings_mutable.data(),
+    };
+
+    VkDescriptorSetLayoutCreateInfo desc{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext = &mutableTypeInfo,
+        .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT,
+        .bindingCount = table->entry_count,
+        .pBindings = bindings.data(),
+    };
+
+    VkDescriptorSetLayout layout;
+    auto result = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
+
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to create a descriptor set layout">(result);
+
+    return layout;
 }
 
 // wis::ResultValue< VkDescriptorSetLayout>
