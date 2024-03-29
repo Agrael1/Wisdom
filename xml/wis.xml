@@ -18,6 +18,7 @@
     <handle name="DebugMessenger"/>
     <handle name="RenderTarget"/>
     <handle name="DescriptorBuffer"/>
+    <handle name="Sampler"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
