@@ -166,6 +166,9 @@ void Test::App::CreateResources()
     {
         auto [res, hdesc] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 1);
         desc_buffer = std::move(hdesc);
+
+        auto [res2, hdesc2] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 1);
+        sampler_buffer = std::move(hdesc2);
     }
 
     // Upload vertex data to a buffer
@@ -236,6 +239,35 @@ void Test::App::CreateResources()
             {
                     .stage = wis::ShaderStages::Vertex,
                     .size_bytes = 4,
+            },
+        };
+
+        wis::DescriptorTableEntry entries[] = {
+            {
+                    .type = wis::DescriptorType::ShaderResource,
+                    .bind_register = 0,
+                    .count = 1,
+            },
+            {
+                    .type = wis::DescriptorType::Sampler,
+                    .bind_register = 0,
+                    .count = 1,
+            },
+        };
+
+
+        wis::DescriptorTable tables[] = {
+            {
+                    .type = wis::DescriptorHeapType::Descriptor,
+                    .entries = entries,
+                    .entry_count = 1,
+                    .stage = wis::ShaderStages::Pixel,
+            },
+            {
+                    .type = wis::DescriptorHeapType::Sampler,
+                    .entries = entries + 1,
+                    .entry_count = 1,
+                    .stage = wis::ShaderStages::Pixel,
             },
         };
         auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]));
@@ -339,7 +371,6 @@ void Test::App::Frame()
     cmd_list.BeginRenderPass(&rp);
     cmd_list.SetRootSignature(root);
     cmd_list.SetRootConstants(&rotation, 1, 0, wis::ShaderStages::Vertex);
-
 
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 

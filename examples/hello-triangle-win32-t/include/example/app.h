@@ -49,5 +49,6 @@ private:
     float rotation = 0.0f;
 
     wis::DescriptorBuffer desc_buffer;
+    wis::DescriptorBuffer sampler_buffer;
 };
 } // namespace Test

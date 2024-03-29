@@ -30,6 +30,8 @@ struct Viewport;
 struct Scissor;
 struct BufferBarrier;
 struct TextureBarrier;
+struct DescriptorTableEntry;
+struct DescriptorTable;
 
 enum class ShaderStages {
     All = 0,
@@ -65,10 +67,10 @@ enum class MutiWaitFlags : uint32_t {
 };
 
 enum class DescriptorType {
-    None = 0,
-    ConstantBuffer = 2,
-    ShaderResource = 3,
-    UnorderedAccess = 4,
+    ShaderResource = 0,
+    ConstantBuffer = 1,
+    UnorderedAccess = 2,
+    Sampler = 3,
 };
 
 enum class QueueType : uint32_t {
@@ -638,6 +640,19 @@ struct TextureBarrier{
     wis::TextureState state_before;
     wis::TextureState state_after;
     wis::SubresourceRange subresource_range;
+};
+
+struct DescriptorTableEntry{
+    wis::DescriptorType type;
+    uint32_t bind_register;
+    uint32_t count;
+};
+
+struct DescriptorTable{
+    wis::DescriptorHeapType type;
+    wis::DescriptorTableEntry* entries;
+    uint32_t entry_count;
+    wis::ShaderStages stage;
 };
 
 //=================================DELEGATES=================================
