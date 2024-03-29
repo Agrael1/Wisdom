@@ -27,6 +27,9 @@ constexpr static inline std::array required_extensions{
     VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
 
+    VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME, // for Mutable Descriptor Type
+    VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
+
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
     // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
@@ -40,8 +43,7 @@ constexpr static inline std::array required_extensions{
     // VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
     // VK_NV_MESH_SHADER_EXTENSION_NAME,
     // VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
-    // VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
-    // VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
+
 };
 
 inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
@@ -240,6 +242,15 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     if (present_exts.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
         set_next(&dyn_render);
 
+    VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE mutable_desc_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE,
+        .pNext = nullptr,
+        .mutableDescriptorType = true,
+    };
+    if (present_exts.contains(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME ) ||
+        present_exts.contains(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME))
+        set_next(&mutable_desc_features);
+
     VkPhysicalDeviceBufferDeviceAddressFeatures buffer_address_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
         .pNext = nullptr,
@@ -432,6 +443,7 @@ wis::VKDevice::CreateRootSignature(const RootConstant* constants,
 
             return res;
         }
+        vk_dsl.data()[i] = h;
     }
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{

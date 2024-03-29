@@ -255,7 +255,6 @@ void Test::App::CreateResources()
             },
         };
 
-
         wis::DescriptorTable tables[] = {
             {
                     .type = wis::DescriptorHeapType::Descriptor,
@@ -270,7 +269,7 @@ void Test::App::CreateResources()
                     .stage = wis::ShaderStages::Pixel,
             },
         };
-        auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]));
+        auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]), tables, sizeof(tables) / sizeof(tables[0]));
         root = std::move(hroot);
     }
 
