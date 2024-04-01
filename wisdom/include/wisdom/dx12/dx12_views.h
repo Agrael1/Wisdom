@@ -19,5 +19,5 @@ using DX12BufferView = std::tuple<ID3D12Resource*>;
 using DX12TextureView = DX12BufferView;
 using DX12RenderTargetView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12DescriptorBufferView = std::tuple<ID3D12DescriptorHeap*, uint32_t>;
-using DX12SamplerView = std::tuple<ID3D12DescriptorHeap*>;
+using DX12SamplerView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 } // namespace wis

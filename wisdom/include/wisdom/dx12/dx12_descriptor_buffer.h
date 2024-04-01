@@ -10,6 +10,7 @@ class DX12DescriptorBuffer;
 
 template<>
 struct Internal<DX12DescriptorBuffer> {
+    wis::com_ptr<ID3D12Device> device;
     wis::com_ptr<ID3D12DescriptorHeap> heap;
     CD3DX12_CPU_DESCRIPTOR_HANDLE heap_start;
     CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_start;
@@ -21,6 +22,7 @@ struct Internal<DX12DescriptorBuffer> {
     {
         heap_start = CD3DX12_CPU_DESCRIPTOR_HANDLE(this->heap->GetCPUDescriptorHandleForHeapStart());
         heap_gpu_start = CD3DX12_GPU_DESCRIPTOR_HANDLE(this->heap->GetGPUDescriptorHandleForHeapStart());
+        heap->GetDevice(device.iid(), device.put_void());
     }
 };
 
@@ -41,6 +43,15 @@ public:
     operator DX12DescriptorBufferView() const noexcept
     {
         return { heap.get(), heap_increment };
+    }
+
+    void WriteSampler(uint32_t index, wis::DX12SamplerView sampler) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += index * heap_increment;
+
+        auto sampler_handle = std::get<0>(sampler);
+        device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
     }
 };
 } // namespace wis

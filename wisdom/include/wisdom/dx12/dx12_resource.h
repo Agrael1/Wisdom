@@ -106,7 +106,7 @@ public:
     operator bool() const noexcept { return bool(heap); }
     operator DX12SamplerView() const noexcept
     {
-        return heap.get();
+        return heap->GetCPUDescriptorHandleForHeapStart();
     }
 };
 

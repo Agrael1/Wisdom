@@ -13,7 +13,8 @@ struct Internal<VKDescriptorBuffer> {
 
     Internal() noexcept = default;
     Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, uint32_t descriptor_size) noexcept
-        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), descriptor_size(descriptor_size) { }
+        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), descriptor_size(descriptor_size)
+    {}
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&&) noexcept = default;
     ~Internal() noexcept
@@ -34,6 +35,22 @@ public:
     operator VKDescriptorBufferView() const noexcept
     {
         return { buffer, descriptor_size };
+    }
+
+public:
+    void WriteSampler(uint32_t index, wis::VKSamplerView sampler) noexcept
+    {
+        auto& device = allocator.header();
+        VkDescriptorGetInfoEXT info{
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
+            .type = VK_DESCRIPTOR_TYPE_SAMPLER,
+            .data = { .pSampler = &std::get<0>(sampler) }
+        };
+
+        uint8_t* data = nullptr;
+        vmaMapMemory(allocator.get(), allocation, reinterpret_cast<void**>(&data));
+        device.table().vkGetDescriptorEXT(device.get(), &info, descriptor_size, data + index * descriptor_size);
+        vmaUnmapMemory(allocator.get(), allocation);
     }
 };
 } // namespace wis

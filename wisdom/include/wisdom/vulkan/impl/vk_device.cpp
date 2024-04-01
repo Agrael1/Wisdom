@@ -1171,7 +1171,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     };
 
     VmaAllocationCreateInfo alloc_info{
-        .flags = 0,
+        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
         .usage = VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         .preferredFlags = 0,
