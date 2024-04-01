@@ -301,6 +301,26 @@ void Test::App::CreateResources()
         pipeline = std::move(hpipeline);
     }
 
+    // Create Sampler
+    {
+        wis::SamplerDesc sample_desc{
+            .min_filter = wis::Filter::Linear,
+            .mag_filter = wis::Filter::Linear,
+            .mip_filter = wis::Filter::Linear,
+            .anisotropic = true,
+            .max_anisotropy = 16,
+            .address_u = wis::AddressMode::Repeat,
+            .address_v = wis::AddressMode::Repeat,
+            .address_w = wis::AddressMode::Repeat,
+            .min_lod = 0,
+            .max_lod = 1.0f,
+            .mip_lod_bias = 0.0f,
+            .comparison_op = wis::Compare::None,
+        };
+        auto [res, hsampler] = device.CreateSampler(&sample_desc);
+        sampler = std::move(hsampler);
+    }
+
     WaitForGPU();
 }
 

@@ -212,4 +212,21 @@ inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept{
     if(value & TextureUsage::UnorderedAccess) output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     return output;
 }
+inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept{
+    switch(value){
+    default: return {};
+    case Filter::Point: return D3D12_FILTER_TYPE_POINT;
+    case Filter::Linear: return D3D12_FILTER_TYPE_LINEAR;
+    }
+}
+inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexcept{
+    switch(value){
+    default: return {};
+    case AddressMode::Repeat: return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    case AddressMode::MirroredRepeat: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+    case AddressMode::ClampToEdge: return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    case AddressMode::ClampToBorder: return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    case AddressMode::MirrorClampToEdge: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+    }
+}
 }

@@ -183,6 +183,7 @@ inline constexpr VkSampleCountFlagBits convert_vk(SampleRate value) noexcept{
 inline constexpr VkCompareOp convert_vk(Compare value) noexcept{
     switch(value){
     default: return {};
+    case Compare::None: return VK_COMPARE_OP_NEVER;
     case Compare::Never: return VK_COMPARE_OP_NEVER;
     case Compare::Less: return VK_COMPARE_OP_LESS;
     case Compare::Equal: return VK_COMPARE_OP_EQUAL;
@@ -375,5 +376,22 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept{
     if(value & TextureUsage::ShaderResource) output |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     if(value & TextureUsage::UnorderedAccess) output |= VK_IMAGE_USAGE_STORAGE_BIT;
     return output;
+}
+inline constexpr VkFilter convert_vk(Filter value) noexcept{
+    switch(value){
+    default: return {};
+    case Filter::Point: return VK_FILTER_NEAREST;
+    case Filter::Linear: return VK_FILTER_LINEAR;
+    }
+}
+inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept{
+    switch(value){
+    default: return {};
+    case AddressMode::Repeat: return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case AddressMode::MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case AddressMode::ClampToEdge: return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case AddressMode::ClampToBorder: return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    case AddressMode::MirrorClampToEdge: return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+    }
 }
 }

@@ -68,10 +68,7 @@ public:
     CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Sampler>
-    CreateSampler(/*const wis::SamplerDesc& desc*/) const noexcept
-    {
-        
-    }
+    CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>
