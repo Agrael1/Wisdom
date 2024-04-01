@@ -454,7 +454,7 @@ wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDe
     return DX12RenderTarget{ std::move(heap), handle };
 }
 
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
+wis::ResultValue<wis::DX12DescriptorBuffer>
 wis::DX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
 {
     D3D12_DESCRIPTOR_HEAP_DESC desc{
@@ -469,4 +469,39 @@ wis::DX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::
         return wis::make_result<FUNC, "Failed to create descriptor buffer">(hr);
 
     return DX12DescriptorBuffer{ std::move(heap), device->GetDescriptorHandleIncrementSize(desc.Type) };
+}
+
+wis::ResultValue<wis::DX12Sampler>
+wis::DX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
+{
+    auto min_filter = desc->anisotropic ? convert_dx(desc->min_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto mag_filter = desc->anisotropic ? convert_dx(desc->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, convert_dx(desc->mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
+    auto filter = D3D12_FILTER(desc->anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter);
+
+    D3D12_SAMPLER_DESC sampler_desc
+    {
+        .Filter = filter,
+        .AddressU = convert_dx(desc->address_u),
+        .AddressV = convert_dx(desc->address_v),
+        .AddressW = convert_dx(desc->address_w),
+        .MipLODBias = desc->mip_lod_bias,
+        .MaxAnisotropy = desc->anisotropic ? std::min(uint32_t(D3D12_MAX_MAXANISOTROPY), desc->max_anisotropy) : 0,
+        .ComparisonFunc = convert_dx(desc->comparison_op),
+        .BorderColor = { desc->border_color[0], desc->border_color[1], desc->border_color[2], desc->border_color[3] },
+        .MinLOD = desc->min_lod,
+        .MaxLOD = desc->max_lod,
+    };
+
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+        .NumDescriptors = 1,
+        .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
+    };
+
+    auto x = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+    device->CreateDescriptorHeap(&heap_desc, heap.iid(), heap.put_void());
+    device->CreateSampler(&sampler_desc, heap->GetCPUDescriptorHandleForHeapStart());
+    return wis::DX12Sampler{ std::move(heap) };
 }

@@ -3,6 +3,7 @@
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
 #include <D3D12MemAlloc.h>
+#include <optional>
 
 namespace wis {
 class DX12Buffer;
@@ -92,20 +93,20 @@ class DX12Sampler;
 
 template<>
 struct Internal<DX12Sampler> {
-    std::optional<D3D12_SAMPLER_DESC> desc{};
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
 };
 
 class DX12Sampler : public QueryInternal<DX12Sampler>
 {
 public:
     DX12Sampler() noexcept = default;
-    explicit DX12Sampler(D3D12_SAMPLER_DESC desc) noexcept
-        : QueryInternal(desc) { }
+    explicit DX12Sampler(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
+        : QueryInternal(std::move(heap)) { }
 
-    operator bool() const noexcept { return bool(desc); }
+    operator bool() const noexcept { return bool(heap); }
     operator DX12SamplerView() const noexcept
     {
-        return bool(desc) ? &desc.value() : nullptr;
+        return heap.get();
     }
 };
 

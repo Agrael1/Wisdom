@@ -102,6 +102,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
     CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKSampler>
+    CreateSampler(const wis::SamplerDesc* desc) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;

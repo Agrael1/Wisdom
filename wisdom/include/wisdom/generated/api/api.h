@@ -32,6 +32,7 @@ struct BufferBarrier;
 struct TextureBarrier;
 struct DescriptorTableEntry;
 struct DescriptorTable;
+struct SamplerDesc;
 
 enum class ShaderStages {
     All = 0,
@@ -205,6 +206,7 @@ enum class SampleRate {
 };
 
 enum class Compare {
+    None = 0,
     Never = 1,
     Less = 2,
     Equal = 3,
@@ -350,6 +352,19 @@ enum class TopologyType {
     Line = 2,
     Triangle = 3,
     Patch = 4,
+};
+
+enum class Filter {
+    Point = 0,
+    Linear = 1,
+};
+
+enum class AddressMode {
+    Repeat = 0,
+    MirroredRepeat = 1,
+    ClampToEdge = 2,
+    ClampToBorder = 3,
+    MirrorClampToEdge = 4,
 };
 
 enum class AdapterFlags {
@@ -653,6 +668,22 @@ struct DescriptorTable{
     wis::DescriptorTableEntry* entries;
     uint32_t entry_count;
     wis::ShaderStages stage;
+};
+
+struct SamplerDesc{
+    wis::Filter min_filter;
+    wis::Filter mag_filter;
+    wis::Filter mip_filter;
+    bool anisotropic;
+    uint32_t max_anisotropy;
+    wis::AddressMode address_u;
+    wis::AddressMode address_v;
+    wis::AddressMode address_w;
+    float min_lod;
+    float max_lod;
+    float mip_lod_bias;
+    wis::Compare comparison_op;
+    std::array<float, 4> border_color {};
 };
 
 //=================================DELEGATES=================================

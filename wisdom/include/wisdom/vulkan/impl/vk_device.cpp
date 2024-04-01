@@ -30,6 +30,8 @@ constexpr static inline std::array required_extensions{
     VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME, // for Mutable Descriptor Type
     VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
 
+    VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, // for Border Color
+
     // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
     // VK_KHR_RAY_QUERY_EXTENSION_NAME,
     // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
@@ -236,9 +238,17 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .pNext = nullptr,
         .mutableDescriptorType = true,
     };
-    if (present_exts.contains(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME ) ||
+    if (present_exts.contains(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME) ||
         present_exts.contains(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME))
         set_next(&mutable_desc_features);
+
+    VkPhysicalDeviceCustomBorderColorFeaturesEXT border_color_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
+        .pNext = nullptr,
+        .customBorderColors = true,
+    };
+    if (present_exts.contains(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME))
+        set_next(&border_color_features);
 
     VkPhysicalDeviceBufferDeviceAddressFeatures buffer_address_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
@@ -1231,6 +1241,46 @@ wis::VKDevice::CreateDescriptorSetLayout(const wis::DescriptorTable* table) cons
         return wis::make_result<FUNC, "Failed to create a descriptor set layout">(result);
 
     return layout;
+}
+
+wis::ResultValue<wis::VKSampler>
+wis::VKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
+{
+    VkSamplerCustomBorderColorCreateInfoEXT custom_border_color{
+        .sType = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .customBorderColor = {
+            desc->border_color[0],
+            desc->border_color[1],
+            desc->border_color[2],
+            desc->border_color[3],
+        },
+    };
+    VkSamplerCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+        .pNext = &custom_border_color,
+        .flags = 0,
+        .magFilter = convert_vk(desc->mag_filter),
+        .minFilter = convert_vk(desc->min_filter),
+        .mipmapMode = VkSamplerMipmapMode(desc->mip_filter),
+        .addressModeU = convert_vk(desc->address_u),
+        .addressModeV = convert_vk(desc->address_v),
+        .addressModeW = convert_vk(desc->address_w),
+        .mipLodBias = desc->mip_lod_bias,
+        .anisotropyEnable = desc->anisotropic,
+        .maxAnisotropy = float(desc->max_anisotropy),
+        .compareEnable = desc->comparison_op != wis::Compare::Never,
+        .compareOp = convert_vk(desc->comparison_op),
+        .minLod = desc->min_lod,
+        .maxLod = desc->max_lod,
+        .borderColor = VkBorderColor::VK_BORDER_COLOR_FLOAT_CUSTOM_EXT
+    };
+
+    VkSampler sampler;
+    auto result = device.table().vkCreateSampler(device.get(), &info, nullptr, &sampler);
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to create a sampler">(result);
+    return wis::VKSampler{ wis::managed_handle_ex<VkSampler>{ sampler, device, device.table().vkDestroySampler } };
 }
 
 // wis::ResultValue< VkDescriptorSetLayout>

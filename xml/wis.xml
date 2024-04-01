@@ -401,6 +401,9 @@
     <type name="Compare" category="enum">
       <impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
       <impl_type for="vk" name="VkCompareOp"/>
+      <value name="None" value="0">
+        <impl name="vk" value="VK_COMPARE_OP_NEVER"/>
+      </value>
       <value name="Never" value="1">
         <impl name="vk" value="VK_COMPARE_OP_NEVER"/>
       </value>
@@ -950,6 +953,44 @@
       </value>
     </type>
 
+    <type name="Filter" category="enum">
+      <impl_type for="vk" name="VkFilter"/>
+      <impl_type for="dx" name="D3D12_FILTER_TYPE"/>
+      <value name="Point" value="0">
+        <impl name="vk" value="VK_FILTER_NEAREST"/>
+        <impl name="dx" value="D3D12_FILTER_TYPE_POINT"/>
+      </value>
+      <value name="Linear" value="1">
+        <impl name="vk" value="VK_FILTER_LINEAR"/>
+        <impl name="dx" value="D3D12_FILTER_TYPE_LINEAR"/>
+      </value>
+    </type>
+
+    <type name="AddressMode" category="enum">
+      <impl_type for="vk" name="VkSamplerAddressMode"/>
+      <impl_type for="dx" name="D3D12_TEXTURE_ADDRESS_MODE"/>
+      <value name="Repeat" value="0">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
+      </value>
+      <value name="MirroredRepeat" value="1">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR"/>
+      </value>
+      <value name="ClampToEdge" value="2">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_CLAMP"/>
+      </value>
+      <value name="ClampToBorder" value="3">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_BORDER"/>
+      </value>
+      <value name="MirrorClampToEdge" value="4">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE"/>
+      </value>
+    </type>
+    
     <!--Views-->
     <type name="FenceView" category="variant" for="Fence">
       <impl name="both">
@@ -1270,6 +1311,22 @@
       <member type="DescriptorTableEntry" name="entries" mod="ptr"/>
       <member type="u32" name="entry_count"/>
       <member type="ShaderStages" name="stage"/>
+    </type>
+
+    <type name="SamplerDesc" category="struct">
+      <member type="Filter" name="min_filter"/>
+      <member type="Filter" name="mag_filter"/>
+      <member type="Filter" name="mip_filter"/>
+      <member type="bool" name="anisotropic"/>
+      <member type="u32" name="max_anisotropy"/>
+      <member type="AddressMode" name="address_u"/>
+      <member type="AddressMode" name="address_v"/>
+      <member type="AddressMode" name="address_w"/>
+      <member type="f32" name="min_lod"/>
+      <member type="f32" name="max_lod"/>
+      <member type="f32" name="mip_lod_bias"/>
+      <member type="Compare" name="comparison_op"/>
+      <member type="f32" name="border_color" array="4"/>
     </type>
   </types>
 
