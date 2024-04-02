@@ -33,6 +33,8 @@ struct TextureBarrier;
 struct DescriptorTableEntry;
 struct DescriptorTable;
 struct SamplerDesc;
+struct ComponentMapping;
+struct ShaderResourceDesc;
 
 enum class ShaderStages {
     All = 0,
@@ -367,6 +369,27 @@ enum class AddressMode {
     MirrorClampToEdge = 4,
 };
 
+enum class TextureViewType {
+    Texture1D = 0,
+    Texture1DArray = 1,
+    Texture2D = 2,
+    Texture2DArray = 3,
+    Texture2DMS = 4,
+    Texture2DMSArray = 5,
+    Texture3D = 6,
+    TextureCube = 7,
+    TextureCubeArray = 8,
+};
+
+enum class ComponentSwizzle : uint8_t {
+    Red = 0,
+    Green = 1,
+    Blue = 2,
+    Alpha = 3,
+    Zero = 4,
+    One = 5,
+};
+
 enum class AdapterFlags {
     None = 0x0,
     Remote = 1 << 0,
@@ -684,6 +707,20 @@ struct SamplerDesc{
     float mip_lod_bias;
     wis::Compare comparison_op;
     std::array<float, 4> border_color {};
+};
+
+struct ComponentMapping{
+    wis::ComponentSwizzle r = wis::ComponentSwizzle::Red;
+    wis::ComponentSwizzle g = wis::ComponentSwizzle::Green;
+    wis::ComponentSwizzle b = wis::ComponentSwizzle::Blue;
+    wis::ComponentSwizzle a = wis::ComponentSwizzle::Alpha;
+};
+
+struct ShaderResourceDesc{
+    wis::DataFormat format;
+    wis::TextureViewType view_type;
+    wis::ComponentMapping component_mapping;
+    wis::SubresourceRange subresource_range;
 };
 
 //=================================DELEGATES=================================

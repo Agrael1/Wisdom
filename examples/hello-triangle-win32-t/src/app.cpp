@@ -222,6 +222,15 @@ void Test::App::CreateResources()
 
         wis::CommandListView cmd_lists[] = { cmd_list };
         queue.ExecuteCommandLists(cmd_lists, 1);
+
+        auto [res, hsrv] = device.CreateShaderResource(texture, { .format = wis::DataFormat::BGRA8Unorm, .view_type = wis::TextureViewType::Texture2D, .subresource_range = {
+                                                                                                                                            .base_mip_level = 0,
+                                                                                                                                            .level_count = 1,
+                                                                                                                                            .base_array_layer = 0,
+                                                                                                                                            .layer_count = 1,
+                                                                                                                                    } });
+        srv = std::move(hsrv);
+        desc_buffer.WriteShaderResource(0, srv);
     }
 
     {

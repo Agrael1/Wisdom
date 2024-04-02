@@ -394,4 +394,29 @@ inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept{
     case AddressMode::MirrorClampToEdge: return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
     }
 }
+inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept{
+    switch(value){
+    default: return {};
+    case TextureViewType::Texture1D: return VK_IMAGE_VIEW_TYPE_1D;
+    case TextureViewType::Texture1DArray: return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+    case TextureViewType::Texture2D: return VK_IMAGE_VIEW_TYPE_2D;
+    case TextureViewType::Texture2DArray: return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    case TextureViewType::Texture2DMS: return VK_IMAGE_VIEW_TYPE_2D;
+    case TextureViewType::Texture2DMSArray: return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    case TextureViewType::Texture3D: return VK_IMAGE_VIEW_TYPE_3D;
+    case TextureViewType::TextureCube: return VK_IMAGE_VIEW_TYPE_CUBE;
+    case TextureViewType::TextureCubeArray: return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+    }
+}
+inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept{
+    switch(value){
+    default: return {};
+    case ComponentSwizzle::Red: return VK_COMPONENT_SWIZZLE_R;
+    case ComponentSwizzle::Green: return VK_COMPONENT_SWIZZLE_G;
+    case ComponentSwizzle::Blue: return VK_COMPONENT_SWIZZLE_B;
+    case ComponentSwizzle::Alpha: return VK_COMPONENT_SWIZZLE_A;
+    case ComponentSwizzle::Zero: return VK_COMPONENT_SWIZZLE_ZERO;
+    case ComponentSwizzle::One: return VK_COMPONENT_SWIZZLE_ONE;
+    }
+}
 }

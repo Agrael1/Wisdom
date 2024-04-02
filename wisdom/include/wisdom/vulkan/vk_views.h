@@ -20,4 +20,5 @@ using VKBufferView = std::tuple<VkBuffer>;
 using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
 using VKDescriptorBufferView = std::tuple<VkBuffer, uint32_t>;
 using VKSamplerView = std::tuple<VkSampler>;
+using VKShaderResourceView = std::tuple<VkImageView>;
 } // namespace wis

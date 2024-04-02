@@ -1250,10 +1250,10 @@ wis::VKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
         .pNext = nullptr,
         .customBorderColor = {
-            desc->border_color[0],
-            desc->border_color[1],
-            desc->border_color[2],
-            desc->border_color[3],
+                desc->border_color[0],
+                desc->border_color[1],
+                desc->border_color[2],
+                desc->border_color[3],
         },
     };
     VkSamplerCreateInfo info{
@@ -1281,6 +1281,83 @@ wis::VKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a sampler">(result);
     return wis::VKSampler{ wis::managed_handle_ex<VkSampler>{ sampler, device, device.table().vkDestroySampler } };
+}
+
+wis::ResultValue<wis::VKShaderResource>
+wis::VKDevice::CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
+{
+    VkImageViewCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext = nullptr,
+        .image = std::get<0>(texture),
+        .viewType = convert_vk(desc.view_type),
+        .format = convert_vk(desc.format),
+        .components = {
+                .r = convert_vk(desc.component_mapping.r),
+                .g = convert_vk(desc.component_mapping.g),
+                .b = convert_vk(desc.component_mapping.b),
+                .a = convert_vk(desc.component_mapping.a),
+        },
+        .subresourceRange = {
+                .aspectMask = aspect_flags(convert_vk(desc.format)),
+        },
+    };
+
+    switch (desc.view_type) {
+    default:
+    case wis::TextureViewType::Texture1D:
+    case wis::TextureViewType::Texture2D:
+        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseArrayLayer = 0;
+        info.subresourceRange.layerCount = 1;
+        break;
+    case wis::TextureViewType::Texture1DArray:
+    case wis::TextureViewType::Texture2DArray:
+        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseArrayLayer = desc.subresource_range.base_array_layer;
+        info.subresourceRange.layerCount = desc.subresource_range.layer_count;
+        break;
+        break;
+    case wis::TextureViewType::Texture2DMS:
+        info.subresourceRange.baseMipLevel = 0;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = 0;
+        info.subresourceRange.layerCount = 1;
+        break;
+    case wis::TextureViewType::Texture2DMSArray:
+        info.subresourceRange.baseMipLevel = 0;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = desc.subresource_range.base_array_layer;
+        info.subresourceRange.layerCount = desc.subresource_range.layer_count;
+        break;
+    case wis::TextureViewType::Texture3D:
+        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseArrayLayer = 0;
+        info.subresourceRange.layerCount = 1;
+        break;
+    case wis::TextureViewType::TextureCube:
+        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseArrayLayer = 0;
+        info.subresourceRange.layerCount = 6;
+        break;
+    case wis::TextureViewType::TextureCubeArray:
+        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseArrayLayer = desc.subresource_range.base_array_layer;
+        info.subresourceRange.layerCount = desc.subresource_range.layer_count;
+        break;
+    }
+
+    VkImageView view;
+    auto res = device.table().vkCreateImageView(device.get(), &info, nullptr, &view);
+    if (!succeeded(res))
+        return wis::make_result<FUNC, "Failed to create an image view">(res);
+
+    return wis::VKShaderResource{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView } };
 }
 
 // wis::ResultValue< VkDescriptorSetLayout>

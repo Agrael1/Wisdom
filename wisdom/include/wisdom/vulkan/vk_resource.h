@@ -179,4 +179,27 @@ public:
     }
 };
 
+// =================================================================================================
+
+class VKShaderResource;
+
+template<>
+struct Internal<VKShaderResource> {
+    wis::managed_handle_ex<VkImageView> view;
+};
+
+class VKShaderResource : public QueryInternal<VKShaderResource>
+{
+public:
+    VKShaderResource() noexcept = default;
+    explicit VKShaderResource(wis::managed_handle_ex<VkImageView> view) noexcept
+        : QueryInternal(std::move(view)) { }
+
+    operator bool() const noexcept { return bool(view); }
+    operator VKShaderResourceView() const noexcept
+    {
+        return view.get();
+    }
+};
+
 } // namespace wis

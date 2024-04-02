@@ -110,4 +110,27 @@ public:
     }
 };
 
+// =================================================================================================
+
+class DX12ShaderResource;
+
+template<>
+struct Internal<DX12ShaderResource> {
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+};
+
+class DX12ShaderResource : public QueryInternal<DX12ShaderResource>
+{
+public:
+    DX12ShaderResource() noexcept = default;
+    explicit DX12ShaderResource(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
+        : QueryInternal(std::move(heap)) { }
+
+    operator bool() const noexcept { return bool(heap); }
+    operator DX12ShaderResourceView() const noexcept
+    {
+        return heap->GetCPUDescriptorHandleForHeapStart();
+    }
+};
+
 } // namespace wis

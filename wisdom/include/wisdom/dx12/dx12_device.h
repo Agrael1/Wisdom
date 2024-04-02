@@ -69,6 +69,9 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Sampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12ShaderResource>
+    CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept;
 };
 
 WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>
