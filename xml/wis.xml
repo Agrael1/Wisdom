@@ -1104,6 +1104,15 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
+    <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="u64" name="value1"/>
+        <member type="u32" name="value2"/>
+      </impl>
+    </type>
 
     <!--Structs-->
     <type name="Result" category="struct">
