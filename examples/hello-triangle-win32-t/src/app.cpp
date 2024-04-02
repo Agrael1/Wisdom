@@ -398,8 +398,16 @@ void Test::App::Frame()
         .target_count = 1,
         .flags = wis::RenderPassFlags::None,
     };
+
     cmd_list.BeginRenderPass(&rp);
     cmd_list.SetRootSignature(root);
+
+    wis::DescriptorBufferView desc_buffers[] = { desc_buffer, sampler_buffer };
+
+    cmd_list.SetDescriptorBuffers(desc_buffers, 2);
+    cmd_list.SetDescriptorTableOffset(0, desc_buffer, 0);
+    cmd_list.SetDescriptorTableOffset(1, sampler_buffer, 0);
+
     cmd_list.SetRootConstants(&rotation, 1, 0, wis::ShaderStages::Vertex);
 
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);

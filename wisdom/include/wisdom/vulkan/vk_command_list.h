@@ -91,6 +91,10 @@ public:
 
     WIS_INLINE void SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
 
+    WIS_INLINE void SetDescriptorBuffers(const wis::VKDescriptorBufferView* buffers, uint32_t buffer_count) noexcept;
+
+    WIS_INLINE void SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_descriptors) noexcept;
+
 protected:
     bool closed = false;
 };

@@ -7,6 +7,7 @@
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/util/small_allocator.h>
 #include <d3dx12/d3dx12_resource_helpers.h>
+#include <d3dx12/d3dx12_root_signature.h>
 
 void wis::DX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept
 {
@@ -271,4 +272,16 @@ void wis::DX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
 void wis::DX12CommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     list->SetGraphicsRoot32BitConstants(UINT(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
+}
+
+void wis::DX12CommandList::SetDescriptorBuffers(const wis::DX12DescriptorBufferView* buffers, uint32_t buffer_count) noexcept
+{
+    list->SetDescriptorHeaps(buffer_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(buffers));
+}
+void wis::DX12CommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_descriptors) noexcept
+{
+    auto handle = std::get<0>(buffer);
+    auto increment = std::get<1>(buffer);
+    list->SetGraphicsRootDescriptorTable(root_table_index,
+                                        CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_descriptors, increment));
 }

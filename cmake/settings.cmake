@@ -54,7 +54,8 @@ else()
   set(WTOP OFF)
 endif()
 
-if(WTOP AND NOT WISDOM_WIN_STORE)
+#TODO: Restore this
+if(FALSE AND WTOP AND NOT WISDOM_WIN_STORE)
   set(GEN ON)
 endif()
 

@@ -42,7 +42,11 @@ public:
 
     operator DX12DescriptorBufferView() const noexcept
     {
-        return { heap.get(), heap_increment };
+        return { heap.get() };
+    }
+    operator DX12DescriptorBufferGPUView() const noexcept
+    {
+        return { heap_gpu_start, heap_increment };
     }
 
     void WriteSampler(uint32_t index, wis::DX12SamplerView sampler) noexcept

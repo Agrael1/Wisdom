@@ -9,12 +9,24 @@ struct Internal<VKDescriptorBuffer> {
     wis::shared_handle<VmaAllocator> allocator;
     h::VmaAllocation allocation;
     h::VkBuffer buffer;
+    wis::DescriptorHeapType type = wis::DescriptorHeapType::Descriptor;
     uint32_t descriptor_size = 0;
 
+    VkDeviceAddress address = 0;
+
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, uint32_t descriptor_size) noexcept
-        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), descriptor_size(descriptor_size)
-    {}
+    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, uint32_t descriptor_size) noexcept
+        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), type(type), descriptor_size(descriptor_size)
+    {
+        if (buffer) {
+            auto& device = this->allocator.header();
+            VkBufferDeviceAddressInfo info{
+                .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+                .buffer = buffer
+            };
+            address = device.table().vkGetBufferDeviceAddress(device.get(), &info);
+        }
+    }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&&) noexcept = default;
     ~Internal() noexcept
@@ -29,12 +41,12 @@ class VKDescriptorBuffer : public QueryInternal<VKDescriptorBuffer>
 {
 public:
     VKDescriptorBuffer() noexcept = default;
-    explicit VKDescriptorBuffer(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, uint32_t descriptor_size) noexcept
-        : QueryInternal(std::move(allocator), buffer, allocation, descriptor_size) { }
+    explicit VKDescriptorBuffer(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, uint32_t descriptor_size) noexcept
+        : QueryInternal(std::move(allocator), buffer, allocation, type, descriptor_size) { }
     operator bool() const noexcept { return bool(buffer); }
     operator VKDescriptorBufferView() const noexcept
     {
-        return { buffer, descriptor_size };
+        return { address, type, descriptor_size };
     }
 
 public:

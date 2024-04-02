@@ -424,7 +424,12 @@ wis::VKDevice::CreateRootSignature(const RootConstant* constants,
                                    uint32_t tables_count) const noexcept
 {
     wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
-    wis::detail::limited_allocator<VkDescriptorSetLayout, 8> vk_dsl{ tables_count, true };
+
+    std::unique_ptr<VkDescriptorSetLayout[]> vk_dsl;
+    if (tables_count > 0) {
+        if (vk_dsl = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(tables_count); !vk_dsl)
+            return wis::make_result<FUNC, "Failed to allocate descriptor set layout array">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
 
     for (uint32_t i = 0; i < constants_size; i++) {
         auto& c = vk_constants.data()[i];
@@ -438,11 +443,11 @@ wis::VKDevice::CreateRootSignature(const RootConstant* constants,
         auto [res, h] = CreateDescriptorSetLayout(&tables[i]);
         if (res.status != wis::Status::Ok) {
             for (size_t j = 0; j < i; j++)
-                device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl.data()[j], nullptr);
+                device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl[j], nullptr);
 
             return res;
         }
-        vk_dsl.data()[i] = h;
+        vk_dsl[i] = h;
     }
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{
@@ -450,7 +455,7 @@ wis::VKDevice::CreateRootSignature(const RootConstant* constants,
         .pNext = nullptr,
         .flags = 0,
         .setLayoutCount = tables_count,
-        .pSetLayouts = vk_dsl.data(),
+        .pSetLayouts = vk_dsl.get(),
         .pushConstantRangeCount = constants_size,
         .pPushConstantRanges = vk_constants.data(),
     };
@@ -460,7 +465,7 @@ wis::VKDevice::CreateRootSignature(const RootConstant* constants,
     if (!succeeded(vr))
         return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
 
-    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout } };
+    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout }, std::move(vk_dsl), tables_count };
 }
 
 namespace wis::detail {
@@ -1159,12 +1164,15 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
 
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor ? feature_details->mutable_descriptor_size : feature_details->sampler_descriptor_size;
 
+    VkBufferUsageFlags usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+            (heap_type == wis::DescriptorHeapType::Descriptor ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
+
     VkBufferCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
         .size = descriptor_count * descriptor_size,
-        .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+        .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
         .pQueueFamilyIndices = nullptr,
@@ -1183,7 +1191,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
 
-    return VKDescriptorBuffer{ allocator, buffer, allocation, descriptor_size };
+    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, descriptor_size };
 }
 
 wis::ResultValue<VkDescriptorSetLayout>
