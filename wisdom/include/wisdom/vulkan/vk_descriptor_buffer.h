@@ -52,5 +52,25 @@ public:
         device.table().vkGetDescriptorEXT(device.get(), &info, descriptor_size, data + index * descriptor_size);
         vmaUnmapMemory(allocator.get(), allocation);
     }
+    void WriteShaderResource(uint32_t index, wis::VKShaderResourceView resource) noexcept
+    {
+        auto& device = allocator.header();
+        VkDescriptorImageInfo image_info{
+            .sampler = nullptr,
+            .imageView = std::get<0>(resource),
+            .imageLayout = VK_IMAGE_LAYOUT_UNDEFINED
+        };
+
+        VkDescriptorGetInfoEXT info{
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
+            .type = VK_DESCRIPTOR_TYPE_MUTABLE_VALVE,
+            .data = { .pSampledImage = &image_info }
+        };
+
+        uint8_t* data = nullptr;
+        vmaMapMemory(allocator.get(), allocation, reinterpret_cast<void**>(&data));
+        device.table().vkGetDescriptorEXT(device.get(), &info, descriptor_size, data + index * descriptor_size);
+        vmaUnmapMemory(allocator.get(), allocation);
+    }
 };
 } // namespace wis

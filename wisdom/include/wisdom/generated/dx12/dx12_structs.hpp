@@ -229,4 +229,21 @@ inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexce
     case AddressMode::MirrorClampToEdge: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
     }
 }
+inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept{
+    switch(value){
+    default: return {};
+    case TextureViewType::Texture1D: return D3D12_SRV_DIMENSION_TEXTURE1D;
+    case TextureViewType::Texture1DArray: return D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+    case TextureViewType::Texture2D: return D3D12_SRV_DIMENSION_TEXTURE2D;
+    case TextureViewType::Texture2DArray: return D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+    case TextureViewType::Texture2DMS: return D3D12_SRV_DIMENSION_TEXTURE2DMS;
+    case TextureViewType::Texture2DMSArray: return D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+    case TextureViewType::Texture3D: return D3D12_SRV_DIMENSION_TEXTURE3D;
+    case TextureViewType::TextureCube: return D3D12_SRV_DIMENSION_TEXTURECUBE;
+    case TextureViewType::TextureCubeArray: return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+    }
+}
+inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle value) noexcept {
+    return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(value);
+}
 }

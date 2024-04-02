@@ -105,6 +105,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKSampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKShaderResource>
+    CreateShaderResource(VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;

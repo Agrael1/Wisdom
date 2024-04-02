@@ -52,5 +52,6 @@ private:
     wis::DescriptorBuffer sampler_buffer;
 
     wis::Sampler sampler;
+    wis::ShaderResource srv;
 };
 } // namespace Test

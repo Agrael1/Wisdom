@@ -479,8 +479,7 @@ wis::DX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
     auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, convert_dx(desc->mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
     auto filter = D3D12_FILTER(desc->anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter);
 
-    D3D12_SAMPLER_DESC sampler_desc
-    {
+    D3D12_SAMPLER_DESC sampler_desc{
         .Filter = filter,
         .AddressU = convert_dx(desc->address_u),
         .AddressV = convert_dx(desc->address_v),
@@ -504,4 +503,100 @@ wis::DX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
     device->CreateDescriptorHeap(&heap_desc, heap.iid(), heap.put_void());
     device->CreateSampler(&sampler_desc, heap->GetCPUDescriptorHandleForHeapStart());
     return wis::DX12Sampler{ std::move(heap) };
+}
+
+wis::ResultValue<wis::DX12ShaderResource>
+wis::DX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept
+{
+    D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
+        .Format = convert_dx(desc.format),
+        .ViewDimension = convert_dx(desc.view_type),
+        .Shader4ComponentMapping = UINT(D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(
+                convert_dx(desc.component_mapping.r),
+                convert_dx(desc.component_mapping.g),
+                convert_dx(desc.component_mapping.b),
+                convert_dx(desc.component_mapping.a))),
+    };
+
+    switch (desc.view_type) {
+    case wis::TextureViewType::Texture1D:
+        srv_desc.Texture1D = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    case wis::TextureViewType::Texture1DArray:
+        srv_desc.Texture1DArray = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .FirstArraySlice = desc.subresource_range.base_array_layer,
+            .ArraySize = desc.subresource_range.layer_count,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    default:
+    case wis::TextureViewType::Texture2D:
+        srv_desc.Texture2D = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .PlaneSlice = 0,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    case wis::TextureViewType::Texture2DArray:
+        srv_desc.Texture2DArray = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .FirstArraySlice = desc.subresource_range.base_array_layer,
+            .ArraySize = desc.subresource_range.layer_count,
+            .PlaneSlice = 0,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    case wis::TextureViewType::Texture2DMS:
+        srv_desc.Texture2DMS = {};
+        break;
+    case wis::TextureViewType::Texture2DMSArray:
+        srv_desc.Texture2DMSArray = {
+            .FirstArraySlice = desc.subresource_range.base_array_layer,
+            .ArraySize = desc.subresource_range.layer_count,
+        };
+        break;
+    case wis::TextureViewType::Texture3D:
+        srv_desc.Texture3D = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    case wis::TextureViewType::TextureCube:
+        srv_desc.TextureCube = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    case wis::TextureViewType::TextureCubeArray:
+        srv_desc.TextureCubeArray = {
+            .MostDetailedMip = desc.subresource_range.base_mip_level,
+            .MipLevels = desc.subresource_range.level_count,
+            .First2DArrayFace = desc.subresource_range.base_array_layer,
+            .NumCubes = desc.subresource_range.layer_count / 6,
+            .ResourceMinLODClamp = 0.0f,
+        };
+        break;
+    }
+
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+        .NumDescriptors = 1,
+        .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
+    };
+
+    auto x = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    device->CreateDescriptorHeap(&heap_desc, heap.iid(), heap.put_void());
+    device->CreateShaderResourceView(std::get<0>(texture), &srv_desc, heap->GetCPUDescriptorHandleForHeapStart());
+    return wis::DX12ShaderResource{ std::move(heap) };
 }

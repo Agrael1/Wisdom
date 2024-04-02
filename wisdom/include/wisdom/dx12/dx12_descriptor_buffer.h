@@ -22,7 +22,7 @@ struct Internal<DX12DescriptorBuffer> {
     {
         heap_start = CD3DX12_CPU_DESCRIPTOR_HANDLE(this->heap->GetCPUDescriptorHandleForHeapStart());
         heap_gpu_start = CD3DX12_GPU_DESCRIPTOR_HANDLE(this->heap->GetGPUDescriptorHandleForHeapStart());
-        heap->GetDevice(device.iid(), device.put_void());
+        this->heap->GetDevice(device.iid(), device.put_void());
     }
 };
 
@@ -52,6 +52,15 @@ public:
 
         auto sampler_handle = std::get<0>(sampler);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+    }
+
+    void WriteShaderResource(uint32_t index, wis::DX12ShaderResourceView resource) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += index * heap_increment;
+
+        auto sampler_handle = std::get<0>(resource);
+        device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 };
 } // namespace wis
