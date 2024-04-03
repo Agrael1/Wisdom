@@ -383,7 +383,7 @@ void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis
 {
     auto binding = std::get<1>(buffer);
     uint32_t index = uint32_t(binding == wis::DescriptorHeapType::Sampler);
-    VkDeviceSize offset = VkDeviceSize(offset_descriptors) * std::get<2>(buffer);
+    VkDeviceSize offset = VkDeviceSize(offset_descriptors) * std::get<2>(buffer) + std::get<3>(buffer);
 
     device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
                                                       &index, &offset);

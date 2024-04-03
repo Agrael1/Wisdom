@@ -1167,11 +1167,40 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     VkBufferUsageFlags usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
             (heap_type == wis::DescriptorHeapType::Descriptor ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
 
+    auto aligned_size = [](VkDeviceSize value, VkDeviceSize alignment) {
+        return (value + alignment - 1) & ~(alignment - 1);
+    };
+
+    wis::DescriptorType desc_type = heap_type == wis::DescriptorHeapType::Descriptor ? wis::DescriptorType::ConstantBuffer : wis::DescriptorType::Sampler;
+
+    wis::DescriptorTableEntry entry{
+        .type = desc_type,
+        .bind_register = 0,
+        .count = descriptor_count,
+    };
+
+    wis::DescriptorTable table{
+        .type = heap_type,
+        .entries = &entry,
+        .entry_count = 1,
+        .stage = wis::ShaderStages::All,
+    };
+    auto [res, dsl] = CreateDescriptorSetLayout(&table);
+    if (res.status != wis::Status::Ok)
+        return res;
+
+    VkDeviceSize descriptor_offset = 0;
+    VkDeviceSize descriptor_set_size = 0;
+
+    device.table().vkGetDescriptorSetLayoutBindingOffsetEXT(device.get(), dsl, 0, &descriptor_offset);
+    device.table().vkGetDescriptorSetLayoutSizeEXT(device.get(), dsl, &descriptor_set_size);
+    device.table().vkDestroyDescriptorSetLayout(device.get(), dsl, nullptr);
+
     VkBufferCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .size = descriptor_count * descriptor_size,
+        .size = aligned_size(descriptor_set_size, feature_details->descriptor_buffer_alignment),
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
@@ -1184,14 +1213,15 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         .requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         .preferredFlags = 0,
     };
+
     VkBuffer buffer;
     VmaAllocation allocation;
 
-    auto result = vmaCreateBufferWithAlignment(allocator.get(), &info, &alloc_info, feature_details->descriptor_buffer_alignment, &buffer, &allocation, nullptr);
+    auto result = vmaCreateBuffer(allocator.get(), &info, &alloc_info, &buffer, &allocation, nullptr);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
 
-    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, descriptor_size };
+    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, descriptor_size, uint32_t(descriptor_offset) };
 }
 
 wis::ResultValue<VkDescriptorSetLayout>

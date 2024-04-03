@@ -11,12 +11,13 @@ struct Internal<VKDescriptorBuffer> {
     h::VkBuffer buffer;
     wis::DescriptorHeapType type = wis::DescriptorHeapType::Descriptor;
     uint32_t descriptor_size = 0;
+    uint32_t descriptor_offset = 0;
 
     VkDeviceAddress address = 0;
 
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, uint32_t descriptor_size) noexcept
-        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), type(type), descriptor_size(descriptor_size)
+    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, uint32_t descriptor_size, uint32_t descriptor_offset) noexcept
+        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), type(type), descriptor_size(descriptor_size), descriptor_offset(descriptor_offset)
     {
         if (buffer) {
             auto& device = this->allocator.header();
@@ -41,12 +42,12 @@ class VKDescriptorBuffer : public QueryInternal<VKDescriptorBuffer>
 {
 public:
     VKDescriptorBuffer() noexcept = default;
-    explicit VKDescriptorBuffer(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, uint32_t descriptor_size) noexcept
-        : QueryInternal(std::move(allocator), buffer, allocation, type, descriptor_size) { }
+    explicit VKDescriptorBuffer(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, uint32_t descriptor_size, uint32_t descriptor_offset) noexcept
+        : QueryInternal(std::move(allocator), buffer, allocation, type, descriptor_size, descriptor_offset) { }
     operator bool() const noexcept { return bool(buffer); }
     operator VKDescriptorBufferView() const noexcept
     {
-        return { address, type, descriptor_size };
+        return { address, type, descriptor_size, descriptor_offset };
     }
 
 public:
