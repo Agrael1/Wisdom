@@ -24,7 +24,7 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 }
 
 Test::App::App(uint32_t width, uint32_t height)
-    : wnd(width, height, "VTest")
+    : wnd(width, height, "VTest"), width(width), height(height)
 {
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
@@ -364,6 +364,9 @@ void Test::App::ProcessEvent(Event e)
 
 void Test::App::OnResize(uint32_t width, uint32_t height)
 {
+    if (width == this->width && height == this->height)
+        return;
+
     auto result = swap.Resize(width, height);
     if (result.status != wis::Status::Ok)
         throw std::runtime_error("Failed to resize swapchain");
@@ -405,7 +408,7 @@ void Test::App::Frame()
                                     },
                             },
                             back_buffers[swap.GetCurrentIndex()]);
-
+    
     wis::RenderPassRenderTargetDesc targets{
         .target = render_targets[swap.GetCurrentIndex()],
         .load_op = wis::LoadOperation::Clear,
@@ -417,27 +420,27 @@ void Test::App::Frame()
         .target_count = 1,
         .flags = wis::RenderPassFlags::None,
     };
-
+    
     cmd_list.BeginRenderPass(&rp);
     cmd_list.SetRootSignature(root);
-
+    
     wis::DescriptorBufferView desc_buffers[] = { desc_buffer, sampler_buffer };
-
+    
     cmd_list.SetDescriptorBuffers(desc_buffers, 2);
     cmd_list.SetDescriptorTableOffset(0, desc_buffer, 0);
     cmd_list.SetDescriptorTableOffset(1, sampler_buffer, 0);
-
+    
     cmd_list.SetRootConstants(&rotation, 1, 0, wis::ShaderStages::Vertex);
-
+    
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
-
+    
     cmd_list.IASetVertexBuffers(&vertex_binding, 1);
     cmd_list.RSSetViewport({ 0, 0, float(wnd.GetWidth()), float(wnd.GetHeight()), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, wnd.GetWidth(), wnd.GetHeight() });
-
+    
     cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
-
+    
     cmd_list.TextureBarrier({
                                     .sync_before = wis::BarrierSync::Draw,
                                     .sync_after = wis::BarrierSync::All,
@@ -454,10 +457,10 @@ void Test::App::Frame()
                             },
                             back_buffers[swap.GetCurrentIndex()]);
     cmd_list.Close();
-
+    
     wis::CommandListView lists[] = { cmd_list };
     queue.ExecuteCommandLists(lists, 1);
-
+    
     auto result = swap.Present();
     if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)
         throw std::runtime_error("Failed to present swapchain");

@@ -1051,11 +1051,15 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, adapter.GetInternal().adapter, itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR, swapchain.release(),
                                             cmd_buf, cmd_pool.release(), qpresent_queue, graphics_queue, *format, present_mode, stereo, desc->stereo };
 
-    auto rres = sci.InitSemaphores();
+    auto rres = sci.InitBackBuffers(swap_info.imageExtent);
     if (rres.status != wis::Status::Ok)
         return rres;
 
-    rres = sci.InitBackBuffers(swap_info.imageExtent);
+    rres = sci.InitSemaphores();
+    if (rres.status != wis::Status::Ok)
+        return rres;
+
+    rres = sci.AquireNextIndex();
     if (rres.status != wis::Status::Ok)
         return rres;
 

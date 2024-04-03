@@ -20,10 +20,11 @@ struct VKSwapChainCreateInfo {
     h::VkCommandPool command_pool = nullptr;
     h::VkQueue present_queue = nullptr;
     h::VkQueue graphics_queue = nullptr;
-    h::VkSemaphore present_semaphore = nullptr; // if signalled, it means the presentation is done
-    h::VkSemaphore graphics_semaphore = nullptr; // if signalled, it means the rendering is done
-
+    std::unique_ptr<VkSemaphore[]> present_semaphores = nullptr; // if signalled, it means the presentation is required
+    std::unique_ptr<VkSemaphore[]> image_ready_semaphores = nullptr; // if signalled, it means the rendering is available
     std::unique_ptr<VKTexture[]> back_buffers;
+    h::VkFence fence = nullptr; //only used for initialization and resizing
+
     VkSurfaceFormatKHR format{};
 
     uint32_t back_buffer_count = 0;
@@ -32,6 +33,7 @@ struct VKSwapChainCreateInfo {
 
     bool stereo = false;
     bool stereo_requested = false;
+    mutable uint8_t acquire_index = 0;
 
 public:
     VKSwapChainCreateInfo() = default;
@@ -75,9 +77,14 @@ public:
         auto& table = device.table();
         auto hdevice = device.get();
 
-        ReleaseSemaphore();
-        table.vkDestroySemaphore(hdevice, present_semaphore, nullptr);
-        table.vkDestroySemaphore(hdevice, graphics_semaphore, nullptr);
+        ReleaseSemaphores();
+
+        for (uint32_t n = 0; n < back_buffer_count; n++) {
+            table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
+        }
+        for (uint32_t n = 0; n < 2; n++) {
+            table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
+        }
         table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
         table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
     }
@@ -86,7 +93,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers(VkExtent2D image_size) noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() const noexcept;
-    WIS_INLINE void ReleaseSemaphore() const noexcept;
+    WIS_INLINE void ReleaseSemaphores() noexcept;
 };
 } // namespace detail
 

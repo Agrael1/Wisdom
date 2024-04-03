@@ -19,6 +19,8 @@ public:
 
 private:
     Window wnd;
+    uint32_t width;
+    uint32_t height;
 
     wis::DebugMessenger info;
 
