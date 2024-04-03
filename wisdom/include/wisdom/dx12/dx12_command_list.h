@@ -16,6 +16,7 @@ struct Internal<DX12CommandList> {
     wis::com_ptr<ID3D12CommandAllocator> allocator;
     wis::com_ptr<ID3D12GraphicsCommandList9> list;
     std::array<int8_t, size_t(wis::ShaderStages::Count)> root_stage_map;
+    uint32_t root_table_offset = 0;
 };
 
 class DX12CommandList : public QueryInternal<DX12CommandList>

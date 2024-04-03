@@ -165,7 +165,7 @@ wis::DX12Device::CreateRootSignature(const RootConstant* root_constants,
     }
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-    desc.Init_1_1(constants_size, root_params.data(), 0, nullptr, flags);
+    desc.Init_1_1(constants_size + tables_count, root_params.data(), 0, nullptr, flags);
 
     wis::com_ptr<ID3DBlob> signature;
     wis::com_ptr<ID3DBlob> error;
@@ -180,7 +180,7 @@ wis::DX12Device::CreateRootSignature(const RootConstant* root_constants,
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to create root signature">(hr);
 
-    return DX12RootSignature{ std::move(rsig), stage_map };
+    return DX12RootSignature{ std::move(rsig), stage_map, constants_size };
 }
 
 namespace wis::detail {
@@ -474,8 +474,8 @@ wis::DX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::
 wis::ResultValue<wis::DX12Sampler>
 wis::DX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
 {
-    auto min_filter = desc->anisotropic ? convert_dx(desc->min_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto mag_filter = desc->anisotropic ? convert_dx(desc->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto min_filter = !desc->anisotropic ? convert_dx(desc->min_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto mag_filter = !desc->anisotropic ? convert_dx(desc->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
     auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, convert_dx(desc->mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
     auto filter = D3D12_FILTER(desc->anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter);
 

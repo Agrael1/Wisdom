@@ -3,13 +3,15 @@
 struct PSInput
 {
     float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float2 tc : TEXCOORD0;
 };
+
+Texture2D<float4> texture0 : register(t0);
+SamplerState samLinear : register(s0);
 
 struct PSOutput
 {
     float4 color : SV_TARGET0;
-    float4 color2 : SV_TARGET1;
 };
 
 static const float3 lut3d[3 * 3 * 3] =
@@ -61,12 +63,11 @@ float4 SampleCubeX(float3 xsample, float3 dims)
 float4 cscApplyLut3DTetra(const float3 color, const float3 dims)
 {
     // make cube
-    float3 re_color = color * float3(0.998f, 0.998f, 0.998f) + float3(0.001f, 0.001f, 0.001f); //clamp to 1.0)
     float3 re_dims = dims - float3(1.0f, 1.0f, 1.0f);
-    float3 restored = re_color * re_dims; //restore position in table
+    float3 restored = color * re_dims; //restore position in table
     
     float3 black = floor(restored);
-    float3 white = black + float3(1.0f, 1.0f, 1.0f);
+    float3 white = ceil(restored);
     
     float3 fracts = frac(restored); // get normalized fractions
     
@@ -127,7 +128,10 @@ PSOutput main(PSInput input)
 {
     PSOutput output;
     const float3 dims = float3(3.0f, 3.0f, 3.0f);
-    output.color = /*input.color; //*/cscApplyLut3DTetra(input.color.rgb, dims);
-    output.color2 = input.color;
+    
+    float4 color = texture0.Sample(samLinear, input.tc);
+    
+    output.color = color; /*input.color; //*/
+    //cscApplyLut3DTetra(input.color.rgb, dims);
     return output;
 }
