@@ -250,6 +250,7 @@ void wis::DX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_sign
 {
     list->SetGraphicsRootSignature(std::get<0>(root_signature));
     root_stage_map = std::get<1>(root_signature);
+    root_table_offset = std::get<2>(root_signature);
 }
 
 void wis::DX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -282,6 +283,6 @@ void wis::DX12CommandList::SetDescriptorTableOffset(uint32_t root_table_index, w
 {
     auto handle = std::get<0>(buffer);
     auto increment = std::get<1>(buffer);
-    list->SetGraphicsRootDescriptorTable(root_table_index,
+    list->SetGraphicsRootDescriptorTable(root_table_offset + root_table_index,
                                         CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_descriptors, increment));
 }

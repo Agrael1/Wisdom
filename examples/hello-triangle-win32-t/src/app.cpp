@@ -6,6 +6,7 @@
 
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <filesystem>
 #include <fstream>
 
@@ -123,13 +124,14 @@ void Test::App::CreateResources()
 {
     struct Vertex {
         glm::vec3 pos;
-        glm::vec4 col;
+        glm::vec2 tc;
+
     };
     auto aspect_ratio = float(wnd.GetWidth()) / float(wnd.GetHeight());
     Vertex triangleVertices[] = {
-        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
-        { { 0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } }
+        { { 0.0f, 0.25f * aspect_ratio, 0.0f }, {1,1} },
+        { { 0.0f, -0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f } },
+        { { -0.25f, -0.25f * aspect_ratio, 0.0f }, { 0.0f, 0.0f } }
     };
 
     {
@@ -218,6 +220,23 @@ void Test::App::CreateResources()
             }
         };
         cmd_list.CopyBufferToTexture(ubuf2, texture, &region, 1);
+        cmd_list.TextureBarrier(
+                {
+                        .sync_before = wis::BarrierSync::All,
+                        .sync_after = wis::BarrierSync::Draw,
+                        .access_before = wis::ResourceAccess::CopyDest,
+                        .access_after = wis::ResourceAccess::ShaderResource,
+                        .state_before = wis::TextureState::CopyDest,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = {
+                                .base_mip_level = 0,
+                                .level_count = 1,
+                                .base_array_layer = 0,
+                                .layer_count = 1,
+                        },
+                },
+                texture
+        );
         cmd_list.Close();
 
         wis::CommandListView cmd_lists[] = { cmd_list };
@@ -288,7 +307,7 @@ void Test::App::CreateResources()
         };
         wis::InputAttribute input_attributes[] = {
             { .input_slot = 0, .semantic_name = "POSITION", .semantic_index = 0, .location = 0, .format = wis::DataFormat::RGB32Float, .offset_bytes = 0 },
-            { .input_slot = 0, .semantic_name = "COLOR", .semantic_index = 0, .location = 1, .format = wis::DataFormat::RGBA32Float, .offset_bytes = 12 },
+            { .input_slot = 0, .semantic_name = "TEXCOORD", .semantic_index = 0, .location = 1, .format = wis::DataFormat::RG32Float, .offset_bytes = 12 },
         };
         wis::DataFormat attachment_formats[] = { wis::DataFormat::BGRA8Unorm };
 
@@ -313,10 +332,10 @@ void Test::App::CreateResources()
     // Create Sampler
     {
         wis::SamplerDesc sample_desc{
-            .min_filter = wis::Filter::Linear,
-            .mag_filter = wis::Filter::Linear,
-            .mip_filter = wis::Filter::Linear,
-            .anisotropic = true,
+            .min_filter = wis::Filter::Point,
+            .mag_filter = wis::Filter::Point,
+            .mip_filter = wis::Filter::Point,
+            .anisotropic = false,
             .max_anisotropy = 16,
             .address_u = wis::AddressMode::Repeat,
             .address_v = wis::AddressMode::Repeat,
