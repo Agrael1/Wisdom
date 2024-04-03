@@ -6,8 +6,8 @@ struct PSInput
     float2 tc : TEXCOORD0;
 };
 
-Texture2D<float4> texture0 : register(t0);
-SamplerState samLinear : register(s0);
+[[vk::binding(0,0)]]Texture2D<float4> texture0 : register(t0);
+[[vk::binding(0,1)]] SamplerState samLinear : register(s0);
 
 struct PSOutput
 {
