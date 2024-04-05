@@ -6,7 +6,13 @@ struct PSInput
     float2 tc : TEXCOORD0;
 };
 
-[[vk::binding(0,0)]]Texture2D<float4> texture0 : register(t0);
+[[vk::binding(0,0)]] Texture2D texture0 : register(t0);
+[[vk::binding(1,0)]]
+cbuffer cbuf : register(b1)
+{
+    float4 exposure;
+};
+
 [[vk::binding(0,1)]] SamplerState samLinear : register(s0);
 
 struct PSOutput

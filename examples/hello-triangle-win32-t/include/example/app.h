@@ -37,6 +37,7 @@ private:
 
     wis::Buffer vertex_buffer;
     wis::Buffer ubuf_2;
+    wis::Buffer cbuf;
     wis::VertexBufferBinding vertex_binding;
     wis::ResourceAllocator allocator;
 
