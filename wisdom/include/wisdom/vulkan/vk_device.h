@@ -21,9 +21,8 @@ struct InternalFeatures {
 };
 
 struct FeatureDetails {
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
     uint32_t mutable_descriptor_size = 0;
-    uint32_t sampler_descriptor_size = 0;
-    uint32_t descriptor_buffer_alignment = 0;
 };
 
 class VKDevice;
@@ -119,8 +118,19 @@ private:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VmaAllocator>
     CreateAllocatorI() const noexcept;
 
+    [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
+        CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
+    {
+        return table->type == wis::DescriptorHeapType::Descriptor 
+            ? CreateDescriptorSetDescriptorLayout(table) 
+            : CreateDescriptorSetSamplerLayout(table);
+    }
+
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
-    CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept;
+    CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
+    CreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept;
 
 private:
     wis::DeviceFeatures features{};

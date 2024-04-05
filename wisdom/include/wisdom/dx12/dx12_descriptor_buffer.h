@@ -3,6 +3,7 @@
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <d3dx12/d3dx12_root_signature.h>
+#include <wisdom/util/misc.h>
 
 namespace wis {
 
@@ -65,6 +66,20 @@ public:
 
         auto sampler_handle = std::get<0>(resource);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
+
+    void WriteConstantBuffer(uint32_t index, wis::DX12BufferView buffer, uint32_t size) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += index * heap_increment;
+
+        D3D12_CONSTANT_BUFFER_VIEW_DESC desc
+        {
+            .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress(),
+            .SizeInBytes = wis::detail::aligned_size(size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
+        };
+
+        device->CreateConstantBufferView(&desc, handle);
     }
 };
 } // namespace wis

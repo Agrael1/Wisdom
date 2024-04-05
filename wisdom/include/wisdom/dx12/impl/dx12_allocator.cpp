@@ -6,6 +6,7 @@
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_resource_helpers.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
+#include <wisdom/util/misc.h>
 
 wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
@@ -25,13 +26,16 @@ wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_des
 
 
 wis::ResultValue<wis::DX12Buffer>
-wis::DX12ResourceAllocator::CreateCommitedBuffer(size_t size, BufferFlags) const noexcept
+wis::DX12ResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
 {
+    uint32_t alignment = flags & BufferFlags::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
+    size = wis::detail::aligned_size(size, alignment);
+
     return CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_DEFAULT }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COMMON);
 }
 
 wis::ResultValue<wis::DX12UploadBuffer>
-wis::DX12ResourceAllocator::CreateUploadBuffer(size_t size) const noexcept
+wis::DX12ResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
 {
     auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_UPLOAD }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_GENERIC_READ);
     return {

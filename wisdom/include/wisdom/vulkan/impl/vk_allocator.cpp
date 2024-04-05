@@ -25,14 +25,14 @@ wis::VKResourceAllocator::CreateBuffer(const VkBufferCreateInfo& desc, const Vma
 }
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::CreateCommitedBuffer(size_t size, BufferFlags flags) const noexcept
+wis::VKResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
 {
     VkBufferCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
         .size = size,
-        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VkBufferUsageFlagBits(flags)),
+        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VkBufferUsageFlagBits(flags)),
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
     VmaAllocationCreateInfo alloc{
@@ -42,7 +42,7 @@ wis::VKResourceAllocator::CreateCommitedBuffer(size_t size, BufferFlags flags) c
 }
 
 wis::ResultValue<wis::VKUploadBuffer>
-wis::VKResourceAllocator::CreateUploadBuffer(size_t size) const noexcept
+wis::VKResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
 {
     VkBufferCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,

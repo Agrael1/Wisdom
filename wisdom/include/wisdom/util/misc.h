@@ -33,4 +33,9 @@ template<class Type, class... Types, std::enable_if_t<!std::is_array_v<Type>, in
 { // make a unique_ptr
     return std::unique_ptr<Type>(new (std::nothrow) Type(std::forward<Types>(Args)...));
 }
+
+constexpr inline uint32_t aligned_size(uint32_t size, uint32_t alignment) noexcept
+{
+    return (size + alignment - 1) & ~(alignment - 1);
+}
 } // namespace wis::detail

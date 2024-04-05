@@ -946,7 +946,7 @@
       </value>
       <value name="ShaderResource" bit="4">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
-        <impl name="vk" value="VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT"/>
+        <impl name="vk" value="VK_IMAGE_USAGE_SAMPLED_BIT"/>
       </value>
       <value name="UnorderedAccess" bit="5">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS"/>

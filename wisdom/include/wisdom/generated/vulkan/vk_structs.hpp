@@ -373,7 +373,7 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept{
     if(value & TextureUsage::DepthStencil) output |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     if(value & TextureUsage::CopySrc) output |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if(value & TextureUsage::CopyDst) output |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    if(value & TextureUsage::ShaderResource) output |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if(value & TextureUsage::ShaderResource) output |= VK_IMAGE_USAGE_SAMPLED_BIT;
     if(value & TextureUsage::UnorderedAccess) output |= VK_IMAGE_USAGE_STORAGE_BIT;
     return output;
 }
