@@ -1377,6 +1377,7 @@
     <type name="DescriptorTableEntry" category="struct">
       <member type="DescriptorType" name="type"/>
       <member type="u32" name="bind_register"/>
+      <member type="u32" name="binding"/>
       <member type="u32" name="count"/>
     </type>
 

@@ -467,30 +467,30 @@ enum class BarrierSync {
     Draw = 1 << 1,
 };
 
-struct Result{
+struct Result {
     wis::Status status = wis::Status::Ok;
     const char* error = nullptr;
 };
 
-struct Size2D{
+struct Size2D {
     uint32_t width;
     uint32_t height;
 };
 
-struct Size3D{
+struct Size3D {
     uint32_t width;
     uint32_t height;
     uint32_t depth_or_layers;
 };
 
-struct BufferRegion{
+struct BufferRegion {
     uint64_t src_offset = 0;
     uint64_t dst_offset = 0;
     uint64_t size_bytes;
 };
 
-struct AdapterDesc{
-    std::array<const char, 256> description {};
+struct AdapterDesc {
+    std::array<const char, 256> description{};
     uint32_t vendor_id;
     uint32_t device_id;
     uint32_t subsys_id;
@@ -502,13 +502,13 @@ struct AdapterDesc{
     wis::AdapterFlags flags;
 };
 
-struct InputSlotDesc{
+struct InputSlotDesc {
     uint32_t slot;
     uint32_t stride_bytes;
     wis::InputClass input_class;
 };
 
-struct InputAttribute{
+struct InputAttribute {
     uint32_t input_slot;
     const char* semantic_name;
     uint32_t semantic_index;
@@ -517,14 +517,14 @@ struct InputAttribute{
     uint32_t offset_bytes;
 };
 
-struct InputLayout{
+struct InputLayout {
     wis::InputSlotDesc* slots;
     uint32_t slot_count;
     wis::InputAttribute* attributes;
     uint32_t attribute_count;
 };
 
-struct RasterizerDesc{
+struct RasterizerDesc {
     wis::FillMode fill_mode = wis::FillMode::Solid;
     wis::CullMode cull_mode = wis::CullMode::Back;
     wis::WindingOrder front_face = wis::WindingOrder::Clockwise;
@@ -535,13 +535,13 @@ struct RasterizerDesc{
     bool depth_clip_enable = true;
 };
 
-struct SampleDesc{
+struct SampleDesc {
     wis::SampleRate rate = wis::SampleRate::S1;
     float quality = 0.0f;
     uint32_t sample_mask = 0xffffffff;
 };
 
-struct StencilDesc{
+struct StencilDesc {
     wis::StencilOp fail_op = wis::StencilOp::Keep;
     wis::StencilOp depth_fail_op = wis::StencilOp::Keep;
     wis::StencilOp pass_op = wis::StencilOp::Keep;
@@ -550,7 +550,7 @@ struct StencilDesc{
     uint8_t write_mask = 0xff;
 };
 
-struct DepthStencilDesc{
+struct DepthStencilDesc {
     bool depth_enable = false;
     bool depth_write_enable = false;
     wis::Compare depth_comp = wis::Compare::Less;
@@ -560,7 +560,7 @@ struct DepthStencilDesc{
     bool depth_bound_test = false;
 };
 
-struct BlendAttachmentDesc{
+struct BlendAttachmentDesc {
     bool blend_enable = false;
     wis::BlendFactor src_color_blend = wis::BlendFactor::One;
     wis::BlendFactor dst_color_blend = wis::BlendFactor::Zero;
@@ -571,25 +571,25 @@ struct BlendAttachmentDesc{
     wis::ColorComponents color_write_mask = wis::ColorComponents::All;
 };
 
-struct BlendStateDesc{
+struct BlendStateDesc {
     bool logic_op_enable = false;
     wis::LogicOp logic_op = wis::LogicOp::Noop;
-    std::array<wis::BlendAttachmentDesc, 8> attachments {};
+    std::array<wis::BlendAttachmentDesc, 8> attachments{};
     uint32_t attachment_count;
 };
 
-struct RenderAttachmentsDesc{
+struct RenderAttachmentsDesc {
     wis::DataFormat* attachment_formats;
     uint32_t attachments_count;
     wis::DataFormat depth_attachment;
 };
 
-struct RootConstant{
+struct RootConstant {
     wis::ShaderStages stage;
     uint32_t size_bytes;
 };
 
-struct SwapchainDesc{
+struct SwapchainDesc {
     wis::Size2D size;
     wis::DataFormat format;
     uint32_t buffer_count;
@@ -597,7 +597,7 @@ struct SwapchainDesc{
     bool vsync;
 };
 
-struct TextureDesc{
+struct TextureDesc {
     wis::DataFormat format;
     wis::Size3D size;
     uint32_t mip_levels;
@@ -606,38 +606,38 @@ struct TextureDesc{
     wis::TextureUsage usage = wis::TextureUsage::None;
 };
 
-struct SourceBufferRegion{
+struct SourceBufferRegion {
     uint64_t offset;
     wis::Size3D size;
 };
 
-struct TextureCopyDest{
+struct TextureCopyDest {
     wis::Size3D offset;
     uint32_t mip;
     uint32_t array_layer;
     wis::DataFormat format;
 };
 
-struct BufferTextureCopyRegion{
+struct BufferTextureCopyRegion {
     wis::SourceBufferRegion src;
     wis::TextureCopyDest dst;
 };
 
-struct PushDescriptor{
+struct PushDescriptor {
     wis::ShaderStages stage;
     uint32_t bind_register;
     wis::DescriptorType type;
     uint32_t reserved;
 };
 
-struct SubresourceRange{
+struct SubresourceRange {
     uint32_t base_mip_level;
     uint32_t level_count;
     uint32_t base_array_layer;
     uint32_t layer_count;
 };
 
-struct RenderTargetDesc{
+struct RenderTargetDesc {
     wis::DataFormat format;
     wis::TextureLayout layout;
     uint32_t mip;
@@ -645,7 +645,7 @@ struct RenderTargetDesc{
     uint32_t layer_count;
 };
 
-struct Viewport{
+struct Viewport {
     float top_leftx;
     float top_lefty;
     float width;
@@ -654,14 +654,14 @@ struct Viewport{
     float max_depth;
 };
 
-struct Scissor{
+struct Scissor {
     int32_t left;
     int32_t top;
     int32_t right;
     int32_t bottom;
 };
 
-struct BufferBarrier{
+struct BufferBarrier {
     wis::BarrierSync sync_before;
     wis::BarrierSync sync_after;
     wis::ResourceAccess access_before;
@@ -670,7 +670,7 @@ struct BufferBarrier{
     uint64_t size = UINT64_MAX;
 };
 
-struct TextureBarrier{
+struct TextureBarrier {
     wis::BarrierSync sync_before;
     wis::BarrierSync sync_after;
     wis::ResourceAccess access_before;
@@ -680,20 +680,21 @@ struct TextureBarrier{
     wis::SubresourceRange subresource_range;
 };
 
-struct DescriptorTableEntry{
+struct DescriptorTableEntry {
     wis::DescriptorType type;
     uint32_t bind_register;
+    uint32_t binding;
     uint32_t count;
 };
 
-struct DescriptorTable{
+struct DescriptorTable {
     wis::DescriptorHeapType type;
     wis::DescriptorTableEntry* entries;
     uint32_t entry_count;
     wis::ShaderStages stage;
 };
 
-struct SamplerDesc{
+struct SamplerDesc {
     wis::Filter min_filter;
     wis::Filter mag_filter;
     wis::Filter mip_filter;
@@ -706,17 +707,17 @@ struct SamplerDesc{
     float max_lod;
     float mip_lod_bias;
     wis::Compare comparison_op;
-    std::array<float, 4> border_color {};
+    std::array<float, 4> border_color{};
 };
 
-struct ComponentMapping{
+struct ComponentMapping {
     wis::ComponentSwizzle r = wis::ComponentSwizzle::Red;
     wis::ComponentSwizzle g = wis::ComponentSwizzle::Green;
     wis::ComponentSwizzle b = wis::ComponentSwizzle::Blue;
     wis::ComponentSwizzle a = wis::ComponentSwizzle::Alpha;
 };
 
-struct ShaderResourceDesc{
+struct ShaderResourceDesc {
     wis::DataFormat format;
     wis::TextureViewType view_type;
     wis::ComponentMapping component_mapping;
@@ -725,32 +726,52 @@ struct ShaderResourceDesc{
 
 //=================================DELEGATES=================================
 
-typedef void (*DebugCallback)( wis::Severity severity,  const char* message,  void* user_data);
+typedef void (*DebugCallback)(wis::Severity severity, const char* message, void* user_data);
 //==============================TYPE TRAITS==============================
 
-template <typename T> struct is_flag_enum : public std::false_type {};
-template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
-template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
-template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
-template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
-template <> struct is_flag_enum<wis::TextureUsage>:public std::true_type {};
-template <> struct is_flag_enum<wis::RenderPassFlags>:public std::true_type {};
-template <> struct is_flag_enum<wis::ResourceAccess>:public std::true_type {};
-template <> struct is_flag_enum<wis::BarrierSync>:public std::true_type {};
+template<typename T>
+struct is_flag_enum : public std::false_type {
+};
+template<>
+struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ColorComponents> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::DeviceFeatures> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::BufferFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::TextureUsage> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::RenderPassFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ResourceAccess> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::BarrierSync> : public std::true_type {
+};
 //============================== CONSTS ==============================
-
 
 static inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
 
 template<typename RetTy>
-struct ResultValue{
+struct ResultValue {
     Result status;
     RetTy value;
-    
-    constexpr ResultValue(RetTy value)noexcept :status(success), value(std::move(value)){}
-    constexpr ResultValue(Result status)noexcept :status(status){}
-    constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)){}
+
+    constexpr ResultValue(RetTy value) noexcept
+        : status(success), value(std::move(value)) { }
+    constexpr ResultValue(Result status) noexcept
+        : status(status) { }
+    constexpr ResultValue(Result status, RetTy value) noexcept
+        : status(status), value(std::move(value)) { }
 };
-}
+} // namespace wis

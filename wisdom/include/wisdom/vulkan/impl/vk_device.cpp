@@ -1256,7 +1256,7 @@ wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* t
 
         auto& entry = table->entries[i];
         bindings.data()[i] = {
-            .binding = entry.bind_register,
+            .binding = entry.binding,
             .descriptorType = VK_DESCRIPTOR_TYPE_MUTABLE_EXT,
             .descriptorCount = entry.count,
             .stageFlags = uint32_t(convert_vk(table->stage)),
@@ -1295,7 +1295,7 @@ wis::VKDevice::CreateDescriptorSetSamplerLayout(const wis::DescriptorTable* tabl
     for (size_t i = 0; i < table->entry_count; i++) {
         auto& entry = table->entries[i];
         bindings.data()[i] = {
-            .binding = entry.bind_register,
+            .binding = entry.binding,
             .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
             .descriptorCount = entry.count,
             .stageFlags = uint32_t(convert_vk(table->stage)),
