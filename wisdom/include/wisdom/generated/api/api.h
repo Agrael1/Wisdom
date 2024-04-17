@@ -683,6 +683,7 @@ struct TextureBarrier{
 struct DescriptorTableEntry{
     wis::DescriptorType type;
     uint32_t bind_register;
+    uint32_t binding;
     uint32_t count;
 };
 

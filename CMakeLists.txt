@@ -27,9 +27,7 @@ include(cmake/misc.cmake)
 
 # Include sub-projects.
 add_subdirectory("plugins")
-if(WISDOM_GENERATE_API)
-  add_subdirectory("generator")
-endif()
+add_subdirectory("generator")
 
 add_subdirectory("wisdom")
 

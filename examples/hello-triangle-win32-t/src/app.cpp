@@ -296,16 +296,19 @@ void Test::App::CreateResources()
             {
                     .type = wis::DescriptorType::ShaderResource,
                     .bind_register = 0,
+                    .binding = 0, 
                     .count = 1,
             },
             {
                     .type = wis::DescriptorType::ConstantBuffer,
-                    .bind_register = 1,
+                    .bind_register = 0,
+                    .binding = 1,
                     .count = 1,
             },
             {
                     .type = wis::DescriptorType::Sampler,
                     .bind_register = 0,
+                    .binding = 0,
                     .count = 1,
             },
         };
