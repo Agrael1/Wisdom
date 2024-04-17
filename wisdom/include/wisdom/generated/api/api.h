@@ -490,7 +490,7 @@ struct BufferRegion {
 };
 
 struct AdapterDesc {
-    std::array<const char, 256> description {};
+    std::array<const char, 256> description{};
     uint32_t vendor_id;
     uint32_t device_id;
     uint32_t subsys_id;
@@ -574,7 +574,7 @@ struct BlendAttachmentDesc {
 struct BlendStateDesc {
     bool logic_op_enable = false;
     wis::LogicOp logic_op = wis::LogicOp::Noop;
-    std::array<wis::BlendAttachmentDesc, 8> attachments {};
+    std::array<wis::BlendAttachmentDesc, 8> attachments{};
     uint32_t attachment_count;
 };
 
@@ -707,7 +707,7 @@ struct SamplerDesc {
     float max_lod;
     float mip_lod_bias;
     wis::Compare comparison_op;
-    std::array<float, 4> border_color {};
+    std::array<float, 4> border_color{};
 };
 
 struct ComponentMapping {
@@ -726,20 +726,37 @@ struct ShaderResourceDesc {
 
 //=================================DELEGATES=================================
 
-typedef void (*DebugCallback)( wis::Severity severity,  const char* message,  void* user_data);
+typedef void (*DebugCallback)(wis::Severity severity, const char* message, void* user_data);
 //==============================TYPE TRAITS==============================
 
-template <typename T> struct is_flag_enum : public std::false_type {};
-template <> struct is_flag_enum<wis::AdapterFlags>:public std::true_type {};
-template <> struct is_flag_enum<wis::ColorComponents>:public std::true_type {};
-template <> struct is_flag_enum<wis::DeviceFeatures>:public std::true_type {};
-template <> struct is_flag_enum<wis::BufferFlags>:public std::true_type {};
-template <> struct is_flag_enum<wis::TextureUsage>:public std::true_type {};
-template <> struct is_flag_enum<wis::RenderPassFlags>:public std::true_type {};
-template <> struct is_flag_enum<wis::ResourceAccess>:public std::true_type {};
-template <> struct is_flag_enum<wis::BarrierSync>:public std::true_type {};
+template<typename T>
+struct is_flag_enum : public std::false_type {
+};
+template<>
+struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ColorComponents> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::DeviceFeatures> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::BufferFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::TextureUsage> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::RenderPassFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ResourceAccess> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::BarrierSync> : public std::true_type {
+};
 //============================== CONSTS ==============================
-
 
 static inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
@@ -750,8 +767,11 @@ struct ResultValue {
     Result status;
     RetTy value;
 
-    constexpr ResultValue(RetTy value)noexcept :status(success), value(std::move(value)) {}
-    constexpr ResultValue(Result status)noexcept :status(status) {}
-    constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)) {}
+    constexpr ResultValue(RetTy value) noexcept
+        : status(success), value(std::move(value)) { }
+    constexpr ResultValue(Result status) noexcept
+        : status(status) { }
+    constexpr ResultValue(Result status, RetTy value) noexcept
+        : status(status), value(std::move(value)) { }
 };
-}
+} // namespace wis
