@@ -1,11 +1,11 @@
 # Check the platform
 if(WIN32)
-  set(WISDOM_WINDOWS 1)
-  set(WISDOM_WINDOWS_STORE ${WINDOWS_STORE})  
+  set(WISDOM_WINDOWS TRUE CACHE BOOL "Windows build" FORCE)
+  set(WISDOM_WINDOWS_STORE ${WINDOWS_STORE} CACHE BOOL "Windows store build" FORCE)  
 elseif(APPLE)
-  set(WISDOM_MAC 1)
+  set(WISDOM_MAC TRUE CACHE BOOL "Mac build" FORCE)
 elseif(UNIX AND NOT APPLE)
-  set(WISDOM_LINUX 1)
+  set(WISDOM_LINUX TRUE CACHE BOOL "Linux build" FORCE)
 endif()
 
 option(WISDOM_USE_WAYLAND "Use Wayland window system" ON)

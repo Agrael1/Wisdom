@@ -38,7 +38,7 @@ void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12Te
         };
 
         UINT row_pitch = 0;
-        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(texture_desc.Format, region.src.size.width, row_pitch);
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.dst.format), region.src.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION src{
             .pResource = std::get<0>(src_buffer),
@@ -46,7 +46,7 @@ void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12Te
             .PlacedFootprint = {
                     .Offset = region.src.offset,
                     .Footprint = {
-                            .Format = texture_desc.Format,
+                            .Format = convert_dx(region.dst.format),
                             .Width = region.src.size.width,
                             .Height = region.src.size.height,
                             .Depth = region.src.size.depth_or_layers,

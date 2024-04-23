@@ -68,14 +68,42 @@
         "value": "x64",
         "strategy": "external"
       },
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "WISDOM_FORCE_VULKAN": true, "WISDOM_BUILD_TYPE": "headers" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_FORCE_VULKAN": true,
+        "WISDOM_BUILD_TYPE": "headers"
+      }
+    },
+    {
+      "name": "x64-debug-winrt",
+      "displayName": "x64 Debug UWP",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
+      "inherits": "windows-base",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_TYPE": "headers",
+        "CMAKE_SYSTEM_NAME": "WindowsStore",
+        "CMAKE_SYSTEM_VERSION": "10.0"
+      }
     },
     {
       "name": "x64-release",
       "displayName": "x64 Release",
       "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
       "inherits": "x64-debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "x64-release-vk",
+      "displayName": "x64 Release Vk",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
+      "inherits": "x64-debug-vk",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
     {
       "name": "x86-debug",
@@ -93,7 +121,7 @@
       "displayName": "x86 Release",
       "description": "Target Windows (32-bit) with the Visual Studio development environment. (RelWithDebInfo)",
       "inherits": "x86-debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     }
   ]
 }
