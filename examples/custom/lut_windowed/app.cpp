@@ -50,7 +50,7 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 }
 
 App::App(uint32_t width, uint32_t height)
-    : width(width), height(height)
+    : wnd(width, height, "Lut Test"), width(width), height(height)
 {
     //wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
@@ -113,6 +113,34 @@ App::App(uint32_t width, uint32_t height)
     auto [res5, hcmd_list] = device.CreateCommandList(wis::QueueType::Graphics);
     cmd_list = std::move(hcmd_list);
 
+    // Create Swapchain
+    {
+        wis::SwapchainDesc desc{
+            .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
+            .format = wis::DataFormat::RGBA8Unorm,
+            .buffer_count = 2,
+            .stereo = false,
+            .vsync = true,
+        };
+
+        auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
+                                                       wnd.GetHandle());
+        swap = std::move(hswap);
+        back_buffers = swap.GetBufferSpan();
+
+        wis::RenderTargetDesc rt_desc{
+            .format = wis::DataFormat::RGBA8Unorm,
+            .layout = wis::TextureLayout::Texture2D,
+            .mip = 0,
+            .base_array_layer = 0,
+            .layer_count = 1,
+        };
+        for (size_t i = 0; i < render_targets.size(); i++) {
+            auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
+            render_targets[i] = std::move(hrt);
+        }
+    }
+
     CreateResources();
 }
 
@@ -129,7 +157,7 @@ int App::Start()
     auto end = clock.now();
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    DumpFrame("out_point.png");
+    //DumpFrame("out_point.png");
 
     // Linear filter
     pipeline_c = &pipeline2;
@@ -141,7 +169,7 @@ int App::Start()
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    DumpFrame("out_linear.png");
+    //DumpFrame("out_linear.png");
 
     // Tetra + Point filter
     pipeline_c = &pipeline2;
@@ -155,7 +183,7 @@ int App::Start()
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    DumpFrame("out_tetra.png");
+    //DumpFrame("out_tetra.png");
 
     return 0;
 }
@@ -337,11 +365,11 @@ void App::CreateResources()
                                                                                                                                                                  .layer_count = 1,
                                                                                                                                                          } });
         auto [res2z3, hsrv2] = device.CreateShaderResource(lut, { .format = wis::DataFormat::RGBA32Float, .view_type = wis::TextureViewType::Texture3D, .subresource_range = {
-                                                                                                                                                               .base_mip_level = 0,
-                                                                                                                                                               .level_count = 1,
-                                                                                                                                                               .base_array_layer = 0,
-                                                                                                                                                               .layer_count = 1,
-                                                                                                                                                       } });
+                                                                                                                                                                .base_mip_level = 0,
+                                                                                                                                                                .level_count = 1,
+                                                                                                                                                                .base_array_layer = 0,
+                                                                                                                                                                .layer_count = 1,
+                                                                                                                                                        } });
         srv_lut = std::move(hsrv2);
         srv = std::move(hsrv);
         desc_buffer.WriteShaderResource(0, srv_lut);
@@ -475,8 +503,24 @@ void App::Frame()
 {
     auto res = cmd_list.Reset(*pipeline_c);
 
+    cmd_list.TextureBarrier({
+                                    .sync_before = wis::BarrierSync::All,
+                                    .sync_after = wis::BarrierSync::Draw,
+                                    .access_before = wis::ResourceAccess::Common,
+                                    .access_after = wis::ResourceAccess::RenderTarget,
+                                    .state_before = wis::TextureState::Present,
+                                    .state_after = wis::TextureState::RenderTarget,
+                                    .subresource_range = {
+                                            .base_mip_level = 0,
+                                            .level_count = 1,
+                                            .base_array_layer = 0,
+                                            .layer_count = 1,
+                                    },
+                            },
+                            back_buffers[swap.GetCurrentIndex()]);
+
     wis::RenderPassRenderTargetDesc targets{
-        .target = render_target,
+        .target = render_targets[swap.GetCurrentIndex()],
         .load_op = wis::LoadOperation::Clear,
         .store_op = wis::StoreOperation::Store,
         .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f },
@@ -503,10 +547,28 @@ void App::Frame()
 
     cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
+    cmd_list.TextureBarrier({
+                                    .sync_before = wis::BarrierSync::Draw,
+                                    .sync_after = wis::BarrierSync::All,
+                                    .access_before = wis::ResourceAccess::RenderTarget,
+                                    .access_after = wis::ResourceAccess::Common,
+                                    .state_before = wis::TextureState::RenderTarget,
+                                    .state_after = wis::TextureState::Present,
+                                    .subresource_range = {
+                                            .base_mip_level = 0,
+                                            .level_count = 1,
+                                            .base_array_layer = 0,
+                                            .layer_count = 1,
+                                    },
+                            },
+                            back_buffers[swap.GetCurrentIndex()]);
+
     cmd_list.Close();
 
     wis::CommandListView lists[] = { cmd_list };
     queue.ExecuteCommandLists(lists, 1);
+
+    auto result = swap.Present();
 
     WaitForGPU();
 }
@@ -536,7 +598,7 @@ void App::DumpFrame(const char* name)
         { {
                   .sync_before = wis::BarrierSync::All,
                   .sync_after = wis::BarrierSync::All,
-                  .access_before = wis::ResourceAccess::CopySource ,
+                  .access_before = wis::ResourceAccess::CopySource,
                   .access_after = wis::ResourceAccess::RenderTarget,
                   .state_before = wis::TextureState::CopySource,
                   .state_after = wis::TextureState::RenderTarget,

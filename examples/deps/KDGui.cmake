@@ -8,7 +8,7 @@ if (NOT WISDOM_WINDOWS_STORE)
         FetchContent_Declare(
             KDUtils
             GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
-            GIT_TAG        master
+            GIT_TAG        main
         )
         FetchContent_MakeAvailable(KDUtils)
     endif()

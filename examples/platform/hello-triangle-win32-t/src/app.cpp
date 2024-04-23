@@ -229,10 +229,8 @@ void Test::App::CreateResources()
                                 texture);
 
         wis::BufferTextureCopyRegion region{
-            .src = {
+            .texture = {
                     .size = { 2, 2, 1 },
-            },
-            .dst = {
                     .format = wis::DataFormat::BGRA8Unorm,
             }
         };
