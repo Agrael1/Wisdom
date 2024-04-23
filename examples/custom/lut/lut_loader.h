@@ -10,8 +10,7 @@ enum class LutType {
 };
 
 // assume equal dimensions for 3D LUT
-struct LutData
-{
+struct LutData {
     std::unique_ptr<float[]> data;
     size_t stride = 0;
     LutType type = LutType::Undefined;

@@ -32,7 +32,7 @@ inline float ConvertPixelsToDips(int pixels, float dpi) noexcept
 } // namespace
 
 // Window size helper
-_Use_decl_annotations_ void GetWindowBounds(::IUnknown *window, RECT *rect)
+_Use_decl_annotations_ void GetWindowBounds(::IUnknown* window, RECT* rect)
 {
     if (!rect)
         return;
@@ -71,7 +71,7 @@ public:
     }
 
     // IFrameworkView methods
-    void Initialize(CoreApplicationView const &applicationView)
+    void Initialize(CoreApplicationView const& applicationView)
     {
         applicationView.Activated({ this, &ViewProvider::OnActivated });
 
@@ -87,16 +87,16 @@ public:
         // m_game.reset();
     }
 
-    void SetWindow(CoreWindow const &window)
+    void SetWindow(CoreWindow const& window)
     {
         window.SizeChanged({ this, &ViewProvider::OnWindowSizeChanged });
 
         try {
-            window.ResizeStarted([this](auto &&, auto &&) {
+            window.ResizeStarted([this](auto&&, auto&&) {
                 m_in_sizemove = true;
             });
 
-            window.ResizeCompleted([this](auto &&, auto &&) {
+            window.ResizeCompleted([this](auto&&, auto&&) {
                 m_in_sizemove = false;
                 HandleWindowSizeChanged();
             });
@@ -106,7 +106,7 @@ public:
 
         window.VisibilityChanged({ this, &ViewProvider::OnVisibilityChanged });
 
-        window.Closed([this](auto &&, auto &&) {
+        window.Closed([this](auto&&, auto&&) {
             m_exit = true;
         });
 
@@ -118,7 +118,7 @@ public:
 
         // UWP on Xbox One triggers a back request whenever the B button is pressed
         // which can result in the app being suspended if unhandled
-        navigation.BackRequested([](const winrt::Windows::Foundation::IInspectable &, const BackRequestedEventArgs &args) {
+        navigation.BackRequested([](const winrt::Windows::Foundation::IInspectable&, const BackRequestedEventArgs& args) {
             args.Handled(true);
         });
 
@@ -147,11 +147,11 @@ public:
             std::swap(outputWidth, outputHeight);
         }
 
-        auto windowPtr = static_cast<::IUnknown *>(winrt::get_abi(window));
+        auto windowPtr = static_cast<::IUnknown*>(winrt::get_abi(window));
         m_game->Initialize(windowPtr, outputWidth, outputHeight); // TODO: Rotate
     }
 
-    void Load(winrt::hstring const &) noexcept
+    void Load(winrt::hstring const&) noexcept
     {
     }
 
@@ -170,10 +170,10 @@ public:
 
 protected:
     // Event handlers
-    void OnActivated(CoreApplicationView const & /*applicationView*/, IActivatedEventArgs const &args)
+    void OnActivated(CoreApplicationView const& /*applicationView*/, IActivatedEventArgs const& args)
     {
         if (args.Kind() == ActivationKind::Launch) {
-            auto launchArgs = reinterpret_cast<const LaunchActivatedEventArgs *>(&args);
+            auto launchArgs = reinterpret_cast<const LaunchActivatedEventArgs*>(&args);
 
             if (launchArgs->PrelaunchActivated()) {
                 // Opt-out of Prelaunch
@@ -207,7 +207,7 @@ protected:
         view.TryResizeView(desiredSize);
     }
 
-    void OnSuspending(IInspectable const & /*sender*/, SuspendingEventArgs const &args)
+    void OnSuspending(IInspectable const& /*sender*/, SuspendingEventArgs const& args)
     {
         auto deferral = args.SuspendingOperation().GetDeferral();
 
@@ -218,12 +218,12 @@ protected:
         });
     }
 
-    void OnResuming(IInspectable const & /*sender*/, IInspectable const & /*args*/)
+    void OnResuming(IInspectable const& /*sender*/, IInspectable const& /*args*/)
     {
         // m_game->OnResuming();
     }
 
-    void OnWindowSizeChanged(CoreWindow const &sender, WindowSizeChangedEventArgs const & /*args*/)
+    void OnWindowSizeChanged(CoreWindow const& sender, WindowSizeChangedEventArgs const& /*args*/)
     {
         m_logicalWidth = sender.Bounds().Width;
         m_logicalHeight = sender.Bounds().Height;
@@ -234,7 +234,7 @@ protected:
         HandleWindowSizeChanged();
     }
 
-    void OnVisibilityChanged(CoreWindow const & /*sender*/, VisibilityChangedEventArgs const &args)
+    void OnVisibilityChanged(CoreWindow const& /*sender*/, VisibilityChangedEventArgs const& args)
     {
         m_visible = args.Visible();
         // if (m_visible)
@@ -243,7 +243,7 @@ protected:
         //     m_game->OnDeactivated();
     }
 
-    void OnAcceleratorKeyActivated(CoreDispatcher const &, AcceleratorKeyEventArgs const &args)
+    void OnAcceleratorKeyActivated(CoreDispatcher const&, AcceleratorKeyEventArgs const& args)
     {
         if (args.EventType() == CoreAcceleratorKeyEventType::SystemKeyDown && args.VirtualKey() == VirtualKey::Enter && args.KeyStatus().IsMenuKeyDown && !args.KeyStatus().WasKeyDown) {
             // Implements the classic ALT+ENTER fullscreen toggle
@@ -258,14 +258,14 @@ protected:
         }
     }
 
-    void OnDpiChanged(DisplayInformation const &sender, IInspectable const & /*args*/)
+    void OnDpiChanged(DisplayInformation const& sender, IInspectable const& /*args*/)
     {
         m_DPI = sender.LogicalDpi();
 
         HandleWindowSizeChanged();
     }
 
-    void OnOrientationChanged(DisplayInformation const &sender, IInspectable const & /*args*/)
+    void OnOrientationChanged(DisplayInformation const& sender, IInspectable const& /*args*/)
     {
         auto resizeManager = CoreWindowResizeManager::GetForCurrentView();
         resizeManager.ShouldWaitForLayoutCompletion(true);
@@ -277,7 +277,7 @@ protected:
         resizeManager.NotifyLayoutCompleted();
     }
 
-    void OnDisplayContentsInvalidated(DisplayInformation const & /*sender*/, IInspectable const & /*args*/)
+    void OnDisplayContentsInvalidated(DisplayInformation const& /*sender*/, IInspectable const& /*args*/)
     {
         // m_game->ValidateDevice();
         // m_game->OnDisplayChange();

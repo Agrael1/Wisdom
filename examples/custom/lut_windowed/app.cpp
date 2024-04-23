@@ -52,12 +52,12 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 App::App(uint32_t width, uint32_t height)
     : wnd(width, height, "Lut Test"), width(width), height(height)
 {
-    //wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
+    // wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
     auto [result, factory] = wis::CreateFactory(false);
 
-    //auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
-    //info = std::move(hinfo);
+    // auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
+    // info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -124,7 +124,7 @@ App::App(uint32_t width, uint32_t height)
         };
 
         auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
-                             wnd.GetHandle());
+                                                       wnd.GetHandle());
         swap = std::move(hswap);
         back_buffers = swap.GetBufferSpan();
 
@@ -157,7 +157,7 @@ int App::Start()
     auto end = clock.now();
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    //DumpFrame("out_point.png");
+    // DumpFrame("out_point.png");
 
     // Linear filter
     pipeline_c = &pipeline2;
@@ -169,7 +169,7 @@ int App::Start()
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    //DumpFrame("out_linear.png");
+    // DumpFrame("out_linear.png");
 
     // Tetra + Point filter
     pipeline_c = &pipeline2;
@@ -183,7 +183,7 @@ int App::Start()
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    //DumpFrame("out_tetra.png");
+    // DumpFrame("out_tetra.png");
 
     return 0;
 }
@@ -256,101 +256,101 @@ void App::CreateResources()
         }
 
         cmd_list.TextureBarrier({
-            .sync_before = wis::BarrierSync::All,
-            .sync_after = wis::BarrierSync::All,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::CopyDest,
-            .state_before = wis::TextureState::Undefined,
-            .state_after = wis::TextureState::CopyDest,
-            .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            },
-        },
-        lut);
+                                        .sync_before = wis::BarrierSync::All,
+                                        .sync_after = wis::BarrierSync::All,
+                                        .access_before = wis::ResourceAccess::NoAccess,
+                                        .access_after = wis::ResourceAccess::CopyDest,
+                                        .state_before = wis::TextureState::Undefined,
+                                        .state_after = wis::TextureState::CopyDest,
+                                        .subresource_range = {
+                                                .base_mip_level = 0,
+                                                .level_count = 1,
+                                                .base_array_layer = 0,
+                                                .layer_count = 1,
+                                        },
+                                },
+                                lut);
 
         cmd_list.TextureBarrier({
-            .sync_before = wis::BarrierSync::All,
-            .sync_after = wis::BarrierSync::All,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::CopyDest,
-            .state_before = wis::TextureState::Undefined,
-            .state_after = wis::TextureState::CopyDest,
-            .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            },
-        },
-        texture);
+                                        .sync_before = wis::BarrierSync::All,
+                                        .sync_after = wis::BarrierSync::All,
+                                        .access_before = wis::ResourceAccess::NoAccess,
+                                        .access_after = wis::ResourceAccess::CopyDest,
+                                        .state_before = wis::TextureState::Undefined,
+                                        .state_after = wis::TextureState::CopyDest,
+                                        .subresource_range = {
+                                                .base_mip_level = 0,
+                                                .level_count = 1,
+                                                .base_array_layer = 0,
+                                                .layer_count = 1,
+                                        },
+                                },
+                                texture);
 
         wis::BufferTextureCopyRegion region{
             .texture = {
-                .size = { (uint32_t)lut_data.stride, (uint32_t)lut_data.stride, (uint32_t)lut_data.stride },
-                .format = wis::DataFormat::RGBA32Float,
+                    .size = { (uint32_t)lut_data.stride, (uint32_t)lut_data.stride, (uint32_t)lut_data.stride },
+                    .format = wis::DataFormat::RGBA32Float,
             }
         };
         cmd_list.CopyBufferToTexture(lut_data_buffer, lut, &region, 1);
 
         wis::BufferTextureCopyRegion region2{
             .texture = {
-                .size = { png_data.width, png_data.height, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
+                    .size = { png_data.width, png_data.height, 1 },
+                    .format = wis::DataFormat::RGBA8Unorm,
             }
         };
         cmd_list.CopyBufferToTexture(img_data_buffer, texture, &region2, 1);
 
         cmd_list.TextureBarrier(
-        {
-            .sync_before = wis::BarrierSync::All,
-            .sync_after = wis::BarrierSync::All,
-            .access_before = wis::ResourceAccess::CopyDest,
-            .access_after = wis::ResourceAccess::ShaderResource,
-            .state_before = wis::TextureState::CopyDest,
-            .state_after = wis::TextureState::ShaderResource,
-            .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            },
-        },
-        texture);
+                {
+                        .sync_before = wis::BarrierSync::All,
+                        .sync_after = wis::BarrierSync::All,
+                        .access_before = wis::ResourceAccess::CopyDest,
+                        .access_after = wis::ResourceAccess::ShaderResource,
+                        .state_before = wis::TextureState::CopyDest,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = {
+                                .base_mip_level = 0,
+                                .level_count = 1,
+                                .base_array_layer = 0,
+                                .layer_count = 1,
+                        },
+                },
+                texture);
         cmd_list.TextureBarrier(
-        {
-            .sync_before = wis::BarrierSync::All,
-            .sync_after = wis::BarrierSync::All,
-            .access_before = wis::ResourceAccess::CopyDest,
-            .access_after = wis::ResourceAccess::ShaderResource,
-            .state_before = wis::TextureState::CopyDest,
-            .state_after = wis::TextureState::ShaderResource,
-            .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            },
-        },
-        lut);
+                {
+                        .sync_before = wis::BarrierSync::All,
+                        .sync_after = wis::BarrierSync::All,
+                        .access_before = wis::ResourceAccess::CopyDest,
+                        .access_after = wis::ResourceAccess::ShaderResource,
+                        .state_before = wis::TextureState::CopyDest,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = {
+                                .base_mip_level = 0,
+                                .level_count = 1,
+                                .base_array_layer = 0,
+                                .layer_count = 1,
+                        },
+                },
+                lut);
 
         cmd_list.TextureBarrier({
-            .sync_before = wis::BarrierSync::All,
-            .sync_after = wis::BarrierSync::All,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::RenderTarget,
-            .state_before = wis::TextureState::Undefined,
-            .state_after = wis::TextureState::RenderTarget,
-            .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            },
-        },
-        out_texture);
+                                        .sync_before = wis::BarrierSync::All,
+                                        .sync_after = wis::BarrierSync::All,
+                                        .access_before = wis::ResourceAccess::NoAccess,
+                                        .access_after = wis::ResourceAccess::RenderTarget,
+                                        .state_before = wis::TextureState::Undefined,
+                                        .state_after = wis::TextureState::RenderTarget,
+                                        .subresource_range = {
+                                                .base_mip_level = 0,
+                                                .level_count = 1,
+                                                .base_array_layer = 0,
+                                                .layer_count = 1,
+                                        },
+                                },
+                                out_texture);
         cmd_list.Close();
 
         wis::CommandListView cmd_lists[] = { cmd_list };
@@ -359,19 +359,17 @@ void App::CreateResources()
         WaitForGPU();
 
         auto [resz2, hsrv] = device.CreateShaderResource(texture, { .format = wis::DataFormat::RGBA8Unorm, .view_type = wis::TextureViewType::Texture2D, .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            }
-        });
+                                                                                                                                                                 .base_mip_level = 0,
+                                                                                                                                                                 .level_count = 1,
+                                                                                                                                                                 .base_array_layer = 0,
+                                                                                                                                                                 .layer_count = 1,
+                                                                                                                                                         } });
         auto [res2z3, hsrv2] = device.CreateShaderResource(lut, { .format = wis::DataFormat::RGBA32Float, .view_type = wis::TextureViewType::Texture3D, .subresource_range = {
-                .base_mip_level = 0,
-                .level_count = 1,
-                .base_array_layer = 0,
-                .layer_count = 1,
-            }
-        });
+                                                                                                                                                                .base_mip_level = 0,
+                                                                                                                                                                .level_count = 1,
+                                                                                                                                                                .base_array_layer = 0,
+                                                                                                                                                                .layer_count = 1,
+                                                                                                                                                        } });
         srv_lut = std::move(hsrv2);
         srv = std::move(hsrv);
         desc_buffer.WriteShaderResource(0, srv_lut);
@@ -394,43 +392,43 @@ void App::CreateResources()
     {
         wis::DescriptorTableEntry entries[] = {
             {
-                .type = wis::DescriptorType::ShaderResource,
-                .bind_register = 0,
-                .binding = 0,
-                .count = 1,
+                    .type = wis::DescriptorType::ShaderResource,
+                    .bind_register = 0,
+                    .binding = 0,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::ShaderResource,
-                .bind_register = 1,
-                .binding = 1,
-                .count = 1,
+                    .type = wis::DescriptorType::ShaderResource,
+                    .bind_register = 1,
+                    .binding = 1,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::Sampler,
-                .bind_register = 0,
-                .binding = 0,
-                .count = 1,
+                    .type = wis::DescriptorType::Sampler,
+                    .bind_register = 0,
+                    .binding = 0,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::Sampler,
-                .bind_register = 1,
-                .binding = 1,
-                .count = 1,
+                    .type = wis::DescriptorType::Sampler,
+                    .bind_register = 1,
+                    .binding = 1,
+                    .count = 1,
             },
         };
 
         wis::DescriptorTable tables[] = {
             {
-                .type = wis::DescriptorHeapType::Descriptor,
-                .entries = entries,
-                .entry_count = 2,
-                .stage = wis::ShaderStages::Pixel,
+                    .type = wis::DescriptorHeapType::Descriptor,
+                    .entries = entries,
+                    .entry_count = 2,
+                    .stage = wis::ShaderStages::Pixel,
             },
             {
-                .type = wis::DescriptorHeapType::Sampler,
-                .entries = entries + 2,
-                .entry_count = 2,
-                .stage = wis::ShaderStages::Pixel,
+                    .type = wis::DescriptorHeapType::Sampler,
+                    .entries = entries + 2,
+                    .entry_count = 2,
+                    .stage = wis::ShaderStages::Pixel,
             },
 
         };
@@ -445,8 +443,8 @@ void App::CreateResources()
             .root_signature = root,
             .shaders = { .vertex = vertex_shader, .pixel = pixel_shader },
             .attachments = {
-                .attachment_formats = attachment_formats,
-                .attachments_count = 1,
+                    .attachment_formats = attachment_formats,
+                    .attachments_count = 1,
             }
         };
         auto [res2, hpipeline] = device.CreateGraphicsPipeline(&desc);
@@ -506,20 +504,20 @@ void App::Frame()
     auto res = cmd_list.Reset(*pipeline_c);
 
     cmd_list.TextureBarrier({
-        .sync_before = wis::BarrierSync::All,
-        .sync_after = wis::BarrierSync::Draw,
-        .access_before = wis::ResourceAccess::Common,
-        .access_after = wis::ResourceAccess::RenderTarget,
-        .state_before = wis::TextureState::Present,
-        .state_after = wis::TextureState::RenderTarget,
-        .subresource_range = {
-            .base_mip_level = 0,
-            .level_count = 1,
-            .base_array_layer = 0,
-            .layer_count = 1,
-        },
-    },
-    back_buffers[swap.GetCurrentIndex()]);
+                                    .sync_before = wis::BarrierSync::All,
+                                    .sync_after = wis::BarrierSync::Draw,
+                                    .access_before = wis::ResourceAccess::Common,
+                                    .access_after = wis::ResourceAccess::RenderTarget,
+                                    .state_before = wis::TextureState::Present,
+                                    .state_after = wis::TextureState::RenderTarget,
+                                    .subresource_range = {
+                                            .base_mip_level = 0,
+                                            .level_count = 1,
+                                            .base_array_layer = 0,
+                                            .layer_count = 1,
+                                    },
+                            },
+                            back_buffers[swap.GetCurrentIndex()]);
 
     wis::RenderPassRenderTargetDesc targets{
         .target = render_targets[swap.GetCurrentIndex()],
@@ -550,20 +548,20 @@ void App::Frame()
     cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
     cmd_list.TextureBarrier({
-        .sync_before = wis::BarrierSync::Draw,
-        .sync_after = wis::BarrierSync::All,
-        .access_before = wis::ResourceAccess::RenderTarget,
-        .access_after = wis::ResourceAccess::Common,
-        .state_before = wis::TextureState::RenderTarget,
-        .state_after = wis::TextureState::Present,
-        .subresource_range = {
-            .base_mip_level = 0,
-            .level_count = 1,
-            .base_array_layer = 0,
-            .layer_count = 1,
-        },
-    },
-    back_buffers[swap.GetCurrentIndex()]);
+                                    .sync_before = wis::BarrierSync::Draw,
+                                    .sync_after = wis::BarrierSync::All,
+                                    .access_before = wis::ResourceAccess::RenderTarget,
+                                    .access_after = wis::ResourceAccess::Common,
+                                    .state_before = wis::TextureState::RenderTarget,
+                                    .state_after = wis::TextureState::Present,
+                                    .subresource_range = {
+                                            .base_mip_level = 0,
+                                            .level_count = 1,
+                                            .base_array_layer = 0,
+                                            .layer_count = 1,
+                                    },
+                            },
+                            back_buffers[swap.GetCurrentIndex()]);
 
     cmd_list.Close();
 
@@ -583,37 +581,35 @@ void App::DumpFrame(const char* name)
 
     wis::TextureBarrier2 barriers[] = {
         { {
-                .sync_before = wis::BarrierSync::All,
-                .sync_after = wis::BarrierSync::All,
-                .access_before = wis::ResourceAccess::RenderTarget,
-                .access_after = wis::ResourceAccess::CopySource,
-                .state_before = wis::TextureState::RenderTarget,
-                .state_after = wis::TextureState::CopySource,
-                .subresource_range = {
-                    .base_mip_level = 0,
-                    .level_count = 1,
-                    .base_array_layer = 0,
-                    .layer_count = 1,
-                },
-            },
-            out_texture
-        },
+                  .sync_before = wis::BarrierSync::All,
+                  .sync_after = wis::BarrierSync::All,
+                  .access_before = wis::ResourceAccess::RenderTarget,
+                  .access_after = wis::ResourceAccess::CopySource,
+                  .state_before = wis::TextureState::RenderTarget,
+                  .state_after = wis::TextureState::CopySource,
+                  .subresource_range = {
+                          .base_mip_level = 0,
+                          .level_count = 1,
+                          .base_array_layer = 0,
+                          .layer_count = 1,
+                  },
+          },
+          out_texture },
         { {
-                .sync_before = wis::BarrierSync::All,
-                .sync_after = wis::BarrierSync::All,
-                .access_before = wis::ResourceAccess::CopySource,
-                .access_after = wis::ResourceAccess::RenderTarget,
-                .state_before = wis::TextureState::CopySource,
-                .state_after = wis::TextureState::RenderTarget,
-                .subresource_range = {
-                    .base_mip_level = 0,
-                    .level_count = 1,
-                    .base_array_layer = 0,
-                    .layer_count = 1,
-                },
-            },
-            out_texture
-        },
+                  .sync_before = wis::BarrierSync::All,
+                  .sync_after = wis::BarrierSync::All,
+                  .access_before = wis::ResourceAccess::CopySource,
+                  .access_after = wis::ResourceAccess::RenderTarget,
+                  .state_before = wis::TextureState::CopySource,
+                  .state_after = wis::TextureState::RenderTarget,
+                  .subresource_range = {
+                          .base_mip_level = 0,
+                          .level_count = 1,
+                          .base_array_layer = 0,
+                          .layer_count = 1,
+                  },
+          },
+          out_texture },
 
     };
 
@@ -621,8 +617,8 @@ void App::DumpFrame(const char* name)
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-            .size = { width, height, 1 },
-            .format = wis::DataFormat::RGBA8Unorm,
+                .size = { width, height, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
         }
     };
 

@@ -48,7 +48,8 @@ public:
     }
 
 public:
-    bool Closed() const noexcept {
+    bool Closed() const noexcept
+    {
         return closed;
     }
     WIS_INLINE bool Close() noexcept;

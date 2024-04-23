@@ -11,12 +11,12 @@ wis::VKResourceAllocator::CreateBuffer(const VkBufferCreateInfo& desc, const Vma
     VmaAllocation allocation;
     VkBuffer buffer;
     VkResult result = vmaCreateBuffer(
-                          allocator.get(),
-                          &desc,
-                          &alloc_desc,
-                          &buffer,
-                          &allocation,
-                          nullptr);
+            allocator.get(),
+            &desc,
+            &alloc_desc,
+            &buffer,
+            &allocation,
+            nullptr);
 
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Buffer allocation failed">(result);
@@ -80,7 +80,6 @@ wis::VKResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
     auto result = CreateBuffer(desc, alloc);
     return { result.status, VKBuffer{ std::move(result.value) } };
 }
-
 
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
@@ -158,12 +157,12 @@ wis::VKResourceAllocator::CreateTexture(const VkImageCreateInfo& desc, const Vma
     VkImage buffer;
 
     auto result = vmaCreateImage(
-                      allocator.get(),
-                      reinterpret_cast<const VkImageCreateInfo*>(&desc),
-                      &alloc_desc,
-                      &buffer,
-                      &allocation,
-                      nullptr);
+            allocator.get(),
+            reinterpret_cast<const VkImageCreateInfo*>(&desc),
+            &alloc_desc,
+            &buffer,
+            &allocation,
+            nullptr);
 
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Texture allocation failed">(result);

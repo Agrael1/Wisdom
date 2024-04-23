@@ -42,7 +42,8 @@ public:
         };
         SetMenuItemInfo(view.get(), 0, true, &mii);
     }
-    bool GridEnabled() const noexcept {
+    bool GridEnabled() const noexcept
+    {
         return grid_enabled;
     }
 

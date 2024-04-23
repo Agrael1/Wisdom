@@ -30,7 +30,6 @@ private:
     wis::Texture out_texture;
     wis::RenderTarget render_target;
 
-
     wis::Fence fence;
     uint64_t fence_value = 1;
     wis::ResourceAllocator allocator;
@@ -43,7 +42,6 @@ private:
     wis::PipelineState pipeline;
     wis::PipelineState pipeline2;
     wis::PipelineState* pipeline_c;
-
 
     wis::Texture texture;
     wis::Texture lut;

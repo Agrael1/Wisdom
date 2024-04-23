@@ -62,7 +62,7 @@ using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
 using RenderPassDesc = DX12RenderPassDesc;
 using VertexBufferBinding = DX12VertexBufferBinding;
-}
+} // namespace wis
 
 #elif WISDOM_VULKAN
 #include "wisdom_vk.h"
@@ -106,7 +106,7 @@ using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
 using RenderPassDesc = VKRenderPassDesc;
 using VertexBufferBinding = VKVertexBufferBinding;
-}
+} // namespace wis
 
 #else
 #error "No API selected"

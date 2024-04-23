@@ -68,7 +68,6 @@ public:
     }
 };
 
-
 class VKTexture;
 
 template<>
@@ -155,7 +154,8 @@ public:
     explicit VKSampler(wis::managed_handle_ex<VkSampler> sampler) noexcept
         : QueryInternal(std::move(sampler)) { }
 
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(sampler);
     }
     operator VKSamplerView() const noexcept
@@ -180,7 +180,8 @@ public:
     explicit VKShaderResource(wis::managed_handle_ex<VkImageView> view) noexcept
         : QueryInternal(std::move(view)) { }
 
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(view);
     }
     operator VKShaderResourceView() const noexcept

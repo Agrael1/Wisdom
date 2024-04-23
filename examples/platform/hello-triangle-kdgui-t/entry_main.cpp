@@ -3,7 +3,6 @@
 #include <wisdom/wisdom.hpp>
 #include <iostream>
 
-
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
     auto stream = reinterpret_cast<std::ostream*>(user_data);

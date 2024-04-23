@@ -22,27 +22,27 @@ private:
 
     wis::DX12Factory factory;
 
-    //wis::Device device;
-    //wis::CommandQueue queue;
-    //wis::SwapChain swap;
+    // wis::Device device;
+    // wis::CommandQueue queue;
+    // wis::SwapChain swap;
     //
-    //wis::DescriptorHeap uniforms;
+    // wis::DescriptorHeap uniforms;
     //
-    //wis::CommandList context;
-    //wis::Fence fence;
-    //wis::ResourceAllocator allocator;
+    // wis::CommandList context;
+    // wis::Fence fence;
+    // wis::ResourceAllocator allocator;
     //
-    //wis::Shader vs;
-    //wis::Shader ps;
+    // wis::Shader vs;
+    // wis::Shader ps;
     //
-    //wis::RootSignature root;
-    //wis::PipelineState pipeline;
-    //wis::VertexBufferView vb;
-    //wis::RenderTarget rtvs[2];
-    //wis::RenderTarget rtvs2[2];
+    // wis::RootSignature root;
+    // wis::PipelineState pipeline;
+    // wis::VertexBufferView vb;
+    // wis::RenderTarget rtvs[2];
+    // wis::RenderTarget rtvs2[2];
     //
-    //wis::Buffer vertex_buffer;
-    //wis::RenderPass render_pass;
-    //uint64_t fence_value = 1;
+    // wis::Buffer vertex_buffer;
+    // wis::RenderPass render_pass;
+    // uint64_t fence_value = 1;
 };
 } // namespace Test

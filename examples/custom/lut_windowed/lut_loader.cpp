@@ -73,12 +73,10 @@ std::unique_ptr<float[]> ParseLutData(std::string_view text, size_t count)
     auto tr_text = TrimWhitespace(text);
     for (size_t i = 0; i < count; i++) {
         for (size_t j = 0; j < 4; j++) {
-            if (j == 3)
-            {
+            if (j == 3) {
                 data[i * 4 + j] = 1.0f;
                 break;
             }
-
 
             float value;
             auto err = std::from_chars(tr_text.data(), tr_text.data() + tr_text.size(), value);

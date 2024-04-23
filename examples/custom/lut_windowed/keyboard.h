@@ -41,8 +41,8 @@ public:
 
 public:
     Keyboard() = default;
-    Keyboard(const Keyboard &) = delete;
-    Keyboard &operator=(const Keyboard &) = delete;
+    Keyboard(const Keyboard&) = delete;
+    Keyboard& operator=(const Keyboard&) = delete;
     // key event stuff
     bool KeyIsPressed(unsigned char keycode) const noexcept;
     std::optional<Event> ReadKey() noexcept;
@@ -64,7 +64,7 @@ private:
     void OnChar(char character) noexcept;
     void ClearState() noexcept;
     template<typename T>
-    static void TrimBuffer(std::queue<T> &buffer) noexcept;
+    static void TrimBuffer(std::queue<T>& buffer) noexcept;
 
 private:
     static constexpr unsigned int nKeys = 256u;

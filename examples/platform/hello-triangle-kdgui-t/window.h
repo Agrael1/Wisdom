@@ -18,7 +18,7 @@ class Window
     friend class XApp;
 
 private:
-    Window(uint32_t width, uint32_t height, WindowP *p);
+    Window(uint32_t width, uint32_t height, WindowP* p);
 
 public:
     ~Window();
@@ -30,7 +30,7 @@ public:
     [[nodiscard]] bool resized() const noexcept;
     // KDGpu::Surface createSurface(KDGpu::Instance& instance);
 private:
-    WindowP *p;
+    WindowP* p;
 };
 
 class XAppP;
