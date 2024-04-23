@@ -24,20 +24,14 @@ public:
     {
     }
 
-    operator DX12BufferView() const noexcept { return resource.get(); }
-    operator bool() const noexcept { return bool(resource); }
-
-public:
-};
-
-class DX12UploadBuffer : public DX12Buffer
-{
-public:
-    DX12UploadBuffer() noexcept = default;
-    explicit DX12UploadBuffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
-        : DX12Buffer(std::move(rc), std::move(al), std::move(allocator)) { }
-    explicit DX12UploadBuffer(DX12Buffer&& buffer) noexcept
-        : DX12Buffer(std::move(buffer)) { }
+    operator DX12BufferView() const noexcept
+    {
+        return resource.get();
+    }
+    operator bool() const noexcept
+    {
+        return bool(resource);
+    }
 
 public:
     void* Map() const noexcept
@@ -103,7 +97,10 @@ public:
     explicit DX12Sampler(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
         : QueryInternal(std::move(heap)) { }
 
-    operator bool() const noexcept { return bool(heap); }
+    operator bool() const noexcept
+    {
+        return bool(heap);
+    }
     operator DX12SamplerView() const noexcept
     {
         return heap->GetCPUDescriptorHandleForHeapStart();
@@ -126,7 +123,10 @@ public:
     explicit DX12ShaderResource(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
         : QueryInternal(std::move(heap)) { }
 
-    operator bool() const noexcept { return bool(heap); }
+    operator bool() const noexcept
+    {
+        return bool(heap);
+    }
     operator DX12ShaderResourceView() const noexcept
     {
         return heap->GetCPUDescriptorHandleForHeapStart();

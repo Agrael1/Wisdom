@@ -20,8 +20,7 @@ struct RenderAttachmentsDesc;
 struct RootConstant;
 struct SwapchainDesc;
 struct TextureDesc;
-struct SourceBufferRegion;
-struct TextureCopyDest;
+struct TextureRegion;
 struct BufferTextureCopyRegion;
 struct PushDescriptor;
 struct SubresourceRange;
@@ -606,21 +605,17 @@ struct TextureDesc {
     wis::TextureUsage usage = wis::TextureUsage::None;
 };
 
-struct SourceBufferRegion {
-    uint64_t offset;
-    wis::Size3D size;
-};
-
-struct TextureCopyDest {
+struct TextureRegion {
     wis::Size3D offset;
+    wis::Size3D size;
     uint32_t mip;
     uint32_t array_layer;
     wis::DataFormat format;
 };
 
 struct BufferTextureCopyRegion {
-    wis::SourceBufferRegion src;
-    wis::TextureCopyDest dst;
+    uint64_t buffer_offset;
+    wis::TextureRegion texture;
 };
 
 struct PushDescriptor {

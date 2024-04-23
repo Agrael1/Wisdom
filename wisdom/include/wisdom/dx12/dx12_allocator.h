@@ -29,8 +29,11 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
     CreateCommitedBuffer(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12UploadBuffer>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
     CreateUploadBuffer(uint64_t size) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
+    CreateReadbackBuffer(uint64_t size) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
     CreateTexture(wis::TextureDesc desc) const noexcept;
