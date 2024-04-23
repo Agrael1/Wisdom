@@ -14,8 +14,8 @@ endif()
 
 
 add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} SYSTEM BEFORE 
-    INTERFACE         
+target_include_directories(${PROJECT_NAME} SYSTEM BEFORE
+    INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )

@@ -24,7 +24,6 @@ wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_des
     return DX12Buffer{ std::move(rc), std::move(al), allocator };
 }
 
-
 wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
 {
@@ -51,7 +50,6 @@ wis::DX12ResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
         buffer.status, DX12Buffer{ std::move(buffer.value) }
     };
 }
-
 
 wis::ResultValue<wis::DX12Texture>
 wis::DX12ResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept

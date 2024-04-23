@@ -48,7 +48,10 @@ public:
     }
 
 public:
-    bool Closed() const noexcept { return closed; }
+    bool Closed() const noexcept
+    {
+        return closed;
+    }
     WIS_INLINE bool Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(VKPipelineHandle pipeline = {}) noexcept;
     WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;

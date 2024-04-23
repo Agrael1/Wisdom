@@ -81,7 +81,6 @@ wis::VKResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
     return { result.status, VKBuffer{ std::move(result.value) } };
 }
 
-
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
 {

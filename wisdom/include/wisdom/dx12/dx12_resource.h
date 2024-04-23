@@ -24,8 +24,14 @@ public:
     {
     }
 
-    operator DX12BufferView() const noexcept { return resource.get(); }
-    operator bool() const noexcept { return bool(resource); }
+    operator DX12BufferView() const noexcept
+    {
+        return resource.get();
+    }
+    operator bool() const noexcept
+    {
+        return bool(resource);
+    }
 
 public:
     void* Map() const noexcept
@@ -46,7 +52,6 @@ public:
         return static_cast<T*>(Map());
     }
 };
-
 
 using DX12Texture = DX12Buffer;
 
@@ -92,7 +97,10 @@ public:
     explicit DX12Sampler(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
         : QueryInternal(std::move(heap)) { }
 
-    operator bool() const noexcept { return bool(heap); }
+    operator bool() const noexcept
+    {
+        return bool(heap);
+    }
     operator DX12SamplerView() const noexcept
     {
         return heap->GetCPUDescriptorHandleForHeapStart();
@@ -115,7 +123,10 @@ public:
     explicit DX12ShaderResource(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
         : QueryInternal(std::move(heap)) { }
 
-    operator bool() const noexcept { return bool(heap); }
+    operator bool() const noexcept
+    {
+        return bool(heap);
+    }
     operator DX12ShaderResourceView() const noexcept
     {
         return heap->GetCPUDescriptorHandleForHeapStart();

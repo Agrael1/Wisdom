@@ -1,7 +1,7 @@
 TITLE "SDR-BT.709 to HLG-BT.2100 Display-Light Conversion 3D Look-Up-Table"
 
 # PLEASE DO NOT ALTER THE LINES BELOW
-# 
+#
 # © 2020 NBCUniversal, LLC - Please do not remove this line
 #
 # Version 1.1 (fix for negative values)
@@ -11,7 +11,7 @@ TITLE "SDR-BT.709 to HLG-BT.2100 Display-Light Conversion 3D Look-Up-Table"
 # Parameters designed by Chris Seeger, NBCU Advanced Technology (chris.seeger@nbcuni.com)
 # In collaboration with Michael Drazin, NBCU Sports Group (michael.drazin@nbcuni.com)
 #
-# 100% SDR maps to 75% HLG 
+# 100% SDR maps to 75% HLG
 # SDR 100-109% preserved into HLG above 75% (preserves additional color volume from SDR)
 #
 # Display-Light Conversion (absolute chromaticity is preserved from input to output)

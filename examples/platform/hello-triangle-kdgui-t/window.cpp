@@ -21,7 +21,7 @@
 #include <KDGui/platform/linux/wayland/linux_wayland_platform_integration.h>
 #endif
 #if defined(KD_PLATFORM_MACOS)
-extern CAMetalLayer *createMetalLayer(KDGui::Window *window);
+extern CAMetalLayer* createMetalLayer(KDGui::Window* window);
 #endif
 
 #include <KDGui/window.h>
@@ -30,7 +30,7 @@ extern CAMetalLayer *createMetalLayer(KDGui::Window *window);
 class WindowP : public KDGui::Window
 {
 public:
-    virtual void resizeEvent(KDFoundation::ResizeEvent *ev) override
+    virtual void resizeEvent(KDFoundation::ResizeEvent* ev) override
     {
         resized = true;
         KDGui::Window::resizeEvent(ev);
@@ -38,7 +38,7 @@ public:
     bool resized = false;
 };
 
-Window::Window(uint32_t width, uint32_t height, WindowP *p)
+Window::Window(uint32_t width, uint32_t height, WindowP* p)
     : p(p)
 {
     p->width = width;
@@ -62,21 +62,21 @@ uint32_t Window::height() const noexcept
 wis::SurfaceParameters Window::GetSurfaceOptions() const noexcept
 {
 #if defined(KD_PLATFORM_WIN32)
-    auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow *>(p->platformWindow());
+    auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow*>(p->platformWindow());
     return wis::SurfaceParameters{
         win32Window->handle()
     };
 #elif defined(KD_PLATFORM_LINUX)
     if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
-        auto *platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
-        auto *waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration *>(platformIntegration);
-        auto *waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow *>(p->platformWindow());
+        auto* platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
+        auto* waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration*>(platformIntegration);
+        auto* waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow*>(p->platformWindow());
         return wis::SurfaceParameters{
             waylandPlatformIntegration->display(),
             waylandWindow->surface(),
         };
     } else {
-        auto *xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow *>(p->platformWindow());
+        auto* xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
         return wis::SurfaceParameters{
             xcbWindow->connection(),
             xcbWindow->handle(),

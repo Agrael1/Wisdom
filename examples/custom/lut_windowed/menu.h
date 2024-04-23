@@ -42,7 +42,10 @@ public:
         };
         SetMenuItemInfo(view.get(), 0, true, &mii);
     }
-    bool GridEnabled() const noexcept { return grid_enabled; }
+    bool GridEnabled() const noexcept
+    {
+        return grid_enabled;
+    }
 
 private:
     wil::unique_hmenu main_menu;

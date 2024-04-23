@@ -38,7 +38,10 @@ public:
     }
 
 public:
-    bool Closed() const noexcept { return closed; }
+    bool Closed() const noexcept
+    {
+        return closed;
+    }
     WIS_INLINE bool Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(DX12PipelineHandle pipeline = nullptr) noexcept;
     WIS_INLINE void CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;

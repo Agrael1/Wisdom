@@ -52,12 +52,12 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 App::App(uint32_t width, uint32_t height)
     : width(width), height(height)
 {
-    //wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
+    // wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
     auto [result, factory] = wis::CreateFactory(false);
 
-    //auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
-    //info = std::move(hinfo);
+    // auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
+    // info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -337,11 +337,11 @@ void App::CreateResources()
                                                                                                                                                                  .layer_count = 1,
                                                                                                                                                          } });
         auto [res2z3, hsrv2] = device.CreateShaderResource(lut, { .format = wis::DataFormat::RGBA32Float, .view_type = wis::TextureViewType::Texture3D, .subresource_range = {
-                                                                                                                                                               .base_mip_level = 0,
-                                                                                                                                                               .level_count = 1,
-                                                                                                                                                               .base_array_layer = 0,
-                                                                                                                                                               .layer_count = 1,
-                                                                                                                                                       } });
+                                                                                                                                                                .base_mip_level = 0,
+                                                                                                                                                                .level_count = 1,
+                                                                                                                                                                .base_array_layer = 0,
+                                                                                                                                                                .layer_count = 1,
+                                                                                                                                                        } });
         srv_lut = std::move(hsrv2);
         srv = std::move(hsrv);
         desc_buffer.WriteShaderResource(0, srv_lut);
@@ -536,7 +536,7 @@ void App::DumpFrame(const char* name)
         { {
                   .sync_before = wis::BarrierSync::All,
                   .sync_after = wis::BarrierSync::All,
-                  .access_before = wis::ResourceAccess::CopySource ,
+                  .access_before = wis::ResourceAccess::CopySource,
                   .access_after = wis::ResourceAccess::RenderTarget,
                   .state_before = wis::TextureState::CopySource,
                   .state_after = wis::TextureState::RenderTarget,

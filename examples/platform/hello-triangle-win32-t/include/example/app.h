@@ -30,7 +30,7 @@ private:
     wis::SwapChain swap;
 
     std::span<const wis::Texture> back_buffers;
-    std::array<wis::RenderTarget,2> render_targets;
+    std::array<wis::RenderTarget, 2> render_targets;
 
     wis::Fence fence;
     uint64_t fence_value = 1;

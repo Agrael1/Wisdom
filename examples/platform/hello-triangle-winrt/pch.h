@@ -50,7 +50,7 @@
 #include "winrt/Windows.UI.ViewManagement.h"
 
 // If using the DirectX Tool Kit for DX12, uncomment this line:
-//#include "GraphicsMemory.h"
+// #include "GraphicsMemory.h"
 
 namespace DX {
 // Helper class for COM exceptions
@@ -60,7 +60,7 @@ public:
     com_exception(HRESULT hr) noexcept
         : result(hr) { }
 
-    const char *what() const override
+    const char* what() const override
     {
         static char s_str[64] = {};
         sprintf_s(s_str, "Failure with HRESULT of %08X", static_cast<unsigned int>(result));

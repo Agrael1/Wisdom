@@ -3,7 +3,7 @@ function(wis_install_dx_uwp PROJECT)
     message("Installing DirectX Agility SDK Dependency")
 
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
-	
+
 	set(EXPORT_AGILITY "extern \"C\" { _declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER}; }
 						extern \"C\" { _declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\"; }"
 	)
@@ -18,14 +18,14 @@ function(wis_install_dx_uwp PROJECT)
 	message("DX12AgilityCore: ${dxadll}")
 	set_property(SOURCE ${dxadll} PROPERTY VS_DEPLOYMENT_CONTENT 1)
 	set_property(SOURCE ${dxadll} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-	target_sources(${PROJECT} PRIVATE ${dxadll})	
+	target_sources(${PROJECT} PRIVATE ${dxadll})
 
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		get_target_property(dxalayersdll DX12AgilitySDKLayers IMPORTED_LOCATION)
 		message("DX12AgilitySDKLayers: ${dxalayersdll}")
 		set_property(SOURCE ${dxalayersdll} PROPERTY VS_DEPLOYMENT_CONTENT 1)
 		set_property(SOURCE ${dxalayersdll} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-		target_sources(${PROJECT} PRIVATE ${dxalayersdll})	
+		target_sources(${PROJECT} PRIVATE ${dxalayersdll})
 	endif()
 endfunction()
 
@@ -34,7 +34,7 @@ function(wis_install_dx_win32 PROJECT)
 	message("Installing DirectX Agility SDK Dependency")
 
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
-	
+
 	set(EXPORT_AGILITY "extern \"C\" { _declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER}; }
 						extern \"C\" { _declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\"; }"
 	)
@@ -44,13 +44,13 @@ function(wis_install_dx_win32 PROJECT)
 	target_sources(${PROJECT} PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}/exports.cpp
 	)
-	
+
 	add_custom_command(TARGET ${PROJECT} POST_BUILD
 	  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:DX12AgilityCore> $<TARGET_FILE_DIR:${PROJECT}>/D3D12/$<TARGET_FILE_NAME:DX12AgilityCore>
 	  COMMAND_EXPAND_LISTS
 	  COMMENT "Copying DX12 Agility Core..."
 	)
-	
+
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		add_custom_command(TARGET ${PROJECT} POST_BUILD
 		  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:DX12AgilitySDKLayers> $<TARGET_FILE_DIR:${PROJECT}>/D3D12/$<TARGET_FILE_NAME:DX12AgilitySDKLayers>
@@ -127,7 +127,7 @@ function(wis_compile_shader)
 	else()
 		set(ENTRY "main")
 	endif()
-	
+
 	if(wis_compile_shader_SHADER_MODEL)
 		# parse shader model from pattern x.y to x_y
 		string(REGEX REPLACE "\\." "_" SHADER_MODEL ${wis_compile_shader_SHADER_MODEL})
@@ -176,7 +176,7 @@ function(wis_compile_shader)
             VERBATIM)
     endif()
 
-    add_custom_command(TARGET ${TARGET} 
+    add_custom_command(TARGET ${TARGET}
         COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -Fo${OUTPUT_SPV} ${SHADER}
         MAIN_DEPENDENCY ${SHADER}
         COMMENT "SPV ${SHADER}"

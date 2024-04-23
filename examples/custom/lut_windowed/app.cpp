@@ -52,12 +52,12 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 App::App(uint32_t width, uint32_t height)
     : wnd(width, height, "Lut Test"), width(width), height(height)
 {
-    //wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
+    // wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
     auto [result, factory] = wis::CreateFactory(false);
 
-    //auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
-    //info = std::move(hinfo);
+    // auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
+    // info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -157,7 +157,7 @@ int App::Start()
     auto end = clock.now();
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    //DumpFrame("out_point.png");
+    // DumpFrame("out_point.png");
 
     // Linear filter
     pipeline_c = &pipeline2;
@@ -169,7 +169,7 @@ int App::Start()
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    //DumpFrame("out_linear.png");
+    // DumpFrame("out_linear.png");
 
     // Tetra + Point filter
     pipeline_c = &pipeline2;
@@ -183,7 +183,7 @@ int App::Start()
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
-    //DumpFrame("out_tetra.png");
+    // DumpFrame("out_tetra.png");
 
     return 0;
 }

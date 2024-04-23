@@ -33,7 +33,7 @@ public:
         int y;
 
     public:
-        Event(Type type, const Mouse &parent) noexcept
+        Event(Type type, const Mouse& parent) noexcept
             : type(type), leftIsPressed(parent.leftIsPressed), rightIsPressed(parent.rightIsPressed), x(parent.x), y(parent.y)
         {
         }
@@ -65,8 +65,8 @@ public:
 
 public:
     Mouse() = default;
-    Mouse(const Mouse &) = delete;
-    Mouse &operator=(const Mouse &) = delete;
+    Mouse(const Mouse&) = delete;
+    Mouse& operator=(const Mouse&) = delete;
     std::pair<int, int> GetPos() const noexcept
     {
         return { x, y };

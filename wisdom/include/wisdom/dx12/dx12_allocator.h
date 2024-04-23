@@ -31,7 +31,7 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
     CreateUploadBuffer(uint64_t size) const noexcept;
-    
+
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
     CreateReadbackBuffer(uint64_t size) const noexcept;
 
