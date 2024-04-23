@@ -68,16 +68,25 @@ std::pair<LutData, size_t> ParseHeader(std::string_view text)
 
 std::unique_ptr<float[]> ParseLutData(std::string_view text, size_t count)
 {
-    std::unique_ptr<float[]> data = std::make_unique_for_overwrite<float[]>(count);
+    std::unique_ptr<float[]> data = std::make_unique_for_overwrite<float[]>(count * 4);
 
     auto tr_text = TrimWhitespace(text);
     for (size_t i = 0; i < count; i++) {
-        float value;
-        auto err = std::from_chars(tr_text.data(), tr_text.data() + tr_text.size(), value);
+        for (size_t j = 0; j < 4; j++) {
+            if (j == 3)
+            {
+                data[i * 4 + j] = 1.0f;
+                break;
+            }
 
-        data[i] = value;
 
-        tr_text = TrimWhitespace(tr_text.substr(tr_text.find_first_of(" \n") + 1));
+            float value;
+            auto err = std::from_chars(tr_text.data(), tr_text.data() + tr_text.size(), value);
+
+            data[i * 4 + j] = value;
+
+            tr_text = TrimWhitespace(tr_text.substr(tr_text.find_first_of(" \n") + 1));
+        }
     }
 
     return data;
@@ -106,7 +115,7 @@ LutData LutLoader::LoadLut(std::filesystem::path path)
     auto [data, offset] = ParseHeader(text);
 
     data.data = ParseLutData(std::string_view(text.data() + offset, text.size() - offset),
-                             data.type == LutType::Lut1D ? data.stride * 3 : data.stride * data.stride * data.stride * 3);
+                             data.type == LutType::Lut1D ? data.stride : data.stride * data.stride * data.stride);
 
     return std::move(data);
 }

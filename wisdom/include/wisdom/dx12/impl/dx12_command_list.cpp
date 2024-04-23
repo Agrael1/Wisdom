@@ -13,7 +13,7 @@ void wis::DX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView dest
 {
     list->CopyBufferRegion(std::get<0>(destination), region.dst_offset, std::get<0>(source), region.src_offset, region.size_bytes);
 }
-void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     auto texture = std::get<0>(dest_texture);
     auto texture_desc = texture->GetDesc();
@@ -28,9 +28,7 @@ void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12Te
         UINT64 row_size = 0;
         UINT64 required_size = 0;
 
-        
-
-        UINT dest_subresource = D3D12CalcSubresource(region.dst.mip, region.dst.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        UINT dest_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
         D3D12_TEXTURE_COPY_LOCATION dst{
             .pResource = texture,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
@@ -38,23 +36,64 @@ void wis::DX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12Te
         };
 
         UINT row_pitch = 0;
-        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.dst.format), region.src.size.width, row_pitch);
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION src{
             .pResource = std::get<0>(src_buffer),
             .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
             .PlacedFootprint = {
-                    .Offset = region.src.offset,
+                    .Offset = region.buffer_offset,
                     .Footprint = {
-                            .Format = convert_dx(region.dst.format),
-                            .Width = region.src.size.width,
-                            .Height = region.src.size.height,
-                            .Depth = region.src.size.depth_or_layers,
-                            .RowPitch = row_pitch
-                    } }
+                            .Format = convert_dx(region.texture.format),
+                            .Width = region.texture.size.width,
+                            .Height = region.texture.size.height,
+                            .Depth = region.texture.size.depth_or_layers,
+                            .RowPitch = row_pitch } }
         };
 
-        list->CopyTextureRegion(&dst, region.dst.offset.width, region.dst.offset.height, region.dst.offset.depth_or_layers, &src, nullptr);
+        list->CopyTextureRegion(&dst, region.texture.offset.width, region.texture.offset.height, region.texture.offset.depth_or_layers, &src, nullptr);
+    }
+}
+
+void wis::DX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, DX12BufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
+{
+    auto texture = std::get<0>(src_texture);
+    auto texture_desc = texture->GetDesc();
+
+    wis::com_ptr<ID3D12Device> device;
+    auto hr = texture->GetDevice(__uuidof(*device), device.put_void());
+
+    for (uint32_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
+        UINT num_rows = 0;
+        UINT64 row_size = 0;
+        UINT64 required_size = 0;
+
+        UINT src_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        D3D12_TEXTURE_COPY_LOCATION src{
+            .pResource = texture,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = src_subresource
+        };
+
+        UINT row_pitch = 0;
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
+
+        D3D12_TEXTURE_COPY_LOCATION dst{
+            .pResource = std::get<0>(dest_buffer),
+            .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+            .PlacedFootprint = {
+                    .Offset = region.buffer_offset,
+                    .Footprint = {
+                            .Format = convert_dx(region.texture.format),
+                            .Width = region.texture.size.width,
+                            .Height = region.texture.size.height,
+                            .Depth = region.texture.size.depth_or_layers,
+                            .RowPitch = row_pitch } }
+        };
+
+        list->CopyTextureRegion(&dst, region.buffer_offset, 0, 0, &src, nullptr);
     }
 }
 
@@ -284,5 +323,5 @@ void wis::DX12CommandList::SetDescriptorTableOffset(uint32_t root_table_index, w
     auto handle = std::get<0>(buffer);
     auto increment = std::get<1>(buffer);
     list->SetGraphicsRootDescriptorTable(root_table_offset + root_table_index,
-                                        CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_descriptors, increment));
+                                         CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_descriptors, increment));
 }

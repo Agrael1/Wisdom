@@ -13,7 +13,9 @@
 #include "lut_loader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
+#include <stb_image_write.h>
 
 struct ImageData {
     std::vector<uint8_t> data;
@@ -50,12 +52,12 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 App::App(uint32_t width, uint32_t height)
     : width(width), height(height)
 {
-    //wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
+    wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
-    auto [result, factory] = wis::CreateFactory(false);
+    auto [result, factory] = wis::CreateFactory(true);
 
-    //auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
-    //info = std::move(hinfo);
+    auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
+    info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -86,16 +88,16 @@ App::App(uint32_t width, uint32_t height)
     {
         using namespace wis;
         wis::TextureDesc desc{
-            .format = wis::DataFormat::BGRA8Unorm,
+            .format = wis::DataFormat::RGBA8Unorm,
             .size = { width, height, 1 },
             .mip_levels = 1,
-            .usage = wis::TextureUsage::RenderTarget
+            .usage = wis::TextureUsage::RenderTarget | wis::TextureUsage::CopySrc
         };
         auto [res, htexture] = allocator.CreateTexture(desc);
         out_texture = std::move(htexture);
 
         wis::RenderTargetDesc rt_desc{
-            .format = wis::DataFormat::BGRA8Unorm,
+            .format = wis::DataFormat::RGBA8Unorm,
             .layout = wis::TextureLayout::Texture2D,
             .mip = 0,
             .base_array_layer = 0,
@@ -127,6 +129,8 @@ int App::Start()
     auto end = clock.now();
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
 
+    DumpFrame("out_point.png");
+
     // Linear filter
     pipeline_c = &pipeline2;
     start = clock.now();
@@ -136,6 +140,8 @@ int App::Start()
     end = clock.now();
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
+
+    DumpFrame("out_linear.png");
 
     // Tetra + Point filter
     pipeline_c = &pipeline2;
@@ -148,6 +154,8 @@ int App::Start()
     end = clock.now();
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
+
+    DumpFrame("out_tetra.png");
 
     return 0;
 }
@@ -201,15 +209,15 @@ void App::CreateResources()
         }
 
         auto lut_data = LutLoader::LoadLut("lut.cube");
-        auto [res2, lut_data_buffer] = allocator.CreateUploadBuffer(lut_data.stride * lut_data.stride * lut_data.stride * 3 * sizeof(float));
-        std::copy(lut_data.data.get(), lut_data.data.get() + lut_data.stride * lut_data.stride * lut_data.stride * 3, lut_data_buffer.Map<float>());
+        auto [res2, lut_data_buffer] = allocator.CreateUploadBuffer(lut_data.stride * lut_data.stride * lut_data.stride * 4 * sizeof(float));
+        std::copy(lut_data.data.get(), lut_data.data.get() + lut_data.stride * lut_data.stride * lut_data.stride * 4, lut_data_buffer.Map<float>());
         lut_data_buffer.Unmap();
 
         // Create Texture
         {
             using namespace wis;
             wis::TextureDesc desc{
-                .format = wis::DataFormat::RGB32Float,
+                .format = wis::DataFormat::RGBA32Float,
                 .size = { uint32_t(lut_data.stride), (uint32_t)lut_data.stride, (uint32_t)lut_data.stride },
                 .mip_levels = 1,
                 .layout = wis::TextureLayout::Texture3D,
@@ -252,20 +260,16 @@ void App::CreateResources()
                                 texture);
 
         wis::BufferTextureCopyRegion region{
-            .src = {
+            .texture = {
                     .size = { (uint32_t)lut_data.stride, (uint32_t)lut_data.stride, (uint32_t)lut_data.stride },
-            },
-            .dst = {
-                    .format = wis::DataFormat::RGB32Float,
+                    .format = wis::DataFormat::RGBA32Float,
             }
         };
         cmd_list.CopyBufferToTexture(lut_data_buffer, lut, &region, 1);
 
         wis::BufferTextureCopyRegion region2{
-            .src = {
+            .texture = {
                     .size = { png_data.width, png_data.height, 1 },
-            },
-            .dst = {
                     .format = wis::DataFormat::RGBA8Unorm,
             }
         };
@@ -332,7 +336,7 @@ void App::CreateResources()
                                                                                                                                                                  .base_array_layer = 0,
                                                                                                                                                                  .layer_count = 1,
                                                                                                                                                          } });
-        auto [res2z3, hsrv2] = device.CreateShaderResource(lut, { .format = wis::DataFormat::RGB32Float, .view_type = wis::TextureViewType::Texture3D, .subresource_range = {
+        auto [res2z3, hsrv2] = device.CreateShaderResource(lut, { .format = wis::DataFormat::RGBA32Float, .view_type = wis::TextureViewType::Texture3D, .subresource_range = {
                                                                                                                                                                .base_mip_level = 0,
                                                                                                                                                                .level_count = 1,
                                                                                                                                                                .base_array_layer = 0,
@@ -405,7 +409,7 @@ void App::CreateResources()
     }
 
     {
-        wis::DataFormat attachment_formats[] = { wis::DataFormat::BGRA8Unorm };
+        wis::DataFormat attachment_formats[] = { wis::DataFormat::RGBA8Unorm };
 
         wis::GraphicsPipelineDesc desc{
             .root_signature = root,
@@ -467,7 +471,6 @@ void App::CreateResources()
     WaitForGPU();
 }
 
-
 void App::Frame()
 {
     auto res = cmd_list.Reset(*pipeline_c);
@@ -506,6 +509,70 @@ void App::Frame()
     queue.ExecuteCommandLists(lists, 1);
 
     WaitForGPU();
+}
+
+void App::DumpFrame(const char* name)
+{
+    auto [res, data] = allocator.CreateReadbackBuffer(width * height * 4);
+
+    std::ignore = cmd_list.Reset();
+
+    wis::TextureBarrier2 barriers[] = {
+        { {
+                  .sync_before = wis::BarrierSync::All,
+                  .sync_after = wis::BarrierSync::All,
+                  .access_before = wis::ResourceAccess::RenderTarget,
+                  .access_after = wis::ResourceAccess::CopySource,
+                  .state_before = wis::TextureState::RenderTarget,
+                  .state_after = wis::TextureState::CopySource,
+                  .subresource_range = {
+                          .base_mip_level = 0,
+                          .level_count = 1,
+                          .base_array_layer = 0,
+                          .layer_count = 1,
+                  },
+          },
+          out_texture },
+        { {
+                  .sync_before = wis::BarrierSync::All,
+                  .sync_after = wis::BarrierSync::All,
+                  .access_before = wis::ResourceAccess::CopySource ,
+                  .access_after = wis::ResourceAccess::RenderTarget,
+                  .state_before = wis::TextureState::CopySource,
+                  .state_after = wis::TextureState::RenderTarget,
+                  .subresource_range = {
+                          .base_mip_level = 0,
+                          .level_count = 1,
+                          .base_array_layer = 0,
+                          .layer_count = 1,
+                  },
+          },
+          out_texture },
+
+    };
+
+    cmd_list.TextureBarriers(barriers, 1);
+
+    wis::BufferTextureCopyRegion region{
+        .texture = {
+                .size = { width, height, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
+        }
+    };
+
+    cmd_list.CopyTextureToBuffer(out_texture, data, &region, 1);
+    cmd_list.TextureBarriers(barriers + 1, 1);
+    cmd_list.Close();
+
+    wis::CommandListView lists[] = { cmd_list };
+    queue.ExecuteCommandLists(lists, 1);
+
+    WaitForGPU();
+
+    auto* ptr = data.Map<uint8_t>();
+
+    stbi_write_png(name, width, height, 4, ptr, width * 4);
+    data.Unmap();
 }
 
 void App::WaitForGPU()

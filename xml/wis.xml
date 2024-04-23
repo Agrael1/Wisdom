@@ -13,7 +13,6 @@
     <handle name="CommandList"/>
     <handle name="Buffer"/>
     <handle name="Texture"/>
-    <handle name="UploadBuffer"/>
     <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>
     <handle name="RenderTarget"/>
@@ -1243,19 +1242,17 @@
       <member type="TextureUsage" name="usage" default="None"/>
     </type>
 
-    <type name="SourceBufferRegion" category="struct">
-      <member type="u64" name="offset"/>
-      <member type="Size3D" name="size"/>
-    </type>
-    <type name="TextureCopyDest" category="struct">
+
+    <type name="TextureRegion" category="struct">
       <member type="Size3D" name="offset"/>
+      <member type="Size3D" name="size"/>
       <member type="u32" name="mip"/>
       <member type="u32" name="array_layer"/>
       <member type="DataFormat" name="format"/>
     </type>
     <type name="BufferTextureCopyRegion" category="struct">
-      <member type="SourceBufferRegion" name="src"/>
-      <member type="TextureCopyDest" name="dst"/>
+      <member type="u64" name="buffer_offset"/>
+      <member type="TextureRegion" name="texture"/>
     </type>
 
     <type name="PushDescriptor" category="struct">
@@ -1540,9 +1537,6 @@
 
     <!--Buffer-->
     <func for="Buffer" name="Destroy"/>
-
-    <!--UploadBuffer-->
-    <func for="UploadBuffer" name="Destroy"/>
 
     <!--Swapchain-->
     <func for="Swapchain" name="Destroy"/>

@@ -527,10 +527,9 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .pNext = nullptr,
         .flags = 0,
         .vertexBindingDescriptionCount = desc->input_layout.slot_count,
-        .pVertexBindingDescriptions =
-                reinterpret_cast<const VkVertexInputBindingDescription*>(desc->input_layout.slots),
+        .pVertexBindingDescriptions = desc->input_layout.slot_count ? reinterpret_cast<const VkVertexInputBindingDescription*>(desc->input_layout.slots) : nullptr,
         .vertexAttributeDescriptionCount = ia_count,
-        .pVertexAttributeDescriptions = ia_data,
+        .pVertexAttributeDescriptions = ia_count ? ia_data : nullptr,
     };
 
     VkPipelineViewportStateCreateInfo viewport_state{
@@ -707,7 +706,9 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VIEWPORT);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_SCISSOR);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY);
-    dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
+
+    if (ia_count)
+        dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
 
     if (std::get<0>(desc->shaders.hull))
         dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT);

@@ -30,8 +30,11 @@ public:
     WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
     CreateCommitedBuffer(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
 
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKUploadBuffer>
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
     CreateUploadBuffer(uint64_t size) const noexcept;
+
+    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    CreateReadbackBuffer(uint64_t size) const noexcept;
 
     WIS_INLINE [[nodiscard]] wis::ResultValue<VKTexture>
     CreateTexture(wis::TextureDesc desc) const noexcept;

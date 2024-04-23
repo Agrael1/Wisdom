@@ -17,7 +17,7 @@ void wis::VKCommandList::CopyBuffer(VKBufferView source, VKBufferView destinatio
     device.table().vkCmdCopyBuffer(command_list, std::get<0>(source), std::get<0>(destination), 1, &copy);
 }
 
-void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
     auto* copies = allocator.data();
@@ -26,17 +26,17 @@ void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureV
         auto& region = regions[i];
         copies[i] = VkBufferImageCopy2{
             .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
-            .bufferOffset = region.src.offset,
+            .bufferOffset = region.buffer_offset,
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
                     .aspectMask = aspect_flags(std::get<1>(dest_texture)),
-                    .mipLevel = region.dst.mip,
-                    .baseArrayLayer = region.dst.array_layer,
+                    .mipLevel = region.texture.mip,
+                    .baseArrayLayer = region.texture.array_layer,
                     .layerCount = 1u,
             },
-            .imageOffset = { int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
-            .imageExtent = { region.src.size.width, region.src.size.height, region.src.size.depth_or_layers },
+            .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
+            .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
         };
     }
 
@@ -50,6 +50,42 @@ void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureV
         .pRegions = copies,
     };
     device.table().vkCmdCopyBufferToImage2(command_list, &copy);
+}
+
+void wis::VKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dst_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
+{
+    wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
+    auto* copies = allocator.data();
+
+    for (size_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        copies[i] = VkBufferImageCopy2{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+            .bufferOffset = region.buffer_offset,
+            .bufferRowLength = {},
+            .bufferImageHeight = {},
+            .imageSubresource = {
+                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                    .mipLevel = region.texture.mip,
+                    .baseArrayLayer = region.texture.array_layer,
+                    .layerCount = 1u,
+            },
+            .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
+            .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
+        };
+    }
+
+    VkCopyImageToBufferInfo2 copy{
+        .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
+        .pNext = nullptr,
+        .srcImage = std::get<0>(src_texture),
+        .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .dstBuffer = std::get<0>(dst_buffer),
+        .regionCount = region_count,
+        .pRegions = copies,
+    };
+
+    device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
 }
 
 wis::Result wis::VKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept

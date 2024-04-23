@@ -28,18 +28,6 @@ public:
     operator bool() const noexcept { return bool(resource); }
 
 public:
-};
-
-class DX12UploadBuffer : public DX12Buffer
-{
-public:
-    DX12UploadBuffer() noexcept = default;
-    explicit DX12UploadBuffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
-        : DX12Buffer(std::move(rc), std::move(al), std::move(allocator)) { }
-    explicit DX12UploadBuffer(DX12Buffer&& buffer) noexcept
-        : DX12Buffer(std::move(buffer)) { }
-
-public:
     void* Map() const noexcept
     {
         void* data;
@@ -58,6 +46,7 @@ public:
         return static_cast<T*>(Map());
     }
 };
+
 
 using DX12Texture = DX12Buffer;
 

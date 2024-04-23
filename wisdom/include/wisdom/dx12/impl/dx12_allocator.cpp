@@ -34,15 +34,23 @@ wis::DX12ResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flag
     return CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_DEFAULT }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COMMON);
 }
 
-wis::ResultValue<wis::DX12UploadBuffer>
+wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
 {
     auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_UPLOAD }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_GENERIC_READ);
     return {
-        buffer.status, DX12UploadBuffer{ std::move(buffer.value) }
+        buffer.status, DX12Buffer{ std::move(buffer.value) }
     };
 }
 
+wis::ResultValue<wis::DX12Buffer>
+wis::DX12ResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
+{
+    auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_READBACK }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COMMON);
+    return {
+        buffer.status, DX12Buffer{ std::move(buffer.value) }
+    };
+}
 
 
 wis::ResultValue<wis::DX12Texture>

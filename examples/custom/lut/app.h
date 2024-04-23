@@ -11,6 +11,7 @@ public:
     void CreateResources();
 
     void Frame();
+    void DumpFrame(const char* name);
     void OnResize(uint32_t width, uint32_t height);
     void WaitForGPU();
 
