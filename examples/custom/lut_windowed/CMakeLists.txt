@@ -7,8 +7,6 @@ FetchContent_Declare(
 )
 set(SSE ON)
 FetchContent_MakeAvailable(fpng)
-include(deps.cmake)
-
 
 find_package(glm CONFIG REQUIRED)
 

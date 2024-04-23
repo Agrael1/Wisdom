@@ -3,17 +3,7 @@
 #
 project(Example)
 
-find_package(glm QUIET)
-if(NOT glm_FOUND)
-    FetchContent_Declare(
-        glm
-        GIT_REPOSITORY https://github.com/g-truc/glm
-        GIT_TAG        master
-    )
-    FetchContent_MakeAvailable(glm)
-endif()
-
-include(deps.cmake)
+find_package(glm CONFIG REQUIRED)
 
 # Add source to this project's executable.
 add_executable(${PROJECT_NAME} "resources/WinD3D.rc" "include/example/util.h")
