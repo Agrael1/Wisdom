@@ -30,8 +30,12 @@ struct EventSet {
         horizon[iter++] = e;
         map.set(+e);
     }
-    auto begin() { return horizon.begin(); }
-    auto end() { return horizon.begin() + iter; }
+    auto begin() {
+        return horizon.begin();
+    }
+    auto end() {
+        return horizon.begin() + iter;
+    }
     void clear()
     {
         iter = 0;
@@ -51,11 +55,17 @@ public:
     public:
         EventQueue(EventSet &events)
             : events(events) { }
-        ~EventQueue() { events.clear(); }
+        ~EventQueue() {
+            events.clear();
+        }
 
     public:
-        auto begin() { return events.begin(); }
-        auto end() { return events.end(); }
+        auto begin() {
+            return events.begin();
+        }
+        auto end() {
+            return events.end();
+        }
 
     private:
         EventSet &events;
@@ -85,24 +95,36 @@ public:
     Window &operator=(const Window &) = delete;
 
 public:
-    [[nodiscard]] EventQueue GetEvents() noexcept { return { events }; }
+    [[nodiscard]] EventQueue GetEvents() noexcept {
+        return { events };
+    }
     void EnableLoading();
 
-    int GetWidth() const noexcept { return width; }
-    int GetHeight() const noexcept { return height; }
+    int GetWidth() const noexcept {
+        return width;
+    }
+    int GetHeight() const noexcept {
+        return height;
+    }
 
-    bool DrawGrid() const noexcept { return menu.GridEnabled(); }
+    bool DrawGrid() const noexcept {
+        return menu.GridEnabled();
+    }
 
     void EnableCursor() noexcept;
     void HideCursor() noexcept;
     void ShowCursor() noexcept;
     void DisableCursor() noexcept;
     bool CursorEnabled() const noexcept;
-    bool IsActive() const noexcept { return bActive; }
+    bool IsActive() const noexcept {
+        return bActive;
+    }
     void SetTitle(std::string_view title);
     void ChangeToFullScreen();
 
-    HWND GetHandle() const noexcept { return hWnd.get(); }
+    HWND GetHandle() const noexcept {
+        return hWnd.get();
+    }
 
     std::optional<WPARAM> ProcessMessages() const noexcept;
 

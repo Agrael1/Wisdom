@@ -92,16 +92,23 @@ public:
         window.SizeChanged({ this, &ViewProvider::OnWindowSizeChanged });
 
         try {
-            window.ResizeStarted([this](auto &&, auto &&) { m_in_sizemove = true; });
+            window.ResizeStarted([this](auto &&, auto &&) {
+                m_in_sizemove = true;
+            });
 
-            window.ResizeCompleted([this](auto &&, auto &&) { m_in_sizemove = false; HandleWindowSizeChanged(); });
+            window.ResizeCompleted([this](auto &&, auto &&) {
+                m_in_sizemove = false;
+                HandleWindowSizeChanged();
+            });
         } catch (...) {
             // Requires Windows 10 Creators Update (10.0.15063) or later
         }
 
         window.VisibilityChanged({ this, &ViewProvider::OnVisibilityChanged });
 
-        window.Closed([this](auto &&, auto &&) { m_exit = true; });
+        window.Closed([this](auto &&, auto &&) {
+            m_exit = true;
+        });
 
         auto dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 

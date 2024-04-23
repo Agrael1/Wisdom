@@ -83,7 +83,7 @@ wis::SurfaceParameters Window::GetSurfaceOptions() const noexcept
         };
     }
 #elif defined(KD_PLATFORM_MACOS)
-    return wis::SurfaceParameters{
+    return wis::SurfaceParameters {
         .layer = createMetalLayer(this)
     };
 #endif

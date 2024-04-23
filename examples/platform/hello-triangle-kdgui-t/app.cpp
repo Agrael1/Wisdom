@@ -42,10 +42,10 @@
 //
 //void Test::App::WaitForGPU()
 //{
-//    
+//
 //}
 //
 //void Test::App::OnResize(uint32_t width, uint32_t height)
 //{
-//    
+//
 //}
