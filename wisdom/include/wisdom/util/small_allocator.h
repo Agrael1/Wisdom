@@ -26,7 +26,7 @@ public:
     /// @param ...args Arguments to pass to the constructor
     /// @return Reference to the allocated object
     template<typename T, typename... Args>
-    requires std::is_trivially_destructible_v<T>
+        requires std::is_trivially_destructible_v<T>
     constexpr T& allocate(Args&&... args) noexcept
     {
         T* x = new (allocator.data() + byte_size) T(std::forward<Args>(args)...);
@@ -142,9 +142,14 @@ public:
 
     /// @brief Checks if the allocator contains an object
     /// @param ref Reference to the object to check
+    template<typename C = std::equal_to<T>>
     bool contains(const T& ref) const noexcept
     {
-        return std::ranges::find(*this, ref) != this->end();
+        for (size_t i = 0; i < rsize; i++) {
+            if (C{}(ref, this->data()[i]))
+                return true;
+        }
+        return false;
     }
 
 private:
@@ -152,7 +157,7 @@ private:
 };
 
 template<typename Type, size_t initial_alloc = 16u>
-requires ::std::is_trivially_destructible_v<Type>
+    requires ::std::is_trivially_destructible_v<Type>
 class limited_allocator
 {
 public:

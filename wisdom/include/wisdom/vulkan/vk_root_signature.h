@@ -15,7 +15,8 @@ struct Internal<VKRootSignature> {
     Internal() noexcept = default;
     Internal(wis::managed_handle_ex<VkPipelineLayout> root, std::unique_ptr<VkDescriptorSetLayout[]> vk_dsls, uint32_t dsl_count) noexcept
         : root(std::move(root)), vk_dsls(std::move(vk_dsls)), dsl_count(dsl_count)
-    { }
+    {
+    }
 
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&&) noexcept = default;
@@ -43,6 +44,10 @@ public:
     operator VKRootSignatureView() const noexcept
     {
         return root.get();
+    }
+    operator VKRootSignatureView2() const noexcept
+    {
+        return vk_dsls.get();
     }
     operator bool() const noexcept
     {

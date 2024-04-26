@@ -17,11 +17,13 @@ struct InternalFeatures {
     bool has_descriptor_buffer : 1 = false;
     bool push_descriptor_bufferless : 1 = false;
     bool dynamic_rendering : 1 = false;
+    bool has_mutable_descriptor : 1 = false;
     uint32_t max_ia_attributes = 0;
 };
 
 struct FeatureDetails {
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
+    VkDescriptorType biggest_descriptor;
     uint32_t mutable_descriptor_size = 0;
 };
 
@@ -60,8 +62,14 @@ public:
                                  wis::DeviceFeatures features = wis::DeviceFeatures::None,
                                  InternalFeatures ifeatures = {}) noexcept;
 
-    operator bool() const noexcept { return bool(device); }
-    operator VKDeviceHandle() const noexcept { return device; }
+    operator bool() const noexcept
+    {
+        return bool(device);
+    }
+    operator VKDeviceHandle() const noexcept
+    {
+        return device;
+    }
 
 public:
     [[nodicard]] WIS_INLINE wis::Result
@@ -119,12 +127,15 @@ private:
     CreateAllocatorI() const noexcept;
 
     [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
-        CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
+    CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
     {
-        return table->type == wis::DescriptorHeapType::Descriptor 
-            ? CreateDescriptorSetDescriptorLayout(table) 
-            : CreateDescriptorSetSamplerLayout(table);
+        return table->type == wis::DescriptorHeapType::Descriptor
+                ? CreateDescriptorSetDescriptorLayout(table)
+                : CreateDescriptorSetSamplerLayout(table);
     }
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
+    CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
     CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept;

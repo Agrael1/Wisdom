@@ -213,6 +213,53 @@ void App::CreateResources()
         std::copy(lut_data.data.get(), lut_data.data.get() + lut_data.stride * lut_data.stride * lut_data.stride * 4, lut_data_buffer.Map<float>());
         lut_data_buffer.Unmap();
 
+        {
+            wis::DescriptorTableEntry entries[] = {
+                {
+                        .type = wis::DescriptorType::ShaderResource,
+                        .bind_register = 0,
+                        .binding = 0,
+                        .count = 1,
+                },
+                {
+                        .type = wis::DescriptorType::ShaderResource,
+                        .bind_register = 1,
+                        .binding = 1,
+                        .count = 1,
+                },
+                {
+                        .type = wis::DescriptorType::Sampler,
+                        .bind_register = 0,
+                        .binding = 0,
+                        .count = 1,
+                },
+                {
+                        .type = wis::DescriptorType::Sampler,
+                        .bind_register = 1,
+                        .binding = 1,
+                        .count = 1,
+                },
+            };
+
+            wis::DescriptorTable tables[] = {
+                {
+                        .type = wis::DescriptorHeapType::Descriptor,
+                        .entries = entries,
+                        .entry_count = 2,
+                        .stage = wis::ShaderStages::Pixel,
+                },
+                {
+                        .type = wis::DescriptorHeapType::Sampler,
+                        .entries = entries + 2,
+                        .entry_count = 2,
+                        .stage = wis::ShaderStages::Pixel,
+                },
+
+            };
+            auto [result, hroot] = device.CreateRootSignature(nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
+            root = std::move(hroot);
+        }
+
         // Create Texture
         {
             using namespace wis;
@@ -344,8 +391,8 @@ void App::CreateResources()
                                                                                                                                                         } });
         srv_lut = std::move(hsrv2);
         srv = std::move(hsrv);
-        desc_buffer.WriteShaderResource(0, srv_lut);
-        desc_buffer.WriteShaderResource(1, srv);
+        auto offset = desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_lut);
+        desc_buffer.WriteShaderResource(offset, 0, 1, 0, root, srv);
     }
 
     {
@@ -359,53 +406,6 @@ void App::CreateResources()
         vertex_shader = std::move(vs);
         pixel_shader = std::move(ps);
         pixel_shader_tetra = std::move(ps2);
-    }
-
-    {
-        wis::DescriptorTableEntry entries[] = {
-            {
-                    .type = wis::DescriptorType::ShaderResource,
-                    .bind_register = 0,
-                    .binding = 0,
-                    .count = 1,
-            },
-            {
-                    .type = wis::DescriptorType::ShaderResource,
-                    .bind_register = 1,
-                    .binding = 1,
-                    .count = 1,
-            },
-            {
-                    .type = wis::DescriptorType::Sampler,
-                    .bind_register = 0,
-                    .binding = 0,
-                    .count = 1,
-            },
-            {
-                    .type = wis::DescriptorType::Sampler,
-                    .bind_register = 1,
-                    .binding = 1,
-                    .count = 1,
-            },
-        };
-
-        wis::DescriptorTable tables[] = {
-            {
-                    .type = wis::DescriptorHeapType::Descriptor,
-                    .entries = entries,
-                    .entry_count = 2,
-                    .stage = wis::ShaderStages::Pixel,
-            },
-            {
-                    .type = wis::DescriptorHeapType::Sampler,
-                    .entries = entries + 2,
-                    .entry_count = 2,
-                    .stage = wis::ShaderStages::Pixel,
-            },
-
-        };
-        auto [result, hroot] = device.CreateRootSignature(nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
-        root = std::move(hroot);
     }
 
     {

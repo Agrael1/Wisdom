@@ -89,7 +89,9 @@ public:
 
     WIS_INLINE void SetDescriptorBuffers(const wis::DX12DescriptorBufferView* buffers, uint32_t buffer_count) noexcept;
 
-    WIS_INLINE void SetDescriptorTableOffset(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_descriptors) noexcept;
+    WIS_INLINE void SetDescriptorTableOffset(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_bytes) noexcept;
+
+    WIS_INLINE void SetDescriptorTableOffset2(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_descriptors) noexcept;
 
 protected:
     bool closed = false;

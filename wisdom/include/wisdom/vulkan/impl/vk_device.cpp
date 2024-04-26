@@ -37,6 +37,47 @@ constexpr static inline std::array required_extensions{
     // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
 };
 
+namespace wis::detail {
+struct equal_string_view {
+    bool operator()(std::string_view a, std::string_view b) const noexcept
+    {
+        return a == b;
+    }
+};
+
+inline std::pair<VkDescriptorType, uint32_t>
+BiggestDescriptor(const VkPhysicalDeviceDescriptorBufferPropertiesEXT& dbufprops, bool mutable_desc)
+{
+    uint32_t size = std::max({
+            dbufprops.uniformBufferDescriptorSize,
+            dbufprops.storageBufferDescriptorSize,
+
+            dbufprops.sampledImageDescriptorSize,
+            dbufprops.storageImageDescriptorSize,
+
+            dbufprops.storageTexelBufferDescriptorSize,
+            dbufprops.uniformTexelBufferDescriptorSize,
+    });
+    if (mutable_desc)
+        return { VK_DESCRIPTOR_TYPE_MUTABLE_EXT, size };
+
+    if (size == dbufprops.uniformBufferDescriptorSize)
+        return { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, size };
+    if (size == dbufprops.storageBufferDescriptorSize)
+        return { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, size };
+    if (size == dbufprops.sampledImageDescriptorSize)
+        return { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, size };
+    if (size == dbufprops.storageImageDescriptorSize)
+        return { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, size };
+    if (size == dbufprops.storageTexelBufferDescriptorSize)
+        return { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, size };
+    if (size == dbufprops.uniformTexelBufferDescriptorSize)
+        return { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, size };
+
+    return { VK_DESCRIPTOR_TYPE_MAX_ENUM, 0 };
+}
+} // namespace wis::detail
+
 inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
 {
     std::vector<VkExtensionProperties> ext_props;
@@ -181,11 +222,13 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         };
     }
 
+    bool has_mutable_desc = false;
+
     auto present_exts = RequestExtensions(hadapter, itable);
-    if (!present_exts.contains(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
+    if (!present_exts.contains<wis::detail::equal_string_view>(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
         return wis::make_result<FUNC, "The system does not support timeline semaphores.">(VkResult::VK_ERROR_UNKNOWN);
 
-    if (!present_exts.contains(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
+    if (!present_exts.contains<wis::detail::equal_string_view>(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
         return wis::make_result<FUNC, "The system does not support synchronization primitives.">(VkResult::VK_ERROR_UNKNOWN);
 
     // Loading features
@@ -215,14 +258,14 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .pNext = nullptr,
         .extendedDynamicState2 = true,
     };
-    if (present_exts.contains(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME)) // TODO: Check if there is such extension
+    if (present_exts.contains<wis::detail::equal_string_view>(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME)) // TODO: Check if there is such extension
         set_next(&extdyn_features);
 
     VkPhysicalDeviceDescriptorBufferFeaturesEXT descbuffer_features{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
         .pNext = nullptr,
     };
-    if (present_exts.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME))
+    if (present_exts.contains<wis::detail::equal_string_view>(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME))
         set_next(&descbuffer_features);
 
     VkPhysicalDeviceDynamicRenderingFeaturesKHR dyn_render{
@@ -230,7 +273,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .pNext = nullptr,
         .dynamicRendering = true,
     };
-    if (present_exts.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+    if (present_exts.contains<wis::detail::equal_string_view>(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
         set_next(&dyn_render);
 
     VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE mutable_desc_features{
@@ -238,8 +281,8 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .pNext = nullptr,
         .mutableDescriptorType = true,
     };
-    if (present_exts.contains(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME) ||
-        present_exts.contains(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME))
+    if (has_mutable_desc = present_exts.contains<wis::detail::equal_string_view>(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME) ||
+                present_exts.contains<wis::detail::equal_string_view>(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME))
         set_next(&mutable_desc_features);
 
     VkPhysicalDeviceCustomBorderColorFeaturesEXT border_color_features{
@@ -247,7 +290,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .pNext = nullptr,
         .customBorderColors = true,
     };
-    if (present_exts.contains(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME))
+    if (present_exts.contains<wis::detail::equal_string_view>(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME))
         set_next(&border_color_features);
 
     VkPhysicalDeviceBufferDeviceAddressFeatures buffer_address_features{
@@ -274,8 +317,9 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
 
     // Creating device
     InternalFeatures ifeatures{
-        .has_descriptor_buffer = present_exts.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME),
+        .has_descriptor_buffer = present_exts.contains<wis::detail::equal_string_view>(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME),
         .dynamic_rendering = bool(dyn_render.dynamicRendering),
+        .has_mutable_descriptor = bool(has_mutable_desc),
     };
     DeviceFeatures dfeatures =
             DeviceFeatures(+DeviceFeatures::PushDescriptors & int(ifeatures.has_descriptor_buffer));
@@ -334,18 +378,10 @@ wis::VKDevice::VKDevice(wis::SharedDevice in_device,
     itable.vkGetPhysicalDeviceProperties2(adapter.GetInternal().adapter, &props);
 
     if (ifeatures.has_descriptor_buffer) {
-        feature_details->mutable_descriptor_size = std::max({
-                descriptor_buffer_properties.uniformBufferDescriptorSize,
-                descriptor_buffer_properties.storageBufferDescriptorSize,
+        auto [desc_type, desc_size] = detail::BiggestDescriptor(descriptor_buffer_properties, ifeatures.has_mutable_descriptor);
+        feature_details->biggest_descriptor = desc_type;
+        feature_details->mutable_descriptor_size = desc_size;
 
-                descriptor_buffer_properties.sampledImageDescriptorSize,
-                descriptor_buffer_properties.storageImageDescriptorSize,
-
-                descriptor_buffer_properties.storageTexelBufferDescriptorSize,
-                descriptor_buffer_properties.uniformTexelBufferDescriptorSize,
-        });
-    }
-    if (ifeatures.has_descriptor_buffer) {
         ifeatures.push_descriptor_bufferless = descriptor_buffer_properties.bufferlessPushDescriptors;
     }
     ifeatures.max_ia_attributes = props.properties.limits.maxVertexInputAttributes;
@@ -1168,7 +1204,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         return wis::make_result<FUNC, "Failed to create an allocator">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
-            ? feature_details->mutable_descriptor_size
+            ? ifeatures.has_mutable_descriptor ? feature_details->mutable_descriptor_size : 0u
             : feature_details->descriptor_buffer_properties.samplerDescriptorSize;
 
     VkBufferUsageFlags usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
@@ -1176,30 +1212,20 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
                      ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
                      : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
 
-    wis::DescriptorType desc_type = heap_type == wis::DescriptorHeapType::Descriptor
-            ? wis::DescriptorType::ShaderResource
-            : wis::DescriptorType::Sampler;
-
-    wis::DescriptorTableEntry entry{
-        .type = desc_type,
-        .bind_register = 0,
-        .count = descriptor_count,
+    VkDescriptorSetLayoutBinding binding{
+        .binding = 0,
+        .descriptorType = heap_type == wis::DescriptorHeapType::Descriptor
+                ? feature_details->biggest_descriptor
+                : VK_DESCRIPTOR_TYPE_SAMPLER,
+        .descriptorCount = descriptor_count,
+        .stageFlags = VK_SHADER_STAGE_ALL,
+        .pImmutableSamplers = nullptr,
     };
-
-    wis::DescriptorTable table{
-        .type = heap_type,
-        .entries = &entry,
-        .entry_count = 1,
-        .stage = wis::ShaderStages::All,
-    };
-    auto [res, dsl] = CreateDescriptorSetLayout(&table);
+    auto [res, dsl] = CreateDummyDescriptorSetLayout(binding);
     if (res.status != wis::Status::Ok)
         return res;
 
-    VkDeviceSize descriptor_offset = 0;
     VkDeviceSize descriptor_set_size = 0;
-
-    device.table().vkGetDescriptorSetLayoutBindingOffsetEXT(device.get(), dsl, 0, &descriptor_offset);
     device.table().vkGetDescriptorSetLayoutSizeEXT(device.get(), dsl, &descriptor_set_size);
     device.table().vkDestroyDescriptorSetLayout(device.get(), dsl, nullptr);
 
@@ -1228,12 +1254,56 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
 
-    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, feature_details->descriptor_buffer_properties, uint32_t(descriptor_size), uint32_t(descriptor_offset) };
+    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, feature_details->descriptor_buffer_properties, uint32_t(descriptor_size) };
+}
+
+wis::ResultValue<VkDescriptorSetLayout>
+wis::VKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept
+{
+    bool has_mutable = ifeatures.has_mutable_descriptor;
+    constexpr static VkDescriptorType cbvSrvUavTypes[] = {
+        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+        VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
+        VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+        VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+        // VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR /* Need to check support if this is desired. */
+    };
+
+    constexpr static VkMutableDescriptorTypeListVALVE bindings_mutable{
+        .descriptorTypeCount = 1,
+        .pDescriptorTypes = cbvSrvUavTypes
+    };
+
+    constexpr static VkMutableDescriptorTypeCreateInfoEXT mutable_type_info{
+        .sType = VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .mutableDescriptorTypeListCount = 1,
+        .pMutableDescriptorTypeLists = &bindings_mutable,
+    };
+
+    VkDescriptorSetLayoutCreateInfo desc{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext = has_mutable && binding.descriptorType != VK_DESCRIPTOR_TYPE_SAMPLER ? &mutable_type_info : nullptr,
+        .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT,
+        .bindingCount = 1,
+        .pBindings = &binding,
+    };
+
+    VkDescriptorSetLayout layout;
+    auto result = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
+
+    if (!succeeded(result))
+        return wis::make_result<FUNC, "Failed to create a descriptor set layout">(result);
+
+    return layout;
 }
 
 wis::ResultValue<VkDescriptorSetLayout>
 wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept
 {
+    bool has_mutable = ifeatures.has_mutable_descriptor;
     constexpr static VkDescriptorType cbvSrvUavTypes[] = {
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -1250,15 +1320,17 @@ wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* t
     };
 
     wis::detail::limited_allocator<VkDescriptorSetLayoutBinding, 32> bindings{ table->entry_count, true };
-    wis::detail::limited_allocator<VkMutableDescriptorTypeListVALVE, 32> bindings_mutable{ table->entry_count, true };
+    wis::detail::limited_allocator<VkMutableDescriptorTypeListVALVE, 32> bindings_mutable{ has_mutable ? table->entry_count : 0, true };
+
+    if (has_mutable)
+        for (size_t i = 0; i < table->entry_count; i++)
+            bindings_mutable.data()[i] = a;
 
     for (size_t i = 0; i < table->entry_count; i++) {
-        bindings_mutable.data()[i] = a;
-
         auto& entry = table->entries[i];
         bindings.data()[i] = {
             .binding = entry.binding,
-            .descriptorType = VK_DESCRIPTOR_TYPE_MUTABLE_EXT,
+            .descriptorType = has_mutable ? VK_DESCRIPTOR_TYPE_MUTABLE_EXT : convert_vk(entry.type),
             .descriptorCount = entry.count,
             .stageFlags = uint32_t(convert_vk(table->stage)),
             .pImmutableSamplers = nullptr,
@@ -1273,7 +1345,7 @@ wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* t
 
     VkDescriptorSetLayoutCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .pNext = &mutableTypeInfo,
+        .pNext = has_mutable ? &mutableTypeInfo : nullptr,
         .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT,
         .bindingCount = table->entry_count,
         .pBindings = bindings.data(),
