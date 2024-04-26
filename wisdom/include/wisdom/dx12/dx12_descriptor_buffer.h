@@ -68,7 +68,7 @@ public:
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
     uint64_t WriteShaderResource(uint64_t buffer_offset_before_table,
-                                 [[maybe_unused]]uint32_t root_table_index,
+                                 [[maybe_unused]] uint32_t root_table_index,
                                  uint32_t binding,
                                  uint32_t array_member,
                                  [[maybe_unused]] wis::DX12RootSignatureView root_signature,

@@ -30,10 +30,10 @@ void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureV
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
-                .aspectMask = aspect_flags(std::get<1>(dest_texture)),
-                .mipLevel = region.texture.mip,
-                .baseArrayLayer = region.texture.array_layer,
-                .layerCount = 1u,
+                    .aspectMask = aspect_flags(std::get<1>(dest_texture)),
+                    .mipLevel = region.texture.mip,
+                    .baseArrayLayer = region.texture.array_layer,
+                    .layerCount = 1u,
             },
             .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
             .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
@@ -65,10 +65,10 @@ void wis::VKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBuffer
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
-                .aspectMask = aspect_flags(std::get<1>(src_texture)),
-                .mipLevel = region.texture.mip,
-                .baseArrayLayer = region.texture.array_layer,
-                .layerCount = 1u,
+                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                    .mipLevel = region.texture.mip,
+                    .baseArrayLayer = region.texture.array_layer,
+                    .layerCount = 1u,
             },
             .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
             .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
@@ -157,11 +157,11 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image = texture,
         .subresourceRange = {
-            .aspectMask = aspect_flags(format),
-            .baseMipLevel = subresource.base_mip_level,
-            .levelCount = subresource.level_count,
-            .baseArrayLayer = subresource.base_array_layer,
-            .layerCount = subresource.layer_count,
+                .aspectMask = aspect_flags(format),
+                .baseMipLevel = subresource.base_mip_level,
+                .levelCount = subresource.level_count,
+                .baseArrayLayer = subresource.base_array_layer,
+                .layerCount = subresource.layer_count,
         }
     };
 }
@@ -259,8 +259,8 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
         };
         if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
             data[i].clearValue = {
-            .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
-        };
+                .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
+            };
     }
 
     VkRenderingInfo info{
@@ -268,8 +268,8 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
         .pNext = nullptr,
         .flags = convert_vk(pass_desc->flags),
         .renderArea = {
-            .offset = { 0, 0 },
-            .extent = { extent.width, extent.height },
+                .offset = { 0, 0 },
+                .extent = { extent.width, extent.height },
         },
         .layerCount = 1,
         .viewMask = 0,
@@ -357,10 +357,10 @@ void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resource
 }
 
 void wis::VKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-        uint32_t instance_count,
-        uint32_t start_index,
-        uint32_t base_vertex,
-        uint32_t start_instance) noexcept
+                                              uint32_t instance_count,
+                                              uint32_t start_index,
+                                              uint32_t base_vertex,
+                                              uint32_t start_instance) noexcept
 {
     device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
@@ -385,13 +385,13 @@ void wis::VKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView*
 
     VkDescriptorBufferBindingInfoEXT infos[2] = {
         {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-            .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT,
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
+                .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT,
         },
 
         {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-            .usage = VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT,
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
+                .usage = VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT,
         }
     };
 
@@ -422,7 +422,7 @@ void wis::VKCommandList::SetDescriptorTableOffset2(uint32_t root_table_index, wi
     VkDeviceSize offset = VkDeviceSize(offset_descriptors) * std::get<2>(buffer);
 
     device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
-            &index, &offset);
+                                                      &index, &offset);
 }
 
 void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_bytes) noexcept
@@ -432,5 +432,5 @@ void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis
     VkDeviceSize offset = offset_bytes;
 
     device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
-            &index, &offset);
+                                                      &index, &offset);
 }
