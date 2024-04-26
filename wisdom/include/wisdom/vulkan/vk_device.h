@@ -62,8 +62,12 @@ public:
                                  wis::DeviceFeatures features = wis::DeviceFeatures::None,
                                  InternalFeatures ifeatures = {}) noexcept;
 
-    operator bool() const noexcept { return bool(device); }
-    operator VKDeviceHandle() const noexcept { return device; }
+    operator bool() const noexcept {
+        return bool(device);
+    }
+    operator VKDeviceHandle() const noexcept {
+        return device;
+    }
 
 public:
     [[nodicard]] WIS_INLINE wis::Result
@@ -121,11 +125,11 @@ private:
     CreateAllocatorI() const noexcept;
 
     [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
-        CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
+    CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
     {
-        return table->type == wis::DescriptorHeapType::Descriptor 
-            ? CreateDescriptorSetDescriptorLayout(table) 
-            : CreateDescriptorSetSamplerLayout(table);
+        return table->type == wis::DescriptorHeapType::Descriptor
+               ? CreateDescriptorSetDescriptorLayout(table)
+               : CreateDescriptorSetSamplerLayout(table);
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>

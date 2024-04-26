@@ -53,7 +53,9 @@ public:
                                 VkPhysicalDeviceDescriptorBufferPropertiesEXT& properties,
                                 uint32_t descriptor_size) noexcept
         : QueryInternal(std::move(allocator), buffer, allocation, type, properties, descriptor_size) { }
-    operator bool() const noexcept { return bool(buffer); }
+    operator bool() const noexcept {
+        return bool(buffer);
+    }
     operator VKDescriptorBufferView() const noexcept
     {
         return { address, type, descriptor_size };

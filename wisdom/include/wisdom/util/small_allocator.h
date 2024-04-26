@@ -267,7 +267,8 @@ private:
             uint32_t capacity;
         };
     };
-    uint32_t limit : sizeof(uint32_t) * CHAR_BIT - 1 = uint32_t(0x7FFFFFFF);
+uint32_t limit :
+    sizeof(uint32_t) * CHAR_BIT - 1 = uint32_t(0x7FFFFFFF);
     uint32_t is_heap : 1 = 0;
 };
 } // namespace wis::detail
