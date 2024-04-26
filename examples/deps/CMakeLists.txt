@@ -13,9 +13,8 @@ if(WISDOM_WINDOWS)
 
   # Windows Implementation Library (WIL)
   message("Loading WIL...")
-  load_nuget_dependency(
-    ${NUGET_EXE} "Microsoft.Windows.ImplementationLibrary" WIL
-    ${CMAKE_CURRENT_BINARY_DIR})
+  load_nuget_dependency(${NUGET_EXE} "Microsoft.Windows.ImplementationLibrary"
+                        WIL ${CMAKE_CURRENT_BINARY_DIR})
 
   set(wil_SOURCES
       ${WIL_DIR}
