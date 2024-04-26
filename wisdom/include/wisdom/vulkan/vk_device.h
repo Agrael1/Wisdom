@@ -17,11 +17,13 @@ struct InternalFeatures {
     bool has_descriptor_buffer : 1 = false;
     bool push_descriptor_bufferless : 1 = false;
     bool dynamic_rendering : 1 = false;
+    bool has_mutable_descriptor : 1 = false;
     uint32_t max_ia_attributes = 0;
 };
 
 struct FeatureDetails {
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
+    VkDescriptorType biggest_descriptor;
     uint32_t mutable_descriptor_size = 0;
 };
 
@@ -125,6 +127,9 @@ private:
             ? CreateDescriptorSetDescriptorLayout(table) 
             : CreateDescriptorSetSamplerLayout(table);
     }
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
+    CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
     CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept;

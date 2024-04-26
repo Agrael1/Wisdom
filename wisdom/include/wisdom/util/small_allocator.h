@@ -142,9 +142,14 @@ public:
 
     /// @brief Checks if the allocator contains an object
     /// @param ref Reference to the object to check
+    template<typename C = std::equal_to<T>>
     bool contains(const T& ref) const noexcept
     {
-        return std::ranges::find(*this, ref) != this->end();
+        for (size_t i = 0; i < rsize; i++) {
+            if (C{}(ref, this->data()[i]))
+                return true;
+        }
+        return false;
     }
 
 private:

@@ -265,7 +265,7 @@ void Test::App::CreateResources()
                                                                                                                                                                .layer_count = 1,
                                                                                                                                                        } });
         srv = std::move(hsrv);
-        desc_buffer.WriteShaderResource(0, srv);
+        desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv);
         desc_buffer.WriteConstantBuffer(1, cbuf, sizeof(float) * 4);
     }
 

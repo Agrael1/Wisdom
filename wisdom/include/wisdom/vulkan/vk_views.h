@@ -13,12 +13,13 @@ using VKPipelineHandle = std::tuple<wis::SharedPipeline>;
 using VKFenceView = std::tuple<VkSemaphore>;
 using VKShaderView = std::tuple<VkShaderModule>;
 using VKRootSignatureView = std::tuple<VkPipelineLayout>;
+using VKRootSignatureView2 = std::tuple<VkDescriptorSetLayout*>;
 using VKCommandListView = std::tuple<VkCommandBuffer>;
 using VKQueueView = std::tuple<VkQueue>;
 using VKTextureView = std::tuple<VkImage, VkFormat, wis::Size2D>;
 using VKBufferView = std::tuple<VkBuffer>;
 using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
-using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType, uint32_t, uint32_t>;
+using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType, uint32_t>;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 } // namespace wis

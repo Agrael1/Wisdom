@@ -59,7 +59,7 @@ public:
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
     }
 
-    void WriteShaderResource(uint32_t index, wis::DX12ShaderResourceView resource) noexcept
+    void WriteShaderResource2(uint32_t index, wis::DX12ShaderResourceView resource) noexcept
     {
         auto handle = heap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += index * heap_increment;
@@ -67,14 +67,27 @@ public:
         auto sampler_handle = std::get<0>(resource);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
+    uint64_t WriteShaderResource(uint64_t buffer_offset_before_table,
+                                 [[maybe_unused]]uint32_t root_table_index,
+                                 uint32_t binding,
+                                 uint32_t array_member,
+                                 [[maybe_unused]] wis::DX12RootSignatureView root_signature,
+                                 wis::DX12ShaderResourceView resource) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += buffer_offset_before_table + (binding + array_member) * heap_increment;
+
+        auto sampler_handle = std::get<0>(resource);
+        device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        return buffer_offset_before_table + (binding + array_member) * heap_increment + heap_increment;
+    }
 
     void WriteConstantBuffer(uint32_t index, wis::DX12BufferView buffer, uint32_t size) noexcept
     {
         auto handle = heap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += index * heap_increment;
 
-        D3D12_CONSTANT_BUFFER_VIEW_DESC desc
-        {
+        D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
             .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress(),
             .SizeInBytes = wis::detail::aligned_size(size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
         };

@@ -44,6 +44,10 @@ public:
     {
         return root.get();
     }
+    operator VKRootSignatureView2() const noexcept
+    {
+        return vk_dsls.get();
+    }
     operator bool() const noexcept
     {
         return bool(root);
