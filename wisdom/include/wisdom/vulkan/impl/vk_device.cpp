@@ -45,7 +45,7 @@ struct equal_string_view {
     }
 };
 
-inline std::pair<VkDescriptorType, uint32_t> 
+inline std::pair<VkDescriptorType, uint32_t>
 BiggestDescriptor(const VkPhysicalDeviceDescriptorBufferPropertiesEXT& dbufprops, bool mutable_desc)
 {
     uint32_t size = std::max({

@@ -216,7 +216,7 @@ void App::CreateResources()
         sampler_buffer = std::move(hdesc2);
     }
 
-        {
+    {
         wis::DescriptorTableEntry entries[] = {
             {
                     .type = wis::DescriptorType::ShaderResource,
@@ -435,8 +435,6 @@ void App::CreateResources()
         pixel_shader = std::move(ps);
         pixel_shader_tetra = std::move(ps2);
     }
-
-
 
     {
         wis::DataFormat attachment_formats[] = { wis::DataFormat::RGBA8Unorm };
