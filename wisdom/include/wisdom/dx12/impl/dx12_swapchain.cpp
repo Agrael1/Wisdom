@@ -8,7 +8,7 @@
 
 wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
 {
-    size_t frame_count = 0;
+    uint32_t frame_count = 0;
 
     DXGI_SWAP_CHAIN_DESC1 desc;
     chain->GetDesc1(&desc);

@@ -59,7 +59,7 @@ App::App(uint32_t width, uint32_t height)
     // auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
     // info = std::move(hinfo);
 
-    for (size_t i = 0;; i++) {
+    for (uint32_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
         if (res.status == wis::Status::Ok) {
             wis::AdapterDesc desc;

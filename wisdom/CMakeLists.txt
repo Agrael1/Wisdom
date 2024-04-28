@@ -55,7 +55,9 @@ target_compile_definitions(
          WISDOM_VERSION=${WISDOM_VERSION}
          WISDOM_LOG_LEVEL=${SEV_INDEX}
          WIS_INLINE=$<IF:$<BOOL:${WISDOM_headers}>,inline,>
-         NOMINMAX)
+         NOMINMAX
+         _CRT_SECURE_NO_WARNINGS
+)
 
 # Inline definition
 if(WISDOM_headers)

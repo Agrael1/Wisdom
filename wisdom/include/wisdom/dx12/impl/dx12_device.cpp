@@ -42,7 +42,7 @@ wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
         return wis::make_result<FUNC, "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set "
                                       "event on multiple fence completion">(hr);
 
-    auto st = e.wait(timeout);
+    auto st = e.wait(uint32_t(timeout));
     return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
             : st != wis::Status::Error ? wis::success
                                        : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
