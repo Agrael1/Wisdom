@@ -53,7 +53,7 @@ int Generator::GenerateCAPI()
     }
 
     // Function implementations
-    std::string output_cpp ="#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
+    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
     for (auto& f : function_impl) {
         output_cpp += f;
     }
@@ -136,7 +136,7 @@ struct ResultValue{
     if (!out_dxapi.is_open())
         return 1;
 
-    std::string dxapi = 
+    std::string dxapi =
             "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
@@ -155,7 +155,7 @@ struct ResultValue{
     if (!out_vkapi.is_open())
         return 1;
 
-    std::string vkapi = 
+    std::string vkapi =
             "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
@@ -879,15 +879,15 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
 
         std::string st_decl =
                 wis::format("{} {}{}{}({})", return_t, impl, func.name == "Destroy" ? func.this_type : "",
-                  func.name, params);
+                            func.name, params);
 
-    function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impl));
+        function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impl));
 
-    st_decl += ";\n";
-    st_decls += st_decl;
-}
+        st_decl += ";\n";
+        st_decls += st_decl;
+    }
 
-return st_decls;
+    return st_decls;
 }
 
 std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_view decl,
@@ -920,7 +920,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             }
 
             args_str +=
-                wis::format("reinterpret_cast<{}{}>({}), ", GetCPPFullTypename(a.type), mod_post, a.name);
+                    wis::format("reinterpret_cast<{}{}>({}), ", GetCPPFullTypename(a.type), mod_post, a.name);
         }
     }
     if (!args_str.empty() && args_str.back() == ' ') {
@@ -929,9 +929,9 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     }
 
     std::string call = has_this ? wis::format("xself->{}({});\n", func.name, args_str)
-                       : wis::format("wis::{}{}({});\n",
-                                     func.impl == ImplementedFor::Unspecified ? "" : impl,
-                                     func.name, args_str);
+                                : wis::format("wis::{}{}({});\n",
+                                              func.impl == ImplementedFor::Unspecified ? "" : impl,
+                                              func.name, args_str);
     if (func.return_types.empty()) {
         return st_decl + call + "}\n";
     }
@@ -948,11 +948,11 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
     // get result index
     auto result = std::ranges::find_if(func.return_types,
-    [](const WisReturnType& t) {
-        return t.type == "Result";
-    });
+                                       [](const WisReturnType& t) {
+                                           return t.type == "Result";
+                                       });
     int64_t result_idx =
-        result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
+            result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
 
     if (result_idx >= 0)
         st_decl += wis::format("    bool ok = std::get<{}>(ret).status == wis::Status::Success;\n",
@@ -965,12 +965,12 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
         if (p.type_info == TypeInfo::Handle)
             st_decl += result_idx < 0 ? wis ::format("    *out_{} = reinterpret_cast<{}>(new "
-                       "{}(std::move(std::get<{}>(ret))));\n",
-                       p.opt_name, out_type, type, i)
-                       : wis::format("    *out_{} = ok ? reinterpret_cast<{}>(new "
-                                     "{}(std::move(std::get<{}>(ret)))) : "
-                                     "reinterpret_cast<{}>(nullptr);\n",
-                                     p.opt_name, out_type, type, i, out_type);
+                                                     "{}(std::move(std::get<{}>(ret))));\n",
+                                                     p.opt_name, out_type, type, i)
+                                      : wis::format("    *out_{} = ok ? reinterpret_cast<{}>(new "
+                                                    "{}(std::move(std::get<{}>(ret)))) : "
+                                                    "reinterpret_cast<{}>(nullptr);\n",
+                                                    p.opt_name, out_type, type, i, out_type);
         else
             st_decl += wis::format("    if(ok) *out_{} = reinterpret_cast<{}&>(std::get<{}>(ret))",
                                    p.opt_name, out_type, i);
@@ -1104,19 +1104,19 @@ std::string Generator::MakeCPPDelegate(const WisFunction& func)
     size_t max = func.impl == Both ? 2 : 1;
     size_t min = func.impl == Both ? 1 : func.impl;
     auto ximpls = func.impl == Unspecified ? std::span{ impls }.subspan(0, 1)
-                  : std::span{ impls }.subspan(min, max);
+                                           : std::span{ impls }.subspan(min, max);
 
     for (auto&& impl : ximpls) {
         std::string return_t =
-            func.return_types.empty() ? "void" : GetCPPFullTypename(func.return_types[0].type, impl);
+                func.return_types.empty() ? "void" : GetCPPFullTypename(func.return_types[0].type, impl);
 
         std::string this_t = func.this_type.empty() ? "" : GetCPPFullTypename(func.this_type, impl);
 
         std::string params =
-            this_t.empty()
-            ? ""
-            : wis::format("{} self, ",
-                          func.this_type_info == TypeInfo::Handle ? this_t : this_t + '*');
+                this_t.empty()
+                ? ""
+                : wis::format("{} self, ",
+                              func.this_type_info == TypeInfo::Handle ? this_t : this_t + '*');
         for (auto& p : func.parameters) {
             params += wis::format("{}, ", GetCPPFullArg(p, impl));
         }
@@ -1145,19 +1145,19 @@ std::string Generator::MakeDelegate(const WisFunction& func)
     size_t max = func.impl == Both ? 2 : 1;
     size_t min = func.impl == Both ? 1 : func.impl;
     auto ximpls = func.impl == Unspecified ? std::span{ impls }.subspan(0, 1)
-                  : std::span{ impls }.subspan(min, max);
+                                           : std::span{ impls }.subspan(min, max);
 
     for (auto&& impl : ximpls) {
         std::string return_t =
-            func.return_types.empty() ? "void" : GetCFullTypename(func.return_types[0].type, impl);
+                func.return_types.empty() ? "void" : GetCFullTypename(func.return_types[0].type, impl);
 
         std::string this_t = func.this_type.empty() ? "" : GetCFullTypename(func.this_type, impl);
 
         std::string params =
-            this_t.empty()
-            ? ""
-            : wis::format("{} self, ",
-                          func.this_type_info == TypeInfo::Handle ? this_t : this_t + '*');
+                this_t.empty()
+                ? ""
+                : wis::format("{} self, ",
+                              func.this_type_info == TypeInfo::Handle ? this_t : this_t + '*');
         for (auto& p : func.parameters) {
             params += wis::format("{}, ", GetCFullArg(p, impl));
         }
