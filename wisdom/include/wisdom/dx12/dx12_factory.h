@@ -22,6 +22,7 @@ DX12CreateFactory(bool debug_layer = false) noexcept;
 class DX12Factory : public QueryInternal<DX12Factory>
 {
     friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool) noexcept;
+
 public:
     DX12Factory() noexcept = default;
     WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer = false) noexcept;
@@ -30,8 +31,14 @@ public:
     DX12Factory(const DX12Factory&) = delete;
     DX12Factory& operator=(const DX12Factory&) = delete;
 
-    operator bool() const noexcept { return bool(factory); }
-    operator DX12FactoryHandle() const noexcept { return factory.get(); }
+    operator bool() const noexcept
+    {
+        return bool(factory);
+    }
+    operator DX12FactoryHandle() const noexcept
+    {
+        return factory.get();
+    }
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Adapter>

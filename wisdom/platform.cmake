@@ -1,6 +1,6 @@
 
 if(WISDOM_WINDOWS)
-	wisdom_sources(TARGET ${PROJECT_NAME} 
+	wisdom_sources(TARGET ${PROJECT_NAME}
 		HEADERS
 			"include/wisdom/platform/win32.h"
 		SOURCES
@@ -12,7 +12,7 @@ if(WISDOM_WINDOWS)
 		target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_WINDOWS_STORE=1)
 	endif()
 elseif(WISDOM_LINUX)
-	wisdom_sources(TARGET ${PROJECT_NAME} 
+	wisdom_sources(TARGET ${PROJECT_NAME}
 		HEADERS
 			"include/wisdom/platform/linux.h"
 		SOURCES
@@ -21,7 +21,7 @@ elseif(WISDOM_LINUX)
 			WISDOM_LINUX=1
 	)
 elseif(WISDOM_MAC)
-	wisdom_sources(TARGET ${PROJECT_NAME} 
+	wisdom_sources(TARGET ${PROJECT_NAME}
 		HEADERS
 			"include/wisdom/platform/mac.h"
 		SOURCES
