@@ -27,23 +27,23 @@ public:
     }
 
 public:
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
     CreateCommitedBuffer(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
 
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
     CreateUploadBuffer(uint64_t size) const noexcept;
 
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
     CreateReadbackBuffer(uint64_t size) const noexcept;
 
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKTexture>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
     CreateTexture(wis::TextureDesc desc) const noexcept;
 
 private:
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKBuffer>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
     CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 
-    WIS_INLINE [[nodiscard]] wis::ResultValue<VKTexture>
+    [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
     CreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 };
 } // namespace wis

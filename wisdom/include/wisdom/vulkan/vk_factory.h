@@ -36,7 +36,7 @@ struct Internal<VKFactory> {
     bool debug_layer = false;
 };
 
-WIS_INLINE [[nodiscard]] wis::ResultValue<wis::VKFactory>
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
 VKCreateFactory(bool debug_layer = false) noexcept;
 
 class VKFactory : public QueryInternal<VKFactory>

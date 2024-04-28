@@ -30,7 +30,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
 
 if(WISDOM_USE_FMT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_USE_FMT)
-  target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+  target_link_libraries(${PROJECT_NAME} PRIVATE fmt)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23)

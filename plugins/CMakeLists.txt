@@ -3,7 +3,7 @@ include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 if(WISDOM_USE_FMT)
-  find_package(fmt QUIET)
+  find_package(fmt 10.0 CONFIG)
   if(fmt_FOUND)
 	message("fmtlib found, skipping download.")
   else()
@@ -11,8 +11,14 @@ if(WISDOM_USE_FMT)
     FetchContent_Declare(
       fmt
       GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-      GIT_TAG origin/master)
+      GIT_TAG origin/master
+      OVERRIDE_FIND_PACKAGE)
     FetchContent_MakeAvailable(fmt)
+  endif()
+  if(WISDOM_headers)
+    set(FMT_TARGET fmt::fmt-header-only CACHE INTERNAL "" FORCE)
+  else()
+    set(FMT_TARGET fmt::fmt CACHE INTERNAL "" FORCE)
   endif()
 endif()
 

@@ -7,6 +7,7 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/util/small_allocator.h>
 #include <algorithm>
+#include <limits>
 
 wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image_size) noexcept
 {

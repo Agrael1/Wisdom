@@ -77,7 +77,7 @@ public:
     CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept;
 };
 
-WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Device>
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
 DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept;
 } // namespace wis
 

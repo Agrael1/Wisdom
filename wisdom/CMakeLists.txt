@@ -2,6 +2,7 @@
 project(Wisdom)
 
 include(cmake/documentation.cmake)
+find_package(fmt QUIET)
 
 add_library(${PROJECT_NAME} ${WISDOM_BTYPE})
 
@@ -65,7 +66,9 @@ endif()
 # Formatting library
 if(WISDOM_USE_FMT)
   target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_USE_FMT)
-  target_link_libraries(${PROJECT_NAME} ${WISDOM_PUBLIC} fmt::fmt)
+
+  message(STATUS "Using fmt library ${FMT_TARGET}")
+  target_link_libraries(${PROJECT_NAME} ${WISDOM_PUBLIC} ${FMT_TARGET})
 endif()
 
 # API generation

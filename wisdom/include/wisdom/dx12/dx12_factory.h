@@ -15,7 +15,7 @@ struct Internal<DX12Factory> {
     bool debug_layer = false;
 };
 
-WIS_INLINE [[nodiscard]] wis::ResultValue<wis::DX12Factory>
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Factory>
 DX12CreateFactory(bool debug_layer = false) noexcept;
 
 /// @brief Main Factory class
