@@ -162,9 +162,9 @@ function(wis_compile_shader)
 	endif()
 
     if(WISDOM_WINDOWS_STORE)
-        file(TOUCH ${OUPUT_CSO})
-        target_sources(${TARGET} PRIVATE ${OUPUT_CSO})
-        set_property(SOURCE ${OUPUT_CSO} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+        file(TOUCH ${OUTPUT_DXIL})
+        target_sources(${TARGET} PRIVATE ${OUTPUT_DXIL})
+        set_property(SOURCE ${OUTPUT_DXIL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
     endif()
 
     if(WISDOM_WINDOWS)

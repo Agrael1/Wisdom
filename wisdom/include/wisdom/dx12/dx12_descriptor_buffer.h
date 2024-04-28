@@ -89,7 +89,7 @@ public:
 
         D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
             .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress(),
-            .SizeInBytes = wis::detail::aligned_size(size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
+            .SizeInBytes = wis::detail::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT))
         };
 
         device->CreateConstantBufferView(&desc, handle);

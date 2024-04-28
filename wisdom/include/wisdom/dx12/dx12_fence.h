@@ -25,8 +25,14 @@ struct unique_event {
         if (hevent)
             CloseHandle(hevent);
     }
-    auto get() const noexcept { return hevent; }
-    operator bool() const noexcept { return bool(hevent); }
+    auto get() const noexcept
+    {
+        return hevent;
+    }
+    operator bool() const noexcept
+    {
+        return bool(hevent);
+    }
     wis::Status wait(uint32_t wait_ms) const noexcept
     {
         auto st = WaitForSingleObject(hevent, wait_ms);
@@ -60,25 +66,35 @@ public:
     DX12Fence(DX12Fence&& o) noexcept = default;
     DX12Fence& operator=(DX12Fence&& o) noexcept = default;
 
-    operator DX12FenceView() const noexcept { return fence.get(); }
+    operator DX12FenceView() const noexcept
+    {
+        return fence.get();
+    }
 
-    operator bool() const noexcept { return bool(fence); }
+    operator bool() const noexcept
+    {
+        return bool(fence);
+    }
 
 public:
     /// @brief Get the current value of the fence.
     /// @return Value of the fence.
-    [[nodiscrd]] uint64_t GetCompletedValue() const noexcept { return fence->GetCompletedValue(); }
+    [[nodiscard]] uint64_t
+    GetCompletedValue() const noexcept
+    {
+        return fence->GetCompletedValue();
+    }
 
     /// @brief Wait for the fence to reach a certain value.
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
-    WIS_INLINE [[nodiscrd]] wis::Result
+    WIS_INLINE [[nodiscard]] wis::Result
     Wait(uint64_t value,
          uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.
-    WIS_INLINE [[nodiscrd]] wis::Result Signal(uint64_t value) const noexcept
+    WIS_INLINE [[nodiscard]] wis::Result Signal(uint64_t value) const noexcept
     {
         HRESULT hr = fence->Signal(value);
         return !succeeded(hr) ? wis::make_result<FUNC, "Failed to signal fence">(hr) : wis::success;

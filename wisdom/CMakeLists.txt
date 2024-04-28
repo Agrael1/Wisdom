@@ -11,51 +11,51 @@ include(dx12.cmake)
 include(vulkan.cmake)
 
 # Add common sources
-target_sources(${PROJECT_NAME}
-  ${WISDOM_PUBLIC} 
-    FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include 
-    FILES 
-        "include/wisdom/global/definitions.h"
-        "include/wisdom/global/internal.h"
-        "include/wisdom/util/com_ptr.h"
-
-        
-        "include/wisdom/wisdom.hpp"
-        "include/wisdom/util/log_layer.h"
-        "include/wisdom/util/flags.h"
-        "include/wisdom/bridge/generator.h"
-        "include/wisdom/util/exception.h"
-        "include/wisdom/util/shader_compiler.h"
-        "include/wisdom/util/profile.h"
-        "include/wisdom/util/misc.h"
-        "include/wisdom/util/small_allocator.h"
-        "include/wisdom/bridge/format.h"
-        "include/wisdom/bridge/source_location.h"
-        "include/wisdom/global/assertions.h"
-        "include/wisdom/util/error_messages.h"
-        
-)
+target_sources(
+  ${PROJECT_NAME}
+  ${WISDOM_PUBLIC}
+  FILE_SET
+  HEADERS
+  BASE_DIRS
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  FILES
+  "include/wisdom/global/definitions.h"
+  "include/wisdom/global/internal.h"
+  "include/wisdom/util/com_ptr.h"
+  "include/wisdom/wisdom.hpp"
+  "include/wisdom/util/log_layer.h"
+  "include/wisdom/util/flags.h"
+  "include/wisdom/bridge/generator.h"
+  "include/wisdom/util/exception.h"
+  "include/wisdom/util/shader_compiler.h"
+  "include/wisdom/util/profile.h"
+  "include/wisdom/util/misc.h"
+  "include/wisdom/util/small_allocator.h"
+  "include/wisdom/bridge/format.h"
+  "include/wisdom/bridge/source_location.h"
+  "include/wisdom/global/assertions.h"
+  "include/wisdom/util/error_messages.h")
 
 # target_precompile_headers(${PROJECT_NAME} PRIVATE "include/wisdom/pch.h")
 target_include_directories(
   ${PROJECT_NAME} ${WISDOM_PUBLIC}
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
-
 
 target_compile_definitions(
   ${PROJECT_NAME}
-  ${WISDOM_PUBLIC} 
-         DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
-         DEBUG_LAYER=$<BOOL:${WISDOM_DEBUG_LAYER}>
-         WISDOM_DX12=$<BOOL:${WISDOM_DX12}>
-         WISDOM_VULKAN=$<BOOL:${WISDOM_VULKAN}>
-         WISDOM_METAL=$<BOOL:${WISDOM_METAL}>
-         WISDOM_VERSION=${WISDOM_VERSION}
-         WISDOM_LOG_LEVEL=${SEV_INDEX}
-         WIS_INLINE=$<IF:$<BOOL:${WISDOM_headers}>,inline,>
-         NOMINMAX)
+  ${WISDOM_PUBLIC}
+  DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
+  DEBUG_LAYER=$<BOOL:${WISDOM_DEBUG_LAYER}>
+  WISDOM_DX12=$<BOOL:${WISDOM_DX12}>
+  WISDOM_VULKAN=$<BOOL:${WISDOM_VULKAN}>
+  WISDOM_METAL=$<BOOL:${WISDOM_METAL}>
+  WISDOM_VERSION=${WISDOM_VERSION}
+  WISDOM_LOG_LEVEL=${SEV_INDEX}
+  WIS_INLINE=$<IF:$<BOOL:${WISDOM_headers}>,inline,>
+  NOMINMAX
+  _CRT_SECURE_NO_WARNINGS)
 
 # Inline definition
 if(WISDOM_headers)
@@ -64,7 +64,7 @@ endif()
 
 # Formatting library
 if(WISDOM_USE_FMT)
-  target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC}  WISDOM_USE_FMT)
+  target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_USE_FMT)
   target_link_libraries(${PROJECT_NAME} ${WISDOM_PUBLIC} fmt::fmt)
 endif()
 

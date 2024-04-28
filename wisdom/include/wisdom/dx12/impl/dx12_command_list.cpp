@@ -93,7 +93,7 @@ void wis::DX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, DX12
                             .RowPitch = row_pitch } }
         };
 
-        list->CopyTextureRegion(&dst, region.buffer_offset, 0, 0, &src, nullptr);
+        list->CopyTextureRegion(&dst, UINT(region.buffer_offset), 0, 0, &src, nullptr);
     }
 }
 

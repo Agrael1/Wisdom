@@ -38,7 +38,7 @@ template<class T>
 class com_ptr
 {
     template<typename U>
-    friend struct com_ptr;
+    friend class com_ptr;
 
 public:
     using pointer = T*;

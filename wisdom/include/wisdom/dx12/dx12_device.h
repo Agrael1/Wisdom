@@ -27,10 +27,13 @@ public:
         : QueryInternal(std::move(device), std::move(adapter), std::move(factory))
     {
     }
-    operator bool() const noexcept { return bool(device); }
+    operator bool() const noexcept
+    {
+        return bool(device);
+    }
 
 public:
-    [[nodicard]] WIS_INLINE wis::Result
+    [[nodiscard]] WIS_INLINE wis::Result
     WaitForMultipleFences(const DX12FenceView* fences,
                           const uint64_t* values,
                           uint32_t count,
