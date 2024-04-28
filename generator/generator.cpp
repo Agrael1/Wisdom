@@ -53,7 +53,7 @@ int Generator::GenerateCAPI()
     }
 
     // Function implementations
-    std::string output_cpp ="#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
+    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
     for (auto& f : function_impl) {
         output_cpp += f;
     }
@@ -105,7 +105,7 @@ template<typename RetTy>
 struct ResultValue{
     Result status;
     RetTy value;
-    
+
     constexpr ResultValue(RetTy value)noexcept :status(success), value(std::move(value)){}
     constexpr ResultValue(Result status)noexcept :status(status){}
     constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)){}
@@ -136,7 +136,7 @@ struct ResultValue{
     if (!out_dxapi.is_open())
         return 1;
 
-    std::string dxapi = 
+    std::string dxapi =
             "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
@@ -155,7 +155,7 @@ struct ResultValue{
     if (!out_vkapi.is_open())
         return 1;
 
-    std::string vkapi = 
+    std::string vkapi =
             "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
@@ -948,7 +948,9 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
     // get result index
     auto result = std::ranges::find_if(func.return_types,
-                                       [](const WisReturnType& t) { return t.type == "Result"; });
+                                       [](const WisReturnType& t) {
+                                           return t.type == "Result";
+                                       });
     int64_t result_idx =
             result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
 

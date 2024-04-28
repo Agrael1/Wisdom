@@ -18,8 +18,14 @@ public:
         static FactoryData d;
         return d;
     }
-    static auto& GetExtensions() noexcept { return instance().extensions; }
-    static auto& GetLayers() noexcept { return instance().layers; }
+    static auto& GetExtensions() noexcept
+    {
+        return instance().extensions;
+    }
+    static auto& GetLayers() noexcept
+    {
+        return instance().layers;
+    }
     [[nodiscard]] static std::string ExtensionsString() noexcept
     {
         std::string debug_str1{ "Available Extensions:\n" };

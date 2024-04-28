@@ -5,7 +5,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 	set(WISDOM_VULKAN TRUE)
 
 	wisdom_sources(TARGET ${PROJECT_NAME}
-		HEADERS 
+		HEADERS
 			"include/wisdom/vulkan/vk_factory.h"
 			"include/wisdom/vulkan/vk_views.h"
 			"include/wisdom/vulkan/vk_handles.h"
@@ -31,8 +31,8 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/vulkan/impl/vk_command_queue.cpp"
 			"include/wisdom/vulkan/impl/vk_command_list.cpp"
 			"include/wisdom/vulkan/impl/vk_swapchain.cpp"
-			
-		DEFINITIONS 
+
+		DEFINITIONS
 			WISDOM_VULKAN=1
 			WISVK_NO_DEFAULT_DELETER=1
 		LIBS
