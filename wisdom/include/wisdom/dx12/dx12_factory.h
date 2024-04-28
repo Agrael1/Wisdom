@@ -22,6 +22,7 @@ DX12CreateFactory(bool debug_layer = false) noexcept;
 class DX12Factory : public QueryInternal<DX12Factory>
 {
     friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool) noexcept;
+
 public:
     DX12Factory() noexcept = default;
     WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer = false) noexcept;
@@ -30,10 +31,12 @@ public:
     DX12Factory(const DX12Factory&) = delete;
     DX12Factory& operator=(const DX12Factory&) = delete;
 
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(factory);
     }
-    operator DX12FactoryHandle() const noexcept {
+    operator DX12FactoryHandle() const noexcept
+    {
         return factory.get();
     }
 
@@ -49,7 +52,7 @@ private:
     WIS_INLINE void EnableDebugLayer() noexcept;
 
     WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapterByGPUPreference(
-        uint32_t index, DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept;
+            uint32_t index, DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept;
 
     WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapter1(uint32_t index) const noexcept;
 

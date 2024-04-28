@@ -21,7 +21,8 @@ public:
     explicit VKAdapter(wis::SharedInstance instance, VkPhysicalDevice adapter) noexcept
         : QueryInternal(std::move(instance), adapter) { }
 
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return adapter != nullptr;
     }
 
