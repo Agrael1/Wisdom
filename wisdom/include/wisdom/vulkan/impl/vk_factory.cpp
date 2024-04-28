@@ -18,8 +18,12 @@ public:
         static FactoryData d;
         return d;
     }
-    static auto& GetExtensions() noexcept { return instance().extensions; }
-    static auto& GetLayers() noexcept { return instance().layers; }
+    static auto& GetExtensions() noexcept {
+        return instance().extensions;
+    }
+    static auto& GetLayers() noexcept {
+        return instance().layers;
+    }
     [[nodiscard]] static std::string ExtensionsString() noexcept
     {
         std::string debug_str1{ "Available Extensions:\n" };
@@ -55,7 +59,7 @@ private:
         do
             vextensions.resize(count);
         while ((vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count,
-                                                               vextensions.data())) == VK_INCOMPLETE);
+                     vextensions.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -117,18 +121,18 @@ constexpr inline std::array req_extensions
 {
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-            VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
-            VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-            VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
 #endif
 #if DEBUG_MODE
-            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
 
@@ -205,7 +209,7 @@ wis::VKCreateFactory(bool debug_layer) noexcept
                                       .enabledLayerCount = static_cast<uint32_t>(found_layers.size()),
                                       .ppEnabledLayerNames = found_layers.data(),
                                       .enabledExtensionCount =
-                                              static_cast<uint32_t>(found_extension.size()),
+                                          static_cast<uint32_t>(found_extension.size()),
                                       .ppEnabledExtensionNames = found_extension.data() };
 
     wis::managed_handle<VkInstance> instance;
@@ -229,22 +233,22 @@ wis::VKCreateFactory(bool debug_layer) noexcept
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
 {
     auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
     callback(convert_vk(messageSeverity),
              wis::format("\n[Validation layer]: {}\n [Message]:{}",
                          pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "",
                          pCallbackData->pMessage)
-                     .c_str(),
+             .c_str(),
              user_data);
     return false;
 }
 
 wis::VKFactory::VKFactory(
-        wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
+    wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
     : QueryInternal(std::move(instance), api_ver, debug)
 {
 }
@@ -276,18 +280,18 @@ wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_dat
     VkDebugUtilsMessengerCreateInfoEXT create_info{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = VKFactory::DebugCallbackThunk,
         .pUserData = debug_callback.get()
     };
 
     VkDebugUtilsMessengerEXT messenger;
     auto vr = factory.table().vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
-                                                             &messenger);
+              &messenger);
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
 
@@ -304,7 +308,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
     do
         phys_adapters.resize(count);
     while ((vr = itable.vkEnumeratePhysicalDevices(factory.get(), &count,
-                                                   phys_adapters.data())) == VK_INCOMPLETE);
+                 phys_adapters.data())) == VK_INCOMPLETE);
     if (!wis::succeeded(vr))
         return vr;
 
@@ -323,9 +327,9 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
             return order_power(a_properties.deviceType) > order_power(b_properties.deviceType)
-                    ? true
-                    : a_properties.limits.maxMemoryAllocationCount >
-                            b_properties.limits.maxMemoryAllocationCount;
+                   ? true
+                   : a_properties.limits.maxMemoryAllocationCount >
+                   b_properties.limits.maxMemoryAllocationCount;
         };
         auto less_performance = [this](VkPhysicalDevice a, VkPhysicalDevice b) {
             auto& itable = factory.table();
@@ -335,19 +339,19 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
             return order_performance(a_properties.deviceType) > order_performance(b_properties.deviceType)
-                    ? true
-                    : a_properties.limits.maxMemoryAllocationCount >
-                            b_properties.limits.maxMemoryAllocationCount;
+                   ? true
+                   : a_properties.limits.maxMemoryAllocationCount >
+                   b_properties.limits.maxMemoryAllocationCount;
         };
 
         std::ranges::sort(indices_cons,
-                          [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
-                              return less_consumption(phys_adapters[a], phys_adapters[b]);
-                          });
+        [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
+            return less_consumption(phys_adapters[a], phys_adapters[b]);
+        });
         std::ranges::sort(indices_perf,
-                          [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
-                              return less_consumption(phys_adapters[a], phys_adapters[b]);
-                          });
+        [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
+            return less_consumption(phys_adapters[a], phys_adapters[b]);
+        });
 
         for (size_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
