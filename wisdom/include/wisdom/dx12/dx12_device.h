@@ -27,7 +27,9 @@ public:
         : QueryInternal(std::move(device), std::move(adapter), std::move(factory))
     {
     }
-    operator bool() const noexcept { return bool(device); }
+    operator bool() const noexcept {
+        return bool(device);
+    }
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result
