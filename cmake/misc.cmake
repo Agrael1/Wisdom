@@ -26,7 +26,7 @@ function(target_install TARGET)
 	#	 NAMESPACE Ver::
 	#	 DESTINATION "lib/cmake/${TARGET}"
 	#)
-	
+
 	#export(EXPORT ${TARGET}Targets
 	#	   FILE "${TARGET}Targets.cmake"
 	#	   NAMESPACE Ver::
@@ -43,7 +43,7 @@ function(load_nuget_dependency NUGET PLUGIN_NAME ALIAS OUT_DIR)
 		#Sort directories by version in descending order, so the first dir is top version
 		list(SORT PLUGIN_DIRS COMPARE NATURAL ORDER DESCENDING)
 		list(GET PLUGIN_DIRS 0 PLUGIN_DIRX)
-	
+
 		#Remove older version
 		MATH(EXPR PLUGIN_DIRS_L "${PLUGIN_DIRS_L}-1")
 		foreach(I RANGE 1 ${PLUGIN_DIRS_L})
@@ -61,12 +61,12 @@ endfunction()
 ##
 # This function always adds sources to target, but when "WHEN" condition is not meet
 # source is excluded from build process.
-# This doesn't break build, but source is always visible for the project, what is 
+# This doesn't break build, but source is always visible for the project, what is
 # very handy when working with muti-platform project with sources needed
 # only for specific platform
 #
 # Usage:
-#      target_optional_sources(WHEN <condition> 
+#      target_optional_sources(WHEN <condition>
 #                              TARGET <target>
 #                              <INTERFACE|PUBLIC|PRIVATE> [items2...]
 #                              [<INTERFACE|PUBLIC|PRIVATE> [items2...] ...])
@@ -76,7 +76,7 @@ function(target_optional_sources)
 	set(oneValueArgs WHEN TARGET)
 	set(multiValueArgs PUBLIC PRIVATE INTERFACE)
 
-	cmake_parse_arguments(target_optional_sources 
+	cmake_parse_arguments(target_optional_sources
 						  "${options}" "${oneValueArgs}" "${multiValueArgs}"
 						  ${ARGN})
 
@@ -96,7 +96,7 @@ function(target_optional_sources)
 endfunction(target_optional_sources)
 
 ##
-# 
+#
 #
 # Usage:
 #      wisdom_sources(TARGET <target>
@@ -109,14 +109,14 @@ function(wisdom_sources)
 	set(oneValueArgs TARGET)
 	set(multiValueArgs HEADERS SOURCES DEFINITIONS LIBS)
 
-	cmake_parse_arguments(wisdom_sources 
+	cmake_parse_arguments(wisdom_sources
 						  "${options}" "${oneValueArgs}" "${multiValueArgs}"
 						  ${ARGN})
 	if(${WISDOM_headers})
 		target_sources(${wisdom_sources_TARGET}
 			${WISDOM_PUBLIC} FILE_SET HEADERS
 				BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
-				FILES ${wisdom_sources_HEADERS} 
+				FILES ${wisdom_sources_HEADERS}
 					${wisdom_sources_SOURCES}
 		)
 		set_source_files_properties(${wisdom_sources_SOURCES}
