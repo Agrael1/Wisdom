@@ -4,6 +4,9 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 	message("Vulkan found!")
 	set(WISDOM_VULKAN TRUE)
 
+	message( "Vulkan Include Directories: ${Vulkan_INCLUDE_DIRS}" )
+	message( "include/wisdom/vulkan/vk_factory.h" )
+
 	wisdom_sources(TARGET ${PROJECT_NAME}
 		HEADERS 
 			"include/wisdom/vulkan/vk_factory.h"
