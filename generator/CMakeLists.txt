@@ -4,6 +4,8 @@ include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
+find_package(fmt 10.0 CONFIG)
+
 message("Loading tinyxml2...")
 FetchContent_Declare(
   tinyxml2
@@ -29,7 +31,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
 
 if(WISDOM_USE_FMT)
   target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_USE_FMT)
-  target_link_libraries(${PROJECT_NAME} PRIVATE fmt)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${FMT_TARGET})
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
