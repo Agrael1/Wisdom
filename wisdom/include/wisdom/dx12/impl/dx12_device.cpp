@@ -233,7 +233,9 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
 
     for (auto& i : attrs) {
         auto slot =
-                std::find_if(slots.begin(), slots.end(), [&](auto& s) { return s.slot == i.input_slot; });
+                std::find_if(slots.begin(), slots.end(), [&](auto& s) {
+                    return s.slot == i.input_slot;
+                });
         if (slot == slots.end())
             continue;
 
