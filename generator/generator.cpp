@@ -26,7 +26,7 @@ Generator::Generator(XMLDocument& doc)
 int Generator::GenerateCAPI()
 {
     using namespace std::chrono;
-    std::string output = "GENERATED\n#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
+    std::string output = "//GENERATED\n#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
     output += GenerateCTypes();
 
     output += "//"
@@ -76,7 +76,7 @@ int Generator::GenerateCPPAPI()
 {
     using namespace std::chrono;
 
-    std::string output_api = "GENERATED\n#pragma once\n#include <array>\n\n";
+    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n\n";
     output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
     output_api += "//"

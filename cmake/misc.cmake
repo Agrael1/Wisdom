@@ -21,16 +21,16 @@ function(target_install TARGET)
 		ARCHIVE DESTINATION lib
 		INCLUDES DESTINATION include
 	)
-	install(EXPORT ${TARGET}Targets
-		 FILE "${TARGET}Targets.cmake"
-		 NAMESPACE Ver::
-		 DESTINATION "lib/cmake/${TARGET}"
-	)
+	#install(EXPORT ${TARGET}Targets
+	#	 FILE "${TARGET}Targets.cmake"
+	#	 NAMESPACE Ver::
+	#	 DESTINATION "lib/cmake/${TARGET}"
+	#)
 	
-	export(EXPORT ${TARGET}Targets
-		   FILE "${TARGET}Targets.cmake"
-		   NAMESPACE Ver::
-	)
+	#export(EXPORT ${TARGET}Targets
+	#	   FILE "${TARGET}Targets.cmake"
+	#	   NAMESPACE Ver::
+	#)
 endfunction()
 
 

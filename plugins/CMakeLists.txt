@@ -57,7 +57,17 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
       ON
       CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(wisvk)
-  add_subdirectory("VKAllocator")
+  # Vulkan Memory Allocator
+  message("Setting up Vulkan Allocator...")
+  FetchContent_Declare(
+    vkma
+    GIT_REPOSITORY
+      https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+    GIT_TAG origin/master
+    OVERRIDE_FIND_PACKAGE
+  )
+  set(VMA_STATIC_VULKAN_FUNCTIONS OFF)
+  FetchContent_MakeAvailable(vkma)
 else()
   set(WISDOM_FORCE_VULKAN
       FALSE

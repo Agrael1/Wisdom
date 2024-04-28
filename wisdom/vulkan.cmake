@@ -4,6 +4,8 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 	message("Vulkan found!")
 	set(WISDOM_VULKAN TRUE)
 
+	find_package(vkma REQUIRED)
+
 	wisdom_sources(TARGET ${PROJECT_NAME}
 		HEADERS 
 			"include/wisdom/vulkan/vk_factory.h"
@@ -36,7 +38,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			WISDOM_VULKAN=1
 			WISVK_NO_DEFAULT_DELETER=1
 		LIBS
-			VKAllocator
+			VulkanMemoryAllocator 
 			wis::wisvk
 	)
 endif()

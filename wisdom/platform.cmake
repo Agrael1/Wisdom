@@ -7,6 +7,8 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/platform/impl/win32.cpp"
 		DEFINITIONS
 			WISDOM_WINDOWS=1
+			WIN32_LEAN_AND_MEAN
+			VK_USE_PLATFORM_WIN32_KHR=1
 	)
 	if(WISDOM_WINDOWS_STORE)
 		target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_WINDOWS_STORE=1)
@@ -19,6 +21,9 @@ elseif(WISDOM_LINUX)
 			"include/wisdom/platform/impl/linux.cpp"
 		DEFINITIONS
 			WISDOM_LINUX=1
+			VK_USE_PLATFORM_XCB_KHR=1
+			#VK_USE_PLATFORM_XLIB_KHR=1
+			VK_USE_PLATFORM_WAYLAND_KHR=1
 	)
 elseif(WISDOM_MAC)
 	wisdom_sources(TARGET ${PROJECT_NAME}
