@@ -4,9 +4,6 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 	message("Vulkan found!")
 	set(WISDOM_VULKAN TRUE)
 
-	message( "Vulkan Include Directories: ${Vulkan_INCLUDE_DIRS}" )
-	message( "include/wisdom/vulkan/vk_factory.h" )
-
 	wisdom_sources(TARGET ${PROJECT_NAME}
 		HEADERS 
 			"include/wisdom/vulkan/vk_factory.h"
@@ -41,9 +38,5 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 		LIBS
 			VKAllocator
 			wis::wisvk
-	)
-
-	target_include_directories(${PROJECT_NAME} ${WISDOM_PUBLIC}
-		${Vulkan_INCLUDE_DIRS}
 	)
 endif()

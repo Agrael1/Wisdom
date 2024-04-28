@@ -11,8 +11,6 @@ include(platform.cmake)
 include(dx12.cmake)
 include(vulkan.cmake)
 
-message(AFTER VK)
-
 # Add common sources
 target_sources(
   ${PROJECT_NAME}
