@@ -27,7 +27,8 @@ public:
         : QueryInternal(std::move(device), std::move(adapter), std::move(factory))
     {
     }
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(device);
     }
 

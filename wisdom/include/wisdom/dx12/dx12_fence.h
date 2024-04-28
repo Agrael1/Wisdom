@@ -25,10 +25,12 @@ struct unique_event {
         if (hevent)
             CloseHandle(hevent);
     }
-    auto get() const noexcept {
+    auto get() const noexcept
+    {
         return hevent;
     }
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(hevent);
     }
     wis::Status wait(uint32_t wait_ms) const noexcept
@@ -64,11 +66,13 @@ public:
     DX12Fence(DX12Fence&& o) noexcept = default;
     DX12Fence& operator=(DX12Fence&& o) noexcept = default;
 
-    operator DX12FenceView() const noexcept {
+    operator DX12FenceView() const noexcept
+    {
         return fence.get();
     }
 
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(fence);
     }
 
@@ -76,7 +80,8 @@ public:
     /// @brief Get the current value of the fence.
     /// @return Value of the fence.
     [[nodiscard]] uint64_t
-    GetCompletedValue() const noexcept {
+    GetCompletedValue() const noexcept
+    {
         return fence->GetCompletedValue();
     }
 

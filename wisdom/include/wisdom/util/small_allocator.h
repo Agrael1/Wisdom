@@ -26,7 +26,7 @@ public:
     /// @param ...args Arguments to pass to the constructor
     /// @return Reference to the allocated object
     template<typename T, typename... Args>
-    requires std::is_trivially_destructible_v<T>
+        requires std::is_trivially_destructible_v<T>
     constexpr T& allocate(Args&&... args) noexcept
     {
         T* x = new (allocator.data() + byte_size) T(std::forward<Args>(args)...);
@@ -157,7 +157,7 @@ private:
 };
 
 template<typename Type, size_t initial_alloc = 16u>
-requires ::std::is_trivially_destructible_v<Type>
+    requires ::std::is_trivially_destructible_v<Type>
 class limited_allocator
 {
 public:
@@ -267,8 +267,7 @@ private:
             uint32_t capacity;
         };
     };
-uint32_t limit :
-    sizeof(uint32_t) * CHAR_BIT - 1 = uint32_t(0x7FFFFFFF);
+    uint32_t limit : sizeof(uint32_t) * CHAR_BIT - 1 = uint32_t(0x7FFFFFFF);
     uint32_t is_heap : 1 = 0;
 };
 } // namespace wis::detail
