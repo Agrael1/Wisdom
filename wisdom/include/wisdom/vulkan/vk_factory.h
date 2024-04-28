@@ -20,7 +20,9 @@ struct VKFactoryGlobals {
     }
     void InitializeGlobalTable() noexcept
     {
-        std::call_once(global_flag, [this]() { global_table.Init(lib_token); });
+        std::call_once(global_flag, [this]() {
+            global_table.Init(lib_token);
+        });
     }
 
     std::once_flag global_flag;
@@ -36,7 +38,7 @@ struct Internal<VKFactory> {
     bool debug_layer = false;
 };
 
-WIS_INLINE [[nodiscard]] wis::ResultValue<wis::VKFactory>
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
 VKCreateFactory(bool debug_layer = false) noexcept;
 
 class VKFactory : public QueryInternal<VKFactory>
@@ -63,8 +65,14 @@ public:
     VKFactory& operator=(const VKFactory&) = delete;
     VKFactory& operator=(VKFactory&&) noexcept = default;
 
-    operator bool() const noexcept { return bool(factory); }
-    operator VKFactoryHandle() const noexcept { return { factory }; }
+    operator bool() const noexcept
+    {
+        return bool(factory);
+    }
+    operator VKFactoryHandle() const noexcept
+    {
+        return { factory };
+    }
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKAdapter>

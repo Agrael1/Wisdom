@@ -3,6 +3,8 @@
 #include <wisdom/vulkan/vk_adapter.h>
 #endif // !WISDOM_HEADER_ONLY
 
+#include <cstring>
+
 wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
     if (!pout_desc)

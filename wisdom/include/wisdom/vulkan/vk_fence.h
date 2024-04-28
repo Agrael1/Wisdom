@@ -3,6 +3,7 @@
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/global/internal.h>
 #include <wisvk/vk_loader.hpp>
+#include <limits>
 
 namespace wis {
 class VKFence;
@@ -32,18 +33,18 @@ public:
 public:
     /// @brief Get the current value of the fence.
     /// @return Value of the fence.
-    WIS_INLINE [[nodiscard]] uint64_t GetCompletedValue() const noexcept;
+    [[nodiscard]] WIS_INLINE uint64_t GetCompletedValue() const noexcept;
 
     /// @brief Wait for the fence to reach a certain value.
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
-    WIS_INLINE [[nodiscard]] wis::Result
+    [[nodiscard]] WIS_INLINE wis::Result
     Wait(uint64_t value,
          uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.
-    WIS_INLINE [[nodiscard]] wis::Result Signal(uint64_t value) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Signal(uint64_t value) const noexcept;
 };
 } // namespace wis
 

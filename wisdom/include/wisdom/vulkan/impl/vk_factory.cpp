@@ -18,8 +18,14 @@ public:
         static FactoryData d;
         return d;
     }
-    static auto& GetExtensions() noexcept { return instance().extensions; }
-    static auto& GetLayers() noexcept { return instance().layers; }
+    static auto& GetExtensions() noexcept
+    {
+        return instance().extensions;
+    }
+    static auto& GetLayers() noexcept
+    {
+        return instance().layers;
+    }
     [[nodiscard]] static std::string ExtensionsString() noexcept
     {
         std::string debug_str1{ "Available Extensions:\n" };
@@ -249,7 +255,7 @@ wis::VKFactory::VKFactory(
 {
 }
 
-[[nodiscard]] wis::ResultValue<wis::VKAdapter>
+wis::ResultValue<wis::VKAdapter>
 wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     if (index >= adapters.size()) {
@@ -266,7 +272,7 @@ wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const n
     }
 }
 
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDebugMessenger>
+wis::ResultValue<wis::VKDebugMessenger>
 wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
 {
     auto debug_callback = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);

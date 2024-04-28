@@ -21,10 +21,13 @@ public:
     explicit VKAdapter(wis::SharedInstance instance, VkPhysicalDevice adapter) noexcept
         : QueryInternal(std::move(instance), adapter) { }
 
-    operator bool() const noexcept { return adapter != nullptr; }
+    operator bool() const noexcept
+    {
+        return adapter != nullptr;
+    }
 
 public:
-    WIS_INLINE [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept;
 };
 } // namespace wis
 

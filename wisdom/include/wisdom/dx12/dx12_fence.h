@@ -88,13 +88,13 @@ public:
     /// @brief Wait for the fence to reach a certain value.
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
-    WIS_INLINE [[nodiscard]] wis::Result
+    [[nodiscard]] WIS_INLINE wis::Result
     Wait(uint64_t value,
          uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.
-    WIS_INLINE [[nodiscard]] wis::Result Signal(uint64_t value) const noexcept
+    [[nodiscard]] WIS_INLINE wis::Result Signal(uint64_t value) const noexcept
     {
         HRESULT hr = fence->Signal(value);
         return !succeeded(hr) ? wis::make_result<FUNC, "Failed to signal fence">(hr) : wis::success;

@@ -1,3 +1,4 @@
+// GENERATED
 #pragma once
 #include <array>
 
