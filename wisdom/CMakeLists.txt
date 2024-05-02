@@ -68,7 +68,7 @@ if(WISDOM_USE_FMT)
   target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_USE_FMT)
 
   message(STATUS "Using fmt library ${FMT_TARGET}")
-  target_link_libraries(${PROJECT_NAME} ${WISDOM_PRIVATE} ${FMT_TARGET})
+  target_link_libraries(${PROJECT_NAME} ${WISDOM_PUBLIC} ${FMT_TARGET})
 endif()
 
 # API generation
