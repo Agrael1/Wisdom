@@ -8,14 +8,11 @@ add_executable(${PROJECT_NAME} "resources/WinD3D.rc" "include/example/util.h")
 
 wis_install_deps(${PROJECT_NAME})
 
-set(SOURCES "src/entry_main.cpp" "src/keyboard.cpp"
-            "src/mouse.cpp" "src/window.cpp" "src/util.cpp")
+set(SOURCES "src/entry_main.cpp" "src/keyboard.cpp" "src/mouse.cpp"
+            "src/window.cpp" "src/util.cpp")
 set(HEADERS
-    "include/example/keyboard.h"
-    "include/example/menu.h"
-    "include/example/mouse.h"
-    "include/example/window.h"
-    "include/resource.h"
+    "include/example/keyboard.h" "include/example/menu.h"
+    "include/example/mouse.h" "include/example/window.h" "include/resource.h"
     "include/example/util.h")
 
 target_sources(
