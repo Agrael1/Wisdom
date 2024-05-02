@@ -2,19 +2,17 @@
 
 ![CMake Windows](https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg)
 
-**Low-level thin Graphics API layer. Easy to learn, easy to extend, high performance enabled, multiplatform!**
+**Low-level thin Graphics API layer. Easy to learn, easy to extend, highly performant, multiplatform!**
 
 # Why?
 
-This library has several tasks to accomplish:
+A lot of old OpenGL solutions are outdated, scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform. 
+Wisdom is designed to be a thin layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend. It's designed to be used in games, simulations, and other heavy computations. 
+It's not designed to be a rendering engine, but a tool to create one.
 
-- Make a functional portable library for graphics programming without extra efforts in usage
-- Make use of API similarities and provide implementation agnostic interface to the user for seamless experience
-- Make transition to this library and making extensions seamless with existing codebase
+The library is designed to be used in a modern C++20 environment, with a lot of modern C++ features, like concepts, modules, and ranges. It's designed to be used with CMake, and it's easy to integrate with your project.
 
 # Details
-
-The API is designed for game-ready and heavy computations use. It is done in low-level, with customizable logs. Underlying implementation is pure classes with minimal encapsulation.
 
 The API is structured like this:
 
@@ -68,14 +66,16 @@ If you found a bug, please report via issues. Testing on linux is also appreciat
 **Windows:**
 
 - Windows 10/11
-- DirectX 12 capable video card
 - CMake 3.25+
 
-Tested on MSVC v143, Visual Studio 2022
+Tested on MSVC v143, Visual Studio 2022.
+Video card must support DirectX 12.0+ and Enchanced Barriers.
 
 for Vulkan:
 
 - Vulkan 1.3.2xx+
+
+Tested on Windows with NVIDIA GeForce GTX 1070 and Linux with RTX A4000 with latest drivers.
 
 **Windows Store:**
 
@@ -95,13 +95,16 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 **Linux**
 
 - CMake 3.25+
-- GCC 12+ or Clang 15+ Tested on GCC 12.0.1
-- Vulkan 1.3.2xx+ for dynamic vertex buffers and some latest features
+- Vulkan 1.3.2xx+
+
+Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000. 
+
 
 KDUils for the example need some packages to be installed:
 `sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols`
 
 Visit https://github.com/KDAB/KDUtils to see more details.
+Alternatively you can disable the example with `WISDOM_EXCLUDE_KDGUI=ON` option.
 
 **MacOS**
 
@@ -109,12 +112,14 @@ Visit https://github.com/KDAB/KDUtils to see more details.
 
 # Roadmap
 
-The project has trello page. https://trello.com/b/qjrv97Bc/wisdom-veritas
-Suggestions are appreciated.
+The project has Gitub projects enabled, so you can see the progress on the project.
+For the roadmap, the following features are planned:
 
-1. C API Generation
-2. Reduce Vulkan overhead (Volk/less shared handles?)
-3. Profiling and logs
-4. Bind less model.
-5. Fallbacks on demand
-6. Result
+- [ ] SDL2 integration
+- [ ] UWP example
+- [ ] Elaborate documentation
+- [ ] C API generation
+- [ ] Debugging tools
+- [ ] Small game engine
+- [ ] Lower CMake version requirement
+
