@@ -1,6 +1,8 @@
 #include "window.h"
 #include <KDFoundation/config.h> // for KD_PLATFORM
 #include <KDGui/gui_application.h>
+#include <KDGui/window.h>
+#include <KDGui/gui_application.h>
 
 #if defined(KD_PLATFORM_WIN32) && WISDOM_LINUX
 #error WSL is not supported with KDGui
@@ -17,8 +19,6 @@
 #include <wisdom/platform/linux.h>
 #endif
 
-#include <KDGui/window.h>
-#include <KDGui/gui_application.h>
 
 class WindowP : public KDGui::Window
 {
