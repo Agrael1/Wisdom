@@ -28,7 +28,7 @@ jobs:
          vulkan-use-cache: true
          
     - name: Install KDUtils requirements
-      run: sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols ninja-build
+      run: sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols ninja-build fmt
       
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.13
