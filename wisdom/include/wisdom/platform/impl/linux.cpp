@@ -3,8 +3,11 @@
 #include <wisdom/platform/linux.h>
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 
+#include <wisdom/util/log_layer.h>
+#include <wisdom/vulkan/vk_device.h>
+
 wis::ResultValue<wis::VKSwapChain>
-wis::CreateSwapchainXcb(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, xcb_connection_t* connection, xcb_window_t window) noexcept
+wis::CreateSwapchainXcb(const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, xcb_connection_t* connection, xcb_window_t window) noexcept
 {
     VkXcbSurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
