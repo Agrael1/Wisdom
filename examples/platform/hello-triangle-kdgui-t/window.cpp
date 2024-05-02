@@ -2,14 +2,19 @@
 #include <KDFoundation/config.h> // for KD_PLATFORM
 #include <KDGui/gui_application.h>
 
-#if defined(WISDOM_WINDOWS)
+#if defined(KD_PLATFORM_WIN32) && WISDOM_LINUX
+#error WSL is not supported with KDGui
+#endif
+
+#if defined(KD_PLATFORM_WIN32)
 #include <KDGui/platform/win32/win32_platform_window.h>
 #include <wisdom/platform/win32.h>
 #endif
-#if defined(WISDOM_LINUX)
+#if defined(KD_PLATFORM_LINUX)
 #include <KDGui/platform/linux/xcb/linux_xcb_platform_window.h>
 #include <KDGui/platform/linux/wayland/linux_wayland_platform_window.h>
 #include <KDGui/platform/linux/wayland/linux_wayland_platform_integration.h>
+#include <wisdom/platform/linux.h>
 #endif
 
 #include <KDGui/window.h>
@@ -62,21 +67,15 @@ Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queu
     auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow*>(p->platformWindow());
     return wis::CreateSwapchainWin32(device, queue, &desc, win32Window->handle());
 #elif defined(KD_PLATFORM_LINUX)
-    //if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
-    //    auto* platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
-    //    auto* waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration*>(platformIntegration);
-    //    auto* waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow*>(p->platformWindow());
-    //    return wis::SurfaceParameters{
-    //        waylandPlatformIntegration->display(),
-    //        waylandWindow->surface(),
-    //    };
-    //} else {
-    //    auto* xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
-    //    return wis::SurfaceParameters{
-    //        xcbWindow->connection(),
-    //        xcbWindow->handle(),
-    //    };
-    //}
+    if (KDGui::LinuxWaylandPlatformIntegration::checkAvailable()) {
+        auto* platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
+        auto* waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration*>(platformIntegration);
+        auto* waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow*>(p->platformWindow());
+        return wis::CreateSwapchainWayland(device, queue, &desc, waylandPlatformIntegration->display(),waylandWindow->surface());
+    } else {
+        auto* xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
+        return wis::CreateSwapchainXcb(device, queue, &desc, xcbWindow->connection(), xcbWindow->handle());
+    }
 #endif
     return wis::Result{
         wis::Status::InvalidArgument,
