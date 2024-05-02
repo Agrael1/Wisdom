@@ -53,4 +53,3 @@ wis::CreateSwapchainWayland(const VKDevice& device, VKQueueView main_queue, cons
     wis::SharedSurface surface_handle{ out_surface, instance, instance_table.vkDestroySurfaceKHR };
     return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
 }
-

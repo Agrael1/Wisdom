@@ -2,7 +2,6 @@
 #include <app.h>
 #include <wisdom/platform/win32.h>
 
-
 int main()
 {
     Window wnd(1920, 1080, "Example Win32 Wisdom");
