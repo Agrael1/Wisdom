@@ -31,6 +31,7 @@ public:
     CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queue) const noexcept;
 
     [[nodiscard]] bool resized() const noexcept;
+
 private:
     WindowP* p;
 };

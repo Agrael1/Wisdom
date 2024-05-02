@@ -8,10 +8,7 @@ CreateSwapchainXcb(const VKDevice& device, VKQueueView main_queue, const wis::Sw
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
 CreateSwapchainWayland(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface) noexcept;
-}
-
-
-
+} // namespace wis
 
 #ifdef WISDOM_PLATFORM_HEADER_ONLY
 #include "impl/linux.cpp"

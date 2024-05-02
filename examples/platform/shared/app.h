@@ -18,10 +18,12 @@ public:
     void WaitForGPU();
 
 public:
-    const wis::Device& GetDevice() const {
+    const wis::Device& GetDevice() const
+    {
         return device;
     }
-    const wis::CommandQueue& GetQueue() const {
+    const wis::CommandQueue& GetQueue() const
+    {
         return queue;
     }
 

@@ -3,9 +3,9 @@
 #include <KDGui/window.h>
 #include <KDGui/gui_application.h>
 
-//#if defined(KD_PLATFORM_WIN32) && WISDOM_LINUX
-//#error WSL is not supported with KDGui
-//#endif
+// #if defined(KD_PLATFORM_WIN32) && WISDOM_LINUX
+// #error WSL is not supported with KDGui
+// #endif
 
 #if defined(KD_PLATFORM_WIN32)
 #include <KDGui/platform/win32/win32_platform_window.h>
@@ -18,7 +18,6 @@
 #include <wisdom/platform/linux.h>
 #endif
 #include "window.h"
-
 
 class WindowP : public KDGui::Window
 {
@@ -71,13 +70,13 @@ Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queu
         auto* platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
         auto* waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration*>(platformIntegration);
         auto* waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow*>(p->platformWindow());
-        return wis::CreateSwapchainWayland(device, queue, &desc, waylandPlatformIntegration->display(),waylandWindow->surface());
+        return wis::CreateSwapchainWayland(device, queue, &desc, waylandPlatformIntegration->display(), waylandWindow->surface());
     } else {
         auto* xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
         return wis::CreateSwapchainXcb(device, queue, &desc, xcbWindow->connection(), xcbWindow->handle());
     }
 #endif
-    return wis::Result {
+    return wis::Result{
         wis::Status::InvalidArgument,
         "No platform was selected"
     };
