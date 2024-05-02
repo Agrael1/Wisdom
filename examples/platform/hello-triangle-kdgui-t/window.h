@@ -9,7 +9,7 @@
 */
 
 #pragma once
-#include <wisdom/api/api_swapchain.h>
+#include <wisdom/wisdom.hpp>
 #include <memory>
 
 class WindowP;
@@ -26,9 +26,11 @@ public:
     [[nodiscard]] bool visible() const noexcept;
     [[nodiscard]] uint32_t width() const noexcept;
     [[nodiscard]] uint32_t height() const noexcept;
-    [[nodiscard]] wis::SurfaceParameters GetSurfaceOptions() const noexcept;
+
+    [[nodiscard]] wis::ResultValue<wis::SwapChain>
+    CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queue) const noexcept;
+
     [[nodiscard]] bool resized() const noexcept;
-    // KDGpu::Surface createSurface(KDGpu::Instance& instance);
 private:
     WindowP* p;
 };

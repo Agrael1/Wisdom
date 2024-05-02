@@ -1,52 +1,39 @@
 // #include "app.h"
-#undef WISDOM_FORCE_VULKAN
-#include <wisdom/wisdom.hpp>
+#include <app.h>
 #include <iostream>
+#include "window.h"
 
-void DebugCallback(wis::Severity severity, const char* message, void* user_data)
-{
-    auto stream = reinterpret_cast<std::ostream*>(user_data);
-    *stream << message << "\n";
-}
-void DebugCallback2(wis::Severity severity, const char* message, void* user_data)
-{
-    auto stream = reinterpret_cast<std::ostream*>(user_data);
-    *stream << message << "\n";
-}
 
 int main()
 {
+    Test::App gfx_app;
+    XApp app;
+    Window window = app.createWindow(1920, 1080); 
+
+    auto [res, chain] = window.CreateSwapchain(gfx_app.GetDevice(), gfx_app.GetQueue());
+    if(res.status != wis::Status::Ok)
     {
-        auto [res, factory] = wis::CreateFactory(true, &DebugCallback, &std::cout);
-
-        wis::Device device;
-
-        for (size_t i = 0;; i++) {
-            auto [res, adapter] = factory.GetAdapter(i);
-            if (res.status == wis::Status::Ok) {
-                wis::AdapterDesc desc;
-                adapter.GetDesc(&desc);
-                std::cout << "Adapter: " << desc.description.data() << "\n";
-
-                auto [res, xdevice] = wis::CreateDevice(factory, adapter);
-                if (res.status == wis::Status::Ok) {
-                    device = std::move(xdevice);
-                    break;
-                };
-
-            } else {
-                break;
-            }
-        }
-
-        auto fence = device.CreateFence();
-        auto allocator = device.CreateAllocator();
-        auto root_signature = device.CreateRootSignature();
-        auto command_queue = device.CreateCommandQueue(wis::QueueType::Graphics);
+        std::cerr << "Failed to create swapchain" << std::endl;
+        return 1;
     }
 
-    return 0;
+    gfx_app.SetSwapChain(std::move(chain), window.width(), window.height());
+    gfx_app.CreateResources();
+    
 
-    // Test::App app(1920, 1080);
-    // app.Start();
+    while (true)
+    {
+        app.ProcessEvents();
+        if (!window.visible())
+        {
+            break;
+        }
+
+        if (window.resized())
+        {
+            gfx_app.OnResize(window.width(), window.height());
+        }
+        gfx_app.Frame();
+    }
+    return 0;
 }
