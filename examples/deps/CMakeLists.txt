@@ -51,6 +51,12 @@ if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
       GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
       GIT_TAG main
       OVERRIDE_FIND_PACKAGE)
+
+    if(NOT WISDOM_USE_FMT)
+        set(SPDLOG_USE_STD_FORMAT ON)
+    else()
+        set(SPDLOG_FMT_EXTERNAL_HO ON)
+    endif()
     FetchContent_MakeAvailable(KDUtils)
   endif()
 endif()
