@@ -77,7 +77,7 @@ Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queu
         return wis::CreateSwapchainXcb(device, queue, &desc, xcbWindow->connection(), xcbWindow->handle());
     }
 #endif
-    return wis::Result{
+    return wis::Result {
         wis::Status::InvalidArgument,
         "No platform was selected"
     };

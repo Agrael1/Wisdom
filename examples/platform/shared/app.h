@@ -18,8 +18,12 @@ public:
     void WaitForGPU();
 
 public:
-    const wis::Device& GetDevice() const { return device; }
-    const wis::CommandQueue& GetQueue() const { return queue; }
+    const wis::Device& GetDevice() const {
+        return device;
+    }
+    const wis::CommandQueue& GetQueue() const {
+        return queue;
+    }
 
 private:
     void CreateRootSignature();

@@ -17,7 +17,7 @@ int main()
     };
 
     auto [res3, hswap] = wis::CreateSwapchainWin32(app.GetDevice(), app.GetQueue(), &desc,
-                                                   wnd.GetHandle());
+                         wnd.GetHandle());
     app.SetSwapChain(std::move(hswap), desc.size.width, desc.size.height);
     app.CreateResources();
 

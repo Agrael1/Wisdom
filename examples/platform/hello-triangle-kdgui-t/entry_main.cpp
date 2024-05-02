@@ -8,7 +8,7 @@ int main()
 {
     Test::App gfx_app;
     XApp app;
-    Window window = app.createWindow(1920, 1080); 
+    Window window = app.createWindow(1920, 1080);
 
     auto [res, chain] = window.CreateSwapchain(gfx_app.GetDevice(), gfx_app.GetQueue());
     if(res.status != wis::Status::Ok)
@@ -21,7 +21,7 @@ int main()
 
     gfx_app.SetSwapChain(std::move(chain), window.width(), window.height());
     gfx_app.CreateResources();
-    
+
 
     while (true)
     {
