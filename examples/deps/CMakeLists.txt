@@ -51,6 +51,8 @@ if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
       GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
       GIT_TAG main
       OVERRIDE_FIND_PACKAGE)
+
+    set(SPDLOG_FMT_EXTERNAL_HO ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(KDUtils)
   endif()
 endif()

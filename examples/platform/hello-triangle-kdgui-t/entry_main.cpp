@@ -17,6 +17,8 @@ int main()
         return 1;
     }
 
+
+
     gfx_app.SetSwapChain(std::move(chain), window.width(), window.height());
     gfx_app.CreateResources();
     
