@@ -6,8 +6,8 @@
 
 # Why?
 
-A lot of old OpenGL solutions are outdated, scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform. 
-Wisdom is designed to be a thin layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend. It's designed to be used in games, simulations, and other heavy computations. 
+A lot of old OpenGL solutions are outdated, scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
+Wisdom is designed to be a thin layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend. It's designed to be used in games, simulations, and other heavy computations.
 It's not designed to be a rendering engine, but a tool to create one.
 
 The library is designed to be used in a modern C++20 environment, with a lot of modern C++ features, like concepts, modules, and ranges. It's designed to be used with CMake, and it's easy to integrate with your project.
@@ -97,8 +97,7 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 - CMake 3.25+
 - Vulkan 1.3.2xx+
 
-Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000. 
-
+Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000.
 
 KDUils for the example need some packages to be installed:
 `sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols`
@@ -122,4 +121,3 @@ For the roadmap, the following features are planned:
 - [ ] Debugging tools
 - [ ] Small game engine
 - [ ] Lower CMake version requirement
-
