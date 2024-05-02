@@ -1,6 +1,7 @@
 include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+set(CMAKE_FIND_PACKAGE_TARGETS_GLOBAL ON)
 
 if(WISDOM_USE_FMT)
   find_package(fmt 10.0 CONFIG)

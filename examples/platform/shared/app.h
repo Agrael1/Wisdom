@@ -1,24 +1,36 @@
 #pragma once
-#include <example/window.h>
 #include <wisdom/wisdom.hpp>
 
 namespace Test {
 class App
 {
 public:
-    App(uint32_t width, uint32_t height);
+    // input from platform window
+    App();
+
+    void SetSwapChain(wis::SwapChain swap, uint32_t width, uint32_t height);
 
 public:
-    int Start();
     void CreateResources();
 
     void Frame();
-    void ProcessEvent(Event e);
     void OnResize(uint32_t width, uint32_t height);
     void WaitForGPU();
 
+public:
+    const wis::Device& GetDevice() const
+    {
+        return device;
+    }
+    const wis::CommandQueue& GetQueue() const
+    {
+        return queue;
+    }
+
 private:
-    Window wnd;
+    void CreateRootSignature();
+
+private:
     uint32_t width;
     uint32_t height;
 

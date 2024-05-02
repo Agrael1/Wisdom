@@ -1,6 +1,5 @@
-#include <example/app.h>
+#include "app.h"
 #include <iostream>
-#include <wisdom/platform/win32.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
 
@@ -23,8 +22,7 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
     *stream << message << "\n";
 }
 
-Test::App::App(uint32_t width, uint32_t height)
-    : wnd(width, height, "VTest"), width(width), height(height)
+Test::App::App()
 {
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
@@ -54,52 +52,30 @@ Test::App::App(uint32_t width, uint32_t height)
     auto [res2, hqueue] = device.CreateCommandQueue(wis::QueueType::Graphics);
     queue = std::move(hqueue);
 
-    {
-        wis::SwapchainDesc desc{
-            .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
-            .format = wis::DataFormat::BGRA8Unorm,
-            .buffer_count = 2,
-            .stereo = true,
-            .vsync = true,
-        };
-
-        auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
-                                                       wnd.GetHandle());
-        swap = std::move(hswap);
-        back_buffers = swap.GetBufferSpan();
-
-        wis::RenderTargetDesc rt_desc{
-            .format = wis::DataFormat::BGRA8Unorm,
-            .layout = wis::TextureLayout::Texture2D,
-            .mip = 0,
-            .base_array_layer = 0,
-            .layer_count = 1,
-        };
-        for (size_t i = 0; i < render_targets.size(); i++) {
-            auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
-            render_targets[i] = std::move(hrt);
-        }
-    }
-
     auto [res4, hfence] = device.CreateFence();
     fence = std::move(hfence);
 
     auto [res5, hcmd_list] = device.CreateCommandList(wis::QueueType::Graphics);
     cmd_list = std::move(hcmd_list);
-
-    CreateResources();
 }
 
-int Test::App::Start()
+void Test::App::SetSwapChain(wis::SwapChain hswap, uint32_t width, uint32_t height)
 {
-    while (true) {
-        if (const auto a = wnd.ProcessMessages())
-            return (int)a.value();
+    swap = std::move(hswap);
+    back_buffers = swap.GetBufferSpan();
+    this->width = width;
+    this->height = height;
 
-        for (auto e : wnd.GetEvents())
-            ProcessEvent(e);
-
-        Frame();
+    wis::RenderTargetDesc rt_desc{
+        .format = wis::DataFormat::BGRA8Unorm,
+        .layout = wis::TextureLayout::Texture2D,
+        .mip = 0,
+        .base_array_layer = 0,
+        .layer_count = 1,
+    };
+    for (size_t i = 0; i < render_targets.size(); i++) {
+        auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
+        render_targets[i] = std::move(hrt);
     }
 }
 
@@ -122,11 +98,13 @@ std::string LoadShader(std::filesystem::path p)
 
 void Test::App::CreateResources()
 {
+    CreateRootSignature();
+
     struct Vertex {
         glm::vec3 pos;
         glm::vec2 tc;
     };
-    auto aspect_ratio = float(wnd.GetWidth()) / float(wnd.GetHeight());
+    auto aspect_ratio = float(width) / float(height);
     Vertex triangleVertices[] = {
         { { 0.0f, 0.25f * aspect_ratio, 0.0f }, { 1, 1 } },
         { { 0.0f, -0.25f * aspect_ratio, 0.0f }, { 1.0f, 0.0f } },
@@ -280,54 +258,6 @@ void Test::App::CreateResources()
     }
 
     {
-        wis::RootConstant root_constants[] = {
-            {
-                    .stage = wis::ShaderStages::Vertex,
-                    .size_bytes = 4,
-            },
-        };
-
-        wis::DescriptorTableEntry entries[] = {
-            {
-                    .type = wis::DescriptorType::ShaderResource,
-                    .bind_register = 0,
-                    .binding = 0,
-                    .count = 1,
-            },
-            {
-                    .type = wis::DescriptorType::ConstantBuffer,
-                    .bind_register = 0,
-                    .binding = 1,
-                    .count = 1,
-            },
-            {
-                    .type = wis::DescriptorType::Sampler,
-                    .bind_register = 0,
-                    .binding = 0,
-                    .count = 1,
-            },
-        };
-
-        wis::DescriptorTable tables[] = {
-            {
-                    .type = wis::DescriptorHeapType::Descriptor,
-                    .entries = entries,
-                    .entry_count = 2,
-                    .stage = wis::ShaderStages::Pixel,
-            },
-            {
-                    .type = wis::DescriptorHeapType::Sampler,
-                    .entries = entries + 2,
-                    .entry_count = 1,
-                    .stage = wis::ShaderStages::Pixel,
-            },
-
-        };
-        auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]), tables, sizeof(tables) / sizeof(tables[0]));
-        root = std::move(hroot);
-    }
-
-    {
         wis::InputSlotDesc input_slots[] = {
             { .slot = 0, .stride_bytes = sizeof(Vertex), .input_class = wis::InputClass::PerVertex },
         };
@@ -378,14 +308,6 @@ void Test::App::CreateResources()
     }
 
     WaitForGPU();
-}
-
-void Test::App::ProcessEvent(Event e)
-{
-    switch (e) {
-    case Event::Resize:
-        return OnResize(wnd.GetWidth(), wnd.GetHeight());
-    }
 }
 
 void Test::App::OnResize(uint32_t width, uint32_t height)
@@ -461,8 +383,8 @@ void Test::App::Frame()
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
     cmd_list.IASetVertexBuffers(&vertex_binding, 1);
-    cmd_list.RSSetViewport({ 0, 0, float(wnd.GetWidth()), float(wnd.GetHeight()), 0, 1 });
-    cmd_list.RSSetScissor({ 0, 0, wnd.GetWidth(), wnd.GetHeight() });
+    cmd_list.RSSetViewport({ 0, 0, float(width), float(height), 0, 1 });
+    cmd_list.RSSetScissor({ 0, 0, int(width), int(height) });
 
     cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
@@ -500,4 +422,53 @@ void Test::App::WaitForGPU()
     queue.SignalQueue(fence, vfence);
     fence_value++;
     fence.Wait(vfence);
+}
+
+void Test::App::CreateRootSignature()
+{
+    wis::RootConstant root_constants[] = {
+        {
+                .stage = wis::ShaderStages::Vertex,
+                .size_bytes = 4,
+        },
+    };
+
+    wis::DescriptorTableEntry entries[] = {
+        {
+                .type = wis::DescriptorType::ShaderResource,
+                .bind_register = 0,
+                .binding = 0,
+                .count = 1,
+        },
+        {
+                .type = wis::DescriptorType::ConstantBuffer,
+                .bind_register = 0,
+                .binding = 1,
+                .count = 1,
+        },
+        {
+                .type = wis::DescriptorType::Sampler,
+                .bind_register = 0,
+                .binding = 0,
+                .count = 1,
+        },
+    };
+
+    wis::DescriptorTable tables[] = {
+        {
+                .type = wis::DescriptorHeapType::Descriptor,
+                .entries = entries,
+                .entry_count = 2,
+                .stage = wis::ShaderStages::Pixel,
+        },
+        {
+                .type = wis::DescriptorHeapType::Sampler,
+                .entries = entries + 2,
+                .entry_count = 1,
+                .stage = wis::ShaderStages::Pixel,
+        },
+
+    };
+    auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]), tables, sizeof(tables) / sizeof(tables[0]));
+    root = std::move(hroot);
 }

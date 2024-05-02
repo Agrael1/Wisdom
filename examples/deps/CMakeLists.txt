@@ -40,7 +40,7 @@ endif()
 message("GLM: ${glm_DIR}")
 
 # KDAB KDUtils
-if(NOT WISDOM_WINDOWS_STORE)
+if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
   set(BUILD_SHARED_LIBS OFF)
   set(KDUTILS_BUILD_TESTS OFF)
 
@@ -51,6 +51,10 @@ if(NOT WISDOM_WINDOWS_STORE)
       GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
       GIT_TAG main
       OVERRIDE_FIND_PACKAGE)
+
+    set(SPDLOG_FMT_EXTERNAL_HO
+        ON
+        CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(KDUtils)
   endif()
 endif()
