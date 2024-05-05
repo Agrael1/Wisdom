@@ -2,7 +2,7 @@
 
 ![CMake Windows](https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg)
 
-**Low-level thin Graphics API layer. Easy to learn, easy to extend, highly performant, multiplatform!**
+**Low-level thin layer header only Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
 
 # Why?
 
@@ -48,18 +48,12 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 - `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation
 - `WISDOM_USE_FMT=ON/OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
-- `WISDOM_BUILD_TYPE=headers/static/modules` build type, `headers` makes header only library, `static` builds static library, `modules` builds modules, default is `static`
 - `WISDOM_BUILD_DOCS=ON/OFF` build documentation with Doxygen, default is dependent on wether you are building the library as a top project (ON) or as a part/dep for other (OFF)
+- `WISDOM_BUILD_BINARIES=ON/OFF` build static lib. If turned off, the header only version will be the main target.
 
 # Consumption
 
-You may use FetchContent, provided by cmake, to download the library and use it in your project.The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it.
-
-# Modules
-
-Library comes with beta C++20 module support. You can enable it using `WISDOM_BUILD_TYPE=modules`.
-This feature comes mostly untested, and only works on the latest preview of Visual Studio 2022.
-If you found a bug, please report via issues. Testing on linux is also appreciated.
+You may use FetchContent, provided by cmake, to download the library and use it in your project. The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it. Install script with NuGet and Vcpkg are coming next updates.
 
 # System Requirements
 
