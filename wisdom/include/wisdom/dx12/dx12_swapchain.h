@@ -33,7 +33,8 @@ public:
         : QueryInternal(std::move(swap_i))
     {
     }
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(chain);
     }
 
@@ -47,7 +48,8 @@ public:
     }
     /// @brief Check if stereo is supported
     /// @return true if stereo is supported
-    [[nodiscard]] bool StereoSupported() const noexcept {
+    [[nodiscard]] bool StereoSupported() const noexcept
+    {
         return stereo;
     }
 

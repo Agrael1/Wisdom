@@ -4,7 +4,7 @@
 #endif // !WISDOM_HEADER_ONLY
 
 void wis::VKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
-        uint32_t count) const noexcept
+                                              uint32_t count) const noexcept
 {
     VkSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -41,5 +41,5 @@ wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) 
     };
     VkResult result = device.table().vkQueueSubmit(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
-           : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+                             : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
