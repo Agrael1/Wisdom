@@ -29,7 +29,7 @@ constexpr auto CreateSwapchainWin32 = VKCreateSwapchainWin32;
 #endif // WISDOM_DX12
 } // namespace wis
 
-#ifdef WISDOM_PLATFORM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/win32.cpp"
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 

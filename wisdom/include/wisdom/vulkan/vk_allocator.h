@@ -48,6 +48,6 @@ private:
 };
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_allocator.cpp"
 #endif // !WISDOM_HEADER_ONLY

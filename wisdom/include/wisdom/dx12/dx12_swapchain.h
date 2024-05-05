@@ -33,7 +33,10 @@ public:
         : QueryInternal(std::move(swap_i))
     {
     }
-    operator bool() const noexcept { return bool(chain); }
+    operator bool() const noexcept
+    {
+        return bool(chain);
+    }
 
 public:
     /// @brief Get the current image index in the swapchain
@@ -45,7 +48,10 @@ public:
     }
     /// @brief Check if stereo is supported
     /// @return true if stereo is supported
-    [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
+    [[nodiscard]] bool StereoSupported() const noexcept
+    {
+        return stereo;
+    }
 
     /// @brief Resize the swapchain
     /// For the method to succeed, all swapchain buffers must be released first
@@ -77,6 +83,6 @@ public:
 };
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY

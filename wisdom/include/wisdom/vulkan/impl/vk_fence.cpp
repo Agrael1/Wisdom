@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/vulkan/vk_fence.h>
 #endif // !WISDOM_HEADER_ONLY
 
@@ -45,6 +45,6 @@ uint64_t wis::VKFence::GetCompletedValue() const noexcept
     auto& device = fence.header().parent;
     uint64_t value = 0;
     std::ignore = device.table().vkGetSemaphoreCounterValue(device.get(), fence.get(),
-                                                             &value); // always succeeds
+                                                            &value); // always succeeds
     return value;
 }

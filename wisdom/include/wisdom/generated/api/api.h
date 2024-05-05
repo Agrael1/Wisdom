@@ -1,6 +1,7 @@
 // GENERATED
 #pragma once
 #include <array>
+#include <cstdint>
 
 namespace wis {
 struct Result;

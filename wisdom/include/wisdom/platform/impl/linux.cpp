@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_PLATFORM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES /* || defined(__INTELLISENSE__)*/
 #include <wisdom/platform/linux.h>
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 

@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/vulkan/vk_factory.h>
 #endif // !WISDOM_HEADER_ONLY
 
@@ -7,10 +7,11 @@
 #include <ranges>
 #include <unordered_map>
 #include <vector>
+#include <array>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/misc.h>
 
-namespace {
+namespace wis::detail {
 struct FactoryData {
 public:
     static const FactoryData& instance() noexcept
@@ -117,33 +118,32 @@ inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
         return 1;
     }
 }
-} // namespace
+} // namespace wis::detail
 
-constexpr inline std::array req_extensions
-{
+constexpr inline std::array req_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-            VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
-            VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-            VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
 #endif
 #if DEBUG_MODE
-            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
 
 std::vector<const char*> wis::VKFactory::FoundExtensions() noexcept
 {
-    const auto& extensions = FactoryData::GetExtensions();
+    const auto& extensions = wis::detail::FactoryData::GetExtensions();
 
     if constexpr (wis::debug_mode)
-        wis::lib_info(FactoryData::ExtensionsString());
+        wis::lib_info(wis::detail::FactoryData::ExtensionsString());
 
     std::vector<const char*> found_extension;
     for (const auto* extension : req_extensions) {
@@ -164,9 +164,9 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 {
     std::vector<const char*> out;
     if constexpr (wis::debug_mode) {
-        const auto& layers = FactoryData::GetLayers();
+        const auto& layers = wis::detail::FactoryData::GetLayers();
         if constexpr (wis::debug_mode)
-            wis::lib_info(FactoryData::LayersString());
+            wis::lib_info(wis::detail::FactoryData::LayersString());
 
         if (layers.contains("VK_LAYER_KHRONOS_validation"))
             out.push_back("VK_LAYER_KHRONOS_validation");
@@ -328,7 +328,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(a, &a_properties);
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
-            return order_power(a_properties.deviceType) > order_power(b_properties.deviceType)
+            return wis::detail::order_power(a_properties.deviceType) > wis::detail::order_power(b_properties.deviceType)
                     ? true
                     : a_properties.limits.maxMemoryAllocationCount >
                             b_properties.limits.maxMemoryAllocationCount;
@@ -340,7 +340,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(a, &a_properties);
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
-            return order_performance(a_properties.deviceType) > order_performance(b_properties.deviceType)
+            return wis::detail::order_performance(a_properties.deviceType) > wis::detail::order_performance(b_properties.deviceType)
                     ? true
                     : a_properties.limits.maxMemoryAllocationCount >
                             b_properties.limits.maxMemoryAllocationCount;

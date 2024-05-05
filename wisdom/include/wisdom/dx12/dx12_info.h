@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <utility>
 #include <wisdom/generated/api/api.h>
+#include <wisdom/global/definitions.h>
 #include <wisdom/util/com_ptr.h>
 
 namespace wis {
@@ -80,13 +81,16 @@ struct DX12InfoToken {
             DX12Info::instance().Uninitialize();
         }
     }
-    operator bool() const noexcept { return bound; }
+    operator bool() const noexcept
+    {
+        return bound;
+    }
 
 private:
     bool bound = false;
 };
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_info.cpp"
 #endif
