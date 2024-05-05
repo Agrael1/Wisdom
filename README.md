@@ -55,6 +55,8 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 
 You may use FetchContent, provided by cmake, to download the library and use it in your project. The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it. Install script with NuGet and Vcpkg are coming next updates.
 
+To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::Wisdom)`. Alternatively if you wish for header only target, there is also `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::Headers)`.
+
 # System Requirements
 
 **Windows:**
