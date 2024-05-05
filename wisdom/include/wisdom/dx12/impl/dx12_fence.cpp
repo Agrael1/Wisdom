@@ -18,6 +18,7 @@ wis::Result wis::DX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noexcep
 
     auto st = fence_event.wait(uint32_t(wait_ns / 1000));
     return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
-            : st != wis::Status::Error ? wis::success
-                                       : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+           :
+           st != wis::Status::Error ? wis::success
+           : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
 }

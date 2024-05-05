@@ -356,12 +356,12 @@ WisResult VKSignalQueue(VKCommandQueue self,  VKFenceView fence,  uint64_t value
 void DX12ExecuteCommandLists(DX12CommandQueue self,  DX12CommandListView* lists,  uint32_t count)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandQueue*>(self);
-xself->ExecuteCommandLists(reinterpret_cast<wis::CommandListView*>(lists), count);
+    xself->ExecuteCommandLists(reinterpret_cast<wis::CommandListView*>(lists), count);
 }
 void VKExecuteCommandLists(VKCommandQueue self,  VKCommandListView* lists,  uint32_t count)
 {
     auto* xself = reinterpret_cast<wis::VKCommandQueue*>(self);
-xself->ExecuteCommandLists(reinterpret_cast<wis::CommandListView*>(lists), count);
+    xself->ExecuteCommandLists(reinterpret_cast<wis::CommandListView*>(lists), count);
 }
 void DX12ShaderDestroy(DX12Shader self)
 {

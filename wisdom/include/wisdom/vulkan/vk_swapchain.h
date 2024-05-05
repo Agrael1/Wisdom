@@ -115,9 +115,13 @@ public:
     }
 
 public:
-    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept { return present_index; }
+    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept {
+        return present_index;
+    }
 
-    [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
+    [[nodiscard]] bool StereoSupported() const noexcept {
+        return stereo;
+    }
 
     [[nodiscard]] WIS_INLINE wis::Result Resize(uint32_t width, uint32_t height) noexcept;
 
