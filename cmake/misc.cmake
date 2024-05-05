@@ -74,7 +74,7 @@ function(wisdom_sources)
 	cmake_parse_arguments(wisdom_sources
 						  "${options}" "${oneValueArgs}" "${multiValueArgs}"
 						  ${ARGN})
-	
+
 	if(NOT WISDOM_BUILD_BINARIES)
 		target_sources(${wisdom_sources_TARGET}
 			INTERFACE FILE_SET HEADERS
