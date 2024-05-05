@@ -35,7 +35,7 @@ add_subdirectory("generator")
 add_subdirectory("wisdom")
 
 if(WISDOM_BUILD_EXAMPLES)
-  option(WISDOM_EXCLUDE_KDGUI "Exclude KDGui Example from build" ON)
+  option(WISDOM_EXCLUDE_KDGUI "Exclude KDGui Example from build" OFF)
   add_subdirectory("examples")
 endif()
 
