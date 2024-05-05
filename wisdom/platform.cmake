@@ -11,7 +11,7 @@ if(WISDOM_WINDOWS)
 			VK_USE_PLATFORM_WIN32_KHR=1
 	)
 	if(WISDOM_WINDOWS_STORE)
-		target_compile_definitions(${PROJECT_NAME}Headers INTERFACE WISDOM_WINDOWS_STORE=1)
+		target_compile_definitions(${PROJECT_NAME}Headers PUBLIC WISDOM_WINDOWS_STORE=1)
 	endif()
 elseif(WISDOM_LINUX)
 	wisdom_sources(TARGET ${PROJECT_NAME}
