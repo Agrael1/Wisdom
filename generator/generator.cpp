@@ -76,7 +76,7 @@ int Generator::GenerateCPPAPI()
 {
     using namespace std::chrono;
 
-    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n\n";
+    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n\n";
     output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
     output_api += "//"
