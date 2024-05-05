@@ -23,7 +23,7 @@ struct VKSwapChainCreateInfo {
     std::unique_ptr<VkSemaphore[]> present_semaphores = nullptr; // if signalled, it means the presentation is required
     std::unique_ptr<VkSemaphore[]> image_ready_semaphores = nullptr; // if signalled, it means the rendering is available
     std::unique_ptr<VKTexture[]> back_buffers;
-    h::VkFence fence = nullptr; //only used for initialization and resizing
+    h::VkFence fence = nullptr; // only used for initialization and resizing
 
     VkSurfaceFormatKHR format{};
 
@@ -115,9 +115,15 @@ public:
     }
 
 public:
-    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept { return present_index; }
+    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept
+    {
+        return present_index;
+    }
 
-    [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
+    [[nodiscard]] bool StereoSupported() const noexcept
+    {
+        return stereo;
+    }
 
     [[nodiscard]] WIS_INLINE wis::Result Resize(uint32_t width, uint32_t height) noexcept;
 

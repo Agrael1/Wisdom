@@ -45,6 +45,6 @@ uint64_t wis::VKFence::GetCompletedValue() const noexcept
     auto& device = fence.header().parent;
     uint64_t value = 0;
     std::ignore = device.table().vkGetSemaphoreCounterValue(device.get(), fence.get(),
-                                                             &value); // always succeeds
+                                                            &value); // always succeeds
     return value;
 }

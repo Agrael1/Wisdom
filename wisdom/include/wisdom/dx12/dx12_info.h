@@ -81,7 +81,10 @@ struct DX12InfoToken {
             DX12Info::instance().Uninitialize();
         }
     }
-    operator bool() const noexcept { return bound; }
+    operator bool() const noexcept
+    {
+        return bound;
+    }
 
 private:
     bool bound = false;
