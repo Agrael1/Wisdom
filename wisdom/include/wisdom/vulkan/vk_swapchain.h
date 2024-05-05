@@ -134,6 +134,6 @@ public:
 };
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY

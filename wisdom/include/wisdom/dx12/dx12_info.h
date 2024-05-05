@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <utility>
 #include <wisdom/generated/api/api.h>
+#include <wisdom/global/definitions.h>
 #include <wisdom/util/com_ptr.h>
 
 namespace wis {
@@ -87,6 +88,6 @@ private:
 };
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_info.cpp"
 #endif

@@ -102,6 +102,6 @@ public:
 };
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_fence.cpp"
 #endif // !WISDOM_HEADER_ONLY

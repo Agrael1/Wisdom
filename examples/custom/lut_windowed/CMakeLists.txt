@@ -28,7 +28,7 @@ add_executable(
 
 wis_install_deps(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Wisdom glm::glm Wil)
+target_link_libraries(${PROJECT_NAME} PRIVATE Wisdom::Headers glm::glm Wil)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_include_directories(${PROJECT_NAME} PRIVATE ${fpng_SOURCE_DIR}/src)
 

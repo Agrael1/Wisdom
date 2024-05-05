@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_PLATFORM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/platform/win32.h>
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 

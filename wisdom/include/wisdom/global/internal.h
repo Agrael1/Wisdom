@@ -1,5 +1,6 @@
 #pragma once
 #include <utility>
+#include <wisdom/global/definitions.h>
 
 namespace wis {
 /// @brief Template class for internal implementation

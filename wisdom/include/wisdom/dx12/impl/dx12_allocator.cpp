@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/dx12/dx12_allocator.h>
 #endif // !WISDOM_HEADER_ONLY
 
@@ -45,7 +45,7 @@ wis::DX12ResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
 wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
 {
-    auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_READBACK }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COMMON);
+    auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_READBACK }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COPY_DEST);
     return {
         buffer.status, DX12Buffer{ std::move(buffer.value) }
     };

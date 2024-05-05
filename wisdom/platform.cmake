@@ -11,7 +11,7 @@ if(WISDOM_WINDOWS)
 			VK_USE_PLATFORM_WIN32_KHR=1
 	)
 	if(WISDOM_WINDOWS_STORE)
-		target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_WINDOWS_STORE=1)
+		target_compile_definitions(${PROJECT_NAME}Headers PUBLIC WISDOM_WINDOWS_STORE=1)
 	endif()
 elseif(WISDOM_LINUX)
 	wisdom_sources(TARGET ${PROJECT_NAME}
@@ -22,7 +22,7 @@ elseif(WISDOM_LINUX)
 		DEFINITIONS
 			WISDOM_LINUX=1
 			VK_USE_PLATFORM_XCB_KHR=1
-			#VK_USE_PLATFORM_XLIB_KHR=1
+			#VK_USE_PLATFORM_XLIB_KHR=1 # Breaks build
 			VK_USE_PLATFORM_WAYLAND_KHR=1
 	)
 elseif(WISDOM_MAC)
@@ -40,9 +40,5 @@ elseif(WISDOM_MAC)
 endif()
 
 if(WISDOM_FORCE_VULKAN)
-	target_compile_definitions(${PROJECT_NAME} ${WISDOM_PUBLIC} WISDOM_FORCE_VULKAN=1)
-endif()
-
-if(WISDOM_headers)
-	target_compile_definitions(${PROJECT_NAME} INTERFACE WISDOM_PLATFORM_HEADER_ONLY)
+	target_compile_definitions(${PROJECT_NAME}Headers INTERFACE WISDOM_FORCE_VULKAN=1)
 endif()

@@ -152,6 +152,6 @@ VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
 
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_device.cpp"
 #endif // !WISDOM_HEADER_ONLY

@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/vulkan/vk_factory.h>
 #endif // !WISDOM_HEADER_ONLY
 
@@ -7,10 +7,11 @@
 #include <ranges>
 #include <unordered_map>
 #include <vector>
+#include <array>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/misc.h>
 
-namespace {
+namespace wis::detail {
 struct FactoryData {
 public:
     static const FactoryData& instance() noexcept
@@ -140,10 +141,10 @@ constexpr inline std::array req_extensions
 
 std::vector<const char*> wis::VKFactory::FoundExtensions() noexcept
 {
-    const auto& extensions = FactoryData::GetExtensions();
+    const auto& extensions = wis::detail::FactoryData::GetExtensions();
 
     if constexpr (wis::debug_mode)
-        wis::lib_info(FactoryData::ExtensionsString());
+        wis::lib_info(wis::detail::FactoryData::ExtensionsString());
 
     std::vector<const char*> found_extension;
     for (const auto* extension : req_extensions) {
@@ -164,9 +165,9 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 {
     std::vector<const char*> out;
     if constexpr (wis::debug_mode) {
-        const auto& layers = FactoryData::GetLayers();
+        const auto& layers = wis::detail::FactoryData::GetLayers();
         if constexpr (wis::debug_mode)
-            wis::lib_info(FactoryData::LayersString());
+            wis::lib_info(wis::detail::FactoryData::LayersString());
 
         if (layers.contains("VK_LAYER_KHRONOS_validation"))
             out.push_back("VK_LAYER_KHRONOS_validation");
@@ -328,7 +329,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(a, &a_properties);
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
-            return order_power(a_properties.deviceType) > order_power(b_properties.deviceType)
+            return wis::detail::order_power(a_properties.deviceType) > wis::detail::order_power(b_properties.deviceType)
                     ? true
                     : a_properties.limits.maxMemoryAllocationCount >
                             b_properties.limits.maxMemoryAllocationCount;
@@ -340,7 +341,7 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(a, &a_properties);
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
-            return order_performance(a_properties.deviceType) > order_performance(b_properties.deviceType)
+            return wis::detail::order_performance(a_properties.deviceType) > wis::detail::order_performance(b_properties.deviceType)
                     ? true
                     : a_properties.limits.maxMemoryAllocationCount >
                             b_properties.limits.maxMemoryAllocationCount;

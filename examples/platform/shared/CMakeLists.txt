@@ -8,7 +8,7 @@ target_sources(
   PUBLIC "app.h"
   PRIVATE "app.cpp")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(${PROJECT_NAME} PUBLIC Wisdom glm::glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC Wisdom::Wisdom glm::glm)
 add_dependencies(${PROJECT_NAME} compile_shaders_kd)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)

@@ -57,44 +57,6 @@ function(load_nuget_dependency NUGET PLUGIN_NAME ALIAS OUT_DIR)
 	set(${ALIAS}_DIR ${PLUGIN_DIRX} CACHE STRING "${PLUGIN_NAME} PATH" FORCE)
 endfunction()
 
-
-##
-# This function always adds sources to target, but when "WHEN" condition is not meet
-# source is excluded from build process.
-# This doesn't break build, but source is always visible for the project, what is
-# very handy when working with muti-platform project with sources needed
-# only for specific platform
-#
-# Usage:
-#      target_optional_sources(WHEN <condition>
-#                              TARGET <target>
-#                              <INTERFACE|PUBLIC|PRIVATE> [items2...]
-#                              [<INTERFACE|PUBLIC|PRIVATE> [items2...] ...])
-##
-function(target_optional_sources)
-	set(options OPTIONAL "")
-	set(oneValueArgs WHEN TARGET)
-	set(multiValueArgs PUBLIC PRIVATE INTERFACE)
-
-	cmake_parse_arguments(target_optional_sources
-						  "${options}" "${oneValueArgs}" "${multiValueArgs}"
-						  ${ARGN})
-
-	target_sources(${target_optional_sources_TARGET}
-				   PUBLIC ${target_optional_sources_PUBLIC}
-				   PRIVATE ${target_optional_sources_PRIVATE}
-				   INTERFACE ${target_optional_sources_INTERFACE})
-
-	if (${target_optional_sources_WHEN})
-		set_source_files_properties(${target_optional_sources_PUBLIC}
-									PROPERTIES HEADER_FILE_ONLY TRUE)
-		set_source_files_properties(${target_optional_sources_PRIVATE}
-									PROPERTIES HEADER_FILE_ONLY TRUE)
-		set_source_files_properties(${target_optional_sources_INTERFACE}
-									PROPERTIES HEADER_FILE_ONLY TRUE)
-	endif(NOT ${target_optional_sources_WHEN})
-endfunction(target_optional_sources)
-
 ##
 #
 #
@@ -112,9 +74,10 @@ function(wisdom_sources)
 	cmake_parse_arguments(wisdom_sources
 						  "${options}" "${oneValueArgs}" "${multiValueArgs}"
 						  ${ARGN})
-	if(${WISDOM_headers})
+	
+	if(NOT WISDOM_BUILD_BINARIES)
 		target_sources(${wisdom_sources_TARGET}
-			${WISDOM_PUBLIC} FILE_SET HEADERS
+			INTERFACE FILE_SET HEADERS
 				BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 				FILES ${wisdom_sources_HEADERS}
 					${wisdom_sources_SOURCES}
@@ -123,18 +86,17 @@ function(wisdom_sources)
 									PROPERTIES HEADER_FILE_ONLY TRUE)
 	else()
 		target_sources(${wisdom_sources_TARGET}
-			${WISDOM_PUBLIC} FILE_SET HEADERS
+			PUBLIC FILE_SET HEADERS
 				BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 				FILES ${wisdom_sources_HEADERS}
-			${WISDOM_PRIVATE}
+			PRIVATE
 				${wisdom_sources_SOURCES}
 		)
 	endif()
-
 	if(wisdom_sources_DEFINITIONS)
-		target_compile_definitions(${wisdom_sources_TARGET} ${WISDOM_PUBLIC} ${wisdom_sources_DEFINITIONS})
+		target_compile_definitions(${wisdom_sources_TARGET}Headers INTERFACE ${wisdom_sources_DEFINITIONS})
 	endif()
 	if(wisdom_sources_LIBS)
-		target_link_libraries(${wisdom_sources_TARGET} ${WISDOM_PUBLIC} ${wisdom_sources_LIBS})
+		target_link_libraries(${wisdom_sources_TARGET}Headers INTERFACE ${wisdom_sources_LIBS})
 	endif()
 endfunction(wisdom_sources)

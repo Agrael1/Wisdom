@@ -81,6 +81,6 @@ public:
 DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept;
 } // namespace wis
 
-#ifdef WISDOM_HEADER_ONLY
+#ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_device.cpp"
 #endif // !WISDOM_HEADER_ONLY

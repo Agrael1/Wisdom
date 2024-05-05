@@ -37,6 +37,6 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			WISVK_NO_DEFAULT_DELETER=1
 		LIBS
 			VKAllocator
-			wis::wisvk
+			Wisdom::WisVk
 	)
 endif()

@@ -1,5 +1,5 @@
 #pragma once
-#ifndef WISDOM_HEADER_ONLY
+#ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/vulkan/vk_swapchain.h>
 #endif // !WISDOM_HEADER_ONLY
 #include <wisdom/vulkan/vk_checks.h>

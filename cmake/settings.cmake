@@ -10,33 +10,6 @@ else()
   set(CURR_LEVEL "warn")
 endif()
 
-# Build type
-set(DEF_BUILD
-    "static"
-    CACHE INTERNAL "Default build type for library")
-set(BUILD_TYPES
-    "headers;static;modules"
-    CACHE INTERNAL "List of possible build types for library")
-set(WISDOM_BUILD_TYPE
-    ${DEF_BUILD}
-    CACHE STRING "Wisdom library build type")
-set_property(CACHE WISDOM_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
-list(FIND BUILD_TYPES ${WISDOM_BUILD_TYPE} BUILD_INDEX)
-message("[Wisdom] Build is ${WISDOM_BUILD_TYPE} [${BUILD_INDEX}]")
-
-set(WISDOM_${WISDOM_BUILD_TYPE} TRUE)
-if(WISDOM_headers)
-    set(WISDOM_BTYPE INTERFACE)
-    set(WISDOM_PUBLIC INTERFACE)
-    set(WISDOM_PRIVATE INTERFACE)
-else()# static or modules
-	set(WISDOM_BTYPE STATIC)
-	set(WISDOM_PUBLIC PUBLIC)
-	set(WISDOM_PRIVATE PRIVATE)
-endif()
-
-
-
 # Log level
 set(WISDOM_LOG_LEVEL
     ${CURR_LEVEL}
@@ -68,6 +41,7 @@ option(WISDOM_FORCE_VULKAN
        OFF)
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
+option(WISDOM_BUILD_BINARIES "Build the static lib." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
 option(WISDOM_GENERATE_API "Generate the API" ${GEN})
 option(WISDOM_USE_SYSTEM_DXC "Use dxc from PATH" OFF)
