@@ -6,6 +6,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 find_package(fmt 10.0 CONFIG)
 
+# Load tinyxml2
 message("Loading tinyxml2...")
 FetchContent_Declare(
   tinyxml2
@@ -15,7 +16,12 @@ FetchContent_Declare(
 set(tinyxml2_BUILD_TESTING
     OFF
     CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(tinyxml2)
+FetchContent_GetProperties(tinyxml2)
+if(NOT tinyxml2_POPULATED)
+  FetchContent_Populate(tinyxml2)
+  # Disable tinyxml2 installation
+  add_subdirectory(${tinyxml2_SOURCE_DIR} ${tinyxml2_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE entry_main.cpp generator.h generator.cpp)

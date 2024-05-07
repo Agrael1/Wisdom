@@ -16,19 +16,22 @@ if(NOT PLUGINS_LOADED)
       CACHE INTERNAL "")
 endif()
 
+include(GNUInstallDirs)
 add_library(${PROJECT_NAME} STATIC ${vkma_SOURCES}/include/vk_mem_alloc.h)
 target_sources(${PROJECT_NAME} PRIVATE ${vkma_SOURCES}/src/VmaUsage.cpp
                                        ${vkma_SOURCES}/src/VmaUsage.h)
 
-if(MSVC)
-  # Provides MSVC users nicer debugging support
-  target_sources(${PROJECT_NAME}
-                 PRIVATE ${vkma_SOURCES}/src/vk_mem_alloc.natvis)
-endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
 target_compile_definitions(${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES)
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCES}/include>
-                         $<INSTALL_INTERFACE:include>)
+                         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
-target_install(${PROJECT_NAME})
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT WisdomTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(DIRECTORY ${vkma_SOURCES}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vkma)

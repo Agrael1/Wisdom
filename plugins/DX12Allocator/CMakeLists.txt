@@ -12,24 +12,27 @@ if(NOT PLUGINS_LOADED)
     set(dxma_SOURCES ${dxma_SOURCE_DIR} CACHE INTERNAL "")
 endif()
 
+include(GNUInstallDirs)
 add_library(${PROJECT_NAME} STATIC ${dxma_SOURCES}/include/D3D12MemAlloc.h)
 target_sources(${PROJECT_NAME}        
     PRIVATE
         ${dxma_SOURCES}/src/D3D12MemAlloc.cpp
 )
-if (MSVC)
-    # Provides MSVC users nicer debugging support
-    target_sources(${PROJECT_NAME} PRIVATE ${dxma_SOURCES}/src/D3D12MemAlloc.natvis)
-endif()
 
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC 
         $<BUILD_INTERFACE:${dxma_SOURCES}/include>
-	    $<INSTALL_INTERFACE:include>
+	    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/dxma>
 )
 set_target_properties(${PROJECT_NAME}
     	PROPERTIES
 		    CXX_STANDARD 20
 )
-target_install(${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME}
+        EXPORT WisdomTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(DIRECTORY ${dxma_SOURCES}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dxma)

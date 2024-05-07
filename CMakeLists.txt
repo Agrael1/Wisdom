@@ -1,8 +1,9 @@
 # CMakeList.txt : Top-level CMake project file Parameters: WISDOM_GENERATE_API:
 # Generate the API files (default: ON if Top Project) WISDOM_BUILD_EXAMPLES:
 # Build the examples (default: ON if Top Project) WISDOM_BUILD_TESTS: Build the
-# tests (default: ON if Top Project) WISDOM_BUILD_TYPE: Build type (values:
-# headers;static;modules)(default: "static") WISDOM_LOG_LEVEL: Log level
+# tests (default: ON if Top Project) 
+
+# WISDOM_LOG_LEVEL: Log level 
 # (values: debug;trace;info;warn;error;critical)(default: if DEBUG then "debug"
 # else "warn")
 
@@ -35,9 +36,9 @@ add_subdirectory("wisdom")
 
 if(WISDOM_BUILD_EXAMPLES)
   option(WISDOM_EXCLUDE_KDGUI "Exclude KDGui Example from build" OFF)
-  add_subdirectory("examples")
+  add_subdirectory("examples" EXCLUDE_FROM_ALL)
 endif()
 
 if(WISDOM_BUILD_TESTS)
-  add_subdirectory("tests")
+  add_subdirectory("tests" EXCLUDE_FROM_ALL)
 endif()

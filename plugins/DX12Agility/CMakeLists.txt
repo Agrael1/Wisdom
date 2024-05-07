@@ -1,5 +1,10 @@
 project(DX12Agility)
 
+find_package(DX12Agility QUIET)
+if(${DX12Agility_FOUND})
+	return()
+endif()
+
 if(NOT PLUGINS_LOADED)
     message("Setting up DirectX 12 Agility...")
     load_nuget_dependency(${NUGET_EXE} "Microsoft.Direct3D.D3D12" DXA ${CMAKE_CURRENT_BINARY_DIR})
@@ -10,6 +15,8 @@ if(NOT PLUGINS_LOADED)
     message("Agility version: ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
     set(VERSION_MINOR ${CMAKE_MATCH_2} CACHE INTERNAL "")
 endif()
+
+#file(RELATIVE_PATH variable directory file)
 
 set(DXA_HEADERS ${DXA_DIR}/build/native/include)
 set(DXA_SRC ${DXA_DIR}/build/native/src)
@@ -25,19 +32,34 @@ set_property(TARGET ${PROJECT_NAME}SDKLayers PROPERTY
              IMPORTED_LOCATION ${DXA_BIN}/d3d12SDKLayers.dll)
 
 #Header interface library
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} STATIC) 
+add_library(Wisdom::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME} SYSTEM BEFORE 
     PUBLIC         
         $<BUILD_INTERFACE:${DXA_HEADERS}>
+        $<INSTALL_INTERFACE:include/d3dx12>
+    PRIVATE
         $<BUILD_INTERFACE:${DXA_HEADERS}/d3dx12>
-        $<INSTALL_INTERFACE:include>
 )
 target_sources(${PROJECT_NAME}
     PRIVATE 
 		${DXA_SRC}/d3dx12/d3dx12_property_format_table.cpp
 )
 
-target_install(${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME}
+        EXPORT WisdomTargets
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        PUBLIC_HEADER DESTINATION include)
+        
+install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT_NAME}Core ${PROJECT_NAME}SDKLayers
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib)
+
+install(DIRECTORY ${DXA_HEADERS}/
+        DESTINATION include/d3dx12)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY
              DX12SDKVER ${VERSION_MINOR})

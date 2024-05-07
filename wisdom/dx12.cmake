@@ -3,7 +3,7 @@ if(WISDOM_WINDOWS)
 	message("Platform Library is DirectX 12")
 	set(WISDOM_DX12 TRUE)
 	
-	wisdom_sources(TARGET ${PROJECT_NAME}
+	wisdom_sources(TARGET wisdom
 		HEADERS 
 			"include/wisdom/dx12/dx12_factory.h"
 			"include/wisdom/dx12/dx12_views.h"

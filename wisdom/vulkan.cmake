@@ -4,7 +4,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 	message("Vulkan found!")
 	set(WISDOM_VULKAN TRUE)
 
-	wisdom_sources(TARGET ${PROJECT_NAME}
+	wisdom_sources(TARGET wisdom
 		HEADERS
 			"include/wisdom/vulkan/vk_factory.h"
 			"include/wisdom/vulkan/vk_views.h"

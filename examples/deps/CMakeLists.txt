@@ -27,13 +27,12 @@ if(WISDOM_WINDOWS)
 endif()
 
 # glm
-find_package(glm CONFIG)
+find_package(glm QUIET)
 if(NOT glm_FOUND)
   FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm
-    GIT_TAG master
-    OVERRIDE_FIND_PACKAGE)
+    GIT_TAG master)
   FetchContent_MakeAvailable(glm)
 endif()
 
@@ -49,8 +48,7 @@ if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
     FetchContent_Declare(
       KDUtils
       GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
-      GIT_TAG main
-      OVERRIDE_FIND_PACKAGE)
+      GIT_TAG main)
 
     set(SPDLOG_FMT_EXTERNAL_HO
         ON
