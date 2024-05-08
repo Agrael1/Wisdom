@@ -81,8 +81,8 @@ if(WISDOM_GENERATE_API)
 endif()
 
 # Install
-install(TARGETS wis-header-only ${PROJECT_NAME} WisVk
-    EXPORT WisdomTargets
+install(TARGETS wis-header-only ${PROJECT_NAME}
+    EXPORT wisdom-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -94,10 +94,10 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
-  EXPORT WisdomTargets
+  EXPORT wisdom-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   NAMESPACE wis::
-  FILE WisdomTargets.cmake # Not sure if this is still needed
+  FILE wisdom-targets.cmake # Not sure if this is still needed
   )
 
 include(CMakePackageConfigHelpers)
@@ -110,7 +110,7 @@ configure_package_config_file(
   )
 
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
   )
@@ -118,6 +118,6 @@ write_basic_package_version_file(
 ### Install Config and ConfigVersion files
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
   )

@@ -30,7 +30,7 @@ set_target_properties(${PROJECT_NAME}
 		    CXX_STANDARD 20
 )
 install(TARGETS ${PROJECT_NAME}
-        EXPORT WisdomTargets
+        EXPORT wisdom-targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

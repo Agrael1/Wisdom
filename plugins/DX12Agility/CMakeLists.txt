@@ -48,7 +48,7 @@ target_sources(${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME}
-        EXPORT WisdomTargets
+        EXPORT wisdom-targets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
