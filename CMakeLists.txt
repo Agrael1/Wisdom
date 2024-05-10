@@ -18,7 +18,7 @@
 
 # Functions: wis_install_deps: install dependencies for executables
 
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22)
 
 project("Wisdom" VERSION 0.1.0)
 
@@ -27,6 +27,7 @@ include(cmake/platform.cmake)
 include(cmake/settings.cmake)
 include(cmake/functions.cmake)
 include(cmake/misc.cmake)
+include(GNUInstallDirs)
 
 # Include sub-projects.
 add_subdirectory("plugins")

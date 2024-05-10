@@ -3,6 +3,20 @@
 
 include(CMakeFindDependencyMacro)
 find_dependency(Vulkan REQUIRED)
-#find_dependency(WisVk REQUIRED PATHS "${CMAKE_CURRENT_LIST_DIR}/../WisVk/")
+find_dependency(WisVk REQUIRED PATHS "${CMAKE_CURRENT_LIST_DIR}/../WisVk/")
 
+
+if(WIN32)
+	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc.exe")
+elseif(UNIX)
+	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc")
+endif()
+
+if(WIN32)
+	set(DXAGILITY_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/D3D12Core.dll")
+	set(DXAGILITY_DEBUG_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/d3d12SDKLayers.dll")
+endif()
+
+
+include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-deps.cmake" )
 include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-targets.cmake" )

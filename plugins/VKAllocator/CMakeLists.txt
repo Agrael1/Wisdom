@@ -16,7 +16,6 @@ if(NOT PLUGINS_LOADED)
       CACHE INTERNAL "")
 endif()
 
-include(GNUInstallDirs)
 add_library(${PROJECT_NAME} STATIC ${vkma_SOURCES}/include/vk_mem_alloc.h)
 target_sources(${PROJECT_NAME} PRIVATE ${vkma_SOURCES}/src/VmaUsage.cpp
                                        ${vkma_SOURCES}/src/VmaUsage.h)

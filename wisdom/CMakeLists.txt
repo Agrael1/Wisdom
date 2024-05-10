@@ -93,6 +93,9 @@ install(TARGETS wis-header-only ${PROJECT_NAME}
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
+
+
+
 install(
   EXPORT wisdom-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
@@ -101,12 +104,15 @@ install(
   )
 
 include(CMakePackageConfigHelpers)
+configure_file("../cmake/wisdom-deps.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake" @ONLY)
+
 configure_package_config_file( 
   "../cmake/wisdom-config.cmake.in" 
   "wisdom-config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   PATH_VARS
     CMAKE_INSTALL_LIBDIR
+    CMAKE_INSTALL_BINDIR # For agility dlls
   )
 
 write_basic_package_version_file(
@@ -117,7 +123,8 @@ write_basic_package_version_file(
 
 ### Install Config and ConfigVersion files
 install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
   )

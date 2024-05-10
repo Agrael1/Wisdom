@@ -52,3 +52,5 @@ else()
         CACHE INTERNAL "")
   endif()
 endif()
+
+install(PROGRAMS ${dxc_EXECUTABLE} DESTINATION bin)
