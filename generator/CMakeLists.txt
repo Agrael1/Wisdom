@@ -18,7 +18,8 @@ FetchContent_GetProperties(tinyxml2)
 if(NOT tinyxml2_POPULATED)
   FetchContent_Populate(tinyxml2)
   # Disable tinyxml2 installation
-  add_subdirectory(${tinyxml2_SOURCE_DIR} ${tinyxml2_BINARY_DIR} EXCLUDE_FROM_ALL)
+  add_subdirectory(${tinyxml2_SOURCE_DIR} ${tinyxml2_BINARY_DIR}
+                   EXCLUDE_FROM_ALL)
 endif()
 
 add_executable(${PROJECT_NAME})

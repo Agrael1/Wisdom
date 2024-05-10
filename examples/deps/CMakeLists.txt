@@ -61,7 +61,8 @@ if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
     if(NOT KDUtils_POPULATED)
       FetchContent_Populate(KDUtils)
       # Disable tinyxml2 installation
-      add_subdirectory(${kdutils_SOURCE_DIR} ${kdutils_BINARY_DIR} EXCLUDE_FROM_ALL)
+      add_subdirectory(${kdutils_SOURCE_DIR} ${kdutils_BINARY_DIR}
+                       EXCLUDE_FROM_ALL)
     endif()
   endif()
 endif()

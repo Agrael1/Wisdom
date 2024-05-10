@@ -7,7 +7,6 @@ FetchContent_Declare(
 set(SSE ON)
 FetchContent_MakeAvailable(fpng)
 
-
 add_executable(
   ${PROJECT_NAME}
   entry_main.cpp
