@@ -64,11 +64,8 @@ target_compile_definitions(
 
 # Formatting library
 if(WISDOM_USE_FMT)
-  find_package(fmt QUIET)
   target_compile_definitions(wis-header-only INTERFACE WISDOM_USE_FMT)
-
-  message(STATUS "Using fmt library ${FMT_TARGET}")
-  target_link_libraries(wis-header-only INTERFACE ${FMT_TARGET})
+  target_link_libraries(wis-header-only INTERFACE fmt::fmt-header-only)
 endif()
 
 # API generation
