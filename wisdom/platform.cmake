@@ -1,6 +1,6 @@
 
 if(WISDOM_WINDOWS)
-	wisdom_sources(TARGET ${PROJECT_NAME}
+	wisdom_sources(TARGET wisdom
 		HEADERS
 			"include/wisdom/platform/win32.h"
 		SOURCES
@@ -11,10 +11,10 @@ if(WISDOM_WINDOWS)
 			VK_USE_PLATFORM_WIN32_KHR=1
 	)
 	if(WISDOM_WINDOWS_STORE)
-		target_compile_definitions(${PROJECT_NAME}Headers INTERFACE WISDOM_WINDOWS_STORE=1)
+		target_compile_definitions(wis-header-only INTERFACE WISDOM_WINDOWS_STORE=1)
 	endif()
 elseif(WISDOM_LINUX)
-	wisdom_sources(TARGET ${PROJECT_NAME}
+	wisdom_sources(TARGET wisdom
 		HEADERS
 			"include/wisdom/platform/linux.h"
 		SOURCES
@@ -26,7 +26,7 @@ elseif(WISDOM_LINUX)
 			VK_USE_PLATFORM_WAYLAND_KHR=1
 	)
 elseif(WISDOM_MAC)
-	wisdom_sources(TARGET ${PROJECT_NAME}
+	wisdom_sources(TARGET wisdom
 		HEADERS
 			"include/wisdom/platform/mac.h"
 		SOURCES
@@ -40,5 +40,5 @@ elseif(WISDOM_MAC)
 endif()
 
 if(WISDOM_FORCE_VULKAN)
-	target_compile_definitions(${PROJECT_NAME}Headers INTERFACE WISDOM_FORCE_VULKAN=1)
+	target_compile_definitions(wis-header-only INTERFACE WISDOM_FORCE_VULKAN=1)
 endif()

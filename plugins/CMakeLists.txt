@@ -1,7 +1,6 @@
 include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-set(CMAKE_FIND_PACKAGE_TARGETS_GLOBAL ON)
 
 if(WISDOM_USE_FMT)
   find_package(fmt 10.0 CONFIG)
@@ -12,18 +11,8 @@ if(WISDOM_USE_FMT)
     FetchContent_Declare(
       fmt
       GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-      GIT_TAG origin/master
-      OVERRIDE_FIND_PACKAGE)
+      GIT_TAG origin/master)
     FetchContent_MakeAvailable(fmt)
-  endif()
-  if(WISDOM_headers)
-    set(FMT_TARGET
-        fmt::fmt-header-only
-        CACHE INTERNAL "" FORCE)
-  else()
-    set(FMT_TARGET
-        fmt::fmt
-        CACHE INTERNAL "" FORCE)
   endif()
 endif()
 
@@ -52,9 +41,6 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
     GIT_REPOSITORY https://github.com/Agrael1/Wisdom-VkUtils.git
     GIT_TAG origin/master)
   set(WISVK_ONLY_HEADERS
-      ON
-      CACHE BOOL "" FORCE)
-  set(WISVK_INSTALL
       ON
       CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(wisvk)

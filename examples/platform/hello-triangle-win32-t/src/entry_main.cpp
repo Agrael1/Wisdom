@@ -7,6 +7,8 @@ int main()
     Window wnd(1920, 1080, "Example Win32 Wisdom");
     Test::App app;
 
+    scanf("Press enter to continue");
+
     wis::SwapchainDesc desc{
         .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
         .format = wis::DataFormat::BGRA8Unorm,

@@ -1,10 +1,11 @@
 # CMakeList.txt : Top-level CMake project file Parameters: WISDOM_GENERATE_API:
 # Generate the API files (default: ON if Top Project) WISDOM_BUILD_EXAMPLES:
 # Build the examples (default: ON if Top Project) WISDOM_BUILD_TESTS: Build the
-# tests (default: ON if Top Project) WISDOM_BUILD_TYPE: Build type (values:
-# headers;static;modules)(default: "static") WISDOM_LOG_LEVEL: Log level
-# (values: debug;trace;info;warn;error;critical)(default: if DEBUG then "debug"
-# else "warn")
+# tests (default: ON if Top Project)
+
+# WISDOM_LOG_LEVEL: Log level (values:
+# debug;trace;info;warn;error;critical)(default: if DEBUG then "debug" else
+# "warn")
 
 # WISDOM_BUILD_BINARIES: Build the binaries (default: ON)
 
@@ -17,7 +18,7 @@
 
 # Functions: wis_install_deps: install dependencies for executables
 
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22)
 
 project("Wisdom" VERSION 0.1.0)
 
@@ -26,6 +27,7 @@ include(cmake/platform.cmake)
 include(cmake/settings.cmake)
 include(cmake/functions.cmake)
 include(cmake/misc.cmake)
+include(GNUInstallDirs)
 
 # Include sub-projects.
 add_subdirectory("plugins")
