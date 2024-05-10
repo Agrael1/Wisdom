@@ -23,7 +23,7 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #if WISDOM_DX12 && !FORCEVK_SWITCH
 #include "wisdom_dx12.h"
 
-namespace wis{
+namespace wis {
 
 inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 
@@ -62,12 +62,12 @@ using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
 using RenderPassDesc = DX12RenderPassDesc;
 using VertexBufferBinding = DX12VertexBufferBinding;
-}
+} // namespace wis
 
 #elif WISDOM_VULKAN
 #include "wisdom_vk.h"
 
-namespace wis{
+namespace wis {
 
 inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
 
@@ -106,7 +106,7 @@ using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
 using RenderPassDesc = VKRenderPassDesc;
 using VertexBufferBinding = VKVertexBufferBinding;
-}
+} // namespace wis
 
 #else
 #error "No API selected"

@@ -43,7 +43,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
   set(WISVK_ONLY_HEADERS
       ON
       CACHE BOOL "" FORCE)
-  FETCHCONTENT_MAKEAVAILABLE(wisvk)
+  FetchContent_MakeAvailable(wisvk)
 
   # Vulkan Memory Allocator
   add_subdirectory("VKAllocator")
