@@ -1,5 +1,5 @@
 add_library(wisdom-shared INTERFACE)
-target_sources(wisdom-shared 
+target_sources(wisdom-shared
     INTERFACE FILE_SET HEADERS
 	BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 	FILES
@@ -19,8 +19,8 @@ target_sources(wisdom-shared
         "include/wisdom/bridge/source_location.h"
         "include/wisdom/util/error_messages.h")
 
-target_include_directories(wisdom-shared 
-    INTERFACE 
+target_include_directories(wisdom-shared
+    INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
