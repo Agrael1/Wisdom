@@ -1,5 +1,7 @@
 project(PlatformExamplesShared)
 
+find_package(glm QUIET)
+
 add_library(${PROJECT_NAME} STATIC)
 target_sources(
   ${PROJECT_NAME}

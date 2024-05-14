@@ -2,8 +2,7 @@
 if(WISDOM_WINDOWS)
 	message("Platform Library is DirectX 12")
 	set(WISDOM_DX12 TRUE)
-
-	wisdom_sources(TARGET wisdom
+	wisdom_sources_ex(TARGET wisdom-dx12
 		HEADERS
 			"include/wisdom/dx12/dx12_factory.h"
 			"include/wisdom/dx12/dx12_views.h"
@@ -31,11 +30,14 @@ if(WISDOM_WINDOWS)
 			"include/wisdom/dx12/impl/dx12_swapchain.cpp"
 			"include/wisdom/dx12/impl/dx12_command_list.cpp"
 		LIBS
+			wisdom-shared
 			DX12Agility
 			DX12Allocator
 			d3d12
 			d3d11
 			DXGI
 			DXGUID
+		DEFINITIONS
+			WISDOM_DX12=1
 	)
 endif()

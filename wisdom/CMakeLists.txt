@@ -3,71 +3,26 @@ project(wisdom VERSION 0.1.0)
 
 include(cmake/documentation.cmake)
 
-add_library(wis-header-only INTERFACE)
-add_library(wis::wis-header-only ALIAS wis-header-only)
-target_include_directories(
-  wis-header-only
-  INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
-
 if(WISDOM_BUILD_BINARIES)
-  add_library(${PROJECT_NAME} STATIC)
-  add_library(wis::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-  target_link_libraries(${PROJECT_NAME} PUBLIC wis-header-only)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_BUILD_BINARIES)
-  set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+  set(WISDOM_PUBLIC PUBLIC)
 else()
-  add_library(${PROJECT_NAME} INTERFACE)
-  add_library(wis::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-  target_link_libraries(${PROJECT_NAME} INTERFACE wis-header-only)
   set(WISDOM_PUBLIC INTERFACE)
 endif()
 
 # load dx12 and vulkan
-include(platform.cmake)
+include(shared.cmake)
 include(dx12.cmake)
 include(vulkan.cmake)
 
-# Add common sources
-wisdom_sources(
-  TARGET
-  wisdom
-  HEADERS
-  "include/wisdom/global/definitions.h"
-  "include/wisdom/global/internal.h"
-  "include/wisdom/util/com_ptr.h"
-  "include/wisdom/wisdom.hpp"
-  "include/wisdom/util/log_layer.h"
-  "include/wisdom/util/flags.h"
-  "include/wisdom/bridge/generator.h"
-  "include/wisdom/util/exception.h"
-  "include/wisdom/util/shader_compiler.h"
-  "include/wisdom/util/profile.h"
-  "include/wisdom/util/misc.h"
-  "include/wisdom/util/small_allocator.h"
-  "include/wisdom/bridge/format.h"
-  "include/wisdom/bridge/source_location.h"
-  "include/wisdom/util/error_messages.h")
+add_library(wis-header-only INTERFACE)
+add_library(wis::wis-header-only ALIAS wis-header-only)
 
-set_target_properties(wis-header-only PROPERTIES CXX_STANDARD 20)
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(wis::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-target_compile_definitions(
-  wis-header-only
-  INTERFACE DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
-            DEBUG_LAYER=$<BOOL:${WISDOM_DEBUG_LAYER}>
-            WISDOM_DX12=$<BOOL:${WISDOM_DX12}>
-            WISDOM_VULKAN=$<BOOL:${WISDOM_VULKAN}>
-            WISDOM_METAL=$<BOOL:${WISDOM_METAL}>
-            WISDOM_VERSION=${WISDOM_VERSION}
-            WISDOM_LOG_LEVEL=${SEV_INDEX}
-            NOMINMAX
-            _CRT_SECURE_NO_WARNINGS)
-
-# Formatting library
-if(WISDOM_USE_FMT)
-  target_compile_definitions(wis-header-only INTERFACE WISDOM_USE_FMT)
-  target_link_libraries(wis-header-only INTERFACE fmt::fmt-header-only)
-endif()
+include(platform.cmake)
+target_link_libraries(wis-header-only INTERFACE wisdom-platform-headers)
+target_link_libraries(${PROJECT_NAME} INTERFACE wisdom-platform)
 
 # API generation
 if(WISDOM_GENERATE_API)
@@ -78,21 +33,18 @@ if(WISDOM_GENERATE_API)
   add_dependencies(wis-header-only GenerateAPI)
 endif()
 
-# Install
 install(
-  TARGETS wis-header-only ${PROJECT_NAME}
+  TARGETS ${PROJECT_NAME} wis-header-only
   EXPORT wisdom-targets
+  FILE_SET HEADERS
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  FILE_SET HEADERS
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
+# Install
 install(
   EXPORT wisdom-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
