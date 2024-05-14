@@ -25,13 +25,6 @@ target_link_libraries(wis-header-only INTERFACE wisdom-platform-headers)
 target_link_libraries(${PROJECT_NAME} INTERFACE wisdom-platform)
 
 
-
-# Formatting library
-if(WISDOM_USE_FMT)
-  target_compile_definitions(wis-header-only INTERFACE WISDOM_USE_FMT)
-  target_link_libraries(wis-header-only INTERFACE fmt::fmt-header-only)
-endif()
-
 # API generation
 if(WISDOM_GENERATE_API)
   add_custom_target(

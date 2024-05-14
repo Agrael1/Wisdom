@@ -24,6 +24,12 @@ target_include_directories(wisdom-shared
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+# Formatting library
+if(WISDOM_USE_FMT)
+  target_compile_definitions(wisdom-shared INTERFACE WISDOM_USE_FMT)
+  target_link_libraries(wisdom-shared INTERFACE fmt::fmt-header-only)
+endif()
+
 target_compile_definitions(
   wisdom-shared
   INTERFACE
