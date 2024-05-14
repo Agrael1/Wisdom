@@ -4,9 +4,9 @@ project(wisdom VERSION 0.1.0)
 include(cmake/documentation.cmake)
 
 if(WISDOM_BUILD_BINARIES)
-set(WISDOM_PUBLIC PUBLIC)
+  set(WISDOM_PUBLIC PUBLIC)
 else()
-set(WISDOM_PUBLIC INTERFACE)
+  set(WISDOM_PUBLIC INTERFACE)
 endif()
 
 # load dx12 and vulkan
@@ -24,7 +24,6 @@ include(platform.cmake)
 target_link_libraries(wis-header-only INTERFACE wisdom-platform-headers)
 target_link_libraries(${PROJECT_NAME} INTERFACE wisdom-platform)
 
-
 # API generation
 if(WISDOM_GENERATE_API)
   add_custom_target(
@@ -34,14 +33,16 @@ if(WISDOM_GENERATE_API)
   add_dependencies(wis-header-only GenerateAPI)
 endif()
 
-install(TARGETS ${PROJECT_NAME} wis-header-only
-			EXPORT wisdom-targets
-			FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-			INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-		)
+install(
+  TARGETS ${PROJECT_NAME} wis-header-only
+  EXPORT wisdom-targets
+  FILE_SET HEADERS
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Install
 install(
@@ -49,30 +50,26 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   NAMESPACE wis::
   FILE wisdom-targets.cmake # Not sure if this is still needed
-  )
+)
 
 include(CMakePackageConfigHelpers)
-configure_file("../cmake/wisdom-deps.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake" @ONLY)
+configure_file("../cmake/wisdom-deps.cmake.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake" @ONLY)
 
-configure_package_config_file( 
-  "../cmake/wisdom-config.cmake.in" 
-  "wisdom-config.cmake"
+configure_package_config_file(
+  "../cmake/wisdom-config.cmake.in" "wisdom-config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  PATH_VARS
-    CMAKE_INSTALL_LIBDIR
-    CMAKE_INSTALL_BINDIR # For agility dlls
-  )
+  PATH_VARS CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_BINDIR # For agility dlls
+)
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
   VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-  )
+  COMPATIBILITY SameMajorVersion)
 
-### Install Config and ConfigVersion files
+# Install Config and ConfigVersion files
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-  )
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")

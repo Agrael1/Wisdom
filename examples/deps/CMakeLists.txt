@@ -39,7 +39,7 @@ if(NOT glm_FOUND)
     add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
 else()
-  
+
 endif()
 
 # KDAB KDUtils
