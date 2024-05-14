@@ -1,10 +1,9 @@
 find_package(Vulkan)
 # All Vulkan Sources are disabled on UWP
 if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
-	message("Vulkan found!")
 	set(WISDOM_VULKAN TRUE)
-
-	wisdom_sources(TARGET wisdom
+	message("Vulkan found!")
+	wisdom_sources_ex(TARGET wisdom-vk
 		HEADERS
 			"include/wisdom/vulkan/vk_factory.h"
 			"include/wisdom/vulkan/vk_views.h"
@@ -36,6 +35,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			WISDOM_VULKAN=1
 			WISVK_NO_DEFAULT_DELETER=1
 		LIBS
+			wisdom-shared
 			VKAllocator
 			Wisdom::WisVk
 	)

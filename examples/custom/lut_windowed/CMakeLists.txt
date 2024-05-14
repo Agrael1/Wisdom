@@ -7,6 +7,8 @@ FetchContent_Declare(
 set(SSE ON)
 FetchContent_MakeAvailable(fpng)
 
+find_package(glm QUIET)
+
 add_executable(
   ${PROJECT_NAME}
   entry_main.cpp
@@ -26,7 +28,7 @@ add_executable(
 
 wis_install_deps(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE wis::wis-header-only glm::glm Wil)
+target_link_libraries(${PROJECT_NAME} PRIVATE wis-header-only wisdom-platform-headers glm::glm Wil)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_include_directories(${PROJECT_NAME} PRIVATE ${fpng_SOURCE_DIR}/src)
 

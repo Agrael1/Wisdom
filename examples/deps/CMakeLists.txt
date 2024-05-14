@@ -38,9 +38,9 @@ if(NOT glm_FOUND)
     # Disable tinyxml2 installation
     add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
+else()
+  
 endif()
-
-message("GLM: ${glm_DIR}")
 
 # KDAB KDUtils
 if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)

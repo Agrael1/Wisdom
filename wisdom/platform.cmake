@@ -1,6 +1,6 @@
 
 if(WISDOM_WINDOWS)
-	wisdom_sources(TARGET wisdom
+	wisdom_sources_ex(TARGET wisdom-platform
 		HEADERS
 			"include/wisdom/platform/win32.h"
 		SOURCES
@@ -10,11 +10,16 @@ if(WISDOM_WINDOWS)
 			WIN32_LEAN_AND_MEAN
 			VK_USE_PLATFORM_WIN32_KHR=1
 	)
-	if(WISDOM_WINDOWS_STORE)
-		target_compile_definitions(wis-header-only INTERFACE WISDOM_WINDOWS_STORE=1)
+	if(WISDOM_VULKAN)
+		target_link_libraries(wisdom-platform-headers INTERFACE wisdom-vk-headers)
+		target_link_libraries(wisdom-platform ${WISDOM_PUBLIC} wisdom-vk)
+	endif()
+	if(WISDOM_DX12)
+		target_link_libraries(wisdom-platform-headers INTERFACE wisdom-dx12-headers)
+		target_link_libraries(wisdom-platform ${WISDOM_PUBLIC} wisdom-dx12)
 	endif()
 elseif(WISDOM_LINUX)
-	wisdom_sources(TARGET wisdom
+	wisdom_sources_ex(TARGET wisdom-platform
 		HEADERS
 			"include/wisdom/platform/linux.h"
 		SOURCES
@@ -22,11 +27,12 @@ elseif(WISDOM_LINUX)
 		DEFINITIONS
 			WISDOM_LINUX=1
 			VK_USE_PLATFORM_XCB_KHR=1
-			#VK_USE_PLATFORM_XLIB_KHR=1 # Breaks build
 			VK_USE_PLATFORM_WAYLAND_KHR=1
 	)
+	target_link_libraries(wisdom-platform-headers INTERFACE wisdom-vk-headers)
+	target_link_libraries(wisdom-platform ${WISDOM_PUBLIC} wisdom-vk)
 elseif(WISDOM_MAC)
-	wisdom_sources(TARGET wisdom
+	wisdom_sources_static(TARGET wisdom-platform
 		HEADERS
 			"include/wisdom/platform/mac.h"
 		SOURCES

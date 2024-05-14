@@ -20,7 +20,7 @@ target_sources(
   PRIVATE ${SOURCES}
   PUBLIC ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC PlatformExamplesShared Wil)
+target_link_libraries(${PROJECT_NAME} PUBLIC PlatformExamplesShared Wil wis::wisdom-platform)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
