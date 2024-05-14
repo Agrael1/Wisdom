@@ -56,7 +56,7 @@ function(wisdom_sources_ex)
 		FILES
 			${wisdom_sources_ex_HEADERS}
 	)
-	
+
 	if(WISDOM_BUILD_BINARIES)
 	    add_library(${TARGET_NAME} STATIC)
 	    add_library(wis::${TARGET_NAME} ALIAS ${TARGET_NAME})
@@ -113,7 +113,7 @@ function(wisdom_sources_static)
 	endif()
 
 	set(TARGET_NAME ${wisdom_sources_static_TARGET})
-	
+
 	add_library(${TARGET_NAME} STATIC)
 	add_library(wis::${TARGET_NAME} ALIAS ${TARGET_NAME})
 	target_sources(${TARGET_NAME}
