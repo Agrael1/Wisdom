@@ -1,22 +1,28 @@
 @PACKAGE_INIT@
 
-
 include(CMakeFindDependencyMacro)
-find_dependency(Vulkan REQUIRED)
-find_dependency(WisVk REQUIRED PATHS "${CMAKE_CURRENT_LIST_DIR}/../WisVk/")
 
 
 if(WIN32)
 	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc.exe")
-elseif(UNIX)
+	set(DXAGILITY_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/D3D12Core.dll")
+	set(DXAGILITY_DEBUG_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/d3d12SDKLayers.dll")
+	find_dependency(Vulkan QUIET)
+else()
+	find_dependency(Vulkan REQUIRED) # without Vulkan there is no target for linux
 	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc")
 endif()
 
-if(WIN32)
-	set(DXAGILITY_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/D3D12Core.dll")
-	set(DXAGILITY_DEBUG_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/d3d12SDKLayers.dll")
+if(Vulkan_FOUND)
+	find_dependency(WisVk REQUIRED PATHS "${CMAKE_CURRENT_LIST_DIR}/../WisVk/")
+	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-vk-targets.cmake" )
+else()
+	# add empty targets to disable vulkan on platform code
+	add_library(wisdom-vk INTERFACE)
+	add_library(wis::wisdom-vk ALIAS wisdom-vk)
+	add_library(wis::wisdom-vk-headers ALIAS wisdom-vk)
 endif()
-
-
 include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-deps.cmake" )
 include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-targets.cmake" )
+
+

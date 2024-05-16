@@ -1,12 +1,14 @@
 #pragma once
 #include <wisdom/bridge/source_location.h>
+#include <Windows.h>
+
 // #include <wisdom/util/exception.h>
-#include <winrt/base.h>
+//#include <winrt/base.h>
 
 namespace wis {
 /// @brief Get the last windows error
 /// @return HRESULT of the last windows error
-winrt::hresult last_windows_error() noexcept;
+HRESULT last_windows_error() noexcept;
 
 // class hr_exception : public wis::exception
 //{
