@@ -3,7 +3,7 @@
 #include <Windows.h>
 
 // #include <wisdom/util/exception.h>
-//#include <winrt/base.h>
+// #include <winrt/base.h>
 
 namespace wis {
 /// @brief Get the last windows error
