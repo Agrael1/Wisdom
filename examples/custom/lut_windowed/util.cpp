@@ -1,9 +1,8 @@
 #include "util.h"
-#include <Windows.h>
 
-winrt::hresult wis::last_windows_error() noexcept
+HRESULT wis::last_windows_error() noexcept
 {
-    return winrt::hresult(GetLastError());
+    return GetLastError();
 }
 
 //// Window Exception

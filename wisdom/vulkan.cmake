@@ -38,5 +38,27 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			wisdom-shared
 			VKAllocator
 			Wisdom::WisVk
+		NO_INSTALL
 	)
+
+install(
+  TARGETS wisdom-vk wisdom-vk-headers
+  EXPORT wisdom-vk-targets
+  FILE_SET HEADERS
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Install
+install(
+  EXPORT wisdom-vk-targets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
+  NAMESPACE wis::
+  FILE wisdom-vk-targets.cmake # Not sure if this is still needed
+)
+
+
 endif()
