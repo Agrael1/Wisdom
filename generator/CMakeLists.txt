@@ -35,6 +35,7 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
 
 if(WISDOM_USE_FMT)
+  find_package(fmt CONFIG QUIET)
   target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_USE_FMT)
   target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt-header-only)
 endif()

@@ -23,6 +23,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/vulkan/vk_debug.h"
 		SOURCES
 			"include/wisdom/vulkan/impl/vk_factory.cpp"
+			"include/wisdom/vulkan/impl/vk_create_factory.cpp"
 			"include/wisdom/vulkan/impl/vk_allocator.cpp"
 			"include/wisdom/vulkan/impl/vk_adapter.cpp"
 			"include/wisdom/vulkan/impl/vk_fence.cpp"
