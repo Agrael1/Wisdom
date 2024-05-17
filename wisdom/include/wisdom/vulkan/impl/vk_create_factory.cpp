@@ -14,19 +14,19 @@ constexpr inline std::array instance_extensions
 {
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-            VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-            VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-                                                         VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
 #endif
 #if DEBUG_MODE
-            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
 
@@ -80,7 +80,7 @@ private:
         do
             vextensions.resize(count);
         while ((vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count,
-                                                               vextensions.data())) == VK_INCOMPLETE);
+                     vextensions.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -205,7 +205,7 @@ wis::VKCreateFactory(bool debug_layer) noexcept
                                       .enabledLayerCount = static_cast<uint32_t>(found_layers.size()),
                                       .ppEnabledLayerNames = found_layers.data(),
                                       .enabledExtensionCount =
-                                              static_cast<uint32_t>(found_extension.size()),
+                                          static_cast<uint32_t>(found_extension.size()),
                                       .ppEnabledExtensionNames = found_extension.data() };
 
     wis::managed_handle<VkInstance> instance;

@@ -54,14 +54,14 @@ class VKFactory : public QueryInternal<VKFactory>
     friend wis::ResultValue<wis::VKFactory> VKCreateFactory(bool) noexcept;
     friend wis::ResultValue<wis::VKFactory> VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer)noexcept;
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT messageType,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
     VKFactory() noexcept = default;
     WIS_INLINE explicit VKFactory(
-            wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
+        wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
 
     VKFactory(const VKFactory&) = delete;
     VKFactory(VKFactory&&) noexcept = default;
