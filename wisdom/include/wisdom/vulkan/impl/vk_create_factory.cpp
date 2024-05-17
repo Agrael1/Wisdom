@@ -10,23 +10,22 @@
 
 namespace wis::detail {
 // required extensions for the instance
-constexpr inline std::array instance_extensions
-{
+constexpr inline std::array instance_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-            VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-            VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-                                                         VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+                                                 VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
 #endif
 #if DEBUG_MODE
-            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
 
@@ -155,7 +154,7 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 }
 
 wis::ResultValue<wis::VKFactory>
-wis::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer)noexcept
+wis::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept
 {
     wis::detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
     auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
