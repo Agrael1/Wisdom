@@ -26,6 +26,7 @@ target_include_directories(wisdom-shared
 
 # Formatting library
 if(WISDOM_USE_FMT)
+  find_package(fmt CONFIG QUIET)
   target_compile_definitions(wisdom-shared INTERFACE WISDOM_USE_FMT)
   target_link_libraries(wisdom-shared INTERFACE fmt::fmt-header-only)
 endif()

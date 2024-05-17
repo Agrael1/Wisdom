@@ -40,6 +40,8 @@ struct Internal<VKFactory> {
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
 VKCreateFactory(bool debug_layer = false) noexcept;
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
+VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer)noexcept;
 
 class VKFactory : public QueryInternal<VKFactory>
 {
@@ -50,6 +52,7 @@ class VKFactory : public QueryInternal<VKFactory>
     };
 
     friend wis::ResultValue<wis::VKFactory> VKCreateFactory(bool) noexcept;
+    friend wis::ResultValue<wis::VKFactory> VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer)noexcept;
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -95,4 +98,5 @@ private:
 
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_factory.cpp"
+#include "impl/vk_create_factory.cpp"
 #endif // !WISDOM_HEADER_ONLY

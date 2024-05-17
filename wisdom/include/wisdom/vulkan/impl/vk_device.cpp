@@ -13,30 +13,6 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_factory.h>
 
-constexpr static inline std::array required_extensions{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME, // for Swapchain
-    VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, // for Fence
-    VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, // for barriers
-
-    VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, // for Allocator
-    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, // for Allocator
-    VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, // for Allocator
-    VK_KHR_MAINTENANCE_4_EXTENSION_NAME, // for Allocator
-
-    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME, // for PushDescriptor
-    VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
-    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
-
-    VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME, // for Mutable Descriptor Type
-    VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
-
-    VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, // for Border Color
-
-    // VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
-    // VK_KHR_RAY_QUERY_EXTENSION_NAME,
-    // VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-};
-
 namespace wis::detail {
 struct equal_string_view {
     bool operator()(std::string_view a, std::string_view b) const noexcept
@@ -92,9 +68,9 @@ inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTab
     for (const auto& e : ext_props)
         ext_set.emplace(e.extensionName);
 
-    wis::detail::uniform_allocator<const char*, required_extensions.size()> avail_exts{};
+    wis::detail::uniform_allocator<const char*, wis::required_extensions.size()> avail_exts{};
 
-    for (const auto* i : required_extensions) {
+    for (const auto* i : wis::required_extensions) {
         if (!ext_set.contains(i))
             continue;
         avail_exts.allocate(i);
