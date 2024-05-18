@@ -5,43 +5,43 @@
 
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
 {
- wis::DX12FenceView xself = reinterpret_cast<wis::DX12Fence&>(*self);
-  return reinterpret_cast<DX12FenceView&>(xself);
+    wis::DX12FenceView xself = reinterpret_cast<wis::DX12Fence&>(*self);
+    return reinterpret_cast<DX12FenceView&>(xself);
 }
 extern "C" DX12BufferView AsDX12BufferView(DX12Buffer self)
 {
- wis::DX12BufferView xself = reinterpret_cast<wis::DX12Buffer&>(*self);
-  return reinterpret_cast<DX12BufferView&>(xself);
+    wis::DX12BufferView xself = reinterpret_cast<wis::DX12Buffer&>(*self);
+    return reinterpret_cast<DX12BufferView&>(xself);
 }
 extern "C" DX12TextureView AsDX12TextureView(DX12Texture self)
 {
- wis::DX12TextureView xself = reinterpret_cast<wis::DX12Texture&>(*self);
-  return reinterpret_cast<DX12TextureView&>(xself);
+    wis::DX12TextureView xself = reinterpret_cast<wis::DX12Texture&>(*self);
+    return reinterpret_cast<DX12TextureView&>(xself);
 }
 extern "C" DX12RenderTargetView AsDX12RenderTargetView(DX12RenderTarget self)
 {
- wis::DX12RenderTargetView xself = reinterpret_cast<wis::DX12RenderTarget&>(*self);
-  return reinterpret_cast<DX12RenderTargetView&>(xself);
+    wis::DX12RenderTargetView xself = reinterpret_cast<wis::DX12RenderTarget&>(*self);
+    return reinterpret_cast<DX12RenderTargetView&>(xself);
 }
 extern "C" DX12CommandListView AsDX12CommandListView(DX12CommandList self)
 {
- wis::DX12CommandListView xself = reinterpret_cast<wis::DX12CommandList&>(*self);
-  return reinterpret_cast<DX12CommandListView&>(xself);
+    wis::DX12CommandListView xself = reinterpret_cast<wis::DX12CommandList&>(*self);
+    return reinterpret_cast<DX12CommandListView&>(xself);
 }
 extern "C" DX12ShaderView AsDX12ShaderView(DX12Shader self)
 {
- wis::DX12ShaderView xself = reinterpret_cast<wis::DX12Shader&>(*self);
-  return reinterpret_cast<DX12ShaderView&>(xself);
+    wis::DX12ShaderView xself = reinterpret_cast<wis::DX12Shader&>(*self);
+    return reinterpret_cast<DX12ShaderView&>(xself);
 }
 extern "C" DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self)
 {
- wis::DX12RootSignatureView xself = reinterpret_cast<wis::DX12RootSignature&>(*self);
-  return reinterpret_cast<DX12RootSignatureView&>(xself);
+    wis::DX12RootSignatureView xself = reinterpret_cast<wis::DX12RootSignature&>(*self);
+    return reinterpret_cast<DX12RootSignatureView&>(xself);
 }
 extern "C" DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self)
 {
- wis::DX12DescriptorBufferView xself = reinterpret_cast<wis::DX12DescriptorBuffer&>(*self);
-  return reinterpret_cast<DX12DescriptorBufferView&>(xself);
+    wis::DX12DescriptorBufferView xself = reinterpret_cast<wis::DX12DescriptorBuffer&>(*self);
+    return reinterpret_cast<DX12DescriptorBufferView&>(xself);
 }
 extern "C" WISDOM_API void DX12FactoryDestroy(DX12Factory self)
 {
@@ -133,14 +133,14 @@ extern "C" WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self)
     auto* xself = reinterpret_cast<wis::DX12ShaderResource*>(self);
     delete xself;
 }
-extern "C" WISDOM_API WisResult DX12CreateFactory( bool debug_layer, DX12Factory* out_factory)
+extern "C" WISDOM_API WisResult DX12CreateFactory(bool debug_layer, DX12Factory* out_factory)
 {
     auto&& ret = wis::DX12CreateFactory(debug_layer);
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
     *out_factory = ok ? reinterpret_cast<DX12Factory>(new wis::DX12Factory(std::move(wis::get<1>(ret)))) : nullptr;
     return reinterpret_cast<WisResult&>(wis::get<0>(ret));
 }
-extern "C" WISDOM_API WisResult DX12CreateDevice( DX12Adapter adapter, DX12Device* out_device)
+extern "C" WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device)
 {
     auto&& ret = wis::DX12CreateDevice(*reinterpret_cast<wis::DX12Adapter*>(adapter));
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
@@ -154,43 +154,43 @@ extern "C" WISDOM_API WisResult DX12CreateDevice( DX12Adapter adapter, DX12Devic
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)
 {
- wis::VKFenceView xself = reinterpret_cast<wis::VKFence&>(*self);
-  return reinterpret_cast<VKFenceView&>(xself);
+    wis::VKFenceView xself = reinterpret_cast<wis::VKFence&>(*self);
+    return reinterpret_cast<VKFenceView&>(xself);
 }
 extern "C" VKBufferView AsVKBufferView(VKBuffer self)
 {
- wis::VKBufferView xself = reinterpret_cast<wis::VKBuffer&>(*self);
-  return reinterpret_cast<VKBufferView&>(xself);
+    wis::VKBufferView xself = reinterpret_cast<wis::VKBuffer&>(*self);
+    return reinterpret_cast<VKBufferView&>(xself);
 }
 extern "C" VKTextureView AsVKTextureView(VKTexture self)
 {
- wis::VKTextureView xself = reinterpret_cast<wis::VKTexture&>(*self);
-  return reinterpret_cast<VKTextureView&>(xself);
+    wis::VKTextureView xself = reinterpret_cast<wis::VKTexture&>(*self);
+    return reinterpret_cast<VKTextureView&>(xself);
 }
 extern "C" VKRenderTargetView AsVKRenderTargetView(VKRenderTarget self)
 {
- wis::VKRenderTargetView xself = reinterpret_cast<wis::VKRenderTarget&>(*self);
-  return reinterpret_cast<VKRenderTargetView&>(xself);
+    wis::VKRenderTargetView xself = reinterpret_cast<wis::VKRenderTarget&>(*self);
+    return reinterpret_cast<VKRenderTargetView&>(xself);
 }
 extern "C" VKCommandListView AsVKCommandListView(VKCommandList self)
 {
- wis::VKCommandListView xself = reinterpret_cast<wis::VKCommandList&>(*self);
-  return reinterpret_cast<VKCommandListView&>(xself);
+    wis::VKCommandListView xself = reinterpret_cast<wis::VKCommandList&>(*self);
+    return reinterpret_cast<VKCommandListView&>(xself);
 }
 extern "C" VKShaderView AsVKShaderView(VKShader self)
 {
- wis::VKShaderView xself = reinterpret_cast<wis::VKShader&>(*self);
-  return reinterpret_cast<VKShaderView&>(xself);
+    wis::VKShaderView xself = reinterpret_cast<wis::VKShader&>(*self);
+    return reinterpret_cast<VKShaderView&>(xself);
 }
 extern "C" VKRootSignatureView AsVKRootSignatureView(VKRootSignature self)
 {
- wis::VKRootSignatureView xself = reinterpret_cast<wis::VKRootSignature&>(*self);
-  return reinterpret_cast<VKRootSignatureView&>(xself);
+    wis::VKRootSignatureView xself = reinterpret_cast<wis::VKRootSignature&>(*self);
+    return reinterpret_cast<VKRootSignatureView&>(xself);
 }
 extern "C" VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self)
 {
- wis::VKDescriptorBufferView xself = reinterpret_cast<wis::VKDescriptorBuffer&>(*self);
-  return reinterpret_cast<VKDescriptorBufferView&>(xself);
+    wis::VKDescriptorBufferView xself = reinterpret_cast<wis::VKDescriptorBuffer&>(*self);
+    return reinterpret_cast<VKDescriptorBufferView&>(xself);
 }
 extern "C" WISDOM_API void VKFactoryDestroy(VKFactory self)
 {
@@ -282,14 +282,14 @@ extern "C" WISDOM_API void VKShaderResourceDestroy(VKShaderResource self)
     auto* xself = reinterpret_cast<wis::VKShaderResource*>(self);
     delete xself;
 }
-extern "C" WISDOM_API WisResult VKCreateFactory( bool debug_layer, VKFactory* out_factory)
+extern "C" WISDOM_API WisResult VKCreateFactory(bool debug_layer, VKFactory* out_factory)
 {
     auto&& ret = wis::VKCreateFactory(debug_layer);
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
     *out_factory = ok ? reinterpret_cast<VKFactory>(new wis::VKFactory(std::move(wis::get<1>(ret)))) : nullptr;
     return reinterpret_cast<WisResult&>(wis::get<0>(ret));
 }
-extern "C" WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out_device)
+extern "C" WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device)
 {
     auto&& ret = wis::VKCreateDevice(*reinterpret_cast<wis::VKAdapter*>(adapter));
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
@@ -297,4 +297,3 @@ extern "C" WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out
     return reinterpret_cast<WisResult&>(wis::get<0>(ret));
 }
 #endif
-

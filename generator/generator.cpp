@@ -249,7 +249,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 
 std::tuple<std::string, std::string, std::string> Generator::GenerateCTypes()
 {
-    std::string gen, dx,vk;
+    std::string gen, dx, vk;
     for (auto& [name, enum_t] : enum_map) {
         gen += MakeCEnum(enum_t);
     }
@@ -259,7 +259,7 @@ std::tuple<std::string, std::string, std::string> Generator::GenerateCTypes()
     }
     gen += "\n//-------------------------------------------------------------------------\n\n";
 
-    auto&&[genx, dxx, vkx] = GenerateCTypedefs();
+    auto&& [genx, dxx, vkx] = GenerateCTypedefs();
     gen += genx;
     dx += dxx;
     vk += vkx;

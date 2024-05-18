@@ -3,30 +3,31 @@ cmake_minimum_required(VERSION 3.8)
 project(wisdom-bindings VERSION 0.1.1)
 
 if(WISDOM_SHARED_LIB)
-	set(WISDOM_LIB_TYPE SHARED)
+  set(WISDOM_LIB_TYPE SHARED)
 else()
-	set(WISDOM_LIB_TYPE STATIC)
+  set(WISDOM_LIB_TYPE STATIC)
 endif()
 
 add_library(${PROJECT_NAME} ${WISDOM_LIB_TYPE} wisdom.h)
-target_sources(${PROJECT_NAME} 
-	PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}/wisdom.cpp
-)
+target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/wisdom.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE wis::wis-header-only)
 
 include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME}
-	BASE_NAME WISDOM
-	EXPORT_MACRO_NAME WISDOM_API
-	EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_exports.h
-	STATIC_DEFINE WISDOM_STATIC
-)
+generate_export_header(
+  ${PROJECT_NAME}
+  BASE_NAME
+  WISDOM
+  EXPORT_MACRO_NAME
+  WISDOM_API
+  EXPORT_FILE_NAME
+  ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_exports.h
+  STATIC_DEFINE
+  WISDOM_STATIC)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
 if(WISDOM_WINDOWS)
-	get_target_property(DX12SDKVER DX12Agility DX12SDKVER)
+  get_target_property(DX12SDKVER DX12Agility DX12SDKVER)
 endif()
 
 include(GNUInstallDirs)
@@ -39,17 +40,16 @@ install(
   INCLUDES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/wisdom.h ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_exports.h
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/wisdom.h
+              ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_exports.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
 # Install
 install(
   EXPORT wisdom-bindings-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   NAMESPACE wis::
-  FILE wisdom-bindings-targets.cmake
-)
+  FILE wisdom-bindings-targets.cmake)
 
 include(CMakePackageConfigHelpers)
 configure_file("../cmake/wisdom-deps.cmake.in"
