@@ -459,6 +459,8 @@ enum class ResourceAccess {
     VideoDecodeRead = 1 << 16,
     VideoDecodeWrite = 1 << 17,
     Present = 1 << 18,
+    ResolveDest = 1 << 19,
+    ResolveSource = 1 << 20,
     NoAccess = 1 << 31,
 };
 
@@ -466,6 +468,23 @@ enum class BarrierSync {
     None = 0x0,
     All = 1 << 0,
     Draw = 1 << 1,
+    IndexInput = 1 << 2,
+    VertexShading = 1 << 3,
+    PixelShading = 1 << 4,
+    DepthStencil = 1 << 5,
+    RenderTarget = 1 << 6,
+    Compute = 1 << 7,
+    Raytracing = 1 << 8,
+    Copy = 1 << 9,
+    Resolve = 1 << 10,
+    ExecuteIndirect = 1 << 11,
+    AllShading = 1 << 12,
+    NonPixelShading = 1 << 13,
+    ClearUAV = 1 << 14,
+    VideoDecode = 1 << 15,
+    VideoEncode = 1 << 16,
+    BuildRTAS = 1 << 17,
+    CopyRTAS = 1 << 18,
 };
 
 struct Result {

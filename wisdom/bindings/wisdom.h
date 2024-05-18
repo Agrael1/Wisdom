@@ -537,6 +537,8 @@ enum WisResourceAccessBits {
     ResourceAccessVideoDecodeRead = 1 << 16,
     ResourceAccessVideoDecodeWrite = 1 << 17,
     ResourceAccessPresent = 1 << 18,
+    ResourceAccessResolveDest = 1 << 19,
+    ResourceAccessResolveSource = 1 << 20,
     ResourceAccessNoAccess = 1 << 31,
 };
 
@@ -544,6 +546,23 @@ enum WisBarrierSyncBits {
     BarrierSyncNone = 0x0,
     BarrierSyncAll = 1 << 0,
     BarrierSyncDraw = 1 << 1,
+    BarrierSyncIndexInput = 1 << 2,
+    BarrierSyncVertexShading = 1 << 3,
+    BarrierSyncPixelShading = 1 << 4,
+    BarrierSyncDepthStencil = 1 << 5,
+    BarrierSyncRenderTarget = 1 << 6,
+    BarrierSyncCompute = 1 << 7,
+    BarrierSyncRaytracing = 1 << 8,
+    BarrierSyncCopy = 1 << 9,
+    BarrierSyncResolve = 1 << 10,
+    BarrierSyncExecuteIndirect = 1 << 11,
+    BarrierSyncAllShading = 1 << 12,
+    BarrierSyncNonPixelShading = 1 << 13,
+    BarrierSyncClearUAV = 1 << 14,
+    BarrierSyncVideoDecode = 1 << 15,
+    BarrierSyncVideoEncode = 1 << 16,
+    BarrierSyncBuildRTAS = 1 << 17,
+    BarrierSyncCopyRTAS = 1 << 18,
 };
 
 struct WisResult {

@@ -22,8 +22,6 @@ cmake_minimum_required(VERSION 3.22)
 
 project("Wisdom" VERSION 0.1.0)
 
-set(WISDOM_BUILD_BINARIES ON)
-
 # Additional CMake functions.
 include(cmake/platform.cmake)
 include(cmake/settings.cmake)

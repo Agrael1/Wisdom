@@ -3,7 +3,7 @@ find_package(Vulkan)
 if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 	set(WISDOM_VULKAN TRUE)
 	message("Vulkan found!")
-	wisdom_sources_ex(TARGET wisdom-vk
+	wisdom_sources(TARGET wisdom-vk
 		HEADERS
 			"include/wisdom/vulkan/vk_factory.h"
 			"include/wisdom/vulkan/vk_views.h"

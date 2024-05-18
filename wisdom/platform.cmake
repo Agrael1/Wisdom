@@ -1,6 +1,6 @@
 
 if(WISDOM_WINDOWS)
-	wisdom_sources_ex(TARGET wisdom-platform
+	wisdom_sources(TARGET wisdom-platform
 		HEADERS
 			"include/wisdom/platform/win32.h"
 		SOURCES
@@ -19,7 +19,7 @@ if(WISDOM_WINDOWS)
 		target_link_libraries(wisdom-platform ${WISDOM_PUBLIC} wisdom-dx12)
 	endif()
 elseif(WISDOM_LINUX)
-	wisdom_sources_ex(TARGET wisdom-platform
+	wisdom_sources(TARGET wisdom-platform
 		HEADERS
 			"include/wisdom/platform/linux.h"
 		SOURCES
