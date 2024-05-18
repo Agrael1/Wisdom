@@ -14,7 +14,7 @@ target_sources(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/wisdom.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE wis::wisdom)
+target_link_libraries(${PROJECT_NAME} PRIVATE wis::wis-header-only)
 
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME}

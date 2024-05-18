@@ -11,9 +11,14 @@ if(WIN32)
 	add_library(DX12Agility INTERFACE)
 	add_library(wis::DX12Agility ALIAS DX12Agility)
 	set_target_properties(DX12Agility PROPERTIES DX12SDKVER @DX12SDKVER@)
+	add_definitions(-DWISDOM_DX12)
 else()
 	find_dependency(Vulkan REQUIRED) # without Vulkan there is no target for linux
 	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc")
+endif()
+
+if(Vulkan_FOUND AND NOT WINDOWS_STORE)
+	add_definitions(-DWISDOM_VULKAN)
 endif()
 
 include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-deps.cmake" )

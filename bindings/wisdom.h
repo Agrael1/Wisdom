@@ -8,118 +8,6 @@
 extern "C" {
 #endif
 
-typedef struct WisResult WisResult;
-typedef struct WisSize2D WisSize2D;
-typedef struct WisSize3D WisSize3D;
-typedef struct WisBufferRegion WisBufferRegion;
-typedef struct WisAdapterDesc WisAdapterDesc;
-typedef struct WisInputSlotDesc WisInputSlotDesc;
-typedef struct WisInputAttribute WisInputAttribute;
-typedef struct WisInputLayout WisInputLayout;
-typedef struct WisRasterizerDesc WisRasterizerDesc;
-typedef struct WisSampleDesc WisSampleDesc;
-typedef struct WisStencilDesc WisStencilDesc;
-typedef struct WisDepthStencilDesc WisDepthStencilDesc;
-typedef struct WisBlendAttachmentDesc WisBlendAttachmentDesc;
-typedef struct WisBlendStateDesc WisBlendStateDesc;
-typedef struct WisRenderAttachmentsDesc WisRenderAttachmentsDesc;
-typedef struct WisRootConstant WisRootConstant;
-typedef struct WisSwapchainDesc WisSwapchainDesc;
-typedef struct WisTextureDesc WisTextureDesc;
-typedef struct WisTextureRegion WisTextureRegion;
-typedef struct WisBufferTextureCopyRegion WisBufferTextureCopyRegion;
-typedef struct WisPushDescriptor WisPushDescriptor;
-typedef struct WisSubresourceRange WisSubresourceRange;
-typedef struct WisRenderTargetDesc WisRenderTargetDesc;
-typedef struct WisViewport WisViewport;
-typedef struct WisScissor WisScissor;
-typedef struct WisBufferBarrier WisBufferBarrier;
-typedef struct WisTextureBarrier WisTextureBarrier;
-typedef struct WisDescriptorTableEntry WisDescriptorTableEntry;
-typedef struct WisDescriptorTable WisDescriptorTable;
-typedef struct WisSamplerDesc WisSamplerDesc;
-typedef struct WisComponentMapping WisComponentMapping;
-typedef struct WisShaderResourceDesc WisShaderResourceDesc;
-typedef enum WisShaderStages WisShaderStages;
-typedef enum WisStatus WisStatus;
-typedef enum WisQueuePriority WisQueuePriority;
-typedef enum WisMutiWaitFlags WisMutiWaitFlags;
-typedef enum WisDescriptorType WisDescriptorType;
-typedef enum WisQueueType WisQueueType;
-typedef enum WisAdapterPreference WisAdapterPreference;
-typedef enum WisSeverity WisSeverity;
-typedef enum WisInputClass WisInputClass;
-typedef enum WisCullMode WisCullMode;
-typedef enum WisDataFormat WisDataFormat;
-typedef enum WisFillMode WisFillMode;
-typedef enum WisDescriptorMemory WisDescriptorMemory;
-typedef enum WisWindingOrder WisWindingOrder;
-typedef enum WisSampleRate WisSampleRate;
-typedef enum WisCompare WisCompare;
-typedef enum WisStencilOp WisStencilOp;
-typedef enum WisBlendFactor WisBlendFactor;
-typedef enum WisBlendOp WisBlendOp;
-typedef enum WisSampleCount WisSampleCount;
-typedef enum WisLogicOp WisLogicOp;
-typedef enum WisShaderIntermediate WisShaderIntermediate;
-typedef enum WisTextureState WisTextureState;
-typedef enum WisLoadOperation WisLoadOperation;
-typedef enum WisTextureLayout WisTextureLayout;
-typedef enum WisDescriptorHeapType WisDescriptorHeapType;
-typedef enum WisStoreOperation WisStoreOperation;
-typedef enum WisPrimitiveTopology WisPrimitiveTopology;
-typedef enum WisTopologyType WisTopologyType;
-typedef enum WisFilter WisFilter;
-typedef enum WisAddressMode WisAddressMode;
-typedef enum WisTextureViewType WisTextureViewType;
-typedef enum WisComponentSwizzle WisComponentSwizzle;
-typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
-typedef uint32_t WisAdapterFlags;
-typedef enum WisColorComponentsBits WisColorComponentsBits;
-typedef uint32_t WisColorComponents;
-typedef enum WisDeviceFeaturesBits WisDeviceFeaturesBits;
-typedef uint32_t WisDeviceFeatures;
-typedef enum WisBufferFlagsBits WisBufferFlagsBits;
-typedef uint32_t WisBufferFlags;
-typedef enum WisTextureUsageBits WisTextureUsageBits;
-typedef uint32_t WisTextureUsage;
-typedef enum WisRenderPassFlagsBits WisRenderPassFlagsBits;
-typedef uint32_t WisRenderPassFlags;
-typedef enum WisResourceAccessBits WisResourceAccessBits;
-typedef uint32_t WisResourceAccess;
-typedef enum WisBarrierSyncBits WisBarrierSyncBits;
-typedef uint32_t WisBarrierSync;
-typedef struct DX12CommandListView DX12CommandListView;
-typedef struct VKCommandListView VKCommandListView;
-typedef struct DX12GraphicsPipelineDesc DX12GraphicsPipelineDesc;
-typedef struct VKGraphicsPipelineDesc VKGraphicsPipelineDesc;
-typedef struct DX12FenceView DX12FenceView;
-typedef struct VKFenceView VKFenceView;
-typedef struct DX12BufferView DX12BufferView;
-typedef struct VKBufferView VKBufferView;
-typedef struct DX12TextureView DX12TextureView;
-typedef struct VKTextureView VKTextureView;
-typedef struct DX12ShaderView DX12ShaderView;
-typedef struct VKShaderView VKShaderView;
-typedef struct DX12RenderTargetView DX12RenderTargetView;
-typedef struct VKRenderTargetView VKRenderTargetView;
-typedef struct DX12RootSignatureView DX12RootSignatureView;
-typedef struct VKRootSignatureView VKRootSignatureView;
-typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
-typedef struct VKDescriptorBufferView VKDescriptorBufferView;
-typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
-typedef struct VKBufferBarrier2 VKBufferBarrier2;
-typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
-typedef struct VKTextureBarrier2 VKTextureBarrier2;
-typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
-typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
-typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
-typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
-typedef struct DX12RenderPassDesc DX12RenderPassDesc;
-typedef struct VKRenderPassDesc VKRenderPassDesc;
-typedef struct DX12VertexBufferBinding DX12VertexBufferBinding;
-typedef struct VKVertexBufferBinding VKVertexBufferBinding;
-
 enum WisShaderStages {
     ShaderStagesAll = 0,
     ShaderStagesVertex = 1,
@@ -474,6 +362,9 @@ enum WisComponentSwizzle {
     ComponentSwizzleOne = 5,
 };
 
+
+//-------------------------------------------------------------------------
+
 enum WisAdapterFlagsBits {
     AdapterFlagsNone = 0x0,
     AdapterFlagsRemote = 1 << 0,
@@ -569,6 +460,93 @@ enum WisBarrierSyncBits {
     BarrierSyncBuildRTAS = 1 << 17,
     BarrierSyncCopyRTAS = 1 << 18,
 };
+
+
+//-------------------------------------------------------------------------
+
+typedef struct WisResult WisResult;
+typedef struct WisSize2D WisSize2D;
+typedef struct WisSize3D WisSize3D;
+typedef struct WisBufferRegion WisBufferRegion;
+typedef struct WisAdapterDesc WisAdapterDesc;
+typedef struct WisInputSlotDesc WisInputSlotDesc;
+typedef struct WisInputAttribute WisInputAttribute;
+typedef struct WisInputLayout WisInputLayout;
+typedef struct WisRasterizerDesc WisRasterizerDesc;
+typedef struct WisSampleDesc WisSampleDesc;
+typedef struct WisStencilDesc WisStencilDesc;
+typedef struct WisDepthStencilDesc WisDepthStencilDesc;
+typedef struct WisBlendAttachmentDesc WisBlendAttachmentDesc;
+typedef struct WisBlendStateDesc WisBlendStateDesc;
+typedef struct WisRenderAttachmentsDesc WisRenderAttachmentsDesc;
+typedef struct WisRootConstant WisRootConstant;
+typedef struct WisSwapchainDesc WisSwapchainDesc;
+typedef struct WisTextureDesc WisTextureDesc;
+typedef struct WisTextureRegion WisTextureRegion;
+typedef struct WisBufferTextureCopyRegion WisBufferTextureCopyRegion;
+typedef struct WisPushDescriptor WisPushDescriptor;
+typedef struct WisSubresourceRange WisSubresourceRange;
+typedef struct WisRenderTargetDesc WisRenderTargetDesc;
+typedef struct WisViewport WisViewport;
+typedef struct WisScissor WisScissor;
+typedef struct WisBufferBarrier WisBufferBarrier;
+typedef struct WisTextureBarrier WisTextureBarrier;
+typedef struct WisDescriptorTableEntry WisDescriptorTableEntry;
+typedef struct WisDescriptorTable WisDescriptorTable;
+typedef struct WisSamplerDesc WisSamplerDesc;
+typedef struct WisComponentMapping WisComponentMapping;
+typedef struct WisShaderResourceDesc WisShaderResourceDesc;
+typedef enum WisShaderStages WisShaderStages;
+typedef enum WisStatus WisStatus;
+typedef enum WisQueuePriority WisQueuePriority;
+typedef enum WisMutiWaitFlags WisMutiWaitFlags;
+typedef enum WisDescriptorType WisDescriptorType;
+typedef enum WisQueueType WisQueueType;
+typedef enum WisAdapterPreference WisAdapterPreference;
+typedef enum WisSeverity WisSeverity;
+typedef enum WisInputClass WisInputClass;
+typedef enum WisCullMode WisCullMode;
+typedef enum WisDataFormat WisDataFormat;
+typedef enum WisFillMode WisFillMode;
+typedef enum WisDescriptorMemory WisDescriptorMemory;
+typedef enum WisWindingOrder WisWindingOrder;
+typedef enum WisSampleRate WisSampleRate;
+typedef enum WisCompare WisCompare;
+typedef enum WisStencilOp WisStencilOp;
+typedef enum WisBlendFactor WisBlendFactor;
+typedef enum WisBlendOp WisBlendOp;
+typedef enum WisSampleCount WisSampleCount;
+typedef enum WisLogicOp WisLogicOp;
+typedef enum WisShaderIntermediate WisShaderIntermediate;
+typedef enum WisTextureState WisTextureState;
+typedef enum WisLoadOperation WisLoadOperation;
+typedef enum WisTextureLayout WisTextureLayout;
+typedef enum WisDescriptorHeapType WisDescriptorHeapType;
+typedef enum WisStoreOperation WisStoreOperation;
+typedef enum WisPrimitiveTopology WisPrimitiveTopology;
+typedef enum WisTopologyType WisTopologyType;
+typedef enum WisFilter WisFilter;
+typedef enum WisAddressMode WisAddressMode;
+typedef enum WisTextureViewType WisTextureViewType;
+typedef enum WisComponentSwizzle WisComponentSwizzle;
+typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
+typedef uint32_t WisAdapterFlags;
+typedef enum WisColorComponentsBits WisColorComponentsBits;
+typedef uint32_t WisColorComponents;
+typedef enum WisDeviceFeaturesBits WisDeviceFeaturesBits;
+typedef uint32_t WisDeviceFeatures;
+typedef enum WisBufferFlagsBits WisBufferFlagsBits;
+typedef uint32_t WisBufferFlags;
+typedef enum WisTextureUsageBits WisTextureUsageBits;
+typedef uint32_t WisTextureUsage;
+typedef enum WisRenderPassFlagsBits WisRenderPassFlagsBits;
+typedef uint32_t WisRenderPassFlags;
+typedef enum WisResourceAccessBits WisResourceAccessBits;
+typedef uint32_t WisResourceAccess;
+typedef enum WisBarrierSyncBits WisBarrierSyncBits;
+typedef uint32_t WisBarrierSync;
+
+//-------------------------------------------------------------------------
 
 struct WisResult{
     WisStatus status;
@@ -823,23 +801,42 @@ struct WisShaderResourceDesc{
     WisSubresourceRange subresource_range;
 };
 
-struct DX12FenceView{
-    void* value;
-};
+
+//-------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------
+
+//=================================DELEGATES=================================
+
+typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
+
+//-------------------------------------------------------------------------
+
+#ifdef WISDOM_VULKAN
+typedef struct VKCommandListView VKCommandListView;
+typedef struct VKGraphicsPipelineDesc VKGraphicsPipelineDesc;
+typedef struct VKFenceView VKFenceView;
+typedef struct VKBufferView VKBufferView;
+typedef struct VKTextureView VKTextureView;
+typedef struct VKShaderView VKShaderView;
+typedef struct VKRenderTargetView VKRenderTargetView;
+typedef struct VKRootSignatureView VKRootSignatureView;
+typedef struct VKDescriptorBufferView VKDescriptorBufferView;
+typedef struct VKBufferBarrier2 VKBufferBarrier2;
+typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
+typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
+typedef struct VKRenderPassDesc VKRenderPassDesc;
+typedef struct VKVertexBufferBinding VKVertexBufferBinding;
+
+//-------------------------------------------------------------------------
 
 struct VKFenceView{
     void* value;
 };
 
-struct DX12BufferView{
-    void* value;
-};
-
 struct VKBufferView{
-    void* value;
-};
-
-struct DX12TextureView{
     void* value;
 };
 
@@ -849,15 +846,7 @@ struct VKTextureView{
     WisSize2D value3;
 };
 
-struct DX12RenderTargetView{
-    void* value;
-};
-
 struct VKRenderTargetView{
-    void* value;
-};
-
-struct DX12CommandListView{
     void* value;
 };
 
@@ -865,24 +854,11 @@ struct VKCommandListView{
     void* value;
 };
 
-struct DX12ShaderView{
-    void* bytecode;
-    uint32_t size_bytes;
-};
-
 struct VKShaderView{
     void* value;
 };
 
-struct DX12RootSignatureView{
-    void* value;
-};
-
 struct VKRootSignatureView{
-    void* value;
-};
-
-struct DX12DescriptorBufferView{
     void* value;
 };
 
@@ -891,32 +867,14 @@ struct VKDescriptorBufferView{
     uint32_t value2;
 };
 
-struct DX12BufferBarrier2{
-    WisBufferBarrier barrier;
-    DX12BufferView buffer;
-};
-
 struct VKBufferBarrier2{
     WisBufferBarrier barrier;
     VKBufferView buffer;
 };
 
-struct DX12TextureBarrier2{
-    WisTextureBarrier barrier;
-    DX12TextureView texture;
-};
-
 struct VKTextureBarrier2{
     WisTextureBarrier barrier;
     VKTextureView texture;
-};
-
-struct DX12GraphicsShaderStages{
-    DX12ShaderView vertex;
-    DX12ShaderView hull;
-    DX12ShaderView domain;
-    DX12ShaderView geometry;
-    DX12ShaderView pixel;
 };
 
 struct VKGraphicsShaderStages{
@@ -927,10 +885,10 @@ struct VKGraphicsShaderStages{
     VKShaderView pixel;
 };
 
-struct DX12GraphicsPipelineDesc{
-    DX12RootSignatureView root_signature;
+struct VKGraphicsPipelineDesc{
+    VKRootSignatureView root_signature;
     WisInputLayout input_layout;
-    DX12GraphicsShaderStages shaders;
+    VKGraphicsShaderStages shaders;
     WisRenderAttachmentsDesc attachments;
     WisRasterizerDesc* rasterizer;
     WisSampleDesc* sample;
@@ -939,10 +897,156 @@ struct DX12GraphicsPipelineDesc{
     WisTopologyType topology_type;
 };
 
-struct VKGraphicsPipelineDesc{
-    VKRootSignatureView root_signature;
+struct VKRenderPassRenderTargetDesc{
+    VKRenderTargetView target;
+    WisLoadOperation load_op;
+    WisStoreOperation store_op;
+    float clear_value[4];
+};
+
+struct VKRenderPassDesc{
+    VKRenderPassRenderTargetDesc* targets;
+    uint32_t target_count;
+    WisRenderPassFlags flags;
+};
+
+struct VKVertexBufferBinding{
+    VKBufferView buffer;
+    uint32_t size;
+    uint32_t stride;
+};
+
+
+//-------------------------------------------------------------------------
+
+typedef struct VKCommandQueue_t* VKCommandQueue;
+typedef struct VKRootSignature_t* VKRootSignature;
+typedef struct VKFactory_t* VKFactory;
+typedef struct VKPipelineState_t* VKPipelineState;
+typedef struct VKAdapter_t* VKAdapter;
+typedef struct VKDevice_t* VKDevice;
+typedef struct VKFence_t* VKFence;
+typedef struct VKResourceAllocator_t* VKResourceAllocator;
+typedef struct VKShader_t* VKShader;
+typedef struct VKCommandList_t* VKCommandList;
+typedef struct VKSwapChain_t* VKSwapChain;
+typedef struct VKBuffer_t* VKBuffer;
+typedef struct VKTexture_t* VKTexture;
+typedef struct VKDebugMessenger_t* VKDebugMessenger;
+typedef struct VKRenderTarget_t* VKRenderTarget;
+typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
+typedef struct VKSampler_t* VKSampler;
+typedef struct VKShaderResource_t* VKShaderResource;
+
+//-------------------------------------------------------------------------
+
+WISDOM_API void VKFactoryDestroy(VKFactory self);
+WISDOM_API void VKAdapterDestroy(VKAdapter self);
+WISDOM_API void VKDeviceDestroy(VKDevice self);
+WISDOM_API void VKFenceDestroy(VKFence self);
+WISDOM_API void VKResourceAllocatorDestroy(VKResourceAllocator self);
+WISDOM_API void VKRootSignatureDestroy(VKRootSignature self);
+WISDOM_API void VKCommandQueueDestroy(VKCommandQueue self);
+WISDOM_API void VKShaderDestroy(VKShader self);
+WISDOM_API void VKPipelineStateDestroy(VKPipelineState self);
+WISDOM_API void VKCommandListDestroy(VKCommandList self);
+WISDOM_API void VKBufferDestroy(VKBuffer self);
+WISDOM_API void VKTextureDestroy(VKTexture self);
+WISDOM_API void VKSwapChainDestroy(VKSwapChain self);
+WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
+WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
+WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
+WISDOM_API void VKSamplerDestroy(VKSampler self);
+WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
+WISDOM_API WisResult VKCreateFactory( bool debug_layer, VKFactory* out_factory);
+WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out_device);
+
+//-------------------------------------------------------------------------
+
+WISDOM_API VKFenceView AsVKFenceView(VKFence self);
+WISDOM_API VKBufferView AsVKBufferView(VKBuffer self);
+WISDOM_API VKTextureView AsVKTextureView(VKTexture self);
+WISDOM_API VKRenderTargetView AsVKRenderTargetView(VKRenderTarget self);
+WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
+WISDOM_API VKShaderView AsVKShaderView(VKShader self);
+WISDOM_API VKRootSignatureView AsVKRootSignatureView(VKRootSignature self);
+WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self);
+#endif
+
+#ifdef WISDOM_DX12
+typedef struct DX12CommandListView DX12CommandListView;
+typedef struct DX12GraphicsPipelineDesc DX12GraphicsPipelineDesc;
+typedef struct DX12FenceView DX12FenceView;
+typedef struct DX12BufferView DX12BufferView;
+typedef struct DX12TextureView DX12TextureView;
+typedef struct DX12ShaderView DX12ShaderView;
+typedef struct DX12RenderTargetView DX12RenderTargetView;
+typedef struct DX12RootSignatureView DX12RootSignatureView;
+typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
+typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
+typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
+typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
+typedef struct DX12RenderPassDesc DX12RenderPassDesc;
+typedef struct DX12VertexBufferBinding DX12VertexBufferBinding;
+
+//-------------------------------------------------------------------------
+
+struct DX12FenceView{
+    void* value;
+};
+
+struct DX12BufferView{
+    void* value;
+};
+
+struct DX12TextureView{
+    void* value;
+};
+
+struct DX12RenderTargetView{
+    void* value;
+};
+
+struct DX12CommandListView{
+    void* value;
+};
+
+struct DX12ShaderView{
+    void* bytecode;
+    uint32_t size_bytes;
+};
+
+struct DX12RootSignatureView{
+    void* value;
+};
+
+struct DX12DescriptorBufferView{
+    void* value;
+};
+
+struct DX12BufferBarrier2{
+    WisBufferBarrier barrier;
+    DX12BufferView buffer;
+};
+
+struct DX12TextureBarrier2{
+    WisTextureBarrier barrier;
+    DX12TextureView texture;
+};
+
+struct DX12GraphicsShaderStages{
+    DX12ShaderView vertex;
+    DX12ShaderView hull;
+    DX12ShaderView domain;
+    DX12ShaderView geometry;
+    DX12ShaderView pixel;
+};
+
+struct DX12GraphicsPipelineDesc{
+    DX12RootSignatureView root_signature;
     WisInputLayout input_layout;
-    VKGraphicsShaderStages shaders;
+    DX12GraphicsShaderStages shaders;
     WisRenderAttachmentsDesc attachments;
     WisRasterizerDesc* rasterizer;
     WisSampleDesc* sample;
@@ -958,21 +1062,8 @@ struct DX12RenderPassRenderTargetDesc{
     float clear_value[4];
 };
 
-struct VKRenderPassRenderTargetDesc{
-    VKRenderTargetView target;
-    WisLoadOperation load_op;
-    WisStoreOperation store_op;
-    float clear_value[4];
-};
-
 struct DX12RenderPassDesc{
     DX12RenderPassRenderTargetDesc* targets;
-    uint32_t target_count;
-    WisRenderPassFlags flags;
-};
-
-struct VKRenderPassDesc{
-    VKRenderPassRenderTargetDesc* targets;
     uint32_t target_count;
     WisRenderPassFlags flags;
 };
@@ -983,129 +1074,66 @@ struct DX12VertexBufferBinding{
     uint32_t stride;
 };
 
-struct VKVertexBufferBinding{
-    VKBufferView buffer;
-    uint32_t size;
-    uint32_t stride;
-};
 
-//=================================DELEGATES=================================
-
-typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
-//==================================HANDLES==================================
+//-------------------------------------------------------------------------
 
 typedef struct DX12CommandQueue_t* DX12CommandQueue;
-typedef struct VKCommandQueue_t* VKCommandQueue;
-
 typedef struct DX12RootSignature_t* DX12RootSignature;
-typedef struct VKRootSignature_t* VKRootSignature;
-
 typedef struct DX12Factory_t* DX12Factory;
-typedef struct VKFactory_t* VKFactory;
-
 typedef struct DX12PipelineState_t* DX12PipelineState;
-typedef struct VKPipelineState_t* VKPipelineState;
-
 typedef struct DX12Adapter_t* DX12Adapter;
-typedef struct VKAdapter_t* VKAdapter;
-
 typedef struct DX12Device_t* DX12Device;
-typedef struct VKDevice_t* VKDevice;
-
 typedef struct DX12Fence_t* DX12Fence;
-typedef struct VKFence_t* VKFence;
-
 typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
-typedef struct VKResourceAllocator_t* VKResourceAllocator;
-
 typedef struct DX12Shader_t* DX12Shader;
-typedef struct VKShader_t* VKShader;
-
 typedef struct DX12CommandList_t* DX12CommandList;
-typedef struct VKCommandList_t* VKCommandList;
-
 typedef struct DX12SwapChain_t* DX12SwapChain;
-typedef struct VKSwapChain_t* VKSwapChain;
-
 typedef struct DX12Buffer_t* DX12Buffer;
-typedef struct VKBuffer_t* VKBuffer;
-
 typedef struct DX12Texture_t* DX12Texture;
-typedef struct VKTexture_t* VKTexture;
-
 typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
-typedef struct VKDebugMessenger_t* VKDebugMessenger;
-
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
-typedef struct VKRenderTarget_t* VKRenderTarget;
-
 typedef struct DX12DescriptorBuffer_t* DX12DescriptorBuffer;
-typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
-
 typedef struct DX12Sampler_t* DX12Sampler;
-typedef struct VKSampler_t* VKSampler;
-
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
-typedef struct VKShaderResource_t* VKShaderResource;
 
-//=================================FUNCTIONS=================================
+//-------------------------------------------------------------------------
 
 WISDOM_API void DX12FactoryDestroy(DX12Factory self);
-WISDOM_API void VKFactoryDestroy(VKFactory self);
 WISDOM_API void DX12AdapterDestroy(DX12Adapter self);
-WISDOM_API void VKAdapterDestroy(VKAdapter self);
 WISDOM_API void DX12DeviceDestroy(DX12Device self);
-WISDOM_API void VKDeviceDestroy(VKDevice self);
 WISDOM_API void DX12FenceDestroy(DX12Fence self);
-WISDOM_API void VKFenceDestroy(VKFence self);
 WISDOM_API void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
-WISDOM_API void VKResourceAllocatorDestroy(VKResourceAllocator self);
 WISDOM_API void DX12RootSignatureDestroy(DX12RootSignature self);
-WISDOM_API void VKRootSignatureDestroy(VKRootSignature self);
 WISDOM_API void DX12CommandQueueDestroy(DX12CommandQueue self);
-WISDOM_API void VKCommandQueueDestroy(VKCommandQueue self);
 WISDOM_API void DX12ShaderDestroy(DX12Shader self);
-WISDOM_API void VKShaderDestroy(VKShader self);
 WISDOM_API void DX12PipelineStateDestroy(DX12PipelineState self);
-WISDOM_API void VKPipelineStateDestroy(VKPipelineState self);
 WISDOM_API void DX12CommandListDestroy(DX12CommandList self);
-WISDOM_API void VKCommandListDestroy(VKCommandList self);
 WISDOM_API void DX12BufferDestroy(DX12Buffer self);
-WISDOM_API void VKBufferDestroy(VKBuffer self);
 WISDOM_API void DX12TextureDestroy(DX12Texture self);
-WISDOM_API void VKTextureDestroy(VKTexture self);
 WISDOM_API void DX12SwapChainDestroy(DX12SwapChain self);
-WISDOM_API void VKSwapChainDestroy(VKSwapChain self);
 WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
-WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
 WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
-WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
 WISDOM_API void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self);
-WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
 WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
-WISDOM_API void VKSamplerDestroy(VKSampler self);
 WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
-WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
 WISDOM_API WisResult DX12CreateFactory( bool debug_layer, DX12Factory* out_factory);
-WISDOM_API WisResult VKCreateFactory( bool debug_layer, VKFactory* out_factory);
 WISDOM_API WisResult DX12CreateDevice( DX12Adapter adapter, DX12Device* out_device);
-WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out_device);
+
+//-------------------------------------------------------------------------
+
 WISDOM_API DX12FenceView AsDX12FenceView(DX12Fence self);
-WISDOM_API VKFenceView AsVKFenceView(VKFence self);
 WISDOM_API DX12BufferView AsDX12BufferView(DX12Buffer self);
-WISDOM_API VKBufferView AsVKBufferView(VKBuffer self);
 WISDOM_API DX12TextureView AsDX12TextureView(DX12Texture self);
-WISDOM_API VKTextureView AsVKTextureView(VKTexture self);
 WISDOM_API DX12RenderTargetView AsDX12RenderTargetView(DX12RenderTarget self);
-WISDOM_API VKRenderTargetView AsVKRenderTargetView(VKRenderTarget self);
 WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);
-WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
 WISDOM_API DX12ShaderView AsDX12ShaderView(DX12Shader self);
-WISDOM_API VKShaderView AsVKShaderView(VKShader self);
 WISDOM_API DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self);
-WISDOM_API VKRootSignatureView AsVKRootSignatureView(VKRootSignature self);
 WISDOM_API DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self);
-WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
+
+//-------------------------------------------------------------------------
+
