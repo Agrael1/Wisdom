@@ -23,7 +23,7 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #if WISDOM_DX12 && !FORCEVK_SWITCH
 #include "wisdom_dx12.h"
 
-namespace wis{
+namespace wis {
 
 inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 
@@ -67,7 +67,7 @@ using VertexBufferBinding = DX12VertexBufferBinding;
 #elif WISDOM_VULKAN
 #include "wisdom_vk.h"
 
-namespace wis{
+namespace wis {
 
 inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
 
