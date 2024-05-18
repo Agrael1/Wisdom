@@ -10,8 +10,8 @@ function(wis_export_agility_file)
 
 	get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
 
-	set(EXPORT_AGILITY "extern \"C\" { _declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER}; }
-						extern \"C\" { _declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\"; }"
+	set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
+						_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
 	)
 	file(WRITE ${wis_export_agility_file_PATH} "${EXPORT_AGILITY}")
 endfunction()
@@ -19,10 +19,10 @@ endfunction()
 
 function(wis_install_dx_uwp PROJECT)
     message("Installing DirectX Agility SDK Dependency")
-	wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.cpp")
+	wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
 
 	target_sources(${PROJECT} PRIVATE
-		${CMAKE_CURRENT_BINARY_DIR}/exports.cpp
+		${CMAKE_CURRENT_BINARY_DIR}/exports.c
 	)
 
 	message("DX12AgilityCore: ${DXAGILITY_DLL}")
@@ -41,10 +41,10 @@ endfunction()
 # Function for installing DirectX SDK
 function(wis_install_dx_win32 PROJECT)
 	message("Installing DirectX Agility SDK Dependency")
-	wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.cpp")
+	wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
 
 	target_sources(${PROJECT} PRIVATE
-		${CMAKE_CURRENT_BINARY_DIR}/exports.cpp
+		${CMAKE_CURRENT_BINARY_DIR}/exports.c
 	)
 
 	get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)

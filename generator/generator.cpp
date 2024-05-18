@@ -26,8 +26,22 @@ Generator::Generator(XMLDocument& doc)
 int Generator::GenerateCAPI()
 {
     using namespace std::chrono;
-    std::string output = "//GENERATED\n#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
-    output += GenerateCTypes();
+    std::string output = "//GENERATED\n#pragma once\n#include \"wisdom_exports.h\"\n#include <stdint.h>\n#include <stdbool.h>\n\n";
+
+    output += "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n";
+
+    std::string out_dx;
+    std::string out_vk;
+    {
+        auto [gen, dx, vk] = GenerateCTypes();
+        output += gen;
+        out_dx += dx;
+        out_vk += vk;
+    }
+
+    out_dx += "\n//-------------------------------------------------------------------------\n\n";
+    out_vk += "\n//-------------------------------------------------------------------------\n\n";
+    output += "\n//-------------------------------------------------------------------------\n\n";
 
     output += "//"
               "=================================DELEGATES========================"
@@ -35,28 +49,78 @@ int Generator::GenerateCAPI()
     for (auto& [name, d] : delegate_map) {
         output += MakeDelegate(d);
     }
-    output += "//"
-              "==================================HANDLES========================="
-              "=========\n\n";
+
     for (auto& [name, h] : handle_map) {
-        output += MakeHandle(h);
+        auto&& [dx, vk] = MakeHandle(h);
+        out_dx += dx;
+        out_vk += vk;
     }
-    output += "//"
-              "=================================FUNCTIONS========================"
-              "=========\n\n";
+
+    out_dx += "\n//-------------------------------------------------------------------------\n\n";
+    out_vk += "\n//-------------------------------------------------------------------------\n\n";
+
     for (auto& f : this->functions) {
-        output += MakeFunctionDecl(f);
+        auto&& [gen, dx, vk] = MakeFunctionDecl(f);
+        output += gen;
+        out_dx += dx;
+        out_vk += vk;
     }
+
+    out_dx += "\n//-------------------------------------------------------------------------\n\n";
+    out_vk += "\n//-------------------------------------------------------------------------\n\n";
+    output += "\n//-------------------------------------------------------------------------\n\n";
 
     for (auto& f : function_decls) {
         output += f;
     }
 
+    for (auto& f : function_decls_dx) {
+        out_dx += f;
+    }
+
+    for (auto& f : function_decls_vk) {
+        out_vk += f;
+    }
+
+    output += "#ifdef WISDOM_VULKAN\n";
+    output += out_vk;
+    output += "#endif\n\n";
+
+    output += "#ifdef WISDOM_DX12\n";
+    output += out_dx;
+    output += "#endif\n\n";
+
+    output += "#ifdef __cplusplus\n}\n#endif\n";
+
     // Function implementations
-    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
+    std::string output_cpp = "#include \"wisdom.h\"\n\n";
+
+    std::string out_cpp_dx;
+    std::string out_cpp_vk;
+
     for (auto& f : function_impl) {
         output_cpp += f;
     }
+
+    for (auto& f : function_impl_dx) {
+        out_cpp_dx += f;
+    }
+
+    for (auto& f : function_impl_vk) {
+        out_cpp_vk += f;
+    }
+
+    out_dx += "\n//-------------------------------------------------------------------------\n\n";
+    out_vk += "\n//-------------------------------------------------------------------------\n\n";
+    output += "\n//-------------------------------------------------------------------------\n\n";
+
+    output_cpp += "#ifdef WISDOM_DX12\n#include <wisdom/wisdom_dx12.h>\n\n";
+    output_cpp += out_cpp_dx;
+    output_cpp += "#endif\n\n";
+
+    output_cpp += "#ifdef WISDOM_VULKAN\n#include <wisdom/wisdom_vk.h>\n\n";
+    output_cpp += out_cpp_vk;
+    output_cpp += "#endif\n\n";
 
     std::filesystem::path output_path = output_dir;
     std::filesystem::create_directories(output_path);
@@ -110,6 +174,16 @@ struct ResultValue{
     constexpr ResultValue(Result status)noexcept :status(status){}
     constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)){}
 };
+
+template<uint32_t s, typename RetTy>
+constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
+{
+    if constexpr (s == 0)
+        return std::forward<Result>(rv.status);
+    else
+        return std::forward<RetTy>(rv.value);
+}
+
 )";
     output_api += "}\n";
 
@@ -173,22 +247,35 @@ struct ResultValue{
     return 0;
 }
 
-std::string Generator::GenerateCTypes()
+std::tuple<std::string, std::string, std::string> Generator::GenerateCTypes()
 {
-    std::string c_types = GenerateCTypedefs();
+    std::string gen, dx, vk;
     for (auto& [name, enum_t] : enum_map) {
-        c_types += MakeCEnum(enum_t);
+        gen += MakeCEnum(enum_t);
     }
+    gen += "\n//-------------------------------------------------------------------------\n\n";
     for (auto& [name, enum_t] : bitmask_map) {
-        c_types += MakeCBitmask(enum_t);
+        gen += MakeCBitmask(enum_t);
     }
+    gen += "\n//-------------------------------------------------------------------------\n\n";
+
+    auto&& [genx, dxx, vkx] = GenerateCTypedefs();
+    gen += genx;
+    dx += dxx;
+    vk += vkx;
+
     for (auto& s : structs) {
-        c_types += MakeCStruct(*s);
+        gen += MakeCStruct(*s);
     }
-    for (auto& [name, v] : variant_map) {
-        c_types += MakeCVariant(v);
+
+    gen += "\n//-------------------------------------------------------------------------\n\n";
+    for (auto& v : variants) {
+        auto [dxx, vkx] = MakeCVariant(*v);
+        dx += dxx;
+        vk += vkx;
     }
-    return c_types;
+
+    return { gen, dx, vk };
 }
 std::string Generator::GenerateCPPTypes()
 {
@@ -205,34 +292,41 @@ std::string Generator::GenerateCPPTypes()
     return c_types;
 }
 
-std::string Generator::GenerateCTypedefs()
+// generic, dx, vk
+std::tuple<std::string, std::string, std::string> Generator::GenerateCTypedefs()
 {
-    std::string c_types;
+    std::string gen, dx, vk;
     for (auto& s : structs) {
-        c_types += wis::format("typedef struct Wis{} Wis{};\n", s->name, s->name);
+        gen += wis::format("typedef struct Wis{} Wis{};\n", s->name, s->name);
     }
     for (auto& [name, _] : enum_map) {
         auto full_name = GetCFullTypename(name, "");
-        c_types += wis::format("typedef enum {} {};\n", full_name, full_name);
+        gen += wis::format("typedef enum {} {};\n", full_name, full_name);
     }
     for (auto& [name, bm] : bitmask_map) {
         auto full_name = GetCFullTypename(name, "");
-        c_types += wis::format("typedef enum {}Bits {}Bits;\n", full_name, full_name);
-        c_types += wis::format("typedef {} {};\n",
-                               bm.type.empty() ? "uint32_t" : standard_types.at(bm.type), full_name);
+        gen += wis::format("typedef enum {}Bits {}Bits;\n", full_name, full_name);
+        gen += wis::format("typedef {} {};\n",
+                           bm.type.empty() ? "uint32_t" : standard_types.at(bm.type), full_name);
     }
     for (auto& [name, s] : variant_map) {
         for (auto& impl : s.impls) {
             if (impl.impl == ImplementedFor::Both) {
-                c_types += wis::format("typedef struct DX12{} DX12{};\n", s.name, s.name);
-                c_types += wis::format("typedef struct VK{} VK{};\n", s.name, s.name);
+                dx += wis::format("typedef struct DX12{} DX12{};\n", s.name, s.name);
+                vk += wis::format("typedef struct VK{} VK{};\n", s.name, s.name);
                 break;
             }
-            c_types += wis::format("typedef struct {}{} {}{};\n", impls[+impl.impl], s.name,
-                                   impls[+impl.impl], s.name);
+            if (impl.impl == ImplementedFor::DX12) {
+                dx += wis::format("typedef struct DX12{} DX12{};\n", s.name, s.name);
+            } else if (impl.impl == ImplementedFor::Vulkan) {
+                vk += wis::format("typedef struct VK{} VK{};\n", s.name, s.name);
+            }
         }
     }
-    return c_types + '\n';
+    gen += "\n//-------------------------------------------------------------------------\n\n";
+    dx += "\n//-------------------------------------------------------------------------\n\n";
+    vk += "\n//-------------------------------------------------------------------------\n\n";
+    return { gen, dx, vk };
 }
 std::string Generator::GenerateCPPTypedefs()
 {
@@ -647,7 +741,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCVariant(const WisVariant& s)
+std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
 {
     using namespace std::string_literals;
     std::string st_decls;
@@ -658,13 +752,20 @@ std::string Generator::MakeCVariant(const WisVariant& s)
 
         if (!s.this_type.empty()) {
             auto this_name = GetCFullTypename(s.this_type, impl_tag);
-            function_decls.emplace_back(
-                    wis::format("{} As{}({} self);\n", full_name, full_name, this_name));
-            function_impl.emplace_back(
-                    wis::format("{} As{}({} self)\n{{\n    return "
-                                "reinterpret_cast<{}&>(static_cast<wis::{}>(reinterpret_cast<wis::{}&"
-                                ">(*self)));\n}}\n",
-                                full_name, full_name, this_name, full_name, full_name, this_name));
+
+            auto as_decl = wis::format("WISDOM_API {} As{}({} self);\n", full_name, full_name, this_name);
+            auto as_impl = wis::format("extern \"C\" {} As{}({} self)\n{{\n wis::{} xself = reinterpret_cast<wis::{}&"
+                                       ">(*self);\n  return "
+                                       "reinterpret_cast<{}&>(xself);\n}}\n",
+                                       full_name, full_name, this_name, full_name, this_name, full_name);
+
+            if (impl_tag == impls[1]) {
+                function_decls_dx.emplace_back(std::move(as_decl));
+                function_impl_dx.emplace_back(std::move(as_impl));
+            } else if (impl_tag == impls[2]) {
+                function_decls_vk.emplace_back(std::move(as_decl));
+                function_impl_vk.emplace_back(std::move(as_impl));
+            }
         }
 
         auto st_decl = wis::format("struct {}{{\n", full_name);
@@ -685,15 +786,19 @@ std::string Generator::MakeCVariant(const WisVariant& s)
         return st_decl;
     };
 
+    std::string dx, vk;
     for (auto& i : s.impls) {
         if (i.impl == ImplementedFor::Both) {
-            st_decls += make_impl(s, i, impls[1]);
-            st_decls += make_impl(s, i, impls[2]);
-            return st_decls;
+            dx += make_impl(s, i, impls[1]);
+            vk += make_impl(s, i, impls[2]);
+            return { std::move(dx), std::move(vk) };
         }
-        st_decls += make_impl(s, i, impls[+i.impl]);
+        if (+i.impl == 1)
+            dx += make_impl(s, i, impls[+i.impl]);
+        else if (+i.impl == 2)
+            vk += make_impl(s, i, impls[+i.impl]);
     }
-    return st_decls;
+    return { dx, vk };
 }
 
 std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
@@ -845,9 +950,9 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
 
 //-----------------------------------------------------------------------------
 
-std::string Generator::MakeFunctionDecl(const WisFunction& func)
+std::tuple<std::string, std::string, std::string> Generator::MakeFunctionDecl(const WisFunction& func)
 {
-    std::string st_decls;
+    std::string gen, dx, vk;
     size_t max = func.impl == Both ? 2 : 1;
     size_t min = func.impl == Both ? 1 : func.impl;
     auto ximpls = func.impl == Unspecified ? std::span{ impls }.subspan(0, 1)
@@ -878,22 +983,29 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
         }
 
         std::string st_decl =
-                wis::format("{} {}{}{}({})", return_t, impl, func.name == "Destroy" ? func.this_type : "",
+                wis::format("WISDOM_API {} {}{}{}({})", return_t, impl, func.name == "Destroy" ? func.this_type : "",
                             func.name, params);
 
-        function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impl));
-
-        st_decl += ";\n";
-        st_decls += st_decl;
+        if (impl == impls[1]) {
+            function_impl_dx.emplace_back(MakeFunctionImpl(func, st_decl, impl));
+            dx += st_decl + ";\n";
+        } else if (impl == impls[2]) {
+            function_impl_vk.emplace_back(MakeFunctionImpl(func, st_decl, impl));
+            vk += st_decl + ";\n";
+        } else {
+            function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impl));
+            gen += st_decl + ";\n";
+        }
     }
 
-    return st_decls;
+    return { gen, dx, vk };
 }
 
 std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_view decl,
                                         std::string_view impl)
 {
-    std::string st_decl{ decl };
+    std::string st_decl{ "extern \"C\" " };
+    st_decl += decl;
     st_decl += "\n{\n";
     bool has_this = !func.this_type.empty();
 
@@ -910,7 +1022,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     std::string args_str;
     for (auto& a : func.parameters) {
         if (a.type_info == TypeInfo::Handle) {
-            args_str += wis::format("*reinterpret_cast<{}*>({}), ", GetCPPFullTypename(a.type), a.name);
+            args_str += wis::format("*reinterpret_cast<{}*>({}), ", GetCPPFullTypename(a.type, impl), a.name);
         } else if (a.type_info == TypeInfo::Regular || a.type_info == TypeInfo::String) {
             args_str += wis::format("{}, ", a.name);
         } else {
@@ -920,7 +1032,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             }
 
             args_str +=
-                    wis::format("reinterpret_cast<{}{}>({}), ", GetCPPFullTypename(a.type), mod_post, a.name);
+                    wis::format("reinterpret_cast<{}{}>({}), ", GetCPPFullTypename(a.type, impl), mod_post, a.name);
         }
     }
     if (!args_str.empty() && args_str.back() == ' ') {
@@ -955,7 +1067,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
 
     if (result_idx >= 0)
-        st_decl += wis::format("    bool ok = std::get<{}>(ret).status == wis::Status::Success;\n",
+        st_decl += wis::format("    bool ok = wis::get<{}>(ret).status == wis::Status::Ok;\n",
                                result_idx);
 
     for (size_t i = 1; i < func.return_types.size(); i++) {
@@ -965,17 +1077,17 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
         if (p.type_info == TypeInfo::Handle)
             st_decl += result_idx < 0 ? wis ::format("    *out_{} = reinterpret_cast<{}>(new "
-                                                     "{}(std::move(std::get<{}>(ret))));\n",
+                                                     "{}(std::move(wis::get<{}>(ret))));\n",
                                                      p.opt_name, out_type, type, i)
                                       : wis::format("    *out_{} = ok ? reinterpret_cast<{}>(new "
-                                                    "{}(std::move(std::get<{}>(ret)))) : "
-                                                    "reinterpret_cast<{}>(nullptr);\n",
+                                                    "{}(std::move(wis::get<{}>(ret)))) : "
+                                                    "nullptr;\n",
                                                     p.opt_name, out_type, type, i, out_type);
         else
-            st_decl += wis::format("    if(ok) *out_{} = reinterpret_cast<{}&>(std::get<{}>(ret))",
+            st_decl += wis::format("    if(ok) *out_{} = reinterpret_cast<{}&>(wis::get<{}>(ret))",
                                    p.opt_name, out_type, i);
     }
-    return st_decl + wis::format("    return reinterpret_cast<{}&>(std::get<0>(ret));\n}}\n", GetCFullTypename(func.return_types[0].type));
+    return st_decl + wis::format("    return reinterpret_cast<{}&>(wis::get<0>(ret));\n}}\n", GetCFullTypename(func.return_types[0].type));
 }
 
 std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
@@ -1180,14 +1292,15 @@ std::string Generator::MakeDelegate(const WisFunction& func)
     return st_decls;
 }
 
-std::string Generator::MakeHandle(const WisHandle& s)
+std::pair<std::string, std::string> Generator::MakeHandle(const WisHandle& s)
 {
-    std::string st_decl;
+    std::string st_decl_dx;
+    std::string st_decl_vk;
     if (s.impl & ImplementedFor::DX12) {
-        st_decl += wis::format("typedef struct DX12{}_t* DX12{};\n", s.name, s.name);
+        st_decl_dx += wis::format("typedef struct DX12{}_t* DX12{};\n", s.name, s.name);
     }
     if (s.impl & ImplementedFor::Vulkan) {
-        st_decl += wis::format("typedef struct VK{}_t* VK{};\n", s.name, s.name);
+        st_decl_vk += wis::format("typedef struct VK{}_t* VK{};\n", s.name, s.name);
     }
-    return st_decl + '\n';
+    return { std::move(st_decl_dx), std::move(st_decl_vk) };
 }

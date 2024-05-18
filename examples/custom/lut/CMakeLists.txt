@@ -1,12 +1,5 @@
 project(LutBenchmark)
 
-FetchContent_Declare(
-  fpng
-  GIT_REPOSITORY https://github.com/richgel999/fpng
-  GIT_TAG main)
-set(SSE ON)
-FetchContent_MakeAvailable(fpng)
-
 find_package(glm QUIET)
 
 add_executable(${PROJECT_NAME} entry_main.cpp app.h app.cpp lut_loader.h

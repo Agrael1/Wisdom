@@ -790,4 +790,14 @@ struct ResultValue {
     constexpr ResultValue(Result status, RetTy value) noexcept
         : status(status), value(std::move(value)) { }
 };
+
+template<uint32_t s, typename RetTy>
+constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
+{
+    if constexpr (s == 0)
+        return std::forward<Result>(rv.status);
+    else
+        return std::forward<RetTy>(rv.value);
+}
+
 } // namespace wis

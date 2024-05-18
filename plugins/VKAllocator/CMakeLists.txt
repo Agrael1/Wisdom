@@ -25,7 +25,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES)
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCES}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
+                                                 POSITION_INDEPENDENT_CODE ON)
 
 install(
   TARGETS ${PROJECT_NAME}

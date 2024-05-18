@@ -60,9 +60,22 @@ if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
     FetchContent_GetProperties(KDUtils)
     if(NOT KDUtils_POPULATED)
       FetchContent_Populate(KDUtils)
-      # Disable tinyxml2 installation
       add_subdirectory(${kdutils_SOURCE_DIR} ${kdutils_BINARY_DIR}
                        EXCLUDE_FROM_ALL)
     endif()
   endif()
+endif()
+
+# fpng for PNG loading
+FetchContent_Declare(
+  fpng
+  GIT_REPOSITORY https://github.com/richgel999/fpng
+  GIT_TAG main)
+set(SSE ON)
+FetchContent_GetProperties(fpng)
+if(NOT fpng_POPULATED)
+  FetchContent_Populate(fpng)
+  set(fpng_SOURCE_DIR
+      ${fpng_SOURCE_DIR}
+      PARENT_SCOPE)
 endif()

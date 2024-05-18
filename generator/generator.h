@@ -102,8 +102,7 @@ struct WisHandle {
     std::string_view name;
     ImplementedFor impl = ImplementedFor::Both;
 };
-struct WisConversion
-{
+struct WisConversion {
     std::string value;
     ImplementedFor impl = ImplementedFor::None;
 };
@@ -126,9 +125,9 @@ public:
 public:
     int GenerateCAPI();
     int GenerateCPPAPI();
-    std::string GenerateCTypes();
+    std::tuple<std::string, std::string, std::string> GenerateCTypes();
+    std::tuple<std::string, std::string, std::string> GenerateCTypedefs();
     std::string GenerateCPPTypes();
-    std::string GenerateCTypedefs();
     std::string GenerateCPPTypedefs();
     std::string GenerateCPPPlatformTypedefs(std::string_view impl);
     std::string MakeCPPPlatformFunc(WisFunction& func, std::string_view impl);
@@ -146,7 +145,7 @@ public:
     void ParseVariant(tinyxml2::XMLElement& type);
 
     std::string MakeCStruct(const WisStruct& s);
-    std::string MakeCVariant(const WisVariant& s);
+    std::pair<std::string, std::string> MakeCVariant(const WisVariant& s);
     std::string MakeCPPVariant(const WisVariant& s, ImplementedFor impl);
     std::string MakeCEnum(const WisEnum& s);
     std::string MakeCBitmask(const WisBitmask& s);
@@ -155,8 +154,8 @@ public:
     std::string MakeCPPBitmask(const WisBitmask& s);
     std::string MakeCPPDelegate(const WisFunction& s);
 
-    std::string MakeHandle(const WisHandle& s);
-    std::string MakeFunctionDecl(const WisFunction& s);
+    std::pair<std::string, std::string> MakeHandle(const WisHandle& s);
+    std::tuple<std::string, std::string, std::string> MakeFunctionDecl(const WisFunction& s);
     std::string MakeDelegate(const WisFunction& s);
     std::string MakeFunctionImpl(const WisFunction& func, std::string_view decl, std::string_view impl);
 
@@ -174,8 +173,14 @@ public:
 private:
     std::vector<WisStruct*> structs;
     std::vector<WisFunction> functions;
+
     std::vector<std::string> function_impl;
+    std::vector<std::string> function_impl_dx;
+    std::vector<std::string> function_impl_vk;
+
     std::vector<std::string> function_decls;
+    std::vector<std::string> function_decls_dx;
+    std::vector<std::string> function_decls_vk;
 
     std::vector<std::string> cpp_type_traits;
     std::vector<WisConversion> cpp_conversion;

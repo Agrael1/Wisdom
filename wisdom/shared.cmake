@@ -34,7 +34,20 @@ target_compile_definitions(
   NOMINMAX
   _CRT_SECURE_NO_WARNINGS)
 
-install (TARGETS wisdom-shared EXPORT wisdom-targets)
+install(TARGETS wisdom-shared
+			EXPORT wisdom-shared-targets
+			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+		)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+  EXPORT wisdom-shared-targets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  NAMESPACE wis::
+  FILE wisdom-shared-targets.cmake # Not sure if this is still needed
+)
