@@ -178,7 +178,7 @@ private:
     std::vector<std::string> function_impl;
     std::vector<std::string> function_impl_dx;
     std::vector<std::string> function_impl_vk;
-    
+
     std::vector<std::string> function_decls;
     std::vector<std::string> function_decls_dx;
     std::vector<std::string> function_decls_vk;
