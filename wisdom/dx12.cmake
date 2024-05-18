@@ -2,7 +2,7 @@
 if(WISDOM_WINDOWS)
 	message("Platform Library is DirectX 12")
 	set(WISDOM_DX12 TRUE)
-	wisdom_sources_ex(TARGET wisdom-dx12
+	wisdom_sources(TARGET wisdom-dx12
 		HEADERS
 			"include/wisdom/dx12/dx12_factory.h"
 			"include/wisdom/dx12/dx12_views.h"

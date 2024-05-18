@@ -601,7 +601,75 @@
       </value>
       <value name="Draw" bit="1">
         <impl name="dx" value="D3D12_BARRIER_SYNC_DRAW"/>
-        <impl name="vk" value="VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT|VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT|VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT"/>
+      </value>
+      <value name="IndexInput" bit="2">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_INDEX_INPUT"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT"/>
+      </value>
+      <value name="VertexShading" bit="3">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_VERTEX_SHADING"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT"/>
+      </value>
+      <value name="PixelShading" bit="4">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_PIXEL_SHADING"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT"/>
+      </value>
+      <value name="DepthStencil" bit="5">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_DEPTH_STENCIL"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT"/>
+      </value>
+      <value name="RenderTarget" bit="6">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_RENDER_TARGET"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT"/>
+      </value>
+      <value name="Compute" bit="7">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_COMPUTE_SHADING"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
+      </value>
+      <value name="Raytracing" bit="8">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_RAYTRACING"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR"/>
+      </value>
+      <value name="Copy" bit="9">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_COPY"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_COPY_BIT"/>
+      </value>
+      <value name="Resolve" bit="10">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_RESOLVE"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
+      </value>
+      <value name="ExecuteIndirect" bit="11">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_EXECUTE_INDIRECT"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
+      </value>
+      <value name="AllShading" bit="12">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_ALL_SHADING"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
+      </value>
+      <value name="NonPixelShading" bit="13">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_NON_PIXEL_SHADING"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
+      </value>
+      <value name="ClearUAV" bit="14">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
+      </value>
+      <value name="VideoDecode" bit="15">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_VIDEO_DECODE"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR"/>
+      </value>
+      <value name="VideoEncode" bit="16">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_VIDEO_ENCODE"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR"/>
+      </value>
+      <value name="BuildRTAS" bit="17">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR"/>
+        </value>
+      <value name="CopyRTAS" bit="18">
+        <impl name="dx" value="D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE"/>
+        <impl name="vk" value="VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR"/>
       </value>
     </type>
 
@@ -650,7 +718,7 @@
       </value>
       <value name="IndirectArgument" bit="9">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT"/>
-        <impl name="vk" value="VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT"/>
+        <impl name="vk" value="VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
       <value name="CopyDest" bit="10">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_DEST"/>
@@ -687,6 +755,14 @@
       <value name="Present" bit="18">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
+      </value>
+      <value name="ResolveDest" bit="19">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_DEST"/>
+        <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT"/>
+      </value>
+      <value name="ResolveSource" bit="20">
+        <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_SOURCE"/>
+        <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
       <value name="NoAccess" bit="31">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_NO_ACCESS"/>

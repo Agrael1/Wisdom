@@ -102,6 +102,23 @@ inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept{
     D3D12_BARRIER_SYNC output = {};
     if(value & BarrierSync::All) output |= D3D12_BARRIER_SYNC_ALL;
     if(value & BarrierSync::Draw) output |= D3D12_BARRIER_SYNC_DRAW;
+    if(value & BarrierSync::IndexInput) output |= D3D12_BARRIER_SYNC_INDEX_INPUT;
+    if(value & BarrierSync::VertexShading) output |= D3D12_BARRIER_SYNC_VERTEX_SHADING;
+    if(value & BarrierSync::PixelShading) output |= D3D12_BARRIER_SYNC_PIXEL_SHADING;
+    if(value & BarrierSync::DepthStencil) output |= D3D12_BARRIER_SYNC_DEPTH_STENCIL;
+    if(value & BarrierSync::RenderTarget) output |= D3D12_BARRIER_SYNC_RENDER_TARGET;
+    if(value & BarrierSync::Compute) output |= D3D12_BARRIER_SYNC_COMPUTE_SHADING;
+    if(value & BarrierSync::Raytracing) output |= D3D12_BARRIER_SYNC_RAYTRACING;
+    if(value & BarrierSync::Copy) output |= D3D12_BARRIER_SYNC_COPY;
+    if(value & BarrierSync::Resolve) output |= D3D12_BARRIER_SYNC_RESOLVE;
+    if(value & BarrierSync::ExecuteIndirect) output |= D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
+    if(value & BarrierSync::AllShading) output |= D3D12_BARRIER_SYNC_ALL_SHADING;
+    if(value & BarrierSync::NonPixelShading) output |= D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
+    if(value & BarrierSync::ClearUAV) output |= D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW;
+    if(value & BarrierSync::VideoDecode) output |= D3D12_BARRIER_SYNC_VIDEO_DECODE;
+    if(value & BarrierSync::VideoEncode) output |= D3D12_BARRIER_SYNC_VIDEO_ENCODE;
+    if(value & BarrierSync::BuildRTAS) output |= D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE;
+    if(value & BarrierSync::CopyRTAS) output |= D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE;
     return output;
 }
 inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept{
@@ -125,6 +142,8 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept{
     if(value & ResourceAccess::VideoDecodeRead) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
     if(value & ResourceAccess::VideoDecodeWrite) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
     if(value & ResourceAccess::Present) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
+    if(value & ResourceAccess::ResolveDest) output |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
+    if(value & ResourceAccess::ResolveSource) output |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
     if(value & ResourceAccess::NoAccess) output |= D3D12_BARRIER_ACCESS_NO_ACCESS;
     return output;
 }

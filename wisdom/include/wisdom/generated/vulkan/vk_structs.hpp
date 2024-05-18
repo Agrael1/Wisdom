@@ -263,7 +263,24 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept{
 inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept{
     VkPipelineStageFlags2 output = {};
     if(value & BarrierSync::All) output |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-    if(value & BarrierSync::Draw) output |= VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+    if(value & BarrierSync::Draw) output |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT|VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT|VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    if(value & BarrierSync::IndexInput) output |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
+    if(value & BarrierSync::VertexShading) output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
+    if(value & BarrierSync::PixelShading) output |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    if(value & BarrierSync::DepthStencil) output |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+    if(value & BarrierSync::RenderTarget) output |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    if(value & BarrierSync::Compute) output |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if(value & BarrierSync::Raytracing) output |= VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR;
+    if(value & BarrierSync::Copy) output |= VK_PIPELINE_STAGE_2_COPY_BIT;
+    if(value & BarrierSync::Resolve) output |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if(value & BarrierSync::ExecuteIndirect) output |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if(value & BarrierSync::AllShading) output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if(value & BarrierSync::NonPixelShading) output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if(value & BarrierSync::ClearUAV) output |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if(value & BarrierSync::VideoDecode) output |= VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR;
+    if(value & BarrierSync::VideoEncode) output |= VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR;
+    if(value & BarrierSync::BuildRTAS) output |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+    if(value & BarrierSync::CopyRTAS) output |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
     return output;
 }
 inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept{
@@ -277,7 +294,7 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept{
     if(value & ResourceAccess::DepthRead) output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
     if(value & ResourceAccess::ShaderResource) output |= VK_ACCESS_2_SHADER_READ_BIT;
     if(value & ResourceAccess::StreamOutput) output |= VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
-    if(value & ResourceAccess::IndirectArgument) output |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+    if(value & ResourceAccess::IndirectArgument) output |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     if(value & ResourceAccess::CopyDest) output |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
     if(value & ResourceAccess::CopySource) output |= VK_ACCESS_2_TRANSFER_READ_BIT;
     if(value & ResourceAccess::ConditionalRendering) output |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
@@ -287,6 +304,8 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept{
     if(value & ResourceAccess::VideoDecodeRead) output |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
     if(value & ResourceAccess::VideoDecodeWrite) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
     if(value & ResourceAccess::Present) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+    if(value & ResourceAccess::ResolveDest) output |= VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT;
+    if(value & ResourceAccess::ResolveSource) output |= VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     if(value & ResourceAccess::NoAccess) output |= VK_ACCESS_2_NONE;
     return output;
 }
