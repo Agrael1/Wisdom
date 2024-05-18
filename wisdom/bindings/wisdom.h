@@ -1,4 +1,4 @@
-//GENERATED
+// GENERATED
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
@@ -565,29 +565,29 @@ enum WisBarrierSyncBits {
     BarrierSyncCopyRTAS = 1 << 18,
 };
 
-struct WisResult{
+struct WisResult {
     WisStatus status;
     const char* error;
 };
 
-struct WisSize2D{
+struct WisSize2D {
     uint32_t width;
     uint32_t height;
 };
 
-struct WisSize3D{
+struct WisSize3D {
     uint32_t width;
     uint32_t height;
     uint32_t depth_or_layers;
 };
 
-struct WisBufferRegion{
+struct WisBufferRegion {
     uint64_t src_offset;
     uint64_t dst_offset;
     uint64_t size_bytes;
 };
 
-struct WisAdapterDesc{
+struct WisAdapterDesc {
     const char description[256];
     uint32_t vendor_id;
     uint32_t device_id;
@@ -600,13 +600,13 @@ struct WisAdapterDesc{
     WisAdapterFlags flags;
 };
 
-struct WisInputSlotDesc{
+struct WisInputSlotDesc {
     uint32_t slot;
     uint32_t stride_bytes;
     WisInputClass input_class;
 };
 
-struct WisInputAttribute{
+struct WisInputAttribute {
     uint32_t input_slot;
     const char* semantic_name;
     uint32_t semantic_index;
@@ -615,14 +615,14 @@ struct WisInputAttribute{
     uint32_t offset_bytes;
 };
 
-struct WisInputLayout{
+struct WisInputLayout {
     WisInputSlotDesc* slots;
     uint32_t slot_count;
     WisInputAttribute* attributes;
     uint32_t attribute_count;
 };
 
-struct WisRasterizerDesc{
+struct WisRasterizerDesc {
     WisFillMode fill_mode;
     WisCullMode cull_mode;
     WisWindingOrder front_face;
@@ -633,13 +633,13 @@ struct WisRasterizerDesc{
     bool depth_clip_enable;
 };
 
-struct WisSampleDesc{
+struct WisSampleDesc {
     WisSampleRate rate;
     float quality;
     uint32_t sample_mask;
 };
 
-struct WisStencilDesc{
+struct WisStencilDesc {
     WisStencilOp fail_op;
     WisStencilOp depth_fail_op;
     WisStencilOp pass_op;
@@ -648,7 +648,7 @@ struct WisStencilDesc{
     uint8_t write_mask;
 };
 
-struct WisDepthStencilDesc{
+struct WisDepthStencilDesc {
     bool depth_enable;
     bool depth_write_enable;
     WisCompare depth_comp;
@@ -658,7 +658,7 @@ struct WisDepthStencilDesc{
     bool depth_bound_test;
 };
 
-struct WisBlendAttachmentDesc{
+struct WisBlendAttachmentDesc {
     bool blend_enable;
     WisBlendFactor src_color_blend;
     WisBlendFactor dst_color_blend;
@@ -669,25 +669,25 @@ struct WisBlendAttachmentDesc{
     WisColorComponents color_write_mask;
 };
 
-struct WisBlendStateDesc{
+struct WisBlendStateDesc {
     bool logic_op_enable;
     WisLogicOp logic_op;
     WisBlendAttachmentDesc attachments[8];
     uint32_t attachment_count;
 };
 
-struct WisRenderAttachmentsDesc{
+struct WisRenderAttachmentsDesc {
     WisDataFormat* attachment_formats;
     uint32_t attachments_count;
     WisDataFormat depth_attachment;
 };
 
-struct WisRootConstant{
+struct WisRootConstant {
     WisShaderStages stage;
     uint32_t size_bytes;
 };
 
-struct WisSwapchainDesc{
+struct WisSwapchainDesc {
     WisSize2D size;
     WisDataFormat format;
     uint32_t buffer_count;
@@ -695,7 +695,7 @@ struct WisSwapchainDesc{
     bool vsync;
 };
 
-struct WisTextureDesc{
+struct WisTextureDesc {
     WisDataFormat format;
     WisSize3D size;
     uint32_t mip_levels;
@@ -704,7 +704,7 @@ struct WisTextureDesc{
     WisTextureUsage usage;
 };
 
-struct WisTextureRegion{
+struct WisTextureRegion {
     WisSize3D offset;
     WisSize3D size;
     uint32_t mip;
@@ -712,26 +712,26 @@ struct WisTextureRegion{
     WisDataFormat format;
 };
 
-struct WisBufferTextureCopyRegion{
+struct WisBufferTextureCopyRegion {
     uint64_t buffer_offset;
     WisTextureRegion texture;
 };
 
-struct WisPushDescriptor{
+struct WisPushDescriptor {
     WisShaderStages stage;
     uint32_t bind_register;
     WisDescriptorType type;
     uint32_t reserved;
 };
 
-struct WisSubresourceRange{
+struct WisSubresourceRange {
     uint32_t base_mip_level;
     uint32_t level_count;
     uint32_t base_array_layer;
     uint32_t layer_count;
 };
 
-struct WisRenderTargetDesc{
+struct WisRenderTargetDesc {
     WisDataFormat format;
     WisTextureLayout layout;
     uint32_t mip;
@@ -739,7 +739,7 @@ struct WisRenderTargetDesc{
     uint32_t layer_count;
 };
 
-struct WisViewport{
+struct WisViewport {
     float top_leftx;
     float top_lefty;
     float width;
@@ -748,14 +748,14 @@ struct WisViewport{
     float max_depth;
 };
 
-struct WisScissor{
+struct WisScissor {
     int32_t left;
     int32_t top;
     int32_t right;
     int32_t bottom;
 };
 
-struct WisBufferBarrier{
+struct WisBufferBarrier {
     WisBarrierSync sync_before;
     WisBarrierSync sync_after;
     WisResourceAccess access_before;
@@ -764,7 +764,7 @@ struct WisBufferBarrier{
     uint64_t size;
 };
 
-struct WisTextureBarrier{
+struct WisTextureBarrier {
     WisBarrierSync sync_before;
     WisBarrierSync sync_after;
     WisResourceAccess access_before;
@@ -774,21 +774,21 @@ struct WisTextureBarrier{
     WisSubresourceRange subresource_range;
 };
 
-struct WisDescriptorTableEntry{
+struct WisDescriptorTableEntry {
     WisDescriptorType type;
     uint32_t bind_register;
     uint32_t binding;
     uint32_t count;
 };
 
-struct WisDescriptorTable{
+struct WisDescriptorTable {
     WisDescriptorHeapType type;
     WisDescriptorTableEntry* entries;
     uint32_t entry_count;
     WisShaderStages stage;
 };
 
-struct WisSamplerDesc{
+struct WisSamplerDesc {
     WisFilter min_filter;
     WisFilter mag_filter;
     WisFilter mip_filter;
@@ -804,29 +804,29 @@ struct WisSamplerDesc{
     float border_color[4];
 };
 
-struct WisComponentMapping{
+struct WisComponentMapping {
     WisComponentSwizzle r;
     WisComponentSwizzle g;
     WisComponentSwizzle b;
     WisComponentSwizzle a;
 };
 
-struct WisShaderResourceDesc{
+struct WisShaderResourceDesc {
     WisDataFormat format;
     WisTextureViewType view_type;
     WisComponentMapping component_mapping;
     WisSubresourceRange subresource_range;
 };
 
-struct DX12CommandListView{
+struct DX12CommandListView {
     void* value;
 };
 
-struct VKCommandListView{
+struct VKCommandListView {
     void* value;
 };
 
-struct DX12GraphicsPipelineDesc{
+struct DX12GraphicsPipelineDesc {
     DX12RootSignatureView root_signature;
     WisInputLayout input_layout;
     DX12GraphicsShaderStages shaders;
@@ -838,7 +838,7 @@ struct DX12GraphicsPipelineDesc{
     WisTopologyType topology_type;
 };
 
-struct VKGraphicsPipelineDesc{
+struct VKGraphicsPipelineDesc {
     VKRootSignatureView root_signature;
     WisInputLayout input_layout;
     VKGraphicsShaderStages shaders;
@@ -850,87 +850,87 @@ struct VKGraphicsPipelineDesc{
     WisTopologyType topology_type;
 };
 
-struct DX12FenceView{
+struct DX12FenceView {
     void* value;
 };
 
-struct VKFenceView{
+struct VKFenceView {
     void* value;
 };
 
-struct DX12BufferView{
+struct DX12BufferView {
     void* value;
 };
 
-struct VKBufferView{
+struct VKBufferView {
     void* value;
 };
 
-struct DX12TextureView{
+struct DX12TextureView {
     void* value;
 };
 
-struct VKTextureView{
+struct VKTextureView {
     void* value;
     uint32_t value2;
     WisSize2D value3;
 };
 
-struct DX12ShaderView{
+struct DX12ShaderView {
     void* bytecode;
     uint32_t size_bytes;
 };
 
-struct VKShaderView{
+struct VKShaderView {
     void* value;
 };
 
-struct DX12RenderTargetView{
+struct DX12RenderTargetView {
     void* value;
 };
 
-struct VKRenderTargetView{
+struct VKRenderTargetView {
     void* value;
 };
 
-struct DX12RootSignatureView{
+struct DX12RootSignatureView {
     void* value;
 };
 
-struct VKRootSignatureView{
+struct VKRootSignatureView {
     void* value;
 };
 
-struct DX12DescriptorBufferView{
+struct DX12DescriptorBufferView {
     void* value;
 };
 
-struct VKDescriptorBufferView{
+struct VKDescriptorBufferView {
     uint64_t value1;
     uint32_t value2;
 };
 
-struct DX12BufferBarrier2{
+struct DX12BufferBarrier2 {
     WisBufferBarrier barrier;
     DX12BufferView buffer;
 };
 
-struct VKBufferBarrier2{
+struct VKBufferBarrier2 {
     WisBufferBarrier barrier;
     VKBufferView buffer;
 };
 
-struct DX12TextureBarrier2{
+struct DX12TextureBarrier2 {
     WisTextureBarrier barrier;
     DX12TextureView texture;
 };
 
-struct VKTextureBarrier2{
+struct VKTextureBarrier2 {
     WisTextureBarrier barrier;
     VKTextureView texture;
 };
 
-struct DX12GraphicsShaderStages{
+struct DX12GraphicsShaderStages {
     DX12ShaderView vertex;
     DX12ShaderView hull;
     DX12ShaderView domain;
@@ -938,7 +938,7 @@ struct DX12GraphicsShaderStages{
     DX12ShaderView pixel;
 };
 
-struct VKGraphicsShaderStages{
+struct VKGraphicsShaderStages {
     VKShaderView vertex;
     VKShaderView hull;
     VKShaderView domain;
@@ -946,39 +946,39 @@ struct VKGraphicsShaderStages{
     VKShaderView pixel;
 };
 
-struct DX12RenderPassRenderTargetDesc{
+struct DX12RenderPassRenderTargetDesc {
     DX12RenderTargetView target;
     WisLoadOperation load_op;
     WisStoreOperation store_op;
     float clear_value[4];
 };
 
-struct VKRenderPassRenderTargetDesc{
+struct VKRenderPassRenderTargetDesc {
     VKRenderTargetView target;
     WisLoadOperation load_op;
     WisStoreOperation store_op;
     float clear_value[4];
 };
 
-struct DX12RenderPassDesc{
+struct DX12RenderPassDesc {
     DX12RenderPassRenderTargetDesc* targets;
     uint32_t target_count;
     WisRenderPassFlags flags;
 };
 
-struct VKRenderPassDesc{
+struct VKRenderPassDesc {
     VKRenderPassRenderTargetDesc* targets;
     uint32_t target_count;
     WisRenderPassFlags flags;
 };
 
-struct DX12VertexBufferBinding{
+struct DX12VertexBufferBinding {
     DX12BufferView buffer;
     uint32_t size;
     uint32_t stride;
 };
 
-struct VKVertexBufferBinding{
+struct VKVertexBufferBinding {
     VKBufferView buffer;
     uint32_t size;
     uint32_t stride;
@@ -986,7 +986,7 @@ struct VKVertexBufferBinding{
 
 //=================================DELEGATES=================================
 
-typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
+typedef void (*DebugCallback)(WisSeverity severity, const char* message, void* user_data);
 //==================================HANDLES==================================
 
 typedef struct DX12CommandQueue_t* DX12CommandQueue;
@@ -1045,52 +1045,52 @@ typedef struct VKShaderResource_t* VKShaderResource;
 
 //=================================FUNCTIONS=================================
 
-WisResult DX12CreateFactory( bool debug_layer,  DebugCallback callback,  void* user_data, DX12Factory* out_factory);
-WisResult VKCreateFactory( bool debug_layer,  DebugCallback callback,  void* user_data, VKFactory* out_factory);
-WisResult DX12CreateDevice( DX12Adapter adapter, DX12Device* out_device);
-WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out_device);
-WisResult DX12GetAdapter(DX12Factory self,  uint32_t index,  WisAdapterPreference preference, DX12Adapter* out_adapter);
-WisResult VKGetAdapter(VKFactory self,  uint32_t index,  WisAdapterPreference preference, VKAdapter* out_adapter);
+WisResult DX12CreateFactory(bool debug_layer, DebugCallback callback, void* user_data, DX12Factory* out_factory);
+WisResult VKCreateFactory(bool debug_layer, DebugCallback callback, void* user_data, VKFactory* out_factory);
+WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device);
+WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
+WisResult DX12GetAdapter(DX12Factory self, uint32_t index, WisAdapterPreference preference, DX12Adapter* out_adapter);
+WisResult VKGetAdapter(VKFactory self, uint32_t index, WisAdapterPreference preference, VKAdapter* out_adapter);
 void DX12FactoryDestroy(DX12Factory self);
 void VKFactoryDestroy(VKFactory self);
-WisResult DX12GetDesc(DX12Adapter self,  WisAdapterDesc* desc);
-WisResult VKGetDesc(VKAdapter self,  WisAdapterDesc* desc);
+WisResult DX12GetDesc(DX12Adapter self, WisAdapterDesc* desc);
+WisResult VKGetDesc(VKAdapter self, WisAdapterDesc* desc);
 void DX12DeviceDestroy(DX12Device self);
 void VKDeviceDestroy(VKDevice self);
-WisResult DX12CreateFence(DX12Device self,  uint64_t initial_value, DX12Fence* out_fence);
-WisResult VKCreateFence(VKDevice self,  uint64_t initial_value, VKFence* out_fence);
-WisResult DX12CreateRootSignature(DX12Device self,  WisRootConstant* constants,  uint32_t constants_size, DX12RootSignature* out_root_signature);
-WisResult VKCreateRootSignature(VKDevice self,  WisRootConstant* constants,  uint32_t constants_size, VKRootSignature* out_root_signature);
+WisResult DX12CreateFence(DX12Device self, uint64_t initial_value, DX12Fence* out_fence);
+WisResult VKCreateFence(VKDevice self, uint64_t initial_value, VKFence* out_fence);
+WisResult DX12CreateRootSignature(DX12Device self, WisRootConstant* constants, uint32_t constants_size, DX12RootSignature* out_root_signature);
+WisResult VKCreateRootSignature(VKDevice self, WisRootConstant* constants, uint32_t constants_size, VKRootSignature* out_root_signature);
 WisResult DX12CreateAllocator(DX12Device self, DX12ResourceAllocator* out_allocator);
 WisResult VKCreateAllocator(VKDevice self, VKResourceAllocator* out_allocator);
-WisResult DX12CreateCommandQueue(DX12Device self,  WisQueueType type,  WisQueuePriority priority, DX12CommandQueue* out_queue);
-WisResult VKCreateCommandQueue(VKDevice self,  WisQueueType type,  WisQueuePriority priority, VKCommandQueue* out_queue);
-WisResult DX12CreateShader(DX12Device self,  void* data,  uint32_t size_bytes, DX12Shader* out_shader);
-WisResult VKCreateShader(VKDevice self,  void* data,  uint32_t size_bytes, VKShader* out_shader);
-WisResult DX12WaitForMultipleFences(DX12Device self,  DX12FenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
-WisResult VKWaitForMultipleFences(VKDevice self,  VKFenceView* fences,  uint64_t* values,  uint32_t count,  WisMutiWaitFlags wait_all,  uint64_t timeout);
-WisResult DX12CreatePipelineState(DX12Device self,  DX12GraphicsPipelineDesc* desc, DX12PipelineState* out_pipeline_state);
-WisResult VKCreatePipelineState(VKDevice self,  VKGraphicsPipelineDesc* desc, VKPipelineState* out_pipeline_state);
-WisResult DX12CreateCommandList(DX12Device self,  WisQueueType type, DX12CommandList* out_command_list);
-WisResult VKCreateCommandList(VKDevice self,  WisQueueType type, VKCommandList* out_command_list);
+WisResult DX12CreateCommandQueue(DX12Device self, WisQueueType type, WisQueuePriority priority, DX12CommandQueue* out_queue);
+WisResult VKCreateCommandQueue(VKDevice self, WisQueueType type, WisQueuePriority priority, VKCommandQueue* out_queue);
+WisResult DX12CreateShader(DX12Device self, void* data, uint32_t size_bytes, DX12Shader* out_shader);
+WisResult VKCreateShader(VKDevice self, void* data, uint32_t size_bytes, VKShader* out_shader);
+WisResult DX12WaitForMultipleFences(DX12Device self, DX12FenceView* fences, uint64_t* values, uint32_t count, WisMutiWaitFlags wait_all, uint64_t timeout);
+WisResult VKWaitForMultipleFences(VKDevice self, VKFenceView* fences, uint64_t* values, uint32_t count, WisMutiWaitFlags wait_all, uint64_t timeout);
+WisResult DX12CreatePipelineState(DX12Device self, DX12GraphicsPipelineDesc* desc, DX12PipelineState* out_pipeline_state);
+WisResult VKCreatePipelineState(VKDevice self, VKGraphicsPipelineDesc* desc, VKPipelineState* out_pipeline_state);
+WisResult DX12CreateCommandList(DX12Device self, WisQueueType type, DX12CommandList* out_command_list);
+WisResult VKCreateCommandList(VKDevice self, WisQueueType type, VKCommandList* out_command_list);
 void DX12RootSignatureDestroy(DX12RootSignature self);
 void VKRootSignatureDestroy(VKRootSignature self);
 void DX12FenceDestroy(DX12Fence self);
 void VKFenceDestroy(VKFence self);
 uint64_t DX12GetCompletedValue(DX12Fence self);
 uint64_t VKGetCompletedValue(VKFence self);
-WisResult DX12Wait(DX12Fence self,  uint64_t value,  uint64_t timeout_ns);
-WisResult VKWait(VKFence self,  uint64_t value,  uint64_t timeout_ns);
-WisResult DX12Signal(DX12Fence self,  uint64_t value);
-WisResult VKSignal(VKFence self,  uint64_t value);
+WisResult DX12Wait(DX12Fence self, uint64_t value, uint64_t timeout_ns);
+WisResult VKWait(VKFence self, uint64_t value, uint64_t timeout_ns);
+WisResult DX12Signal(DX12Fence self, uint64_t value);
+WisResult VKSignal(VKFence self, uint64_t value);
 void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
 void VKResourceAllocatorDestroy(VKResourceAllocator self);
 void DX12CommandQueueDestroy(DX12CommandQueue self);
 void VKCommandQueueDestroy(VKCommandQueue self);
-WisResult DX12SignalQueue(DX12CommandQueue self,  DX12FenceView fence,  uint64_t value);
-WisResult VKSignalQueue(VKCommandQueue self,  VKFenceView fence,  uint64_t value);
-void DX12ExecuteCommandLists(DX12CommandQueue self,  DX12CommandListView* lists,  uint32_t count);
-void VKExecuteCommandLists(VKCommandQueue self,  VKCommandListView* lists,  uint32_t count);
+WisResult DX12SignalQueue(DX12CommandQueue self, DX12FenceView fence, uint64_t value);
+WisResult VKSignalQueue(VKCommandQueue self, VKFenceView fence, uint64_t value);
+void DX12ExecuteCommandLists(DX12CommandQueue self, DX12CommandListView* lists, uint32_t count);
+void VKExecuteCommandLists(VKCommandQueue self, VKCommandListView* lists, uint32_t count);
 void DX12ShaderDestroy(DX12Shader self);
 void VKShaderDestroy(VKShader self);
 void DX12PipelineStateDestroy(DX12PipelineState self);
