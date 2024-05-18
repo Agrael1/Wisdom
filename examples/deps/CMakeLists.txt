@@ -75,5 +75,7 @@ set(SSE ON)
 FetchContent_GetProperties(fpng)
 if(NOT fpng_POPULATED)
   FetchContent_Populate(fpng)
-  set(fpng_SOURCE_DIR ${fpng_SOURCE_DIR} PARENT_SCOPE)
+  set(fpng_SOURCE_DIR
+      ${fpng_SOURCE_DIR}
+      PARENT_SCOPE)
 endif()
