@@ -133,14 +133,14 @@ extern "C" WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self)
     auto* xself = reinterpret_cast<wis::DX12ShaderResource*>(self);
     delete xself;
 }
-extern "C" WISDOM_API WisResult DX12CreateFactory( bool debug_layer, DX12Factory* out_factory)
+extern "C" WISDOM_API WisResult DX12CreateFactory(bool debug_layer, DX12Factory* out_factory)
 {
     auto&& ret = wis::DX12CreateFactory(debug_layer);
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
     *out_factory = ok ? reinterpret_cast<DX12Factory>(new wis::DX12Factory(std::move(wis::get<1>(ret)))) : nullptr;
     return reinterpret_cast<WisResult&>(wis::get<0>(ret));
 }
-extern "C" WISDOM_API WisResult DX12CreateDevice( DX12Adapter adapter, DX12Device* out_device)
+extern "C" WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device)
 {
     auto&& ret = wis::DX12CreateDevice(*reinterpret_cast<wis::DX12Adapter*>(adapter));
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
@@ -282,14 +282,14 @@ extern "C" WISDOM_API void VKShaderResourceDestroy(VKShaderResource self)
     auto* xself = reinterpret_cast<wis::VKShaderResource*>(self);
     delete xself;
 }
-extern "C" WISDOM_API WisResult VKCreateFactory( bool debug_layer, VKFactory* out_factory)
+extern "C" WISDOM_API WisResult VKCreateFactory(bool debug_layer, VKFactory* out_factory)
 {
     auto&& ret = wis::VKCreateFactory(debug_layer);
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
     *out_factory = ok ? reinterpret_cast<VKFactory>(new wis::VKFactory(std::move(wis::get<1>(ret)))) : nullptr;
     return reinterpret_cast<WisResult&>(wis::get<0>(ret));
 }
-extern "C" WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out_device)
+extern "C" WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device)
 {
     auto&& ret = wis::VKCreateDevice(*reinterpret_cast<wis::VKAdapter*>(adapter));
     bool ok = wis::get<0>(ret).status == wis::Status::Ok;
@@ -297,4 +297,3 @@ extern "C" WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out
     return reinterpret_cast<WisResult&>(wis::get<0>(ret));
 }
 #endif
-

@@ -102,8 +102,7 @@ struct WisHandle {
     std::string_view name;
     ImplementedFor impl = ImplementedFor::Both;
 };
-struct WisConversion
-{
+struct WisConversion {
     std::string value;
     ImplementedFor impl = ImplementedFor::None;
 };

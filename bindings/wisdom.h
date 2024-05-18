@@ -1,4 +1,4 @@
-//GENERATED
+// GENERATED
 #pragma once
 #include "wisdom_exports.h"
 #include <stdint.h>
@@ -362,7 +362,6 @@ enum WisComponentSwizzle {
     ComponentSwizzleOne = 5,
 };
 
-
 //-------------------------------------------------------------------------
 
 enum WisAdapterFlagsBits {
@@ -460,7 +459,6 @@ enum WisBarrierSyncBits {
     BarrierSyncBuildRTAS = 1 << 17,
     BarrierSyncCopyRTAS = 1 << 18,
 };
-
 
 //-------------------------------------------------------------------------
 
@@ -801,15 +799,13 @@ struct WisShaderResourceDesc {
     WisSubresourceRange subresource_range;
 };
 
-
 //-------------------------------------------------------------------------
-
 
 //-------------------------------------------------------------------------
 
 //=================================DELEGATES=================================
 
-typedef void (*DebugCallback)( WisSeverity severity,  const char* message,  void* user_data);
+typedef void (*DebugCallback)(WisSeverity severity, const char* message, void* user_data);
 
 //-------------------------------------------------------------------------
 
@@ -916,7 +912,6 @@ struct VKVertexBufferBinding {
     uint32_t stride;
 };
 
-
 //-------------------------------------------------------------------------
 
 typedef struct VKCommandQueue_t* VKCommandQueue;
@@ -958,8 +953,8 @@ WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
 WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
 WISDOM_API void VKSamplerDestroy(VKSampler self);
 WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
-WISDOM_API WisResult VKCreateFactory( bool debug_layer, VKFactory* out_factory);
-WISDOM_API WisResult VKCreateDevice( VKAdapter adapter, VKDevice* out_device);
+WISDOM_API WisResult VKCreateFactory(bool debug_layer, VKFactory* out_factory);
+WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
 
 //-------------------------------------------------------------------------
 
@@ -1074,7 +1069,6 @@ struct DX12VertexBufferBinding {
     uint32_t stride;
 };
 
-
 //-------------------------------------------------------------------------
 
 typedef struct DX12CommandQueue_t* DX12CommandQueue;
@@ -1116,8 +1110,8 @@ WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
 WISDOM_API void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self);
 WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
 WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
-WISDOM_API WisResult DX12CreateFactory( bool debug_layer, DX12Factory* out_factory);
-WISDOM_API WisResult DX12CreateDevice( DX12Adapter adapter, DX12Device* out_device);
+WISDOM_API WisResult DX12CreateFactory(bool debug_layer, DX12Factory* out_factory);
+WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device);
 
 //-------------------------------------------------------------------------
 
@@ -1136,4 +1130,3 @@ WISDOM_API DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuf
 #endif
 
 //-------------------------------------------------------------------------
-
