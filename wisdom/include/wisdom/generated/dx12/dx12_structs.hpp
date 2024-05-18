@@ -38,7 +38,7 @@ struct DX12RenderPassRenderTargetDesc {
     wis::DX12RenderTargetView target;
     wis::LoadOperation load_op = wis::LoadOperation::Load;
     wis::StoreOperation store_op = wis::StoreOperation::Store;
-    std::array<float, 4> clear_value {};
+    std::array<float, 4> clear_value{};
 };
 
 struct DX12RenderPassDesc {
@@ -53,14 +53,17 @@ struct DX12VertexBufferBinding {
     uint32_t stride;
 };
 
-inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept {
+inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept
+{
     return static_cast<DXGI_GPU_PREFERENCE>(value);
 }
-inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStages value) noexcept {
+inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStages value) noexcept
+{
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }
-inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) noexcept {
-    switch(value) {
+inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case DescriptorType::ShaderResource:
@@ -73,87 +76,141 @@ inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) no
         return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
     }
 }
-inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept {
+inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept
+{
     return static_cast<DXGI_FORMAT>(value);
 }
-inline constexpr D3D12_FILL_MODE convert_dx(FillMode value) noexcept {
+inline constexpr D3D12_FILL_MODE convert_dx(FillMode value) noexcept
+{
     return static_cast<D3D12_FILL_MODE>(value);
 }
-inline constexpr D3D12_CULL_MODE convert_dx(CullMode value) noexcept {
+inline constexpr D3D12_CULL_MODE convert_dx(CullMode value) noexcept
+{
     return static_cast<D3D12_CULL_MODE>(value);
 }
-inline constexpr BOOL convert_dx(WindingOrder value) noexcept {
+inline constexpr BOOL convert_dx(WindingOrder value) noexcept
+{
     return static_cast<BOOL>(value);
 }
-inline constexpr uint32_t convert_dx(SampleRate value) noexcept {
+inline constexpr uint32_t convert_dx(SampleRate value) noexcept
+{
     return static_cast<uint32_t>(value);
 }
-inline constexpr D3D12_COMPARISON_FUNC convert_dx(Compare value) noexcept {
+inline constexpr D3D12_COMPARISON_FUNC convert_dx(Compare value) noexcept
+{
     return static_cast<D3D12_COMPARISON_FUNC>(value);
 }
-inline constexpr D3D12_STENCIL_OP convert_dx(StencilOp value) noexcept {
+inline constexpr D3D12_STENCIL_OP convert_dx(StencilOp value) noexcept
+{
     return static_cast<D3D12_STENCIL_OP>(value);
 }
-inline constexpr D3D12_BLEND convert_dx(BlendFactor value) noexcept {
+inline constexpr D3D12_BLEND convert_dx(BlendFactor value) noexcept
+{
     return static_cast<D3D12_BLEND>(value);
 }
-inline constexpr D3D12_BLEND_OP convert_dx(BlendOp value) noexcept {
+inline constexpr D3D12_BLEND_OP convert_dx(BlendOp value) noexcept
+{
     return static_cast<D3D12_BLEND_OP>(value);
 }
-inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept {
+inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept
+{
     return static_cast<D3D12_LOGIC_OP>(value);
 }
-inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept {
+inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
+{
     D3D12_BARRIER_SYNC output = {};
-    if(value & BarrierSync::All) output |= D3D12_BARRIER_SYNC_ALL;
-    if(value & BarrierSync::Draw) output |= D3D12_BARRIER_SYNC_DRAW;
-    if(value & BarrierSync::IndexInput) output |= D3D12_BARRIER_SYNC_INDEX_INPUT;
-    if(value & BarrierSync::VertexShading) output |= D3D12_BARRIER_SYNC_VERTEX_SHADING;
-    if(value & BarrierSync::PixelShading) output |= D3D12_BARRIER_SYNC_PIXEL_SHADING;
-    if(value & BarrierSync::DepthStencil) output |= D3D12_BARRIER_SYNC_DEPTH_STENCIL;
-    if(value & BarrierSync::RenderTarget) output |= D3D12_BARRIER_SYNC_RENDER_TARGET;
-    if(value & BarrierSync::Compute) output |= D3D12_BARRIER_SYNC_COMPUTE_SHADING;
-    if(value & BarrierSync::Raytracing) output |= D3D12_BARRIER_SYNC_RAYTRACING;
-    if(value & BarrierSync::Copy) output |= D3D12_BARRIER_SYNC_COPY;
-    if(value & BarrierSync::Resolve) output |= D3D12_BARRIER_SYNC_RESOLVE;
-    if(value & BarrierSync::ExecuteIndirect) output |= D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
-    if(value & BarrierSync::AllShading) output |= D3D12_BARRIER_SYNC_ALL_SHADING;
-    if(value & BarrierSync::NonPixelShading) output |= D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
-    if(value & BarrierSync::ClearUAV) output |= D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW;
-    if(value & BarrierSync::VideoDecode) output |= D3D12_BARRIER_SYNC_VIDEO_DECODE;
-    if(value & BarrierSync::VideoEncode) output |= D3D12_BARRIER_SYNC_VIDEO_ENCODE;
-    if(value & BarrierSync::BuildRTAS) output |= D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE;
-    if(value & BarrierSync::CopyRTAS) output |= D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE;
+    if (value & BarrierSync::All)
+        output |= D3D12_BARRIER_SYNC_ALL;
+    if (value & BarrierSync::Draw)
+        output |= D3D12_BARRIER_SYNC_DRAW;
+    if (value & BarrierSync::IndexInput)
+        output |= D3D12_BARRIER_SYNC_INDEX_INPUT;
+    if (value & BarrierSync::VertexShading)
+        output |= D3D12_BARRIER_SYNC_VERTEX_SHADING;
+    if (value & BarrierSync::PixelShading)
+        output |= D3D12_BARRIER_SYNC_PIXEL_SHADING;
+    if (value & BarrierSync::DepthStencil)
+        output |= D3D12_BARRIER_SYNC_DEPTH_STENCIL;
+    if (value & BarrierSync::RenderTarget)
+        output |= D3D12_BARRIER_SYNC_RENDER_TARGET;
+    if (value & BarrierSync::Compute)
+        output |= D3D12_BARRIER_SYNC_COMPUTE_SHADING;
+    if (value & BarrierSync::Raytracing)
+        output |= D3D12_BARRIER_SYNC_RAYTRACING;
+    if (value & BarrierSync::Copy)
+        output |= D3D12_BARRIER_SYNC_COPY;
+    if (value & BarrierSync::Resolve)
+        output |= D3D12_BARRIER_SYNC_RESOLVE;
+    if (value & BarrierSync::ExecuteIndirect)
+        output |= D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
+    if (value & BarrierSync::AllShading)
+        output |= D3D12_BARRIER_SYNC_ALL_SHADING;
+    if (value & BarrierSync::NonPixelShading)
+        output |= D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
+    if (value & BarrierSync::ClearUAV)
+        output |= D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW;
+    if (value & BarrierSync::VideoDecode)
+        output |= D3D12_BARRIER_SYNC_VIDEO_DECODE;
+    if (value & BarrierSync::VideoEncode)
+        output |= D3D12_BARRIER_SYNC_VIDEO_ENCODE;
+    if (value & BarrierSync::BuildRTAS)
+        output |= D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE;
+    if (value & BarrierSync::CopyRTAS)
+        output |= D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE;
     return output;
 }
-inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept {
+inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
+{
     D3D12_BARRIER_ACCESS output = {};
-    if(value & ResourceAccess::VertexBuffer) output |= D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
-    if(value & ResourceAccess::ConstantBuffer) output |= D3D12_BARRIER_ACCESS_CONSTANT_BUFFER;
-    if(value & ResourceAccess::IndexBuffer) output |= D3D12_BARRIER_ACCESS_INDEX_BUFFER;
-    if(value & ResourceAccess::RenderTarget) output |= D3D12_BARRIER_ACCESS_RENDER_TARGET;
-    if(value & ResourceAccess::UnorderedAccess) output |= D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
-    if(value & ResourceAccess::DepthWrite) output |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
-    if(value & ResourceAccess::DepthRead) output |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
-    if(value & ResourceAccess::ShaderResource) output |= D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
-    if(value & ResourceAccess::StreamOutput) output |= D3D12_BARRIER_ACCESS_STREAM_OUTPUT;
-    if(value & ResourceAccess::IndirectArgument) output |= D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
-    if(value & ResourceAccess::CopyDest) output |= D3D12_BARRIER_ACCESS_COPY_DEST;
-    if(value & ResourceAccess::CopySource) output |= D3D12_BARRIER_ACCESS_COPY_SOURCE;
-    if(value & ResourceAccess::ConditionalRendering) output |= D3D12_BARRIER_ACCESS_PREDICATION;
-    if(value & ResourceAccess::AccelerationStrucureRead) output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
-    if(value & ResourceAccess::AccelerationStrucureWrite) output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
-    if(value & ResourceAccess::ShadingRate) output |= D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE;
-    if(value & ResourceAccess::VideoDecodeRead) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
-    if(value & ResourceAccess::VideoDecodeWrite) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
-    if(value & ResourceAccess::Present) output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
-    if(value & ResourceAccess::ResolveDest) output |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
-    if(value & ResourceAccess::ResolveSource) output |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
-    if(value & ResourceAccess::NoAccess) output |= D3D12_BARRIER_ACCESS_NO_ACCESS;
+    if (value & ResourceAccess::VertexBuffer)
+        output |= D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
+    if (value & ResourceAccess::ConstantBuffer)
+        output |= D3D12_BARRIER_ACCESS_CONSTANT_BUFFER;
+    if (value & ResourceAccess::IndexBuffer)
+        output |= D3D12_BARRIER_ACCESS_INDEX_BUFFER;
+    if (value & ResourceAccess::RenderTarget)
+        output |= D3D12_BARRIER_ACCESS_RENDER_TARGET;
+    if (value & ResourceAccess::UnorderedAccess)
+        output |= D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
+    if (value & ResourceAccess::DepthWrite)
+        output |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
+    if (value & ResourceAccess::DepthRead)
+        output |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
+    if (value & ResourceAccess::ShaderResource)
+        output |= D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
+    if (value & ResourceAccess::StreamOutput)
+        output |= D3D12_BARRIER_ACCESS_STREAM_OUTPUT;
+    if (value & ResourceAccess::IndirectArgument)
+        output |= D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
+    if (value & ResourceAccess::CopyDest)
+        output |= D3D12_BARRIER_ACCESS_COPY_DEST;
+    if (value & ResourceAccess::CopySource)
+        output |= D3D12_BARRIER_ACCESS_COPY_SOURCE;
+    if (value & ResourceAccess::ConditionalRendering)
+        output |= D3D12_BARRIER_ACCESS_PREDICATION;
+    if (value & ResourceAccess::AccelerationStrucureRead)
+        output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
+    if (value & ResourceAccess::AccelerationStrucureWrite)
+        output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
+    if (value & ResourceAccess::ShadingRate)
+        output |= D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE;
+    if (value & ResourceAccess::VideoDecodeRead)
+        output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
+    if (value & ResourceAccess::VideoDecodeWrite)
+        output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
+    if (value & ResourceAccess::Present)
+        output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
+    if (value & ResourceAccess::ResolveDest)
+        output |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
+    if (value & ResourceAccess::ResolveSource)
+        output |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
+    if (value & ResourceAccess::NoAccess)
+        output |= D3D12_BARRIER_ACCESS_NO_ACCESS;
     return output;
 }
-inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept {
-    switch(value) {
+inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case TextureState::Undefined:
@@ -186,20 +243,26 @@ inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept {
         return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
     }
 }
-inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexcept {
+inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexcept
+{
     D3D12_RENDER_PASS_FLAGS output = {};
-    if(value & RenderPassFlags::Suspending) output |= D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS;
-    if(value & RenderPassFlags::Resuming) output |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
+    if (value & RenderPassFlags::Suspending)
+        output |= D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS;
+    if (value & RenderPassFlags::Resuming)
+        output |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
     return output;
 }
-inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(DescriptorHeapType value) noexcept {
+inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(DescriptorHeapType value) noexcept
+{
     return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
 }
-inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(DescriptorMemory value) noexcept {
+inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(DescriptorMemory value) noexcept
+{
     return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
 }
-inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept {
-    switch(value) {
+inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case LoadOperation::Load:
@@ -210,8 +273,9 @@ inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperatio
         return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
     }
 }
-inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation value) noexcept {
-    switch(value) {
+inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case StoreOperation::Store:
@@ -222,8 +286,9 @@ inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation 
         return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
     }
 }
-inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noexcept {
-    switch(value) {
+inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case PrimitiveTopology::PointList:
@@ -248,8 +313,9 @@ inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noex
         return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
     }
 }
-inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) noexcept {
-    switch(value) {
+inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case TopologyType::Point:
@@ -262,21 +328,30 @@ inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) no
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     }
 }
-inline constexpr uint32_t convert_dx(SampleCount value) noexcept {
+inline constexpr uint32_t convert_dx(SampleCount value) noexcept
+{
     return static_cast<uint32_t>(value);
 }
-inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept {
+inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
+{
     D3D12_RESOURCE_FLAGS output = {};
-    if(value & TextureUsage::RenderTarget) output |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-    if(value & TextureUsage::DepthStencil) output |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-    if(value & TextureUsage::CopySrc) output |= D3D12_RESOURCE_FLAG_NONE;
-    if(value & TextureUsage::CopyDst) output |= D3D12_RESOURCE_FLAG_NONE;
-    if(value & TextureUsage::ShaderResource) output |= D3D12_RESOURCE_FLAG_NONE;
-    if(value & TextureUsage::UnorderedAccess) output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    if (value & TextureUsage::RenderTarget)
+        output |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    if (value & TextureUsage::DepthStencil)
+        output |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    if (value & TextureUsage::CopySrc)
+        output |= D3D12_RESOURCE_FLAG_NONE;
+    if (value & TextureUsage::CopyDst)
+        output |= D3D12_RESOURCE_FLAG_NONE;
+    if (value & TextureUsage::ShaderResource)
+        output |= D3D12_RESOURCE_FLAG_NONE;
+    if (value & TextureUsage::UnorderedAccess)
+        output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     return output;
 }
-inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept {
-    switch(value) {
+inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case Filter::Point:
@@ -285,8 +360,9 @@ inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept {
         return D3D12_FILTER_TYPE_LINEAR;
     }
 }
-inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexcept {
-    switch(value) {
+inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case AddressMode::Repeat:
@@ -301,8 +377,9 @@ inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexce
         return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
     }
 }
-inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept {
-    switch(value) {
+inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case TextureViewType::Texture1D:
@@ -325,7 +402,8 @@ inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept 
         return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
     }
 }
-inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle value) noexcept {
+inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle value) noexcept
+{
     return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(value);
 }
-}
+} // namespace wis

@@ -38,7 +38,7 @@ struct VKRenderPassRenderTargetDesc {
     wis::VKRenderTargetView target;
     wis::LoadOperation load_op = wis::LoadOperation::Load;
     wis::StoreOperation store_op = wis::StoreOperation::Store;
-    std::array<float, 4> clear_value {};
+    std::array<float, 4> clear_value{};
 };
 
 struct VKRenderPassDesc {
@@ -53,8 +53,9 @@ struct VKVertexBufferBinding {
     uint32_t stride;
 };
 
-inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept {
-    switch(value) {
+inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept
+{
+    switch (value) {
     default:
         return VK_SHADER_STAGE_ALL;
     case ShaderStages::All:
@@ -75,8 +76,9 @@ inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept {
         return VK_SHADER_STAGE_MESH_BIT_NV;
     }
 }
-inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept {
-    switch(value) {
+inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case DescriptorType::ShaderResource:
@@ -89,8 +91,9 @@ inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept {
         return VK_DESCRIPTOR_TYPE_SAMPLER;
     }
 }
-inline constexpr VkFormat convert_vk(DataFormat value) noexcept {
-    switch(value) {
+inline constexpr VkFormat convert_vk(DataFormat value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case DataFormat::RGBA32Float:
@@ -231,8 +234,9 @@ inline constexpr VkFormat convert_vk(DataFormat value) noexcept {
         return VK_FORMAT_BC7_SRGB_BLOCK;
     }
 }
-inline constexpr VkPolygonMode convert_vk(FillMode value) noexcept {
-    switch(value) {
+inline constexpr VkPolygonMode convert_vk(FillMode value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case FillMode::Lines:
@@ -241,8 +245,9 @@ inline constexpr VkPolygonMode convert_vk(FillMode value) noexcept {
         return VK_POLYGON_MODE_FILL;
     }
 }
-inline constexpr VkCullModeFlags convert_vk(CullMode value) noexcept {
-    switch(value) {
+inline constexpr VkCullModeFlags convert_vk(CullMode value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case CullMode::None:
@@ -253,8 +258,9 @@ inline constexpr VkCullModeFlags convert_vk(CullMode value) noexcept {
         return VK_CULL_MODE_BACK_BIT;
     }
 }
-inline constexpr VkFrontFace convert_vk(WindingOrder value) noexcept {
-    switch(value) {
+inline constexpr VkFrontFace convert_vk(WindingOrder value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case WindingOrder::Clockwise:
@@ -263,8 +269,9 @@ inline constexpr VkFrontFace convert_vk(WindingOrder value) noexcept {
         return VK_FRONT_FACE_COUNTER_CLOCKWISE;
     }
 }
-inline constexpr VkSampleCountFlagBits convert_vk(SampleRate value) noexcept {
-    switch(value) {
+inline constexpr VkSampleCountFlagBits convert_vk(SampleRate value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case SampleRate::S1:
@@ -279,8 +286,9 @@ inline constexpr VkSampleCountFlagBits convert_vk(SampleRate value) noexcept {
         return VK_SAMPLE_COUNT_16_BIT;
     }
 }
-inline constexpr VkCompareOp convert_vk(Compare value) noexcept {
-    switch(value) {
+inline constexpr VkCompareOp convert_vk(Compare value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case Compare::None:
@@ -303,8 +311,9 @@ inline constexpr VkCompareOp convert_vk(Compare value) noexcept {
         return VK_COMPARE_OP_ALWAYS;
     }
 }
-inline constexpr VkStencilOp convert_vk(StencilOp value) noexcept {
-    switch(value) {
+inline constexpr VkStencilOp convert_vk(StencilOp value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case StencilOp::Keep:
@@ -325,8 +334,9 @@ inline constexpr VkStencilOp convert_vk(StencilOp value) noexcept {
         return VK_STENCIL_OP_DECREMENT_AND_WRAP;
     }
 }
-inline constexpr VkBlendFactor convert_vk(BlendFactor value) noexcept {
-    switch(value) {
+inline constexpr VkBlendFactor convert_vk(BlendFactor value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case BlendFactor::Zero:
@@ -365,8 +375,9 @@ inline constexpr VkBlendFactor convert_vk(BlendFactor value) noexcept {
         return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
     }
 }
-inline constexpr VkBlendOp convert_vk(BlendOp value) noexcept {
-    switch(value) {
+inline constexpr VkBlendOp convert_vk(BlendOp value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case BlendOp::Add:
@@ -381,8 +392,9 @@ inline constexpr VkBlendOp convert_vk(BlendOp value) noexcept {
         return VK_BLEND_OP_MAX;
     }
 }
-inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept {
-    switch(value) {
+inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case LogicOp::Clear:
@@ -419,57 +431,101 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept {
         return VK_LOGIC_OP_OR_INVERTED;
     }
 }
-inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept {
+inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept
+{
     VkPipelineStageFlags2 output = {};
-    if(value & BarrierSync::All) output |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-    if(value & BarrierSync::Draw) output |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT|VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT|VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-    if(value & BarrierSync::IndexInput) output |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
-    if(value & BarrierSync::VertexShading) output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
-    if(value & BarrierSync::PixelShading) output |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
-    if(value & BarrierSync::DepthStencil) output |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
-    if(value & BarrierSync::RenderTarget) output |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-    if(value & BarrierSync::Compute) output |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    if(value & BarrierSync::Raytracing) output |= VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR;
-    if(value & BarrierSync::Copy) output |= VK_PIPELINE_STAGE_2_COPY_BIT;
-    if(value & BarrierSync::Resolve) output |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    if(value & BarrierSync::ExecuteIndirect) output |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    if(value & BarrierSync::AllShading) output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    if(value & BarrierSync::NonPixelShading) output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    if(value & BarrierSync::ClearUAV) output |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    if(value & BarrierSync::VideoDecode) output |= VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR;
-    if(value & BarrierSync::VideoEncode) output |= VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR;
-    if(value & BarrierSync::BuildRTAS) output |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
-    if(value & BarrierSync::CopyRTAS) output |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
+    if (value & BarrierSync::All)
+        output |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    if (value & BarrierSync::Draw)
+        output |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    if (value & BarrierSync::IndexInput)
+        output |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
+    if (value & BarrierSync::VertexShading)
+        output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
+    if (value & BarrierSync::PixelShading)
+        output |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    if (value & BarrierSync::DepthStencil)
+        output |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+    if (value & BarrierSync::RenderTarget)
+        output |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    if (value & BarrierSync::Compute)
+        output |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if (value & BarrierSync::Raytracing)
+        output |= VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR;
+    if (value & BarrierSync::Copy)
+        output |= VK_PIPELINE_STAGE_2_COPY_BIT;
+    if (value & BarrierSync::Resolve)
+        output |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if (value & BarrierSync::ExecuteIndirect)
+        output |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if (value & BarrierSync::AllShading)
+        output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if (value & BarrierSync::NonPixelShading)
+        output |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if (value & BarrierSync::ClearUAV)
+        output |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    if (value & BarrierSync::VideoDecode)
+        output |= VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR;
+    if (value & BarrierSync::VideoEncode)
+        output |= VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR;
+    if (value & BarrierSync::BuildRTAS)
+        output |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+    if (value & BarrierSync::CopyRTAS)
+        output |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
     return output;
 }
-inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept {
+inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
+{
     VkAccessFlags2 output = {};
-    if(value & ResourceAccess::VertexBuffer) output |= VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
-    if(value & ResourceAccess::ConstantBuffer) output |= VK_ACCESS_2_UNIFORM_READ_BIT;
-    if(value & ResourceAccess::IndexBuffer) output |= VK_ACCESS_2_INDEX_READ_BIT;
-    if(value & ResourceAccess::RenderTarget) output |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
-    if(value & ResourceAccess::UnorderedAccess) output |= VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT;
-    if(value & ResourceAccess::DepthWrite) output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    if(value & ResourceAccess::DepthRead) output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-    if(value & ResourceAccess::ShaderResource) output |= VK_ACCESS_2_SHADER_READ_BIT;
-    if(value & ResourceAccess::StreamOutput) output |= VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
-    if(value & ResourceAccess::IndirectArgument) output |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
-    if(value & ResourceAccess::CopyDest) output |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
-    if(value & ResourceAccess::CopySource) output |= VK_ACCESS_2_TRANSFER_READ_BIT;
-    if(value & ResourceAccess::ConditionalRendering) output |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
-    if(value & ResourceAccess::AccelerationStrucureRead) output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
-    if(value & ResourceAccess::AccelerationStrucureWrite) output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
-    if(value & ResourceAccess::ShadingRate) output |= VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
-    if(value & ResourceAccess::VideoDecodeRead) output |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
-    if(value & ResourceAccess::VideoDecodeWrite) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
-    if(value & ResourceAccess::Present) output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
-    if(value & ResourceAccess::ResolveDest) output |= VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT;
-    if(value & ResourceAccess::ResolveSource) output |= VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
-    if(value & ResourceAccess::NoAccess) output |= VK_ACCESS_2_NONE;
+    if (value & ResourceAccess::VertexBuffer)
+        output |= VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+    if (value & ResourceAccess::ConstantBuffer)
+        output |= VK_ACCESS_2_UNIFORM_READ_BIT;
+    if (value & ResourceAccess::IndexBuffer)
+        output |= VK_ACCESS_2_INDEX_READ_BIT;
+    if (value & ResourceAccess::RenderTarget)
+        output |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+    if (value & ResourceAccess::UnorderedAccess)
+        output |= VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT;
+    if (value & ResourceAccess::DepthWrite)
+        output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    if (value & ResourceAccess::DepthRead)
+        output |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+    if (value & ResourceAccess::ShaderResource)
+        output |= VK_ACCESS_2_SHADER_READ_BIT;
+    if (value & ResourceAccess::StreamOutput)
+        output |= VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
+    if (value & ResourceAccess::IndirectArgument)
+        output |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
+    if (value & ResourceAccess::CopyDest)
+        output |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    if (value & ResourceAccess::CopySource)
+        output |= VK_ACCESS_2_TRANSFER_READ_BIT;
+    if (value & ResourceAccess::ConditionalRendering)
+        output |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
+    if (value & ResourceAccess::AccelerationStrucureRead)
+        output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+    if (value & ResourceAccess::AccelerationStrucureWrite)
+        output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+    if (value & ResourceAccess::ShadingRate)
+        output |= VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
+    if (value & ResourceAccess::VideoDecodeRead)
+        output |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
+    if (value & ResourceAccess::VideoDecodeWrite)
+        output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+    if (value & ResourceAccess::Present)
+        output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
+    if (value & ResourceAccess::ResolveDest)
+        output |= VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT;
+    if (value & ResourceAccess::ResolveSource)
+        output |= VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
+    if (value & ResourceAccess::NoAccess)
+        output |= VK_ACCESS_2_NONE;
     return output;
 }
-inline constexpr VkImageLayout convert_vk(TextureState value) noexcept {
-    switch(value) {
+inline constexpr VkImageLayout convert_vk(TextureState value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case TextureState::Undefined:
@@ -502,14 +558,18 @@ inline constexpr VkImageLayout convert_vk(TextureState value) noexcept {
         return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
     }
 }
-inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept {
+inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept
+{
     VkRenderingFlags output = {};
-    if(value & RenderPassFlags::Suspending) output |= VK_RENDERING_SUSPENDING_BIT;
-    if(value & RenderPassFlags::Resuming) output |= VK_RENDERING_RESUMING_BIT;
+    if (value & RenderPassFlags::Suspending)
+        output |= VK_RENDERING_SUSPENDING_BIT;
+    if (value & RenderPassFlags::Resuming)
+        output |= VK_RENDERING_RESUMING_BIT;
     return output;
 }
-inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept {
-    switch(value) {
+inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case LoadOperation::Load:
@@ -520,8 +580,9 @@ inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept {
         return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     }
 }
-inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept {
-    switch(value) {
+inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case StoreOperation::Store:
@@ -532,8 +593,9 @@ inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept {
         return VK_ATTACHMENT_STORE_OP_STORE;
     }
 }
-inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcept {
-    switch(value) {
+inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case PrimitiveTopology::PointList:
@@ -558,8 +620,9 @@ inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcep
         return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
     }
 }
-inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept {
-    switch(value) {
+inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case TopologyType::Point:
@@ -572,8 +635,9 @@ inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept {
         return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
     }
 }
-inline constexpr VkSampleCountFlagBits convert_vk(SampleCount value) noexcept {
-    switch(value) {
+inline constexpr VkSampleCountFlagBits convert_vk(SampleCount value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case SampleCount::S1:
@@ -592,18 +656,26 @@ inline constexpr VkSampleCountFlagBits convert_vk(SampleCount value) noexcept {
         return VK_SAMPLE_COUNT_64_BIT;
     }
 }
-inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept {
+inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
+{
     VkImageUsageFlags output = {};
-    if(value & TextureUsage::RenderTarget) output |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    if(value & TextureUsage::DepthStencil) output |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    if(value & TextureUsage::CopySrc) output |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    if(value & TextureUsage::CopyDst) output |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    if(value & TextureUsage::ShaderResource) output |= VK_IMAGE_USAGE_SAMPLED_BIT;
-    if(value & TextureUsage::UnorderedAccess) output |= VK_IMAGE_USAGE_STORAGE_BIT;
+    if (value & TextureUsage::RenderTarget)
+        output |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if (value & TextureUsage::DepthStencil)
+        output |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    if (value & TextureUsage::CopySrc)
+        output |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    if (value & TextureUsage::CopyDst)
+        output |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if (value & TextureUsage::ShaderResource)
+        output |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    if (value & TextureUsage::UnorderedAccess)
+        output |= VK_IMAGE_USAGE_STORAGE_BIT;
     return output;
 }
-inline constexpr VkFilter convert_vk(Filter value) noexcept {
-    switch(value) {
+inline constexpr VkFilter convert_vk(Filter value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case Filter::Point:
@@ -612,8 +684,9 @@ inline constexpr VkFilter convert_vk(Filter value) noexcept {
         return VK_FILTER_LINEAR;
     }
 }
-inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept {
-    switch(value) {
+inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case AddressMode::Repeat:
@@ -628,8 +701,9 @@ inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept {
         return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
     }
 }
-inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept {
-    switch(value) {
+inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case TextureViewType::Texture1D:
@@ -652,8 +726,9 @@ inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept {
         return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
     }
 }
-inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept {
-    switch(value) {
+inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept
+{
+    switch (value) {
     default:
         return {};
     case ComponentSwizzle::Red:
@@ -670,4 +745,4 @@ inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept 
         return VK_COMPONENT_SWIZZLE_ONE;
     }
 }
-}
+} // namespace wis
