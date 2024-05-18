@@ -1493,128 +1493,37 @@
   </types>
 
   <functions>
+    <func for="Factory" name="Destroy"/>
+    <func for="Adapter" name="Destroy"/>
+    <func for="Device" name="Destroy"/>
+    <func for="Fence" name="Destroy"/>
+    <func for="ResourceAllocator" name="Destroy"/>
+    <func for="RootSignature" name="Destroy"/>
+    <func for="CommandQueue" name="Destroy"/>
+    <func for="Shader" name="Destroy"/>
+    <func for="PipelineState" name="Destroy"/>
+    <func for="CommandList" name="Destroy"/>
+    <func for="Buffer" name="Destroy"/>
+    <func for="Texture" name="Destroy"/>
+    <func for="SwapChain" name="Destroy"/>
+    <func for="DebugMessenger" name="Destroy"/>
+    <func for="RenderTarget" name="Destroy"/>
+    <func for="DescriptorBuffer" name="Destroy"/>
+    <func for="Sampler" name="Destroy"/>
+    <func for="ShaderResource" name="Destroy"/>
 
-    <!--Free functions-->
+    <!-- Free Functions -->
     <func name="CreateFactory">
       <ret type="Result" name="result"/>
       <ret type="Factory" name="factory"/>
       <arg type="bool" name="debug_layer" default="false"/>
-      <arg type="DebugCallback" name="callback" default="nullptr"/>
-      <arg type="void" name="user_data" mod="ptr"/>
     </func>
     <func name="CreateDevice">
       <ret type="Result" name="result"/>
       <ret type="Device" name="device"/>
       <arg type="Adapter" name="adapter"/>
     </func>
-
-    <!--Factory-->
-    <func for="Factory" name="GetAdapter">
-      <ret type="Result" name="result"/>
-      <ret type="Adapter" name="adapter"/>
-      <arg type="u32" name="index"/>
-      <arg type="AdapterPreference" name="preference" default="Performance"/>
-    </func>
-    <func for="Factory" name="Destroy"/>
-    <func for="Adapter" name="GetDesc">
-      <ret type="Result" name="result"/>
-      <arg type="AdapterDesc" mod="ptr" name="desc"/>
-    </func>
-
-    <!--Device-->
-    <func for="Device" name="Destroy"/>
-    <func for="Device" name="CreateFence">
-      <ret type="Result" name="result"/>
-      <ret type="Fence" name="fence"/>
-      <arg type="u64" name="initial_value" default="0"/>
-    </func>
-    <func for="Device" name="CreateRootSignature">
-      <ret type="Result" name="result"/>
-      <ret type="RootSignature" name="root_signature"/>
-      <arg type="RootConstant" name="constants" default="nullptr" mod="ptr"/>
-      <arg type="u32" name="constants_size" default="0"/>
-    </func>
-    <func for="Device" name="CreateAllocator">
-      <ret type="Result" name="result"/>
-      <ret type="ResourceAllocator" name="allocator"/>
-    </func>
-    <func for="Device" name="CreateCommandQueue">
-      <ret type="Result" name="result"/>
-      <ret type="CommandQueue" name="queue"/>
-      <arg type="QueueType" name="type"/>
-      <arg type="QueuePriority" name="priority" default="Common"/>
-    </func>
-    <func for="Device" name="CreateShader">
-      <ret type="Result" name="result"/>
-      <ret type="Shader" name="shader"/>
-      <arg type="void" name="data" mod="ptr"/>
-      <arg type="u32" name="size_bytes"/>
-    </func>
-    <func for="Device" name="WaitForMultipleFences">
-      <ret type="Result" name="result"/>
-      <arg type="FenceView" mod="ptr" name="fences"/>
-      <arg type="u64" mod="ptr" name="values"/>
-      <arg type="u32" name="count"/>
-      <arg type="MutiWaitFlags" name="wait_all" default="All"/>
-      <arg type="u64" name="timeout" default="18446744073709551615"/>
-    </func>
-    <func for="Device" name="CreatePipelineState">
-      <ret type="Result" name="result"/>
-      <ret type="PipelineState" name="pipeline_state"/>
-      <arg type="GraphicsPipelineDesc" name="desc" mod="ptr"/>
-    </func>
-    <func for="Device" name="CreateCommandList">
-      <ret type="Result" name="result"/>
-      <ret type="CommandList" name="command_list"/>
-      <arg type="QueueType" name="type"/>
-    </func>
-
-    <!--RootSignature-->
-    <func for="RootSignature" name="Destroy"/>
-
-    <!--Fence-->
-    <func for="Fence" name="Destroy"/>
-    <func for="Fence" name="GetCompletedValue">
-      <ret type="u64" name="value"/>
-    </func>
-    <func for="Fence" name="Wait">
-      <ret type="Result" name="result"/>
-      <arg type="u64" name="value"/>
-      <arg type="u64" name="timeout_ns" default="18446744073709551615"/>
-    </func>
-    <func for="Fence" name="Signal">
-      <ret type="Result" name="result"/>
-      <arg type="u64" name="value"/>
-    </func>
-
-    <!--ResourceAllocator-->
-    <func for="ResourceAllocator" name="Destroy"/>
-
-    <!--CommandQueue-->
-    <func for="CommandQueue" name="Destroy"/>
-    <func for="CommandQueue" name="SignalQueue">
-      <ret type="Result" name="result"/>
-      <arg type="FenceView" name="fence"/>
-      <arg type="u64" name="value"/>
-    </func>
-    <func for="CommandQueue" name="ExecuteCommandLists">
-      <arg type="CommandListView" name="lists" mod="ptr"/>
-      <arg type="u32" name="count"/>
-    </func>
-
-    <!--Shader-->
-    <func for="Shader" name="Destroy"/>
-
-    <!--PipelineState-->
-    <func for="PipelineState" name="Destroy"/>
-
-    <!--CommandList-->
-    <func for="CommandList" name="Destroy"/>
-
-    <!--Buffer-->
-    <func for="Buffer" name="Destroy"/>
-
-    <!--Swapchain-->
-    <func for="Swapchain" name="Destroy"/>
+    
+    
   </functions>
 </registry>

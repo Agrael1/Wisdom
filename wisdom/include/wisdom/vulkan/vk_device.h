@@ -173,10 +173,6 @@ private:
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
 VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
-
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDeviceEx(wis::VKAdapter in_adapter, std::span<const char*> add_extensions) noexcept;
-
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

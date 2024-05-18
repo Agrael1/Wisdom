@@ -26,7 +26,8 @@ Generator::Generator(XMLDocument& doc)
 int Generator::GenerateCAPI()
 {
     using namespace std::chrono;
-    std::string output = "//GENERATED\n#pragma once\n#include <stdint.h>\n#include <stdbool.h>\n\n";
+    std::string output = "//GENERATED\n#pragma once\n#include \"wisdom_exports.h\"\n#include <stdint.h>\n#include <stdbool.h>\n\n";
+    output += "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n";
     output += GenerateCTypes();
 
     output += "//"
@@ -52,8 +53,10 @@ int Generator::GenerateCAPI()
         output += f;
     }
 
+    output += "#ifdef __cplusplus\n}\n#endif\n";
+
     // Function implementations
-    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom.hpp>\n\n";
+    std::string output_cpp = "#include \"wisdom.h\"\n#include <wisdom/wisdom_dx12.h>\n#include <wisdom/wisdom_vk.h>\n\n";
     for (auto& f : function_impl) {
         output_cpp += f;
     }
@@ -110,6 +113,16 @@ struct ResultValue{
     constexpr ResultValue(Result status)noexcept :status(status){}
     constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)){}
 };
+
+template<uint32_t s, typename RetTy>
+constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
+{
+    if constexpr (s == 0)
+        return std::forward<Result>(rv.status);
+    else
+        return std::forward<RetTy>(rv.value);
+}
+
 )";
     output_api += "}\n";
 
@@ -185,8 +198,8 @@ std::string Generator::GenerateCTypes()
     for (auto& s : structs) {
         c_types += MakeCStruct(*s);
     }
-    for (auto& [name, v] : variant_map) {
-        c_types += MakeCVariant(v);
+    for (auto& v : variants) {
+        c_types += MakeCVariant(*v);
     }
     return c_types;
 }
@@ -659,12 +672,12 @@ std::string Generator::MakeCVariant(const WisVariant& s)
         if (!s.this_type.empty()) {
             auto this_name = GetCFullTypename(s.this_type, impl_tag);
             function_decls.emplace_back(
-                    wis::format("{} As{}({} self);\n", full_name, full_name, this_name));
+                    wis::format("WISDOM_API {} As{}({} self);\n", full_name, full_name, this_name));
             function_impl.emplace_back(
-                    wis::format("{} As{}({} self)\n{{\n    return "
-                                "reinterpret_cast<{}&>(static_cast<wis::{}>(reinterpret_cast<wis::{}&"
-                                ">(*self)));\n}}\n",
-                                full_name, full_name, this_name, full_name, full_name, this_name));
+                    wis::format("extern \"C\" {} As{}({} self)\n{{\n wis::{} xself = reinterpret_cast<wis::{}&"
+                                ">(*self);\n  return "
+                                "reinterpret_cast<{}&>(xself);\n}}\n",
+                                full_name, full_name, this_name, full_name, this_name, full_name));
         }
 
         auto st_decl = wis::format("struct {}{{\n", full_name);
@@ -878,7 +891,7 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
         }
 
         std::string st_decl =
-                wis::format("{} {}{}{}({})", return_t, impl, func.name == "Destroy" ? func.this_type : "",
+                wis::format("WISDOM_API {} {}{}{}({})", return_t, impl, func.name == "Destroy" ? func.this_type : "",
                             func.name, params);
 
         function_impl.emplace_back(MakeFunctionImpl(func, st_decl, impl));
@@ -893,7 +906,8 @@ std::string Generator::MakeFunctionDecl(const WisFunction& func)
 std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_view decl,
                                         std::string_view impl)
 {
-    std::string st_decl{ decl };
+    std::string st_decl{ "extern \"C\" " };
+    st_decl += decl;
     st_decl += "\n{\n";
     bool has_this = !func.this_type.empty();
 
@@ -910,7 +924,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
     std::string args_str;
     for (auto& a : func.parameters) {
         if (a.type_info == TypeInfo::Handle) {
-            args_str += wis::format("*reinterpret_cast<{}*>({}), ", GetCPPFullTypename(a.type), a.name);
+            args_str += wis::format("*reinterpret_cast<{}*>({}), ", GetCPPFullTypename(a.type, impl), a.name);
         } else if (a.type_info == TypeInfo::Regular || a.type_info == TypeInfo::String) {
             args_str += wis::format("{}, ", a.name);
         } else {
@@ -920,7 +934,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             }
 
             args_str +=
-                    wis::format("reinterpret_cast<{}{}>({}), ", GetCPPFullTypename(a.type), mod_post, a.name);
+                    wis::format("reinterpret_cast<{}{}>({}), ", GetCPPFullTypename(a.type, impl), mod_post, a.name);
         }
     }
     if (!args_str.empty() && args_str.back() == ' ') {
@@ -955,7 +969,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
             result == func.return_types.end() ? -1 : std::distance(func.return_types.begin(), result);
 
     if (result_idx >= 0)
-        st_decl += wis::format("    bool ok = std::get<{}>(ret).status == wis::Status::Success;\n",
+        st_decl += wis::format("    bool ok = wis::get<{}>(ret).status == wis::Status::Ok;\n",
                                result_idx);
 
     for (size_t i = 1; i < func.return_types.size(); i++) {
@@ -965,17 +979,17 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 
         if (p.type_info == TypeInfo::Handle)
             st_decl += result_idx < 0 ? wis ::format("    *out_{} = reinterpret_cast<{}>(new "
-                                                     "{}(std::move(std::get<{}>(ret))));\n",
+                                                     "{}(std::move(wis::get<{}>(ret))));\n",
                                                      p.opt_name, out_type, type, i)
                                       : wis::format("    *out_{} = ok ? reinterpret_cast<{}>(new "
-                                                    "{}(std::move(std::get<{}>(ret)))) : "
-                                                    "reinterpret_cast<{}>(nullptr);\n",
+                                                    "{}(std::move(wis::get<{}>(ret)))) : "
+                                                    "nullptr;\n",
                                                     p.opt_name, out_type, type, i, out_type);
         else
-            st_decl += wis::format("    if(ok) *out_{} = reinterpret_cast<{}&>(std::get<{}>(ret))",
+            st_decl += wis::format("    if(ok) *out_{} = reinterpret_cast<{}&>(wis::get<{}>(ret))",
                                    p.opt_name, out_type, i);
     }
-    return st_decl + wis::format("    return reinterpret_cast<{}&>(std::get<0>(ret));\n}}\n", GetCFullTypename(func.return_types[0].type));
+    return st_decl + wis::format("    return reinterpret_cast<{}&>(wis::get<0>(ret));\n}}\n", GetCFullTypename(func.return_types[0].type));
 }
 
 std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
