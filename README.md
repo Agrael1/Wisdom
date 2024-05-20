@@ -32,7 +32,7 @@ Supported platforms are:
 
 - Windows API (Win32) - DirectX 12 and Vulkan
 - Windows Store (UWP) - Microsoft Store certified applications. DirectX 12 only.
-- Linux (X11 and Wayland) - Vulkan only
+- Linux (XCB and Wayland) - Vulkan only
 
 # Build
 
@@ -55,8 +55,17 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 
 You may use FetchContent, provided by cmake, to download the library and use it in your project. The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it. Install script with NuGet and Vcpkg are coming next updates.
 
-To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::Wisdom)`. Alternatively if you wish for header only target, there is also `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::Headers)`.
+To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wisdom)`. Alternatively if you wish for header only target, there is also `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wis-header-only)`.
+There are also `wis::wisdom-dx12` and `wis::wisdom-vulkan` targets for explicit linking to the platform of choice and `wis::wisdom-x-headers` for header only version.
+Note: to use explicit targets you should also link against `wis::wisdom-platform` or `wis::wisdom-platform-headers` target, that supplies swapchain creation.
 
+
+The library can be installed or come as a package [TODO] for easy consumption.
+Implementation is determined based on libraries on the system, so it's not necessary to link against DirectX or Vulkan libraries.
+Targets are still the same, so you can use `wis::wisdom` or `wis::wis-header-only` for linking. Install interface also provides functions for dependency installation `wis_install_deps` and shader compilation `wis_compile_shader`.
+
+
+There is also `DXC_EXECUTABLE` which denotes default DXC compiler, wrapped with library.
 # System Requirements
 
 **Windows:**
@@ -69,7 +78,7 @@ Video card must support DirectX 12.0+ and Enchanced Barriers.
 
 for Vulkan:
 
-- Vulkan 1.3.2xx+
+- Vulkan 1.3.2xx+ on video card driver
 
 Tested on Windows with NVIDIA GeForce GTX 1070 and Linux with RTX A4000 with latest drivers.
 
@@ -95,11 +104,9 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 
 Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000.
 
-KDUils for the example need some packages to be installed:
-`sudo apt install libxkbcommon-dev libxcb-xkb-dev libxkbcommon-x11-dev wayland-scanner++ wayland-protocols`
+SDL platform example may need need some packages to be installed:
+`sudo apt install libx11-xcb-dev`
 
-Visit https://github.com/KDAB/KDUtils to see more details.
-Alternatively you can disable the example with `WISDOM_EXCLUDE_KDGUI=ON` option.
 
 **MacOS**
 
@@ -110,7 +117,7 @@ Alternatively you can disable the example with `WISDOM_EXCLUDE_KDGUI=ON` option.
 The project has Gitub projects enabled, so you can see the progress on the project.
 For the roadmap, the following features are planned:
 
-- [ ] SDL2 integration
+- [x] SDL2 integration
 - [ ] UWP example
 - [ ] Elaborate documentation
 - [ ] C API generation
