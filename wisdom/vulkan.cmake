@@ -33,6 +33,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/vulkan/impl/vk_swapchain.cpp"
 
 		DEFINITIONS
+			VK_ENABLE_BETA_EXTENSIONS=1
 			WISDOM_VULKAN=1
 			WISVK_NO_DEFAULT_DELETER=1
 		LIBS

@@ -39,7 +39,6 @@ if(WISDOM_BUILD_BINDINGS)
   add_subdirectory("bindings")
 endif()
 if(WISDOM_BUILD_EXAMPLES)
-  option(WISDOM_EXCLUDE_KDGUI "Exclude KDGui Example from build" OFF)
   add_subdirectory("examples")
 endif()
 

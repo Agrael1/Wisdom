@@ -42,27 +42,20 @@ else()
 
 endif()
 
-# KDAB KDUtils
-if(NOT WISDOM_WINDOWS_STORE AND NOT WISDOM_EXCLUDE_KDGUI)
-  set(BUILD_SHARED_LIBS OFF)
-  set(KDUTILS_BUILD_TESTS OFF)
+# SDL2
+find_package(SDL2 CONFIG)
 
-  find_package(KDUtils CONFIG QUIET)
-  if(NOT KDUtils_FOUND)
-    FetchContent_Declare(
-      KDUtils
-      GIT_REPOSITORY https://github.com/KDAB/KDUtils.git
-      GIT_TAG main)
-
-    set(SPDLOG_FMT_EXTERNAL_HO
-        ON
-        CACHE BOOL "" FORCE)
-    FetchContent_GetProperties(KDUtils)
-    if(NOT KDUtils_POPULATED)
-      FetchContent_Populate(KDUtils)
-      add_subdirectory(${kdutils_SOURCE_DIR} ${kdutils_BINARY_DIR}
-                       EXCLUDE_FROM_ALL)
-    endif()
+if(NOT SDL2_FOUND)
+  FetchContent_Declare(
+    SDL2
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-2.26.3
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE)
+  FetchContent_GetProperties(SDL2)
+  if(NOT SDL2_POPULATED)
+    FetchContent_Populate(SDL2)
+    add_subdirectory(${sdl2_SOURCE_DIR} ${sdl2_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
 endif()
 

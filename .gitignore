@@ -365,3 +365,7 @@ FodyWeavers.xsd
 /CMakeSettings.json
 *.idb
 .vscode/settings.json
+
+# Bindings
+**/*_exports.h
+
