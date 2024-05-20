@@ -1,5 +1,7 @@
 project(hello-triangle-sdl2)
 
+find_package(SDL2 QUIET)
+
 add_executable(${PROJECT_NAME} entry_main.cpp platform.cpp)
 
 wis_install_deps(${PROJECT_NAME})
@@ -12,7 +14,7 @@ endif()
 target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC PlatformExamplesShared
-  PRIVATE SDL2::SDL2-static)
+  PRIVATE SDL2::SDL2)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 

@@ -1,3 +1,4 @@
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <cstddef>
 #include <cstdio>
@@ -49,7 +50,7 @@ int main()
                 .queue = app.GetQueue(),
         });
 
-        if (swapchainResult.error != nullptr) {
+        if (swapchainResult.status != wis::Status::Ok) {
             fprintf(stderr, "failed to create swapchain: %s\n", swapchainResult.error);
             SDL_DestroyWindow(window);
             SDL_Quit();

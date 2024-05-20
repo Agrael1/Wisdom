@@ -1,6 +1,5 @@
 #include "platform.h"
 #include "util.h"
-#include <wisdom/generated/api/api.h>
 
 #include <SDL_syswm.h>
 #ifdef WISDOM_LINUX

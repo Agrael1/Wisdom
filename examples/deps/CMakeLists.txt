@@ -52,7 +52,11 @@ if(NOT SDL2_FOUND)
     GIT_TAG release-2.26.3
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE)
-  FetchContent_MakeAvailable(SDL2)
+  FetchContent_GetProperties(SDL2)
+  if(NOT SDL2_POPULATED)
+    FetchContent_Populate(SDL2)
+    add_subdirectory(${sdl2_SOURCE_DIR} ${sdl2_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
 endif()
 
 # fpng for PNG loading

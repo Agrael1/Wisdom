@@ -104,8 +104,8 @@ private:
             layers.emplace(i.layerName, i);
     }
 
-    std::unordered_map<std::string_view, VkExtensionProperties, wis::string_hash> extensions;
-    std::unordered_map<std::string_view, VkLayerProperties, wis::string_hash> layers;
+    std::unordered_map<std::string, VkExtensionProperties, wis::string_hash> extensions;
+    std::unordered_map<std::string, VkLayerProperties, wis::string_hash> layers;
 };
 
 } // namespace wis::detail
