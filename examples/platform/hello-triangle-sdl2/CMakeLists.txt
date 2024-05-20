@@ -1,10 +1,13 @@
 project(hello-triangle-sdl2)
 
-add_executable(${PROJECT_NAME} entry_main.cpp)
+add_executable(${PROJECT_NAME} entry_main.cpp platform.cpp)
 
 wis_install_deps(${PROJECT_NAME})
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/sdl.cmake)
+if(UNIX)
+    include(FindX11)
+    target_link_libraries(${PROJECT_NAME} PRIVATE X11::X11_xcb)
+endif()
 
 target_link_libraries(
   ${PROJECT_NAME}
