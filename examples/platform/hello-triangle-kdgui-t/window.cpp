@@ -33,7 +33,7 @@ public:
         KDGui::Window::resizeEvent(ev);
     }
     bool resized = false;
-    std::unique_ptr<wis::DX12FactoryExtension> ext; // Platform specific extension
+    std::unique_ptr<wis::FactoryExtension> ext; // Platform specific extension
     Platform platform = Platform::Win32;
 };
 

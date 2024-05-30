@@ -419,9 +419,9 @@ void Test::App::Frame()
 void Test::App::WaitForGPU()
 {
     const uint64_t vfence = fence_value;
-    queue.SignalQueue(fence, vfence);
+    std::ignore = queue.SignalQueue(fence, vfence);
     fence_value++;
-    fence.Wait(vfence);
+    std::ignore = fence.Wait(vfence);
 }
 
 void Test::App::CreateRootSignature()
