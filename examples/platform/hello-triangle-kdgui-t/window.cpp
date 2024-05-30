@@ -15,7 +15,6 @@
 #include <KDGui/platform/linux/xcb/linux_xcb_platform_window.h>
 #include <KDGui/platform/linux/wayland/linux_wayland_platform_window.h>
 #include <KDGui/platform/linux/wayland/linux_wayland_platform_integration.h>
-#include <wisdom/platform/linux.h>
 #endif
 #include "window.h"
 

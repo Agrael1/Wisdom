@@ -1,13 +1,11 @@
-#pragma once
+#ifndef WISDOM_WAYLAND_H
+#define WISDOM_WAYLAND_H
 #if defined(WISDOM_VULKAN)
 // TODO: Remove this when the implementation is complete
-#define VK_USE_PLATFORM_WAYLAND_KHR
-#include <vulkan/vulkan.h>
-#undef VK_USE_PLATFORM_WAYLAND_KHR
-
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <wisdom/vulkan/vk_factory.h>
+#include <vulkan/vulkan_wayland.h>
 
 namespace wis {
 namespace platform {
@@ -54,3 +52,4 @@ public:
 #include "wisdom_wayland.cpp"
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 #endif // WISDOM_LINUX
+#endif // WISDOM_WAYLAND_H

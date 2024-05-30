@@ -1,9 +1,7 @@
-#ifdef WISDOM_BUILD_BINARIES /* || defined(__INTELLISENSE__)*/
-#include <wisdom/wisdom_wayland.h>
-#else
-#pragma once
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
+#ifndef WISDOM_WAYLAND_CPP
+#define WISDOM_WAYLAND_CPP
 
+#include <wisdom/wisdom_wayland.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
 
@@ -29,3 +27,5 @@ wis::platform::WaylandExtension::CreateSwapchain(const wis::VKDevice& device, wi
     wis::SharedSurface surface_handle{ out_surface, instance, instance_table.vkDestroySurfaceKHR };
     return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
 }
+
+#endif // WISDOM_WAYLAND_CPP

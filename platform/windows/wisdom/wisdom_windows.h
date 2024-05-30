@@ -29,13 +29,10 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.h>
-#undef VK_USE_PLATFORM_WIN32_KHR
-
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
+#include <vulkan/vulkan_win32.h>
 
 namespace wis {
 namespace platform {

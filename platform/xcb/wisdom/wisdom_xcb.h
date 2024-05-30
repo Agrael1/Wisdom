@@ -1,13 +1,12 @@
-#pragma once
+#ifndef WISDOM_XCB_H
+#define WISDOM_XCB_H
 #if defined(WISDOM_VULKAN)
-// TODO: Remove this when the implementation is complete
-#define VK_USE_PLATFORM_XCB_KHR
-#include <vulkan/vulkan.h>
-#undef VK_USE_PLATFORM_XCB_KHR
-
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <wisdom/vulkan/vk_factory.h>
+
+#include <xcb/xcb.h>
+#include <vulkan/vulkan_xcb.h>
 
 namespace wis {
 namespace platform {
@@ -54,3 +53,4 @@ public:
 #include "wisdom_xcb.cpp"
 #endif // !WISDOM_PLATFORM_HEADER_ONLY
 #endif // WISDOM_LINUX
+#endif // WISDOM_XCB_H

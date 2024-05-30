@@ -1,9 +1,6 @@
-#if defined(WISDOM_BUILD_BINARIES)
+#ifndef WISDOM_XCB_CPP
+#define WISDOM_XCB_CPP
 #include <wisdom/wisdom_xcb.h>
-#else
-#pragma once
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
-
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
 
@@ -28,3 +25,5 @@ wis::platform::XCBExtension::CreateSwapchain(const wis::VKDevice& device, wis::V
     }
     return device.VKCreateSwapChain(wis::SharedSurface{ surface, instance, instance_table.vkDestroySurfaceKHR }, desc, std::get<0>(main_queue));
 }
+
+#endif // WISDOM_XCB_CPP
