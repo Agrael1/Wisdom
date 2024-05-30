@@ -76,7 +76,6 @@ Window::GetFactoryExtension() noexcept
     return p->ext.get();
 }
 
-
 wis::ResultValue<wis::SwapChain>
 Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queue) const noexcept
 {

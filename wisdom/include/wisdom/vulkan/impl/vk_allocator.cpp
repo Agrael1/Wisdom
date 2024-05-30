@@ -168,4 +168,3 @@ wis::VKResourceAllocator::CreateTexture(const VkImageCreateInfo& desc, const Vma
     return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
 }
 #endif // !VK_ALLOCATOR_CPP
-

@@ -39,7 +39,7 @@ inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 
 } // namespace wis::detail
 
-wis::ResultValue<wis::DX12SwapChain> 
+wis::ResultValue<wis::DX12SwapChain>
 wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
@@ -83,7 +83,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
     return DX12SwapChain{ std::move(create_info) };
 }
 
-wis::ResultValue<wis::DX12SwapChain> 
+wis::ResultValue<wis::DX12SwapChain>
 wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
@@ -129,7 +129,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
 #ifdef WISDOM_VULKAN
 #include <wisdom/vulkan/vk_device.h>
 
-//#error error
+// #error error
 
 wis::ResultValue<wis::VKSwapChain>
 wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept

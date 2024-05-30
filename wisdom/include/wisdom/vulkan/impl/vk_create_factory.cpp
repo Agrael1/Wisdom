@@ -204,7 +204,7 @@ wis::VKCreateFactory(bool debug_layer) noexcept
     return std::move(factory);
 }
 
-wis::ResultValue<wis::VKFactory> 
+wis::ResultValue<wis::VKFactory>
 wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept
 {
     size_t ext_alloc_size = detail::instance_extensions.size();

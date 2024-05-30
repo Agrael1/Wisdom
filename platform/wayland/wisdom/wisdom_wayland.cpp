@@ -6,7 +6,7 @@
 #include <wisdom/vulkan/vk_device.h>
 
 wis::ResultValue<wis::VKSwapChain>
-wis::platform::WaylandExtension::CreateSwapchain(const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface)const noexcept
+wis::platform::WaylandExtension::CreateSwapchain(const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface) const noexcept
 {
     VkWaylandSurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,

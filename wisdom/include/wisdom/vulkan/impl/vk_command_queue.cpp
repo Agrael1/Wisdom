@@ -44,5 +44,3 @@ wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) 
 }
 
 #endif // !VK_COMMAND_QUEUE_CPP
-
-

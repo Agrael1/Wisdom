@@ -31,7 +31,7 @@ wis::DX12CreateFactory(bool debug_layer) noexcept
     return DX12Factory(std::move(factory), debug_layer);
 }
 
-wis::ResultValue<wis::DX12Factory> 
+wis::ResultValue<wis::DX12Factory>
 wis::DX12CreateFactoryWithExtensions(bool debug_layer, DX12FactoryExtension** extensions, size_t extension_count) noexcept
 {
     std::span<DX12FactoryExtension*> exts{

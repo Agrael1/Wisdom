@@ -5,7 +5,6 @@
 #include <wisdom/util/flags.h>
 #include <cstring>
 
-
 wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
     if (!pout_desc)
@@ -54,9 +53,9 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
     }
 
     AdapterFlags flag;
-    if(desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
+    if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
         flag = AdapterFlags(flag | AdapterFlags::Remote);
-    if(desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
+    if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
         flag = AdapterFlags(flag | AdapterFlags::Software);
 
     std::strncpy(const_cast<char*>(out_desc.description.data()), desc.deviceName,
@@ -75,9 +74,4 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
     return wis::success;
 }
 
-
 #endif // !VK_ADAPTER_CPP
-
-
-
-

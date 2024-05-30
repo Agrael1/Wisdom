@@ -9,7 +9,7 @@ set(WISDOM_DX12 TRUE CACHE BOOL "Enable DirectX 12 Support" FORCE)
 
 add_library (wisdom-dx12-headers INTERFACE)
 add_library (wis::dx12-headers ALIAS wisdom-dx12-headers)
-target_link_libraries(wisdom-dx12-headers INTERFACE 
+target_link_libraries(wisdom-dx12-headers INTERFACE
 		wisdom-shared
 		DX12Agility
 		DX12Allocator
@@ -39,7 +39,7 @@ if(WISDOM_BUILD_BINARIES)
 			"include/wisdom/dx12/dx12_debug.h"
 	 "include/wisdom/dx12/dx12_factory_ext.h")
 	target_sources(wisdom-dx12
-		PRIVATE 
+		PRIVATE
 			"include/wisdom/dx12/impl/dx12_allocator.cpp"
 			"include/wisdom/dx12/impl/dx12_command_list.cpp"
  			"include/wisdom/dx12/impl/dx12_descriptor_buffer.cpp"

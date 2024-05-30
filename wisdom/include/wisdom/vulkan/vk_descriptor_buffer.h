@@ -73,31 +73,30 @@ public:
     WIS_INLINE void WriteSampler(uint32_t index, wis::VKSamplerView sampler) noexcept;
     WIS_INLINE void WriteShaderResource2(uint32_t index, wis::VKShaderResourceView resource) noexcept;
     WIS_INLINE void WriteConstantBuffer2(uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept;
-    
 
     // Returns the offset for the next set
     WIS_INLINE uint64_t WriteShaderResource(uint64_t buffer_offset_before_table,
-                                 uint32_t root_table_index,
-                                 uint32_t binding,
-                                 uint32_t array_member,
-                                 wis::VKRootSignatureView2 root_signature,
-                                 wis::VKShaderResourceView resource) noexcept;
+                                            uint32_t root_table_index,
+                                            uint32_t binding,
+                                            uint32_t array_member,
+                                            wis::VKRootSignatureView2 root_signature,
+                                            wis::VKShaderResourceView resource) noexcept;
 
     WIS_INLINE uint64_t WriteConstantBuffer(uint64_t buffer_offset_before_table,
-                                 uint32_t root_table_index,
-                                 uint32_t binding,
-                                 uint32_t array_member,
-                                 wis::VKRootSignatureView2 root_signature,
-                                 wis::VKBufferView buffer,
-                                 uint32_t buffer_size) noexcept;
+                                            uint32_t root_table_index,
+                                            uint32_t binding,
+                                            uint32_t array_member,
+                                            wis::VKRootSignatureView2 root_signature,
+                                            wis::VKBufferView buffer,
+                                            uint32_t buffer_size) noexcept;
 
 protected:
     WIS_INLINE uint64_t WriteDescriptor(uint64_t buffer_offset_before_table,
-                             uint32_t root_table_index,
-                             uint32_t binding,
-                             uint32_t array_member,
-                             const VkDescriptorGetInfoEXT& info,
-                             wis::VKRootSignatureView2 root_signature) noexcept;
+                                        uint32_t root_table_index,
+                                        uint32_t binding,
+                                        uint32_t array_member,
+                                        const VkDescriptorGetInfoEXT& info,
+                                        wis::VKRootSignatureView2 root_signature) noexcept;
 };
 } // namespace wis
 #ifndef WISDOM_BUILD_BINARIES

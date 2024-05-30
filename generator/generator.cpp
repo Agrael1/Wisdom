@@ -235,7 +235,6 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     out_dxapi << dxapi + "}\n";
     files.emplace_back(output_dx_abs);
 
-
     auto output_vk_abs = std::filesystem::absolute(cpp_output_path_vulkan / "vk_structs.hpp");
     std::ofstream out_vkapi(output_vk_abs);
     if (!out_vkapi.is_open())
@@ -505,8 +504,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         WisFunction* ptr = nullptr;
         bool cpp_only = mod && std::string_view(mod->Value()) == "cpp-only";
 
-        if (cpp_only)
-        {
+        if (cpp_only) {
             ptr = &cpp_funcs.emplace_back();
         } else {
             ptr = &functions.emplace_back();

@@ -123,7 +123,7 @@ App::App(uint32_t width, uint32_t height)
         };
 
         auto [res3, hswap] = windows_ext.CreateSwapchain(device, queue, &desc,
-                                                       wnd.GetHandle());
+                                                         wnd.GetHandle());
         swap = std::move(hswap);
         back_buffers = swap.GetBufferSpan();
 

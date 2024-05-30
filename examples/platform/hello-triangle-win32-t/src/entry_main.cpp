@@ -21,10 +21,8 @@ int main()
         .vsync = true,
     };
 
-    
-
     auto [res3, hswap] = ext.CreateSwapchain(app.GetDevice(), app.GetQueue(), &desc,
-                                                   wnd.GetHandle());
+                                             wnd.GetHandle());
     app.SetSwapChain(std::move(hswap), desc.size.width, desc.size.height);
     app.CreateResources();
 

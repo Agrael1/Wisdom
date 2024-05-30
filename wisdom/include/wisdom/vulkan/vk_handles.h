@@ -29,7 +29,10 @@ public:
     }
 
 public:
-    auto& table() const noexcept { return *m_device_table; }
+    auto& table() const noexcept
+    {
+        return *m_device_table;
+    }
 
 protected:
     VkDeviceTable* m_device_table = nullptr;
@@ -44,7 +47,10 @@ public:
     }
 
 public:
-    auto& table() const noexcept { return *m_device_table; }
+    auto& table() const noexcept
+    {
+        return *m_device_table;
+    }
 
 protected:
     VkInstanceTable* m_device_table = nullptr;
@@ -114,9 +120,9 @@ class scoped_handle : public managed_handle_base<HandleType, scoped_header<Handl
 public:
     scoped_handle() = default;
     using managed_handle_base<HandleType, scoped_header<HandleType>,
-                        scoped_handle<HandleType>>::managed_handle_base;
+                              scoped_handle<HandleType>>::managed_handle_base;
     friend managed_handle_base<HandleType, scoped_header<HandleType>,
-                              scoped_handle<HandleType>>;
+                               scoped_handle<HandleType>>;
 
 protected:
     void internal_destroy() noexcept
@@ -140,8 +146,6 @@ protected:
     }
 };
 
-
-
 /// Specializations
 
 template<>
@@ -158,16 +162,21 @@ public:
         : wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>(
                   handle, std::move(device)) { }
 
-    [[nodiscard]] const auto& parent() const noexcept { return header(); }
+    [[nodiscard]] const auto& parent() const noexcept
+    {
+        return header();
+    }
 
 protected:
-    void internal_destroy() noexcept { vmaDestroyAllocator(get()); }
+    void internal_destroy() noexcept
+    {
+        vmaDestroyAllocator(get());
+    }
 };
-
 
 class SharedSurface : public wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>, SharedSurface>
 {
-    using wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>,  SharedSurface>::shared_handle_base;
+    using wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>, SharedSurface>::shared_handle_base;
 };
 } // namespace wis
 

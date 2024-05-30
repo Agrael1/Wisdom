@@ -53,4 +53,3 @@ private:
 #include "impl/vk_allocator.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // !VK_ALLOCATOR_H
-

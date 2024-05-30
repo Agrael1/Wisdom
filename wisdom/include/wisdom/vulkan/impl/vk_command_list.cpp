@@ -434,4 +434,3 @@ void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis
 }
 
 #endif // !
-
