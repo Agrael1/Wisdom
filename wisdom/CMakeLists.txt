@@ -39,6 +39,7 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  COMPONENT core
   INCLUDES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
@@ -47,6 +48,7 @@ install(
   EXPORT wisdom-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   NAMESPACE wis::
+  COMPONENT core
   FILE wisdom-targets.cmake # Not sure if this is still needed
 )
 
@@ -70,4 +72,5 @@ install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake"
+  COMPONENT core
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
