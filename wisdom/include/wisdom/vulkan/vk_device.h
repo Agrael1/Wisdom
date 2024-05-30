@@ -97,7 +97,7 @@ public:
     }
 
 public:
-    [[nodicard]] WIS_INLINE wis::Result
+    WIS_INLINE wis::Result
     WaitForMultipleFences(const VKFenceView* fences,
                           const uint64_t* values,
                           uint32_t count,

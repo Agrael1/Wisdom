@@ -208,7 +208,7 @@ wis::ResultValue<wis::VKFactory>
 wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept
 {
     size_t ext_alloc_size = detail::instance_extensions.size();
-    size_t layer_alloc_size = 0;
+    size_t layer_alloc_size = detail::instance_layers.size();
     for (size_t i = 0; i < extension_count; i++) {
         ext_alloc_size += extensions[i]->RequiredExtensionsSize();
         layer_alloc_size += extensions[i]->RequiredLayersSize();
@@ -220,6 +220,7 @@ wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extens
     if (ext_alloc_size > detail::instance_extensions.size()) {
         ext_alloc = wis::detail::make_unique_for_overwrite<const char*[]>(ext_alloc_size);
         ext_alloc_raw = ext_alloc.get();
+        std::copy(detail::instance_extensions.begin(), detail::instance_extensions.end(), ext_alloc_raw);
     } else {
         ext_alloc_raw = const_cast<const char**>(detail::instance_extensions.data());
     }
@@ -227,13 +228,16 @@ wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extens
     const char** layer_alloc_raw = nullptr;
     std::unique_ptr<const char*[]> layer_alloc;
 
-    if (layer_alloc_size > 0) {
+    if (layer_alloc_size > detail::instance_layers.size()) {
         layer_alloc = wis::detail::make_unique_for_overwrite<const char*[]>(layer_alloc_size);
-        layer_alloc_raw = layer_alloc.get();
+        layer_alloc_raw = ext_alloc.get();
+        std::copy(detail::instance_layers.begin(), detail::instance_layers.end(), layer_alloc_raw);
+    } else {
+        layer_alloc_raw = const_cast<const char**>(detail::instance_layers.data());
     }
 
-    size_t index_ext = 0;
-    size_t index_layer = 0;
+    size_t index_ext = detail::instance_extensions.size();
+    size_t index_layer = detail::instance_layers.size();
 
     for (size_t i = 0; i < extension_count; i++) {
         auto ext = extensions[i]->GetRequiredExtensions();

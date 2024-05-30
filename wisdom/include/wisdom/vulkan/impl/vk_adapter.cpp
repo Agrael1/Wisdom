@@ -53,12 +53,11 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
             break;
     }
 
-    AdapterFlags flag = static_cast<AdapterFlags>(
-        (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU > 0u) *
-                +AdapterFlags::Remote |
-        (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU > 0u) *
-                +AdapterFlags::Software
-    );
+    AdapterFlags flag;
+    if(desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
+        flag = AdapterFlags(flag | AdapterFlags::Remote);
+    if(desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
+        flag = AdapterFlags(flag | AdapterFlags::Software);
 
     std::strncpy(const_cast<char*>(out_desc.description.data()), desc.deviceName,
                  sizeof(out_desc.description) - 1);

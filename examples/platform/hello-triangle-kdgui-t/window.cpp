@@ -92,7 +92,7 @@ Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queu
     auto win32Window = dynamic_cast<KDGui::Win32PlatformWindow*>(p->platformWindow());
     return static_cast<wis::platform::WindowsExtension*>(p->ext.get())->CreateSwapchain(device, queue, &desc, win32Window->handle());
 #elif defined(KD_PLATFORM_LINUX)
-    if (platform == Platform::Wayland) {
+    if (p->platform == Platform::Wayland) {
         auto* platformIntegration = KDGui::GuiApplication::instance()->guiPlatformIntegration();
         auto* waylandPlatformIntegration = dynamic_cast<KDGui::LinuxWaylandPlatformIntegration*>(platformIntegration);
         auto* waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow*>(p->platformWindow());
@@ -101,7 +101,7 @@ Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queu
                 ->CreateSwapchain(device, queue, &desc, waylandPlatformIntegration->display(), waylandWindow->surface());
     } else {
         auto* xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
-        return static_cast<wis::platform::XcbExtension*>(p->ext.get())
+        return static_cast<wis::platform::XCBExtension*>(p->ext.get())
                 ->CreateSwapchain(device, queue, &desc, xcbWindow->connection(), xcbWindow->handle());
     }
 #endif
