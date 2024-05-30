@@ -5,7 +5,6 @@
 #include <vulkan/vulkan.h>
 #undef VK_USE_PLATFORM_WAYLAND_KHR
 
-
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <wisdom/vulkan/vk_factory.h>
@@ -16,12 +15,20 @@ class WaylandExtension;
 } // namespace platform
 
 template<>
-struct Internal<platform::WaylandExtension> : public VKFactoryExtensionImpl<platform::WaylandExtension> {
+struct Internal<platform::WaylandExtension> {
     wis::SharedInstance instance;
     PFN_vkCreateWaylandSurfaceKHR vkCreateWaylandSurfaceKHR = nullptr;
     PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR vkGetPhysicalDeviceWaylandPresentationSupportKHR = nullptr;
+};
 
+namespace platform {
+class WaylandExtension : public QueryInternalExtension<WaylandExtension, VKFactoryExtensionImpl<platform::WaylandExtension>>
+{
 public:
+    static constexpr std::array<const char* const, 1> required_extensions = {
+        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+    };
+
     [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
     {
         auto& gt = detail::VKFactoryGlobals::Instance().global_table;
@@ -35,15 +42,6 @@ public:
         }
         return {};
     }
-};
-
-namespace platform {
-class WaylandExtension : public QueryInternalExtension<WaylandExtension>
-{
-public:
-    static constexpr std::array<const char* const, 1> required_extensions = {
-        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
-    };
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>

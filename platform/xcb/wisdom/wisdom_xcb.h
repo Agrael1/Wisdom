@@ -15,12 +15,20 @@ class XCBExtension;
 } // namespace platform
 
 template<>
-struct Internal<platform::XCBExtension> : public VKFactoryExtensionImpl<platform::XCBExtension> {
+struct Internal<platform::XCBExtension> {
     wis::SharedInstance instance;
     PFN_vkCreateXcbSurfaceKHR vkCreateXcbSurfaceKHR = nullptr;
     PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR vkGetPhysicalDeviceXcbPresentationSupportKHR = nullptr;
+};
 
+namespace platform {
+class XCBExtension : public QueryInternalExtension<XCBExtension, VKFactoryExtensionImpl<platform::XCBExtension>>
+{
 public:
+    static constexpr std::array<const char* const, 1> required_extensions = {
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME
+    };
+
     [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
     {
         auto& gt = detail::VKFactoryGlobals::Instance().global_table;
@@ -34,15 +42,6 @@ public:
         }
         return {};
     }
-};
-
-namespace platform {
-class XCBExtension : public QueryInternalExtension<XCBExtension>
-{
-public:
-    static constexpr std::array<const char* const, 1> required_extensions = {
-        VK_KHR_XCB_SURFACE_EXTENSION_NAME
-    };
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
