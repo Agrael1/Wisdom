@@ -11,11 +11,21 @@ class VKFactory;
 namespace wis {
 struct VKFactoryExtension {
     virtual ~VKFactoryExtension() = default;
-    virtual wis::Result Init(const wis::VKFactory& instance) noexcept { return {}; }
-    virtual std::span<const char* const> GetRequiredExtensions() const noexcept { return {}; }
-    virtual size_t RequiredExtensionsSize() const noexcept { return 0; }
-    virtual std::span<const char* const> GetRequiredLayers() const noexcept { return {}; }
-    virtual size_t RequiredLayersSize() const noexcept { return 0; }
+    virtual wis::Result Init(const wis::VKFactory& instance) noexcept {
+        return {};
+    }
+    virtual std::span<const char* const> GetRequiredExtensions() const noexcept {
+        return {};
+    }
+    virtual size_t RequiredExtensionsSize() const noexcept {
+        return 0;
+    }
+    virtual std::span<const char* const> GetRequiredLayers() const noexcept {
+        return {};
+    }
+    virtual size_t RequiredLayersSize() const noexcept {
+        return 0;
+    }
 
     VKFactoryExtension* GetExtension() noexcept
     {

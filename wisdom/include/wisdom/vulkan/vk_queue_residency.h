@@ -11,7 +11,8 @@ enum class QueueTypes : uint8_t { Graphics,
                                   Compute,
                                   Copy,
                                   VideoDecode,
-                                  Count };
+                                  Count
+                                };
 struct QueueResidency {
     struct QueueInfo {
         uint32_t index;
@@ -34,8 +35,12 @@ struct QueueResidency {
             return *this;
         }
 
-        uint8_t GetNextInLine() const noexcept { return last.exchange((last + 1) % count); }
-        bool Empty() const noexcept { return count == 0u; }
+        uint8_t GetNextInLine() const noexcept {
+            return last.exchange((last + 1) % count);
+        }
+        bool Empty() const noexcept {
+            return count == 0u;
+        }
 
         uint16_t queue_flags = 0;
         uint8_t count = 0;
