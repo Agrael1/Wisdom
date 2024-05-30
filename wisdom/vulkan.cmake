@@ -34,7 +34,7 @@ if(WISDOM_BUILD_BINARIES)
 	 "include/wisdom/vulkan/vk_factory_ext.h")
 	add_library(wis::vulkan ALIAS wisdom-vk)
 	target_sources(wisdom-vk
-		PRIVATE 
+		PRIVATE
  			"include/wisdom/vulkan/impl/vk_descriptor_buffer.cpp"
 			"include/wisdom/vulkan/impl/vk_factory.cpp"
 			"include/wisdom/vulkan/impl/vk_create_factory.cpp"
