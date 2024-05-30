@@ -5,7 +5,6 @@ include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
-
 # Load tinyxml2
 message("Loading tinyxml2...")
 FetchContent_Declare(

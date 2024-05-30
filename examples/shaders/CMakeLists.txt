@@ -8,7 +8,7 @@ file(GLOB_RECURSE gs "${CMAKE_CURRENT_SOURCE_DIR}/*/*.gs.hlsl")
 file(GLOB_RECURSE cs "${CMAKE_CURRENT_SOURCE_DIR}/*/*.cs.hlsl")
 
 foreach(FILE ${vs} ${ps} ${ds} ${hs} ${gs})
-  WIS_COMPILE_SHADER(TARGET compile_shaders_kd SHADER ${FILE})
+  wis_compile_shader(TARGET compile_shaders_kd SHADER ${FILE})
 endforeach(FILE)
 
 set(SHADER_DIR
