@@ -641,5 +641,5 @@ void App::WaitForGPU()
     const uint64_t vfence = fence_value;
     queue.SignalQueue(fence, vfence);
     fence_value++;
-    fence.Wait(vfence);
+    std::ignore = fence.Wait(vfence);
 }

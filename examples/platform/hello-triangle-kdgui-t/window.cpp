@@ -51,7 +51,7 @@ Window::Window(uint32_t width, uint32_t height, WindowP* p)
         p->ext = std::make_unique<wis::platform::WaylandExtension>();
         p->platform = Platform::Wayland;
     } else {
-        p->ext = std::make_unique<wis::platform::XcbExtension>();
+        p->ext = std::make_unique<wis::platform::XCBExtension>();
         p->platform = Platform::Xcb;
     }
 #endif // KD_PLATFORM_WIN32
