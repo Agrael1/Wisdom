@@ -1,27 +1,40 @@
 find_package(Vulkan)
 # All Vulkan Sources are disabled on UWP
-if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
-	set(WISDOM_VULKAN TRUE)
-	message("Vulkan found!")
-	wisdom_sources(TARGET wisdom-vk
-		HEADERS
-			"include/wisdom/vulkan/vk_factory.h"
-			"include/wisdom/vulkan/vk_views.h"
-			"include/wisdom/vulkan/vk_handles.h"
-			"include/wisdom/vulkan/vk_adapter.h"
-			"include/wisdom/vulkan/vk_convert.h"
-			"include/wisdom/vulkan/vk_fence.h"
-			"include/wisdom/vulkan/vk_device.h"
-			"include/wisdom/vulkan/vk_command_queue.h"
-			"include/wisdom/vulkan/vk_command_list.h"
-			"include/wisdom/vulkan/vk_root_signature.h"
-			"include/wisdom/vulkan/vk_descriptor_buffer.h"
-			"include/wisdom/vulkan/vk_resource.h"
-			"include/wisdom/vulkan/vk_shader.h"
-			"include/wisdom/vulkan/vk_allocator.h"
-			"include/wisdom/vulkan/vk_swapchain.h"
-			"include/wisdom/vulkan/vk_debug.h"
-		SOURCES
+if(NOT Vulkan_FOUND OR WISDOM_WINDOWS_STORE)
+	return()
+endif()
+
+set(WISDOM_VULKAN TRUE CACHE BOOL "Enable Vulkan Support" FORCE)
+message(STATUS "Vulkan found!")
+
+
+add_library (wisdom-vk-headers INTERFACE)
+add_library (wis::wisdom-vk-headers ALIAS wisdom-vk-headers)
+target_link_libraries(wisdom-vk-headers INTERFACE wisdom-shared VKAllocator Wisdom::WisVk)
+target_compile_definitions(wisdom-vk-headers INTERFACE WISDOM_VULKAN=1 WISVK_NO_DEFAULT_DELETER=1)
+
+if(WISDOM_BUILD_BINARIES)
+	add_library(wisdom-vk STATIC
+		"include/wisdom/vulkan/vk_factory.h"
+ 		"include/wisdom/vulkan/vk_views.h"
+ 		"include/wisdom/vulkan/vk_handles.h"
+ 		"include/wisdom/vulkan/vk_adapter.h"
+ 		"include/wisdom/vulkan/vk_convert.h"
+ 		"include/wisdom/vulkan/vk_fence.h"
+ 		"include/wisdom/vulkan/vk_device.h"
+ 		"include/wisdom/vulkan/vk_command_queue.h"
+ 		"include/wisdom/vulkan/vk_command_list.h"
+ 		"include/wisdom/vulkan/vk_root_signature.h"
+ 		"include/wisdom/vulkan/vk_descriptor_buffer.h"
+ 		"include/wisdom/vulkan/vk_resource.h"
+ 		"include/wisdom/vulkan/vk_shader.h"
+ 		"include/wisdom/vulkan/vk_allocator.h"
+ 		"include/wisdom/vulkan/vk_swapchain.h"
+ 		"include/wisdom/vulkan/vk_debug.h"
+	)
+	target_sources(wisdom-vk
+		PRIVATE 
+ 			"include/wisdom/vulkan/impl/vk_descriptor_buffer.cpp"
 			"include/wisdom/vulkan/impl/vk_factory.cpp"
 			"include/wisdom/vulkan/impl/vk_create_factory.cpp"
 			"include/wisdom/vulkan/impl/vk_allocator.cpp"
@@ -31,22 +44,17 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 			"include/wisdom/vulkan/impl/vk_command_queue.cpp"
 			"include/wisdom/vulkan/impl/vk_command_list.cpp"
 			"include/wisdom/vulkan/impl/vk_swapchain.cpp"
-
-		DEFINITIONS
-			WISDOM_VULKAN=1
-			WISVK_NO_DEFAULT_DELETER=1
-		LIBS
-			wisdom-shared
-			VKAllocator
-			Wisdom::WisVk
-		NO_INSTALL
 	)
+	target_link_libraries(wisdom-vk PUBLIC wisdom-vk-headers)
+	target_compile_definitions(wisdom-vk PUBLIC WISDOM_BUILD_BINARIES=1)
+else()
+	add_library(wisdom-vk ALIAS wisdom-vk-headers)
+	add_library(wis::wisdom-vk ALIAS wisdom-vk)
+endif()
 
 install(
   TARGETS wisdom-vk wisdom-vk-headers
   EXPORT wisdom-vk-targets
-  FILE_SET HEADERS
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -58,8 +66,5 @@ install(
   EXPORT wisdom-vk-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
   NAMESPACE wis::
-  FILE wisdom-vk-targets.cmake # Not sure if this is still needed
+  FILE wisdom-vk-targets.cmake
 )
-
-
-endif()

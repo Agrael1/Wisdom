@@ -1,7 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_DEVICE_CPP
+#define VK_DEVICE_CPP
 #include <wisdom/vulkan/vk_device.h>
-#endif // !WISDOM_HEADER_ONLY
 
 #include <cassert>
 #include <algorithm>
@@ -1484,33 +1483,4 @@ wis::VKDevice::CreateShaderResource(wis::VKTextureView texture, wis::ShaderResou
 
     return wis::VKShaderResource{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView } };
 }
-
-// wis::ResultValue< VkDescriptorSetLayout>
-// wis::VKDevice::CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept {
-//   VkDescriptorSetLayoutBinding binding{
-//       .binding = desc.bind_register,
-//       .descriptorType = convert_vk(desc.type),
-//       .descriptorCount = 1,
-//       .stageFlags = VkShaderStageFlags(convert_vk(desc.stage)),
-//       .pImmutableSamplers = nullptr,
-//   };
-//   VkDescriptorSetLayoutCreateInfo dsl{
-//       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-//       .pNext = nullptr,
-//       .flags = VkDescriptorSetLayoutCreateFlags(
-//           VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT *
-//               int(ifeatures.has_descriptor_buffer) |
-//           VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR),
-//       .bindingCount = 1,
-//       .pBindings = &binding,
-//   };
-//
-//   VkDescriptorSetLayout layout;
-//   auto vr = device.table()->vkCreateDescriptorSetLayout(device.get(), &dsl, nullptr, &layout);
-//
-//   return succeeded(vr)
-//              ? std::pair{wis::success, layout}
-//              : std::pair{wis::make_result<FUNC, "Failed to create a descriptor set layout">(vr),
-//                          VkDescriptorSetLayout{}};
-// }
-//
+#endif // WISIMPL_VULKAN

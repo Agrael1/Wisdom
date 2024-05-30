@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_ROOT_SIGNATURE_H
+#define VK_ROOT_SIGNATURE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_handles.h>
@@ -55,3 +56,5 @@ public:
     }
 };
 } // namespace wis
+
+#endif // VK_ROOT_SIGNATURE_H

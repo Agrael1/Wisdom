@@ -244,7 +244,7 @@ void Test::App::CreateResources()
                                                                                                                                                        } });
         srv = std::move(hsrv);
         desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv);
-        desc_buffer.WriteConstantBuffer(1, cbuf, sizeof(float) * 4);
+        desc_buffer.WriteConstantBuffer(0, 0, 1, 0, root, cbuf, sizeof(float) * 4);
     }
 
     {

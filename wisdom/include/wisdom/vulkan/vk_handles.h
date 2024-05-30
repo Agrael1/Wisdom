@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_HANDLES_H
+#define VK_HANDLES_H
 #include <memory>
 #include <span>
 #include <vector>
@@ -169,3 +170,5 @@ class SharedSurface : public wis::shared_handle_base<VkSurfaceKHR, wis::managed_
     using wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>,  SharedSurface>::shared_handle_base;
 };
 } // namespace wis
+
+#endif // VK_HANDLES_H

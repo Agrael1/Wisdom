@@ -1,31 +1,29 @@
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_CREATE_FACTORY_CPP
+#define VK_CREATE_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
-#else
-#pragma once
-#endif // !WISDOM_HEADER_ONLY
-
 #include <unordered_map>
 #include <array>
 #include <wisdom/util/misc.h>
 
 namespace wis::detail {
 // required extensions for the instance
-constexpr inline std::array instance_extensions{
+constexpr inline std::array instance_extensions
+{
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+            VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+            VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-                                                 VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+                                                         VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+            VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
 #endif
 #if DEBUG_MODE
-    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
 
@@ -226,3 +224,4 @@ wis::VKCreateFactory(bool debug_layer) noexcept
 
     return std::move(factory);
 }
+#endif // !VK_CREATE_FACTORY_CPP

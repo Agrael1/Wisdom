@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_QUEUE_RESIDENCY_H
+#define VK_QUEUE_RESIDENCY_H
 #include <atomic>
 #include <vulkan/vulkan.h>
 #include <wisdom/generated/api/api.h>
@@ -108,3 +109,5 @@ public:
     std::array<QueueFormat, size_t(QueueTypes::Count)> available_queues{};
 };
 } // namespace wis::detail
+
+#endif // VK_QUEUE_RESIDENCY_H

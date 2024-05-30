@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_FACTORY_H
+#define VK_FACTORY_H
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
@@ -100,3 +101,4 @@ private:
 #include "impl/vk_factory.cpp"
 #include "impl/vk_create_factory.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // VK_FACTORY_H

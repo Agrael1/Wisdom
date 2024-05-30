@@ -23,6 +23,7 @@ if(WISDOM_USE_FMT)
 endif()
 
 set_target_properties(wisdom-shared PROPERTIES CXX_STANDARD 20)
+target_compile_features(wisdom-shared INTERFACE cxx_std_20)
 
 target_compile_definitions(
   wisdom-shared

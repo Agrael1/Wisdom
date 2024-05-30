@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_DEVICE_H
+#define VK_DEVICE_H
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
@@ -144,9 +145,6 @@ public:
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;
 
 private:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
-    CreatePushDescriptorLayout(wis::PushDescriptor desc) const noexcept;
-
     [[nodiscard]] WIS_INLINE wis::ResultValue<VmaAllocator>
     CreateAllocatorI() const noexcept;
 
@@ -178,3 +176,4 @@ VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_device.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !VK_DEVICE_H

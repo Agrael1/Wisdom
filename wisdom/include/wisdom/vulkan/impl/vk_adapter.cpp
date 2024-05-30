@@ -1,9 +1,9 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
-#include <wisdom/vulkan/vk_adapter.h>
-#endif // !WISDOM_HEADER_ONLY
+#ifndef VK_ADAPTER_CPP
+#define VK_ADAPTER_CPP
 
+#include <wisdom/vulkan/vk_adapter.h>
 #include <cstring>
+
 
 wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
@@ -74,3 +74,10 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
     out_desc.flags = wis::AdapterFlags(flag);
     return wis::success;
 }
+
+
+#endif // !VK_ADAPTER_CPP
+
+
+
+

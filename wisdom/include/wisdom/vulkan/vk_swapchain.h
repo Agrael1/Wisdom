@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_SWAPCHAIN_H
+#define VK_SWAPCHAIN_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_command_list.h>
@@ -143,3 +144,5 @@ public:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY
+
+#endif // VK_SWAPCHAIN_H

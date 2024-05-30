@@ -1,7 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_FENCE_CPP
+#define VK_FENCE_CPP
 #include <wisdom/vulkan/vk_fence.h>
-#endif // !WISDOM_HEADER_ONLY
 
 /// @brief Signal the fence from CPU.
 /// @param value Value to signal.
@@ -48,3 +47,5 @@ uint64_t wis::VKFence::GetCompletedValue() const noexcept
                                                             &value); // always succeeds
     return value;
 }
+
+#endif // VK_FENCE_CPP

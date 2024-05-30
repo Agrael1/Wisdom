@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_CHECKS_H
+#define VK_CHECKS_H
 #include <wisdom/vulkan/vk_convert.h>
 #include <wisdom/util/error_messages.h>
 
@@ -24,3 +25,5 @@ constexpr inline wis::Result make_result(VkResult hr) noexcept
     return wis::Result{ convert_vk(hr), message.c_str() };
 }
 } // namespace wis
+
+#endif // !VK_CHECKS_H

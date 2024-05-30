@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_ALLOCATOR_H
+#define VK_ALLOCATOR_H
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_checks.h>
 
@@ -51,3 +52,5 @@ private:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_allocator.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !VK_ALLOCATOR_H
+

@@ -1,8 +1,6 @@
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_CREATE_FACTORY_CPP
+#define VK_CREATE_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
-#else
-#pragma once
-#endif // !WISDOM_HEADER_ONLY
 
 #include <algorithm>
 #include <ranges>
@@ -184,3 +182,5 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
     }
     return VK_SUCCESS;
 }
+
+#endif // VK_CREATE_FACTORY_CPP
