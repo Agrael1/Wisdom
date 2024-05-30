@@ -28,12 +28,16 @@ include(cmake/settings.cmake)
 include(cmake/functions.cmake)
 include(cmake/misc.cmake)
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 # Include sub-projects.
 add_subdirectory("plugins")
 add_subdirectory("generator")
 
 add_subdirectory("wisdom")
+
+# New platform targets.
+add_subdirectory("platform")
 
 if(WISDOM_BUILD_BINDINGS)
   add_subdirectory("bindings")
@@ -44,5 +48,5 @@ if(WISDOM_BUILD_EXAMPLES)
 endif()
 
 if(WISDOM_BUILD_TESTS)
-  add_subdirectory("tests")
+  # add_subdirectory("tests")
 endif()

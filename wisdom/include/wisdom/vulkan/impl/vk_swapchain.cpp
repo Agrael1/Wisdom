@@ -1,9 +1,7 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_SWAPCHAIN_CPP
+#define VK_SWAPCHAIN_CPP
 #include <wisdom/vulkan/vk_swapchain.h>
-#endif // !WISDOM_HEADER_ONLY
 #include <wisdom/vulkan/vk_checks.h>
-
 #include <wisdom/util/misc.h>
 #include <wisdom/util/small_allocator.h>
 #include <algorithm>
@@ -272,3 +270,5 @@ wis::Result wis::VKSwapChain::Present() const noexcept
 
     return AquireNextIndex();
 }
+
+#endif // VK_SWAPCHAIN_H

@@ -25,7 +25,7 @@ target_include_directories(
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 install(
   TARGETS ${PROJECT_NAME}
-  EXPORT wisdom-targets
+  EXPORT wisdom-dx12-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

@@ -27,6 +27,9 @@ public:
     [[nodiscard]] uint32_t width() const noexcept;
     [[nodiscard]] uint32_t height() const noexcept;
 
+    [[nodiscard]] wis::FactoryExtension*
+    GetFactoryExtension() noexcept;
+
     [[nodiscard]] wis::ResultValue<wis::SwapChain>
     CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queue) const noexcept;
 

@@ -1,13 +1,17 @@
 #include <example/window.h>
 #include <app.h>
-#include <wisdom/platform/win32.h>
+#include <wisdom/wisdom_windows.h>
 
 int main()
 {
     Window wnd(1920, 1080, "Example Win32 Wisdom");
-    Test::App app;
 
-    scanf("Press enter to continue");
+    wis::platform::WindowsExtension ext;
+    std::array<wis::FactoryExtension*, 1> required_extensions = {
+        &ext
+    };
+
+    Test::App app(required_extensions);
 
     wis::SwapchainDesc desc{
         .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
@@ -17,8 +21,8 @@ int main()
         .vsync = true,
     };
 
-    auto [res3, hswap] = wis::CreateSwapchainWin32(app.GetDevice(), app.GetQueue(), &desc,
-                                                   wnd.GetHandle());
+    auto [res3, hswap] = ext.CreateSwapchain(app.GetDevice(), app.GetQueue(), &desc,
+                                             wnd.GetHandle());
     app.SetSwapChain(std::move(hswap), desc.size.width, desc.size.height);
     app.CreateResources();
 

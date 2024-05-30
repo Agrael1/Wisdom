@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_PIPELINE_STATE_H
+#define VK_PIPELINE_STATE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 
@@ -29,3 +30,5 @@ public:
     }
 };
 } // namespace wis
+
+#endif // VK_PIPELINE_STATE_H

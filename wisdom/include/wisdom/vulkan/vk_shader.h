@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_SHADER_H
+#define VK_SHADER_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 
@@ -28,3 +29,5 @@ public:
     }
 };
 } // namespace wis
+
+#endif // VK_SHADER_H

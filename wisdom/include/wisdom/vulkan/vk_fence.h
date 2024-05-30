@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_FENCE_H
+#define VK_FENCE_H
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/global/internal.h>
@@ -51,3 +52,4 @@ public:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_fence.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // VK_FENCE_H

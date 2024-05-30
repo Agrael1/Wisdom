@@ -1,4 +1,6 @@
-#pragma once
+#ifndef VK_VIEWS_H
+#define VK_VIEWS_H
+
 #include <tuple>
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisvk/vk_loader.hpp>
@@ -22,3 +24,5 @@ using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapTy
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 } // namespace wis
+
+#endif // VK_VIEWS_H

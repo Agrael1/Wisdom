@@ -1,0 +1,25 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_file(WISDOM_WAYLAND_CONFIG_FILE wisdom-wayland-config.cmake
+	PATHS ${CMAKE_CURRENT_LIST_DIR} NO_DEFAULT_PATH)
+find_file(WISDOM_XCB_CONFIG_FILE wisdom-xcb-config.cmake
+	PATHS ${CMAKE_CURRENT_LIST_DIR} NO_DEFAULT_PATH)
+find_file(WISDOM_WINDOWS_CONFIG_FILE wisdom-windows-config.cmake
+	PATHS ${CMAKE_CURRENT_LIST_DIR} NO_DEFAULT_PATH)
+
+if(WISDOM_WAYLAND_CONFIG_FILE)
+	include(${WISDOM_WAYLAND_CONFIG_FILE})
+endif()
+if(WISDOM_XCB_CONFIG_FILE)
+	include(${WISDOM_XCB_CONFIG_FILE})
+endif()
+if(WISDOM_WINDOWS_CONFIG_FILE)
+	include(${WISDOM_WINDOWS_CONFIG_FILE})
+endif()
+
+include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-platform-targets.cmake" )
+
+add_library(wis::platform ALIAS wis::wisdom-platform)
+add_library(wis::platform-headers ALIAS wis::wisdom-platform-headers)

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DX12_FACTORY_CPP
+#define DX12_FACTORY_CPP
 #ifdef WISDOM_BUILD_BINARIES
 #include <wisdom/dx12/dx12_factory.h>
 #endif // !WISDOM_HEADER_ONLY
@@ -12,7 +13,7 @@ wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_la
         EnableDebugLayer();
 }
 
-[[nodiscard]] wis::ResultValue<wis::DX12Factory>
+wis::ResultValue<wis::DX12Factory>
 wis::DX12CreateFactory(bool debug_layer) noexcept
 {
     wis::com_ptr<IDXGIFactory6> factory;
@@ -28,6 +29,24 @@ wis::DX12CreateFactory(bool debug_layer) noexcept
         }
     }
     return DX12Factory(std::move(factory), debug_layer);
+}
+
+wis::ResultValue<wis::DX12Factory>
+wis::DX12CreateFactoryWithExtensions(bool debug_layer, DX12FactoryExtension** extensions, size_t extension_count) noexcept
+{
+    std::span<DX12FactoryExtension*> exts{
+        extensions, extensions + extension_count
+    };
+
+    auto [r, f] = DX12CreateFactory(debug_layer);
+
+    if (r.status != wis::Status::Ok)
+        return r;
+
+    for (auto ext : exts) {
+        ext->Init(f);
+    }
+    return std::move(f);
 }
 
 wis::ResultValue<wis::DX12Adapter>
@@ -81,3 +100,5 @@ wis::DX12Factory::GetAdapter1(uint32_t index) const noexcept
     auto hr = factory->EnumAdapters1(index, adapter.put());
     return { hr, std::move(adapter) };
 }
+
+#endif // !DX12_FACTORY_CPP

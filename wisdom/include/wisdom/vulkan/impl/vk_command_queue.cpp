@@ -1,7 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_COMMAND_QUEUE_CPP
+#define VK_COMMAND_QUEUE_CPP
 #include <wisdom/vulkan/vk_command_queue.h>
-#endif // !WISDOM_HEADER_ONLY
 
 void wis::VKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
                                               uint32_t count) const noexcept
@@ -43,3 +42,5 @@ wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) 
     return succeeded(result) ? wis::success
                              : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
+
+#endif // !VK_COMMAND_QUEUE_CPP

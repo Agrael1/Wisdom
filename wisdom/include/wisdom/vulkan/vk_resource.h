@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_RESOURCE_H
+#define VK_RESOURCE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/generated/api/api.h>
@@ -191,3 +192,5 @@ public:
 };
 
 } // namespace wis
+
+#endif // VK_RESOURCE_H

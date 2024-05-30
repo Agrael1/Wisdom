@@ -6,7 +6,7 @@ class App
 {
 public:
     // input from platform window
-    App();
+    App(std::span<wis::FactoryExtension*> factory_exts);
 
     void SetSwapChain(wis::SwapChain swap, uint32_t width, uint32_t height);
 

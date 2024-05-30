@@ -1,8 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_ALLOCATOR_CPP
+#define VK_ALLOCATOR_CPP
 #include <wisdom/vulkan/vk_allocator.h>
-#endif // !WISDOM_HEADER_ONLY
-
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 
 wis::ResultValue<wis::VKBuffer>
@@ -169,3 +167,4 @@ wis::VKResourceAllocator::CreateTexture(const VkImageCreateInfo& desc, const Vma
 
     return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
 }
+#endif // !VK_ALLOCATOR_CPP

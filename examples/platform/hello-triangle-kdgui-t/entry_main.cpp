@@ -3,11 +3,17 @@
 #include <iostream>
 #include "window.h"
 
+#include <wisdom/wisdom_platform.h>
+
 int main()
 {
-    Test::App gfx_app;
     XApp app;
     Window window = app.createWindow(1920, 1080);
+
+    std::array<wis::FactoryExtension*, 1> required_extensions = {
+        window.GetFactoryExtension()
+    };
+    Test::App gfx_app(required_extensions);
 
     auto [res, chain] = window.CreateSwapchain(gfx_app.GetDevice(), gfx_app.GetQueue());
     if (res.status != wis::Status::Ok) {

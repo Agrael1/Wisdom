@@ -1,8 +1,6 @@
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_FACTORY_CPP
+#define VK_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
-#else
-#pragma once
-#endif // !WISDOM_HEADER_ONLY
 
 #include <algorithm>
 #include <ranges>
@@ -109,7 +107,7 @@ wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_dat
     return wis::VKDebugMessenger{ factory, messenger, std::move(debug_callback) };
 }
 
-VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
+VkResult wis::VKFactory::VKEnumeratePhysicalDevices() noexcept
 {
     auto& itable = factory.table();
 
@@ -184,3 +182,5 @@ VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
     }
     return VK_SUCCESS;
 }
+
+#endif // VK_CREATE_FACTORY_CPP

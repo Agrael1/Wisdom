@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_CONVERT_H
+#define VK_CONVERT_H
 #include <vulkan/vulkan.h>
 #include <wisdom/generated/api/api.h>
 
@@ -57,3 +58,4 @@ inline constexpr VkImageAspectFlags aspect_flags(VkFormat format)
     }
 }
 } // namespace wis
+#endif // !VK_CONVERT_H

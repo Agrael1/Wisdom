@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-windows-targets.cmake" )
+
+add_library( wis::windows ALIAS wis::wisdom-windows)
+add_library( wis::windows-headers ALIAS wis::wisdom-windows-headers)

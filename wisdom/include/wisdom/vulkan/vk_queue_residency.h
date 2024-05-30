@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_QUEUE_RESIDENCY_H
+#define VK_QUEUE_RESIDENCY_H
 #include <atomic>
 #include <vulkan/vulkan.h>
 #include <wisdom/generated/api/api.h>
@@ -10,7 +11,8 @@ enum class QueueTypes : uint8_t { Graphics,
                                   Compute,
                                   Copy,
                                   VideoDecode,
-                                  Count };
+                                  Count
+};
 struct QueueResidency {
     struct QueueInfo {
         uint32_t index;
@@ -33,8 +35,14 @@ struct QueueResidency {
             return *this;
         }
 
-        uint8_t GetNextInLine() const noexcept { return last.exchange((last + 1) % count); }
-        bool Empty() const noexcept { return count == 0u; }
+        uint8_t GetNextInLine() const noexcept
+        {
+            return last.exchange((last + 1) % count);
+        }
+        bool Empty() const noexcept
+        {
+            return count == 0u;
+        }
 
         uint16_t queue_flags = 0;
         uint8_t count = 0;
@@ -108,3 +116,5 @@ public:
     std::array<QueueFormat, size_t(QueueTypes::Count)> available_queues{};
 };
 } // namespace wis::detail
+
+#endif // VK_QUEUE_RESIDENCY_H

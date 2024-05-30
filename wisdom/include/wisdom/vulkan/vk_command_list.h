@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_COMMAND_LIST_H
+#define VK_COMMAND_LIST_H
 #include <wisdom/generated/api/api.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/global/internal.h>
@@ -32,6 +33,7 @@ struct Internal<VKCommandList> {
         }
     }
 };
+
 class VKCommandList : public QueryInternal<VKCommandList>
 {
 public:
@@ -111,3 +113,4 @@ protected:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_command_list.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !VK_COMMAND_LIST_H

@@ -114,26 +114,30 @@ int Generator::GenerateCAPI()
     out_vk += "\n//-------------------------------------------------------------------------\n\n";
     output += "\n//-------------------------------------------------------------------------\n\n";
 
-    output_cpp += "#ifdef WISDOM_DX12\n#include <wisdom/wisdom_dx12.h>\n\n";
+    output_cpp += "#if defined(WISDOM_DX12)\n#include <wisdom/wisdom_dx12.h>\n\n";
     output_cpp += out_cpp_dx;
     output_cpp += "#endif\n\n";
 
-    output_cpp += "#ifdef WISDOM_VULKAN\n#include <wisdom/wisdom_vk.h>\n\n";
+    output_cpp += "#if defined(WISDOM_VULKAN)\n#include <wisdom/wisdom_vk.h>\n\n";
     output_cpp += out_cpp_vk;
     output_cpp += "#endif\n\n";
 
     std::filesystem::path output_path = output_dir;
     std::filesystem::create_directories(output_path);
 
-    std::ofstream out_cpp(std::filesystem::absolute(output_path / "wisdom.cpp"));
+    auto output_cpp_abs = std::filesystem::absolute(output_path / "wisdom.cpp");
+    std::ofstream out_cpp(output_cpp_abs);
     if (!out_cpp.is_open())
         return 1;
     out_cpp << output_cpp;
+    files.emplace_back(output_cpp_abs);
 
-    std::ofstream out(std::filesystem::absolute(output_path / "wisdom.h"));
+    auto output_abs = std::filesystem::absolute(output_path / "wisdom.h");
+    std::ofstream out(output_abs);
     if (!out.is_open())
         return 1;
     out << output;
+    files.emplace_back(output_abs);
     return 0;
 }
 int Generator::GenerateCPPAPI()
@@ -196,17 +200,22 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     std::filesystem::create_directories(cpp_output_path_dx12);
     std::filesystem::create_directories(cpp_output_path_vulkan);
 
-    std::ofstream out_api(std::filesystem::absolute(cpp_output_path_api / "api.h"));
+    auto output_api_abs = std::filesystem::absolute(cpp_output_path / "api.h");
+    std::ofstream out_api(output_api_abs);
     if (!out_api.is_open())
         return 1;
     out_api << output_api;
+    files.emplace_back(output_api_abs);
 
-    std::ofstream out_wisdom(std::filesystem::absolute(cpp_output_path / "wisdom.hpp"));
+    auto output_wisdom_abs = std::filesystem::absolute(cpp_output_path / "wisdom.hpp");
+    std::ofstream out_wisdom(output_wisdom_abs);
     if (!out_wisdom.is_open())
         return 1;
     out_wisdom << GenerateCPPExportHeader();
+    files.emplace_back(output_wisdom_abs);
 
-    std::ofstream out_dxapi(std::filesystem::absolute(cpp_output_path_dx12 / "dx12_structs.hpp"));
+    auto output_dx_abs = std::filesystem::absolute(cpp_output_path_dx12 / "dx12_structs.hpp");
+    std::ofstream out_dxapi(output_dx_abs);
     if (!out_dxapi.is_open())
         return 1;
 
@@ -224,8 +233,10 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
             dxapi += c.value;
     }
     out_dxapi << dxapi + "}\n";
+    files.emplace_back(output_dx_abs);
 
-    std::ofstream out_vkapi(std::filesystem::absolute(cpp_output_path_vulkan / "vk_structs.hpp"));
+    auto output_vk_abs = std::filesystem::absolute(cpp_output_path_vulkan / "vk_structs.hpp");
+    std::ofstream out_vkapi(output_vk_abs);
     if (!out_vkapi.is_open())
         return 1;
 
@@ -244,6 +255,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     }
 
     out_vkapi << vkapi + "}\n";
+    files.emplace_back(output_vk_abs);
     return 0;
 }
 
@@ -348,7 +360,7 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
             output += wis::format("using {} = {}{};\n", name, impl, name);
     }
 
-    for (auto& f : functions) {
+    for (auto& f : cpp_funcs) {
         if (f.this_type.empty()) {
             output += MakeCPPPlatformFunc(f, impl);
         }
@@ -386,13 +398,13 @@ static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
 static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #endif // WISDOM_LINUX
 
-#if WISDOM_VULKAN && defined(WISDOM_FORCE_VULKAN)
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
 #define FORCEVK_SWITCH 1
 #else
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
 
-#if WISDOM_DX12 && !FORCEVK_SWITCH
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 #include "wisdom_dx12.h"
 
 )"
@@ -400,7 +412,7 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
     output_wisdom += GenerateCPPPlatformTypedefs("DX12");
     output_wisdom += R"(
-#elif WISDOM_VULKAN
+#elif defined(WISDOM_VULKAN)
 #include "wisdom_vk.h"
 
 )";
@@ -486,9 +498,20 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 {
     for (auto* func = type->FirstChildElement("func"); func;
          func = func->NextSiblingElement("func")) {
-        auto& ref = functions.emplace_back();
 
+        auto* mod = func->FindAttribute("mod");
         auto name = func->FindAttribute("name")->Value();
+        WisFunction* ptr = nullptr;
+        bool cpp_only = mod && std::string_view(mod->Value()) == "cpp-only";
+
+        if (cpp_only) {
+            ptr = &cpp_funcs.emplace_back();
+        } else {
+            ptr = &functions.emplace_back();
+        }
+
+        auto& ref = *ptr;
+
         ref.name = name;
         ref.return_types = ParseFunctionReturn(func);
         ref.parameters = ParseFunctionArgs(func);
@@ -514,6 +537,9 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             (uint32_t&)ref.impl = GetImplementedFor(ref.this_type);
         else
             (uint32_t&)ref.impl &= GetImplementedFor(ref.this_type);
+
+        if (!cpp_only)
+            cpp_funcs.emplace_back(ref);
     }
 }
 
@@ -775,7 +801,7 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
             std::string res_type;
 
             if (m.modifier == "ptr")
-                res_type = '*';
+                res_type = "*";
 
             st_decl += m.array_size.empty()
                     ? wis::format("    {} {};\n", mfull_name + res_type, m.name)

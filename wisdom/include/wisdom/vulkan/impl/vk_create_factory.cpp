@@ -1,34 +1,11 @@
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_CREATE_FACTORY_CPP
+#define VK_CREATE_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
-#else
-#pragma once
-#endif // !WISDOM_HEADER_ONLY
-
 #include <unordered_map>
 #include <array>
 #include <wisdom/util/misc.h>
 
 namespace wis::detail {
-// required extensions for the instance
-constexpr inline std::array instance_extensions{
-    VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-#endif
-#if defined(VK_USE_PLATFORM_METAL_EXT)
-    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
-#endif
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-                                                 VK_KHR_XCB_SURFACE_EXTENSION_NAME,
-#endif
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
-#endif
-#if DEBUG_MODE
-    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-#endif
-};
-
 struct FactoryData {
 public:
     static const FactoryData& instance() noexcept
@@ -154,7 +131,7 @@ std::vector<const char*> wis::VKFactory::FoundLayers() noexcept
 }
 
 wis::ResultValue<wis::VKFactory>
-wis::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept
+wis::detail::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept
 {
     wis::detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
     auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
@@ -166,7 +143,7 @@ wis::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) 
     table->Init(instance, gt);
 
     auto factory = wis::VKFactory{ wis::SharedInstance{ instance, gt.vkDestroyInstance, std::move(table) }, version, debug_layer };
-    auto result = factory.EnumeratePhysicalDevices();
+    auto result = factory.VKEnumeratePhysicalDevices();
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Failed to enumerate physical devices">(result);
 
@@ -220,9 +197,112 @@ wis::VKCreateFactory(bool debug_layer) noexcept
 
     auto factory = wis::VKFactory{ wis::SharedInstance{ instance.release(), gt.vkDestroyInstance, std::move(table) }, version, debug_layer };
 
-    vr = factory.EnumeratePhysicalDevices();
+    vr = factory.VKEnumeratePhysicalDevices();
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to enumerate physical devices">(vr);
 
     return std::move(factory);
 }
+
+wis::ResultValue<wis::VKFactory>
+wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept
+{
+    size_t ext_alloc_size = detail::instance_extensions.size();
+    size_t layer_alloc_size = detail::instance_layers.size();
+    for (size_t i = 0; i < extension_count; i++) {
+        ext_alloc_size += extensions[i]->RequiredExtensionsSize();
+        layer_alloc_size += extensions[i]->RequiredLayersSize();
+    }
+
+    const char** ext_alloc_raw = nullptr;
+    std::unique_ptr<const char*[]> ext_alloc;
+
+    if (ext_alloc_size > detail::instance_extensions.size()) {
+        ext_alloc = wis::detail::make_unique_for_overwrite<const char*[]>(ext_alloc_size);
+        ext_alloc_raw = ext_alloc.get();
+        std::copy(detail::instance_extensions.begin(), detail::instance_extensions.end(), ext_alloc_raw);
+    } else {
+        ext_alloc_raw = const_cast<const char**>(detail::instance_extensions.data());
+    }
+
+    const char** layer_alloc_raw = nullptr;
+    std::unique_ptr<const char*[]> layer_alloc;
+
+    if (layer_alloc_size > detail::instance_layers.size()) {
+        layer_alloc = wis::detail::make_unique_for_overwrite<const char*[]>(layer_alloc_size);
+        layer_alloc_raw = ext_alloc.get();
+        std::copy(detail::instance_layers.begin(), detail::instance_layers.end(), layer_alloc_raw);
+    } else {
+        layer_alloc_raw = const_cast<const char**>(detail::instance_layers.data());
+    }
+
+    size_t index_ext = detail::instance_extensions.size();
+    size_t index_layer = detail::instance_layers.size();
+
+    for (size_t i = 0; i < extension_count; i++) {
+        auto ext = extensions[i]->GetRequiredExtensions();
+        auto layer = extensions[i]->GetRequiredLayers();
+
+        if (ext.size() > 0)
+            std::copy(ext.begin(), ext.end(), ext_alloc_raw + index_ext);
+        if (layer.size() > 0)
+            std::copy(layer.begin(), layer.end(), layer_alloc_raw + index_layer);
+
+        index_ext += ext.size();
+        index_layer += layer.size();
+    }
+
+    return detail::VKCreateFactoryWithExtensions(debug_layer, ext_alloc_raw, ext_alloc_size, layer_alloc_raw, layer_alloc_size);
+}
+
+wis::ResultValue<wis::VKFactory>
+wis::detail::VKCreateFactoryWithExtensions(bool debug_layer, const char** exts, size_t extension_count, const char** layers, size_t layer_count) noexcept
+{
+    detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
+    auto& gt = detail::VKFactoryGlobals::Instance().global_table;
+    VkResult vr{};
+    uint32_t version = 0;
+    if (gt.vkEnumerateInstanceVersion) {
+        vr = gt.vkEnumerateInstanceVersion(&version);
+        if (!wis::succeeded(vr))
+            return wis::make_result<FUNC, "Failed to enumerate instance version">(vr);
+    } else {
+        version = VK_API_VERSION_1_0;
+    }
+
+    wis::lib_info(wis::format("Vulkan version: {}.{}.{}", VK_API_VERSION_MAJOR(version),
+                              VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
+
+    VkApplicationInfo info{
+        VK_STRUCTURE_TYPE_APPLICATION_INFO, nullptr, "", VK_MAKE_API_VERSION(0, 1, 0, 0), "",
+        VK_MAKE_API_VERSION(0, 1, 0, 0), version
+    };
+
+    VkInstanceCreateInfo create_info{ .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+                                      .pApplicationInfo = &info,
+                                      .enabledLayerCount = uint32_t(layer_count),
+                                      .ppEnabledLayerNames = layers,
+                                      .enabledExtensionCount = uint32_t(extension_count),
+                                      .ppEnabledExtensionNames = exts };
+
+    wis::managed_handle<VkInstance> instance;
+    vr = gt.vkCreateInstance(&create_info, nullptr, instance.put(gt.vkDestroyInstance));
+    if (!wis::succeeded(vr))
+        return wis::make_result<FUNC, "Failed to create instance">(vr);
+
+    auto table = wis::detail::make_unique<wis::VkInstanceTable>();
+    if (!table)
+        return wis::make_result<FUNC, "Failed to create instance table">(VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    table->Init(instance.get(), gt);
+
+    auto factory = wis::VKFactory{ wis::SharedInstance{ instance.release(), gt.vkDestroyInstance, std::move(table) }, version, debug_layer };
+
+    vr = factory.VKEnumeratePhysicalDevices();
+    if (!wis::succeeded(vr))
+        return wis::make_result<FUNC, "Failed to enumerate physical devices">(vr);
+
+    return std::move(factory);
+}
+
+#endif // !VK_CREATE_FACTORY_CPP

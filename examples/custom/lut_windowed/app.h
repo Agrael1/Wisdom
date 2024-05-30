@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
 #include "window.h"
+#include <wisdom/wisdom_windows.h>
 
 class App
 {
@@ -18,6 +19,8 @@ public:
 
 private:
     Window wnd;
+
+    wis::platform::WindowsExtension windows_ext;
 
     uint32_t width;
     uint32_t height;

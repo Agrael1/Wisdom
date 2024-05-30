@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_ADAPTER_H
+#define VK_ADAPTER_H
 #include <span>
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_checks.h>
@@ -35,3 +36,4 @@ public:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_adapter.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !VK_ADAPTER_H

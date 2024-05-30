@@ -1,8 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef VK_COMMAND_LIST_CPP
+#define VK_COMMAND_LIST_CPP
 #include <wisdom/vulkan/vk_command_list.h>
-#endif // !WISDOM_HEADER_ONLY
-
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/small_allocator.h>
@@ -434,3 +432,5 @@ void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis
     device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
                                                       &index, &offset);
 }
+
+#endif // !

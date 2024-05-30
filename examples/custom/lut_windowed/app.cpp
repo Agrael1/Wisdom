@@ -1,5 +1,4 @@
 #include "app.h"
-#include <wisdom/platform/win32.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
 
@@ -53,8 +52,8 @@ App::App(uint32_t width, uint32_t height)
     : wnd(width, height, "Lut Test"), width(width), height(height)
 {
     // wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
-
-    auto [result, factory] = wis::CreateFactory(false);
+    std::array<wis::FactoryExtension*, 1> extensions = { &windows_ext };
+    auto [result, factory] = wis::CreateFactoryWithExtensions(false, extensions.data(), extensions.size());
 
     // auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
     // info = std::move(hinfo);
@@ -123,8 +122,8 @@ App::App(uint32_t width, uint32_t height)
             .vsync = true,
         };
 
-        auto [res3, hswap] = wis::CreateSwapchainWin32(device, queue, &desc,
-                                                       wnd.GetHandle());
+        auto [res3, hswap] = windows_ext.CreateSwapchain(device, queue, &desc,
+                                                         wnd.GetHandle());
         swap = std::move(hswap);
         back_buffers = swap.GetBufferSpan();
 
@@ -642,5 +641,5 @@ void App::WaitForGPU()
     const uint64_t vfence = fence_value;
     queue.SignalQueue(fence, vfence);
     fence_value++;
-    fence.Wait(vfence);
+    std::ignore = fence.Wait(vfence);
 }

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_DEBUG_H
+#define VK_DEBUG_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_handles.h>
 
@@ -6,10 +7,10 @@ namespace wis {
 class VKDebugMessenger;
 
 namespace detail {
-    struct DebugCallbackData {
-        DebugCallback callback;
-        void* user_data;
-    };
+struct DebugCallbackData {
+    DebugCallback callback;
+    void* user_data;
+};
 } // namespace detail
 
 template<>
@@ -41,6 +42,11 @@ public:
         : QueryInternal(std::move(instance), messenger, std::move(data))
     {
     }
-    operator bool() const noexcept { return bool(messenger); }
+    operator bool() const noexcept
+    {
+        return bool(messenger);
+    }
 };
 } // namespace wis
+
+#endif // !VK_DEBUG_H

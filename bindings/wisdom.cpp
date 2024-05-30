@@ -1,6 +1,6 @@
 #include "wisdom.h"
 
-#ifdef WISDOM_DX12
+#if defined(WISDOM_DX12)
 #include <wisdom/wisdom_dx12.h>
 
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
@@ -149,7 +149,7 @@ extern "C" WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device
 }
 #endif
 
-#ifdef WISDOM_VULKAN
+#if defined(WISDOM_VULKAN)
 #include <wisdom/wisdom_vk.h>
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)

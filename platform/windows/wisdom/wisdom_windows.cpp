@@ -1,14 +1,13 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
-#include <wisdom/platform/win32.h>
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
-
+#ifndef WISDOM_WINDOWS_CPP
+#define WISDOM_WINDOWS_CPP
+#include <wisdom/wisdom_windows.h>
+#include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/util/log_layer.h>
 #include <d3d11.h>
 
 namespace wis::detail {
-void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
+inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
 {
     swap_desc.Width = desc->size.width;
     swap_desc.Height = desc->size.height;
@@ -23,7 +22,7 @@ void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc*
     swap_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_desc.Flags = 0;
 }
-wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
+inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
     constexpr D3D_FEATURE_LEVEL featureLevels[]{
         D3D_FEATURE_LEVEL_11_1,
@@ -41,7 +40,7 @@ wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 } // namespace wis::detail
 
 wis::ResultValue<wis::DX12SwapChain>
-wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
+wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
@@ -85,7 +84,7 @@ wis::DX12CreateSwapchainWin32(const DX12Device& device, DX12QueueView main_queue
 }
 
 wis::ResultValue<wis::DX12SwapChain>
-wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
+wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
@@ -127,12 +126,13 @@ wis::DX12CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, 
     return DX12SwapChain{ std::move(create_info) };
 }
 
-#if WISDOM_VULKAN
-#include <vulkan/vulkan_win32.h>
+#ifdef WISDOM_VULKAN
 #include <wisdom/vulkan/vk_device.h>
 
+// #error error
+
 wis::ResultValue<wis::VKSwapChain>
-wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
+wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 {
     VkWin32SurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
@@ -144,10 +144,9 @@ wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, cons
     wis::lib_info("Initializing Win32 Surface");
 
     auto& devicei = device.GetInternal();
-    const auto& instance_table = devicei.GetInstanceTable();
-    const auto& instance = devicei.adapter.GetInternal().instance;
+    const auto& instance_table = instance.table();
     VkSurfaceKHR surface;
-    auto result = instance_table.vkCreateWin32SurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
+    auto result = vkCreateWin32SurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(result)) {
         return wis::make_result<FUNC, "Failed to create Win32 surface">(result);
     }
@@ -155,3 +154,4 @@ wis::VKCreateSwapchainWin32(const VKDevice& device, VKQueueView main_queue, cons
     return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
 }
 #endif // WISDOM_VULKAN
+#endif // WISDOM_WINDOWS_CPP

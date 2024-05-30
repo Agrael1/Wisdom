@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VK_COMMAND_QUEUE_H
+#define VK_COMMAND_QUEUE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>
@@ -47,3 +48,4 @@ public:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_command_queue.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !
