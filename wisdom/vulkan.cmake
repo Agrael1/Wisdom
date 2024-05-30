@@ -9,7 +9,7 @@ message(STATUS "Vulkan found!")
 
 
 add_library (wisdom-vk-headers INTERFACE)
-add_library (wis::wisdom-vk-headers ALIAS wisdom-vk-headers)
+add_library (wis::vulkan-headers ALIAS wisdom-vk-headers)
 target_link_libraries(wisdom-vk-headers INTERFACE wisdom-shared VKAllocator Wisdom::WisVk)
 target_compile_definitions(wisdom-vk-headers INTERFACE WISDOM_VULKAN=1 WISVK_NO_DEFAULT_DELETER=1)
 
@@ -32,6 +32,7 @@ if(WISDOM_BUILD_BINARIES)
  		"include/wisdom/vulkan/vk_swapchain.h"
  		"include/wisdom/vulkan/vk_debug.h"
 	)
+	add_library(wis::vulkan ALIAS wisdom-vk)
 	target_sources(wisdom-vk
 		PRIVATE 
  			"include/wisdom/vulkan/impl/vk_descriptor_buffer.cpp"
@@ -49,7 +50,7 @@ if(WISDOM_BUILD_BINARIES)
 	target_compile_definitions(wisdom-vk PUBLIC WISDOM_BUILD_BINARIES=1)
 else()
 	add_library(wisdom-vk ALIAS wisdom-vk-headers)
-	add_library(wis::wisdom-vk ALIAS wisdom-vk)
+	add_library(wis::vulkan ALIAS wisdom-vk)
 endif()
 
 install(

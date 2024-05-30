@@ -14,15 +14,21 @@ include(shared.cmake)
 include(dx12.cmake)
 include(vulkan.cmake)
 
-add_library(wis-header-only INTERFACE)
-add_library(wis::wis-header-only ALIAS wis-header-only)
+add_library(wisdom-headers INTERFACE)
+add_library(wis::header-only ALIAS wisdom-headers)
 
-add_library(${PROJECT_NAME} INTERFACE)
-add_library(wis::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+add_library(wisdom INTERFACE)
+add_library(wis::wisdom ALIAS wisdom)
 
-include(platform.cmake)
-target_link_libraries(wis-header-only INTERFACE wisdom-platform-headers)
-target_link_libraries(${PROJECT_NAME} INTERFACE wisdom-platform)
+if(WISDOM_VULKAN)
+  target_link_libraries(wisdom-headers INTERFACE wis::vulkan-headers)
+  target_link_libraries(wisdom INTERFACE wis::vulkan)
+endif()
+
+if(WISDOM_DX12)
+  target_link_libraries(wisdom-headers INTERFACE wis::dx12-headers)
+  target_link_libraries(wisdom INTERFACE wis::dx12)
+endif()
 
 # API generation
 if(WISDOM_GENERATE_API)
@@ -30,11 +36,11 @@ if(WISDOM_GENERATE_API)
     GenerateAPI
     COMMAND $<TARGET_FILE:generator>
     DEPENDS generator)
-  add_dependencies(wis-header-only GenerateAPI)
+  add_dependencies(wisdom-headers GenerateAPI)
 endif()
 
 install(
-  TARGETS ${PROJECT_NAME} wis-header-only
+  TARGETS wisdom wisdom-headers
   EXPORT wisdom-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

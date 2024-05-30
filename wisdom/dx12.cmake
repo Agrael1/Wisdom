@@ -8,7 +8,7 @@ set(WISDOM_DX12 TRUE CACHE BOOL "Enable DirectX 12 Support" FORCE)
 
 
 add_library (wisdom-dx12-headers INTERFACE)
-add_library (wis::wisdom-dx12-headers ALIAS wisdom-dx12-headers)
+add_library (wis::dx12-headers ALIAS wisdom-dx12-headers)
 target_link_libraries(wisdom-dx12-headers INTERFACE 
 		wisdom-shared
 		DX12Agility
@@ -50,11 +50,12 @@ if(WISDOM_BUILD_BINARIES)
 			"include/wisdom/dx12/impl/dx12_swapchain.cpp"
 			"include/wisdom/dx12/impl/dx12_info.cpp"
 	)
+	add_library(wis::dx12 ALIAS wisdom-dx12)
 	target_link_libraries(wisdom-dx12 PUBLIC wisdom-dx12-headers)
 	target_compile_definitions(wisdom-dx12 PUBLIC WISDOM_BUILD_BINARIES=1)
 else()
 	add_library(wisdom-dx12 ALIAS wisdom-dx12-headers)
-	add_library(wis::wisdom-dx12 ALIAS wisdom-dx12)
+	add_library(wis::dx12 ALIAS wisdom-dx12)
 endif()
 
 install(
