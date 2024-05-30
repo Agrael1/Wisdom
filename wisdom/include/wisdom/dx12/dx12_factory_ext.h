@@ -9,7 +9,8 @@ class DX12Factory;
 namespace wis {
 struct DX12FactoryExtension {
     virtual ~DX12FactoryExtension() = default;
-    virtual wis::Result Init(const wis::DX12Factory& instance) noexcept {
+    virtual wis::Result Init(const wis::DX12Factory& instance) noexcept
+    {
         return {};
     }
 };

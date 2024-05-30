@@ -74,7 +74,6 @@ public:
     WIS_INLINE void WriteShaderResource2(uint32_t index, wis::VKShaderResourceView resource) noexcept;
     WIS_INLINE void WriteConstantBuffer2(uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept;
 
-
     // Returns the offset for the next set
     WIS_INLINE uint64_t WriteShaderResource(uint64_t buffer_offset_before_table,
                                             uint32_t root_table_index,

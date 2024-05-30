@@ -123,7 +123,8 @@ public:
     Generator(tinyxml2::XMLDocument& doc);
 
 public:
-    std::span<const std::filesystem::path> GetFiles() const noexcept {
+    std::span<const std::filesystem::path> GetFiles() const noexcept
+    {
         return files;
     }
 

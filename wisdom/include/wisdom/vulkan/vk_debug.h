@@ -42,7 +42,8 @@ public:
         : QueryInternal(std::move(instance), messenger, std::move(data))
     {
     }
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(messenger);
     }
 };

@@ -29,7 +29,8 @@ public:
     }
 
 public:
-    auto& table() const noexcept {
+    auto& table() const noexcept
+    {
         return *m_device_table;
     }
 
@@ -46,7 +47,8 @@ public:
     }
 
 public:
-    auto& table() const noexcept {
+    auto& table() const noexcept
+    {
         return *m_device_table;
     }
 
@@ -73,13 +75,13 @@ struct managed_header_ex : public managed_header<HandleType> {
 };
 
 template<typename HandleType>
-requires std::same_as<parent_of_t<HandleType>, VkDevice>
+    requires std::same_as<parent_of_t<HandleType>, VkDevice>
 struct managed_header_ex<HandleType> {
     SharedDevice parent;
     deleter_of_t<HandleType> deleter;
 };
 template<typename HandleType>
-requires std::same_as<parent_of_t<HandleType>, VkInstance>
+    requires std::same_as<parent_of_t<HandleType>, VkInstance>
 struct managed_header_ex<HandleType> {
     SharedInstance parent;
     deleter_of_t<HandleType> deleter;
@@ -87,12 +89,12 @@ struct managed_header_ex<HandleType> {
 
 template<typename HandleType>
 class managed_handle_ex : public managed_handle_base<HandleType, managed_header_ex<HandleType>,
-    managed_handle_ex<HandleType>>
+                                                     managed_handle_ex<HandleType>>
 {
 public:
     managed_handle_ex() = default;
     using managed_handle_base<HandleType, managed_header_ex<HandleType>,
-          managed_handle_ex<HandleType>>::managed_handle_base;
+                              managed_handle_ex<HandleType>>::managed_handle_base;
 };
 
 template<typename HandleType>
@@ -100,12 +102,12 @@ struct scoped_header {
 };
 
 template<typename HandleType>
-requires std::same_as<parent_of_t<HandleType>, nullptr_t>
+    requires std::same_as<parent_of_t<HandleType>, nullptr_t>
 struct scoped_header<HandleType> {
     deleter_of_t<HandleType> deleter;
 };
 template<typename HandleType>
-requires requires { !std::is_same_v<parent_of_t<HandleType>, nullptr_t>; }
+    requires requires { !std::is_same_v<parent_of_t<HandleType>, nullptr_t>; }
 struct scoped_header<HandleType> {
     parent_of_t<HandleType> parent;
     deleter_of_t<HandleType> deleter;
@@ -113,38 +115,36 @@ struct scoped_header<HandleType> {
 
 template<typename HandleType>
 class scoped_handle : public managed_handle_base<HandleType, scoped_header<HandleType>,
-    scoped_handle<HandleType>>
+                                                 scoped_handle<HandleType>>
 {
 public:
     scoped_handle() = default;
     using managed_handle_base<HandleType, scoped_header<HandleType>,
-          scoped_handle<HandleType>>::managed_handle_base;
+                              scoped_handle<HandleType>>::managed_handle_base;
     friend managed_handle_base<HandleType, scoped_header<HandleType>,
-           scoped_handle<HandleType>>;
+                               scoped_handle<HandleType>>;
 
 protected:
     void internal_destroy() noexcept
-    requires(!has_header_v<HandleType>)
+        requires(!has_header_v<HandleType>)
     {
     }
     void internal_destroy() noexcept
-    requires(!has_parent_v<HandleType> && !has_pool_v<HandleType>)
+        requires(!has_parent_v<HandleType> && !has_pool_v<HandleType>)
     {
         this->m_header.deleter(this->m_handle);
     }
     void internal_destroy() noexcept
-    requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
+        requires(has_parent_v<HandleType> && !has_pool_v<HandleType>)
     {
         this->m_header.deleter(this->m_header.parent, this->m_handle);
     }
     void internal_destroy() noexcept
-    requires(has_pool_v<HandleType>)
+        requires(has_pool_v<HandleType>)
     {
         this->m_header.deleter(this->m_header.parent, this->m_header.pool.get(), this->m_handle);
     }
 };
-
-
 
 /// Specializations
 
@@ -153,29 +153,30 @@ class shared_handle<VmaAllocator>
     : public wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>
 {
     using base =
-        wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>;
+            wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>;
     friend base;
 
 public:
     shared_handle() = default;
     explicit shared_handle(wis::SharedDevice device, VmaAllocator handle) noexcept
         : wis::shared_handle_base<VmaAllocator, wis::SharedDevice, shared_handle<VmaAllocator>>(
-              handle, std::move(device)) { }
+                  handle, std::move(device)) { }
 
-    [[nodiscard]] const auto& parent() const noexcept {
+    [[nodiscard]] const auto& parent() const noexcept
+    {
         return header();
     }
 
 protected:
-    void internal_destroy() noexcept {
+    void internal_destroy() noexcept
+    {
         vmaDestroyAllocator(get());
     }
 };
 
-
 class SharedSurface : public wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>, SharedSurface>
 {
-    using wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>,  SharedSurface>::shared_handle_base;
+    using wis::shared_handle_base<VkSurfaceKHR, wis::managed_header_ex<VkSurfaceKHR>, SharedSurface>::shared_handle_base;
 };
 } // namespace wis
 

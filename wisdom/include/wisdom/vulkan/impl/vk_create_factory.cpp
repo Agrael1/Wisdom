@@ -56,7 +56,7 @@ private:
         do
             vextensions.resize(count);
         while ((vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count,
-                     vextensions.data())) == VK_INCOMPLETE);
+                                                               vextensions.data())) == VK_INCOMPLETE);
 
         if (!wis::succeeded(vr))
             return;
@@ -181,7 +181,7 @@ wis::VKCreateFactory(bool debug_layer) noexcept
                                       .enabledLayerCount = static_cast<uint32_t>(found_layers.size()),
                                       .ppEnabledLayerNames = found_layers.data(),
                                       .enabledExtensionCount =
-                                          static_cast<uint32_t>(found_extension.size()),
+                                              static_cast<uint32_t>(found_extension.size()),
                                       .ppEnabledExtensionNames = found_extension.data() };
 
     wis::managed_handle<VkInstance> instance;

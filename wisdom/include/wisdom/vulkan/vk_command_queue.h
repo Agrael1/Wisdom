@@ -49,6 +49,3 @@ public:
 #include "impl/vk_command_queue.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // !
-
-
-

@@ -2,7 +2,6 @@
 #define DX12_DESCRIPTOR_BUFFER_CPP
 #include <wisdom/dx12/dx12_descriptor_buffer.h>
 
-
 void wis::DX12DescriptorBuffer::WriteSampler(uint32_t index, wis::DX12SamplerView sampler) noexcept
 {
     auto handle = heap->GetCPUDescriptorHandleForHeapStart();
@@ -64,6 +63,4 @@ uint64_t wis::DX12DescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_befor
     return buffer_offset_before_table + (binding + array_member) * heap_increment + heap_increment;
 }
 
-
 #endif // !DX12_DESCRIPTOR_BUFFER_CPP
-

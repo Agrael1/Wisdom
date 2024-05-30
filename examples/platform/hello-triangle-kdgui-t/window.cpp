@@ -76,7 +76,6 @@ Window::GetFactoryExtension() noexcept
     return p->ext.get();
 }
 
-
 wis::ResultValue<wis::SwapChain>
 Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queue) const noexcept
 {
@@ -98,14 +97,14 @@ Window::CreateSwapchain(const wis::Device& device, const wis::CommandQueue& queu
         auto* waylandWindow = dynamic_cast<KDGui::LinuxWaylandPlatformWindow*>(p->platformWindow());
 
         return static_cast<wis::platform::WaylandExtension*>(p->ext.get())
-               ->CreateSwapchain(device, queue, &desc, waylandPlatformIntegration->display(), waylandWindow->surface());
+                ->CreateSwapchain(device, queue, &desc, waylandPlatformIntegration->display(), waylandWindow->surface());
     } else {
         auto* xcbWindow = dynamic_cast<KDGui::LinuxXcbPlatformWindow*>(p->platformWindow());
         return static_cast<wis::platform::XCBExtension*>(p->ext.get())
-               ->CreateSwapchain(device, queue, &desc, xcbWindow->connection(), xcbWindow->handle());
+                ->CreateSwapchain(device, queue, &desc, xcbWindow->connection(), xcbWindow->handle());
     }
 #endif
-    return wis::Result {
+    return wis::Result{
         wis::Status::InvalidArgument,
         "No platform was selected"
     };
