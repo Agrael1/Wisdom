@@ -20,7 +20,7 @@ if(WISDOM_BUILD_BINARIES)
 	)
 	add_library(wis::xcb ALIAS wisdom-xcb)
 	target_link_libraries(wisdom-xcb PUBLIC wis::wisdom)
-	target_compile_definitions(wisdom-xcb PUBLIC WIS_WINDOWS_PLATFORM=1)
+	target_compile_definitions(wisdom-xcb PUBLIC WIS_XCB_PLATFORM=1)
 	target_include_directories(wisdom-xcb PUBLIC 
 	 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

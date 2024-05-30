@@ -2,6 +2,7 @@
 #include <KDGui/gui_application.h>
 #include <KDGui/window.h>
 #include <KDGui/gui_application.h>
+#include <wisdom/wisdom_platform.h>
 
 // #if defined(KD_PLATFORM_WIN32) && WISDOM_LINUX
 // #error WSL is not supported with KDGui
@@ -9,7 +10,6 @@
 
 #if defined(KD_PLATFORM_WIN32)
 #include <KDGui/platform/win32/win32_platform_window.h>
-#include <wisdom/wisdom_windows.h>
 #endif
 #if defined(KD_PLATFORM_LINUX)
 #include <KDGui/platform/linux/xcb/linux_xcb_platform_window.h>
