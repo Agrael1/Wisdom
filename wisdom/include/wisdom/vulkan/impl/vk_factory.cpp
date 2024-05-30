@@ -1,5 +1,5 @@
-#ifndef VK_CREATE_FACTORY_CPP
-#define VK_CREATE_FACTORY_CPP
+#ifndef VK_FACTORY_CPP
+#define VK_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
 
 #include <algorithm>

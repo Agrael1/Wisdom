@@ -39,11 +39,6 @@ struct Internal<VKFactory> {
     bool debug_layer = false;
 };
 
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
-VKCreateFactory(bool debug_layer = false) noexcept;
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
-VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept;
-
 class VKFactory : public QueryInternal<VKFactory>
 {
     struct IndexedAdapter {
@@ -95,10 +90,16 @@ private:
 private:
     mutable std::vector<IndexedAdapter> adapters{};
 };
+
+[[nodiscard]] WIS_INLINE wis::ResultValue<VKFactory>
+VKCreateFactory(bool debug_layer = false) noexcept;
+
+[[nodiscard]] WIS_INLINE wis::ResultValue<VKFactory>
+VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_factory.cpp"
 #include "impl/vk_create_factory.cpp"
-#endif // !WISDOM_HEADER_ONLY
+#endif // !WISDOM_BUILD_BINARIES
 #endif // VK_FACTORY_H
