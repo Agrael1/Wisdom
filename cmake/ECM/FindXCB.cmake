@@ -62,7 +62,7 @@ package config file.
 Since pre-1.0.0.
 #]=======================================================================]
 
-include(${CMAKE_CURRENT_LIST_DIR}/ECMFindModuleHelper.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ECMFindModuleHelpers.cmake)
 
 ecm_find_package_version_check(XCB)
 
