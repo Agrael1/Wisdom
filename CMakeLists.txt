@@ -28,6 +28,7 @@ include(cmake/settings.cmake)
 include(cmake/functions.cmake)
 include(cmake/misc.cmake)
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 # Include sub-projects.
 add_subdirectory("plugins")
@@ -35,12 +36,15 @@ add_subdirectory("generator")
 
 add_subdirectory("wisdom")
 
+# New platform targets.
+add_subdirectory("platform")
+
 if(WISDOM_BUILD_BINDINGS)
-  #add_subdirectory("bindings")
+  add_subdirectory("bindings")
 endif()
 if(WISDOM_BUILD_EXAMPLES)
   option(WISDOM_EXCLUDE_KDGUI "Exclude KDGui Example from build" OFF)
-  #add_subdirectory("examples")
+  add_subdirectory("examples")
 endif()
 
 if(WISDOM_BUILD_TESTS)

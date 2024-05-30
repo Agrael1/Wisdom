@@ -107,7 +107,7 @@ wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_dat
     return wis::VKDebugMessenger{ factory, messenger, std::move(debug_callback) };
 }
 
-VkResult wis::VKFactory::EnumeratePhysicalDevices() noexcept
+VkResult wis::VKFactory::VKEnumeratePhysicalDevices() noexcept
 {
     auto& itable = factory.table();
 

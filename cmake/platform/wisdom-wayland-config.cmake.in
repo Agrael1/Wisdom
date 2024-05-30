@@ -2,30 +2,20 @@
 
 include(CMakeFindDependencyMacro)
 
-include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-shared-targets.cmake" )
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/ECM")
+find_dependency(wisdom REQUIRED)
+find_dependency(Wayland)
 
-
-if(WIN32)
-	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc.exe")
-	set(DXAGILITY_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/D3D12Core.dll")
-	set(DXAGILITY_DEBUG_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/d3d12SDKLayers.dll")
-	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-dx12-targets.cmake" )
-	find_dependency(Vulkan QUIET)
+if(Wayland_FOUND)
+	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-wayland-targets.cmake" )
+	add_library(wis::wayland ALIAS wis::wisdom-wayland)
+	add_library(wis::wayland-headers ALIAS wis::wisdom-wayland-headers)
 else()
-	find_dependency(Vulkan REQUIRED) # without Vulkan there is no target for linux
-	set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc")
-endif()
+	add_library(wisdom-wayland INTERFACE) # Dummy target
+	add_library(wisdom-wayland-headers INTERFACE) # Dummy target
 
-if(Vulkan_FOUND)
-	find_dependency(WisVk REQUIRED PATHS "${CMAKE_CURRENT_LIST_DIR}/../WisVk/")
-	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-vk-targets.cmake" )
-else()
-	# add empty targets to disable vulkan on platform code
-	add_library(wisdom-vk INTERFACE)
-	add_library(wis::wisdom-vk ALIAS wisdom-vk)
-	add_library(wis::wisdom-vk-headers ALIAS wisdom-vk)
-endif()
-include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-deps.cmake" )
-include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-targets.cmake" )
+	add_library(wis::wisdom-wayland ALIAS wisdom-wayland)
+	add_library(wis::wisdom-wayland-headers ALIAS wisdom-wayland-headers)
 
-add_library(wis::header-only ALIAS wis::wisdom-headers)
+	message(STATUS "Wayland not found, skipping wayland targets")
+endif()

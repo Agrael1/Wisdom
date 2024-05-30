@@ -123,6 +123,9 @@ public:
     Generator(tinyxml2::XMLDocument& doc);
 
 public:
+    std::span<const std::filesystem::path> GetFiles() const noexcept { return files; }
+
+public:
     int GenerateCAPI();
     int GenerateCPPAPI();
     std::tuple<std::string, std::string, std::string> GenerateCTypes();
@@ -171,8 +174,11 @@ public:
     TypeInfo GetTypeInfo(std::string_view type);
 
 private:
+    std::vector<std::filesystem::path> files;
+
     std::vector<WisStruct*> structs;
     std::vector<WisFunction> functions;
+    std::vector<WisFunction> cpp_funcs;
 
     std::vector<std::string> function_impl;
     std::vector<std::string> function_impl_dx;

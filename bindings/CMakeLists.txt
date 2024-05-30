@@ -11,7 +11,7 @@ endif()
 add_library(${PROJECT_NAME} ${WISDOM_LIB_TYPE} wisdom.h)
 target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/wisdom.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE wis::wisdom-headers)
+target_link_libraries(${PROJECT_NAME} PRIVATE wis::header-only)
 
 include(GenerateExportHeader)
 generate_export_header(

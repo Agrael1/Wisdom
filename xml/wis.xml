@@ -19,6 +19,7 @@
     <handle name="DescriptorBuffer"/>
     <handle name="Sampler"/>
     <handle name="ShaderResource"/>
+    <handle name="FactoryExtension"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -1518,6 +1519,13 @@
       <ret type="Factory" name="factory"/>
       <arg type="bool" name="debug_layer" default="false"/>
     </func>
+    
+    <!-- CPP func only-->
+    <func name="CreateFactoryWithExtensions" mod="cpp-only">
+      <ret type="Result" name="result"/>
+      <ret type="Factory" name="factory"/>
+    </func>
+    
     <func name="CreateDevice">
       <ret type="Result" name="result"/>
       <ret type="Device" name="device"/>

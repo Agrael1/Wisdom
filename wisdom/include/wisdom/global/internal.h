@@ -28,4 +28,22 @@ struct QueryInternal : protected Internal<Impl> {
         return *this;
     }
 };
+
+template<class Impl, class Extension>
+struct QueryInternalExtension : protected Internal<Impl>, public Extension {
+    QueryInternalExtension() = default;
+
+    template<class... Args>
+    explicit QueryInternalExtension(Args&&... args) noexcept
+        : Internal<Impl>(std::forward<Args>(args)...)
+    {
+    }
+
+    /// @brief Get the immutable internal implementation
+    /// @return Const reference to the internal implementation
+    [[nodiscard]] const Internal<Impl>& GetInternal() const noexcept
+    {
+        return *this;
+    }
+};
 } // namespace wis

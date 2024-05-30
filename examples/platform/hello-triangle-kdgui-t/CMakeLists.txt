@@ -11,7 +11,7 @@ wis_install_deps(${PROJECT_NAME})
 target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC PlatformExamplesShared
-  PRIVATE KDUtils::KDGui KDUtils::KDUtils wis::wisdom-platform)
+  PRIVATE KDUtils::KDGui KDUtils::KDUtils wis::platform)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_compile_definitions(
   ${PROJECT_NAME} PUBLIC SHADER_DIR="${SHADER_DIR}" GLM_FORCE_SIMD_AVX2

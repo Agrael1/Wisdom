@@ -1,5 +1,4 @@
 #include "app.h"
-#include <wisdom/platform/win32.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
 

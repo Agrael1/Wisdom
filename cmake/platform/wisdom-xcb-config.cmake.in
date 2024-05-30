@@ -1,0 +1,20 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/ECM")
+find_dependency(XCB)
+find_dependency(wisdom REQUIRED)
+
+if(XCB_FOUND)
+	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-xcb-targets.cmake" )
+	add_library(wis::xcb ALIAS wis::wisdom-xcb)
+	add_library(wis::xcb-headers ALIAS wis::wisdom-xcb-headers)
+else()
+	add_library(wisdom-xcb INTERFACE) # Dummy target
+	add_library(wisdom-xcb-headers INTERFACE) # Dummy target
+
+	add_library(wis::wisdom-xcb ALIAS wisdom-xcb)
+	add_library(wis::wisdom-xcb-headers ALIAS wisdom-xcb-headers)
+
+	message(STATUS "XCB not found, skipping xcb targets")
+endif()

@@ -7,8 +7,7 @@ add_executable(${PROJECT_NAME} entry_main.cpp app.h app.cpp lut_loader.h
 
 wis_install_deps(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE wis::wisdom-headers
-                                              wisdom-platform-headers glm::glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE wis::wisdom glm::glm)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_include_directories(${PROJECT_NAME} PRIVATE ${fpng_SOURCE_DIR}/src)
 

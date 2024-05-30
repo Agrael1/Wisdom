@@ -1,5 +1,5 @@
 #pragma once
-#if defined(WISDOM_LINUX) && defined(WISDOM_VULKAN)
+#if defined(WISDOM_VULKAN)
 // TODO: Remove this when the implementation is complete
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #include <vulkan/vulkan.h>
@@ -38,7 +38,7 @@ public:
 };
 
 namespace platform {
-class WaylandExtension : public QueryInternal<WaylandExtension>
+class WaylandExtension : public QueryInternalExtension<WaylandExtension>
 {
 public:
     static constexpr std::array<const char* const, 1> required_extensions = {

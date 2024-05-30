@@ -14,7 +14,6 @@ target_link_libraries(wisdom-dx12-headers INTERFACE
 		DX12Agility
 		DX12Allocator
 		d3d12
-		d3d11
 		DXGI
 		DXGUID)
 target_compile_definitions(wisdom-dx12-headers INTERFACE WISDOM_DX12=1)
@@ -38,7 +37,7 @@ if(WISDOM_BUILD_BINARIES)
 			"include/wisdom/dx12/dx12_allocator.h"
 			"include/wisdom/dx12/dx12_swapchain.h"
 			"include/wisdom/dx12/dx12_debug.h"
-	)
+	 "include/wisdom/dx12/dx12_factory_ext.h")
 	target_sources(wisdom-dx12
 		PRIVATE 
 			"include/wisdom/dx12/impl/dx12_allocator.cpp"

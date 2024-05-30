@@ -22,11 +22,11 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
     *stream << message << "\n";
 }
 
-Test::App::App()
+Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
 {
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
-    auto [result, factory] = wis::CreateFactory(true);
+    auto [result, factory] = wis::CreateFactoryWithExtensions(true, factory_exts.data(), factory_exts.size());
 
     auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
     info = std::move(hinfo);

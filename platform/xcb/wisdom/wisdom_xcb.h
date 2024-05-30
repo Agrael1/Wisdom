@@ -1,5 +1,5 @@
 #pragma once
-#if defined(WISDOM_LINUX) && defined(WISDOM_VULKAN)
+#if defined(WISDOM_VULKAN)
 // TODO: Remove this when the implementation is complete
 #define VK_USE_PLATFORM_XCB_KHR
 #include <vulkan/vulkan.h>
@@ -37,7 +37,7 @@ public:
 };
 
 namespace platform {
-class XCBExtension : public QueryInternal<XCBExtension>
+class XCBExtension : public QueryInternalExtension<XCBExtension>
 {
 public:
     static constexpr std::array<const char* const, 1> required_extensions = {

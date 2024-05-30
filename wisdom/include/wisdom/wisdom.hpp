@@ -14,13 +14,13 @@ static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
 static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #endif // WISDOM_LINUX
 
-#if WISDOM_VULKAN && defined(WISDOM_FORCE_VULKAN)
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
 #define FORCEVK_SWITCH 1
 #else
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
 
-#if WISDOM_DX12 && !FORCEVK_SWITCH
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 #include "wisdom_dx12.h"
 
 namespace wis {
@@ -34,6 +34,7 @@ using PipelineState = DX12PipelineState;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
 using Fence = DX12Fence;
+using FactoryExtension = DX12FactoryExtension;
 using ResourceAllocator = DX12ResourceAllocator;
 using Shader = DX12Shader;
 using CommandList = DX12CommandList;
@@ -46,6 +47,7 @@ using DescriptorBuffer = DX12DescriptorBuffer;
 using Sampler = DX12Sampler;
 using ShaderResource = DX12ShaderResource;
 constexpr auto CreateFactory = wis::DX12CreateFactory;
+constexpr auto CreateFactoryWithExtensions = wis::DX12CreateFactoryWithExtensions;
 constexpr auto CreateDevice = wis::DX12CreateDevice;
 using FenceView = DX12FenceView;
 using BufferView = DX12BufferView;
@@ -64,7 +66,7 @@ using RenderPassDesc = DX12RenderPassDesc;
 using VertexBufferBinding = DX12VertexBufferBinding;
 } // namespace wis
 
-#elif WISDOM_VULKAN
+#elif defined(WISDOM_VULKAN)
 #include "wisdom_vk.h"
 
 namespace wis {
@@ -78,6 +80,7 @@ using PipelineState = VKPipelineState;
 using Adapter = VKAdapter;
 using Device = VKDevice;
 using Fence = VKFence;
+using FactoryExtension = VKFactoryExtension;
 using ResourceAllocator = VKResourceAllocator;
 using Shader = VKShader;
 using CommandList = VKCommandList;
@@ -90,6 +93,7 @@ using DescriptorBuffer = VKDescriptorBuffer;
 using Sampler = VKSampler;
 using ShaderResource = VKShaderResource;
 constexpr auto CreateFactory = wis::VKCreateFactory;
+constexpr auto CreateFactoryWithExtensions = wis::VKCreateFactoryWithExtensions;
 constexpr auto CreateDevice = wis::VKCreateDevice;
 using FenceView = VKFenceView;
 using BufferView = VKBufferView;

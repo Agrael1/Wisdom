@@ -1,8 +1,10 @@
 project(generator)
 
+include(format.cmake)
 include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
 
 # Load tinyxml2
 message("Loading tinyxml2...")
@@ -27,6 +29,7 @@ target_sources(${PROJECT_NAME} PRIVATE entry_main.cpp generator.h generator.cpp)
 target_compile_definitions(
   ${PROJECT_NAME}
   PRIVATE
+    CLANG_FORMAT_EXECUTABLE="${CLANG_FORMAT_EXECUTABLE}"
     "INPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\""
     "OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../bindings\""
     "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/include/wisdom\"")

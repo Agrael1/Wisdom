@@ -1,16 +1,13 @@
-#if defined(WISDOM_BUILD_BINARIES)
+#ifndef WISDOM_WINDOWS_CPP
+#define WISDOM_WINDOWS_CPP
 #include <wisdom/wisdom_windows.h>
-#else
-#pragma once
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
-
 #include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/util/log_layer.h>
 #include <d3d11.h>
 
 namespace wis::detail {
-void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
+inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc* desc) noexcept
 {
     swap_desc.Width = desc->size.width;
     swap_desc.Height = desc->size.height;
@@ -25,7 +22,7 @@ void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc*
     swap_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_desc.Flags = 0;
 }
-wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
+inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
     constexpr D3D_FEATURE_LEVEL featureLevels[]{
         D3D_FEATURE_LEVEL_11_1,
@@ -132,6 +129,8 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
 #ifdef WISDOM_VULKAN
 #include <wisdom/vulkan/vk_device.h>
 
+//#error error
+
 wis::ResultValue<wis::VKSwapChain>
 wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
 {
@@ -155,3 +154,4 @@ wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQue
     return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
 }
 #endif // WISDOM_VULKAN
+#endif // WISDOM_WINDOWS_CPP
