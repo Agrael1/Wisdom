@@ -4,25 +4,25 @@
 #include <span>
 #include <vector>
 #include <vk_mem_alloc.h>
-#include <wisvk/vk_loader.hpp>
+#include <wisdom/generated/vulkan/vk_functions.hpp>
 #include <wisvk/vk_movable.hpp>
 #include <wisvk/vk_managed_handles.hpp>
 
 namespace wis {
 struct SharedDeviceHeader {
     deleter_of_t<VkDevice> deleter;
-    std::unique_ptr<VkDeviceTable> device_table;
+    std::unique_ptr<wis::VKMainDevice> device_table;
 };
 struct SharedInstanceHeader {
     deleter_of_t<VkInstance> deleter;
-    std::unique_ptr<VkInstanceTable> instance_table;
+    std::unique_ptr<wis::VKMainInstance> instance_table;
 };
 
 class SharedDevice : public shared_handle_base<VkDevice, SharedDeviceHeader, SharedDevice>
 {
 public:
     SharedDevice() noexcept = default;
-    explicit SharedDevice(VkDevice device, std::unique_ptr<VkDeviceTable> device_table) noexcept
+    explicit SharedDevice(VkDevice device, std::unique_ptr<VKMainDevice> device_table) noexcept
         : shared_handle_base(device, nullptr, std::move(device_table)), m_device_table(m_control->m_header.device_table.get())
     {
         m_control->m_header.deleter.m_pfn = m_control->m_header.device_table->vkDestroyDevice;
@@ -35,13 +35,13 @@ public:
     }
 
 protected:
-    VkDeviceTable* m_device_table = nullptr;
+    VKMainDevice* m_device_table = nullptr;
 };
 class SharedInstance : public shared_handle_base<VkInstance, SharedInstanceHeader, SharedInstance>
 {
 public:
     SharedInstance() noexcept = default;
-    explicit SharedInstance(VkInstance device, PFN_vkDestroyInstance deleter, std::unique_ptr<VkInstanceTable> instance_table) noexcept
+    explicit SharedInstance(VkInstance device, PFN_vkDestroyInstance deleter, std::unique_ptr<VKMainInstance> instance_table) noexcept
         : shared_handle_base(device, deleter, std::move(instance_table)), m_device_table(m_control->m_header.instance_table.get())
     {
     }
@@ -53,7 +53,7 @@ public:
     }
 
 protected:
-    VkInstanceTable* m_device_table = nullptr;
+    VKMainInstance* m_device_table = nullptr;
 };
 
 struct SharedPipelineHeader {

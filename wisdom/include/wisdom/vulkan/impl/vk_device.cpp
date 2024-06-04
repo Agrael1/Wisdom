@@ -53,7 +53,7 @@ BiggestDescriptor(const VkPhysicalDeviceDescriptorBufferPropertiesEXT& dbufprops
 }
 } // namespace wis::detail
 
-inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
+inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
 {
     std::vector<VkExtensionProperties> ext_props;
     uint32_t count = 0;
@@ -84,25 +84,25 @@ inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VkInstanceTab
     return avail_exts;
 }
 
-inline wis::detail::QueueResidency GetQueueFamilies(VkPhysicalDevice adapter, const wis::VkInstanceTable& itable) noexcept
+inline wis::detail::QueueResidency
+GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
 {
     using namespace wis::detail;
     using wis::operator+;
 
-    std::vector<VkQueueFamilyProperties> family_props;
     VkResult result = VK_SUCCESS;
     uint32_t count = 0;
     itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
-    family_props.resize(count);
-    itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.data());
+    auto family_props = wis::detail::make_fixed_allocation<VkQueueFamilyProperties>(count);
+    itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.get_data());
 
-    wis::lib_info(wis::format("The system supports {} queue families", family_props.size()));
-    assert(family_props.size() < 256);
+    wis::lib_info(wis::format("The system supports {} queue families", family_props.size));
+    assert(family_props.size < 256);
 
     QueueResidency queues;
 
     // NOLINTNEXTLINE
-    for (uint8_t i = 0; i < family_props.size(); i++) {
+    for (uint8_t i = 0; i < family_props.size; i++) {
         using enum VkQueueFlagBits;
         auto& family = family_props[i];
         if ((family.queueFlags & VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT) ==
@@ -305,11 +305,12 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         return wis::make_result<FUNC, "vkCreateDevice failed to create device">(result);
 
     wis::managed_handle<VkDevice> device{ unsafe_device, (PFN_vkDestroyDevice)gtable.vkGetDeviceProcAddr(unsafe_device, "vkDestroyDevice") };
-    std::unique_ptr<VkDeviceTable> device_table = wis::detail::make_unique<VkDeviceTable>();
+    std::unique_ptr<VKMainDevice> device_table = wis::detail::make_unique<VKMainDevice>();
     if (!device_table)
         return wis::make_result<FUNC, "Failed to allocate device table">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    device_table->Init(device.get(), gtable);
+    if (!device_table->Init(device.get(), gtable.vkGetDeviceProcAddr))
+        return wis::make_result<FUNC, "Failed to initialize device table">(VkResult::VK_ERROR_UNKNOWN);
 
     auto feature_details = wis::detail::make_unique<FeatureDetails>();
     if (!feature_details)

@@ -47,7 +47,7 @@ struct Internal<platform::VKWindowsExtension> {
 };
 
 namespace platform {
-class VKWindowsExtension : public QueryInternalExtension<VKWindowsExtension, wis::VKFactoryExtension>
+class VKWindowsExtension : public QueryInternalExtension<VKWindowsExtension, wis::VKFactoryExtensionImpl<VKWindowsExtension>>
 {
 public:
     static constexpr std::array<const char* const, 1> required_extensions = {

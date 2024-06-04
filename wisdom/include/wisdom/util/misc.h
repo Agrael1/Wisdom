@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <span>
 
 namespace wis {
 struct string_hash {
@@ -38,5 +39,67 @@ template<std::integral I>
 constexpr inline I aligned_size(I size, I alignment) noexcept
 {
     return (size + alignment - 1) & ~(alignment - 1);
+}
+
+template<typename T>
+struct fixed_allocation {
+    std::unique_ptr<T[]> data;
+    size_t size = 0;
+
+    constexpr operator std::span<const T>() const noexcept
+    {
+        return { data.get(), size };
+    }
+    constexpr operator bool() const noexcept
+    {
+        return data != nullptr;
+    }
+    constexpr auto* get() noexcept
+    {
+        return data.get();
+    }
+    constexpr const auto* get() const noexcept
+    {
+        return data.get();
+    }
+    constexpr auto& operator[](size_t index) noexcept
+    {
+        return data[index];
+    }
+    constexpr const auto& operator[](size_t index) const noexcept
+    {
+        return data[index];
+    }
+    constexpr auto begin() noexcept
+    {
+        return data.get();
+    }
+    constexpr auto end() noexcept
+    {
+        return data.get() + size;
+    }
+    constexpr auto begin() const noexcept
+    {
+        return data.get();
+    }
+    constexpr auto end() const noexcept
+    {
+        return data.get() + size;
+    }
+
+    constexpr auto* get_data() noexcept
+    {
+        return data.get();
+    }
+    constexpr const auto* get_data() const noexcept
+    {
+        return data.get();
+    }
+};
+
+template<typename T>
+[[nodiscard]] constexpr fixed_allocation<T> make_fixed_allocation(size_t size) noexcept
+{
+    return { make_unique_for_overwrite<T[]>(size), size };
 }
 } // namespace wis::detail

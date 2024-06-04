@@ -52,7 +52,7 @@ wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
             break;
     }
 
-    AdapterFlags flag;
+    AdapterFlags flag{};
     if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
         flag = AdapterFlags(flag | AdapterFlags::Remote);
     if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
