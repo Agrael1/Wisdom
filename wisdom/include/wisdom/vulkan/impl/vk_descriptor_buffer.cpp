@@ -46,7 +46,7 @@ uint64_t wis::VKDescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_bef
         .data = { .pSampledImage = &image_info }
     };
 
-    return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member,uint32_t(properties->sampledImageDescriptorSize), info, root_signature);
+    return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties->sampledImageDescriptorSize), info, root_signature);
 }
 
 uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table,

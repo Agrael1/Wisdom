@@ -15,15 +15,13 @@ namespace wis {
 class VKFactory;
 
 namespace detail {
-constexpr inline std::array instance_extensions
-{
+constexpr inline std::array instance_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if DEBUG_MODE
-            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
-constexpr inline std::array instance_layers
-{
+constexpr inline std::array instance_layers{
 #if DEBUG_MODE
     "VK_LAYER_KHRONOS_validation"
 #endif

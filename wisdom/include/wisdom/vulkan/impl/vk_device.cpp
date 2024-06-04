@@ -84,7 +84,7 @@ inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VKMainInstanc
     return avail_exts;
 }
 
-inline wis::detail::QueueResidency 
+inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
 {
     using namespace wis::detail;
@@ -309,7 +309,7 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
     if (!device_table)
         return wis::make_result<FUNC, "Failed to allocate device table">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    if(!device_table->Init(device.get(), gtable.vkGetDeviceProcAddr))
+    if (!device_table->Init(device.get(), gtable.vkGetDeviceProcAddr))
         return wis::make_result<FUNC, "Failed to initialize device table">(VkResult::VK_ERROR_UNKNOWN);
 
     auto feature_details = wis::detail::make_unique<FeatureDetails>();
