@@ -5,7 +5,7 @@
 #include <array>
 
 wis::ResultValue<wis::detail::fixed_allocation<VkExtensionProperties>>
-wis::VKFactory::EnumerateExtensions() noexcept
+        wis::VKFactory::EnumerateExtensions() noexcept
 {
     auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
     uint32_t count = 0;
@@ -21,7 +21,7 @@ wis::VKFactory::EnumerateExtensions() noexcept
 }
 
 wis::ResultValue<wis::detail::fixed_allocation<VkLayerProperties>>
-wis::VKFactory::EnumerateLayers() noexcept
+        wis::VKFactory::EnumerateLayers() noexcept
 {
     auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
     uint32_t count = 0;
@@ -37,7 +37,7 @@ wis::VKFactory::EnumerateLayers() noexcept
 }
 
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
+        wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 {
     auto ext_string = [](const auto& ext) {
         std::string str = "All Extensions:\n";
@@ -87,7 +87,7 @@ wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 }
 
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
+        wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 {
     auto ext_string = [](const auto& ext) {
         std::string str = "All Layers:\n";
