@@ -8,15 +8,15 @@ struct string_hash {
     using is_transparent = void;
     [[nodiscard]] size_t operator()(const char* txt) const
     {
-        return std::hash<std::string_view> {}(txt);
+        return std::hash<std::string_view>{}(txt);
     }
     [[nodiscard]] size_t operator()(std::string_view txt) const
     {
-        return std::hash<std::string_view> {}(txt);
+        return std::hash<std::string_view>{}(txt);
     }
     [[nodiscard]] size_t operator()(const std::string& txt) const
     {
-        return std::hash<std::string> {}(txt);
+        return std::hash<std::string>{}(txt);
     }
 };
 } // namespace wis
@@ -31,7 +31,7 @@ template<class Type, std::enable_if_t<std::is_unbounded_array_v<Type>, int> = 0>
 }
 template<class Type, class... Types, std::enable_if_t<!std::is_array_v<Type>, int> = 0>
 [[nodiscard]] constexpr std::unique_ptr<Type> make_unique(Types&&... Args) noexcept
-{   // make a unique_ptr
+{ // make a unique_ptr
     return std::unique_ptr<Type>(new (std::nothrow) Type(std::forward<Types>(Args)...));
 }
 
