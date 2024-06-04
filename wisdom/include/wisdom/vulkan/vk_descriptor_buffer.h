@@ -95,6 +95,7 @@ protected:
                                         uint32_t root_table_index,
                                         uint32_t binding,
                                         uint32_t array_member,
+                                        uint32_t descriptor_true_size,
                                         const VkDescriptorGetInfoEXT& info,
                                         wis::VKRootSignatureView2 root_signature) noexcept;
 };

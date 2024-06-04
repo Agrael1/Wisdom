@@ -53,6 +53,28 @@ else()
 	add_library(wis::vulkan ALIAS wisdom-vk)
 endif()
 
+if(WISDOM_FORCE_VULKAN)
+	target_compile_definitions(wisdom-vk-headers INTERFACE WISDOM_FORCE_VULKAN=1)
+endif()
+
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+    # Generate a shell script for Linux
+    set(LAUNCHER_SCRIPT "#!/bin/sh\nexec \"\$<TARGET_FILE:WisVk_generator>\" -l -i ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/vulkan/gen/vk_functions.in -o ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/generated/vulkan/vk_functions.hpp \"$@\"\n")
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/vulkan/gen/generate_functions.sh" CONTENT "${LAUNCHER_SCRIPT}")
+    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/vulkan/gen/generate_functions.sh)
+elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    # Generate a batch file for Windows
+    set(LAUNCHER_SCRIPT "@echo off\nstart /B \"\" \"\$<TARGET_FILE:WisVk_generator>\" -l -i ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/vulkan/gen/vk_functions.in -o ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/generated/vulkan/vk_functions.hpp %*\n")
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/vulkan/gen/generate_functions.bat" CONTENT "${LAUNCHER_SCRIPT}")
+endif()
+
+if(WISDOM_GENERATE_API)
+  add_custom_target(
+	GenerateFunctions
+	COMMAND $<TARGET_FILE:WisVk_generator> -l -i ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/vulkan/gen/vk_functions.in -o ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/generated/vulkan/vk_functions.hpp)
+  add_dependencies(wisdom-headers GenerateFunctions)
+endif()
+
 install(
   TARGETS wisdom-vk wisdom-vk-headers
   EXPORT wisdom-vk-targets

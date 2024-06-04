@@ -3,6 +3,7 @@
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
+#include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_debug.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
@@ -14,13 +15,15 @@ namespace wis {
 class VKFactory;
 
 namespace detail {
-constexpr inline std::array instance_extensions{
+constexpr inline std::array instance_extensions
+{
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if DEBUG_MODE
-    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+            VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #endif
 };
-constexpr inline std::array instance_layers{
+constexpr inline std::array instance_layers
+{
 #if DEBUG_MODE
     "VK_LAYER_KHRONOS_validation"
 #endif
@@ -32,15 +35,23 @@ struct VKFactoryGlobals {
         static VKFactoryGlobals instance;
         return instance;
     }
-    void InitializeGlobalTable() noexcept
+    bool InitializeGlobalTable() noexcept
     {
+        if (table_initialized)
+            return true;
+
         std::call_once(global_flag, [this]() {
-            global_table.Init(lib_token);
+            table_initialized = global_table.Init(lib_token);
+            if (!table_initialized)
+                wis::lib_error("Failed to initialize global table");
         });
+
+        return table_initialized;
     }
 
+    bool table_initialized = false;
     std::once_flag global_flag;
-    wis::VkGlobalTable global_table{};
+    wis::VKMainGlobal global_table{};
     wis::LibToken lib_token;
 };
 } // namespace detail
@@ -94,8 +105,15 @@ public:
 public:
     WIS_INLINE VkResult VKEnumeratePhysicalDevices() noexcept;
 
-    static WIS_INLINE std::vector<const char*> FoundExtensions() noexcept;
-    static WIS_INLINE std::vector<const char*> FoundLayers() noexcept;
+    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
+    FoundExtensions(std::span<const char*> in_extensions) noexcept;
+    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
+    FoundLayers(std::span<const char*> in_layers) noexcept;
+
+    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<VkLayerProperties>>
+    EnumerateLayers() noexcept;
+    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<VkExtensionProperties>>
+    EnumerateExtensions() noexcept;
 
 private:
     mutable std::vector<IndexedAdapter> adapters{};

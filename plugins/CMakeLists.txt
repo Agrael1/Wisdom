@@ -40,9 +40,6 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
     wisvk
     GIT_REPOSITORY https://github.com/Agrael1/Wisdom-VkUtils.git
     GIT_TAG origin/master)
-  set(WISVK_ONLY_HEADERS
-      ON
-      CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(wisvk)
 
   # Vulkan Memory Allocator
