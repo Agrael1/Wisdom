@@ -189,3 +189,9 @@ function(wis_compile_shader)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)
 endfunction()
+
+function(add_alias_target TARGET ALIAS)
+	if(NOT TARGET ${ALIAS})
+		add_library(${ALIAS} ALIAS ${TARGET})
+	endif()
+endfunction(add_alias_target)
