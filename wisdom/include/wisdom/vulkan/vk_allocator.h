@@ -40,7 +40,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
     CreateTexture(wis::TextureDesc desc) const noexcept;
 
-private:
+public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
     CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 

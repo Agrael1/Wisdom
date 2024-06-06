@@ -7,8 +7,8 @@ find_dependency(Wayland)
 
 if(Wayland_FOUND)
 	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-wayland-targets.cmake" )
-	add_library(wis::wayland ALIAS wis::wisdom-wayland)
-	add_library(wis::wayland-headers ALIAS wis::wisdom-wayland-headers)
+	add_alias_target(wis::wayland wis::wisdom-wayland)
+	add_alias_target(wis::wayland-headers wis::wisdom-wayland-headers)
 else()
 	add_library(wisdom-wayland INTERFACE) # Dummy target
 	add_library(wisdom-wayland-headers INTERFACE) # Dummy target
