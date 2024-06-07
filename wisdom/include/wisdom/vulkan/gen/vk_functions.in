@@ -10,8 +10,8 @@ vkCreateInstance
 
 # Instance table
 vkDestroyInstance
-vkCreateDebugUtilsMessengerEXT
-vkDestroyDebugUtilsMessengerEXT
+[opt]vkCreateDebugUtilsMessengerEXT
+[opt]vkDestroyDebugUtilsMessengerEXT
 vkEnumeratePhysicalDevices
 vkGetPhysicalDeviceProperties
 vkGetPhysicalDeviceSurfaceCapabilitiesKHR

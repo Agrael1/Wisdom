@@ -99,6 +99,10 @@ wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_dat
     };
 
     VkDebugUtilsMessengerEXT messenger;
+
+    if (!factory.table().vkCreateDebugUtilsMessengerEXT)
+        return wis::make_result<FUNC, "Debug utils extension not available">(VK_ERROR_EXTENSION_NOT_PRESENT);
+
     auto vr = factory.table().vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
                                                              &messenger);
     if (!wis::succeeded(vr))

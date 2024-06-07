@@ -30,12 +30,10 @@ function(wis_install_dx_uwp PROJECT)
 	set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
 	target_sources(${PROJECT} PRIVATE ${DXAGILITY_DLL})
 
-	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		message("DX12AgilitySDKLayers: ${DXAGILITY_DEBUG_DLL}")
-		set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-		set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-		target_sources(${PROJECT} PRIVATE ${DXAGILITY_DEBUG_DLL})
-	endif()
+	message("DX12AgilitySDKLayers: ${DXAGILITY_DEBUG_DLL}")
+	set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+	set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
+	target_sources(${PROJECT} PRIVATE ${DXAGILITY_DEBUG_DLL})
 endfunction()
 
 # Function for installing DirectX SDK
@@ -56,13 +54,11 @@ function(wis_install_dx_win32 PROJECT)
 
 
 	get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
-	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		add_custom_command(TARGET ${PROJECT} POST_BUILD
-		  COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
-		  COMMAND_EXPAND_LISTS
-		  COMMENT "Copying DX12 Agility SDKLayers..."
-		)
-	endif()
+	add_custom_command(TARGET ${PROJECT} POST_BUILD
+	  COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
+	  COMMAND_EXPAND_LISTS
+	  COMMENT "Copying DX12 Agility SDKLayers..."
+	)
 endfunction()
 
 # Function for installing Wisdom Dependencies

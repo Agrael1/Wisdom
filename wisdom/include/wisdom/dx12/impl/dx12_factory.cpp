@@ -79,6 +79,9 @@ void wis::DX12Factory::EnableDebugLayer() noexcept
                 D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
         debugController->EnableDebugLayer();
 
+    if (!debugController)
+        return;
+
     if (auto dc = debugController.as<ID3D12Debug1>())
         dc->SetEnableGPUBasedValidation(true);
 }
