@@ -15,8 +15,7 @@ namespace wis {
 class VKFactory;
 
 namespace detail {
-constexpr inline const char* instance_extensions[]
-{
+constexpr inline const char* instance_extensions[]{
     VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #if DEBUG_MODE
     VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
@@ -29,10 +28,8 @@ constexpr inline const char* instance_layers_array[] = {
 };
 constexpr inline std::span<const char* const> instance_layers{ instance_layers_array };
 #else
-constexpr inline std::span<const char* const> instance_layers {};
+constexpr inline std::span<const char* const> instance_layers{};
 #endif
-
-
 
 struct VKFactoryGlobals {
     static VKFactoryGlobals& Instance() noexcept
@@ -76,14 +73,14 @@ class VKFactory : public QueryInternal<VKFactory>
         VKAdapter adapter;
     };
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
     VKFactory() noexcept = default;
     WIS_INLINE explicit VKFactory(
-        wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
+            wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
 
     VKFactory(const VKFactory&) = delete;
     VKFactory(VKFactory&&) noexcept = default;
@@ -111,14 +108,14 @@ public:
     WIS_INLINE VkResult VKEnumeratePhysicalDevices() noexcept;
 
     [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-            FoundExtensions(std::span<const char*> in_extensions) noexcept;
+    FoundExtensions(std::span<const char*> in_extensions) noexcept;
     [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-            FoundLayers(std::span<const char*> in_layers) noexcept;
+    FoundLayers(std::span<const char*> in_layers) noexcept;
 
     [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<VkLayerProperties>>
-            EnumerateLayers() noexcept;
+    EnumerateLayers() noexcept;
     [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<VkExtensionProperties>>
-            EnumerateExtensions() noexcept;
+    EnumerateExtensions() noexcept;
 
 private:
     mutable std::vector<IndexedAdapter> adapters{};
