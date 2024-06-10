@@ -413,16 +413,6 @@ void wis::VKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView*
     device.table().vkCmdBindDescriptorBuffersEXT(command_list, xbuffer_count, pinfos);
 }
 
-void wis::VKCommandList::SetDescriptorTableOffset2(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_descriptors) noexcept
-{
-    auto binding = std::get<1>(buffer);
-    uint32_t index = uint32_t(binding == wis::DescriptorHeapType::Sampler);
-    VkDeviceSize offset = VkDeviceSize(offset_descriptors) * std::get<2>(buffer);
-
-    device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
-                                                      &index, &offset);
-}
-
 void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_bytes) noexcept
 {
     auto binding = std::get<1>(buffer);

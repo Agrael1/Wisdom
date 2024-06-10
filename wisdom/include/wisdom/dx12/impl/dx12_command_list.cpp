@@ -318,13 +318,6 @@ void wis::DX12CommandList::SetDescriptorBuffers(const wis::DX12DescriptorBufferV
 {
     list->SetDescriptorHeaps(buffer_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(buffers));
 }
-void wis::DX12CommandList::SetDescriptorTableOffset2(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_descriptors) noexcept
-{
-    auto handle = std::get<0>(buffer);
-    auto increment = std::get<1>(buffer);
-    list->SetGraphicsRootDescriptorTable(root_table_offset + root_table_index,
-                                         CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_descriptors, increment));
-}
 
 void wis::DX12CommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_bytes) noexcept
 {

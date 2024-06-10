@@ -2,7 +2,7 @@
 #define VK_DESCRIPTOR_BUFFER_CPP
 #include <wisdom/vulkan/vk_descriptor_buffer.h>
 
-void wis::VKDescriptorBuffer::WriteSampler(uint32_t index, wis::VKSamplerView sampler) noexcept
+uint64_t wis::VKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept
 {
     auto& device = allocator.header();
     VkDescriptorGetInfoEXT info{
@@ -11,10 +11,13 @@ void wis::VKDescriptorBuffer::WriteSampler(uint32_t index, wis::VKSamplerView sa
         .data = { .pSampler = &std::get<0>(sampler) }
     };
 
-    device.table().vkGetDescriptorEXT(device.get(), &info, descriptor_size, data + index * descriptor_size);
+    uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
+
+    device.table().vkGetDescriptorEXT(device.get(), &info, descriptor_size, data + desc_offset);
+    return desc_offset + descriptor_size;
 }
 
-void wis::VKDescriptorBuffer::WriteShaderResource2(uint32_t index, wis::VKShaderResourceView resource) noexcept
+uint64_t wis::VKDescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept
 {
     auto& device = allocator.header();
     VkDescriptorImageInfo image_info{
@@ -28,7 +31,10 @@ void wis::VKDescriptorBuffer::WriteShaderResource2(uint32_t index, wis::VKShader
         .type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
         .data = { .pSampledImage = &image_info }
     };
-    device.table().vkGetDescriptorEXT(device.get(), &info, properties->sampledImageDescriptorSize, data + index * descriptor_size);
+
+    uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
+    device.table().vkGetDescriptorEXT(device.get(), &info, properties->sampledImageDescriptorSize, data + desc_offset);
+    return desc_offset + descriptor_size;
 }
 
 uint64_t wis::VKDescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKShaderResourceView resource) noexcept
@@ -97,7 +103,7 @@ uint64_t wis::VKDescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_
     return buffer_offset_before_table + descriptor_offsetx + descriptor_sizex + array_member * descriptor_sizex;
 }
 
-void wis::VKDescriptorBuffer::WriteConstantBuffer2(uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
+uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
 {
     auto& device = allocator.header();
     VkBufferDeviceAddressInfo address_info{
@@ -116,6 +122,8 @@ void wis::VKDescriptorBuffer::WriteConstantBuffer2(uint32_t index, wis::VKBuffer
         .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         .data = { .pUniformBuffer = &buffer_info }
     };
-    device.table().vkGetDescriptorEXT(device.get(), &info, properties->uniformBufferDescriptorSize, data + index * descriptor_size);
+    uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
+    device.table().vkGetDescriptorEXT(device.get(), &info, properties->uniformBufferDescriptorSize, data + desc_offset);
+    return desc_offset + descriptor_size;
 }
 #endif // ! VK_DESCRIPTOR_BUFFER_CPP

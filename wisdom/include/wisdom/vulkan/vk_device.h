@@ -140,6 +140,11 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKShaderResource>
     CreateShaderResource(VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept;
 
+    [[nodiscard]] uint32_t GetDescriptorTableAlignment([[maybe_unused]] wis::DescriptorHeapType heap) const noexcept
+    {
+        return feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment;
+    }
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;

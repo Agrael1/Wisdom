@@ -52,7 +52,7 @@ public:
     }
 
 public:
-    WIS_INLINE void WriteSampler(uint32_t index, wis::DX12SamplerView sampler) noexcept;
+    WIS_INLINE uint64_t WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept;
     WIS_INLINE uint64_t WriteShaderResource(uint64_t buffer_offset_before_table,
                                             [[maybe_unused]] uint32_t root_table_index,
                                             uint32_t binding,
@@ -67,8 +67,8 @@ public:
                                             wis::DX12BufferView buffer,
                                             uint32_t size) noexcept;
 
-    WIS_INLINE void WriteShaderResource2(uint32_t index, wis::DX12ShaderResourceView resource) noexcept;
-    WIS_INLINE void WriteConstantBuffer2(uint32_t index, wis::DX12BufferView buffer, uint32_t size) noexcept;
+    WIS_INLINE uint64_t WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept;
+    WIS_INLINE uint64_t WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t size) noexcept;
 
 protected:
     WIS_INLINE uint64_t WriteDescriptor(uint64_t buffer_offset_before_table,

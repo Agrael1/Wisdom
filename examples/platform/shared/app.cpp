@@ -304,7 +304,7 @@ void Test::App::CreateResources()
         auto [res, hsampler] = device.CreateSampler(&sample_desc);
         sampler = std::move(hsampler);
 
-        sampler_buffer.WriteSampler(0, sampler);
+        sampler_buffer.WriteSampler(0, 0, sampler);
     }
 
     WaitForGPU();
