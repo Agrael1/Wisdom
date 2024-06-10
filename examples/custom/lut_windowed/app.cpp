@@ -172,7 +172,7 @@ int App::Start()
 
     // Tetra + Point filter
     pipeline_c = &pipeline2;
-    sampler_buffer.WriteSampler(0, sampler);
+    sampler_buffer.WriteSampler(0, 0, sampler);
 
     start = clock.now();
     for (size_t i = 0; i < 1000; i++) {
@@ -490,8 +490,8 @@ void App::CreateResources()
         auto [res2, hsampler2] = device.CreateSampler(&sample_desc2);
         sampler_lut_linear = std::move(hsampler2);
 
-        sampler_buffer.WriteSampler(0, sampler);
-        sampler_buffer.WriteSampler(1, sampler);
+        sampler_buffer.WriteSampler(0, 0, sampler);
+        sampler_buffer.WriteSampler(0, 1, sampler);
     }
     pipeline_c = &pipeline;
 
