@@ -62,7 +62,7 @@ To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::
 **Windows:**
 
 - Windows 10/11
-- CMake 3.25+
+- CMake 3.22+
 
 Tested on MSVC v143, Visual Studio 2022.
 Video card must support DirectX 12.0+ and Enchanced Barriers.
@@ -90,7 +90,7 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 
 **Linux**
 
-- CMake 3.25+
+- CMake 3.22+
 - Vulkan 1.3.2xx+
 
 Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000.
@@ -116,4 +116,4 @@ For the roadmap, the following features are planned:
 - [ ] C API generation
 - [ ] Debugging tools
 - [ ] Small game engine
-- [ ] Lower CMake version requirement
+- [x] Lower CMake version requirement to 3.22

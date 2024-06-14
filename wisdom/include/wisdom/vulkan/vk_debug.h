@@ -24,13 +24,29 @@ struct Internal<VKDebugMessenger> {
         : instance(std::move(instance)), messenger(messenger), data(std::move(data))
     {
     }
-    Internal(Internal&& other) noexcept = default;
-    Internal& operator=(Internal&& other) noexcept = default;
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& other) noexcept
+    {
+        if (this == &other) {
+            return *this;
+        }
+        Destroy();
+        instance = std::move(other.instance);
+        messenger = std::move(other.messenger);
+        data = std::move(other.data);
+        return *this;
+    }
 
     ~Internal() noexcept
     {
+        Destroy();
+    }
+
+    void Destroy() noexcept
+    {
         if (messenger)
             instance.table().vkDestroyDebugUtilsMessengerEXT(instance.get(), messenger, nullptr);
+        messenger = nullptr;
     }
 };
 

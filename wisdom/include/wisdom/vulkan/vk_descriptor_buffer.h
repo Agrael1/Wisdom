@@ -33,8 +33,28 @@ struct Internal<VKDescriptorBuffer> {
         }
     }
     Internal(Internal&&) noexcept = default;
-    Internal& operator=(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept
+    {
+        if (this == &o) {
+            return *this;
+        }
+        Destroy();
+        allocator = std::move(o.allocator);
+        allocation = std::move(o.allocation);
+        buffer = std::move(o.buffer);
+        address = std::move(o.address);
+        data = std::move(o.data);
+        properties = std::move(o.properties);
+        type = std::move(o.type);
+        descriptor_size = std::move(o.descriptor_size);
+        return *this;
+    }
     ~Internal() noexcept
+    {
+        Destroy();
+    }
+
+    void Destroy() noexcept
     {
         if (buffer && allocation) {
             vmaUnmapMemory(allocator.get(), allocation);

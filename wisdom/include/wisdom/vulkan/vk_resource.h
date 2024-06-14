@@ -21,8 +21,23 @@ struct Internal<VKBuffer> {
     Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation) noexcept
         : allocator(std::move(allocator)), allocation(allocation), buffer(buffer) { }
     Internal(Internal&&) noexcept = default;
-    Internal& operator=(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept
+    {
+        if (this == &o) {
+            return *this;
+        }
+        Destroy();
+        allocator = std::move(o.allocator);
+        allocation = std::move(o.allocation);
+        buffer = std::move(o.buffer);
+        return *this;
+    }
     ~Internal() noexcept
+    {
+        Destroy();
+    }
+
+    void Destroy() noexcept
     {
         if (buffer && allocation) {
             vmaDestroyBuffer(allocator.get(), buffer, allocation);
@@ -87,8 +102,27 @@ public:
     {
     }
     Internal(Internal&& other) noexcept = default;
-    Internal& operator=(Internal&& other) noexcept = default;
+    Internal& operator=(Internal&& other) noexcept
+    {
+        if (this == &other) {
+            return *this;
+        }
+        Destroy();
+        allocator = std::move(other.allocator);
+        allocation = std::move(other.allocation);
+        buffer = std::move(other.buffer);
+        format = std::move(other.format);
+        size = std::move(other.size);
+        return *this;
+    }
     ~Internal() noexcept
+    {
+        if (buffer && allocation) {
+            vmaDestroyImage(allocator.get(), buffer, allocation);
+        }
+    }
+
+    void Destroy() noexcept
     {
         if (buffer && allocation) {
             vmaDestroyImage(allocator.get(), buffer, allocation);

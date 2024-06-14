@@ -20,9 +20,24 @@ struct Internal<VKRootSignature> {
     }
 
     Internal(Internal&&) noexcept = default;
-    Internal& operator=(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept
+    {
+        if (this == &o) {
+            return *this;
+        }
+        Destroy();
+        root = std::move(o.root);
+        vk_dsls = std::move(o.vk_dsls);
+        dsl_count = o.dsl_count;
+        return *this;
+    }
 
     ~Internal()
+    {
+        Destroy();
+    }
+
+    void Destroy() noexcept
     {
         if (root) {
             auto& device = root.header().parent;

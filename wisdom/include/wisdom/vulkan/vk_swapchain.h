@@ -68,27 +68,14 @@ public:
     VKSwapChainCreateInfo(const VKSwapChainCreateInfo&) = delete;
     VKSwapChainCreateInfo& operator=(const VKSwapChainCreateInfo&) = delete;
     VKSwapChainCreateInfo(VKSwapChainCreateInfo&&) noexcept = default;
-    VKSwapChainCreateInfo& operator=(VKSwapChainCreateInfo&&) noexcept = default;
+    WIS_INLINE VKSwapChainCreateInfo& operator=(VKSwapChainCreateInfo&&) noexcept;
 
     ~VKSwapChainCreateInfo() noexcept
     {
-        if (!swapchain)
-            return;
-
-        auto& table = device.table();
-        auto hdevice = device.get();
-
-        ReleaseSemaphores();
-
-        for (uint32_t n = 0; n < back_buffer_count; n++) {
-            table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
-        }
-        for (uint32_t n = 0; n < 2; n++) {
-            table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
-        }
-        table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
-        table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
+        Destroy();
     }
+
+    void Destroy() noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
