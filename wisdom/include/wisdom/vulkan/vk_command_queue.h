@@ -8,8 +8,7 @@ namespace wis {
 class VKCommandQueue;
 
 template<>
-struct Internal<VKCommandQueue>
-{
+struct Internal<VKCommandQueue> {
     wis::SharedDevice device;
     h::VkQueue queue;
 

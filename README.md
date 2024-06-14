@@ -116,4 +116,4 @@ For the roadmap, the following features are planned:
 - [ ] C API generation
 - [ ] Debugging tools
 - [ ] Small game engine
-- [X] Lower CMake version requirement to 3.22
+- [x] Lower CMake version requirement to 3.22
