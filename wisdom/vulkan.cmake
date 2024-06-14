@@ -31,7 +31,7 @@ if(WISDOM_BUILD_BINARIES)
  		"include/wisdom/vulkan/vk_allocator.h"
  		"include/wisdom/vulkan/vk_swapchain.h"
  		"include/wisdom/vulkan/vk_debug.h"
-	 "include/wisdom/vulkan/vk_factory_ext.h")
+	 "include/wisdom/vulkan/vk_factory_ext.h" )
 	add_library(wis::vulkan ALIAS wisdom-vk)
 	target_sources(wisdom-vk
 		PRIVATE
@@ -49,7 +49,8 @@ if(WISDOM_BUILD_BINARIES)
 	target_link_libraries(wisdom-vk PUBLIC wisdom-vk-headers)
 	target_compile_definitions(wisdom-vk PUBLIC WISDOM_BUILD_BINARIES=1)
 else()
-	add_library(wisdom-vk ALIAS wisdom-vk-headers)
+	add_library(wisdom-vk INTERFACE)
+	target_link_libraries(wisdom-vk INTERFACE wisdom-vk-headers)
 	add_library(wis::vulkan ALIAS wisdom-vk)
 endif()
 

@@ -1,4 +1,5 @@
-set(PLATFORM_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}/../cmake/platform")
+set(AUX_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
+set(PLATFORM_CONFIG_DIR "${AUX_CMAKE_DIR}/platform")
 
 add_library(wisdom-platform-headers INTERFACE "wisdom/wisdom_platform.h")
 add_library(wis::platform-headers ALIAS wisdom-platform-headers)
@@ -16,13 +17,13 @@ if(WISDOM_WINDOWS)
   add_subdirectory("windows")
 elseif(WISDOM_LINUX)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-                        "${CMAKE_CURRENT_LIST_DIR}/../cmake/ECM")
+                        "${AUX_CMAKE_DIR}/ECM")
 
   add_subdirectory("xcb")
   add_subdirectory("wayland")
 
   install(
-    DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../cmake/ECM"
+    DIRECTORY "${AUX_CMAKE_DIR}/ECM"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 endif()
 

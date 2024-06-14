@@ -200,7 +200,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     std::filesystem::create_directories(cpp_output_path_dx12);
     std::filesystem::create_directories(cpp_output_path_vulkan);
 
-    auto output_api_abs = std::filesystem::absolute(cpp_output_path / "api.h");
+    auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "api.h");
     std::ofstream out_api(output_api_abs);
     if (!out_api.is_open())
         return 1;
