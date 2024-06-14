@@ -15,11 +15,6 @@ target_link_libraries(${PROJECT_NAME}-vk PUBLIC Catch2::Catch2WithMain wis::plat
 target_compile_definitions(${PROJECT_NAME}-vk PRIVATE WISDOM_FORCE_VULKAN)
 
 
-
-list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
-
-include(CTest)
-include(Catch)
 catch_discover_tests(${PROJECT_NAME}-vk
   TEST_PREFIX "vk.${PROJECT_NAME}."
 )

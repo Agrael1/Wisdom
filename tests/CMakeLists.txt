@@ -12,5 +12,8 @@ if(NOT catch2_POPULATED)
                    EXCLUDE_FROM_ALL)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(Catch)
+include(CTest)
 
 add_subdirectory(basic)
