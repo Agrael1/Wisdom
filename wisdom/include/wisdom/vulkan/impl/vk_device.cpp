@@ -1168,7 +1168,7 @@ wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc d
 }
 
 wis::ResultValue<wis::VKDescriptorBuffer>
-wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
 {
     if (!allocator) {
         auto [res, hallocator] = CreateAllocatorI();
@@ -1188,28 +1188,11 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
                      ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
                      : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
 
-    VkDescriptorSetLayoutBinding binding{
-        .binding = 0,
-        .descriptorType = heap_type == wis::DescriptorHeapType::Descriptor
-                ? feature_details->biggest_descriptor
-                : VK_DESCRIPTOR_TYPE_SAMPLER,
-        .descriptorCount = descriptor_count,
-        .stageFlags = VK_SHADER_STAGE_ALL,
-        .pImmutableSamplers = nullptr,
-    };
-    auto [res, dsl] = CreateDummyDescriptorSetLayout(binding);
-    if (res.status != wis::Status::Ok)
-        return res;
-
-    VkDeviceSize descriptor_set_size = 0;
-    device.table().vkGetDescriptorSetLayoutSizeEXT(device.get(), dsl, &descriptor_set_size);
-    device.table().vkDestroyDescriptorSetLayout(device.get(), dsl, nullptr);
-
     VkBufferCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .size = wis::detail::aligned_size(descriptor_set_size, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment),
+        .size = wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment),
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,

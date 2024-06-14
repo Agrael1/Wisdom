@@ -39,6 +39,10 @@ if(WISDOM_GENERATE_API)
   add_dependencies(wisdom-headers GenerateAPI)
 endif()
 
+# Extensions 
+add_subdirectory(platform)
+add_subdirectory(extensions)
+
 install(
   TARGETS wisdom wisdom-headers
   EXPORT wisdom-targets

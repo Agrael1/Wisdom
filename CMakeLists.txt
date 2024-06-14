@@ -36,9 +36,6 @@ add_subdirectory("generator")
 
 add_subdirectory("wisdom")
 
-# New platform targets.
-add_subdirectory("platform")
-
 if(WISDOM_BUILD_BINDINGS)
   add_subdirectory("bindings")
 endif()

@@ -67,19 +67,26 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RenderTarget>
     CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
-    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
-
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Sampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12ShaderResource>
     CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept;
 
-    [[nodiscard]] uint32_t GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
+    // Descriptor buffer
+    [[nodiscard]] uint32_t
+    GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
     {
         return device->GetDescriptorHandleIncrementSize(wis::convert_dx(heap));
     }
+    [[nodiscard]] uint32_t
+    GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
+    {
+        return device->GetDescriptorHandleIncrementSize(wis::convert_dx(heap));
+    }
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
+    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
