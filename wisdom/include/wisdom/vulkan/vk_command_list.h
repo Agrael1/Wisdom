@@ -42,7 +42,9 @@ public:
         pipeline_layout = std::move(o.pipeline_layout);
         return *this;
     }
-    ~Internal() noexcept { Destroy(); }
+    ~Internal() noexcept {
+        Destroy();
+    }
 
     void Destroy() noexcept
     {
