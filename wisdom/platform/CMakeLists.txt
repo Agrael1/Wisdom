@@ -16,15 +16,13 @@ target_include_directories(
 if(WISDOM_WINDOWS)
   add_subdirectory("windows")
 elseif(WISDOM_LINUX)
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-                        "${AUX_CMAKE_DIR}/ECM")
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${AUX_CMAKE_DIR}/ECM")
 
   add_subdirectory("xcb")
   add_subdirectory("wayland")
 
-  install(
-    DIRECTORY "${AUX_CMAKE_DIR}/ECM"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
+  install(DIRECTORY "${AUX_CMAKE_DIR}/ECM"
+          DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 endif()
 
 install(
@@ -47,10 +45,8 @@ configure_package_config_file(
   "${CMAKE_CURRENT_BINARY_DIR}/wisdom-platform-config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
 
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-platform-config.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-platform-config.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)

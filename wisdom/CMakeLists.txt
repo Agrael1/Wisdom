@@ -39,7 +39,7 @@ if(WISDOM_GENERATE_API)
   add_dependencies(wisdom-headers GenerateAPI)
 endif()
 
-# Extensions 
+# Extensions
 add_subdirectory(platform)
 add_subdirectory(extensions)
 
