@@ -44,7 +44,7 @@ if(WISDOM_BUILD_EXAMPLES)
   add_subdirectory("examples")
 endif()
 
-if(WISDOM_BUILD_TESTS)
+if(WISDOM_BUILD_TESTS AND NOT WISDOM_WINDOWS_STORE)
   enable_testing()
   add_subdirectory("tests")
 endif()
