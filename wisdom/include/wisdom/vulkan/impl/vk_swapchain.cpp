@@ -114,6 +114,54 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() const noexcept
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
     return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
 }
+wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator=(VKSwapChainCreateInfo&& o) noexcept
+{
+    if (this == &o)
+        return *this;
+
+    Destroy();
+    surface = std::move(o.surface);
+    device = std::move(o.device);
+    adapter = o.adapter;
+    getCaps = o.getCaps;
+    swapchain = std::move(o.swapchain);
+    initialization = std::move(o.initialization);
+
+    command_pool = std::move(o.command_pool);
+    present_queue = std::move(o.present_queue);
+    graphics_queue = std::move(o.graphics_queue);
+
+    present_semaphores = std::move(o.present_semaphores);
+    image_ready_semaphores = std::move(o.image_ready_semaphores);
+    back_buffers = std::move(o.back_buffers);
+    fence = std::move(o.fence);
+
+    format = o.format;
+    back_buffer_count = o.back_buffer_count;
+    present_mode = o.present_mode;
+    stereo = o.stereo;
+    stereo_requested = o.stereo_requested;
+    acquire_index = o.acquire_index;
+}
+inline void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
+{
+    if (!swapchain)
+        return;
+
+    auto& table = device.table();
+    auto hdevice = device.get();
+
+    ReleaseSemaphores();
+
+    for (uint32_t n = 0; n < back_buffer_count; n++) {
+        table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
+    }
+    for (uint32_t n = 0; n < 2; n++) {
+        table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
+    }
+    table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
+    table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
+}
 wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
 {
     present_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);

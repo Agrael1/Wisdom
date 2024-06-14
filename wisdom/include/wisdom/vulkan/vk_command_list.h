@@ -3,6 +3,8 @@
 #include <wisdom/generated/api/api.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/global/internal.h>
+#include <wisdom/util/log_layer.h>
+#include <wisdom/bridge/format.h>
 
 namespace wis {
 class VKCommandList;
@@ -20,17 +22,35 @@ struct Internal<VKCommandList> {
     wis::SharedPipeline pipeline;
     VkPipelineLayout pipeline_layout = nullptr;
 
+public:
     Internal() noexcept = default;
     Internal(wis::SharedDevice device, VkCommandPool allocator, VkCommandBuffer command_list) noexcept
         : device(std::move(device)), allocator(allocator), command_list(command_list) { }
-    Internal(Internal&&) noexcept = default;
-    Internal& operator=(Internal&&) noexcept = default;
 
-    ~Internal() noexcept
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept
     {
-        if (command_list) {
-            device.table().vkDestroyCommandPool(device.get(), allocator, nullptr);
+        if (this == &o) {
+            return *this;
         }
+
+        Destroy();
+        device = std::move(o.device);
+        allocator = std::move(o.allocator);
+        command_list = std::move(o.command_list);
+        pipeline = std::move(o.pipeline);
+        pipeline_layout = std::move(o.pipeline_layout);
+        return *this;
+    }
+    ~Internal() noexcept { Destroy(); }
+
+    void Destroy() noexcept
+    {
+        if (!command_list) {
+            return;
+        }
+        wis::lib_trace(wis::format("VKCommandList {} destroyed", (void*)command_list.handle));
+        device.table().vkDestroyCommandPool(device.get(), allocator, nullptr);
     }
 };
 
@@ -40,6 +60,7 @@ public:
     VKCommandList() noexcept = default;
     explicit VKCommandList(wis::SharedDevice device, VkCommandPool allocator, VkCommandBuffer command_list) noexcept
         : QueryInternal(std::move(device), allocator, command_list) { }
+
     operator bool() const noexcept
     {
         return bool(command_list);

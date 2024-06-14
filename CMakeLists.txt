@@ -45,5 +45,6 @@ if(WISDOM_BUILD_EXAMPLES)
 endif()
 
 if(WISDOM_BUILD_TESTS)
-  # add_subdirectory("tests")
+  enable_testing()
+  add_subdirectory("tests")
 endif()

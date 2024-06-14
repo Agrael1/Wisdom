@@ -8,11 +8,28 @@ namespace wis {
 class VKCommandQueue;
 
 template<>
-class Internal<VKCommandQueue>
+struct Internal<VKCommandQueue>
 {
-public:
     wis::SharedDevice device;
-    VkQueue queue;
+    h::VkQueue queue;
+
+public:
+    Internal() noexcept = default;
+    ~Internal() noexcept = default;
+    Internal(wis::SharedDevice device, VkQueue queue) noexcept
+        : device(std::move(device)), queue(queue) { }
+
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept
+    {
+        if (this == &o) {
+            return *this;
+        }
+
+        device = std::move(o.device);
+        queue = std::move(o.queue);
+        return *this;
+    }
 };
 
 /// @brief A command queue is used to submit command lists to the GPU.
@@ -22,14 +39,7 @@ public:
     VKCommandQueue() = default;
     explicit VKCommandQueue(wis::SharedDevice device, VkQueue queue)
         : QueryInternal(std::move(device), queue) { }
-    VKCommandQueue(VKCommandQueue&& o) noexcept
-        : QueryInternal(std::move(o.device), std::exchange(o.queue, nullptr)) { }
-    VKCommandQueue& operator=(VKCommandQueue&& o) noexcept
-    {
-        std::swap(device, o.device);
-        std::swap(queue, o.queue);
-        return *this;
-    }
+
     operator bool() const noexcept
     {
         return bool(queue);

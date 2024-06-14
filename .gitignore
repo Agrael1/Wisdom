@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /CMakeSettings.json
 *.idb
 .vscode/settings.json
+/wisdom/include/wisdom/vulkan/gen/generate_functions.bat
