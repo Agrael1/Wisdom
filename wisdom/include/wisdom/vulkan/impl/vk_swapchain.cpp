@@ -142,6 +142,9 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
     stereo = o.stereo;
     stereo_requested = o.stereo_requested;
     acquire_index = o.acquire_index;
+    present_index = o.present_index;
+
+    return *this;
 }
 inline void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
 {
