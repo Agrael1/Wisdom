@@ -1188,11 +1188,29 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
                      ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
                      : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
 
+    VkDescriptorSetLayoutBinding binding{
+        .binding = 0,
+        .descriptorType = heap_type == wis::DescriptorHeapType::Descriptor
+                ? feature_details->biggest_descriptor
+                : VK_DESCRIPTOR_TYPE_SAMPLER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_ALL,
+        .pImmutableSamplers = nullptr,
+    };
+    auto [res, dsl] = CreateDummyDescriptorSetLayout(binding);
+    if (res.status != wis::Status::Ok)
+        return res;
+
+    VkDeviceSize descriptor_set_align_size = 0;
+    device.table().vkGetDescriptorSetLayoutSizeEXT(device.get(), dsl, &descriptor_set_align_size);
+    device.table().vkDestroyDescriptorSetLayout(device.get(), dsl, nullptr);
+
     VkBufferCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .size = wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment),
+        .size = wis::detail::aligned_size(
+                wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment), uint64_t(descriptor_set_align_size)),
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
