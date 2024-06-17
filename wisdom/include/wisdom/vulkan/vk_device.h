@@ -132,7 +132,6 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRenderTarget>
     CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
-
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKSampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 
@@ -150,13 +149,12 @@ public:
     GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
     {
         return heap == wis::DescriptorHeapType::Descriptor
-               ? feature_details->mutable_descriptor_size
-               : feature_details->descriptor_buffer_properties.samplerDescriptorSize;
+                ? feature_details->mutable_descriptor_size
+                : feature_details->descriptor_buffer_properties.samplerDescriptorSize;
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
     CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
-
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
@@ -170,8 +168,8 @@ private:
     CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
     {
         return table->type == wis::DescriptorHeapType::Descriptor
-               ? CreateDescriptorSetDescriptorLayout(table)
-               : CreateDescriptorSetSamplerLayout(table);
+                ? CreateDescriptorSetDescriptorLayout(table)
+                : CreateDescriptorSetSamplerLayout(table);
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
