@@ -20,7 +20,7 @@ public:
     {
         wis::com_ptr<ID3D12Debug> debugController;
         return (wis::succeeded(
-                    D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())));
+                D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())));
     }
     wis::Result Init(const wis::DX12Factory& in_instance) noexcept override
     {
@@ -63,9 +63,9 @@ struct Internal<VKDebugExtension> {
 class VKDebugExtension : public QueryInternalExtension<VKDebugExtension, wis::VKFactoryExtensionImpl<VKDebugExtension>>
 {
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
     static constexpr std::array required_extensions = {
@@ -77,7 +77,7 @@ public:
     [[nodiscard]] bool Supported() const noexcept override
     {
         return detail::VKFactoryGlobals::Instance().instance_extensions.contains(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) &&
-               detail::VKFactoryGlobals::Instance().instance_layers.contains("VK_LAYER_KHRONOS_validation");
+                detail::VKFactoryGlobals::Instance().instance_layers.contains("VK_LAYER_KHRONOS_validation");
     }
 
     [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
