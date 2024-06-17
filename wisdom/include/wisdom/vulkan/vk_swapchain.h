@@ -75,7 +75,7 @@ public:
         Destroy();
     }
 
-    void Destroy() noexcept;
+    WIS_INLINE void Destroy() noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;

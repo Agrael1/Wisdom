@@ -146,7 +146,7 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
 
     return *this;
 }
-inline void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
+void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
 {
     if (!swapchain)
         return;
@@ -158,8 +158,6 @@ inline void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
         table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
-    }
-    for (uint32_t n = 0; n < 2; n++) {
         table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
     }
     table.vkDestroyCommandPool(hdevice, command_pool, nullptr);

@@ -50,6 +50,7 @@ struct FeatureDetails {
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
     VkDescriptorType biggest_descriptor;
     uint32_t mutable_descriptor_size = 0;
+    uint32_t descriptor_set_align_size = 0;
 };
 
 class VKDevice;
