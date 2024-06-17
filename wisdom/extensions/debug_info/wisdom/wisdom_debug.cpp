@@ -13,16 +13,16 @@ wis::DX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void*
 
 #if defined(WISDOM_VULKAN)
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
 {
     auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
     callback(convert_vk(messageSeverity),
              wis::format("\n[Validation layer]: {}\n [Message]:{}",
                          pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "",
                          pCallbackData->pMessage)
-                     .c_str(),
+             .c_str(),
              user_data);
     return false;
 }
@@ -37,18 +37,18 @@ wis::VKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* u
     VkDebugUtilsMessengerCreateInfoEXT create_info{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = DebugCallbackThunk,
         .pUserData = debug_callback.get()
     };
 
     VkDebugUtilsMessengerEXT messenger;
     auto vr = vkCreateDebugUtilsMessengerEXT(instance.get(), &create_info, nullptr,
-                                                             &messenger);
+              &messenger);
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
 

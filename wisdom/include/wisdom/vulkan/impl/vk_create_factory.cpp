@@ -5,7 +5,7 @@
 #include <array>
 
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
+        wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 {
     auto& exts = detail::VKFactoryGlobals::Instance().instance_extensions;
     auto ext_string = [](const auto& ext) {
@@ -46,7 +46,7 @@ wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 }
 
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
+        wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 {
     auto& exts = detail::VKFactoryGlobals::Instance().instance_layers;
 
