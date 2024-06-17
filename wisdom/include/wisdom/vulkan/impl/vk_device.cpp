@@ -1179,8 +1179,6 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     if (!allocator)
         return wis::make_result<FUNC, "Failed to create an allocator">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-
-
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
             ? ifeatures.has_mutable_descriptor ? feature_details->mutable_descriptor_size : 0u
             : feature_details->descriptor_buffer_properties.samplerDescriptorSize;
@@ -1212,8 +1210,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         .pNext = nullptr,
         .flags = 0,
         .size = wis::detail::aligned_size(
-            wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment)
-            , uint64_t(descriptor_set_align_size)),
+                wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment), uint64_t(descriptor_set_align_size)),
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
