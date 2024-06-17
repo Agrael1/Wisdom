@@ -44,7 +44,7 @@ wis::Result VKFactoryGlobals::InitializeFactoryGlobals() noexcept
 {
     if (initialized)
         return {};
-    
+
     wis::Result vr = {};
 
     std::call_once(

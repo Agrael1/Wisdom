@@ -20,6 +20,7 @@ struct Internal<DX12Factory> {
 class DX12Factory : public QueryInternal<DX12Factory>
 {
     friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool) noexcept;
+
 public:
     DX12Factory() noexcept = default;
     WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept;
@@ -41,6 +42,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Adapter>
     GetAdapter(uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
+
 private:
     WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapterByGPUPreference(
             uint32_t index, DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept;

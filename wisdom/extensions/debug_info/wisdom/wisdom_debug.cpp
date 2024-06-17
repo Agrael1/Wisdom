@@ -10,7 +10,6 @@ wis::DX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void*
 }
 #endif // WISDOM_DX12
 
-
 #if defined(WISDOM_VULKAN)
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -48,7 +47,7 @@ wis::VKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* u
 
     VkDebugUtilsMessengerEXT messenger;
     auto vr = vkCreateDebugUtilsMessengerEXT(instance.get(), &create_info, nullptr,
-                                                             &messenger);
+                                             &messenger);
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
 
