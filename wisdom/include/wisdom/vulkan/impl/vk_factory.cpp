@@ -39,22 +39,81 @@ inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
         return 1;
     }
 }
-} // namespace wis::detail
 
-VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKFactory::DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
+wis::Result VKFactoryGlobals::InitializeFactoryGlobals() noexcept
 {
-    auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
-    callback(convert_vk(messageSeverity),
-             wis::format("\n[Validation layer]: {}\n [Message]:{}",
-                         pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "",
-                         pCallbackData->pMessage)
-                     .c_str(),
-             user_data);
-    return false;
+    if (initialized)
+        return {};
+    
+    wis::Result vr = {};
+
+    std::call_once(
+            global_flag, [this, &vr]() {
+                vr = InitializeGlobalTable();
+                if (vr.status != wis::Status::Ok)
+                    return;
+
+                vr = InitializeInstanceExtensions();
+                if (vr.status != wis::Status::Ok)
+                    return;
+
+                vr = InitializeInstanceLayers();
+                if (vr.status != wis::Status::Ok)
+                    return;
+            });
+
+    initialized = true;
+    return vr;
 }
+
+wis::Result VKFactoryGlobals::InitializeGlobalTable() noexcept
+{
+    if (!global_table.Init(lib_token))
+        return wis::make_result<FUNC, "Failed to initialize global table">(VK_ERROR_INITIALIZATION_FAILED);
+    return {};
+}
+
+wis::Result VKFactoryGlobals::InitializeInstanceExtensions() noexcept
+{
+    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
+    uint32_t count = 0;
+    gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+    auto extensions = wis::detail::make_fixed_allocation<VkExtensionProperties>(count);
+    if (!extensions)
+        return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    auto vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions.get());
+    if (!wis::succeeded(vr))
+        return wis::make_result<FUNC, "Failed to enumerate extensions">(vr);
+
+    // may throw
+    instance_extensions.reserve(count);
+    for (uint32_t i = 0; i < count; i++) {
+        instance_extensions.insert(extensions[i].extensionName);
+    }
+    return {};
+}
+wis::Result VKFactoryGlobals::InitializeInstanceLayers() noexcept
+{
+    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
+    uint32_t count = 0;
+    gt.vkEnumerateInstanceLayerProperties(&count, nullptr);
+    auto layers = wis::detail::make_fixed_allocation<VkLayerProperties>(count);
+    if (!layers)
+        return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    auto vr = gt.vkEnumerateInstanceLayerProperties(&count, layers.get());
+    if (!wis::succeeded(vr))
+        return wis::make_result<FUNC, "Failed to enumerate layers">(vr);
+
+    // may throw
+    instance_layers.reserve(count);
+    for (uint32_t i = 0; i < count; i++) {
+        instance_layers.insert(layers[i].layerName);
+    }
+    return {};
+}
+} // namespace wis::detail
 
 wis::VKFactory::VKFactory(
         wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
@@ -77,38 +136,6 @@ wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const n
     case AdapterPreference::Performance:
         return adapters[adapter.index_performance].adapter;
     }
-}
-
-wis::ResultValue<wis::VKDebugMessenger>
-wis::VKFactory::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
-{
-    auto debug_callback = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);
-    if (!debug_callback)
-        return wis::make_result<FUNC, "Failed to create debug callback data">(VK_ERROR_OUT_OF_HOST_MEMORY);
-
-    VkDebugUtilsMessengerCreateInfoEXT create_info{
-        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-        .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
-        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-        .pfnUserCallback = VKFactory::DebugCallbackThunk,
-        .pUserData = debug_callback.get()
-    };
-
-    VkDebugUtilsMessengerEXT messenger;
-
-    if (!factory.table().vkCreateDebugUtilsMessengerEXT)
-        return wis::make_result<FUNC, "Debug utils extension not available">(VK_ERROR_EXTENSION_NOT_PRESENT);
-
-    auto vr = factory.table().vkCreateDebugUtilsMessengerEXT(factory.get(), &create_info, nullptr,
-                                                             &messenger);
-    if (!wis::succeeded(vr))
-        return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
-
-    return wis::VKDebugMessenger{ factory, messenger, std::move(debug_callback) };
 }
 
 VkResult wis::VKFactory::VKEnumeratePhysicalDevices() noexcept

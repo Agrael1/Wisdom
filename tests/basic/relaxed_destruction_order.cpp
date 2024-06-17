@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <wisdom/wisdom_platform.h>
 #include <wisdom/wisdom.hpp>
+#include <wisdom/wisdom_debug.h>
 #include <iostream>
 
 struct LogProvider : public wis::LogLayer {
@@ -21,8 +22,12 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 TEST_CASE("basic_factory")
 {
     bool error = false;
-    auto [res, factory] = wis::CreateFactory(true);
-    auto [res1, info] = factory.CreateDebugMessenger(&DebugCallback, &error);
+
+    wis::DebugExtension ext;
+    std::array<wis::FactoryExtension*, 1> exts = { &ext };
+
+    auto [res, factory] = wis::CreateFactoryWithExtensions(true, exts.data(), 1);
+    auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     factory = {};
     REQUIRE_FALSE(factory);
@@ -34,8 +39,12 @@ TEST_CASE("basic_device")
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
     bool error = false;
-    auto [res, factory] = wis::CreateFactory(true);
-    auto [res1, info] = factory.CreateDebugMessenger(&DebugCallback, &error);
+
+    wis::DebugExtension ext;
+    std::array<wis::FactoryExtension*, 1> exts = { &ext };
+
+    auto [res, factory] = wis::CreateFactoryWithExtensions(true, exts.data(), 1);
+    auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     wis::Device device;
 

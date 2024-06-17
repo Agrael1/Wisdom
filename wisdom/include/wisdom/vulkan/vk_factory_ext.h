@@ -11,6 +11,10 @@ class VKFactory;
 namespace wis {
 struct VKFactoryExtension {
     virtual ~VKFactoryExtension() = default;
+    virtual bool Supported() const noexcept
+    {
+        return false;
+    }
     virtual wis::Result Init(const wis::VKFactory& instance) noexcept
     {
         return {};

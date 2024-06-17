@@ -10,27 +10,17 @@
 
 #include <mutex>
 #include <vector>
+#include <unordered_set>
 
 namespace wis {
 class VKFactory;
 
 namespace detail {
-constexpr inline std::array instance_extensions
-{
-    VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-#if DEBUG_MODE
-    VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-#endif
+constexpr inline std::array instance_extensions{
+    VK_KHR_SURFACE_EXTENSION_NAME,
+    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 };
-
-#if DEBUG_MODE
-constexpr inline std::array instance_layers_array {
-    "VK_LAYER_KHRONOS_validation"
-};
-constexpr inline std::span<const char* const> instance_layers{ instance_layers_array };
-#else
 constexpr inline std::span<const char* const> instance_layers{};
-#endif
 
 struct VKFactoryGlobals {
     static VKFactoryGlobals& Instance() noexcept
@@ -38,24 +28,23 @@ struct VKFactoryGlobals {
         static VKFactoryGlobals instance;
         return instance;
     }
-    bool InitializeGlobalTable() noexcept
-    {
-        if (table_initialized)
-            return true;
 
-        std::call_once(global_flag, [this]() {
-            table_initialized = global_table.Init(lib_token);
-            if (!table_initialized)
-                wis::lib_error("Failed to initialize global table");
-        });
+public:
+    WIS_INLINE wis::Result InitializeFactoryGlobals() noexcept;
 
-        return table_initialized;
-    }
+protected:
+    WIS_INLINE wis::Result InitializeGlobalTable() noexcept;
+    WIS_INLINE wis::Result InitializeInstanceExtensions() noexcept;
+    WIS_INLINE wis::Result InitializeInstanceLayers() noexcept;
 
-    bool table_initialized = false;
+public:
+    bool initialized = false;
     std::once_flag global_flag;
     wis::VKMainGlobal global_table{};
     wis::LibToken lib_token;
+
+    std::unordered_set<std::string, wis::string_hash> instance_extensions;
+    std::unordered_set<std::string, wis::string_hash> instance_layers;
 };
 } // namespace detail
 
@@ -102,9 +91,6 @@ public:
     GetAdapter(uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VKDebugMessenger>
-    CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
-
 public:
     WIS_INLINE VkResult VKEnumeratePhysicalDevices() noexcept;
 
@@ -112,11 +98,6 @@ public:
     FoundExtensions(std::span<const char*> in_extensions) noexcept;
     [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
     FoundLayers(std::span<const char*> in_layers) noexcept;
-
-    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<VkLayerProperties>>
-    EnumerateLayers() noexcept;
-    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<VkExtensionProperties>>
-    EnumerateExtensions() noexcept;
 
 private:
     mutable std::vector<IndexedAdapter> adapters{};
