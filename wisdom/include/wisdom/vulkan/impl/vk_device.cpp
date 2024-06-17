@@ -377,7 +377,6 @@ wis::VKDevice::VKDevice(wis::SharedDevice in_device,
     device.table().vkDestroyDescriptorSetLayout(device.get(), dsl, nullptr);
     feature_details->descriptor_set_align_size = descriptor_set_align_size;
 
-
     this->feature_details = std::move(feature_details);
 }
 
@@ -1208,8 +1207,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .size = wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment) 
-        + uint64_t(feature_details->descriptor_set_align_size),
+        .size = wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment) + uint64_t(feature_details->descriptor_set_align_size),
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
