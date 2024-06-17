@@ -51,12 +51,8 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 App::App(uint32_t width, uint32_t height)
     : wnd(width, height, "Lut Test"), width(width), height(height)
 {
-    // wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
     std::array<wis::FactoryExtension*, 1> extensions = { &windows_ext };
     auto [result, factory] = wis::CreateFactoryWithExtensions(false, extensions.data(), extensions.size());
-
-    // auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
-    // info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);

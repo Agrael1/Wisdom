@@ -6,39 +6,37 @@
 
 #include <wisdom/dx12/dx12_checks.h>
 
-wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer) noexcept
-    : QueryInternal(std::move(factory), debug_layer)
+wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept
+    : QueryInternal(std::move(factory))
 {
-    if (debug_layer)
-        EnableDebugLayer();
 }
 
 wis::ResultValue<wis::DX12Factory>
-wis::DX12CreateFactory(bool debug_layer) noexcept
+wis::DX12CreateFactory(bool enable_debug) noexcept
 {
     wis::com_ptr<IDXGIFactory6> factory;
-    auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG, __uuidof(*factory),
+    auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, __uuidof(*factory),
                                  factory.put_void());
 
     if (!wis::succeeded(hr)) {
-        hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory4),
+        hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory4),
                                 factory.put_void());
         DX12Factory::has_preference = false;
         if (!wis::succeeded(hr)) {
             return wis::make_result<FUNC, "Failed to create DXGI factory">(hr);
         }
     }
-    return DX12Factory(std::move(factory), debug_layer);
+    return DX12Factory(std::move(factory));
 }
 
 wis::ResultValue<wis::DX12Factory>
-wis::DX12CreateFactoryWithExtensions(bool debug_layer, DX12FactoryExtension** extensions, size_t extension_count) noexcept
+wis::DX12CreateFactoryWithExtensions(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept
 {
     std::span<DX12FactoryExtension*> exts{
         extensions, extensions + extension_count
     };
 
-    auto [r, f] = DX12CreateFactory(debug_layer);
+    auto [r, f] = DX12CreateFactory(enable_debug);
 
     if (r.status != wis::Status::Ok)
         return r;
@@ -59,31 +57,6 @@ wis::DX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const
         return wis::make_result<FUNC, "Failed to get adapter">(gen.result);
 
     return wis::DX12Adapter(std::move(gen.ptr));
-}
-
-wis::ResultValue<wis::DX12DebugMessenger>
-wis::DX12Factory::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
-{
-    if (!debug_layer)
-        return wis::make_result<FUNC, "Debug layer is not enabled">(E_INVALIDARG);
-
-    return wis::DX12DebugMessenger{
-        DX12InfoToken{ true }, callback, user_data
-    };
-}
-
-void wis::DX12Factory::EnableDebugLayer() noexcept
-{
-    wis::com_ptr<ID3D12Debug> debugController;
-    if (wis::succeeded(
-                D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
-        debugController->EnableDebugLayer();
-
-    if (!debugController)
-        return;
-
-    if (auto dc = debugController.as<ID3D12Debug1>())
-        dc->SetEnableGPUBasedValidation(true);
 }
 
 wis::com_with_result<IDXGIAdapter1>

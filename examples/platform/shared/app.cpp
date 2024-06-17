@@ -2,6 +2,7 @@
 #include <iostream>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
+#include <wisdom/wisdom_debug.h>
 
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
@@ -26,9 +27,13 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
 {
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
-    auto [result, factory] = wis::CreateFactoryWithExtensions(true, factory_exts.data(), factory_exts.size());
+    wis::DebugExtension debug_ext;
+    std::unique_ptr<wis::FactoryExtension*[]> xfactory_exts = wis::detail::make_unique_for_overwrite<wis::FactoryExtension*[]>(factory_exts.size() + 1);
+    xfactory_exts[0] = &debug_ext;
+    std::copy(factory_exts.begin(), factory_exts.end(), xfactory_exts.get() + 1);
 
-    auto [resx, hinfo] = factory.CreateDebugMessenger(DebugCallback, &std::cout);
+    auto [result, factory] = wis::CreateFactoryWithExtensions(true, xfactory_exts.get(), factory_exts.size() + 1);
+    auto [resx, hinfo] = debug_ext.CreateDebugMessenger(DebugCallback, &std::cout);
     info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {

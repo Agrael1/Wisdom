@@ -14,7 +14,6 @@ class DX12Factory;
 template<>
 struct Internal<DX12Factory> {
     wis::com_ptr<IDXGIFactory6> factory;
-    bool debug_layer = false;
 };
 
 /// @brief Main Factory class
@@ -24,7 +23,7 @@ class DX12Factory : public QueryInternal<DX12Factory>
 
 public:
     DX12Factory() noexcept = default;
-    WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory, bool debug_layer = false) noexcept;
+    WIS_INLINE explicit DX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept;
     DX12Factory(DX12Factory&& other) noexcept = default;
     DX12Factory& operator=(DX12Factory&& other) noexcept = default;
     DX12Factory(const DX12Factory&) = delete;
@@ -44,12 +43,7 @@ public:
     GetAdapter(uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12DebugMessenger>
-    CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
-
 private:
-    WIS_INLINE void EnableDebugLayer() noexcept;
-
     WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapterByGPUPreference(
             uint32_t index, DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept;
 
@@ -60,10 +54,10 @@ private:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Factory>
-DX12CreateFactory(bool debug_layer = false) noexcept;
+DX12CreateFactory(bool enable_debug) noexcept;
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Factory>
-DX12CreateFactoryWithExtensions(bool debug_layer, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
+DX12CreateFactoryWithExtensions(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
 
 } // namespace wis
 

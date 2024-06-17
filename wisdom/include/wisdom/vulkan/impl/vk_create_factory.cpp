@@ -4,54 +4,19 @@
 #include <unordered_map>
 #include <array>
 
-wis::ResultValue<wis::detail::fixed_allocation<VkExtensionProperties>>
-wis::VKFactory::EnumerateExtensions() noexcept
-{
-    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
-    uint32_t count = 0;
-    gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
-    auto extensions = wis::detail::make_fixed_allocation<VkExtensionProperties>(count);
-    if (!extensions)
-        return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
-
-    auto vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions.get());
-    if (!wis::succeeded(vr))
-        return wis::make_result<FUNC, "Failed to enumerate extensions">(vr);
-    return std::move(extensions);
-}
-
-wis::ResultValue<wis::detail::fixed_allocation<VkLayerProperties>>
-wis::VKFactory::EnumerateLayers() noexcept
-{
-    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
-    uint32_t count = 0;
-    gt.vkEnumerateInstanceLayerProperties(&count, nullptr);
-    auto layers = wis::detail::make_fixed_allocation<VkLayerProperties>(count);
-    if (!layers)
-        return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
-
-    auto vr = gt.vkEnumerateInstanceLayerProperties(&count, layers.get());
-    if (!wis::succeeded(vr))
-        return wis::make_result<FUNC, "Failed to enumerate layers">(vr);
-    return std::move(layers);
-}
-
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
 wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 {
+    auto& exts = detail::VKFactoryGlobals::Instance().instance_extensions;
     auto ext_string = [](const auto& ext) {
         std::string str = "All Extensions:\n";
         for (const auto& i : ext)
-            wis::format_to(std::back_inserter(str), "{},\n", i.extensionName);
+            wis::format_to(std::back_inserter(str), "{},\n", i);
         return str;
     };
 
-    auto [res, all_exts] = EnumerateExtensions();
-    if (res.status != wis::Status::Ok)
-        return res;
-
     if constexpr (wis::debug_mode)
-        wis::lib_info(ext_string(std::span{ all_exts }));
+        wis::lib_info(ext_string(exts));
 
     // allocate a bit more than needed
     auto found_extension = wis::detail::make_fixed_allocation<const char*>(in_extensions.size());
@@ -60,15 +25,9 @@ wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 
     size_t index = 0;
 
-    // low cost search (may throw)
-    std::unordered_map<std::string_view, const VkExtensionProperties*> ext_map;
-    ext_map.reserve(all_exts.size);
-    for (const auto& i : all_exts)
-        ext_map[i.extensionName] = &i;
-
     // O(n)
     for (const auto* extension : in_extensions) {
-        if (ext_map.contains(extension))
+        if (exts.contains(extension))
             found_extension[index++] = extension;
         else
             wis::lib_warn(wis::format("Extension {} not found", extension));
@@ -89,19 +48,17 @@ wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
 wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 {
+    auto& exts = detail::VKFactoryGlobals::Instance().instance_layers;
+
     auto ext_string = [](const auto& ext) {
         std::string str = "All Layers:\n";
         for (const auto& i : ext)
-            wis::format_to(std::back_inserter(str), "{},\n", i.layerName);
+            wis::format_to(std::back_inserter(str), "{},\n", i);
         return str;
     };
 
-    auto [res, all_layers] = EnumerateLayers();
-    if (res.status != wis::Status::Ok)
-        return res;
-
     if constexpr (wis::debug_mode)
-        wis::lib_info(ext_string(std::span{ all_layers }));
+        wis::lib_info(ext_string(exts));
 
     // allocate a bit more than needed
     auto found_layers = wis::detail::make_fixed_allocation<const char*>(in_layers.size());
@@ -110,15 +67,9 @@ wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 
     size_t index = 0;
 
-    // low cost search (may throw)
-    std::unordered_map<std::string_view, const VkLayerProperties*> ext_map;
-    ext_map.reserve(all_layers.size);
-    for (const auto& i : all_layers)
-        ext_map[i.layerName] = &i;
-
     // O(n)
     for (const auto* layer : in_layers) {
-        if (ext_map.contains(layer))
+        if (exts.contains(layer))
             found_layers[index++] = layer;
         else
             wis::lib_warn(wis::format("Layer {} not found", layer));
@@ -141,7 +92,10 @@ wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 wis::ResultValue<wis::VKFactory>
 wis::VKCreateFactory(bool debug_layer) noexcept
 {
-    detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
+    auto xr = detail::VKFactoryGlobals::Instance().InitializeFactoryGlobals();
+    if (xr.status != wis::Status::Ok)
+        return xr;
+
     auto& gt = detail::VKFactoryGlobals::Instance().global_table;
     VkResult vr{};
     uint32_t version = 0;
@@ -190,7 +144,7 @@ wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extens
 
     if (layer_alloc_size > std::size(detail::instance_layers)) {
         layer_alloc = wis::detail::make_unique_for_overwrite<const char*[]>(layer_alloc_size);
-        layer_alloc_raw = ext_alloc.get();
+        layer_alloc_raw = layer_alloc.get();
         std::copy(std::begin(detail::instance_layers), std::end(detail::instance_layers), layer_alloc_raw);
     } else {
         layer_alloc_raw = const_cast<const char**>(detail::instance_layers.data());
@@ -228,7 +182,10 @@ wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extens
 wis::ResultValue<wis::VKFactory>
 wis::detail::VKCreateFactoryWithExtensions(bool debug_layer, const char** exts, size_t extension_count, const char** layers, size_t layer_count) noexcept
 {
-    detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
+    auto xr = detail::VKFactoryGlobals::Instance().InitializeFactoryGlobals();
+    if (xr.status != wis::Status::Ok)
+        return xr;
+
     auto& gt = detail::VKFactoryGlobals::Instance().global_table;
 
     VkResult vr{};
@@ -275,7 +232,10 @@ wis::detail::VKCreateFactoryWithExtensions(bool debug_layer, const char** exts, 
 wis::ResultValue<wis::VKFactory>
 wis::detail::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept
 {
-    wis::detail::VKFactoryGlobals::Instance().InitializeGlobalTable();
+    auto xr = detail::VKFactoryGlobals::Instance().InitializeFactoryGlobals();
+    if (xr.status != wis::Status::Ok)
+        return xr;
+
     auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
 
     auto destroy_instance = (PFN_vkDestroyInstance)gt.vkGetInstanceProcAddr(instance, "vkDestroyInstance");

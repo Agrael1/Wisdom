@@ -13,6 +13,10 @@ struct DX12FactoryExtension {
     {
         return {};
     }
+    virtual bool Supported() const noexcept
+    {
+        return false;
+    }
 };
 } // namespace wis
 #endif // DX12_FACTORY_EXT_H
