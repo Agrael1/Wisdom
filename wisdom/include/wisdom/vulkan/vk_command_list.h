@@ -49,11 +49,10 @@ public:
 
     void Destroy() noexcept
     {
-        if (!command_list) {
-            return;
+        if (command_list) {
+            // wis::lib_trace(wis::format("VKCommandList {} destroyed", (void*)command_list.handle));
+            device.table().vkDestroyCommandPool(device.get(), allocator, nullptr);
         }
-        wis::lib_trace(wis::format("VKCommandList {} destroyed", (void*)command_list.handle));
-        device.table().vkDestroyCommandPool(device.get(), allocator, nullptr);
     }
 };
 

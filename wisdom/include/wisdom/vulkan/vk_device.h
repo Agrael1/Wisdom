@@ -50,6 +50,7 @@ struct FeatureDetails {
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
     VkDescriptorType biggest_descriptor;
     uint32_t mutable_descriptor_size = 0;
+    uint32_t descriptor_set_align_size = 0;
 };
 
 class VKDevice;
@@ -131,7 +132,6 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRenderTarget>
     CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
-
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKSampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 
@@ -155,7 +155,6 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
     CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
-
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
