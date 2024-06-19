@@ -3,6 +3,7 @@
 #include <wisdom/dx12/dx12_device.h>
 #endif // !WISDOM_HEADER_ONLY
 
+#include <d3dx12/d3dx12_check_feature_support.h>
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
 #include <d3dx12/d3dx12_root_signature.h>
 #include <wisdom/util/small_allocator.h>
@@ -35,6 +36,8 @@ wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
 {
     unique_event e;
     HRESULT hr = S_OK;
+
+    
 
     if (!succeeded(hr = device->SetEventOnMultipleFenceCompletion(
                            reinterpret_cast<ID3D12Fence* const*>(fences), values, count,

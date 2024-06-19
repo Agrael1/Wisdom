@@ -11,6 +11,7 @@
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_descriptor_buffer.h>
+#include <wisdom/vulkan/vk_device_ext.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 
 namespace wis {
@@ -87,6 +88,10 @@ public:
                                  std::unique_ptr<FeatureDetails> feature_details,
                                  wis::DeviceFeatures features = wis::DeviceFeatures::None,
                                  InternalFeatures ifeatures = {}) noexcept;
+
+    // TODO: Add Initial extensions 
+    WIS_INLINE explicit VKDevice(wis::SharedDevice device,
+                                 wis::VKAdapter adapter) noexcept;
 
     operator bool() const noexcept
     {
@@ -187,6 +192,12 @@ private:
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
 VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
+
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
+VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept;
+
+
+
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

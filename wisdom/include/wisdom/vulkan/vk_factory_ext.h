@@ -35,11 +35,6 @@ struct VKFactoryExtension {
     {
         return 0;
     }
-
-    VKFactoryExtension* GetExtension() noexcept
-    {
-        return this;
-    }
 };
 
 // Automatically generates everything for C api
