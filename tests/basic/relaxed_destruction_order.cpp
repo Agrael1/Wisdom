@@ -10,7 +10,7 @@ struct LogProvider : public wis::LogLayer {
     };
 };
 
-void DebugCallback(wis::Severity severity, const char* message, void* user_data)
+static void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
     std::cout << message << std::endl;
     if (severity >= wis::Severity::Error) {

@@ -917,6 +917,7 @@ struct VKVertexBufferBinding {
 typedef struct VKCommandQueue_t* VKCommandQueue;
 typedef struct VKRootSignature_t* VKRootSignature;
 typedef struct VKFactory_t* VKFactory;
+typedef struct VKDeviceExtension_t* VKDeviceExtension;
 typedef struct VKPipelineState_t* VKPipelineState;
 typedef struct VKAdapter_t* VKAdapter;
 typedef struct VKDevice_t* VKDevice;
@@ -1075,6 +1076,7 @@ struct DX12VertexBufferBinding {
 typedef struct DX12CommandQueue_t* DX12CommandQueue;
 typedef struct DX12RootSignature_t* DX12RootSignature;
 typedef struct DX12Factory_t* DX12Factory;
+typedef struct DX12DeviceExtension_t* DX12DeviceExtension;
 typedef struct DX12PipelineState_t* DX12PipelineState;
 typedef struct DX12Adapter_t* DX12Adapter;
 typedef struct DX12Device_t* DX12Device;

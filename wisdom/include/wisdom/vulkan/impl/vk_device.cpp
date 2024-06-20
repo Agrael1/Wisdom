@@ -5,84 +5,13 @@
 #include <cassert>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/flags.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_factory.h>
-
-namespace wis::detail {
-struct equal_string_view {
-    bool operator()(std::string_view a, std::string_view b) const noexcept
-    {
-        return a == b;
-    }
-};
-
-inline std::pair<VkDescriptorType, uint32_t>
-BiggestDescriptor(const VkPhysicalDeviceDescriptorBufferPropertiesEXT& dbufprops, bool mutable_desc)
-{
-    uint32_t size = std::max({
-            dbufprops.uniformBufferDescriptorSize,
-            dbufprops.storageBufferDescriptorSize,
-
-            dbufprops.sampledImageDescriptorSize,
-            dbufprops.storageImageDescriptorSize,
-
-            dbufprops.storageTexelBufferDescriptorSize,
-            dbufprops.uniformTexelBufferDescriptorSize,
-    });
-    if (mutable_desc)
-        return { VK_DESCRIPTOR_TYPE_MUTABLE_EXT, size };
-
-    if (size == dbufprops.uniformBufferDescriptorSize)
-        return { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, size };
-    if (size == dbufprops.storageBufferDescriptorSize)
-        return { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, size };
-    if (size == dbufprops.sampledImageDescriptorSize)
-        return { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, size };
-    if (size == dbufprops.storageImageDescriptorSize)
-        return { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, size };
-    if (size == dbufprops.storageTexelBufferDescriptorSize)
-        return { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, size };
-    if (size == dbufprops.uniformTexelBufferDescriptorSize)
-        return { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, size };
-
-    return { VK_DESCRIPTOR_TYPE_MAX_ENUM, 0 };
-}
-} // namespace wis::detail
-
-inline auto RequestExtensions(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
-{
-    std::vector<VkExtensionProperties> ext_props;
-    uint32_t count = 0;
-    itable.vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, nullptr);
-    ext_props.resize(count);
-    itable.vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, ext_props.data());
-
-    std::unordered_set<std::string_view, wis::string_hash> ext_set;
-    ext_set.reserve(count);
-
-    for (const auto& e : ext_props)
-        ext_set.emplace(e.extensionName);
-
-    wis::detail::uniform_allocator<const char*, wis::required_extensions.size()> avail_exts{};
-
-    for (const auto* i : wis::required_extensions) {
-        if (!ext_set.contains(i))
-            continue;
-        avail_exts.allocate(i);
-    }
-
-    if constexpr (wis::debug_mode) {
-        wis::lib_info("Active Device Extensions:");
-        for (auto& i : avail_exts)
-            wis::lib_info(wis::format("\t{}", i));
-    }
-
-    return avail_exts;
-}
 
 inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
@@ -153,29 +82,171 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
     return queues;
 }
 
+inline static wis::ResultValue<std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>>
+GetAvailableExtensions(VkPhysicalDevice adapter, const wis::VKMainInstance& itable)
+{
+    std::unordered_map<std::string, VkExtensionProperties, wis::string_hash> ext_map;
+
+    uint32_t count = 0;
+    itable.vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, nullptr);
+    wis::detail::fixed_allocation<VkExtensionProperties> ext_props = wis::detail::make_fixed_allocation<VkExtensionProperties>(count);
+    if (!ext_props)
+        return wis::make_result<FUNC, "Failed to allocate memory for extension properties">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+    itable.vkEnumerateDeviceExtensionProperties(adapter, nullptr, &count, ext_props.get());
+
+    ext_map.reserve(count);
+    for (auto& ext : ext_props)
+        ext_map.emplace(ext.extensionName, ext);
+
+    return ext_map;
+}
+
 wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noexcept
 {
-    constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
-    wis::detail::uniform_allocator<VkDeviceQueueCreateInfo, max_queue_count> queue_infos{};
+    return VKCreateDeviceWithExtensions(std::move(adapter), nullptr, 0);
+}
 
-    auto& adapter_i = adapter.GetInternal();
+wis::ResultValue<wis::VKDevice>
+wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept
+{
+    auto& adapter_i = in_adapter.GetInternal();
     auto hadapter = adapter_i.adapter;
     auto& itable = adapter_i.instance.table();
     auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
 
-    auto queues = GetQueueFamilies(hadapter, itable);
+    std::span<wis::VKDeviceExtension*> exts_span{ exts, exts + ext_size };
+    std::unordered_map<VkStructureType, uintptr_t> struct_map;
+    std::unordered_map<VkStructureType, uintptr_t> property_map;
+    std::unordered_set<std::string_view> ext_name_set;
+    auto [res, available_exts] = GetAvailableExtensions(hadapter, itable);
+    if (res.status != wis::Status::Ok)
+        return res;
 
-    void** next_chain = nullptr;
+    for (auto*& ext : exts_span) {
+        bool supported = ext->GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map);
+        if (!supported) {
+            ext = nullptr;
+            continue;
+        }
+    }
 
-    auto set_next = [&next_chain](void* next) {
-        struct R {
-            VkStructureType a;
-            void* pnext;
-        };
-        auto x = reinterpret_cast<R*>(next);
-        *next_chain = next;
-        next_chain = &x->pnext;
+    // Ext1
+    wis::VKDeviceExtensionEmbedded1 ext1;
+    ext1.GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map);
+
+    // Allocate memory for extension names
+    auto ext_names = wis::detail::make_fixed_allocation<const char*>(ext_name_set.size());
+    if (!ext_names)
+        return wis::make_result<FUNC, "Failed to allocate memory for extension names">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    size_t i = 0;
+    for (auto& ext : ext_name_set)
+        ext_names[i++] = ext.data();
+
+    // Initialize features
+    VkPhysicalDeviceFeatures2 features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+        .pNext = nullptr,
+        .features = {},
     };
+    VkPhysicalDeviceVulkan11Features vulkan11_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
+        .pNext = nullptr,
+    };
+    features.pNext = &vulkan11_features;
+
+    VkPhysicalDeviceVulkan12Features vulkan12_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+        .pNext = nullptr,
+    };
+    vulkan11_features.pNext = &vulkan12_features;
+
+    // Allocate memory for all structures
+    size_t allocation_size = 0;
+    for (auto& [type, size] : struct_map)
+        allocation_size += size;
+
+    auto allocation = wis::detail::make_fixed_allocation<uint8_t>(allocation_size);
+    if (!allocation)
+        return wis::make_result<FUNC, "Failed to allocate memory for feature structures">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    VkBaseInStructure* linked_struct = reinterpret_cast<VkBaseInStructure*>(&vulkan12_features);
+    uint8_t* current = allocation.get_data();
+    for (auto& [type, size] : struct_map) {
+        auto* ptr = reinterpret_cast<VkBaseInStructure*>(current);
+        ptr->sType = type;
+        ptr->pNext = nullptr;
+        linked_struct->pNext = ptr;
+        linked_struct = ptr;
+        current += size;
+
+        // override to the structure pointer
+        size = reinterpret_cast<uintptr_t>(ptr);
+    }
+
+    // Add the structures to the map
+    struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES] = reinterpret_cast<uintptr_t>(&vulkan12_features);
+    struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES] = reinterpret_cast<uintptr_t>(&vulkan11_features);
+    struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2] = reinterpret_cast<uintptr_t>(&features);
+
+    // Initialize
+    itable.vkGetPhysicalDeviceFeatures2(hadapter, &features);
+
+    // Get the properties
+    VkPhysicalDeviceProperties2 props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+        .pNext = nullptr,
+        .properties = {},
+    };
+
+    VkPhysicalDeviceVulkan11Properties vulkan11_props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES,
+        .pNext = nullptr,
+    };
+    props.pNext = &vulkan11_props;
+
+    VkPhysicalDeviceVulkan12Properties vulkan12_props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES,
+        .pNext = nullptr,
+    };
+    vulkan11_props.pNext = &vulkan12_props;
+
+    // Allocate memory for all properties
+    allocation_size = 0;
+    for (auto& [type, size] : property_map)
+        allocation_size += size;
+
+    auto allocation_props = wis::detail::make_fixed_allocation<uint8_t>(allocation_size);
+    if (!allocation_props)
+        return wis::make_result<FUNC, "Failed to allocate memory for property structures">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    VkBaseInStructure* linked_prop = reinterpret_cast<VkBaseInStructure*>(&vulkan12_props);
+    current = allocation_props.get_data();
+    for (auto& [type, size] : property_map) {
+        auto* ptr = reinterpret_cast<VkBaseInStructure*>(current);
+        ptr->sType = type;
+        ptr->pNext = nullptr;
+        linked_prop->pNext = ptr;
+        linked_prop = ptr;
+        current += size;
+
+        // override to the structure pointer
+        size = reinterpret_cast<uintptr_t>(ptr);
+    }
+
+    // Add the structures to the map
+    property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES] = reinterpret_cast<uintptr_t>(&vulkan12_props);
+    property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES] = reinterpret_cast<uintptr_t>(&vulkan11_props);
+    property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2] = reinterpret_cast<uintptr_t>(&props);
+
+    // Get the properties
+    itable.vkGetPhysicalDeviceProperties2(hadapter, &props);
+
+    // Initialize queue families
+    constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
+    wis::detail::uniform_allocator<VkDeviceQueueCreateInfo, max_queue_count> queue_infos{};
+
+    auto queues = GetQueueFamilies(hadapter, itable);
 
     constexpr static auto priorities = []() {
         std::array<float, 64> priorities{};
@@ -197,86 +268,6 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         };
     }
 
-    bool has_mutable_desc = false;
-
-    auto present_exts = RequestExtensions(hadapter, itable);
-    if (!present_exts.contains<wis::detail::equal_string_view>(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
-        return wis::make_result<FUNC, "The system does not support timeline semaphores.">(VkResult::VK_ERROR_UNKNOWN);
-
-    if (!present_exts.contains<wis::detail::equal_string_view>(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
-        return wis::make_result<FUNC, "The system does not support synchronization primitives.">(VkResult::VK_ERROR_UNKNOWN);
-
-    // Loading features
-    VkPhysicalDeviceFeatures2 features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-        .pNext = nullptr,
-        .features = {},
-    };
-    next_chain = &features.pNext;
-
-    VkPhysicalDeviceTimelineSemaphoreFeaturesKHR timeline_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES_KHR,
-        .pNext = nullptr,
-        .timelineSemaphore = true,
-    };
-    set_next(&timeline_features);
-
-    VkPhysicalDeviceSynchronization2Features sync_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
-        .pNext = nullptr,
-        .synchronization2 = true,
-    };
-    set_next(&sync_features);
-
-    VkPhysicalDeviceExtendedDynamicState2FeaturesEXT extdyn_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
-        .pNext = nullptr,
-        .extendedDynamicState2 = true,
-    };
-    if (present_exts.contains<wis::detail::equal_string_view>(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME)) // TODO: Check if there is such extension
-        set_next(&extdyn_features);
-
-    VkPhysicalDeviceDescriptorBufferFeaturesEXT descbuffer_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
-        .pNext = nullptr,
-    };
-    if (present_exts.contains<wis::detail::equal_string_view>(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME))
-        set_next(&descbuffer_features);
-
-    VkPhysicalDeviceDynamicRenderingFeaturesKHR dyn_render{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
-        .pNext = nullptr,
-        .dynamicRendering = true,
-    };
-    if (present_exts.contains<wis::detail::equal_string_view>(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
-        set_next(&dyn_render);
-
-    VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE mutable_desc_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE,
-        .pNext = nullptr,
-        .mutableDescriptorType = true,
-    };
-    if (has_mutable_desc = present_exts.contains<wis::detail::equal_string_view>(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME) ||
-                present_exts.contains<wis::detail::equal_string_view>(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME))
-        set_next(&mutable_desc_features);
-
-    VkPhysicalDeviceCustomBorderColorFeaturesEXT border_color_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
-        .pNext = nullptr,
-        .customBorderColors = true,
-    };
-    if (present_exts.contains<wis::detail::equal_string_view>(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME))
-        set_next(&border_color_features);
-
-    VkPhysicalDeviceBufferDeviceAddressFeatures buffer_address_features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
-        .pNext = nullptr,
-        .bufferDeviceAddress = true,
-    };
-    set_next(&buffer_address_features);
-
-    itable.vkGetPhysicalDeviceFeatures2(hadapter, &features);
-
     VkDeviceCreateInfo device_info{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .pNext = &features,
@@ -285,99 +276,71 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
         .pQueueCreateInfos = queue_infos.data(),
         .enabledLayerCount = 0,
         .ppEnabledLayerNames = nullptr,
-        .enabledExtensionCount = static_cast<uint32_t>(present_exts.size()),
-        .ppEnabledExtensionNames = present_exts.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(ext_name_set.size()),
+        .ppEnabledExtensionNames = ext_names.get(),
         .pEnabledFeatures = nullptr,
     };
 
     // Creating device
-    InternalFeatures ifeatures{
-        .has_descriptor_buffer = present_exts.contains<wis::detail::equal_string_view>(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME),
-        .dynamic_rendering = bool(dyn_render.dynamicRendering),
-        .has_mutable_descriptor = bool(has_mutable_desc),
-    };
-    DeviceFeatures dfeatures =
-            DeviceFeatures(+DeviceFeatures::PushDescriptors & int(ifeatures.has_descriptor_buffer));
+    VkDevice device;
+    auto vres = itable.vkCreateDevice(hadapter, &device_info, nullptr, &device);
+    if (!wis::succeeded(vres))
+        return wis::make_result<FUNC, "vkCreateDevice failed to create device">(vres);
 
-    VkDevice unsafe_device;
-    VkResult result = VK_SUCCESS;
-    if (!wis::succeeded(result = itable.vkCreateDevice(hadapter, &device_info, nullptr, &unsafe_device)))
-        return wis::make_result<FUNC, "vkCreateDevice failed to create device">(result);
-
-    wis::managed_handle<VkDevice> device{ unsafe_device, (PFN_vkDestroyDevice)gtable.vkGetDeviceProcAddr(unsafe_device, "vkDestroyDevice") };
+    wis::managed_handle<VkDevice> managed_device{ device, (PFN_vkDestroyDevice)gtable.vkGetDeviceProcAddr(device, "vkDestroyDevice") };
     std::unique_ptr<VKMainDevice> device_table = wis::detail::make_unique<VKMainDevice>();
     if (!device_table)
         return wis::make_result<FUNC, "Failed to allocate device table">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    if (!device_table->Init(device.get(), gtable.vkGetDeviceProcAddr))
+    if (!device_table->Init(device, gtable.vkGetDeviceProcAddr))
         return wis::make_result<FUNC, "Failed to initialize device table">(VkResult::VK_ERROR_UNKNOWN);
 
-    auto feature_details = wis::detail::make_unique<FeatureDetails>();
-    if (!feature_details)
-        return wis::make_result<FUNC, "Failed to allocate feature details">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+    wis::VKDevice vkdevice{ wis::SharedDevice{ managed_device.release(), std::move(device_table) },
+                            std::move(in_adapter), std::move(ext1) };
 
-    wis::VKDevice vkdevice{ wis::SharedDevice{ device.release(), std::move(device_table) },
-                            std::move(adapter), std::move(feature_details),
-                            dfeatures, ifeatures };
-
-    return { wis::success, std::move(vkdevice) };
-}
-
-wis::VKDevice::VKDevice(wis::SharedDevice in_device,
-                        wis::VKAdapter in_adapter,
-                        std::unique_ptr<FeatureDetails> feature_details,
-                        wis::DeviceFeatures in_features,
-                        InternalFeatures in_ifeatures) noexcept
-    : QueryInternal(std::move(in_adapter), std::move(in_device), in_ifeatures), features(in_features)
-{
-    auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
-    auto& itable = GetInstanceTable();
-    auto& dtable = device.table();
-
-    queues = GetQueueFamilies(adapter.GetInternal().adapter, itable);
-
-    VkPhysicalDeviceProperties2 props{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-        .pNext = nullptr,
-        .properties = {},
-    };
-
-    auto& descriptor_buffer_properties = feature_details->descriptor_buffer_properties;
-    {
-        descriptor_buffer_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT;
-        descriptor_buffer_properties.pNext = nullptr;
-    };
-
-    if (ifeatures.has_descriptor_buffer) {
-        props.pNext = &descriptor_buffer_properties;
-    }
-    itable.vkGetPhysicalDeviceProperties2(adapter.GetInternal().adapter, &props);
-
-    if (ifeatures.has_descriptor_buffer) {
-        auto [desc_type, desc_size] = detail::BiggestDescriptor(descriptor_buffer_properties, ifeatures.has_mutable_descriptor);
-        feature_details->biggest_descriptor = desc_type;
-        feature_details->mutable_descriptor_size = desc_size;
-
-        ifeatures.push_descriptor_bufferless = descriptor_buffer_properties.bufferlessPushDescriptors;
-    }
-    ifeatures.max_ia_attributes = props.properties.limits.maxVertexInputAttributes;
+    // Init embedded extensions
+    vkdevice.ext1.Init(vkdevice, struct_map, property_map);
+    if (!vkdevice.ext1.Supported())
+        return wis::make_result<FUNC, "The system does not support the required extensions">(VkResult::VK_ERROR_UNKNOWN);
 
     // HACK: Get the alignment size of a descriptor set (until fixed by Vulkan)
+
     VkDescriptorSetLayoutBinding binding{
         .binding = 0,
-        .descriptorType = feature_details->biggest_descriptor,
+        .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
         .descriptorCount = 1,
         .stageFlags = VK_SHADER_STAGE_ALL,
         .pImmutableSamplers = nullptr,
     };
-    auto [res, dsl] = CreateDummyDescriptorSetLayout(binding);
+    auto [resl, dsl] = vkdevice.CreateDummyDescriptorSetLayout(binding);
+    if (resl.status != wis::Status::Ok)
+        return resl;
+
+    auto& dtable = vkdevice.device.table();
+    auto hdevice = vkdevice.device.get();
 
     VkDeviceSize descriptor_set_align_size = 0;
-    device.table().vkGetDescriptorSetLayoutSizeEXT(device.get(), dsl, &descriptor_set_align_size);
-    device.table().vkDestroyDescriptorSetLayout(device.get(), dsl, nullptr);
-    feature_details->descriptor_set_align_size = descriptor_set_align_size;
+    dtable.vkGetDescriptorSetLayoutSizeEXT(hdevice, dsl, &descriptor_set_align_size);
+    dtable.vkDestroyDescriptorSetLayout(hdevice, dsl, nullptr);
 
-    this->feature_details = std::move(feature_details);
+    const_cast<wis::XDescriptorBufferProperties&>(vkdevice.ext1.GetInternal().descriptor_buffer_features).descriptor_set_align_size = descriptor_set_align_size;
+    // END HACK
+
+    // Init the rest of the extensions
+    for (auto*& ext : exts_span) {
+        if (ext == nullptr)
+            continue;
+        ext->Init(vkdevice, struct_map, property_map);
+    }
+
+    return { wis::success, std::move(vkdevice) };
+}
+
+wis::VKDevice::VKDevice(wis::SharedDevice in_device, wis::VKAdapter in_adapter,
+                        wis::VKDeviceExtensionEmbedded1 ext1) noexcept
+    : QueryInternal(std::move(in_adapter), std::move(in_device), std::move(ext1))
+{
+    queues = GetQueueFamilies(adapter.GetInternal().adapter, GetInstanceTable());
 }
 
 wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
@@ -530,7 +493,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
                                    VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
 
     uint32_t ia_count = desc->input_layout.attribute_count;
-    if (ia_count > ifeatures.max_ia_attributes)
+    if (ia_count > ext1.GetInternal().base_properties.max_ia_attributes)
         return wis::make_result<FUNC,
                                 "The system does not support the requested number of vertex attributes">(
                 VkResult::VK_ERROR_UNKNOWN);
@@ -767,7 +730,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     };
 
     VkPipelineCreateFlags flags =
-            VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT * int(ifeatures.has_descriptor_buffer);
+            VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
 
     VkGraphicsPipelineCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -1185,6 +1148,8 @@ wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc d
 wis::ResultValue<wis::VKDescriptorBuffer>
 wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
 {
+    auto& ext1_i = ext1.GetInternal();
+
     if (!allocator) {
         auto [res, hallocator] = CreateAllocatorI();
         if (res.status != wis::Status::Ok)
@@ -1195,8 +1160,8 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         return wis::make_result<FUNC, "Failed to create an allocator">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
-            ? ifeatures.has_mutable_descriptor ? feature_details->mutable_descriptor_size : 0u
-            : feature_details->descriptor_buffer_properties.samplerDescriptorSize;
+            ? ext1_i.features.mutable_descriptor ? ext1_i.descriptor_buffer_features.mutable_descriptor_size : 0u
+            : ext1_i.descriptor_buffer_features.sampler_size;
 
     VkBufferUsageFlags usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
             (heap_type == wis::DescriptorHeapType::Descriptor
@@ -1207,7 +1172,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .size = wis::detail::aligned_size(memory_bytes, feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment) + uint64_t(feature_details->descriptor_set_align_size),
+        .size = memory_bytes + uint64_t(ext1_i.descriptor_buffer_features.descriptor_set_align_size),
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
@@ -1228,13 +1193,13 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
 
-    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, feature_details->descriptor_buffer_properties, uint32_t(descriptor_size) };
+    return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, ext1_i.descriptor_buffer_features, uint32_t(descriptor_size) };
 }
 
 wis::ResultValue<VkDescriptorSetLayout>
 wis::VKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept
 {
-    bool has_mutable = ifeatures.has_mutable_descriptor;
+    bool has_mutable = ext1.GetInternal().features.mutable_descriptor;
     constexpr static VkDescriptorType cbvSrvUavTypes[] = {
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -1277,7 +1242,7 @@ wis::VKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding
 wis::ResultValue<VkDescriptorSetLayout>
 wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept
 {
-    bool has_mutable = ifeatures.has_mutable_descriptor;
+    bool has_mutable = ext1.GetInternal().features.mutable_descriptor;
     constexpr static VkDescriptorType cbvSrvUavTypes[] = {
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,

@@ -12,7 +12,7 @@ if(WISDOM_DX12)
 endif()
 
 if(WISDOM_VULKAN)
-  add_executable(${PROJECT_NAME}-vk ${TEST_SOURCES})
+  add_executable(${PROJECT_NAME}-vk ${TEST_SOURCES} "vulkan_tests.cpp")
   wis_install_deps(${PROJECT_NAME}-vk)
   target_link_libraries(
     ${PROJECT_NAME}-vk PUBLIC Catch2::Catch2WithMain wis::platform-headers

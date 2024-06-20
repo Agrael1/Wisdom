@@ -20,6 +20,7 @@
     <handle name="Sampler"/>
     <handle name="ShaderResource"/>
     <handle name="FactoryExtension"/>
+    <handle name="DeviceExtension"/>
   </handles>
   <types comment="Type definitions">
     <!--Enums-->
@@ -1527,6 +1528,12 @@
     </func>
 
     <func name="CreateDevice">
+      <ret type="Result" name="result"/>
+      <ret type="Device" name="device"/>
+      <arg type="Adapter" name="adapter"/>
+    </func>
+
+    <func name="CreateDeviceWithExtensions" mod="cpp-only">
       <ret type="Result" name="result"/>
       <ret type="Device" name="device"/>
       <arg type="Adapter" name="adapter"/>

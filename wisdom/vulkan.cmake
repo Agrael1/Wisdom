@@ -31,7 +31,9 @@ if(WISDOM_BUILD_BINARIES)
  		"include/wisdom/vulkan/vk_allocator.h"
  		"include/wisdom/vulkan/vk_swapchain.h"
  		"include/wisdom/vulkan/vk_debug.h"
-	 "include/wisdom/vulkan/vk_factory_ext.h" )
+		"include/wisdom/vulkan/vk_factory_ext.h"
+		"include/wisdom/vulkan/vk_device_ext.h"
+	)
 	add_library(wis::vulkan ALIAS wisdom-vk)
 	target_sources(wisdom-vk
 		PRIVATE
