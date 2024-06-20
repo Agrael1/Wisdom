@@ -121,5 +121,3 @@ TEST_CASE("basic_device")
         REQUIRE_FALSE(a);
     }
 }
-
-
