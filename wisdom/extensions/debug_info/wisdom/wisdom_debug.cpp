@@ -51,6 +51,6 @@ wis::VKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* u
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
 
-    return wis::VKDebugMessenger{ instance, messenger, std::move(debug_callback) };
+    return wis::VKDebugMessenger{ instance, messenger, std::move(debug_callback), vkDestroyDebugUtilsMessengerEXT };
 }
 #endif // WISDOM_VULKAN

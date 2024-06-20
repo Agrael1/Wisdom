@@ -18,10 +18,12 @@ struct Internal<VKDebugMessenger> {
     wis::SharedInstance instance;
     h::VkDebugUtilsMessengerEXT messenger;
     std::unique_ptr<detail::DebugCallbackData> data;
+    PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
 
+public:
     Internal() noexcept = default;
-    Internal(wis::SharedInstance instance, VkDebugUtilsMessengerEXT messenger, std::unique_ptr<detail::DebugCallbackData> data) noexcept
-        : instance(std::move(instance)), messenger(messenger), data(std::move(data))
+    Internal(wis::SharedInstance instance, VkDebugUtilsMessengerEXT messenger, std::unique_ptr<detail::DebugCallbackData> data, PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT) noexcept
+        : instance(std::move(instance)), messenger(messenger), data(std::move(data)), vkDestroyDebugUtilsMessengerEXT(vkDestroyDebugUtilsMessengerEXT)
     {
     }
     Internal(Internal&&) noexcept = default;
@@ -45,7 +47,7 @@ struct Internal<VKDebugMessenger> {
     void Destroy() noexcept
     {
         if (messenger)
-            instance.table().vkDestroyDebugUtilsMessengerEXT(instance.get(), messenger, nullptr);
+            vkDestroyDebugUtilsMessengerEXT(instance.get(), messenger, nullptr);
         messenger = nullptr;
     }
 };
@@ -54,8 +56,8 @@ class VKDebugMessenger : public QueryInternal<VKDebugMessenger>
 {
 public:
     VKDebugMessenger() noexcept = default;
-    explicit VKDebugMessenger(wis::SharedInstance instance, VkDebugUtilsMessengerEXT messenger, std::unique_ptr<detail::DebugCallbackData> data) noexcept
-        : QueryInternal(std::move(instance), messenger, std::move(data))
+    explicit VKDebugMessenger(wis::SharedInstance instance, VkDebugUtilsMessengerEXT messenger, std::unique_ptr<detail::DebugCallbackData> data, PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT) noexcept
+        : QueryInternal(std::move(instance), messenger, std::move(data), vkDestroyDebugUtilsMessengerEXT)
     {
     }
     operator bool() const noexcept

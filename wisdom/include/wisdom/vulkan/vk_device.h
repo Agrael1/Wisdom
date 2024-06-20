@@ -60,14 +60,12 @@ template<>
 struct Internal<VKDevice> {
     wis::VKAdapter adapter;
     wis::SharedDevice device;
-    InternalFeatures ifeatures;
+    wis::VKDeviceExtensionEmbedded1 ext1;
 
     mutable wis::shared_handle<VmaAllocator> allocator;
     mutable std::shared_ptr<VmaVulkanFunctions> allocator_functions;
 
     detail::QueueResidency queues;
-
-    std::unique_ptr<FeatureDetails> feature_details;
 
 public:
     auto& GetInstanceTable() const noexcept
@@ -79,19 +77,13 @@ public:
 class VKDevice : public QueryInternal<VKDevice>
 {
     friend wis::ResultValue<wis::VKDevice>
-    VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
+    VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept;
 
 public:
     VKDevice() noexcept = default;
     WIS_INLINE explicit VKDevice(wis::SharedDevice device,
                                  wis::VKAdapter adapter,
-                                 std::unique_ptr<FeatureDetails> feature_details,
-                                 wis::DeviceFeatures features = wis::DeviceFeatures::None,
-                                 InternalFeatures ifeatures = {}) noexcept;
-
-    // TODO: Add Initial extensions 
-    WIS_INLINE explicit VKDevice(wis::SharedDevice device,
-                                 wis::VKAdapter adapter) noexcept;
+                                 wis::VKDeviceExtensionEmbedded1 ext1) noexcept;
 
     operator bool() const noexcept
     {
@@ -147,15 +139,16 @@ public:
     [[nodiscard]] uint32_t
     GetDescriptorBufferTableAlignment([[maybe_unused]] wis::DescriptorHeapType heap) const noexcept
     {
-        return feature_details->descriptor_buffer_properties.descriptorBufferOffsetAlignment;
+        return ext1.GetInternal().descriptor_buffer_features.descriptor_set_align_size;
     }
 
     [[nodiscard]] uint32_t
     GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
     {
+        auto& heap_features = ext1.GetInternal().descriptor_buffer_features;
         return heap == wis::DescriptorHeapType::Descriptor
-                ? feature_details->mutable_descriptor_size
-                : feature_details->descriptor_buffer_properties.samplerDescriptorSize;
+                ? heap_features.mutable_descriptor_size
+                : heap_features.sampler_size;
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
@@ -195,8 +188,6 @@ VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
 VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept;
-
-
 
 } // namespace wis
 

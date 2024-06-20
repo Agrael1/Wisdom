@@ -1,6 +1,7 @@
 #ifndef VK_DESCRIPTOR_BUFFER_H
 #define VK_DESCRIPTOR_BUFFER_H
 #include <wisdom/vulkan/vk_resource.h>
+#include <wisdom/vulkan/vk_device_ext.h>
 
 namespace wis {
 class VKDescriptorBuffer;
@@ -12,14 +13,14 @@ struct Internal<VKDescriptorBuffer> {
     h::VkBuffer buffer;
     VkDeviceAddress address = 0;
     uint8_t* data = nullptr;
-    VkPhysicalDeviceDescriptorBufferPropertiesEXT* properties = nullptr;
+    XDescriptorBufferProperties properties;
 
     wis::DescriptorHeapType type = wis::DescriptorHeapType::Descriptor;
     uint32_t descriptor_size = 0;
 
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, VkPhysicalDeviceDescriptorBufferPropertiesEXT& properties, uint32_t descriptor_size) noexcept
-        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), type(type), properties(&properties), descriptor_size(descriptor_size)
+    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation, wis::DescriptorHeapType type, XDescriptorBufferProperties& properties, uint32_t descriptor_size) noexcept
+        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), type(type), properties(properties), descriptor_size(descriptor_size)
     {
         if (buffer) {
             auto& device = this->allocator.header();
@@ -77,7 +78,7 @@ public:
                                 VkBuffer buffer,
                                 VmaAllocation allocation,
                                 wis::DescriptorHeapType type,
-                                VkPhysicalDeviceDescriptorBufferPropertiesEXT& properties,
+                                XDescriptorBufferProperties properties,
                                 uint32_t descriptor_size) noexcept
         : QueryInternal(std::move(allocator), buffer, allocation, type, properties, descriptor_size) { }
     operator bool() const noexcept

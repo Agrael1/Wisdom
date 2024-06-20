@@ -33,7 +33,7 @@ uint64_t wis::VKDescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_of
     };
 
     uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
-    device.table().vkGetDescriptorEXT(device.get(), &info, properties->sampledImageDescriptorSize, data + desc_offset);
+    device.table().vkGetDescriptorEXT(device.get(), &info, properties.sampled_image_size, data + desc_offset);
     return desc_offset + descriptor_size;
 }
 
@@ -52,7 +52,7 @@ uint64_t wis::VKDescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_bef
         .data = { .pSampledImage = &image_info }
     };
 
-    return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties->sampledImageDescriptorSize), info, root_signature);
+    return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties.sampled_image_size), info, root_signature);
 }
 
 uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table,
@@ -81,7 +81,7 @@ uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_bef
         .data = { .pUniformBuffer = &buffer_info }
     };
 
-    return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties->uniformBufferDescriptorSize), info, root_signature);
+    return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties.constant_buffer_size), info, root_signature);
 }
 
 uint64_t wis::VKDescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_table,
@@ -123,7 +123,7 @@ uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_of
         .data = { .pUniformBuffer = &buffer_info }
     };
     uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
-    device.table().vkGetDescriptorEXT(device.get(), &info, properties->uniformBufferDescriptorSize, data + desc_offset);
+    device.table().vkGetDescriptorEXT(device.get(), &info, properties.constant_buffer_size, data + desc_offset);
     return desc_offset + descriptor_size;
 }
 #endif // ! VK_DESCRIPTOR_BUFFER_CPP
