@@ -172,16 +172,22 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             auto& vk_descriptor_buffer_features = *reinterpret_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT));
             auto& vk_descriptor_buffer_properties = *reinterpret_cast<VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT));
 
-            descriptor_buffer_features.mutable_descriptor_size = std::max({
-                    descriptor_buffer_features.constant_buffer_size = uint16_t(vk_descriptor_buffer_properties.uniformBufferDescriptorSize),
-                    descriptor_buffer_features.storage_buffer_size = uint16_t(vk_descriptor_buffer_properties.storageBufferDescriptorSize),
+            descriptor_buffer_features.constant_buffer_size = uint16_t(vk_descriptor_buffer_properties.uniformBufferDescriptorSize);
+            descriptor_buffer_features.storage_buffer_size = uint16_t(vk_descriptor_buffer_properties.storageBufferDescriptorSize);
 
-                    descriptor_buffer_features.sampled_image_size = uint16_t(vk_descriptor_buffer_properties.sampledImageDescriptorSize),
-                    descriptor_buffer_features.storage_image_size = uint16_t(vk_descriptor_buffer_properties.storageImageDescriptorSize),
+            descriptor_buffer_features.sampled_image_size = uint16_t(vk_descriptor_buffer_properties.sampledImageDescriptorSize);
+            descriptor_buffer_features.storage_image_size = uint16_t(vk_descriptor_buffer_properties.storageImageDescriptorSize);
 
-                    descriptor_buffer_features.storage_texel_buffer_size = uint16_t(vk_descriptor_buffer_properties.storageTexelBufferDescriptorSize),
-                    descriptor_buffer_features.uniform_texel_buffer_size = uint16_t(vk_descriptor_buffer_properties.uniformTexelBufferDescriptorSize),
-            });
+            descriptor_buffer_features.storage_texel_buffer_size = uint16_t(vk_descriptor_buffer_properties.storageTexelBufferDescriptorSize);
+            descriptor_buffer_features.uniform_texel_buffer_size = uint16_t(vk_descriptor_buffer_properties.uniformTexelBufferDescriptorSize);
+
+            auto max1 = std::max(vk_descriptor_buffer_properties.uniformBufferDescriptorSize, vk_descriptor_buffer_properties.storageBufferDescriptorSize);
+            auto max2 = std::max(vk_descriptor_buffer_properties.sampledImageDescriptorSize, vk_descriptor_buffer_properties.storageImageDescriptorSize);
+            auto max3 = std::max(vk_descriptor_buffer_properties.storageTexelBufferDescriptorSize, vk_descriptor_buffer_properties.uniformTexelBufferDescriptorSize);
+
+            auto max12 = std::max(max1, max2);
+
+            descriptor_buffer_features.mutable_descriptor_size = uint16_t(std::max(max12, max3));
             descriptor_buffer_features.sampler_size = uint16_t(vk_descriptor_buffer_properties.samplerDescriptorSize);
             descriptor_buffer_features.offset_alignment = uint16_t(vk_descriptor_buffer_properties.descriptorBufferOffsetAlignment);
         }

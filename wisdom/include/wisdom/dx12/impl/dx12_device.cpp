@@ -13,6 +13,11 @@
 wis::ResultValue<wis::DX12Device>
 wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
 {
+    return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0);
+}
+
+wis::ResultValue<wis::DX12Device> wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept
+{
     auto in_adapter = std::get<0>(adapter);
 
     wis::com_ptr<IDXGIFactory4> in_factory;
@@ -26,7 +31,12 @@ wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr);
 
-    return wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), std::move(in_factory));
+    auto xdevice = wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), std::move(in_factory));
+
+    for (uint32_t i = 0; i < ext_count; i++) {
+        extensions[i]->Init(xdevice);
+    }
+    return std::move(xdevice);
 }
 
 wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,

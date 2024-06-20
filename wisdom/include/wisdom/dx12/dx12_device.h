@@ -7,6 +7,7 @@
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_allocator.h>
 #include <wisdom/dx12/dx12_descriptor_buffer.h>
+#include <wisdom/dx12/dx12_device_ext.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 
 namespace wis {
@@ -91,6 +92,9 @@ public:
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
 DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept;
+
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
+DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
