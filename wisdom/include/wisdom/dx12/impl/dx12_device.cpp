@@ -47,8 +47,6 @@ wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
     unique_event e;
     HRESULT hr = S_OK;
 
-    
-
     if (!succeeded(hr = device->SetEventOnMultipleFenceCompletion(
                            reinterpret_cast<ID3D12Fence* const*>(fences), values, count,
                            static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get())))

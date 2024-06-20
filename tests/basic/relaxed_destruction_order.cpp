@@ -5,7 +5,7 @@
 #include <iostream>
 
 struct LogProvider : public wis::LogLayer {
-    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override{
+    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override {
         // std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
     };
 };
@@ -121,5 +121,3 @@ TEST_CASE("basic_device")
         REQUIRE_FALSE(a);
     }
 }
-
-

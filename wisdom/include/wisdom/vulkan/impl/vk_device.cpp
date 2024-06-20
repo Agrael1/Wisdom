@@ -82,8 +82,6 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
     return queues;
 }
 
-
-
 inline static wis::ResultValue<std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>>
 GetAvailableExtensions(VkPhysicalDevice adapter, const wis::VKMainInstance& itable)
 {
@@ -135,7 +133,6 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     // Ext1
     wis::VKDeviceExtensionEmbedded1 ext1;
     ext1.GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map);
-
 
     // Allocate memory for extension names
     auto ext_names = wis::detail::make_fixed_allocation<const char*>(ext_name_set.size());
@@ -307,7 +304,7 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
         return wis::make_result<FUNC, "The system does not support the required extensions">(VkResult::VK_ERROR_UNKNOWN);
 
     // HACK: Get the alignment size of a descriptor set (until fixed by Vulkan)
-    
+
     VkDescriptorSetLayoutBinding binding{
         .binding = 0,
         .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
@@ -325,7 +322,7 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     VkDeviceSize descriptor_set_align_size = 0;
     dtable.vkGetDescriptorSetLayoutSizeEXT(hdevice, dsl, &descriptor_set_align_size);
     dtable.vkDestroyDescriptorSetLayout(hdevice, dsl, nullptr);
-    
+
     const_cast<wis::XDescriptorBufferProperties&>(vkdevice.ext1.GetInternal().descriptor_buffer_features).descriptor_set_align_size = descriptor_set_align_size;
     // END HACK
 
