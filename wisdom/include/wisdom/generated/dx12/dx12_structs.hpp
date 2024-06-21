@@ -116,6 +116,21 @@ inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept
 {
     return static_cast<D3D12_LOGIC_OP>(value);
 }
+inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case MemoryType::Default:
+        return D3D12_HEAP_TYPE_DEFAULT;
+    case MemoryType::Upload:
+        return D3D12_HEAP_TYPE_UPLOAD;
+    case MemoryType::Readback:
+        return D3D12_HEAP_TYPE_READBACK;
+    case MemoryType::GPUUpload:
+        return D3D12_HEAP_TYPE_UPLOAD;
+    }
+}
 inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
 {
     D3D12_BARRIER_SYNC output = {};
@@ -347,6 +362,8 @@ inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
         output |= D3D12_RESOURCE_FLAG_NONE;
     if (value & TextureUsage::UnorderedAccess)
         output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    if (value & TextureUsage::HostCopy)
+        output |= D3D12_RESOURCE_FLAG_NONE;
     return output;
 }
 inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept

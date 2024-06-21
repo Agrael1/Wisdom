@@ -4,7 +4,7 @@
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+wis::VKResourceAllocator::VKCreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
 {
     VmaAllocation allocation;
     VkBuffer buffer;
@@ -36,7 +36,7 @@ wis::VKResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags)
     VmaAllocationCreateInfo alloc{
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO
     };
-    return CreateBuffer(desc, alloc);
+    return VKCreateBuffer(desc, alloc);
 }
 
 wis::ResultValue<wis::VKBuffer>
@@ -55,7 +55,7 @@ wis::VKResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) // ensure mapping does not need to be flushed
     };
-    auto result = CreateBuffer(desc, alloc);
+    auto result = VKCreateBuffer(desc, alloc);
     return { result.status, VKBuffer{ std::move(result.value) } };
 }
 
@@ -75,12 +75,43 @@ wis::VKResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) // ensure mapping does not need to be flushed
     };
-    auto result = CreateBuffer(desc, alloc);
+    auto result = VKCreateBuffer(desc, alloc);
     return { result.status, VKBuffer{ std::move(result.value) } };
 }
 
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
+{
+    VkImageCreateInfo img_desc = VKCreateTextureDesc(desc);
+
+    VmaAllocationCreateInfo alloc{
+        .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+    };
+    return VKCreateTexture(img_desc, alloc);
+}
+
+wis::ResultValue<wis::VKTexture>
+wis::VKResourceAllocator::VKCreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+{
+    VmaAllocation allocation;
+    VkImage buffer;
+
+    auto result = vmaCreateImage(
+            allocator.get(),
+            reinterpret_cast<const VkImageCreateInfo*>(&desc),
+            &alloc_desc,
+            &buffer,
+            &allocation,
+            nullptr);
+
+    if (!wis::succeeded(result))
+        return wis::make_result<FUNC, "Texture allocation failed">(result);
+
+    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
+}
+
+VkImageCreateInfo 
+wis::VKResourceAllocator::VKCreateTextureDesc(const TextureDesc& desc) noexcept
 {
     VkImageCreateInfo img_desc{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -141,30 +172,6 @@ wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
         img_desc.samples = convert_vk(desc.sample_count);
         break;
     }
-
-    VmaAllocationCreateInfo alloc{
-        .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-    };
-    return CreateTexture(img_desc, alloc);
-}
-
-wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::CreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
-{
-    VmaAllocation allocation;
-    VkImage buffer;
-
-    auto result = vmaCreateImage(
-            allocator.get(),
-            reinterpret_cast<const VkImageCreateInfo*>(&desc),
-            &alloc_desc,
-            &buffer,
-            &allocation,
-            nullptr);
-
-    if (!wis::succeeded(result))
-        return wis::make_result<FUNC, "Texture allocation failed">(result);
-
-    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
+    return img_desc;
 }
 #endif // !VK_ALLOCATOR_CPP

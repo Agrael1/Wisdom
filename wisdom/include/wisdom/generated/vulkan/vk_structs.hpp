@@ -431,6 +431,21 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept
         return VK_LOGIC_OP_OR_INVERTED;
     }
 }
+inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case MemoryType::Default:
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    case MemoryType::Upload:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    case MemoryType::Readback:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    case MemoryType::GPUUpload:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    }
+}
 inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept
 {
     VkPipelineStageFlags2 output = {};
@@ -671,6 +686,8 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
         output |= VK_IMAGE_USAGE_SAMPLED_BIT;
     if (value & TextureUsage::UnorderedAccess)
         output |= VK_IMAGE_USAGE_STORAGE_BIT;
+    if (value & TextureUsage::HostCopy)
+        output |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
     return output;
 }
 inline constexpr VkFilter convert_vk(Filter value) noexcept

@@ -42,10 +42,13 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
-    CreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+    VKCreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
-    CreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+    VKCreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE static VkImageCreateInfo
+    VKCreateTextureDesc(const TextureDesc& desc) noexcept;
 };
 } // namespace wis
 

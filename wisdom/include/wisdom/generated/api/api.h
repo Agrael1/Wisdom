@@ -288,6 +288,13 @@ enum class LogicOp {
     OrInverted = 15,
 };
 
+enum class MemoryType {
+    Default = 0,
+    Upload = 1,
+    Readback = 2,
+    GPUUpload = 3,
+};
+
 enum class ShaderIntermediate {
     DXIL = 0,
     SPIRV = 1,
@@ -410,16 +417,17 @@ enum class ColorComponents {
     All = 0xF,
 };
 
-enum class DeviceFeatures {
-    None = 0x0,
-    PushDescriptors = 1 << 0,
-};
-
 enum class BufferFlags {
     None = 0x0,
     ConstantBuffer = 1 << 4,
     IndexBuffer = 1 << 6,
     VertexBuffer = 1 << 7,
+};
+
+enum class MemoryFlags {
+    None = 0x0,
+    DedicatedAllocation = 1 << 0,
+    Mapped = 1 << 1,
 };
 
 enum class TextureUsage {
@@ -430,6 +438,7 @@ enum class TextureUsage {
     CopyDst = 1 << 3,
     ShaderResource = 1 << 4,
     UnorderedAccess = 1 << 5,
+    HostCopy = 1 << 7,
 };
 
 enum class RenderPassFlags {
@@ -755,10 +764,10 @@ template<>
 struct is_flag_enum<wis::ColorComponents> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::DeviceFeatures> : public std::true_type {
+struct is_flag_enum<wis::BufferFlags> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::BufferFlags> : public std::true_type {
+struct is_flag_enum<wis::MemoryFlags> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::TextureUsage> : public std::true_type {

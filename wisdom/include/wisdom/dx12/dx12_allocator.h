@@ -38,9 +38,12 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
     CreateTexture(wis::TextureDesc desc) const noexcept;
 
-private:
+public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Buffer>
-    CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
+    DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
+
+    [[nodiscard]] WIS_INLINE static D3D12_RESOURCE_DESC1
+    DX12CreateTextureDesc(const TextureDesc& desc) noexcept;
 };
 } // namespace wis
 

@@ -6,3 +6,4 @@ add_library(wisdom-extension INTERFACE)
 add_library(wis::extension ALIAS wisdom-extension)
 
 add_subdirectory(debug_info)
+add_subdirectory(extended_allocation)
