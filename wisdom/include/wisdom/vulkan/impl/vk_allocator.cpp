@@ -9,12 +9,12 @@ wis::VKResourceAllocator::VKCreateBuffer(const VkBufferCreateInfo& desc, const V
     VmaAllocation allocation;
     VkBuffer buffer;
     VkResult result = vmaCreateBuffer(
-            allocator.get(),
-            &desc,
-            &alloc_desc,
-            &buffer,
-            &allocation,
-            nullptr);
+                          allocator.get(),
+                          &desc,
+                          &alloc_desc,
+                          &buffer,
+                          &allocation,
+                          nullptr);
 
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Buffer allocation failed">(result);
@@ -97,12 +97,12 @@ wis::VKResourceAllocator::VKCreateTexture(const VkImageCreateInfo& desc, const V
     VkImage buffer;
 
     auto result = vmaCreateImage(
-            allocator.get(),
-            reinterpret_cast<const VkImageCreateInfo*>(&desc),
-            &alloc_desc,
-            &buffer,
-            &allocation,
-            nullptr);
+                      allocator.get(),
+                      reinterpret_cast<const VkImageCreateInfo*>(&desc),
+                      &alloc_desc,
+                      &buffer,
+                      &allocation,
+                      nullptr);
 
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Texture allocation failed">(result);
@@ -110,7 +110,7 @@ wis::VKResourceAllocator::VKCreateTexture(const VkImageCreateInfo& desc, const V
     return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
 }
 
-VkImageCreateInfo 
+VkImageCreateInfo
 wis::VKResourceAllocator::VKCreateTextureDesc(const TextureDesc& desc) noexcept
 {
     VkImageCreateInfo img_desc{

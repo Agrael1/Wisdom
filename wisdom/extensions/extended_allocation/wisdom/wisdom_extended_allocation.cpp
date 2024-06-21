@@ -8,9 +8,9 @@
 
 wis::ResultValue<wis::DX12Texture>
 wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& allocator,
-                                           wis::TextureDesc desc,
-                                           wis::MemoryType memory,
-                                           wis::MemoryFlags flags) const noexcept
+        wis::TextureDesc desc,
+        wis::MemoryType memory,
+        wis::MemoryFlags flags) const noexcept
 {
     auto tex_desc = DX12ResourceAllocator::DX12CreateTextureDesc(desc);
 
@@ -31,9 +31,9 @@ wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& all
 
 wis::Result
 wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                      wis::DX12TextureView dst_texture,
-                                                      wis::TextureState initial_state,
-                                                      wis::TextureRegion region) const noexcept
+        wis::DX12TextureView dst_texture,
+        wis::TextureState initial_state,
+        wis::TextureRegion region) const noexcept
 {
     auto resource = std::get<0>(dst_texture);
     auto texture_desc = resource->GetDesc();
@@ -67,9 +67,9 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_dat
 #if defined(WISDOM_VULKAN)
 wis::ResultValue<wis::VKTexture>
 wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocator,
-                                         wis::TextureDesc desc,
-                                         wis::MemoryType memory,
-                                         wis::MemoryFlags flags) const noexcept
+        wis::TextureDesc desc,
+        wis::MemoryType memory,
+        wis::MemoryFlags flags) const noexcept
 {
     VkImageCreateInfo img_desc = VKResourceAllocator::VKCreateTextureDesc(desc);
 
@@ -102,11 +102,11 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
         .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         .newLayout = VK_IMAGE_LAYOUT_GENERAL,
         .subresourceRange = {
-                .aspectMask = aspect_flags(tex_i.format),
-                .baseMipLevel = 0,
-                .levelCount = img_desc.mipLevels,
-                .baseArrayLayer = 0,
-                .layerCount = img_desc.arrayLayers,
+            .aspectMask = aspect_flags(tex_i.format),
+            .baseMipLevel = 0,
+            .levelCount = img_desc.mipLevels,
+            .baseArrayLayer = 0,
+            .layerCount = img_desc.arrayLayers,
         },
     };
 
@@ -118,9 +118,9 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
 
 wis::Result
 wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                    wis::VKTextureView dst_texture,
-                                                    wis::TextureState initial_state,
-                                                    wis::TextureRegion region) const noexcept
+        wis::VKTextureView dst_texture,
+        wis::TextureState initial_state,
+        wis::TextureRegion region) const noexcept
 {
     auto aspects = aspect_flags(std::get<1>(dst_texture));
 
@@ -131,10 +131,10 @@ wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
         .memoryRowLength = {},
         .memoryImageHeight = {},
         .imageSubresource = {
-                .aspectMask = aspects,
-                .mipLevel = region.mip,
-                .baseArrayLayer = region.array_layer,
-                .layerCount = 1u,
+            .aspectMask = aspects,
+            .mipLevel = region.mip,
+            .baseArrayLayer = region.array_layer,
+            .layerCount = 1u,
         },
         .imageOffset = { int(region.offset.width), int(region.offset.height), int(region.offset.depth_or_layers) },
         .imageExtent = { region.size.width, region.size.height, region.size.depth_or_layers },

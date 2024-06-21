@@ -24,7 +24,7 @@ wis::DX12ResourceAllocator::DX12CreateResource(const D3D12MA::ALLOCATION_DESC& a
     return DX12Buffer{ std::move(rc), std::move(al), allocator };
 }
 
-D3D12_RESOURCE_DESC1 
+D3D12_RESOURCE_DESC1
 wis::DX12ResourceAllocator::DX12CreateTextureDesc(const TextureDesc& desc) noexcept
 {
     CD3DX12_RESOURCE_DESC1 tex_desc;
@@ -32,56 +32,56 @@ wis::DX12ResourceAllocator::DX12CreateTextureDesc(const TextureDesc& desc) noexc
     switch (desc.layout) {
     case wis::TextureLayout::Texture1D:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex1D(
-                convert_dx(desc.format),
-                desc.size.width, uint16_t(1),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width, uint16_t(1),
+                       uint16_t(desc.mip_levels), convert_dx(desc.usage));
         break;
     default:
     case wis::TextureLayout::Texture2D:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(1),
-                uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width,
+                       desc.size.height,
+                       uint16_t(1),
+                       uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture3D:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex3D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width,
+                       desc.size.height,
+                       uint16_t(desc.size.depth_or_layers),
+                       uint16_t(desc.mip_levels), convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture1DArray:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex1D(
-                convert_dx(desc.format),
-                desc.size.width, uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width, uint16_t(desc.size.depth_or_layers),
+                       uint16_t(desc.mip_levels), convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DArray:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width,
+                       desc.size.height,
+                       uint16_t(desc.size.depth_or_layers),
+                       uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMS:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(1),
-                uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width,
+                       desc.size.height,
+                       uint16_t(1),
+                       uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMSArray:
         tex_desc = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(desc.size.depth_or_layers),
-                uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
+                       convert_dx(desc.format),
+                       desc.size.width,
+                       desc.size.height,
+                       uint16_t(desc.size.depth_or_layers),
+                       uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
         break;
     }
     return tex_desc;
