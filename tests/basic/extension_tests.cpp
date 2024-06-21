@@ -70,6 +70,12 @@ TEST_CASE("host_texture_write_ext")
 
     using namespace wis;
 
+    bool support = a.SupportedDirectGPUUpload(wis::DataFormat::RGBA8Unorm);
+    if (!support) {
+        // Not supported for DX12, no need to use this test
+        return;
+    }
+
     // Create a texture with a size of 2x2 for host copy
     auto [res3, texture] = a.CreateTexture(allocator, wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm, .size = { 2, 2, 1 }, .mip_levels = 1, .layout = wis::TextureLayout::Texture2D, .usage = wis::TextureUsage::HostCopy | wis::TextureUsage::ShaderResource },
                                            wis::MemoryType::GPUUpload, wis::MemoryFlags::None);
@@ -77,7 +83,7 @@ TEST_CASE("host_texture_write_ext")
 
     // Perform a copy from the host memory to the texture
 
-    res3 = a.WriteMemoryToSubresource(texture_data, texture, wis::TextureState::Common, wis::TextureRegion{
+    res3 = a.WriteMemoryToSubresourceDirect(texture_data, texture, wis::TextureState::Common, wis::TextureRegion{
                                                                                                 .size = { 2, 2, 1 },
                                                                                                 .format = wis::DataFormat::RGBA8Unorm,
                                                                                         });

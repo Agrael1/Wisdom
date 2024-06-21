@@ -14,20 +14,23 @@ wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& all
 {
     auto tex_desc = DX12ResourceAllocator::DX12CreateTextureDesc(desc);
 
-    memory = memory == wis::MemoryType::GPUUpload && supports_gpu_upload ? wis::MemoryType::GPUUpload : wis::MemoryType::Upload;
+    if(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_GPU_UPLOAD && !supports_gpu_upload)
+        return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
+
     D3D12MA::ALLOCATION_FLAGS all_flags = D3D12MA::ALLOCATION_FLAG_NONE;
     if (flags & wis::MemoryFlags::DedicatedAllocation)
         all_flags |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
 
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = all_flags,
-        .HeapType = convert_dx(memory),
+        .HeapType = convert_dx(memory)
     };
+
     return allocator.DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
 }
 
 wis::Result
-wis::DX12ExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
+wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
                                                       wis::DX12TextureView dst_texture,
                                                       wis::TextureState initial_state,
                                                       wis::TextureRegion region) const noexcept
@@ -36,13 +39,9 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
     auto texture_desc = resource->GetDesc();
     UINT dest_subresource = D3D12CalcSubresource(region.mip, region.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
 
-    auto hr = resource->Map(dest_subresource, nullptr, nullptr);
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to map resource">(hr);
-
     UINT row_pitch = 0;
     UINT slice_pitch = 0;
-    hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.format), region.size.width, row_pitch);
+    auto hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.format), region.size.width, row_pitch);
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to calculate row pitch">(hr);
 
@@ -61,8 +60,6 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
     hr = resource->WriteToSubresource(dest_subresource, &box, host_data, row_pitch, slice_pitch);
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to write to subresource">(hr);
-
-    resource->Unmap(dest_subresource, nullptr);
     return wis::success;
 }
 #endif // WISDOM_DX12
@@ -120,7 +117,7 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
 }
 
 wis::Result
-wis::VKExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
+wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
                                                     wis::VKTextureView dst_texture,
                                                     wis::TextureState initial_state,
                                                     wis::TextureRegion region) const noexcept

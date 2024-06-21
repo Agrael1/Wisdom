@@ -611,7 +611,7 @@
         <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT"/>
       </value>
       <value name="GPUUpload" value="3">
-        <impl name="dx" value="D3D12_HEAP_TYPE_UPLOAD"/>
+        <impl name="dx" value="D3D12_HEAP_TYPE_GPU_UPLOAD"/>
         <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"/>
       </value>
     </type>

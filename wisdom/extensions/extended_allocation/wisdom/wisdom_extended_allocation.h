@@ -12,6 +12,7 @@ class DX12ExtendedAllocation;
 template<>
 struct Internal<DX12ExtendedAllocation> {
     bool supports_gpu_upload = false;
+    wis::com_ptr<ID3D12CommandQueue> copy_queue;
 };
 
 class DX12ExtendedAllocation : public QueryInternalExtension<DX12ExtendedAllocation, DX12DeviceExtension>
@@ -20,6 +21,7 @@ protected:
     virtual wis::Result Init(const wis::DX12Device& instance) noexcept override
     {
         auto device = instance.GetInternal().device.get();
+        auto spAdapter = instance.GetInternal().adapter.as<IDXGIAdapter3>();
 
         D3D12_FEATURE_DATA_D3D12_OPTIONS16 d3d12_options16{};
         auto hr = device->CheckFeatureSupport(D3D12_FEATURE::D3D12_FEATURE_D3D12_OPTIONS16, &d3d12_options16, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS16));
@@ -42,10 +44,15 @@ public:
                   wis::MemoryFlags flags) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
-    WriteMemoryToSubresource(const void* host_data,
-                             wis::DX12TextureView dst_texture,
-                             wis::TextureState initial_state,
-                             wis::TextureRegion region) const noexcept;
+    WriteMemoryToSubresourceDirect(const void* host_data,
+                                   wis::DX12TextureView dst_texture,
+                                   wis::TextureState initial_state,
+                                   wis::TextureRegion region) const noexcept;
+
+    [[nodiscard]] bool SupportedDirectGPUUpload(wis::DataFormat) const noexcept
+    {
+        return supports_gpu_upload;
+    }
 };
 } // namespace wis
 
@@ -62,8 +69,10 @@ class VKExtendedAllocation;
 template<>
 struct Internal<VKExtendedAllocation> {
     wis::SharedDevice device;
+    h::VkPhysicalDevice adapter;
     PFN_vkCopyMemoryToImageEXT vkCopyMemoryToImageEXT = nullptr;
     PFN_vkTransitionImageLayoutEXT vkTransitionImageLayoutEXT = nullptr;
+    PFN_vkGetPhysicalDeviceImageFormatProperties2KHR vkGetPhysicalDeviceImageFormatProperties2 = nullptr;
 };
 
 class VKExtendedAllocation : public QueryInternalExtension<VKExtendedAllocation, wis::VKDeviceExtension>
@@ -102,9 +111,11 @@ protected:
         auto hdevice = device_i.device.get();
 
         device = device_i.device;
+        adapter = device_i.adapter.GetInternal().adapter;
 
         vkCopyMemoryToImageEXT = reinterpret_cast<PFN_vkCopyMemoryToImageEXT>(gtable.vkGetDeviceProcAddr(hdevice, "vkCopyMemoryToImageEXT"));
         vkTransitionImageLayoutEXT = reinterpret_cast<PFN_vkTransitionImageLayoutEXT>(gtable.vkGetDeviceProcAddr(hdevice, "vkTransitionImageLayoutEXT"));
+        vkGetPhysicalDeviceImageFormatProperties2 = reinterpret_cast<PFN_vkGetPhysicalDeviceImageFormatProperties2>(gtable.vkGetInstanceProcAddr(device_i.adapter.GetInternal().instance.get(), "vkGetPhysicalDeviceImageFormatProperties2"));
         return {};
     }
 
@@ -123,10 +134,34 @@ public:
                   wis::MemoryFlags flags) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
-    WriteMemoryToSubresource(const void* host_data,
-                             wis::VKTextureView dst_texture,
-                             wis::TextureState initial_state,
-                             wis::TextureRegion region) const noexcept;
+    WriteMemoryToSubresourceDirect(const void* host_data,
+                                   wis::VKTextureView dst_texture,
+                                   wis::TextureState initial_state,
+                                   wis::TextureRegion region) const noexcept;
+    
+    [[nodiscard]] bool SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
+    {
+        VkHostImageCopyDevicePerformanceQueryEXT query{
+            .sType = VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT,
+            .pNext = nullptr,
+        };
+        VkPhysicalDeviceImageFormatInfo2 format_info{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2,
+            .pNext = nullptr,
+            .format = convert_vk(format),
+            .type = VK_IMAGE_TYPE_2D,
+            .tiling = VK_IMAGE_TILING_OPTIMAL,
+            .usage = VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT,
+            .flags = 0,
+        };
+        VkImageFormatProperties2 format_props{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2,
+            .pNext = &query,
+        };
+        vkGetPhysicalDeviceImageFormatProperties2(adapter, &format_info, &format_props);
+
+        return Supported() && query.optimalDeviceAccess;
+    }
 };
 } // namespace wis
 #endif // WISDOM_VULKAN

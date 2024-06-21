@@ -128,7 +128,7 @@ inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
     case MemoryType::Readback:
         return D3D12_HEAP_TYPE_READBACK;
     case MemoryType::GPUUpload:
-        return D3D12_HEAP_TYPE_UPLOAD;
+        return D3D12_HEAP_TYPE_GPU_UPLOAD;
     }
 }
 inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
