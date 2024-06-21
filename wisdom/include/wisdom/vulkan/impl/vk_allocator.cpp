@@ -110,7 +110,7 @@ wis::VKResourceAllocator::VKCreateTexture(const VkImageCreateInfo& desc, const V
     return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
 }
 
-VkImageCreateInfo 
+VkImageCreateInfo
 wis::VKResourceAllocator::VKCreateTextureDesc(const TextureDesc& desc) noexcept
 {
     VkImageCreateInfo img_desc{

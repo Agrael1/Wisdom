@@ -24,7 +24,7 @@ wis::DX12ResourceAllocator::DX12CreateResource(const D3D12MA::ALLOCATION_DESC& a
     return DX12Buffer{ std::move(rc), std::move(al), allocator };
 }
 
-D3D12_RESOURCE_DESC1 
+D3D12_RESOURCE_DESC1
 wis::DX12ResourceAllocator::DX12CreateTextureDesc(const TextureDesc& desc) noexcept
 {
     CD3DX12_RESOURCE_DESC1 tex_desc;

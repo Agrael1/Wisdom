@@ -14,7 +14,7 @@ wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& all
 {
     auto tex_desc = DX12ResourceAllocator::DX12CreateTextureDesc(desc);
 
-    if(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_GPU_UPLOAD && !supports_gpu_upload)
+    if (D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_GPU_UPLOAD && !supports_gpu_upload)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
 
     D3D12MA::ALLOCATION_FLAGS all_flags = D3D12MA::ALLOCATION_FLAG_NONE;
@@ -31,9 +31,9 @@ wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& all
 
 wis::Result
 wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                      wis::DX12TextureView dst_texture,
-                                                      wis::TextureState initial_state,
-                                                      wis::TextureRegion region) const noexcept
+                                                            wis::DX12TextureView dst_texture,
+                                                            wis::TextureState initial_state,
+                                                            wis::TextureRegion region) const noexcept
 {
     auto resource = std::get<0>(dst_texture);
     auto texture_desc = resource->GetDesc();
@@ -118,9 +118,9 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
 
 wis::Result
 wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                    wis::VKTextureView dst_texture,
-                                                    wis::TextureState initial_state,
-                                                    wis::TextureRegion region) const noexcept
+                                                          wis::VKTextureView dst_texture,
+                                                          wis::TextureState initial_state,
+                                                          wis::TextureRegion region) const noexcept
 {
     auto aspects = aspect_flags(std::get<1>(dst_texture));
 

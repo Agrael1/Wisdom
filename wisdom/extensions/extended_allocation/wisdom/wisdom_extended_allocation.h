@@ -138,7 +138,7 @@ public:
                                    wis::VKTextureView dst_texture,
                                    wis::TextureState initial_state,
                                    wis::TextureRegion region) const noexcept;
-    
+
     [[nodiscard]] bool SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
     {
         VkHostImageCopyDevicePerformanceQueryEXT query{
