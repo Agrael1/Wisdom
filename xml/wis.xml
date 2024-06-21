@@ -123,10 +123,6 @@
       <value name="High" value="100"/>
       <value name="Realtime" value="10000"/>
     </type>
-    <type name="DeviceFeatures" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="PushDescriptors" bit="0"/>
-    </type>
     <type name="ColorComponents" category="bitmask">
       <value name="None" value="0"/>
       <value name="R" bit="0"/>
@@ -593,6 +589,33 @@
       <value name="VertexBuffer" bit="7"/>
     </type>
 
+    <type name="MemoryFlags" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="DedicatedAllocation" bit="0"/>
+      <value name="Mapped" bit="1"/>
+    </type>
+
+    <type name="MemoryType" category="enum">
+      <impl_type for="dx" name="D3D12_HEAP_TYPE"/>
+      <impl_type for="vk" name="VkMemoryPropertyFlags"/>
+      <value name="Default" value="0">
+        <impl name="dx" value="D3D12_HEAP_TYPE_DEFAULT"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT"/>
+      </value>
+      <value name="Upload" value="1">
+        <impl name="dx" value="D3D12_HEAP_TYPE_UPLOAD"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"/>
+      </value>
+      <value name="Readback" value="2">
+        <impl name="dx" value="D3D12_HEAP_TYPE_READBACK"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT"/>
+      </value>
+      <value name="GPUUpload" value="3">
+        <impl name="dx" value="D3D12_HEAP_TYPE_GPU_UPLOAD"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"/>
+      </value>
+    </type>
+
     <type name="BarrierSync" category="bitmask">
       <impl_type for="dx" name="D3D12_BARRIER_SYNC"/>
       <impl_type for="vk" name="VkPipelineStageFlags2"/>
@@ -668,7 +691,7 @@
       <value name="BuildRTAS" bit="17">
         <impl name="dx" value="D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR"/>
-        </value>
+      </value>
       <value name="CopyRTAS" bit="18">
         <impl name="dx" value="D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR"/>
@@ -1028,6 +1051,10 @@
       <value name="UnorderedAccess" bit="5">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS"/>
         <impl name="vk" value="VK_IMAGE_USAGE_STORAGE_BIT"/>
+      </value>
+      <value name="HostCopy" bit="7">
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
+        <impl name="vk" value="VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT"/>
       </value>
     </type>
 

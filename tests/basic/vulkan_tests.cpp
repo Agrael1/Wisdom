@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <wisdom/wisdom_extended_allocation.h>
 #include <wisdom/wisdom_platform.h>
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_debug.h>
@@ -20,10 +21,6 @@ static void DebugCallback(wis::Severity severity, const char* message, void* use
 }
 
 struct A : public wis::VKDeviceExtension {
-    static constexpr std::array<std::pair<VkStructureType, uint32_t>, 1> required_extensions = {
-        std::pair<VkStructureType, uint32_t>{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT, sizeof(VkPhysicalDeviceCustomBorderColorFeaturesEXT) }
-    };
-
     virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>& available_extensions,
                                   std::unordered_set<std::string_view>& ext_name_set,
                                   std::unordered_map<VkStructureType, uintptr_t>& structure_map,

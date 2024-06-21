@@ -9,7 +9,7 @@
 #include <wisdom/util/misc.h>
 
 wis::ResultValue<wis::DX12Buffer>
-wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
+wis::DX12ResourceAllocator::DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
 {
     wis::com_ptr<ID3D12Resource> rc;
     wis::com_ptr<D3D12MA::Allocation> al;
@@ -24,35 +24,8 @@ wis::DX12ResourceAllocator::CreateBuffer(const D3D12MA::ALLOCATION_DESC& all_des
     return DX12Buffer{ std::move(rc), std::move(al), allocator };
 }
 
-wis::ResultValue<wis::DX12Buffer>
-wis::DX12ResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
-{
-    uint64_t alignment = flags & BufferFlags::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
-    size = wis::detail::aligned_size(size, alignment);
-
-    return CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_DEFAULT }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COMMON);
-}
-
-wis::ResultValue<wis::DX12Buffer>
-wis::DX12ResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
-{
-    auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_UPLOAD }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_GENERIC_READ);
-    return {
-        buffer.status, DX12Buffer{ std::move(buffer.value) }
-    };
-}
-
-wis::ResultValue<wis::DX12Buffer>
-wis::DX12ResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
-{
-    auto buffer = CreateBuffer({ .HeapType = D3D12_HEAP_TYPE_READBACK }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COPY_DEST);
-    return {
-        buffer.status, DX12Buffer{ std::move(buffer.value) }
-    };
-}
-
-wis::ResultValue<wis::DX12Texture>
-wis::DX12ResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
+D3D12_RESOURCE_DESC1
+wis::DX12ResourceAllocator::DX12CreateTextureDesc(const TextureDesc& desc) noexcept
 {
     CD3DX12_RESOURCE_DESC1 tex_desc;
 
@@ -111,11 +84,45 @@ wis::DX12ResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
                 uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
         break;
     }
+    return tex_desc;
+}
+
+wis::ResultValue<wis::DX12Buffer>
+wis::DX12ResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
+{
+    uint64_t alignment = flags & BufferFlags::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
+    size = wis::detail::aligned_size(size, alignment);
+
+    return DX12CreateResource({ .HeapType = D3D12_HEAP_TYPE_DEFAULT }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COMMON);
+}
+
+wis::ResultValue<wis::DX12Buffer>
+wis::DX12ResourceAllocator::CreateUploadBuffer(uint64_t size) const noexcept
+{
+    auto buffer = DX12CreateResource({ .HeapType = D3D12_HEAP_TYPE_UPLOAD }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_GENERIC_READ);
+    return {
+        buffer.status, DX12Buffer{ std::move(buffer.value) }
+    };
+}
+
+wis::ResultValue<wis::DX12Buffer>
+wis::DX12ResourceAllocator::CreateReadbackBuffer(uint64_t size) const noexcept
+{
+    auto buffer = DX12CreateResource({ .HeapType = D3D12_HEAP_TYPE_READBACK }, CD3DX12_RESOURCE_DESC1::Buffer(size), D3D12_RESOURCE_STATE_COPY_DEST);
+    return {
+        buffer.status, DX12Buffer{ std::move(buffer.value) }
+    };
+}
+
+wis::ResultValue<wis::DX12Texture>
+wis::DX12ResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
+{
+    auto tex_desc = DX12CreateTextureDesc(desc);
 
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = D3D12MA::ALLOCATION_FLAG_NONE,
         .HeapType = D3D12_HEAP_TYPE_DEFAULT,
     };
 
-    return CreateBuffer(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
+    return DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
 }

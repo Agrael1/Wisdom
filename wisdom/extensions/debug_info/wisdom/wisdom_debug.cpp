@@ -1,3 +1,5 @@
+#ifndef WISDOM_DEBUG_CPP
+#define WISDOM_DEBUG_CPP
 #include <wisdom/wisdom_debug.h>
 
 #if defined(WISDOM_DX12)
@@ -54,3 +56,4 @@ wis::VKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* u
     return wis::VKDebugMessenger{ instance, messenger, std::move(debug_callback), vkDestroyDebugUtilsMessengerEXT };
 }
 #endif // WISDOM_VULKAN
+#endif // WISDOM_DEBUG_CPP

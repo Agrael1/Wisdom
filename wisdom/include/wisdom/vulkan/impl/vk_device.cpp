@@ -170,6 +170,8 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     if (!allocation)
         return wis::make_result<FUNC, "Failed to allocate memory for feature structures">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
+    memset(allocation.get_data(), 0, allocation_size);
+
     VkBaseInStructure* linked_struct = reinterpret_cast<VkBaseInStructure*>(&vulkan12_features);
     uint8_t* current = allocation.get_data();
     for (auto& [type, size] : struct_map) {
@@ -219,6 +221,8 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     auto allocation_props = wis::detail::make_fixed_allocation<uint8_t>(allocation_size);
     if (!allocation_props)
         return wis::make_result<FUNC, "Failed to allocate memory for property structures">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    memset(allocation_props.get_data(), 0, allocation_size);
 
     VkBaseInStructure* linked_prop = reinterpret_cast<VkBaseInStructure*>(&vulkan12_props);
     current = allocation_props.get_data();

@@ -36,6 +36,7 @@ public:
         instance = std::move(other.instance);
         messenger = std::move(other.messenger);
         data = std::move(other.data);
+        vkDestroyDebugUtilsMessengerEXT = other.vkDestroyDebugUtilsMessengerEXT;
         return *this;
     }
 

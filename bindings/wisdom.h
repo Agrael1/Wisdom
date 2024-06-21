@@ -259,6 +259,13 @@ enum WisLogicOp {
     LogicOpOrInverted = 15,
 };
 
+enum WisMemoryType {
+    MemoryTypeDefault = 0,
+    MemoryTypeUpload = 1,
+    MemoryTypeReadback = 2,
+    MemoryTypeGPUUpload = 3,
+};
+
 enum WisShaderIntermediate {
     ShaderIntermediateDXIL = 0,
     ShaderIntermediateSPIRV = 1,
@@ -383,16 +390,17 @@ enum WisColorComponentsBits {
     ColorComponentsAll = 0xF,
 };
 
-enum WisDeviceFeaturesBits {
-    DeviceFeaturesNone = 0x0,
-    DeviceFeaturesPushDescriptors = 1 << 0,
-};
-
 enum WisBufferFlagsBits {
     BufferFlagsNone = 0x0,
     BufferFlagsConstantBuffer = 1 << 4,
     BufferFlagsIndexBuffer = 1 << 6,
     BufferFlagsVertexBuffer = 1 << 7,
+};
+
+enum WisMemoryFlagsBits {
+    MemoryFlagsNone = 0x0,
+    MemoryFlagsDedicatedAllocation = 1 << 0,
+    MemoryFlagsMapped = 1 << 1,
 };
 
 enum WisTextureUsageBits {
@@ -403,6 +411,7 @@ enum WisTextureUsageBits {
     TextureUsageCopyDst = 1 << 3,
     TextureUsageShaderResource = 1 << 4,
     TextureUsageUnorderedAccess = 1 << 5,
+    TextureUsageHostCopy = 1 << 7,
 };
 
 enum WisRenderPassFlagsBits {
@@ -515,6 +524,7 @@ typedef enum WisBlendFactor WisBlendFactor;
 typedef enum WisBlendOp WisBlendOp;
 typedef enum WisSampleCount WisSampleCount;
 typedef enum WisLogicOp WisLogicOp;
+typedef enum WisMemoryType WisMemoryType;
 typedef enum WisShaderIntermediate WisShaderIntermediate;
 typedef enum WisTextureState WisTextureState;
 typedef enum WisLoadOperation WisLoadOperation;
@@ -531,10 +541,10 @@ typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisColorComponentsBits WisColorComponentsBits;
 typedef uint32_t WisColorComponents;
-typedef enum WisDeviceFeaturesBits WisDeviceFeaturesBits;
-typedef uint32_t WisDeviceFeatures;
 typedef enum WisBufferFlagsBits WisBufferFlagsBits;
 typedef uint32_t WisBufferFlags;
+typedef enum WisMemoryFlagsBits WisMemoryFlagsBits;
+typedef uint32_t WisMemoryFlags;
 typedef enum WisTextureUsageBits WisTextureUsageBits;
 typedef uint32_t WisTextureUsage;
 typedef enum WisRenderPassFlagsBits WisRenderPassFlagsBits;

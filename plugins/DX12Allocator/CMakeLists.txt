@@ -18,7 +18,8 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${dxma_SOURCES}/include/D3D12MemAlloc.h)
 target_sources(${PROJECT_NAME} PRIVATE ${dxma_SOURCES}/src/D3D12MemAlloc.cpp)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE DX12Agility)
+target_compile_definitions(${PROJECT_NAME} PRIVATE D3D12MA_OPTIONS16_SUPPORTED)
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${dxma_SOURCES}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/dxma>)
