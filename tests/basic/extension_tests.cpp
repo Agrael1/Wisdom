@@ -5,13 +5,11 @@
 #include <wisdom/wisdom_extended_allocation.h>
 #include <iostream>
 
-
 struct LogProvider3 : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override{
         // std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
     };
 };
-
 
 static void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
@@ -78,15 +76,11 @@ TEST_CASE("host_texture_write_ext")
     REQUIRE(res3.status == wis::Status::Ok);
 
     // Perform a copy from the host memory to the texture
-    wis::BufferTextureCopyRegion copy{
-        .buffer_offset = 0,
-        .texture = {
-                .size = { 2, 2, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
-        },
-    };
 
-    res3 = a.WriteMemoryToSubresource(texture_data, texture, wis::TextureState::Common, &copy, 1);
+    res3 = a.WriteMemoryToSubresource(texture_data, texture, wis::TextureState::Common, wis::TextureRegion{
+                                                                                                .size = { 2, 2, 1 },
+                                                                                                .format = wis::DataFormat::RGBA8Unorm,
+                                                                                        });
 
     REQUIRE(res3.status == wis::Status::Ok);
 }

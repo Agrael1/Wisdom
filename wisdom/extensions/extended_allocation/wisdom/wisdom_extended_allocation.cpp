@@ -2,7 +2,6 @@
 #define WISDOM_EXTENDED_ALLOCATION_CPP
 #include <wisdom/wisdom_extended_allocation.h>
 
- 
 #if defined(WISDOM_DX12)
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_property_format_table.h>
@@ -36,7 +35,6 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
     auto resource = std::get<0>(dst_texture);
     auto texture_desc = resource->GetDesc();
     UINT dest_subresource = D3D12CalcSubresource(region.mip, region.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
-    
 
     auto hr = resource->Map(dest_subresource, nullptr, nullptr);
     if (!wis::succeeded(hr))
@@ -47,7 +45,6 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
     hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.format), region.size.width, row_pitch);
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to calculate row pitch">(hr);
-
 
     hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(convert_dx(region.format), row_pitch, region.size.height, slice_pitch);
     if (!wis::succeeded(hr))
@@ -126,32 +123,25 @@ wis::Result
 wis::VKExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
                                                     wis::VKTextureView dst_texture,
                                                     wis::TextureState initial_state,
-                                                    const wis::BufferTextureCopyRegion* regions,
-                                                    uint32_t region_count) const noexcept
+                                                    wis::TextureRegion region) const noexcept
 {
-    wis::detail::limited_allocator<VkMemoryToImageCopyEXT, 8> allocator(region_count, true);
-    auto* copies = allocator.data();
-
     auto aspects = aspect_flags(std::get<1>(dst_texture));
 
-    for (size_t i = 0; i < region_count; i++) {
-        auto& region = regions[i];
-        copies[i] = VkMemoryToImageCopyEXT{
-            .sType = VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY_EXT,
-            .pNext = nullptr,
-            .pHostPointer = reinterpret_cast<const uint8_t*>(host_data) + region.buffer_offset,
-            .memoryRowLength = {},
-            .memoryImageHeight = {},
-            .imageSubresource = {
-                    .aspectMask = aspects,
-                    .mipLevel = region.texture.mip,
-                    .baseArrayLayer = region.texture.array_layer,
-                    .layerCount = 1u,
-            },
-            .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
-            .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
-        };
-    }
+    VkMemoryToImageCopyEXT copy_region{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY_EXT,
+        .pNext = nullptr,
+        .pHostPointer = host_data,
+        .memoryRowLength = {},
+        .memoryImageHeight = {},
+        .imageSubresource = {
+                .aspectMask = aspects,
+                .mipLevel = region.mip,
+                .baseArrayLayer = region.array_layer,
+                .layerCount = 1u,
+        },
+        .imageOffset = { int(region.offset.width), int(region.offset.height), int(region.offset.depth_or_layers) },
+        .imageExtent = { region.size.width, region.size.height, region.size.depth_or_layers },
+    };
 
     VkCopyMemoryToImageInfoEXT copy_info{
         .sType = VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT,
@@ -159,8 +149,8 @@ wis::VKExtendedAllocation::WriteMemoryToSubresource(const void* host_data,
         .flags = 0,
         .dstImage = std::get<0>(dst_texture),
         .dstImageLayout = convert_vk(initial_state),
-        .regionCount = region_count,
-        .pRegions = copies,
+        .regionCount = 1,
+        .pRegions = &copy_region,
     };
 
     auto vr = vkCopyMemoryToImageEXT(device.get(), &copy_info);

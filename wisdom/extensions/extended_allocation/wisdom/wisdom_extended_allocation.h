@@ -126,8 +126,7 @@ public:
     WriteMemoryToSubresource(const void* host_data,
                              wis::VKTextureView dst_texture,
                              wis::TextureState initial_state,
-                             const wis::BufferTextureCopyRegion* regions,
-                             uint32_t region_count) const noexcept;
+                             wis::TextureRegion region) const noexcept;
 };
 } // namespace wis
 #endif // WISDOM_VULKAN
