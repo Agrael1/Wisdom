@@ -23,7 +23,7 @@ protected:
 
         D3D12_FEATURE_DATA_D3D12_OPTIONS16 d3d12_options16{};
         auto hr = device->CheckFeatureSupport(D3D12_FEATURE::D3D12_FEATURE_D3D12_OPTIONS16, &d3d12_options16, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS16));
-        supports_gpu_upload = SUCCEEDED(hr) && d3d12_options16.GPUUploadHeapSupported;
+        supports_gpu_upload = wis::succeeded(hr) && d3d12_options16.GPUUploadHeapSupported;
         return {};
     }
 

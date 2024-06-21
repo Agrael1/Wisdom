@@ -1,10 +1,12 @@
 #ifndef WISDOM_EXTENDED_ALLOCATION_CPP
 #define WISDOM_EXTENDED_ALLOCATION_CPP
 #include <wisdom/wisdom_extended_allocation.h>
+
+ 
+#if defined(WISDOM_DX12)
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_property_format_table.h>
 
-#if defined(WISDOM_DX12)
 wis::ResultValue<wis::DX12Texture>
 wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& allocator,
                                            wis::TextureDesc desc,

@@ -34,9 +34,9 @@ TEST_CASE("host_texture_write_ext")
     auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     wis::Device device;
-    wis::VKExtendedAllocation a;
+    wis::ExtendedAllocation a;
 
-    wis::VKDeviceExtension* exts2[] = { &a };
+    wis::DeviceExtension* exts2[] = { &a };
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -45,7 +45,7 @@ TEST_CASE("host_texture_write_ext")
             res = adapter.GetDesc(&desc);
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
-            auto [res, hdevice] = wis::VKCreateDeviceWithExtensions(std::move(adapter), exts2, 1);
+            auto [res, hdevice] = wis::CreateDeviceWithExtensions(std::move(adapter), exts2, 1);
             if (res.status == wis::Status::Ok) {
                 device = std::move(hdevice);
                 break;
