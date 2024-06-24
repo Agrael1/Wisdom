@@ -18,10 +18,10 @@ class DX12WindowsExtension : public QueryInternalExtension<DX12WindowsExtension,
 {
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12SwapChain>
-    CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept;
+    CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12SwapChain>
-    CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept;
+    CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept;
 };
 } // namespace platform
 } // namespace wis
@@ -70,7 +70,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
-    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept;
+    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
 };
 } // namespace platform
 } // namespace wis

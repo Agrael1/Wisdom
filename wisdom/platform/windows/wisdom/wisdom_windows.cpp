@@ -40,7 +40,7 @@ inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 } // namespace wis::detail
 
 wis::ResultValue<wis::DX12SwapChain>
-wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
+wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
@@ -84,7 +84,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
 }
 
 wis::ResultValue<wis::DX12SwapChain>
-wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) noexcept
+wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept
 {
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
@@ -132,7 +132,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
 // #error error
 
 wis::ResultValue<wis::VKSwapChain>
-wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) noexcept
+wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
 {
     VkWin32SurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
