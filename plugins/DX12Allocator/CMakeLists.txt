@@ -10,7 +10,9 @@ if(NOT PLUGINS_LOADED)
   set(D3D12MA_AGILITY_SDK_DIRECTORY
       "${DXA_DIR}"
       CACHE INTERNAL "" FORCE)
-  FetchContent_MakeAvailable(dxma)
+  if(NOT catch2_POPULATED)
+    FetchContent_Populate(Catch2)
+  endif()
   set(dxma_SOURCES
       ${dxma_SOURCE_DIR}
       CACHE INTERNAL "")
