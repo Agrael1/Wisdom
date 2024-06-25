@@ -946,9 +946,9 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     uint32_t format_count = 0;
     itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count,
                                                 nullptr);
-    std::vector<VkSurfaceFormatKHR> surface_formats(format_count);
+    wis::detail::fixed_allocation<VkSurfaceFormatKHR> surface_formats = wis::detail::make_fixed_allocation<VkSurfaceFormatKHR>(format_count);
     auto result = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(),
-                                                              &format_count, surface_formats.data());
+                                                              &format_count, surface_formats.get());
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to get surface formats">(result);
@@ -1000,7 +1000,9 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         .minImageCount = desc->buffer_count,
         .imageFormat = convert_vk(desc->format),
         .imageColorSpace = format->colorSpace,
-        .imageExtent = { desc->size.width, desc->size.height },
+        .imageExtent = {
+                std::clamp(desc->size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
+                std::clamp(desc->size.height, cap.minImageExtent.height, cap.maxImageExtent.height) },
         .imageArrayLayers = layers,
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
