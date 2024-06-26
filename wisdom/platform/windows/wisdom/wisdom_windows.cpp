@@ -76,6 +76,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
         .stereo = desc->stereo,
+        .vsync = desc->vsync,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;
@@ -119,6 +120,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
         .stereo = desc->stereo,
+        .vsync = desc->vsync,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;

@@ -51,6 +51,7 @@ public:
 public:
     WIS_INLINE void ExecuteCommandLists(const VKCommandListView* lists, uint32_t count) const noexcept;
     WIS_INLINE wis::Result SignalQueue(VKFenceView fence, uint64_t value) const noexcept;
+    WIS_INLINE wis::Result WaitQueue(VKFenceView fence, uint64_t value) const noexcept;
 };
 } // namespace wis
 
