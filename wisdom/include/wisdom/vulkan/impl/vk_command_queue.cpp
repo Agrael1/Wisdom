@@ -43,4 +43,32 @@ wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) 
                              : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
 
+wis::Result wis::VKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
+{
+    VkSemaphore sem = std::get<0>(fence);
+    VkTimelineSemaphoreSubmitInfoKHR submit{
+        .sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO_KHR,
+        .pNext = nullptr,
+        .waitSemaphoreValueCount = 1,
+        .pWaitSemaphoreValues = &value,
+        .signalSemaphoreValueCount = 0,
+        .pSignalSemaphoreValues = nullptr
+    };
+
+    VkSubmitInfo info{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = &submit,
+        .waitSemaphoreCount = 0,
+        .pWaitSemaphores = nullptr,
+        .pWaitDstStageMask = nullptr,
+        .commandBufferCount = 0,
+        .pCommandBuffers = nullptr,
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores = &sem
+    };
+    VkResult result = device.table().vkQueueSubmit(queue, 1, &info, nullptr);
+    return succeeded(result) ? wis::success
+                             : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+}
+
 #endif // !VK_COMMAND_QUEUE_CPP
