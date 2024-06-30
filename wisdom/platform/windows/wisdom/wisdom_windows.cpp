@@ -24,9 +24,9 @@ inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::Swapcha
 }
 inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
-    constexpr D3D_FEATURE_LEVEL featureLevels[]{
+    constexpr D3D_FEATURE_LEVEL featureLevels[] {
         D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0 
+        D3D_FEATURE_LEVEL_11_0
     };
 
     wis::com_ptr<ID3D11Device> device11;
@@ -58,12 +58,12 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
     }
 
     hr = devicei.factory->CreateSwapChainForHwnd(
-            std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
-            hwnd,
-            &swap_desc,
-            nullptr,
-            nullptr,
-            swap.put());
+             std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
+             hwnd,
+             &swap_desc,
+             nullptr,
+             nullptr,
+             swap.put());
 
     if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
@@ -106,11 +106,11 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
     }
 
     hr = devicei.factory->CreateSwapChainForCoreWindow(
-            std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
-            window,
-            &swap_desc,
-            nullptr,
-            swap.put());
+             std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
+             window,
+             &swap_desc,
+             nullptr,
+             swap.put());
 
     if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
