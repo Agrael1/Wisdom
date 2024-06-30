@@ -26,7 +26,7 @@ inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
     constexpr D3D_FEATURE_LEVEL featureLevels[]{
         D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0 
+        D3D_FEATURE_LEVEL_11_0
     };
 
     wis::com_ptr<ID3D11Device> device11;
