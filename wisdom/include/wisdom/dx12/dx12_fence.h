@@ -10,8 +10,7 @@ namespace wis {
 class DX12Fence;
 
 template<>
-struct Internal<DX12Fence>
-{
+struct Internal<DX12Fence> {
     wis::com_ptr<ID3D12Fence1> fence;
     wis::unique_event fence_event;
 };
