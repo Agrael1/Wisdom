@@ -4,6 +4,7 @@
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_resource.h>
+#include <wisdom/dx12/dx12_unique_event.h>
 #include <memory>
 
 namespace wis {
@@ -14,6 +15,7 @@ namespace detail {
 struct DX12SwapChainCreateInfo {
     wis::com_ptr<IDXGISwapChain4> chain;
     std::unique_ptr<DX12Texture[]> back_buffers;
+    wis::unique_event present_event = nullptr;
     uint32_t back_buffer_count = 0;
     bool stereo = false;
     bool vsync = true;
@@ -80,6 +82,13 @@ public:
     [[nodiscard]] std::span<const DX12Texture> GetBufferSpan() const noexcept
     {
         return { back_buffers.get(), back_buffer_count };
+    }
+    [[nodiscard]] wis::Result WaitForPresent(uint64_t timeout_ns = std::numeric_limits<uint64_t>::max()) const noexcept
+    {
+        auto st = present_event.wait(uint32_t(timeout_ns / 1000));
+        return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
+                : st != wis::Status::Error ? wis::success
+                                           : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
     }
 };
 } // namespace wis

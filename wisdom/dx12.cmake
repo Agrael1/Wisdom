@@ -39,7 +39,7 @@ if(WISDOM_BUILD_BINARIES)
 		"include/wisdom/dx12/dx12_debug.h"
 		"include/wisdom/dx12/dx12_factory_ext.h"
 		"include/wisdom/dx12/dx12_device_ext.h"
-	)
+	 "include/wisdom/dx12/dx12_unique_event.h")
 	target_sources(wisdom-dx12
 		PRIVATE
 			"include/wisdom/dx12/impl/dx12_allocator.cpp"

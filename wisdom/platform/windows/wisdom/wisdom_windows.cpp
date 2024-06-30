@@ -20,13 +20,13 @@ inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::Swapcha
     swap_desc.Scaling = DXGI_SCALING_STRETCH;
     swap_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swap_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    swap_desc.Flags = 0;
+    swap_desc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 }
 inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
     constexpr D3D_FEATURE_LEVEL featureLevels[]{
         D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0
+        D3D_FEATURE_LEVEL_11_0 
     };
 
     wis::com_ptr<ID3D11Device> device11;
@@ -73,8 +73,11 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
         return wis::make_result<FUNC, "Failed to create swapchain for HWND">(hr);
     }
 
+    auto hnd = swap4->GetFrameLatencyWaitableObject();
+
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
+        .present_event{ hnd },
         .stereo = desc->stereo,
         .vsync = desc->vsync,
     };
@@ -116,9 +119,11 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
     if (!wis::succeeded(hrx)) {
         return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
     }
+    auto hnd = swap4->GetFrameLatencyWaitableObject();
 
     wis::detail::DX12SwapChainCreateInfo create_info{
         .chain = std::move(swap4),
+        .present_event{ hnd },
         .stereo = desc->stereo,
         .vsync = desc->vsync,
     };
