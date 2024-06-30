@@ -48,6 +48,7 @@ struct XInternalFeatures {
     bool descriptor_buffer : 1 = false;
     bool synchronization_2 : 1 = false;
     bool swapchain : 1 = false;
+    bool present_wait : 1 = false;
 
     // Optional features
     bool has_custom_border_color : 1 = false;
@@ -93,6 +94,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
 
         VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, // for Border Color
+        VK_KHR_PRESENT_WAIT_EXTENSION_NAME, // for Present Wait
     };
 
     virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>& available_extensions,
@@ -153,11 +155,17 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             ext_name_set.insert(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE] = sizeof(VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE);
         }
+
+        if (available_extensions.contains(VK_KHR_PRESENT_WAIT_EXTENSION_NAME)) {
+            features.present_wait = true;
+            ext_name_set.insert(VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR);
+        }
         return true;
     }
     virtual bool Supported() const noexcept override
     {
-        return features.swapchain && features.synchronization_2 && features.descriptor_buffer && features.dynamic_rendering;
+        return features.swapchain && features.synchronization_2 && features.descriptor_buffer && features.dynamic_rendering && features.present_wait;
     }
 
     // Not supposed to use device here.

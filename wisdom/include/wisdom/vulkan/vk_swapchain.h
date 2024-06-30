@@ -27,6 +27,7 @@ struct VKSwapChainCreateInfo {
     h::VkFence fence = nullptr; // only used for initialization and resizing
 
     VkSurfaceFormatKHR format{};
+    uint64_t present_id = 0;
 
     uint32_t back_buffer_count = 0;
     mutable uint32_t present_index = 0;
@@ -125,6 +126,7 @@ public:
     {
         return { back_buffers.get(), back_buffer_count };
     }
+    [[nodiscard]] WIS_INLINE wis::Result WaitForPresent(uint64_t timeout_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 };
 } // namespace wis
 

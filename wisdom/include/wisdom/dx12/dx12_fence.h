@@ -4,55 +4,15 @@
 #include <wisdom/util/com_ptr.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_views.h>
+#include <wisdom/dx12/dx12_unique_event.h>
 
 namespace wis {
 class DX12Fence;
 
-struct unique_event {
-    unique_event() noexcept
-        : hevent(CreateEventW(nullptr, false, false, nullptr)) { }
-    unique_event(unique_event const&) = delete;
-    unique_event& operator=(unique_event const&) = delete;
-    unique_event(unique_event&& o) noexcept
-        : hevent(std::exchange(o.hevent, nullptr)) { }
-    unique_event& operator=(unique_event&& o) noexcept
-    {
-        std::swap(hevent, o.hevent);
-        return *this;
-    }
-    ~unique_event() noexcept
-    {
-        if (hevent)
-            CloseHandle(hevent);
-    }
-    auto get() const noexcept
-    {
-        return hevent;
-    }
-    operator bool() const noexcept
-    {
-        return bool(hevent);
-    }
-    wis::Status wait(uint32_t wait_ms) const noexcept
-    {
-        auto st = WaitForSingleObject(hevent, wait_ms);
-        if (st == WAIT_OBJECT_0)
-            return wis::Status::Ok;
-        if (st == WAIT_TIMEOUT)
-            return wis::Status::Timeout;
-        return wis::Status::Error;
-    }
-
-public:
-    HANDLE hevent;
-};
-
 template<>
-class Internal<DX12Fence>
-{
-public:
+struct Internal<DX12Fence> {
     wis::com_ptr<ID3D12Fence1> fence;
-    unique_event fence_event;
+    wis::unique_event fence_event;
 };
 
 /// @brief A fence is a synchronization primitive that allows the CPU to wait for the GPU to finish
@@ -62,7 +22,7 @@ class DX12Fence : public QueryInternal<DX12Fence>
 public:
     DX12Fence() = default;
     explicit DX12Fence(wis::com_ptr<ID3D12Fence1> xfence) noexcept
-        : QueryInternal(std::move(xfence)) { }
+        : QueryInternal(std::move(xfence), CreateEventW(nullptr, false, false, nullptr)) { }
     DX12Fence(DX12Fence&& o) noexcept = default;
     DX12Fence& operator=(DX12Fence&& o) noexcept = default;
 

@@ -292,9 +292,16 @@ wis::Result wis::VKSwapChain::Present() const noexcept
     };
     dtable.vkQueueSubmit(graphics_queue, 1, &desc, nullptr);
 
+    VkPresentIdKHR present_id{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
+        .pNext = nullptr,
+        .swapchainCount = 1,
+        .pPresentIds = &this->present_id,
+    };
+
     VkPresentInfoKHR present_info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = nullptr,
+        .pNext = &present_id,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &present_semaphores[present_index],
         .swapchainCount = 1,
@@ -318,6 +325,14 @@ wis::Result wis::VKSwapChain::Present() const noexcept
     acquire_index = (acquire_index + 1) % back_buffer_count;
 
     return AquireNextIndex();
+}
+
+wis::Result
+wis::VKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
+{
+    auto& dtable = device.table();
+    auto res = dtable.vkWaitForPresentKHR(device.get(), swapchain, present_id, timeout_ns);
+    return wis::succeeded(res) ? wis::success : wis::make_result<FUNC, "vkWaitForPresentKHR failed">(res);
 }
 
 #endif // VK_SWAPCHAIN_H

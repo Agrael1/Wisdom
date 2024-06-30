@@ -336,6 +336,7 @@ struct VKMainDevice {
     PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
     PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
     PFN_vkQueuePresentKHR vkQueuePresentKHR;
+    PFN_vkWaitForPresentKHR vkWaitForPresentKHR;
 
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
@@ -729,6 +730,9 @@ public:
             return false;
         vkQueuePresentKHR = (PFN_vkQueuePresentKHR)vkGetDeviceProcAddr(device, "vkQueuePresentKHR");
         if (vkQueuePresentKHR == nullptr)
+            return false;
+        vkWaitForPresentKHR = (PFN_vkWaitForPresentKHR)vkGetDeviceProcAddr(device, "vkWaitForPresentKHR");
+        if (vkWaitForPresentKHR == nullptr)
             return false;
         return true;
     }
