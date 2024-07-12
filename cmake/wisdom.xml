@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule Name="Wisdom" DisplayName="Wisdom" Order="107" PageTemplate="generic" xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <Rule.Categories>
+    <Category Name="General" DisplayName="General"/>
+  </Rule.Categories>
+
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" HasConfigurationCondition="false" Label="Globals" />
+  </Rule.DataSource>
+
+  <EnumProperty Name="WisdomLinkage"
+                DisplayName="Linkage"
+                Description="Sets the linkage of Wisdom library"
+                Category="General">
+    <EnumValue Name="static" DisplayName="static" Description="Static linking using compiled .libs" />
+    <EnumValue Name="headers" DisplayName="headers" Description="Header only, without linking" />
+  </EnumProperty>
+  
+  <EnumProperty Name="WisdomLogLevel"
+                DisplayName="Log Level"
+                Description="Sets the log level of the library"
+                Category="General">
+    <EnumValue Name="debug" DisplayName="debug" Description="Output debug information, most verbose output" />
+    <EnumValue Name="trace" DisplayName="trace" Description="Output trace information" />
+    <EnumValue Name="info" DisplayName="info" Description="Output info information" />
+    <EnumValue Name="warn" DisplayName="warn" Description="Output warnings" />
+    <EnumValue Name="error" DisplayName="error" Description="Output errors" />
+    <EnumValue Name="critical" DisplayName="critical" Description="Output critical, least verbose" />
+  </EnumProperty>
+
+  <BoolProperty Name="WisdomForceVulkan"
+              DisplayName="Force Vulkan"
+              Description="Forces Vulkan implementation to be the main. Requires installed Vulkan SDK"
+              Category="General" />
+
+  <StringProperty Name="WisdomVulkanSDKPath"
+              DisplayName="Vulkan SDK"
+              Description="Path to custom Vulkan SDK installation include directory"
+              Category="General" />
+</Rule>
