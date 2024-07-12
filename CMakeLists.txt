@@ -48,3 +48,5 @@ if(WISDOM_BUILD_TESTS AND NOT WISDOM_WINDOWS_STORE)
   enable_testing()
   add_subdirectory("tests")
 endif()
+
+include(cmake/nuget.cmake)
