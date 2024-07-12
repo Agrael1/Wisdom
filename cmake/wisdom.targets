@@ -19,7 +19,7 @@
             <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'static'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <PreprocessorDefinitions>WISDOM_LOG_LEVEL=$(WisdomLogLevelValue);%(PreprocessorDefinitions)</PreprocessorDefinitions>
         </ClCompile>
-        
+
         <Link>
             <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom.lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-debug.lib; $(MSBuildThisFileDirectory)..\..\lib\wisdom-windows.lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-extended-allocation.lib;%(AdditionalDependencies)</AdditionalDependencies>
             <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\VKAllocator.lib;%(AdditionalDependencies)</AdditionalDependencies>
