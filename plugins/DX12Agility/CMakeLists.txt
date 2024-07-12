@@ -13,6 +13,9 @@ if(NOT PLUGINS_LOADED)
   string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)$" VERSION_MATCH ${DXA_DIR})
 
   message("Agility version: ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
+  set(DXA_VERSION
+      ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}
+      CACHE INTERNAL "")
   set(VERSION_MINOR
       ${CMAKE_MATCH_2}
       CACHE INTERNAL "")

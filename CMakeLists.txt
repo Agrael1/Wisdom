@@ -32,7 +32,7 @@ include(CMakePackageConfigHelpers)
 
 # Include sub-projects.
 add_subdirectory("plugins")
-add_subdirectory("generator")
+add_subdirectory("generator" EXCLUDE_FROM_ALL)
 
 add_subdirectory("wisdom")
 
@@ -48,3 +48,6 @@ if(WISDOM_BUILD_TESTS AND NOT WISDOM_WINDOWS_STORE)
   enable_testing()
   add_subdirectory("tests")
 endif()
+
+install(FILES README.md DESTINATION .)
+include(cmake/nuget.cmake)

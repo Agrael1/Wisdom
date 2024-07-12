@@ -1,0 +1,16 @@
+set(CPACK_GENERATOR NuGet)
+# Set up package metadata
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_VENDOR "Arcom Inc.")
+set(CPACK_NUGET_PACKAGE_AUTHORS "Ilya Doroshenko a.k.a. Agrael")
+set(CPACK_PACKAGE_DESCRIPTION "A Low-level thin multiplatform and extensible Graphics API layer over Vulkan and DX12")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.example.com")
+set(CPACK_NUGET_PACKAGE_REPOSITORY_URL "https://github.com/Agrael1/Wisdom.git")
+set(CPACK_NUGET_PACKAGE_REPOSITORY_TYPE git)
+set(CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION "MIT")
+set(CPACK_INSTALL_SCRIPTS "${CMAKE_CURRENT_LIST_DIR}/gen-targets.cmake")
+
+set(CPACK_NUGET_PACKAGE_DEPENDENCIES "Microsoft.Direct3D.D3D12")
+set("CPACK_NUGET_PACKAGE_DEPENDENCIES_Microsoft.Direct3D.D3D12_VERSION" ${DXA_VERSION})
+include(CPack)

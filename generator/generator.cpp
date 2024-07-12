@@ -385,6 +385,7 @@ std::string Generator::GenerateCPPExportHeader()
         R"(#pragma once
 // Select default API
 // Override with WISDOM_FORCE_VULKAN
+#include <wisdom/config.h>
 
 #ifdef WISDOM_UWP
 static_assert(WISDOM_UWP && _WIN32, "Platform error");
