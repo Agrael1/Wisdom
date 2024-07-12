@@ -6,11 +6,11 @@
 
 # Why?
 
-A lot of old OpenGL solutions are outdated, scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
+A lot of old OpenGL solutions are scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
 Wisdom is designed to be a thin layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend. It's designed to be used in games, simulations, and other heavy computations.
 It's not designed to be a rendering engine, but a tool to create one.
 
-The library is designed to be used in a modern C++20 environment, with a lot of modern C++ features, like concepts, modules, and ranges. It's designed to be used with CMake, and it's easy to integrate with your project.
+The library is designed to be used in a modern C++20 environment, with a lot of modern C++ features, like concepts, modules, and ranges. It's designed to be used with CMake or NuGet, and it's easy to integrate with your project.
 
 # Details
 
@@ -53,9 +53,11 @@ The later reconfigurations are not reloading the plugins for easy expansion of t
 
 # Consumption
 
-You may use FetchContent, provided by cmake, to download the library and use it in your project. The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it. Install script with NuGet and Vcpkg are coming next updates.
+You may use FetchContent, provided by cmake, to download the library and use it in your project. The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it. Install script with Vcpkg is coming next updates.
 
-To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::Wisdom)`. Alternatively if you wish for header only target, there is also `target_link_libraries(${YOUR_TARGET} PUBLIC Wisdom::Headers)`.
+There is also a NuPkg available for NuGet consumption in release artifacts.
+
+To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wisdom)`. Alternatively if you wish for header only target, there is also `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wisdom-headers)`.
 
 # System Requirements
 
@@ -75,14 +77,16 @@ Tested on Windows with NVIDIA GeForce GTX 1070 and Linux with RTX A4000 with lat
 
 **Windows Store:**
 
-To Compile for Windows Store, the following requirements are needed:
+To Compile for Windows Store with CMake, the following is required:
 
 - CMakeSettings: `-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Debug/Release/RelWithDebInfo/MinSizeRel`
 - Windows 10 SDK 10.0.19041.0+
 - Visual Studio Generator, tested on Visual Studio 2022 (v143) - Ninja generator is not supported
 - Installed UWP SDK
 
-To launch a project find generated .sln in build `out/build/{BuildName}/examples/hello-triangle-winrt` folder and launch it with Visual Studio. This is due to deployment requirements of UWP applications, which is performed with Visual Studio.
+To launch a project find generated .sln in build `out/build/{BuildName}/examples/hello-triangle-winrt` folder and launch it with Visual Studio. This is due to deployment requirements of UWP applications, which is performed with Visual Studio. 
+
+Or you can install a NuGet package to any Visual studio project.
 
 After the first launch, the project can be launched from the Start Menu.
 
