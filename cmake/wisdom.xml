@@ -16,7 +16,7 @@
     <EnumValue Name="static" DisplayName="static" Description="Static linking using compiled .libs" />
     <EnumValue Name="headers" DisplayName="headers" Description="Header only, without linking" />
   </EnumProperty>
-  
+
   <EnumProperty Name="WisdomLogLevel"
                 DisplayName="Log Level"
                 Description="Sets the log level of the library"
