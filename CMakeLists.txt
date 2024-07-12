@@ -49,4 +49,5 @@ if(WISDOM_BUILD_TESTS AND NOT WISDOM_WINDOWS_STORE)
   add_subdirectory("tests")
 endif()
 
+install(FILES README.md DESTINATION .)
 include(cmake/nuget.cmake)

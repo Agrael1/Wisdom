@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Prepare Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@v1.2.0
@@ -46,7 +46,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Visual Studio shell
       uses: egor-tensin/vs-shell@v2
@@ -64,7 +64,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Visual Studio shell
       uses: egor-tensin/vs-shell@v2
@@ -85,6 +85,28 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}}
 
+    - name: Create Install package
+      run: cmake --install ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}} --prefix ${{github.workspace}}/build_dx/install
+
+    - name: Create ZIP package
+      run: 7z a -tzip ${{github.workspace}}/build_dx/install.zip ${{github.workspace}}/build_dx/install
+
+    - name: Create NuGet package
+      run: cd ${{github.workspace}}/build_dx && cpack -C ${{env.BUILD_TYPE}} -G "NuGet"
+
+    - name: Upload NuGet package
+      uses: actions/upload-artifact@v4
+      with:
+       name: wisdom.nupkg
+       path: ${{github.workspace}}/build_dx/*.nupkg
+
+    - name: Upload ZIP package
+      uses: actions/upload-artifact@v4
+      with:
+       name: wisdom.zip
+       path: ${{github.workspace}}/build_dx/install.zip
+
+
     #- name: Test
     #  working-directory: ${{github.workspace}}/build_dx
     #  # Execute tests defined by the CMake configuration.
@@ -98,7 +120,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Visual Studio shell
       uses: egor-tensin/vs-shell@v2
