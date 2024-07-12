@@ -11,6 +11,9 @@
         <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'warn'">3</WisdomLogLevelValue>
         <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'error'">4</WisdomLogLevelValue>
         <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'critical'">5</WisdomLogLevelValue>
+
+        <WisdomVulkanEnabled Condition="Exists('$(WisdomVulkanSDKPath)')">true</WisdomVulkanEnabled>
+        <WisdomVulkanEnabled Condition="!Exists('$(WisdomVulkanSDKPath)')">false</WisdomVulkanEnabled>
     </PropertyGroup>
 
     <ItemGroup>
