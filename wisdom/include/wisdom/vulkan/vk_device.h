@@ -104,7 +104,7 @@ public:
     [[nodiscard]] uint32_t
     GetDescriptorBufferTableAlignment([[maybe_unused]] wis::DescriptorHeapType heap) const noexcept
     {
-        return ext1.GetInternal().descriptor_buffer_features.descriptor_set_align_size;
+        return ext1.GetInternal().descriptor_buffer_features.offset_alignment;
     }
 
     [[nodiscard]] uint32_t

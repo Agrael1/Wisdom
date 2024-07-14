@@ -307,29 +307,6 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     if (!vkdevice.ext1.Supported())
         return wis::make_result<FUNC, "The system does not support the required extensions">(VkResult::VK_ERROR_UNKNOWN);
 
-    // HACK: Get the alignment size of a descriptor set (until fixed by Vulkan)
-
-    VkDescriptorSetLayoutBinding binding{
-        .binding = 0,
-        .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
-        .descriptorCount = 1,
-        .stageFlags = VK_SHADER_STAGE_ALL,
-        .pImmutableSamplers = nullptr,
-    };
-    auto [resl, dsl] = vkdevice.CreateDummyDescriptorSetLayout(binding);
-    if (resl.status != wis::Status::Ok)
-        return resl;
-
-    auto& dtable = vkdevice.device.table();
-    auto hdevice = vkdevice.device.get();
-
-    VkDeviceSize descriptor_set_align_size = 0;
-    dtable.vkGetDescriptorSetLayoutSizeEXT(hdevice, dsl, &descriptor_set_align_size);
-    dtable.vkDestroyDescriptorSetLayout(hdevice, dsl, nullptr);
-
-    const_cast<wis::XDescriptorBufferProperties&>(vkdevice.ext1.GetInternal().descriptor_buffer_features).descriptor_set_align_size = descriptor_set_align_size;
-    // END HACK
-
     // Init the rest of the extensions
     for (auto*& ext : exts_span) {
         if (ext == nullptr)
@@ -1178,7 +1155,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .size = memory_bytes + uint64_t(ext1_i.descriptor_buffer_features.descriptor_set_align_size),
+        .size = memory_bytes,
         .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,

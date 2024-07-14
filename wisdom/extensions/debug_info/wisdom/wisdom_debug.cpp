@@ -18,7 +18,12 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
 {
+    // Ignore this validation error, until it is fixed in the Vulkan SDK
+    if (pCallbackData->pMessageIdName && std::string_view(pCallbackData->pMessageIdName) == "VUID-vkCmdSetDescriptorBufferOffsetsEXT-pOffsets-08063")
+        return false;
+
     auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
+
     callback(convert_vk(messageSeverity),
              wis::format("\n[Validation layer]: {}\n [Message]:{}",
                          pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "",

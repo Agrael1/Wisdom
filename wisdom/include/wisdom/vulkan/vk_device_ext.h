@@ -60,7 +60,6 @@ struct XInternalFeatures {
 struct XDescriptorBufferProperties {
     uint16_t mutable_descriptor_size = 0;
     uint16_t offset_alignment = 0;
-    uint16_t descriptor_set_align_size = 0;
 
     uint16_t constant_buffer_size = 0;
     uint16_t storage_buffer_size = 0;
@@ -95,6 +94,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
 
         VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, // for Border Color
         VK_KHR_PRESENT_WAIT_EXTENSION_NAME, // for Present Wait
+        VK_KHR_PRESENT_ID_EXTENSION_NAME, // for Present ID
     };
 
     virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>& available_extensions,
@@ -156,9 +156,11 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE] = sizeof(VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE);
         }
 
-        if (available_extensions.contains(VK_KHR_PRESENT_WAIT_EXTENSION_NAME)) {
+        if (available_extensions.contains(VK_KHR_PRESENT_WAIT_EXTENSION_NAME) && available_extensions.contains(VK_KHR_PRESENT_ID_EXTENSION_NAME)) {
             features.present_wait = true;
+            ext_name_set.insert(VK_KHR_PRESENT_ID_EXTENSION_NAME);
             ext_name_set.insert(VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentIdFeaturesKHR);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR);
         }
         return true;
