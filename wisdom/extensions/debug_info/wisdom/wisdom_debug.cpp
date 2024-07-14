@@ -24,7 +24,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
 
     auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
 
-
     callback(convert_vk(messageSeverity),
              wis::format("\n[Validation layer]: {}\n [Message]:{}",
                          pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "",
