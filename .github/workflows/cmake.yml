@@ -150,23 +150,22 @@ jobs:
      runs-on: windows-latest
 
      steps:
+       - uses: actions/checkout@v2
+       
        - name: Download Nuget
          uses: actions/download-artifact@v3
          with:
            name: wisdom.nupkg
-           path: ${{github.workspace}}/build_vk
            
        - name: Download Zip
          uses: actions/download-artifact@v3
          with:
            name: wisdom.zip
-           path: ${{github.workspace}}/build_vk
 
        - name: Download Version
          uses: actions/download-artifact@v3
          with:
            name: version.txt
-           path: ${{github.workspace}}/build_vk
         
        - name: Read version
          id: version
@@ -176,7 +175,7 @@ jobs:
     
        - name: Publish NuGet package
          run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+          foreach($file in (Get-ChildItem "${{github.workspace}}/build_vk" -Recurse -Include *.nupkg)) {
             dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
