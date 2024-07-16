@@ -50,4 +50,10 @@ if(WISDOM_BUILD_TESTS AND NOT WISDOM_WINDOWS_STORE)
 endif()
 
 install(FILES README.md DESTINATION .)
+install(FILES LICENSE DESTINATION .)
+
+# make version file
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.txt" ${PROJECT_VERSION})
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/version.txt" DESTINATION .)
+
 include(cmake/nuget.cmake)

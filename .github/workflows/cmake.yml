@@ -83,32 +83,38 @@ jobs:
     - name: Configure CMake for Vulkan
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build_dx -GNinja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWISDOM_FORCE_VULKAN=ON  -DCMAKE_C_COMPILER:STRING="cl.exe" -DCMAKE_CXX_COMPILER:STRING="cl.exe" -DWISDOM_BUILD_TYPE="static"
+      run: cmake -B ${{github.workspace}}/build_vk -GNinja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWISDOM_FORCE_VULKAN=ON  -DCMAKE_C_COMPILER:STRING="cl.exe" -DCMAKE_CXX_COMPILER:STRING="cl.exe" -DWISDOM_BUILD_TYPE="static"
 
     - name: Build WisdomVK
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build_vk --config ${{env.BUILD_TYPE}}
 
     - name: Create Install package
-      run: cmake --install ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}} --prefix ${{github.workspace}}/build_dx/install
+      run: cmake --install ${{github.workspace}}/build_vk --config ${{env.BUILD_TYPE}} --prefix ${{github.workspace}}/build_vk/install
 
     - name: Create ZIP package
-      run: 7z a -tzip ${{github.workspace}}/build_dx/install.zip ${{github.workspace}}/build_dx/install
+      run: 7z a -tzip ${{github.workspace}}/build_vk/install.zip ${{github.workspace}}/build_vk/install
 
     - name: Create NuGet package
-      run: cd ${{github.workspace}}/build_dx && cpack -C ${{env.BUILD_TYPE}} -G "NuGet"
+      run: cd ${{github.workspace}}/build_vk && cpack -C ${{env.BUILD_TYPE}} -G "NuGet"
 
     - name: Upload NuGet package
       uses: actions/upload-artifact@v4
       with:
        name: wisdom.nupkg
-       path: ${{ env.NuGetDirectory }}/*.nupkg
+       path: ${{github.workspace}}/build_vk/*.nupkg
 
     - name: Upload ZIP package
       uses: actions/upload-artifact@v4
       with:
        name: wisdom.zip
-       path: ${{ env.NuGetDirectory }}/install.zip
+       path: ${{github.workspace}}/build_vk/install.zip
+
+    - name: Upload Version
+      uses: actions/upload-artifact@v4
+      with:
+       name: version.txt
+       path: ${{github.workspace}}/build_vk/version.txt
 
 
     #- name: Test
@@ -148,17 +154,49 @@ jobs:
          uses: actions/download-artifact@v3
          with:
            name: wisdom.nupkg
-           path: ${{ env.NuGetDirectory }}
+           path: ${{github.workspace}}/build_vk
            
        - name: Download Zip
          uses: actions/download-artifact@v3
          with:
            name: wisdom.zip
-           path: ${{ env.NuGetDirectory }}
+           path: ${{github.workspace}}/build_vk
+
+       - name: Download Version
+         uses: actions/download-artifact@v3
+         with:
+           name: version.txt
+           path: ${{github.workspace}}/build_vk
+        
+       - name: Read version
+         id: version
+         uses: juliangruber/read-file-action@v1
+         with:
+           path: ./version.txt
     
        - name: Publish NuGet package
          run: |
           foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
             dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
+
+       - name: Tag and Release Latest
+         id : tag_release_latest
+         uses : softprops/action-gh-release@v1
+         with :
+          body: Release ${{ steps.version.outputs.content }}
+          tag_name : Latest
+          files : |
+              **/*.zip 
+              **/*.nupkg
+              
+       - name: Tag and Release Versioned
+         id : tag_release_latest
+         uses : softprops/action-gh-release@v1
+         with :
+          body: Release ${{ steps.version.outputs.content }}
+          tag_name : ${{ steps.version.outputs.content }}
+          files : |
+              **/*.zip 
+              **/*.nupkg
 
