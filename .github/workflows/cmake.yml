@@ -191,7 +191,7 @@ jobs:
               **/*.nupkg
               
        - name: Tag and Release Versioned
-         id : tag_release_latest
+         id : tag_release_versioned
          uses : softprops/action-gh-release@v1
          with :
           body: Release ${{ steps.version.outputs.content }}
