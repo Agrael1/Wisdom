@@ -5,6 +5,7 @@
 **Low-level thin layer header only Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
 
 ## NuGet Link
+
 https://www.nuget.org/packages/Wisdom/
 
 # Why?
@@ -87,7 +88,7 @@ To Compile for Windows Store with CMake, the following is required:
 - Visual Studio Generator, tested on Visual Studio 2022 (v143) - Ninja generator is not supported
 - Installed UWP SDK
 
-To launch a project find generated .sln in build `out/build/{BuildName}/examples/hello-triangle-winrt` folder and launch it with Visual Studio. This is due to deployment requirements of UWP applications, which is performed with Visual Studio. 
+To launch a project find generated .sln in build `out/build/{BuildName}/examples/hello-triangle-winrt` folder and launch it with Visual Studio. This is due to deployment requirements of UWP applications, which is performed with Visual Studio.
 
 Or you can install a NuGet package to any Visual studio project.
 
