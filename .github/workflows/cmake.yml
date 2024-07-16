@@ -8,7 +8,10 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/nuget
 
 jobs:
   build_linux:
@@ -98,7 +101,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
        name: wisdom.nupkg
-       path: ${{github.workspace}}/build_dx/*.nupkg
+       path: ${{ env.NuGetDirectory }}*.nupkg
 
     - name: Upload ZIP package
       uses: actions/upload-artifact@v4
@@ -134,62 +137,21 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}}
       
- #build_vk_modules:
- #  runs-on: windows-latest
+  publish:
+     if: ${{ (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]')) || github.event_name == 'workflow_dispatch'  }}
+     needs: build_vk
+     runs-on: windows-latest
 
- #  steps:
- #  - uses: actions/checkout@v3
- #  - uses: seanmiddleditch/gha-setup-ninja@master
- #    with: 
- #      version: 1.11.1
- #  
- #  - name: Visual Studio shell
- #    uses: egor-tensin/vs-shell@v2
- #    
- #  - name: Prepare Vulkan SDK
- #    uses: humbletim/setup-vulkan-sdk@v1.2.0
- #    with:
- #       vulkan-query-version: latest
- #       vulkan-components: Vulkan-Headers, Vulkan-Loader
- #       vulkan-use-cache: true
- #       
- #  - name: Configure CMake for Vulkan
- #    # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
- #    # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
- #    run: cmake -B ${{github.workspace}}/build_dx -GNinja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWISDOM_FORCE_VULKAN=ON  -DCMAKE_C_COMPILER:STRING="cl.exe" -DCMAKE_CXX_COMPILER:STRING="cl.exe" -DWISDOM_BUILD_TYPE="modules"
-
- #  - name: Build WisdomVK
- #    continue-on-error: true #optional build, currently modules fail
- #    # Build your program with the given configuration
- #    run: cmake --build ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}}
- #    
- #build_dx_modules:
- #    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
- #  # You can convert this to a matrix build if you need cross-platform coverage.
- #  # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
- #  runs-on: windows-latest
-
- #  steps:
- #  - uses: actions/checkout@v3
- #  - uses: seanmiddleditch/gha-setup-ninja@master
- #    with: 
- #      version: 1.11.1
- #  
- #  - name: Visual Studio shell
- #    uses: egor-tensin/vs-shell@v2
- #      
- #  - name: Configure CMake for DirectX 12
- #    # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
- #    # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
- #    run: cmake -B ${{github.workspace}}/build_dx -GNinja  -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}  -DCMAKE_C_COMPILER:STRING="cl.exe" -DCMAKE_CXX_COMPILER:STRING="cl.exe" -DWISDOM_BUILD_TYPE="modules"
-
- #  - name: Build WisdomDX12
- #    continue-on-error: true #optional build, currently modules fail
- #    # Build your program with the given configuration
- #    run: cmake --build ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}}
- #  #- name: Test 
- #  #  working-directory: ${{github.workspace}}/build
- #  #  # Execute tests defined by the CMake configuration.
- #  #  # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
- #  #  run: ctest -C ${{env.BUILD_TYPE}}
+     steps:
+       - name: Download Artifact
+         uses: actions/download-artifact@v3
+         with:
+           name: nuget
+           path: ${{ env.NuGetDirectory }}
+    
+       - name: Publish NuGet package
+         run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+            dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }
 
