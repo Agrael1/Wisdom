@@ -102,13 +102,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
        name: wisdom.nupkg
-       path: ${{ env.NuGetDirectory }}*.nupkg
+       path: ${{ env.NuGetDirectory }}/*.nupkg
 
     - name: Upload ZIP package
       uses: actions/upload-artifact@v4
       with:
        name: wisdom.zip
-       path: ${{github.workspace}}/build_dx/install.zip
+       path: ${{ env.NuGetDirectory }}/install.zip
 
 
     #- name: Test
@@ -144,10 +144,16 @@ jobs:
      runs-on: windows-latest
 
      steps:
-       - name: Download Artifact
+       - name: Download Nuget
          uses: actions/download-artifact@v3
          with:
            name: wisdom.nupkg
+           path: ${{ env.NuGetDirectory }}
+           
+       - name: Download Zip
+         uses: actions/download-artifact@v3
+         with:
+           name: wisdom.zip
            path: ${{ env.NuGetDirectory }}
     
        - name: Publish NuGet package
