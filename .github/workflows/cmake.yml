@@ -170,10 +170,12 @@ jobs:
          uses: juliangruber/read-file-action@v1
          with:
            path: ./version.txt
-    
+       - name: Display structure of downloaded files
+         run: ls -R
+         
        - name: Publish NuGet package
          run: |
-            dotnet nuget push wisdom.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push ./wisdom.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
             
        - name: Tag and Release Latest
          id : tag_release_latest
