@@ -1,13 +1,4 @@
 name: CMake
-
-on:
-  push:
-
-jobs:
-      
-  build_vk:
-    runs-on: windows-latestname: CMake
-
 on:
   push:
     branches: [ "master" ]
