@@ -4,6 +4,9 @@
 
 **Low-level thin layer header only Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
 
+## NuGet Link
+https://www.nuget.org/packages/Wisdom/
+
 # Why?
 
 A lot of old OpenGL solutions are scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
