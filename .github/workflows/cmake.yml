@@ -146,7 +146,7 @@ jobs:
        - name: Download Artifact
          uses: actions/download-artifact@v3
          with:
-           name: nuget
+           name: wisdom.nupkg
            path: ${{ env.NuGetDirectory }}
     
        - name: Publish NuGet package
