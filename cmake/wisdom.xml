@@ -6,7 +6,7 @@
   </Rule.Categories>
 
   <Rule.DataSource>
-    <DataSource Persistence="ProjectFile" HasConfigurationCondition="false" Label="Globals" />
+    <DataSource Persistence="ProjectFile" Label="Globals" />
   </Rule.DataSource>
 
   <EnumProperty Name="WisdomLinkage"
