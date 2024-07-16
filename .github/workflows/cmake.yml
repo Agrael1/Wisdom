@@ -1,5 +1,4 @@
 name: CMake
-
 on:
   push:
     branches: [ "master" ]
@@ -149,21 +148,20 @@ jobs:
      needs: build_vk
      runs-on: windows-latest
 
-     steps:
-       - uses: actions/checkout@v2
-       
+     steps:       
        - name: Download Nuget
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
+         id: nuget_download
          with:
            name: wisdom.nupkg
            
        - name: Download Zip
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
          with:
            name: wisdom.zip
 
        - name: Download Version
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
          with:
            name: version.txt
         
@@ -175,10 +173,8 @@ jobs:
     
        - name: Publish NuGet package
          run: |
-          foreach($file in (Get-ChildItem "${{github.workspace}}/build_vk" -Recurse -Include *.nupkg)) {
-            dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          }
-
+            dotnet nuget push wisdom.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            
        - name: Tag and Release Latest
          id : tag_release_latest
          uses : softprops/action-gh-release@v1
@@ -197,5 +193,4 @@ jobs:
           tag_name : ${{ steps.version.outputs.content }}
           files : |
               **/*.zip 
-              **/*.nupkg
-
+              **/*.nupkg          
