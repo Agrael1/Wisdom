@@ -1,5 +1,4 @@
 name: CMake
-
 on:
   push:
     branches: [ "master" ]
@@ -149,37 +148,43 @@ jobs:
      needs: build_vk
      runs-on: windows-latest
 
-     steps:
+     steps:       
        - name: Download Nuget
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
+         id: nuget_download
          with:
            name: wisdom.nupkg
-           path: ${{github.workspace}}/build_vk
            
        - name: Download Zip
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
          with:
            name: wisdom.zip
-           path: ${{github.workspace}}/build_vk
 
        - name: Download Version
-         uses: actions/download-artifact@v3
+         uses: actions/download-artifact@v4
          with:
            name: version.txt
-           path: ${{github.workspace}}/build_vk
         
        - name: Read version
          id: version
          uses: juliangruber/read-file-action@v1
          with:
            path: ./version.txt
-    
+         
        - name: Publish NuGet package
          run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-            dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          }
+            dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
+       - name: Tag and Release Versioned
+         id : tag_release_versioned
+         uses : softprops/action-gh-release@v1
+         with :
+          body: Release ${{ steps.version.outputs.content }}
+          tag_name : ${{ steps.version.outputs.content }}
+          files : |
+              **/*.zip 
+              **/*.nupkg   
+              
        - name: Tag and Release Latest
          id : tag_release_latest
          uses : softprops/action-gh-release@v1
@@ -190,13 +195,4 @@ jobs:
               **/*.zip 
               **/*.nupkg
               
-       - name: Tag and Release Versioned
-         id : tag_release_versioned
-         uses : softprops/action-gh-release@v1
-         with :
-          body: Release ${{ steps.version.outputs.content }}
-          tag_name : ${{ steps.version.outputs.content }}
-          files : |
-              **/*.zip 
-              **/*.nupkg
-
+       
