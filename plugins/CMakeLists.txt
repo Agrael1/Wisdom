@@ -42,7 +42,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
     GIT_TAG origin/master)
   
   #if release build set WISVK_ONLY_HEADERS to true
-  if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(NOT WISDOM_GENERATE_FUNCTIONS)
 	set(WISVK_ONLY_HEADERS TRUE CACHE BOOL "Only headers" FORCE)
   endif()
 
