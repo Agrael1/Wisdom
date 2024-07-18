@@ -56,4 +56,5 @@ install(FILES LICENSE.txt DESTINATION .)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.txt" ${PROJECT_VERSION})
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/version.txt" DESTINATION .)
 
+set(README_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 include(cmake/nuget.cmake)
