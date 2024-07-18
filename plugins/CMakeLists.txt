@@ -40,6 +40,12 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
     wisvk
     GIT_REPOSITORY https://github.com/Agrael1/Wisdom-VkUtils.git
     GIT_TAG origin/master)
+  
+  #if release build set WISVK_ONLY_HEADERS to true
+  if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(WISVK_ONLY_HEADERS TRUE CACHE BOOL "Only headers" FORCE)
+  endif()
+
   FetchContent_MakeAvailable(wisvk)
 
   # Vulkan Memory Allocator

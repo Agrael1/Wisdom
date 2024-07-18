@@ -32,7 +32,7 @@ include(CMakePackageConfigHelpers)
 
 # Include sub-projects.
 add_subdirectory("plugins")
-add_subdirectory("generator" EXCLUDE_FROM_ALL)
+#add_subdirectory("generator" EXCLUDE_FROM_ALL)
 
 add_subdirectory("wisdom")
 
