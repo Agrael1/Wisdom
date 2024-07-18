@@ -32,7 +32,7 @@ include(CMakePackageConfigHelpers)
 
 # Include sub-projects.
 add_subdirectory("plugins")
-#add_subdirectory("generator" EXCLUDE_FROM_ALL)
+# add_subdirectory("generator" EXCLUDE_FROM_ALL)
 
 add_subdirectory("wisdom")
 
@@ -53,7 +53,8 @@ install(FILES README.md DESTINATION .)
 install(FILES LICENSE.txt DESTINATION .)
 
 # make version file
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/README.md" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/version.txt" ${PROJECT_VERSION})
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/version.txt" DESTINATION .)
 
