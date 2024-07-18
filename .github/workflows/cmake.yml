@@ -71,6 +71,11 @@ jobs:
     
     - name: Visual Studio shell
       uses: egor-tensin/vs-shell@v2
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.30.x'
       
     - name: Prepare Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@v1.2.0
@@ -184,7 +189,12 @@ jobs:
           files : |
               **/*.zip 
               **/*.nupkg   
-              
+
+       - name: Delete tag
+         run: gh release delete Latest --cleanup-tag
+         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
        - name: Tag and Release Latest
          id : tag_release_latest
          uses : softprops/action-gh-release@v1
