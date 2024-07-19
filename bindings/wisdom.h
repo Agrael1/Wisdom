@@ -381,6 +381,13 @@ enum WisAdapterFlagsBits {
     AdapterFlagsDX12KeyedMutexConformance = 1 << 5,
 };
 
+enum WisDSSelectBits {
+    DSSelectNone = 0x0,
+    DSSelectDepth = 1 << 0,
+    DSSelectStencil = 1 << 1,
+    DSSelectDepthStencil = 0x3,
+};
+
 enum WisColorComponentsBits {
     ColorComponentsNone = 0x0,
     ColorComponentsR = 1 << 0,
@@ -403,21 +410,33 @@ enum WisMemoryFlagsBits {
     MemoryFlagsMapped = 1 << 1,
 };
 
-enum WisTextureUsageBits {
-    TextureUsageNone = 0x0,
-    TextureUsageRenderTarget = 1 << 0,
-    TextureUsageDepthStencil = 1 << 1,
-    TextureUsageCopySrc = 1 << 2,
-    TextureUsageCopyDst = 1 << 3,
-    TextureUsageShaderResource = 1 << 4,
-    TextureUsageUnorderedAccess = 1 << 5,
-    TextureUsageHostCopy = 1 << 7,
-};
-
 enum WisRenderPassFlagsBits {
     RenderPassFlagsNone = 0x0,
     RenderPassFlagsSuspending = 1 << 1,
     RenderPassFlagsResuming = 1 << 2,
+};
+
+enum WisBarrierSyncBits {
+    BarrierSyncNone = 0x0,
+    BarrierSyncAll = 1 << 0,
+    BarrierSyncDraw = 1 << 1,
+    BarrierSyncIndexInput = 1 << 2,
+    BarrierSyncVertexShading = 1 << 3,
+    BarrierSyncPixelShading = 1 << 4,
+    BarrierSyncDepthStencil = 1 << 5,
+    BarrierSyncRenderTarget = 1 << 6,
+    BarrierSyncCompute = 1 << 7,
+    BarrierSyncRaytracing = 1 << 8,
+    BarrierSyncCopy = 1 << 9,
+    BarrierSyncResolve = 1 << 10,
+    BarrierSyncExecuteIndirect = 1 << 11,
+    BarrierSyncAllShading = 1 << 12,
+    BarrierSyncNonPixelShading = 1 << 13,
+    BarrierSyncClearUAV = 1 << 14,
+    BarrierSyncVideoDecode = 1 << 15,
+    BarrierSyncVideoEncode = 1 << 16,
+    BarrierSyncBuildRTAS = 1 << 17,
+    BarrierSyncCopyRTAS = 1 << 18,
 };
 
 enum WisResourceAccessBits {
@@ -446,27 +465,15 @@ enum WisResourceAccessBits {
     ResourceAccessNoAccess = 1 << 31,
 };
 
-enum WisBarrierSyncBits {
-    BarrierSyncNone = 0x0,
-    BarrierSyncAll = 1 << 0,
-    BarrierSyncDraw = 1 << 1,
-    BarrierSyncIndexInput = 1 << 2,
-    BarrierSyncVertexShading = 1 << 3,
-    BarrierSyncPixelShading = 1 << 4,
-    BarrierSyncDepthStencil = 1 << 5,
-    BarrierSyncRenderTarget = 1 << 6,
-    BarrierSyncCompute = 1 << 7,
-    BarrierSyncRaytracing = 1 << 8,
-    BarrierSyncCopy = 1 << 9,
-    BarrierSyncResolve = 1 << 10,
-    BarrierSyncExecuteIndirect = 1 << 11,
-    BarrierSyncAllShading = 1 << 12,
-    BarrierSyncNonPixelShading = 1 << 13,
-    BarrierSyncClearUAV = 1 << 14,
-    BarrierSyncVideoDecode = 1 << 15,
-    BarrierSyncVideoEncode = 1 << 16,
-    BarrierSyncBuildRTAS = 1 << 17,
-    BarrierSyncCopyRTAS = 1 << 18,
+enum WisTextureUsageBits {
+    TextureUsageNone = 0x0,
+    TextureUsageRenderTarget = 1 << 0,
+    TextureUsageDepthStencil = 1 << 1,
+    TextureUsageCopySrc = 1 << 2,
+    TextureUsageCopyDst = 1 << 3,
+    TextureUsageShaderResource = 1 << 4,
+    TextureUsageUnorderedAccess = 1 << 5,
+    TextureUsageHostCopy = 1 << 7,
 };
 
 //-------------------------------------------------------------------------
@@ -539,20 +546,22 @@ typedef enum WisTextureViewType WisTextureViewType;
 typedef enum WisComponentSwizzle WisComponentSwizzle;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
+typedef enum WisDSSelectBits WisDSSelectBits;
+typedef uint32_t WisDSSelect;
 typedef enum WisColorComponentsBits WisColorComponentsBits;
 typedef uint32_t WisColorComponents;
 typedef enum WisBufferFlagsBits WisBufferFlagsBits;
 typedef uint32_t WisBufferFlags;
 typedef enum WisMemoryFlagsBits WisMemoryFlagsBits;
 typedef uint32_t WisMemoryFlags;
-typedef enum WisTextureUsageBits WisTextureUsageBits;
-typedef uint32_t WisTextureUsage;
 typedef enum WisRenderPassFlagsBits WisRenderPassFlagsBits;
 typedef uint32_t WisRenderPassFlags;
-typedef enum WisResourceAccessBits WisResourceAccessBits;
-typedef uint32_t WisResourceAccess;
 typedef enum WisBarrierSyncBits WisBarrierSyncBits;
 typedef uint32_t WisBarrierSync;
+typedef enum WisResourceAccessBits WisResourceAccessBits;
+typedef uint32_t WisResourceAccess;
+typedef enum WisTextureUsageBits WisTextureUsageBits;
+typedef uint32_t WisTextureUsage;
 
 //-------------------------------------------------------------------------
 
@@ -823,6 +832,7 @@ typedef void (*DebugCallback)(WisSeverity severity, const char* message, void* u
 typedef struct VKCommandListView VKCommandListView;
 typedef struct VKGraphicsPipelineDesc VKGraphicsPipelineDesc;
 typedef struct VKFenceView VKFenceView;
+typedef struct VKRenderPassDepthStencilDesc VKRenderPassDepthStencilDesc;
 typedef struct VKBufferView VKBufferView;
 typedef struct VKTextureView VKTextureView;
 typedef struct VKShaderView VKShaderView;
@@ -910,10 +920,22 @@ struct VKRenderPassRenderTargetDesc {
     float clear_value[4];
 };
 
+struct VKRenderPassDepthStencilDesc {
+    VKRenderTargetView target;
+    WisLoadOperation load_op_depth;
+    WisLoadOperation load_op_stencil;
+    WisStoreOperation store_op_depth;
+    WisStoreOperation store_op_stencil;
+    WisDSSelect depth_stencil_select;
+    float clear_depth;
+    uint8_t clear_stencil;
+};
+
 struct VKRenderPassDesc {
-    VKRenderPassRenderTargetDesc* targets;
-    uint32_t target_count;
     WisRenderPassFlags flags;
+    uint32_t target_count;
+    VKRenderPassRenderTargetDesc* targets;
+    VKRenderPassDepthStencilDesc* depth_stencil;
 };
 
 struct VKVertexBufferBinding {
@@ -984,6 +1006,7 @@ WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer se
 typedef struct DX12CommandListView DX12CommandListView;
 typedef struct DX12GraphicsPipelineDesc DX12GraphicsPipelineDesc;
 typedef struct DX12FenceView DX12FenceView;
+typedef struct DX12RenderPassDepthStencilDesc DX12RenderPassDepthStencilDesc;
 typedef struct DX12BufferView DX12BufferView;
 typedef struct DX12TextureView DX12TextureView;
 typedef struct DX12ShaderView DX12ShaderView;
@@ -1069,10 +1092,22 @@ struct DX12RenderPassRenderTargetDesc {
     float clear_value[4];
 };
 
+struct DX12RenderPassDepthStencilDesc {
+    DX12RenderTargetView target;
+    WisLoadOperation load_op_depth;
+    WisLoadOperation load_op_stencil;
+    WisStoreOperation store_op_depth;
+    WisStoreOperation store_op_stencil;
+    WisDSSelect depth_stencil_select;
+    float clear_depth;
+    uint8_t clear_stencil;
+};
+
 struct DX12RenderPassDesc {
-    DX12RenderPassRenderTargetDesc* targets;
-    uint32_t target_count;
     WisRenderPassFlags flags;
+    uint32_t target_count;
+    DX12RenderPassRenderTargetDesc* targets;
+    DX12RenderPassDepthStencilDesc* depth_stencil;
 };
 
 struct DX12VertexBufferBinding {

@@ -52,6 +52,12 @@
       <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
       <value name="KeyedMutexConformance" bit="5" impl="dx"/>
     </type>
+    <type name="DSSelect" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="Depth" bit="0"/>
+      <value name="Stencil" bit="1"/>
+      <value name="DepthStencil" value="3"/>
+    </type>
     <type name="Severity" category="enum">
       <value name="Debug" value="0"/>
       <value name="Trace" value="1"/>
@@ -1461,11 +1467,24 @@
         <member type="f32" name="clear_value" array="4"/>
       </impl>
     </type>
+    <type name="RenderPassDepthStencilDesc" category="variant">
+      <impl name="both">
+        <member type="RenderTargetView" name="target"/>
+        <member type="LoadOperation" name="load_op_depth" default="Load"/>
+        <member type="LoadOperation" name="load_op_stencil" default="Load"/>
+        <member type="StoreOperation" name="store_op_depth" default="Store"/>
+        <member type="StoreOperation" name="store_op_stencil" default="Store"/>
+        <member type="DSSelect" name="depth_stencil_select" default="None"/>
+        <member type="f32" name="clear_depth"/>
+        <member type="u8" name="clear_stencil"/>
+      </impl>
+    </type>
     <type name="RenderPassDesc" category="variant">
       <impl name="both">
-        <member type="RenderPassRenderTargetDesc" name="targets" mod="ptr"/>
-        <member type="u32" name="target_count"/>
         <member type="RenderPassFlags" name="flags"/>
+        <member type="u32" name="target_count"/>
+        <member type="RenderPassRenderTargetDesc" name="targets" mod="ptr" default="nullptr"/>
+        <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="ptr"/>
       </impl>
     </type>
     <type name="VertexBufferBinding" category="variant">

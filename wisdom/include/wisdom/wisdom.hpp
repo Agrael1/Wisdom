@@ -65,6 +65,7 @@ using TextureBarrier2 = DX12TextureBarrier2;
 using GraphicsShaderStages = DX12GraphicsShaderStages;
 using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
+using RenderPassDepthStencilDesc = DX12RenderPassDepthStencilDesc;
 using RenderPassDesc = DX12RenderPassDesc;
 using VertexBufferBinding = DX12VertexBufferBinding;
 } // namespace wis
@@ -113,6 +114,7 @@ using TextureBarrier2 = VKTextureBarrier2;
 using GraphicsShaderStages = VKGraphicsShaderStages;
 using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
 using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
+using RenderPassDepthStencilDesc = VKRenderPassDepthStencilDesc;
 using RenderPassDesc = VKRenderPassDesc;
 using VertexBufferBinding = VKVertexBufferBinding;
 } // namespace wis

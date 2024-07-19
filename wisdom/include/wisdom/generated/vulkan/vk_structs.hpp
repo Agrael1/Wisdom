@@ -41,10 +41,22 @@ struct VKRenderPassRenderTargetDesc {
     std::array<float, 4> clear_value{};
 };
 
+struct VKRenderPassDepthStencilDesc {
+    wis::VKRenderTargetView target;
+    wis::LoadOperation load_op_depth = wis::LoadOperation::Load;
+    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load;
+    wis::StoreOperation store_op_depth = wis::StoreOperation::Store;
+    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store;
+    wis::DSSelect depth_stencil_select = wis::DSSelect::None;
+    float clear_depth;
+    uint8_t clear_stencil;
+};
+
 struct VKRenderPassDesc {
-    wis::VKRenderPassRenderTargetDesc* targets;
-    uint32_t target_count;
     wis::RenderPassFlags flags;
+    uint32_t target_count;
+    wis::VKRenderPassRenderTargetDesc* targets = nullptr;
+    wis::VKRenderPassDepthStencilDesc* depth_stencil;
 };
 
 struct VKVertexBufferBinding {

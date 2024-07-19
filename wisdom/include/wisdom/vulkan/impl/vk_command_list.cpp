@@ -237,8 +237,7 @@ void wis::VKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barriers,
 
 void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc) noexcept
 {
-    if (!pass_desc->target_count)
-        return;
+    auto ds_selector = pass_desc->depth_stencil ? pass_desc->depth_stencil->depth_stencil_select : DSSelect::None;
 
     auto& dtable = device.table();
     wis::detail::limited_allocator<VkRenderingAttachmentInfo, 8> allocator(pass_desc->target_count, true);
@@ -261,6 +260,37 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
             };
     }
 
+    VkRenderingAttachmentInfo d_info{};
+    VkRenderingAttachmentInfo s_info{};
+    if (ds_selector & DSSelect::Depth) {
+        d_info = {
+            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext = nullptr,
+            .imageView = std::get<0>(pass_desc->depth_stencil->target),
+            .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+            .loadOp = convert_vk(pass_desc->depth_stencil->load_op_depth),
+            .storeOp = convert_vk(pass_desc->depth_stencil->store_op_depth),
+        };
+        if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+            d_info.clearValue = {
+                .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
+            };
+    }
+    if (ds_selector & DSSelect::Stencil) {
+        s_info = {
+            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext = nullptr,
+            .imageView = std::get<0>(pass_desc->depth_stencil->target),
+            .imageLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL,
+            .loadOp = convert_vk(pass_desc->depth_stencil->load_op_stencil),
+            .storeOp = convert_vk(pass_desc->depth_stencil->store_op_stencil),
+        };
+        if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+            s_info.clearValue = {
+                .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
+            };
+    }
+
     VkRenderingInfo info{
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
         .pNext = nullptr,
@@ -273,6 +303,8 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
         .viewMask = 0,
         .colorAttachmentCount = pass_desc->target_count,
         .pColorAttachments = data,
+        .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,
+        .pStencilAttachment = ds_selector & DSSelect::Stencil ? &s_info : nullptr,
     };
 
     dtable.vkCmdBeginRendering(command_list, &info);

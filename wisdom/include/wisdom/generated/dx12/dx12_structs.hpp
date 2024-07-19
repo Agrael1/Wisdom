@@ -41,10 +41,22 @@ struct DX12RenderPassRenderTargetDesc {
     std::array<float, 4> clear_value{};
 };
 
+struct DX12RenderPassDepthStencilDesc {
+    wis::DX12RenderTargetView target;
+    wis::LoadOperation load_op_depth = wis::LoadOperation::Load;
+    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load;
+    wis::StoreOperation store_op_depth = wis::StoreOperation::Store;
+    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store;
+    wis::DSSelect depth_stencil_select = wis::DSSelect::None;
+    float clear_depth;
+    uint8_t clear_stencil;
+};
+
 struct DX12RenderPassDesc {
-    wis::DX12RenderPassRenderTargetDesc* targets;
-    uint32_t target_count;
     wis::RenderPassFlags flags;
+    uint32_t target_count;
+    wis::DX12RenderPassRenderTargetDesc* targets = nullptr;
+    wis::DX12RenderPassDepthStencilDesc* depth_stencil;
 };
 
 struct DX12VertexBufferBinding {
