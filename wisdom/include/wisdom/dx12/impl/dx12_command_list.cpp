@@ -228,8 +228,7 @@ void wis::DX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pass_d
         }
     }
 
-    if (pass_desc->depth_stencil)
-    {
+    if (pass_desc->depth_stencil) {
         auto ds_selector = pass_desc->depth_stencil->depth_stencil_select;
 
         D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depth_stencil{

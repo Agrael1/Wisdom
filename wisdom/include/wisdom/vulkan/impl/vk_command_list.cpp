@@ -262,8 +262,7 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
 
     VkRenderingAttachmentInfo d_info{};
     VkRenderingAttachmentInfo s_info{};
-    if (ds_selector & DSSelect::Depth)
-    {
+    if (ds_selector & DSSelect::Depth) {
         d_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
@@ -277,8 +276,7 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
                 .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
             };
     }
-    if (ds_selector & DSSelect::Stencil)
-    {
+    if (ds_selector & DSSelect::Stencil) {
         s_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
