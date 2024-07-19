@@ -154,6 +154,8 @@ jobs:
      runs-on: windows-latest
 
      steps:       
+       - uses: actions/checkout@v4
+       
        - name: Download Nuget
          uses: actions/download-artifact@v4
          id: nuget_download
