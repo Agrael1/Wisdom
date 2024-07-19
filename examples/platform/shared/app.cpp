@@ -369,9 +369,9 @@ void Test::App::Frame()
         .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f },
     };
     wis::RenderPassDesc rp{
-        .targets = &targets,
-        .target_count = 1,
         .flags = wis::RenderPassFlags::None,
+        .target_count = 1,
+        .targets = &targets,
     };
 
     cmd_list.BeginRenderPass(&rp);

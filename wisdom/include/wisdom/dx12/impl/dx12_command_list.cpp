@@ -228,6 +228,31 @@ void wis::DX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pass_d
         }
     }
 
+    if (pass_desc->depth_stencil)
+    {
+        auto ds_selector = pass_desc->depth_stencil->depth_stencil_select;
+
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depth_stencil{
+            .cpuDescriptor = std::get<0>(pass_desc->depth_stencil->target),
+            .DepthBeginningAccess = {
+                    .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc->depth_stencil->load_op_depth) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS,
+                    .Clear = {
+                            .ClearValue{
+                                    .DepthStencil{
+                                            .Depth = pass_desc->depth_stencil->clear_depth,
+                                            .Stencil = pass_desc->depth_stencil->clear_stencil } } },
+            },
+            .StencilBeginningAccess = { .Type = ds_selector & DSSelect::Stencil ? convert_dx(pass_desc->depth_stencil->load_op_stencil) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, .Clear = { .ClearValue{ .DepthStencil{ .Depth = pass_desc->depth_stencil->clear_depth, .Stencil = pass_desc->depth_stencil->clear_stencil } } } },
+            .DepthEndingAccess = {
+                    .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc->depth_stencil->store_op_depth) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
+            },
+            .StencilEndingAccess = {
+                    .Type = ds_selector & DSSelect::Stencil ? convert_dx(pass_desc->depth_stencil->store_op_stencil) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
+            }
+        };
+
+        return list->BeginRenderPass(pass_desc->target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, convert_dx(pass_desc->flags));
+    }
     list->BeginRenderPass(pass_desc->target_count, data, nullptr, convert_dx(pass_desc->flags));
 }
 

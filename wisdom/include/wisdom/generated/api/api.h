@@ -408,6 +408,13 @@ enum class AdapterFlags {
     DX12KeyedMutexConformance = 1 << 5,
 };
 
+enum class DSSelect {
+    None = 0x0,
+    Depth = 1 << 0,
+    Stencil = 1 << 1,
+    DepthStencil = 0x3,
+};
+
 enum class ColorComponents {
     None = 0x0,
     R = 1 << 0,
@@ -430,21 +437,33 @@ enum class MemoryFlags {
     Mapped = 1 << 1,
 };
 
-enum class TextureUsage {
-    None = 0x0,
-    RenderTarget = 1 << 0,
-    DepthStencil = 1 << 1,
-    CopySrc = 1 << 2,
-    CopyDst = 1 << 3,
-    ShaderResource = 1 << 4,
-    UnorderedAccess = 1 << 5,
-    HostCopy = 1 << 7,
-};
-
 enum class RenderPassFlags {
     None = 0x0,
     Suspending = 1 << 1,
     Resuming = 1 << 2,
+};
+
+enum class BarrierSync {
+    None = 0x0,
+    All = 1 << 0,
+    Draw = 1 << 1,
+    IndexInput = 1 << 2,
+    VertexShading = 1 << 3,
+    PixelShading = 1 << 4,
+    DepthStencil = 1 << 5,
+    RenderTarget = 1 << 6,
+    Compute = 1 << 7,
+    Raytracing = 1 << 8,
+    Copy = 1 << 9,
+    Resolve = 1 << 10,
+    ExecuteIndirect = 1 << 11,
+    AllShading = 1 << 12,
+    NonPixelShading = 1 << 13,
+    ClearUAV = 1 << 14,
+    VideoDecode = 1 << 15,
+    VideoEncode = 1 << 16,
+    BuildRTAS = 1 << 17,
+    CopyRTAS = 1 << 18,
 };
 
 enum class ResourceAccess {
@@ -473,27 +492,15 @@ enum class ResourceAccess {
     NoAccess = 1 << 31,
 };
 
-enum class BarrierSync {
+enum class TextureUsage {
     None = 0x0,
-    All = 1 << 0,
-    Draw = 1 << 1,
-    IndexInput = 1 << 2,
-    VertexShading = 1 << 3,
-    PixelShading = 1 << 4,
-    DepthStencil = 1 << 5,
-    RenderTarget = 1 << 6,
-    Compute = 1 << 7,
-    Raytracing = 1 << 8,
-    Copy = 1 << 9,
-    Resolve = 1 << 10,
-    ExecuteIndirect = 1 << 11,
-    AllShading = 1 << 12,
-    NonPixelShading = 1 << 13,
-    ClearUAV = 1 << 14,
-    VideoDecode = 1 << 15,
-    VideoEncode = 1 << 16,
-    BuildRTAS = 1 << 17,
-    CopyRTAS = 1 << 18,
+    RenderTarget = 1 << 0,
+    DepthStencil = 1 << 1,
+    CopySrc = 1 << 2,
+    CopyDst = 1 << 3,
+    ShaderResource = 1 << 4,
+    UnorderedAccess = 1 << 5,
+    HostCopy = 1 << 7,
 };
 
 struct Result {
@@ -761,6 +768,9 @@ template<>
 struct is_flag_enum<wis::AdapterFlags> : public std::true_type {
 };
 template<>
+struct is_flag_enum<wis::DSSelect> : public std::true_type {
+};
+template<>
 struct is_flag_enum<wis::ColorComponents> : public std::true_type {
 };
 template<>
@@ -770,16 +780,16 @@ template<>
 struct is_flag_enum<wis::MemoryFlags> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::TextureUsage> : public std::true_type {
+struct is_flag_enum<wis::RenderPassFlags> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::RenderPassFlags> : public std::true_type {
+struct is_flag_enum<wis::BarrierSync> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::ResourceAccess> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::BarrierSync> : public std::true_type {
+struct is_flag_enum<wis::TextureUsage> : public std::true_type {
 };
 //============================== CONSTS ==============================
 
