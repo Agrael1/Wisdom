@@ -78,7 +78,7 @@ struct Internal<VKExtendedAllocation> {
 class VKExtendedAllocation : public QueryInternalExtension<VKExtendedAllocation, wis::VKDeviceExtension>
 {
 protected:
-    virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>& available_extensions,
+    virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
                                   std::unordered_set<std::string_view>& ext_name_set,
                                   std::unordered_map<VkStructureType, uintptr_t>& structure_map,
                                   std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override

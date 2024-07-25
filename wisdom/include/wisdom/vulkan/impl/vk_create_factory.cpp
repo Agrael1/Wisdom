@@ -1,8 +1,10 @@
 #ifndef VK_CREATE_FACTORY_CPP
 #define VK_CREATE_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_checks.h>
 #include <unordered_map>
 #include <array>
+#include <ranges>
 
 wis::ResultValue<wis::detail::fixed_allocation<const char*>>
 wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
@@ -18,17 +20,23 @@ wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
     if constexpr (wis::debug_mode)
         wis::lib_info(ext_string(exts));
 
+    // Unique set of extensions
+    std::unordered_set<std::string_view, wis::string_hash, std::equal_to<>> exts_set;
+    exts_set.reserve(in_extensions.size());
+    for (const auto& i : exts)
+        exts_set.insert(i);
+
     // allocate a bit more than needed
-    auto found_extension = wis::detail::make_fixed_allocation<const char*>(in_extensions.size());
+    auto found_extension = wis::detail::make_fixed_allocation<const char*>(exts_set.size());
     if (!found_extension)
         return wis::make_result<FUNC, "Not enough memory for extensions">(VK_ERROR_OUT_OF_HOST_MEMORY);
 
     size_t index = 0;
 
     // O(n)
-    for (const auto* extension : in_extensions) {
-        if (exts.contains(extension))
-            found_extension[index++] = extension;
+    for (auto extension : exts_set) {
+        if (exts.find(extension) != exts.end())
+            found_extension[index++] = extension.data();
         else
             wis::lib_warn(wis::format("Extension {} not found", extension));
     }
@@ -60,17 +68,22 @@ wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
     if constexpr (wis::debug_mode)
         wis::lib_info(ext_string(exts));
 
+    std::unordered_set<std::string_view, wis::string_hash, std::equal_to<>> layer_set;
+    layer_set.reserve(in_layers.size());
+    for (const auto& i : exts)
+        layer_set.insert(i);
+
     // allocate a bit more than needed
-    auto found_layers = wis::detail::make_fixed_allocation<const char*>(in_layers.size());
+    auto found_layers = wis::detail::make_fixed_allocation<const char*>(layer_set.size());
     if (!found_layers)
         return wis::make_result<FUNC, "Not enough memory for layers">(VK_ERROR_OUT_OF_HOST_MEMORY);
 
     size_t index = 0;
 
     // O(n)
-    for (const auto* layer : in_layers) {
+    for (const auto layer : layer_set) {
         if (exts.contains(layer))
-            found_layers[index++] = layer;
+            found_layers[index++] = layer.data();
         else
             wis::lib_warn(wis::format("Layer {} not found", layer));
     }

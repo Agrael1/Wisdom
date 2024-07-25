@@ -13,6 +13,8 @@ wis::DX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void*
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#include <wisdom/vulkan/vk_checks.h>
+
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,

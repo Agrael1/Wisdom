@@ -19,7 +19,7 @@ struct VKDeviceExtension {
     virtual ~VKDeviceExtension() = default;
 
     // Unfortunate that we have to pass all the maps and sets here, but it's the only way to get the information
-    virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>& available_extensions,
+    virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
                                   std::unordered_set<std::string_view>& ext_name_set,
                                   std::unordered_map<VkStructureType, uintptr_t>& structure_map,
                                   std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
@@ -97,7 +97,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
         VK_KHR_PRESENT_ID_EXTENSION_NAME, // for Present ID
     };
 
-    virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash>& available_extensions,
+    virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
                                   std::unordered_set<std::string_view>& ext_name_set,
                                   std::unordered_map<VkStructureType, uintptr_t>& structure_map,
                                   std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
