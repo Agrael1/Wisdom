@@ -2,6 +2,8 @@
 #define VK_ADAPTER_CPP
 
 #include <wisdom/vulkan/vk_adapter.h>
+#include <wisdom/vulkan/vk_checks.h>
+
 #include <wisdom/util/flags.h>
 #include <cstring>
 

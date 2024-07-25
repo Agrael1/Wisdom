@@ -5,6 +5,7 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_adapter.h>
+#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_debug.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 
@@ -43,8 +44,8 @@ public:
     wis::VKMainGlobal global_table{};
     wis::LibToken lib_token;
 
-    std::unordered_set<std::string, wis::string_hash> instance_extensions;
-    std::unordered_set<std::string, wis::string_hash> instance_layers;
+    std::unordered_set<std::string, wis::string_hash, std::equal_to<>> instance_extensions;
+    std::unordered_set<std::string, wis::string_hash, std::equal_to<>> instance_layers;
 };
 } // namespace detail
 
