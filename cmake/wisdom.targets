@@ -11,7 +11,7 @@
 
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">DEBUG_MODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)'!='Debug'">DEBUG_MODE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      
+
       <PreprocessorDefinitions>DEBUG_LAYER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
