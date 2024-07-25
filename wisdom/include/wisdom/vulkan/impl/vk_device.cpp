@@ -35,8 +35,8 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
         using enum VkQueueFlagBits;
         auto& family = family_props[i];
         if ((family.queueFlags & VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT) ==
-                VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT &&
-                queues.available_queues[+QueueTypes::Graphics].Empty()) {
+                    VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT &&
+            queues.available_queues[+QueueTypes::Graphics].Empty()) {
             queues.available_queues[+QueueTypes::Graphics] = {
                 uint16_t(uint32_t(family.queueFlags)),
                 uint8_t(family.queueCount),
@@ -46,8 +46,8 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
             continue;
         }
         if ((family.queueFlags & VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT) ==
-                VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT &&
-                queues.available_queues[+QueueTypes::Compute].Empty()) {
+                    VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT &&
+            queues.available_queues[+QueueTypes::Compute].Empty()) {
             queues.available_queues[+QueueTypes::Compute] = {
                 uint16_t(uint32_t(family.queueFlags)),
                 uint8_t(family.queueCount),
@@ -57,8 +57,8 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
             continue;
         }
         if ((family.queueFlags & VkQueueFlagBits::VK_QUEUE_VIDEO_DECODE_BIT_KHR) ==
-                VkQueueFlagBits::VK_QUEUE_VIDEO_DECODE_BIT_KHR &&
-                queues.available_queues[+QueueTypes::VideoDecode].Empty()) {
+                    VkQueueFlagBits::VK_QUEUE_VIDEO_DECODE_BIT_KHR &&
+            queues.available_queues[+QueueTypes::VideoDecode].Empty()) {
             queues.available_queues[+QueueTypes::VideoDecode] = {
                 uint16_t(uint32_t(family.queueFlags)),
                 uint8_t(family.queueCount),
@@ -68,8 +68,8 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
             continue;
         }
         if ((family.queueFlags & VkQueueFlagBits::VK_QUEUE_TRANSFER_BIT) ==
-                VkQueueFlagBits::VK_QUEUE_TRANSFER_BIT &&
-                queues.available_queues[+QueueTypes::Copy].Empty()) {
+                    VkQueueFlagBits::VK_QUEUE_TRANSFER_BIT &&
+            queues.available_queues[+QueueTypes::Copy].Empty()) {
             queues.available_queues[+QueueTypes::Copy] = {
                 uint16_t(uint32_t(family.queueFlags)),
                 uint8_t(family.queueCount),
@@ -256,8 +256,7 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
         std::array<float, 64> priorities{};
         priorities.fill(1.0f);
         return priorities;
-    }
-    ();
+    }();
 
     for (size_t queue_info_size = 0; queue_info_size < max_queue_count; queue_info_size++) {
         auto& q = queues.available_queues[queue_info_size];
@@ -326,8 +325,8 @@ wis::VKDevice::VKDevice(wis::SharedDevice in_device, wis::VKAdapter in_adapter,
 }
 
 wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
-        uint32_t count, MutiWaitFlags wait_all,
-        uint64_t timeout) const noexcept
+                                                 uint32_t count, MutiWaitFlags wait_all,
+                                                 uint64_t timeout) const noexcept
 {
     VkSemaphoreWaitInfo waitInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
                                   .pNext = nullptr,
@@ -338,8 +337,8 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
     VkResult result = device.table().vkWaitSemaphores(device.get(), &waitInfo, timeout);
 
     return succeeded(result)
-           ? wis::success
-           : wis::make_result<FUNC, "vkWaitSemaphores failed to wait for fences.">(result);
+            ? wis::success
+            : wis::make_result<FUNC, "vkWaitSemaphores failed to wait for fences.">(result);
 }
 
 wis::ResultValue<wis::VKFence>
@@ -374,7 +373,7 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priori
     const auto* queue = queues.GetOfType(type);
     if (queue == nullptr)
         return { wis::make_result<FUNC, "The system does not support the requested queue type">(
-                     VkResult::VK_ERROR_UNKNOWN),
+                         VkResult::VK_ERROR_UNKNOWN),
                  wis::VKCommandQueue{} };
 
     VkDeviceQueueInfo2 info{
@@ -442,7 +441,7 @@ wis::VKDevice::CreateRootSignature(const RootConstant* constants,
 
 namespace wis::detail {
 inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo,
-                              wis::max_shader_stages>& shader_stages,
+                                                             wis::max_shader_stages>& shader_stages,
                               wis::VKShaderView shader, VkShaderStageFlagBits stage) noexcept
 {
     auto sh = std::get<0>(shader);
@@ -477,11 +476,11 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     uint32_t ia_count = desc->input_layout.attribute_count;
     if (ia_count > ext1.GetInternal().base_properties.max_ia_attributes)
         return wis::make_result<FUNC,
-               "The system does not support the requested number of vertex attributes">(
-                   VkResult::VK_ERROR_UNKNOWN);
+                                "The system does not support the requested number of vertex attributes">(
+                VkResult::VK_ERROR_UNKNOWN);
 
     wis::detail::limited_allocator<VkVertexInputAttributeDescription, wis::max_vertex_bindings>
-    attributes{ ia_count };
+            attributes{ ia_count };
 
     uint32_t byte_offset = 0;
     auto* ia_data = attributes.data();
@@ -569,7 +568,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
         .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
     };
 
-    VkPipelineColorBlendAttachmentState color_blend_attachment[max_render_targets] {};
+    VkPipelineColorBlendAttachmentState color_blend_attachment[max_render_targets]{};
     VkPipelineColorBlendStateCreateInfo color_blending;
     if (desc->blend) {
         auto& blend = *desc->blend;
@@ -649,25 +648,25 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
             .depthBoundsTestEnable = ds.depth_bound_test,
             .stencilTestEnable = ds.stencil_enable,
             .front =
-            VkStencilOpState{
-                .failOp = convert_vk(ds.stencil_front.fail_op),
-                .passOp = convert_vk(ds.stencil_front.pass_op),
-                .depthFailOp = convert_vk(ds.stencil_front.depth_fail_op),
-                .compareOp = convert_vk(ds.stencil_front.comparison),
-                .compareMask = ds.stencil_front.read_mask,
-                .writeMask = ds.stencil_front.write_mask,
-                .reference = 0,
-            },
+                    VkStencilOpState{
+                            .failOp = convert_vk(ds.stencil_front.fail_op),
+                            .passOp = convert_vk(ds.stencil_front.pass_op),
+                            .depthFailOp = convert_vk(ds.stencil_front.depth_fail_op),
+                            .compareOp = convert_vk(ds.stencil_front.comparison),
+                            .compareMask = ds.stencil_front.read_mask,
+                            .writeMask = ds.stencil_front.write_mask,
+                            .reference = 0,
+                    },
             .back =
-            VkStencilOpState{
-                .failOp = convert_vk(ds.stencil_back.fail_op),
-                .passOp = convert_vk(ds.stencil_back.pass_op),
-                .depthFailOp = convert_vk(ds.stencil_back.depth_fail_op),
-                .compareOp = convert_vk(ds.stencil_back.comparison),
-                .compareMask = ds.stencil_back.read_mask,
-                .writeMask = ds.stencil_back.write_mask,
-                .reference = 0,
-            },
+                    VkStencilOpState{
+                            .failOp = convert_vk(ds.stencil_back.fail_op),
+                            .passOp = convert_vk(ds.stencil_back.pass_op),
+                            .depthFailOp = convert_vk(ds.stencil_back.depth_fail_op),
+                            .compareOp = convert_vk(ds.stencil_back.comparison),
+                            .compareMask = ds.stencil_back.read_mask,
+                            .writeMask = ds.stencil_back.write_mask,
+                            .reference = 0,
+                    },
             .minDepthBounds = 0.0f,
             .maxDepthBounds = 1.0f,
         };
@@ -712,7 +711,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
     };
 
     VkPipelineCreateFlags flags =
-        VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
+            VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
 
     VkGraphicsPipelineCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -733,7 +732,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
 
     VkPipeline pipeline;
     auto result = device.table().vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr,
-                  &pipeline);
+                                                           &pipeline);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a graphics pipeline">(result);
 
@@ -754,7 +753,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     };
     wis::scoped_handle<VkCommandPool> cmd_pool;
     auto result =
-        dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
+            dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to create a command pool">(result);
 
@@ -787,7 +786,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
 }
 
 wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
-        uint32_t size) const noexcept
+                                                            uint32_t size) const noexcept
 {
     VkShaderModuleCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -825,35 +824,34 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     gtable.vkEnumerateInstanceVersion(&version);
 
     if (!allocator_functions)
-        allocator_functions = std::shared_ptr<VmaVulkanFunctions> { new (std::nothrow) VmaVulkanFunctions{
-            .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
-            .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
-            .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
-            .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
-            .vkAllocateMemory = dtable.vkAllocateMemory,
-            .vkFreeMemory = dtable.vkFreeMemory,
-            .vkMapMemory = dtable.vkMapMemory,
-            .vkUnmapMemory = dtable.vkUnmapMemory,
-            .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
-            .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
-            .vkBindBufferMemory = dtable.vkBindBufferMemory,
-            .vkBindImageMemory = dtable.vkBindImageMemory,
-            .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
-            .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
-            .vkCreateBuffer = dtable.vkCreateBuffer,
-            .vkDestroyBuffer = dtable.vkDestroyBuffer,
-            .vkCreateImage = dtable.vkCreateImage,
-            .vkDestroyImage = dtable.vkDestroyImage,
-            .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
-            .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
-            .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
-            .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
-            .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
-            .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
-            .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
-            .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
-        }
-    };
+        allocator_functions = std::shared_ptr<VmaVulkanFunctions>{ new (std::nothrow) VmaVulkanFunctions{
+                .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
+                .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
+                .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
+                .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
+                .vkAllocateMemory = dtable.vkAllocateMemory,
+                .vkFreeMemory = dtable.vkFreeMemory,
+                .vkMapMemory = dtable.vkMapMemory,
+                .vkUnmapMemory = dtable.vkUnmapMemory,
+                .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
+                .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
+                .vkBindBufferMemory = dtable.vkBindBufferMemory,
+                .vkBindImageMemory = dtable.vkBindImageMemory,
+                .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
+                .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
+                .vkCreateBuffer = dtable.vkCreateBuffer,
+                .vkDestroyBuffer = dtable.vkDestroyBuffer,
+                .vkCreateImage = dtable.vkCreateImage,
+                .vkDestroyImage = dtable.vkDestroyImage,
+                .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
+                .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
+                .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
+                .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
+                .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
+                .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
+                .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
+                .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
+        } };
 
     if (!allocator_functions)
         return wis::make_result<FUNC, "Failed to allocate allocator functions.">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
@@ -893,11 +891,11 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 
         VkBool32 supported = false;
         auto result = itable.vkGetPhysicalDeviceSurfaceSupportKHR(hadapter, x.family_index,
-                      surface.get(), &supported);
+                                                                  surface.get(), &supported);
         if (!succeeded(result))
             return wis::make_result<FUNC,
-                   "Failed to check if the queue supports presentation to the surface">(
-                       result);
+                                    "Failed to check if the queue supports presentation to the surface">(
+                    result);
 
         if (supported) {
             present_queue = i;
@@ -908,7 +906,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     if (present_queue == -1) {
         lib_error("None of the queues support presenting to the surface");
         return wis::make_result<FUNC, "None of the queues support presenting to the surface">(
-                   VkResult::VK_ERROR_UNKNOWN);
+                VkResult::VK_ERROR_UNKNOWN);
     }
 
     const auto& queue = queues.available_queues[present_queue];
@@ -924,10 +922,10 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 
     uint32_t format_count = 0;
     itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count,
-            nullptr);
+                                                nullptr);
     wis::detail::fixed_allocation<VkSurfaceFormatKHR> surface_formats = wis::detail::make_fixed_allocation<VkSurfaceFormatKHR>(format_count);
     auto result = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(),
-                  &format_count, surface_formats.get());
+                                                              &format_count, surface_formats.get());
 
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to get surface formats">(result);
@@ -944,7 +942,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     VkSurfaceCapabilitiesKHR cap{};
 
     result =
-        itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(hadapter, surface.get(), &cap);
+            itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(hadapter, surface.get(), &cap);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to get surface capabilities">(result);
 
@@ -961,10 +959,10 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 
         uint32_t format_count = 0;
         itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface, &format_count,
-                nullptr);
+                                                         nullptr);
         std::vector<VkPresentModeKHR> modes(format_count);
         itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface, &format_count,
-                modes.data());
+                                                         modes.data());
 
         return vsync ? std::ranges::count(modes, eFifoRelaxed) ? eFifoRelaxed : eFifo : eImmediate;
     };
@@ -980,9 +978,8 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         .imageFormat = convert_vk(desc->format),
         .imageColorSpace = format->colorSpace,
         .imageExtent = {
-            std::clamp(desc->size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
-            std::clamp(desc->size.height, cap.minImageExtent.height, cap.maxImageExtent.height)
-        },
+                std::clamp(desc->size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
+                std::clamp(desc->size.height, cap.minImageExtent.height, cap.maxImageExtent.height) },
         .imageArrayLayers = layers,
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -1140,19 +1137,19 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
         auto [res, hallocator] = CreateAllocatorI();
         if (res.status != wis::Status::Ok)
             return res;
-        allocator = wis::shared_handle<VmaAllocator> { device, hallocator };
+        allocator = wis::shared_handle<VmaAllocator>{ device, hallocator };
     }
     if (!allocator)
         return wis::make_result<FUNC, "Failed to create an allocator">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
-                               ? ext1_i.features.mutable_descriptor ? ext1_i.descriptor_buffer_features.mutable_descriptor_size : 0u
-                               : ext1_i.descriptor_buffer_features.sampler_size;
+            ? ext1_i.features.mutable_descriptor ? ext1_i.descriptor_buffer_features.mutable_descriptor_size : 0u
+            : ext1_i.descriptor_buffer_features.sampler_size;
 
     VkBufferUsageFlags usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
-                               (heap_type == wis::DescriptorHeapType::Descriptor
-                                ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
-                                : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
+            (heap_type == wis::DescriptorHeapType::Descriptor
+                     ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
+                     : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
 
     VkBufferCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -1325,10 +1322,10 @@ wis::VKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
         .pNext = nullptr,
         .customBorderColor = {
-            desc->border_color[0],
-            desc->border_color[1],
-            desc->border_color[2],
-            desc->border_color[3],
+                desc->border_color[0],
+                desc->border_color[1],
+                desc->border_color[2],
+                desc->border_color[3],
         },
     };
     VkSamplerCreateInfo info{
@@ -1368,13 +1365,13 @@ wis::VKDevice::CreateShaderResource(wis::VKTextureView texture, wis::ShaderResou
         .viewType = convert_vk(desc.view_type),
         .format = convert_vk(desc.format),
         .components = {
-            .r = convert_vk(desc.component_mapping.r),
-            .g = convert_vk(desc.component_mapping.g),
-            .b = convert_vk(desc.component_mapping.b),
-            .a = convert_vk(desc.component_mapping.a),
+                .r = convert_vk(desc.component_mapping.r),
+                .g = convert_vk(desc.component_mapping.g),
+                .b = convert_vk(desc.component_mapping.b),
+                .a = convert_vk(desc.component_mapping.a),
         },
         .subresourceRange = {
-            .aspectMask = aspect_flags(convert_vk(desc.format)),
+                .aspectMask = aspect_flags(convert_vk(desc.format)),
         },
     };
 
