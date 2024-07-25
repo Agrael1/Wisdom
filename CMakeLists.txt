@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project("Wisdom" VERSION 0.1.3)
+project("Wisdom" VERSION 0.1.4)
 
 # Additional CMake functions.
 include(cmake/platform.cmake)
