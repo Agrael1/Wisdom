@@ -1,29 +1,28 @@
 <?xml version="1.0"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <AdditionalIncludeDirectoriesVK Condition="$(WisdomVulkanEnabled) == 'true'">$(MSBuildThisFileDirectory)..\..\include\vkma;$(WisdomVulkanSDKPath)</AdditionalIncludeDirectoriesVK>
-	</PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(AdditionalIncludeDirectoriesVK);$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(VULKAN_SDK)\Include;$(MSBuildThisFileDirectory)..\..\include\wisvk;$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WISDOM_MANUAL_DETECT=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
-    <ItemDefinitionGroup>
-        <ClCompile>
-            <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(AdditionalIncludeDirectoriesVK);$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-            <PreprocessorDefinitions>WISDOM_MANUAL_DETECT=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WISDOM_DX12=1;WIS_WINDOWS_PLATFORM=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
-            <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <PreprocessorDefinitions>WISDOM_DX12=1;WIS_WINDOWS_PLATFORM=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">DEBUG_MODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)'!='Debug'">DEBUG_MODE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      
+      <PreprocessorDefinitions>DEBUG_LAYER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
-            <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">DEBUG_MODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <PreprocessorDefinitions Condition="'$(Configuration)'!='Debug'">DEBUG_MODE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'static'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WISDOM_LOG_LEVEL=$(WisdomLogLevelValue);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
 
-            <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'static'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <PreprocessorDefinitions>WISDOM_LOG_LEVEL=$(WisdomLogLevelValue);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-        </ClCompile>
-
-        <Link>
-            <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-debug.lib; $(MSBuildThisFileDirectory)..\..\lib\wisdom-windows.lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-extended-allocation.lib;%(AdditionalDependencies)</AdditionalDependencies>
-            <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\VKAllocator.lib;%(AdditionalDependencies)</AdditionalDependencies>
-            <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator.lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Agility.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        </Link>
-    </ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-debug.lib; $(MSBuildThisFileDirectory)..\..\lib\wisdom-windows.lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-extended-allocation.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\VKAllocator.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator.lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Agility.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
 </Project>
