@@ -3,7 +3,6 @@
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_checks.h>
 
-
 #include <algorithm>
 #include <ranges>
 #include <unordered_map>
