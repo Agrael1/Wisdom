@@ -112,7 +112,7 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     auto& adapter_i = in_adapter.GetInternal();
     auto hadapter = adapter_i.adapter;
     auto& itable = adapter_i.instance.table();
-    auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
+    auto& gtable = adapter_i.instance.gtable();
 
     std::span<wis::VKDeviceExtension*> exts_span{ exts, exts + ext_size };
     std::unordered_map<VkStructureType, uintptr_t> struct_map;
@@ -299,7 +299,7 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
     if (!device_table->Init(device, gtable.vkGetDeviceProcAddr))
         return wis::make_result<FUNC, "Failed to initialize device table">(VkResult::VK_ERROR_UNKNOWN);
 
-    wis::VKDevice vkdevice{ wis::SharedDevice{ managed_device.release(), std::move(device_table) },
+    wis::VKDevice vkdevice{ wis::SharedDevice{ managed_device.release(), std::move(device_table), &gtable },
                             std::move(in_adapter), std::move(ext1) };
 
     // Init embedded extensions
@@ -817,9 +817,9 @@ wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() cons
 wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 {
     uint32_t version = 0;
-    auto& gtable = wis::detail::VKFactoryGlobals::Instance().global_table;
     auto& itable = GetInstanceTable();
     auto& dtable = device.table();
+    auto& gtable = device.gtable();
     auto& adapter_i = adapter.GetInternal();
     gtable.vkEnumerateInstanceVersion(&version);
 

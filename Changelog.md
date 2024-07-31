@@ -1,5 +1,11 @@
 # Version History
 
+    * 0.1.6
+        * Update for extensions creation
+        * Added convenient functions for fptr querying
+        * Reduced presence of static FactoryGlobals
+        * Fixed error with running out of memory on instance creation
+
     * 0.1.3 - 0.1.4
     	* Fixed layers and extensions for VkInstance not being unique
         * Fixed nuget package not being generated correctly

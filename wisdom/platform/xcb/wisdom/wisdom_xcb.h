@@ -28,18 +28,19 @@ public:
         VK_KHR_XCB_SURFACE_EXTENSION_NAME
     };
 
-    [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
+    [[nodiscard]] wis::Result
+    Init(const wis::VKFactory& in_instance) noexcept override
     {
-        auto& gt = detail::VKFactoryGlobals::Instance().global_table;
         instance = in_instance.GetInternal().factory;
-
-        vkCreateXcbSurfaceKHR = reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(gt.vkGetInstanceProcAddr(instance.get(), "vkCreateXcbSurfaceKHR"));
-        vkGetPhysicalDeviceXcbPresentationSupportKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>(gt.vkGetInstanceProcAddr(instance.get(), "vkGetPhysicalDeviceXcbPresentationSupportKHR"));
-
-        if (!vkCreateXcbSurfaceKHR) {
-            return wis::make_result<FUNC, "Failed to load XCB extension functions">(VK_ERROR_FEATURE_NOT_PRESENT);
-        }
+        vkCreateXcbSurfaceKHR = instance.GetInstanceProcAddr<PFN_vkCreateXcbSurfaceKHR>("vkCreateXcbSurfaceKHR");
+        vkGetPhysicalDeviceXcbPresentationSupportKHR = instance.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>("vkGetPhysicalDeviceXcbPresentationSupportKHR");
         return {};
+    }
+
+    [[nodiscard]] bool
+    Supported() const noexcept override
+    {
+        return vkCreateXcbSurfaceKHR && vkGetPhysicalDeviceXcbPresentationSupportKHR;
     }
 
 public:

@@ -105,24 +105,24 @@ protected:
         VkPhysicalDeviceHostImageCopyFeaturesEXT& host_image_copy_features = *reinterpret_cast<VkPhysicalDeviceHostImageCopyFeaturesEXT*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT));
         VkPhysicalDeviceHostImageCopyPropertiesEXT& host_image_copy_properties = *reinterpret_cast<VkPhysicalDeviceHostImageCopyPropertiesEXT*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT));
 
-        auto& gtable = detail::VKFactoryGlobals::Instance().global_table;
         auto& device_i = instance.GetInternal();
-        auto& dtable = device_i.device.table();
-        auto hdevice = device_i.device.get();
-
         device = device_i.device;
         adapter = device_i.adapter.GetInternal().adapter;
 
-        vkCopyMemoryToImageEXT = reinterpret_cast<PFN_vkCopyMemoryToImageEXT>(gtable.vkGetDeviceProcAddr(hdevice, "vkCopyMemoryToImageEXT"));
-        vkTransitionImageLayoutEXT = reinterpret_cast<PFN_vkTransitionImageLayoutEXT>(gtable.vkGetDeviceProcAddr(hdevice, "vkTransitionImageLayoutEXT"));
-        vkGetPhysicalDeviceImageFormatProperties2 = reinterpret_cast<PFN_vkGetPhysicalDeviceImageFormatProperties2>(gtable.vkGetInstanceProcAddr(device_i.adapter.GetInternal().instance.get(), "vkGetPhysicalDeviceImageFormatProperties2"));
+        if (!host_image_copy_features.hostImageCopy) {
+            return {};
+        }
+
+        vkCopyMemoryToImageEXT = device.GetDeviceProcAddr<PFN_vkCopyMemoryToImageEXT>("vkCopyMemoryToImageEXT");
+        vkTransitionImageLayoutEXT = device.GetDeviceProcAddr<PFN_vkTransitionImageLayoutEXT>("vkTransitionImageLayoutEXT");
+        vkGetPhysicalDeviceImageFormatProperties2 = device.GetDeviceProcAddr<PFN_vkGetPhysicalDeviceImageFormatProperties2>("vkGetPhysicalDeviceImageFormatProperties2");
         return {};
     }
 
 public:
-    virtual bool Supported() const noexcept
+    virtual bool Supported() const noexcept override
     {
-        return vkCopyMemoryToImageEXT != nullptr;
+        return vkCopyMemoryToImageEXT;
     }
 
 public:
