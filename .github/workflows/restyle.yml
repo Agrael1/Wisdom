@@ -1,0 +1,34 @@
+name: Restyled
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  restyled:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: restyled-io/restyler/setup@v2
+      - id: restyler
+        uses: restyled-io/restyler/run@v2
+        with:
+          fail-on-differences: true
+
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          base: ${{ steps.restyler.outputs.restyled-base }}
+          branch: ${{ steps.restyler.outputs.restyled-head }}
+          title: ${{ steps.restyler.outputs.restyled-title }}
+          body: ${{ steps.restyler.outputs.restyled-body }}
+          labels: "restyled"
+          reviewers: ${{ github.event.pull_request.user.login }}
+          delete-branch: true
