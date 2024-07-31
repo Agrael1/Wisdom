@@ -15,7 +15,5 @@
 #error "Platform not supported"
 #endif // _WIN32
 
-#define DEBUG_LAYER 0
-
 #endif // !WISDOM_UWP && !WISDOM_WINDOWS && !WISDOM_LINUX
 #endif // WISDOM_MANUAL_DETECT

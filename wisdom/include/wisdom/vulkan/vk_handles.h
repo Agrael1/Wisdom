@@ -22,8 +22,8 @@ class SharedDevice : public shared_handle_base<VkDevice, SharedDeviceHeader, Sha
 {
 public:
     SharedDevice() noexcept = default;
-    explicit SharedDevice(VkDevice device, std::unique_ptr<VKMainDevice> device_table) noexcept
-        : shared_handle_base(device, nullptr, std::move(device_table)), m_device_table(m_control->m_header.device_table.get())
+    explicit SharedDevice(VkDevice device, std::unique_ptr<VKMainDevice> device_table, VKMainGlobal* global_table) noexcept
+        : shared_handle_base(device, nullptr, std::move(device_table)), m_device_table(m_control->m_header.device_table.get()), m_global_table(global_table)
     {
         m_control->m_header.deleter.m_pfn = m_control->m_header.device_table->vkDestroyDevice;
     }
@@ -33,27 +33,53 @@ public:
     {
         return *m_device_table;
     }
+    auto& gtable() const noexcept
+    {
+        return *m_global_table;
+    }
+
+    template<typename PFN>
+    [[nodiscard]] PFN GetInstanceProcAddr(const char* name) const noexcept
+    {
+        return reinterpret_cast<PFN>(m_global_table->vkGetInstanceProcAddr(get(), name));
+    }
+    template<typename PFN>
+    [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept
+    {
+        return reinterpret_cast<PFN>(m_global_table->vkGetDeviceProcAddr(get(), name));
+    }
 
 protected:
     VKMainDevice* m_device_table = nullptr;
+    VKMainGlobal* m_global_table = nullptr;
 };
 class SharedInstance : public shared_handle_base<VkInstance, SharedInstanceHeader, SharedInstance>
 {
 public:
     SharedInstance() noexcept = default;
-    explicit SharedInstance(VkInstance device, PFN_vkDestroyInstance deleter, std::unique_ptr<VKMainInstance> instance_table) noexcept
-        : shared_handle_base(device, deleter, std::move(instance_table)), m_device_table(m_control->m_header.instance_table.get())
+    explicit SharedInstance(VkInstance device, PFN_vkDestroyInstance deleter, std::unique_ptr<VKMainInstance> instance_table, VKMainGlobal* global_table) noexcept
+        : shared_handle_base(device, deleter, std::move(instance_table)), m_instance_table(m_control->m_header.instance_table.get()), m_global_table(global_table)
     {
     }
 
 public:
     auto& table() const noexcept
     {
-        return *m_device_table;
+        return *m_instance_table;
+    }
+    auto& gtable() const noexcept
+    {
+        return *m_global_table;
+    }
+    template<typename PFN>
+    [[nodiscard]] PFN GetInstanceProcAddr(const char* name) const noexcept
+    {
+        return reinterpret_cast<PFN>(m_global_table->vkGetInstanceProcAddr(get(), name));
     }
 
 protected:
-    VKMainInstance* m_device_table = nullptr;
+    VKMainInstance* m_instance_table = nullptr;
+    VKMainGlobal* m_global_table = nullptr;
 };
 
 struct SharedPipelineHeader {

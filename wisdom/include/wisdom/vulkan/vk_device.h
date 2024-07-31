@@ -37,6 +37,17 @@ public:
     {
         return device.table();
     }
+
+    template<typename PFN>
+    [[nodiscard]] PFN GetInstanceProcAddr() const noexcept
+    {
+        return device.GetInstanceProcAddr<PFN>();
+    }
+    template<typename PFN>
+    [[nodiscard]] PFN GetDeviceProcAddr() const noexcept
+    {
+        return device.GetDeviceProcAddr<PFN>();
+    }
 };
 
 class VKDevice : public QueryInternal<VKDevice>

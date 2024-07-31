@@ -27,18 +27,19 @@ public:
         VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
     };
 
-    [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
+    [[nodiscard]] wis::Result
+    Init(const wis::VKFactory& in_instance) noexcept override
     {
-        auto& gt = detail::VKFactoryGlobals::Instance().global_table;
         instance = in_instance.GetInternal().factory;
-
-        vkCreateWaylandSurfaceKHR = reinterpret_cast<PFN_vkCreateWaylandSurfaceKHR>(gt.vkGetInstanceProcAddr(instance.get(), "vkCreateWaylandSurfaceKHR"));
-        vkGetPhysicalDeviceWaylandPresentationSupportKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>(gt.vkGetInstanceProcAddr(instance.get(), "vkGetPhysicalDeviceWaylandPresentationSupportKHR"));
-
-        if (!vkCreateWaylandSurfaceKHR) {
-            return wis::make_result<FUNC, "Failed to load Wayland extension functions">(VK_ERROR_FEATURE_NOT_PRESENT);
-        }
+        vkCreateWaylandSurfaceKHR = instance.GetInstanceProcAddr<PFN_vkCreateWaylandSurfaceKHR>("vkCreateWaylandSurfaceKHR");
+        vkGetPhysicalDeviceWaylandPresentationSupportKHR = instance.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>("vkGetPhysicalDeviceWaylandPresentationSupportKHR");
         return {};
+    }
+
+    [[nodiscard]] bool
+    Supported() const noexcept override
+    {
+        return vkCreateWaylandSurfaceKHR && vkGetPhysicalDeviceWaylandPresentationSupportKHR;
     }
 
 public:

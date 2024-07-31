@@ -33,17 +33,24 @@ struct VKFactoryGlobals {
 public:
     WIS_INLINE wis::Result InitializeFactoryGlobals() noexcept;
 
+    static wis::VKMainGlobal& GetGlobalTable() noexcept
+    {
+        return Instance().global_table;
+    }
+
 protected:
     WIS_INLINE wis::Result InitializeGlobalTable() noexcept;
     WIS_INLINE wis::Result InitializeInstanceExtensions() noexcept;
     WIS_INLINE wis::Result InitializeInstanceLayers() noexcept;
 
-public:
+private:
     bool initialized = false;
     std::once_flag global_flag;
     wis::VKMainGlobal global_table{};
     wis::LibToken lib_token;
 
+public:
+    // Used for checking if extensions are supported
     std::unordered_set<std::string, wis::string_hash, std::equal_to<>> instance_extensions;
     std::unordered_set<std::string, wis::string_hash, std::equal_to<>> instance_layers;
 };
@@ -54,6 +61,13 @@ struct Internal<VKFactory> {
     wis::SharedInstance factory;
     uint32_t api_version{};
     bool debug_layer = false;
+
+public:
+    template<typename PFN>
+    [[nodiscard]] PFN GetInstanceProcAddr() const noexcept
+    {
+        return factory.GetInstanceProcAddr<PFN>();
+    }
 };
 
 class VKFactory : public QueryInternal<VKFactory>

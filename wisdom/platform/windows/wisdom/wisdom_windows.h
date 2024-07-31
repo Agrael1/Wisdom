@@ -54,18 +54,19 @@ public:
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME
     };
 
-    [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
+    [[nodiscard]] wis::Result
+    Init(const wis::VKFactory& in_instance) noexcept override
     {
-        auto& gt = detail::VKFactoryGlobals::Instance().global_table;
         instance = in_instance.GetInternal().factory;
-
-        vkCreateWin32SurfaceKHR = reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(gt.vkGetInstanceProcAddr(instance.get(), "vkCreateWin32SurfaceKHR"));
-        vkGetPhysicalDeviceWin32PresentationSupportKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR>(gt.vkGetInstanceProcAddr(instance.get(), "vkGetPhysicalDeviceWin32PresentationSupportKHR"));
-
-        if (!vkCreateWin32SurfaceKHR) {
-            return wis::make_result<FUNC, "Failed to load Win32 extension functions">(VK_ERROR_FEATURE_NOT_PRESENT);
-        }
+        vkCreateWin32SurfaceKHR = instance.GetInstanceProcAddr<PFN_vkCreateWin32SurfaceKHR>("vkCreateWin32SurfaceKHR");
+        vkGetPhysicalDeviceWin32PresentationSupportKHR = instance.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR>("vkGetPhysicalDeviceWin32PresentationSupportKHR");
         return {};
+    }
+
+    [[nodiscard]] bool
+    Supported() const noexcept override
+    {
+        return vkCreateWin32SurfaceKHR != nullptr;
     }
 
 public:

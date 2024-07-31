@@ -23,7 +23,7 @@ wis::VKFactory::FoundExtensions(std::span<const char*> in_extensions) noexcept
     // Unique set of extensions
     std::unordered_set<std::string_view, wis::string_hash, std::equal_to<>> exts_set;
     exts_set.reserve(in_extensions.size());
-    for (const auto& i : exts)
+    for (const auto& i : in_extensions)
         exts_set.insert(i);
 
     // allocate a bit more than needed
@@ -70,7 +70,7 @@ wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 
     std::unordered_set<std::string_view, wis::string_hash, std::equal_to<>> layer_set;
     layer_set.reserve(in_layers.size());
-    for (const auto& i : exts)
+    for (const auto& i : in_layers)
         layer_set.insert(i);
 
     // allocate a bit more than needed
@@ -109,7 +109,7 @@ wis::VKCreateFactory(bool debug_layer) noexcept
     if (xr.status != wis::Status::Ok)
         return xr;
 
-    auto& gt = detail::VKFactoryGlobals::Instance().global_table;
+    auto& gt = detail::VKFactoryGlobals::GetGlobalTable();
     VkResult vr{};
     uint32_t version = 0;
     if (gt.vkEnumerateInstanceVersion) {
@@ -199,7 +199,7 @@ wis::detail::VKCreateFactoryWithExtensions(bool debug_layer, const char** exts, 
     if (xr.status != wis::Status::Ok)
         return xr;
 
-    auto& gt = detail::VKFactoryGlobals::Instance().global_table;
+    auto& gt = detail::VKFactoryGlobals::GetGlobalTable();
 
     VkResult vr{};
     uint32_t version = 0;
@@ -249,7 +249,7 @@ wis::detail::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug
     if (xr.status != wis::Status::Ok)
         return xr;
 
-    auto& gt = wis::detail::VKFactoryGlobals::Instance().global_table;
+    auto& gt = wis::detail::VKFactoryGlobals::GetGlobalTable();
 
     auto destroy_instance = (PFN_vkDestroyInstance)gt.vkGetInstanceProcAddr(instance, "vkDestroyInstance");
     wis::managed_handle<VkInstance> safe_instance{ instance, destroy_instance };
@@ -260,7 +260,7 @@ wis::detail::VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug
     if (!table->Init(safe_instance.get(), gt.vkGetInstanceProcAddr))
         return wis::make_result<FUNC, "Failed to initialize instance table">(VK_ERROR_UNKNOWN);
 
-    auto factory = wis::VKFactory{ wis::SharedInstance{ safe_instance.release(), destroy_instance, std::move(table) }, version, debug_layer };
+    auto factory = wis::VKFactory{ wis::SharedInstance{ safe_instance.release(), destroy_instance, std::move(table), &gt }, version, debug_layer };
     auto result = factory.VKEnumeratePhysicalDevices();
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Failed to enumerate physical devices">(result);

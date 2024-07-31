@@ -74,24 +74,21 @@ public:
     static constexpr std::array required_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
-    [[nodiscard]] bool Supported() const noexcept override
-    {
-        return detail::VKFactoryGlobals::Instance().instance_extensions.contains(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) &&
-                detail::VKFactoryGlobals::Instance().instance_layers.contains("VK_LAYER_KHRONOS_validation");
-    }
 
-    [[nodiscard]] wis::Result Init(const wis::VKFactory& in_instance) noexcept override
+    [[nodiscard]] wis::Result
+    Init(const wis::VKFactory& in_instance) noexcept override
     {
-        auto& gt = detail::VKFactoryGlobals::Instance().global_table;
         instance = in_instance.GetInternal().factory;
 
-        vkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(gt.vkGetInstanceProcAddr(instance.get(), "vkCreateDebugUtilsMessengerEXT"));
-        vkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(gt.vkGetInstanceProcAddr(instance.get(), "vkDestroyDebugUtilsMessengerEXT"));
-
-        if (!vkCreateDebugUtilsMessengerEXT || !vkDestroyDebugUtilsMessengerEXT) {
-            return wis::make_result<FUNC, "Failed to load Debug extension functions">(VK_ERROR_FEATURE_NOT_PRESENT);
-        }
+        vkCreateDebugUtilsMessengerEXT = instance.GetInstanceProcAddr<PFN_vkCreateDebugUtilsMessengerEXT>("vkCreateDebugUtilsMessengerEXT");
+        vkDestroyDebugUtilsMessengerEXT = instance.GetInstanceProcAddr<PFN_vkDestroyDebugUtilsMessengerEXT>("vkDestroyDebugUtilsMessengerEXT");
         return {};
+    }
+
+    [[nodiscard]] bool
+    Supported() const noexcept override
+    {
+        return vkCreateDebugUtilsMessengerEXT && vkDestroyDebugUtilsMessengerEXT;
     }
 
 public:
