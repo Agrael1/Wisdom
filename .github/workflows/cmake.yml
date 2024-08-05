@@ -93,13 +93,6 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build_vk --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Version
-      uses: actions/upload-artifact@v4
-      with:
-       name: version.txt
-       path: ${{github.workspace}}/build_vk/version.txt
-
-
     #- name: Test
     #  working-directory: ${{github.workspace}}/build_dx
     #  # Execute tests defined by the CMake configuration.
@@ -132,15 +125,57 @@ jobs:
        - name: Build packages
          run: cd ${{github.workspace}} && .\nuget.bat
         
+       - name: Upload NuGet package
+         uses: actions/upload-artifact@v4
+         with:
+          name: wisdom.nupkg
+          path: ${{github.workspace}}/build/*.nupkg
+
+       - name: Upload ZIP package
+         uses: actions/upload-artifact@v4
+         with:
+          name: wisdom.zip
+          path: ${{github.workspace}}/build/*.zip
+
+       - name: Upload Version
+         uses: actions/upload-artifact@v4
+         with:
+          name: version.txt
+          path: ${{github.workspace}}/build/release/version.txt
+
+  release:
+     runs-on: windows-latest
+     needs: publish
+
+     steps:       
+       - uses: actions/checkout@v4
+  
+       - name: Download Nuget
+         uses: actions/download-artifact@v4
+         id: nuget_download
+         with:
+           name: wisdom.nupkg
+           
+       - name: Download Zip
+         uses: actions/download-artifact@v4
+         with:
+           name: wisdom.zip
+
+       - name: Download Version
+         uses: actions/download-artifact@v4
+         with:
+           name: version.txt
+
+
        - name: Read version
          id: version
          uses: juliangruber/read-file-action@v1
          with:
-           path: ${{github.workspace}}/build/release/version.txt
+           path: ./version.txt
          
        - name: Publish NuGet package
          run: |
-            dotnet nuget push ${{github.workspace}}/build/wisdom.${{ steps.version.outputs.content }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
        - name: Tag and Release Versioned
          id : tag_release_versioned
@@ -149,8 +184,8 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : ${{ steps.version.outputs.content }}
           files : |
-               ${{github.workspace}}/build/Wisdom-${{ steps.version.outputs.content }}-win64.zip
-               ${{github.workspace}}/build/Wisdom.${{ steps.version.outputs.content }}.nupkg
+               **/*.zip
+               **/*.nupkg
 
        - name: Delete tag
          run: gh release delete Latest --cleanup-tag
@@ -164,7 +199,7 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : Latest
           files : |
-               ${{github.workspace}}/build/Wisdom-${{ steps.version.outputs.content }}-win64.zip
-               ${{github.workspace}}/build/Wisdom.${{ steps.version.outputs.content }}.nupkg
+               **/*.zip
+               **/*.nupkg
               
        
