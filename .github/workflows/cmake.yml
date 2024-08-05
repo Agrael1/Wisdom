@@ -54,7 +54,7 @@ jobs:
          
        - name: Publish NuGet package
          run: |
-            dotnet nuget push ${{github.workspace}}/build/wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push ${{github.workspace}}/build/wisdom.${{ steps.version.outputs.content }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
        - name: Tag and Release Versioned
          id : tag_release_versioned
