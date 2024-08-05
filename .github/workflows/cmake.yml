@@ -130,22 +130,22 @@ jobs:
            cmake-version: '3.30.x'
        
        - name: Build packages
-         run: nuget.bat
-
-       - name: Download Version
-         uses: actions/download-artifact@v4
-         with:
-           name: version.txt
+         run: cd ${{github.workspace}} && .\nuget.bat
         
        - name: Read version
          id: version
          uses: juliangruber/read-file-action@v1
          with:
-           path: ./version.txt
+           path: ${{github.workspace}}/build/release/version.txt
          
        - name: Publish NuGet package
          run: |
-            dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push ${{github.workspace}}/build/wisdom.${{ steps.version.outputs.content }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+       
+       - name: Remove build directory
+         run: |
+            rd /s /q ${{github.workspace}}/build/debug &&
+            rd /s /q ${{github.workspace}}/build/release
 
        - name: Tag and Release Versioned
          id : tag_release_versioned
@@ -154,8 +154,8 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : ${{ steps.version.outputs.content }}
           files : |
-              *.zip 
-              *.nupkg   
+               **/Wisdom*.zip
+               **/Wisdom*.nupkg
 
        - name: Delete tag
          run: gh release delete Latest --cleanup-tag
@@ -169,7 +169,7 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : Latest
           files : |
-              *.zip 
-              *.nupkg
+               **/Wisdom*.zip
+               **/Wisdom*.nupkg
               
        

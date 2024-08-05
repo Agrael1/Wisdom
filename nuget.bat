@@ -12,4 +12,3 @@ cd ../
 copy ..\cmake\multi-config.cmake
 cpack --config multi-config.cmake -G ZIP
 cpack --config multi-config.cmake -G NuGet
-pause
