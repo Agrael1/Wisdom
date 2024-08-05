@@ -63,8 +63,8 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : ${{ steps.version.outputs.content }}
           files : |
-              ${{github.workspace}}/build/Wisdom-${{ steps.version.outputs.content }}-win64.zip
-              ${{github.workspace}}/build/wisdom.${{ steps.version.outputs.content }}.nupkg  
+              **/Wisdom*.zip
+              **/Wisdom*.nupkg
 
        - name: Delete tag
          run: gh release delete Latest --cleanup-tag
@@ -78,7 +78,7 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : Latest
           files : |
-              ${{github.workspace}}/build/Wisdom-${{ steps.version.outputs.content }}-win64.zip
-              ${{github.workspace}}/build/wisdom.${{ steps.version.outputs.content }}.nupkg 
+              **/Wisdom*.zip
+              **/Wisdom*.nupkg
               
        
