@@ -93,27 +93,6 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build_vk --config ${{env.BUILD_TYPE}}
 
-    - name: Create Install package
-      run: cmake --install ${{github.workspace}}/build_vk --config ${{env.BUILD_TYPE}} --prefix ${{github.workspace}}/build_vk/install
-
-    - name: Create ZIP package
-      run: 7z a -tzip ${{github.workspace}}/build_vk/install.zip ${{github.workspace}}/build_vk/install
-
-    - name: Create NuGet package
-      run: cd ${{github.workspace}}/build_vk && cpack -C ${{env.BUILD_TYPE}} -G "NuGet"
-
-    - name: Upload NuGet package
-      uses: actions/upload-artifact@v4
-      with:
-       name: wisdom.nupkg
-       path: ${{github.workspace}}/build_vk/*.nupkg
-
-    - name: Upload ZIP package
-      uses: actions/upload-artifact@v4
-      with:
-       name: wisdom.zip
-       path: ${{github.workspace}}/build_vk/install.zip
-
     - name: Upload Version
       uses: actions/upload-artifact@v4
       with:
@@ -155,17 +134,24 @@ jobs:
 
      steps:       
        - uses: actions/checkout@v4
+     
+       - name: Visual Studio shell
+         uses: egor-tensin/vs-shell@v2
+
+       - name: Prepare Vulkan SDK
+         uses: humbletim/setup-vulkan-sdk@v1.2.0
+         with:
+            vulkan-query-version: latest
+            vulkan-components: Vulkan-Headers, Vulkan-Loader
+            vulkan-use-cache: true
+
+       - name: Setup cmake
+         uses: jwlawson/actions-setup-cmake@v2
+         with:
+           cmake-version: '3.30.x'
        
-       - name: Download Nuget
-         uses: actions/download-artifact@v4
-         id: nuget_download
-         with:
-           name: wisdom.nupkg
-           
-       - name: Download Zip
-         uses: actions/download-artifact@v4
-         with:
-           name: wisdom.zip
+       - name: Build packages
+         run: nuget.bat
 
        - name: Download Version
          uses: actions/download-artifact@v4
@@ -189,8 +175,8 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : ${{ steps.version.outputs.content }}
           files : |
-              **/*.zip 
-              **/*.nupkg   
+              *.zip 
+              *.nupkg   
 
        - name: Delete tag
          run: gh release delete Latest --cleanup-tag
@@ -204,7 +190,7 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : Latest
           files : |
-              **/*.zip 
-              **/*.nupkg
+              *.zip 
+              *.nupkg
               
        

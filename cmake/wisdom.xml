@@ -19,8 +19,9 @@
 
   <EnumProperty Name="WisdomLogLevel"
                 DisplayName="Log Level"
-                Description="Sets the log level of the library"
-                Category="General">
+                Description="Sets the log level of the library (Does not work for static build)"
+                Category="General"
+                Condition="'$(WisdomLinkage)' != 'static'">
     <EnumValue Name="debug" DisplayName="debug" Description="Output debug information, most verbose output" />
     <EnumValue Name="trace" DisplayName="trace" Description="Output trace information" />
     <EnumValue Name="info" DisplayName="info" Description="Output info information" />

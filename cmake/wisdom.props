@@ -14,6 +14,10 @@
 
         <WisdomVulkanEnabled Condition="Exists('$(WisdomVulkanSDKPath)')">true</WisdomVulkanEnabled>
         <WisdomVulkanEnabled Condition="!Exists('$(WisdomVulkanSDKPath)')">false</WisdomVulkanEnabled>
+        
+        <LibraryPostfix Condition="'$(Configuration)' == 'Debug'">d</LibraryPostfix>
+        <LibraryPostfix Condition="'$(Configuration)' != 'Debug'"></LibraryPostfix>
+        <LP>$(LibraryPostfix)</LP>
     </PropertyGroup>
 
     <ItemGroup>
