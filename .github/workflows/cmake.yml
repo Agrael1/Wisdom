@@ -63,8 +63,8 @@ jobs:
           body: Release ${{ steps.version.outputs.content }}
           tag_name : ${{ steps.version.outputs.content }}
           files : |
-              ${{github.workspace}}/build/*.zip 
-              ${{github.workspace}}/build/*.nupkg   
+              **/*.zip 
+              **/*.nupkg   
 
        #- name: Delete tag
        #  run: gh release delete Latest --cleanup-tag
