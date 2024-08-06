@@ -1,4 +1,7 @@
 # Version History
+- 0.1.8
+
+  - Fixed property pages for nuget	
 
 - 0.1.7
 
