@@ -22,6 +22,7 @@ struct RenderAttachmentsDesc;
 struct RootConstant;
 struct SwapchainDesc;
 struct TextureDesc;
+struct AllocationInfo;
 struct TextureRegion;
 struct BufferTextureCopyRegion;
 struct PushDescriptor;
@@ -640,6 +641,11 @@ struct TextureDesc {
     wis::TextureLayout layout = wis::TextureLayout::Texture2D;
     wis::SampleCount sample_count = wis::SampleCount::S1;
     wis::TextureUsage usage = wis::TextureUsage::None;
+};
+
+struct AllocationInfo {
+    uint64_t size_bytes;
+    uint64_t alignment_bytes;
 };
 
 struct TextureRegion {

@@ -87,6 +87,33 @@ wis::DX12ResourceAllocator::DX12CreateTextureDesc(const TextureDesc& desc) noexc
     return tex_desc;
 }
 
+wis::AllocationInfo
+wis::DX12ResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept
+{
+    D3D12_RESOURCE_DESC1 resource_desc = DX12ResourceAllocator::DX12CreateTextureDesc(desc);
+    D3D12_RESOURCE_ALLOCATION_INFO1 info;
+
+    device->GetResourceAllocationInfo2(0, 1, &resource_desc, &info);
+    return AllocationInfo{
+        .size_bytes = info.SizeInBytes,
+        .alignment_bytes = info.Alignment
+    };
+}
+wis::AllocationInfo
+wis::DX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferFlags flags) const noexcept
+{
+    uint64_t alignment = flags & BufferFlags::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
+    size = wis::detail::aligned_size(size, alignment);
+
+    auto desc = CD3DX12_RESOURCE_DESC1::Buffer(size);
+    D3D12_RESOURCE_ALLOCATION_INFO1 info;
+    device->GetResourceAllocationInfo2(0, 1, &desc, &info);
+    return AllocationInfo{
+        .size_bytes = info.SizeInBytes,
+        .alignment_bytes = info.Alignment
+    };
+}
+
 wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
 {

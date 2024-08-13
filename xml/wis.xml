@@ -1352,6 +1352,10 @@
       <member type="SampleCount" name="sample_count" default="S1"/>
       <member type="TextureUsage" name="usage" default="None"/>
     </type>
+    <type name="AllocationInfo" category="struct">
+      <member type="u64" name="size_bytes"/>
+      <member type="u64" name="alignment_bytes"/>
+    </type>
 
 
     <type name="TextureRegion" category="struct">

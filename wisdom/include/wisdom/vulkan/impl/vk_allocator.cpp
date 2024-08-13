@@ -90,6 +90,53 @@ wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
     return VKCreateTexture(img_desc, alloc);
 }
 
+wis::AllocationInfo
+wis::VKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept
+{
+    VkImageCreateInfo imageInfo = wis::VKResourceAllocator::VKCreateTextureDesc(desc);
+
+    VkDeviceImageMemoryRequirementsKHR devImgMemReq{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR,
+        .pCreateInfo = &imageInfo
+    };
+    VkMemoryRequirements2 memReq{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
+    };
+    functions->vkGetDeviceImageMemoryRequirements(
+            allocator.header().get(), &devImgMemReq, &memReq);
+
+    return {
+        .size_bytes = memReq.memoryRequirements.size,
+        .alignment_bytes = memReq.memoryRequirements.alignment,
+    };
+}
+
+wis::AllocationInfo
+wis::VKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferFlags flags) const noexcept
+{
+    VkBufferCreateInfo bufferInfo{
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = size,
+        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VkBufferUsageFlagBits(flags)),
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    };
+
+    VkDeviceBufferMemoryRequirementsKHR devBufferMemReq{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR,
+        .pCreateInfo = &bufferInfo
+    };
+    VkMemoryRequirements2 memReq{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
+    };
+    functions->vkGetDeviceBufferMemoryRequirements(
+            allocator.header().get(), &devBufferMemReq, &memReq);
+
+    return {
+        .size_bytes = memReq.memoryRequirements.size,
+        .alignment_bytes = memReq.memoryRequirements.alignment,
+    };
+}
+
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::VKCreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
 {

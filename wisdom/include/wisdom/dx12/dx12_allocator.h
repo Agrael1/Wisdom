@@ -9,6 +9,7 @@ class DX12Device;
 template<>
 struct Internal<DX12ResourceAllocator> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
+    ID3D12Device10* device; // ownedby allocator, no need to release
 };
 
 /// @brief Resource allocator for DX12
@@ -16,8 +17,8 @@ class DX12ResourceAllocator : public QueryInternal<DX12ResourceAllocator>
 {
 public:
     DX12ResourceAllocator() = default;
-    explicit DX12ResourceAllocator(wis::com_ptr<D3D12MA::Allocator> in_allocator) noexcept
-        : QueryInternal(std::move(in_allocator))
+    explicit DX12ResourceAllocator(wis::com_ptr<D3D12MA::Allocator> in_allocator, ID3D12Device10* device) noexcept
+        : QueryInternal(std::move(in_allocator), device)
     {
     }
     operator bool() const noexcept
@@ -37,6 +38,12 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
     CreateTexture(wis::TextureDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::AllocationInfo
+    GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::AllocationInfo
+    GetBufferAllocationInfo(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Buffer>

@@ -496,6 +496,7 @@ typedef struct WisRenderAttachmentsDesc WisRenderAttachmentsDesc;
 typedef struct WisRootConstant WisRootConstant;
 typedef struct WisSwapchainDesc WisSwapchainDesc;
 typedef struct WisTextureDesc WisTextureDesc;
+typedef struct WisAllocationInfo WisAllocationInfo;
 typedef struct WisTextureRegion WisTextureRegion;
 typedef struct WisBufferTextureCopyRegion WisBufferTextureCopyRegion;
 typedef struct WisPushDescriptor WisPushDescriptor;
@@ -702,6 +703,11 @@ struct WisTextureDesc {
     WisTextureLayout layout;
     WisSampleCount sample_count;
     WisTextureUsage usage;
+};
+
+struct WisAllocationInfo {
+    uint64_t size_bytes;
+    uint64_t alignment_bytes;
 };
 
 struct WisTextureRegion {

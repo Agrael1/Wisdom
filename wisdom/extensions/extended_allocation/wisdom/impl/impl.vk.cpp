@@ -1,70 +1,51 @@
-#ifndef WISDOM_EXTENDED_ALLOCATION_CPP
-#define WISDOM_EXTENDED_ALLOCATION_CPP
+#ifndef WISDOM_EXTENDED_ALLOCATION_VK_CPP
+#define WISDOM_EXTENDED_ALLOCATION_VK_CPP
 #include <wisdom/wisdom_extended_allocation.h>
 
-#if defined(WISDOM_DX12)
-#include <d3dx12/d3dx12_core.h>
-#include <d3dx12/d3dx12_property_format_table.h>
-
-wis::ResultValue<wis::DX12Texture>
-wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& allocator,
-                                           wis::TextureDesc desc,
-                                           wis::MemoryType memory,
-                                           wis::MemoryFlags flags) const noexcept
+#if defined(WISDOM_VULKAN)
+bool wis::VKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
+                                                 std::unordered_set<std::string_view>& ext_name_set,
+                                                 std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                                 std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
-    auto tex_desc = DX12ResourceAllocator::DX12CreateTextureDesc(desc);
+    if (available_extensions.contains(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME)) {
+        ext_name_set.emplace(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
+        ext_name_set.emplace(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME); // Required for VK_EXT_HOST_IMAGE_COPY
+        ext_name_set.emplace(VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME); // Required for VK_EXT_HOST_IMAGE_COPY
 
-    if (D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_GPU_UPLOAD && !supports_gpu_upload)
-        return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
-
-    D3D12MA::ALLOCATION_FLAGS all_flags = D3D12MA::ALLOCATION_FLAG_NONE;
-    if (flags & wis::MemoryFlags::DedicatedAllocation)
-        all_flags |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
-
-    D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags = all_flags,
-        .HeapType = convert_dx(memory)
-    };
-
-    return allocator.DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
+        structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT] = sizeof(VkPhysicalDeviceHostImageCopyFeaturesEXT);
+        property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT] = sizeof(VkPhysicalDeviceHostImageCopyPropertiesEXT);
+        return true;
+    }
+    return false;
 }
 
 wis::Result
-wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                            wis::DX12TextureView dst_texture,
-                                                            wis::TextureState initial_state,
-                                                            wis::TextureRegion region) const noexcept
+wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
+                                const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
-    auto resource = std::get<0>(dst_texture);
-    auto texture_desc = resource->GetDesc();
-    UINT dest_subresource = D3D12CalcSubresource(region.mip, region.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+    if (!structure_map.contains(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT)) {
+        return {};
+    }
 
-    UINT row_pitch = 0;
-    UINT slice_pitch = 0;
-    auto hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.format), region.size.width, row_pitch);
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to calculate row pitch">(hr);
+    VkPhysicalDeviceHostImageCopyFeaturesEXT& host_image_copy_features = *reinterpret_cast<VkPhysicalDeviceHostImageCopyFeaturesEXT*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT));
+    VkPhysicalDeviceHostImageCopyPropertiesEXT& host_image_copy_properties = *reinterpret_cast<VkPhysicalDeviceHostImageCopyPropertiesEXT*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT));
 
-    hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(convert_dx(region.format), row_pitch, region.size.height, slice_pitch);
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to calculate slice pitch">(hr);
+    auto& device_i = instance.GetInternal();
+    device = device_i.device;
+    adapter = device_i.adapter.GetInternal().adapter;
 
-    D3D12_BOX box{
-        .left = region.offset.width,
-        .top = region.offset.height,
-        .front = region.offset.depth_or_layers,
-        .right = region.offset.width + region.size.width,
-        .bottom = region.offset.height + region.size.height,
-        .back = region.offset.depth_or_layers + region.size.depth_or_layers,
-    };
-    hr = resource->WriteToSubresource(dest_subresource, &box, host_data, row_pitch, slice_pitch);
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to write to subresource">(hr);
-    return wis::success;
+    if (!host_image_copy_features.hostImageCopy) {
+        return {};
+    }
+
+    vkCopyMemoryToImageEXT = device.GetDeviceProcAddr<PFN_vkCopyMemoryToImageEXT>("vkCopyMemoryToImageEXT");
+    vkTransitionImageLayoutEXT = device.GetDeviceProcAddr<PFN_vkTransitionImageLayoutEXT>("vkTransitionImageLayoutEXT");
+    vkGetPhysicalDeviceImageFormatProperties2 = device.GetDeviceProcAddr<PFN_vkGetPhysicalDeviceImageFormatProperties2>("vkGetPhysicalDeviceImageFormatProperties2");
+    return {};
 }
-#endif // WISDOM_DX12
 
-#if defined(WISDOM_VULKAN)
 wis::ResultValue<wis::VKTexture>
 wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocator,
                                          wis::TextureDesc desc,
@@ -154,6 +135,30 @@ wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
     if (!wis::succeeded(vr))
         return wis::make_result<FUNC, "Failed to copy memory to image">(vr);
     return wis::success;
+}
+
+bool wis::VKExtendedAllocation::SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
+{
+    VkHostImageCopyDevicePerformanceQueryEXT query{
+        .sType = VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT,
+        .pNext = nullptr,
+    };
+    VkPhysicalDeviceImageFormatInfo2 format_info{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2,
+        .pNext = nullptr,
+        .format = convert_vk(format),
+        .type = VK_IMAGE_TYPE_2D,
+        .tiling = VK_IMAGE_TILING_OPTIMAL,
+        .usage = VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT,
+        .flags = 0,
+    };
+    VkImageFormatProperties2 format_props{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2,
+        .pNext = &query,
+    };
+    vkGetPhysicalDeviceImageFormatProperties2(adapter, &format_info, &format_props);
+
+    return Supported() && query.optimalDeviceAccess;
 }
 
 #endif // WISDOM_VULKAN

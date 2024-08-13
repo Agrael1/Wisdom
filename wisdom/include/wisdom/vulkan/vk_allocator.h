@@ -40,6 +40,12 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
     CreateTexture(wis::TextureDesc desc) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::AllocationInfo
+    GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::AllocationInfo
+    GetBufferAllocationInfo(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
     VKCreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
