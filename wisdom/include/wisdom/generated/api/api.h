@@ -53,6 +53,7 @@ enum class ShaderStages {
 enum class Status : int32_t {
     Ok = 0,
     Timeout = 1,
+    Partial = 2,
     Error = -1,
     InvalidArgument = -2,
     OutOfMemory = -3,

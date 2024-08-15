@@ -23,6 +23,7 @@ enum WisShaderStages {
 enum WisStatus {
     StatusOk = 0,
     StatusTimeout = 1,
+    StatusPartial = 2,
     StatusError = -1,
     StatusInvalidArgument = -2,
     StatusOutOfMemory = -3,

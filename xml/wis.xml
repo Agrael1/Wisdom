@@ -27,6 +27,7 @@
     <type name="Status" category="enum" type="i32">
       <value name="Ok" value="0"/>
       <value name="Timeout" value="1"/>
+      <value name="Partial" value="2"/>
       <value name="Error" value="-1"/>
       <value name="InvalidArgument" value="-2"/>
       <value name="OutOfMemory" value="-3"/>

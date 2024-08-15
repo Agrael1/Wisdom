@@ -13,8 +13,9 @@ wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& all
                                            wis::MemoryFlags flags) const noexcept
 {
     auto tex_desc = DX12ResourceAllocator::DX12CreateTextureDesc(desc);
+    auto heap_type = convert_dx(memory);
 
-    if (D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_GPU_UPLOAD && !supports_gpu_upload)
+    if (heap_type == D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_GPU_UPLOAD && !supports_gpu_upload)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
 
     D3D12MA::ALLOCATION_FLAGS all_flags = D3D12MA::ALLOCATION_FLAG_NONE;
@@ -23,7 +24,7 @@ wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& all
 
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = all_flags,
-        .HeapType = convert_dx(memory)
+        .HeapType = heap_type
     };
 
     return allocator.DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
