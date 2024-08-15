@@ -13,6 +13,23 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_factory.h>
 
+namespace wis::detail {
+constexpr static inline VkExternalSemaphoreHandleTypeFlagsKHR semaphore_handle_type =
+#if defined(WIN32)
+        VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
+#else // Try FD
+        VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT
+#endif // defined(WISDOM_WINDOWS)
+        ;
+constexpr static inline VkExternalMemoryHandleTypeFlagsKHR memory_handle_type =
+#if defined(WIN32)
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
+#else // Try FD
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT
+#endif // defined(WISDOM_WINDOWS)
+        ;
+} // namespace wis::detail
+
 inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
 {
@@ -344,9 +361,14 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
 wis::ResultValue<wis::VKFence>
 wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 {
+    constexpr static VkExportSemaphoreCreateInfo export_info{
+        .sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO,
+        .handleTypes = detail::semaphore_handle_type
+    };
+
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
-        .pNext = nullptr,
+        .pNext = &export_info,
         .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
         .initialValue = initial_value,
     };
@@ -856,6 +878,18 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     if (!allocator_functions)
         return wis::make_result<FUNC, "Failed to allocate allocator functions.">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
+    VkPhysicalDeviceMemoryProperties2 mem_props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2,
+    };
+    itable.vkGetPhysicalDeviceMemoryProperties2(adapter_i.adapter, &mem_props);
+
+    wis::detail::limited_allocator<VkExternalMemoryHandleTypeFlagsKHR, 16>
+            handle_types(mem_props.memoryProperties.memoryTypeCount, true);
+    auto* htdata = handle_types.data();
+    for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
+        htdata[i] = detail::memory_handle_type;
+    }
+
     VmaAllocatorCreateInfo allocatorInfo{
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
         .physicalDevice = adapter_i.adapter,
@@ -863,6 +897,7 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
         .pVulkanFunctions = allocator_functions.get(),
         .instance = adapter_i.instance.get(),
         .vulkanApiVersion = version,
+        .pTypeExternalMemoryHandleTypes = handle_types.data()
     };
 
     VmaAllocator al;
