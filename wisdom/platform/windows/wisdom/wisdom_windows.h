@@ -3,14 +3,20 @@
 #if defined(WISDOM_DX12)
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_factory_ext.h>
+#include <wisdom/dx12/dx12_device_ext.h>
 
 namespace wis {
 namespace platform {
 class DX12WindowsExtension;
+class DX12InteropDeviceExtension;
 } // namespace platform
 
 template<>
 struct Internal<platform::DX12WindowsExtension> {
+};
+template<>
+struct Internal<platform::DX12InteropDeviceExtension> {
+    wis::com_ptr<ID3D12Device> device;
 };
 
 namespace platform {
@@ -23,6 +29,29 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12SwapChain>
     CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept;
 };
+
+class DX12InteropDeviceExtension : public QueryInternalExtension<DX12InteropDeviceExtension, DX12DeviceExtension>
+{
+protected:
+    virtual wis::Result Init(const wis::DX12Device& instance) noexcept
+    {
+        device = instance.GetInternal().device;
+        return {};
+    }
+
+public:
+    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
+    GetSemaphoreHandle(const wis::DX12Fence& fence) const noexcept
+    {
+        HANDLE handle;
+        auto hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
+        
+        if (!wis::succeeded(hr)) {
+            return wis::make_result<FUNC, "Failed to create shared handle for fence">(hr);
+        }
+        return handle;
+    }
+};
 } // namespace platform
 } // namespace wis
 
@@ -31,12 +60,15 @@ public:
 #if defined(WISDOM_VULKAN)
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_device.h>
+#include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <vulkan/vulkan_win32.h>
 
 namespace wis {
 namespace platform {
 class VKWindowsExtension;
+class VKInteropDeviceExtension;
 } // namespace platform
 
 template<>
@@ -44,6 +76,13 @@ struct Internal<platform::VKWindowsExtension> {
     wis::SharedInstance instance;
     PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR = nullptr;
     PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR vkGetPhysicalDeviceWin32PresentationSupportKHR = nullptr;
+};
+template<>
+struct Internal<platform::VKInteropDeviceExtension> {
+    wis::SharedDevice device;
+    PFN_vkGetSemaphoreWin32HandleKHR vkGetSemaphoreWin32HandleKHR = nullptr;
+    PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR = nullptr;
+    // PFN_vkImportSemaphoreWin32HandleKHR vkImportSemaphoreWin32HandleKHR = nullptr; //later
 };
 
 namespace platform {
@@ -73,6 +112,46 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
 };
+
+// Device Extension for memory and semaphore interop
+class VKInteropDeviceExtension : public QueryInternalExtension<VKInteropDeviceExtension, wis::VKDeviceExtension>
+{
+protected:
+    virtual WIS_INLINE bool
+    GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
+                     std::unordered_set<std::string_view>& ext_name_set,
+                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+
+    virtual WIS_INLINE wis::Result
+    Init(const wis::VKDevice& instance,
+         const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+         const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+
+public:
+    virtual bool Supported() const noexcept override
+    {
+        return vkGetSemaphoreWin32HandleKHR && vkGetMemoryWin32HandleKHR;
+    }
+
+public:
+    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
+    GetSemaphoreHandle(const wis::VKFence& fence) const noexcept
+    {
+        HANDLE handle;
+        VkSemaphoreGetWin32HandleInfoKHR handle_info{
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR,
+            .pNext = nullptr,
+            .semaphore = fence.GetInternal().fence.get(),
+            .handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
+        };
+        auto result = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
+        if (!wis::succeeded(result)) {
+            return wis::make_result<FUNC, "Failed to get semaphore handle">(result);
+        }
+        return handle;
+    }
+};
 } // namespace platform
 } // namespace wis
 #endif // WISDOM_VULKAN
@@ -80,8 +159,10 @@ public:
 namespace wis::platform {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using WindowsExtension = platform::DX12WindowsExtension;
+using InteropDeviceExtension = platform::DX12InteropDeviceExtension;
 #elif defined(WISDOM_VULKAN)
 using WindowsExtension = platform::VKWindowsExtension;
+using InteropDeviceExtension = platform::VKInteropDeviceExtension;
 #endif // WISDOM_DX12
 } // namespace wis::platform
 

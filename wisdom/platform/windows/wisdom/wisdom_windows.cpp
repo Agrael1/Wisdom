@@ -160,5 +160,35 @@ wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQue
     wis::SharedSurface surface_handle{ surface, instance, instance_table.vkDestroySurfaceKHR };
     return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
 }
+
+bool wis::platform::VKInteropDeviceExtension::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
+                                                               std::unordered_set<std::string_view>& ext_name_set,
+                                                               std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                                               std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+{
+    if (available_extensions.contains(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME)) {
+        ext_name_set.emplace(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME);
+    }
+    if (available_extensions.contains(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME)) {
+        ext_name_set.emplace(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME);
+    }
+    // TODO: check?
+    return true;
+}
+
+wis::Result
+wis::platform::VKInteropDeviceExtension::Init(const wis::VKDevice& instance,
+                                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                              const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+{
+    device = instance.GetInternal().device;
+    vkGetMemoryWin32HandleKHR = device.GetDeviceProcAddr<PFN_vkGetMemoryWin32HandleKHR>("vkGetMemoryWin32HandleKHR");
+    vkGetSemaphoreWin32HandleKHR = device.GetDeviceProcAddr<PFN_vkGetSemaphoreWin32HandleKHR>("vkGetSemaphoreWin32HandleKHR");
+
+    // Tell the device that memory and semaphores should support interop
+    const_cast<wis::XInternalFeatures&>(instance.GetInternal().ext1.GetInternal().features).interop_device 
+        = Supported();
+    return {};
+}
 #endif // WISDOM_VULKAN
 #endif // WISDOM_WINDOWS_CPP

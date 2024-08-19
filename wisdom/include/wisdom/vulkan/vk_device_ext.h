@@ -54,6 +54,7 @@ struct XInternalFeatures {
     bool has_custom_border_color : 1 = false;
     bool extended_dynamic_state : 1 = false;
     bool mutable_descriptor : 1 = false;
+    bool interop_device : 1 = false;
 };
 
 // Lightweight struct for descriptor buffer features
@@ -204,6 +205,12 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
 
         return {};
     }
+    
+    XInternalFeatures GetFeatures()const noexcept
+    {
+        return features;
+    }
+
 };
 } // namespace wis
 

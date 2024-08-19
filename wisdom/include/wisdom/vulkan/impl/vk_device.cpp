@@ -149,7 +149,8 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
 
     // Ext1
     wis::VKDeviceExtensionEmbedded1 ext1;
-    ext1.GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map);
+    if (!ext1.GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map))
+        return wis::make_result<FUNC, "Failed to get base extensions to run device">(VkResult::VK_ERROR_UNKNOWN);
 
     // Allocate memory for extension names
     auto ext_names = wis::detail::make_fixed_allocation<const char*>(ext_name_set.size());
@@ -368,7 +369,7 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
-        .pNext = &export_info,
+        .pNext = ext1.GetFeatures().interop_device ? &export_info : nullptr,
         .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
         .initialValue = initial_value,
     };
@@ -885,9 +886,13 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
 
     wis::detail::limited_allocator<VkExternalMemoryHandleTypeFlagsKHR, 16>
             handle_types(mem_props.memoryProperties.memoryTypeCount, true);
-    auto* htdata = handle_types.data();
-    for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
-        htdata[i] = detail::memory_handle_type;
+    
+    // Only if there is an interop extension
+    if (ext1.GetFeatures().interop_device) {
+        auto* htdata = handle_types.data();
+        for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
+            htdata[i] = detail::memory_handle_type;
+        }
     }
 
     VmaAllocatorCreateInfo allocatorInfo{
@@ -897,7 +902,7 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
         .pVulkanFunctions = allocator_functions.get(),
         .instance = adapter_i.instance.get(),
         .vulkanApiVersion = version,
-        .pTypeExternalMemoryHandleTypes = handle_types.data()
+        .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device ? handle_types.data() : nullptr
     };
 
     VmaAllocator al;
