@@ -168,7 +168,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
     }
     virtual bool Supported() const noexcept override
     {
-        return features.swapchain && features.synchronization_2 && features.descriptor_buffer && features.dynamic_rendering && features.present_wait;
+        return features.swapchain && features.synchronization_2 && features.descriptor_buffer && features.dynamic_rendering;
     }
 
     // Not supposed to use device here.

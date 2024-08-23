@@ -3,7 +3,6 @@
 #include <wisdom/wisdom_debug.h>
 #include <iostream>
 #include <chrono>
-#include <print>
 
 wis::platform::InteropDeviceExtension global_interop;
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
@@ -352,19 +351,13 @@ int main()
         results[i] = TestSemaphores(device);
     }
 
-    std::print("Test Semaphores Results: {}\n", results);
-
     for (size_t i = 0; i < 10; i++) {
         results[i] = TestAllocators(device);
     }
 
-    std::print("Test Allocators Results: {}\n", results);
-
     for (size_t i = 0; i < 10; i++) {
         results[i] = TestTextures(device);
     }
-
-    std::print("Test Textures Results: {}\n", results);
 
     TestHandles(device);
 }
