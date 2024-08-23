@@ -101,4 +101,4 @@ vkGetDescriptorSetLayoutBindingOffsetEXT
 vkGetDescriptorEXT
 vkGetSemaphoreCounterValue
 vkSignalSemaphore
-vkWaitForPresentKHR
+[opt]vkWaitForPresentKHR

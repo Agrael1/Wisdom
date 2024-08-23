@@ -301,7 +301,7 @@ wis::Result wis::VKSwapChain::Present() const noexcept
 
     VkPresentInfoKHR present_info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = &present_id,
+        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &present_semaphores[present_index],
         .swapchainCount = 1,
@@ -331,6 +331,9 @@ wis::Result
 wis::VKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 {
     auto& dtable = device.table();
+    if (!dtable.vkWaitForPresentKHR)
+        return wis::make_result<FUNC, "vkWaitForPresentKHR not available">(VK_ERROR_UNKNOWN);
+
     auto res = dtable.vkWaitForPresentKHR(device.get(), swapchain, present_id, timeout_ns);
     return wis::succeeded(res) ? wis::success : wis::make_result<FUNC, "vkWaitForPresentKHR failed">(res);
 }
