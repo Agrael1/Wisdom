@@ -10,6 +10,7 @@ template<>
 struct Internal<VKResourceAllocator> {
     wis::shared_handle<VmaAllocator> allocator;
     std::shared_ptr<VmaVulkanFunctions> functions;
+    bool interop = false;
 };
 
 /// @brief Resource allocator for Vulkan
@@ -18,8 +19,9 @@ class VKResourceAllocator : public QueryInternal<VKResourceAllocator>
 public:
     VKResourceAllocator() = default;
     VKResourceAllocator(wis::shared_handle<VmaAllocator> allocator,
-                        std::shared_ptr<VmaVulkanFunctions> functions) noexcept
-        : QueryInternal(std::move(allocator), std::move(functions))
+                        std::shared_ptr<VmaVulkanFunctions> functions,
+                        bool interop = false) noexcept
+        : QueryInternal(std::move(allocator), std::move(functions), interop)
     {
     }
     operator bool() const noexcept
@@ -48,10 +50,10 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKBuffer>
-    VKCreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+    VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
-    VKCreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+    VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE static VkImageCreateInfo
     VKCreateTextureDesc(const TextureDesc& desc) noexcept;

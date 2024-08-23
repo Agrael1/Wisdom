@@ -12,23 +12,7 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_factory.h>
-
-namespace wis::detail {
-constexpr static inline VkExternalSemaphoreHandleTypeFlagsKHR semaphore_handle_type =
-#if defined(WIN32)
-        VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
-#else // Try FD
-        VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT
-#endif // defined(WISDOM_WINDOWS)
-        ;
-constexpr static inline VkExternalMemoryHandleTypeFlagsKHR memory_handle_type =
-#if defined(WIN32)
-        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
-#else // Try FD
-        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT
-#endif // defined(WISDOM_WINDOWS)
-        ;
-} // namespace wis::detail
+#include <wisdom/vulkan/vk_external.h>
 
 inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
@@ -834,7 +818,7 @@ wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() cons
         return result;
 
     return VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, hallocator },
-                                allocator_functions };
+                                allocator_functions, ext1.GetFeatures().interop_device };
 }
 
 wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept

@@ -1,31 +1,58 @@
 #include <wisdom/wisdom.hpp>
+#include <wisdom/wisdom_platform.h>
+#include <wisdom/wisdom_debug.h>
 #include <iostream>
 #include <chrono>
 #include <print>
 
-wis::Device Init()
+wis::platform::InteropDeviceExtension global_interop;
+void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
-    wis::Device device;
-    auto [result, factory] = wis::CreateFactoryWithExtensions(true, nullptr, 0);
-    for (size_t i = 0;; i++) {
-        auto [res, adapter] = factory.GetAdapter(i);
-        if (res.status == wis::Status::Ok) {
-            wis::AdapterDesc desc;
-            res = adapter.GetDesc(&desc);
-            std::cout << "Adapter: " << desc.description.data() << "\n";
-
-            auto [res, hdevice] = wis::CreateDevice(std::move(adapter));
-            if (res.status == wis::Status::Ok) {
-                device = std::move(hdevice);
-                break;
-            };
-
-        } else {
-            break;
-        }
-    }
-    return device;
+    auto stream = reinterpret_cast<std::ostream*>(user_data);
+    *stream << message << "\n";
 }
+
+struct Test {
+    wis::Device Init()
+    {
+        wis::Device device;
+        wis::DebugExtension global_debug;
+
+        wis::FactoryExtension* exts_i[] = {
+            &global_debug,
+        };
+
+        auto [result, factory] = wis::CreateFactoryWithExtensions(true, exts_i, std::size(exts_i));
+        auto [r2, m] = global_debug.CreateDebugMessenger(DebugCallback, &std::cout);
+        global_messenger = std::move(m);
+
+        for (size_t i = 0;; i++) {
+            auto [res, adapter] = factory.GetAdapter(i);
+            if (res.status == wis::Status::Ok) {
+                wis::AdapterDesc desc;
+                res = adapter.GetDesc(&desc);
+                std::cout << "Adapter: " << desc.description.data() << "\n";
+
+                wis::DeviceExtension* exts[]{
+                    &global_interop
+                };
+
+                auto [res, hdevice] = wis::CreateDeviceWithExtensions(std::move(adapter), exts, std::size(exts));
+                if (res.status == wis::Status::Ok) {
+                    device = std::move(hdevice);
+                    break;
+                };
+
+            } else {
+                break;
+            }
+        }
+        return device;
+    }
+
+private:
+    wis::DebugMessenger global_messenger;
+};
 
 wis::ResultValue<wis::VKFence>
 CreateFence(const wis::Device& xdevice, bool ext)
@@ -103,7 +130,13 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
     if (!allocator_functions)
         return wis::make_result<FUNC, "Failed to allocate allocator functions.">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    std::array<uint32_t, 32> handle_types{ VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT };
+    constexpr std::array<uint32_t, 32> handle_types = []() {
+        std::array<uint32_t, 32> handle_types{};
+        for (size_t i = 0; i < handle_types.size(); i++) {
+            handle_types[i] = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+        }
+        return handle_types;
+    }();
 
     VmaAllocatorCreateInfo allocatorInfo{
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
@@ -123,7 +156,7 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
 
     return wis::VKResourceAllocator{ wis::shared_handle<VmaAllocator>{
                                              device, al },
-                                     std::move(allocator_functions) };
+                                     std::move(allocator_functions), ext };
 }
 
 wis::ResultValue<wis::Texture>
@@ -145,14 +178,13 @@ CreateTexture(const wis::Device& xdevice, const wis::VKResourceAllocator a)
     return std::move(texture);
 }
 
-
 int64_t TestSemaphores(const wis::Device& xdevice)
 {
     wis::VKFence fences_default[20];
     wis::VKFence fences_whandles[20];
 
-    //std::cout << "Testing semaphore creation\n";
-    //std::cout << "Default semaphores\n";
+    // std::cout << "Testing semaphore creation\n";
+    // std::cout << "Default semaphores\n";
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < 20; i++) {
@@ -166,9 +198,9 @@ int64_t TestSemaphores(const wis::Device& xdevice)
     auto end = std::chrono::high_resolution_clock::now();
 
     auto first = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    //std::cout << "Time: " << first.count() << "ms\n";
+    // std::cout << "Time: " << first.count() << "ms\n";
 
-    //std::cout << "Semaphores with handles\n";
+    // std::cout << "Semaphores with handles\n";
 
     start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < 20; i++) {
@@ -183,7 +215,7 @@ int64_t TestSemaphores(const wis::Device& xdevice)
 
     auto second = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    //std::cout << "Time: " << second.count() << "ms\n";
+    // std::cout << "Time: " << second.count() << "ms\n";
 
     return first.count() - second.count();
 }
@@ -192,8 +224,8 @@ int64_t TestAllocators(const wis::Device& xdevice)
     wis::VKResourceAllocator allocators_default[20];
     wis::VKResourceAllocator allocators_whandles[20];
 
-    //std::cout << "Testing allocator creation\n";
-    //std::cout << "Default allocators\n";
+    // std::cout << "Testing allocator creation\n";
+    // std::cout << "Default allocators\n";
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -209,9 +241,9 @@ int64_t TestAllocators(const wis::Device& xdevice)
     auto end = std::chrono::high_resolution_clock::now();
 
     auto first = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    //std::cout << "Time: " << first.count() << "ms\n";
+    // std::cout << "Time: " << first.count() << "ms\n";
 
-    //std::cout << "Allocators with handles\n";
+    // std::cout << "Allocators with handles\n";
 
     start = std::chrono::high_resolution_clock::now();
 
@@ -227,7 +259,7 @@ int64_t TestAllocators(const wis::Device& xdevice)
 
     auto second = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    //std::cout << "Time: " << second.count() << "ms\n";
+    // std::cout << "Time: " << second.count() << "ms\n";
 
     return first.count() - second.count();
 }
@@ -239,8 +271,8 @@ int64_t TestTextures(const wis::Device& xdevice)
     wis::Texture textures_default[20];
     wis::Texture textures_whandles[20];
 
-   // std::cout << "Testing texture creation\n";
-    //std::cout << "Default textures\n";
+    // std::cout << "Testing texture creation\n";
+    // std::cout << "Default textures\n";
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -256,9 +288,9 @@ int64_t TestTextures(const wis::Device& xdevice)
     auto end = std::chrono::high_resolution_clock::now();
 
     auto first = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    //std::cout << "Time: " << first.count() << "ms\n";
+    // std::cout << "Time: " << first.count() << "ms\n";
 
-    //std::cout << "Textures with handles\n";
+    // std::cout << "Textures with handles\n";
 
     start = std::chrono::high_resolution_clock::now();
 
@@ -274,14 +306,42 @@ int64_t TestTextures(const wis::Device& xdevice)
 
     auto second = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    //std::cout << "Time: " << second.count() << "ms\n";
+    // std::cout << "Time: " << second.count() << "ms\n";
 
     return first.count() - second.count();
 }
 
+void TestHandles(const wis::Device& xdevice)
+{
+    auto [r, a] = CreateAllocator(xdevice, true);
+
+    auto [r2, b] = a.CreateCommitedBuffer(1024);
+    auto& b_i = b.GetInternal();
+
+    // Get win32 handle
+    VmaAllocationInfo2 b_info;
+    vmaGetAllocationInfo2(a.GetInternal().allocator.get(), b_i.allocation, &b_info);
+    VkMemoryGetWin32HandleInfoKHR info{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR,
+        .pNext = nullptr,
+        .memory = b_info.allocationInfo.deviceMemory,
+        .handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
+    };
+
+    HANDLE handle;
+    HANDLE handle2;
+
+    auto result = global_interop.GetInternal().vkGetMemoryWin32HandleKHR(xdevice.GetInternal().device.get(), &info, &handle);
+    result = global_interop.GetInternal().vkGetMemoryWin32HandleKHR(xdevice.GetInternal().device.get(), &info, &handle2);
+    if (!wis::succeeded(result)) {
+        std::cerr << "Failed to get memory handle\n";
+    }
+}
+
 int main()
 {
-    auto device = Init();
+    Test test;
+    auto device = test.Init();
     if (!device) {
         std::cerr << "Failed to create device\n";
         return 1;
@@ -305,4 +365,6 @@ int main()
     }
 
     std::print("Test Textures Results: {}\n", results);
+
+    TestHandles(device);
 }

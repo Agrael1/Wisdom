@@ -2,10 +2,19 @@
 #define VK_ALLOCATOR_CPP
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
+#include <wisdom/vulkan/vk_external.h>
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::VKCreateBuffer(const VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
 {
+    constexpr static VkExternalMemoryBufferCreateInfoKHR external_info{
+        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .handleTypes = detail::memory_handle_type
+    };
+
+    desc.pNext = interop ? &external_info : nullptr;
+
     VmaAllocation allocation;
     VkBuffer buffer;
     VkResult result = vmaCreateBuffer(
@@ -138,8 +147,16 @@ wis::VKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferFlags fla
 }
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::VKCreateTexture(const VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
 {
+    constexpr static VkExternalMemoryImageCreateInfoKHR external_info{
+        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .handleTypes = detail::memory_handle_type
+    };
+
+    desc.pNext = interop ? &external_info : nullptr;
+
     VmaAllocation allocation;
     VkImage buffer;
 

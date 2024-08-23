@@ -3,7 +3,9 @@
 #if defined(WISDOM_DX12)
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_factory_ext.h>
+#include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_device_ext.h>
+#include <wisdom/dx12/dx12_device.h>
 
 namespace wis {
 namespace platform {

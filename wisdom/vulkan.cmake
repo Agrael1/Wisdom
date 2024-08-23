@@ -18,6 +18,7 @@ if(WISDOM_BUILD_BINARIES)
 		"include/wisdom/vulkan/vk_factory.h"
  		"include/wisdom/vulkan/vk_views.h"
  		"include/wisdom/vulkan/vk_handles.h"
+ 		"include/wisdom/vulkan/vk_external.h"
  		"include/wisdom/vulkan/vk_adapter.h"
  		"include/wisdom/vulkan/vk_convert.h"
  		"include/wisdom/vulkan/vk_fence.h"
