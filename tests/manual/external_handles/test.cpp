@@ -4,7 +4,6 @@
 #include <iostream>
 #include <chrono>
 
-wis::platform::InteropDeviceExtension global_interop;
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
     auto stream = reinterpret_cast<std::ostream*>(user_data);
@@ -49,8 +48,9 @@ struct Test {
         return device;
     }
 
-private:
+public:
     wis::DebugMessenger global_messenger;
+    wis::platform::InteropDeviceExtension global_interop;
 };
 
 wis::ResultValue<wis::VKFence>
@@ -310,7 +310,7 @@ int64_t TestTextures(const wis::Device& xdevice)
     return first.count() - second.count();
 }
 
-void TestHandles(const wis::Device& xdevice)
+void TestHandles(const wis::Device& xdevice, wis::platform::InteropDeviceExtension& global_interop)
 {
     auto [r, a] = CreateAllocator(xdevice, true);
 
@@ -375,5 +375,5 @@ int main()
         results[i] = TestTextures(device);
     }
 
-    TestHandles(device);
+    TestHandles(device, test.global_interop);
 }
