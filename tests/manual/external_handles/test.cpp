@@ -332,9 +332,25 @@ void TestHandles(const wis::Device& xdevice)
 
     auto result = global_interop.GetInternal().vkGetMemoryWin32HandleKHR(xdevice.GetInternal().device.get(), &info, &handle);
     result = global_interop.GetInternal().vkGetMemoryWin32HandleKHR(xdevice.GetInternal().device.get(), &info, &handle2);
+
     if (!wis::succeeded(result)) {
         std::cerr << "Failed to get memory handle\n";
     }
+
+    auto x = LoadLibraryW(L"Kernelbase.dll");
+    using CallTy = decltype(&CompareObjectHandles);
+
+    auto* call = reinterpret_cast<CallTy>(GetProcAddress(x, "CompareObjectHandles"));
+
+    BOOL bx = call(handle, handle2);
+
+    if (bx) {
+        std::cout << "Handles are equal\n";
+    } else {
+        std::cout << "Handles are not equal\n";
+    }
+
+    if (x) FreeLibrary(x);
 }
 
 int main()
