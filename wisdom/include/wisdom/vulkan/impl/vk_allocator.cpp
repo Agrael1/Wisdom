@@ -2,6 +2,7 @@
 #define VK_ALLOCATOR_CPP
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
+#include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_external.h>
 
 wis::ResultValue<wis::VKBuffer>
@@ -34,14 +35,8 @@ wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllo
 wis::ResultValue<wis::VKBuffer>
 wis::VKResourceAllocator::CreateCommitedBuffer(uint64_t size, BufferFlags flags) const noexcept
 {
-    VkBufferCreateInfo desc{
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .size = size,
-        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VkBufferUsageFlagBits(flags)),
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-    };
+    VkBufferCreateInfo desc;
+    VKFillBufferDesc(size, flags, desc);
     VmaAllocationCreateInfo alloc{
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO
     };
@@ -102,18 +97,10 @@ wis::VKResourceAllocator::CreateTexture(wis::TextureDesc desc) const noexcept
 wis::AllocationInfo
 wis::VKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept
 {
-    VkImageCreateInfo imageInfo = wis::VKResourceAllocator::VKCreateTextureDesc(desc);
-
-    VkDeviceImageMemoryRequirementsKHR devImgMemReq{
-        .sType = VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR,
-        .pCreateInfo = &imageInfo
-    };
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
     };
-    functions->vkGetDeviceImageMemoryRequirements(
-            allocator.header().get(), &devImgMemReq, &memReq);
-
+    VKGetTextureAllocationInfo(desc, memReq);
     return {
         .size_bytes = memReq.memoryRequirements.size,
         .alignment_bytes = memReq.memoryRequirements.alignment,
@@ -123,28 +110,86 @@ wis::VKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc)
 wis::AllocationInfo
 wis::VKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferFlags flags) const noexcept
 {
-    VkBufferCreateInfo bufferInfo{
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = size,
-        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VkBufferUsageFlagBits(flags)),
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-    };
-
-    VkDeviceBufferMemoryRequirementsKHR devBufferMemReq{
-        .sType = VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR,
-        .pCreateInfo = &bufferInfo
-    };
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
     };
-    functions->vkGetDeviceBufferMemoryRequirements(
-            allocator.header().get(), &devBufferMemReq, &memReq);
-
+    VKGetBufferAllocationInfo(size, flags, memReq);
     return {
         .size_bytes = memReq.memoryRequirements.size,
         .alignment_bytes = memReq.memoryRequirements.alignment,
     };
 }
+
+
+void wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
+                         wis::MemoryType memory) const noexcept
+{
+    VkMemoryRequirements2 req{};
+    VKGetTextureAllocationInfo({
+                                       .format = wis::DataFormat::RGBA8Unorm,
+                                       .size = { 1, 1 },
+                                       .usage = usage,
+                               },
+                               req);
+
+    req.memoryRequirements.size = wis::detail::aligned_size(size, req.memoryRequirements.alignment);
+    
+    VmaMemoryUsage vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+    switch (memory) {
+    case wis::MemoryType::Default:
+        break;
+    case wis::MemoryType::Upload:
+    case wis::MemoryType::GPUUpload:
+        vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+        break;
+    case wis::MemoryType::Readback:
+        vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
+        break;
+    default:
+        break;
+    }
+
+    VmaAllocationCreateInfo alloc_desc{
+        .flags = VmaAllocationCreateFlagBits::VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+        .usage = vma_usage,
+        .requiredFlags = wis::convert_vk(memory),
+    };
+    VmaAllocation allocation;
+    auto result = vmaAllocateMemory(allocator.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
+}
+void wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferFlags usage,
+                         wis::MemoryType memory) const noexcept
+{
+    VkMemoryRequirements2 req{};
+    VKGetBufferAllocationInfo(size, usage, req);
+
+    req.memoryRequirements.size = wis::detail::aligned_size(size, req.memoryRequirements.alignment);
+    
+    VmaMemoryUsage vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+    switch (memory) {
+    case wis::MemoryType::Default:
+        break;
+    case wis::MemoryType::Upload:
+    case wis::MemoryType::GPUUpload:
+        vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+        break;
+    case wis::MemoryType::Readback:
+        vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
+        break;
+    default:
+        break;
+    }
+
+    VmaAllocationCreateInfo alloc_desc{
+        .flags = VmaAllocationCreateFlagBits::VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+        .usage = vma_usage,
+        .requiredFlags = wis::convert_vk(memory),
+    };
+    VmaAllocation allocation;
+    auto result = vmaAllocateMemory(allocator.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
+}
+
+
 
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
@@ -177,7 +222,22 @@ wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllo
 VkImageCreateInfo
 wis::VKResourceAllocator::VKCreateTextureDesc(const TextureDesc& desc) noexcept
 {
-    VkImageCreateInfo img_desc{
+    VkImageCreateInfo img_desc;
+    VKFillImageDesc(desc, img_desc);
+    return img_desc;
+}
+
+void wis::VKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferFlags flags, VkBufferCreateInfo& info) noexcept
+{
+    info = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = size,
+        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VkBufferUsageFlagBits(flags)),
+    };
+}
+void wis::VKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkImageCreateInfo& info) noexcept
+{
+    info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
@@ -190,52 +250,85 @@ wis::VKResourceAllocator::VKCreateTextureDesc(const TextureDesc& desc) noexcept
 
     switch (desc.layout) {
     case wis::TextureLayout::Texture1D:
-        img_desc.imageType = VK_IMAGE_TYPE_1D;
-        img_desc.extent = { desc.size.width, 1, 1 };
-        img_desc.mipLevels = desc.mip_levels;
-        img_desc.arrayLayers = 1;
+        info.imageType = VK_IMAGE_TYPE_1D;
+        info.extent = { desc.size.width, 1, 1 };
+        info.mipLevels = desc.mip_levels;
+        info.arrayLayers = 1;
         break;
     case wis::TextureLayout::Texture2D:
-        img_desc.imageType = VK_IMAGE_TYPE_2D;
-        img_desc.extent = { desc.size.width, desc.size.height, 1 };
-        img_desc.mipLevels = desc.mip_levels;
-        img_desc.arrayLayers = 1;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = { desc.size.width, desc.size.height, 1 };
+        info.mipLevels = desc.mip_levels;
+        info.arrayLayers = 1;
         break;
     case wis::TextureLayout::Texture1DArray:
-        img_desc.imageType = VK_IMAGE_TYPE_1D;
-        img_desc.extent = { desc.size.width, 1, 1 };
-        img_desc.mipLevels = desc.mip_levels;
-        img_desc.arrayLayers = desc.size.depth_or_layers;
+        info.imageType = VK_IMAGE_TYPE_1D;
+        info.extent = { desc.size.width, 1, 1 };
+        info.mipLevels = desc.mip_levels;
+        info.arrayLayers = desc.size.depth_or_layers;
         break;
     default:
     case wis::TextureLayout::Texture2DArray:
-        img_desc.imageType = VK_IMAGE_TYPE_2D;
-        img_desc.extent = { desc.size.width, desc.size.height, 1 };
-        img_desc.mipLevels = desc.mip_levels;
-        img_desc.arrayLayers = desc.size.depth_or_layers;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = { desc.size.width, desc.size.height, 1 };
+        info.mipLevels = desc.mip_levels;
+        info.arrayLayers = desc.size.depth_or_layers;
         break;
     case wis::TextureLayout::Texture3D:
-        img_desc.imageType = VK_IMAGE_TYPE_3D;
-        img_desc.flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
-        img_desc.extent = { desc.size.width, desc.size.height, desc.size.depth_or_layers };
-        img_desc.mipLevels = desc.mip_levels;
-        img_desc.arrayLayers = 1;
+        info.imageType = VK_IMAGE_TYPE_3D;
+        info.flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+        info.extent = { desc.size.width, desc.size.height, desc.size.depth_or_layers };
+        info.mipLevels = desc.mip_levels;
+        info.arrayLayers = 1;
         break;
     case wis::TextureLayout::Texture2DMS:
-        img_desc.imageType = VK_IMAGE_TYPE_2D;
-        img_desc.extent = { desc.size.width, desc.size.height, 1 };
-        img_desc.mipLevels = 1;
-        img_desc.arrayLayers = 1;
-        img_desc.samples = convert_vk(desc.sample_count);
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = { desc.size.width, desc.size.height, 1 };
+        info.mipLevels = 1;
+        info.arrayLayers = 1;
+        info.samples = convert_vk(desc.sample_count);
         break;
     case wis::TextureLayout::Texture2DMSArray:
-        img_desc.imageType = VK_IMAGE_TYPE_2D;
-        img_desc.extent = { desc.size.width, desc.size.height, 1 };
-        img_desc.mipLevels = 1;
-        img_desc.arrayLayers = desc.size.depth_or_layers;
-        img_desc.samples = convert_vk(desc.sample_count);
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = { desc.size.width, desc.size.height, 1 };
+        info.mipLevels = 1;
+        info.arrayLayers = desc.size.depth_or_layers;
+        info.samples = convert_vk(desc.sample_count);
         break;
     }
-    return img_desc;
 }
+
+void wis::VKResourceAllocator::VKGetTextureAllocationInfo(const wis::TextureDesc& desc, VkMemoryRequirements2& out_info) const noexcept
+{
+    VkImageCreateInfo imageInfo;
+    VKFillImageDesc(desc, imageInfo);
+
+    VkDeviceImageMemoryRequirementsKHR devImgMemReq{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR,
+        .pCreateInfo = &imageInfo
+    };
+    VkMemoryRequirements2 memReq{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
+    };
+    functions->vkGetDeviceImageMemoryRequirements(
+            allocator.header().get(), &devImgMemReq, &memReq);
+    out_info = memReq;
+}
+void wis::VKResourceAllocator::VKGetBufferAllocationInfo(uint64_t size, wis::BufferFlags flags, VkMemoryRequirements2& out_info) const noexcept
+{
+    VkBufferCreateInfo buf_info;
+    VKFillBufferDesc(size, flags, buf_info);
+
+    VkDeviceBufferMemoryRequirementsKHR devImgMemReq{
+        .sType = VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR,
+        .pCreateInfo = &buf_info
+    };
+    VkMemoryRequirements2 memReq{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
+    };
+    functions->vkGetDeviceBufferMemoryRequirements(
+            allocator.header().get(), &devImgMemReq, &memReq);
+    out_info = memReq;
+}
+
 #endif // !VK_ALLOCATOR_CPP

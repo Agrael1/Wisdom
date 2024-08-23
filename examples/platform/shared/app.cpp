@@ -103,6 +103,7 @@ std::string LoadShader(std::filesystem::path p)
 
 void Test::App::CreateResources()
 {
+    using namespace wis;
     CreateRootSignature();
 
     struct Vertex {
@@ -125,7 +126,7 @@ void Test::App::CreateResources()
     auto [resx3, ubuf3] = allocator.CreateUploadBuffer(sizeof(float) * 4);
 
     {
-        auto [res, vbuf] = allocator.CreateCommitedBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer);
+        auto [res, vbuf] = allocator.CreateCommitedBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer | wis::BufferFlags::CopyDst);
         vertex_buffer = std::move(vbuf);
 
         vertex_binding = wis::VertexBufferBinding{
@@ -156,7 +157,7 @@ void Test::App::CreateResources()
         sampler_buffer = std::move(hdesc2);
     }
     {
-        auto [res, val] = allocator.CreateCommitedBuffer(sizeof(float) * 4, wis::BufferFlags::ConstantBuffer);
+        auto [res, val] = allocator.CreateCommitedBuffer(sizeof(float) * 4, wis::BufferFlags::ConstantBuffer | wis::BufferFlags::CopyDst);
         cbuf = std::move(val);
     }
 

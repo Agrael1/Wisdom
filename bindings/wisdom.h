@@ -400,6 +400,8 @@ enum WisColorComponentsBits {
 
 enum WisBufferFlagsBits {
     BufferFlagsNone = 0x0,
+    BufferFlagsCopySrc = 1 << 0,
+    BufferFlagsCopyDst = 1 << 1,
     BufferFlagsConstantBuffer = 1 << 4,
     BufferFlagsIndexBuffer = 1 << 6,
     BufferFlagsVertexBuffer = 1 << 7,

@@ -428,6 +428,8 @@ enum class ColorComponents {
 
 enum class BufferFlags {
     None = 0x0,
+    CopySrc = 1 << 0,
+    CopyDst = 1 << 1,
     ConstantBuffer = 1 << 4,
     IndexBuffer = 1 << 6,
     VertexBuffer = 1 << 7,

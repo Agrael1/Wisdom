@@ -353,6 +353,13 @@ void TestHandles(const wis::Device& xdevice, wis::platform::InteropDeviceExtensi
     if (x) FreeLibrary(x);
 }
 
+void TestAllocations(const wis::Device& xdevice, wis::platform::InteropDeviceExtension& global_interop)
+{
+    auto [r, a] = CreateAllocator(xdevice, true);
+
+    a.AllocateImageMemory(1024, wis::TextureUsage::ShaderResource, wis::MemoryType::Default);
+}
+
 int main()
 {
     Test test;
@@ -361,6 +368,8 @@ int main()
         std::cerr << "Failed to create device\n";
         return 1;
     }
+    TestAllocations(device, test.global_interop);
+
 
     std::array<int64_t, 10> results;
     for (size_t i = 0; i < 10; i++) {
