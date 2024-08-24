@@ -398,13 +398,13 @@ enum WisColorComponentsBits {
     ColorComponentsAll = 0xF,
 };
 
-enum WisBufferFlagsBits {
-    BufferFlagsNone = 0x0,
-    BufferFlagsCopySrc = 1 << 0,
-    BufferFlagsCopyDst = 1 << 1,
-    BufferFlagsConstantBuffer = 1 << 4,
-    BufferFlagsIndexBuffer = 1 << 6,
-    BufferFlagsVertexBuffer = 1 << 7,
+enum WisBufferUsageBits {
+    BufferUsageNone = 0x0,
+    BufferUsageCopySrc = 1 << 0,
+    BufferUsageCopyDst = 1 << 1,
+    BufferUsageConstantBuffer = 1 << 4,
+    BufferUsageIndexBuffer = 1 << 6,
+    BufferUsageVertexBuffer = 1 << 7,
 };
 
 enum WisMemoryFlagsBits {
@@ -554,8 +554,8 @@ typedef enum WisDSSelectBits WisDSSelectBits;
 typedef uint32_t WisDSSelect;
 typedef enum WisColorComponentsBits WisColorComponentsBits;
 typedef uint32_t WisColorComponents;
-typedef enum WisBufferFlagsBits WisBufferFlagsBits;
-typedef uint32_t WisBufferFlags;
+typedef enum WisBufferUsageBits WisBufferUsageBits;
+typedef uint32_t WisBufferUsage;
 typedef enum WisMemoryFlagsBits WisMemoryFlagsBits;
 typedef uint32_t WisMemoryFlags;
 typedef enum WisRenderPassFlagsBits WisRenderPassFlagsBits;

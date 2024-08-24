@@ -443,6 +443,15 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept
         return VK_LOGIC_OP_OR_INVERTED;
     }
 }
+inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
+{
+    VmaAllocationCreateFlags output = {};
+    if (value & MemoryFlags::DedicatedAllocation)
+        output |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    if (value & MemoryFlags::Mapped)
+        output |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    return output;
+}
 inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
 {
     switch (value) {

@@ -589,7 +589,7 @@
       </value>
     </type>
 
-    <type name="BufferFlags" category="bitmask">
+    <type name="BufferUsage" category="bitmask">
       <value name="None" value="0"/>
       <value name="CopySrc" bit="0"/>
       <value name="CopyDst" bit="1"/>
@@ -599,9 +599,17 @@
     </type>
 
     <type name="MemoryFlags" category="bitmask">
+      <impl_type for="vk" name="VmaAllocationCreateFlags"/>
+      <impl_type for="dx" name="D3D12MA::ALLOCATION_FLAGS"/>
       <value name="None" value="0"/>
-      <value name="DedicatedAllocation" bit="0"/>
-      <value name="Mapped" bit="1"/>
+      <value name="DedicatedAllocation" bit="0">
+        <impl name="vk" value="VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT"/>
+        <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_COMMITTED"/>
+      </value>
+      <value name="Mapped" bit="1">
+        <impl name="vk" value="VMA_ALLOCATION_CREATE_MAPPED_BIT"/>
+        <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_NONE"/>
+      </value>
     </type>
 
     <type name="MemoryType" category="enum">

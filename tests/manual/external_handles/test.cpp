@@ -314,7 +314,7 @@ void TestHandles(const wis::Device& xdevice, wis::platform::InteropDeviceExtensi
 {
     auto [r, a] = CreateAllocator(xdevice, true);
 
-    auto [r2, b] = a.CreateCommitedBuffer(1024);
+    auto [r2, b] = a.CreateBuffer(1024, wis::BufferUsage::None);
     auto& b_i = b.GetInternal();
 
     // Get win32 handle

@@ -426,7 +426,7 @@ enum class ColorComponents {
     All = 0xF,
 };
 
-enum class BufferFlags {
+enum class BufferUsage {
     None = 0x0,
     CopySrc = 1 << 0,
     CopyDst = 1 << 1,
@@ -783,7 +783,7 @@ template<>
 struct is_flag_enum<wis::ColorComponents> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::BufferFlags> : public std::true_type {
+struct is_flag_enum<wis::BufferUsage> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::MemoryFlags> : public std::true_type {

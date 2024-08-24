@@ -27,30 +27,51 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
-    CreateCommitedBuffer(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
-    CreateUploadBuffer(uint64_t size) const noexcept;
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Buffer>
-    CreateReadbackBuffer(uint64_t size) const noexcept;
+    // Resource creation functions
+    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Buffer>
+    CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
-    CreateTexture(wis::TextureDesc desc) const noexcept;
+    CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
+    // Allocation info functions
     [[nodiscard]] WIS_INLINE wis::AllocationInfo
     GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::AllocationInfo
-    GetBufferAllocationInfo(uint64_t size, BufferFlags flags = BufferFlags::None) const noexcept;
+    GetBufferAllocationInfo(uint64_t size, BufferUsage flags = BufferUsage::None) const noexcept;
+
+    // Allocation functions
+    WIS_INLINE void AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
+                                        wis::MemoryType memory = wis::MemoryType::Default,
+                                        wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+
+    WIS_INLINE void AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
+                                         wis::MemoryType memory = wis::MemoryType::Default,
+                                         wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+
+public:
+    // Convenience functions
+    [[nodiscard]] wis::ResultValue<DX12Buffer>
+    CreateUploadBuffer(uint64_t size) const noexcept
+    {
+        return CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload);
+    }
+    [[nodiscard]] wis::ResultValue<DX12Buffer>
+    CreateReadbackBuffer(uint64_t size) const noexcept
+    {
+        return CreateBuffer(size, BufferUsage::CopyDst, MemoryType::Readback);
+    }
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Buffer>
     DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 
-    [[nodiscard]] WIS_INLINE static D3D12_RESOURCE_DESC1
-    DX12CreateTextureDesc(const TextureDesc& desc) noexcept;
+    WIS_INLINE static void
+    DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept;
+
+    WIS_INLINE static void
+    DX12FillTextureDesc(const TextureDesc& desc, D3D12_RESOURCE_DESC1& info) noexcept;
 };
 } // namespace wis
 

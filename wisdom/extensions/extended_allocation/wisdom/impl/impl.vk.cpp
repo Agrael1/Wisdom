@@ -52,25 +52,13 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
                                          wis::MemoryType memory,
                                          wis::MemoryFlags flags) const noexcept
 {
-    VkImageCreateInfo img_desc = VKResourceAllocator::VKCreateTextureDesc(desc);
+    if (!vkCopyMemoryToImageEXT && memory == wis::MemoryType::GPUUpload)
+        return wis::make_result<FUNC, "GPU upload heap not supported by device">(VK_ERROR_UNKNOWN);
 
-    VmaAllocationCreateFlags xflags = 0;
-    if (flags & wis::MemoryFlags::Mapped)
-        xflags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
-    if (flags & wis::MemoryFlags::DedicatedAllocation)
-        xflags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-
-    VmaAllocationCreateInfo alloc{
-        .flags = xflags,
-        .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-        .requiredFlags = wis::convert_vk(memory),
-    };
-
-    auto [res, texture] = allocator.VKCreateTexture(img_desc, alloc);
-    if (res.status != wis::Status::Ok)
-        return res;
-
-    if (!(img_desc.usage & VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT)) {
+    VkImageCreateInfo info;
+    VKResourceAllocator::VKFillImageDesc(desc, info);
+    auto [res, texture] = allocator.CreateTexture(desc, memory, flags);
+    if (!(desc.usage & wis::TextureUsage::HostCopy)) {
         return std::move(texture);
     }
 
@@ -85,9 +73,9 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
         .subresourceRange = {
                 .aspectMask = aspect_flags(tex_i.format),
                 .baseMipLevel = 0,
-                .levelCount = img_desc.mipLevels,
+                .levelCount = desc.mip_levels,
                 .baseArrayLayer = 0,
-                .layerCount = img_desc.arrayLayers,
+                .layerCount = info.arrayLayers,
         },
     };
 

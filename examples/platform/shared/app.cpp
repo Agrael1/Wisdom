@@ -126,7 +126,7 @@ void Test::App::CreateResources()
     auto [resx3, ubuf3] = allocator.CreateUploadBuffer(sizeof(float) * 4);
 
     {
-        auto [res, vbuf] = allocator.CreateCommitedBuffer(sizeof(triangleVertices), wis::BufferFlags::VertexBuffer | wis::BufferFlags::CopyDst);
+        auto [res, vbuf] = allocator.CreateBuffer(sizeof(triangleVertices), wis::BufferUsage::VertexBuffer | wis::BufferUsage::CopyDst);
         vertex_buffer = std::move(vbuf);
 
         vertex_binding = wis::VertexBufferBinding{
@@ -157,7 +157,7 @@ void Test::App::CreateResources()
         sampler_buffer = std::move(hdesc2);
     }
     {
-        auto [res, val] = allocator.CreateCommitedBuffer(sizeof(float) * 4, wis::BufferFlags::ConstantBuffer | wis::BufferFlags::CopyDst);
+        auto [res, val] = allocator.CreateBuffer(sizeof(float) * 4, wis::BufferUsage::ConstantBuffer | wis::BufferUsage::CopyDst);
         cbuf = std::move(val);
     }
 

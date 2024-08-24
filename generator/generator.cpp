@@ -222,7 +222,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     std::string dxapi =
             "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
             "<wisdom/generated/api/api.h>\n#include "
-            "<wisdom/util/flags.h>\n\nnamespace wis{\n";
+            "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {
             dxapi += MakeCPPVariant(*i, ImplementedFor::DX12);
