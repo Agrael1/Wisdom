@@ -40,7 +40,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
     CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
                            wis::TextureDesc desc,
-                           wis::MemoryFlags flags) const noexcept;
+                           wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
     WriteMemoryToSubresourceDirect(const void* host_data,
@@ -99,7 +99,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
     CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
                            wis::TextureDesc desc,
-                           wis::MemoryFlags flags) const noexcept;
+                           wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
     WriteMemoryToSubresourceDirect(const void* host_data,

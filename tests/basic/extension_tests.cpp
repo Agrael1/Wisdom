@@ -77,8 +77,7 @@ TEST_CASE("host_texture_write_ext")
     }
 
     // Create a texture with a size of 2x2 for host copy
-    auto [res3, texture] = a.CreateTexture(allocator, wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm, .size = { 2, 2, 1 }, .mip_levels = 1, .layout = wis::TextureLayout::Texture2D, .usage = wis::TextureUsage::HostCopy | wis::TextureUsage::ShaderResource },
-                                           wis::MemoryType::GPUUpload, wis::MemoryFlags::None);
+    auto [res3, texture] = a.CreateGPUUploadTexture(allocator, wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm, .size = { 2, 2, 1 }, .mip_levels = 1, .layout = wis::TextureLayout::Texture2D, .usage = wis::TextureUsage::HostCopy | wis::TextureUsage::ShaderResource });
     REQUIRE(res3.status == wis::Status::Ok);
 
     // Perform a copy from the host memory to the texture
