@@ -2,6 +2,7 @@
 #define VK_MEMORY_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_handles.h>
+#include <wisdom/vulkan/vk_views.h>
 
 namespace wis {
 class VKMemory;
@@ -52,6 +53,10 @@ public:
     operator bool() const noexcept
     {
         return bool(allocation);
+    }
+    operator VKMemoryView() const noexcept
+    {
+        return { allocator.get(), allocation };
     }
     [[nodiscard]] bool
     operator==(std::nullptr_t) const noexcept

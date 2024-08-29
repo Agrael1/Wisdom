@@ -1,6 +1,7 @@
 #ifndef DX12_MEMORY_H
 #define DX12_MEMORY_H
 #include <wisdom/global/internal.h>
+#include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
 #include <D3D12MemAlloc.h>
 
@@ -28,6 +29,10 @@ public:
     operator bool() const noexcept
     {
         return bool(allocation);
+    }
+    operator DX12MemoryView() const noexcept
+    {
+        return { allocator.get(), allocation.get() };
     }
     [[nodiscard]] bool
     operator==(std::nullptr_t) const noexcept
