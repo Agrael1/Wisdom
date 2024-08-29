@@ -12,7 +12,7 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
     VKFillBufferDesc(size, usage, desc);
 
     VmaAllocationCreateInfo alloc{
-        .flags = wis::convert_vk(mem_flags), 
+        .flags = wis::convert_vk(mem_flags),
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = wis::convert_vk(memory)
     };
@@ -39,7 +39,7 @@ wis::VKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc)
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
     };
-    VKGetTextureAllocationInfo(desc, memReq);
+    VKFillTextureAllocationInfo(desc, memReq);
     return {
         .size_bytes = memReq.memoryRequirements.size,
         .alignment_bytes = memReq.memoryRequirements.alignment,
@@ -52,24 +52,25 @@ wis::VKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage fla
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
     };
-    VKGetBufferAllocationInfo(size, flags, memReq);
+    VKFillBufferAllocationInfo(size, flags, memReq);
     return {
         .size_bytes = memReq.memoryRequirements.size,
         .alignment_bytes = memReq.memoryRequirements.alignment,
     };
 }
 
-void wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
-                                                   wis::MemoryType memory,
-                                                   wis::MemoryFlags mem_flags) const noexcept
+wis::ResultValue<wis::VKMemory>
+wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
+                                              wis::MemoryType memory,
+                                              wis::MemoryFlags mem_flags) const noexcept
 {
     VkMemoryRequirements2 req{};
-    VKGetTextureAllocationInfo({
-                                       .format = wis::DataFormat::RGBA8Unorm,
-                                       .size = { 1, 1 },
-                                       .usage = usage,
-                               },
-                               req);
+    VKFillTextureAllocationInfo({
+                                        .format = wis::DataFormat::RGBA8Unorm,
+                                        .size = { 1, 1 },
+                                        .usage = usage,
+                                },
+                                req);
 
     req.memoryRequirements.size = wis::detail::aligned_size(size, req.memoryRequirements.alignment);
 
@@ -95,13 +96,19 @@ void wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUs
     };
     VmaAllocation allocation;
     auto result = vmaAllocateMemory(allocator.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
+
+    if (!wis::succeeded(result))
+        return wis::make_result<FUNC, "Image memory allocation failed">(result);
+
+    return VKMemory{ allocator, allocation };
 }
-void wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
-                                                    wis::MemoryType memory,
-                                                    wis::MemoryFlags mem_flags) const noexcept
+wis::ResultValue<wis::VKMemory>
+wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
+                                               wis::MemoryType memory,
+                                               wis::MemoryFlags mem_flags) const noexcept
 {
     VkMemoryRequirements2 req{};
-    VKGetBufferAllocationInfo(size, usage, req);
+    VKFillBufferAllocationInfo(size, usage, req);
 
     req.memoryRequirements.size = wis::detail::aligned_size(size, req.memoryRequirements.alignment);
 
@@ -127,7 +134,36 @@ void wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUs
     };
     VmaAllocation allocation;
     auto result = vmaAllocateMemory(allocator.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
+
+    if (!wis::succeeded(result))
+        return wis::make_result<FUNC, "Buffer memory allocation failed">(result);
+
+    return VKMemory{ allocator, allocation };
 }
+
+wis::ResultValue<wis::VKBuffer>
+wis::VKResourceAllocator::PlaceBuffer(wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
+{
+    if (std::get<0>(memory) != allocator.get())
+        return wis::make_result<FUNC, "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
+
+    VkBufferCreateInfo desc;
+    VKFillBufferDesc(size, usage, desc);
+    return VKCreateAliasingBuffer(desc, memory_offset, std::get<1>(memory));
+}
+
+wis::ResultValue<wis::VKTexture>
+wis::VKResourceAllocator::PlaceTexture(wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
+{
+    if (std::get<0>(memory) != allocator.get())
+        return wis::make_result<FUNC, "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
+
+    VkImageCreateInfo img_desc;
+    VKFillImageDesc(desc, img_desc);
+    return VKCreateAliasingTexture(img_desc, memory_offset, std::get<1>(memory));
+}
+
+// =========================================================================================
 
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
@@ -184,6 +220,45 @@ wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllo
     return VKBuffer{ allocator, buffer, allocation };
 }
 
+wis::ResultValue<wis::VKBuffer>
+wis::VKResourceAllocator::VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept
+{
+    constexpr static VkExternalMemoryBufferCreateInfoKHR external_info{
+        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .handleTypes = detail::memory_handle_type
+    };
+
+    desc.pNext = interop ? &external_info : nullptr;
+
+    VkBuffer buffer;
+    auto res = vmaCreateAliasingBuffer2(allocator.get(), alloc, offset, &desc, &buffer);
+    if (!wis::succeeded(res)) {
+        return wis::make_result<FUNC, "Aliasing buffer creation failed">(res);
+    }
+
+    return VKBuffer{ allocator, buffer, nullptr };
+}
+
+wis::ResultValue<wis::VKTexture>
+wis::VKResourceAllocator::VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept
+{
+    constexpr static VkExternalMemoryImageCreateInfoKHR external_info{
+        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .handleTypes = detail::memory_handle_type
+    };
+
+    desc.pNext = interop ? &external_info : nullptr;
+
+    VkImage buffer;
+    auto res = vmaCreateAliasingImage2(allocator.get(), alloc, offset, &desc, &buffer);
+    if (!wis::succeeded(res)) {
+        return wis::make_result<FUNC, "Aliasing buffer creation failed">(res);
+    }
+
+    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, nullptr };
+}
 
 void wis::VKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUsage flags, VkBufferCreateInfo& info) noexcept
 {
@@ -256,7 +331,7 @@ void wis::VKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkI
     }
 }
 
-void wis::VKResourceAllocator::VKGetTextureAllocationInfo(const wis::TextureDesc& desc, VkMemoryRequirements2& out_info) const noexcept
+void wis::VKResourceAllocator::VKFillTextureAllocationInfo(const wis::TextureDesc& desc, VkMemoryRequirements2& out_info) const noexcept
 {
     VkImageCreateInfo imageInfo;
     VKFillImageDesc(desc, imageInfo);
@@ -268,11 +343,12 @@ void wis::VKResourceAllocator::VKGetTextureAllocationInfo(const wis::TextureDesc
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
     };
-    functions->vkGetDeviceImageMemoryRequirements(
+    auto& dtable = allocator.header().table();
+    dtable.vkGetDeviceImageMemoryRequirements(
             allocator.header().get(), &devImgMemReq, &memReq);
     out_info = memReq;
 }
-void wis::VKResourceAllocator::VKGetBufferAllocationInfo(uint64_t size, wis::BufferUsage flags, VkMemoryRequirements2& out_info) const noexcept
+void wis::VKResourceAllocator::VKFillBufferAllocationInfo(uint64_t size, wis::BufferUsage flags, VkMemoryRequirements2& out_info) const noexcept
 {
     VkBufferCreateInfo buf_info;
     VKFillBufferDesc(size, flags, buf_info);
@@ -284,7 +360,8 @@ void wis::VKResourceAllocator::VKGetBufferAllocationInfo(uint64_t size, wis::Buf
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
     };
-    functions->vkGetDeviceBufferMemoryRequirements(
+    auto& dtable = allocator.header().table();
+    dtable.vkGetDeviceBufferMemoryRequirements(
             allocator.header().get(), &devImgMemReq, &memReq);
     out_info = memReq;
 }

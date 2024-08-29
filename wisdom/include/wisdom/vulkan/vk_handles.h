@@ -193,6 +193,11 @@ public:
         return header();
     }
 
+    [[nodiscard]] const auto& device() const noexcept
+    {
+        return header();
+    }
+
 protected:
     void internal_destroy() noexcept
     {

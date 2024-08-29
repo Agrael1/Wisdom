@@ -66,6 +66,102 @@ wis::DX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage f
     };
 }
 
+wis::ResultValue<wis::DX12Memory>
+wis::DX12ResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
+                                                wis::MemoryType memory,
+                                                wis::MemoryFlags mem_flags) const noexcept
+
+{
+    auto info = GetTextureAllocationInfo({ .format = wis::DataFormat::RGBA8Unorm, .size = { 1, 1, 1 }, .mip_levels = 1, .usage = usage });
+
+    D3D12MA::ALLOCATION_DESC all_desc{
+        .Flags = convert_dx(mem_flags),
+        .HeapType = convert_dx(memory),
+        .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
+    };
+
+    D3D12_RESOURCE_ALLOCATION_INFO alloc_info{
+        .SizeInBytes = size,
+        .Alignment = info.alignment_bytes,
+    };
+
+    wis::com_ptr<D3D12MA::Allocation> allocation;
+    auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, allocation.put());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Image memory allocation failed">(hr);
+
+    return DX12Memory{
+        allocator,
+        std::move(allocation)
+    };
+}
+
+wis::ResultValue<wis::DX12Memory>
+wis::DX12ResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
+                                                 wis::MemoryType memory,
+                                                 wis::MemoryFlags mem_flags) const noexcept
+
+{
+    auto info = GetBufferAllocationInfo(size, usage);
+
+    D3D12MA::ALLOCATION_DESC all_desc{
+        .Flags = convert_dx(mem_flags),
+        .HeapType = convert_dx(memory),
+        .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
+    };
+
+    D3D12_RESOURCE_ALLOCATION_INFO alloc_info{
+        .SizeInBytes = size,
+        .Alignment = info.alignment_bytes,
+    };
+
+    wis::com_ptr<D3D12MA::Allocation> allocation;
+    auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, allocation.put());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Buffer memory allocation failed">(hr);
+
+    return DX12Memory{
+        allocator,
+        std::move(allocation),
+    };
+}
+
+wis::ResultValue<wis::DX12Buffer>
+wis::DX12ResourceAllocator::PlaceBuffer(DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
+{
+    auto* alloc = std::get<1>(memory);
+    D3D12_RESOURCE_DESC1 buffer_desc;
+    DX12FillBufferDesc(size, usage, buffer_desc);
+
+    wis::com_ptr<ID3D12Resource> rc;
+    auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &buffer_desc,
+                                       D3D12_RESOURCE_STATE_COMMON, nullptr, rc.iid(), rc.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Buffer Placement failed">(hr);
+
+    return DX12Buffer{ std::move(rc), nullptr, nullptr };
+}
+
+wis::ResultValue<wis::DX12Texture>
+wis::DX12ResourceAllocator::PlaceTexture(DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
+{
+    auto* alloc = std::get<1>(memory);
+    D3D12_RESOURCE_DESC1 tex_desc;
+    DX12FillTextureDesc(desc, tex_desc);
+
+    wis::com_ptr<ID3D12Resource> rc;
+    auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &tex_desc,
+                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, rc.iid(), rc.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Buffer Placement failed">(hr);
+
+    return DX12Buffer{ std::move(rc), nullptr, nullptr };
+}
+
 wis::ResultValue<wis::DX12Buffer>
 wis::DX12ResourceAllocator::DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
 {

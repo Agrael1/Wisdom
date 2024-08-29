@@ -17,11 +17,14 @@ if(NOT PLUGINS_LOADED)
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${vkma_SOURCES}/include/vk_mem_alloc.h)
-target_sources(${PROJECT_NAME} PRIVATE ${vkma_SOURCES}/src/VmaUsage.cpp
-                                       ${vkma_SOURCES}/src/VmaUsage.h)
+target_sources(${PROJECT_NAME} PRIVATE vma.cpp)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
-target_compile_definitions(${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES)
+target_compile_definitions(${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES VMA_STATIC_VULKAN_FUNCTIONS=0 VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
+if(WISDOM_WINDOWS)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+endif(WISDOM_WINDOWS)
+
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCES}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)

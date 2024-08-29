@@ -42,13 +42,22 @@ public:
     GetBufferAllocationInfo(uint64_t size, BufferUsage flags = BufferUsage::None) const noexcept;
 
     // Allocation functions
-    WIS_INLINE void AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
-                                        wis::MemoryType memory = wis::MemoryType::Default,
-                                        wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Memory>
+    AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
+                        wis::MemoryType memory = wis::MemoryType::Default,
+                        wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
-    WIS_INLINE void AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
-                                         wis::MemoryType memory = wis::MemoryType::Default,
-                                         wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Memory>
+    AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
+                         wis::MemoryType memory = wis::MemoryType::Default,
+                         wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+
+    // Resource placement functions
+    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Buffer>
+    PlaceBuffer(DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
+    PlaceTexture(DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept;
 
 public:
     // Convenience functions

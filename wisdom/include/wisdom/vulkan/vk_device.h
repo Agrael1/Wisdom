@@ -24,8 +24,6 @@ struct Internal<VKDevice> {
     wis::VKDeviceExtensionEmbedded1 ext1;
 
     mutable wis::shared_handle<VmaAllocator> allocator;
-    mutable std::shared_ptr<VmaVulkanFunctions> allocator_functions;
-
     detail::QueueResidency queues;
 
 public:
