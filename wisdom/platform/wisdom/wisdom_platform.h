@@ -3,7 +3,10 @@
 
 #ifdef WIS_WINDOWS_PLATFORM
 #include <wisdom/wisdom_windows.h>
+#else 
+#include <wisdom/linux/interop_device.h>
 #endif
+
 #ifdef WIS_XCB_PLATFORM
 #include <wisdom/wisdom_xcb.h>
 #endif // WIS_XCB_PLATFORM

@@ -7,7 +7,7 @@ target_include_directories(
   wisdom-platform-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.h")
+add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.h" "wisdom/linux/interop_device.h")
 add_library(wis::platform ALIAS wisdom-platform)
 target_include_directories(
   wisdom-platform INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
