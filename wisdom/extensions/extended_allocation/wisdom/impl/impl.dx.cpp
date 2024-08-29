@@ -27,7 +27,7 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
     wis::com_ptr<ID3D12Resource> rc;
     wis::com_ptr<D3D12MA::Allocation> al;
 
-    auto hallocator = allocator.GetInternal().allocator;
+    auto* hallocator = allocator.GetInternal().allocator.get();
 
     HRESULT hr = hallocator->CreateResource3(&all_desc, &tex_desc,
                                              convert_dx(initial_state), nullptr, 0, nullptr,
