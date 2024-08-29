@@ -8,12 +8,35 @@
 
 wis::ResultValue<wis::DX12Texture>
 wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
-                                           wis::TextureDesc desc,
-                                           wis::MemoryFlags flags) const noexcept
+                                                    wis::TextureDesc desc,
+                                                    wis::TextureState initial_state,
+                                                    wis::MemoryFlags flags) const noexcept
 {
     if (!supports_gpu_upload)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
-    return allocator.CreateTexture(desc, wis::MemoryType::GPUUpload, flags);
+
+    D3D12_RESOURCE_DESC1 tex_desc;
+    DX12ResourceAllocator::DX12FillTextureDesc(desc, tex_desc);
+
+    D3D12MA::ALLOCATION_DESC all_desc{
+        .Flags = convert_dx(flags),
+        .HeapType = convert_dx(wis::MemoryType::GPUUpload),
+        .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
+    };
+
+    wis::com_ptr<ID3D12Resource> rc;
+    wis::com_ptr<D3D12MA::Allocation> al;
+
+    auto hallocator = allocator.GetInternal().allocator;
+
+    HRESULT hr = hallocator->CreateResource3(&all_desc, &tex_desc,
+                                             convert_dx(initial_state), nullptr, 0, nullptr,
+                                             al.put(), __uuidof(*rc), rc.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+
+    return DX12Buffer{ std::move(rc), std::move(al), hallocator };
 }
 
 wis::Result

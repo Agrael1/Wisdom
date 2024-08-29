@@ -49,6 +49,7 @@ wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
 wis::ResultValue<wis::VKTexture>
 wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
                                                   wis::TextureDesc desc,
+                                                  wis::TextureState initial_state,
                                                   wis::MemoryFlags flags) const noexcept
 {
     if (!vkCopyMemoryToImageEXT)
@@ -65,7 +66,7 @@ wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator
         .pNext = nullptr,
         .image = texture.GetInternal().buffer,
         .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+        .newLayout = convert_vk(initial_state),
         .subresourceRange = {
                 .aspectMask = wis::aspect_flags(tex_i.format),
                 .baseMipLevel = 0,

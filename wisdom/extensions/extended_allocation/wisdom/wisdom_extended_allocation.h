@@ -40,6 +40,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
     CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
                            wis::TextureDesc desc,
+                           wis::TextureState initial_state = wis::TextureState::Common,
                            wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
@@ -99,6 +100,7 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
     CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
                            wis::TextureDesc desc,
+                           wis::TextureState initial_state = wis::TextureState::Common,
                            wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
