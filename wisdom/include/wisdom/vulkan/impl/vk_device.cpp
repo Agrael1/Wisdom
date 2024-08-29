@@ -867,21 +867,9 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     wis::detail::limited_allocator<VkExternalMemoryHandleTypeFlagsKHR, 16>
             handle_types(mem_props.memoryProperties.memoryTypeCount, true);
 
-    // Only if there is an interop extension
-    if (ext1.GetFeatures().interop_device) {
-        auto* htdata = handle_types.data();
-        for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
-            htdata[i] = detail::memory_handle_type;
-        }
-    }
 
     VmaAllocatorCreateInfo allocatorInfo{
-        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT 
-#ifdef _WIN32
-                |  VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT 
-
-#endif // WIN32
-                | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
         .physicalDevice = adapter_i.adapter,
         .device = device.get(),
         .pVulkanFunctions = &allocator_functions,
@@ -889,6 +877,17 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
         .vulkanApiVersion = version,
         .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device ? handle_types.data() : nullptr
     };
+
+    // Only if there is an interop extension
+    if (ext1.GetFeatures().interop_device) {
+        auto* htdata = handle_types.data();
+        for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
+            htdata[i] = detail::memory_handle_type;
+        }
+#ifdef _WIN32
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
+#endif // WIN32
+    }
 
     VmaAllocator al;
     VkResult vr = vmaCreateAllocator(&allocatorInfo, &al);
