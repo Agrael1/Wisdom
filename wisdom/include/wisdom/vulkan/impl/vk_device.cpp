@@ -886,6 +886,7 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
         }
 #ifdef _WIN32
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
+        allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
 #endif // WIN32
     }
 
