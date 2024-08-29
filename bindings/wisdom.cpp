@@ -13,6 +13,11 @@ extern "C" DX12BufferView AsDX12BufferView(DX12Buffer self)
     wis::DX12BufferView xself = reinterpret_cast<wis::DX12Buffer&>(*self);
     return reinterpret_cast<DX12BufferView&>(xself);
 }
+extern "C" DX12MemoryView AsDX12MemoryView(DX12Memory self)
+{
+    wis::DX12MemoryView xself = reinterpret_cast<wis::DX12Memory&>(*self);
+    return reinterpret_cast<DX12MemoryView&>(xself);
+}
 extern "C" DX12TextureView AsDX12TextureView(DX12Texture self)
 {
     wis::DX12TextureView xself = reinterpret_cast<wis::DX12Texture&>(*self);
@@ -161,6 +166,11 @@ extern "C" VKBufferView AsVKBufferView(VKBuffer self)
 {
     wis::VKBufferView xself = reinterpret_cast<wis::VKBuffer&>(*self);
     return reinterpret_cast<VKBufferView&>(xself);
+}
+extern "C" VKMemoryView AsVKMemoryView(VKMemory self)
+{
+    wis::VKMemoryView xself = reinterpret_cast<wis::VKMemory&>(*self);
+    return reinterpret_cast<VKMemoryView&>(xself);
 }
 extern "C" VKTextureView AsVKTextureView(VKTexture self)
 {

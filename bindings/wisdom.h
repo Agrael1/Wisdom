@@ -839,6 +839,8 @@ typedef void (*DebugCallback)(WisSeverity severity, const char* message, void* u
 
 #ifdef WISDOM_VULKAN
 typedef struct VKCommandListView VKCommandListView;
+typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKMemoryView VKMemoryView;
 typedef struct VKGraphicsPipelineDesc VKGraphicsPipelineDesc;
 typedef struct VKFenceView VKFenceView;
 typedef struct VKRenderPassDepthStencilDesc VKRenderPassDepthStencilDesc;
@@ -849,7 +851,6 @@ typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKDescriptorBufferView VKDescriptorBufferView;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
-typedef struct VKTextureBarrier2 VKTextureBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
 typedef struct VKRenderPassDesc VKRenderPassDesc;
@@ -863,6 +864,11 @@ struct VKFenceView {
 
 struct VKBufferView {
     void* value;
+};
+
+struct VKMemoryView {
+    void* value1;
+    void* value2;
 };
 
 struct VKTextureView {
@@ -974,6 +980,7 @@ typedef struct VKDebugMessenger_t* VKDebugMessenger;
 typedef struct VKRenderTarget_t* VKRenderTarget;
 typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
 typedef struct VKSampler_t* VKSampler;
+typedef struct VKMemory_t* VKMemory;
 typedef struct VKShaderResource_t* VKShaderResource;
 
 //-------------------------------------------------------------------------
@@ -1003,6 +1010,7 @@ WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
 
 WISDOM_API VKFenceView AsVKFenceView(VKFence self);
 WISDOM_API VKBufferView AsVKBufferView(VKBuffer self);
+WISDOM_API VKMemoryView AsVKMemoryView(VKMemory self);
 WISDOM_API VKTextureView AsVKTextureView(VKTexture self);
 WISDOM_API VKRenderTargetView AsVKRenderTargetView(VKRenderTarget self);
 WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
@@ -1013,6 +1021,8 @@ WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer se
 
 #ifdef WISDOM_DX12
 typedef struct DX12CommandListView DX12CommandListView;
+typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12MemoryView DX12MemoryView;
 typedef struct DX12GraphicsPipelineDesc DX12GraphicsPipelineDesc;
 typedef struct DX12FenceView DX12FenceView;
 typedef struct DX12RenderPassDepthStencilDesc DX12RenderPassDepthStencilDesc;
@@ -1023,7 +1033,6 @@ typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
-typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
 typedef struct DX12RenderPassDesc DX12RenderPassDesc;
@@ -1037,6 +1046,11 @@ struct DX12FenceView {
 
 struct DX12BufferView {
     void* value;
+};
+
+struct DX12MemoryView {
+    void* value1;
+    void* value2;
 };
 
 struct DX12TextureView {
@@ -1146,6 +1160,7 @@ typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
 typedef struct DX12DescriptorBuffer_t* DX12DescriptorBuffer;
 typedef struct DX12Sampler_t* DX12Sampler;
+typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
 
 //-------------------------------------------------------------------------
@@ -1175,6 +1190,7 @@ WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_devic
 
 WISDOM_API DX12FenceView AsDX12FenceView(DX12Fence self);
 WISDOM_API DX12BufferView AsDX12BufferView(DX12Buffer self);
+WISDOM_API DX12MemoryView AsDX12MemoryView(DX12Memory self);
 WISDOM_API DX12TextureView AsDX12TextureView(DX12Texture self);
 WISDOM_API DX12RenderTargetView AsDX12RenderTargetView(DX12RenderTarget self);
 WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);

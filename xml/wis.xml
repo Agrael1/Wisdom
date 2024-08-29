@@ -18,6 +18,7 @@
     <handle name="RenderTarget"/>
     <handle name="DescriptorBuffer"/>
     <handle name="Sampler"/>
+    <handle name="Memory"/>
     <handle name="ShaderResource"/>
     <handle name="FactoryExtension"/>
     <handle name="DeviceExtension"/>
@@ -1186,6 +1187,12 @@
     <type name="BufferView" category="variant" for="Buffer">
       <impl name="both">
         <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="MemoryView" category="variant" for="Memory">
+      <impl name="both">
+        <member type="void" name="value1" mod="ptr"/>
+        <member type="void" name="value2" mod="ptr"/>
       </impl>
     </type>
     <type name="TextureView" category="variant" for="Texture">
