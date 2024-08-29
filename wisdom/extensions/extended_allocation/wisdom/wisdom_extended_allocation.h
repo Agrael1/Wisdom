@@ -38,10 +38,9 @@ public:
 public:
     // may only transition to copy states
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
-    CreateTexture(const wis::DX12ResourceAllocator& allocator,
-                  wis::TextureDesc desc,
-                  wis::MemoryType memory,
-                  wis::MemoryFlags flags) const noexcept;
+    CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
+                           wis::TextureDesc desc,
+                           wis::MemoryFlags flags) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
     WriteMemoryToSubresourceDirect(const void* host_data,
@@ -98,10 +97,9 @@ public:
 public:
     // may only transition to copy states
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
-    CreateTexture(const wis::VKResourceAllocator& allocator,
-                  wis::TextureDesc desc,
-                  wis::MemoryType memory,
-                  wis::MemoryFlags flags) const noexcept;
+    CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
+                           wis::TextureDesc desc,
+                           wis::MemoryFlags flags) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
     WriteMemoryToSubresourceDirect(const void* host_data,

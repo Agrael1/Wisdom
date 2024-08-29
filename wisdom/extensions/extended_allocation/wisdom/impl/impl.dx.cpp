@@ -7,14 +7,13 @@
 #include <d3dx12/d3dx12_property_format_table.h>
 
 wis::ResultValue<wis::DX12Texture>
-wis::DX12ExtendedAllocation::CreateTexture(const wis::DX12ResourceAllocator& allocator,
+wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
                                            wis::TextureDesc desc,
-                                           wis::MemoryType memory,
                                            wis::MemoryFlags flags) const noexcept
 {
-    if (memory == wis::MemoryType::GPUUpload && !supports_gpu_upload)
+    if (!supports_gpu_upload)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
-    return allocator.CreateTexture(desc, memory, flags);
+    return allocator.CreateTexture(desc, wis::MemoryType::GPUUpload, flags);
 }
 
 wis::Result

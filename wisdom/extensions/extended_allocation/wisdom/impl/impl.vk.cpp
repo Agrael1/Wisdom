@@ -47,20 +47,16 @@ wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
 }
 
 wis::ResultValue<wis::VKTexture>
-wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocator,
-                                         wis::TextureDesc desc,
-                                         wis::MemoryType memory,
-                                         wis::MemoryFlags flags) const noexcept
+wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
+                                                  wis::TextureDesc desc,
+                                                  wis::MemoryFlags flags) const noexcept
 {
-    if (!vkCopyMemoryToImageEXT && memory == wis::MemoryType::GPUUpload)
+    if (!vkCopyMemoryToImageEXT)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(VK_ERROR_UNKNOWN);
 
     VkImageCreateInfo info;
     VKResourceAllocator::VKFillImageDesc(desc, info);
-    auto [res, texture] = allocator.CreateTexture(desc, memory, flags);
-    if (!(desc.usage & wis::TextureUsage::HostCopy)) {
-        return std::move(texture);
-    }
+    auto [res, texture] = allocator.CreateTexture(desc, wis::MemoryType::GPUUpload, flags);
 
     // Transition image layout to general for host copy layouts
     auto& tex_i = texture.GetInternal();
@@ -71,7 +67,7 @@ wis::VKExtendedAllocation::CreateTexture(const wis::VKResourceAllocator& allocat
         .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         .newLayout = VK_IMAGE_LAYOUT_GENERAL,
         .subresourceRange = {
-                .aspectMask = aspect_flags(tex_i.format),
+                .aspectMask = wis::aspect_flags(tex_i.format),
                 .baseMipLevel = 0,
                 .levelCount = desc.mip_levels,
                 .baseArrayLayer = 0,
