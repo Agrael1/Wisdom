@@ -154,8 +154,7 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
         return wis::make_result<FUNC, "Failed to create an Allocator">(vr);
 
     return wis::VKResourceAllocator{ wis::shared_handle<VmaAllocator>{
-                                             device, al },
-                                     std::move(allocator_functions), ext };
+                                             device, al }, ext };
 }
 
 wis::ResultValue<wis::Texture>
@@ -312,45 +311,7 @@ int64_t TestTextures(const wis::Device& xdevice)
 
 void TestHandles(const wis::Device& xdevice, wis::platform::InteropDeviceExtension& global_interop)
 {
-    auto [r, a] = CreateAllocator(xdevice, true);
 
-    auto [r2, b] = a.CreateBuffer(1024, wis::BufferUsage::None);
-    auto& b_i = b.GetInternal();
-
-    // Get win32 handle
-    VmaAllocationInfo2 b_info;
-    vmaGetAllocationInfo2(a.GetInternal().allocator.get(), b_i.allocation, &b_info);
-    VkMemoryGetWin32HandleInfoKHR info{
-        .sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR,
-        .pNext = nullptr,
-        .memory = b_info.allocationInfo.deviceMemory,
-        .handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
-    };
-
-    HANDLE handle;
-    HANDLE handle2;
-
-    auto result = global_interop.GetInternal().vkGetMemoryWin32HandleKHR(xdevice.GetInternal().device.get(), &info, &handle);
-    result = global_interop.GetInternal().vkGetMemoryWin32HandleKHR(xdevice.GetInternal().device.get(), &info, &handle2);
-
-    if (!wis::succeeded(result)) {
-        std::cerr << "Failed to get memory handle\n";
-    }
-
-    auto x = LoadLibraryW(L"Kernelbase.dll");
-    using CallTy = decltype(&CompareObjectHandles);
-
-    auto* call = reinterpret_cast<CallTy>(GetProcAddress(x, "CompareObjectHandles"));
-
-    BOOL bx = call(handle, handle2);
-
-    if (bx) {
-        std::cout << "Handles are equal\n";
-    } else {
-        std::cout << "Handles are not equal\n";
-    }
-
-    if (x) FreeLibrary(x);
 }
 
 void TestAllocations(const wis::Device& xdevice, wis::platform::InteropDeviceExtension& global_interop)
