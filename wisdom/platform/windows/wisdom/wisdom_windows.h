@@ -47,9 +47,22 @@ public:
     {
         HANDLE handle;
         auto hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
-        
+
         if (!wis::succeeded(hr)) {
             return wis::make_result<FUNC, "Failed to create shared handle for fence">(hr);
+        }
+        return handle;
+    }
+    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
+    GetMemoryHandle(wis::DX12MemoryView memory) const noexcept
+    {
+        auto allocation = std::get<1>(memory);
+
+        HANDLE handle;
+        auto hr = device->CreateSharedHandle(allocation->GetHeap(), nullptr, GENERIC_ALL, nullptr, &handle);
+
+        if (!wis::succeeded(hr)) {
+            return wis::make_result<FUNC, "Failed to create shared handle for memory allocation">(hr);
         }
         return handle;
     }
@@ -150,6 +163,24 @@ public:
         auto result = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
         if (!wis::succeeded(result)) {
             return wis::make_result<FUNC, "Failed to get semaphore handle">(result);
+        }
+        return handle;
+    }
+    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
+    GetMemoryHandle(wis::VKMemoryView memory) const noexcept
+    {
+        // I know it exists, but platform code is the pain in the ass :(
+        extern VMA_CALL_PRE VkResult VMA_CALL_POST vmaGetMemoryWin32Handle(VmaAllocator VMA_NOT_NULL allocator,
+                                                                           VmaAllocation VMA_NOT_NULL allocation,
+                                                                           HANDLE hTargetProcess,
+                                                                           HANDLE * VMA_NOT_NULL pHandle);
+
+        auto allocator = std::get<0>(memory);
+        auto allocation = std::get<1>(memory);
+        HANDLE handle;
+        auto result = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
+        if (!wis::succeeded(result)) {
+            return wis::make_result<FUNC, "Failed to get memory handle">(result);
         }
         return handle;
     }
