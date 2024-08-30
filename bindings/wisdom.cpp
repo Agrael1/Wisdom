@@ -13,11 +13,6 @@ extern "C" DX12BufferView AsDX12BufferView(DX12Buffer self)
     wis::DX12BufferView xself = reinterpret_cast<wis::DX12Buffer&>(*self);
     return reinterpret_cast<DX12BufferView&>(xself);
 }
-extern "C" DX12MemoryView AsDX12MemoryView(DX12Memory self)
-{
-    wis::DX12MemoryView xself = reinterpret_cast<wis::DX12Memory&>(*self);
-    return reinterpret_cast<DX12MemoryView&>(xself);
-}
 extern "C" DX12TextureView AsDX12TextureView(DX12Texture self)
 {
     wis::DX12TextureView xself = reinterpret_cast<wis::DX12Texture&>(*self);
@@ -133,6 +128,11 @@ extern "C" WISDOM_API void DX12SamplerDestroy(DX12Sampler self)
     auto* xself = reinterpret_cast<wis::DX12Sampler*>(self);
     delete xself;
 }
+extern "C" WISDOM_API void DX12MemoryDestroy(DX12Memory self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
+    delete xself;
+}
 extern "C" WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self)
 {
     auto* xself = reinterpret_cast<wis::DX12ShaderResource*>(self);
@@ -166,11 +166,6 @@ extern "C" VKBufferView AsVKBufferView(VKBuffer self)
 {
     wis::VKBufferView xself = reinterpret_cast<wis::VKBuffer&>(*self);
     return reinterpret_cast<VKBufferView&>(xself);
-}
-extern "C" VKMemoryView AsVKMemoryView(VKMemory self)
-{
-    wis::VKMemoryView xself = reinterpret_cast<wis::VKMemory&>(*self);
-    return reinterpret_cast<VKMemoryView&>(xself);
 }
 extern "C" VKTextureView AsVKTextureView(VKTexture self)
 {
@@ -285,6 +280,11 @@ extern "C" WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self)
 extern "C" WISDOM_API void VKSamplerDestroy(VKSampler self)
 {
     auto* xself = reinterpret_cast<wis::VKSampler*>(self);
+    delete xself;
+}
+extern "C" WISDOM_API void VKMemoryDestroy(VKMemory self)
+{
+    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
     delete xself;
 }
 extern "C" WISDOM_API void VKShaderResourceDestroy(VKShaderResource self)

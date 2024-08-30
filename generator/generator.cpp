@@ -11,16 +11,7 @@ using namespace tinyxml2;
 
 Generator::Generator(XMLDocument& doc)
 {
-    auto* root = doc.FirstChildElement("registry");
-    if (!root)
-        throw std::runtime_error("Failed to load root");
-
-    auto* handles = root->FirstChildElement("handles");
-    ParseHandles(handles);
-    auto* types = root->FirstChildElement("types");
-    ParseTypes(types);
-    auto* funcs = root->FirstChildElement("functions");
-    ParseFunctions(funcs);
+    ParseFile(doc);
 }
 
 int Generator::GenerateCAPI()
@@ -428,6 +419,25 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 
 //-----------------------------------------------------------------------------
 
+void Generator::ParseFile(tinyxml2::XMLDocument& doc)
+{
+    auto* root = doc.FirstChildElement("registry");
+    if (!root)
+        throw std::runtime_error("Failed to load root");
+
+    if(auto* include = root->FirstChildElement("includes"))
+        ParseIncludes(include);
+
+    if(auto* handles = root->FirstChildElement("handles"))
+        ParseHandles(handles);
+
+    if (auto* types = root->FirstChildElement("types"))
+        ParseTypes(types);
+
+    if (auto* funcs = root->FirstChildElement("functions"))
+        ParseFunctions(funcs);
+}
+
 void Generator::ParseTypes(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("type"); type;
@@ -443,6 +453,23 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
             ParseDelegate(type);
         } else if (std::string_view(category) == "variant") {
             ParseVariant(*type);
+        }
+    }
+}
+
+void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
+{
+    for (auto* include = includes->FirstChildElement("include"); include;
+         include = include->NextSiblingElement("include")) {
+        auto file = include->GetText();
+        auto rpath = std::filesystem::path(INPUT_FILE).parent_path() / file;
+        auto absolute = std::filesystem::absolute(rpath);
+
+        if (std::filesystem::exists(absolute) && !this->includes.contains(absolute)) {
+            auto& doc = this->includes[absolute];
+            if (doc.LoadFile(absolute.string().c_str()) != tinyxml2::XMLError::XML_SUCCESS)
+                throw std::runtime_error("Failed to load include file");
+            ParseFile(doc);
         }
     }
 }

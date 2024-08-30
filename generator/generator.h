@@ -139,8 +139,9 @@ public:
     std::string MakeCPPPlatformFunc(WisFunction& func, std::string_view impl);
     std::string GenerateCPPExportHeader();
 
+    void ParseFile(tinyxml2::XMLDocument& doc);
     void ParseTypes(tinyxml2::XMLElement* types);
-
+    void ParseIncludes(tinyxml2::XMLElement* handles);
     void ParseHandles(tinyxml2::XMLElement* handles);
     void ParseFunctions(tinyxml2::XMLElement* functions);
 
@@ -177,6 +178,7 @@ public:
     TypeInfo GetTypeInfo(std::string_view type);
 
 private:
+    std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> includes;
     std::vector<std::filesystem::path> files;
 
     std::vector<WisStruct*> structs;

@@ -839,8 +839,6 @@ typedef void (*DebugCallback)(WisSeverity severity, const char* message, void* u
 
 #ifdef WISDOM_VULKAN
 typedef struct VKCommandListView VKCommandListView;
-typedef struct VKTextureBarrier2 VKTextureBarrier2;
-typedef struct VKMemoryView VKMemoryView;
 typedef struct VKGraphicsPipelineDesc VKGraphicsPipelineDesc;
 typedef struct VKFenceView VKFenceView;
 typedef struct VKRenderPassDepthStencilDesc VKRenderPassDepthStencilDesc;
@@ -851,6 +849,7 @@ typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKDescriptorBufferView VKDescriptorBufferView;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
+typedef struct VKTextureBarrier2 VKTextureBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
 typedef struct VKRenderPassDesc VKRenderPassDesc;
@@ -864,11 +863,6 @@ struct VKFenceView {
 
 struct VKBufferView {
     void* value;
-};
-
-struct VKMemoryView {
-    void* value1;
-    void* value2;
 };
 
 struct VKTextureView {
@@ -1002,6 +996,7 @@ WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
 WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
 WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
 WISDOM_API void VKSamplerDestroy(VKSampler self);
+WISDOM_API void VKMemoryDestroy(VKMemory self);
 WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
 WISDOM_API WisResult VKCreateFactory(bool debug_layer, VKFactory* out_factory);
 WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
@@ -1010,7 +1005,6 @@ WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
 
 WISDOM_API VKFenceView AsVKFenceView(VKFence self);
 WISDOM_API VKBufferView AsVKBufferView(VKBuffer self);
-WISDOM_API VKMemoryView AsVKMemoryView(VKMemory self);
 WISDOM_API VKTextureView AsVKTextureView(VKTexture self);
 WISDOM_API VKRenderTargetView AsVKRenderTargetView(VKRenderTarget self);
 WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
@@ -1021,8 +1015,6 @@ WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer se
 
 #ifdef WISDOM_DX12
 typedef struct DX12CommandListView DX12CommandListView;
-typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
-typedef struct DX12MemoryView DX12MemoryView;
 typedef struct DX12GraphicsPipelineDesc DX12GraphicsPipelineDesc;
 typedef struct DX12FenceView DX12FenceView;
 typedef struct DX12RenderPassDepthStencilDesc DX12RenderPassDepthStencilDesc;
@@ -1033,6 +1025,7 @@ typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
+typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
 typedef struct DX12RenderPassDesc DX12RenderPassDesc;
@@ -1046,11 +1039,6 @@ struct DX12FenceView {
 
 struct DX12BufferView {
     void* value;
-};
-
-struct DX12MemoryView {
-    void* value1;
-    void* value2;
 };
 
 struct DX12TextureView {
@@ -1182,6 +1170,7 @@ WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
 WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
 WISDOM_API void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self);
 WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
+WISDOM_API void DX12MemoryDestroy(DX12Memory self);
 WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
 WISDOM_API WisResult DX12CreateFactory(bool debug_layer, DX12Factory* out_factory);
 WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device);
@@ -1190,7 +1179,6 @@ WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_devic
 
 WISDOM_API DX12FenceView AsDX12FenceView(DX12Fence self);
 WISDOM_API DX12BufferView AsDX12BufferView(DX12Buffer self);
-WISDOM_API DX12MemoryView AsDX12MemoryView(DX12Memory self);
 WISDOM_API DX12TextureView AsDX12TextureView(DX12Texture self);
 WISDOM_API DX12RenderTargetView AsDX12RenderTargetView(DX12RenderTarget self);
 WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);
