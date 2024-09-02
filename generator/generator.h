@@ -17,13 +17,27 @@ enum ImplementedFor {
 };
 struct WisEnumValue {
     std::string_view name;
+    std::string_view doc;
     int64_t value;
     ImplementedFor impl = ImplementedFor::Both;
 };
 struct WisEnum {
     std::string_view name;
     std::string_view type;
+    std::string_view doc;
+    std::string doc_translates;
     std::vector<WisEnumValue> values;
+
+    std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty())
+            return {};
+
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
+    }
 };
 
 struct WisBitmaskValue {
@@ -39,7 +53,19 @@ struct WisBitmaskValue {
 struct WisBitmask {
     std::string_view name;
     std::string_view type;
+    std::string_view doc;
     std::vector<WisBitmaskValue> values;
+
+    std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty())
+            return {};
+
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
+    }
 };
 
 struct WisStructMember {
@@ -150,6 +176,9 @@ public:
     void ParseBitmask(tinyxml2::XMLElement& type);
     void ParseDelegate(tinyxml2::XMLElement* type);
     void ParseVariant(tinyxml2::XMLElement& type);
+
+    std::string FinalizeCDocumentation(std::string doc, std::string_view this_type);
+    std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type);
 
     std::string MakeCStruct(const WisStruct& s);
     std::pair<std::string, std::string> MakeCVariant(const WisVariant& s);

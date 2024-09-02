@@ -7,6 +7,46 @@
 
 using namespace tinyxml2;
 
+static inline void ReplaceAll(std::string& str, const std::string& from, const std::string& to)
+{
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+}
+struct InlineTypeInfo {
+    std::string_view type;
+    std::string_view value;
+    std::size_t pos;
+    std::size_t after;
+};
+
+static inline InlineTypeInfo FindInlineType(std::string_view str, size_t initial)
+{
+    // Find caption enclosed in { }
+    auto pos = str.find('{', initial);
+    if (pos == std::string_view::npos)
+        return {};
+
+    auto end = str.find('}', pos);
+    auto end_n = str.find('\n', pos);
+    if (end == std::string_view::npos || end_n < end)
+        return {};
+
+    std::string_view caption = str.substr(pos + 1, end - pos - 1);
+    std::string_view type, value;
+
+    // seek if there is :: inside the caption
+    auto colon = caption.find("::");
+    if (colon != std::string_view::npos) {
+        value = caption.substr(colon + 2);
+        type = caption.substr(0, colon);
+    }
+
+    return { type, value, pos, end };
+}
+
 //-----------------------------------------------------------------------------
 
 Generator::Generator(XMLDocument& doc)
@@ -425,10 +465,10 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
     if (!root)
         throw std::runtime_error("Failed to load root");
 
-    if(auto* include = root->FirstChildElement("includes"))
+    if (auto* include = root->FirstChildElement("includes"))
         ParseIncludes(include);
 
-    if(auto* handles = root->FirstChildElement("handles"))
+    if (auto* handles = root->FirstChildElement("handles"))
         ParseHandles(handles);
 
     if (auto* types = root->FirstChildElement("types"))
@@ -627,6 +667,11 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
 {
     std::unordered_map<std::string_view, std::string> cvts;
 
+    // Local documentation
+    std::string documentation;
+
+    std::string impl_doc;
+
     auto name = type.FindAttribute("name")->Value();
     auto& ref = enum_map[name];
     ref.name = name;
@@ -634,11 +679,16 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
     if (auto* size = type.FindAttribute("type"))
         ref.type = size->Value();
 
+    if (auto* size = type.FindAttribute("doc"))
+        ref.doc = size->Value();
+
     for (auto* impl_type = type.FirstChildElement("impl_type"); impl_type;
          impl_type = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for = impl_type->FindAttribute("for")->Value();
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
+
+        ref.doc_translates = wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
 
         std::string_view def_value = "{}";
         if (auto xdefault = impl_type->FindAttribute("default"))
@@ -792,6 +842,77 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
             }
         }
     }
+}
+
+std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type)
+{
+    if (doc.empty())
+        return doc;
+
+    size_t pos = 0;
+    std::string_view this_type_view = this_type;
+
+    while (true) {
+        auto&& [type, value, first, last] = FindInlineType(doc, pos);
+        if (type.empty() && value.empty())
+            break;
+
+        // Replace with this_type
+        if (!type.empty())
+            this_type_view = type;
+
+        std::string replacement;
+
+        if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
+            auto evalue = x->second.HasValue(value);
+            replacement = evalue ? wis::format("{}{}{}", x->second.name, impls[+evalue->impl], evalue->name)
+                                 : GetCFullTypename(x->second.name);
+
+        } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
+            auto evalue = y->second.HasValue(value);
+            replacement = evalue ? wis::format("{}{}{}", GetCFullTypename(y->second.name), impls[+evalue->impl], evalue->name)
+                                 : GetCFullTypename(y->second.name);
+        } else {
+        }
+        pos = last;
+        doc.replace(first, last - first + 1, replacement);
+    }
+    return doc;
+}
+std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_view this_type)
+{
+    if (doc.empty())
+        return doc;
+
+    size_t pos = 0;
+    std::string_view this_type_view = this_type;
+
+    while (true) {
+        auto&& [type, value, first, last] = FindInlineType(doc, pos);
+        if (type.empty() && value.empty())
+            break;
+
+        // Replace with this_type
+        if (!type.empty())
+            this_type_view = type;
+
+        std::string replacement;
+
+        if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
+            auto evalue = x->second.HasValue(value);
+            replacement = evalue ? wis::format("{}::{}{}", GetCPPFullTypename(x->second.name), impls[+evalue->impl], evalue->name)
+                                 : GetCPPFullTypename(x->second.name);
+
+        } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
+            auto evalue = y->second.HasValue(value);
+            replacement = evalue ? wis::format("{}::{}{}", GetCPPFullTypename(y->second.name), impls[+evalue->impl], evalue->name)
+                                 : GetCPPFullTypename(y->second.name);
+        } else {
+        }
+        pos = last;
+        doc.replace(first, last - first + 1, replacement);
+    }
+    return doc;
 }
 
 //-----------------------------------------------------------------------------
@@ -950,6 +1071,12 @@ std::string Generator::MakeCEnum(const WisEnum& s)
     auto full_name = GetCFullTypename(s.name, "");
     std::string st_decl = wis::format("enum {} {{\n", full_name);
 
+    if (!s.doc.empty()) {
+        std::string documentation = wis::format("/**\n@brief {}\n\n{}*/", s.doc, s.doc_translates);
+        ReplaceAll(documentation, "\n", "\n * ");
+        st_decl = wis::format("{}\n{}", FinalizeCDocumentation(documentation, s.name), st_decl);
+    }
+
     for (auto& m : s.values) {
         st_decl += wis::format("    {}{}{} = {},\n", s.name, impls[+m.impl], m.name, m.value);
     }
@@ -962,6 +1089,12 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
     std::string st_decl =
             !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
                             : wis::format("enum class {} {{\n", s.name);
+
+    if (!s.doc.empty()) {
+        std::string documentation = wis::format("/**\n@brief {}\n\n{}*/", s.doc, s.doc_translates);
+        ReplaceAll(documentation, "\n", "\n * ");
+        st_decl = wis::format("{}\n{}", FinalizeCPPDocumentation(documentation, s.name), st_decl);
+    }
 
     for (auto& m : s.values) {
         st_decl += wis::format("    {}{} = {},\n", impls[+m.impl], m.name, m.value);

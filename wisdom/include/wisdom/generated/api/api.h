@@ -50,6 +50,11 @@ enum class ShaderStages {
     Count = 8,
 };
 
+/**
+ * @brief Represents main error communication source for the API.
+ * Compare against wis::Status::Ok for success.
+ *
+ * */
 enum class Status : int32_t {
     Ok = 0,
     Timeout = 1,

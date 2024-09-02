@@ -20,6 +20,11 @@ enum WisShaderStages {
     ShaderStagesCount = 8,
 };
 
+/**
+ * @brief Represents main error communication source for the API.
+ * Compare against StatusOk for success.
+ *
+ * */
 enum WisStatus {
     StatusOk = 0,
     StatusTimeout = 1,
