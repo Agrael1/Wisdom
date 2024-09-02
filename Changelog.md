@@ -1,8 +1,9 @@
 # Version History
 
-- 0.1.9
+- 0.2.0
 
-  - Added allocation info for texture and buffer creation, pools coming sool
+  - Added allocation info, O(1) memory allocation, and memory and semaphore API interop
+  - Fixed the issue with AMD drivers not supporting wait for present
 
 - 0.1.8
 
