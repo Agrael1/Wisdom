@@ -16,6 +16,7 @@ struct Internal<platform::VKInteropDeviceExtensionLinux> {
     PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR = nullptr;
 };
 
+namespace platform {
 // Device Extension for memory and semaphore interop
 class VKInteropDeviceExtensionLinux : public QueryInternalExtension<VKInteropDeviceExtensionLinux, wis::VKDeviceExtension>
 {
