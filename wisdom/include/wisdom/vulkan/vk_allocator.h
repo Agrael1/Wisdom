@@ -86,16 +86,16 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKTexture>
     VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE static void
+    WIS_INLINE static void
     VKFillBufferDesc(uint64_t size, BufferUsage flags, VkBufferCreateInfo& info) noexcept;
 
-    [[nodiscard]] WIS_INLINE static void
+    WIS_INLINE static void
     VKFillImageDesc(const TextureDesc& desc, VkImageCreateInfo& info) noexcept;
 
-    [[nodiscard]] WIS_INLINE void
+    WIS_INLINE void
     VKFillTextureAllocationInfo(const wis::TextureDesc& desc, VkMemoryRequirements2& out_info) const noexcept;
 
-    [[nodiscard]] WIS_INLINE void
+    WIS_INLINE void
     VKFillBufferAllocationInfo(uint64_t size, wis::BufferUsage flags, VkMemoryRequirements2& out_info) const noexcept;
 };
 } // namespace wis
