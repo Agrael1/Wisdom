@@ -4,9 +4,13 @@
     <!--Enums-->
     <type name="Status" category="enum" type="i32" doc="Represents main error communication source for the API.
 Compare against {::Ok} for success.">
-      <value name="Ok" value="0"/>
-      <value name="Timeout" value="1"/>
-      <value name="Partial" value="2"/>
+      <value name="Ok" value="0" doc="Operation succeded."/>
+      <value name="Timeout" value="1" doc="Operation timed out. 
+Counts as a success value in some cases."/>
+      <value name="Partial" value="2" doc="Operation partially succeeded.
+Some times it means that core value is initialized,
+but some functionality may be missing and may require
+you to check if demanded functionality is in place"/>
       <value name="Error" value="-1"/>
       <value name="InvalidArgument" value="-2"/>
       <value name="OutOfMemory" value="-3"/>

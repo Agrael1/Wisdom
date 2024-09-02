@@ -56,8 +56,18 @@ enum class ShaderStages {
  *
  * */
 enum class Status : int32_t {
-    Ok = 0,
+    Ok = 0, ///< Operation succeded.
+    /**
+     * @brief Operation timed out.
+     * Counts as a success value in some cases.
+     * */
     Timeout = 1,
+    /**
+     * @brief Operation partially succeeded.
+     * Some times it means that core value is initialized,
+     * but some functionality may be missing and may require
+     * you to check if demanded functionality is in place
+     * */
     Partial = 2,
     Error = -1,
     InvalidArgument = -2,

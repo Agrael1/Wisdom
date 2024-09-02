@@ -715,6 +715,9 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         if (auto* impl = member->FindAttribute("impl"))
             m.impl = ImplCode(impl->Value());
 
+        if (auto* doc = member->FindAttribute("doc"))
+            m.doc = doc->Value();
+
         for (auto* impl = member->FirstChildElement("impl"); impl;
              impl = impl->NextSiblingElement("impl")) {
             auto impl_name = impl->FindAttribute("name")->Value();
@@ -1078,7 +1081,21 @@ std::string Generator::MakeCEnum(const WisEnum& s)
     }
 
     for (auto& m : s.values) {
-        st_decl += wis::format("    {}{}{} = {},\n", s.name, impls[+m.impl], m.name, m.value);
+        std::string documentation;
+        bool pre_doc = false;
+        if (!m.doc.empty()) {
+            if (m.doc.find('\n') != std::string_view::npos) {
+                pre_doc = true;
+                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+            } else {
+                documentation = wis::format(" ///< {}", m.doc);
+            }
+            documentation = FinalizeCDocumentation(documentation, s.name);
+        }
+        st_decl += pre_doc
+                ? wis::format("    {}\n    {}{}{} = {},\n", documentation, s.name, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{}{} = {},{}\n", s.name, impls[+m.impl], m.name, m.value, documentation);
     }
 
     st_decl += "};\n\n";
@@ -1097,9 +1114,24 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
     }
 
     for (auto& m : s.values) {
-        st_decl += wis::format("    {}{} = {},\n", impls[+m.impl], m.name, m.value);
+        std::string documentation;
+        bool pre_doc = false;
+        if (!m.doc.empty()) {
+            if (m.doc.find('\n') != std::string_view::npos) {
+                pre_doc = true;
+                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+            } else {
+                documentation = wis::format(" ///< {}", m.doc);
+            }
+            documentation = FinalizeCDocumentation(documentation, s.name);
+        }
+        st_decl += pre_doc
+                ? wis::format("    {}\n    {}{} = {},\n", documentation, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{} = {},{}\n", impls[+m.impl], m.name, m.value, documentation);
     }
     st_decl += "};\n\n";
+
     return st_decl;
 }
 
