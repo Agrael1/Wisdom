@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+  <includes>
+    <include>enums.xml</include>
+  </includes>
+
+  <types comment="Type definitions">
+    <!--Views-->
+    <type name="FenceView" category="variant" for="Fence">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="BufferView" category="variant" for="Buffer">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="TextureView" category="variant" for="Texture">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value" mod="ptr"/>
+        <member type="u32" name="value2"/>
+        <member type="Size2D" name="value3"/>
+      </impl>
+    </type>
+    <type name="RenderTargetView" category="variant" for="RenderTarget">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="CommandListView" category="variant" for="CommandList">
+      <impl name="both">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="ShaderView" category="variant" for="Shader">
+      <impl name="dx">
+        <member type="void" name="bytecode" mod="ptr"/>
+        <member type="u32" name="size_bytes"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="RootSignatureView" category="variant" for="RootSignature">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer">
+      <impl name="dx">
+        <member type="void" name="value" mod="ptr"/>
+      </impl>
+      <impl name="vk">
+        <member type="u64" name="value1"/>
+        <member type="u32" name="value2"/>
+      </impl>
+    </type>
+
+    <!--Structs-->
+    <type name="Result" category="struct">
+      <member type="Status" name="status" default="Ok"/>
+      <member type="u8string" name="error" mod="ptr" default="nullptr"/>
+    </type>
+    <type name="Size2D" category="struct">
+      <member type="u32" name="width"/>
+      <member type="u32" name="height"/>
+    </type>
+    <type name="Size3D" category="struct">
+      <member type="u32" name="width"/>
+      <member type="u32" name="height"/>
+      <member type="u32" name="depth_or_layers"/>
+    </type>
+    <type name="BufferRegion" category="struct">
+      <member type="u64" name="src_offset" default="0"/>
+      <member type="u64" name="dst_offset" default="0"/>
+      <member type="u64" name="size_bytes"/>
+    </type>
+    <type name="AdapterDesc" category="struct" >
+      <member type="u8string" name="description" array="256"/>
+      <member type="u32" name="vendor_id"/>
+      <member type="u32" name="device_id"/>
+      <member type="u32" name="subsys_id"/>
+      <member type="u32" name="revision"/>
+      <member type="u64" name="dedicated_video_memory"/>
+      <member type="u64" name="dedicated_system_memory"/>
+      <member type="u64" name="shared_system_memory"/>
+      <member type="u64" name="adapter_id"/>
+      <member type="AdapterFlags" name="flags"/>
+    </type>
+    <type name="InputSlotDesc" category="struct">
+      <member type="u32" name="slot"/>
+      <member type="u32" name="stride_bytes"/>
+      <member type="InputClass" name="input_class"/>
+    </type>
+    <type name="InputAttribute" category="struct">
+      <member type="u32" name="input_slot"/>
+      <member type="u8string" name="semantic_name" mod="ptr"/>
+      <member type="u32" name="semantic_index"/>
+      <member type="u32" name="location"/>
+      <member type="DataFormat" name="format"/>
+      <member type="u32" name="offset_bytes"/>
+    </type>
+    <type name="InputLayout" category="struct">
+      <member type="InputSlotDesc" name="slots" mod="ptr"/>
+      <member type="u32" name="slot_count" comment="Max number is 16"/>
+      <member type="InputAttribute" name="attributes" mod="ptr"/>
+      <member type="u32" name="attribute_count"/>
+    </type>
+    <type name="RasterizerDesc" category="struct">
+      <member type="FillMode" name="fill_mode" default="Solid"/>
+      <member type="CullMode" name="cull_mode" default="Back"/>
+      <member type="WindingOrder" name="front_face" default="Clockwise"/>
+      <member type="bool" name="depth_bias_enable" default="false"/>
+      <member type="f32" name="depth_bias" default="0.0f"/>
+      <member type="f32" name="depth_bias_clamp" default="0.0f"/>
+      <member type="f32" name="depth_bias_slope_factor" default="0.0f"/>
+      <member type="bool" name="depth_clip_enable" default="true"/>
+    </type>
+    <type name="SampleDesc" category="struct">
+      <member type="SampleRate" name="rate" default="S1"/>
+      <member type="f32" name="quality" default="0.0f"/>
+      <member type="u32" name="sample_mask" default="0xffffffff"/>
+    </type>
+    <type name="StencilDesc" category="struct">
+      <member type="StencilOp" name="fail_op" default="Keep"/>
+      <member type="StencilOp" name="depth_fail_op" default="Keep"/>
+      <member type="StencilOp" name="pass_op" default="Keep"/>
+      <member type="Compare" name="comparison" default="Always"/>
+      <member type="u8" name="read_mask" default="0xff"/>
+      <member type="u8" name="write_mask" default="0xff"/>
+    </type>
+    <type name="DepthStencilDesc" category="struct">
+      <member type="bool" name="depth_enable" default="false"/>
+      <member type="bool" name="depth_write_enable" default="false"/>
+      <member type="Compare" name="depth_comp" default="Less"/>
+      <member type="bool" name="stencil_enable" default="false"/>
+      <member type="StencilDesc" name="stencil_front" default="{}"/>
+      <member type="StencilDesc" name="stencil_back" default="{}"/>
+      <member type="bool" name="depth_bound_test" default="false"/>
+    </type>
+    <type name="BlendAttachmentDesc" category="struct">
+      <member type="bool" name="blend_enable" default="false"/>
+      <member type="BlendFactor" name="src_color_blend" default="One"/>
+      <member type="BlendFactor" name="dst_color_blend" default="Zero"/>
+      <member type="BlendOp" name="color_blend_op" default="Add"/>
+      <member type="BlendFactor" name="src_alpha_blend" default="One"/>
+      <member type="BlendFactor" name="dst_alpha_blend" default="Zero"/>
+      <member type="BlendOp" name="alpha_blend_op" default="Add"/>
+      <member type="ColorComponents" name="color_write_mask" default="All"/>
+    </type>
+    <type name="BlendStateDesc" category="struct">
+      <member type="bool" name="logic_op_enable" default="false"/>
+      <member type="LogicOp" name="logic_op" default="Noop"/>
+      <member type="BlendAttachmentDesc" name="attachments" array="8"/>
+      <member type="u32" name="attachment_count"/>
+    </type>
+    <type name="RenderAttachmentsDesc" category="struct">
+      <member type="DataFormat" name="attachment_formats" mod="ptr"/>
+      <member type="u32" name="attachments_count"/>
+      <member type="DataFormat" name="depth_attachment"/>
+    </type>
+
+    <type name="DebugCallback" category="delegate">
+      <arg type="Severity" name="severity"/>
+      <arg type="u8string" name="message" mod="ptr"/>
+      <arg type="void" name="user_data" mod="ptr"/>
+    </type>
+    <type name="RootConstant" category="struct">
+      <member type="ShaderStages" name="stage"/>
+      <member type="u32" name="size_bytes"/>
+    </type>
+    <type name="SwapchainDesc" category="struct">
+      <member type="Size2D" name="size"/>
+      <member type="DataFormat" name="format"/>
+      <member type="u32" name="buffer_count"/>
+      <member type="bool" name="stereo"/>
+      <member type="bool" name="vsync"/>
+    </type>
+    <type name="TextureDesc" category="struct">
+      <member type="DataFormat" name="format"/>
+      <member type="Size3D" name="size"/>
+      <member type="u32" name="mip_levels"/>
+      <member type="TextureLayout" name="layout" default="Texture2D"/>
+      <member type="SampleCount" name="sample_count" default="S1"/>
+      <member type="TextureUsage" name="usage" default="None"/>
+    </type>
+    <type name="AllocationInfo" category="struct">
+      <member type="u64" name="size_bytes"/>
+      <member type="u64" name="alignment_bytes"/>
+    </type>
+
+
+    <type name="TextureRegion" category="struct">
+      <member type="Size3D" name="offset"/>
+      <member type="Size3D" name="size"/>
+      <member type="u32" name="mip"/>
+      <member type="u32" name="array_layer"/>
+      <member type="DataFormat" name="format"/>
+    </type>
+    <type name="BufferTextureCopyRegion" category="struct">
+      <member type="u64" name="buffer_offset"/>
+      <member type="TextureRegion" name="texture"/>
+    </type>
+
+    <type name="PushDescriptor" category="struct">
+      <member type="ShaderStages" name="stage"/>
+      <member type="u32" name="bind_register"/>
+      <member type="DescriptorType" name="type"/>
+      <member type="u32" name="reserved"/>
+    </type>
+
+    <type name="SubresourceRange" category="struct">
+      <member type="u32" name="base_mip_level"/>
+      <member type="u32" name="level_count"/>
+      <member type="u32" name="base_array_layer"/>
+      <member type="u32" name="layer_count"/>
+    </type>
+
+    <type name="RenderTargetDesc" category="struct">
+      <member type="DataFormat" name="format"/>
+      <member type="TextureLayout" name="layout"/>
+      <member type="u32" name="mip"/>
+      <member type="u32" name="base_array_layer"/>
+      <member type="u32" name="layer_count"/>
+    </type>
+
+    <type name="Viewport" category="struct">
+      <member type="f32" name="top_leftx"/>
+      <member type="f32" name="top_lefty"/>
+      <member type="f32" name="width"/>
+      <member type="f32" name="height"/>
+      <member type="f32" name="min_depth"/>
+      <member type="f32" name="max_depth"/>
+    </type>
+
+    <type name="Scissor" category="struct">
+      <member type="i32" name="left"/>
+      <member type="i32" name="top"/>
+      <member type="i32" name="right"/>
+      <member type="i32" name="bottom"/>
+    </type>
+
+    <type name="BufferBarrier" category="struct">
+      <member type="BarrierSync" name="sync_before"/>
+      <member type="BarrierSync" name="sync_after"/>
+      <member type="ResourceAccess" name="access_before"/>
+      <member type="ResourceAccess" name="access_after"/>
+      <member type="u64" name="offset" default ="0"/>
+      <member type="u64" name="size" default="UINT64_MAX"/>
+    </type>
+
+    <type name="BufferBarrier2" category="variant">
+      <impl name="both">
+        <member type="BufferBarrier" name="barrier"/>
+        <member type="BufferView" name="buffer"/>
+      </impl>
+    </type>
+
+    <type name="TextureBarrier" category="struct">
+      <member type="BarrierSync" name="sync_before"/>
+      <member type="BarrierSync" name="sync_after"/>
+      <member type="ResourceAccess" name="access_before"/>
+      <member type="ResourceAccess" name="access_after"/>
+      <member type="TextureState" name="state_before"/>
+      <member type="TextureState" name="state_after"/>
+      <member type="SubresourceRange" name="subresource_range"/>
+    </type>
+
+    <type name="TextureBarrier2" category="variant">
+      <impl name="both">
+        <member type="TextureBarrier" name="barrier"/>
+        <member type="TextureView" name="texture"/>
+      </impl>
+    </type>
+
+    <type name="GraphicsShaderStages" category="variant">
+      <impl name="both">
+        <member type="ShaderView" name="vertex"/>
+        <member type="ShaderView" name="hull"/>
+        <member type="ShaderView" name="domain"/>
+        <member type="ShaderView" name="geometry"/>
+        <member type="ShaderView" name="pixel"/>
+      </impl>
+    </type>
+    <type name="GraphicsPipelineDesc" category="variant">
+      <impl name="both">
+        <member type="RootSignatureView" name="root_signature"/>
+        <member type="InputLayout" name="input_layout"/>
+        <member type="GraphicsShaderStages" name="shaders"/>
+        <member type="RenderAttachmentsDesc" name="attachments"/>
+        <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr"/>
+        <member type="SampleDesc" name="sample" mod="ptr" default="nullptr"/>
+        <member type="BlendStateDesc" name="blend" mod="ptr" default="nullptr"/>
+        <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr"/>
+        <member type="TopologyType" name="topology_type" default="Triangle"/>
+      </impl>
+    </type>
+    <type name="RenderPassRenderTargetDesc" category="variant">
+      <impl name="both">
+        <member type="RenderTargetView" name="target"/>
+        <member type="LoadOperation" name="load_op" default="Load"/>
+        <member type="StoreOperation" name="store_op" default="Store"/>
+        <member type="f32" name="clear_value" array="4"/>
+      </impl>
+    </type>
+    <type name="RenderPassDepthStencilDesc" category="variant">
+      <impl name="both">
+        <member type="RenderTargetView" name="target"/>
+        <member type="LoadOperation" name="load_op_depth" default="Load"/>
+        <member type="LoadOperation" name="load_op_stencil" default="Load"/>
+        <member type="StoreOperation" name="store_op_depth" default="Store"/>
+        <member type="StoreOperation" name="store_op_stencil" default="Store"/>
+        <member type="DSSelect" name="depth_stencil_select" default="None"/>
+        <member type="f32" name="clear_depth"/>
+        <member type="u8" name="clear_stencil"/>
+      </impl>
+    </type>
+    <type name="RenderPassDesc" category="variant">
+      <impl name="both">
+        <member type="RenderPassFlags" name="flags"/>
+        <member type="u32" name="target_count"/>
+        <member type="RenderPassRenderTargetDesc" name="targets" mod="ptr" default="nullptr"/>
+        <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="ptr"/>
+      </impl>
+    </type>
+    <type name="VertexBufferBinding" category="variant">
+      <impl name="both">
+        <member type="BufferView" name="buffer"/>
+        <member type="u32" name="size"/>
+        <member type="u32" name="stride"/>
+      </impl>
+    </type>
+
+    <type name="DescriptorTableEntry" category="struct">
+      <member type="DescriptorType" name="type"/>
+      <member type="u32" name="bind_register"/>
+      <member type="u32" name="binding"/>
+      <member type="u32" name="count"/>
+    </type>
+
+    <type name="DescriptorTable" category="struct">
+      <member type="DescriptorHeapType" name="type"/>
+      <member type="DescriptorTableEntry" name="entries" mod="ptr"/>
+      <member type="u32" name="entry_count"/>
+      <member type="ShaderStages" name="stage"/>
+    </type>
+
+    <type name="SamplerDesc" category="struct">
+      <member type="Filter" name="min_filter"/>
+      <member type="Filter" name="mag_filter"/>
+      <member type="Filter" name="mip_filter"/>
+      <member type="bool" name="anisotropic"/>
+      <member type="u32" name="max_anisotropy"/>
+      <member type="AddressMode" name="address_u"/>
+      <member type="AddressMode" name="address_v"/>
+      <member type="AddressMode" name="address_w"/>
+      <member type="f32" name="min_lod"/>
+      <member type="f32" name="max_lod"/>
+      <member type="f32" name="mip_lod_bias"/>
+      <member type="Compare" name="comparison_op"/>
+      <member type="f32" name="border_color" array="4"/>
+    </type>
+
+    <type name="ComponentMapping" category="struct">
+      <member type="ComponentSwizzle" name="r" default="Red"/>
+      <member type="ComponentSwizzle" name="g" default="Green"/>
+      <member type="ComponentSwizzle" name="b" default="Blue"/>
+      <member type="ComponentSwizzle" name="a" default="Alpha"/>
+    </type>
+
+    <type name="ShaderResourceDesc" category="struct">
+      <member type="DataFormat" name="format"/>
+      <member type="TextureViewType" name="view_type"/>
+      <member type="ComponentMapping" name="component_mapping"/>
+      <member type="SubresourceRange" name="subresource_range"/>
+    </type>
+  </types>
+</registry>

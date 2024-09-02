@@ -27,6 +27,7 @@ if(WISDOM_BUILD_BINARIES)
 		"include/wisdom/dx12/dx12_checks.h"
 		"include/wisdom/dx12/dx12_convert.h"
 		"include/wisdom/dx12/dx12_fence.h"
+		"include/wisdom/dx12/dx12_memory.h"
 		"include/wisdom/dx12/dx12_device.h"
 		"include/wisdom/dx12/dx12_command_queue.h"
 		"include/wisdom/dx12/dx12_command_list.h"

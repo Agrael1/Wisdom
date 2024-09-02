@@ -45,7 +45,8 @@ public:
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.
-    [[nodiscard]] WIS_INLINE wis::Result Signal(uint64_t value) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result
+    Signal(uint64_t value) const noexcept;
 };
 } // namespace wis
 

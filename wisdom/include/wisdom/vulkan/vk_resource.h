@@ -1,25 +1,23 @@
 #ifndef VK_RESOURCE_H
 #define VK_RESOURCE_H
-#include <wisdom/global/internal.h>
+#include <wisdom/vulkan/vk_memory.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/generated/api/api.h>
 
 namespace wis {
 class VKBuffer;
-
-namespace h {
-using VmaAllocation = wis::movable_handle<VmaAllocation>;
-}
+class VKTexture;
 
 template<>
 struct Internal<VKBuffer> {
-    wis::shared_handle<VmaAllocator> allocator;
-    h::VmaAllocation allocation;
+    wis::VKMemory memory;
     h::VkBuffer buffer;
 
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator, VkBuffer buffer, VmaAllocation allocation) noexcept
-        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer) { }
+    Internal(wis::shared_handle<VmaAllocator> allocator,
+             VkBuffer buffer,
+             VmaAllocation allocation = nullptr) noexcept
+        : memory(std::move(allocator), allocation), buffer(buffer) { }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -27,8 +25,7 @@ struct Internal<VKBuffer> {
             return *this;
         }
         Destroy();
-        allocator = std::move(o.allocator);
-        allocation = std::move(o.allocation);
+        memory = std::move(o.memory);
         buffer = std::move(o.buffer);
         return *this;
     }
@@ -39,8 +36,9 @@ struct Internal<VKBuffer> {
 
     void Destroy() noexcept
     {
-        if (buffer && allocation) {
-            vmaDestroyBuffer(allocator.get(), buffer, allocation);
+        if (buffer) {
+            auto& device = memory.GetInternal().allocator.header();
+            device.table().vkDestroyBuffer(device.get(), buffer, nullptr);
         }
     }
 };
@@ -65,40 +63,29 @@ public:
     }
 
 public:
-    void* Map() const noexcept
-    {
-        void* data;
-        vmaMapMemory(allocator.get(), allocation, &data);
-        return data;
-    }
-    void Unmap() const noexcept
-    {
-        vmaUnmapMemory(allocator.get(), allocation);
-    }
-
-public:
     template<typename T>
     T* Map() const noexcept
     {
-        return static_cast<T*>(Map());
+        return static_cast<T*>(memory.VKMap());
+    }
+    void Unmap() const noexcept
+    {
+        memory.VKUnmap();
     }
 };
-
-class VKTexture;
 
 template<>
 class Internal<VKTexture>
 {
 public:
-    wis::shared_handle<VmaAllocator> allocator;
-    VmaAllocation allocation = nullptr;
+    wis::VKMemory memory;
     h::VkImage buffer;
     VkFormat format{};
     wis::Size2D size{};
 
     Internal() noexcept = default;
     Internal(VkFormat format, VkImage buffer, wis::shared_handle<VmaAllocator> allocator, VmaAllocation allocation, Size2D size) noexcept
-        : allocator(std::move(allocator)), allocation(allocation), buffer(buffer), format(format), size(size)
+        : memory(std::move(allocator), allocation), buffer(buffer), format(format), size(size)
     {
     }
     Internal(Internal&& other) noexcept = default;
@@ -108,8 +95,7 @@ public:
             return *this;
         }
         Destroy();
-        allocator = std::move(other.allocator);
-        allocation = std::move(other.allocation);
+        memory = std::move(other.memory);
         buffer = std::move(other.buffer);
         format = std::move(other.format);
         size = std::move(other.size);
@@ -117,15 +103,14 @@ public:
     }
     ~Internal() noexcept
     {
-        if (buffer && allocation) {
-            vmaDestroyImage(allocator.get(), buffer, allocation);
-        }
+        Destroy();
     }
 
     void Destroy() noexcept
     {
-        if (buffer && allocation) {
-            vmaDestroyImage(allocator.get(), buffer, allocation);
+        if (buffer) {
+            auto& device = memory.GetInternal().allocator.header();
+            device.table().vkDestroyImage(device.get(), buffer, nullptr);
         }
     }
 };

@@ -20,9 +20,15 @@ enum WisShaderStages {
     ShaderStagesCount = 8,
 };
 
+/**
+ * @brief Represents main error communication source for the API.
+ * Compare against StatusOk for success.
+ *
+ * */
 enum WisStatus {
     StatusOk = 0,
     StatusTimeout = 1,
+    StatusPartial = 2,
     StatusError = -1,
     StatusInvalidArgument = -2,
     StatusOutOfMemory = -3,
@@ -397,11 +403,13 @@ enum WisColorComponentsBits {
     ColorComponentsAll = 0xF,
 };
 
-enum WisBufferFlagsBits {
-    BufferFlagsNone = 0x0,
-    BufferFlagsConstantBuffer = 1 << 4,
-    BufferFlagsIndexBuffer = 1 << 6,
-    BufferFlagsVertexBuffer = 1 << 7,
+enum WisBufferUsageBits {
+    BufferUsageNone = 0x0,
+    BufferUsageCopySrc = 1 << 0,
+    BufferUsageCopyDst = 1 << 1,
+    BufferUsageConstantBuffer = 1 << 4,
+    BufferUsageIndexBuffer = 1 << 6,
+    BufferUsageVertexBuffer = 1 << 7,
 };
 
 enum WisMemoryFlagsBits {
@@ -496,6 +504,7 @@ typedef struct WisRenderAttachmentsDesc WisRenderAttachmentsDesc;
 typedef struct WisRootConstant WisRootConstant;
 typedef struct WisSwapchainDesc WisSwapchainDesc;
 typedef struct WisTextureDesc WisTextureDesc;
+typedef struct WisAllocationInfo WisAllocationInfo;
 typedef struct WisTextureRegion WisTextureRegion;
 typedef struct WisBufferTextureCopyRegion WisBufferTextureCopyRegion;
 typedef struct WisPushDescriptor WisPushDescriptor;
@@ -550,8 +559,8 @@ typedef enum WisDSSelectBits WisDSSelectBits;
 typedef uint32_t WisDSSelect;
 typedef enum WisColorComponentsBits WisColorComponentsBits;
 typedef uint32_t WisColorComponents;
-typedef enum WisBufferFlagsBits WisBufferFlagsBits;
-typedef uint32_t WisBufferFlags;
+typedef enum WisBufferUsageBits WisBufferUsageBits;
+typedef uint32_t WisBufferUsage;
 typedef enum WisMemoryFlagsBits WisMemoryFlagsBits;
 typedef uint32_t WisMemoryFlags;
 typedef enum WisRenderPassFlagsBits WisRenderPassFlagsBits;
@@ -702,6 +711,11 @@ struct WisTextureDesc {
     WisTextureLayout layout;
     WisSampleCount sample_count;
     WisTextureUsage usage;
+};
+
+struct WisAllocationInfo {
+    uint64_t size_bytes;
+    uint64_t alignment_bytes;
 };
 
 struct WisTextureRegion {
@@ -965,6 +979,7 @@ typedef struct VKDebugMessenger_t* VKDebugMessenger;
 typedef struct VKRenderTarget_t* VKRenderTarget;
 typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
 typedef struct VKSampler_t* VKSampler;
+typedef struct VKMemory_t* VKMemory;
 typedef struct VKShaderResource_t* VKShaderResource;
 
 //-------------------------------------------------------------------------
@@ -986,6 +1001,7 @@ WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
 WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
 WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
 WISDOM_API void VKSamplerDestroy(VKSampler self);
+WISDOM_API void VKMemoryDestroy(VKMemory self);
 WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
 WISDOM_API WisResult VKCreateFactory(bool debug_layer, VKFactory* out_factory);
 WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
@@ -1137,6 +1153,7 @@ typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
 typedef struct DX12DescriptorBuffer_t* DX12DescriptorBuffer;
 typedef struct DX12Sampler_t* DX12Sampler;
+typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
 
 //-------------------------------------------------------------------------
@@ -1158,6 +1175,7 @@ WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
 WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
 WISDOM_API void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self);
 WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
+WISDOM_API void DX12MemoryDestroy(DX12Memory self);
 WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
 WISDOM_API WisResult DX12CreateFactory(bool debug_layer, DX12Factory* out_factory);
 WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device);

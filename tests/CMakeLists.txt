@@ -16,3 +16,4 @@ include(Catch)
 include(CTest)
 
 add_subdirectory(basic)
+add_subdirectory(manual)

@@ -128,6 +128,11 @@ extern "C" WISDOM_API void DX12SamplerDestroy(DX12Sampler self)
     auto* xself = reinterpret_cast<wis::DX12Sampler*>(self);
     delete xself;
 }
+extern "C" WISDOM_API void DX12MemoryDestroy(DX12Memory self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
+    delete xself;
+}
 extern "C" WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self)
 {
     auto* xself = reinterpret_cast<wis::DX12ShaderResource*>(self);
@@ -275,6 +280,11 @@ extern "C" WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self)
 extern "C" WISDOM_API void VKSamplerDestroy(VKSampler self)
 {
     auto* xself = reinterpret_cast<wis::VKSampler*>(self);
+    delete xself;
+}
+extern "C" WISDOM_API void VKMemoryDestroy(VKMemory self)
+{
+    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
     delete xself;
 }
 extern "C" WISDOM_API void VKShaderResourceDestroy(VKShaderResource self)

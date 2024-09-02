@@ -1,8 +1,6 @@
 #pragma once
-#include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
-#include <wisdom/util/com_ptr.h>
-#include <D3D12MemAlloc.h>
+#include <wisdom/dx12/dx12_memory.h>
 #include <optional>
 
 namespace wis {
@@ -10,8 +8,7 @@ class DX12Buffer;
 
 template<>
 struct Internal<DX12Buffer> {
-    wis::com_ptr<D3D12MA::Allocator> allocator;
-    wis::com_ptr<D3D12MA::Allocation> allocation;
+    DX12Memory memory;
     wis::com_ptr<ID3D12Resource> resource;
 };
 
@@ -20,7 +17,9 @@ class DX12Buffer : public QueryInternal<DX12Buffer>
 public:
     DX12Buffer() noexcept = default;
     explicit DX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
-        : QueryInternal(std::move(allocator), std::move(al), std::move(rc))
+        : QueryInternal(DX12Memory{
+                                std::move(allocator), std::move(al) },
+                        std::move(rc))
     {
     }
 

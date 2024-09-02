@@ -17,13 +17,27 @@ enum ImplementedFor {
 };
 struct WisEnumValue {
     std::string_view name;
+    std::string_view doc;
     int64_t value;
     ImplementedFor impl = ImplementedFor::Both;
 };
 struct WisEnum {
     std::string_view name;
     std::string_view type;
+    std::string_view doc;
+    std::string doc_translates;
     std::vector<WisEnumValue> values;
+
+    std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty())
+            return {};
+
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
+    }
 };
 
 struct WisBitmaskValue {
@@ -39,7 +53,19 @@ struct WisBitmaskValue {
 struct WisBitmask {
     std::string_view name;
     std::string_view type;
+    std::string_view doc;
     std::vector<WisBitmaskValue> values;
+
+    std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty())
+            return {};
+
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
+    }
 };
 
 struct WisStructMember {
@@ -139,8 +165,9 @@ public:
     std::string MakeCPPPlatformFunc(WisFunction& func, std::string_view impl);
     std::string GenerateCPPExportHeader();
 
+    void ParseFile(tinyxml2::XMLDocument& doc);
     void ParseTypes(tinyxml2::XMLElement* types);
-
+    void ParseIncludes(tinyxml2::XMLElement* handles);
     void ParseHandles(tinyxml2::XMLElement* handles);
     void ParseFunctions(tinyxml2::XMLElement* functions);
 
@@ -149,6 +176,9 @@ public:
     void ParseBitmask(tinyxml2::XMLElement& type);
     void ParseDelegate(tinyxml2::XMLElement* type);
     void ParseVariant(tinyxml2::XMLElement& type);
+
+    std::string FinalizeCDocumentation(std::string doc, std::string_view this_type);
+    std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type);
 
     std::string MakeCStruct(const WisStruct& s);
     std::pair<std::string, std::string> MakeCVariant(const WisVariant& s);
@@ -177,6 +207,7 @@ public:
     TypeInfo GetTypeInfo(std::string_view type);
 
 private:
+    std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> includes;
     std::vector<std::filesystem::path> files;
 
     std::vector<WisStruct*> structs;

@@ -23,6 +23,7 @@ using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
 using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType, uint32_t>;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
+using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

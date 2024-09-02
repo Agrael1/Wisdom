@@ -400,7 +400,7 @@ wis::DX12Device::CreateAllocator() const noexcept
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to create allocator">(hr);
 
-    return DX12ResourceAllocator{ std::move(allocator) };
+    return DX12ResourceAllocator{ std::move(allocator), device.get() };
 }
 
 wis::ResultValue<wis::DX12RenderTarget>

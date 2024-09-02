@@ -24,8 +24,6 @@ struct Internal<VKDevice> {
     wis::VKDeviceExtensionEmbedded1 ext1;
 
     mutable wis::shared_handle<VmaAllocator> allocator;
-    mutable std::shared_ptr<VmaVulkanFunctions> allocator_functions;
-
     detail::QueueResidency queues;
 
 public:
@@ -39,14 +37,14 @@ public:
     }
 
     template<typename PFN>
-    [[nodiscard]] PFN GetInstanceProcAddr() const noexcept
+    [[nodiscard]] PFN GetInstanceProcAddr(const char* name) const noexcept
     {
-        return device.GetInstanceProcAddr<PFN>();
+        return device.GetInstanceProcAddr<PFN>(name);
     }
     template<typename PFN>
-    [[nodiscard]] PFN GetDeviceProcAddr() const noexcept
+    [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept
     {
-        return device.GetDeviceProcAddr<PFN>();
+        return device.GetDeviceProcAddr<PFN>(name);
     }
 };
 

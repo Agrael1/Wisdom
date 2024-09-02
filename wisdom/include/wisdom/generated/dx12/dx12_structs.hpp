@@ -2,6 +2,7 @@
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/generated/api/api.h>
 #include <wisdom/util/flags.h>
+#include <D3D12MemAlloc.h>
 
 namespace wis {
 struct DX12BufferBarrier2 {
@@ -127,6 +128,15 @@ inline constexpr D3D12_BLEND_OP convert_dx(BlendOp value) noexcept
 inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept
 {
     return static_cast<D3D12_LOGIC_OP>(value);
+}
+inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
+{
+    D3D12MA::ALLOCATION_FLAGS output = {};
+    if (value & MemoryFlags::DedicatedAllocation)
+        output |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
+    if (value & MemoryFlags::Mapped)
+        output |= D3D12MA::ALLOCATION_FLAG_NONE;
+    return output;
 }
 inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
 {

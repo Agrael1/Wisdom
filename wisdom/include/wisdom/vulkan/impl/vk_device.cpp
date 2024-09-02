@@ -12,6 +12,7 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_factory.h>
+#include <wisdom/vulkan/vk_external.h>
 
 inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
@@ -132,7 +133,8 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
 
     // Ext1
     wis::VKDeviceExtensionEmbedded1 ext1;
-    ext1.GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map);
+    if (!ext1.GetExtensionInfo(available_exts, ext_name_set, struct_map, property_map))
+        return wis::make_result<FUNC, "Failed to get base extensions to run device">(VkResult::VK_ERROR_UNKNOWN);
 
     // Allocate memory for extension names
     auto ext_names = wis::detail::make_fixed_allocation<const char*>(ext_name_set.size());
@@ -344,9 +346,14 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
 wis::ResultValue<wis::VKFence>
 wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 {
+    constexpr static VkExportSemaphoreCreateInfo export_info{
+        .sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO,
+        .handleTypes = detail::semaphore_handle_type
+    };
+
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
-        .pNext = nullptr,
+        .pNext = ext1.GetFeatures().interop_device ? &export_info : nullptr,
         .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
         .initialValue = initial_value,
     };
@@ -811,7 +818,7 @@ wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() cons
         return result;
 
     return VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, hallocator },
-                                allocator_functions };
+                                ext1.GetFeatures().interop_device };
 }
 
 wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
@@ -823,47 +830,64 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     auto& adapter_i = adapter.GetInternal();
     gtable.vkEnumerateInstanceVersion(&version);
 
-    if (!allocator_functions)
-        allocator_functions = std::shared_ptr<VmaVulkanFunctions>{ new (std::nothrow) VmaVulkanFunctions{
-                .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
-                .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
-                .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
-                .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
-                .vkAllocateMemory = dtable.vkAllocateMemory,
-                .vkFreeMemory = dtable.vkFreeMemory,
-                .vkMapMemory = dtable.vkMapMemory,
-                .vkUnmapMemory = dtable.vkUnmapMemory,
-                .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
-                .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
-                .vkBindBufferMemory = dtable.vkBindBufferMemory,
-                .vkBindImageMemory = dtable.vkBindImageMemory,
-                .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
-                .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
-                .vkCreateBuffer = dtable.vkCreateBuffer,
-                .vkDestroyBuffer = dtable.vkDestroyBuffer,
-                .vkCreateImage = dtable.vkCreateImage,
-                .vkDestroyImage = dtable.vkDestroyImage,
-                .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
-                .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
-                .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
-                .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
-                .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
-                .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
-                .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
-                .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
-        } };
+    VmaVulkanFunctions allocator_functions{
+        .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
+        .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
+        .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory = dtable.vkAllocateMemory,
+        .vkFreeMemory = dtable.vkFreeMemory,
+        .vkMapMemory = dtable.vkMapMemory,
+        .vkUnmapMemory = dtable.vkUnmapMemory,
+        .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
+        .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory = dtable.vkBindBufferMemory,
+        .vkBindImageMemory = dtable.vkBindImageMemory,
+        .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
+        .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
+        .vkCreateBuffer = dtable.vkCreateBuffer,
+        .vkDestroyBuffer = dtable.vkDestroyBuffer,
+        .vkCreateImage = dtable.vkCreateImage,
+        .vkDestroyImage = dtable.vkDestroyImage,
+        .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
+        .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
+        .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
+        .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
+        .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
+        .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
+        .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
+        .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
+    };
 
-    if (!allocator_functions)
-        return wis::make_result<FUNC, "Failed to allocate allocator functions.">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+    VkPhysicalDeviceMemoryProperties2 mem_props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2,
+    };
+    itable.vkGetPhysicalDeviceMemoryProperties2(adapter_i.adapter, &mem_props);
+
+    wis::detail::limited_allocator<VkExternalMemoryHandleTypeFlagsKHR, 16>
+            handle_types(mem_props.memoryProperties.memoryTypeCount, true);
 
     VmaAllocatorCreateInfo allocatorInfo{
-        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
         .physicalDevice = adapter_i.adapter,
         .device = device.get(),
-        .pVulkanFunctions = allocator_functions.get(),
+        .pVulkanFunctions = &allocator_functions,
         .instance = adapter_i.instance.get(),
         .vulkanApiVersion = version,
+        .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device ? handle_types.data() : nullptr
     };
+
+    // Only if there is an interop extension
+    if (ext1.GetFeatures().interop_device) {
+        auto* htdata = handle_types.data();
+        for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
+            htdata[i] = detail::memory_handle_type;
+        }
+#ifdef _WIN32
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
+        allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
+#endif // WIN32
+    }
 
     VmaAllocator al;
     VkResult vr = vmaCreateAllocator(&allocatorInfo, &al);

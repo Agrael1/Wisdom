@@ -1,7 +1,13 @@
 # Version History
+
+- 0.2.0
+
+  - Added allocation info, O(1) memory allocation, and memory and semaphore API interop
+  - Fixed the issue with AMD drivers not supporting wait for present
+
 - 0.1.8
 
-  - Fixed property pages for nuget	
+  - Fixed property pages for nuget
 
 - 0.1.7
 

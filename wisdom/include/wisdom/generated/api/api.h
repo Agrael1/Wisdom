@@ -22,6 +22,7 @@ struct RenderAttachmentsDesc;
 struct RootConstant;
 struct SwapchainDesc;
 struct TextureDesc;
+struct AllocationInfo;
 struct TextureRegion;
 struct BufferTextureCopyRegion;
 struct PushDescriptor;
@@ -49,9 +50,15 @@ enum class ShaderStages {
     Count = 8,
 };
 
+/**
+ * @brief Represents main error communication source for the API.
+ * Compare against wis::Status::Ok for success.
+ *
+ * */
 enum class Status : int32_t {
     Ok = 0,
     Timeout = 1,
+    Partial = 2,
     Error = -1,
     InvalidArgument = -2,
     OutOfMemory = -3,
@@ -424,8 +431,10 @@ enum class ColorComponents {
     All = 0xF,
 };
 
-enum class BufferFlags {
+enum class BufferUsage {
     None = 0x0,
+    CopySrc = 1 << 0,
+    CopyDst = 1 << 1,
     ConstantBuffer = 1 << 4,
     IndexBuffer = 1 << 6,
     VertexBuffer = 1 << 7,
@@ -642,6 +651,11 @@ struct TextureDesc {
     wis::TextureUsage usage = wis::TextureUsage::None;
 };
 
+struct AllocationInfo {
+    uint64_t size_bytes;
+    uint64_t alignment_bytes;
+};
+
 struct TextureRegion {
     wis::Size3D offset;
     wis::Size3D size;
@@ -774,7 +788,7 @@ template<>
 struct is_flag_enum<wis::ColorComponents> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::BufferFlags> : public std::true_type {
+struct is_flag_enum<wis::BufferUsage> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::MemoryFlags> : public std::true_type {

@@ -18,6 +18,8 @@ if(WISDOM_BUILD_BINARIES)
 		"include/wisdom/vulkan/vk_factory.h"
  		"include/wisdom/vulkan/vk_views.h"
  		"include/wisdom/vulkan/vk_handles.h"
+ 		"include/wisdom/vulkan/vk_memory.h"
+ 		"include/wisdom/vulkan/vk_external.h"
  		"include/wisdom/vulkan/vk_adapter.h"
  		"include/wisdom/vulkan/vk_convert.h"
  		"include/wisdom/vulkan/vk_fence.h"
@@ -44,6 +46,7 @@ if(WISDOM_BUILD_BINARIES)
 			"include/wisdom/vulkan/impl/vk_adapter.cpp"
 			"include/wisdom/vulkan/impl/vk_fence.cpp"
 			"include/wisdom/vulkan/impl/vk_device.cpp"
+
 			"include/wisdom/vulkan/impl/vk_command_queue.cpp"
 			"include/wisdom/vulkan/impl/vk_command_list.cpp"
 			"include/wisdom/vulkan/impl/vk_swapchain.cpp"

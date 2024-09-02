@@ -5,6 +5,11 @@
 #include <dxgi1_6.h>
 #include <tuple>
 
+namespace D3D12MA {
+class Allocator;
+class Allocation;
+} // namespace D3D12MA
+
 namespace wis {
 using DX12AdapterHandle = std::tuple<IDXGIAdapter1*>;
 using DX12FactoryHandle = std::tuple<IDXGIFactory6*>;
@@ -22,4 +27,5 @@ using DX12DescriptorBufferView = std::tuple<ID3D12DescriptorHeap*>;
 using DX12DescriptorBufferGPUView = std::tuple<D3D12_GPU_DESCRIPTOR_HANDLE, uint32_t>;
 using DX12SamplerView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12ShaderResourceView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
+using DX12MemoryView = std::tuple<D3D12MA::Allocator*, D3D12MA::Allocation*>;
 } // namespace wis
