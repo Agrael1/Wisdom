@@ -194,7 +194,7 @@ public:
             "vkGetPhysicalDeviceFeatures2",
 #endif
 #if defined(VK_KHR_get_physical_device_properties2)
-                    "vkGetPhysicalDeviceFeatures2KHR",
+            "vkGetPhysicalDeviceFeatures2KHR",
 #endif
         };
         for (auto vkGetPhysicalDeviceFeatures2_it : vkGetPhysicalDeviceFeatures2_strings)
@@ -208,7 +208,7 @@ public:
             "vkGetPhysicalDeviceProperties2",
 #endif
 #if defined(VK_KHR_get_physical_device_properties2)
-                    "vkGetPhysicalDeviceProperties2KHR",
+            "vkGetPhysicalDeviceProperties2KHR",
 #endif
         };
         for (auto vkGetPhysicalDeviceProperties2_it : vkGetPhysicalDeviceProperties2_strings)
@@ -222,7 +222,7 @@ public:
             "vkGetPhysicalDeviceMemoryProperties2",
 #endif
 #if defined(VK_KHR_get_physical_device_properties2)
-                    "vkGetPhysicalDeviceMemoryProperties2KHR",
+            "vkGetPhysicalDeviceMemoryProperties2KHR",
 #endif
         };
         for (auto vkGetPhysicalDeviceMemoryProperties2_it : vkGetPhysicalDeviceMemoryProperties2_strings)
@@ -354,7 +354,7 @@ public:
             "vkCmdCopyImageToBuffer2",
 #endif
 #if defined(VK_KHR_copy_commands2)
-                    "vkCmdCopyImageToBuffer2KHR",
+            "vkCmdCopyImageToBuffer2KHR",
 #endif
         };
         for (auto vkCmdCopyImageToBuffer2_it : vkCmdCopyImageToBuffer2_strings)
@@ -368,7 +368,7 @@ public:
             "vkCmdCopyBufferToImage2",
 #endif
 #if defined(VK_KHR_copy_commands2)
-                    "vkCmdCopyBufferToImage2KHR",
+            "vkCmdCopyBufferToImage2KHR",
 #endif
         };
         for (auto vkCmdCopyBufferToImage2_it : vkCmdCopyBufferToImage2_strings)
@@ -538,7 +538,7 @@ public:
             "vkCmdBindVertexBuffers2",
 #endif
 #if defined(VK_EXT_shader_object) || defined(VK_EXT_extended_dynamic_state)
-                    "vkCmdBindVertexBuffers2EXT",
+            "vkCmdBindVertexBuffers2EXT",
 #endif
         };
         for (auto vkCmdBindVertexBuffers2_it : vkCmdBindVertexBuffers2_strings)
@@ -552,7 +552,7 @@ public:
             "vkCmdSetPrimitiveTopology",
 #endif
 #if defined(VK_EXT_shader_object) || defined(VK_EXT_extended_dynamic_state)
-                    "vkCmdSetPrimitiveTopologyEXT",
+            "vkCmdSetPrimitiveTopologyEXT",
 #endif
         };
         for (auto vkCmdSetPrimitiveTopology_it : vkCmdSetPrimitiveTopology_strings)
@@ -566,7 +566,7 @@ public:
             "vkGetImageMemoryRequirements2",
 #endif
 #if defined(VK_KHR_get_memory_requirements2)
-                    "vkGetImageMemoryRequirements2KHR",
+            "vkGetImageMemoryRequirements2KHR",
 #endif
         };
         for (auto vkGetImageMemoryRequirements2_it : vkGetImageMemoryRequirements2_strings)
@@ -578,7 +578,7 @@ public:
             "vkGetBufferMemoryRequirements2",
 #endif
 #if defined(VK_KHR_get_memory_requirements2)
-                    "vkGetBufferMemoryRequirements2KHR",
+            "vkGetBufferMemoryRequirements2KHR",
 #endif
         };
         for (auto vkGetBufferMemoryRequirements2_it : vkGetBufferMemoryRequirements2_strings)
@@ -590,7 +590,7 @@ public:
             "vkBindBufferMemory2",
 #endif
 #if defined(VK_KHR_bind_memory2)
-                    "vkBindBufferMemory2KHR",
+            "vkBindBufferMemory2KHR",
 #endif
         };
         for (auto vkBindBufferMemory2_it : vkBindBufferMemory2_strings)
@@ -602,7 +602,7 @@ public:
             "vkBindImageMemory2",
 #endif
 #if defined(VK_KHR_bind_memory2)
-                    "vkBindImageMemory2KHR",
+            "vkBindImageMemory2KHR",
 #endif
         };
         for (auto vkBindImageMemory2_it : vkBindImageMemory2_strings)
@@ -614,7 +614,7 @@ public:
             "vkWaitSemaphores",
 #endif
 #if defined(VK_KHR_timeline_semaphore)
-                    "vkWaitSemaphoresKHR",
+            "vkWaitSemaphoresKHR",
 #endif
         };
         for (auto vkWaitSemaphores_it : vkWaitSemaphores_strings)
@@ -628,7 +628,7 @@ public:
             "vkSignalSemaphore",
 #endif
 #if defined(VK_KHR_timeline_semaphore)
-                    "vkSignalSemaphoreKHR",
+            "vkSignalSemaphoreKHR",
 #endif
         };
         for (auto vkSignalSemaphore_it : vkSignalSemaphore_strings)
@@ -642,7 +642,7 @@ public:
             "vkGetSemaphoreCounterValue",
 #endif
 #if defined(VK_KHR_timeline_semaphore)
-                    "vkGetSemaphoreCounterValueKHR",
+            "vkGetSemaphoreCounterValueKHR",
 #endif
         };
         for (auto vkGetSemaphoreCounterValue_it : vkGetSemaphoreCounterValue_strings)
@@ -656,7 +656,7 @@ public:
             "vkCmdPipelineBarrier2",
 #endif
 #if defined(VK_KHR_synchronization2)
-                    "vkCmdPipelineBarrier2KHR",
+            "vkCmdPipelineBarrier2KHR",
 #endif
         };
         for (auto vkCmdPipelineBarrier2_it : vkCmdPipelineBarrier2_strings)
@@ -670,7 +670,7 @@ public:
             "vkGetDeviceBufferMemoryRequirements",
 #endif
 #if defined(VK_KHR_maintenance4)
-                    "vkGetDeviceBufferMemoryRequirementsKHR",
+            "vkGetDeviceBufferMemoryRequirementsKHR",
 #endif
         };
         for (auto vkGetDeviceBufferMemoryRequirements_it : vkGetDeviceBufferMemoryRequirements_strings)
@@ -684,7 +684,7 @@ public:
             "vkGetDeviceImageMemoryRequirements",
 #endif
 #if defined(VK_KHR_maintenance4)
-                    "vkGetDeviceImageMemoryRequirementsKHR",
+            "vkGetDeviceImageMemoryRequirementsKHR",
 #endif
         };
         for (auto vkGetDeviceImageMemoryRequirements_it : vkGetDeviceImageMemoryRequirements_strings)
@@ -701,7 +701,7 @@ public:
             "vkCmdEndRendering",
 #endif
 #if defined(VK_KHR_dynamic_rendering)
-                    "vkCmdEndRenderingKHR",
+            "vkCmdEndRenderingKHR",
 #endif
         };
         for (auto vkCmdEndRendering_it : vkCmdEndRendering_strings)
@@ -715,7 +715,7 @@ public:
             "vkCmdBeginRendering",
 #endif
 #if defined(VK_KHR_dynamic_rendering)
-                    "vkCmdBeginRenderingKHR",
+            "vkCmdBeginRenderingKHR",
 #endif
         };
         for (auto vkCmdBeginRendering_it : vkCmdBeginRendering_strings)
@@ -729,10 +729,10 @@ public:
             "vkGetBufferDeviceAddress",
 #endif
 #if defined(VK_KHR_buffer_device_address)
-                    "vkGetBufferDeviceAddressKHR",
+            "vkGetBufferDeviceAddressKHR",
 #endif
 #if defined(VK_EXT_buffer_device_address)
-                    "vkGetBufferDeviceAddressEXT",
+            "vkGetBufferDeviceAddressEXT",
 #endif
         };
         for (auto vkGetBufferDeviceAddress_it : vkGetBufferDeviceAddress_strings)

@@ -3,7 +3,7 @@
 
 #ifdef WIS_WINDOWS_PLATFORM
 #include <wisdom/wisdom_windows.h>
-#else 
+#else
 #include <wisdom/linux/interop_device.h>
 #endif
 
