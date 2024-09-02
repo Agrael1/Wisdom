@@ -46,7 +46,7 @@ if(WISDOM_BUILD_BINARIES)
 			"include/wisdom/vulkan/impl/vk_adapter.cpp"
 			"include/wisdom/vulkan/impl/vk_fence.cpp"
 			"include/wisdom/vulkan/impl/vk_device.cpp"
-			
+
 			"include/wisdom/vulkan/impl/vk_command_queue.cpp"
 			"include/wisdom/vulkan/impl/vk_command_list.cpp"
 			"include/wisdom/vulkan/impl/vk_swapchain.cpp"
