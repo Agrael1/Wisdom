@@ -11,7 +11,9 @@ endif()
 add_library(${PROJECT_NAME} ${WISDOM_LIB_TYPE} wisdom.h)
 target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/wisdom.cpp)
 
-target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                         $<INSTALL_INTERFACE:include>)
 target_link_libraries(${PROJECT_NAME} PRIVATE wis::header-only)
 
 include(GenerateExportHeader)

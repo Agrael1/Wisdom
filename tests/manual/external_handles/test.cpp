@@ -154,7 +154,8 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
         return wis::make_result<FUNC, "Failed to create an Allocator">(vr);
 
     return wis::VKResourceAllocator{ wis::shared_handle<VmaAllocator>{
-                                             device, al }, ext };
+                                             device, al },
+                                     ext };
 }
 
 wis::ResultValue<wis::Texture>
@@ -311,7 +312,6 @@ int64_t TestTextures(const wis::Device& xdevice)
 
 void TestHandles(const wis::Device& xdevice, wis::platform::InteropDeviceExtension& global_interop)
 {
-
 }
 
 void TestAllocations(const wis::Device& xdevice, wis::platform::InteropDeviceExtension& global_interop)
@@ -330,7 +330,6 @@ int main()
         return 1;
     }
     TestAllocations(device, test.global_interop);
-
 
     std::array<int64_t, 10> results;
     for (size_t i = 0; i < 10; i++) {

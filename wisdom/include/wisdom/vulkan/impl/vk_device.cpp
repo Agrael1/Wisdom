@@ -867,7 +867,6 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     wis::detail::limited_allocator<VkExternalMemoryHandleTypeFlagsKHR, 16>
             handle_types(mem_props.memoryProperties.memoryTypeCount, true);
 
-
     VmaAllocatorCreateInfo allocatorInfo{
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
         .physicalDevice = adapter_i.adapter,

@@ -74,7 +74,6 @@ public:
     }
 };
 
-
 template<>
 class Internal<VKTexture>
 {

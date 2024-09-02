@@ -186,8 +186,7 @@ wis::platform::VKInteropDeviceExtension::Init(const wis::VKDevice& instance,
     vkGetSemaphoreWin32HandleKHR = device.GetDeviceProcAddr<PFN_vkGetSemaphoreWin32HandleKHR>("vkGetSemaphoreWin32HandleKHR");
 
     // Tell the device that memory and semaphores should support interop
-    const_cast<wis::XInternalFeatures&>(instance.GetInternal().ext1.GetInternal().features).interop_device 
-        = Supported();
+    const_cast<wis::XInternalFeatures&>(instance.GetInternal().ext1.GetInternal().features).interop_device = Supported();
     return {};
 }
 #endif // WISDOM_VULKAN

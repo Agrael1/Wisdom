@@ -137,7 +137,7 @@ wis::DX12ResourceAllocator::PlaceBuffer(DX12MemoryView memory, uint64_t memory_o
 
     wis::com_ptr<ID3D12Resource> rc;
     auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &buffer_desc,
-                                       D3D12_RESOURCE_STATE_COMMON, nullptr, rc.iid(), rc.put_void());
+                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, rc.iid(), rc.put_void());
 
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Buffer Placement failed">(hr);

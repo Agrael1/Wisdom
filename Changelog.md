@@ -1,11 +1,12 @@
 # Version History
+
 - 0.1.9
 
   - Added allocation info for texture and buffer creation, pools coming sool
 
 - 0.1.8
 
-  - Fixed property pages for nuget	
+  - Fixed property pages for nuget
 
 - 0.1.7
 

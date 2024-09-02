@@ -14,9 +14,9 @@ target_include_directories(
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
-    wisdom-extended-allocation STATIC "wisdom/wisdom_extended_allocation.h"
-                                      "wisdom/impl/impl.dx.cpp"
-                                      "wisdom/impl/impl.vk.cpp")
+    wisdom-extended-allocation STATIC
+    "wisdom/wisdom_extended_allocation.h" "wisdom/impl/impl.dx.cpp"
+    "wisdom/impl/impl.vk.cpp")
   add_library(wis::extended-allocation ALIAS wisdom-extended-allocation)
   target_link_libraries(wisdom-extended-allocation PUBLIC wis::wisdom)
   target_include_directories(
