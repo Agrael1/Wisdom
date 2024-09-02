@@ -206,11 +206,10 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
         return {};
     }
 
-    XInternalFeatures GetFeatures()const noexcept
+    XInternalFeatures GetFeatures() const noexcept
     {
         return features;
     }
-
 };
 } // namespace wis
 

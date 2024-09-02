@@ -83,9 +83,9 @@ TEST_CASE("host_texture_write_ext")
     // Perform a copy from the host memory to the texture
 
     res3 = a.WriteMemoryToSubresourceDirect(texture_data, texture, wis::TextureState::Common, wis::TextureRegion{
-        .size = { 2, 2, 1 },
-        .format = wis::DataFormat::RGBA8Unorm,
-    });
+                                                                                                      .size = { 2, 2, 1 },
+                                                                                                      .format = wis::DataFormat::RGBA8Unorm,
+                                                                                              });
 
     REQUIRE(res3.status == wis::Status::Ok);
 }

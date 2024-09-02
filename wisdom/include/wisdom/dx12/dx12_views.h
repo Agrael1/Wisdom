@@ -5,11 +5,10 @@
 #include <dxgi1_6.h>
 #include <tuple>
 
-namespace D3D12MA
-{
+namespace D3D12MA {
 class Allocator;
 class Allocation;
-}
+} // namespace D3D12MA
 
 namespace wis {
 using DX12AdapterHandle = std::tuple<IDXGIAdapter1*>;
