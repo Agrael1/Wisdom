@@ -59,6 +59,9 @@ int Generator::GenerateCAPI()
     using namespace std::chrono;
     std::string output = "//GENERATED\n#pragma once\n#include \"wisdom_exports.h\"\n#include <stdint.h>\n#include <stdbool.h>\n\n";
 
+    output += wis::format(documentation_header, WISDOM_VERSION);
+    output += "\n*/\n\n";
+
     output += "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n";
 
     std::string out_dx;
@@ -176,6 +179,10 @@ int Generator::GenerateCPPAPI()
     using namespace std::chrono;
 
     std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n\n";
+
+    output_api += wis::format(documentation_header, WISDOM_VERSION);
+    output_api += "\n*/\n\n";
+
     output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
     output_api += "//"

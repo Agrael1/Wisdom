@@ -4,6 +4,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/** \mainpage Wisdom API Documentation
+
+<b>Version 0.2.0</b>
+
+Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
+License: MIT
+See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -66,5 +66,3 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 else()
   option(WISDOM_USE_FMT "Build Wisdom with fmtlib" OFF)
 endif()
-
-set(WISDOM_VERSION "v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")

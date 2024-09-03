@@ -1,5 +1,5 @@
 # CMakeList.txt : CMake project for Wisdom
-project(wisdom VERSION 0.1.0)
+project(wisdom VERSION ${WISDOM_VERSION})
 
 include(cmake/documentation.cmake)
 

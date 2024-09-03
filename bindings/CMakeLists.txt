@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
-
-project(wisdom-bindings VERSION 0.1.1)
+project(wisdom-bindings VERSION ${WISDOM_VERSION})
 
 if(WISDOM_SHARED_LIB)
   set(WISDOM_LIB_TYPE SHARED)

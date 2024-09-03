@@ -8,6 +8,14 @@
 #include <span>
 #include <array>
 
+static constexpr std::string_view documentation_header = R"(/** \mainpage Wisdom API Documentation
+
+<b>Version {}</b>
+
+Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
+License: MIT
+See also: [repository on GitHub](https://github.com/Agrael1/Wisdom))";
+
 enum ImplementedFor {
     None = 0,
     DX12 = 1,
