@@ -17,16 +17,23 @@ See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 extern "C" {
 #endif
 
+/**
+ * @brief Shader stages that can be used in the pipeline.
+ * Main use is Root signature and descriptor management.
+ * Stages have no granularity, either all or one can be selected.
+ *
+ * Translates to VkShaderStageFlagBits for vk implementation.
+ * */
 enum WisShaderStages {
-    ShaderStagesAll = 0,
-    ShaderStagesVertex = 1,
-    ShaderStagesHull = 2,
-    ShaderStagesDomain = 3,
-    ShaderStagesGeometry = 4,
-    ShaderStagesPixel = 5,
-    ShaderStagesAmplification = 6,
-    ShaderStagesMesh = 7,
-    ShaderStagesCount = 8,
+    ShaderStagesAll = 0, ///< All shader stages.
+    ShaderStagesVertex = 1, ///< Vertex shader stage.
+    ShaderStagesHull = 2, ///< Hull/Tessellation control shader stage.
+    ShaderStagesDomain = 3, ///< Domain/Tessellation evaluation shader stage.
+    ShaderStagesGeometry = 4, ///< Geometry shader stage.
+    ShaderStagesPixel = 5, ///< Pixel/Fragment shader stage.
+    ShaderStagesAmplification = 6, ///< Amplification shader stage.
+    ShaderStagesMesh = 7, ///< Mesh shader stage.
+    ShaderStagesCount = 8, ///< Number of stages.
 };
 
 /**
@@ -71,12 +78,6 @@ enum WisStatus {
     StatusOccluded = -5,
 };
 
-enum WisQueuePriority {
-    QueuePriorityCommon = 0,
-    QueuePriorityHigh = 100,
-    QueuePriorityRealtime = 10000,
-};
-
 /**
  * @brief Determines the behavior when wait for multiple fences is issued.
  *
@@ -93,14 +94,15 @@ enum WisDescriptorType {
     DescriptorTypeSampler = 3,
 };
 
+/**
+ * @brief Type of the queue to create.
+ *
+ * */
 enum WisQueueType {
-    QueueTypeGraphics = 0,
-    QueueTypeDX12Bundle = 1,
-    QueueTypeCompute = 2,
-    QueueTypeCopy = 3,
-    QueueTypeVideoDecode = 4,
-    QueueTypeDX12VideoProcess = 5,
-    QueueTypeDX12VideoEncode = 6,
+    QueueTypeGraphics = 0, ///< Queue is used for graphics operations.
+    QueueTypeCompute = 2, ///< Queue is used for compute operations.
+    QueueTypeCopy = 3, ///< Queue is used for copy operations.
+    QueueTypeVideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
 /**
@@ -591,7 +593,6 @@ typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
-typedef enum WisQueuePriority WisQueuePriority;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
 typedef enum WisDescriptorType WisDescriptorType;
 typedef enum WisQueueType WisQueueType;

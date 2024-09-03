@@ -73,13 +73,12 @@ wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
 }
 
 wis::ResultValue<wis::DX12CommandQueue>
-wis::DX12Device::CreateCommandQueue(wis::QueueType type,
-                                    wis::QueuePriority priority) const noexcept
+wis::DX12Device::CreateCommandQueue(wis::QueueType type) const noexcept
 {
     wis::com_ptr<ID3D12CommandQueue> queue;
     D3D12_COMMAND_QUEUE_DESC desc{
         .Type = D3D12_COMMAND_LIST_TYPE(type),
-        .Priority = int(priority),
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
     };
 
     HRESULT hr = device->CreateCommandQueue(&desc, __uuidof(*queue), queue.put_void());

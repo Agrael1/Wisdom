@@ -52,14 +52,43 @@ Stability of the application is compromized."/>
 The application must be shut down, no further execution."/>
     </type>
 
-    <type name="QueueType" category="enum" type="u32">
-      <value name="Graphics" value="0"/>
-      <value name="Bundle" value="1" impl="dx"/>
-      <value name="Compute" value="2"/>
-      <value name="Copy" value="3"/>
-      <value name="VideoDecode" value="4"/>
-      <value name="VideoProcess" value="5" impl="dx"/>
-      <value name="VideoEncode" value="6" impl="dx"/>
+    <type name="QueueType" category="enum" type="u32" doc="Type of the queue to create.">
+      <value name="Graphics" value="0" doc="Queue is used for graphics operations."/>
+      <value name="Compute" value="2" doc="Queue is used for compute operations."/>
+      <value name="Copy" value="3" doc="Queue is used for copy operations."/>
+      <value name="VideoDecode" value="4" doc="Queue is used for video decoding operations."/>
+    </type>
+
+    <type name="ShaderStages" category="enum" type="u32" doc="Shader stages that can be used in the pipeline.
+Main use is Root signature and descriptor management.
+Stages have no granularity, either all or one can be selected.">
+      <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
+      <impl_type for="vk" name="VkShaderStageFlagBits" default="VK_SHADER_STAGE_ALL"/>
+      <value name="All" value="0" doc="All shader stages.">
+        <impl name="vk" value="VK_SHADER_STAGE_ALL"/>
+      </value>
+      <value name="Vertex" value="1" doc="Vertex shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_VERTEX_BIT"/>
+      </value>
+      <value name="Hull" value="2" doc="Hull/Tessellation control shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"/>
+      </value>
+      <value name="Domain" value="3" doc="Domain/Tessellation evaluation shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"/>
+      </value>
+      <value name="Geometry" value="4" doc="Geometry shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_GEOMETRY_BIT"/>
+      </value>
+      <value name="Pixel" value="5" doc="Pixel/Fragment shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_FRAGMENT_BIT"/>
+      </value>
+      <value name="Amplification" value="6" doc="Amplification shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_TASK_BIT_NV"/>
+      </value>
+      <value name="Mesh" value="7" doc="Mesh shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_NV"/>
+      </value>
+      <value name="Count" value="8" doc="Number of stages."/>
     </type>
 
     <!--Bitmasks-->
@@ -81,35 +110,7 @@ The application must be shut down, no further execution."/>
     </type>
 
 
-    <type name="ShaderStages" category="enum">
-      <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
-      <impl_type for="vk" name="VkShaderStageFlagBits" default="VK_SHADER_STAGE_ALL"/>
-      <value name="All" value="0">
-        <impl name="vk" value="VK_SHADER_STAGE_ALL"/>
-      </value>
-      <value name="Vertex" value="1">
-        <impl name="vk" value="VK_SHADER_STAGE_VERTEX_BIT"/>
-      </value>
-      <value name="Hull" value="2">
-        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"/>
-      </value>
-      <value name="Domain" value="3">
-        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"/>
-      </value>
-      <value name="Geometry" value="4">
-        <impl name="vk" value="VK_SHADER_STAGE_GEOMETRY_BIT"/>
-      </value>
-      <value name="Pixel" value="5">
-        <impl name="vk" value="VK_SHADER_STAGE_FRAGMENT_BIT"/>
-      </value>
-      <value name="Amplification" value="6">
-        <impl name="vk" value="VK_SHADER_STAGE_TASK_BIT_NV"/>
-      </value>
-      <value name="Mesh" value="7">
-        <impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_NV"/>
-      </value>
-      <value name="Count" value="8"/>
-    </type>
+    
     <type name="DescriptorType" category="enum">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
       <impl_type for="vk" name="VkDescriptorType"/>
@@ -130,11 +131,7 @@ The application must be shut down, no further execution."/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
       </value>
     </type>
-    <type name="QueuePriority" category="enum">
-      <value name="Common" value="0"/>
-      <value name="High" value="100"/>
-      <value name="Realtime" value="10000"/>
-    </type>
+
     <type name="ColorComponents" category="bitmask">
       <value name="None" value="0"/>
       <value name="R" bit="0"/>

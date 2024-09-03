@@ -373,10 +373,8 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 }
 
 wis::ResultValue<wis::VKCommandQueue>
-wis::VKDevice::CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority) const noexcept
+wis::VKDevice::CreateCommandQueue(wis::QueueType type) const noexcept
 {
-    (void)priority; // TODO: use priority
-
     const auto* queue = queues.GetOfType(type);
     if (queue == nullptr)
         return { wis::make_result<FUNC, "The system does not support the requested queue type">(

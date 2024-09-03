@@ -47,16 +47,23 @@ struct SamplerDesc;
 struct ComponentMapping;
 struct ShaderResourceDesc;
 
-enum class ShaderStages {
-    All = 0,
-    Vertex = 1,
-    Hull = 2,
-    Domain = 3,
-    Geometry = 4,
-    Pixel = 5,
-    Amplification = 6,
-    Mesh = 7,
-    Count = 8,
+/**
+ * @brief Shader stages that can be used in the pipeline.
+ * Main use is Root signature and descriptor management.
+ * Stages have no granularity, either all or one can be selected.
+ *
+ * Translates to VkShaderStageFlagBits for vk implementation.
+ * */
+enum class ShaderStages : uint32_t {
+    All = 0, ///< All shader stages.
+    Vertex = 1, ///< Vertex shader stage.
+    Hull = 2, ///< Hull/Tessellation control shader stage.
+    Domain = 3, ///< Domain/Tessellation evaluation shader stage.
+    Geometry = 4, ///< Geometry shader stage.
+    Pixel = 5, ///< Pixel/Fragment shader stage.
+    Amplification = 6, ///< Amplification shader stage.
+    Mesh = 7, ///< Mesh shader stage.
+    Count = 8, ///< Number of stages.
 };
 
 /**
@@ -101,12 +108,6 @@ enum class Status : int32_t {
     Occluded = -5,
 };
 
-enum class QueuePriority {
-    Common = 0,
-    High = 100,
-    Realtime = 10000,
-};
-
 /**
  * @brief Determines the behavior when wait for multiple fences is issued.
  *
@@ -123,14 +124,15 @@ enum class DescriptorType {
     Sampler = 3,
 };
 
+/**
+ * @brief Type of the queue to create.
+ *
+ * */
 enum class QueueType : uint32_t {
-    Graphics = 0,
-    DX12Bundle = 1,
-    Compute = 2,
-    Copy = 3,
-    VideoDecode = 4,
-    DX12VideoProcess = 5,
-    DX12VideoEncode = 6,
+    Graphics = 0, ///< Queue is used for graphics operations.
+    Compute = 2, ///< Queue is used for compute operations.
+    Copy = 3, ///< Queue is used for copy operations.
+    VideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
 /**
