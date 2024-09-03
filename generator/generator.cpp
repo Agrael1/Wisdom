@@ -880,9 +880,16 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
 
         } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
             auto evalue = y->second.HasValue(value);
-            replacement = evalue ? wis::format("{}{}{}", GetCFullTypename(y->second.name), impls[+evalue->impl], evalue->name)
+            replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
                                  : GetCFullTypename(y->second.name);
-        } else {
+        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name), member->name)
+                                 : GetCFullTypename(z->second.name);
+        } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
+            auto member = d->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name), member->name)
+                                 : GetCFullTypename(d->second.name);
         }
         pos = last;
         doc.replace(first, last - first + 1, replacement);
@@ -917,8 +924,16 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             auto evalue = y->second.HasValue(value);
             replacement = evalue ? wis::format("{}::{}{}", GetCPPFullTypename(y->second.name), impls[+evalue->impl], evalue->name)
                                  : GetCPPFullTypename(y->second.name);
-        } else {
-        }
+        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCPPFullTypename(z->second.name), member->name)
+                                 : GetCPPFullTypename(z->second.name);
+        } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
+            auto member = d->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCPPFullTypename(d->second.name), member->name)
+                                 : GetCPPFullTypename(d->second.name);
+        } 
+
         pos = last;
         doc.replace(first, last - first + 1, replacement);
     }
@@ -1131,7 +1146,7 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
             } else {
                 documentation = wis::format(" ///< {}", m.doc);
             }
-            documentation = FinalizeCDocumentation(documentation, s.name);
+            documentation = FinalizeCPPDocumentation(documentation, s.name);
         }
         st_decl += pre_doc
                 ? wis::format("    {}\n    {}{} = {},\n", documentation, impls[+m.impl], m.name, m.value)

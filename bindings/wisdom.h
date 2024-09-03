@@ -45,13 +45,29 @@ enum WisStatus {
      * @brief Operation partially succeeded.
      * Some times it means that core value is initialized,
      * but some functionality may be missing and may require
-     * you to check if demanded functionality is in place
+     * you to check if demanded functionality is in place.
      * */
     StatusPartial = 2,
-    StatusError = -1,
+    StatusError = -1, ///< Operation failed. Check WisResult::error for more details.
+    /**
+     * @brief One or more arguments, or parts of arguments
+     * passed to the function were incorrect. Check WisResult::error for more details.
+     * */
     StatusInvalidArgument = -2,
+    /**
+     * @brief There is no more host memory available.
+     * Allocation with malloc or similar call has failed.
+     * */
     StatusOutOfMemory = -3,
+    /**
+     * @brief Device driver was forcefully stopped.
+     * Most of the time happens on swapchain presentation.
+     * */
     StatusDeviceLost = -4,
+    /**
+     * @brief Swapchain presentation was not visible to the user.
+     * Rendering is too fast.
+     * */
     StatusOccluded = -5,
 };
 
@@ -61,9 +77,13 @@ enum WisQueuePriority {
     QueuePriorityRealtime = 10000,
 };
 
+/**
+ * @brief Determines the behavior when wait for multiple fences is issued.
+ *
+ * */
 enum WisMutiWaitFlags {
-    MutiWaitFlagsAll = 0,
-    MutiWaitFlagsAny = 1,
+    MutiWaitFlagsAll = 0, ///< All the fences in the batch are triggered.
+    MutiWaitFlagsAny = 1, ///< At least one of the fences from the batch is triggered.
 };
 
 enum WisDescriptorType {
@@ -83,18 +103,49 @@ enum WisQueueType {
     QueueTypeDX12VideoEncode = 6,
 };
 
+/**
+ * @brief Oreders the adapters according to preference
+ * using builtin heuristics of underlying APIs.
+ *
+ * Translates to DXGI_GPU_PREFERENCE for dx implementation.
+ * */
 enum WisAdapterPreference {
-    AdapterPreferenceNone = 0,
+    AdapterPreferenceNone = 0, ///< No particular preference, list adapters in system divised order.
+    /**
+     * @brief List the adapters from low power consumption to high.
+     * Order is as follows: Integrated, Discrete, External, Software.
+     * */
     AdapterPreferenceMinConsumption = 1,
+    /**
+     * @brief List the adapters from high performance to low.
+     * Order is as follows: External, Discrete, Integrated, Software.
+     * */
     AdapterPreferencePerformance = 2,
 };
 
+/**
+ * @brief Log message severity.
+ * Used with DebugCallback and internal library logging.
+ *
+ * */
 enum WisSeverity {
-    SeverityDebug = 0,
-    SeverityTrace = 1,
-    SeverityInfo = 2,
+    SeverityDebug = 0, ///< Message carries debug information.
+    SeverityTrace = 1, ///< Message contains trace point (function call stack info).
+    SeverityInfo = 2, ///< Message contains general information.
+    /**
+     * @brief Message contains warning.
+     * There is something wrong and it may affect performance or stability of the application.
+     * */
     SeverityWarning = 3,
+    /**
+     * @brief Message contains error.
+     * Stability of the application is compromized.
+     * */
     SeverityError = 4,
+    /**
+     * @brief Message contains critical error.
+     * The application must be shut down, no further execution.
+     * */
     SeverityCritical = 5,
 };
 

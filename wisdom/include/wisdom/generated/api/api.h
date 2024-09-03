@@ -75,13 +75,29 @@ enum class Status : int32_t {
      * @brief Operation partially succeeded.
      * Some times it means that core value is initialized,
      * but some functionality may be missing and may require
-     * you to check if demanded functionality is in place
+     * you to check if demanded functionality is in place.
      * */
     Partial = 2,
-    Error = -1,
+    Error = -1, ///< Operation failed. Check wis::Result::error for more details.
+    /**
+     * @brief One or more arguments, or parts of arguments
+     * passed to the function were incorrect. Check wis::Result::error for more details.
+     * */
     InvalidArgument = -2,
+    /**
+     * @brief There is no more host memory available.
+     * Allocation with malloc or similar call has failed.
+     * */
     OutOfMemory = -3,
+    /**
+     * @brief Device driver was forcefully stopped.
+     * Most of the time happens on swapchain presentation.
+     * */
     DeviceLost = -4,
+    /**
+     * @brief Swapchain presentation was not visible to the user.
+     * Rendering is too fast.
+     * */
     Occluded = -5,
 };
 
@@ -91,9 +107,13 @@ enum class QueuePriority {
     Realtime = 10000,
 };
 
+/**
+ * @brief Determines the behavior when wait for multiple fences is issued.
+ *
+ * */
 enum class MutiWaitFlags : uint32_t {
-    All = 0,
-    Any = 1,
+    All = 0, ///< All the fences in the batch are triggered.
+    Any = 1, ///< At least one of the fences from the batch is triggered.
 };
 
 enum class DescriptorType {
@@ -113,18 +133,49 @@ enum class QueueType : uint32_t {
     DX12VideoEncode = 6,
 };
 
+/**
+ * @brief Oreders the adapters according to preference
+ * using builtin heuristics of underlying APIs.
+ *
+ * Translates to DXGI_GPU_PREFERENCE for dx implementation.
+ * */
 enum class AdapterPreference {
-    None = 0,
+    None = 0, ///< No particular preference, list adapters in system divised order.
+    /**
+     * @brief List the adapters from low power consumption to high.
+     * Order is as follows: Integrated, Discrete, External, Software.
+     * */
     MinConsumption = 1,
+    /**
+     * @brief List the adapters from high performance to low.
+     * Order is as follows: External, Discrete, Integrated, Software.
+     * */
     Performance = 2,
 };
 
+/**
+ * @brief Log message severity.
+ * Used with DebugCallback and internal library logging.
+ *
+ * */
 enum class Severity {
-    Debug = 0,
-    Trace = 1,
-    Info = 2,
+    Debug = 0, ///< Message carries debug information.
+    Trace = 1, ///< Message contains trace point (function call stack info).
+    Info = 2, ///< Message contains general information.
+    /**
+     * @brief Message contains warning.
+     * There is something wrong and it may affect performance or stability of the application.
+     * */
     Warning = 3,
+    /**
+     * @brief Message contains error.
+     * Stability of the application is compromized.
+     * */
     Error = 4,
+    /**
+     * @brief Message contains critical error.
+     * The application must be shut down, no further execution.
+     * */
     Critical = 5,
 };
 

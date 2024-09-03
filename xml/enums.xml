@@ -10,46 +10,48 @@ Counts as a success value in some cases."/>
       <value name="Partial" value="2" doc="Operation partially succeeded.
 Some times it means that core value is initialized,
 but some functionality may be missing and may require
-you to check if demanded functionality is in place"/>
-      <value name="Error" value="-1"/>
-      <value name="InvalidArgument" value="-2"/>
-      <value name="OutOfMemory" value="-3"/>
-      <value name="DeviceLost" value="-4"/>
-      <value name="Occluded" value="-5"/>
+you to check if demanded functionality is in place."/>
+      <value name="Error" value="-1" doc="Operation failed. Check {Result::error} for more details."/>
+      <value name="InvalidArgument" value="-2" doc="One or more arguments, or parts of arguments 
+passed to the function were incorrect. Check {Result::error} for more details."/>
+      <value name="OutOfMemory" value="-3" doc="There is no more host memory available. 
+Allocation with malloc or similar call has failed."/>
+      <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped. 
+Most of the time happens on swapchain presentation."/>
+      <value name="Occluded" value="-5" doc="Swapchain presentation was not visible to the user.
+Rendering is too fast."/>
     </type>
-    <type name="MutiWaitFlags" category="enum" type="u32">
-      <value name="All" value="0"/>
-      <value name="Any" value="1"/>
+    
+    <type name="MutiWaitFlags" category="enum" type="u32"
+          doc="Determines the behavior when wait for multiple fences is issued.">
+      <value name="All" value="0" doc="All the fences in the batch are triggered."/>
+      <value name="Any" value="1" doc="At least one of the fences from the batch is triggered."/>
     </type>
-    <type name="AdapterPreference" category="enum">
+    
+    
+    <type name="AdapterPreference" category="enum" doc="Oreders the adapters according to preference 
+using builtin heuristics of underlying APIs.">
       <impl_type for="dx" name="DXGI_GPU_PREFERENCE" direct="true"/>
-      <value name="None" value="0"/>
-      <value name="MinConsumption" value="1"/>
-      <value name="Performance" value="2"/>
+      <value name="None" value="0" doc="No particular preference, list adapters in system divised order."/>
+      <value name="MinConsumption" value="1" doc="List the adapters from low power consumption to high.
+Order is as follows: Integrated, Discrete, External, Software."/>
+      <value name="Performance" value="2" doc="List the adapters from high performance to low.
+Order is as follows: External, Discrete, Integrated, Software."/>
     </type>
-    <type name="AdapterFlags" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="Remote" bit="0"/>
-      <value name="Software" bit="1"/>
-      <value name="ACGCompatible" bit="2" impl="dx"/>
-      <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
-      <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
-      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
+
+    <type name="Severity" category="enum" doc="Log message severity. 
+Used with {DebugCallback::} and internal library logging.">
+      <value name="Debug" value="0" doc="Message carries debug information."/>
+      <value name="Trace" value="1" doc="Message contains trace point (function call stack info)."/>
+      <value name="Info" value="2" doc="Message contains general information."/>
+      <value name="Warning" value="3" doc="Message contains warning. 
+There is something wrong and it may affect performance or stability of the application."/>
+      <value name="Error" value="4" doc="Message contains error. 
+Stability of the application is compromized."/>
+      <value name="Critical" value="5" doc="Message contains critical error.
+The application must be shut down, no further execution."/>
     </type>
-    <type name="DSSelect" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="Depth" bit="0"/>
-      <value name="Stencil" bit="1"/>
-      <value name="DepthStencil" value="3"/>
-    </type>
-    <type name="Severity" category="enum">
-      <value name="Debug" value="0"/>
-      <value name="Trace" value="1"/>
-      <value name="Info" value="2"/>
-      <value name="Warning" value="3"/>
-      <value name="Error" value="4"/>
-      <value name="Critical" value="5"/>
-    </type>
+
     <type name="QueueType" category="enum" type="u32">
       <value name="Graphics" value="0"/>
       <value name="Bundle" value="1" impl="dx"/>
@@ -59,6 +61,26 @@ you to check if demanded functionality is in place"/>
       <value name="VideoProcess" value="5" impl="dx"/>
       <value name="VideoEncode" value="6" impl="dx"/>
     </type>
+
+    <!--Bitmasks-->
+    <type name="AdapterFlags" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="Remote" bit="0"/>
+      <value name="Software" bit="1"/>
+      <value name="ACGCompatible" bit="2" impl="dx"/>
+      <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
+      <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
+      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
+    </type>
+    
+    <type name="DSSelect" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="Depth" bit="0"/>
+      <value name="Stencil" bit="1"/>
+      <value name="DepthStencil" value="3"/>
+    </type>
+
+
     <type name="ShaderStages" category="enum">
       <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
       <impl_type for="vk" name="VkShaderStageFlagBits" default="VK_SHADER_STAGE_ALL"/>
