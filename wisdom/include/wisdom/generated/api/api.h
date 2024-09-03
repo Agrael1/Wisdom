@@ -117,10 +117,29 @@ enum class MutiWaitFlags : uint32_t {
     Any = 1, ///< At least one of the fences from the batch is triggered.
 };
 
-enum class DescriptorType {
+/**
+ * @brief Type of the descriptor in the descriptor table.
+ *
+ * Translates to VkDescriptorType for vk implementation.
+ * */
+enum class DescriptorType : uint32_t {
+    /**
+     * @brief Descriptor is a shader resource view.
+     * Used for textures.
+     * */
     ShaderResource = 0,
-    ConstantBuffer = 1,
+    ConstantBuffer = 1, ///< Descriptor is a constant buffer view.
+    /**
+     * @brief Descriptor is an unordered access view.
+     * Used for read/write operations in compute shaders.
+     * */
     UnorderedAccess = 2,
+    /**
+     * @brief Descriptor is a sampler.
+     * Sampler is used to sample textures in shaders.
+     * Stored in separate descriptor table and
+     * can't be mixed with other descriptor types
+     * */
     Sampler = 3,
 };
 
@@ -181,9 +200,13 @@ enum class Severity {
     Critical = 5,
 };
 
-enum class InputClass {
-    PerVertex = 0,
-    PerInstance = 1,
+/**
+ * @brief Input classification for vertex buffer data.
+ *
+ * */
+enum class InputClass : uint32_t {
+    PerVertex = 0, ///< Vertex buffer data is vertex data.
+    PerInstance = 1, ///< Vertex buffer data is per instance data.
 };
 
 enum class CullMode {
@@ -192,55 +215,372 @@ enum class CullMode {
     Back = 3,
 };
 
-enum class DataFormat {
-    Unknown = 0,
+/**
+ * @brief Data format for data.
+ * Used as a template for data in several cases.
+ * Can be used to describe:
+ * - Vertex buffer data format
+ * - Texture data format
+ * - Render target data format
+ * - Depth stencil data format
+ *
+ * Translates to VkFormat for vk implementation.
+ * */
+enum class DataFormat : uint32_t {
+    Unknown = 0, ///< Unknown format.
+    /**
+     * @brief 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
     RGBA32Float = 2,
+    /**
+     * @brief 32 bit per channel RGBA format.
+     * A four-component, 128-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
     RGBA32Uint = 3,
+    /**
+     * @brief 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
     RGBA32Sint = 4,
+    /**
+     * @brief 32 bit per channel RGB format.
+     * A three-component, 96-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
     RGB32Float = 6,
+    /**
+     * @brief 32 bit per channel RGB format.
+     * A three-component, 96-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
     RGB32Uint = 7,
+    /**
+     * @brief 32 bit per channel RGB format.
+     * A three-component, 96-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
     RGB32Sint = 8,
+    /**
+     * @brief 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
     RGBA16Float = 10,
+    /**
+     * @brief 16 bit per channel RGBA format.
+     * A four-component, 64-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
     RGBA16Unorm = 11,
+    /**
+     * @brief 16 bit per channel RGBA format.
+     * A four-component, 64-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
     RGBA16Uint = 12,
+    /**
+     * @brief 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
     RGBA16Snorm = 13,
+    /**
+     * @brief 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
     RGBA16Sint = 14,
+    /**
+     * @brief 32 bit per channel RG format.
+     * A two-component, 64-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
     RG32Float = 16,
+    /**
+     * @brief 32 bit per channel RG format.
+     * A two-component, 64-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
     RG32Uint = 17,
+    /**
+     * @brief 32 bit per channel RG format.
+     * A two-component, 64-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
     RG32Sint = 18,
+    /**
+     * @brief 32 bit depth, 8 bit stencil format.
+     * A combined depth/stencil format with a 32-bit depth component in bytes 0..3
+     * and an 8-bit stencil component in bytes 4..4.
+     * */
     D32FloatS8Uint = 20,
+    /**
+     * @brief 10 bit per channel RGB format with 2 bit alpha.
+     * A four-component, 32-bit unsigned normalized format that has
+     * a 10-bit R component in bits 0..9,
+     * a 10-bit G component in bits 10..19,
+     * a 10-bit B component in bits 20..29,
+     * a 2-bit A component in bits 30..31.
+     * */
     RGB10A2Unorm = 24,
+    /**
+     * @brief 10 bit per channel RGB format with 2 bit alpha.
+     * A four-component, 32-bit unsigned integer format that has
+     * a 10-bit R component in bits 0..9,
+     * a 10-bit G component in bits 10..19,
+     * a 10-bit B component in bits 20..29,
+     * a 2-bit A component in bits 30..31.
+     * */
     RGB10A2Uint = 25,
+    /**
+     * @brief 11 bit per channel RG format with 10 bit blue.
+     * A three-component, 32-bit signed floating-point format that has
+     * a 11-bit R component in bits 0..10,
+     * a 11-bit G component in bits 11..21,
+     * a 10-bit B component in bits 22..31.
+     * */
     RG11B10Float = 26,
+    /**
+     * @brief 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     RGBA8Unorm = 28,
+    /**
+     * @brief 8 bit per channel RGBA format. SRGB non-linear color space.
+     * A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     RGBA8UnormSrgb = 29,
+    /**
+     * @brief 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     RGBA8Uint = 30,
+    /**
+     * @brief 8 bit per channel RGBA format.
+     * A four-component, 32-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     RGBA8Snorm = 31,
+    /**
+     * @brief 8 bit per channel RGBA format.
+     * A four-component, 32-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     RGBA8Sint = 32,
+    /**
+     * @brief 16 bit per channel RG format.
+     * A two-component, 32-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
     RG16Float = 34,
+    /**
+     * @brief 16 bit per channel RG format.
+     * A two-component, 32-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
     RG16Unorm = 35,
+    /**
+     * @brief 16 bit per channel RG format.
+     * A two-component, 32-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
     RG16Uint = 36,
+    /**
+     * @brief 16 bit per channel RG format.
+     * A two-component, 32-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
     RG16Snorm = 37,
+    /**
+     * @brief 16 bit per channel RG format.
+     * A two-component, 32-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
     RG16Sint = 38,
+    /**
+     * @brief 32 bit depth format.
+     * A 32-bit depth format supporting 32-bit floating-point depth values.
+     * */
     D32Float = 40,
+    /**
+     * @brief 32 bit per channel R format.
+     * A one-component, 32-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
     R32Float = 41,
+    /**
+     * @brief 32 bit per channel R format.
+     * A one-component, 32-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
     R32Uint = 42,
+    /**
+     * @brief 32 bit per channel R format.
+     * A one-component, 32-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
     R32Sint = 43,
+    /**
+     * @brief 24 bit depth, 8 bit stencil format.
+     * A combined depth/stencil format with a 24-bit depth component in bytes 0..2
+     * and an 8-bit stencil component in bytes 3..3.
+     * */
     D24UnormS8Uint = 45,
+    /**
+     * @brief 8 bit per channel RG format.
+     * A two-component, 16-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
     RG8Unorm = 49,
+    /**
+     * @brief 8 bit per channel RG format.
+     * A two-component, 16-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
     RG8Uint = 50,
+    /**
+     * @brief 8 bit per channel RG format.
+     * A two-component, 16-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
     RG8Snorm = 51,
+    /**
+     * @brief 8 bit per channel RG format.
+     * A two-component, 16-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
     RG8Sint = 52,
+    /**
+     * @brief 16 bit per channel R format.
+     * A one-component, 16-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
     R16Float = 54,
+    /**
+     * @brief 16 bit depth format.
+     * A 16-bit depth format supporting 16-bit unsigned normalized depth values.
+     * */
     D16Unorm = 55,
+    /**
+     * @brief 16 bit per channel R format.
+     * A one-component, 16-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
     R16Unorm = 56,
+    /**
+     * @brief 16 bit per channel R format.
+     * A one-component, 16-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
     R16Uint = 57,
+    /**
+     * @brief 16 bit per channel R format.
+     * A one-component, 16-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
     R16Snorm = 58,
+    /**
+     * @brief 16 bit per channel R format.
+     * A one-component, 16-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
     R16Sint = 59,
+    /**
+     * @brief 8 bit per channel R format.
+     * A one-component, 8-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
     R8Unorm = 61,
+    /**
+     * @brief 8 bit per channel R format.
+     * A one-component, 8-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
     R8Uint = 62,
+    /**
+     * @brief 8 bit per channel R format.
+     * A one-component, 8-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
     R8Snorm = 63,
+    /**
+     * @brief 8 bit per channel R format.
+     * A one-component, 8-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
     R8Sint = 64,
+    /**
+     * @brief 9 bit per channel RGB format with shared exponent.
+     * A three-component, 32-bit unsigned floating-point format that has
+     * a 9-bit R component in bits 0..8,
+     * a 9-bit G component in bits 9..17,
+     * a 9-bit B component in bits 18..26,
+     * a shared 5-bit exponent in bits 27..31.
+     * */
     RGB9E5UFloat = 67,
     RG8BG8Unorm = 68,
     GR8GB8Unorm = 69,

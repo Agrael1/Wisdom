@@ -91,205 +91,351 @@ Stages have no granularity, either all or one can be selected.">
       <value name="Count" value="8" doc="Number of stages."/>
     </type>
 
-    <!--Bitmasks-->
-    <type name="AdapterFlags" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="Remote" bit="0"/>
-      <value name="Software" bit="1"/>
-      <value name="ACGCompatible" bit="2" impl="dx"/>
-      <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
-      <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
-      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
-    </type>
-    
-    <type name="DSSelect" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="Depth" bit="0"/>
-      <value name="Stencil" bit="1"/>
-      <value name="DepthStencil" value="3"/>
-    </type>
-
-
-    
-    <type name="DescriptorType" category="enum">
+    <type name="DescriptorType" category="enum" type="u32" doc="Type of the descriptor in the descriptor table.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
       <impl_type for="vk" name="VkDescriptorType"/>
-      <value name="ShaderResource" value="0">
+      <value name="ShaderResource" value="0" doc="Descriptor is a shader resource view. 
+Used for textures.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
       </value>
-      <value name="ConstantBuffer" value="1">
+      <value name="ConstantBuffer" value="1" doc="Descriptor is a constant buffer view.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_CBV"/>
       </value>
-      <value name="UnorderedAccess" value="2">
+      <value name="UnorderedAccess" value="2" doc="Descriptor is an unordered access view.
+Used for read/write operations in compute shaders.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
       </value>
-      <value name="Sampler" value="3">
+      <value name="Sampler" value="3" doc="Descriptor is a sampler.
+Sampler is used to sample textures in shaders.
+Stored in separate descriptor table and 
+can't be mixed with other descriptor types">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
       </value>
     </type>
 
-    <type name="ColorComponents" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="R" bit="0"/>
-      <value name="G" bit="1"/>
-      <value name="B" bit="2"/>
-      <value name="A" bit="3"/>
-      <value name="All" value="15"/>
+    <type name="InputClass" category="enum" type="u32" doc="Input classification for vertex buffer data.">
+      <value name="PerVertex" value="0" doc="Vertex buffer data is vertex data."/>
+      <value name="PerInstance" value="1" doc="Vertex buffer data is per instance data."/>
     </type>
-    <type name="InputClass" category="enum">
-      <value name="PerVertex" value="0"/>
-      <value name="PerInstance" value="1"/>
-    </type>
-    <type name="DataFormat" category="enum">
+
+    <type name="DataFormat" category="enum" type="u32" doc="Data format for data.
+Used as a template for data in several cases.
+Can be used to describe:
+- Vertex buffer data format
+- Texture data format
+- Render target data format
+- Depth stencil data format">
       <impl_type for="dx" name="DXGI_FORMAT" direct="true "/>
       <impl_type for="vk" name="VkFormat"/>
-      <value name="Unknown" value="0"/>
-      <value name="RGBA32Float" value="2">
+      <value name="Unknown" value="0" doc="Unknown format."/>
+      <value name="RGBA32Float" value="2" doc="32 bit per channel RGBA format.
+A four-component, 128-bit signed floating-point format that has 
+a 32-bit R component in bytes 0..3, 
+a 32-bit G component in bytes 4..7, 
+a 32-bit B component in bytes 8..11, 
+a 32-bit A component in bytes 12..15.">
         <impl name="vk" value="VK_FORMAT_R32G32B32A32_SFLOAT"/>
       </value>
-      <value name="RGBA32Uint" value="3">
+      <value name="RGBA32Uint" value="3" doc="32 bit per channel RGBA format.
+A four-component, 128-bit unsigned integer format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7,
+a 32-bit B component in bytes 8..11,
+a 32-bit A component in bytes 12..15.">
         <impl name="vk" value="VK_FORMAT_R32G32B32A32_UINT"/>
       </value>
-      <value name="RGBA32Sint" value="4">
+      <value name="RGBA32Sint" value="4" doc="32 bit per channel RGBA format.
+A four-component, 128-bit signed integer format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7,
+a 32-bit B component in bytes 8..11,
+a 32-bit A component in bytes 12..15.">
         <impl name="vk" value="VK_FORMAT_R32G32B32A32_SINT"/>
       </value>
-      <value name="RGB32Float" value="6">
+      <value name="RGB32Float" value="6" doc="32 bit per channel RGB format.
+A three-component, 96-bit signed floating-point format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7,
+a 32-bit B component in bytes 8..11.">
         <impl name="vk" value="VK_FORMAT_R32G32B32_SFLOAT"/>
       </value>
-      <value name="RGB32Uint" value="7">
+      <value name="RGB32Uint" value="7" doc="32 bit per channel RGB format.
+A three-component, 96-bit unsigned integer format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7,
+a 32-bit B component in bytes 8..11.">
         <impl name="vk" value="VK_FORMAT_R32G32B32_UINT"/>
       </value>
-      <value name="RGB32Sint" value="8">
+      <value name="RGB32Sint" value="8" doc="32 bit per channel RGB format.
+A three-component, 96-bit signed integer format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7,
+a 32-bit B component in bytes 8..11.">
         <impl name="vk" value="VK_FORMAT_R32G32B32_SINT"/>
       </value>
-      <value name="RGBA16Float" value="10">
+      <value name="RGBA16Float" value="10" doc="16 bit per channel RGBA format.
+A four-component, 64-bit signed floating-point format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3,
+a 16-bit B component in bytes 4..5,
+a 16-bit A component in bytes 6..7.">
         <impl name="vk" value="VK_FORMAT_R16G16B16A16_SFLOAT"/>
       </value>
-      <value name="RGBA16Unorm" value="11">
+      <value name="RGBA16Unorm" value="11" doc="16 bit per channel RGBA format.
+A four-component, 64-bit unsigned normalized format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3,
+a 16-bit B component in bytes 4..5,
+a 16-bit A component in bytes 6..7.">
         <impl name="vk" value="VK_FORMAT_R16G16B16A16_UNORM"/>
       </value>
-      <value name="RGBA16Uint" value="12">
+      <value name="RGBA16Uint" value="12" doc="16 bit per channel RGBA format.
+A four-component, 64-bit unsigned integer format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3,
+a 16-bit B component in bytes 4..5,
+a 16-bit A component in bytes 6..7.">
         <impl name="vk" value="VK_FORMAT_R16G16B16A16_UINT"/>
       </value>
-      <value name="RGBA16Snorm" value="13">
+      <value name="RGBA16Snorm" value="13" doc="16 bit per channel RGBA format.
+A four-component, 64-bit signed normalized format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3,
+a 16-bit B component in bytes 4..5,
+a 16-bit A component in bytes 6..7.">
         <impl name="vk" value="VK_FORMAT_R16G16B16A16_SNORM"/>
       </value>
-      <value name="RGBA16Sint" value="14">
+      <value name="RGBA16Sint" value="14" doc="16 bit per channel RGBA format.
+A four-component, 64-bit signed integer format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3,
+a 16-bit B component in bytes 4..5,
+a 16-bit A component in bytes 6..7.">
         <impl name="vk" value="VK_FORMAT_R16G16B16A16_SINT"/>
       </value>
-      <value name="RG32Float" value="16">
+      <value name="RG32Float" value="16" doc="32 bit per channel RG format.
+A two-component, 64-bit signed floating-point format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7.">
         <impl name="vk" value="VK_FORMAT_R32G32_SFLOAT"/>
       </value>
-      <value name="RG32Uint" value="17">
+      <value name="RG32Uint" value="17" doc="32 bit per channel RG format.
+A two-component, 64-bit unsigned integer format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7.">
         <impl name="vk" value="VK_FORMAT_R32G32_UINT"/>
       </value>
-      <value name="RG32Sint" value="18">
+      <value name="RG32Sint" value="18" doc="32 bit per channel RG format.
+A two-component, 64-bit signed integer format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7.">
         <impl name="vk" value="VK_FORMAT_R32G32_SINT"/>
       </value>
-      <value name="D32FloatS8Uint" value="20">
+      <value name="D32FloatS8Uint" value="20" doc="32 bit depth, 8 bit stencil format.
+A combined depth/stencil format with a 32-bit depth component in bytes 0..3
+and an 8-bit stencil component in bytes 4..4.">
         <impl name="vk" value="VK_FORMAT_D32_SFLOAT_S8_UINT"/>
       </value>
-      <value name="RGB10A2Unorm" value="24">
+      <value name="RGB10A2Unorm" value="24" doc="10 bit per channel RGB format with 2 bit alpha.
+A four-component, 32-bit unsigned normalized format that has
+a 10-bit R component in bits 0..9,
+a 10-bit G component in bits 10..19,
+a 10-bit B component in bits 20..29,
+a 2-bit A component in bits 30..31.">
         <impl name="vk" value="VK_FORMAT_A2B10G10R10_UNORM_PACK32"/>
       </value>
-      <value name="RGB10A2Uint" value="25">
+      <value name="RGB10A2Uint" value="25" doc="10 bit per channel RGB format with 2 bit alpha.
+A four-component, 32-bit unsigned integer format that has
+a 10-bit R component in bits 0..9,
+a 10-bit G component in bits 10..19,
+a 10-bit B component in bits 20..29,
+a 2-bit A component in bits 30..31.">
         <impl name="vk" value="VK_FORMAT_A2B10G10R10_UINT_PACK32"/>
       </value>
-      <value name="RG11B10Float" value="26">
+      <value name="RG11B10Float" value="26" doc="11 bit per channel RG format with 10 bit blue.
+A three-component, 32-bit signed floating-point format that has
+a 11-bit R component in bits 0..10,
+a 11-bit G component in bits 11..21,
+a 10-bit B component in bits 22..31.">
         <impl name="vk" value="VK_FORMAT_B10G11R11_UFLOAT_PACK32"/>
       </value>
-      <value name="RGBA8Unorm" value="28">
+      <value name="RGBA8Unorm" value="28" doc="8 bit per channel RGBA format.
+A four-component, 32-bit unsigned normalized format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit B component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_R8G8B8A8_UNORM"/>
       </value>
-      <value name="RGBA8UnormSrgb" value="29">
+      <value name="RGBA8UnormSrgb" value="29" doc="8 bit per channel RGBA format. SRGB non-linear color space.
+A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit B component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_R8G8B8A8_SRGB"/>
       </value>
-      <value name="RGBA8Uint" value="30">
+      <value name="RGBA8Uint" value="30" doc="8 bit per channel RGBA format.
+A four-component, 32-bit unsigned integer format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit B component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_R8G8B8A8_UINT"/>
       </value>
-      <value name="RGBA8Snorm" value="31">
+      <value name="RGBA8Snorm" value="31" doc="8 bit per channel RGBA format.
+A four-component, 32-bit signed normalized format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit B component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_R8G8B8A8_SNORM"/>
       </value>
-      <value name="RGBA8Sint" value="32">
+      <value name="RGBA8Sint" value="32" doc="8 bit per channel RGBA format.
+A four-component, 32-bit signed integer format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit B component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_R8G8B8A8_SINT"/>
       </value>
-      <value name="RG16Float" value="34">
+      <value name="RG16Float" value="34" doc="16 bit per channel RG format.
+A two-component, 32-bit signed floating-point format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3.">
         <impl name="vk" value="VK_FORMAT_R16G16_SFLOAT"/>
       </value>
-      <value name="RG16Unorm" value="35">
+      <value name="RG16Unorm" value="35" doc="16 bit per channel RG format.
+A two-component, 32-bit unsigned normalized format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3.">
         <impl name="vk" value="VK_FORMAT_R16G16_UNORM"/>
       </value>
-      <value name="RG16Uint" value="36">
+      <value name="RG16Uint" value="36" doc="16 bit per channel RG format.
+A two-component, 32-bit unsigned integer format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3.">
         <impl name="vk" value="VK_FORMAT_R16G16_UINT"/>
       </value>
-      <value name="RG16Snorm" value="37">
+      <value name="RG16Snorm" value="37" doc="16 bit per channel RG format.
+A two-component, 32-bit signed normalized format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3.">
         <impl name="vk" value="VK_FORMAT_R16G16_SNORM"/>
       </value>
-      <value name="RG16Sint" value="38">
+      <value name="RG16Sint" value="38" doc="16 bit per channel RG format.
+A two-component, 32-bit signed integer format that has
+a 16-bit R component in bytes 0..1,
+a 16-bit G component in bytes 2..3.">
         <impl name="vk" value="VK_FORMAT_R16G16_SINT"/>
       </value>
-      <value name="D32Float" value="40">
+      <value name="D32Float" value="40" doc="32 bit depth format.
+A 32-bit depth format supporting 32-bit floating-point depth values.">
         <impl name="vk" value="VK_FORMAT_D32_SFLOAT"/>
       </value>
-      <value name="R32Float" value="41">
+      <value name="R32Float" value="41" doc="32 bit per channel R format.
+A one-component, 32-bit signed floating-point format that has
+a 32-bit R component in bytes 0..3.">
         <impl name="vk" value="VK_FORMAT_R32_SFLOAT"/>
       </value>
-      <value name="R32Uint" value="42">
+      <value name="R32Uint" value="42" doc="32 bit per channel R format.
+A one-component, 32-bit unsigned integer format that has
+a 32-bit R component in bytes 0..3.">
         <impl name="vk" value="VK_FORMAT_R32_UINT"/>
       </value>
-      <value name="R32Sint" value="43">
+      <value name="R32Sint" value="43" doc="32 bit per channel R format.
+A one-component, 32-bit signed integer format that has
+a 32-bit R component in bytes 0..3.">
         <impl name="vk" value="VK_FORMAT_R32_SINT"/>
       </value>
-      <value name="D24UnormS8Uint" value="45">
+      <value name="D24UnormS8Uint" value="45" doc="24 bit depth, 8 bit stencil format.
+A combined depth/stencil format with a 24-bit depth component in bytes 0..2
+and an 8-bit stencil component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_D24_UNORM_S8_UINT"/>
       </value>
-      <value name="RG8Unorm" value="49">
+      <value name="RG8Unorm" value="49" doc="8 bit per channel RG format.
+A two-component, 16-bit unsigned normalized format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1.">
         <impl name="vk" value="VK_FORMAT_R8G8_UNORM"/>
       </value>
-      <value name="RG8Uint" value="50">
+      <value name="RG8Uint" value="50" doc="8 bit per channel RG format.
+A two-component, 16-bit unsigned integer format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1.">
         <impl name="vk" value="VK_FORMAT_R8G8_UINT"/>
       </value>
-      <value name="RG8Snorm" value="51">
+      <value name="RG8Snorm" value="51" doc="8 bit per channel RG format.
+A two-component, 16-bit signed normalized format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1.">
         <impl name="vk" value="VK_FORMAT_R8G8_SNORM"/>
       </value>
-      <value name="RG8Sint" value="52">
+      <value name="RG8Sint" value="52" doc="8 bit per channel RG format.
+A two-component, 16-bit signed integer format that has
+an 8-bit R component in bytes 0..0,
+an 8-bit G component in bytes 1..1.">
         <impl name="vk" value="VK_FORMAT_R8G8_SINT"/>
       </value>
-      <value name="R16Float" value="54">
+      <value name="R16Float" value="54" doc="16 bit per channel R format.
+A one-component, 16-bit signed floating-point format that has
+a 16-bit R component in bytes 0..1.">
         <impl name="vk" value="VK_FORMAT_R16_SFLOAT"/>
       </value>
-      <value name="D16Unorm" value="55">
+      <value name="D16Unorm" value="55" doc="16 bit depth format.
+A 16-bit depth format supporting 16-bit unsigned normalized depth values.">
         <impl name="vk" value="VK_FORMAT_D16_UNORM"/>
       </value>
-      <value name="R16Unorm" value="56">
+      <value name="R16Unorm" value="56" doc="16 bit per channel R format.
+A one-component, 16-bit unsigned normalized format that has
+a 16-bit R component in bytes 0..1.">
         <impl name="vk" value="VK_FORMAT_R16_UNORM"/>
       </value>
-      <value name="R16Uint" value="57">
+      <value name="R16Uint" value="57" doc="16 bit per channel R format.
+A one-component, 16-bit unsigned integer format that has
+a 16-bit R component in bytes 0..1.">
         <impl name="vk" value="VK_FORMAT_R16_UINT"/>
       </value>
-      <value name="R16Snorm" value="58">
+      <value name="R16Snorm" value="58" doc="16 bit per channel R format.
+A one-component, 16-bit signed normalized format that has
+a 16-bit R component in bytes 0..1.">
         <impl name="vk" value="VK_FORMAT_R16_SNORM"/>
       </value>
-      <value name="R16Sint" value="59">
+      <value name="R16Sint" value="59" doc="16 bit per channel R format.
+A one-component, 16-bit signed integer format that has
+a 16-bit R component in bytes 0..1.">
         <impl name="vk" value="VK_FORMAT_R16_SINT"/>
       </value>
-      <value name="R8Unorm" value="61">
+      <value name="R8Unorm" value="61" doc="8 bit per channel R format.
+A one-component, 8-bit unsigned normalized format that has
+an 8-bit R component in bytes 0..0.">
         <impl name="vk" value="VK_FORMAT_R8_UNORM"/>
       </value>
-      <value name="R8Uint" value="62">
+      <value name="R8Uint" value="62" doc="8 bit per channel R format.
+A one-component, 8-bit unsigned integer format that has
+an 8-bit R component in bytes 0..0.">
         <impl name="vk" value="VK_FORMAT_R8_UINT"/>
       </value>
-      <value name="R8Snorm" value="63">
+      <value name="R8Snorm" value="63" doc="8 bit per channel R format.
+A one-component, 8-bit signed normalized format that has
+an 8-bit R component in bytes 0..0.">
         <impl name="vk" value="VK_FORMAT_R8_SNORM"/>
       </value>
-      <value name="R8Sint" value="64">
+      <value name="R8Sint" value="64" doc="8 bit per channel R format.
+A one-component, 8-bit signed integer format that has
+an 8-bit R component in bytes 0..0.">
         <impl name="vk" value="VK_FORMAT_R8_SINT"/>
       </value>
-      <value name="RGB9E5UFloat" value="67">
+      <value name="RGB9E5UFloat" value="67" doc="9 bit per channel RGB format with shared exponent.
+A three-component, 32-bit unsigned floating-point format that has
+a 9-bit R component in bits 0..8,
+a 9-bit G component in bits 9..17,
+a 9-bit B component in bits 18..26,
+a shared 5-bit exponent in bits 27..31.">
         <impl name="vk" value="VK_FORMAT_E5B9G9R9_UFLOAT_PACK32"/>
       </value>
       <value name="RG8BG8Unorm" value="68">
@@ -353,6 +499,35 @@ Stages have no granularity, either all or one can be selected.">
         <impl name="vk" value="VK_FORMAT_BC7_SRGB_BLOCK"/>
       </value>
     </type>
+
+    <!--Bitmasks-->
+    <type name="AdapterFlags" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="Remote" bit="0"/>
+      <value name="Software" bit="1"/>
+      <value name="ACGCompatible" bit="2" impl="dx"/>
+      <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
+      <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
+      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
+    </type>
+    
+    <type name="DSSelect" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="Depth" bit="0"/>
+      <value name="Stencil" bit="1"/>
+      <value name="DepthStencil" value="3"/>
+    </type>
+    
+    <type name="ColorComponents" category="bitmask">
+      <value name="None" value="0"/>
+      <value name="R" bit="0"/>
+      <value name="G" bit="1"/>
+      <value name="B" bit="2"/>
+      <value name="A" bit="3"/>
+      <value name="All" value="15"/>
+    </type>
+
+    
     <type name="FillMode" category="enum">
       <impl_type for="dx" name="D3D12_FILL_MODE" direct="true"/>
       <impl_type for="vk" name="VkPolygonMode"/>
