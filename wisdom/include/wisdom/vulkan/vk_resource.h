@@ -63,7 +63,7 @@ public:
     }
 
 public:
-    template<typename T>
+    template<typename T = void>
     T* Map() const noexcept
     {
         return static_cast<T*>(memory.VKMap());

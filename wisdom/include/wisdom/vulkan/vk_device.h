@@ -39,7 +39,7 @@ public:
     template<typename PFN>
     [[nodiscard]] PFN GetInstanceProcAddr(const char* name) const noexcept
     {
-        return device.GetInstanceProcAddr<PFN>(name);
+        return reinterpret_cast<PFN>(device.gtable().vkGetInstanceProcAddr(adapter.GetInternal().instance.get(), name));
     }
     template<typename PFN>
     [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept

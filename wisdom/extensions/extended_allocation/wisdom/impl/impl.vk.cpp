@@ -40,9 +40,9 @@ wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
         return {};
     }
 
-    vkCopyMemoryToImageEXT = device.GetDeviceProcAddr<PFN_vkCopyMemoryToImageEXT>("vkCopyMemoryToImageEXT");
-    vkTransitionImageLayoutEXT = device.GetDeviceProcAddr<PFN_vkTransitionImageLayoutEXT>("vkTransitionImageLayoutEXT");
-    vkGetPhysicalDeviceImageFormatProperties2 = device.GetDeviceProcAddr<PFN_vkGetPhysicalDeviceImageFormatProperties2>("vkGetPhysicalDeviceImageFormatProperties2");
+    vkCopyMemoryToImageEXT = device_i.GetDeviceProcAddr<PFN_vkCopyMemoryToImageEXT>("vkCopyMemoryToImageEXT");
+    vkTransitionImageLayoutEXT = device_i.GetDeviceProcAddr<PFN_vkTransitionImageLayoutEXT>("vkTransitionImageLayoutEXT");
+    vkGetPhysicalDeviceImageFormatProperties2 = device_i.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceImageFormatProperties2>("vkGetPhysicalDeviceImageFormatProperties2");
     return {};
 }
 

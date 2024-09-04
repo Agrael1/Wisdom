@@ -39,11 +39,6 @@ public:
     }
 
     template<typename PFN>
-    [[nodiscard]] PFN GetInstanceProcAddr(const char* name) const noexcept
-    {
-        return reinterpret_cast<PFN>(m_global_table->vkGetInstanceProcAddr(get(), name));
-    }
-    template<typename PFN>
     [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept
     {
         return reinterpret_cast<PFN>(m_global_table->vkGetDeviceProcAddr(get(), name));

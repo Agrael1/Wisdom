@@ -33,22 +33,16 @@ public:
     }
 
 public:
-    void* Map() const noexcept
+    template<typename T = void>
+    T* Map() const noexcept
     {
         void* data;
         resource->Map(0, nullptr, &data);
-        return data;
+        return static_cast<T*>(data);
     }
     void Unmap() const noexcept
     {
         resource->Unmap(0, nullptr);
-    }
-
-public:
-    template<typename T>
-    T* Map() const noexcept
-    {
-        return static_cast<T*>(Map());
     }
 };
 
