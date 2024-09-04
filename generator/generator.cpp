@@ -695,7 +695,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
 
-        ref.doc_translates = wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
+        ref.doc_translates += wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
 
         std::string_view def_value = "{}";
         if (auto xdefault = impl_type->FindAttribute("default"))

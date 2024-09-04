@@ -129,15 +129,6 @@ inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept
 {
     return static_cast<D3D12_LOGIC_OP>(value);
 }
-inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
-{
-    D3D12MA::ALLOCATION_FLAGS output = {};
-    if (value & MemoryFlags::DedicatedAllocation)
-        output |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
-    if (value & MemoryFlags::Mapped)
-        output |= D3D12MA::ALLOCATION_FLAG_NONE;
-    return output;
-}
 inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
 {
     switch (value) {
@@ -152,6 +143,183 @@ inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
     case MemoryType::GPUUpload:
         return D3D12_HEAP_TYPE_GPU_UPLOAD;
     }
+}
+inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case TextureState::Undefined:
+        return D3D12_BARRIER_LAYOUT_UNDEFINED;
+    case TextureState::Common:
+        return D3D12_BARRIER_LAYOUT_COMMON;
+    case TextureState::Read:
+        return D3D12_BARRIER_LAYOUT_GENERIC_READ;
+    case TextureState::RenderTarget:
+        return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
+    case TextureState::UnorderedAccess:
+        return D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS;
+    case TextureState::DepthStencilWrite:
+        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
+    case TextureState::DepthStencilRead:
+        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
+    case TextureState::ShaderResource:
+        return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
+    case TextureState::CopySource:
+        return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
+    case TextureState::CopyDest:
+        return D3D12_BARRIER_LAYOUT_COPY_DEST;
+    case TextureState::Present:
+        return D3D12_BARRIER_LAYOUT_PRESENT;
+    case TextureState::ShadingRate:
+        return D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE;
+    case TextureState::VideoDecodeRead:
+        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ;
+    case TextureState::VideoDecodeWrite:
+        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
+    }
+}
+inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(DescriptorHeapType value) noexcept
+{
+    return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
+}
+inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(DescriptorMemory value) noexcept
+{
+    return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
+}
+inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case LoadOperation::Load:
+        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+    case LoadOperation::Clear:
+        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+    case LoadOperation::DontCare:
+        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
+    }
+}
+inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case StoreOperation::Store:
+        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+    case StoreOperation::DontCare:
+        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
+    case StoreOperation::Resolve:
+        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
+    }
+}
+inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case PrimitiveTopology::PointList:
+        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+    case PrimitiveTopology::LineList:
+        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+    case PrimitiveTopology::LineStrip:
+        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+    case PrimitiveTopology::TriangleList:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    case PrimitiveTopology::TriangleStrip:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+    case PrimitiveTopology::TriangleFan:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN;
+    case PrimitiveTopology::LineListAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+    case PrimitiveTopology::LineStripAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+    case PrimitiveTopology::TriangleListAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+    case PrimitiveTopology::TriangleStripAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+    }
+}
+inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case TopologyType::Point:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+    case TopologyType::Line:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    case TopologyType::Triangle:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    case TopologyType::Patch:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    }
+}
+inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case Filter::Point:
+        return D3D12_FILTER_TYPE_POINT;
+    case Filter::Linear:
+        return D3D12_FILTER_TYPE_LINEAR;
+    }
+}
+inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case AddressMode::Repeat:
+        return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    case AddressMode::MirroredRepeat:
+        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+    case AddressMode::ClampToEdge:
+        return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    case AddressMode::ClampToBorder:
+        return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    case AddressMode::MirrorClampToEdge:
+        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+    }
+}
+inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case TextureViewType::Texture1D:
+        return D3D12_SRV_DIMENSION_TEXTURE1D;
+    case TextureViewType::Texture1DArray:
+        return D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+    case TextureViewType::Texture2D:
+        return D3D12_SRV_DIMENSION_TEXTURE2D;
+    case TextureViewType::Texture2DArray:
+        return D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+    case TextureViewType::Texture2DMS:
+        return D3D12_SRV_DIMENSION_TEXTURE2DMS;
+    case TextureViewType::Texture2DMSArray:
+        return D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+    case TextureViewType::Texture3D:
+        return D3D12_SRV_DIMENSION_TEXTURE3D;
+    case TextureViewType::TextureCube:
+        return D3D12_SRV_DIMENSION_TEXTURECUBE;
+    case TextureViewType::TextureCubeArray:
+        return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+    }
+}
+inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle value) noexcept
+{
+    return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(value);
+}
+inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
+{
+    D3D12MA::ALLOCATION_FLAGS output = {};
+    if (value & MemoryFlags::DedicatedAllocation)
+        output |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
+    if (value & MemoryFlags::Mapped)
+        output |= D3D12MA::ALLOCATION_FLAG_NONE;
+    return output;
 }
 inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
 {
@@ -245,41 +413,6 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
         output |= D3D12_BARRIER_ACCESS_NO_ACCESS;
     return output;
 }
-inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case TextureState::Undefined:
-        return D3D12_BARRIER_LAYOUT_UNDEFINED;
-    case TextureState::Common:
-        return D3D12_BARRIER_LAYOUT_COMMON;
-    case TextureState::Read:
-        return D3D12_BARRIER_LAYOUT_GENERIC_READ;
-    case TextureState::RenderTarget:
-        return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
-    case TextureState::UnorderedAccess:
-        return D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS;
-    case TextureState::DepthStencilWrite:
-        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
-    case TextureState::DepthStencilRead:
-        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
-    case TextureState::ShaderResource:
-        return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
-    case TextureState::CopySource:
-        return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
-    case TextureState::CopyDest:
-        return D3D12_BARRIER_LAYOUT_COPY_DEST;
-    case TextureState::Present:
-        return D3D12_BARRIER_LAYOUT_PRESENT;
-    case TextureState::ShadingRate:
-        return D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE;
-    case TextureState::VideoDecodeRead:
-        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ;
-    case TextureState::VideoDecodeWrite:
-        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
-    }
-}
 inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexcept
 {
     D3D12_RENDER_PASS_FLAGS output = {};
@@ -288,86 +421,6 @@ inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexc
     if (value & RenderPassFlags::Resuming)
         output |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
     return output;
-}
-inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(DescriptorHeapType value) noexcept
-{
-    return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
-}
-inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(DescriptorMemory value) noexcept
-{
-    return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
-}
-inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case LoadOperation::Load:
-        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-    case LoadOperation::Clear:
-        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-    case LoadOperation::DontCare:
-        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
-    }
-}
-inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case StoreOperation::Store:
-        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-    case StoreOperation::DontCare:
-        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
-    case StoreOperation::Resolve:
-        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
-    }
-}
-inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case PrimitiveTopology::PointList:
-        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
-    case PrimitiveTopology::LineList:
-        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-    case PrimitiveTopology::LineStrip:
-        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
-    case PrimitiveTopology::TriangleList:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    case PrimitiveTopology::TriangleStrip:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-    case PrimitiveTopology::TriangleFan:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN;
-    case PrimitiveTopology::LineListAdj:
-        return D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
-    case PrimitiveTopology::LineStripAdj:
-        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
-    case PrimitiveTopology::TriangleListAdj:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
-    case PrimitiveTopology::TriangleStripAdj:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
-    }
-}
-inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case TopologyType::Point:
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-    case TopologyType::Line:
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-    case TopologyType::Triangle:
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    case TopologyType::Patch:
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
-    }
-}
-inline constexpr uint32_t convert_dx(SampleCount value) noexcept
-{
-    return static_cast<uint32_t>(value);
 }
 inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
 {
@@ -387,62 +440,5 @@ inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
     if (value & TextureUsage::HostCopy)
         output |= D3D12_RESOURCE_FLAG_NONE;
     return output;
-}
-inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case Filter::Point:
-        return D3D12_FILTER_TYPE_POINT;
-    case Filter::Linear:
-        return D3D12_FILTER_TYPE_LINEAR;
-    }
-}
-inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case AddressMode::Repeat:
-        return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-    case AddressMode::MirroredRepeat:
-        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-    case AddressMode::ClampToEdge:
-        return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-    case AddressMode::ClampToBorder:
-        return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-    case AddressMode::MirrorClampToEdge:
-        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
-    }
-}
-inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case TextureViewType::Texture1D:
-        return D3D12_SRV_DIMENSION_TEXTURE1D;
-    case TextureViewType::Texture1DArray:
-        return D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
-    case TextureViewType::Texture2D:
-        return D3D12_SRV_DIMENSION_TEXTURE2D;
-    case TextureViewType::Texture2DArray:
-        return D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-    case TextureViewType::Texture2DMS:
-        return D3D12_SRV_DIMENSION_TEXTURE2DMS;
-    case TextureViewType::Texture2DMSArray:
-        return D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-    case TextureViewType::Texture3D:
-        return D3D12_SRV_DIMENSION_TEXTURE3D;
-    case TextureViewType::TextureCube:
-        return D3D12_SRV_DIMENSION_TEXTURECUBE;
-    case TextureViewType::TextureCubeArray:
-        return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-    }
-}
-inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle value) noexcept
-{
-    return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(value);
 }
 } // namespace wis

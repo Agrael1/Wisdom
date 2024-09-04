@@ -441,15 +441,6 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept
         return VK_LOGIC_OP_OR_INVERTED;
     }
 }
-inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
-{
-    VmaAllocationCreateFlags output = {};
-    if (value & MemoryFlags::DedicatedAllocation)
-        output |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-    if (value & MemoryFlags::Mapped)
-        output |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
-    return output;
-}
 inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
 {
     switch (value) {
@@ -462,8 +453,192 @@ inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
     case MemoryType::Readback:
         return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
     case MemoryType::GPUUpload:
-        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     }
+}
+inline constexpr VkImageLayout convert_vk(TextureState value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case TextureState::Undefined:
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    case TextureState::Common:
+        return VK_IMAGE_LAYOUT_GENERAL;
+    case TextureState::Read:
+        return VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+    case TextureState::RenderTarget:
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case TextureState::UnorderedAccess:
+        return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+    case TextureState::DepthStencilWrite:
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    case TextureState::DepthStencilRead:
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+    case TextureState::ShaderResource:
+        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    case TextureState::CopySource:
+        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    case TextureState::CopyDest:
+        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    case TextureState::Present:
+        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    case TextureState::ShadingRate:
+        return VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+    case TextureState::VideoDecodeRead:
+        return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
+    case TextureState::VideoDecodeWrite:
+        return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+    }
+}
+inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case LoadOperation::Load:
+        return VK_ATTACHMENT_LOAD_OP_LOAD;
+    case LoadOperation::Clear:
+        return VK_ATTACHMENT_LOAD_OP_CLEAR;
+    case LoadOperation::DontCare:
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+}
+inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case StoreOperation::Store:
+        return VK_ATTACHMENT_STORE_OP_STORE;
+    case StoreOperation::DontCare:
+        return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    case StoreOperation::Resolve:
+        return VK_ATTACHMENT_STORE_OP_STORE;
+    }
+}
+inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case PrimitiveTopology::PointList:
+        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case PrimitiveTopology::LineList:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case PrimitiveTopology::LineStrip:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    case PrimitiveTopology::TriangleList:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case PrimitiveTopology::TriangleStrip:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    case PrimitiveTopology::TriangleFan:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+    case PrimitiveTopology::LineListAdj:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+    case PrimitiveTopology::LineStripAdj:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
+    case PrimitiveTopology::TriangleListAdj:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+    case PrimitiveTopology::TriangleStripAdj:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
+    }
+}
+inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case TopologyType::Point:
+        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case TopologyType::Line:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case TopologyType::Triangle:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case TopologyType::Patch:
+        return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+    }
+}
+inline constexpr VkFilter convert_vk(Filter value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case Filter::Point:
+        return VK_FILTER_NEAREST;
+    case Filter::Linear:
+        return VK_FILTER_LINEAR;
+    }
+}
+inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case AddressMode::Repeat:
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case AddressMode::MirroredRepeat:
+        return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case AddressMode::ClampToEdge:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case AddressMode::ClampToBorder:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    case AddressMode::MirrorClampToEdge:
+        return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+    }
+}
+inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case TextureViewType::Texture1D:
+        return VK_IMAGE_VIEW_TYPE_1D;
+    case TextureViewType::Texture1DArray:
+        return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+    case TextureViewType::Texture2D:
+        return VK_IMAGE_VIEW_TYPE_2D;
+    case TextureViewType::Texture2DArray:
+        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    case TextureViewType::Texture2DMS:
+        return VK_IMAGE_VIEW_TYPE_2D;
+    case TextureViewType::Texture2DMSArray:
+        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    case TextureViewType::Texture3D:
+        return VK_IMAGE_VIEW_TYPE_3D;
+    case TextureViewType::TextureCube:
+        return VK_IMAGE_VIEW_TYPE_CUBE;
+    case TextureViewType::TextureCubeArray:
+        return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+    }
+}
+inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ComponentSwizzle::Red:
+        return VK_COMPONENT_SWIZZLE_R;
+    case ComponentSwizzle::Green:
+        return VK_COMPONENT_SWIZZLE_G;
+    case ComponentSwizzle::Blue:
+        return VK_COMPONENT_SWIZZLE_B;
+    case ComponentSwizzle::Alpha:
+        return VK_COMPONENT_SWIZZLE_A;
+    case ComponentSwizzle::Zero:
+        return VK_COMPONENT_SWIZZLE_ZERO;
+    case ComponentSwizzle::One:
+        return VK_COMPONENT_SWIZZLE_ONE;
+    }
+}
+inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
+{
+    VmaAllocationCreateFlags output = {};
+    if (value & MemoryFlags::DedicatedAllocation)
+        output |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    if (value & MemoryFlags::Mapped)
+        output |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    return output;
 }
 inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept
 {
@@ -557,41 +732,6 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
         output |= VK_ACCESS_2_NONE;
     return output;
 }
-inline constexpr VkImageLayout convert_vk(TextureState value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case TextureState::Undefined:
-        return VK_IMAGE_LAYOUT_UNDEFINED;
-    case TextureState::Common:
-        return VK_IMAGE_LAYOUT_GENERAL;
-    case TextureState::Read:
-        return VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
-    case TextureState::RenderTarget:
-        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    case TextureState::UnorderedAccess:
-        return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
-    case TextureState::DepthStencilWrite:
-        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    case TextureState::DepthStencilRead:
-        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-    case TextureState::ShaderResource:
-        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    case TextureState::CopySource:
-        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    case TextureState::CopyDest:
-        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    case TextureState::Present:
-        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    case TextureState::ShadingRate:
-        return VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
-    case TextureState::VideoDecodeRead:
-        return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
-    case TextureState::VideoDecodeWrite:
-        return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
-    }
-}
 inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept
 {
     VkRenderingFlags output = {};
@@ -600,95 +740,6 @@ inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept
     if (value & RenderPassFlags::Resuming)
         output |= VK_RENDERING_RESUMING_BIT;
     return output;
-}
-inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case LoadOperation::Load:
-        return VK_ATTACHMENT_LOAD_OP_LOAD;
-    case LoadOperation::Clear:
-        return VK_ATTACHMENT_LOAD_OP_CLEAR;
-    case LoadOperation::DontCare:
-        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    }
-}
-inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case StoreOperation::Store:
-        return VK_ATTACHMENT_STORE_OP_STORE;
-    case StoreOperation::DontCare:
-        return VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    case StoreOperation::Resolve:
-        return VK_ATTACHMENT_STORE_OP_STORE;
-    }
-}
-inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case PrimitiveTopology::PointList:
-        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-    case PrimitiveTopology::LineList:
-        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-    case PrimitiveTopology::LineStrip:
-        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-    case PrimitiveTopology::TriangleList:
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    case PrimitiveTopology::TriangleStrip:
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-    case PrimitiveTopology::TriangleFan:
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
-    case PrimitiveTopology::LineListAdj:
-        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
-    case PrimitiveTopology::LineStripAdj:
-        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
-    case PrimitiveTopology::TriangleListAdj:
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
-    case PrimitiveTopology::TriangleStripAdj:
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
-    }
-}
-inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case TopologyType::Point:
-        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-    case TopologyType::Line:
-        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-    case TopologyType::Triangle:
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    case TopologyType::Patch:
-        return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
-    }
-}
-inline constexpr VkSampleCountFlagBits convert_vk(SampleCount value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case SampleCount::S1:
-        return VK_SAMPLE_COUNT_1_BIT;
-    case SampleCount::S2:
-        return VK_SAMPLE_COUNT_2_BIT;
-    case SampleCount::S4:
-        return VK_SAMPLE_COUNT_4_BIT;
-    case SampleCount::S8:
-        return VK_SAMPLE_COUNT_8_BIT;
-    case SampleCount::S16:
-        return VK_SAMPLE_COUNT_16_BIT;
-    case SampleCount::S32:
-        return VK_SAMPLE_COUNT_32_BIT;
-    case SampleCount::S64:
-        return VK_SAMPLE_COUNT_64_BIT;
-    }
 }
 inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
 {
@@ -708,77 +759,5 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
     if (value & TextureUsage::HostCopy)
         output |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
     return output;
-}
-inline constexpr VkFilter convert_vk(Filter value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case Filter::Point:
-        return VK_FILTER_NEAREST;
-    case Filter::Linear:
-        return VK_FILTER_LINEAR;
-    }
-}
-inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case AddressMode::Repeat:
-        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    case AddressMode::MirroredRepeat:
-        return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-    case AddressMode::ClampToEdge:
-        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    case AddressMode::ClampToBorder:
-        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-    case AddressMode::MirrorClampToEdge:
-        return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
-    }
-}
-inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case TextureViewType::Texture1D:
-        return VK_IMAGE_VIEW_TYPE_1D;
-    case TextureViewType::Texture1DArray:
-        return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-    case TextureViewType::Texture2D:
-        return VK_IMAGE_VIEW_TYPE_2D;
-    case TextureViewType::Texture2DArray:
-        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    case TextureViewType::Texture2DMS:
-        return VK_IMAGE_VIEW_TYPE_2D;
-    case TextureViewType::Texture2DMSArray:
-        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    case TextureViewType::Texture3D:
-        return VK_IMAGE_VIEW_TYPE_3D;
-    case TextureViewType::TextureCube:
-        return VK_IMAGE_VIEW_TYPE_CUBE;
-    case TextureViewType::TextureCubeArray:
-        return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-    }
-}
-inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept
-{
-    switch (value) {
-    default:
-        return {};
-    case ComponentSwizzle::Red:
-        return VK_COMPONENT_SWIZZLE_R;
-    case ComponentSwizzle::Green:
-        return VK_COMPONENT_SWIZZLE_G;
-    case ComponentSwizzle::Blue:
-        return VK_COMPONENT_SWIZZLE_B;
-    case ComponentSwizzle::Alpha:
-        return VK_COMPONENT_SWIZZLE_A;
-    case ComponentSwizzle::Zero:
-        return VK_COMPONENT_SWIZZLE_ZERO;
-    case ComponentSwizzle::One:
-        return VK_COMPONENT_SWIZZLE_ONE;
-    }
 }
 } // namespace wis
