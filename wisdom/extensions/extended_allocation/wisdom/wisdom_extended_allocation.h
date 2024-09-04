@@ -12,7 +12,6 @@ class DX12ExtendedAllocation;
 template<>
 struct Internal<DX12ExtendedAllocation> {
     bool supports_gpu_upload = false;
-    wis::com_ptr<ID3D12Device10> device;
 };
 
 class DX12ExtendedAllocation : public QueryInternalExtension<DX12ExtendedAllocation, DX12DeviceExtension>
@@ -20,11 +19,8 @@ class DX12ExtendedAllocation : public QueryInternalExtension<DX12ExtendedAllocat
 protected:
     virtual wis::Result Init(const wis::DX12Device& instance) noexcept override
     {
-        device = instance.GetInternal().device.get();
-        auto spAdapter = instance.GetInternal().adapter.as<IDXGIAdapter3>();
-
         D3D12_FEATURE_DATA_D3D12_OPTIONS16 d3d12_options16{};
-        auto hr = device->CheckFeatureSupport(D3D12_FEATURE::D3D12_FEATURE_D3D12_OPTIONS16, &d3d12_options16, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS16));
+        auto hr = instance.GetInternal().device->CheckFeatureSupport(D3D12_FEATURE::D3D12_FEATURE_D3D12_OPTIONS16, &d3d12_options16, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS16));
         supports_gpu_upload = wis::succeeded(hr) && d3d12_options16.GPUUploadHeapSupported;
         return {};
     }
@@ -92,7 +88,7 @@ protected:
 public:
     virtual bool Supported() const noexcept override
     {
-        return vkCopyMemoryToImageEXT;
+        return vkCopyMemoryToImageEXT && vkTransitionImageLayoutEXT && vkGetPhysicalDeviceImageFormatProperties2;
     }
 
 public:

@@ -366,3 +366,4 @@ FodyWeavers.xsd
 *.idb
 .vscode/settings.json
 /wisdom/include/wisdom/vulkan/gen/
+/wisdom/include/wisdom/vulkan/gen/generate_functions.bat

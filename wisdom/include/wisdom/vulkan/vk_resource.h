@@ -36,7 +36,7 @@ struct Internal<VKBuffer> {
 
     void Destroy() noexcept
     {
-        if (buffer) {
+        if (buffer && memory.GetInternal().allocator) {
             auto& device = memory.GetInternal().allocator.header();
             device.table().vkDestroyBuffer(device.get(), buffer, nullptr);
         }
@@ -63,7 +63,7 @@ public:
     }
 
 public:
-    template<typename T>
+    template<typename T = void>
     T* Map() const noexcept
     {
         return static_cast<T*>(memory.VKMap());
@@ -108,7 +108,7 @@ public:
 
     void Destroy() noexcept
     {
-        if (buffer) {
+        if (buffer && memory.GetInternal().allocator) {
             auto& device = memory.GetInternal().allocator.header();
             device.table().vkDestroyImage(device.get(), buffer, nullptr);
         }

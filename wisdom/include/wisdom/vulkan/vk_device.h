@@ -39,7 +39,7 @@ public:
     template<typename PFN>
     [[nodiscard]] PFN GetInstanceProcAddr(const char* name) const noexcept
     {
-        return device.GetInstanceProcAddr<PFN>(name);
+        return reinterpret_cast<PFN>(device.gtable().vkGetInstanceProcAddr(adapter.GetInternal().instance.get(), name));
     }
     template<typename PFN>
     [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept
@@ -80,7 +80,7 @@ public:
     CreateFence(uint64_t initial_value = 0ull) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKCommandQueue>
-    CreateCommandQueue(wis::QueueType type, wis::QueuePriority priority = wis::QueuePriority::Common) const noexcept;
+    CreateCommandQueue(wis::QueueType type) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKCommandList>
     CreateCommandList(wis::QueueType type) const noexcept;

@@ -59,6 +59,9 @@ int Generator::GenerateCAPI()
     using namespace std::chrono;
     std::string output = "//GENERATED\n#pragma once\n#include \"wisdom_exports.h\"\n#include <stdint.h>\n#include <stdbool.h>\n\n";
 
+    output += wis::format(documentation_header, WISDOM_VERSION);
+    output += "\n*/\n\n";
+
     output += "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n";
 
     std::string out_dx;
@@ -176,6 +179,10 @@ int Generator::GenerateCPPAPI()
     using namespace std::chrono;
 
     std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n\n";
+
+    output_api += wis::format(documentation_header, WISDOM_VERSION);
+    output_api += "\n*/\n\n";
+
     output_api += "namespace wis {\n";
     output_api += GenerateCPPTypes();
     output_api += "//"
@@ -688,7 +695,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
 
-        ref.doc_translates = wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
+        ref.doc_translates += wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
 
         std::string_view def_value = "{}";
         if (auto xdefault = impl_type->FindAttribute("default"))
@@ -714,6 +721,9 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         m.value = std::stoll(member->FindAttribute("value")->Value());
         if (auto* impl = member->FindAttribute("impl"))
             m.impl = ImplCode(impl->Value());
+
+        if (auto* doc = member->FindAttribute("doc"))
+            m.doc = doc->Value();
 
         for (auto* impl = member->FirstChildElement("impl"); impl;
              impl = impl->NextSiblingElement("impl")) {
@@ -870,9 +880,16 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
 
         } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
             auto evalue = y->second.HasValue(value);
-            replacement = evalue ? wis::format("{}{}{}", GetCFullTypename(y->second.name), impls[+evalue->impl], evalue->name)
+            replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
                                  : GetCFullTypename(y->second.name);
-        } else {
+        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name), member->name)
+                                 : GetCFullTypename(z->second.name);
+        } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
+            auto member = d->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name), member->name)
+                                 : GetCFullTypename(d->second.name);
         }
         pos = last;
         doc.replace(first, last - first + 1, replacement);
@@ -907,8 +924,16 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             auto evalue = y->second.HasValue(value);
             replacement = evalue ? wis::format("{}::{}{}", GetCPPFullTypename(y->second.name), impls[+evalue->impl], evalue->name)
                                  : GetCPPFullTypename(y->second.name);
-        } else {
+        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCPPFullTypename(z->second.name), member->name)
+                                 : GetCPPFullTypename(z->second.name);
+        } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
+            auto member = d->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCPPFullTypename(d->second.name), member->name)
+                                 : GetCPPFullTypename(d->second.name);
         }
+
         pos = last;
         doc.replace(first, last - first + 1, replacement);
     }
@@ -1078,7 +1103,21 @@ std::string Generator::MakeCEnum(const WisEnum& s)
     }
 
     for (auto& m : s.values) {
-        st_decl += wis::format("    {}{}{} = {},\n", s.name, impls[+m.impl], m.name, m.value);
+        std::string documentation;
+        bool pre_doc = false;
+        if (!m.doc.empty()) {
+            if (m.doc.find('\n') != std::string_view::npos) {
+                pre_doc = true;
+                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+            } else {
+                documentation = wis::format(" ///< {}", m.doc);
+            }
+            documentation = FinalizeCDocumentation(documentation, s.name);
+        }
+        st_decl += pre_doc
+                ? wis::format("    {}\n    {}{}{} = {},\n", documentation, s.name, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{}{} = {},{}\n", s.name, impls[+m.impl], m.name, m.value, documentation);
     }
 
     st_decl += "};\n\n";
@@ -1097,9 +1136,24 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
     }
 
     for (auto& m : s.values) {
-        st_decl += wis::format("    {}{} = {},\n", impls[+m.impl], m.name, m.value);
+        std::string documentation;
+        bool pre_doc = false;
+        if (!m.doc.empty()) {
+            if (m.doc.find('\n') != std::string_view::npos) {
+                pre_doc = true;
+                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+            } else {
+                documentation = wis::format(" ///< {}", m.doc);
+            }
+            documentation = FinalizeCPPDocumentation(documentation, s.name);
+        }
+        st_decl += pre_doc
+                ? wis::format("    {}\n    {}{} = {},\n", documentation, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{} = {},{}\n", impls[+m.impl], m.name, m.value, documentation);
     }
     st_decl += "};\n\n";
+
     return st_decl;
 }
 

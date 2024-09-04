@@ -8,6 +8,14 @@
 #include <span>
 #include <array>
 
+static constexpr std::string_view documentation_header = R"(/** \mainpage Wisdom API Documentation
+
+<b>Version {}</b>
+
+Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
+License: MIT
+See also: [repository on GitHub](https://github.com/Agrael1/Wisdom))";
+
 enum ImplementedFor {
     None = 0,
     DX12 = 1,
@@ -78,6 +86,16 @@ struct WisStructMember {
 struct WisStruct {
     std::string_view name;
     std::vector<WisStructMember> members;
+    std::optional<WisStructMember> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty())
+            return {};
+
+        auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
+    }
 };
 struct WisVariantImpl {
     ImplementedFor impl = ImplementedFor::Both;
@@ -122,6 +140,16 @@ struct WisFunction {
     std::vector<WisReturnType> return_types;
     std::vector<WisFunctionParameter> parameters;
     ImplementedFor impl = ImplementedFor::Unspecified;
+
+    std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty())
+            return {};
+        auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
+    }
 };
 
 struct WisHandle {

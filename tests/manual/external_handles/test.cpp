@@ -1,6 +1,7 @@
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_platform.h>
 #include <wisdom/wisdom_debug.h>
+#include <wisdom/wisdom_extended_allocation.h>
 #include <iostream>
 #include <chrono>
 
@@ -32,7 +33,8 @@ struct Test {
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
                 wis::DeviceExtension* exts[]{
-                    &global_interop
+                    &global_interop,
+                    &global_extended_allocation,
                 };
 
                 auto [res, hdevice] = wis::CreateDeviceWithExtensions(std::move(adapter), exts, std::size(exts));
@@ -51,6 +53,7 @@ struct Test {
 public:
     wis::DebugMessenger global_messenger;
     wis::platform::InteropDeviceExtension global_interop;
+    wis::ExtendedAllocation global_extended_allocation;
 };
 
 wis::ResultValue<wis::VKFence>
