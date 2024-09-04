@@ -2,7 +2,7 @@
 
 - 0.2.1
 
-  - Fixed Extended allocation on Vulkan not loading functions correctly
+  - Fixed Extended allocation on Vulkan not loading functions correctly and DX12 throwing an exception on device destruction
   - Added basic documentation for enumerations, that is generated for C and CPP APIs
 
 - 0.2.0
