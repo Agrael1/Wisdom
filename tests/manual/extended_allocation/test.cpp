@@ -33,7 +33,7 @@ struct Test {
                 res = adapter.GetDesc(&desc);
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
-                wis::DeviceExtension* exts[] {
+                wis::DeviceExtension* exts[]{
                     //&global_interop,
                     &global_extended_allocation,
                 };
@@ -59,7 +59,6 @@ public:
 
 int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device, wis::Size2D img_size)
 {
-
 
     auto [res1, cqueue] = device.CreateCommandQueue(wis::QueueType::Copy);
     if (res1.status != wis::Status::Ok) {
@@ -105,13 +104,12 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
                            .access_after = wis::ResourceAccess::NoAccess,
                            .state_before = wis::TextureState::Undefined,
                            .state_after = wis::TextureState::CopyDest,
-    .subresource_range = {
-        .base_mip_level = 0,
-        .level_count = 1,
-        .base_array_layer = 0,
-        .layer_count = 1
-    } },
-    img);
+                           .subresource_range = {
+                                   .base_mip_level = 0,
+                                   .level_count = 1,
+                                   .base_array_layer = 0,
+                                   .layer_count = 1 } },
+                         img);
     clist.Close();
     wis::CommandListView clist_view{ clist };
     cqueue.ExecuteCommandLists(&clist_view, 1);
@@ -141,8 +139,8 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
         wis::BufferTextureCopyRegion region{
             .buffer_offset = 0,
             .texture = {
-                .size = { img_size.width, img_size.height, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
+                    .size = { img_size.width, img_size.height, 1 },
+                    .format = wis::DataFormat::RGBA8Unorm,
             }
         };
         clist.CopyBufferToTexture(ubuf, img, &region, 1);
@@ -153,7 +151,6 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
 
         wait_gpu();
     }
-
 
     std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
@@ -182,7 +179,6 @@ int TestDirectWrite(const Test& test, const wis::Device& device, const wis::Reso
         std::cerr << "Failed to create texture\n";
         return 1;
     }
-
 
     using namespace wis;
     wis::TextureDesc desc{
