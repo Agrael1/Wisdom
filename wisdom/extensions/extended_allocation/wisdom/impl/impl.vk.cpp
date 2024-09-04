@@ -4,9 +4,9 @@
 
 #if defined(WISDOM_VULKAN)
 bool wis::VKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-        std::unordered_set<std::string_view>& ext_name_set,
-        std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-        std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                                 std::unordered_set<std::string_view>& ext_name_set,
+                                                 std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                                 std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (available_extensions.contains(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME)) {
         ext_name_set.emplace(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
@@ -48,9 +48,9 @@ wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
 
 wis::ResultValue<wis::VKTexture>
 wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
-        wis::TextureDesc desc,
-        wis::TextureState initial_state,
-        wis::MemoryFlags flags) const noexcept
+                                                  wis::TextureDesc desc,
+                                                  wis::TextureState initial_state,
+                                                  wis::MemoryFlags flags) const noexcept
 {
     if (!vkCopyMemoryToImageEXT)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(VK_ERROR_UNKNOWN);
@@ -68,11 +68,11 @@ wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator
         .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         .newLayout = convert_vk(initial_state),
         .subresourceRange = {
-            .aspectMask = wis::aspect_flags(tex_i.format),
-            .baseMipLevel = 0,
-            .levelCount = desc.mip_levels,
-            .baseArrayLayer = 0,
-            .layerCount = info.arrayLayers,
+                .aspectMask = wis::aspect_flags(tex_i.format),
+                .baseMipLevel = 0,
+                .levelCount = desc.mip_levels,
+                .baseArrayLayer = 0,
+                .layerCount = info.arrayLayers,
         },
     };
 
@@ -84,9 +84,9 @@ wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator
 
 wis::Result
 wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-        wis::VKTextureView dst_texture,
-        wis::TextureState initial_state,
-        wis::TextureRegion region) const noexcept
+                                                          wis::VKTextureView dst_texture,
+                                                          wis::TextureState initial_state,
+                                                          wis::TextureRegion region) const noexcept
 {
     auto aspects = aspect_flags(std::get<1>(dst_texture));
 
@@ -97,10 +97,10 @@ wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
         .memoryRowLength = {},
         .memoryImageHeight = {},
         .imageSubresource = {
-            .aspectMask = aspects,
-            .mipLevel = region.mip,
-            .baseArrayLayer = region.array_layer,
-            .layerCount = 1u,
+                .aspectMask = aspects,
+                .mipLevel = region.mip,
+                .baseArrayLayer = region.array_layer,
+                .layerCount = 1u,
         },
         .imageOffset = { int(region.offset.width), int(region.offset.height), int(region.offset.depth_or_layers) },
         .imageExtent = { region.size.width, region.size.height, region.size.depth_or_layers },

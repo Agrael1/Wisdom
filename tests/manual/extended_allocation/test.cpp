@@ -32,7 +32,7 @@ struct Test {
                 res = adapter.GetDesc(&desc);
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
-                wis::DeviceExtension* exts[] {
+                wis::DeviceExtension* exts[]{
                     &global_interop,
                     //&global_extended_allocation,
                 };
