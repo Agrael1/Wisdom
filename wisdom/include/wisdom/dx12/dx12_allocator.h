@@ -64,12 +64,12 @@ public:
     [[nodiscard]] wis::ResultValue<DX12Buffer>
     CreateUploadBuffer(uint64_t size) const noexcept
     {
-        return CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload);
+        return CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped);
     }
     [[nodiscard]] wis::ResultValue<DX12Buffer>
     CreateReadbackBuffer(uint64_t size) const noexcept
     {
-        return CreateBuffer(size, BufferUsage::CopyDst, MemoryType::Readback);
+        return CreateBuffer(size, BufferUsage::CopyDst, MemoryType::Readback, wis::MemoryFlags::Mapped);
     }
 
 public:

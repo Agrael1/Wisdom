@@ -65,12 +65,12 @@ public:
     [[nodiscard]] wis::ResultValue<wis::VKBuffer>
     CreateUploadBuffer(uint64_t size) const noexcept
     {
-        return CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload);
+        return CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped);
     }
     [[nodiscard]] wis::ResultValue<wis::VKBuffer>
     CreateReadbackBuffer(uint64_t size) const noexcept
     {
-        return CreateBuffer(size, BufferUsage::CopyDst, MemoryType::Readback);
+        return CreateBuffer(size, BufferUsage::CopyDst, MemoryType::Readback, wis::MemoryFlags::Mapped);
     }
 
 public:

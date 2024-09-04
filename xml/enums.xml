@@ -1114,7 +1114,7 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       </value>
     </type>
 
-    <type name="ComponentSwizzle" category="enum" type="u8" doc="Component swizzle for texture sampling.">
+    <type name="ComponentSwizzle" category="enum" type="u32" doc="Component swizzle for texture sampling.">
       <impl_type for="dx" name="D3D12_SHADER_COMPONENT_MAPPING" direct="true"/>
       <impl_type for="vk" name="VkComponentSwizzle"/>
       <value name="Red" value="0" doc="Use the red component for sampling.">
