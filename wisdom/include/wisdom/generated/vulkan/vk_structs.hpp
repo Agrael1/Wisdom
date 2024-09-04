@@ -204,10 +204,6 @@ inline constexpr VkFormat convert_vk(DataFormat value) noexcept
         return VK_FORMAT_R8_SINT;
     case DataFormat::RGB9E5UFloat:
         return VK_FORMAT_E5B9G9R9_UFLOAT_PACK32;
-    case DataFormat::RG8BG8Unorm:
-        return VK_FORMAT_B8G8R8G8_422_UNORM;
-    case DataFormat::GR8GB8Unorm:
-        return VK_FORMAT_G8B8G8R8_422_UNORM;
     case DataFormat::BC1RGBAUnorm:
         return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
     case DataFormat::BC1RGBAUnormSrgb:
@@ -228,10 +224,10 @@ inline constexpr VkFormat convert_vk(DataFormat value) noexcept
         return VK_FORMAT_BC5_UNORM_BLOCK;
     case DataFormat::BC5RGSnorm:
         return VK_FORMAT_BC5_SNORM_BLOCK;
-    case DataFormat::B5R6G5Unorm:
-        return VK_FORMAT_B5G6R5_UNORM_PACK16;
+    case DataFormat::B5G6R5Unorm:
+        return VK_FORMAT_R5G6B5_UNORM_PACK16;
     case DataFormat::B5G5R5A1Unorm:
-        return VK_FORMAT_B5G5R5A1_UNORM_PACK16;
+        return VK_FORMAT_A1R5G5B5_UNORM_PACK16;
     case DataFormat::BGRA8Unorm:
         return VK_FORMAT_B8G8R8A8_UNORM;
     case DataFormat::BGRA8UnormSrgb:
@@ -244,6 +240,8 @@ inline constexpr VkFormat convert_vk(DataFormat value) noexcept
         return VK_FORMAT_BC7_UNORM_BLOCK;
     case DataFormat::BC7RGBAUnormSrgb:
         return VK_FORMAT_BC7_SRGB_BLOCK;
+    case DataFormat::BGRA4Unorm:
+        return VK_FORMAT_A4R4G4B4_UNORM_PACK16;
     }
 }
 inline constexpr VkPolygonMode convert_vk(FillMode value) noexcept

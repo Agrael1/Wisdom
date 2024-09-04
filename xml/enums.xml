@@ -438,65 +438,132 @@ a 9-bit B component in bits 18..26,
 a shared 5-bit exponent in bits 27..31.">
         <impl name="vk" value="VK_FORMAT_E5B9G9R9_UFLOAT_PACK32"/>
       </value>
-      <value name="RG8BG8Unorm" value="68">
-        <impl name="vk" value="VK_FORMAT_B8G8R8G8_422_UNORM"/>
-      </value>
-      <value name="GR8GB8Unorm" value="69">
-        <impl name="vk" value="VK_FORMAT_G8B8G8R8_422_UNORM"/>
-      </value>
-      <value name="BC1RGBAUnorm" value="71">
+      <value name="BC1RGBAUnorm" value="71" doc="BC1/DXT1 compressed format.
+A four-component, block-compressed format where each 64-bit 
+compressed texel block encodes a 4×4 rectangle 
+of unsigned normalized RGB texel data, and provides 1 bit of alpha.">
         <impl name="vk" value="VK_FORMAT_BC1_RGBA_UNORM_BLOCK"/>
       </value>
-      <value name="BC1RGBAUnormSrgb" value="72">
+      <value name="BC1RGBAUnormSrgb" value="72" doc="BC1/DXT1 compressed format.
+A four-component, block-compressed format where each 64-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGB texel data with sRGB nonlinear encoding, and provides 1 bit of alpha.">
         <impl name="vk" value="VK_FORMAT_BC1_RGBA_SRGB_BLOCK"/>
       </value>
-      <value name="BC2RGBAUnorm" value="74">
+      <value name="BC2RGBAUnorm" value="74" doc="BC2/DXT3 compressed format.
+A four-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGBA texel data 
+with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values">
         <impl name="vk" value="VK_FORMAT_BC2_UNORM_BLOCK"/>
       </value>
-      <value name="BC2RGBAUnormSrgb" value="75">
+      <value name="BC2RGBAUnormSrgb" value="75" doc="BC2/DXT3 compressed format.
+A four-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values">
         <impl name="vk" value="VK_FORMAT_BC2_SRGB_BLOCK"/>
       </value>
-      <value name="BC3RGBAUnorm" value="77">
+      <value name="BC3RGBAUnorm" value="77" doc="BC3/DXT5 compressed format.
+A four-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGBA texel data with the first 64 bits encoding alpha values
+followed by 64 bits encoding RGB values">
         <impl name="vk" value="VK_FORMAT_BC3_UNORM_BLOCK"/>
       </value>
-      <value name="BC3RGBAUnormSrgb" value="78">
+      <value name="BC3RGBAUnormSrgb" value="78" doc="BC3/DXT5 compressed format.
+A four-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values">
         <impl name="vk" value="VK_FORMAT_BC3_SRGB_BLOCK"/>
       </value>
-      <value name="BC4RUnorm" value="80">
+      <value name="BC4RUnorm" value="80" doc="BC4 compressed format.
+A single-component, block-compressed format where each 64-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized red texel data">
         <impl name="vk" value="VK_FORMAT_BC4_UNORM_BLOCK"/>
       </value>
-      <value name="BC4RSnorm" value="81">
+      <value name="BC4RSnorm" value="81" doc="BC4 compressed format.
+A single-component, block-compressed format where each 64-bit
+compressed texel block encodes a 4×4 rectangle
+of signed normalized red texel data">
         <impl name="vk" value="VK_FORMAT_BC4_SNORM_BLOCK"/>
       </value>
-      <value name="BC5RGUnorm" value="83">
+      <value name="BC5RGUnorm" value="83" doc="BC5 compressed format.
+A two-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized red and green texel data">
         <impl name="vk" value="VK_FORMAT_BC5_UNORM_BLOCK"/>
       </value>
-      <value name="BC5RGSnorm" value="84">
+      <value name="BC5RGSnorm" value="84" doc="BC5 compressed format.
+A two-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of signed normalized red and green texel data">
         <impl name="vk" value="VK_FORMAT_BC5_SNORM_BLOCK"/>
       </value>
-      <value name="B5R6G5Unorm" value="85">
-        <impl name="vk" value="VK_FORMAT_B5G6R5_UNORM_PACK16"/>
+      <value name="B5G6R5Unorm" value="85" doc="16 bit per channel RGB format.
+A three-component, 16-bit unsigned normalized format that has
+a 5-bit B component in bits 0..4,
+a 6-bit G component in bits 5..10,
+a 5-bit R component in bits 11..15.">
+        <impl name="vk" value="VK_FORMAT_R5G6B5_UNORM_PACK16"/>
       </value>
-      <value name="B5G5R5A1Unorm" value="86">
-        <impl name="vk" value="VK_FORMAT_B5G5R5A1_UNORM_PACK16"/>
+      <value name="B5G5R5A1Unorm" value="86" doc="16 bit per channel RGBA format.
+A four-component, 16-bit unsigned normalized format that has
+a 5-bit B component in bits 0..4,
+a 5-bit G component in bits 5..9,
+a 5-bit R component in bits 10..14,
+a 1-bit A component in bits 15..15.">
+        <impl name="vk" value="VK_FORMAT_A1R5G5B5_UNORM_PACK16"/>
       </value>
-      <value name="BGRA8Unorm" value="87">
+      <value name="BGRA8Unorm" value="87" doc="8 bit per channel RGBA format.
+A four-component, 32-bit unsigned normalized format that has
+an 8-bit B component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit R component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_B8G8R8A8_UNORM"/>
       </value>
-      <value name="BGRA8UnormSrgb" value="91">
+      <value name="BGRA8UnormSrgb" value="91" doc="8 bit per channel RGBA format. SRGB non-linear color space.
+A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+an 8-bit B component in bytes 0..0,
+an 8-bit G component in bytes 1..1,
+an 8-bit R component in bytes 2..2,
+an 8-bit A component in bytes 3..3.">
         <impl name="vk" value="VK_FORMAT_B8G8R8A8_SRGB"/>
       </value>
-      <value name="BC6HUfloat16" value="95">
+      <value name="BC6HUfloat16" value="95" doc="BC6H compressed format.
+A three-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned floating-point RGB texel data">
         <impl name="vk" value="VK_FORMAT_BC6H_UFLOAT_BLOCK"/>
       </value>
-      <value name="BC6HSfloat16" value="96">
+      <value name="BC6HSfloat16" value="96" doc="BC6H compressed format.
+A three-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of signed floating-point RGB texel data">
         <impl name="vk" value="VK_FORMAT_BC6H_SFLOAT_BLOCK"/>
       </value>
-      <value name="BC7RGBAUnorm" value="98">
+      <value name="BC7RGBAUnorm" value="98" doc="BC7 compressed format.
+A four-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGBA texel data">
         <impl name="vk" value="VK_FORMAT_BC7_UNORM_BLOCK"/>
       </value>
-      <value name="BC7RGBAUnormSrgb" value="99">
+      <value name="BC7RGBAUnormSrgb" value="99" doc="BC7 compressed format.
+A four-component, block-compressed format where each 128-bit
+compressed texel block encodes a 4×4 rectangle
+of unsigned normalized RGBA texel data with sRGB nonlinear encoding">
         <impl name="vk" value="VK_FORMAT_BC7_SRGB_BLOCK"/>
+      </value>
+      <value name="BGRA4Unorm" value="115" doc="4 bit per channel RGB format.
+A four-component, 16-bit unsigned normalized format that has
+a 4-bit B component in bits 0..3,
+a 4-bit G component in bits 4..7,
+a 4-bit R component in bits 8..11,
+a 4-bit A component in bits 12..15.">
+        <impl name="vk" value="VK_FORMAT_A4R4G4B4_UNORM_PACK16 "/>
       </value>
     </type>
 

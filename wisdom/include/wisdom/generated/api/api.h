@@ -582,26 +582,152 @@ enum class DataFormat : uint32_t {
      * a shared 5-bit exponent in bits 27..31.
      * */
     RGB9E5UFloat = 67,
-    RG8BG8Unorm = 68,
-    GR8GB8Unorm = 69,
+    /**
+     * @brief BC1/DXT1 compressed format.
+     * A four-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGB texel data, and provides 1 bit of alpha.
+     * */
     BC1RGBAUnorm = 71,
+    /**
+     * @brief BC1/DXT1 compressed format.
+     * A four-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGB texel data with sRGB nonlinear encoding, and provides 1 bit of alpha.
+     * */
     BC1RGBAUnormSrgb = 72,
+    /**
+     * @brief BC2/DXT3 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
     BC2RGBAUnorm = 74,
+    /**
+     * @brief BC2/DXT3 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
     BC2RGBAUnormSrgb = 75,
+    /**
+     * @brief BC3/DXT5 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with the first 64 bits encoding alpha values
+     * followed by 64 bits encoding RGB values
+     * */
     BC3RGBAUnorm = 77,
+    /**
+     * @brief BC3/DXT5 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
     BC3RGBAUnormSrgb = 78,
+    /**
+     * @brief BC4 compressed format.
+     * A single-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized red texel data
+     * */
     BC4RUnorm = 80,
+    /**
+     * @brief BC4 compressed format.
+     * A single-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed normalized red texel data
+     * */
     BC4RSnorm = 81,
+    /**
+     * @brief BC5 compressed format.
+     * A two-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized red and green texel data
+     * */
     BC5RGUnorm = 83,
+    /**
+     * @brief BC5 compressed format.
+     * A two-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed normalized red and green texel data
+     * */
     BC5RGSnorm = 84,
-    B5R6G5Unorm = 85,
+    /**
+     * @brief 16 bit per channel RGB format.
+     * A three-component, 16-bit unsigned normalized format that has
+     * a 5-bit B component in bits 0..4,
+     * a 6-bit G component in bits 5..10,
+     * a 5-bit R component in bits 11..15.
+     * */
+    B5G6R5Unorm = 85,
+    /**
+     * @brief 16 bit per channel RGBA format.
+     * A four-component, 16-bit unsigned normalized format that has
+     * a 5-bit B component in bits 0..4,
+     * a 5-bit G component in bits 5..9,
+     * a 5-bit R component in bits 10..14,
+     * a 1-bit A component in bits 15..15.
+     * */
     B5G5R5A1Unorm = 86,
+    /**
+     * @brief 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned normalized format that has
+     * an 8-bit B component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit R component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     BGRA8Unorm = 87,
+    /**
+     * @brief 8 bit per channel RGBA format. SRGB non-linear color space.
+     * A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+     * an 8-bit B component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit R component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
     BGRA8UnormSrgb = 91,
+    /**
+     * @brief BC6H compressed format.
+     * A three-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned floating-point RGB texel data
+     * */
     BC6HUfloat16 = 95,
+    /**
+     * @brief BC6H compressed format.
+     * A three-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed floating-point RGB texel data
+     * */
     BC6HSfloat16 = 96,
+    /**
+     * @brief BC7 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data
+     * */
     BC7RGBAUnorm = 98,
+    /**
+     * @brief BC7 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * */
     BC7RGBAUnormSrgb = 99,
+    /**
+     * @brief 4 bit per channel RGB format.
+     * A four-component, 16-bit unsigned normalized format that has
+     * a 4-bit B component in bits 0..3,
+     * a 4-bit G component in bits 4..7,
+     * a 4-bit R component in bits 8..11,
+     * a 4-bit A component in bits 12..15.
+     * */
+    BGRA4Unorm = 115,
 };
 
 enum class FillMode {
