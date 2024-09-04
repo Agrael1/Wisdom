@@ -92,7 +92,7 @@ protected:
 public:
     virtual bool Supported() const noexcept override
     {
-        return vkCopyMemoryToImageEXT;
+        return vkCopyMemoryToImageEXT && vkTransitionImageLayoutEXT && vkGetPhysicalDeviceImageFormatProperties2;
     }
 
 public:
