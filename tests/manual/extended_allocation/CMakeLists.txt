@@ -1,8 +1,9 @@
 project(extended_allocation)
 
 add_executable(${PROJECT_NAME} test.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE wis::wisdom wis::platform
-                                              wis::debug wis::extended-allocation)
+target_link_libraries(
+  ${PROJECT_NAME} PRIVATE wis::wisdom wis::platform wis::debug
+                          wis::extended-allocation)
 
 set_target_properties(
   ${PROJECT_NAME}

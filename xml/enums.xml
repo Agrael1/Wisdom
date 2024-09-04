@@ -5,31 +5,31 @@
     <type name="Status" category="enum" type="i32" doc="Represents main error communication source for the API.
 Compare against {::Ok} for success.">
       <value name="Ok" value="0" doc="Operation succeded."/>
-      <value name="Timeout" value="1" doc="Operation timed out. 
+      <value name="Timeout" value="1" doc="Operation timed out.
 Counts as a success value in some cases."/>
       <value name="Partial" value="2" doc="Operation partially succeeded.
 Some times it means that core value is initialized,
 but some functionality may be missing and may require
 you to check if demanded functionality is in place."/>
       <value name="Error" value="-1" doc="Operation failed. Check {Result::error} for more details."/>
-      <value name="InvalidArgument" value="-2" doc="One or more arguments, or parts of arguments 
+      <value name="InvalidArgument" value="-2" doc="One or more arguments, or parts of arguments
 passed to the function were incorrect. Check {Result::error} for more details."/>
-      <value name="OutOfMemory" value="-3" doc="There is no more host memory available. 
+      <value name="OutOfMemory" value="-3" doc="There is no more host memory available.
 Allocation with malloc or similar call has failed."/>
-      <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped. 
+      <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped.
 Most of the time happens on swapchain presentation."/>
       <value name="Occluded" value="-5" doc="Swapchain presentation was not visible to the user.
 Rendering is too fast."/>
     </type>
-    
+
     <type name="MutiWaitFlags" category="enum" type="u32"
           doc="Determines the behavior when wait for multiple fences is issued.">
       <value name="All" value="0" doc="All the fences in the batch are triggered."/>
       <value name="Any" value="1" doc="At least one of the fences from the batch is triggered."/>
     </type>
-    
-    
-    <type name="AdapterPreference" category="enum" doc="Oreders the adapters according to preference 
+
+
+    <type name="AdapterPreference" category="enum" doc="Oreders the adapters according to preference
 using builtin heuristics of underlying APIs.">
       <impl_type for="dx" name="DXGI_GPU_PREFERENCE" direct="true"/>
       <value name="None" value="0" doc="No particular preference, list adapters in system divised order."/>
@@ -39,14 +39,14 @@ Order is as follows: Integrated, Discrete, External, Software."/>
 Order is as follows: External, Discrete, Integrated, Software."/>
     </type>
 
-    <type name="Severity" category="enum" doc="Log message severity. 
+    <type name="Severity" category="enum" doc="Log message severity.
 Used with {DebugCallback::} and internal library logging.">
       <value name="Debug" value="0" doc="Message carries debug information."/>
       <value name="Trace" value="1" doc="Message contains trace point (function call stack info)."/>
       <value name="Info" value="2" doc="Message contains general information."/>
-      <value name="Warning" value="3" doc="Message contains warning. 
+      <value name="Warning" value="3" doc="Message contains warning.
 There is something wrong and it may affect performance or stability of the application."/>
-      <value name="Error" value="4" doc="Message contains error. 
+      <value name="Error" value="4" doc="Message contains error.
 Stability of the application is compromized."/>
       <value name="Critical" value="5" doc="Message contains critical error.
 The application must be shut down, no further execution."/>
@@ -94,7 +94,7 @@ Stages have no granularity, either all or one can be selected.">
     <type name="DescriptorType" category="enum" type="u32" doc="Type of the descriptor in the descriptor table.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
       <impl_type for="vk" name="VkDescriptorType"/>
-      <value name="ShaderResource" value="0" doc="Descriptor is a shader resource view. 
+      <value name="ShaderResource" value="0" doc="Descriptor is a shader resource view.
 Used for textures.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
@@ -110,7 +110,7 @@ Used for read/write operations in compute shaders.">
       </value>
       <value name="Sampler" value="3" doc="Descriptor is a sampler.
 Sampler is used to sample textures in shaders.
-Stored in separate descriptor table and 
+Stored in separate descriptor table and
 can't be mixed with other descriptor types">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
@@ -133,10 +133,10 @@ Can be used to describe:
       <impl_type for="vk" name="VkFormat"/>
       <value name="Unknown" value="0" doc="Unknown format."/>
       <value name="RGBA32Float" value="2" doc="32 bit per channel RGBA format.
-A four-component, 128-bit signed floating-point format that has 
-a 32-bit R component in bytes 0..3, 
-a 32-bit G component in bytes 4..7, 
-a 32-bit B component in bytes 8..11, 
+A four-component, 128-bit signed floating-point format that has
+a 32-bit R component in bytes 0..3,
+a 32-bit G component in bytes 4..7,
+a 32-bit B component in bytes 8..11,
 a 32-bit A component in bytes 12..15.">
         <impl name="vk" value="VK_FORMAT_R32G32B32A32_SFLOAT"/>
       </value>
@@ -439,8 +439,8 @@ a shared 5-bit exponent in bits 27..31.">
         <impl name="vk" value="VK_FORMAT_E5B9G9R9_UFLOAT_PACK32"/>
       </value>
       <value name="BC1RGBAUnorm" value="71" doc="BC1/DXT1 compressed format.
-A four-component, block-compressed format where each 64-bit 
-compressed texel block encodes a 4×4 rectangle 
+A four-component, block-compressed format where each 64-bit
+compressed texel block encodes a 4×4 rectangle
 of unsigned normalized RGB texel data, and provides 1 bit of alpha.">
         <impl name="vk" value="VK_FORMAT_BC1_RGBA_UNORM_BLOCK"/>
       </value>
@@ -453,7 +453,7 @@ of unsigned normalized RGB texel data with sRGB nonlinear encoding, and provides
       <value name="BC2RGBAUnorm" value="74" doc="BC2/DXT3 compressed format.
 A four-component, block-compressed format where each 128-bit
 compressed texel block encodes a 4×4 rectangle
-of unsigned normalized RGBA texel data 
+of unsigned normalized RGBA texel data
 with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values">
         <impl name="vk" value="VK_FORMAT_BC2_UNORM_BLOCK"/>
       </value>
@@ -817,7 +817,7 @@ Triangle culling depends on {WindingOrder::} option.">
     <type name="MemoryType" category="enum" type="u32" doc="Memory type for resource allocation.">
       <impl_type for="dx" name="D3D12_HEAP_TYPE"/>
       <impl_type for="vk" name="VkMemoryPropertyFlags"/>
-      <value name="Default" value="0" doc="Default memory type. 
+      <value name="Default" value="0" doc="Default memory type.
 Local device memory, most efficient for rendering.">
         <impl name="dx" value="D3D12_HEAP_TYPE_DEFAULT"/>
         <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT"/>
@@ -1147,14 +1147,14 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
       <value name="KeyedMutexConformance" bit="5" impl="dx"/>
     </type>
-    
+
     <type name="DSSelect" category="bitmask">
       <value name="None" value="0"/>
       <value name="Depth" bit="0"/>
       <value name="Stencil" bit="1"/>
       <value name="DepthStencil" value="3"/>
     </type>
-    
+
     <type name="ColorComponents" category="bitmask">
       <value name="None" value="0"/>
       <value name="R" bit="0"/>
@@ -1163,7 +1163,7 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       <value name="A" bit="3"/>
       <value name="All" value="15"/>
     </type>
-    
+
     <type name="BufferUsage" category="bitmask">
       <value name="None" value="0"/>
       <value name="CopySrc" bit="0"/>

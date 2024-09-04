@@ -932,7 +932,7 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCPPFullTypename(d->second.name), member->name)
                                  : GetCPPFullTypename(d->second.name);
-        } 
+        }
 
         pos = last;
         doc.replace(first, last - first + 1, replacement);
