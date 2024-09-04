@@ -2,6 +2,7 @@
 #include <wisdom/wisdom_platform.h>
 #include <wisdom/wisdom_debug.h>
 #include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/bridge/format.h>
 #include <iostream>
 #include <chrono>
 
