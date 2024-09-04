@@ -32,7 +32,7 @@ struct Test {
                 res = adapter.GetDesc(&desc);
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
-                wis::DeviceExtension* exts[]{
+                wis::DeviceExtension* exts[] {
                     &global_interop,
                     &global_extended_allocation,
                 };
@@ -98,34 +98,34 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
     auto& adapter_i = xdevice.GetInternal().adapter.GetInternal();
     gtable.vkEnumerateInstanceVersion(&version);
 
-    auto allocator_functions = std::shared_ptr<VmaVulkanFunctions>{
+    auto allocator_functions = std::shared_ptr<VmaVulkanFunctions> {
         new (std::nothrow) VmaVulkanFunctions{
-                .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
-                .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
-                .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
-                .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
-                .vkAllocateMemory = dtable.vkAllocateMemory,
-                .vkFreeMemory = dtable.vkFreeMemory,
-                .vkMapMemory = dtable.vkMapMemory,
-                .vkUnmapMemory = dtable.vkUnmapMemory,
-                .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
-                .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
-                .vkBindBufferMemory = dtable.vkBindBufferMemory,
-                .vkBindImageMemory = dtable.vkBindImageMemory,
-                .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
-                .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
-                .vkCreateBuffer = dtable.vkCreateBuffer,
-                .vkDestroyBuffer = dtable.vkDestroyBuffer,
-                .vkCreateImage = dtable.vkCreateImage,
-                .vkDestroyImage = dtable.vkDestroyImage,
-                .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
-                .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
-                .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
-                .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
-                .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
-                .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
-                .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
-                .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
+            .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
+            .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
+            .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
+            .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
+            .vkAllocateMemory = dtable.vkAllocateMemory,
+            .vkFreeMemory = dtable.vkFreeMemory,
+            .vkMapMemory = dtable.vkMapMemory,
+            .vkUnmapMemory = dtable.vkUnmapMemory,
+            .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
+            .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
+            .vkBindBufferMemory = dtable.vkBindBufferMemory,
+            .vkBindImageMemory = dtable.vkBindImageMemory,
+            .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
+            .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
+            .vkCreateBuffer = dtable.vkCreateBuffer,
+            .vkDestroyBuffer = dtable.vkDestroyBuffer,
+            .vkCreateImage = dtable.vkCreateImage,
+            .vkDestroyImage = dtable.vkDestroyImage,
+            .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
+            .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
+            .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
+            .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
+            .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
+            .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
+            .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
+            .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
         }
     };
 
@@ -138,7 +138,8 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
             handle_types[i] = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
         }
         return handle_types;
-    }();
+    }
+    ();
 
     VmaAllocatorCreateInfo allocatorInfo{
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
@@ -157,8 +158,9 @@ CreateAllocator(const wis::Device& xdevice, bool ext)
         return wis::make_result<FUNC, "Failed to create an Allocator">(vr);
 
     return wis::VKResourceAllocator{ wis::shared_handle<VmaAllocator>{
-                                             device, al },
-                                     ext };
+            device, al
+        },
+        ext };
 }
 
 wis::ResultValue<wis::Texture>
@@ -167,9 +169,10 @@ CreateTexture(const wis::Device& xdevice, const wis::VKResourceAllocator a)
     wis::TextureDesc desc{
         .format = wis::DataFormat::RGBA8Unorm,
         .size = {
-                .width = 1024,
-                .height = 1024,
-                .depth_or_layers = 1 },
+            .width = 1024,
+            .height = 1024,
+            .depth_or_layers = 1
+        },
         .mip_levels = 1,
         .usage = wis::TextureUsage::ShaderResource,
     };
