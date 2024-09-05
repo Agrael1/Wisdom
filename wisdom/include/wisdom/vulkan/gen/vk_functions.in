@@ -57,6 +57,7 @@ vkCmdSetViewport
 vkCmdSetScissor
 vkCmdSetPrimitiveTopology
 vkCmdBindVertexBuffers2
+vkCmdBindIndexBuffer
 vkCmdDrawIndexed
 vkCmdDraw
 vkCmdPushConstants
@@ -94,6 +95,7 @@ vkGetImageMemoryRequirements
 [opt]vkGetImageMemoryRequirements2
 [opt]vkBindBufferMemory2
 [opt]vkBindImageMemory2
+[opt]vkCmdBindIndexBuffer2KHR
 vkGetDeviceBufferMemoryRequirements
 vkGetDeviceImageMemoryRequirements
 vkGetBufferDeviceAddress

@@ -2,6 +2,11 @@
 
 - 0.2.3
 
+  - Added index buffer support
+  - Added VK_KHR_maintenance5 extension for Vulkan as an optional extension
+
+- 0.2.3
+
   - Fixed bug with external memory + Host Copy buffer not allocating image correctly
   - Now exportable memory is explicit for all implementations (not all resources and memory are sharable, there is now a flag for that)
 

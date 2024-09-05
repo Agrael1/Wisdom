@@ -631,6 +631,17 @@ inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept
         return VK_COMPONENT_SWIZZLE_ONE;
     }
 }
+inline constexpr VkIndexType convert_vk(IndexType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case IndexType::UInt16:
+        return VK_INDEX_TYPE_UINT16;
+    case IndexType::UInt32:
+        return VK_INDEX_TYPE_UINT32;
+    }
+}
 inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags output = {};

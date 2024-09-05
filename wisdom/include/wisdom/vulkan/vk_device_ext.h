@@ -55,6 +55,7 @@ struct XInternalFeatures {
     bool extended_dynamic_state : 1 = false;
     bool mutable_descriptor : 1 = false;
     bool interop_device : 1 = false;
+    bool index_buffer_range : 1 = false;
 };
 
 // Lightweight struct for descriptor buffer features
@@ -88,6 +89,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
         VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, // for barriers
 
         VK_KHR_MAINTENANCE_4_EXTENSION_NAME, // for Allocator
+        VK_KHR_MAINTENANCE_5_EXTENSION_NAME, // for Allocator
 
         VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME, // for PushDescriptor
         VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
@@ -115,6 +117,13 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             ext_name_set.insert(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES] = sizeof(VkPhysicalDeviceMaintenance4Features);
             property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES] = sizeof(VkPhysicalDeviceMaintenance4Properties);
+        }
+
+        if (available_extensions.contains(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)) {
+            ext_name_set.insert(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
+            features.index_buffer_range = true;
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR] = sizeof(VkPhysicalDeviceMaintenance5FeaturesKHR);
+            property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR] = sizeof(VkPhysicalDeviceMaintenance5PropertiesKHR);
         }
 
         if (available_extensions.contains(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME)) {
