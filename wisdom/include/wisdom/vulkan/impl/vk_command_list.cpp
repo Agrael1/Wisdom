@@ -386,6 +386,15 @@ void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resource
     device.table().vkCmdBindVertexBuffers2(command_list, start_slot, count, buffers, offsets, sizes, strides);
 }
 
+void wis::VKCommandList::IASetIndexBuffer(wis::VKBufferView buffer, wis::IndexType type, uint64_t offset) noexcept
+{
+    device.table().vkCmdBindIndexBuffer(command_list, std::get<0>(buffer), offset, convert_vk(type));
+}
+void wis::VKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
+{
+    device.table().vkCmdBindIndexBuffer2KHR(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
+}
+
 void wis::VKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
                                               uint32_t instance_count,
                                               uint32_t start_index,

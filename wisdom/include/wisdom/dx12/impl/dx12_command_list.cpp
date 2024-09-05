@@ -280,6 +280,25 @@ void wis::DX12CommandList::IASetVertexBuffers(wis::DX12VertexBufferBinding* reso
     list->IASetVertexBuffers(start_slot, count, data);
 }
 
+void wis::DX12CommandList::IASetIndexBuffer(wis::DX12BufferView buffer, wis::IndexType type, uint64_t offset) noexcept
+{
+    D3D12_INDEX_BUFFER_VIEW ibv{
+        .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
+        .SizeInBytes = uint32_t(std::get<0>(buffer)->GetDesc().Width),
+        .Format = convert_dx(type)
+    };
+    list->IASetIndexBuffer(&ibv);
+}
+void wis::DX12CommandList::IASetIndexBuffer2(wis::DX12BufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
+{
+    D3D12_INDEX_BUFFER_VIEW ibv{
+        .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
+        .SizeInBytes = size,
+        .Format = convert_dx(type)
+    };
+    list->IASetIndexBuffer(&ibv);
+}
+
 void wis::DX12CommandList::RSSetViewport(wis::Viewport vp) noexcept
 {
     D3D12_VIEWPORT viewport{

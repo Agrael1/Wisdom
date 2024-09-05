@@ -312,6 +312,17 @@ inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle valu
 {
     return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(value);
 }
+inline constexpr DXGI_FORMAT convert_dx(IndexType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case IndexType::UInt16:
+        return DXGI_FORMAT_R16_UINT;
+    case IndexType::UInt32:
+        return DXGI_FORMAT_R32_UINT;
+    }
+}
 inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS output = {};

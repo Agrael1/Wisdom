@@ -1137,6 +1137,19 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       </value>
     </type>
 
+    <type name="IndexType" category="enum" type="u32" doc="Index type for index buffer.">
+      <impl_type for="dx" name="DXGI_FORMAT"/>
+      <impl_type for="vk" name="VkIndexType"/>
+      <value name="UInt16" value="2" doc="16-bit unsigned integer index type.">
+        <impl name="dx" value="DXGI_FORMAT_R16_UINT"/>
+        <impl name="vk" value="VK_INDEX_TYPE_UINT16"/>
+      </value>
+      <value name="UInt32" value="4" doc="32-bit unsigned integer index type.">
+        <impl name="dx" value="DXGI_FORMAT_R32_UINT"/>
+        <impl name="vk" value="VK_INDEX_TYPE_UINT32"/>
+      </value>
+    </type>
+
     <!--Bitmasks-->
     <type name="AdapterFlags" category="bitmask">
       <value name="None" value="0"/>

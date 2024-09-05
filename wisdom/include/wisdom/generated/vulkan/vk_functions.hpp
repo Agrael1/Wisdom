@@ -283,6 +283,7 @@ struct VKMainDevice {
     PFN_vkCreateImageView vkCreateImageView;
     PFN_vkCreateShaderModule vkCreateShaderModule;
     PFN_vkDestroyShaderModule vkDestroyShaderModule;
+    PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
     PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
     PFN_vkDestroyPipeline vkDestroyPipeline;
     PFN_vkResetCommandBuffer vkResetCommandBuffer;
@@ -301,6 +302,11 @@ struct VKMainDevice {
     PFN_vkCmdBindDescriptorBuffersEXT vkCmdBindDescriptorBuffersEXT;
     PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2;
     PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
+#if defined(VK_KHR_maintenance5)
+    PFN_vkCmdBindIndexBuffer2KHR vkCmdBindIndexBuffer2KHR;
+#else
+    void* vkCmdBindIndexBuffer2KHR;
+#endif
 #if defined(VK_VERSION_1_1) || defined(VK_KHR_get_memory_requirements2)
     PFN_vkGetImageMemoryRequirements2 vkGetImageMemoryRequirements2;
 #else
@@ -479,6 +485,9 @@ public:
         vkDestroyShaderModule = (PFN_vkDestroyShaderModule)vkGetDeviceProcAddr(device, "vkDestroyShaderModule");
         if (vkDestroyShaderModule == nullptr)
             return false;
+        vkCmdBindIndexBuffer = (PFN_vkCmdBindIndexBuffer)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer");
+        if (vkCmdBindIndexBuffer == nullptr)
+            return false;
         vkCreateGraphicsPipelines = (PFN_vkCreateGraphicsPipelines)vkGetDeviceProcAddr(device, "vkCreateGraphicsPipelines");
         if (vkCreateGraphicsPipelines == nullptr)
             return false;
@@ -553,6 +562,7 @@ public:
                 break;
         if (vkCmdSetPrimitiveTopology == nullptr)
             return false;
+        vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer2KHR");
         static constexpr std::array vkGetImageMemoryRequirements2_strings{
 #if defined(VK_VERSION_1_1)
             "vkGetImageMemoryRequirements2",

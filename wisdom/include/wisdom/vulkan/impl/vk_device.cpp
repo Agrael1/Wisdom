@@ -890,6 +890,9 @@ wis::VKDevice::VKCreateAllocator(bool interop) const noexcept
         .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device && interop ? handle_types.data() : nullptr
     };
 
+    if (ext1.GetFeatures().index_buffer_range)
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
+
     // Only if there is an interop extension
     if (ext1.GetFeatures().interop_device && interop) {
 #ifdef _WIN32

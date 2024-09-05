@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.2</b>
+<b>Version 0.2.3</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1075,6 +1075,17 @@ enum WisComponentSwizzle {
     ComponentSwizzleOne = 5, ///< Use one for sampling.
 };
 
+/**
+ * @brief Index type for index buffer.
+ *
+ * Translates to DXGI_FORMAT for dx implementation.
+ * Translates to VkIndexType for vk implementation.
+ * */
+enum WisIndexType {
+    IndexTypeUInt16 = 2, ///< 16-bit unsigned integer index type.
+    IndexTypeUInt32 = 4, ///< 32-bit unsigned integer index type.
+};
+
 //-------------------------------------------------------------------------
 
 enum WisAdapterFlagsBits {
@@ -1252,6 +1263,7 @@ typedef enum WisFilter WisFilter;
 typedef enum WisAddressMode WisAddressMode;
 typedef enum WisTextureViewType WisTextureViewType;
 typedef enum WisComponentSwizzle WisComponentSwizzle;
+typedef enum WisIndexType WisIndexType;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisDSSelectBits WisDSSelectBits;

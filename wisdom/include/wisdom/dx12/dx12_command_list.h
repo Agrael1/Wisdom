@@ -68,6 +68,9 @@ public:
 
     WIS_INLINE void IASetVertexBuffers(wis::DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept;
 
+    WIS_INLINE void IASetIndexBuffer(wis::DX12BufferView buffer, wis::IndexType type, uint64_t offset) noexcept;
+    WIS_INLINE void IASetIndexBuffer2(wis::DX12BufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept;
+
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
 
     WIS_INLINE void RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept;

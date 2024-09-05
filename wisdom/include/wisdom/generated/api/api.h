@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.2</b>
+<b>Version 0.2.3</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1103,6 +1103,17 @@ enum class ComponentSwizzle : uint32_t {
     Alpha = 3, ///< Use the alpha component for sampling.
     Zero = 4, ///< Use zero for sampling.
     One = 5, ///< Use one for sampling.
+};
+
+/**
+ * @brief Index type for index buffer.
+ *
+ * Translates to DXGI_FORMAT for dx implementation.
+ * Translates to VkIndexType for vk implementation.
+ * */
+enum class IndexType : uint32_t {
+    UInt16 = 2, ///< 16-bit unsigned integer index type.
+    UInt32 = 4, ///< 32-bit unsigned integer index type.
 };
 
 enum class AdapterFlags {
