@@ -60,7 +60,6 @@ public:
 int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device, wis::Size2D img_size)
 {
 
-
     auto [res1, cqueue] = device.CreateCommandQueue(wis::QueueType::Copy);
     if (res1.status != wis::Status::Ok) {
         std::cerr << "Failed to create command queue\n";
@@ -153,7 +152,6 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
         wait_gpu();
     }
 
-
     std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
 
@@ -181,7 +179,6 @@ int TestDirectWrite(const Test& test, const wis::Device& device, const wis::Reso
         std::cerr << "Failed to create texture\n";
         return 1;
     }
-
 
     using namespace wis;
     wis::TextureDesc desc{

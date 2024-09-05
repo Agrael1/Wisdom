@@ -12,8 +12,7 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
     VKFillBufferDesc(size, usage, desc);
 
     VmaAllocationCreateFlags flags = wis::convert_vk(mem_flags);
-    if (mem_flags & wis::MemoryFlags::Mapped)
-    {
+    if (mem_flags & wis::MemoryFlags::Mapped) {
         switch (memory) {
         case wis::MemoryType::Upload:
             flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
@@ -26,7 +25,6 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
             break;
         }
     }
-
 
     VmaAllocationCreateInfo alloc{
         .flags = flags,
