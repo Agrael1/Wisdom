@@ -1,0 +1,113 @@
+DirectX 12:
+
+Test image size 8192x8192:
+
+Staged copy:
+Elapsed time: 5.57378s
+Bandwidth: 367.435MB/s
+Per copy time 0.00557378s
+
+
+Direct copy:
+Elapsed time: 5.02618s
+Bandwidth: 407.466MB/s
+Per copy time 0.00502618s
+
+
+Test image size 4096x4096:
+
+Staged copy:
+Elapsed time: 1.81136s
+Bandwidth: 1413.3MB/s
+Per copy time 0.00181136s
+
+
+Direct copy:
+Elapsed time: 1.27008s
+Bandwidth: 2015.62MB/s
+Per copy time 0.00127008s
+
+
+Test image size 2048x2048:
+
+Staged copy:
+Elapsed time: 0.525878s
+Bandwidth: 7058.67MB/s
+Per copy time 0.000525878s
+
+
+Direct copy:
+Elapsed time: 0.36748s
+Bandwidth: 10101.2MB/s
+Per copy time 0.00036748s
+
+
+Test image size 1024x1024:
+
+Staged copy:
+Elapsed time: 0.157322s
+Bandwidth: 25425.6MB/s
+Per copy time 0.000157322s
+
+
+Direct copy:
+Elapsed time: 0.104932s
+Bandwidth: 38119.8MB/s
+Per copy time 0.000104932s
+
+
+Vulkan:
+Test image size 8192x8192:
+
+Staged copy:
+Elapsed time: 3.86393s
+Bandwidth: 530.03MB/s
+Per copy time 0.00386393s
+
+
+Direct copy:
+Elapsed time: 3.42202s
+Bandwidth: 598.477MB/s
+Per copy time 0.00342202s
+
+
+Test image size 4096x4096:
+
+Staged copy:
+Elapsed time: 1.72379s
+Bandwidth: 1485.1MB/s
+Per copy time 0.00172379s
+
+
+Direct copy:
+Elapsed time: 1.32131s
+Bandwidth: 1937.47MB/s
+Per copy time 0.00132131s
+
+
+Test image size 2048x2048:
+
+Staged copy:
+Elapsed time: 0.457299s
+Bandwidth: 8117.23MB/s
+Per copy time 0.000457299s
+
+
+Direct copy:
+Elapsed time: 0.321304s
+Bandwidth: 11552.9MB/s
+Per copy time 0.000321304s
+
+
+Test image size 1024x1024:
+
+Staged copy:
+Elapsed time: 0.130573s
+Bandwidth: 30634.2MB/s
+Per copy time 0.000130573s
+
+
+Direct copy:
+Elapsed time: 0.0812936s
+Bandwidth: 49204.4MB/s
+Per copy time 8.12936e-05s

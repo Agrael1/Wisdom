@@ -11,8 +11,23 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
     VkBufferCreateInfo desc;
     VKFillBufferDesc(size, usage, desc);
 
+    VmaAllocationCreateFlags flags = wis::convert_vk(mem_flags);
+    if (mem_flags & wis::MemoryFlags::Mapped) {
+        switch (memory) {
+        case wis::MemoryType::Upload:
+            flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+            break;
+        case wis::MemoryType::Readback:
+            flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
+            break;
+        default:
+            flags &= ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
+            break;
+        }
+    }
+
     VmaAllocationCreateInfo alloc{
-        .flags = wis::convert_vk(mem_flags),
+        .flags = flags,
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = wis::convert_vk(memory)
     };
@@ -26,7 +41,7 @@ wis::VKResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::Memor
     VKFillImageDesc(desc, img_desc);
 
     VmaAllocationCreateInfo alloc{
-        .flags = wis::convert_vk(mem_flags),
+        .flags = wis::convert_vk(mem_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT,
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = wis::convert_vk(memory)
     };

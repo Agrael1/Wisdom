@@ -1,5 +1,10 @@
 # Version History
 
+- 0.2.2
+
+  - Fixed upload and readback buffer not being created with mapping flags with Vulkan
+  - Discovered bug with external memory + Host Copy buffer not allocating image correctly
+
 - 0.2.1
 
   - Fixed Extended allocation on Vulkan not loading functions correctly and DX12 throwing an exception on device destruction
