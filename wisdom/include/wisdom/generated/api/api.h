@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.0</b>
+<b>Version 0.2.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1096,7 +1096,7 @@ enum class TextureViewType : uint32_t {
  * Translates to D3D12_SHADER_COMPONENT_MAPPING for dx implementation.
  * Translates to VkComponentSwizzle for vk implementation.
  * */
-enum class ComponentSwizzle : uint8_t {
+enum class ComponentSwizzle : uint32_t {
     Red = 0, ///< Use the red component for sampling.
     Green = 1, ///< Use the green component for sampling.
     Blue = 2, ///< Use the blue component for sampling.
@@ -1144,6 +1144,7 @@ enum class MemoryFlags {
     None = 0x0,
     DedicatedAllocation = 1 << 0,
     Mapped = 1 << 1,
+    Exportable = 1 << 2,
 };
 
 enum class RenderPassFlags {

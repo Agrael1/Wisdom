@@ -34,7 +34,7 @@ struct Test {
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
                 wis::DeviceExtension* exts[]{
-                    //&global_interop,
+                    &global_interop,
                     &global_extended_allocation,
                 };
 
@@ -159,7 +159,7 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
 
     std::cout << "Elapsed time: " << elapsed.count() << "s\n";
     std::cout << "Bandwidth: " << (img_size.width * img_size.height * 4 * 1000) / (1024 * 1024 * elapsed.count()) << "MB/s\n";
-    std::cout << "Per copy time" << elapsed.count() / 1000 << "s\n";
+    std::cout << "Per copy time: " << elapsed.count() / 1000 << "s\n";
 }
 
 int TestDirectWrite(const Test& test, const wis::Device& device, const wis::ResourceAllocator& alloc, wis::Size2D img_size)
@@ -214,7 +214,7 @@ int TestDirectWrite(const Test& test, const wis::Device& device, const wis::Reso
 
     std::cout << "Elapsed time: " << elapsed.count() << "s\n";
     std::cout << "Bandwidth: " << (img_size.width * img_size.height * 4 * 1000) / (1024 * 1024 * elapsed.count()) << "MB/s\n";
-    std::cout << "Per copy time" << elapsed.count() / 1000 << "s\n";
+    std::cout << "Per copy time: " << elapsed.count() / 1000 << "s\n";
 }
 
 int main()

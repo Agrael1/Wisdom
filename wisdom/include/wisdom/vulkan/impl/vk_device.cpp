@@ -316,6 +316,13 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
         ext->Init(vkdevice, struct_map, property_map);
     }
 
+    // Create Default Allocator
+    auto [res1, allocator] = vkdevice.VKCreateAllocator();
+    if (res1.status != wis::Status::Ok)
+        return res1;
+
+    vkdevice.allocator = std::move(allocator);
+
     return { wis::success, std::move(vkdevice) };
 }
 
@@ -811,15 +818,20 @@ wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
 
 wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
 {
-    auto [result, hallocator] = CreateAllocatorI();
-    if (result.status != wis::Status::Ok)
-        return result;
+    wis::shared_handle<VmaAllocator> interop;
+    if (ext1.GetFeatures().interop_device) {
+        auto [result, hallocator] = VKCreateAllocator(true);
+        if (result.status != wis::Status::Ok)
+            return result;
 
-    return VKResourceAllocator{ wis::shared_handle<VmaAllocator>{ device, hallocator },
-                                ext1.GetFeatures().interop_device };
+        interop = std::move(hallocator);
+    }
+
+    return VKResourceAllocator{ allocator, std::move(interop) };
 }
 
-wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
+wis::ResultValue<wis::shared_handle<VmaAllocator>>
+wis::VKDevice::VKCreateAllocator(bool interop) const noexcept
 {
     uint32_t version = 0;
     auto& itable = GetInstanceTable();
@@ -862,8 +874,11 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     };
     itable.vkGetPhysicalDeviceMemoryProperties2(adapter_i.adapter, &mem_props);
 
-    wis::detail::limited_allocator<VkExternalMemoryHandleTypeFlagsKHR, 16>
-            handle_types(mem_props.memoryProperties.memoryTypeCount, true);
+    constexpr static std::array<VkExternalMemoryHandleTypeFlagsKHR, VK_MAX_MEMORY_TYPES> handle_types = [] {
+        std::array<VkExternalMemoryHandleTypeFlagsKHR, VK_MAX_MEMORY_TYPES> handle_types{};
+        handle_types.fill(detail::memory_handle_type);
+        return handle_types;
+    }();
 
     VmaAllocatorCreateInfo allocatorInfo{
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
@@ -872,15 +887,11 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
         .pVulkanFunctions = &allocator_functions,
         .instance = adapter_i.instance.get(),
         .vulkanApiVersion = version,
-        .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device ? handle_types.data() : nullptr
+        .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device && interop ? handle_types.data() : nullptr
     };
 
     // Only if there is an interop extension
-    if (ext1.GetFeatures().interop_device) {
-        auto* htdata = handle_types.data();
-        for (uint32_t i = 0; i < mem_props.memoryProperties.memoryTypeCount; i++) {
-            htdata[i] = detail::memory_handle_type;
-        }
+    if (ext1.GetFeatures().interop_device && interop) {
 #ifdef _WIN32
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
         allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
@@ -893,7 +904,7 @@ wis::ResultValue<VmaAllocator> wis::VKDevice::CreateAllocatorI() const noexcept
     if (!succeeded(vr))
         return wis::make_result<FUNC, "Failed to create an Allocator">(vr);
 
-    return al;
+    return wis::shared_handle<VmaAllocator>{ device, al };
 }
 
 wis::ResultValue<wis::VKSwapChain>
@@ -1154,16 +1165,6 @@ wis::ResultValue<wis::VKDescriptorBuffer>
 wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
 {
     auto& ext1_i = ext1.GetInternal();
-
-    if (!allocator) {
-        auto [res, hallocator] = CreateAllocatorI();
-        if (res.status != wis::Status::Ok)
-            return res;
-        allocator = wis::shared_handle<VmaAllocator>{ device, hallocator };
-    }
-    if (!allocator)
-        return wis::make_result<FUNC, "Failed to create an allocator">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
-
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
             ? ext1_i.features.mutable_descriptor ? ext1_i.descriptor_buffer_features.mutable_descriptor_size : 0u
             : ext1_i.descriptor_buffer_features.sampler_size;

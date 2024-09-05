@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.0</b>
+<b>Version 0.2.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1116,6 +1116,7 @@ enum WisMemoryFlagsBits {
     MemoryFlagsNone = 0x0,
     MemoryFlagsDedicatedAllocation = 1 << 0,
     MemoryFlagsMapped = 1 << 1,
+    MemoryFlagsExportable = 1 << 2,
 };
 
 enum WisRenderPassFlagsBits {

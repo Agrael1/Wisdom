@@ -5,11 +5,28 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_external.h>
 
+namespace wis::detail {
+constexpr static VkExternalMemoryBufferCreateInfoKHR external_info_buffer{
+    .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
+    .pNext = nullptr,
+    .handleTypes = memory_handle_type
+};
+constexpr static VkExternalMemoryImageCreateInfoKHR external_info_image{
+    .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR,
+    .pNext = nullptr,
+    .handleTypes = memory_handle_type
+};
+} // namespace wis::detail
+
 wis::ResultValue<wis::VKBuffer>
 wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 {
     VkBufferCreateInfo desc;
     VKFillBufferDesc(size, usage, desc);
+
+    if (mem_flags & wis::MemoryFlags::Exportable) {
+        desc.pNext = &detail::external_info_buffer;
+    }
 
     VmaAllocationCreateFlags flags = wis::convert_vk(mem_flags);
     if (mem_flags & wis::MemoryFlags::Mapped) {
@@ -39,6 +56,10 @@ wis::VKResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::Memor
 {
     VkImageCreateInfo img_desc;
     VKFillImageDesc(desc, img_desc);
+
+    if (mem_flags & wis::MemoryFlags::Exportable) {
+        img_desc.pNext = &detail::external_info_image;
+    }
 
     VmaAllocationCreateInfo alloc{
         .flags = wis::convert_vk(mem_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT,
@@ -91,10 +112,7 @@ wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage u
 
     VmaMemoryUsage vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
     switch (memory) {
-    case wis::MemoryType::Default:
-        break;
     case wis::MemoryType::Upload:
-    case wis::MemoryType::GPUUpload:
         vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
         break;
     case wis::MemoryType::Readback:
@@ -109,13 +127,16 @@ wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage u
         .usage = vma_usage,
         .requiredFlags = wis::convert_vk(memory),
     };
+
+    auto& alloc_ref = mem_flags & wis::MemoryFlags::Exportable ? export_memory_allocator : allocator;
+
     VmaAllocation allocation;
-    auto result = vmaAllocateMemory(allocator.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
+    auto result = vmaAllocateMemory(alloc_ref.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
 
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Image memory allocation failed">(result);
 
-    return VKMemory{ allocator, allocation };
+    return VKMemory{ alloc_ref, allocation };
 }
 wis::ResultValue<wis::VKMemory>
 wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
@@ -129,10 +150,7 @@ wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage u
 
     VmaMemoryUsage vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
     switch (memory) {
-    case wis::MemoryType::Default:
-        break;
     case wis::MemoryType::Upload:
-    case wis::MemoryType::GPUUpload:
         vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
         break;
     case wis::MemoryType::Readback:
@@ -142,60 +160,73 @@ wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage u
         break;
     }
 
+    auto& alloc_ref = mem_flags & wis::MemoryFlags::Exportable ? export_memory_allocator : allocator;
+
     VmaAllocationCreateInfo alloc_desc{
         .flags = convert_vk(mem_flags),
         .usage = vma_usage,
         .requiredFlags = wis::convert_vk(memory),
     };
     VmaAllocation allocation;
-    auto result = vmaAllocateMemory(allocator.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
+    auto result = vmaAllocateMemory(alloc_ref.get(), &req.memoryRequirements, &alloc_desc, &allocation, nullptr);
 
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Buffer memory allocation failed">(result);
 
-    return VKMemory{ allocator, allocation };
+    return VKMemory{ alloc_ref, allocation };
 }
 
 wis::ResultValue<wis::VKBuffer>
 wis::VKResourceAllocator::PlaceBuffer(wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
 {
-    if (std::get<0>(memory) != allocator.get())
+    auto al1 = std::get<0>(memory);
+    if (al1 != allocator.get() && al1 != export_memory_allocator.get())
         return wis::make_result<FUNC, "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
 
     VkBufferCreateInfo desc;
     VKFillBufferDesc(size, usage, desc);
-    return VKCreateAliasingBuffer(desc, memory_offset, std::get<1>(memory));
+
+    bool interop = al1 == export_memory_allocator.get();
+    if (interop) {
+        desc.pNext = &detail::external_info_buffer;
+    }
+
+    return VKCreateAliasingBuffer(desc, memory_offset, std::get<1>(memory), interop);
 }
 
 wis::ResultValue<wis::VKTexture>
 wis::VKResourceAllocator::PlaceTexture(wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
 {
-    if (std::get<0>(memory) != allocator.get())
+    auto al1 = std::get<0>(memory);
+    if (al1 != allocator.get() && al1 != export_memory_allocator.get())
         return wis::make_result<FUNC, "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
 
     VkImageCreateInfo img_desc;
     VKFillImageDesc(desc, img_desc);
-    return VKCreateAliasingTexture(img_desc, memory_offset, std::get<1>(memory));
+
+    bool interop = al1 == export_memory_allocator.get();
+    if (interop) {
+        img_desc.pNext = &detail::external_info_image;
+    }
+
+    return VKCreateAliasingTexture(img_desc, memory_offset, std::get<1>(memory), interop);
 }
 
 // =========================================================================================
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop) const noexcept
 {
-    constexpr static VkExternalMemoryImageCreateInfoKHR external_info{
-        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .handleTypes = detail::memory_handle_type
-    };
+    if (interop && !export_memory_allocator)
+        return wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
 
-    desc.pNext = interop ? &external_info : nullptr;
+    auto& alloc_ref = interop ? export_memory_allocator : allocator;
 
     VmaAllocation allocation;
     VkImage buffer;
 
     auto result = vmaCreateImage(
-            allocator.get(),
+            alloc_ref.get(),
             reinterpret_cast<const VkImageCreateInfo*>(&desc),
             &alloc_desc,
             &buffer,
@@ -205,24 +236,21 @@ wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllo
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Texture allocation failed">(result);
 
-    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
+    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, alloc_ref, allocation };
 }
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept
+wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop) const noexcept
 {
-    constexpr static VkExternalMemoryBufferCreateInfoKHR external_info{
-        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .handleTypes = detail::memory_handle_type
-    };
+    if (interop && !export_memory_allocator)
+        return wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
 
-    desc.pNext = interop ? &external_info : nullptr;
+    auto& alloc_ref = interop ? export_memory_allocator : allocator;
 
     VmaAllocation allocation;
     VkBuffer buffer;
     VkResult result = vmaCreateBuffer(
-            allocator.get(),
+            alloc_ref.get(),
             &desc,
             &alloc_desc,
             &buffer,
@@ -232,47 +260,35 @@ wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllo
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Buffer allocation failed">(result);
 
-    return VKBuffer{ allocator, buffer, allocation };
+    return VKBuffer{ alloc_ref, buffer, allocation };
 }
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept
+wis::VKResourceAllocator::VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop) const noexcept
 {
-    constexpr static VkExternalMemoryBufferCreateInfoKHR external_info{
-        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .handleTypes = detail::memory_handle_type
-    };
-
-    desc.pNext = interop ? &external_info : nullptr;
+    auto& alloc_ref = interop ? export_memory_allocator : allocator;
 
     VkBuffer buffer;
-    auto res = vmaCreateAliasingBuffer2(allocator.get(), alloc, offset, &desc, &buffer);
+    auto res = vmaCreateAliasingBuffer2(alloc_ref.get(), alloc, offset, &desc, &buffer);
     if (!wis::succeeded(res)) {
         return wis::make_result<FUNC, "Aliasing buffer creation failed">(res);
     }
 
-    return VKBuffer{ allocator, buffer, nullptr };
+    return VKBuffer{ alloc_ref, buffer, nullptr };
 }
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept
+wis::VKResourceAllocator::VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop) const noexcept
 {
-    constexpr static VkExternalMemoryImageCreateInfoKHR external_info{
-        .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .handleTypes = detail::memory_handle_type
-    };
-
-    desc.pNext = interop ? &external_info : nullptr;
+    auto& alloc_ref = interop ? export_memory_allocator : allocator;
 
     VkImage buffer;
-    auto res = vmaCreateAliasingImage2(allocator.get(), alloc, offset, &desc, &buffer);
+    auto res = vmaCreateAliasingImage2(alloc_ref.get(), alloc, offset, &desc, &buffer);
     if (!wis::succeeded(res)) {
         return wis::make_result<FUNC, "Aliasing buffer creation failed">(res);
     }
 
-    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, nullptr };
+    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, alloc_ref, nullptr };
 }
 
 void wis::VKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUsage flags, VkBufferCreateInfo& info) noexcept
