@@ -284,7 +284,7 @@ void wis::DX12CommandList::IASetIndexBuffer(wis::DX12BufferView buffer, wis::Ind
 {
     D3D12_INDEX_BUFFER_VIEW ibv{
         .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
-        .SizeInBytes = std::get<0>(buffer)->GetDesc().Width,
+        .SizeInBytes = uint32_t(std::get<0>(buffer)->GetDesc().Width),
         .Format = convert_dx(type)
     };
     list->IASetIndexBuffer(&ibv);
