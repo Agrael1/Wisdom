@@ -9,7 +9,7 @@ class VKResourceAllocator;
 template<>
 struct Internal<VKResourceAllocator> {
     wis::shared_handle<VmaAllocator> allocator;
-    bool interop = false;
+    wis::shared_handle<VmaAllocator> export_memory_allocator;
 };
 
 /// @brief Resource allocator for Vulkan
@@ -18,8 +18,8 @@ class VKResourceAllocator : public QueryInternal<VKResourceAllocator>
 public:
     VKResourceAllocator() = default;
     VKResourceAllocator(wis::shared_handle<VmaAllocator> allocator,
-                        bool interop = false) noexcept
-        : QueryInternal(std::move(allocator), interop)
+                        wis::shared_handle<VmaAllocator> export_memory_allocator) noexcept
+        : QueryInternal(std::move(allocator), std::move(export_memory_allocator))
     {
     }
     operator bool() const noexcept
@@ -75,16 +75,16 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKBuffer>
-    VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+    VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop = false) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKTexture>
-    VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc) const noexcept;
+    VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop = false) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKBuffer>
-    VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept;
+    VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop = false) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKTexture>
-    VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc) const noexcept;
+    VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop = false) const noexcept;
 
     WIS_INLINE static void
     VKFillBufferDesc(uint64_t size, BufferUsage flags, VkBufferCreateInfo& info) noexcept;

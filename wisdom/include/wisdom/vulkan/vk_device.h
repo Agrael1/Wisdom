@@ -23,7 +23,7 @@ struct Internal<VKDevice> {
     wis::SharedDevice device;
     wis::VKDeviceExtensionEmbedded1 ext1;
 
-    mutable wis::shared_handle<VmaAllocator> allocator;
+    wis::shared_handle<VmaAllocator> allocator;
     detail::QueueResidency queues;
 
 public:
@@ -133,8 +133,8 @@ public:
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;
 
 private:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VmaAllocator>
-    CreateAllocatorI() const noexcept;
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::shared_handle<VmaAllocator>>
+    VKCreateAllocator(bool interop = false)const noexcept;
 
     [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
     CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept

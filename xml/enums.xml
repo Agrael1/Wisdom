@@ -1185,6 +1185,7 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
         <impl name="vk" value="VMA_ALLOCATION_CREATE_MAPPED_BIT"/>
         <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_NONE"/>
       </value>
+      <value name="Exportable" bit="2"/>
     </type>
 
     <type name="BarrierSync" category="bitmask">
