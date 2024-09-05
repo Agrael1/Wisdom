@@ -134,7 +134,7 @@ public:
 
 private:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::shared_handle<VmaAllocator>>
-    VKCreateAllocator(bool interop = false)const noexcept;
+    VKCreateAllocator(bool interop = false) const noexcept;
 
     [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
     CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
