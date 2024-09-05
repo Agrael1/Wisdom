@@ -1,5 +1,10 @@
 # Version History
 
+- 0.2.3
+
+  - Fixed bug with external memory + Host Copy buffer not allocating image correctly
+  - Now exportable memory is explicit for all implementations (not all resources and memory are sharable, there is now a flag for that)
+
 - 0.2.2
 
   - Fixed upload and readback buffer not being created with mapping flags with Vulkan
