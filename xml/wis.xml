@@ -73,6 +73,13 @@
       <ret type="Device" name="device"/>
       <arg type="Adapter" name="adapter"/>
     </func>
+    
+    <func name="CreateDeviceWithExtensionsForce" mod="cpp-only">
+      <ret type="Result" name="result"/>
+      <ret type="Device" name="device"/>
+      <arg type="Adapter" name="adapter"/>
+      <arg type="bool" name="force"/>
+    </func>
 
   </functions>
 </registry>

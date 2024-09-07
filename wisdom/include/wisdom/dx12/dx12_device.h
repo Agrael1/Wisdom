@@ -95,10 +95,13 @@ public:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
-DX12CreateDevice(wis::DX12AdapterHandle adapter, bool force = false) noexcept;
+DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept;
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
-DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force = false) noexcept;
+DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept;
+
+[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
+DX12CreateDeviceWithExtensionsForce(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

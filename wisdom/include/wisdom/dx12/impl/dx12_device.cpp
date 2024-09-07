@@ -11,12 +11,19 @@
 #include <numeric>
 
 wis::ResultValue<wis::DX12Device>
-wis::DX12CreateDevice(wis::DX12AdapterHandle adapter, bool force) noexcept
+wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
 {
-    return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0, force);
+    return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0);
 }
 
-wis::ResultValue<wis::DX12Device> wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
+wis::ResultValue<wis::DX12Device> 
+wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept
+{
+    return wis::DX12CreateDeviceWithExtensionsForce(adapter, extensions, ext_count, false);
+}
+
+wis::ResultValue<wis::DX12Device> 
+wis::DX12CreateDeviceWithExtensionsForce(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
 {
     auto in_adapter = std::get<0>(adapter);
 
@@ -32,6 +39,9 @@ wis::ResultValue<wis::DX12Device> wis::DX12CreateDeviceWithExtensions(wis::DX12A
         return wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr);
 
     auto xdevice = wis::DX12Device(std::move(device), wis::com_ptr(in_adapter), std::move(in_factory));
+
+    if (!xdevice.QueryFeatureSupport(wis::DeviceFeature::EnchancedBarriers) && !force)
+        return wis::make_result<FUNC, "Device does not support enhanced barriers">(E_FAIL);
 
     for (uint32_t i = 0; i < ext_count; i++) {
         extensions[i]->Init(xdevice);
