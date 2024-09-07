@@ -1,4 +1,5 @@
 # Version History
+
 - 0.2.5
 
   - Added querying device features
