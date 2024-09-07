@@ -121,8 +121,8 @@ public:
     {
         auto& heap_features = ext1.GetInternal().descriptor_buffer_features;
         return heap == wis::DescriptorHeapType::Descriptor
-                ? heap_features.mutable_descriptor_size
-                : heap_features.sampler_size;
+               ? heap_features.mutable_descriptor_size
+               : heap_features.sampler_size;
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
@@ -137,14 +137,14 @@ public:
 
 private:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::shared_handle<VmaAllocator>>
-    VKCreateAllocator(bool interop = false) const noexcept;
+            VKCreateAllocator(bool interop = false) const noexcept;
 
     [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
     CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
     {
         return table->type == wis::DescriptorHeapType::Descriptor
-                ? CreateDescriptorSetDescriptorLayout(table)
-                : CreateDescriptorSetSamplerLayout(table);
+               ? CreateDescriptorSetDescriptorLayout(table)
+               : CreateDescriptorSetSamplerLayout(table);
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
