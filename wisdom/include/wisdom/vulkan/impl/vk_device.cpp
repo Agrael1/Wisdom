@@ -1211,9 +1211,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, ext1_i.descriptor_buffer_features, uint32_t(descriptor_size) };
 }
 
-
-bool
-wis::VKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
+bool wis::VKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
 {
     auto& features = ext1.GetInternal().features;
 

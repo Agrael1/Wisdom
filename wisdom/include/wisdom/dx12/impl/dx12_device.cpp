@@ -16,13 +16,13 @@ wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
     return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0);
 }
 
-wis::ResultValue<wis::DX12Device> 
+wis::ResultValue<wis::DX12Device>
 wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept
 {
     return wis::DX12CreateDeviceWithExtensionsForce(adapter, extensions, ext_count, false);
 }
 
-wis::ResultValue<wis::DX12Device> 
+wis::ResultValue<wis::DX12Device>
 wis::DX12CreateDeviceWithExtensionsForce(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
 {
     auto in_adapter = std::get<0>(adapter);
@@ -626,8 +626,7 @@ wis::DX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResour
 bool wis::DX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
 {
     switch (feature) {
-    case wis::DeviceFeature::EnchancedBarriers:
-    {
+    case wis::DeviceFeature::EnchancedBarriers: {
         D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
         bool EnhancedBarriersSupported = false;
         if (wis::succeeded(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)))) {
