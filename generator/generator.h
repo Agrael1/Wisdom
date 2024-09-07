@@ -50,6 +50,7 @@ struct WisEnum {
 
 struct WisBitmaskValue {
     std::string_view name;
+    std::string_view doc;
     enum class Type {
         Bit,
         Value
@@ -62,6 +63,7 @@ struct WisBitmask {
     std::string_view name;
     std::string_view type;
     std::string_view doc;
+    std::string doc_translates;
     std::vector<WisBitmaskValue> values;
 
     std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept

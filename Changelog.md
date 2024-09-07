@@ -1,6 +1,13 @@
 # Version History
 
-- 0.2.3
+- 0.2.5
+
+  - Added querying device features
+  - Added documentation for bitmasks
+  - Added force device creation. That allows the user to create a device with a GPU, that does not implement all core features.
+  - Removed DX flags from adapter flags. Those may be queried directly with the internals.
+
+- 0.2.4
 
   - Added index buffer support
   - Added VK_KHR_maintenance5 extension for Vulkan as an optional extension

@@ -110,6 +110,12 @@ wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noex
 wis::ResultValue<wis::VKDevice>
 wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept
 {
+    return VKCreateDeviceWithExtensionsForce(std::move(in_adapter), exts, ext_size, false);
+}
+
+wis::ResultValue<wis::VKDevice>
+wis::VKCreateDeviceWithExtensionsForce(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept
+{
     auto& adapter_i = in_adapter.GetInternal();
     auto hadapter = adapter_i.adapter;
     auto& itable = adapter_i.instance.table();
@@ -306,7 +312,7 @@ wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtens
 
     // Init embedded extensions
     vkdevice.ext1.Init(vkdevice, struct_map, property_map);
-    if (!vkdevice.ext1.Supported())
+    if (!vkdevice.ext1.Supported() && !force)
         return wis::make_result<FUNC, "The system does not support the required extensions">(VkResult::VK_ERROR_UNKNOWN);
 
     // Init the rest of the extensions
@@ -1204,6 +1210,28 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
 
     return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, ext1_i.descriptor_buffer_features, uint32_t(descriptor_size) };
 }
+
+bool wis::VKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
+{
+    auto& features = ext1.GetInternal().features;
+
+    switch (feature) {
+    case wis::DeviceFeature::DescriptorBuffer:
+        return features.descriptor_buffer;
+    case wis::DeviceFeature::WaitForPresent:
+        return features.present_wait;
+    case wis::DeviceFeature::DescriptorEqualSize:
+        return features.mutable_descriptor;
+    case wis::DeviceFeature::AdvancedIndexBuffer:
+        return features.index_buffer_range;
+    case wis::DeviceFeature::EnchancedBarriers:
+        return features.synchronization_2;
+    default:
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 
 wis::ResultValue<VkDescriptorSetLayout>
 wis::VKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept

@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.3</b>
+<b>Version 0.2.4</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1018,6 +1018,41 @@ enum WisTopologyType {
 };
 
 /**
+ * @brief Features that device may support.
+ * Query by calling with Device::QueryFeatureSupport. Contains core features with optional ones.
+ *
+ * */
+enum WisDeviceFeature {
+    /**
+     * @brief Core Functionality. Descriptor buffer support for VK, always true for DX12.
+     * Vulkan provides DescriptorPool and DescriptorSet functionalities, that have to be used manually through library internals.
+     * */
+    DeviceFeatureDescriptorBuffer = 0,
+    /**
+     * @brief Core Functionality. Supports enhanced barriers. Support for VK and DX12.
+     * Used in all barriers to provide more control over synchronization. Without the feature behavior is undefined.
+     * To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals.
+     * Vulkan will not work, as half of current functionality depends on VK_KHR_synchronization2.
+     * */
+    DeviceFeatureEnchancedBarriers = 1,
+    /**
+     * @brief Supports waiting for present to finish. Support for VK, always true for DX12.
+     * Unlocks Swapchain::WaitForPresent.
+     * */
+    DeviceFeatureWaitForPresent = 2,
+    /**
+     * @brief Descriptor size for SRV UAV and CBV are equal in size, support for VK, always true for DX12.
+     * Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined.
+     * */
+    DeviceFeatureDescriptorEqualSize = 3,
+    /**
+     * @brief Supports advanced index buffer features. Support for VK, always true for DX12.
+     * Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined.
+     * */
+    DeviceFeatureAdvancedIndexBuffer = 4,
+};
+
+/**
  * @brief Filtering mode for texture sampling.
  *
  * Translates to VkFilter for vk implementation.
@@ -1077,6 +1112,7 @@ enum WisComponentSwizzle {
 
 /**
  * @brief Index type for index buffer.
+ * Enum values resemble the byte stride of the format.
  *
  * Translates to DXGI_FORMAT for dx implementation.
  * Translates to VkIndexType for vk implementation.
@@ -1088,112 +1124,182 @@ enum WisIndexType {
 
 //-------------------------------------------------------------------------
 
+/**
+ * @brief Flags that describe adapter.
+ *
+ * */
 enum WisAdapterFlagsBits {
-    AdapterFlagsNone = 0x0,
-    AdapterFlagsRemote = 1 << 0,
-    AdapterFlagsSoftware = 1 << 1,
-    AdapterFlagsDX12ACGCompatible = 1 << 2,
-    AdapterFlagsDX12SupportsMonitoredFences = 1 << 3,
-    AdapterFlagsDX12SupportsNonMonitoredFences = 1 << 4,
-    AdapterFlagsDX12KeyedMutexConformance = 1 << 5,
+    AdapterFlagsNone = 0x0, ///< No flags set. Adapter may be descrete or embedded.
+    AdapterFlagsRemote = 1 << 0, ///< Adapter is remote. Used for remote rendering.
+    AdapterFlagsSoftware = 1 << 1, ///< Adapter is software. Used for software rendering.
 };
 
+/**
+ * @brief Depth stencil select flags.
+ * Affect which part of the depth stencil buffer is used.
+ *
+ * */
 enum WisDSSelectBits {
-    DSSelectNone = 0x0,
-    DSSelectDepth = 1 << 0,
-    DSSelectStencil = 1 << 1,
-    DSSelectDepthStencil = 0x3,
+    DSSelectNone = 0x0, ///< No flags set. Depth stencil buffer is not used.
+    DSSelectDepth = 1 << 0, ///< Use depth part of the depth stencil buffer.
+    DSSelectStencil = 1 << 1, ///< Use stencil part of the depth stencil buffer.
+    DSSelectDepthStencil = 0x3, ///< Use both depth and stencil parts of the depth stencil buffer.
 };
 
+/**
+ * @brief Color component flags.
+ * Used for color blending operations.
+ *
+ * */
 enum WisColorComponentsBits {
-    ColorComponentsNone = 0x0,
-    ColorComponentsR = 1 << 0,
-    ColorComponentsG = 1 << 1,
-    ColorComponentsB = 1 << 2,
-    ColorComponentsA = 1 << 3,
-    ColorComponentsAll = 0xF,
+    ColorComponentsNone = 0x0, ///< No flags set. Color blending is not used.
+    ColorComponentsR = 1 << 0, ///< Use red component for blending.
+    ColorComponentsG = 1 << 1, ///< Use green component for blending.
+    ColorComponentsB = 1 << 2, ///< Use blue component for blending.
+    ColorComponentsA = 1 << 3, ///< Use alpha component for blending.
+    ColorComponentsAll = 0xF, ///< Use all color components for blending.
 };
 
+/**
+ * @brief Buffer usage flags.
+ * Determine how the buffer can be used throughout its lifetime.
+ *
+ * */
 enum WisBufferUsageBits {
-    BufferUsageNone = 0x0,
-    BufferUsageCopySrc = 1 << 0,
-    BufferUsageCopyDst = 1 << 1,
-    BufferUsageConstantBuffer = 1 << 4,
-    BufferUsageIndexBuffer = 1 << 6,
-    BufferUsageVertexBuffer = 1 << 7,
+    BufferUsageNone = 0x0, ///< No flags set. Buffer is not used.
+    BufferUsageCopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
+    BufferUsageCopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
+    BufferUsageConstantBuffer = 1 << 4, ///< Buffer is used as a constant buffer.
+    BufferUsageIndexBuffer = 1 << 6, ///< Buffer is used as an index buffer.
+    BufferUsageVertexBuffer = 1 << 7, ///< Buffer is used as a vertex buffer or an instance buffer.
 };
 
+/**
+ * @brief Memory flags.
+ * Determine optional properties of the memory allocation.
+ *
+ * Translates to VmaAllocationCreateFlags for vk implementation.
+ * Translates to D3D12MA::ALLOCATION_FLAGS for dx implementation.
+ * */
 enum WisMemoryFlagsBits {
-    MemoryFlagsNone = 0x0,
+    MemoryFlagsNone = 0x0, ///< No flags set. Memory is regular.
+    /**
+     * @brief Memory is dedicated.
+     * Used for resources that require dedicated memory.
+     * Useful for big resources that are not shared with other resources.
+     * E.g. fullscreen textures, big buffers, etc.
+     * */
     MemoryFlagsDedicatedAllocation = 1 << 0,
+    /**
+     * @brief Memory is mapped.
+     * Used in combination with MemoryTypeUpload or MemoryTypeReadback to map memory for CPU access.
+     * */
     MemoryFlagsMapped = 1 << 1,
+    /**
+     * @brief Memory is exportable.
+     * If set, memory can be exported to other processes or APIs.
+     * NOTE: Can't be used with MemoryTypeGPUUpload on NVidia as of 9/7/2024. Bug was reported.
+     * */
     MemoryFlagsExportable = 1 << 2,
 };
 
+/**
+ * @brief Render pass flags.
+ * Set of flags that affect render pass behavior.
+ * More on render pass flags [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
+ *
+ * Translates to VkRenderingFlags for vk implementation.
+ * Translates to D3D12_RENDER_PASS_FLAGS for dx implementation.
+ * */
 enum WisRenderPassFlagsBits {
-    RenderPassFlagsNone = 0x0,
-    RenderPassFlagsSuspending = 1 << 1,
-    RenderPassFlagsResuming = 1 << 2,
+    RenderPassFlagsNone = 0x0, ///< No flags set. Render pass is regular.
+    RenderPassFlagsSuspending = 1 << 1, ///< Render pass is suspending.
+    RenderPassFlagsResuming = 1 << 2, ///< Render pass is resuming.
 };
 
+/**
+ * @brief Barrier synchronization flags.
+ * Used to synchronize resources between different stages of the pipeline.
+ *
+ * Translates to D3D12_BARRIER_SYNC for dx implementation.
+ * Translates to VkPipelineStageFlags2 for vk implementation.
+ * */
 enum WisBarrierSyncBits {
-    BarrierSyncNone = 0x0,
-    BarrierSyncAll = 1 << 0,
-    BarrierSyncDraw = 1 << 1,
-    BarrierSyncIndexInput = 1 << 2,
-    BarrierSyncVertexShading = 1 << 3,
-    BarrierSyncPixelShading = 1 << 4,
-    BarrierSyncDepthStencil = 1 << 5,
-    BarrierSyncRenderTarget = 1 << 6,
-    BarrierSyncCompute = 1 << 7,
-    BarrierSyncRaytracing = 1 << 8,
-    BarrierSyncCopy = 1 << 9,
-    BarrierSyncResolve = 1 << 10,
-    BarrierSyncExecuteIndirect = 1 << 11,
-    BarrierSyncAllShading = 1 << 12,
-    BarrierSyncNonPixelShading = 1 << 13,
-    BarrierSyncClearUAV = 1 << 14,
-    BarrierSyncVideoDecode = 1 << 15,
-    BarrierSyncVideoEncode = 1 << 16,
-    BarrierSyncBuildRTAS = 1 << 17,
-    BarrierSyncCopyRTAS = 1 << 18,
+    BarrierSyncNone = 0x0, ///< No flags set. No synchronization is performed.
+    BarrierSyncAll = 1 << 0, ///< Synchronize all commands.
+    BarrierSyncDraw = 1 << 1, ///< Synchronize draw commands.
+    BarrierSyncIndexInput = 1 << 2, ///< Synchronize index input commands.
+    BarrierSyncVertexShading = 1 << 3, ///< Synchronize vertex shading commands.
+    BarrierSyncPixelShading = 1 << 4, ///< Synchronize pixel shading commands.
+    BarrierSyncDepthStencil = 1 << 5, ///< Synchronize depth stencil commands.
+    BarrierSyncRenderTarget = 1 << 6, ///< Synchronize render target commands.
+    BarrierSyncCompute = 1 << 7, ///< Synchronize compute commands.
+    BarrierSyncRaytracing = 1 << 8, ///< Synchronize raytracing commands.
+    BarrierSyncCopy = 1 << 9, ///< Synchronize copy commands.
+    BarrierSyncResolve = 1 << 10, ///< Synchronize resolve commands.
+    BarrierSyncExecuteIndirect = 1 << 11, ///< Synchronize execute indirect commands.
+    BarrierSyncAllShading = 1 << 12, ///< Synchronize all shading commands.
+    BarrierSyncNonPixelShading = 1 << 13, ///< Synchronize non-pixel shading commands.
+    BarrierSyncClearUAV = 1 << 14, ///< Synchronize clear UAV commands.
+    BarrierSyncVideoDecode = 1 << 15, ///< Synchronize video decode commands.
+    BarrierSyncVideoEncode = 1 << 16, ///< Synchronize video encode commands.
+    BarrierSyncBuildRTAS = 1 << 17, ///< Synchronize build raytracing acceleration structure commands.
+    BarrierSyncCopyRTAS = 1 << 18, ///< Synchronize copy raytracing acceleration structure commands.
 };
 
+/**
+ * @brief Resource access flags.
+ * Determine how resource will be accessed. Used in Barriers.
+ *
+ * Translates to D3D12_BARRIER_ACCESS for dx implementation.
+ * Translates to VkAccessFlags2 for vk implementation.
+ * */
 enum WisResourceAccessBits {
+    /**
+     * @brief Common access.
+     * Subresource data must be available for any layout-compatible access after a barrier.
+     * */
     ResourceAccessCommon = 0x0,
-    ResourceAccessVertexBuffer = 1 << 0,
-    ResourceAccessConstantBuffer = 1 << 1,
-    ResourceAccessIndexBuffer = 1 << 2,
-    ResourceAccessRenderTarget = 1 << 3,
-    ResourceAccessUnorderedAccess = 1 << 4,
-    ResourceAccessDepthWrite = 1 << 5,
-    ResourceAccessDepthRead = 1 << 6,
-    ResourceAccessShaderResource = 1 << 7,
-    ResourceAccessStreamOutput = 1 << 8,
-    ResourceAccessIndirectArgument = 1 << 9,
-    ResourceAccessCopyDest = 1 << 10,
-    ResourceAccessCopySource = 1 << 11,
-    ResourceAccessConditionalRendering = 1 << 12,
-    ResourceAccessAccelerationStrucureRead = 1 << 13,
-    ResourceAccessAccelerationStrucureWrite = 1 << 14,
-    ResourceAccessShadingRate = 1 << 15,
-    ResourceAccessVideoDecodeRead = 1 << 16,
-    ResourceAccessVideoDecodeWrite = 1 << 17,
-    ResourceAccessPresent = 1 << 18,
-    ResourceAccessResolveDest = 1 << 19,
-    ResourceAccessResolveSource = 1 << 20,
-    ResourceAccessNoAccess = 1 << 31,
+    ResourceAccessVertexBuffer = 1 << 0, ///< Vertex buffer access. Applies only to buffers.
+    ResourceAccessConstantBuffer = 1 << 1, ///< Constant buffer access. Applies only to buffers.
+    ResourceAccessIndexBuffer = 1 << 2, ///< Index buffer access. Applies only to buffers.
+    ResourceAccessRenderTarget = 1 << 3, ///< Render target access. Applies only to textures.
+    ResourceAccessUnorderedAccess = 1 << 4, ///< Unordered access access.
+    ResourceAccessDepthWrite = 1 << 5, ///< Depth write access. Applies only to DS textures.
+    ResourceAccessDepthRead = 1 << 6, ///< Depth read access. Applies only to DS textures.
+    ResourceAccessShaderResource = 1 << 7, ///< Shader resource access. Applies only to textures.
+    ResourceAccessStreamOutput = 1 << 8, ///< Stream output access. Applies only to buffers. Reserved for extension.
+    ResourceAccessIndirectArgument = 1 << 9, ///< Indirect argument access.
+    ResourceAccessCopyDest = 1 << 10, ///< Copy destination access.
+    ResourceAccessCopySource = 1 << 11, ///< Copy source access.
+    ResourceAccessConditionalRendering = 1 << 12, ///< Conditional rendering access.
+    ResourceAccessAccelerationStrucureRead = 1 << 13, ///< Acceleration structure read access.
+    ResourceAccessAccelerationStrucureWrite = 1 << 14, ///< Acceleration structure write access.
+    ResourceAccessShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
+    ResourceAccessVideoDecodeRead = 1 << 16, ///< Video decode read access.
+    ResourceAccessVideoDecodeWrite = 1 << 17, ///< Video decode write access.
+    ResourceAccessPresent = 1 << 18, ///< Present access. Used fpr swapchain presentation.
+    ResourceAccessResolveDest = 1 << 19, ///< Resolve destination access. Used in multisampling.
+    ResourceAccessResolveSource = 1 << 20, ///< Resolve source access. Used in multisampling.
+    ResourceAccessNoAccess = 1 << 31, ///< No access. Used to indicate no access throughout pipeline.
 };
 
+/**
+ * @brief Texture usage flags.
+ * Determine how the texture can be used throughout its lifetime.
+ *
+ * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
+ * Translates to VkImageUsageFlags for vk implementation.
+ * */
 enum WisTextureUsageBits {
-    TextureUsageNone = 0x0,
-    TextureUsageRenderTarget = 1 << 0,
-    TextureUsageDepthStencil = 1 << 1,
-    TextureUsageCopySrc = 1 << 2,
-    TextureUsageCopyDst = 1 << 3,
-    TextureUsageShaderResource = 1 << 4,
-    TextureUsageUnorderedAccess = 1 << 5,
-    TextureUsageHostCopy = 1 << 7,
+    TextureUsageNone = 0x0, ///< No flags set. Texture is not used.
+    TextureUsageRenderTarget = 1 << 0, ///< Texture is used as a render target.
+    TextureUsageDepthStencil = 1 << 1, ///< Texture is used as a depth stencil buffer.
+    TextureUsageCopySrc = 1 << 2, ///< Texture is used as a source for copy operations.
+    TextureUsageCopyDst = 1 << 3, ///< Texture is used as a destination for copy operations.
+    TextureUsageShaderResource = 1 << 4, ///< Texture is used as a shader resource.
+    TextureUsageUnorderedAccess = 1 << 5, ///< Texture is used as an unordered access resource.
+    TextureUsageHostCopy = 1 << 7, ///< Texture is used for host copy operations. Works with ExtendedAllocation extension.
 };
 
 //-------------------------------------------------------------------------
@@ -1259,6 +1365,7 @@ typedef enum WisDescriptorHeapType WisDescriptorHeapType;
 typedef enum WisStoreOperation WisStoreOperation;
 typedef enum WisPrimitiveTopology WisPrimitiveTopology;
 typedef enum WisTopologyType WisTopologyType;
+typedef enum WisDeviceFeature WisDeviceFeature;
 typedef enum WisFilter WisFilter;
 typedef enum WisAddressMode WisAddressMode;
 typedef enum WisTextureViewType WisTextureViewType;
