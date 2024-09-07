@@ -1151,20 +1151,20 @@ Enum values resemble the byte stride of the format.">
       </value>
     </type>
 
-    <type name="DeviceFeature" category="enum" type="u32" doc="Features that device may support. 
+    <type name="DeviceFeature" category="enum" type="u32" doc="Features that device may support.
 Query by calling with Device::QueryFeatureSupport. Contains core features with optional ones.">
       <value name="DescriptorBuffer" value="0" doc="Core Functionality. Descriptor buffer support for VK, always true for DX12.
 Vulkan provides DescriptorPool and DescriptorSet functionalities, that have to be used manually through library internals."/>
       <value name="EnchancedBarriers" value="1" doc="Core Functionality. Supports enhanced barriers. Support for VK and DX12.
 Used in all barriers to provide more control over synchronization. Without the feature behavior is undefined.
-To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals. 
+To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals.
 Vulkan will not work, as half of current functionality depends on VK_KHR_synchronization2."/>
       <value name="WaitForPresent" value="2" doc="Supports waiting for present to finish. Support for VK, always true for DX12.
 Unlocks Swapchain::WaitForPresent."/>
       <value name="DescriptorEqualSize" value="3" doc="Descriptor size for SRV UAV and CBV are equal in size, support for VK, always true for DX12.
 Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined."/>
       <value name="AdvancedIndexBuffer" value="4" doc="Supports advanced index buffer features. Support for VK, always true for DX12.
-Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined."/> 
+Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined."/>
     </type>
 
     <!--Bitmasks-->
@@ -1207,9 +1207,9 @@ Determine optional properties of the memory allocation.">
       <impl_type for="vk" name="VmaAllocationCreateFlags"/>
       <impl_type for="dx" name="D3D12MA::ALLOCATION_FLAGS"/>
       <value name="None" value="0" doc="No flags set. Memory is regular."/>
-      <value name="DedicatedAllocation" bit="0" doc="Memory is dedicated. 
+      <value name="DedicatedAllocation" bit="0" doc="Memory is dedicated.
 Used for resources that require dedicated memory.
-Useful for big resources that are not shared with other resources. 
+Useful for big resources that are not shared with other resources.
 E.g. fullscreen textures, big buffers, etc.">
         <impl name="vk" value="VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT"/>
         <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_COMMITTED"/>
@@ -1311,7 +1311,7 @@ Used to synchronize resources between different stages of the pipeline.">
 Determine how resource will be accessed. Used in Barriers.">
       <impl_type for="dx" name="D3D12_BARRIER_ACCESS"/>
       <impl_type for="vk" name="VkAccessFlags2"/>
-      <value name="Common" value="0" doc="Common access. 
+      <value name="Common" value="0" doc="Common access.
 Subresource data must be available for any layout-compatible access after a barrier.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COMMON"/>
         <impl name="vk" value="VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT"/>
