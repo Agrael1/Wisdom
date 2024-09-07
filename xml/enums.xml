@@ -1137,7 +1137,8 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       </value>
     </type>
 
-    <type name="IndexType" category="enum" type="u32" doc="Index type for index buffer.">
+    <type name="IndexType" category="enum" type="u32" doc="Index type for index buffer.
+Enum values resemble the byte stride of the format.">
       <impl_type for="dx" name="DXGI_FORMAT"/>
       <impl_type for="vk" name="VkIndexType"/>
       <value name="UInt16" value="2" doc="16-bit unsigned integer index type.">
@@ -1150,281 +1151,309 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       </value>
     </type>
 
+    <type name="DeviceFeature" category="enum" type="u32" doc="Features that device may support. 
+Query by calling with Device::QueryFeatureSupport. Contains core features with optional ones.">
+      <value name="DescriptorBuffer" value="0" doc="Core Functionality. Descriptor buffer support for VK, always true for DX12.
+Vulkan provides DescriptorPool and DescriptorSet functionalities, that have to be used manually through library internals."/>
+      <value name="EnchancedBarriers" value="1" doc="Core Functionality. Supports enhanced barriers. Support for VK and DX12.
+Used in all barriers to provide more control over synchronization. Without the feature behavior is undefined.
+To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals. 
+Vulkan will not work, as half of current functionality depends on VK_KHR_synchronization2."/>
+      <value name="WaitForPresent" value="2" doc="Supports waiting for present to finish. Support for VK, always true for DX12.
+Unlocks Swapchain::WaitForPresent."/>
+      <value name="DescriptorEqualSize" value="3" doc="Descriptor size for SRV UAV and CBV are equal in size, support for VK, always true for DX12.
+Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined."/>
+      <value name="AdvancedIndexBuffer" value="4" doc="Supports advanced index buffer features. Support for VK, always true for DX12.
+Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined."/> 
+    </type>
+
     <!--Bitmasks-->
-    <type name="AdapterFlags" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="Remote" bit="0"/>
-      <value name="Software" bit="1"/>
-      <value name="ACGCompatible" bit="2" impl="dx"/>
-      <value name="SupportsMonitoredFences" bit="3" impl="dx"/>
-      <value name="SupportsNonMonitoredFences" bit="4" impl="dx"/>
-      <value name="KeyedMutexConformance" bit="5" impl="dx"/>
+    <type name="AdapterFlags" category="bitmask" doc="Flags that describe adapter.">
+      <value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
+      <value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
+      <value name="Software" bit="1" doc="Adapter is software. Used for software rendering."/>
     </type>
 
-    <type name="DSSelect" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="Depth" bit="0"/>
-      <value name="Stencil" bit="1"/>
-      <value name="DepthStencil" value="3"/>
+    <type name="DSSelect" category="bitmask" doc="Depth stencil select flags.
+Affect which part of the depth stencil buffer is used.">
+      <value name="None" value="0" doc="No flags set. Depth stencil buffer is not used."/>
+      <value name="Depth" bit="0" doc="Use depth part of the depth stencil buffer."/>
+      <value name="Stencil" bit="1" doc="Use stencil part of the depth stencil buffer."/>
+      <value name="DepthStencil" value="3" doc="Use both depth and stencil parts of the depth stencil buffer."/>
     </type>
 
-    <type name="ColorComponents" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="R" bit="0"/>
-      <value name="G" bit="1"/>
-      <value name="B" bit="2"/>
-      <value name="A" bit="3"/>
-      <value name="All" value="15"/>
+    <type name="ColorComponents" category="bitmask" doc="Color component flags.
+Used for color blending operations.">
+      <value name="None" value="0" doc="No flags set. Color blending is not used."/>
+      <value name="R" bit="0" doc="Use red component for blending."/>
+      <value name="G" bit="1" doc="Use green component for blending."/>
+      <value name="B" bit="2" doc="Use blue component for blending."/>
+      <value name="A" bit="3" doc="Use alpha component for blending."/>
+      <value name="All" value="15" doc="Use all color components for blending."/>
     </type>
 
-    <type name="BufferUsage" category="bitmask">
-      <value name="None" value="0"/>
-      <value name="CopySrc" bit="0"/>
-      <value name="CopyDst" bit="1"/>
-      <value name="ConstantBuffer" bit="4"/>
-      <value name="IndexBuffer" bit="6"/>
-      <value name="VertexBuffer" bit="7"/>
+    <type name="BufferUsage" category="bitmask" doc="Buffer usage flags.
+Determine how the buffer can be used throughout its lifetime.">
+      <value name="None" value="0" doc="No flags set. Buffer is not used."/>
+      <value name="CopySrc" bit="0" doc="Buffer is used as a source for copy operations."/>
+      <value name="CopyDst" bit="1" doc="Buffer is used as a destination for copy operations."/>
+      <value name="ConstantBuffer" bit="4" doc="Buffer is used as a constant buffer."/>
+      <value name="IndexBuffer" bit="6" doc="Buffer is used as an index buffer."/>
+      <value name="VertexBuffer" bit="7" doc="Buffer is used as a vertex buffer or an instance buffer."/>
     </type>
 
-    <type name="MemoryFlags" category="bitmask">
+    <type name="MemoryFlags" category="bitmask" doc="Memory flags.
+Determine optional properties of the memory allocation.">
       <impl_type for="vk" name="VmaAllocationCreateFlags"/>
       <impl_type for="dx" name="D3D12MA::ALLOCATION_FLAGS"/>
-      <value name="None" value="0"/>
-      <value name="DedicatedAllocation" bit="0">
+      <value name="None" value="0" doc="No flags set. Memory is regular."/>
+      <value name="DedicatedAllocation" bit="0" doc="Memory is dedicated. 
+Used for resources that require dedicated memory.
+Useful for big resources that are not shared with other resources. 
+E.g. fullscreen textures, big buffers, etc.">
         <impl name="vk" value="VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT"/>
         <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_COMMITTED"/>
       </value>
-      <value name="Mapped" bit="1">
+      <value name="Mapped" bit="1" doc="Memory is mapped.
+Used in combination with {MemoryType::Upload} or {MemoryType::Readback} to map memory for CPU access.">
         <impl name="vk" value="VMA_ALLOCATION_CREATE_MAPPED_BIT"/>
         <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_NONE"/>
       </value>
-      <value name="Exportable" bit="2"/>
+      <value name="Exportable" bit="2" doc="Memory is exportable.
+If set, memory can be exported to other processes or APIs.
+NOTE: Can't be used with {MemoryType::GPUUpload} on NVidia as of 9/7/2024. Bug was reported."/>
     </type>
 
-    <type name="BarrierSync" category="bitmask">
+    <type name="BarrierSync" category="bitmask" doc="Barrier synchronization flags.
+Used to synchronize resources between different stages of the pipeline.">
       <impl_type for="dx" name="D3D12_BARRIER_SYNC"/>
       <impl_type for="vk" name="VkPipelineStageFlags2"/>
-      <value name="None" value="0"/>
-      <value name="All" bit="0">
+      <value name="None" value="0" doc="No flags set. No synchronization is performed."/>
+      <value name="All" bit="0" doc="Synchronize all commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_ALL"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT"/>
       </value>
-      <value name="Draw" bit="1">
+      <value name="Draw" bit="1" doc="Synchronize draw commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_DRAW"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT|VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT|VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT|VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT"/>
       </value>
-      <value name="IndexInput" bit="2">
+      <value name="IndexInput" bit="2" doc="Synchronize index input commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_INDEX_INPUT"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT"/>
       </value>
-      <value name="VertexShading" bit="3">
+      <value name="VertexShading" bit="3" doc="Synchronize vertex shading commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_VERTEX_SHADING"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT"/>
       </value>
-      <value name="PixelShading" bit="4">
+      <value name="PixelShading" bit="4" doc="Synchronize pixel shading commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_PIXEL_SHADING"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT"/>
       </value>
-      <value name="DepthStencil" bit="5">
+      <value name="DepthStencil" bit="5" doc="Synchronize depth stencil commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_DEPTH_STENCIL"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT"/>
       </value>
-      <value name="RenderTarget" bit="6">
+      <value name="RenderTarget" bit="6" doc="Synchronize render target commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_RENDER_TARGET"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT"/>
       </value>
-      <value name="Compute" bit="7">
+      <value name="Compute" bit="7" doc="Synchronize compute commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_COMPUTE_SHADING"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
       </value>
-      <value name="Raytracing" bit="8">
+      <value name="Raytracing" bit="8" doc="Synchronize raytracing commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_RAYTRACING"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR"/>
       </value>
-      <value name="Copy" bit="9">
+      <value name="Copy" bit="9" doc="Synchronize copy commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_COPY"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_COPY_BIT"/>
       </value>
-      <value name="Resolve" bit="10">
+      <value name="Resolve" bit="10" doc="Synchronize resolve commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_RESOLVE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
       </value>
-      <value name="ExecuteIndirect" bit="11">
+      <value name="ExecuteIndirect" bit="11" doc="Synchronize execute indirect commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_EXECUTE_INDIRECT"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
       </value>
-      <value name="AllShading" bit="12">
+      <value name="AllShading" bit="12" doc="Synchronize all shading commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_ALL_SHADING"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
       </value>
-      <value name="NonPixelShading" bit="13">
+      <value name="NonPixelShading" bit="13" doc="Synchronize non-pixel shading commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_NON_PIXEL_SHADING"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
       </value>
-      <value name="ClearUAV" bit="14">
+      <value name="ClearUAV" bit="14" doc="Synchronize clear UAV commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT"/>
       </value>
-      <value name="VideoDecode" bit="15">
+      <value name="VideoDecode" bit="15" doc="Synchronize video decode commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_VIDEO_DECODE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR"/>
       </value>
-      <value name="VideoEncode" bit="16">
+      <value name="VideoEncode" bit="16" doc="Synchronize video encode commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_VIDEO_ENCODE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR"/>
       </value>
-      <value name="BuildRTAS" bit="17">
+      <value name="BuildRTAS" bit="17" doc="Synchronize build raytracing acceleration structure commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR"/>
       </value>
-      <value name="CopyRTAS" bit="18">
+      <value name="CopyRTAS" bit="18" doc="Synchronize copy raytracing acceleration structure commands.">
         <impl name="dx" value="D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE"/>
         <impl name="vk" value="VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR"/>
       </value>
     </type>
 
-    <type name="ResourceAccess" category="bitmask">
+    <type name="ResourceAccess" category="bitmask" doc="Resource access flags.
+Determine how resource will be accessed. Used in Barriers.">
       <impl_type for="dx" name="D3D12_BARRIER_ACCESS"/>
       <impl_type for="vk" name="VkAccessFlags2"/>
-      <value name="Common" value="0">
+      <value name="Common" value="0" doc="Common access. 
+Subresource data must be available for any layout-compatible access after a barrier.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COMMON"/>
         <impl name="vk" value="VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT"/>
       </value>
-      <value name="VertexBuffer" bit="0">
+      <value name="VertexBuffer" bit="0" doc="Vertex buffer access. Applies only to buffers.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VERTEX_BUFFER"/>
         <impl name="vk" value="VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT"/>
       </value>
-      <value name="ConstantBuffer" bit="1">
+      <value name="ConstantBuffer" bit="1" doc="Constant buffer access. Applies only to buffers.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_CONSTANT_BUFFER"/>
         <impl name="vk" value="VK_ACCESS_2_UNIFORM_READ_BIT"/>
       </value>
-      <value name="IndexBuffer" bit="2">
+      <value name="IndexBuffer" bit="2" doc="Index buffer access. Applies only to buffers.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_INDEX_BUFFER"/>
         <impl name="vk" value="VK_ACCESS_2_INDEX_READ_BIT"/>
       </value>
-      <value name="RenderTarget" bit="3">
+      <value name="RenderTarget" bit="3" doc="Render target access. Applies only to textures.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RENDER_TARGET"/>
         <impl name="vk" value="VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT"/>
       </value>
-      <value name="UnorderedAccess" bit="4">
+      <value name="UnorderedAccess" bit="4" doc="Unordered access access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_UNORDERED_ACCESS"/>
         <impl name="vk" value="VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
-      <value name="DepthWrite" bit="5">
+      <value name="DepthWrite" bit="5" doc="Depth write access. Applies only to DS textures.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT"/>
       </value>
-      <value name="DepthRead" bit="6">
+      <value name="DepthRead" bit="6" doc="Depth read access. Applies only to DS textures.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ"/>
         <impl name="vk" value="VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT"/>
       </value>
-      <value name="ShaderResource" bit="7">
+      <value name="ShaderResource" bit="7" doc="Shader resource access. Applies only to textures.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_SHADER_RESOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
-      <value name="StreamOutput" bit="8">
+      <value name="StreamOutput" bit="8" doc="Stream output access. Applies only to buffers. Reserved for extension.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_STREAM_OUTPUT"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT"/>
       </value>
-      <value name="IndirectArgument" bit="9">
+      <value name="IndirectArgument" bit="9" doc="Indirect argument access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT"/>
         <impl name="vk" value="VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
-      <value name="CopyDest" bit="10">
+      <value name="CopyDest" bit="10" doc="Copy destination access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_DEST"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT"/>
       </value>
-      <value name="CopySource" bit="11">
+      <value name="CopySource" bit="11" doc="Copy source access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT"/>
       </value>
-      <value name="ConditionalRendering" bit="12">
+      <value name="ConditionalRendering" bit="12" doc="Conditional rendering access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_PREDICATION"/>
         <impl name="vk" value="VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT"/>
       </value>
-      <value name="AccelerationStrucureRead" bit="13">
+      <value name="AccelerationStrucureRead" bit="13" doc="Acceleration structure read access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ"/>
         <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR"/>
       </value>
-      <value name="AccelerationStrucureWrite" bit="14">
+      <value name="AccelerationStrucureWrite" bit="14"  doc="Acceleration structure write access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR"/>
       </value>
-      <value name="ShadingRate" bit="15">
+      <value name="ShadingRate" bit="15" doc="Shading rate access. Used in variable shading rate.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR"/>
       </value>
-      <value name="VideoDecodeRead" bit="16">
+      <value name="VideoDecodeRead" bit="16" doc="Video decode read access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR"/>
       </value>
-      <value name="VideoDecodeWrite" bit="17">
+      <value name="VideoDecodeWrite" bit="17" doc="Video decode write access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
       </value>
-      <value name="Present" bit="18">
+      <value name="Present" bit="18" doc="Present access. Used fpr swapchain presentation.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
       </value>
-      <value name="ResolveDest" bit="19">
+      <value name="ResolveDest" bit="19" doc="Resolve destination access. Used in multisampling.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_DEST"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT"/>
       </value>
-      <value name="ResolveSource" bit="20">
+      <value name="ResolveSource" bit="20" doc="Resolve source access. Used in multisampling.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
-      <value name="NoAccess" bit="31">
+      <value name="NoAccess" bit="31" doc="No access. Used to indicate no access throughout pipeline.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_NO_ACCESS"/>
         <impl name="vk" value="VK_ACCESS_2_NONE"/>
       </value>
     </type>
 
-    <type name="RenderPassFlags" category="bitmask">
+    <type name="RenderPassFlags" category="bitmask" doc="Render pass flags.
+Set of flags that affect render pass behavior.
+More on render pass flags [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).">
       <impl_type for="vk" name="VkRenderingFlags"/>
       <impl_type for="dx" name="D3D12_RENDER_PASS_FLAGS"/>
-      <value name="None" value="0"/>
-      <value name="Suspending" bit="1">
+      <value name="None" value="0" doc="No flags set. Render pass is regular."/>
+      <value name="Suspending" bit="1" doc="Render pass is suspending.">
         <impl name="dx" value="D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS"/>
         <impl name="vk" value="VK_RENDERING_SUSPENDING_BIT"/>
       </value>
-      <value name="Resuming" bit="2">
+      <value name="Resuming" bit="2" doc="Render pass is resuming.">
         <impl name="dx" value="D3D12_RENDER_PASS_FLAG_RESUMING_PASS"/>
         <impl name="vk" value="VK_RENDERING_RESUMING_BIT"/>
       </value>
     </type>
 
-    <type name="TextureUsage" category="bitmask">
+    <type name="TextureUsage" category="bitmask" doc="Texture usage flags.
+Determine how the texture can be used throughout its lifetime.">
       <impl_type for="dx" name="D3D12_RESOURCE_FLAGS"/>
       <impl_type for="vk" name="VkImageUsageFlags"/>
-      <value name="None" value="0">
+      <value name="None" value="0" doc="No flags set. Texture is not used.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
       </value>
-      <value name="RenderTarget" bit="0">
+      <value name="RenderTarget" bit="0" doc="Texture is used as a render target.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET"/>
         <impl name="vk" value="VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT"/>
       </value>
-      <value name="DepthStencil" bit="1">
+      <value name="DepthStencil" bit="1" doc="Texture is used as a depth stencil buffer.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL"/>
         <impl name="vk" value="VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT"/>
       </value>
-      <value name="CopySrc" bit="2">
+      <value name="CopySrc" bit="2" doc="Texture is used as a source for copy operations.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
         <impl name="vk" value="VK_IMAGE_USAGE_TRANSFER_SRC_BIT"/>
       </value>
-      <value name="CopyDst" bit="3">
+      <value name="CopyDst" bit="3" doc="Texture is used as a destination for copy operations.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
         <impl name="vk" value="VK_IMAGE_USAGE_TRANSFER_DST_BIT"/>
       </value>
-      <value name="ShaderResource" bit="4">
+      <value name="ShaderResource" bit="4" doc="Texture is used as a shader resource.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
         <impl name="vk" value="VK_IMAGE_USAGE_SAMPLED_BIT"/>
       </value>
-      <value name="UnorderedAccess" bit="5">
+      <value name="UnorderedAccess" bit="5" doc="Texture is used as an unordered access resource.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS"/>
         <impl name="vk" value="VK_IMAGE_USAGE_STORAGE_BIT"/>
       </value>
-      <value name="HostCopy" bit="7">
+      <value name="HostCopy" bit="7" doc="Texture is used for host copy operations. Works with ExtendedAllocation extension.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
         <impl name="vk" value="VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT"/>
       </value>

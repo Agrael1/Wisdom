@@ -88,13 +88,17 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
     CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
+
+    // returns true only for now
+    [[nodiscard]] WIS_INLINE bool
+    QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
-DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept;
+DX12CreateDevice(wis::DX12AdapterHandle adapter, bool force = false) noexcept;
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
-DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept;
+DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force = false) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

@@ -11,12 +11,12 @@
 #include <numeric>
 
 wis::ResultValue<wis::DX12Device>
-wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
+wis::DX12CreateDevice(wis::DX12AdapterHandle adapter, bool force) noexcept
 {
-    return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0);
+    return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0, force);
 }
 
-wis::ResultValue<wis::DX12Device> wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept
+wis::ResultValue<wis::DX12Device> wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
 {
     auto in_adapter = std::get<0>(adapter);
 
@@ -611,4 +611,26 @@ wis::DX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResour
     device->CreateDescriptorHeap(&heap_desc, heap.iid(), heap.put_void());
     device->CreateShaderResourceView(std::get<0>(texture), &srv_desc, heap->GetCPUDescriptorHandleForHeapStart());
     return wis::DX12ShaderResource{ std::move(heap) };
+}
+
+bool wis::DX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
+{
+    switch (feature) {
+    case wis::DeviceFeature::EnchancedBarriers:
+    {
+        D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
+        bool EnhancedBarriersSupported = false;
+        if (wis::succeeded(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)))) {
+            EnhancedBarriersSupported = options12.EnhancedBarriersSupported;
+        }
+        return EnhancedBarriersSupported;
+    }
+    case wis::DeviceFeature::DescriptorBuffer:
+    case wis::DeviceFeature::WaitForPresent:
+    case wis::DeviceFeature::DescriptorEqualSize:
+    case wis::DeviceFeature::AdvancedIndexBuffer:
+        return true;
+    default:
+        return false;
+    }
 }

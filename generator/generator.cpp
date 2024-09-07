@@ -749,11 +749,16 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
     if (auto* size = type.FindAttribute("type"))
         ref.type = size->Value();
 
+    if (auto* size = type.FindAttribute("doc"))
+        ref.doc = size->Value();
+
     for (auto* impl_type = type.FirstChildElement("impl_type"); impl_type;
          impl_type = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for = impl_type->FindAttribute("for")->Value();
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
+
+        ref.doc_translates += wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
 
         std::string_view def_value = "{}";
         if (auto xdefault = impl_type->FindAttribute("default"))
@@ -781,6 +786,9 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
 
         auto* value = member->FindAttribute("value");
         auto* bit = member->FindAttribute("bit");
+
+        if (auto* doc = member->FindAttribute("doc"))
+            m.doc = doc->Value();
 
         if (value) {
             m.value = std::stoull(value->Value());
@@ -1162,10 +1170,32 @@ std::string Generator::MakeCBitmask(const WisBitmask& s)
     auto full_name = GetCFullTypename(s.name, "");
     std::string st_decl = wis::format("enum {}Bits {{\n", full_name);
 
+    if (!s.doc.empty()) {
+        std::string documentation = wis::format("/**\n@brief {}\n\n{}*/", s.doc, s.doc_translates);
+        ReplaceAll(documentation, "\n", "\n * ");
+        st_decl = wis::format("{}\n{}", FinalizeCDocumentation(documentation, s.name), st_decl);
+    }
+
     for (auto& m : s.values) {
-        st_decl += m.type == WisBitmaskValue::Type::Value
-                ? wis::format("    {}{}{} = 0x{:X},\n", s.name, impls[+m.impl], m.name, m.value)
-                : wis::format("    {}{}{} = 1 << {},\n", s.name, impls[+m.impl], m.name, m.bit);
+        std::string documentation;
+        bool pre_doc = false;
+        if (!m.doc.empty()) {
+            if (m.doc.find('\n') != std::string_view::npos) {
+                pre_doc = true;
+                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+            } else {
+                documentation = wis::format(" ///< {}", m.doc);
+            }
+            documentation = FinalizeCDocumentation(documentation, s.name);
+        }
+        std::string val_str = m.type == WisBitmaskValue::Type::Value
+                ? wis::format("    {}{}{} = 0x{:X},", s.name, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{}{} = 1 << {},", s.name, impls[+m.impl], m.name, m.bit);
+
+        st_decl += pre_doc
+                ? wis::format("    {}\n    {}\n", documentation, val_str)
+                : wis::format("{}{}\n", val_str, documentation);
     }
     st_decl += "};\n\n";
     return st_decl;
@@ -1177,10 +1207,33 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
             !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
                             : wis::format("enum class {} {{\n", s.name);
 
+    if (!s.doc.empty()) {
+        std::string documentation = wis::format("/**\n@brief {}\n\n{}*/", s.doc, s.doc_translates);
+        ReplaceAll(documentation, "\n", "\n * ");
+        st_decl = wis::format("{}\n{}", FinalizeCPPDocumentation(documentation, s.name), st_decl);
+    }
+
     for (auto& m : s.values) {
-        st_decl += m.type == WisBitmaskValue::Type::Value
-                ? wis::format("    {}{} = 0x{:X},\n", impls[+m.impl], m.name, m.value)
-                : wis::format("    {}{} = 1 << {},\n", impls[+m.impl], m.name, m.bit);
+        std::string documentation;
+        bool pre_doc = false;
+        if (!m.doc.empty()) {
+            if (m.doc.find('\n') != std::string_view::npos) {
+                pre_doc = true;
+                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+            } else {
+                documentation = wis::format(" ///< {}", m.doc);
+            }
+            documentation = FinalizeCPPDocumentation(documentation, s.name);
+        }
+
+        auto val_str = m.type == WisBitmaskValue::Type::Value
+                ? wis::format("    {}{} = 0x{:X},", impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{} = 1 << {},", impls[+m.impl], m.name, m.bit);
+
+        st_decl += pre_doc
+                ? wis::format("    {}\n    {}\n", documentation, val_str)
+                : wis::format("{}{}\n", val_str, documentation);
     }
 
     st_decl += "};\n\n";

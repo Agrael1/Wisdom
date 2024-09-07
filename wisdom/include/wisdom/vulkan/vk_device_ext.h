@@ -48,9 +48,9 @@ struct XInternalFeatures {
     bool descriptor_buffer : 1 = false;
     bool synchronization_2 : 1 = false;
     bool swapchain : 1 = false;
-    bool present_wait : 1 = false;
 
     // Optional features
+    bool present_wait : 1 = false;
     bool has_custom_border_color : 1 = false;
     bool extended_dynamic_state : 1 = false;
     bool mutable_descriptor : 1 = false;

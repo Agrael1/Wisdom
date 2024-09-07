@@ -51,7 +51,7 @@ public:
 class VKDevice : public QueryInternal<VKDevice>
 {
     friend wis::ResultValue<wis::VKDevice>
-    VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept;
+    VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
 
 public:
     VKDevice() noexcept = default;
@@ -128,6 +128,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
     CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
 
+    [[nodiscard]] WIS_INLINE bool
+    QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue) const noexcept;
@@ -155,10 +158,10 @@ private:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
+VKCreateDevice(wis::VKAdapter in_adapter, bool force = false) noexcept;
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept;
+VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force = false) noexcept;
 
 } // namespace wis
 

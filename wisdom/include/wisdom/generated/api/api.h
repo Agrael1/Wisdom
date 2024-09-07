@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.3</b>
+<b>Version 0.2.4</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1048,6 +1048,41 @@ enum class TopologyType : uint32_t {
 };
 
 /**
+ * @brief Features that device may support.
+ * Query by calling with Device::QueryFeatureSupport. Contains core features with optional ones.
+ *
+ * */
+enum class DeviceFeature : uint32_t {
+    /**
+     * @brief Core Functionality. Descriptor buffer support for VK, always true for DX12.
+     * Vulkan provides DescriptorPool and DescriptorSet functionalities, that have to be used manually through library internals.
+     * */
+    DescriptorBuffer = 0,
+    /**
+     * @brief Core Functionality. Supports enhanced barriers. Support for VK and DX12.
+     * Used in all barriers to provide more control over synchronization. Without the feature behavior is undefined.
+     * To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals.
+     * Vulkan will not work, as half of current functionality depends on VK_KHR_synchronization2.
+     * */
+    EnchancedBarriers = 1,
+    /**
+     * @brief Supports waiting for present to finish. Support for VK, always true for DX12.
+     * Unlocks Swapchain::WaitForPresent.
+     * */
+    WaitForPresent = 2,
+    /**
+     * @brief Descriptor size for SRV UAV and CBV are equal in size, support for VK, always true for DX12.
+     * Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined.
+     * */
+    DescriptorEqualSize = 3,
+    /**
+     * @brief Supports advanced index buffer features. Support for VK, always true for DX12.
+     * Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined.
+     * */
+    AdvancedIndexBuffer = 4,
+};
+
+/**
  * @brief Filtering mode for texture sampling.
  *
  * Translates to VkFilter for vk implementation.
@@ -1107,6 +1142,7 @@ enum class ComponentSwizzle : uint32_t {
 
 /**
  * @brief Index type for index buffer.
+ * Enum values resemble the byte stride of the format.
  *
  * Translates to DXGI_FORMAT for dx implementation.
  * Translates to VkIndexType for vk implementation.
@@ -1116,112 +1152,182 @@ enum class IndexType : uint32_t {
     UInt32 = 4, ///< 32-bit unsigned integer index type.
 };
 
+/**
+ * @brief Flags that describe adapter.
+ *
+ * */
 enum class AdapterFlags {
-    None = 0x0,
-    Remote = 1 << 0,
-    Software = 1 << 1,
-    DX12ACGCompatible = 1 << 2,
-    DX12SupportsMonitoredFences = 1 << 3,
-    DX12SupportsNonMonitoredFences = 1 << 4,
-    DX12KeyedMutexConformance = 1 << 5,
+    None = 0x0, ///< No flags set. Adapter may be descrete or embedded.
+    Remote = 1 << 0, ///< Adapter is remote. Used for remote rendering.
+    Software = 1 << 1, ///< Adapter is software. Used for software rendering.
 };
 
+/**
+ * @brief Depth stencil select flags.
+ * Affect which part of the depth stencil buffer is used.
+ *
+ * */
 enum class DSSelect {
-    None = 0x0,
-    Depth = 1 << 0,
-    Stencil = 1 << 1,
-    DepthStencil = 0x3,
+    None = 0x0, ///< No flags set. Depth stencil buffer is not used.
+    Depth = 1 << 0, ///< Use depth part of the depth stencil buffer.
+    Stencil = 1 << 1, ///< Use stencil part of the depth stencil buffer.
+    DepthStencil = 0x3, ///< Use both depth and stencil parts of the depth stencil buffer.
 };
 
+/**
+ * @brief Color component flags.
+ * Used for color blending operations.
+ *
+ * */
 enum class ColorComponents {
-    None = 0x0,
-    R = 1 << 0,
-    G = 1 << 1,
-    B = 1 << 2,
-    A = 1 << 3,
-    All = 0xF,
+    None = 0x0, ///< No flags set. Color blending is not used.
+    R = 1 << 0, ///< Use red component for blending.
+    G = 1 << 1, ///< Use green component for blending.
+    B = 1 << 2, ///< Use blue component for blending.
+    A = 1 << 3, ///< Use alpha component for blending.
+    All = 0xF, ///< Use all color components for blending.
 };
 
+/**
+ * @brief Buffer usage flags.
+ * Determine how the buffer can be used throughout its lifetime.
+ *
+ * */
 enum class BufferUsage {
-    None = 0x0,
-    CopySrc = 1 << 0,
-    CopyDst = 1 << 1,
-    ConstantBuffer = 1 << 4,
-    IndexBuffer = 1 << 6,
-    VertexBuffer = 1 << 7,
+    None = 0x0, ///< No flags set. Buffer is not used.
+    CopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
+    CopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
+    ConstantBuffer = 1 << 4, ///< Buffer is used as a constant buffer.
+    IndexBuffer = 1 << 6, ///< Buffer is used as an index buffer.
+    VertexBuffer = 1 << 7, ///< Buffer is used as a vertex buffer or an instance buffer.
 };
 
+/**
+ * @brief Memory flags.
+ * Determine optional properties of the memory allocation.
+ *
+ * Translates to VmaAllocationCreateFlags for vk implementation.
+ * Translates to D3D12MA::ALLOCATION_FLAGS for dx implementation.
+ * */
 enum class MemoryFlags {
-    None = 0x0,
+    None = 0x0, ///< No flags set. Memory is regular.
+    /**
+     * @brief Memory is dedicated.
+     * Used for resources that require dedicated memory.
+     * Useful for big resources that are not shared with other resources.
+     * E.g. fullscreen textures, big buffers, etc.
+     * */
     DedicatedAllocation = 1 << 0,
+    /**
+     * @brief Memory is mapped.
+     * Used in combination with wis::MemoryType::Upload or wis::MemoryType::Readback to map memory for CPU access.
+     * */
     Mapped = 1 << 1,
+    /**
+     * @brief Memory is exportable.
+     * If set, memory can be exported to other processes or APIs.
+     * NOTE: Can't be used with wis::MemoryType::GPUUpload on NVidia as of 9/7/2024. Bug was reported.
+     * */
     Exportable = 1 << 2,
 };
 
+/**
+ * @brief Render pass flags.
+ * Set of flags that affect render pass behavior.
+ * More on render pass flags [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
+ *
+ * Translates to VkRenderingFlags for vk implementation.
+ * Translates to D3D12_RENDER_PASS_FLAGS for dx implementation.
+ * */
 enum class RenderPassFlags {
-    None = 0x0,
-    Suspending = 1 << 1,
-    Resuming = 1 << 2,
+    None = 0x0, ///< No flags set. Render pass is regular.
+    Suspending = 1 << 1, ///< Render pass is suspending.
+    Resuming = 1 << 2, ///< Render pass is resuming.
 };
 
+/**
+ * @brief Barrier synchronization flags.
+ * Used to synchronize resources between different stages of the pipeline.
+ *
+ * Translates to D3D12_BARRIER_SYNC for dx implementation.
+ * Translates to VkPipelineStageFlags2 for vk implementation.
+ * */
 enum class BarrierSync {
-    None = 0x0,
-    All = 1 << 0,
-    Draw = 1 << 1,
-    IndexInput = 1 << 2,
-    VertexShading = 1 << 3,
-    PixelShading = 1 << 4,
-    DepthStencil = 1 << 5,
-    RenderTarget = 1 << 6,
-    Compute = 1 << 7,
-    Raytracing = 1 << 8,
-    Copy = 1 << 9,
-    Resolve = 1 << 10,
-    ExecuteIndirect = 1 << 11,
-    AllShading = 1 << 12,
-    NonPixelShading = 1 << 13,
-    ClearUAV = 1 << 14,
-    VideoDecode = 1 << 15,
-    VideoEncode = 1 << 16,
-    BuildRTAS = 1 << 17,
-    CopyRTAS = 1 << 18,
+    None = 0x0, ///< No flags set. No synchronization is performed.
+    All = 1 << 0, ///< Synchronize all commands.
+    Draw = 1 << 1, ///< Synchronize draw commands.
+    IndexInput = 1 << 2, ///< Synchronize index input commands.
+    VertexShading = 1 << 3, ///< Synchronize vertex shading commands.
+    PixelShading = 1 << 4, ///< Synchronize pixel shading commands.
+    DepthStencil = 1 << 5, ///< Synchronize depth stencil commands.
+    RenderTarget = 1 << 6, ///< Synchronize render target commands.
+    Compute = 1 << 7, ///< Synchronize compute commands.
+    Raytracing = 1 << 8, ///< Synchronize raytracing commands.
+    Copy = 1 << 9, ///< Synchronize copy commands.
+    Resolve = 1 << 10, ///< Synchronize resolve commands.
+    ExecuteIndirect = 1 << 11, ///< Synchronize execute indirect commands.
+    AllShading = 1 << 12, ///< Synchronize all shading commands.
+    NonPixelShading = 1 << 13, ///< Synchronize non-pixel shading commands.
+    ClearUAV = 1 << 14, ///< Synchronize clear UAV commands.
+    VideoDecode = 1 << 15, ///< Synchronize video decode commands.
+    VideoEncode = 1 << 16, ///< Synchronize video encode commands.
+    BuildRTAS = 1 << 17, ///< Synchronize build raytracing acceleration structure commands.
+    CopyRTAS = 1 << 18, ///< Synchronize copy raytracing acceleration structure commands.
 };
 
+/**
+ * @brief Resource access flags.
+ * Determine how resource will be accessed. Used in Barriers.
+ *
+ * Translates to D3D12_BARRIER_ACCESS for dx implementation.
+ * Translates to VkAccessFlags2 for vk implementation.
+ * */
 enum class ResourceAccess {
+    /**
+     * @brief Common access.
+     * Subresource data must be available for any layout-compatible access after a barrier.
+     * */
     Common = 0x0,
-    VertexBuffer = 1 << 0,
-    ConstantBuffer = 1 << 1,
-    IndexBuffer = 1 << 2,
-    RenderTarget = 1 << 3,
-    UnorderedAccess = 1 << 4,
-    DepthWrite = 1 << 5,
-    DepthRead = 1 << 6,
-    ShaderResource = 1 << 7,
-    StreamOutput = 1 << 8,
-    IndirectArgument = 1 << 9,
-    CopyDest = 1 << 10,
-    CopySource = 1 << 11,
-    ConditionalRendering = 1 << 12,
-    AccelerationStrucureRead = 1 << 13,
-    AccelerationStrucureWrite = 1 << 14,
-    ShadingRate = 1 << 15,
-    VideoDecodeRead = 1 << 16,
-    VideoDecodeWrite = 1 << 17,
-    Present = 1 << 18,
-    ResolveDest = 1 << 19,
-    ResolveSource = 1 << 20,
-    NoAccess = 1 << 31,
+    VertexBuffer = 1 << 0, ///< Vertex buffer access. Applies only to buffers.
+    ConstantBuffer = 1 << 1, ///< Constant buffer access. Applies only to buffers.
+    IndexBuffer = 1 << 2, ///< Index buffer access. Applies only to buffers.
+    RenderTarget = 1 << 3, ///< Render target access. Applies only to textures.
+    UnorderedAccess = 1 << 4, ///< Unordered access access.
+    DepthWrite = 1 << 5, ///< Depth write access. Applies only to DS textures.
+    DepthRead = 1 << 6, ///< Depth read access. Applies only to DS textures.
+    ShaderResource = 1 << 7, ///< Shader resource access. Applies only to textures.
+    StreamOutput = 1 << 8, ///< Stream output access. Applies only to buffers. Reserved for extension.
+    IndirectArgument = 1 << 9, ///< Indirect argument access.
+    CopyDest = 1 << 10, ///< Copy destination access.
+    CopySource = 1 << 11, ///< Copy source access.
+    ConditionalRendering = 1 << 12, ///< Conditional rendering access.
+    AccelerationStrucureRead = 1 << 13, ///< Acceleration structure read access.
+    AccelerationStrucureWrite = 1 << 14, ///< Acceleration structure write access.
+    ShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
+    VideoDecodeRead = 1 << 16, ///< Video decode read access.
+    VideoDecodeWrite = 1 << 17, ///< Video decode write access.
+    Present = 1 << 18, ///< Present access. Used fpr swapchain presentation.
+    ResolveDest = 1 << 19, ///< Resolve destination access. Used in multisampling.
+    ResolveSource = 1 << 20, ///< Resolve source access. Used in multisampling.
+    NoAccess = 1 << 31, ///< No access. Used to indicate no access throughout pipeline.
 };
 
+/**
+ * @brief Texture usage flags.
+ * Determine how the texture can be used throughout its lifetime.
+ *
+ * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
+ * Translates to VkImageUsageFlags for vk implementation.
+ * */
 enum class TextureUsage {
-    None = 0x0,
-    RenderTarget = 1 << 0,
-    DepthStencil = 1 << 1,
-    CopySrc = 1 << 2,
-    CopyDst = 1 << 3,
-    ShaderResource = 1 << 4,
-    UnorderedAccess = 1 << 5,
-    HostCopy = 1 << 7,
+    None = 0x0, ///< No flags set. Texture is not used.
+    RenderTarget = 1 << 0, ///< Texture is used as a render target.
+    DepthStencil = 1 << 1, ///< Texture is used as a depth stencil buffer.
+    CopySrc = 1 << 2, ///< Texture is used as a source for copy operations.
+    CopyDst = 1 << 3, ///< Texture is used as a destination for copy operations.
+    ShaderResource = 1 << 4, ///< Texture is used as a shader resource.
+    UnorderedAccess = 1 << 5, ///< Texture is used as an unordered access resource.
+    HostCopy = 1 << 7, ///< Texture is used for host copy operations. Works with ExtendedAllocation extension.
 };
 
 struct Result {
