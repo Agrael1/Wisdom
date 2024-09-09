@@ -28,6 +28,64 @@
     <handle name="DeviceExtension"/>
   </handles>
 
+  <!--Views-->
+  <type name="FenceView" category="variant" for="Fence">
+    <impl name="both">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+  </type>
+  <type name="BufferView" category="variant" for="Buffer">
+    <impl name="both">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+  </type>
+  <type name="TextureView" category="variant" for="Texture">
+    <impl name="dx">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+    <impl name="vk">
+      <member type="void" name="value" mod="ptr"/>
+      <member type="u32" name="value2"/>
+      <member type="Size2D" name="value3"/>
+    </impl>
+  </type>
+  <type name="RenderTargetView" category="variant" for="RenderTarget">
+    <impl name="both">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+  </type>
+  <type name="CommandListView" category="variant" for="CommandList">
+    <impl name="both">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+  </type>
+  <type name="ShaderView" category="variant" for="Shader">
+    <impl name="dx">
+      <member type="void" name="bytecode" mod="ptr"/>
+      <member type="u32" name="size_bytes"/>
+    </impl>
+    <impl name="vk">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+  </type>
+  <type name="RootSignatureView" category="variant" for="RootSignature">
+    <impl name="dx">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+    <impl name="vk">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+  </type>
+  <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer">
+    <impl name="dx">
+      <member type="void" name="value" mod="ptr"/>
+    </impl>
+    <impl name="vk">
+      <member type="u64" name="value1"/>
+      <member type="u32" name="value2"/>
+    </impl>
+  </type>
+
   <functions>
     <func for="Factory" name="Destroy"/>
     <func for="Adapter" name="Destroy"/>
