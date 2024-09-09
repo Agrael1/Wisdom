@@ -4,65 +4,89 @@
 #include <wisdom/util/flags.h>
 
 namespace wis {
+/**
+ * @brief Variant of BufferBarrier with BufferView.
+ * */
 struct VKBufferBarrier2 {
-    wis::BufferBarrier barrier;
-    wis::VKBufferView buffer;
+    wis::BufferBarrier barrier; ///< Buffer barrier.
+    wis::VKBufferView buffer; ///< Buffer view.
 };
 
+/**
+ * @brief Variant of TextureBarrier with TextureView.
+ * */
 struct VKTextureBarrier2 {
-    wis::TextureBarrier barrier;
-    wis::VKTextureView texture;
+    wis::TextureBarrier barrier; ///< Texture barrier.
+    wis::VKTextureView texture; ///< Texture view.
 };
 
+/**
+ * @brief Variant of ShaderView for all graphics stages.
+ * */
 struct VKGraphicsShaderStages {
-    wis::VKShaderView vertex;
-    wis::VKShaderView hull;
-    wis::VKShaderView domain;
-    wis::VKShaderView geometry;
-    wis::VKShaderView pixel;
+    wis::VKShaderView vertex; ///< Vertex shader.
+    wis::VKShaderView hull; ///< Hull shader.
+    wis::VKShaderView domain; ///< Domain shader.
+    wis::VKShaderView geometry; ///< Geometry shader.
+    wis::VKShaderView pixel; ///< Pixel shader.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for graphics pipeline.
+ * */
 struct VKGraphicsPipelineDesc {
-    wis::VKRootSignatureView root_signature;
-    wis::InputLayout input_layout;
-    wis::VKGraphicsShaderStages shaders;
-    wis::RenderAttachmentsDesc attachments;
-    wis::RasterizerDesc* rasterizer = nullptr;
-    wis::SampleDesc* sample = nullptr;
-    wis::BlendStateDesc* blend = nullptr;
-    wis::DepthStencilDesc* depth_stencil = nullptr;
-    wis::TopologyType topology_type = wis::TopologyType::Triangle;
+    wis::VKRootSignatureView root_signature; ///< Root signature.
+    wis::InputLayout* input_layout; ///< Input layout.
+    wis::VKGraphicsShaderStages shaders; ///< Shader stages.
+    wis::RenderAttachmentsDesc attachments; ///< Render attachments.
+    wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
+    wis::SampleDesc* sample = nullptr; ///< Sample description.
+    wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
+    wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for render target.
+ * */
 struct VKRenderPassRenderTargetDesc {
-    wis::VKRenderTargetView target;
-    wis::LoadOperation load_op = wis::LoadOperation::Load;
-    wis::StoreOperation store_op = wis::StoreOperation::Store;
-    std::array<float, 4> clear_value{};
+    wis::VKRenderTargetView target; ///< Render target view.
+    wis::LoadOperation load_op = wis::LoadOperation::Load; ///< Load operation on beginning of render pass. Default is wis::LoadOperation::Load.
+    wis::StoreOperation store_op = wis::StoreOperation::Store; ///< Store operation on end of render pass. Default is wis::StoreOperation::Store.
+    std::array<float, 4> clear_value{}; ///< Clear value for wis::LoadOperation::Clear.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for depth stencil.
+ * */
 struct VKRenderPassDepthStencilDesc {
-    wis::VKRenderTargetView target;
-    wis::LoadOperation load_op_depth = wis::LoadOperation::Load;
-    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load;
-    wis::StoreOperation store_op_depth = wis::StoreOperation::Store;
-    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store;
-    wis::DSSelect depth_stencil_select = wis::DSSelect::None;
-    float clear_depth;
-    uint8_t clear_stencil;
+    wis::VKRenderTargetView target; ///< Depth stencil view.
+    wis::LoadOperation load_op_depth = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for depth. Default is wis::LoadOperation::Load.
+    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for stencil. Default is wis::LoadOperation::Load.
+    wis::StoreOperation store_op_depth = wis::StoreOperation::Store; ///< Store operation on end of render pass for depth. Default is wis::StoreOperation::Store.
+    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store; ///< Store operation on end of render pass for stencil. Default is wis::StoreOperation::Store.
+    wis::DSSelect depth_stencil_select = wis::DSSelect::None; ///< Depth stencil select. Default is wis::DSSelect::None.
+    float clear_depth = 1.0f; ///< Clear depth value for wis::LoadOperation::Clear. Default is 1.0f.
+    uint8_t clear_stencil = 0; ///< Clear stencil value for wis::LoadOperation::Clear. Default is 0.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for render pass.
+ * */
 struct VKRenderPassDesc {
-    wis::RenderPassFlags flags;
-    uint32_t target_count;
-    wis::VKRenderPassRenderTargetDesc* targets = nullptr;
-    wis::VKRenderPassDepthStencilDesc* depth_stencil;
+    wis::RenderPassFlags flags; ///< Render pass flags.
+    uint32_t target_count; ///< Render target count.
+    wis::VKRenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    wis::VKRenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 
+/**
+ * @brief Variant of BufferView for vertex buffer binding.
+ * */
 struct VKVertexBufferBinding {
-    wis::VKBufferView buffer;
-    uint32_t size;
-    uint32_t stride;
+    wis::VKBufferView buffer; ///< Buffer view.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
 };
 
 inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept

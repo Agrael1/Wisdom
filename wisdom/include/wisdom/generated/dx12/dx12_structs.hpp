@@ -5,65 +5,89 @@
 #include <D3D12MemAlloc.h>
 
 namespace wis {
+/**
+ * @brief Variant of BufferBarrier with BufferView.
+ * */
 struct DX12BufferBarrier2 {
-    wis::BufferBarrier barrier;
-    wis::DX12BufferView buffer;
+    wis::BufferBarrier barrier; ///< Buffer barrier.
+    wis::DX12BufferView buffer; ///< Buffer view.
 };
 
+/**
+ * @brief Variant of TextureBarrier with TextureView.
+ * */
 struct DX12TextureBarrier2 {
-    wis::TextureBarrier barrier;
-    wis::DX12TextureView texture;
+    wis::TextureBarrier barrier; ///< Texture barrier.
+    wis::DX12TextureView texture; ///< Texture view.
 };
 
+/**
+ * @brief Variant of ShaderView for all graphics stages.
+ * */
 struct DX12GraphicsShaderStages {
-    wis::DX12ShaderView vertex;
-    wis::DX12ShaderView hull;
-    wis::DX12ShaderView domain;
-    wis::DX12ShaderView geometry;
-    wis::DX12ShaderView pixel;
+    wis::DX12ShaderView vertex; ///< Vertex shader.
+    wis::DX12ShaderView hull; ///< Hull shader.
+    wis::DX12ShaderView domain; ///< Domain shader.
+    wis::DX12ShaderView geometry; ///< Geometry shader.
+    wis::DX12ShaderView pixel; ///< Pixel shader.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for graphics pipeline.
+ * */
 struct DX12GraphicsPipelineDesc {
-    wis::DX12RootSignatureView root_signature;
-    wis::InputLayout input_layout;
-    wis::DX12GraphicsShaderStages shaders;
-    wis::RenderAttachmentsDesc attachments;
-    wis::RasterizerDesc* rasterizer = nullptr;
-    wis::SampleDesc* sample = nullptr;
-    wis::BlendStateDesc* blend = nullptr;
-    wis::DepthStencilDesc* depth_stencil = nullptr;
-    wis::TopologyType topology_type = wis::TopologyType::Triangle;
+    wis::DX12RootSignatureView root_signature; ///< Root signature.
+    wis::InputLayout* input_layout; ///< Input layout.
+    wis::DX12GraphicsShaderStages shaders; ///< Shader stages.
+    wis::RenderAttachmentsDesc attachments; ///< Render attachments.
+    wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
+    wis::SampleDesc* sample = nullptr; ///< Sample description.
+    wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
+    wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for render target.
+ * */
 struct DX12RenderPassRenderTargetDesc {
-    wis::DX12RenderTargetView target;
-    wis::LoadOperation load_op = wis::LoadOperation::Load;
-    wis::StoreOperation store_op = wis::StoreOperation::Store;
-    std::array<float, 4> clear_value{};
+    wis::DX12RenderTargetView target; ///< Render target view.
+    wis::LoadOperation load_op = wis::LoadOperation::Load; ///< Load operation on beginning of render pass. Default is wis::LoadOperation::Load.
+    wis::StoreOperation store_op = wis::StoreOperation::Store; ///< Store operation on end of render pass. Default is wis::StoreOperation::Store.
+    std::array<float, 4> clear_value{}; ///< Clear value for wis::LoadOperation::Clear.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for depth stencil.
+ * */
 struct DX12RenderPassDepthStencilDesc {
-    wis::DX12RenderTargetView target;
-    wis::LoadOperation load_op_depth = wis::LoadOperation::Load;
-    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load;
-    wis::StoreOperation store_op_depth = wis::StoreOperation::Store;
-    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store;
-    wis::DSSelect depth_stencil_select = wis::DSSelect::None;
-    float clear_depth;
-    uint8_t clear_stencil;
+    wis::DX12RenderTargetView target; ///< Depth stencil view.
+    wis::LoadOperation load_op_depth = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for depth. Default is wis::LoadOperation::Load.
+    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for stencil. Default is wis::LoadOperation::Load.
+    wis::StoreOperation store_op_depth = wis::StoreOperation::Store; ///< Store operation on end of render pass for depth. Default is wis::StoreOperation::Store.
+    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store; ///< Store operation on end of render pass for stencil. Default is wis::StoreOperation::Store.
+    wis::DSSelect depth_stencil_select = wis::DSSelect::None; ///< Depth stencil select. Default is wis::DSSelect::None.
+    float clear_depth = 1.0f; ///< Clear depth value for wis::LoadOperation::Clear. Default is 1.0f.
+    uint8_t clear_stencil = 0; ///< Clear stencil value for wis::LoadOperation::Clear. Default is 0.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for render pass.
+ * */
 struct DX12RenderPassDesc {
-    wis::RenderPassFlags flags;
-    uint32_t target_count;
-    wis::DX12RenderPassRenderTargetDesc* targets = nullptr;
-    wis::DX12RenderPassDepthStencilDesc* depth_stencil;
+    wis::RenderPassFlags flags; ///< Render pass flags.
+    uint32_t target_count; ///< Render target count.
+    wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 
+/**
+ * @brief Variant of BufferView for vertex buffer binding.
+ * */
 struct DX12VertexBufferBinding {
-    wis::DX12BufferView buffer;
-    uint32_t size;
-    uint32_t stride;
+    wis::DX12BufferView buffer; ///< Buffer view.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
 };
 
 inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept

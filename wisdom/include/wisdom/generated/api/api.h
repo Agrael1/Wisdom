@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.4</b>
+<b>Version 0.2.5</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1330,163 +1330,239 @@ enum class TextureUsage {
     HostCopy = 1 << 7, ///< Texture is used for host copy operations. Works with ExtendedAllocation extension.
 };
 
+/**
+ * @brief Main source of communication of operation success.
+ * To check for success compare wis::Result::status with wis::Status::Ok.
+ * If there is any error there is  string which is compile-time.
+ * It communicates the source of problems even in Release mode.
+ * The string contains function name and error message.
+ * */
 struct Result {
-    wis::Status status = wis::Status::Ok;
-    const char* error = nullptr;
+    wis::Status status = wis::Status::Ok; ///< Operation status. Compare with wis::Status::Ok
+    const char* error = nullptr; ///< Error message. nullptr or 'Operation Succeeded.' if no error.
 };
 
+/**
+ * @brief 2D unsigned size.
+ * */
 struct Size2D {
     uint32_t width;
     uint32_t height;
 };
 
+/**
+ * @brief 3D unsigned size.
+ * */
 struct Size3D {
     uint32_t width;
     uint32_t height;
-    uint32_t depth_or_layers;
+    uint32_t depth_or_layers; ///< Depth for 3D textures, layers for 2D arrays
 };
 
+/**
+ * @brief Buffer region for copy operations.
+ * */
 struct BufferRegion {
-    uint64_t src_offset = 0;
-    uint64_t dst_offset = 0;
-    uint64_t size_bytes;
+    uint64_t src_offset = 0; ///< Source offset in bytes. Default is 0.
+    uint64_t dst_offset = 0; ///< Destination offset in bytes. Default is 0.
+    uint64_t size_bytes; ///< Size of portion of source buffer to take copy from in bytes.
 };
 
+/**
+ * @brief Adapter description.
+ * Describes hardware driver identificators as well as memory limits.
+ * */
 struct AdapterDesc {
-    std::array<const char, 256> description{};
-    uint32_t vendor_id;
-    uint32_t device_id;
-    uint32_t subsys_id;
-    uint32_t revision;
-    uint64_t dedicated_video_memory;
-    uint64_t dedicated_system_memory;
-    uint64_t shared_system_memory;
-    uint64_t adapter_id;
-    wis::AdapterFlags flags;
+    std::array<const char, 256> description{}; ///< Adapter description. Contains name of the graphics adapter.
+    uint32_t vendor_id; ///< Vendor ID. Can be used to find the correct adapter.
+    uint32_t device_id; ///< Device ID. Together with wis::AdapterDesc::vendor_id uniquely identifies the device.
+    uint32_t subsys_id; ///< Unused
+    uint32_t revision; ///< Driver revision. Unused.
+    uint64_t dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
+    uint64_t dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
+    uint64_t shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
+    uint64_t adapter_id; ///< Adapter unique ID. Can be used to find the correct adapter.
+    wis::AdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 };
 
+/**
+ * @brief Input slot description for wis::InputLayout.
+ * */
 struct InputSlotDesc {
-    uint32_t slot;
-    uint32_t stride_bytes;
-    wis::InputClass input_class;
+    uint32_t slot; ///< Input slot number. Must be unique.
+    uint32_t stride_bytes; ///< Stride in bytes. Size of one vertex in the slot.
+    wis::InputClass input_class; ///< Input class. Defines how the data is read (Per vertex or Per instance).
 };
 
+/**
+ * @brief Input attribute description for wis::InputLayout.
+ * */
 struct InputAttribute {
-    uint32_t input_slot;
-    const char* semantic_name;
-    uint32_t semantic_index;
-    uint32_t location;
-    wis::DataFormat format;
-    uint32_t offset_bytes;
+    uint32_t input_slot; ///< Input slot number. Must be unique.
+    const char* semantic_name; ///< Semantic name of the attribute in HLSL. Must be unique.
+    uint32_t semantic_index; ///< Semantic index of the attribute in HLSL. Must be unique.
+    uint32_t location; ///< Location of the attribute in HLSL. Must be unique.
+    wis::DataFormat format; ///< Data format of the attribute.
+    uint32_t offset_bytes; ///< Offset in bytes from the beginning of the vertex.
 };
 
+/**
+ * @brief Input layout description for .
+ * */
 struct InputLayout {
-    wis::InputSlotDesc* slots;
-    uint32_t slot_count;
-    wis::InputAttribute* attributes;
-    uint32_t attribute_count;
+    wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
+    uint32_t slot_count; ///< Input slots count. Max number is 16.
+    wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
+    uint32_t attribute_count; ///< Input attributes count.
 };
 
+/**
+ * @brief Rasterizer description for .
+ * */
 struct RasterizerDesc {
-    wis::FillMode fill_mode = wis::FillMode::Solid;
-    wis::CullMode cull_mode = wis::CullMode::Back;
-    wis::WindingOrder front_face = wis::WindingOrder::Clockwise;
-    bool depth_bias_enable = false;
-    float depth_bias = 0.0f;
-    float depth_bias_clamp = 0.0f;
-    float depth_bias_slope_factor = 0.0f;
-    bool depth_clip_enable = true;
+    wis::FillMode fill_mode = wis::FillMode::Solid; ///< Fill mode. Solid or Wireframe. Default is wis::FillMode::Solid.
+    wis::CullMode cull_mode = wis::CullMode::Back; ///< Cull mode. None, Front, Back. Default is wis::CullMode::Back.
+    wis::WindingOrder front_face = wis::WindingOrder::Clockwise; ///< Front face winding order. Clockwise or CounterClockwise. Default is wis::WindingOrder::Clockwise.
+    bool depth_bias_enable = false; ///< Depth bias enable. Default is false.
+    float depth_bias = 0.0f; ///< Depth bias. Default is 0.0f.
+    float depth_bias_clamp = 0.0f; ///< Depth bias clamp. Default is 0.0f.
+    float depth_bias_slope_factor = 0.0f; ///< Depth bias slope factor e.g. for shadows. Default is 0.0f.
+    bool depth_clip_enable = true; ///< Depth clip enable. Default is true.
 };
 
+/**
+ * @brief Sample description of Multisampling for .
+ * */
 struct SampleDesc {
-    wis::SampleRate rate = wis::SampleRate::S1;
-    float quality = 0.0f;
-    uint32_t sample_mask = 0xffffffff;
+    wis::SampleRate rate = wis::SampleRate::S1; ///< Sample rate. Default is wis::SampleRate::S1.
+    float quality = 0.0f; ///< Sample quality. Default is 0.0f.
+    uint32_t sample_mask = 0xffffffff; ///< Sample mask. Default is 0xffffffff.
 };
 
+/**
+ * @brief Stencil description for wis::DepthStencilDesc.
+ * */
 struct StencilDesc {
-    wis::StencilOp fail_op = wis::StencilOp::Keep;
-    wis::StencilOp depth_fail_op = wis::StencilOp::Keep;
-    wis::StencilOp pass_op = wis::StencilOp::Keep;
-    wis::Compare comparison = wis::Compare::Always;
-    uint8_t read_mask = 0xff;
-    uint8_t write_mask = 0xff;
+    wis::StencilOp fail_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test fails. Default is wis::StencilOp::Keep.
+    wis::StencilOp depth_fail_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test passes and the depth test fails. Default is wis::StencilOp::Keep.
+    wis::StencilOp pass_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test passes. Default is wis::StencilOp::Keep.
+    wis::Compare comparison = wis::Compare::Always; ///< Stencil comparison function. Default is wis::Compare::Always.
+    uint8_t read_mask = 0xff; ///< Stencil read mask. Default is 0xff.
+    uint8_t write_mask = 0xff; ///< Stencil write mask. Default is 0xff.
 };
 
+/**
+ * @brief Depth stencil description for .
+ * */
 struct DepthStencilDesc {
-    bool depth_enable = false;
-    bool depth_write_enable = false;
-    wis::Compare depth_comp = wis::Compare::Less;
-    bool stencil_enable = false;
-    wis::StencilDesc stencil_front = {};
-    wis::StencilDesc stencil_back = {};
-    bool depth_bound_test = false;
+    bool depth_enable = false; ///< Depth test enable. Default is false.
+    bool depth_write_enable = false; ///< Depth write enable. Default is false.
+    wis::Compare depth_comp = wis::Compare::Less; ///< Depth comparison function. Default is wis::Compare::Less.
+    bool stencil_enable = false; ///< Stencil test enable. Default is false.
+    wis::StencilDesc stencil_front = {}; ///< Stencil description for front faces.
+    wis::StencilDesc stencil_back = {}; ///< Stencil description for back faces.
+    bool depth_bound_test = false; ///< Depth bound test enable. Default is false.
 };
 
+/**
+ * @brief Blend attachment description for wis::BlendStateDesc.
+ * */
 struct BlendAttachmentDesc {
-    bool blend_enable = false;
-    wis::BlendFactor src_color_blend = wis::BlendFactor::One;
-    wis::BlendFactor dst_color_blend = wis::BlendFactor::Zero;
-    wis::BlendOp color_blend_op = wis::BlendOp::Add;
-    wis::BlendFactor src_alpha_blend = wis::BlendFactor::One;
-    wis::BlendFactor dst_alpha_blend = wis::BlendFactor::Zero;
-    wis::BlendOp alpha_blend_op = wis::BlendOp::Add;
-    wis::ColorComponents color_write_mask = wis::ColorComponents::All;
+    bool blend_enable = false; ///< Blend enable. Default is false.
+    wis::BlendFactor src_color_blend = wis::BlendFactor::One; ///< Source color blend factor. Default is wis::BlendFactor::One.
+    wis::BlendFactor dst_color_blend = wis::BlendFactor::Zero; ///< Destination color blend factor. Default is wis::BlendFactor::Zero.
+    wis::BlendOp color_blend_op = wis::BlendOp::Add; ///< Color blend operation. Default is wis::BlendOp::Add.
+    wis::BlendFactor src_alpha_blend = wis::BlendFactor::One; ///< Source alpha blend factor. Default is wis::BlendFactor::One.
+    wis::BlendFactor dst_alpha_blend = wis::BlendFactor::Zero; ///< Destination alpha blend factor. Default is wis::BlendFactor::Zero.
+    wis::BlendOp alpha_blend_op = wis::BlendOp::Add; ///< Alpha blend operation. Default is wis::BlendOp::Add.
+    wis::ColorComponents color_write_mask = wis::ColorComponents::All; ///< Color write mask. Default is wis::ColorComponents::All.
 };
 
+/**
+ * @brief Blend state description for .
+ * */
 struct BlendStateDesc {
-    bool logic_op_enable = false;
-    wis::LogicOp logic_op = wis::LogicOp::Noop;
-    std::array<wis::BlendAttachmentDesc, 8> attachments{};
-    uint32_t attachment_count;
+    bool logic_op_enable = false; ///< Logic operation enable. Default is false.
+    wis::LogicOp logic_op = wis::LogicOp::Noop; ///< Logic operation. Default is wis::LogicOp::Noop.
+    std::array<wis::BlendAttachmentDesc, 8> attachments{}; ///< Blend attachment descriptions. Max Array size is 8.
+    uint32_t attachment_count; ///< Blend attachment count.
 };
 
+/**
+ * @brief Render attachments description for .
+ * */
 struct RenderAttachmentsDesc {
-    wis::DataFormat* attachment_formats;
-    uint32_t attachments_count;
-    wis::DataFormat depth_attachment;
+    wis::DataFormat* attachment_formats; ///< Attachment formats array. Describes the format of the render target.
+    uint32_t attachments_count; ///< Attachment formats count.
+    wis::DataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
 };
 
+/**
+ * @brief Root constant description for .
+ * */
 struct RootConstant {
-    wis::ShaderStages stage;
-    uint32_t size_bytes;
+    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
+    uint32_t size_bytes; ///< Size of the constant in bytes.
 };
 
+/**
+ * @brief Swapchain description for  creation.
+ * */
 struct SwapchainDesc {
-    wis::Size2D size;
-    wis::DataFormat format;
-    uint32_t buffer_count;
-    bool stereo;
-    bool vsync;
+    wis::Size2D size; ///< Swapchain texture size.
+    wis::DataFormat format; ///< Swapchain texture format.
+    uint32_t buffer_count; ///< Swapchain buffer count.
+    bool stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
+    bool vsync; ///< VSync enable. Specifies Initial VSync. In later versions this value may be changed on per-present bases.
 };
 
+/**
+ * @brief Texture description for  creation.
+ * */
 struct TextureDesc {
-    wis::DataFormat format;
-    wis::Size3D size;
-    uint32_t mip_levels;
-    wis::TextureLayout layout = wis::TextureLayout::Texture2D;
-    wis::SampleRate sample_count = wis::SampleRate::S1;
-    wis::TextureUsage usage = wis::TextureUsage::None;
+    wis::DataFormat format; ///< Texture pixel/block format.
+    wis::Size3D size; ///< Texture size. Third dimension may be used for array layers or depth layers, depending on wis::TextureDesc::layout.
+    uint32_t mip_levels = 1; ///< Mip levels count. Default is 1.
+    wis::TextureLayout layout = wis::TextureLayout::Texture2D; ///< Texture layout. Default is wis::TextureLayout::Texture2D.
+    wis::SampleRate sample_count = wis::SampleRate::S1; ///< Sample count. Default is wis::SampleRate::S1.
+    wis::TextureUsage usage = wis::TextureUsage::None; ///< Texture usage flags.
 };
 
+/**
+ * @brief Allocation info for Resource Allocation.
+ * */
 struct AllocationInfo {
-    uint64_t size_bytes;
-    uint64_t alignment_bytes;
+    uint64_t size_bytes; ///< Size of the allocation in bytes.
+    uint64_t alignment_bytes; ///< Alignment of the allocation in bytes.
 };
 
+/**
+ * @brief Texture region for copy operations.
+ * */
 struct TextureRegion {
+    /**
+     * @brief Offset in the texture in pixels.
+     * In BufferToTexture determines offset of destination texture.
+     * In TextureToBuffer - offset of source image.
+     * */
     wis::Size3D offset;
-    wis::Size3D size;
-    uint32_t mip;
-    uint32_t array_layer;
-    wis::DataFormat format;
+    wis::Size3D size; ///< Size of the region in pixels.
+    uint32_t mip; ///< Mip level of the texture.
+    uint32_t array_layer; ///< Array layer of the texture.
+    wis::DataFormat format; ///< Format of the texture.
 };
 
+/**
+ * @brief Buffer to texture copy region.
+ * */
 struct BufferTextureCopyRegion {
-    uint64_t buffer_offset;
-    wis::TextureRegion texture;
+    uint64_t buffer_offset; ///< Buffer offset in bytes.
+    wis::TextureRegion texture; ///< Texture region.
 };
 
+/**
+ * @brief Push descriptor. Unused for now.
+ * */
 struct PushDescriptor {
     wis::ShaderStages stage;
     uint32_t bind_register;
@@ -1494,98 +1570,132 @@ struct PushDescriptor {
     uint32_t reserved;
 };
 
+/**
+ * @brief Subresource range for wis::TextureBarrier.
+ * */
 struct SubresourceRange {
-    uint32_t base_mip_level;
-    uint32_t level_count;
-    uint32_t base_array_layer;
-    uint32_t layer_count;
+    uint32_t base_mip_level; ///< Base mip level.
+    uint32_t level_count; ///< Mip levels count.
+    uint32_t base_array_layer; ///< Base array layer.
+    uint32_t layer_count; ///< Array layers count.
 };
 
+/**
+ * @brief Render target description for  creation.
+ * */
 struct RenderTargetDesc {
-    wis::DataFormat format;
-    wis::TextureLayout layout;
-    uint32_t mip;
-    uint32_t base_array_layer;
-    uint32_t layer_count;
+    wis::DataFormat format; ///< Render target format.
+    wis::TextureLayout layout = wis::TextureLayout::Texture2D; ///< Render target layout. Default is wis::TextureLayout::Texture2D.
+    uint32_t mip = 0; ///< Mip level of the render target. Default is 0.
+    uint32_t base_array_layer = 0; ///< Base array layer of the render target. Default is 0.
+    uint32_t layer_count = 1; ///< Array layers count of the render target. Default is 1.
 };
 
+/**
+ * @brief Viewport description for .
+ * Viewport is considered from Top Left corner.
+ * */
 struct Viewport {
-    float top_leftx;
-    float top_lefty;
-    float width;
-    float height;
-    float min_depth;
-    float max_depth;
+    float top_leftx; ///< Top left corner x coordinate.
+    float top_lefty; ///< Top left corner y coordinate.
+    float width; ///< Viewport width.
+    float height; ///< Viewport height.
+    float min_depth; ///< Minimum depth of the viewport.
+    float max_depth; ///< Maximum depth of the viewport.
 };
 
+/**
+ * @brief Scissor description for .
+ * */
 struct Scissor {
-    int32_t left;
-    int32_t top;
-    int32_t right;
-    int32_t bottom;
+    int32_t left; ///< Left corner x coordinate.
+    int32_t top; ///< Top corner y coordinate.
+    int32_t right; ///< Right corner x coordinate.
+    int32_t bottom; ///< Bottom corner y coordinate.
 };
 
+/**
+ * @brief Buffer barrier for .
+ * */
 struct BufferBarrier {
-    wis::BarrierSync sync_before;
-    wis::BarrierSync sync_after;
-    wis::ResourceAccess access_before;
-    wis::ResourceAccess access_after;
-    uint64_t offset = 0;
-    uint64_t size = UINT64_MAX;
+    wis::BarrierSync sync_before; ///< Synchronization before the barrier.
+    wis::BarrierSync sync_after; ///< Synchronization after the barrier.
+    wis::ResourceAccess access_before; ///< Resource access before the barrier.
+    wis::ResourceAccess access_after; ///< Resource access after the barrier.
+    uint64_t offset = 0; ///< Offset in the buffer in bytes. Default is 0.
+    uint64_t size = UINT64_MAX; ///< Size of the buffer in bytes. Default is UINT64_MAX, which means entire buffer.
 };
 
+/**
+ * @brief Texture barrier for .
+ * */
 struct TextureBarrier {
-    wis::BarrierSync sync_before;
-    wis::BarrierSync sync_after;
-    wis::ResourceAccess access_before;
-    wis::ResourceAccess access_after;
-    wis::TextureState state_before;
-    wis::TextureState state_after;
-    wis::SubresourceRange subresource_range;
+    wis::BarrierSync sync_before; ///< Synchronization before the barrier.
+    wis::BarrierSync sync_after; ///< Synchronization after the barrier.
+    wis::ResourceAccess access_before; ///< Resource access before the barrier.
+    wis::ResourceAccess access_after; ///< Resource access after the barrier.
+    wis::TextureState state_before; ///< Texture state before the barrier.
+    wis::TextureState state_after; ///< Texture state after the barrier.
+    wis::SubresourceRange subresource_range; ///< Subresource range of the texture.
 };
 
+/**
+ * @brief Descriptor table entry for wis::DescriptorTable.
+ * */
 struct DescriptorTableEntry {
-    wis::DescriptorType type;
-    uint32_t bind_register;
-    uint32_t binding;
-    uint32_t count;
+    wis::DescriptorType type; ///< Descriptor type.
+    uint32_t bind_register; ///< Bind register number in HLSL.
+    uint32_t binding; ///< Binding number in HLSL.
+    uint32_t count; ///< Descriptor count for Array descriptors.
 };
 
+/**
+ * @brief Descriptor table for .
+ * */
 struct DescriptorTable {
-    wis::DescriptorHeapType type;
-    wis::DescriptorTableEntry* entries;
-    uint32_t entry_count;
-    wis::ShaderStages stage;
+    wis::DescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
+    wis::DescriptorTableEntry* entries; ///< Descriptor table entries array.
+    uint32_t entry_count; ///< Descriptor table entries count.
+    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the table is used.
 };
 
+/**
+ * @brief Sampler description for  creation.
+ * */
 struct SamplerDesc {
-    wis::Filter min_filter;
-    wis::Filter mag_filter;
-    wis::Filter mip_filter;
-    bool anisotropic;
-    uint32_t max_anisotropy;
-    wis::AddressMode address_u;
-    wis::AddressMode address_v;
-    wis::AddressMode address_w;
-    float min_lod;
-    float max_lod;
-    float mip_lod_bias;
-    wis::Compare comparison_op;
-    std::array<float, 4> border_color{};
+    wis::Filter min_filter; ///< Minification filter.
+    wis::Filter mag_filter; ///< Magnification filter.
+    wis::Filter mip_filter; ///< Mip level filter.
+    bool anisotropic; ///< Anisotropic filtering enable.
+    uint32_t max_anisotropy; ///< Max anisotropy level. Max is 16.
+    wis::AddressMode address_u; ///< Address mode for U coordinate.
+    wis::AddressMode address_v; ///< Address mode for V coordinate.
+    wis::AddressMode address_w; ///< Address mode for W coordinate.
+    float min_lod; ///< Min LOD value.
+    float max_lod; ///< Max LOD value.
+    float mip_lod_bias; ///< Mip LOD bias value.
+    wis::Compare comparison_op; ///< Comparison operation for comparison samplers.
+    std::array<float, 4> border_color{}; ///< Border color.
 };
 
+/**
+ * @brief Component mapping for wis::ShaderResourceDesc.
+ * */
 struct ComponentMapping {
-    wis::ComponentSwizzle r = wis::ComponentSwizzle::Red;
-    wis::ComponentSwizzle g = wis::ComponentSwizzle::Green;
-    wis::ComponentSwizzle b = wis::ComponentSwizzle::Blue;
-    wis::ComponentSwizzle a = wis::ComponentSwizzle::Alpha;
+    wis::ComponentSwizzle r = wis::ComponentSwizzle::Red; ///< Component mapping for Red channel. Default is wis::ComponentSwizzle::Red.
+    wis::ComponentSwizzle g = wis::ComponentSwizzle::Green; ///< Component mapping for Green channel. Default is wis::ComponentSwizzle::Green.
+    wis::ComponentSwizzle b = wis::ComponentSwizzle::Blue; ///< Component mapping for Blue channel. Default is wis::ComponentSwizzle::Blue.
+    wis::ComponentSwizzle a = wis::ComponentSwizzle::Alpha; ///< Component mapping for Alpha channel. Default is wis::ComponentSwizzle::Alpha.
 };
 
+/**
+ * @brief Shader resource description for .
+ * */
 struct ShaderResourceDesc {
-    wis::DataFormat format;
-    wis::TextureViewType view_type;
-    wis::ComponentMapping component_mapping;
-    wis::SubresourceRange subresource_range;
+    wis::DataFormat format; ///< Resource format.
+    wis::TextureViewType view_type; ///< Resource view type.
+    wis::ComponentMapping component_mapping; ///< Component mapping.
+    wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
 
 //=================================DELEGATES=================================
