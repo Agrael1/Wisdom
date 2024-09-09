@@ -41,7 +41,11 @@ wis::Result wis::DX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
         back_buffers[n] = {};
     }
 
-    HRESULT hr = chain->ResizeBuffers(back_buffer_count, width, height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
+    HRESULT hr = chain->ResizeBuffers(back_buffer_count,
+                                      width,
+                                      height,
+                                      DXGI_FORMAT_UNKNOWN,
+                                      DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING * uint32_t(tearing));
 
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to resize swap chain">(hr);

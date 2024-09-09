@@ -1165,6 +1165,8 @@ Unlocks Swapchain::WaitForPresent."/>
 Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined."/>
       <value name="AdvancedIndexBuffer" value="4" doc="Supports advanced index buffer features. Support for VK, always true for DX12.
 Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined."/>
+      <value name="DynamicVSync" value="5" doc="Supports dynamic VSync. Support for VK, always true for DX12.
+Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present."/>
     </type>
 
     <!--Bitmasks-->

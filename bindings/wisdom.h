@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.4</b>
+<b>Version 0.2.6</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1050,6 +1050,11 @@ enum WisDeviceFeature {
      * Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined.
      * */
     DeviceFeatureAdvancedIndexBuffer = 4,
+    /**
+     * @brief Supports dynamic VSync. Support for VK, always true for DX12.
+     * Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present.
+     * */
+    DeviceFeatureDynamicVSync = 5,
 };
 
 /**
@@ -1392,163 +1397,240 @@ typedef uint32_t WisTextureUsage;
 
 //-------------------------------------------------------------------------
 
+/**
+ * @brief Main source of communication of operation success.
+ * To check for success compare WisResult::status with StatusOk.
+ * If there is any error there is  string which is compile-time.
+ * It communicates the source of problems even in Release mode.
+ * The string contains function name and error message.
+ * */
 struct WisResult {
-    WisStatus status;
-    const char* error;
+    WisStatus status; ///< Operation status. Compare with StatusOk
+    const char* error; ///< Error message. nullptr or 'Operation Succeeded.' if no error.
 };
 
+/**
+ * @brief 2D unsigned size.
+ * */
 struct WisSize2D {
     uint32_t width;
     uint32_t height;
 };
 
+/**
+ * @brief 3D unsigned size.
+ * */
 struct WisSize3D {
     uint32_t width;
     uint32_t height;
-    uint32_t depth_or_layers;
+    uint32_t depth_or_layers; ///< Depth for 3D textures, layers for 2D arrays
 };
 
+/**
+ * @brief Buffer region for copy operations.
+ * */
 struct WisBufferRegion {
-    uint64_t src_offset;
-    uint64_t dst_offset;
-    uint64_t size_bytes;
+    uint64_t src_offset; ///< Source offset in bytes. Default is 0.
+    uint64_t dst_offset; ///< Destination offset in bytes. Default is 0.
+    uint64_t size_bytes; ///< Size of portion of source buffer to take copy from in bytes.
 };
 
+/**
+ * @brief Adapter description.
+ * Describes hardware driver identificators as well as memory limits.
+ * */
 struct WisAdapterDesc {
-    const char description[256];
-    uint32_t vendor_id;
-    uint32_t device_id;
-    uint32_t subsys_id;
-    uint32_t revision;
-    uint64_t dedicated_video_memory;
-    uint64_t dedicated_system_memory;
-    uint64_t shared_system_memory;
-    uint64_t adapter_id;
-    WisAdapterFlags flags;
+    const char description[256]; ///< Adapter description. Contains name of the graphics adapter.
+    uint32_t vendor_id; ///< Vendor ID. Can be used to find the correct adapter.
+    uint32_t device_id; ///< Device ID. Together with WisAdapterDesc::vendor_id uniquely identifies the device.
+    uint32_t subsys_id; ///< Unused
+    uint32_t revision; ///< Driver revision. Unused.
+    uint64_t dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
+    uint64_t dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
+    uint64_t shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
+    uint64_t adapter_id; ///< Adapter unique ID. Can be used to find the correct adapter.
+    WisAdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 };
 
+/**
+ * @brief Input slot description for WisInputLayout.
+ * */
 struct WisInputSlotDesc {
-    uint32_t slot;
-    uint32_t stride_bytes;
-    WisInputClass input_class;
+    uint32_t slot; ///< Input slot number. Must be unique.
+    uint32_t stride_bytes; ///< Stride in bytes. Size of one vertex in the slot.
+    WisInputClass input_class; ///< Input class. Defines how the data is read (Per vertex or Per instance).
 };
 
+/**
+ * @brief Input attribute description for WisInputLayout.
+ * */
 struct WisInputAttribute {
-    uint32_t input_slot;
-    const char* semantic_name;
-    uint32_t semantic_index;
-    uint32_t location;
-    WisDataFormat format;
-    uint32_t offset_bytes;
+    uint32_t input_slot; ///< Input slot number. Must be unique.
+    const char* semantic_name; ///< Semantic name of the attribute in HLSL. Must be unique.
+    uint32_t semantic_index; ///< Semantic index of the attribute in HLSL. Must be unique.
+    uint32_t location; ///< Location of the attribute in HLSL. Must be unique.
+    WisDataFormat format; ///< Data format of the attribute.
+    uint32_t offset_bytes; ///< Offset in bytes from the beginning of the vertex.
 };
 
+/**
+ * @brief Input layout description for .
+ * */
 struct WisInputLayout {
-    WisInputSlotDesc* slots;
-    uint32_t slot_count;
-    WisInputAttribute* attributes;
-    uint32_t attribute_count;
+    WisInputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
+    uint32_t slot_count; ///< Input slots count. Max number is 16.
+    WisInputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
+    uint32_t attribute_count; ///< Input attributes count.
 };
 
+/**
+ * @brief Rasterizer description for .
+ * */
 struct WisRasterizerDesc {
-    WisFillMode fill_mode;
-    WisCullMode cull_mode;
-    WisWindingOrder front_face;
-    bool depth_bias_enable;
-    float depth_bias;
-    float depth_bias_clamp;
-    float depth_bias_slope_factor;
-    bool depth_clip_enable;
+    WisFillMode fill_mode; ///< Fill mode. Solid or Wireframe. Default is FillModeSolid.
+    WisCullMode cull_mode; ///< Cull mode. None, Front, Back. Default is CullModeBack.
+    WisWindingOrder front_face; ///< Front face winding order. Clockwise or CounterClockwise. Default is WindingOrderClockwise.
+    bool depth_bias_enable; ///< Depth bias enable. Default is false.
+    float depth_bias; ///< Depth bias. Default is 0.0f.
+    float depth_bias_clamp; ///< Depth bias clamp. Default is 0.0f.
+    float depth_bias_slope_factor; ///< Depth bias slope factor e.g. for shadows. Default is 0.0f.
+    bool depth_clip_enable; ///< Depth clip enable. Default is true.
 };
 
+/**
+ * @brief Sample description of Multisampling for .
+ * */
 struct WisSampleDesc {
-    WisSampleRate rate;
-    float quality;
-    uint32_t sample_mask;
+    WisSampleRate rate; ///< Sample rate. Default is SampleRateS1.
+    float quality; ///< Sample quality. Default is 0.0f.
+    uint32_t sample_mask; ///< Sample mask. Default is 0xffffffff.
 };
 
+/**
+ * @brief Stencil description for WisDepthStencilDesc.
+ * */
 struct WisStencilDesc {
-    WisStencilOp fail_op;
-    WisStencilOp depth_fail_op;
-    WisStencilOp pass_op;
-    WisCompare comparison;
-    uint8_t read_mask;
-    uint8_t write_mask;
+    WisStencilOp fail_op; ///< Stencil operation if the stencil test fails. Default is StencilOpKeep.
+    WisStencilOp depth_fail_op; ///< Stencil operation if the stencil test passes and the depth test fails. Default is StencilOpKeep.
+    WisStencilOp pass_op; ///< Stencil operation if the stencil test passes. Default is StencilOpKeep.
+    WisCompare comparison; ///< Stencil comparison function. Default is CompareAlways.
+    uint8_t read_mask; ///< Stencil read mask. Default is 0xff.
+    uint8_t write_mask; ///< Stencil write mask. Default is 0xff.
 };
 
+/**
+ * @brief Depth stencil description for .
+ * */
 struct WisDepthStencilDesc {
-    bool depth_enable;
-    bool depth_write_enable;
-    WisCompare depth_comp;
-    bool stencil_enable;
-    WisStencilDesc stencil_front;
-    WisStencilDesc stencil_back;
-    bool depth_bound_test;
+    bool depth_enable; ///< Depth test enable. Default is false.
+    bool depth_write_enable; ///< Depth write enable. Default is false.
+    WisCompare depth_comp; ///< Depth comparison function. Default is CompareLess.
+    bool stencil_enable; ///< Stencil test enable. Default is false.
+    WisStencilDesc stencil_front; ///< Stencil description for front faces.
+    WisStencilDesc stencil_back; ///< Stencil description for back faces.
+    bool depth_bound_test; ///< Depth bound test enable. Default is false.
 };
 
+/**
+ * @brief Blend attachment description for WisBlendStateDesc.
+ * */
 struct WisBlendAttachmentDesc {
-    bool blend_enable;
-    WisBlendFactor src_color_blend;
-    WisBlendFactor dst_color_blend;
-    WisBlendOp color_blend_op;
-    WisBlendFactor src_alpha_blend;
-    WisBlendFactor dst_alpha_blend;
-    WisBlendOp alpha_blend_op;
-    WisColorComponents color_write_mask;
+    bool blend_enable; ///< Blend enable. Default is false.
+    WisBlendFactor src_color_blend; ///< Source color blend factor. Default is BlendFactorOne.
+    WisBlendFactor dst_color_blend; ///< Destination color blend factor. Default is BlendFactorZero.
+    WisBlendOp color_blend_op; ///< Color blend operation. Default is BlendOpAdd.
+    WisBlendFactor src_alpha_blend; ///< Source alpha blend factor. Default is BlendFactorOne.
+    WisBlendFactor dst_alpha_blend; ///< Destination alpha blend factor. Default is BlendFactorZero.
+    WisBlendOp alpha_blend_op; ///< Alpha blend operation. Default is BlendOpAdd.
+    WisColorComponents color_write_mask; ///< Color write mask. Default is ColorComponentsAll.
 };
 
+/**
+ * @brief Blend state description for .
+ * */
 struct WisBlendStateDesc {
-    bool logic_op_enable;
-    WisLogicOp logic_op;
-    WisBlendAttachmentDesc attachments[8];
-    uint32_t attachment_count;
+    bool logic_op_enable; ///< Logic operation enable. Default is false.
+    WisLogicOp logic_op; ///< Logic operation. Default is LogicOpNoop.
+    WisBlendAttachmentDesc attachments[8]; ///< Blend attachment descriptions. Max Array size is 8.
+    uint32_t attachment_count; ///< Blend attachment count.
 };
 
+/**
+ * @brief Render attachments description for .
+ * */
 struct WisRenderAttachmentsDesc {
-    WisDataFormat* attachment_formats;
-    uint32_t attachments_count;
-    WisDataFormat depth_attachment;
+    WisDataFormat* attachment_formats; ///< Attachment formats array. Describes the format of the render target.
+    uint32_t attachments_count; ///< Attachment formats count.
+    WisDataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
 };
 
+/**
+ * @brief Root constant description for .
+ * */
 struct WisRootConstant {
-    WisShaderStages stage;
-    uint32_t size_bytes;
+    WisShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
+    uint32_t size_bytes; ///< Size of the constant in bytes.
 };
 
+/**
+ * @brief Swapchain description for  creation.
+ * */
 struct WisSwapchainDesc {
-    WisSize2D size;
-    WisDataFormat format;
-    uint32_t buffer_count;
-    bool stereo;
-    bool vsync;
+    WisSize2D size; ///< Swapchain texture size.
+    WisDataFormat format; ///< Swapchain texture format.
+    uint32_t buffer_count; ///< Swapchain buffer count.
+    bool stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
+    bool vsync; ///< VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with DeviceFeatureDynamicVSync.
+    bool tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
 };
 
+/**
+ * @brief Texture description for  creation.
+ * */
 struct WisTextureDesc {
-    WisDataFormat format;
-    WisSize3D size;
-    uint32_t mip_levels;
-    WisTextureLayout layout;
-    WisSampleRate sample_count;
-    WisTextureUsage usage;
+    WisDataFormat format; ///< Texture pixel/block format.
+    WisSize3D size; ///< Texture size. Third dimension may be used for array layers or depth layers, depending on WisTextureDesc::layout.
+    uint32_t mip_levels; ///< Mip levels count. Default is 1.
+    WisTextureLayout layout; ///< Texture layout. Default is TextureLayoutTexture2D.
+    WisSampleRate sample_count; ///< Sample count. Default is SampleRateS1.
+    WisTextureUsage usage; ///< Texture usage flags.
 };
 
+/**
+ * @brief Allocation info for Resource Allocation.
+ * */
 struct WisAllocationInfo {
-    uint64_t size_bytes;
-    uint64_t alignment_bytes;
+    uint64_t size_bytes; ///< Size of the allocation in bytes.
+    uint64_t alignment_bytes; ///< Alignment of the allocation in bytes.
 };
 
+/**
+ * @brief Texture region for copy operations.
+ * */
 struct WisTextureRegion {
+    /**
+     * @brief Offset in the texture in pixels.
+     * In BufferToTexture determines offset of destination texture.
+     * In TextureToBuffer - offset of source image.
+     * */
     WisSize3D offset;
-    WisSize3D size;
-    uint32_t mip;
-    uint32_t array_layer;
-    WisDataFormat format;
+    WisSize3D size; ///< Size of the region in pixels.
+    uint32_t mip; ///< Mip level of the texture.
+    uint32_t array_layer; ///< Array layer of the texture.
+    WisDataFormat format; ///< Format of the texture.
 };
 
+/**
+ * @brief Buffer to texture copy region.
+ * */
 struct WisBufferTextureCopyRegion {
-    uint64_t buffer_offset;
-    WisTextureRegion texture;
+    uint64_t buffer_offset; ///< Buffer offset in bytes.
+    WisTextureRegion texture; ///< Texture region.
 };
 
+/**
+ * @brief Push descriptor. Unused for now.
+ * */
 struct WisPushDescriptor {
     WisShaderStages stage;
     uint32_t bind_register;
@@ -1556,98 +1638,132 @@ struct WisPushDescriptor {
     uint32_t reserved;
 };
 
+/**
+ * @brief Subresource range for WisTextureBarrier.
+ * */
 struct WisSubresourceRange {
-    uint32_t base_mip_level;
-    uint32_t level_count;
-    uint32_t base_array_layer;
-    uint32_t layer_count;
+    uint32_t base_mip_level; ///< Base mip level.
+    uint32_t level_count; ///< Mip levels count.
+    uint32_t base_array_layer; ///< Base array layer.
+    uint32_t layer_count; ///< Array layers count.
 };
 
+/**
+ * @brief Render target description for  creation.
+ * */
 struct WisRenderTargetDesc {
-    WisDataFormat format;
-    WisTextureLayout layout;
-    uint32_t mip;
-    uint32_t base_array_layer;
-    uint32_t layer_count;
+    WisDataFormat format; ///< Render target format.
+    WisTextureLayout layout; ///< Render target layout. Default is TextureLayoutTexture2D.
+    uint32_t mip; ///< Mip level of the render target. Default is 0.
+    uint32_t base_array_layer; ///< Base array layer of the render target. Default is 0.
+    uint32_t layer_count; ///< Array layers count of the render target. Default is 1.
 };
 
+/**
+ * @brief Viewport description for .
+ * Viewport is considered from Top Left corner.
+ * */
 struct WisViewport {
-    float top_leftx;
-    float top_lefty;
-    float width;
-    float height;
-    float min_depth;
-    float max_depth;
+    float top_leftx; ///< Top left corner x coordinate.
+    float top_lefty; ///< Top left corner y coordinate.
+    float width; ///< Viewport width.
+    float height; ///< Viewport height.
+    float min_depth; ///< Minimum depth of the viewport.
+    float max_depth; ///< Maximum depth of the viewport.
 };
 
+/**
+ * @brief Scissor description for .
+ * */
 struct WisScissor {
-    int32_t left;
-    int32_t top;
-    int32_t right;
-    int32_t bottom;
+    int32_t left; ///< Left corner x coordinate.
+    int32_t top; ///< Top corner y coordinate.
+    int32_t right; ///< Right corner x coordinate.
+    int32_t bottom; ///< Bottom corner y coordinate.
 };
 
+/**
+ * @brief Buffer barrier for .
+ * */
 struct WisBufferBarrier {
-    WisBarrierSync sync_before;
-    WisBarrierSync sync_after;
-    WisResourceAccess access_before;
-    WisResourceAccess access_after;
-    uint64_t offset;
-    uint64_t size;
+    WisBarrierSync sync_before; ///< Synchronization before the barrier.
+    WisBarrierSync sync_after; ///< Synchronization after the barrier.
+    WisResourceAccess access_before; ///< Resource access before the barrier.
+    WisResourceAccess access_after; ///< Resource access after the barrier.
+    uint64_t offset; ///< Offset in the buffer in bytes. Default is 0.
+    uint64_t size; ///< Size of the buffer in bytes. Default is UINT64_MAX, which means entire buffer.
 };
 
+/**
+ * @brief Texture barrier for .
+ * */
 struct WisTextureBarrier {
-    WisBarrierSync sync_before;
-    WisBarrierSync sync_after;
-    WisResourceAccess access_before;
-    WisResourceAccess access_after;
-    WisTextureState state_before;
-    WisTextureState state_after;
-    WisSubresourceRange subresource_range;
+    WisBarrierSync sync_before; ///< Synchronization before the barrier.
+    WisBarrierSync sync_after; ///< Synchronization after the barrier.
+    WisResourceAccess access_before; ///< Resource access before the barrier.
+    WisResourceAccess access_after; ///< Resource access after the barrier.
+    WisTextureState state_before; ///< Texture state before the barrier.
+    WisTextureState state_after; ///< Texture state after the barrier.
+    WisSubresourceRange subresource_range; ///< Subresource range of the texture.
 };
 
+/**
+ * @brief Descriptor table entry for WisDescriptorTable.
+ * */
 struct WisDescriptorTableEntry {
-    WisDescriptorType type;
-    uint32_t bind_register;
-    uint32_t binding;
-    uint32_t count;
+    WisDescriptorType type; ///< Descriptor type.
+    uint32_t bind_register; ///< Bind register number in HLSL.
+    uint32_t binding; ///< Binding number in HLSL.
+    uint32_t count; ///< Descriptor count for Array descriptors.
 };
 
+/**
+ * @brief Descriptor table for .
+ * */
 struct WisDescriptorTable {
-    WisDescriptorHeapType type;
-    WisDescriptorTableEntry* entries;
-    uint32_t entry_count;
-    WisShaderStages stage;
+    WisDescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
+    WisDescriptorTableEntry* entries; ///< Descriptor table entries array.
+    uint32_t entry_count; ///< Descriptor table entries count.
+    WisShaderStages stage; ///< Shader stage. Defines the stage where the table is used.
 };
 
+/**
+ * @brief Sampler description for  creation.
+ * */
 struct WisSamplerDesc {
-    WisFilter min_filter;
-    WisFilter mag_filter;
-    WisFilter mip_filter;
-    bool anisotropic;
-    uint32_t max_anisotropy;
-    WisAddressMode address_u;
-    WisAddressMode address_v;
-    WisAddressMode address_w;
-    float min_lod;
-    float max_lod;
-    float mip_lod_bias;
-    WisCompare comparison_op;
-    float border_color[4];
+    WisFilter min_filter; ///< Minification filter.
+    WisFilter mag_filter; ///< Magnification filter.
+    WisFilter mip_filter; ///< Mip level filter.
+    bool anisotropic; ///< Anisotropic filtering enable.
+    uint32_t max_anisotropy; ///< Max anisotropy level. Max is 16.
+    WisAddressMode address_u; ///< Address mode for U coordinate.
+    WisAddressMode address_v; ///< Address mode for V coordinate.
+    WisAddressMode address_w; ///< Address mode for W coordinate.
+    float min_lod; ///< Min LOD value.
+    float max_lod; ///< Max LOD value.
+    float mip_lod_bias; ///< Mip LOD bias value.
+    WisCompare comparison_op; ///< Comparison operation for comparison samplers.
+    float border_color[4]; ///< Border color.
 };
 
+/**
+ * @brief Component mapping for WisShaderResourceDesc.
+ * */
 struct WisComponentMapping {
-    WisComponentSwizzle r;
-    WisComponentSwizzle g;
-    WisComponentSwizzle b;
-    WisComponentSwizzle a;
+    WisComponentSwizzle r; ///< Component mapping for Red channel. Default is ComponentSwizzleRed.
+    WisComponentSwizzle g; ///< Component mapping for Green channel. Default is ComponentSwizzleGreen.
+    WisComponentSwizzle b; ///< Component mapping for Blue channel. Default is ComponentSwizzleBlue.
+    WisComponentSwizzle a; ///< Component mapping for Alpha channel. Default is ComponentSwizzleAlpha.
 };
 
+/**
+ * @brief Shader resource description for .
+ * */
 struct WisShaderResourceDesc {
-    WisDataFormat format;
-    WisTextureViewType view_type;
-    WisComponentMapping component_mapping;
-    WisSubresourceRange subresource_range;
+    WisDataFormat format; ///< Resource format.
+    WisTextureViewType view_type; ///< Resource view type.
+    WisComponentMapping component_mapping; ///< Component mapping.
+    WisSubresourceRange subresource_range; ///< Subresource range of the resource.
 };
 
 //-------------------------------------------------------------------------
@@ -1715,65 +1831,89 @@ struct VKDescriptorBufferView {
     uint32_t value2;
 };
 
+/**
+ * @brief Variant of BufferBarrier with BufferView.
+ * */
 struct VKBufferBarrier2 {
-    WisBufferBarrier barrier;
-    VKBufferView buffer;
+    WisBufferBarrier barrier; ///< Buffer barrier.
+    VKBufferView buffer; ///< Buffer view.
 };
 
+/**
+ * @brief Variant of TextureBarrier with TextureView.
+ * */
 struct VKTextureBarrier2 {
-    WisTextureBarrier barrier;
-    VKTextureView texture;
+    WisTextureBarrier barrier; ///< Texture barrier.
+    VKTextureView texture; ///< Texture view.
 };
 
+/**
+ * @brief Variant of ShaderView for all graphics stages.
+ * */
 struct VKGraphicsShaderStages {
-    VKShaderView vertex;
-    VKShaderView hull;
-    VKShaderView domain;
-    VKShaderView geometry;
-    VKShaderView pixel;
+    VKShaderView vertex; ///< Vertex shader.
+    VKShaderView hull; ///< Hull shader.
+    VKShaderView domain; ///< Domain shader.
+    VKShaderView geometry; ///< Geometry shader.
+    VKShaderView pixel; ///< Pixel shader.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for graphics pipeline.
+ * */
 struct VKGraphicsPipelineDesc {
-    VKRootSignatureView root_signature;
-    WisInputLayout input_layout;
-    VKGraphicsShaderStages shaders;
-    WisRenderAttachmentsDesc attachments;
-    WisRasterizerDesc* rasterizer;
-    WisSampleDesc* sample;
-    WisBlendStateDesc* blend;
-    WisDepthStencilDesc* depth_stencil;
-    WisTopologyType topology_type;
+    VKRootSignatureView root_signature; ///< Root signature.
+    WisInputLayout input_layout; ///< Input layout.
+    VKGraphicsShaderStages shaders; ///< Shader stages.
+    WisRenderAttachmentsDesc attachments; ///< Render attachments.
+    WisRasterizerDesc* rasterizer; ///< Rasterizer description.
+    WisSampleDesc* sample; ///< Sample description.
+    WisBlendStateDesc* blend; ///< Blend state description.
+    WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
+    WisTopologyType topology_type; ///< Topology type. Default is TopologyTypeTriangle.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for render target.
+ * */
 struct VKRenderPassRenderTargetDesc {
-    VKRenderTargetView target;
-    WisLoadOperation load_op;
-    WisStoreOperation store_op;
-    float clear_value[4];
+    VKRenderTargetView target; ///< Render target view.
+    WisLoadOperation load_op; ///< Load operation on beginning of render pass. Default is LoadOperationLoad.
+    WisStoreOperation store_op; ///< Store operation on end of render pass. Default is StoreOperationStore.
+    float clear_value[4]; ///< Clear value for LoadOperationClear.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for depth stencil.
+ * */
 struct VKRenderPassDepthStencilDesc {
-    VKRenderTargetView target;
-    WisLoadOperation load_op_depth;
-    WisLoadOperation load_op_stencil;
-    WisStoreOperation store_op_depth;
-    WisStoreOperation store_op_stencil;
-    WisDSSelect depth_stencil_select;
-    float clear_depth;
-    uint8_t clear_stencil;
+    VKRenderTargetView target; ///< Depth stencil view.
+    WisLoadOperation load_op_depth; ///< Load operation on beginning of render pass for depth. Default is LoadOperationLoad.
+    WisLoadOperation load_op_stencil; ///< Load operation on beginning of render pass for stencil. Default is LoadOperationLoad.
+    WisStoreOperation store_op_depth; ///< Store operation on end of render pass for depth. Default is StoreOperationStore.
+    WisStoreOperation store_op_stencil; ///< Store operation on end of render pass for stencil. Default is StoreOperationStore.
+    WisDSSelect depth_stencil_select; ///< Depth stencil select. Default is DSSelectNone.
+    float clear_depth; ///< Clear depth value for LoadOperationClear. Default is 1.0f.
+    uint8_t clear_stencil; ///< Clear stencil value for LoadOperationClear. Default is 0.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for render pass.
+ * */
 struct VKRenderPassDesc {
-    WisRenderPassFlags flags;
-    uint32_t target_count;
-    VKRenderPassRenderTargetDesc* targets;
-    VKRenderPassDepthStencilDesc* depth_stencil;
+    WisRenderPassFlags flags; ///< Render pass flags.
+    uint32_t target_count; ///< Render target count.
+    VKRenderPassRenderTargetDesc* targets; ///< Render target descriptions.
+    VKRenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
 };
 
+/**
+ * @brief Variant of BufferView for vertex buffer binding.
+ * */
 struct VKVertexBufferBinding {
-    VKBufferView buffer;
-    uint32_t size;
-    uint32_t stride;
+    VKBufferView buffer; ///< Buffer view.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
 };
 
 //-------------------------------------------------------------------------
@@ -1889,65 +2029,89 @@ struct DX12DescriptorBufferView {
     void* value;
 };
 
+/**
+ * @brief Variant of BufferBarrier with BufferView.
+ * */
 struct DX12BufferBarrier2 {
-    WisBufferBarrier barrier;
-    DX12BufferView buffer;
+    WisBufferBarrier barrier; ///< Buffer barrier.
+    DX12BufferView buffer; ///< Buffer view.
 };
 
+/**
+ * @brief Variant of TextureBarrier with TextureView.
+ * */
 struct DX12TextureBarrier2 {
-    WisTextureBarrier barrier;
-    DX12TextureView texture;
+    WisTextureBarrier barrier; ///< Texture barrier.
+    DX12TextureView texture; ///< Texture view.
 };
 
+/**
+ * @brief Variant of ShaderView for all graphics stages.
+ * */
 struct DX12GraphicsShaderStages {
-    DX12ShaderView vertex;
-    DX12ShaderView hull;
-    DX12ShaderView domain;
-    DX12ShaderView geometry;
-    DX12ShaderView pixel;
+    DX12ShaderView vertex; ///< Vertex shader.
+    DX12ShaderView hull; ///< Hull shader.
+    DX12ShaderView domain; ///< Domain shader.
+    DX12ShaderView geometry; ///< Geometry shader.
+    DX12ShaderView pixel; ///< Pixel shader.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for graphics pipeline.
+ * */
 struct DX12GraphicsPipelineDesc {
-    DX12RootSignatureView root_signature;
-    WisInputLayout input_layout;
-    DX12GraphicsShaderStages shaders;
-    WisRenderAttachmentsDesc attachments;
-    WisRasterizerDesc* rasterizer;
-    WisSampleDesc* sample;
-    WisBlendStateDesc* blend;
-    WisDepthStencilDesc* depth_stencil;
-    WisTopologyType topology_type;
+    DX12RootSignatureView root_signature; ///< Root signature.
+    WisInputLayout input_layout; ///< Input layout.
+    DX12GraphicsShaderStages shaders; ///< Shader stages.
+    WisRenderAttachmentsDesc attachments; ///< Render attachments.
+    WisRasterizerDesc* rasterizer; ///< Rasterizer description.
+    WisSampleDesc* sample; ///< Sample description.
+    WisBlendStateDesc* blend; ///< Blend state description.
+    WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
+    WisTopologyType topology_type; ///< Topology type. Default is TopologyTypeTriangle.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for render target.
+ * */
 struct DX12RenderPassRenderTargetDesc {
-    DX12RenderTargetView target;
-    WisLoadOperation load_op;
-    WisStoreOperation store_op;
-    float clear_value[4];
+    DX12RenderTargetView target; ///< Render target view.
+    WisLoadOperation load_op; ///< Load operation on beginning of render pass. Default is LoadOperationLoad.
+    WisStoreOperation store_op; ///< Store operation on end of render pass. Default is StoreOperationStore.
+    float clear_value[4]; ///< Clear value for LoadOperationClear.
 };
 
+/**
+ * @brief Variant of RenderPassDesc for depth stencil.
+ * */
 struct DX12RenderPassDepthStencilDesc {
-    DX12RenderTargetView target;
-    WisLoadOperation load_op_depth;
-    WisLoadOperation load_op_stencil;
-    WisStoreOperation store_op_depth;
-    WisStoreOperation store_op_stencil;
-    WisDSSelect depth_stencil_select;
-    float clear_depth;
-    uint8_t clear_stencil;
+    DX12RenderTargetView target; ///< Depth stencil view.
+    WisLoadOperation load_op_depth; ///< Load operation on beginning of render pass for depth. Default is LoadOperationLoad.
+    WisLoadOperation load_op_stencil; ///< Load operation on beginning of render pass for stencil. Default is LoadOperationLoad.
+    WisStoreOperation store_op_depth; ///< Store operation on end of render pass for depth. Default is StoreOperationStore.
+    WisStoreOperation store_op_stencil; ///< Store operation on end of render pass for stencil. Default is StoreOperationStore.
+    WisDSSelect depth_stencil_select; ///< Depth stencil select. Default is DSSelectNone.
+    float clear_depth; ///< Clear depth value for LoadOperationClear. Default is 1.0f.
+    uint8_t clear_stencil; ///< Clear stencil value for LoadOperationClear. Default is 0.
 };
 
+/**
+ * @brief Variant of PipelineStateDesc for render pass.
+ * */
 struct DX12RenderPassDesc {
-    WisRenderPassFlags flags;
-    uint32_t target_count;
-    DX12RenderPassRenderTargetDesc* targets;
-    DX12RenderPassDepthStencilDesc* depth_stencil;
+    WisRenderPassFlags flags; ///< Render pass flags.
+    uint32_t target_count; ///< Render target count.
+    DX12RenderPassRenderTargetDesc* targets; ///< Render target descriptions.
+    DX12RenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
 };
 
+/**
+ * @brief Variant of BufferView for vertex buffer binding.
+ * */
 struct DX12VertexBufferBinding {
-    DX12BufferView buffer;
-    uint32_t size;
-    uint32_t stride;
+    DX12BufferView buffer; ///< Buffer view.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
 };
 
 //-------------------------------------------------------------------------

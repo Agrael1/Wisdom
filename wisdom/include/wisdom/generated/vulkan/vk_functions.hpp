@@ -158,6 +158,11 @@ struct VKMainInstance {
 #else
     void* vkGetPhysicalDeviceMemoryProperties2;
 #endif
+#if defined(VK_KHR_get_surface_capabilities2)
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR vkGetPhysicalDeviceSurfaceCapabilities2KHR;
+#else
+    void* vkGetPhysicalDeviceSurfaceCapabilities2KHR;
+#endif
     PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR;
     PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
     PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
@@ -225,6 +230,7 @@ public:
         for (auto vkGetPhysicalDeviceMemoryProperties2_it : vkGetPhysicalDeviceMemoryProperties2_strings)
             if ((vkGetPhysicalDeviceMemoryProperties2 = (PFN_vkGetPhysicalDeviceMemoryProperties2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceMemoryProperties2_it)))
                 break;
+        vkGetPhysicalDeviceSurfaceCapabilities2KHR = (PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilities2KHR");
         vkDestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR");
         if (vkDestroySurfaceKHR == nullptr)
             return false;

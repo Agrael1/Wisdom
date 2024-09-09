@@ -84,9 +84,11 @@ struct WisStructMember {
     std::string_view array_size;
     std::string_view modifier;
     std::string_view default_value;
+    std::string_view doc;
 };
 struct WisStruct {
     std::string_view name;
+    std::string_view doc;
     std::vector<WisStructMember> members;
     std::optional<WisStructMember> HasValue(std::string_view name) const noexcept
     {
@@ -105,6 +107,7 @@ struct WisVariantImpl {
 };
 struct WisVariant {
     std::string_view name;
+    std::string_view doc;
     std::string_view this_type;
     std::vector<WisVariantImpl> impls;
 };
@@ -209,6 +212,8 @@ public:
 
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type);
     std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type);
+    std::string MakeCValueDocumentation(std::string value, std::string_view doc, std::string_view type_name);
+    std::string MakeCPPValueDocumentation(std::string value, std::string_view doc, std::string_view type_name);
 
     std::string MakeCStruct(const WisStruct& s);
     std::pair<std::string, std::string> MakeCVariant(const WisVariant& s);

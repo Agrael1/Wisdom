@@ -19,6 +19,8 @@ class VKFactory;
 namespace detail {
 constexpr inline std::array instance_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME,
+    VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME,
+    VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME,
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 };
 constexpr inline std::span<const char* const> instance_layers{};

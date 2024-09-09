@@ -647,6 +647,9 @@ void Generator::ParseStruct(tinyxml2::XMLElement& type)
     structs.emplace_back(&ref);
     ref.name = name;
 
+    if (auto* size = type.FindAttribute("doc"))
+        ref.doc = size->Value();
+
     for (auto* member = type.FirstChildElement("member"); member;
          member = member->NextSiblingElement("member")) {
         auto& m = ref.members.emplace_back();
@@ -666,6 +669,9 @@ void Generator::ParseStruct(tinyxml2::XMLElement& type)
         }
         if (auto* mod = member->FindAttribute("mod")) {
             m.modifier = mod->Value();
+        }
+        if (auto* doc = member->FindAttribute("doc")) {
+            m.doc = doc->Value();
         }
     }
 }
@@ -832,6 +838,9 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
         ref.this_type = this_t->Value();
     }
 
+    if (auto* size = type.FindAttribute("doc"))
+        ref.doc = size->Value();
+
     for (auto* impl = type.FirstChildElement("impl"); impl; impl = impl->NextSiblingElement("impl")) {
         auto impl_name = impl->FindAttribute("name")->Value();
         auto& impl_ref = ref.impls.emplace_back();
@@ -857,6 +866,9 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
             }
             if (auto* mod = member->FindAttribute("mod")) {
                 m.modifier = mod->Value();
+            }
+            if (auto* doc = member->FindAttribute("doc")) {
+                m.doc = doc->Value();
             }
         }
     }
@@ -948,6 +960,44 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
     return doc;
 }
 
+std::string Generator::MakeCValueDocumentation(std::string value, std::string_view doc, std::string_view type_name)
+{
+    std::string documentation;
+    bool pre_doc = false;
+    if (!doc.empty()) {
+        if (doc.find('\n') != std::string_view::npos) {
+            pre_doc = true;
+            documentation = wis::format("/**\n@brief {}\n*/", doc);
+            ReplaceAll(documentation, "\n", "\n * ");
+        } else {
+            documentation = wis::format(" ///< {}", doc);
+        }
+        documentation = FinalizeCDocumentation(documentation, type_name);
+    }
+    return pre_doc
+            ? wis::format("    {}\n    {}\n", documentation, value)
+            : wis::format("{}{}\n", value, documentation);
+}
+
+std::string Generator::MakeCPPValueDocumentation(std::string value, std::string_view doc, std::string_view type_name)
+{
+    std::string documentation;
+    bool pre_doc = false;
+    if (!doc.empty()) {
+        if (doc.find('\n') != std::string_view::npos) {
+            pre_doc = true;
+            documentation = wis::format("/**\n@brief {}\n*/", doc);
+            ReplaceAll(documentation, "\n", "\n * ");
+        } else {
+            documentation = wis::format(" ///< {}", doc);
+        }
+        documentation = FinalizeCPPDocumentation(documentation, type_name);
+    }
+    return pre_doc
+            ? wis::format("    {}\n    {}\n", documentation, value)
+            : wis::format("{}{}\n", value, documentation);
+}
+
 //-----------------------------------------------------------------------------
 std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
 {
@@ -978,6 +1028,12 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
 
         auto st_decl = wis::format("struct {}{{\n", full_name);
 
+        if (!s.doc.empty()) {
+            std::string documentation = wis::format("/**\n@brief {}\n*/", s.doc);
+            ReplaceAll(documentation, "\n", "\n * ");
+            st_decl = wis::format("{}\n{}", FinalizeCDocumentation(documentation, s.name), st_decl);
+        }
+
         for (auto& m : impl.members) {
             auto mfull_name = GetCFullTypename(m.type, impl_tag);
             std::string res_type;
@@ -985,9 +1041,11 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
             if (m.modifier == "ptr")
                 res_type = "*";
 
-            st_decl += m.array_size.empty()
-                    ? wis::format("    {} {};\n", mfull_name + res_type, m.name)
-                    : wis::format("    {} {}[{}];\n", mfull_name, m.name, m.array_size);
+            auto val_str = m.array_size.empty()
+                    ? wis::format("    {} {};", mfull_name + res_type, m.name)
+                    : wis::format("    {} {}[{}];", mfull_name, m.name, m.array_size);
+
+            st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
         }
 
         st_decl += "};\n\n";
@@ -1019,9 +1077,16 @@ std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
         auto full_name = s.name;
         auto st_decl = wis::format("struct {}{}{{\n", impl_tag, full_name);
 
+        if (!s.doc.empty()) {
+            std::string documentation = wis::format("/**\n@brief {}\n*/", s.doc);
+            ReplaceAll(documentation, "\n", "\n * ");
+            st_decl = wis::format("{}\n{}", FinalizeCPPDocumentation(documentation, s.name), st_decl);
+        }
+
         for (auto& m : impl.members) {
             auto mfull_name = GetCPPFullTypename(m.type, impl_tag);
 
+            std::string val_str;
             std::string mod;
             if (m.modifier == "ptr")
                 mod = '*';
@@ -1033,10 +1098,11 @@ std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
                             ? wis::format(" = {}::{}", mfull_name, m.default_value)
                             : wis::format(" = {}", m.default_value);
                 }
-                st_decl += wis::format("    {} {}{};\n", mfull_name + mod, m.name, def);
+                val_str = wis::format("    {} {}{};", mfull_name + mod, m.name, def);
             } else {
-                st_decl += wis::format("    std::array<{}, {}> {} {{}};\n", mfull_name, m.array_size, m.name);
+                val_str = wis::format("    std::array<{}, {}> {} {{}};", mfull_name, m.array_size, m.name);
             }
+            st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
         }
 
         st_decl += "};\n\n";
@@ -1054,6 +1120,12 @@ std::string Generator::MakeCStruct(const WisStruct& s)
     auto full_name = GetCFullTypename(s.name);
     auto st_decl = wis::format("struct {}{{\n", full_name);
 
+    if (!s.doc.empty()) {
+        std::string documentation = wis::format("/**\n@brief {}\n*/", s.doc);
+        ReplaceAll(documentation, "\n", "\n * ");
+        st_decl = wis::format("{}\n{}", FinalizeCDocumentation(documentation, s.name), st_decl);
+    }
+
     for (auto& m : s.members) {
         auto mfullname = GetCFullTypename(m.type);
 
@@ -1062,9 +1134,10 @@ std::string Generator::MakeCStruct(const WisStruct& s)
         if (m.modifier == "ptr")
             res_type = '*';
 
-        st_decl += m.array_size.empty()
-                ? wis::format("    {} {};\n", mfullname + res_type, m.name)
-                : wis::format("    {} {}[{}];\n", mfullname, m.name, m.array_size);
+        auto val_str = m.array_size.empty()
+                ? wis::format("    {} {};", mfullname + res_type, m.name)
+                : wis::format("    {} {}[{}];", mfullname, m.name, m.array_size);
+        st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
     }
 
     st_decl += "};\n\n";
@@ -1075,7 +1148,14 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
     auto full_name = s.name;
     auto st_decl = wis::format("struct {}{{\n", full_name);
 
+    if (!s.doc.empty()) {
+        std::string documentation = wis::format("/**\n@brief {}\n*/", s.doc);
+        ReplaceAll(documentation, "\n", "\n * ");
+        st_decl = wis::format("{}\n{}", FinalizeCPPDocumentation(documentation, s.name), st_decl);
+    }
+
     for (auto& m : s.members) {
+        std::string val_str;
         auto mfullname = GetCPPFullTypename(m.type);
 
         std::string mod;
@@ -1089,10 +1169,11 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
                         ? wis::format(" = {}::{}", mfullname, m.default_value)
                         : wis::format(" = {}", m.default_value);
             }
-            st_decl += wis::format("    {} {}{};\n", mfullname + mod, m.name, def);
+            val_str = wis::format("    {} {}{};", mfullname + mod, m.name, def);
         } else {
-            st_decl += wis::format("    std::array<{}, {}> {} {{}};\n", mfullname, m.array_size, m.name);
+            val_str = wis::format("    std::array<{}, {}> {} {{}};", mfullname, m.array_size, m.name);
         }
+        st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
     }
 
     st_decl += "};\n\n";
@@ -1111,21 +1192,8 @@ std::string Generator::MakeCEnum(const WisEnum& s)
     }
 
     for (auto& m : s.values) {
-        std::string documentation;
-        bool pre_doc = false;
-        if (!m.doc.empty()) {
-            if (m.doc.find('\n') != std::string_view::npos) {
-                pre_doc = true;
-                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
-                ReplaceAll(documentation, "\n", "\n * ");
-            } else {
-                documentation = wis::format(" ///< {}", m.doc);
-            }
-            documentation = FinalizeCDocumentation(documentation, s.name);
-        }
-        st_decl += pre_doc
-                ? wis::format("    {}\n    {}{}{} = {},\n", documentation, s.name, impls[+m.impl], m.name, m.value)
-                : wis::format("    {}{}{} = {},{}\n", s.name, impls[+m.impl], m.name, m.value, documentation);
+        st_decl += MakeCValueDocumentation(wis::format("{}{}{} = {},", s.name, impls[+m.impl], m.name, m.value),
+                                           m.doc, s.name);
     }
 
     st_decl += "};\n\n";
@@ -1144,21 +1212,8 @@ std::string Generator::MakeCPPEnum(const WisEnum& s)
     }
 
     for (auto& m : s.values) {
-        std::string documentation;
-        bool pre_doc = false;
-        if (!m.doc.empty()) {
-            if (m.doc.find('\n') != std::string_view::npos) {
-                pre_doc = true;
-                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
-                ReplaceAll(documentation, "\n", "\n * ");
-            } else {
-                documentation = wis::format(" ///< {}", m.doc);
-            }
-            documentation = FinalizeCPPDocumentation(documentation, s.name);
-        }
-        st_decl += pre_doc
-                ? wis::format("    {}\n    {}{} = {},\n", documentation, impls[+m.impl], m.name, m.value)
-                : wis::format("    {}{} = {},{}\n", impls[+m.impl], m.name, m.value, documentation);
+        st_decl += MakeCPPValueDocumentation(wis::format("{}{} = {},", impls[+m.impl], m.name, m.value),
+                                             m.doc, s.name);
     }
     st_decl += "};\n\n";
 
@@ -1177,25 +1232,11 @@ std::string Generator::MakeCBitmask(const WisBitmask& s)
     }
 
     for (auto& m : s.values) {
-        std::string documentation;
-        bool pre_doc = false;
-        if (!m.doc.empty()) {
-            if (m.doc.find('\n') != std::string_view::npos) {
-                pre_doc = true;
-                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
-                ReplaceAll(documentation, "\n", "\n * ");
-            } else {
-                documentation = wis::format(" ///< {}", m.doc);
-            }
-            documentation = FinalizeCDocumentation(documentation, s.name);
-        }
         std::string val_str = m.type == WisBitmaskValue::Type::Value
                 ? wis::format("    {}{}{} = 0x{:X},", s.name, impls[+m.impl], m.name, m.value)
                 : wis::format("    {}{}{} = 1 << {},", s.name, impls[+m.impl], m.name, m.bit);
 
-        st_decl += pre_doc
-                ? wis::format("    {}\n    {}\n", documentation, val_str)
-                : wis::format("{}{}\n", val_str, documentation);
+        st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
     }
     st_decl += "};\n\n";
     return st_decl;
@@ -1214,26 +1255,11 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
     }
 
     for (auto& m : s.values) {
-        std::string documentation;
-        bool pre_doc = false;
-        if (!m.doc.empty()) {
-            if (m.doc.find('\n') != std::string_view::npos) {
-                pre_doc = true;
-                documentation = wis::format("/**\n@brief {}\n*/", m.doc);
-                ReplaceAll(documentation, "\n", "\n * ");
-            } else {
-                documentation = wis::format(" ///< {}", m.doc);
-            }
-            documentation = FinalizeCPPDocumentation(documentation, s.name);
-        }
-
         auto val_str = m.type == WisBitmaskValue::Type::Value
                 ? wis::format("    {}{} = 0x{:X},", impls[+m.impl], m.name, m.value)
                 : wis::format("    {}{} = 1 << {},", impls[+m.impl], m.name, m.bit);
 
-        st_decl += pre_doc
-                ? wis::format("    {}\n    {}\n", documentation, val_str)
-                : wis::format("{}{}\n", val_str, documentation);
+        st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
     }
 
     st_decl += "};\n\n";

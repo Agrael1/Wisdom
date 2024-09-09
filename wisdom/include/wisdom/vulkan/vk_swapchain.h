@@ -31,9 +31,11 @@ struct VKSwapChainCreateInfo {
 
     uint32_t back_buffer_count = 0;
     mutable uint32_t present_index = 0;
-    VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
+    mutable VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 
+    uint8_t supported_presentations = 0;
     bool stereo = false;
+    bool tearing = false;
     bool stereo_requested = false;
     mutable uint8_t acquire_index = 0;
 
@@ -49,7 +51,8 @@ public:
                           VkQueue present_queue,
                           VkQueue graphics_queue,
                           VkSurfaceFormatKHR format,
-                          VkPresentModeKHR present_mode,
+                          VkPresentModeKHR present_mode, uint8_t supported_presentations,
+                          bool tearing,
                           bool stereo, bool stereo_requested) noexcept
         : surface(std::move(surface))
         , device(std::move(device))
@@ -62,6 +65,8 @@ public:
         , graphics_queue(graphics_queue)
         , format(format)
         , present_mode(present_mode)
+        , supported_presentations(supported_presentations)
+        , tearing(tearing)
         , stereo(stereo)
         , stereo_requested(stereo_requested)
     {
@@ -117,6 +122,8 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result Resize(uint32_t width, uint32_t height) noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result Present() const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::Result Present2(bool vsync) const noexcept;
 
     [[nodiscard]] std::pair<const VKTexture*, uint32_t> GetBuffers() const noexcept
     {
