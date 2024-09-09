@@ -415,7 +415,7 @@ void Test::App::Frame()
     wis::CommandListView lists[] = { cmd_list };
     queue.ExecuteCommandLists(lists, 1);
 
-    auto result = swap.Present();
+    auto result = swap.Present2(false);
     if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)
         throw std::runtime_error("Failed to present swapchain");
 

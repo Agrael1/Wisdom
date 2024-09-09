@@ -327,6 +327,89 @@ wis::Result wis::VKSwapChain::Present() const noexcept
     return AquireNextIndex();
 }
 
+wis::Result wis::VKSwapChain::Present2(bool in_vsync) const noexcept
+{
+    // relaxed behavior
+    if (!supported_presentations)
+        return Present();
+
+    auto new_present_mode = present_mode;
+    if (!in_vsync) {
+        if (tearing) {
+            if (supported_presentations & (1 << VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR))
+                new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR;
+            else if (supported_presentations & (1 << VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR))
+                new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+        } else if (supported_presentations & (1 << VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR) && !stereo) {
+            new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR;
+        }
+    } else {
+        new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    // no change
+    if (new_present_mode == present_mode)
+        return Present();
+
+    present_mode = new_present_mode;
+
+    auto& dtable = device.table();
+
+    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    VkSubmitInfo desc{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
+        .pWaitDstStageMask = &wait_stages,
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores = &present_semaphores[present_index],
+    };
+    dtable.vkQueueSubmit(graphics_queue, 1, &desc, nullptr);
+
+    VkPresentIdKHR present_id{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
+        .pNext = nullptr,
+        .swapchainCount = 1,
+        .pPresentIds = &this->present_id,
+    };
+
+    VkSwapchainPresentModeInfoEXT present_mode_info{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
+        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
+        .swapchainCount = 1,
+        .pPresentModes = &new_present_mode,
+    };
+
+    VkPresentInfoKHR present_info{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .pNext = &present_mode_info,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &present_semaphores[present_index],
+        .swapchainCount = 1,
+        .pSwapchains = &swapchain.handle,
+        .pImageIndices = &present_index,
+        .pResults = nullptr,
+    };
+
+    auto result = dtable.vkQueuePresentKHR(present_queue, &present_info);
+    if (!wis::succeeded(result)) {
+        VkSubmitInfo wait{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &image_ready_semaphores[acquire_index],
+        };
+        dtable.vkQueueSubmit(present_queue, 1, &wait, nullptr);
+        return wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
+    }
+
+    acquire_index = (acquire_index + 1) % back_buffer_count;
+
+    return AquireNextIndex();
+}
+
 wis::Result
 wis::VKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 {

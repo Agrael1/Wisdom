@@ -1080,6 +1080,11 @@ enum class DeviceFeature : uint32_t {
      * Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined.
      * */
     AdvancedIndexBuffer = 4,
+    /**
+     * @brief Supports dynamic VSync. Support for VK, always true for DX12.
+     * Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present.
+     * */
+    DynamicVSync = 5,
 };
 
 /**
@@ -1513,7 +1518,8 @@ struct SwapchainDesc {
     wis::DataFormat format; ///< Swapchain texture format.
     uint32_t buffer_count; ///< Swapchain buffer count.
     bool stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
-    bool vsync; ///< VSync enable. Specifies Initial VSync. In later versions this value may be changed on per-present bases.
+    bool vsync; ///< VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with wis::DeviceFeature::DynamicVSync.
+    bool tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
 };
 
 /**

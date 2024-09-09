@@ -56,6 +56,7 @@ struct XInternalFeatures {
     bool mutable_descriptor : 1 = false;
     bool interop_device : 1 = false;
     bool index_buffer_range : 1 = false;
+    bool dynamic_vsync : 1 = false;
 };
 
 // Lightweight struct for descriptor buffer features
@@ -173,6 +174,13 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentIdFeaturesKHR);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR);
         }
+
+        if (available_extensions.contains(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)) {
+            features.dynamic_vsync = true;
+            ext_name_set.insert(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT] = sizeof(VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
+        }
+
         return true;
     }
     virtual bool Supported() const noexcept override

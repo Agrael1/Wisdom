@@ -3,6 +3,7 @@
 - 0.2.6
 
   - Added documentation for structures
+  - Added Present level VSync swaitching without recreating the swapchain under DynamicVSync device feature
 
 - 0.2.5
 

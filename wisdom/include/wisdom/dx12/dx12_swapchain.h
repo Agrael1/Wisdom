@@ -19,6 +19,7 @@ struct DX12SwapChainCreateInfo {
     uint32_t back_buffer_count = 0;
     bool stereo = false;
     bool vsync = true;
+    bool tearing = false;
 
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
 };
@@ -69,6 +70,15 @@ public:
     [[nodiscard]] wis::Result Present() noexcept
     {
         auto hr = chain->Present(vsync, 0);
+        if (!wis::succeeded(hr)) {
+            return wis::make_result<FUNC, "Presentation failed">(hr);
+        }
+        return wis::success;
+    }
+
+    [[nodiscard]] wis::Result Present2(bool in_vsync) noexcept
+    {
+        auto hr = chain->Present(in_vsync, 0);
         if (!wis::succeeded(hr)) {
             return wis::make_result<FUNC, "Presentation failed">(hr);
         }

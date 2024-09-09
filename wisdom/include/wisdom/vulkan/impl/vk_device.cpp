@@ -983,8 +983,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 
     VkSurfaceCapabilitiesKHR cap{};
 
-    result =
-            itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(hadapter, surface.get(), &cap);
+    result = itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(hadapter, surface.get(), &cap);
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to get surface capabilities">(result);
 
@@ -994,26 +993,76 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 
     uint32_t layers = stereo ? 2u : 1u;
 
-    auto GetPresentMode = [&](VkSurfaceKHR surface, bool vsync) noexcept {
-        constexpr VkPresentModeKHR eFifoRelaxed = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
-        constexpr VkPresentModeKHR eFifo = VK_PRESENT_MODE_FIFO_KHR;
-        constexpr VkPresentModeKHR eImmediate = VK_PRESENT_MODE_IMMEDIATE_KHR;
+    // Get present modes
+    uint32_t presentation_count = 0;
+    itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface.get(), &presentation_count,
+                                                     nullptr);
+    assert(presentation_count <= 16);
+    std::array<VkPresentModeKHR, 16> modes{};
+    itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface.get(), &presentation_count,
+                                                     modes.data());
 
-        uint32_t format_count = 0;
-        itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface, &format_count,
-                                                         nullptr);
-        std::vector<VkPresentModeKHR> modes(format_count);
-        itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface, &format_count,
-                                                         modes.data());
+    auto present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
+    if (!desc->vsync) {
+        if (desc->tearing) {
+            if (std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0)
+                present_mode = VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR;
+            else if (std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)
+                present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+        } else if (std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !stereo) {
+            present_mode = VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR;
+        }
+    }
 
-        return vsync ? std::ranges::count(modes, eFifoRelaxed) ? eFifoRelaxed : eFifo : eImmediate;
+    constexpr static uint32_t present_modes_count = 8;
+    std::array<VkPresentModeKHR, present_modes_count> compatible_modes{};
+    uint8_t supported_presentation = 0;
+    uint32_t compatible_modes_count = 0;
+    
+    // Check if the extension is supported
+    if (ext1.GetFeatures().dynamic_vsync)
+    {
+        compatible_modes_count = [&]() {
+            VkSurfacePresentModeCompatibilityEXT present_mode_compat{
+                .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT,
+                .pNext = nullptr,
+                .pPresentModes = nullptr,
+            };
+            VkSurfaceCapabilities2KHR cap2{
+                .sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR,
+                .pNext = &present_mode_compat,
+            };
+            VkSurfacePresentModeEXT xpresent_mode{
+                .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT,
+                .presentMode = present_mode,
+            };
+            VkPhysicalDeviceSurfaceInfo2KHR surface_info{
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR,
+                .pNext = &xpresent_mode,
+                .surface = surface.get(),
+            };
+            itable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(hadapter, &surface_info, &cap2);
+            present_mode_compat.pPresentModes = compatible_modes.data();
+            itable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(hadapter, &surface_info, &cap2);
+            return present_mode_compat.presentModeCount;
+        }();
+
+        for (size_t i = 0; i < compatible_modes_count; i++)
+            if (modes[i] < 8)
+                supported_presentation |= 1 << compatible_modes[i];
+    }
+    
+
+    VkSwapchainPresentModesCreateInfoEXT present_modes{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .presentModeCount = compatible_modes_count,
+        .pPresentModes = compatible_modes.data(),
     };
-
-    auto present_mode = GetPresentMode(surface.get(), desc->vsync);
 
     VkSwapchainCreateInfoKHR swap_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext = nullptr,
+        .pNext = ext1.GetFeatures().dynamic_vsync ? &present_modes : nullptr,
         .flags = 0,
         .surface = surface.get(),
         .minImageCount = desc->buffer_count,
@@ -1064,8 +1113,21 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     if (!succeeded(result))
         return wis::make_result<FUNC, "Failed to allocate a command buffer">(result);
 
-    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface), device, adapter.GetInternal().adapter, itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR, swapchain.release(),
-                                            cmd_buf, cmd_pool.release(), qpresent_queue, graphics_queue, *format, present_mode, stereo, desc->stereo };
+    wis::detail::VKSwapChainCreateInfo sci{ std::move(surface),
+                                            device,
+                                            adapter.GetInternal().adapter,
+                                            itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
+                                            swapchain.release(),
+                                            cmd_buf,
+                                            cmd_pool.release(),
+                                            qpresent_queue,
+                                            graphics_queue,
+                                            *format,
+                                            present_mode,
+                                            ext1.GetFeatures().dynamic_vsync ? supported_presentation : uint8_t(0),
+                                            desc->tearing,
+                                            stereo,
+                                            desc->stereo };
 
     auto rres = sci.InitBackBuffers(swap_info.imageExtent);
     if (rres.status != wis::Status::Ok)

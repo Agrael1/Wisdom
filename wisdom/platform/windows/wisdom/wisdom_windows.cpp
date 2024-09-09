@@ -48,8 +48,20 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
 
     swap_desc.Stereo &= devicei.factory->IsWindowedStereoEnabled();
 
-    HRESULT hr;
+    bool tearing = [&]() {
+        auto [hr, factory5] = devicei.factory.as<IDXGIFactory5>();
+        if (!wis::succeeded(hr)) {
+            return false;
+        }
+        BOOL xtearing = FALSE;
+        factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
+        return bool(xtearing);
+    }();
+    if (tearing)
+        swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
+
+    HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;
 
     // until microsoft fixes this
@@ -80,6 +92,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
         .present_event{ hnd },
         .stereo = desc->stereo,
         .vsync = desc->vsync,
+        .tearing = tearing,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;
@@ -95,9 +108,20 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
     auto& devicei = device.GetInternal();
 
     swap_desc.Stereo &= devicei.factory->IsWindowedStereoEnabled();
+    bool tearing = [&]() {
+        auto [hr, factory5] = devicei.factory.as<IDXGIFactory5>();
+        if (!wis::succeeded(hr)) {
+            return false;
+        }
+        BOOL xtearing = FALSE;
+        factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
+        return bool(xtearing);
+    }();
+    if (tearing)
+        swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
 
     HRESULT hr;
-
     wis::com_ptr<IDXGISwapChain1> swap;
 
     // until microsoft fixes this
@@ -126,6 +150,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
         .present_event{ hnd },
         .stereo = desc->stereo,
         .vsync = desc->vsync,
+        .tearing = tearing,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;
