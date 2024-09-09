@@ -72,25 +72,25 @@ The string contains function name and error message.">
       <member type="Status" name="status" default="Ok" doc="Operation status. Compare with {Status::Ok}"/>
       <member type="u8string" name="error" mod="ptr" default="nullptr" doc="Error message. nullptr or 'Operation Succeeded.' if no error."/>
     </type>
-    
-    
+
+
     <type name="Size2D" category="struct" doc="2D unsigned size.">
       <member type="u32" name="width"/>
       <member type="u32" name="height"/>
     </type>
-    
+
     <type name="Size3D" category="struct" doc="3D unsigned size.">
       <member type="u32" name="width"/>
       <member type="u32" name="height"/>
       <member type="u32" name="depth_or_layers" doc="Depth for 3D textures, layers for 2D arrays"/>
     </type>
-    
+
     <type name="BufferRegion" category="struct" doc="Buffer region for copy operations.">
       <member type="u64" name="src_offset" default="0" doc="Source offset in bytes. Default is 0."/>
       <member type="u64" name="dst_offset" default="0" doc="Destination offset in bytes. Default is 0."/>
       <member type="u64" name="size_bytes" doc="Size of portion of source buffer to take copy from in bytes."/>
     </type>
-    
+
     <type name="AdapterDesc" category="struct" doc="Adapter description.
 Describes hardware driver identificators as well as memory limits.">
       <member type="u8string" name="description" array="256" doc="Adapter description. Contains name of the graphics adapter."/>
@@ -104,13 +104,13 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="u64" name="adapter_id" doc="Adapter unique ID. Can be used to find the correct adapter."/>
       <member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
     </type>
-    
+
     <type name="InputSlotDesc" category="struct" doc="Input slot description for {InputLayout::}.">
       <member type="u32" name="slot" doc="Input slot number. Must be unique."/>
       <member type="u32" name="stride_bytes" doc="Stride in bytes. Size of one vertex in the slot."/>
       <member type="InputClass" name="input_class" doc="Input class. Defines how the data is read (Per vertex or Per instance)."/>
     </type>
-    
+
     <type name="InputAttribute" category="struct" doc="Input attribute description for {InputLayout::}.">
       <member type="u32" name="input_slot" doc="Input slot number. Must be unique."/>
       <member type="u8string" name="semantic_name" mod="ptr" doc="Semantic name of the attribute in HLSL. Must be unique."/>
@@ -119,14 +119,14 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="DataFormat" name="format" doc="Data format of the attribute."/>
       <member type="u32" name="offset_bytes" doc="Offset in bytes from the beginning of the vertex."/>
     </type>
-    
+
     <type name="InputLayout" category="struct" doc="Input layout description for {GraphicsPipelineDesc::}.">
       <member type="InputSlotDesc" name="slots" mod="ptr" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
       <member type="u32" name="slot_count" doc="Input slots count. Max number is 16."/>
       <member type="InputAttribute" name="attributes" mod="ptr" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
       <member type="u32" name="attribute_count" doc="Input attributes count."/>
     </type>
-    
+
     <type name="RasterizerDesc" category="struct" doc="Rasterizer description for {GraphicsPipelineDesc::}.">
       <member type="FillMode" name="fill_mode" default="Solid" doc="Fill mode. Solid or Wireframe. Default is {FillMode::Solid}."/>
       <member type="CullMode" name="cull_mode" default="Back" doc="Cull mode. None, Front, Back. Default is {CullMode::Back}."/>
@@ -137,13 +137,13 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="f32" name="depth_bias_slope_factor" default="0.0f" doc="Depth bias slope factor e.g. for shadows. Default is 0.0f."/>
       <member type="bool" name="depth_clip_enable" default="true" doc="Depth clip enable. Default is true."/>
     </type>
-    
+
     <type name="SampleDesc" category="struct" doc="Sample description of Multisampling for {GraphicsPipelineDesc::}.">
       <member type="SampleRate" name="rate" default="S1" doc="Sample rate. Default is {SampleRate::S1}."/>
       <member type="f32" name="quality" default="0.0f" doc="Sample quality. Default is 0.0f."/>
       <member type="u32" name="sample_mask" default="0xffffffff" doc="Sample mask. Default is 0xffffffff."/>
     </type>
-    
+
     <type name="StencilDesc" category="struct" doc="Stencil description for {DepthStencilDesc::}.">
       <member type="StencilOp" name="fail_op" default="Keep" doc="Stencil operation if the stencil test fails. Default is {StencilOp::Keep}."/>
       <member type="StencilOp" name="depth_fail_op" default="Keep" doc="Stencil operation if the stencil test passes and the depth test fails. Default is {StencilOp::Keep}."/>
@@ -152,7 +152,7 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="u8" name="read_mask" default="0xff" doc="Stencil read mask. Default is 0xff."/>
       <member type="u8" name="write_mask" default="0xff" doc="Stencil write mask. Default is 0xff."/>
     </type>
-    
+
     <type name="DepthStencilDesc" category="struct" doc="Depth stencil description for {GraphicsPipelineDesc::}.">
       <member type="bool" name="depth_enable" default="false" doc="Depth test enable. Default is false."/>
       <member type="bool" name="depth_write_enable" default="false" doc="Depth write enable. Default is false."/>
@@ -162,7 +162,7 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="StencilDesc" name="stencil_back" default="{}" doc="Stencil description for back faces."/>
       <member type="bool" name="depth_bound_test" default="false" doc="Depth bound test enable. Default is false."/>
     </type>
-    
+
     <type name="BlendAttachmentDesc" category="struct" doc="Blend attachment description for {BlendStateDesc::}.">
       <member type="bool" name="blend_enable" default="false" doc="Blend enable. Default is false."/>
       <member type="BlendFactor" name="src_color_blend" default="One" doc="Source color blend factor. Default is {BlendFactor::One}."/>
@@ -173,14 +173,14 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="BlendOp" name="alpha_blend_op" default="Add" doc="Alpha blend operation. Default is {BlendOp::Add}."/>
       <member type="ColorComponents" name="color_write_mask" default="All" doc="Color write mask. Default is {ColorComponents::All}."/>
     </type>
-    
+
     <type name="BlendStateDesc" category="struct" doc="Blend state description for {GraphicsPipelineDesc::}.">
       <member type="bool" name="logic_op_enable" default="false" doc="Logic operation enable. Default is false."/>
       <member type="LogicOp" name="logic_op" default="Noop" doc="Logic operation. Default is {LogicOp::Noop}."/>
       <member type="BlendAttachmentDesc" name="attachments" array="8" doc="Blend attachment descriptions. Max Array size is 8."/>
       <member type="u32" name="attachment_count" doc="Blend attachment count."/>
     </type>
-    
+
     <type name="RenderAttachmentsDesc" category="struct" doc="Render attachments description for {GraphicsPipelineDesc::}.">
       <member type="DataFormat" name="attachment_formats" mod="ptr" doc="Attachment formats array. Describes the format of the render target."/>
       <member type="u32" name="attachments_count" doc="Attachment formats count."/>
@@ -192,12 +192,12 @@ Describes hardware driver identificators as well as memory limits.">
       <arg type="u8string" name="message" mod="ptr" doc="Message string."/>
       <arg type="void" name="user_data" mod="ptr" doc="User data pointer."/>
     </type>
-    
+
     <type name="RootConstant" category="struct" doc="Root constant description for {RootSignatureDesc::}.">
       <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
       <member type="u32" name="size_bytes" doc="Size of the constant in bytes."/>
     </type>
-    
+
     <type name="SwapchainDesc" category="struct" doc="Swapchain description for {SwapChain::} creation.">
       <member type="Size2D" name="size" doc="Swapchain texture size."/>
       <member type="DataFormat" name="format" doc="Swapchain texture format."/>
@@ -206,7 +206,7 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="bool" name="vsync" doc="VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with {DeviceFeature::DynamicVSync}."/>
       <member type="bool" name="tearing" doc="Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored."/>
     </type>
-    
+
     <type name="TextureDesc" category="struct" doc="Texture description for {Texture::} creation.">
       <member type="DataFormat" name="format" doc="Texture pixel/block format."/>
       <member type="Size3D" name="size" doc="Texture size. Third dimension may be used for array layers or depth layers, depending on {::layout}."/>
@@ -215,7 +215,7 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="SampleRate" name="sample_count" default="S1" doc="Sample count. Default is {SampleRate::S1}."/>
       <member type="TextureUsage" name="usage" default="None" doc="Texture usage flags."/>
     </type>
-    
+
     <type name="AllocationInfo" category="struct" doc="Allocation info for Resource Allocation.">
       <member type="u64" name="size_bytes" doc="Size of the allocation in bytes."/>
       <member type="u64" name="alignment_bytes" doc="Alignment of the allocation in bytes."/>
@@ -231,7 +231,7 @@ In TextureToBuffer - offset of source image."/>
       <member type="u32" name="array_layer" doc="Array layer of the texture."/>
       <member type="DataFormat" name="format" doc="Format of the texture."/>
     </type>
-    
+
     <type name="BufferTextureCopyRegion" category="struct" doc="Buffer to texture copy region.">
       <member type="u64" name="buffer_offset" doc="Buffer offset in bytes."/>
       <member type="TextureRegion" name="texture" doc="Texture region."/>
@@ -363,7 +363,7 @@ Viewport is considered from Top Left corner.">
         <member type="ShaderView" name="pixel" doc="Pixel shader."/>
       </impl>
     </type>
-    
+
     <type name="GraphicsPipelineDesc" category="variant" doc="Variant of PipelineStateDesc for graphics pipeline.">
       <impl name="both">
         <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
@@ -377,7 +377,7 @@ Viewport is considered from Top Left corner.">
         <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
       </impl>
     </type>
-    
+
     <type name="RenderPassRenderTargetDesc" category="variant" doc="Variant of RenderPassDesc for render target.">
       <impl name="both">
         <member type="RenderTargetView" name="target" doc="Render target view."/>
@@ -386,7 +386,7 @@ Viewport is considered from Top Left corner.">
         <member type="f32" name="clear_value" array="4" doc="Clear value for {LoadOperation::Clear}."/>
       </impl>
     </type>
-    
+
     <type name="RenderPassDepthStencilDesc" category="variant" doc="Variant of RenderPassDesc for depth stencil.">
       <impl name="both">
         <member type="RenderTargetView" name="target" doc="Depth stencil view."/>
@@ -399,7 +399,7 @@ Viewport is considered from Top Left corner.">
         <member type="u8" name="clear_stencil" default="0" doc="Clear stencil value for {LoadOperation::Clear}. Default is 0."/>
       </impl>
     </type>
-    
+
     <type name="RenderPassDesc" category="variant" doc="Variant of PipelineStateDesc for render pass.">
       <impl name="both">
         <member type="RenderPassFlags" name="flags" doc="Render pass flags."/>
@@ -408,7 +408,7 @@ Viewport is considered from Top Left corner.">
         <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr" doc="Depth stencil description."/>
       </impl>
     </type>
-    
+
     <type name="VertexBufferBinding" category="variant" doc="Variant of BufferView for vertex buffer binding.">
       <impl name="both">
         <member type="BufferView" name="buffer" doc="Buffer view."/>
