@@ -60,7 +60,6 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
     if (tearing)
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-
     HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;
 
@@ -119,7 +118,6 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
     }();
     if (tearing)
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-
 
     HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;

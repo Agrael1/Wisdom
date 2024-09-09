@@ -1026,8 +1026,6 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
             }
         }
 
-
-
         auto st_decl = wis::format("struct {}{{\n", full_name);
 
         if (!s.doc.empty()) {

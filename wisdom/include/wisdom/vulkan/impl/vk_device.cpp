@@ -1018,10 +1018,9 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     std::array<VkPresentModeKHR, present_modes_count> compatible_modes{};
     uint8_t supported_presentation = 0;
     uint32_t compatible_modes_count = 0;
-    
+
     // Check if the extension is supported
-    if (ext1.GetFeatures().dynamic_vsync)
-    {
+    if (ext1.GetFeatures().dynamic_vsync) {
         compatible_modes_count = [&]() {
             VkSurfacePresentModeCompatibilityEXT present_mode_compat{
                 .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT,
@@ -1051,7 +1050,6 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
             if (modes[i] < 8)
                 supported_presentation |= 1 << compatible_modes[i];
     }
-    
 
     VkSwapchainPresentModesCreateInfoEXT present_modes{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
