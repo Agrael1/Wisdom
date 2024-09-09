@@ -1,5 +1,9 @@
 # Version History
 
+- 0.2.6
+
+  - Added documentation for structures
+
 - 0.2.5
 
   - Added querying device features

@@ -37,7 +37,7 @@ struct DX12GraphicsShaderStages {
  * */
 struct DX12GraphicsPipelineDesc {
     wis::DX12RootSignatureView root_signature; ///< Root signature.
-    wis::InputLayout* input_layout; ///< Input layout.
+    wis::InputLayout input_layout; ///< Input layout.
     wis::DX12GraphicsShaderStages shaders; ///< Shader stages.
     wis::RenderAttachmentsDesc attachments; ///< Render attachments.
     wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.

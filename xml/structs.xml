@@ -366,7 +366,7 @@ Viewport is considered from Top Left corner.">
     <type name="GraphicsPipelineDesc" category="variant" doc="Variant of PipelineStateDesc for graphics pipeline.">
       <impl name="both">
         <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
-        <member type="InputLayout" name="input_layout" mod="ptr" doc="Input layout."/>
+        <member type="InputLayout" name="input_layout" doc="Input layout."/>
         <member type="GraphicsShaderStages" name="shaders" doc="Shader stages."/>
         <member type="RenderAttachmentsDesc" name="attachments" doc="Render attachments."/>
         <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr" doc="Rasterizer description."/>

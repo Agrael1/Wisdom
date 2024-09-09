@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.5</b>
+<b>Version 0.2.6</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1857,7 +1857,7 @@ struct VKGraphicsShaderStages {
  * */
 struct VKGraphicsPipelineDesc {
     VKRootSignatureView root_signature; ///< Root signature.
-    WisInputLayout* input_layout; ///< Input layout.
+    WisInputLayout input_layout; ///< Input layout.
     VKGraphicsShaderStages shaders; ///< Shader stages.
     WisRenderAttachmentsDesc attachments; ///< Render attachments.
     WisRasterizerDesc* rasterizer; ///< Rasterizer description.
@@ -2055,7 +2055,7 @@ struct DX12GraphicsShaderStages {
  * */
 struct DX12GraphicsPipelineDesc {
     DX12RootSignatureView root_signature; ///< Root signature.
-    WisInputLayout* input_layout; ///< Input layout.
+    WisInputLayout input_layout; ///< Input layout.
     DX12GraphicsShaderStages shaders; ///< Shader stages.
     WisRenderAttachmentsDesc attachments; ///< Render attachments.
     WisRasterizerDesc* rasterizer; ///< Rasterizer description.

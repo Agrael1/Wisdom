@@ -36,7 +36,7 @@ struct VKGraphicsShaderStages {
  * */
 struct VKGraphicsPipelineDesc {
     wis::VKRootSignatureView root_signature; ///< Root signature.
-    wis::InputLayout* input_layout; ///< Input layout.
+    wis::InputLayout input_layout; ///< Input layout.
     wis::VKGraphicsShaderStages shaders; ///< Shader stages.
     wis::RenderAttachmentsDesc attachments; ///< Render attachments.
     wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
