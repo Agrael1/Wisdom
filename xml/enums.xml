@@ -835,7 +835,8 @@ Used for data that is read back from the GPU Local memory using copy operations.
       <value name="GPUUpload" value="3" doc="GPU upload memory type.
 Used for data that is directly uploaded to the GPU Local memory using copy operations.
 Can be used only with Extended Allocation extension enabled and supported.
-Usage outside of the Extended Allocation is undefined behavior.">
+Usage outside of the Extended Allocation is undefined behavior.
+Usage with buffers requires allocating memory on GPUUpload heap and mapping the memory.">
         <impl name="dx" value="D3D12_HEAP_TYPE_GPU_UPLOAD"/>
         <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"/>
       </value>
@@ -1223,7 +1224,8 @@ Used in combination with {MemoryType::Upload} or {MemoryType::Readback} to map m
       </value>
       <value name="Exportable" bit="2" doc="Memory is exportable.
 If set, memory can be exported to other processes or APIs.
-NOTE: Can't be used with {MemoryType::GPUUpload} on NVidia as of 9/7/2024. Bug was reported."/>
+Works only with Device Local memory ({MemoryType::Default}) and only on AllocateXMemory calls.
+Outside of AllocateXMemory the flag is ignored."/>
     </type>
 
     <type name="BarrierSync" category="bitmask" doc="Barrier synchronization flags.

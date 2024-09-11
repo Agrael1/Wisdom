@@ -1049,6 +1049,9 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
         for (size_t i = 0; i < compatible_modes_count; i++)
             if (modes[i] < 8)
                 supported_presentation |= 1 << compatible_modes[i];
+
+        // Transfer back to the original present mode
+        supported_presentation |= 1 << present_mode;
     }
 
     VkSwapchainPresentModesCreateInfoEXT present_modes{
@@ -1286,6 +1289,8 @@ bool wis::VKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexce
         return features.index_buffer_range;
     case wis::DeviceFeature::EnchancedBarriers:
         return features.synchronization_2;
+    case wis::DeviceFeature::DynamicVSync:
+        return features.dynamic_vsync;
     default:
         return false;
     }

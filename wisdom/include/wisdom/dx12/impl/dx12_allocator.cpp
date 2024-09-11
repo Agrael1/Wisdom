@@ -17,7 +17,6 @@ wis::DX12ResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, 
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
-        .ExtraHeapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
     };
 
     return DX12CreateResource(all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON);
@@ -31,7 +30,6 @@ wis::DX12ResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::Mem
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
-        .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
     };
 
     return DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
@@ -67,17 +65,29 @@ wis::DX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage f
 }
 
 wis::ResultValue<wis::DX12Memory>
-wis::DX12ResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
-                                                wis::MemoryType memory,
-                                                wis::MemoryFlags mem_flags) const noexcept
+wis::DX12ResourceAllocator::AllocateTextureMemory(uint64_t size, wis::TextureUsage usage,
+                                                  wis::MemoryType memory,
+                                                  wis::MemoryFlags mem_flags) const noexcept
 
 {
+
+    D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_DENY_BUFFERS;
+    if ((mem_flags & MemoryFlags::Exportable)) {
+        if (memory != MemoryType::Default)
+            return wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+        flags |= D3D12_HEAP_FLAG_SHARED;
+    }
+    if (!(usage & (wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil)))
+        flags |= D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES;
+    else if (!(usage & ~(wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil)))
+        flags |= D3D12_HEAP_FLAG_DENY_NON_RT_DS_TEXTURES;
+
     auto info = GetTextureAllocationInfo({ .format = wis::DataFormat::RGBA8Unorm, .size = { 1, 1, 1 }, .mip_levels = 1, .usage = usage });
 
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
-        .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
+        .ExtraHeapFlags = flags
     };
 
     D3D12_RESOURCE_ALLOCATION_INFO alloc_info{
@@ -103,12 +113,18 @@ wis::DX12ResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage
                                                  wis::MemoryFlags mem_flags) const noexcept
 
 {
-    auto info = GetBufferAllocationInfo(size, usage);
+    D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
+    if ((mem_flags & MemoryFlags::Exportable)) {
+        if (memory != MemoryType::Default)
+            return wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+        flags |= D3D12_HEAP_FLAG_SHARED;
+    }
 
+    auto info = GetBufferAllocationInfo(size, usage);
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
-        .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
+        .ExtraHeapFlags = flags
     };
 
     D3D12_RESOURCE_ALLOCATION_INFO alloc_info{
