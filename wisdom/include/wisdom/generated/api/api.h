@@ -922,6 +922,7 @@ enum class MemoryType : uint32_t {
      * Used for data that is directly uploaded to the GPU Local memory using copy operations.
      * Can be used only with Extended Allocation extension enabled and supported.
      * Usage outside of the Extended Allocation is undefined behavior.
+     * Usage with buffers requires allocating memory on GPUUpload heap and mapping the memory.
      * */
     GPUUpload = 3,
 };
@@ -1231,7 +1232,8 @@ enum class MemoryFlags {
     /**
      * @brief Memory is exportable.
      * If set, memory can be exported to other processes or APIs.
-     * NOTE: Can't be used with wis::MemoryType::GPUUpload on NVidia as of 9/7/2024. Bug was reported.
+     * Works only with Device Local memory (wis::MemoryType::Default) and only on AllocateXMemory calls.
+     * Outside of AllocateXMemory the flag is ignored.
      * */
     Exportable = 1 << 2,
 };

@@ -637,6 +637,7 @@ bool wis::DX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const noex
     case wis::DeviceFeature::DescriptorBuffer:
     case wis::DeviceFeature::WaitForPresent:
     case wis::DeviceFeature::DescriptorEqualSize:
+    case wis::DeviceFeature::DynamicVSync:
     case wis::DeviceFeature::AdvancedIndexBuffer:
         return true;
     default:

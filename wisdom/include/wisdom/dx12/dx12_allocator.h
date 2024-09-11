@@ -43,9 +43,9 @@ public:
 
     // Allocation functions
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Memory>
-    AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
-                        wis::MemoryType memory = wis::MemoryType::Default,
-                        wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+    AllocateTextureMemory(uint64_t size, wis::TextureUsage usage,
+                          wis::MemoryType memory = wis::MemoryType::Default,
+                          wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Memory>
     AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,

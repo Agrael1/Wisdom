@@ -24,10 +24,6 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
     VkBufferCreateInfo desc;
     VKFillBufferDesc(size, usage, desc);
 
-    if (mem_flags & wis::MemoryFlags::Exportable) {
-        desc.pNext = &detail::external_info_buffer;
-    }
-
     VmaAllocationCreateFlags flags = wis::convert_vk(mem_flags);
     if (mem_flags & wis::MemoryFlags::Mapped) {
         switch (memory) {
@@ -56,10 +52,6 @@ wis::VKResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::Memor
 {
     VkImageCreateInfo img_desc;
     VKFillImageDesc(desc, img_desc);
-
-    if (mem_flags & wis::MemoryFlags::Exportable) {
-        img_desc.pNext = &detail::external_info_image;
-    }
 
     VmaAllocationCreateInfo alloc{
         .flags = wis::convert_vk(mem_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT,
@@ -100,7 +92,7 @@ wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage u
                                               wis::MemoryType memory,
                                               wis::MemoryFlags mem_flags) const noexcept
 {
-    VkMemoryRequirements2 req{};
+    VkMemoryRequirements2 req;
     VKFillTextureAllocationInfo({
                                         .format = wis::DataFormat::RGBA8Unorm,
                                         .size = { 1, 1 },
@@ -220,13 +212,11 @@ wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllo
     if (interop && !export_memory_allocator)
         return wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
 
-    auto& alloc_ref = interop ? export_memory_allocator : allocator;
-
     VmaAllocation allocation;
     VkImage buffer;
 
     auto result = vmaCreateImage(
-            alloc_ref.get(),
+            allocator.get(),
             reinterpret_cast<const VkImageCreateInfo*>(&desc),
             &alloc_desc,
             &buffer,
@@ -236,7 +226,7 @@ wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllo
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Texture allocation failed">(result);
 
-    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, alloc_ref, allocation };
+    return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, allocator, allocation };
 }
 
 wis::ResultValue<wis::VKBuffer>
@@ -245,12 +235,10 @@ wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllo
     if (interop && !export_memory_allocator)
         return wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
 
-    auto& alloc_ref = interop ? export_memory_allocator : allocator;
-
     VmaAllocation allocation;
     VkBuffer buffer;
     VkResult result = vmaCreateBuffer(
-            alloc_ref.get(),
+            allocator.get(),
             &desc,
             &alloc_desc,
             &buffer,
@@ -260,7 +248,7 @@ wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllo
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "Buffer allocation failed">(result);
 
-    return VKBuffer{ alloc_ref, buffer, allocation };
+    return VKBuffer{ allocator, buffer, allocation };
 }
 
 wis::ResultValue<wis::VKBuffer>

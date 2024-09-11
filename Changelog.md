@@ -1,5 +1,10 @@
 # Version History
 
+- 0.2.7
+
+  - Fixed shared heap allocations for DX12
+  - MemoryFlags::Exportable is now limited to memory allocations. It is not possible to export resources directly (at least in Vulkan).
+
 - 0.2.6
 
   - Added documentation for structures
