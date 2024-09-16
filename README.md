@@ -2,7 +2,7 @@
 
 ![CMake Windows](https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg)
 
-**Low-level thin layer header only Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
+**Low-level Direct Translation header only Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
 
 ## NuGet Link
 
@@ -11,10 +11,11 @@ https://www.nuget.org/packages/Wisdom/
 # Why?
 
 A lot of old OpenGL solutions are scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
-Wisdom is designed to be a thin layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend. It's designed to be used in games, simulations, and other heavy computations.
+Wisdom is designed to be a direct translation layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend. It's designed to be used in games, simulations, and other heavy computations.
 It's not designed to be a rendering engine, but a tool to create one.
 
 The library is designed to be used in a modern C++20 environment, with a lot of modern C++ features, like concepts, modules, and ranges. It's designed to be used with CMake or NuGet, and it's easy to integrate with your project.
+It is also using the fine selection of features from the underlying APIs to provide the best performance possible with wide range of freedom and be future proof.
 
 # Details
 
