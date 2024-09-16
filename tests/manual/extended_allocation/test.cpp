@@ -158,7 +158,6 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
     ubuf.Unmap();
 
     std::cout << "Elapsed time: " << elapsed.count() << "s\n";
-    std::cout << "Bandwidth: " << (img_size.width * img_size.height * 4 * 1000) / (1024 * 1024 * elapsed.count()) << "MB/s\n";
     std::cout << "Per copy time: " << elapsed.count() / 1000 << "s\n";
 }
 
@@ -213,7 +212,6 @@ int TestDirectWrite(const Test& test, const wis::Device& device, const wis::Reso
     std::chrono::duration<double> elapsed = end - start;
 
     std::cout << "Elapsed time: " << elapsed.count() << "s\n";
-    std::cout << "Bandwidth: " << (img_size.width * img_size.height * 4 * 1000) / (1024 * 1024 * elapsed.count()) << "MB/s\n";
     std::cout << "Per copy time: " << elapsed.count() / 1000 << "s\n";
 }
 

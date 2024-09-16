@@ -42,7 +42,7 @@ public:
                           uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Fence>
-    CreateFence(uint64_t initial_value = 0ull) const noexcept;
+    CreateFence(uint64_t initial_value = 0ull, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12CommandQueue>
     CreateCommandQueue(wis::QueueType type) const noexcept;

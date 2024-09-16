@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.6</b>
+<b>Version 0.2.7</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1309,6 +1309,16 @@ enum WisTextureUsageBits {
     TextureUsageHostCopy = 1 << 7, ///< Texture is used for host copy operations. Works with ExtendedAllocation extension.
 };
 
+/**
+ * @brief Fence flags for additional fence features
+ *
+ * Translates to D3D12_FENCE_FLAGS for dx implementation.
+ * */
+enum WisFenceFlagsBits {
+    FenceFlagsNone = 0x0, ///< No flags set. Fence is regular.
+    FenceFlagsShared = 1 << 0, ///< Fence is shared. Used for sharing fences for single physical device.
+};
+
 //-------------------------------------------------------------------------
 
 typedef struct WisResult WisResult;
@@ -1396,6 +1406,8 @@ typedef enum WisResourceAccessBits WisResourceAccessBits;
 typedef uint32_t WisResourceAccess;
 typedef enum WisTextureUsageBits WisTextureUsageBits;
 typedef uint32_t WisTextureUsage;
+typedef enum WisFenceFlagsBits WisFenceFlagsBits;
+typedef uint32_t WisFenceFlags;
 
 //-------------------------------------------------------------------------
 

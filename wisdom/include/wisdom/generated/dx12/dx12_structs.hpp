@@ -476,4 +476,11 @@ inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
         output |= D3D12_RESOURCE_FLAG_NONE;
     return output;
 }
+inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
+{
+    D3D12_FENCE_FLAGS output = {};
+    if (value & FenceFlags::Shared)
+        output |= D3D12_FENCE_FLAG_SHARED;
+    return output;
+}
 } // namespace wis

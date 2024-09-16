@@ -1462,5 +1462,14 @@ Determine how the texture can be used throughout its lifetime.">
         <impl name="vk" value="VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT"/>
       </value>
     </type>
+    
+    <type name="FenceFlags" category="bitmask" doc="Fence flags for additional fence features">
+      <impl_type for="dx" name="D3D12_FENCE_FLAGS"/>
+      <value name="None" value="0" doc="No flags set. Fence is regular."/>
+      <value name="Shared" bit="0" doc="Fence is shared. Used for sharing fences for single physical device.">
+        <impl name="dx" value="D3D12_FENCE_FLAG_SHARED"/>
+      </value>
+    </type>
+      
   </types>
 </registry>

@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.6</b>
+<b>Version 0.2.7</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1338,6 +1338,16 @@ enum class TextureUsage {
 };
 
 /**
+ * @brief Fence flags for additional fence features
+ *
+ * Translates to D3D12_FENCE_FLAGS for dx implementation.
+ * */
+enum class FenceFlags {
+    None = 0x0, ///< No flags set. Fence is regular.
+    Shared = 1 << 0, ///< Fence is shared. Used for sharing fences for single physical device.
+};
+
+/**
  * @brief Main source of communication of operation success.
  * To check for success compare wis::Result::status with wis::Status::Ok.
  * If there is any error there is  string which is compile-time.
@@ -1740,6 +1750,9 @@ struct is_flag_enum<wis::ResourceAccess> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::TextureUsage> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::FenceFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 

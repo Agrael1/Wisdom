@@ -357,7 +357,7 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
 }
 
 wis::ResultValue<wis::VKFence>
-wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
+wis::VKDevice::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const noexcept
 {
     constexpr static VkExportSemaphoreCreateInfo export_info{
         .sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO,
@@ -366,7 +366,7 @@ wis::VKDevice::CreateFence(uint64_t initial_value) const noexcept
 
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
-        .pNext = ext1.GetFeatures().interop_device ? &export_info : nullptr,
+        .pNext = flags & FenceFlags::Shared && ext1.GetFeatures().interop_device ? &export_info : nullptr,
         .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
         .initialValue = initial_value,
     };
