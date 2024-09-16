@@ -4,8 +4,8 @@
 
   - Fixed shared fence for DX12
   - Shared fence is now explicit for all implementations (not all resources and fences are sharable, there is now a flag for that)
-  - Updated readme, Wisdom is direct translation layer 
-  
+  - Updated readme, Wisdom is direct translation layer
+
 - 0.2.7
 
   - Fixed shared heap allocations for DX12
