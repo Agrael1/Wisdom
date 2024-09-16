@@ -28,6 +28,7 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
     if (mem_flags & wis::MemoryFlags::Mapped) {
         switch (memory) {
         case wis::MemoryType::Upload:
+        case wis::MemoryType::GPUUpload:
             flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
             break;
         case wis::MemoryType::Readback:

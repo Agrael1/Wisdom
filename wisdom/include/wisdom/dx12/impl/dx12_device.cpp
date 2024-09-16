@@ -70,10 +70,10 @@ wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
 }
 
 wis::ResultValue<wis::DX12Fence>
-wis::DX12Device::CreateFence(uint64_t initial_value) const noexcept
+wis::DX12Device::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const noexcept
 {
     wis::com_ptr<ID3D12Fence1> fence;
-    HRESULT hr = device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE,
+    HRESULT hr = device->CreateFence(initial_value, convert_dx(flags),
                                      __uuidof(*fence), fence.put_void());
 
     if (!wis::succeeded(hr))
