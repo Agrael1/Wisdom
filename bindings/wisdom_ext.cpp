@@ -50,7 +50,7 @@ constexpr static inline decltype(auto) VKFactoryExtensionBridge(wis::FactoryExtI
     case wis::FactoryExtID::DebugExtension:
         return Executor<typename VKFactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type>{}(std::forward<Args>(args)...);
     default:
-        return Executor<wis::DX12DebugExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::VKDebugExtension>{}(std::forward<Args>(args)...);
     }
 }
 
