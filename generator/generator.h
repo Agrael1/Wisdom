@@ -290,6 +290,7 @@ public:
     std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true);
     std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API");
     std::string MakeCFunctionCall(const WisFunction& func, std::string_view prefix, std::string_view impl);
+    std::string MakeCFunctionImpl(const WisFunction& func, std::string_view prefix, std::string_view impl);
     std::string MakeCDelegate(const WisFunction& s);
 
     // Handle generation
@@ -297,6 +298,7 @@ public:
     std::string MakeCHandleGeneric(const WisHandle& s, std::string_view impl);
     std::string MakeCHandleMethods(const WisHandle& s, std::string_view impl);
     std::string MakeCHandleMethodsGeneric(const WisHandle& s, std::string_view impl);
+    std::string MakeCHandleMethodImpls(const WisHandle& s, std::string_view impl);
 
     // Extension generation
     std::string MakeCExtensionHeader(const WisExtension& s, std::string_view impl);
@@ -315,8 +317,10 @@ public:
 
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
-    std::string GetCFullArg(const WisFunctionParameter& arg, std::string_view impl);
-    std::string GetCPPFullArg(const WisFunctionParameter& arg, std::string_view impl);
+    std::string GetCFullArg(const WisFunctionParameter& arg, std::string_view impl, bool only_type = false);
+    std::string GetCPPFullArg(const WisFunctionParameter& arg, std::string_view impl, bool only_type = false);
+    std::string ConvertFromCType(const WisFunctionParameter& arg, std::string_view impl);
+    std::string ConvertToCType(const WisFunctionParameter& arg, std::string_view impl);
 
     WisReturnType ParseFunctionReturn(tinyxml2::XMLElement* func);
     std::vector<WisFunctionParameter> ParseFunctionArgs(tinyxml2::XMLElement* func);

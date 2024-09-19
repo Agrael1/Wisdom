@@ -110,11 +110,23 @@ int Generator::GenerateCAPI()
         if (h.functions.empty())
             continue;
 
-        out_vk_methods += MakeCHandleMethods(h, impls[+ImplementedFor::Vulkan]);
-        out_dx_methods += MakeCHandleMethods(h, impls[+ImplementedFor::DX12]);
+        out_vk_methods += MakeCHandleMethods(h, impls[+ImplementedFor::Vulkan]) + '\n';
+        out_dx_methods += MakeCHandleMethods(h, impls[+ImplementedFor::DX12]) + '\n';
 
-        out_vk_methods_def += MakeCHandleMethodsGeneric(h, impls[+ImplementedFor::Vulkan]);
-        out_dx_methods_def += MakeCHandleMethodsGeneric(h, impls[+ImplementedFor::DX12]);
+        out_vk_methods_def += MakeCHandleMethodsGeneric(h, impls[+ImplementedFor::Vulkan]) + '\n';
+        out_dx_methods_def += MakeCHandleMethodsGeneric(h, impls[+ImplementedFor::DX12]) + '\n';
+
+        out_cpp_dx += MakeCHandleMethodImpls(h, impls[+ImplementedFor::DX12]) + '\n';
+        out_cpp_vk += MakeCHandleMethodImpls(h, impls[+ImplementedFor::Vulkan]) + '\n';
+
+        out_vk_methods += '\n';
+        out_dx_methods += '\n';
+
+        out_vk_methods_def += '\n';
+        out_dx_methods_def += '\n';
+
+        out_cpp_dx += '\n';
+        out_cpp_vk += '\n';
     }
 
     out_dx += k_delimiter;
@@ -1547,7 +1559,7 @@ std::string Generator::MakeFunctionImpl(const WisFunction& func, std::string_vie
 #pragma region C API
 std::string Generator::MakeCFunctionGenericDecl(const WisFunction& func, std::string_view impl)
 {
-    return wis::format("{}{{ return {}; }}", MakeCFunctionProto(func, "Wis", "inline"),
+    return wis::format("{}{{ return {}; }}\n", MakeCFunctionProto(func, "Wis", "inline"),
                        MakeCFunctionCall(func, "", impl));
 }
 std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc)
@@ -1662,6 +1674,128 @@ std::string Generator::MakeCFunctionCall(const WisFunction& func, std::string_vi
                        func.this_type.empty() ? std::string(impl) : GetCFullTypename(func.this_type, impl),
                        func.name, args);
 }
+std::string Generator::MakeCFunctionImpl(const WisFunction& func, std::string_view prefix, std::string_view impl)
+{
+    if (func.custom_impl)
+        return "";
+
+    std::string output;
+
+    // Function prototype
+    output += MakeCFunctionProto(func, impl, "extern \"C\"", false);
+
+    // Function body
+    std::string body;
+    std::string call;
+
+    // Convert this type if present
+    if (!func.this_type.empty()) {
+        WisFunctionParameter this_arg{
+            .type_info = func.this_type_info,
+            .type = func.this_type,
+            .name = "self",
+        };
+
+        body += wis::format("    auto* xself = {};\n", ConvertFromCType(this_arg, impl));
+        if (func.name == "Destroy") {
+            body += "    delete xself;\n";
+            output += wis::format("{{\n{}\n}}", body);
+            return output;
+        }
+        call = "xself->";
+    }
+
+    // Arguments
+    std::string args;
+    for (auto& arg : func.parameters) {
+        args += ConvertFromCType(arg, impl) + ", ";
+    }
+
+    // Remove trailing ", "
+    if (args.ends_with(", ")) {
+        args.pop_back();
+        args.pop_back();
+    }
+
+    call += wis::format("{}({});\n", func.name, args);
+
+    // Return type
+    if (func.return_type.type.empty()) {
+        // No return type, just call the function
+        if (!func.return_type.has_result) {
+            body += call;
+        } else {
+            WisFunctionParameter res{
+                .type_info = TypeInfo::Result,
+                .type = "Result",
+                .name = "res",
+            };
+
+            body += wis::format("    auto res = {};\n", call);
+            body += wis::format("    return {};\n", ConvertToCType(res, impl));
+        }
+        output += wis::format("{{\n{}\n}}", body);
+        return output;
+    }
+
+    // Return type
+    if (func.return_type.has_result) {
+        WisFunctionParameter result{
+            .type_info = TypeInfo::Result,
+            .type = "Result",
+            .name = "res",
+        };
+        std::string ret_status = wis::format("return {};\n", ConvertToCType(result, impl));
+
+        body += wis::format("    auto&& [res, value] = {}\n", call);
+        body += wis::format("    if(res.status != wis::Status::Ok) {}\n", ret_status);
+
+        if (func.return_type.type_info == TypeInfo::Handle) {
+            WisFunctionParameter ares{
+                .type_info = func.return_type.type_info,
+                .type = func.return_type.type,
+            };
+            auto xtype = GetCPPFullArg(ares, impl, true);
+            auto allocation = wis::format("new(std::nothrow){}(std::move(value))", xtype);
+            WisFunctionParameter bres{
+                .type_info = func.return_type.type_info,
+                .type = func.return_type.type,
+                .name = allocation,
+            };
+
+            body += wis::format("    *{} = {};\n", func.return_type.opt_name, ConvertToCType(bres, impl));
+            body += wis::format("    if(!*{}) return WisResult{{ StatusOutOfMemory, \"Failed to allocate memory for {}.\" }};\n", func.return_type.opt_name, xtype);
+        } else {
+            WisFunctionParameter res{
+                .type_info = func.return_type.type_info,
+                .type = func.return_type.type,
+                .name = "value",
+            };
+            body += wis::format("    *{} = {};\n", func.return_type.opt_name, ConvertToCType(res, impl));
+        }
+
+        WisFunctionParameter res{
+            .type_info = func.return_type.type_info,
+            .type = func.return_type.type,
+            .name = "res",
+        };
+        body += wis::format("    {}", ret_status);
+        output += wis::format("{{\n{}\n}}", body);
+        return output;
+    }
+
+    WisFunctionParameter res{
+        .type_info = func.return_type.type_info,
+        .type = func.return_type.type,
+        .name = "res",
+    };
+
+    body += wis::format("    auto res = {};\n", call);
+    body += wis::format("    return {};\n", ConvertToCType(res, impl));
+
+    output += wis::format("{{\n{}\n}}", body);
+    return output;
+}
 std::string Generator::MakeCDelegate(const WisFunction& func)
 {
     std::string_view impl = "";
@@ -1732,7 +1866,7 @@ std::string Generator::MakeCHandleMethods(const WisHandle& s, std::string_view i
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];
 
-        chunk += MakeCFunctionDecl(func, impl, "WISDOM_API");
+        chunk += MakeCFunctionDecl(func, impl, "WISDOM_API") + '\n';
     }
     return chunk;
 }
@@ -1743,7 +1877,17 @@ std::string Generator::MakeCHandleMethodsGeneric(const WisHandle& s, std::string
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];
 
-        chunk += MakeCFunctionGenericDecl(func, impl);
+        chunk += MakeCFunctionGenericDecl(func, impl) + '\n';
+    }
+    return chunk;
+}
+
+std::string Generator::MakeCHandleMethodImpls(const WisHandle& s, std::string_view impl)
+{
+    std::string chunk = wis::format("// {} methods --\n", GetCFullTypename(s.name, impl));
+    for (auto& f : s.functions) {
+        auto& func = function_map[std::string(f)];
+        chunk += MakeCFunctionImpl(func, "", impl);
     }
     return chunk;
 }
@@ -1772,12 +1916,15 @@ struct {}FactoryExtensionMap{} {{
     }};)";
 
     constexpr static auto generic_template_d = R"(template<{}>
-struct {}FactoryExtensionMap{} {{
+struct {}DeviceExtensionMap{} {{
         using Type = wis::{}{};
     }};)";
 
     auto make_template_f = [](std::string_view ext_name) {
         return wis::format("<wis::FactoryExtID::{}>", ext_name);
+    };
+    auto make_template_d = [](std::string_view ext_name) {
+        return wis::format("<wis::DeviceExtID::{}>", ext_name);
     };
 
     std::string bridge_f = wis::format(
@@ -1787,12 +1934,22 @@ constexpr static inline decltype(auto) {}FactoryExtensionBridge(wis::FactoryExtI
 )",
             impl);
 
+    std::string bridge_d = wis::format(
+            R"(template<template<typename T> typename Executor, typename...Args>
+constexpr static inline decltype(auto) {}DeviceExtensionBridge(wis::DeviceExtID id, Args&&...args) {{
+    switch(id) {{
+)",
+            impl);
+
     std::string factory_map = wis::format(generic_template_f, "wis::FactoryExtID", impl, "", impl, "FactoryExtension");
-    std::string device_map;
+    std::string device_map = wis::format(generic_template_d, "wis::DeviceExtID", impl, "", impl, "DeviceExtension");
     for (auto& [k, v] : extension_map) {
         switch (v.type) {
         case ExtensionType::Device:
-
+            device_map += wis::format(generic_template_d, "", impl, make_template_d(v.name), impl, k);
+            bridge_d += wis::format(
+                    "       case wis::DeviceExtID::{}: return Executor<typename {}DeviceExtensionMap{}::Type>{{}}(std::forward<Args>(args)...);",
+                    v.name, impl, make_template_d(v.name));
             break;
         case ExtensionType::Factory:
             factory_map += wis::format(generic_template_f, "", impl, make_template_f(v.name), impl, k);
@@ -1806,9 +1963,10 @@ constexpr static inline decltype(auto) {}FactoryExtensionBridge(wis::FactoryExtI
     }
 
     // Add default case and close switch with function
-    bridge_f += wis::format("default: return Executor<wis::{}DebugExtension>{{}}(std::forward<Args>(args)...);\n}}\n}}\n", impl);
+    bridge_f += wis::format("default: return Executor<wis::{}FactoryExtension>{{}}(std::forward<Args>(args)...);\n}}\n}}\n", impl);
+    bridge_d += wis::format("default: return Executor<wis::{}DeviceExtension>{{}}(std::forward<Args>(args)...);\n}}\n}}\n", impl);
 
-    return factory_map + std::string(k_delimiter) + bridge_f + std::string(k_delimiter) + device_map;
+    return factory_map + std::string(k_delimiter) + bridge_f + std::string(k_delimiter) + device_map + std::string(k_delimiter) + bridge_d;
 }
 #pragma endregion
 
@@ -2016,7 +2174,7 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     return "";
 }
 
-std::string Generator::GetCFullArg(const WisFunctionParameter& arg, std::string_view impl)
+std::string Generator::GetCFullArg(const WisFunctionParameter& arg, std::string_view impl, bool only_type)
 {
     std::string post_decl;
     std::string pre_decl;
@@ -2029,9 +2187,11 @@ std::string Generator::GetCFullArg(const WisFunctionParameter& arg, std::string_
     if (arg.modifier.find("const") != std::string_view::npos) {
         pre_decl += "const";
     }
-    return wis::format("{} {}{} {}", pre_decl, GetCFullTypename(arg.type, impl), post_decl, arg.name);
+    return only_type
+            ? wis::format("{} {}{}", pre_decl, GetCFullTypename(arg.type, impl), post_decl)
+            : wis::format("{} {}{} {}", pre_decl, GetCFullTypename(arg.type, impl), post_decl, arg.name);
 }
-std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::string_view impl)
+std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::string_view impl, bool only_type)
 {
     std::string post_decl;
     std::string post_name;
@@ -2048,8 +2208,60 @@ std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::strin
     if (!arg.default_value.empty()) {
         post_name = wis::format(" = {}", arg.default_value);
     }
-    return wis::format("{} {}{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl,
-                       arg.name, post_name);
+    return only_type
+            ? wis::format("{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl)
+            : wis::format("{} {}{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl,
+                          arg.name, post_name);
+}
+
+std::string Generator::ConvertFromCType(const WisFunctionParameter& arg, std::string_view impl)
+{
+    std::string trsf;
+    std::string type = GetCPPFullArg(arg, impl, true);
+
+    switch (arg.type_info) {
+    case TypeInfo::Regular:
+        return std::string(arg.name);
+    case TypeInfo::Handle:
+        trsf = wis::format("reinterpret_cast<{}*>({})", type, arg.name);
+        break;
+    case TypeInfo::Enum:
+    case TypeInfo::Bitmask:
+        trsf = wis::format("static_cast<{}>({})", type, arg.name);
+        break;
+    case TypeInfo::Delegate:
+        trsf = wis::format("reinterpret_cast<{}>({})", type, arg.name);
+        break;
+    default:
+        trsf = wis::format("reinterpret_cast<{}&>({})", type, arg.name);
+        break;
+    }
+
+    return trsf;
+}
+
+std::string Generator::ConvertToCType(const WisFunctionParameter& arg, std::string_view impl)
+{
+    std::string trsf;
+    std::string type = GetCFullArg(arg, impl, true);
+
+    switch (arg.type_info) {
+    case TypeInfo::Regular:
+        return std::string(arg.name);
+    case TypeInfo::Handle:
+        trsf = wis::format("reinterpret_cast<{}>({})", type, arg.name);
+        break;
+    case TypeInfo::Enum:
+    case TypeInfo::Bitmask:
+    case TypeInfo::Delegate:
+        trsf = wis::format("reinterpret_cast<{}>({})", type, arg.name);
+        break;
+    default:
+        trsf = wis::format("reinterpret_cast<{}&>({})", type, arg.name);
+        break;
+    }
+
+    return trsf;
 }
 
 TypeInfo Generator::GetTypeInfo(std::string_view type)

@@ -29,11 +29,27 @@
   </handles>
 
   <functions>
+    <!-- Factory -->
     <func for="Factory" name="Destroy" mod="custom-impl" doc="Destroys the {Factory::} and all the extensions created by it.
 Order of destruction is Extensions in which they were created, then factory."/>
+    
+    <func for="Factory" name="GetAdapter" doc="Creates the {Adapter::} for the factory with provided index.">
+      <ret type="Adapter" name="adapter" result="true" doc="{Adapter::} on success ({Status::Ok})."/>
+      <arg type="u32" name="index" doc="The index of the adapter to get."/>
+      <arg type="AdapterPreference" name="preference" default="wis::AdapterPreference::Performance" doc="The preference of the adapter to get.
+Default is {AdapterPreference::Performance}."/>
+    </func>
+    
+    <!-- Adapter -->
+    <func for="Adapter" name="Destroy" doc="Destroys the {Adapter::}."/>
 
-    <!--<func for="Adapter" name="Destroy"/>
-    <func for="Device" name="Destroy"/>
+    <func for="Adapter" name="GetDesc" doc="Fills {AdapterDesc::} with physical adapter's data.">
+      <ret result="true"/>
+      <arg type="AdapterDesc" name="inout_desc" mod="ptr" doc="The {AdapterDesc::} to fill.
+Must not be NULL."/>
+    </func>
+    
+    <!--<func for="Device" name="Destroy"/>
     <func for="Fence" name="Destroy"/>
     <func for="ResourceAllocator" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
@@ -68,7 +84,11 @@ Otherwise returns NULL."/>
       <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
       <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on."/>
       <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
-The extensions are initialized through this array."/>
+The extensions are initialized through this array.">
+        <replace with="DeviceExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
+The extension pointers are initialized if the extension is found and initialized.
+Otherwise returns NULL."/>
+      </arg>
       <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
       <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
 The presence of core functionality is checked by the query function."/>

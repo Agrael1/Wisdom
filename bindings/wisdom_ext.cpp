@@ -22,12 +22,26 @@ constexpr static inline decltype(auto) DX12FactoryExtensionBridge(wis::FactoryEx
     case wis::FactoryExtID::DebugExtension:
         return Executor<typename DX12FactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type>{}(std::forward<Args>(args)...);
     default:
-        return Executor<wis::DX12DebugExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::DX12FactoryExtension>{}(std::forward<Args>(args)...);
     }
 }
 
 //-------------------------------------------------------------------------
 
+template<wis::DeviceExtID>
+struct DX12DeviceExtensionMap {
+    using Type = wis::DX12DeviceExtension;
+};
+//-------------------------------------------------------------------------
+
+template<template<typename T> typename Executor, typename... Args>
+constexpr static inline decltype(auto) DX12DeviceExtensionBridge(wis::DeviceExtID id, Args&&... args)
+{
+    switch (id) {
+    default:
+        return Executor<wis::DX12DeviceExtension>{}(std::forward<Args>(args)...);
+    }
+}
 #endif
 
 #if defined(WISDOM_VULKAN)
@@ -50,10 +64,24 @@ constexpr static inline decltype(auto) VKFactoryExtensionBridge(wis::FactoryExtI
     case wis::FactoryExtID::DebugExtension:
         return Executor<typename VKFactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type>{}(std::forward<Args>(args)...);
     default:
-        return Executor<wis::VKDebugExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::VKFactoryExtension>{}(std::forward<Args>(args)...);
     }
 }
 
 //-------------------------------------------------------------------------
 
+template<wis::DeviceExtID>
+struct VKDeviceExtensionMap {
+    using Type = wis::VKDeviceExtension;
+};
+//-------------------------------------------------------------------------
+
+template<template<typename T> typename Executor, typename... Args>
+constexpr static inline decltype(auto) VKDeviceExtensionBridge(wis::DeviceExtID id, Args&&... args)
+{
+    switch (id) {
+    default:
+        return Executor<wis::VKDeviceExtension>{}(std::forward<Args>(args)...);
+    }
+}
 #endif

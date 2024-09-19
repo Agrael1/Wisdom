@@ -1173,6 +1173,13 @@ Unlocks Swapchain::Present2 function. Without the extension behavior is the same
     <type name="FactoryExtID" category="enum" type="u32" doc="Factory extension ID.
 Platform extension values start from 2049
 0 is reserved as invalid/custom extension.">
+      <value name="Custom" value="0" doc="Custom provided extension. Default initialization of the extension is done by user."/>
+    </type>
+    
+    <type name="DeviceExtID" category="enum" type="u32" doc="Device extension ID.
+Platform extension values start from 2049
+0 is reserved as invalid/custom extension.">
+      <value name="Custom" value="0" doc="Custom provided extension. Default initialization of the extension is done by user."/>
     </type>
 
     <!--Bitmasks-->

@@ -66,10 +66,10 @@ extern "C" WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
     ext_ptr += sizeof(uint32_t);
 
     if (extensions) {
-        uint8_t* data_ptr = ext_ptr + alloc_extension_count * sizeof(wis::FactoryExtID);
+        uint8_t* data_ptr = ext_ptr + (alloc_extension_count + 1) * sizeof(wis::FactoryExtID);
         for (size_t i = 0; i < extension_count; i++) {
             if (extensions[i].extension_id != 0) {
-                *((wis::FactoryExtID*)ext_ptr[i]) = static_cast<wis::FactoryExtID>(extensions[i].extension_id);
+                *((wis::FactoryExtID*)ext_ptr + i) = static_cast<wis::FactoryExtID>(extensions[i].extension_id);
                 data[i] = reinterpret_cast<wis::DX12FactoryExtension*>(data_ptr);
                 DX12FactoryExtensionBridge<CreateExt>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), data[i]);
                 data_ptr += DX12FactoryExtensionBridge<GetExtSize>(static_cast<wis::FactoryExtID>(extensions[i].extension_id));
@@ -112,3 +112,88 @@ extern "C" void DX12FactoryDestroy(DX12Factory self)
     operator delete[](reinterpret_cast<uint8_t*>(self), std::nothrow);
 }
 #endif // WISDOM_DX12
+
+#if defined(WISDOM_VULKAN)
+#include <wisdom/wisdom_vk.hpp>
+
+extern "C" WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, VKFactory* factory)
+{
+    size_t overall_size = sizeof(wis::VKFactory);
+    size_t alloc_extension_count = 0;
+    if (extensions != nullptr) {
+        // Query the size of the official extensions with provided mapping
+        for (size_t i = 0; i < extension_count; i++) {
+            if (extensions[i].extension_id != 0) // If the extension id is 0 that means the extension is already provided by the ptr
+            {
+                alloc_extension_count++;
+                overall_size += VKFactoryExtensionBridge<GetExtSize>(static_cast<wis::FactoryExtID>(extensions[i].extension_id));
+            }
+        }
+    } else {
+        extension_count = 0; // If the extensions are not provided, then the extension count is 0
+    }
+
+    overall_size += (alloc_extension_count + 1) * sizeof(wis::FactoryExtID); // store the extension id
+
+    auto memory = wis::detail::make_fixed_allocation<uint8_t>(overall_size);
+    if (!memory) {
+        return WisResult{ WisStatus::StatusOutOfMemory, "Failed to allocate space for factory." };
+    }
+
+    wis::detail::limited_allocator<wis::VKFactoryExtension*> allocator{ extension_count };
+    auto data = allocator.data();
+    if (!data) {
+        return WisResult{ WisStatus::StatusOutOfMemory, "Failed to allocate space for factory extensions." };
+    }
+
+    uint8_t* ext_ptr = memory.get() + sizeof(wis::VKFactory);
+    *((uint32_t*)ext_ptr) = alloc_extension_count;
+    ext_ptr += sizeof(uint32_t);
+
+    if (extensions) {
+        uint8_t* data_ptr = ext_ptr + (alloc_extension_count + 1) * sizeof(wis::FactoryExtID);
+        for (size_t i = 0; i < extension_count; i++) {
+            if (extensions[i].extension_id != 0) {
+                *((wis::FactoryExtID*)ext_ptr + i) = static_cast<wis::FactoryExtID>(extensions[i].extension_id);
+                data[i] = reinterpret_cast<wis::VKFactoryExtension*>(data_ptr);
+                VKFactoryExtensionBridge<CreateExt>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), data[i]);
+                data_ptr += VKFactoryExtensionBridge<GetExtSize>(static_cast<wis::FactoryExtID>(extensions[i].extension_id));
+                ext_ptr += sizeof(wis::FactoryExtID);
+                extensions[i].result = data[i];
+            } else {
+                data[i] = reinterpret_cast<wis::VKFactoryExtension*>(extensions[i].result);
+            }
+        }
+    }
+
+    auto&& [result, hfactory] = wis::VKCreateFactory(debug_layer, data, alloc_extension_count);
+    std::construct_at(reinterpret_cast<wis::VKFactory*>(memory.get()), std::move(hfactory));
+
+    if (result.status != wis::Status::Ok) {
+        return reinterpret_cast<WisResult&>(result);
+    }
+
+    *factory = reinterpret_cast<VKFactory>(memory.data.release());
+    return reinterpret_cast<WisResult&>(result);
+}
+
+extern "C" void VKFactoryDestroy(VKFactory self)
+{
+    if (!self) {
+        return;
+    }
+
+    auto factory = reinterpret_cast<wis::VKFactory*>(self);
+    uint32_t extension_count = *((uint32_t*)((uint8_t*)factory + sizeof(wis::VKFactory)));
+    std::span<wis::FactoryExtID> ext_ids{ reinterpret_cast<wis::FactoryExtID*>((uint8_t*)factory + sizeof(wis::VKFactory) + sizeof(uint32_t)), extension_count };
+
+    uint8_t* ext_ptr = (uint8_t*)factory + sizeof(wis::VKFactory) + (extension_count + 1) * sizeof(wis::FactoryExtID);
+    for (auto eid : ext_ids) {
+        VKFactoryExtensionBridge<DestroyExt>(eid, ext_ptr);
+        ext_ptr += VKFactoryExtensionBridge<GetExtSize>(eid);
+    }
+
+    std::destroy_at(factory);
+    operator delete[](reinterpret_cast<uint8_t*>(self), std::nothrow);
+}
+#endif // WISDOM_VK

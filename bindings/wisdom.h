@@ -1135,7 +1135,18 @@ enum WisIndexType {
  *
  * */
 enum WisFactoryExtID {
+    FactoryExtIDCustom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     FactoryExtIDDebugExtension = 1,
+};
+
+/**
+ * @brief Device extension ID.
+ * Platform extension values start from 2049
+ * 0 is reserved as invalid/custom extension.
+ *
+ * */
+enum WisDeviceExtID {
+    DeviceExtIDCustom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
 };
 
 //-------------------------------------------------------------------------
@@ -1365,6 +1376,7 @@ typedef struct WisSamplerDesc WisSamplerDesc;
 typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
 typedef struct WisFactoryExtQuery WisFactoryExtQuery;
+typedef struct WisDeviceExtQuery WisDeviceExtQuery;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -1400,6 +1412,7 @@ typedef enum WisTextureViewType WisTextureViewType;
 typedef enum WisComponentSwizzle WisComponentSwizzle;
 typedef enum WisIndexType WisIndexType;
 typedef enum WisFactoryExtID WisFactoryExtID;
+typedef enum WisDeviceExtID WisDeviceExtID;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisDSSelectBits WisDSSelectBits;
@@ -1808,6 +1821,22 @@ struct WisFactoryExtQuery {
     void* result;
 };
 
+/**
+ * @brief Struct used to query the extensions for C code.
+ * Queried results should not be freed, their lifetime ends with the Factory they were created with.
+ * If WisDeviceExtQuery::extension_id is 0, WisDeviceExtQuery::result must be populated with already created extension.
+ * Otherwise extension is ignored.
+ * */
+struct WisDeviceExtQuery {
+    WisDeviceExtID extension_id; ///< Extension ID.
+    /**
+     * @brief Result of the query.
+     * Pointer is populated with the extension with queried ID.
+     * If the extension is not supported/failed to initialize the result is NULL.
+     * */
+    void* result;
+};
+
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
@@ -1998,6 +2027,33 @@ typedef struct VKShaderResource_t* VKShaderResource;
  * */
 WISDOM_API void VKFactoryDestroy(VKFactory self);
 
+/**
+ * @brief Creates the VKAdapter for the factory with provided index.
+ * @param self valid handle to the Factory
+ * @param index The index of the adapter to get.
+ * @param preference The preference of the adapter to get.
+ * Default is AdapterPreferencePerformance.
+ * @param adapter VKAdapter on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKFactoryGetAdapter(VKFactory self, uint32_t index, WisAdapterPreference preference, VKAdapter* adapter);
+
+// VKAdapter methods --
+/**
+ * @brief Destroys the VKAdapter.
+ * @param self valid handle to the Adapter
+ * */
+WISDOM_API void VKAdapterDestroy(VKAdapter self);
+
+/**
+ * @brief Fills WisAdapterDesc with physical adapter's data.
+ * @param self valid handle to the Adapter
+ * @param inout_desc The WisAdapterDesc to fill.
+ * Must not be NULL.
+ * */
+WISDOM_API void VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2015,8 +2071,9 @@ WISDOM_API WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* exten
 /**
  * @brief Creates the VKDevice with extensions, specified in extension array.
  * @param adapter The adapter to create the logical device on.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
  * @param extension_count The number of extensions to enable.
  * @param force Create logical device even if some core functionality is absent.
  * The presence of core functionality is checked by the query function.
@@ -2024,7 +2081,7 @@ WISDOM_API WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* exten
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDeviceExtension** extensions, uint32_t extension_count, bool force, VKDevice* device);
+WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, WisDeviceExtQuery* extensions, uint32_t extension_count, bool force, VKDevice* device);
 
 //-------------------------------------------------------------------------
 
@@ -2210,6 +2267,33 @@ typedef struct DX12ShaderResource_t* DX12ShaderResource;
  * */
 WISDOM_API void DX12FactoryDestroy(DX12Factory self);
 
+/**
+ * @brief Creates the DX12Adapter for the factory with provided index.
+ * @param self valid handle to the Factory
+ * @param index The index of the adapter to get.
+ * @param preference The preference of the adapter to get.
+ * Default is AdapterPreferencePerformance.
+ * @param adapter DX12Adapter on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12FactoryGetAdapter(DX12Factory self, uint32_t index, WisAdapterPreference preference, DX12Adapter* adapter);
+
+// DX12Adapter methods --
+/**
+ * @brief Destroys the DX12Adapter.
+ * @param self valid handle to the Adapter
+ * */
+WISDOM_API void DX12AdapterDestroy(DX12Adapter self);
+
+/**
+ * @brief Fills WisAdapterDesc with physical adapter's data.
+ * @param self valid handle to the Adapter
+ * @param inout_desc The WisAdapterDesc to fill.
+ * Must not be NULL.
+ * */
+WISDOM_API void DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2227,8 +2311,9 @@ WISDOM_API WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
 /**
  * @brief Creates the DX12Device with extensions, specified in extension array.
  * @param adapter The adapter to create the logical device on.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
  * @param extension_count The number of extensions to enable.
  * @param force Create logical device even if some core functionality is absent.
  * The presence of core functionality is checked by the query function.
@@ -2236,7 +2321,7 @@ WISDOM_API WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12DeviceExtension** extensions, uint32_t extension_count, bool force, DX12Device* device);
+WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, WisDeviceExtQuery* extensions, uint32_t extension_count, bool force, DX12Device* device);
 
 //-------------------------------------------------------------------------
 
@@ -2291,6 +2376,43 @@ inline void WisFactoryDestroy(WisFactory self)
 {
     return DX12FactoryDestroy(self);
 }
+
+/**
+ * @brief Creates the WisAdapter for the factory with provided index.
+ * @param self valid handle to the Factory
+ * @param index The index of the adapter to get.
+ * @param preference The preference of the adapter to get.
+ * Default is AdapterPreferencePerformance.
+ * @param adapter WisAdapter on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisFactoryGetAdapter(WisFactory self, uint32_t index, WisAdapterPreference preference, WisAdapter* adapter)
+{
+    return DX12FactoryGetAdapter(self, index, preference, adapter);
+}
+
+// WisAdapter methods --
+/**
+ * @brief Destroys the WisAdapter.
+ * @param self valid handle to the Adapter
+ * */
+inline void WisAdapterDestroy(WisAdapter self)
+{
+    return DX12AdapterDestroy(self);
+}
+
+/**
+ * @brief Fills WisAdapterDesc with physical adapter's data.
+ * @param self valid handle to the Adapter
+ * @param inout_desc The WisAdapterDesc to fill.
+ * Must not be NULL.
+ * */
+inline void WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
+{
+    return DX12AdapterGetDesc(self, inout_desc);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2308,11 +2430,13 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
 {
     return DX12CreateFactory(debug_layer, extensions, extension_count, factory);
 }
+
 /**
  * @brief Creates the WisDevice with extensions, specified in extension array.
  * @param adapter The adapter to create the logical device on.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
  * @param extension_count The number of extensions to enable.
  * @param force Create logical device even if some core functionality is absent.
  * The presence of core functionality is checked by the query function.
@@ -2320,10 +2444,11 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtension** extensions, uint32_t extension_count, bool force, WisDevice* device)
+inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensions, uint32_t extension_count, bool force, WisDevice* device)
 {
     return DX12CreateDevice(adapter, extensions, extension_count, force, device);
 }
+
 #elif defined(WISDOM_VULKAN)
 
 typedef VKCommandQueue WisCommandQueue;
@@ -2360,6 +2485,43 @@ inline void WisFactoryDestroy(WisFactory self)
 {
     return VKFactoryDestroy(self);
 }
+
+/**
+ * @brief Creates the WisAdapter for the factory with provided index.
+ * @param self valid handle to the Factory
+ * @param index The index of the adapter to get.
+ * @param preference The preference of the adapter to get.
+ * Default is AdapterPreferencePerformance.
+ * @param adapter WisAdapter on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisFactoryGetAdapter(WisFactory self, uint32_t index, WisAdapterPreference preference, WisAdapter* adapter)
+{
+    return VKFactoryGetAdapter(self, index, preference, adapter);
+}
+
+// WisAdapter methods --
+/**
+ * @brief Destroys the WisAdapter.
+ * @param self valid handle to the Adapter
+ * */
+inline void WisAdapterDestroy(WisAdapter self)
+{
+    return VKAdapterDestroy(self);
+}
+
+/**
+ * @brief Fills WisAdapterDesc with physical adapter's data.
+ * @param self valid handle to the Adapter
+ * @param inout_desc The WisAdapterDesc to fill.
+ * Must not be NULL.
+ * */
+inline void WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
+{
+    return VKAdapterGetDesc(self, inout_desc);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2377,11 +2539,13 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
 {
     return VKCreateFactory(debug_layer, extensions, extension_count, factory);
 }
+
 /**
  * @brief Creates the WisDevice with extensions, specified in extension array.
  * @param adapter The adapter to create the logical device on.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
  * @param extension_count The number of extensions to enable.
  * @param force Create logical device even if some core functionality is absent.
  * The presence of core functionality is checked by the query function.
@@ -2389,10 +2553,11 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtension** extensions, uint32_t extension_count, bool force, WisDevice* device)
+inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensions, uint32_t extension_count, bool force, WisDevice* device)
 {
     return VKCreateDevice(adapter, extensions, extension_count, force, device);
 }
+
 #endif
 
 #ifdef __cplusplus

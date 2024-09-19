@@ -1,6 +1,13 @@
 # Version History
 
-- 0.3.0
+- 0.3.1
+
+  - Added more functions to the C API
+  - Test now iterates over all adapters in your system and creates a factory debug extension
+  - Fixed bug with C CreateFactory crashing on extension creation
+  - Fixed documentation not showing up on several C functions
+
+- - 0.3.0
 
   - Changed generation of the API
   - Added support for extensions in C API

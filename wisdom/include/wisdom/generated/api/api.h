@@ -47,6 +47,7 @@ struct SamplerDesc;
 struct ComponentMapping;
 struct ShaderResourceDesc;
 struct FactoryExtQuery;
+struct DeviceExtQuery;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1166,7 +1167,18 @@ enum class IndexType : uint32_t {
  *
  * */
 enum class FactoryExtID : uint32_t {
+    Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DebugExtension = 1,
+};
+
+/**
+ * @brief Device extension ID.
+ * Platform extension values start from 2049
+ * 0 is reserved as invalid/custom extension.
+ *
+ * */
+enum class DeviceExtID : uint32_t {
+    Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
 };
 
 /**
@@ -1735,6 +1747,22 @@ struct ShaderResourceDesc {
  * */
 struct FactoryExtQuery {
     wis::FactoryExtID extension_id; ///< Extension ID.
+    /**
+     * @brief Result of the query.
+     * Pointer is populated with the extension with queried ID.
+     * If the extension is not supported/failed to initialize the result is NULL.
+     * */
+    void* result;
+};
+
+/**
+ * @brief Struct used to query the extensions for C code.
+ * Queried results should not be freed, their lifetime ends with the Factory they were created with.
+ * If wis::DeviceExtQuery::extension_id is 0, wis::DeviceExtQuery::result must be populated with already created extension.
+ * Otherwise extension is ignored.
+ * */
+struct DeviceExtQuery {
+    wis::DeviceExtID extension_id; ///< Extension ID.
     /**
      * @brief Result of the query.
      * Pointer is populated with the extension with queried ID.
