@@ -22,7 +22,7 @@ struct Test {
             &global_debug,
         };
 
-        auto [result, factory] = wis::CreateFactoryWithExtensions(true, exts_i, std::size(exts_i));
+        auto [result, factory] = wis::CreateFactory(true, exts_i, std::size(exts_i));
         auto [r2, m] = global_debug.CreateDebugMessenger(DebugCallback, &std::cout);
         global_messenger = std::move(m);
 
@@ -38,7 +38,7 @@ struct Test {
                     &global_extended_allocation,
                 };
 
-                auto [res, hdevice] = wis::CreateDeviceWithExtensions(std::move(adapter), exts, std::size(exts));
+                auto [res, hdevice] = wis::CreateDevice(std::move(adapter), exts, std::size(exts));
                 if (res.status == wis::Status::Ok) {
                     device = std::move(hdevice);
                     break;

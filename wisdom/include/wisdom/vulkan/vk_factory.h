@@ -120,11 +120,8 @@ private:
     mutable std::vector<IndexedAdapter> adapters{};
 };
 
-[[nodiscard]] WIS_INLINE wis::ResultValue<VKFactory>
-VKCreateFactory(bool debug_layer = false) noexcept;
-
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
-VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;
+ImplVKCreateFactory(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;
 
 namespace detail {
 [[nodiscard]] WIS_INLINE wis::ResultValue<VKFactory>

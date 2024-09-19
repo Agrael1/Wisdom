@@ -52,7 +52,7 @@ App::App(uint32_t width, uint32_t height)
     : wnd(width, height, "Lut Test"), width(width), height(height)
 {
     std::array<wis::FactoryExtension*, 1> extensions = { &windows_ext };
-    auto [result, factory] = wis::CreateFactoryWithExtensions(false, extensions.data(), extensions.size());
+    auto [result, factory] = wis::CreateFactory(false, extensions.data(), extensions.size());
 
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);

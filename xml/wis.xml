@@ -29,8 +29,10 @@
   </handles>
 
   <functions>
-    <func for="Factory" name="Destroy"/>
-    <func for="Adapter" name="Destroy"/>
+    <func for="Factory" name="Destroy" mod="custom-impl" doc="Destroys the {Factory::} and all the extensions created by it.
+Order of destruction is Extensions in which they were created, then factory."/>
+
+    <!--<func for="Adapter" name="Destroy"/>
     <func for="Device" name="Destroy"/>
     <func for="Fence" name="Destroy"/>
     <func for="ResourceAllocator" name="Destroy"/>
@@ -47,39 +49,36 @@
     <func for="DescriptorBuffer" name="Destroy"/>
     <func for="Sampler" name="Destroy"/>
     <func for="Memory" name="Destroy"/>
-    <func for="ShaderResource" name="Destroy"/>
+    <func for="ShaderResource" name="Destroy"/>-->
 
     <!-- Free Functions -->
-    <func name="CreateFactory">
-      <ret type="Result" name="result"/>
-      <ret type="Factory" name="factory"/>
-      <arg type="bool" name="debug_layer" default="false"/>
+    <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
+      <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
+      <arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
+      <arg type="FactoryExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
+The extensions are initialized through this array.">
+        <replace with="FactoryExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
+The extension pointers are initialized if the extension is found and initialized.
+Otherwise returns NULL."/>
+      </arg>
+      <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
     </func>
 
-    <!-- CPP func only-->
-    <func name="CreateFactoryWithExtensions" mod="cpp-only">
-      <ret type="Result" name="result"/>
-      <ret type="Factory" name="factory"/>
+    <func name="CreateDevice" mod="custom-impl" doc="Creates the {Device::} with extensions, specified in extension array.">
+      <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
+      <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on."/>
+      <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
+The extensions are initialized through this array."/>
+      <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
+      <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
+The presence of core functionality is checked by the query function."/>
     </func>
 
-    <func name="CreateDevice">
-      <ret type="Result" name="result"/>
-      <ret type="Device" name="device"/>
-      <arg type="Adapter" name="adapter"/>
-    </func>
-
-    <func name="CreateDeviceWithExtensions" mod="cpp-only">
-      <ret type="Result" name="result"/>
-      <ret type="Device" name="device"/>
-      <arg type="Adapter" name="adapter"/>
-    </func>
-
-    <func name="CreateDeviceWithExtensionsForce" mod="cpp-only">
-      <ret type="Result" name="result"/>
-      <ret type="Device" name="device"/>
-      <arg type="Adapter" name="adapter"/>
-      <arg type="bool" name="force"/>
-    </func>
 
   </functions>
+  <extensions>
+    <ext name="DebugExtension" type="Factory" id="1" include="wisdom/wisdom_debug.h">
+      <!-- Functions, types, etc -->
+    </ext>
+  </extensions>
 </registry>

@@ -102,19 +102,8 @@ GetAvailableExtensions(VkPhysicalDevice adapter, const wis::VKMainInstance& itab
     return ext_map;
 }
 
-wis::ResultValue<wis::VKDevice> wis::VKCreateDevice(wis::VKAdapter adapter) noexcept
-{
-    return VKCreateDeviceWithExtensions(std::move(adapter), nullptr, 0);
-}
-
 wis::ResultValue<wis::VKDevice>
-wis::VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept
-{
-    return VKCreateDeviceWithExtensionsForce(std::move(in_adapter), exts, ext_size, false);
-}
-
-wis::ResultValue<wis::VKDevice>
-wis::VKCreateDeviceWithExtensionsForce(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept
+wis::ImplVKCreateDevice(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept
 {
     auto& adapter_i = in_adapter.GetInternal();
     auto hadapter = adapter_i.adapter;

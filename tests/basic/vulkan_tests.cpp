@@ -65,7 +65,7 @@ TEST_CASE("device_with_extensions")
     wis::DebugExtension ext;
     std::array<wis::FactoryExtension*, 1> exts = { &ext };
 
-    auto [res, factory] = wis::CreateFactoryWithExtensions(true, exts.data(), 1);
+    auto [res, factory] = wis::CreateFactory(true, exts.data(), 1);
     auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     wis::Device device;
@@ -80,7 +80,7 @@ TEST_CASE("device_with_extensions")
             res = adapter.GetDesc(&desc);
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
-            auto [res, hdevice] = wis::VKCreateDeviceWithExtensions(std::move(adapter), exts2, 1);
+            auto [res, hdevice] = wis::VKCreateDevice(std::move(adapter), exts2, 1);
             if (res.status == wis::Status::Ok) {
                 device = std::move(hdevice);
                 break;

@@ -26,7 +26,7 @@ TEST_CASE("basic_factory")
     wis::DebugExtension ext;
     std::array<wis::FactoryExtension*, 1> exts = { &ext };
 
-    auto [res, factory] = wis::CreateFactoryWithExtensions(true, exts.data(), 1);
+    auto [res, factory] = wis::CreateFactory(true, exts.data(), 1);
     auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     factory = {};
@@ -43,7 +43,7 @@ TEST_CASE("basic_device")
     wis::DebugExtension ext;
     std::array<wis::FactoryExtension*, 1> exts = { &ext };
 
-    auto [res, factory] = wis::CreateFactoryWithExtensions(true, exts.data(), 1);
+    auto [res, factory] = wis::CreateFactory(true, exts.data(), 1);
     auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     wis::Device device;

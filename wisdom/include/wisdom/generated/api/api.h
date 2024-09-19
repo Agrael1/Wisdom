@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.7</b>
+<b>Version 0.3.0</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -46,6 +46,7 @@ struct DescriptorTable;
 struct SamplerDesc;
 struct ComponentMapping;
 struct ShaderResourceDesc;
+struct FactoryExtQuery;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1159,6 +1160,16 @@ enum class IndexType : uint32_t {
 };
 
 /**
+ * @brief Factory extension ID.
+ * Platform extension values start from 2049
+ * 0 is reserved as invalid/custom extension.
+ *
+ * */
+enum class FactoryExtID : uint32_t {
+    DebugExtension = 1,
+};
+
+/**
  * @brief Flags that describe adapter.
  *
  * */
@@ -1523,7 +1534,7 @@ struct RootConstant {
 };
 
 /**
- * @brief Swapchain description for  creation.
+ * @brief Swapchain description for wis::SwapChain creation.
  * */
 struct SwapchainDesc {
     wis::Size2D size; ///< Swapchain texture size.
@@ -1535,7 +1546,7 @@ struct SwapchainDesc {
 };
 
 /**
- * @brief Texture description for  creation.
+ * @brief Texture description for wis::Texture creation.
  * */
 struct TextureDesc {
     wis::DataFormat format; ///< Texture pixel/block format.
@@ -1599,7 +1610,7 @@ struct SubresourceRange {
 };
 
 /**
- * @brief Render target description for  creation.
+ * @brief Render target description for wis::RenderTarget creation.
  * */
 struct RenderTargetDesc {
     wis::DataFormat format; ///< Render target format.
@@ -1610,7 +1621,7 @@ struct RenderTargetDesc {
 };
 
 /**
- * @brief Viewport description for .
+ * @brief Viewport description for wis::CommandList.
  * Viewport is considered from Top Left corner.
  * */
 struct Viewport {
@@ -1623,7 +1634,7 @@ struct Viewport {
 };
 
 /**
- * @brief Scissor description for .
+ * @brief Scissor description for wis::CommandList.
  * */
 struct Scissor {
     int32_t left; ///< Left corner x coordinate.
@@ -1633,7 +1644,7 @@ struct Scissor {
 };
 
 /**
- * @brief Buffer barrier for .
+ * @brief Buffer barrier for wis::CommandList.
  * */
 struct BufferBarrier {
     wis::BarrierSync sync_before; ///< Synchronization before the barrier.
@@ -1645,7 +1656,7 @@ struct BufferBarrier {
 };
 
 /**
- * @brief Texture barrier for .
+ * @brief Texture barrier for wis::CommandList.
  * */
 struct TextureBarrier {
     wis::BarrierSync sync_before; ///< Synchronization before the barrier.
@@ -1678,7 +1689,7 @@ struct DescriptorTable {
 };
 
 /**
- * @brief Sampler description for  creation.
+ * @brief Sampler description for wis::Sampler creation.
  * */
 struct SamplerDesc {
     wis::Filter min_filter; ///< Minification filter.
@@ -1716,9 +1727,31 @@ struct ShaderResourceDesc {
     wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
 
+/**
+ * @brief Struct used to query the extensions for C code.
+ * Queried results should not be freed, their lifetime ends with the Factory they were created with.
+ * If wis::FactoryExtQuery::extension_id is 0, wis::FactoryExtQuery::result must be populated with already created extension.
+ * Otherwise extension is ignored.
+ * */
+struct FactoryExtQuery {
+    wis::FactoryExtID extension_id; ///< Extension ID.
+    /**
+     * @brief Result of the query.
+     * Pointer is populated with the extension with queried ID.
+     * If the extension is not supported/failed to initialize the result is NULL.
+     * */
+    void* result;
+};
+
 //=================================DELEGATES=================================
 
-typedef void (*DebugCallback)(wis::Severity severity, const char* message, void* user_data);
+/**
+ * @brief Debug callback delegate. Used for Library internal log messages.
+ * @param severity Severity of the message. Depend on WISDOM_LOG_LEVEL option.
+ * @param message Message string.
+ * @param user_data User data pointer.
+ * */
+using DebugCallback = void (*)(wis::Severity severity, const char* message, void* user_data);
 //==============================TYPE TRAITS==============================
 
 template<typename T>

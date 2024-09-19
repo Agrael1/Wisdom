@@ -18,9 +18,7 @@ class DX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, DX1
 public:
     [[nodiscard]] bool Supported() const noexcept override
     {
-        wis::com_ptr<ID3D12Debug> debugController;
-        return (wis::succeeded(
-                D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())));
+        return true;
     }
     wis::Result Init(const wis::DX12Factory& in_instance) noexcept override
     {
