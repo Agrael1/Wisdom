@@ -24,10 +24,9 @@ else()
   target_link_libraries(wisdom-debug INTERFACE wisdom-debug-headers)
 endif()
 
-#link the debug library to the main wisdom extension library
+# link the debug library to the main wisdom extension library
 target_link_libraries(wisdom-extension INTERFACE wisdom-debug)
 target_link_libraries(wisdom-extension-headers INTERFACE wisdom-debug-headers)
-
 
 install(
   TARGETS wisdom-debug wisdom-debug-headers
