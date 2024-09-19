@@ -79,13 +79,13 @@ Window::Window(unsigned int width, unsigned int height, const char* name)
     wis::check_windows(AdjustWindowRect(&rWindow, WS_OVERLAPPEDWINDOW, TRUE));
 
     hWnd.reset(CreateWindowA(
-                   WindowClass::GetName(), name,
-                   WS_OVERLAPPEDWINDOW,
-                   CW_USEDEFAULT, CW_USEDEFAULT,
-                   rWindow.right - rWindow.left,
-                   rWindow.bottom - rWindow.top,
-                   nullptr, nullptr,
-                   WindowClass::GetInstance(), this));
+            WindowClass::GetName(), name,
+            WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT, CW_USEDEFAULT,
+            rWindow.right - rWindow.left,
+            rWindow.bottom - rWindow.top,
+            nullptr, nullptr,
+            WindowClass::GetInstance(), this));
 
     // Error checks
     wis::check_windows(!!hWnd);
@@ -486,7 +486,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // process the raw input data
         auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
         if (ri.header.dwType == RIM_TYPEMOUSE &&
-                (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
+            (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
             mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
         }
         break;

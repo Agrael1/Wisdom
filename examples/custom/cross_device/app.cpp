@@ -97,9 +97,8 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
 
     transfer.VKCreateInputBuffer(desc.size);
 
-
-    //buffer = (uint8_t*)_aligned_malloc(desc.size.width * desc.size.height * 4, 4096);
-    // Make Shared memory between work and transfer
+    // buffer = (uint8_t*)_aligned_malloc(desc.size.width * desc.size.height * 4, 4096);
+    //  Make Shared memory between work and transfer
     work.ImportExternalBuffer(transfer.input_buffer.Map(), desc.size.width * desc.size.height * 4);
 }
 
@@ -140,9 +139,8 @@ void App::OnResize(uint32_t width, uint32_t height)
     transfer.Resize(width, height);
 
     //_aligned_free(buffer);
-    //buffer = (uint8_t*)_aligned_malloc(width * height * 4,4096 );
+    // buffer = (uint8_t*)_aligned_malloc(width * height * 4,4096 );
     work.ImportExternalBuffer(transfer.input_buffer.Map(), width * height * 4);
-
 
     this->width = width;
     this->height = height;
