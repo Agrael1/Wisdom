@@ -344,7 +344,7 @@ Queried results should not be freed, their lifetime ends with the Factory they w
 If {::extension_id} is 0, {::result} must be populated with already created extension.
 Otherwise extension is ignored.">
       <member type="FactoryExtID" name="extension_id" doc="Extension ID."/>
-      <member type="void" name="result" mod="ptr" doc="Result of the query. 
+      <member type="void" name="result" mod="ptr" doc="Result of the query.
 Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
@@ -425,6 +425,6 @@ If the extension is not supported/failed to initialize the result is NULL."/>
         <member type="u32" name="size" doc="Size of the buffer in bytes."/>
         <member type="u32" name="stride" doc="Stride of the buffer in bytes."/>
       </impl>
-    </type>    
+    </type>
   </types>
 </registry>

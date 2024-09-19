@@ -10,7 +10,6 @@
 #include <wisdom/util/misc.h>
 #include <numeric>
 
-
 wis::ResultValue<wis::DX12Device>
 wis::ImplDX12CreateDevice(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
 {

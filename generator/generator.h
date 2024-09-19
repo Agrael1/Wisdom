@@ -201,8 +201,8 @@ struct WisHandle {
 
     std::vector<std::string_view> functions;
 
-    std::optional<const WisFunction> HasValue(std::string_view name, 
-        const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
+    std::optional<const WisFunction> HasValue(std::string_view name,
+                                              const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
     {
         if (name.empty())
             return {};

@@ -476,7 +476,6 @@ void WorkNode::Frame()
     wis::CommandListView cmd_list_view2{ cmd_list };
     queue.ExecuteCommandLists(&cmd_list_view2, 1);
     WaitForGPU();
-
 }
 
 void WorkNode::ImportExternalBuffer(void* mapping, uint64_t size)
