@@ -97,7 +97,7 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
 
     transfer.VKCreateInputBuffer(desc.size);
 
-    
+
     //buffer = (uint8_t*)_aligned_malloc(desc.size.width * desc.size.height * 4, 4096);
     // Make Shared memory between work and transfer
     work.ImportExternalBuffer(transfer.input_buffer.Map(), desc.size.width * desc.size.height * 4);

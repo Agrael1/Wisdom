@@ -39,23 +39,24 @@ wis::ImplDX12CreateDevice(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtensi
 }
 
 wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
-                                                   const uint64_t* values, uint32_t count,
-                                                   MutiWaitFlags wait_all,
-                                                   uint64_t timeout) const noexcept
+        const uint64_t* values, uint32_t count,
+        MutiWaitFlags wait_all,
+        uint64_t timeout) const noexcept
 {
     unique_event e;
     HRESULT hr = S_OK;
 
     if (!succeeded(hr = device->SetEventOnMultipleFenceCompletion(
-                           reinterpret_cast<ID3D12Fence* const*>(fences), values, count,
-                           static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get())))
+                            reinterpret_cast<ID3D12Fence* const*>(fences), values, count,
+                            static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get())))
         return wis::make_result<FUNC, "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set "
-                                      "event on multiple fence completion">(hr);
+               "event on multiple fence completion">(hr);
 
     auto st = e.wait(uint32_t(timeout));
     return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
-            : st != wis::Status::Error ? wis::success
-                                       : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+           :
+           st != wis::Status::Error ? wis::success
+           : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
 }
 
 wis::ResultValue<wis::DX12Fence>
@@ -128,9 +129,9 @@ wis::DX12Device::CreateRootSignature(const RootConstant* root_constants,
         root_params.data()[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
             .Constants = {
-                    .ShaderRegister = DX12RootSignature::root_const_register,
-                    .RegisterSpace = 0,
-                    .Num32BitValues = constant.size_bytes / 4,
+                .ShaderRegister = DX12RootSignature::root_const_register,
+                .RegisterSpace = 0,
+                .Num32BitValues = constant.size_bytes / 4,
             },
             .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
         };
@@ -165,8 +166,8 @@ wis::DX12Device::CreateRootSignature(const RootConstant* root_constants,
         root_params.data()[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
             .DescriptorTable = {
-                    .NumDescriptorRanges = table.entry_count,
-                    .pDescriptorRanges = memory.get() + offset,
+                .NumDescriptorRanges = table.entry_count,
+                .pDescriptorRanges = memory.get() + offset,
             },
             .ShaderVisibility = D3D12_SHADER_VISIBILITY(table.stage),
         };
@@ -212,23 +213,23 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     //--Shader stages
     wis::detail::memory_pool pipeline_stream;
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_VS>(pipeline_stream,
-                                                                       desc->shaders.vertex);
+            desc->shaders.vertex);
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_PS>(pipeline_stream,
-                                                                       desc->shaders.pixel);
+            desc->shaders.pixel);
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_GS>(pipeline_stream,
-                                                                       desc->shaders.geometry);
+            desc->shaders.geometry);
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_HS>(pipeline_stream,
-                                                                       desc->shaders.hull);
+            desc->shaders.hull);
     wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_DS>(pipeline_stream,
-                                                                       desc->shaders.domain);
+            desc->shaders.domain);
     //--Topology
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY>() =
-            convert_dx(desc->topology_type);
+        convert_dx(desc->topology_type);
 
     //--Root signature
 
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() =
-            std::get<0>(desc->root_signature);
+        std::get<0>(desc->root_signature);
 
     //--Input layout
     wis::detail::limited_allocator<D3D12_INPUT_ELEMENT_DESC, wis::max_vertex_bindings> ia_stage{
@@ -236,15 +237,15 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     };
 
     auto slots =
-            std::span{ desc->input_layout.slots, desc->input_layout.slots + desc->input_layout.slot_count };
+        std::span{ desc->input_layout.slots, desc->input_layout.slots + desc->input_layout.slot_count };
     auto attrs = std::span{ desc->input_layout.attributes,
                             desc->input_layout.attributes + desc->input_layout.attribute_count };
 
     for (auto& i : attrs) {
         auto slot =
-                std::find_if(slots.begin(), slots.end(), [&](auto& s) {
-                    return s.slot == i.input_slot;
-                });
+        std::find_if(slots.begin(), slots.end(), [&](auto& s) {
+            return s.slot == i.input_slot;
+        });
         if (slot == slots.end())
             continue;
 
@@ -254,7 +255,8 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
                                  .InputSlot = i.input_slot,
                                  .AlignedByteOffset = i.offset_bytes,
                                  .InputSlotClass = D3D12_INPUT_CLASSIFICATION(slot->input_class),
-                                 .InstanceDataStepRate = slot->input_class == wis::InputClass::PerInstance ? slot->stride_bytes : 0 };
+                                 .InstanceDataStepRate = slot->input_class == wis::InputClass::PerInstance ? slot->stride_bytes : 0
+                               };
     }
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT>() = {
         .pInputElementDescs = ia_stage.data(),
@@ -265,15 +267,15 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     if (desc->rasterizer) {
         bool bias = desc->rasterizer->depth_bias_enable;
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2>() =
-                CD3DX12_RASTERIZER_DESC2{ D3D12_RASTERIZER_DESC2{
-                        .FillMode = convert_dx(desc->rasterizer->fill_mode),
-                        .CullMode = convert_dx(desc->rasterizer->cull_mode),
-                        .FrontCounterClockwise = convert_dx(desc->rasterizer->front_face),
-                        .DepthBias = bias ? desc->rasterizer->depth_bias : 0.0f,
-                        .DepthBiasClamp = bias ? desc->rasterizer->depth_bias_clamp : 0.0f,
-                        .SlopeScaledDepthBias = bias ? desc->rasterizer->depth_bias_slope_factor : 0.0f,
-                        .DepthClipEnable = desc->rasterizer->depth_clip_enable,
-                } };
+        CD3DX12_RASTERIZER_DESC2{ D3D12_RASTERIZER_DESC2{
+                .FillMode = convert_dx(desc->rasterizer->fill_mode),
+                .CullMode = convert_dx(desc->rasterizer->cull_mode),
+                .FrontCounterClockwise = convert_dx(desc->rasterizer->front_face),
+                .DepthBias = bias ? desc->rasterizer->depth_bias : 0.0f,
+                .DepthBiasClamp = bias ? desc->rasterizer->depth_bias_clamp : 0.0f,
+                .SlopeScaledDepthBias = bias ? desc->rasterizer->depth_bias_slope_factor : 0.0f,
+                .DepthClipEnable = desc->rasterizer->depth_clip_enable,
+            } };
     }
 
     //--Multisample
@@ -283,46 +285,46 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
             .Quality = 0,
         };
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_MASK>() =
-                desc->sample->sample_mask;
+            desc->sample->sample_mask;
     }
 
     //--Depth stencil
     if (desc->depth_stencil) {
         auto& ds = *desc->depth_stencil;
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2>() =
-                CD3DX12_DEPTH_STENCIL_DESC2{ D3D12_DEPTH_STENCIL_DESC2{
-                        .DepthEnable = ds.depth_enable,
-                        .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
-                        .DepthFunc = convert_dx(ds.depth_comp),
-                        .StencilEnable = ds.stencil_enable,
-                        .FrontFace =
-                                D3D12_DEPTH_STENCILOP_DESC1{
-                                        .StencilFailOp = convert_dx(ds.stencil_front.fail_op),
-                                        .StencilDepthFailOp = convert_dx(ds.stencil_front.depth_fail_op),
-                                        .StencilPassOp = convert_dx(ds.stencil_front.pass_op),
-                                        .StencilFunc = convert_dx(ds.stencil_front.comparison),
-                                        .StencilReadMask = ds.stencil_front.read_mask,
-                                        .StencilWriteMask = ds.stencil_front.write_mask,
-                                },
-                        .BackFace =
-                                D3D12_DEPTH_STENCILOP_DESC1{
-                                        .StencilFailOp = convert_dx(ds.stencil_back.fail_op),
-                                        .StencilDepthFailOp = convert_dx(ds.stencil_back.depth_fail_op),
-                                        .StencilPassOp = convert_dx(ds.stencil_back.pass_op),
-                                        .StencilFunc = convert_dx(ds.stencil_back.comparison),
-                                        .StencilReadMask = ds.stencil_back.read_mask,
-                                        .StencilWriteMask = ds.stencil_back.write_mask,
-                                },
-                        .DepthBoundsTestEnable = ds.depth_bound_test,
-                } };
+        CD3DX12_DEPTH_STENCIL_DESC2{ D3D12_DEPTH_STENCIL_DESC2{
+                .DepthEnable = ds.depth_enable,
+                .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
+                .DepthFunc = convert_dx(ds.depth_comp),
+                .StencilEnable = ds.stencil_enable,
+                .FrontFace =
+                D3D12_DEPTH_STENCILOP_DESC1{
+                    .StencilFailOp = convert_dx(ds.stencil_front.fail_op),
+                    .StencilDepthFailOp = convert_dx(ds.stencil_front.depth_fail_op),
+                    .StencilPassOp = convert_dx(ds.stencil_front.pass_op),
+                    .StencilFunc = convert_dx(ds.stencil_front.comparison),
+                    .StencilReadMask = ds.stencil_front.read_mask,
+                    .StencilWriteMask = ds.stencil_front.write_mask,
+                },
+                .BackFace =
+                D3D12_DEPTH_STENCILOP_DESC1{
+                    .StencilFailOp = convert_dx(ds.stencil_back.fail_op),
+                    .StencilDepthFailOp = convert_dx(ds.stencil_back.depth_fail_op),
+                    .StencilPassOp = convert_dx(ds.stencil_back.pass_op),
+                    .StencilFunc = convert_dx(ds.stencil_back.comparison),
+                    .StencilReadMask = ds.stencil_back.read_mask,
+                    .StencilWriteMask = ds.stencil_back.write_mask,
+                },
+                .DepthBoundsTestEnable = ds.depth_bound_test,
+            } };
     }
 
     //--Render targets
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(
-            convert_dx(desc->attachments.depth_attachment));
+        convert_dx(desc->attachments.depth_attachment));
 
     D3D12_RT_FORMAT_ARRAY rta{ .NumRenderTargets = uint32_t(std::min(
-                                       desc->attachments.attachments_count, wis::max_render_targets)) };
+                                   desc->attachments.attachments_count, wis::max_render_targets)) };
     for (size_t i = 0; i < rta.NumRenderTargets; i++) {
         rta.RTFormats[i] = convert_dx(desc->attachments.attachment_formats[i]);
     }
@@ -356,7 +358,7 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
             }
         }
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC>() =
-                CD3DX12_BLEND_DESC{ bdesc };
+            CD3DX12_BLEND_DESC{ bdesc };
     }
 
     D3D12_PIPELINE_STATE_STREAM_DESC psstream_desc{
@@ -373,7 +375,7 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
 }
 
 wis::ResultValue<wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
-                                                                size_t size) const noexcept
+        size_t size) const noexcept
 {
     auto x = wis::detail::make_unique_for_overwrite<std::byte[]>(size);
 
@@ -408,10 +410,10 @@ wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDe
         .Format = convert_dx(desc.format),
         .ViewDimension = D3D12_RTV_DIMENSION(desc.layout),
         .Texture2DArray{
-                .MipSlice = desc.mip,
-                .FirstArraySlice = desc.base_array_layer,
-                .ArraySize = desc.layer_count,
-                .PlaneSlice = 0 }
+            .MipSlice = desc.mip,
+            .FirstArraySlice = desc.base_array_layer,
+            .ArraySize = desc.layer_count,
+            .PlaneSlice = 0 }
     };
     switch (desc.layout) {
     case wis::TextureLayout::Texture1D:
@@ -523,10 +525,10 @@ wis::DX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResour
         .Format = convert_dx(desc.format),
         .ViewDimension = convert_dx(desc.view_type),
         .Shader4ComponentMapping = UINT(D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(
-                convert_dx(desc.component_mapping.r),
-                convert_dx(desc.component_mapping.g),
-                convert_dx(desc.component_mapping.b),
-                convert_dx(desc.component_mapping.a))),
+                                            convert_dx(desc.component_mapping.r),
+                                            convert_dx(desc.component_mapping.g),
+                                            convert_dx(desc.component_mapping.b),
+                                            convert_dx(desc.component_mapping.a))),
     };
 
     switch (desc.view_type) {
