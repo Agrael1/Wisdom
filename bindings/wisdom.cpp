@@ -3,6 +3,33 @@
 #if defined(WISDOM_DX12)
 #include <wisdom/wisdom_dx12.hpp>
 
+// DX12Factory methods --
+extern "C" WisResult DX12FactoryGetAdapter(DX12Factory self, uint32_t index, WisAdapterPreference preference, DX12Adapter* adapter)
+{
+    auto* xself = reinterpret_cast<wis::DX12Factory*>(self);
+    auto&& [res, value] = xself->GetAdapter(index, static_cast<wis::AdapterPreference>(preference));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *adapter = reinterpret_cast<DX12Adapter>(new (std::nothrow) wis::DX12Adapter(std::move(value)));
+    if (!*adapter)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Adapter." };
+    return reinterpret_cast<WisResult&>(res);
+}
+
+// DX12Adapter methods --
+extern "C" void DX12AdapterDestroy(DX12Adapter self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Adapter*>(self);
+    delete xself;
+}
+extern "C" void DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc)
+{
+    auto* xself = reinterpret_cast<wis::DX12Adapter*>(self);
+    xself->GetDesc(reinterpret_cast<wis::AdapterDesc*&>(inout_desc));
+}
+
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
 {
     wis::DX12FenceView xself = reinterpret_cast<wis::DX12Fence&>(*self);
@@ -47,6 +74,33 @@ extern "C" DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuf
 
 #if defined(WISDOM_VULKAN)
 #include <wisdom/wisdom_vk.hpp>
+
+// VKFactory methods --
+extern "C" WisResult VKFactoryGetAdapter(VKFactory self, uint32_t index, WisAdapterPreference preference, VKAdapter* adapter)
+{
+    auto* xself = reinterpret_cast<wis::VKFactory*>(self);
+    auto&& [res, value] = xself->GetAdapter(index, static_cast<wis::AdapterPreference>(preference));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *adapter = reinterpret_cast<VKAdapter>(new (std::nothrow) wis::VKAdapter(std::move(value)));
+    if (!*adapter)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKAdapter." };
+    return reinterpret_cast<WisResult&>(res);
+}
+
+// VKAdapter methods --
+extern "C" void VKAdapterDestroy(VKAdapter self)
+{
+    auto* xself = reinterpret_cast<wis::VKAdapter*>(self);
+    delete xself;
+}
+extern "C" void VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc)
+{
+    auto* xself = reinterpret_cast<wis::VKAdapter*>(self);
+    xself->GetDesc(reinterpret_cast<wis::AdapterDesc*&>(inout_desc));
+}
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)
 {

@@ -1,11 +1,37 @@
-#define WISDOM_DX12
 #include <wisdom.h>
+#include <stdio.h>
 
 int main()
 {
-    DX12Factory factory;
-    DX12CreateFactory(true, NULL, 0, &factory);
+    WisFactory factory;
+    WisDevice device;
 
-    DX12FactoryDestroy(factory);
+    WisFactoryExtQuery exts[] = {
+        { FactoryExtIDDebugExtension, NULL },
+    };
+
+    WisCreateFactory(true, exts, 1, &factory);
+
+    for (size_t i = 0;; i++) {
+        WisAdapter adapter;
+        WisResult result = WisFactoryGetAdapter(factory, i, AdapterPreferencePerformance, &adapter);
+
+        if (result.status == StatusOk) {
+            WisAdapterDesc desc;
+            WisAdapterGetDesc(adapter, &desc);
+            printf("Adapter: %s\n", desc.description);
+
+            // WisResult res = WisCreateDevice(adapter, NULL, 0, false, &device);
+            // if (res.status == StatusOk) {
+            //     WisAdapterDestroy(adapter);
+            //     break;
+            // }
+            WisAdapterDestroy(adapter);
+        } else {
+            break;
+        }
+    }
+
+    WisFactoryDestroy(factory);
     return 0;
 }
