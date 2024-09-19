@@ -348,7 +348,7 @@ Otherwise extension is ignored.">
 Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
-    
+
     <type name="DeviceExtQuery" category="struct" doc="Struct used to query the extensions for C code.
 Queried results should not be freed, their lifetime ends with the Factory they were created with.
 If {::extension_id} is 0, {::result} must be populated with already created extension.
