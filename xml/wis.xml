@@ -32,14 +32,14 @@
     <!-- Factory -->
     <func for="Factory" name="Destroy" mod="custom-impl" doc="Destroys the {Factory::} and all the extensions created by it.
 Order of destruction is Extensions in which they were created, then factory."/>
-    
+
     <func for="Factory" name="GetAdapter" doc="Creates the {Adapter::} for the factory with provided index.">
       <ret type="Adapter" name="adapter" result="true" doc="{Adapter::} on success ({Status::Ok})."/>
       <arg type="u32" name="index" doc="The index of the adapter to get."/>
       <arg type="AdapterPreference" name="preference" default="wis::AdapterPreference::Performance" doc="The preference of the adapter to get.
 Default is {AdapterPreference::Performance}."/>
     </func>
-    
+
     <!-- Adapter -->
     <func for="Adapter" name="Destroy" doc="Destroys the {Adapter::}."/>
 
@@ -48,7 +48,7 @@ Default is {AdapterPreference::Performance}."/>
       <arg type="AdapterDesc" name="inout_desc" mod="ptr" doc="The {AdapterDesc::} to fill.
 Must not be NULL."/>
     </func>
-    
+
     <!--<func for="Device" name="Destroy"/>
     <func for="Fence" name="Destroy"/>
     <func for="ResourceAllocator" name="Destroy"/>
