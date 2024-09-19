@@ -31,7 +31,7 @@
   <functions>
     <func for="Factory" name="Destroy" mod="custom-impl" doc="Destroys the {Factory::} and all the extensions created by it.
 Order of destruction is Extensions in which they were created, then factory."/>
-    
+
     <!--<func for="Adapter" name="Destroy"/>
     <func for="Device" name="Destroy"/>
     <func for="Fence" name="Destroy"/>
@@ -51,7 +51,7 @@ Order of destruction is Extensions in which they were created, then factory."/>
     <func for="Memory" name="Destroy"/>
     <func for="ShaderResource" name="Destroy"/>-->
 
-    <!-- Free Functions -->    
+    <!-- Free Functions -->
     <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
       <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
       <arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
@@ -73,8 +73,8 @@ The extensions are initialized through this array."/>
       <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
 The presence of core functionality is checked by the query function."/>
     </func>
-    
-    
+
+
   </functions>
   <extensions>
     <ext name="DebugExtension" type="Factory" id="1" include="wisdom/wisdom_debug.h">
