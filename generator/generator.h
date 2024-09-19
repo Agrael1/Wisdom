@@ -202,7 +202,7 @@ struct WisHandle {
     std::vector<std::string_view> functions;
 
     std::optional<const WisFunction> HasValue(std::string_view name,
-                                              const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
+            const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
     {
         if (name.empty())
             return {};
@@ -284,7 +284,7 @@ public:
     std::pair<std::string, std::string> MakeHandle(const WisHandle& s);
     std::string MakeFunctionImpl(const WisFunction& func, std::string_view decl, std::string_view impl);
 
-#pragma region C API
+    #pragma region C API
     // Function generation
     std::string MakeCFunctionGenericDecl(const WisFunction& func, std::string_view impl);
     std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true);
@@ -304,16 +304,16 @@ public:
     std::string MakeCExtensionHeader(const WisExtension& s, std::string_view impl);
     std::string MakeCExtensionImpl(const WisExtension& s, std::string_view impl);
     std::string MakeCExtensionMap(std::string_view impl);
-#pragma endregion
+    #pragma endregion
 
-#pragma region CPP API
+    #pragma region CPP API
     // Function generation
     std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl);
     std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true);
     std::string MakeCPPFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API");
     std::string MakeCPPFunctionCall(const WisFunction& func, std::string_view impl);
     std::string MakeCPPDelegate(const WisFunction& s);
-#pragma endregion
+    #pragma endregion
 
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
