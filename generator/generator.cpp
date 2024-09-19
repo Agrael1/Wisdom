@@ -1806,7 +1806,7 @@ constexpr static inline decltype(auto) {}FactoryExtensionBridge(wis::FactoryExtI
     }
 
     // Add default case and close switch with function
-    bridge_f += "default: return Executor<wis::DX12DebugExtension>{}(std::forward<Args>(args)...);\n}\n}\n";
+    bridge_f += wis::format("default: return Executor<wis::{}DebugExtension>{{}}(std::forward<Args>(args)...);\n}}\n}}\n", impl);
 
     return factory_map + std::string(k_delimiter) + bridge_f + std::string(k_delimiter) + device_map;
 }
