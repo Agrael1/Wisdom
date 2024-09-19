@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.2.7</b>
+<b>Version 0.2.8</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1128,6 +1128,16 @@ enum WisIndexType {
     IndexTypeUInt32 = 4, ///< 32-bit unsigned integer index type.
 };
 
+/**
+ * @brief Factory extension ID.
+ * Platform extension values start from 2049
+ * 0 is reserved as invalid/custom extension.
+ *
+ * */
+enum WisFactoryExtID {
+    FactoryExtIDDebugExtension = 1,
+};
+
 //-------------------------------------------------------------------------
 
 /**
@@ -1354,6 +1364,7 @@ typedef struct WisDescriptorTable WisDescriptorTable;
 typedef struct WisSamplerDesc WisSamplerDesc;
 typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
+typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -1388,6 +1399,7 @@ typedef enum WisAddressMode WisAddressMode;
 typedef enum WisTextureViewType WisTextureViewType;
 typedef enum WisComponentSwizzle WisComponentSwizzle;
 typedef enum WisIndexType WisIndexType;
+typedef enum WisFactoryExtID WisFactoryExtID;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisDSSelectBits WisDSSelectBits;
@@ -1587,7 +1599,7 @@ struct WisRootConstant {
 };
 
 /**
- * @brief Swapchain description for  creation.
+ * @brief Swapchain description for SwapChain creation.
  * */
 struct WisSwapchainDesc {
     WisSize2D size; ///< Swapchain texture size.
@@ -1599,7 +1611,7 @@ struct WisSwapchainDesc {
 };
 
 /**
- * @brief Texture description for  creation.
+ * @brief Texture description for Texture creation.
  * */
 struct WisTextureDesc {
     WisDataFormat format; ///< Texture pixel/block format.
@@ -1663,7 +1675,7 @@ struct WisSubresourceRange {
 };
 
 /**
- * @brief Render target description for  creation.
+ * @brief Render target description for RenderTarget creation.
  * */
 struct WisRenderTargetDesc {
     WisDataFormat format; ///< Render target format.
@@ -1674,7 +1686,7 @@ struct WisRenderTargetDesc {
 };
 
 /**
- * @brief Viewport description for .
+ * @brief Viewport description for CommandList.
  * Viewport is considered from Top Left corner.
  * */
 struct WisViewport {
@@ -1687,7 +1699,7 @@ struct WisViewport {
 };
 
 /**
- * @brief Scissor description for .
+ * @brief Scissor description for CommandList.
  * */
 struct WisScissor {
     int32_t left; ///< Left corner x coordinate.
@@ -1697,7 +1709,7 @@ struct WisScissor {
 };
 
 /**
- * @brief Buffer barrier for .
+ * @brief Buffer barrier for CommandList.
  * */
 struct WisBufferBarrier {
     WisBarrierSync sync_before; ///< Synchronization before the barrier.
@@ -1709,7 +1721,7 @@ struct WisBufferBarrier {
 };
 
 /**
- * @brief Texture barrier for .
+ * @brief Texture barrier for CommandList.
  * */
 struct WisTextureBarrier {
     WisBarrierSync sync_before; ///< Synchronization before the barrier.
@@ -1742,7 +1754,7 @@ struct WisDescriptorTable {
 };
 
 /**
- * @brief Sampler description for  creation.
+ * @brief Sampler description for Sampler creation.
  * */
 struct WisSamplerDesc {
     WisFilter min_filter; ///< Minification filter.
@@ -1780,12 +1792,34 @@ struct WisShaderResourceDesc {
     WisSubresourceRange subresource_range; ///< Subresource range of the resource.
 };
 
+/**
+ * @brief Struct used to query the extensions for C code.
+ * Queried results should not be freed, their lifetime ends with the Factory they were created with.
+ * If WisFactoryExtQuery::extension_id is 0, WisFactoryExtQuery::result must be populated with already created extension.
+ * Otherwise extension is ignored.
+ * */
+struct WisFactoryExtQuery {
+    WisFactoryExtID extension_id; ///< Extension ID.
+    /**
+     * @brief Result of the query.
+     * Pointer is populated with the extension with queried ID.
+     * If the extension is not supported/failed to initialize the result is NULL.
+     * */
+    void* result;
+};
+
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
 
 //=================================DELEGATES=================================
 
+/**
+ * @brief Debug callback delegate. Used for Library internal log messages.
+ * @param severity Severity of the message. Depend on WISDOM_LOG_LEVEL option.
+ * @param message Message string.
+ * @param user_data User data pointer.
+ * */
 typedef void (*DebugCallback)(WisSeverity severity, const char* message, void* user_data);
 
 //-------------------------------------------------------------------------
@@ -1956,27 +1990,41 @@ typedef struct VKShaderResource_t* VKShaderResource;
 
 //-------------------------------------------------------------------------
 
+// VKFactory methods --
+/**
+ * @brief Destroys the VKFactory and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then factory.
+ * @param self valid handle to the Factory
+ * */
 WISDOM_API void VKFactoryDestroy(VKFactory self);
-WISDOM_API void VKAdapterDestroy(VKAdapter self);
-WISDOM_API void VKDeviceDestroy(VKDevice self);
-WISDOM_API void VKFenceDestroy(VKFence self);
-WISDOM_API void VKResourceAllocatorDestroy(VKResourceAllocator self);
-WISDOM_API void VKRootSignatureDestroy(VKRootSignature self);
-WISDOM_API void VKCommandQueueDestroy(VKCommandQueue self);
-WISDOM_API void VKShaderDestroy(VKShader self);
-WISDOM_API void VKPipelineStateDestroy(VKPipelineState self);
-WISDOM_API void VKCommandListDestroy(VKCommandList self);
-WISDOM_API void VKBufferDestroy(VKBuffer self);
-WISDOM_API void VKTextureDestroy(VKTexture self);
-WISDOM_API void VKSwapChainDestroy(VKSwapChain self);
-WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
-WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
-WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
-WISDOM_API void VKSamplerDestroy(VKSampler self);
-WISDOM_API void VKMemoryDestroy(VKMemory self);
-WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
-WISDOM_API WisResult VKCreateFactory(bool debug_layer, VKFactory* out_factory);
-WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDevice* out_device);
+
+//-------------------------------------------------------------------------
+
+/**
+ * @brief Creates the VKFactory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
+ * @param extension_count The number of extensions to enable.
+ * @param factory VKFactory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, VKFactory* factory);
+/**
+ * @brief Creates the VKDevice with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @param device VKDevice on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKCreateDevice(VKAdapter adapter, VKDeviceExtension** extensions, uint32_t extension_count, bool force, VKDevice* device);
 
 //-------------------------------------------------------------------------
 
@@ -2154,27 +2202,41 @@ typedef struct DX12ShaderResource_t* DX12ShaderResource;
 
 //-------------------------------------------------------------------------
 
+// DX12Factory methods --
+/**
+ * @brief Destroys the DX12Factory and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then factory.
+ * @param self valid handle to the Factory
+ * */
 WISDOM_API void DX12FactoryDestroy(DX12Factory self);
-WISDOM_API void DX12AdapterDestroy(DX12Adapter self);
-WISDOM_API void DX12DeviceDestroy(DX12Device self);
-WISDOM_API void DX12FenceDestroy(DX12Fence self);
-WISDOM_API void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
-WISDOM_API void DX12RootSignatureDestroy(DX12RootSignature self);
-WISDOM_API void DX12CommandQueueDestroy(DX12CommandQueue self);
-WISDOM_API void DX12ShaderDestroy(DX12Shader self);
-WISDOM_API void DX12PipelineStateDestroy(DX12PipelineState self);
-WISDOM_API void DX12CommandListDestroy(DX12CommandList self);
-WISDOM_API void DX12BufferDestroy(DX12Buffer self);
-WISDOM_API void DX12TextureDestroy(DX12Texture self);
-WISDOM_API void DX12SwapChainDestroy(DX12SwapChain self);
-WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
-WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
-WISDOM_API void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self);
-WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
-WISDOM_API void DX12MemoryDestroy(DX12Memory self);
-WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
-WISDOM_API WisResult DX12CreateFactory(bool debug_layer, DX12Factory* out_factory);
-WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12Device* out_device);
+
+//-------------------------------------------------------------------------
+
+/**
+ * @brief Creates the DX12Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
+ * @param extension_count The number of extensions to enable.
+ * @param factory DX12Factory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, DX12Factory* factory);
+/**
+ * @brief Creates the DX12Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @param device DX12Device on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12CreateDevice(DX12Adapter adapter, DX12DeviceExtension** extensions, uint32_t extension_count, bool force, DX12Device* device);
 
 //-------------------------------------------------------------------------
 
@@ -2186,6 +2248,151 @@ WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);
 WISDOM_API DX12ShaderView AsDX12ShaderView(DX12Shader self);
 WISDOM_API DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self);
 WISDOM_API DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self);
+#endif
+
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+typedef DX12CommandQueue WisCommandQueue;
+typedef DX12RootSignature WisRootSignature;
+typedef DX12Factory WisFactory;
+typedef DX12DeviceExtension WisDeviceExtension;
+typedef DX12PipelineState WisPipelineState;
+typedef DX12Adapter WisAdapter;
+typedef DX12Device WisDevice;
+typedef DX12Fence WisFence;
+typedef DX12FactoryExtension WisFactoryExtension;
+typedef DX12ResourceAllocator WisResourceAllocator;
+typedef DX12Shader WisShader;
+typedef DX12CommandList WisCommandList;
+typedef DX12SwapChain WisSwapChain;
+typedef DX12Buffer WisBuffer;
+typedef DX12Texture WisTexture;
+typedef DX12DebugMessenger WisDebugMessenger;
+typedef DX12RenderTarget WisRenderTarget;
+typedef DX12DescriptorBuffer WisDescriptorBuffer;
+typedef DX12Sampler WisSampler;
+typedef DX12Memory WisMemory;
+typedef DX12ShaderResource WisShaderResource;
+
+//-------------------------------------------------------------------------
+
+// WisFactory methods --
+/**
+ * @brief Destroys the WisFactory and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then factory.
+ * @param self valid handle to the Factory
+ * */
+inline void WisFactoryDestroy(WisFactory self)
+{
+    return DX12FactoryDestroy(self);
+}
+//-------------------------------------------------------------------------
+
+/**
+ * @brief Creates the WisFactory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
+ * @param extension_count The number of extensions to enable.
+ * @param factory WisFactory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, WisFactory* factory)
+{
+    return DX12CreateFactory(debug_layer, extensions, extension_count, factory);
+}
+/**
+ * @brief Creates the WisDevice with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @param device WisDevice on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtension** extensions, uint32_t extension_count, bool force, WisDevice* device)
+{
+    return DX12CreateDevice(adapter, extensions, extension_count, force, device);
+}
+#elif defined(WISDOM_VULKAN)
+
+typedef VKCommandQueue WisCommandQueue;
+typedef VKRootSignature WisRootSignature;
+typedef VKFactory WisFactory;
+typedef VKDeviceExtension WisDeviceExtension;
+typedef VKPipelineState WisPipelineState;
+typedef VKAdapter WisAdapter;
+typedef VKDevice WisDevice;
+typedef VKFence WisFence;
+typedef VKFactoryExtension WisFactoryExtension;
+typedef VKResourceAllocator WisResourceAllocator;
+typedef VKShader WisShader;
+typedef VKCommandList WisCommandList;
+typedef VKSwapChain WisSwapChain;
+typedef VKBuffer WisBuffer;
+typedef VKTexture WisTexture;
+typedef VKDebugMessenger WisDebugMessenger;
+typedef VKRenderTarget WisRenderTarget;
+typedef VKDescriptorBuffer WisDescriptorBuffer;
+typedef VKSampler WisSampler;
+typedef VKMemory WisMemory;
+typedef VKShaderResource WisShaderResource;
+
+//-------------------------------------------------------------------------
+
+// WisFactory methods --
+/**
+ * @brief Destroys the WisFactory and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then factory.
+ * @param self valid handle to the Factory
+ * */
+inline void WisFactoryDestroy(WisFactory self)
+{
+    return VKFactoryDestroy(self);
+}
+//-------------------------------------------------------------------------
+
+/**
+ * @brief Creates the WisFactory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions Query the extensions that need to be present.
+ * The extension pointers are initialized if the extension is found and initialized.
+ * Otherwise returns NULL.
+ * @param extension_count The number of extensions to enable.
+ * @param factory WisFactory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, WisFactory* factory)
+{
+    return VKCreateFactory(debug_layer, extensions, extension_count, factory);
+}
+/**
+ * @brief Creates the WisDevice with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @param device WisDevice on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtension** extensions, uint32_t extension_count, bool force, WisDevice* device)
+{
+    return VKCreateDevice(adapter, extensions, extension_count, force, device);
+}
 #endif
 
 #ifdef __cplusplus

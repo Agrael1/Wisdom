@@ -32,7 +32,7 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
     xfactory_exts[0] = &debug_ext;
     std::copy(factory_exts.begin(), factory_exts.end(), xfactory_exts.get() + 1);
 
-    auto [result, factory] = wis::CreateFactoryWithExtensions(true, xfactory_exts.get(), factory_exts.size() + 1);
+    auto [result, factory] = wis::CreateFactory(true, xfactory_exts.get(), factory_exts.size() + 1);
     auto [resx, hinfo] = debug_ext.CreateDebugMessenger(DebugCallback, &std::cout);
     info = std::move(hinfo);
 

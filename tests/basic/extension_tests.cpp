@@ -28,7 +28,7 @@ TEST_CASE("host_texture_write_ext")
     wis::DebugExtension ext;
     std::array<wis::FactoryExtension*, 1> exts = { &ext };
 
-    auto [res, factory] = wis::CreateFactoryWithExtensions(true, exts.data(), 1);
+    auto [res, factory] = wis::CreateFactory(true, exts.data(), 1);
     auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
 
     wis::Device device;
@@ -43,7 +43,7 @@ TEST_CASE("host_texture_write_ext")
             res = adapter.GetDesc(&desc);
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
-            auto [res, hdevice] = wis::CreateDeviceWithExtensions(std::move(adapter), exts2, 1);
+            auto [res, hdevice] = wis::CreateDevice(std::move(adapter), exts2, 1);
             if (res.status == wis::Status::Ok) {
                 device = std::move(hdevice);
                 break;

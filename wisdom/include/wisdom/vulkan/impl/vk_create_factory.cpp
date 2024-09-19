@@ -103,36 +103,7 @@ wis::VKFactory::FoundLayers(std::span<const char*> in_layers) noexcept
 //--------------------------------------------------------------------------------------------------
 
 wis::ResultValue<wis::VKFactory>
-wis::VKCreateFactory(bool debug_layer) noexcept
-{
-    auto xr = detail::VKFactoryGlobals::Instance().InitializeFactoryGlobals();
-    if (xr.status != wis::Status::Ok)
-        return xr;
-
-    auto& gt = detail::VKFactoryGlobals::GetGlobalTable();
-    VkResult vr{};
-    uint32_t version = 0;
-    if (gt.vkEnumerateInstanceVersion) {
-        vr = gt.vkEnumerateInstanceVersion(&version);
-        if (!wis::succeeded(vr))
-            return wis::make_result<FUNC, "Failed to enumerate instance version">(vr);
-    } else {
-        version = VK_API_VERSION_1_0;
-    }
-
-    wis::lib_info(wis::format("Vulkan version: {}.{}.{}", VK_API_VERSION_MAJOR(version),
-                              VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version)));
-
-    VkApplicationInfo info{
-        VK_STRUCTURE_TYPE_APPLICATION_INFO, nullptr, "", VK_MAKE_API_VERSION(0, 1, 0, 0), "",
-        VK_MAKE_API_VERSION(0, 1, 0, 0), version
-    };
-
-    return detail::VKCreateFactoryWithExtensions(debug_layer, (const char**)wis::detail::instance_extensions.data(), std::size(wis::detail::instance_extensions), (const char**)wis::detail::instance_layers.data(), std::size(wis::detail::instance_layers));
-}
-
-wis::ResultValue<wis::VKFactory>
-wis::VKCreateFactoryWithExtensions(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept
+wis::ImplVKCreateFactory(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept
 {
     size_t ext_alloc_size = std::size(detail::instance_extensions);
     size_t layer_alloc_size = std::size(detail::instance_layers);

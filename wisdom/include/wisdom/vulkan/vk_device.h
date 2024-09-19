@@ -51,7 +51,7 @@ public:
 class VKDevice : public QueryInternal<VKDevice>
 {
     friend wis::ResultValue<wis::VKDevice>
-    VKCreateDeviceWithExtensionsForce(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
+    ImplVKCreateDevice(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
 
 public:
     VKDevice() noexcept = default;
@@ -158,13 +158,7 @@ private:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDevice(wis::VKAdapter in_adapter) noexcept;
-
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDeviceWithExtensions(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size) noexcept;
-
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDevice>
-VKCreateDeviceWithExtensionsForce(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
+ImplVKCreateDevice(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
 
 } // namespace wis
 

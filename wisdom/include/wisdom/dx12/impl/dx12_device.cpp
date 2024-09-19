@@ -10,20 +10,9 @@
 #include <wisdom/util/misc.h>
 #include <numeric>
 
-wis::ResultValue<wis::DX12Device>
-wis::DX12CreateDevice(wis::DX12AdapterHandle adapter) noexcept
-{
-    return wis::DX12CreateDeviceWithExtensions(adapter, nullptr, 0);
-}
 
 wis::ResultValue<wis::DX12Device>
-wis::DX12CreateDeviceWithExtensions(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count) noexcept
-{
-    return wis::DX12CreateDeviceWithExtensionsForce(adapter, extensions, ext_count, false);
-}
-
-wis::ResultValue<wis::DX12Device>
-wis::DX12CreateDeviceWithExtensionsForce(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
+wis::ImplDX12CreateDevice(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
 {
     auto in_adapter = std::get<0>(adapter);
 

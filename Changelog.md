@@ -1,5 +1,13 @@
 # Version History
 
+- 0.3.0
+
+  - Changed generation of the API 
+  - Added support for extensions in C API
+  - Added documentation nodes for methods and functions for C API
+  - Added documentation and staged inline functions for C++ API (only free for now, methods will come as separate generated classes)
+  - CreateDevice and CreateFactory now have extensions and default arguments to them. No more need for 4 separate functions for each case.
+	
 - 0.2.8
 
   - Fixed shared fence for DX12

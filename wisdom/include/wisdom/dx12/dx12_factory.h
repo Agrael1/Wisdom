@@ -19,7 +19,8 @@ struct Internal<DX12Factory> {
 /// @brief Main Factory class
 class DX12Factory : public QueryInternal<DX12Factory>
 {
-    friend wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool) noexcept;
+    friend wis::ResultValue<wis::DX12Factory>
+    ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
 
 public:
     DX12Factory() noexcept = default;
@@ -54,10 +55,7 @@ private:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Factory>
-DX12CreateFactory(bool enable_debug) noexcept;
-
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Factory>
-DX12CreateFactoryWithExtensions(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
+ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
 
 } // namespace wis
 

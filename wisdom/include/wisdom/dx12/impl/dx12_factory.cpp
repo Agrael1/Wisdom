@@ -12,8 +12,12 @@ wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept
 }
 
 wis::ResultValue<wis::DX12Factory>
-wis::DX12CreateFactory(bool enable_debug) noexcept
+wis::ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept
 {
+    std::span<DX12FactoryExtension*> exts{
+        extensions, extensions + extension_count
+    };
+
     wis::com_ptr<IDXGIFactory6> factory;
     auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, __uuidof(*factory),
                                  factory.put_void());
@@ -26,20 +30,7 @@ wis::DX12CreateFactory(bool enable_debug) noexcept
             return wis::make_result<FUNC, "Failed to create DXGI factory">(hr);
         }
     }
-    return DX12Factory(std::move(factory));
-}
-
-wis::ResultValue<wis::DX12Factory>
-wis::DX12CreateFactoryWithExtensions(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept
-{
-    std::span<DX12FactoryExtension*> exts{
-        extensions, extensions + extension_count
-    };
-
-    auto [r, f] = DX12CreateFactory(enable_debug);
-
-    if (r.status != wis::Status::Ok)
-        return r;
+    auto f = DX12Factory(std::move(factory));
 
     for (auto ext : exts) {
         ext->Init(f);

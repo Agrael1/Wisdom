@@ -22,7 +22,7 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #endif // WISDOM_VULKAN_FOUND
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
-#include "wisdom_dx12.h"
+#include "wisdom_dx12.hpp"
 
 namespace wis {
 
@@ -49,11 +49,38 @@ using DescriptorBuffer = DX12DescriptorBuffer;
 using Sampler = DX12Sampler;
 using Memory = DX12Memory;
 using ShaderResource = DX12ShaderResource;
-constexpr auto CreateFactory = wis::DX12CreateFactory;
-constexpr auto CreateFactoryWithExtensions = wis::DX12CreateFactoryWithExtensions;
-constexpr auto CreateDevice = wis::DX12CreateDevice;
-constexpr auto CreateDeviceWithExtensions = wis::DX12CreateDeviceWithExtensions;
-constexpr auto CreateDeviceWithExtensionsForce = wis::DX12CreateDeviceWithExtensionsForce;
+
+//-------------------------------------------------------------------------
+
+/**
+ * @brief Creates the wis::Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @return wis::Factory on success (wis::Status::Ok).
+ * */
+inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+{
+    return DX12CreateFactory(debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @return wis::Device on success (wis::Status::Ok).
+ * */
+inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
+{
+    return DX12CreateDevice(adapter, extensions, extension_count, force);
+}
+
+//-------------------------------------------------------------------------
+
 using FenceView = DX12FenceView;
 using BufferView = DX12BufferView;
 using TextureView = DX12TextureView;
@@ -73,7 +100,7 @@ using VertexBufferBinding = DX12VertexBufferBinding;
 } // namespace wis
 
 #elif defined(WISDOM_VULKAN)
-#include "wisdom_vk.h"
+#include "wisdom_vk.hpp"
 
 namespace wis {
 
@@ -100,11 +127,38 @@ using DescriptorBuffer = VKDescriptorBuffer;
 using Sampler = VKSampler;
 using Memory = VKMemory;
 using ShaderResource = VKShaderResource;
-constexpr auto CreateFactory = wis::VKCreateFactory;
-constexpr auto CreateFactoryWithExtensions = wis::VKCreateFactoryWithExtensions;
-constexpr auto CreateDevice = wis::VKCreateDevice;
-constexpr auto CreateDeviceWithExtensions = wis::VKCreateDeviceWithExtensions;
-constexpr auto CreateDeviceWithExtensionsForce = wis::VKCreateDeviceWithExtensionsForce;
+
+//-------------------------------------------------------------------------
+
+/**
+ * @brief Creates the wis::Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @return wis::Factory on success (wis::Status::Ok).
+ * */
+inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+{
+    return VKCreateFactory(debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @return wis::Device on success (wis::Status::Ok).
+ * */
+inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
+{
+    return VKCreateDevice(adapter, extensions, extension_count, force);
+}
+
+//-------------------------------------------------------------------------
+
 using FenceView = VKFenceView;
 using BufferView = VKBufferView;
 using TextureView = VKTextureView;
