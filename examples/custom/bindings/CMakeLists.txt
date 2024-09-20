@@ -3,6 +3,8 @@ project(bindings-test LANGUAGES C)
 add_executable(bindings-test entry_main.c)
 target_link_libraries(bindings-test PRIVATE wisdom-bindings)
 
+wis_install_deps(bindings-test)
+
 set_target_properties(
   bindings-test
   PROPERTIES C_STANDARD 17

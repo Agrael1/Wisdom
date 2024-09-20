@@ -66,7 +66,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
 }
 /**
  * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions The extensions to enable.
  * The extensions are initialized through this array.
  * @param extension_count The number of extensions to enable.
@@ -144,7 +144,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
 }
 /**
  * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions The extensions to enable.
  * The extensions are initialized through this array.
  * @param extension_count The number of extensions to enable.

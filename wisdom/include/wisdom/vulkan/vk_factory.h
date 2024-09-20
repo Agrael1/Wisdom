@@ -131,12 +131,12 @@ public:
 
 public:
     /**
- * @brief Creates the wis::VKAdapter for the factory with provided index.
- * @param index The index of the adapter to get.
- * @param preference The preference of the adapter to get.
- * Default is wis::AdapterPreference::Performance.
- * @return wis::VKAdapter on success (wis::Status::Ok).
- * */
+     * @brief Creates the wis::VKAdapter for the factory with provided index.
+     * @param index The index of the adapter to get.
+     * @param preference The preference of the adapter to get.
+     * Default is wis::AdapterPreference::Performance.
+     * @return wis::VKAdapter on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::VKAdapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance)
     {
         return wis::ImplVKFactory::GetAdapter(index, preference);

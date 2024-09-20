@@ -20,7 +20,7 @@ inline wis::ResultValue<wis::VKFactory> VKCreateFactory(bool debug_layer = false
 }
 /**
  * @brief Creates the wis::VKDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions The extensions to enable.
  * The extensions are initialized through this array.
  * @param extension_count The number of extensions to enable.

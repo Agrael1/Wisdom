@@ -32,6 +32,8 @@ extern "C" WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_
     return reinterpret_cast<WisResult&>(res);
 }
 
+// DX12Device methods --
+
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
 {
     wis::DX12FenceView xself = reinterpret_cast<wis::DX12Fence&>(*self);
@@ -105,6 +107,8 @@ extern "C" WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc
     ;
     return reinterpret_cast<WisResult&>(res);
 }
+
+// VKDevice methods --
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)
 {

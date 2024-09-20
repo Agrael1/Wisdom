@@ -2054,6 +2054,14 @@ WISDOM_API void VKAdapterDestroy(VKAdapter self);
  * */
 WISDOM_API WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
 
+// VKDevice methods --
+/**
+ * @brief Destroys the VKDevice and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+WISDOM_API void VKDeviceDestroy(VKDevice self);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2070,7 +2078,7 @@ WISDOM_API WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc
 WISDOM_API WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, VKFactory* factory);
 /**
  * @brief Creates the VKDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2294,6 +2302,14 @@ WISDOM_API void DX12AdapterDestroy(DX12Adapter self);
  * */
 WISDOM_API WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc);
 
+// DX12Device methods --
+/**
+ * @brief Destroys the DX12Device and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+WISDOM_API void DX12DeviceDestroy(DX12Device self);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2310,7 +2326,7 @@ WISDOM_API WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_
 WISDOM_API WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, DX12Factory* factory);
 /**
  * @brief Creates the DX12Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2413,6 +2429,17 @@ inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
     return DX12AdapterGetDesc(self, inout_desc);
 }
 
+// WisDevice methods --
+/**
+ * @brief Destroys the WisDevice and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+inline void WisDeviceDestroy(WisDevice self)
+{
+    return DX12DeviceDestroy(self);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2433,7 +2460,7 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
 
 /**
  * @brief Creates the WisDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2522,6 +2549,17 @@ inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
     return VKAdapterGetDesc(self, inout_desc);
 }
 
+// WisDevice methods --
+/**
+ * @brief Destroys the WisDevice and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+inline void WisDeviceDestroy(WisDevice self)
+{
+    return VKDeviceDestroy(self);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2542,7 +2580,7 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
 
 /**
  * @brief Creates the WisDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.

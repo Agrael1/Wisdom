@@ -16,9 +16,15 @@ Can safely be deleted once logical device has been created.">
       <file for="vk" include="vulkan/vk_adapter.h"/>
       <file for="dx" include="dx12/dx12_adapter.h"/>
     </handle>
-    
-    
-    <handle name="Device"/>
+
+
+    <handle name="Device" doc="Represents logical device.
+Creates all the resources and commands for rendering.">
+      <file for="vk" include="vulkan/vk_device.h"/>
+      <file for="dx" include="dx12/dx12_device.h"/>
+    </handle>
+
+
     <handle name="Fence"/>
     <handle name="ResourceAllocator"/>
     <handle name="RootSignature"/>
@@ -60,8 +66,11 @@ Default is {AdapterPreference::Performance}."/>
 Must not be NULL."/>
     </func>
 
-    <!--<func for="Device" name="Destroy"/>
-    <func for="Fence" name="Destroy"/>
+    <!-- Device -->
+    <func for="Device" name="Destroy" mod="custom-impl" doc="Destroys the {Device::} and all the extensions created by it.
+Order of destruction is Extensions in which they were created, then device."/>
+
+    <!--<func for="Fence" name="Destroy"/>
     <func for="ResourceAllocator" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
     <func for="CommandQueue" name="Destroy"/>
@@ -93,7 +102,7 @@ Otherwise returns NULL."/>
 
     <func name="CreateDevice" mod="custom-impl" doc="Creates the {Device::} with extensions, specified in extension array.">
       <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
-      <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on."/>
+      <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on. Must not be NULL."/>
       <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
 The extensions are initialized through this array.">
         <replace with="DeviceExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.

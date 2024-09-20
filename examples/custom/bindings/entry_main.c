@@ -3,8 +3,8 @@
 
 int main()
 {
-    WisFactory factory;
-    WisDevice device;
+    WisFactory factory = NULL;
+    WisDevice device = NULL;
 
     WisFactoryExtQuery exts[] = {
         { FactoryExtIDDebugExtension, NULL },
@@ -13,25 +13,26 @@ int main()
     WisCreateFactory(true, exts, 1, &factory);
 
     for (size_t i = 0;; i++) {
-        WisAdapter adapter;
+        WisAdapter adapter = NULL;
         WisResult result = WisFactoryGetAdapter(factory, i, AdapterPreferencePerformance, &adapter);
 
         if (result.status == StatusOk) {
-            WisAdapterDesc desc;
+            WisAdapterDesc desc = {0};
             WisAdapterGetDesc(adapter, &desc);
             printf("Adapter: %s\n", desc.description);
 
-            // WisResult res = WisCreateDevice(adapter, NULL, 0, false, &device);
-            // if (res.status == StatusOk) {
-            //     WisAdapterDestroy(adapter);
-            //     break;
-            // }
+            WisResult res = WisCreateDevice(adapter, NULL, 0, false, &device);
+            if (res.status == StatusOk) {
+                WisAdapterDestroy(adapter);
+                break;
+            }
             WisAdapterDestroy(adapter);
         } else {
             break;
         }
     }
 
+    WisDeviceDestroy(device);
     WisFactoryDestroy(factory);
     return 0;
 }
