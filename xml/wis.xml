@@ -5,8 +5,19 @@
   </includes>
 
   <handles>
-    <handle name="Factory"/>
-    <handle name="Adapter"/>
+    <handle name="Factory" doc="Class for creating adapters.
+Can be safely destroyed after adapter has been chosen.">
+      <file for="vk" include="vulkan/vk_factory.h"/>
+      <file for="dx" include="dx12/dx12_factory.h"/>
+    </handle>
+
+    <handle name="Adapter" doc="Represents physical device.
+Can safely be deleted once logical device has been created.">
+      <file for="vk" include="vulkan/vk_adapter.h"/>
+      <file for="dx" include="dx12/dx12_adapter.h"/>
+    </handle>
+    
+    
     <handle name="Device"/>
     <handle name="Fence"/>
     <handle name="ResourceAllocator"/>

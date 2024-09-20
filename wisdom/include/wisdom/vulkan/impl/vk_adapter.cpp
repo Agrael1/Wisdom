@@ -7,7 +7,7 @@
 #include <wisdom/util/flags.h>
 #include <cstring>
 
-wis::Result wis::VKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
+wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
     if (!pout_desc)
         return wis::make_result<FUNC, "AdapterDesc was nullptr">(VK_ERROR_UNKNOWN);

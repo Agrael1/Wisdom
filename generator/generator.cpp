@@ -387,6 +387,76 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 
     out_vkapi << vkapi + "}\n";
     files.emplace_back(output_vk_abs);
+
+    GenerateCPPInlineDoc();
+    return 0;
+}
+
+int Generator::GenerateCPPInlineDoc()
+{
+    auto write_doc = [this](const WisHandle& h, std::string_view file, std::string_view impl) {
+        std::filesystem::path output_path = cpp_output_dir;
+        auto output_abs = std::filesystem::absolute(output_path / file);
+        if (std::filesystem::exists(output_abs)) {
+            std::string& file_data = file_contents[output_abs];
+            if (file_data.empty()) {
+                // Load file
+                std::ifstream t{ output_abs, std::ios::binary };
+                t.seekg(0, std::ios::end);
+                size_t size = t.tellg();
+                file_data.resize(size);
+                t.seekg(0);
+                t.read(file_data.data(), size);
+
+                ReplaceAll(file_data, "\r\n", "\n");
+            }
+
+
+
+            // Find #pragma region HandleName
+            auto pragma = wis::format("#pragma region {}{}", impl, h.name);
+            auto pos = file_data.find(pragma);
+            if (pos == std::string::npos) {
+                return;
+            }
+            pos += pragma.size();
+
+            // Find #pragma endregion HandleName
+            auto end = wis::format("#pragma endregion {}{}", impl, h.name);
+            auto end_pos = file_data.find(end, pos);
+            if (end_pos == std::string::npos) {
+                return;
+            }
+
+            std::string class_decl = '\n' + MakeCPPHandle(h, impl);
+
+            file_data.replace(pos, end_pos - pos, class_decl);
+
+            files.emplace_back(output_abs);
+        }
+    };
+
+    for (auto& [k, v] : handle_map) {
+        if (v.functions.empty())
+            continue;
+
+        if (auto file = v.GetFile(ImplementedFor::DX12); !file.empty()) {
+            write_doc(v, file, impls[+ImplementedFor::DX12]);
+        }
+
+        if (auto file = v.GetFile(ImplementedFor::Vulkan); !file.empty()) {
+            write_doc(v, file, impls[+ImplementedFor::Vulkan]);
+        }
+    }
+
+    // mt?
+    for (auto& [p, d] : file_contents) {
+        std::ofstream out(p);
+        if (!out.is_open())
+            return 1;
+        out << d << std::flush;
+    }
+
     return 0;
 }
 
@@ -648,9 +718,11 @@ WisReturnType Generator::ParseFunctionReturn(tinyxml2::XMLElement* func)
     WisReturnType ret;
 
     if (auto* param = func->FirstChildElement("ret")) {
+        if (auto* res = param->FindAttribute("result"))
+            ret.has_result = true;
+
         auto* type = param->FindAttribute("type");
-        if (!type)
-            return ret; // No return type
+        if (!type) return ret; // No return type
 
         ret.type = type->Value();
         ret.type_info = GetTypeInfo(type->Value());
@@ -660,9 +732,6 @@ WisReturnType Generator::ParseFunctionReturn(tinyxml2::XMLElement* func)
 
         if (auto* mod = param->FindAttribute("mod"))
             ret.modifier = mod->Value();
-
-        if (auto* res = param->FindAttribute("result"))
-            ret.has_result = true;
 
         if (auto* doc = param->FindAttribute("doc"))
             ret.doc = doc->Value();
@@ -763,8 +832,13 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         }
 
         std::string_view smod = mod->Value();
-        if (smod == "custom-impl") {
+        if (smod.find("custom-impl") != std::string_view::npos) {
             ref.custom_impl = true;
+        }
+        if (smod.find("cpp-only") != std::string_view::npos) {
+            ref.implemented_for = ReplaceTypeFor::CPP;
+        } else if (smod.find("c-only") != std::string_view::npos) {
+            ref.implemented_for = ReplaceTypeFor::C;
         }
     }
 }
@@ -818,6 +892,18 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         auto name = type->FindAttribute("name")->Value();
         auto& ref = handle_map[name];
         ref.name = name;
+
+        if (auto* doc = type->FindAttribute("doc"))
+            ref.doc = doc->Value();
+
+        for (auto* impl = type->FirstChildElement("file"); impl;
+             impl = impl->NextSiblingElement("file")) {
+            auto impl_for = impl->FindAttribute("for")->Value();
+            auto impl_for_code = ImplCode(impl_for);
+            auto impl_file = impl->FindAttribute("include")->Value();
+
+            ref.AddFile(impl_file, impl_for_code);
+        }
     }
 }
 
@@ -1602,8 +1688,8 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
     }
 
     // Return type
-    if (func.return_type.type == "") {
-        return_t = "void";
+    if (func.return_type.type == "" ) {
+        return_t = func.return_type.has_result ? GetCFullTypename("Result") : "void";
     } else if (func.return_type.has_result) {
         WisFunctionParameter res{
             .type_info = func.return_type.type_info,
@@ -1976,7 +2062,7 @@ std::string Generator::MakeCPPFunctionGenericDecl(const WisFunction& func, std::
     return wis::format("{}{{ return {}; }}", MakeCPPFunctionProto(func, "", "inline"),
                        MakeCPPFunctionCall(func, impl));
 }
-std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc)
+std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc, bool impl_on_fdecl)
 {
     std::string args;
     std::string return_t;
@@ -2007,7 +2093,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
 
     // Return type
     if (func.return_type.type == "") {
-        return_t = "void";
+        return_t = func.return_type.has_result ? GetCPPFullTypename("Result") : "void";
     } else if (func.return_type.has_result) {
         // make wis::ResultValue<type> return type
         doc += wis::format("@return {}\n", func.return_type.doc);
@@ -2033,7 +2119,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         doc += "\n";
     }
 
-    return wis::format("{}{} {} {}{}({})", doc, pre_decl, return_t, impl, func.name, args);
+    return wis::format("{}{} {} {}{}({})", doc, pre_decl, return_t, impl_on_fdecl ? impl : "", func.name, args);
 }
 std::string Generator::MakeCPPFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl)
 {
@@ -2108,6 +2194,36 @@ std::string Generator::MakeCPPDelegate(const WisFunction& func)
     }
 
     return wis::format("{}\nusing {}{} = {} (*)({});\n", doc, impl, func.name, return_t, args);
+}
+std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
+{
+    std::string doc;
+    if (!s.doc.empty()) {
+        doc = wis::format("/**\n@brief {}\n", s.doc);
+    }
+    if (s.doc.empty()) {
+        doc = "";
+    } else {
+        doc += "*/";
+        doc = FinalizeCPPDocumentation(doc, s.name, impl);
+        ReplaceAll(doc, "\n", "\n * ");
+    }
+
+    std::string head = wis::format("{}\nstruct {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
+    std::string ctor = wis::format("public:\n using wis::Impl{}{}::Impl{}{};", impl, s.name, impl, s.name);
+
+    std::string funcs = "public:\n";
+    for (auto& f : s.functions) {
+        auto& func = function_map[std::string(f)];
+        if (func.name == "Destroy" || func.implemented_for == ReplaceTypeFor::C || func.custom_impl) {
+            continue;
+        }
+
+        funcs += wis::format("{}{{\n    return {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
+                             MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
+    }
+
+    return wis::format("{} {{\n{}\n{}\n}};\n", head, ctor, funcs);
 }
 #pragma endregion
 

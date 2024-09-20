@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DX12_ADAPTER_H
+#define DX12_ADAPTER_H
 #include <wisdom/generated/api/api.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
@@ -14,11 +15,11 @@ struct Internal<DX12Adapter> {
     wis::com_ptr<IDXGIAdapter1> adapter;
 };
 
-class DX12Adapter : public QueryInternal<DX12Adapter>
+class ImplDX12Adapter : public QueryInternal<DX12Adapter>
 {
 public:
-    DX12Adapter() noexcept = default;
-    explicit DX12Adapter(wis::com_ptr<IDXGIAdapter1> adapter) noexcept
+    ImplDX12Adapter() noexcept = default;
+    explicit ImplDX12Adapter(wis::com_ptr<IDXGIAdapter1> adapter) noexcept
         : QueryInternal(std::move(adapter)) { }
     operator bool() const noexcept { return bool(adapter); }
     operator DX12AdapterHandle() const noexcept { return { adapter.get() }; }
@@ -52,4 +53,27 @@ public:
         return wis::success;
     }
 };
+#pragma region DX12Adapter
+/**
+ * @brief Represents physical device.
+ * Can safely be deleted once logical device has been created.
+ * */
+struct DX12Adapter : public wis::ImplDX12Adapter {
+public:
+    using wis::ImplDX12Adapter::ImplDX12Adapter;
+
+public:
+    /**
+     * @brief Fills wis::AdapterDesc with physical adapter's data.
+     * @param inout_desc The wis::AdapterDesc to fill.
+     * Must not be NULL.
+     * */
+    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc)
+    {
+        return wis::ImplDX12Adapter::GetDesc(inout_desc);
+    }
+};
+#pragma endregion DX12Adapter
 } // namespace wis
+
+#endif // DX12_ADAPTER_H

@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.0</b>
+<b>Version 0.3.1</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -2052,7 +2052,7 @@ WISDOM_API void VKAdapterDestroy(VKAdapter self);
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-WISDOM_API void VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
+WISDOM_API WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
 
 //-------------------------------------------------------------------------
 
@@ -2292,7 +2292,7 @@ WISDOM_API void DX12AdapterDestroy(DX12Adapter self);
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-WISDOM_API void DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc);
+WISDOM_API WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc);
 
 //-------------------------------------------------------------------------
 
@@ -2408,7 +2408,7 @@ inline void WisAdapterDestroy(WisAdapter self)
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-inline void WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
+inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
 {
     return DX12AdapterGetDesc(self, inout_desc);
 }
@@ -2517,7 +2517,7 @@ inline void WisAdapterDestroy(WisAdapter self)
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-inline void WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
+inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
 {
     return VKAdapterGetDesc(self, inout_desc);
 }

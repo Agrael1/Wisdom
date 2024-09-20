@@ -116,14 +116,14 @@ wis::Result VKFactoryGlobals::InitializeInstanceLayers() noexcept
 }
 } // namespace wis::detail
 
-wis::VKFactory::VKFactory(
+wis::ImplVKFactory::ImplVKFactory(
         wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
     : QueryInternal(std::move(instance), api_ver, debug)
 {
 }
 
 wis::ResultValue<wis::VKAdapter>
-wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
+wis::ImplVKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     if (index >= adapters.size()) {
         return wis::make_result<FUNC, "Index out of range">(VK_ERROR_UNKNOWN);
@@ -139,7 +139,7 @@ wis::VKFactory::GetAdapter(uint32_t index, AdapterPreference preference) const n
     }
 }
 
-VkResult wis::VKFactory::VKEnumeratePhysicalDevices() noexcept
+VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
 {
     auto& itable = factory.table();
 

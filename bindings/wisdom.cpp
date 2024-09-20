@@ -24,10 +24,12 @@ extern "C" void DX12AdapterDestroy(DX12Adapter self)
     auto* xself = reinterpret_cast<wis::DX12Adapter*>(self);
     delete xself;
 }
-extern "C" void DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc)
+extern "C" WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc)
 {
     auto* xself = reinterpret_cast<wis::DX12Adapter*>(self);
-    xself->GetDesc(reinterpret_cast<wis::AdapterDesc*&>(inout_desc));
+    auto res = xself->GetDesc(reinterpret_cast<wis::AdapterDesc*&>(inout_desc));
+    ;
+    return reinterpret_cast<WisResult&>(res);
 }
 
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
@@ -96,10 +98,12 @@ extern "C" void VKAdapterDestroy(VKAdapter self)
     auto* xself = reinterpret_cast<wis::VKAdapter*>(self);
     delete xself;
 }
-extern "C" void VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc)
+extern "C" WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc)
 {
     auto* xself = reinterpret_cast<wis::VKAdapter*>(self);
-    xself->GetDesc(reinterpret_cast<wis::AdapterDesc*&>(inout_desc));
+    auto res = xself->GetDesc(reinterpret_cast<wis::AdapterDesc*&>(inout_desc));
+    ;
+    return reinterpret_cast<WisResult&>(res);
 }
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)
