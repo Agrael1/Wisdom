@@ -2131,7 +2131,12 @@ std::string Generator::MakeCPPFunctionCall(const WisFunction& func, std::string_
 
     // Arguments
     for (auto& arg : func.parameters) {
-        args += std::string(arg.name) + ", ";
+
+        if (arg.type_info == TypeInfo::Handle && arg.modifier.empty()) {
+            args += wis::format("std::move({}), ", arg.name);
+        } else {
+            args += std::string(arg.name) + ", ";
+        }
     }
 
     // Remove trailing ", "

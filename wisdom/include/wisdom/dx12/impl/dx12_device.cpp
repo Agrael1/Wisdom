@@ -11,9 +11,9 @@
 #include <numeric>
 
 wis::ResultValue<wis::DX12Device>
-wis::ImplDX12CreateDevice(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
+wis::ImplDX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
 {
-    auto in_adapter = std::get<0>(adapter);
+    auto in_adapter = adapter.GetInternal().adapter.get();
 
     wis::com_ptr<IDXGIFactory4> in_factory;
     in_adapter->GetParent(__uuidof(*in_factory), in_factory.put_void());

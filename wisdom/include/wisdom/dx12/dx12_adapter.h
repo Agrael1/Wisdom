@@ -22,7 +22,6 @@ public:
     explicit ImplDX12Adapter(wis::com_ptr<IDXGIAdapter1> adapter) noexcept
         : QueryInternal(std::move(adapter)) { }
     operator bool() const noexcept { return bool(adapter); }
-    operator DX12AdapterHandle() const noexcept { return { adapter.get() }; }
 
 public:
     [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept

@@ -76,7 +76,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
  * */
 inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
 {
-    return DX12CreateDevice(adapter, extensions, extension_count, force);
+    return DX12CreateDevice(std::move(adapter), extensions, extension_count, force);
 }
 
 //-------------------------------------------------------------------------
@@ -154,7 +154,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
  * */
 inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
 {
-    return VKCreateDevice(adapter, extensions, extension_count, force);
+    return VKCreateDevice(std::move(adapter), extensions, extension_count, force);
 }
 
 //-------------------------------------------------------------------------

@@ -30,7 +30,7 @@ inline wis::ResultValue<wis::VKFactory> VKCreateFactory(bool debug_layer = false
  * */
 inline wis::ResultValue<wis::VKDevice> VKCreateDevice(wis::VKAdapter adapter, wis::VKDeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
 {
-    return wis::ImplVKCreateDevice(adapter, extensions, extension_count, force);
+    return wis::ImplVKCreateDevice(std::move(adapter), extensions, extension_count, force);
 }
 
 //-------------------------------------------------------------------------
