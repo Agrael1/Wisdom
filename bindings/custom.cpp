@@ -1,6 +1,15 @@
 #include "wisdom.h"
 #include "wisdom_ext.cpp"
 
+#ifdef _WIN32
+#define ALIGNED_ALLOC(size, align) _aligned_malloc(size, align)
+#define ALIGNED_FREE(ptr) _aligned_free(ptr)
+#else
+#define ALIGNED_ALLOC(size, align) aligned_alloc(align, size)
+#define ALIGNED_FREE(ptr) free(ptr)
+#endif // _WIN32
+
+
 template<typename T>
 struct GetExtSize {
     consteval size_t operator()() const noexcept
@@ -42,12 +51,12 @@ struct DestroyExt {
 
 static inline uint8_t* wisdom_alloc(size_t size, size_t align)
 {
-    return static_cast<uint8_t*>(_aligned_malloc(size, align));
+    return static_cast<uint8_t*>(ALIGNED_ALLOC(size, align));
 }
 
 static inline void wisdom_free(uint8_t* ptr)
 {
-    _aligned_free(ptr);
+    ALIGNED_FREE(ptr);
 }
 
 template<typename T, typename EnumT>
