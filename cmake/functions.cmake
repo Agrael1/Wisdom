@@ -49,7 +49,7 @@ function(wis_install_dx_win32 PROJECT)
 	  COMMENT "Copying DX12 Agility Core..."
 	)
 
-	
+
 	add_custom_command(TARGET ${PROJECT} POST_BUILD
 	  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:DX12AgilitySDKLayers> $<TARGET_FILE_DIR:${PROJECT}>/D3D12/$<TARGET_FILE_NAME:DX12AgilitySDKLayers>
 	  COMMAND_EXPAND_LISTS

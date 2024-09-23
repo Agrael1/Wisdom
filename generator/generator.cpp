@@ -186,7 +186,7 @@ int Generator::GenerateCAPI()
     output += out_default_vk;
     output += "#endif\n\n";
 
-    for (auto& e: extension_map) {
+    for (auto& e : extension_map) {
         output += MakeCExtensionHeader(e.second);
     }
 
@@ -1993,7 +1993,7 @@ std::string Generator::MakeCHandleMethodImpls(const WisHandle& s, std::string_vi
 
 std::string Generator::MakeCExtensionHeader(const WisExtension& s)
 {
-    std::string output = wis::format("// {}--\n", s.name); 
+    std::string output = wis::format("// {}--\n", s.name);
     output += wis::format("#ifndef WIS_{}\n#define WIS_{} 1\n#endif\n\n", s.name, s.name);
 
     output += "#ifdef WISDOM_VULKAN\n";

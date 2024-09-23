@@ -224,7 +224,6 @@ struct WisHandle {
     }
 };
 
-
 enum class ExtensionType {
     None,
     Factory,

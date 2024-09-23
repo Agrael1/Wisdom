@@ -9,7 +9,6 @@
 #define ALIGNED_FREE(ptr) free(ptr)
 #endif // _WIN32
 
-
 template<typename T>
 struct GetExtSize {
     consteval size_t operator()() const noexcept
@@ -51,7 +50,8 @@ struct DestroyExt {
 
 template<typename T>
 struct GetExtSupported {
-    bool operator()(void* memory) const noexcept {
+    bool operator()(void* memory) const noexcept
+    {
         return static_cast<T*>(memory)->Supported();
     }
 };
@@ -191,7 +191,6 @@ extern "C" WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
 
     auto&& [result, hfactory] = wis::DX12CreateFactory(debug_layer, allocator.data(), extension_count);
     std::construct_at(memory.pre_type, std::move(hfactory));
-
 
     if (result.status != wis::Status::Ok) {
         wisdom_free(memory.data());
