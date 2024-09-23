@@ -1,5 +1,10 @@
 # Version History
 
+- 0.3.2
+
+  - Fixed Extension creation for C API
+  - Added code generation for extension methods for C API
+	 
 - 0.3.1
 
   - Added more functions to the C API

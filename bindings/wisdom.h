@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.1</b>
+<b>Version 0.3.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -2621,17 +2621,17 @@ WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self,
 
 #ifdef WISDOM_DX12
 typedef DX12FactoryExtension* DX12DebugExtension;
-// VKDebugExtension methods --
+// DX12DebugExtension methods --
 /**
  * @brief Creates a debug messenger for the factory.
  * @param self valid handle to the DebugExtension
  * @param callback The callback that will receive the debug messages.
  * @param user_data The user data that will be passed to the callback.
- * @param messenger VKDebugMessenger on success (StatusOk).
+ * @param messenger DX12DebugMessenger on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self, DebugCallback callback, void* user_data, VKDebugMessenger* messenger);
+WISDOM_API WisResult DX12DebugExtensionCreateDebugMessenger(DX12DebugExtension self, DebugCallback callback, void* user_data, DX12DebugMessenger* messenger);
 
 #endif
 

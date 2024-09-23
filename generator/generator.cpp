@@ -248,7 +248,7 @@ int Generator::GenerateCAPI()
     out_cpp << output_cpp;
     files.emplace_back(output_cpp_abs);
 
-    auto output_cpp_ext_abs = std::filesystem::absolute(output_path / "wisdom_ext.cpp");
+    auto output_cpp_ext_abs = std::filesystem::absolute(output_path / "wisdom_ext.inl");
     std::ofstream out_cpp_ext(output_cpp_ext_abs);
     if (!out_cpp_ext.is_open())
         return 1;
@@ -2005,7 +2005,7 @@ std::string Generator::MakeCExtensionHeader(const WisExtension& s)
     output += "#ifdef WISDOM_DX12\n";
     auto impl_dx = impls[+ImplementedFor::DX12];
     output += wis::format("typedef {}FactoryExtension* {}{};\n", impl_dx, impl_dx, s.name);
-    output += MakeCHandleMethods(s, impl_vk) + '\n';
+    output += MakeCHandleMethods(s, impl_dx) + '\n';
     output += "#endif\n\n";
 
     output += "#if defined(WISDOM_DX12) && !FORCEVK_SWITCH\n";

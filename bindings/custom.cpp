@@ -1,5 +1,5 @@
 #include "wisdom.h"
-#include "wisdom_ext.cpp"
+#include "wisdom_ext.inl"
 
 #ifdef _WIN32
 #define ALIGNED_ALLOC(size, align) _aligned_malloc(size, align)
