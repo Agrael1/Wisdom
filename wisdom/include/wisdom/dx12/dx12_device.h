@@ -5,6 +5,7 @@
 #include <wisdom/dx12/dx12_pipeline_state.h>
 #include <wisdom/dx12/dx12_root_signature.h>
 #include <wisdom/dx12/dx12_shader.h>
+#include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_allocator.h>
 #include <wisdom/dx12/dx12_descriptor_buffer.h>
 #include <wisdom/dx12/dx12_device_ext.h>
@@ -95,7 +96,7 @@ public:
 };
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Device>
-ImplDX12CreateDevice(wis::DX12AdapterHandle adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept;
+ImplDX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

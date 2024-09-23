@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.0</b>
+<b>Version 0.3.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -180,7 +180,7 @@ enum class AdapterPreference {
 
 /**
  * @brief Log message severity.
- * Used with DebugCallback and internal library logging.
+ * Used with wis::DebugCallback and internal library logging.
  *
  * */
 enum class Severity {

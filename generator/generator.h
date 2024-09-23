@@ -131,6 +131,7 @@ enum class TypeInfo {
     String,
     View,
     Variant,
+    ExtHandle
 };
 struct ReplacedParameter {
     ReplaceTypeFor replace_for = ReplaceTypeFor::None;
@@ -168,7 +169,7 @@ struct WisFunction {
 
     WisReturnType return_type;
     std::vector<WisFunctionParameter> parameters;
-    ImplementedFor impl = ImplementedFor::Unspecified; // Unused
+    ReplaceTypeFor implemented_for = ReplaceTypeFor::None;
     bool custom_impl = false;
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
@@ -182,24 +183,29 @@ struct WisFunction {
     }
 };
 
-enum class ExtensionType {
-    None,
-    Factory,
-    Device
-};
-struct WisExtension {
-    ExtensionType type = ExtensionType::None;
-
-    std::string_view name;
-    std::string_view doc;
-    std::string_view include;
-};
-
 struct WisHandle {
     std::string_view name;
     std::string_view doc;
 
     std::vector<std::string_view> functions;
+    std::array<std::string_view, 2> files; // first is DX12, second is Vulkan
+
+    void AddFile(std::string_view file, ImplementedFor impl) noexcept
+    {
+        if (impl & ImplementedFor::DX12)
+            files[0] = file;
+        if (impl & ImplementedFor::Vulkan)
+            files[1] = file;
+    }
+
+    std::string_view GetFile(ImplementedFor impl) const noexcept
+    {
+        if (impl & ImplementedFor::DX12)
+            return files[0];
+        if (impl & ImplementedFor::Vulkan)
+            return files[1];
+        return "";
+    }
 
     std::optional<const WisFunction> HasValue(std::string_view name,
                                               const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
@@ -217,6 +223,17 @@ struct WisHandle {
         return function_map.at(*enum_value);
     }
 };
+
+enum class ExtensionType {
+    None,
+    Factory,
+    Device
+};
+struct WisExtension : WisHandle {
+    ExtensionType type = ExtensionType::None;
+    std::string_view include;
+};
+
 struct WisConversion {
     std::string value;
     ImplementedFor impl = ImplementedFor::None;
@@ -246,6 +263,7 @@ public:
 public:
     int GenerateCAPI();
     int GenerateCPPAPI();
+    int GenerateCPPInlineDoc();
     std::tuple<std::string, std::string, std::string> GenerateCTypes();
     std::tuple<std::string, std::string, std::string> GenerateCTypedefs();
     std::string GenerateCPPTypes();
@@ -301,7 +319,7 @@ public:
     std::string MakeCHandleMethodImpls(const WisHandle& s, std::string_view impl);
 
     // Extension generation
-    std::string MakeCExtensionHeader(const WisExtension& s, std::string_view impl);
+    std::string MakeCExtensionHeader(const WisExtension& s);
     std::string MakeCExtensionImpl(const WisExtension& s, std::string_view impl);
     std::string MakeCExtensionMap(std::string_view impl);
 #pragma endregion
@@ -309,10 +327,13 @@ public:
 #pragma region CPP API
     // Function generation
     std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl);
-    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true);
+    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true);
     std::string MakeCPPFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API");
     std::string MakeCPPFunctionCall(const WisFunction& func, std::string_view impl);
     std::string MakeCPPDelegate(const WisFunction& s);
+
+    // Handle generation
+    std::string MakeCPPHandle(const WisHandle& s, std::string_view impl);
 #pragma endregion
 
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
@@ -330,6 +351,7 @@ public:
 
 private:
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> includes;
+    std::unordered_map<std::filesystem::path, std::string> file_contents;
     std::vector<std::filesystem::path> files;
 
     std::vector<WisStruct*> structs;

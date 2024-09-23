@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.0</b>
+<b>Version 0.3.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -2052,7 +2052,15 @@ WISDOM_API void VKAdapterDestroy(VKAdapter self);
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-WISDOM_API void VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
+WISDOM_API WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
+
+// VKDevice methods --
+/**
+ * @brief Destroys the VKDevice and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+WISDOM_API void VKDeviceDestroy(VKDevice self);
 
 //-------------------------------------------------------------------------
 
@@ -2070,7 +2078,7 @@ WISDOM_API void VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc);
 WISDOM_API WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, VKFactory* factory);
 /**
  * @brief Creates the VKDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2292,7 +2300,15 @@ WISDOM_API void DX12AdapterDestroy(DX12Adapter self);
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-WISDOM_API void DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc);
+WISDOM_API WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc);
+
+// DX12Device methods --
+/**
+ * @brief Destroys the DX12Device and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+WISDOM_API void DX12DeviceDestroy(DX12Device self);
 
 //-------------------------------------------------------------------------
 
@@ -2310,7 +2326,7 @@ WISDOM_API void DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_desc)
 WISDOM_API WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* extensions, uint32_t extension_count, DX12Factory* factory);
 /**
  * @brief Creates the DX12Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2408,9 +2424,20 @@ inline void WisAdapterDestroy(WisAdapter self)
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-inline void WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
+inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
 {
     return DX12AdapterGetDesc(self, inout_desc);
+}
+
+// WisDevice methods --
+/**
+ * @brief Destroys the WisDevice and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+inline void WisDeviceDestroy(WisDevice self)
+{
+    return DX12DeviceDestroy(self);
 }
 
 //-------------------------------------------------------------------------
@@ -2433,7 +2460,7 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
 
 /**
  * @brief Creates the WisDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2517,9 +2544,20 @@ inline void WisAdapterDestroy(WisAdapter self)
  * @param inout_desc The WisAdapterDesc to fill.
  * Must not be NULL.
  * */
-inline void WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
+inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
 {
     return VKAdapterGetDesc(self, inout_desc);
+}
+
+// WisDevice methods --
+/**
+ * @brief Destroys the WisDevice and all the extensions created by it.
+ * Order of destruction is Extensions in which they were created, then device.
+ * @param self valid handle to the Device
+ * */
+inline void WisDeviceDestroy(WisDevice self)
+{
+    return VKDeviceDestroy(self);
 }
 
 //-------------------------------------------------------------------------
@@ -2542,7 +2580,7 @@ inline WisResult WisCreateFactory(bool debug_layer, WisFactoryExtQuery* extensio
 
 /**
  * @brief Creates the WisDevice with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions Query the extensions that need to be present.
  * The extension pointers are initialized if the extension is found and initialized.
  * Otherwise returns NULL.
@@ -2559,6 +2597,82 @@ inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensio
 }
 
 #endif
+
+// DebugExtension--
+#ifndef WIS_DebugExtension
+#define WIS_DebugExtension 1
+#endif
+
+#ifdef WISDOM_VULKAN
+typedef VKFactoryExtension* VKDebugExtension;
+// VKDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger VKDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self, DebugCallback callback, void* user_data, VKDebugMessenger* messenger);
+
+#endif
+
+#ifdef WISDOM_DX12
+typedef DX12FactoryExtension* DX12DebugExtension;
+// DX12DebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger DX12DebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DebugExtensionCreateDebugMessenger(DX12DebugExtension self, DebugCallback callback, void* user_data, DX12DebugMessenger* messenger);
+
+#endif
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+typedef DX12DebugExtension WisDebugExtension;
+// WisDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger WisDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDebugExtensionCreateDebugMessenger(WisDebugExtension self, DebugCallback callback, void* user_data, WisDebugMessenger* messenger)
+{
+    return DX12DebugExtensionCreateDebugMessenger(self, callback, user_data, messenger);
+}
+
+#elif defined(WISDOM_VULKAN)
+
+typedef VKDebugExtension WisDebugExtension;
+// WisDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger WisDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDebugExtensionCreateDebugMessenger(WisDebugExtension self, DebugCallback callback, void* user_data, WisDebugMessenger* messenger)
+{
+    return VKDebugExtensionCreateDebugMessenger(self, callback, user_data, messenger);
+}
+
+#endif
+
+//-------------------------------------------------------------------------
 
 #ifdef __cplusplus
 }

@@ -33,14 +33,14 @@ function(wis_install_dx_win32 PROJECT)
 
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
 
-	set(EXPORT_AGILITY "extern \"C\" { _declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER}; }
-						extern \"C\" { _declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\"; }"
+	set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
+						_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
 	)
 
-	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/exports.cpp" "${EXPORT_AGILITY}")
+	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/exports.c" "${EXPORT_AGILITY}")
 
 	target_sources(${PROJECT} PRIVATE
-		${CMAKE_CURRENT_BINARY_DIR}/exports.cpp
+		${CMAKE_CURRENT_BINARY_DIR}/exports.c
 	)
 
 	add_custom_command(TARGET ${PROJECT} POST_BUILD
@@ -49,7 +49,7 @@ function(wis_install_dx_win32 PROJECT)
 	  COMMENT "Copying DX12 Agility Core..."
 	)
 
-	
+
 	add_custom_command(TARGET ${PROJECT} POST_BUILD
 	  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:DX12AgilitySDKLayers> $<TARGET_FILE_DIR:${PROJECT}>/D3D12/$<TARGET_FILE_NAME:DX12AgilitySDKLayers>
 	  COMMAND_EXPAND_LISTS

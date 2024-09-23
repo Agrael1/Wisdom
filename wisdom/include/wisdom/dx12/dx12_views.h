@@ -11,7 +11,6 @@ class Allocation;
 } // namespace D3D12MA
 
 namespace wis {
-using DX12AdapterHandle = std::tuple<IDXGIAdapter1*>;
 using DX12FactoryHandle = std::tuple<IDXGIFactory6*>;
 using DX12PipelineHandle = std::tuple<ID3D12PipelineState*>;
 

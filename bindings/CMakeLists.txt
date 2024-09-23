@@ -8,7 +8,7 @@ endif()
 
 add_library(${PROJECT_NAME} ${WISDOM_LIB_TYPE} wisdom.h)
 target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/wisdom.cpp
-                                       "custom.cpp" "wisdom_ext.cpp")
+                                       "custom.cpp" "wisdom_ext.inl")
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

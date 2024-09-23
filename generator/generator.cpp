@@ -186,6 +186,10 @@ int Generator::GenerateCAPI()
     output += out_default_vk;
     output += "#endif\n\n";
 
+    for (auto& e : extension_map) {
+        output += MakeCExtensionHeader(e.second);
+    }
+
     output += "#ifdef __cplusplus\n}\n#endif\n";
 
     // Function implementations
@@ -215,17 +219,23 @@ int Generator::GenerateCAPI()
     output_cpp += "#endif\n\n";
 
     // Collect includes
+    std::string output_vk_ext_impl;
+    std::string output_dx_ext_impl;
     for (auto& [name, h] : extension_map) {
         output_cpp_ext += wis::format("#include \"{}\"\n", h.include);
+        output_vk_ext_impl += MakeCExtensionImpl(h, impls[+ImplementedFor::Vulkan]);
+        output_dx_ext_impl += MakeCExtensionImpl(h, impls[+ImplementedFor::DX12]);
     }
     output_cpp_ext += "\n\n";
 
     output_cpp_ext += "#if defined(WISDOM_DX12)\n#include <wisdom/wisdom_dx12.hpp>\n\n";
     output_cpp_ext += MakeCExtensionMap(impls[+ImplementedFor::DX12]);
+    output_cpp_ext += output_dx_ext_impl;
     output_cpp_ext += "#endif\n\n";
 
     output_cpp_ext += "#if defined(WISDOM_VULKAN)\n#include <wisdom/wisdom_vk.hpp>\n\n";
     output_cpp_ext += MakeCExtensionMap(impls[+ImplementedFor::Vulkan]);
+    output_cpp_ext += output_vk_ext_impl;
     output_cpp_ext += "#endif\n\n";
 
     std::filesystem::path output_path = output_dir;
@@ -238,7 +248,7 @@ int Generator::GenerateCAPI()
     out_cpp << output_cpp;
     files.emplace_back(output_cpp_abs);
 
-    auto output_cpp_ext_abs = std::filesystem::absolute(output_path / "wisdom_ext.cpp");
+    auto output_cpp_ext_abs = std::filesystem::absolute(output_path / "wisdom_ext.inl");
     std::ofstream out_cpp_ext(output_cpp_ext_abs);
     if (!out_cpp_ext.is_open())
         return 1;
@@ -387,6 +397,74 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 
     out_vkapi << vkapi + "}\n";
     files.emplace_back(output_vk_abs);
+
+    GenerateCPPInlineDoc();
+    return 0;
+}
+
+int Generator::GenerateCPPInlineDoc()
+{
+    auto write_doc = [this](const WisHandle& h, std::string_view file, std::string_view impl) {
+        std::filesystem::path output_path = cpp_output_dir;
+        auto output_abs = std::filesystem::absolute(output_path / file);
+        if (std::filesystem::exists(output_abs)) {
+            std::string& file_data = file_contents[output_abs];
+            if (file_data.empty()) {
+                // Load file
+                std::ifstream t{ output_abs, std::ios::binary };
+                t.seekg(0, std::ios::end);
+                size_t size = t.tellg();
+                file_data.resize(size);
+                t.seekg(0);
+                t.read(file_data.data(), size);
+
+                ReplaceAll(file_data, "\r\n", "\n");
+            }
+
+            // Find #pragma region HandleName
+            auto pragma = wis::format("#pragma region {}{}", impl, h.name);
+            auto pos = file_data.find(pragma);
+            if (pos == std::string::npos) {
+                return;
+            }
+            pos += pragma.size();
+
+            // Find #pragma endregion HandleName
+            auto end = wis::format("#pragma endregion {}{}", impl, h.name);
+            auto end_pos = file_data.find(end, pos);
+            if (end_pos == std::string::npos) {
+                return;
+            }
+
+            std::string class_decl = '\n' + MakeCPPHandle(h, impl);
+
+            file_data.replace(pos, end_pos - pos, class_decl);
+
+            files.emplace_back(output_abs);
+        }
+    };
+
+    for (auto& [k, v] : handle_map) {
+        if (v.functions.empty())
+            continue;
+
+        if (auto file = v.GetFile(ImplementedFor::DX12); !file.empty()) {
+            write_doc(v, file, impls[+ImplementedFor::DX12]);
+        }
+
+        if (auto file = v.GetFile(ImplementedFor::Vulkan); !file.empty()) {
+            write_doc(v, file, impls[+ImplementedFor::Vulkan]);
+        }
+    }
+
+    // mt?
+    for (auto& [p, d] : file_contents) {
+        std::ofstream out(p);
+        if (!out.is_open())
+            return 1;
+        out << d << std::flush;
+    }
+
     return 0;
 }
 
@@ -648,6 +726,9 @@ WisReturnType Generator::ParseFunctionReturn(tinyxml2::XMLElement* func)
     WisReturnType ret;
 
     if (auto* param = func->FirstChildElement("ret")) {
+        if (auto* res = param->FindAttribute("result"))
+            ret.has_result = true;
+
         auto* type = param->FindAttribute("type");
         if (!type)
             return ret; // No return type
@@ -660,9 +741,6 @@ WisReturnType Generator::ParseFunctionReturn(tinyxml2::XMLElement* func)
 
         if (auto* mod = param->FindAttribute("mod"))
             ret.modifier = mod->Value();
-
-        if (auto* res = param->FindAttribute("result"))
-            ret.has_result = true;
 
         if (auto* doc = param->FindAttribute("doc"))
             ret.doc = doc->Value();
@@ -741,8 +819,10 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         if (ret) {
             ref.this_type = ret->Value();
             ref.this_type_info = GetTypeInfo(ref.this_type);
-
-            handle_map[ref.this_type].functions.emplace_back(xkey);
+            if (ref.this_type_info == TypeInfo::Handle)
+                handle_map[ref.this_type].functions.emplace_back(xkey);
+            else if (ref.this_type_info == TypeInfo::ExtHandle)
+                extension_map[ref.this_type].functions.emplace_back(xkey);
         }
 
         if (auto* doc = func->FindAttribute("doc"))
@@ -763,8 +843,13 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         }
 
         std::string_view smod = mod->Value();
-        if (smod == "custom-impl") {
+        if (smod.find("custom-impl") != std::string_view::npos) {
             ref.custom_impl = true;
+        }
+        if (smod.find("cpp-only") != std::string_view::npos) {
+            ref.implemented_for = ReplaceTypeFor::CPP;
+        } else if (smod.find("c-only") != std::string_view::npos) {
+            ref.implemented_for = ReplaceTypeFor::C;
         }
     }
 }
@@ -799,6 +884,8 @@ void Generator::ParseExtensions(tinyxml2::XMLElement* extensions)
         } else if (type == "Device") {
             ref.type = ExtensionType::Device;
         }
+
+        ParseFunctions(ext);
     }
 }
 
@@ -818,6 +905,18 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         auto name = type->FindAttribute("name")->Value();
         auto& ref = handle_map[name];
         ref.name = name;
+
+        if (auto* doc = type->FindAttribute("doc"))
+            ref.doc = doc->Value();
+
+        for (auto* impl = type->FirstChildElement("file"); impl;
+             impl = impl->NextSiblingElement("file")) {
+            auto impl_for = impl->FindAttribute("for")->Value();
+            auto impl_for_code = ImplCode(impl_for);
+            auto impl_file = impl->FindAttribute("include")->Value();
+
+            ref.AddFile(impl_file, impl_for_code);
+        }
     }
 }
 
@@ -1603,7 +1702,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
     // Return type
     if (func.return_type.type == "") {
-        return_t = "void";
+        return_t = func.return_type.has_result ? GetCFullTypename("Result") : "void";
     } else if (func.return_type.has_result) {
         WisFunctionParameter res{
             .type_info = func.return_type.type_info,
@@ -1892,20 +1991,37 @@ std::string Generator::MakeCHandleMethodImpls(const WisHandle& s, std::string_vi
     return chunk;
 }
 
-std::string Generator::MakeCExtensionHeader(const WisExtension& s, std::string_view impl)
+std::string Generator::MakeCExtensionHeader(const WisExtension& s)
 {
-    std::string header;
-    auto preproc = wis::format("#define WIS_{} 1", s.name);
-    auto handle = wis::format("typedef struct {}FactoryExtension {}{};\n", impl, impl, s.name);
+    std::string output = wis::format("// {}--\n", s.name);
+    output += wis::format("#ifndef WIS_{}\n#define WIS_{} 1\n#endif\n\n", s.name, s.name);
 
-    header += preproc + "\n";
-    header += handle + "\n";
+    output += "#ifdef WISDOM_VULKAN\n";
+    auto impl_vk = impls[+ImplementedFor::Vulkan];
+    output += wis::format("typedef {}FactoryExtension* {}{};\n", impl_vk, impl_vk, s.name);
+    output += MakeCHandleMethods(s, impl_vk) + '\n';
+    output += "#endif\n\n";
 
-    return header;
+    output += "#ifdef WISDOM_DX12\n";
+    auto impl_dx = impls[+ImplementedFor::DX12];
+    output += wis::format("typedef {}FactoryExtension* {}{};\n", impl_dx, impl_dx, s.name);
+    output += MakeCHandleMethods(s, impl_dx) + '\n';
+    output += "#endif\n\n";
+
+    output += "#if defined(WISDOM_DX12) && !FORCEVK_SWITCH\n";
+    output += wis::format("typedef {}{} Wis{};\n", impl_dx, s.name, s.name);
+    output += MakeCHandleMethodsGeneric(s, impl_dx) + '\n';
+    output += "#elif defined(WISDOM_VULKAN)\n\n";
+    output += wis::format("typedef {}{} Wis{};\n", impl_vk, s.name, s.name);
+    output += MakeCHandleMethodsGeneric(s, impl_vk) + '\n';
+    output += "#endif\n\n";
+
+    output += k_delimiter;
+    return output;
 }
 std::string Generator::MakeCExtensionImpl(const WisExtension& s, std::string_view impl)
 {
-    return std::string();
+    return MakeCHandleMethodImpls(s, impl) + '\n';
 }
 std::string Generator::MakeCExtensionMap(std::string_view impl)
 {
@@ -1976,7 +2092,7 @@ std::string Generator::MakeCPPFunctionGenericDecl(const WisFunction& func, std::
     return wis::format("{}{{ return {}; }}", MakeCPPFunctionProto(func, "", "inline"),
                        MakeCPPFunctionCall(func, impl));
 }
-std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc)
+std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc, bool impl_on_fdecl)
 {
     std::string args;
     std::string return_t;
@@ -2007,7 +2123,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
 
     // Return type
     if (func.return_type.type == "") {
-        return_t = "void";
+        return_t = func.return_type.has_result ? GetCPPFullTypename("Result") : "void";
     } else if (func.return_type.has_result) {
         // make wis::ResultValue<type> return type
         doc += wis::format("@return {}\n", func.return_type.doc);
@@ -2033,7 +2149,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         doc += "\n";
     }
 
-    return wis::format("{}{} {} {}{}({})", doc, pre_decl, return_t, impl, func.name, args);
+    return wis::format("{}{} {} {}{}({})", doc, pre_decl, return_t, impl_on_fdecl ? impl : "", func.name, args);
 }
 std::string Generator::MakeCPPFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl)
 {
@@ -2045,7 +2161,12 @@ std::string Generator::MakeCPPFunctionCall(const WisFunction& func, std::string_
 
     // Arguments
     for (auto& arg : func.parameters) {
-        args += std::string(arg.name) + ", ";
+
+        if (arg.type_info == TypeInfo::Handle && arg.modifier.empty()) {
+            args += wis::format("std::move({}), ", arg.name);
+        } else {
+            args += std::string(arg.name) + ", ";
+        }
     }
 
     // Remove trailing ", "
@@ -2109,6 +2230,36 @@ std::string Generator::MakeCPPDelegate(const WisFunction& func)
 
     return wis::format("{}\nusing {}{} = {} (*)({});\n", doc, impl, func.name, return_t, args);
 }
+std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
+{
+    std::string doc;
+    if (!s.doc.empty()) {
+        doc = wis::format("/**\n@brief {}\n", s.doc);
+    }
+    if (s.doc.empty()) {
+        doc = "";
+    } else {
+        doc += "*/";
+        doc = FinalizeCPPDocumentation(doc, s.name, impl);
+        ReplaceAll(doc, "\n", "\n * ");
+    }
+
+    std::string head = wis::format("{}\nstruct {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
+    std::string ctor = wis::format("public:\n using wis::Impl{}{}::Impl{}{};", impl, s.name, impl, s.name);
+
+    std::string funcs = "public:\n";
+    for (auto& f : s.functions) {
+        auto& func = function_map[std::string(f)];
+        if (func.name == "Destroy" || func.implemented_for == ReplaceTypeFor::C || func.custom_impl) {
+            continue;
+        }
+
+        funcs += wis::format("{}{{\n    return {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
+                             MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
+    }
+
+    return wis::format("{} {{\n{}\n{}\n}};\n", head, ctor, funcs);
+}
 #pragma endregion
 
 std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
@@ -2132,6 +2283,8 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
         return "Wis" + std::string(type);
 
     if (auto it = handle_map.find(type); it != handle_map.end())
+        return std::string(impl) + std::string(type);
+    if (auto it = extension_map.find(type); it != extension_map.end())
         return std::string(impl) + std::string(type);
 
     if (auto it = delegate_map.find(type); it != delegate_map.end())
@@ -2164,9 +2317,11 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
 
     if (auto it = handle_map.find(type); it != handle_map.end())
         return "wis::" + std::string(impl) + std::string(type);
+    if (auto it = extension_map.find(type); it != extension_map.end())
+        return "wis::" + std::string(impl) + std::string(type);
 
     if (auto it = delegate_map.find(type); it != delegate_map.end())
-        return std::string(type);
+        return "wis::" + std::string(type);
 
     if (auto it = function_map.find(std::string(type)); it != function_map.end())
         return "wis::" + std::string(impl) + std::string(type);
@@ -2205,6 +2360,9 @@ std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::strin
     if (arg.modifier.find("const") != std::string_view::npos) {
         pre_decl += "const";
     }
+    if (arg.modifier.find("ref") != std::string_view::npos) {
+        post_decl = '&';
+    }
     if (!arg.default_value.empty()) {
         post_name = wis::format(" = {}", arg.default_value);
     }
@@ -2223,6 +2381,7 @@ std::string Generator::ConvertFromCType(const WisFunctionParameter& arg, std::st
     case TypeInfo::Regular:
         return std::string(arg.name);
     case TypeInfo::Handle:
+    case TypeInfo::ExtHandle:
         trsf = wis::format("reinterpret_cast<{}*>({})", type, arg.name);
         break;
     case TypeInfo::Enum:
@@ -2249,6 +2408,7 @@ std::string Generator::ConvertToCType(const WisFunctionParameter& arg, std::stri
     case TypeInfo::Regular:
         return std::string(arg.name);
     case TypeInfo::Handle:
+    case TypeInfo::ExtHandle:
         trsf = wis::format("reinterpret_cast<{}>({})", type, arg.name);
         break;
     case TypeInfo::Enum:
@@ -2287,6 +2447,9 @@ TypeInfo Generator::GetTypeInfo(std::string_view type)
     if (handle_map.contains(type))
         return TypeInfo::Handle;
 
+    if (extension_map.contains(type))
+        return TypeInfo::ExtHandle;
+
     if (delegate_map.contains(type))
         return TypeInfo::Delegate;
 
@@ -2303,13 +2466,4 @@ ImplementedFor Generator::GetImplementedFor(std::string_view type)
         return ret;
     }
     return ImplementedFor::Unspecified;
-}
-
-std::pair<std::string, std::string> Generator::MakeHandle(const WisHandle& s)
-{
-    std::string st_decl_dx;
-    std::string st_decl_vk;
-    st_decl_dx += wis::format("typedef struct DX12{}_t* DX12{};\n", s.name, s.name);
-    st_decl_vk += wis::format("typedef struct VK{}_t* VK{};\n", s.name, s.name);
-    return { std::move(st_decl_dx), std::move(st_decl_vk) };
 }

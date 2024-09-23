@@ -66,7 +66,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
 }
 /**
  * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions The extensions to enable.
  * The extensions are initialized through this array.
  * @param extension_count The number of extensions to enable.
@@ -76,7 +76,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
  * */
 inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
 {
-    return DX12CreateDevice(adapter, extensions, extension_count, force);
+    return DX12CreateDevice(std::move(adapter), extensions, extension_count, force);
 }
 
 //-------------------------------------------------------------------------
@@ -144,7 +144,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
 }
 /**
  * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
  * @param extensions The extensions to enable.
  * The extensions are initialized through this array.
  * @param extension_count The number of extensions to enable.
@@ -154,7 +154,7 @@ inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wi
  * */
 inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
 {
-    return VKCreateDevice(adapter, extensions, extension_count, force);
+    return VKCreateDevice(std::move(adapter), extensions, extension_count, force);
 }
 
 //-------------------------------------------------------------------------

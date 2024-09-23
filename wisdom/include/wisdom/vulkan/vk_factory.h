@@ -72,7 +72,7 @@ public:
     }
 };
 
-class VKFactory : public QueryInternal<VKFactory>
+class ImplVKFactory : public QueryInternal<VKFactory>
 {
     struct IndexedAdapter {
         uint32_t index_consumption = 0;
@@ -85,14 +85,14 @@ class VKFactory : public QueryInternal<VKFactory>
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
-    VKFactory() noexcept = default;
-    WIS_INLINE explicit VKFactory(
+    ImplVKFactory() noexcept = default;
+    WIS_INLINE explicit ImplVKFactory(
             wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
 
-    VKFactory(const VKFactory&) = delete;
-    VKFactory(VKFactory&&) noexcept = default;
-    VKFactory& operator=(const VKFactory&) = delete;
-    VKFactory& operator=(VKFactory&&) noexcept = default;
+    ImplVKFactory(const ImplVKFactory&) = delete;
+    ImplVKFactory(ImplVKFactory&&) noexcept = default;
+    ImplVKFactory& operator=(const ImplVKFactory&) = delete;
+    ImplVKFactory& operator=(ImplVKFactory&&) noexcept = default;
 
     operator bool() const noexcept
     {
@@ -119,6 +119,30 @@ public:
 private:
     mutable std::vector<IndexedAdapter> adapters{};
 };
+
+#pragma region VKFactory
+/**
+ * @brief Class for creating adapters.
+ * Can be safely destroyed after adapter has been chosen.
+ * */
+struct VKFactory : public wis::ImplVKFactory {
+public:
+    using wis::ImplVKFactory::ImplVKFactory;
+
+public:
+    /**
+     * @brief Creates the wis::VKAdapter for the factory with provided index.
+     * @param index The index of the adapter to get.
+     * @param preference The preference of the adapter to get.
+     * Default is wis::AdapterPreference::Performance.
+     * @return wis::VKAdapter on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKAdapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance)
+    {
+        return wis::ImplVKFactory::GetAdapter(index, preference);
+    }
+};
+#pragma endregion VKFactory
 
 [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
 ImplVKCreateFactory(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;

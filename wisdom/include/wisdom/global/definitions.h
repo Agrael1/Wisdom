@@ -1,5 +1,5 @@
 #pragma once
-#define noxnd noexcept(!DEBUG_MODE)
+#define WIS_DOC(a) ///< Documentation macro, used by Generator to generate documentation automatically
 
 #ifdef WISDOM_BUILD_BINARIES // If we are building the binaries
 #define WIS_INLINE

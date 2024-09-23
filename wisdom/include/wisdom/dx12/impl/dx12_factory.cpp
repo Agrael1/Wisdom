@@ -6,7 +6,7 @@
 
 #include <wisdom/dx12/dx12_checks.h>
 
-wis::DX12Factory::DX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept
+wis::ImplDX12Factory::ImplDX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept
     : QueryInternal(std::move(factory))
 {
 }
@@ -39,7 +39,7 @@ wis::ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions,
 }
 
 wis::ResultValue<wis::DX12Adapter>
-wis::DX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
+wis::ImplDX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     auto gen = has_preference ? GetAdapterByGPUPreference(index, convert_dx(preference))
                               : GetAdapter1(index);
@@ -51,8 +51,8 @@ wis::DX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const
 }
 
 wis::com_with_result<IDXGIAdapter1>
-wis::DX12Factory::GetAdapterByGPUPreference(uint32_t index,
-                                            DXGI_GPU_PREFERENCE preference) const noexcept
+wis::ImplDX12Factory::GetAdapterByGPUPreference(uint32_t index,
+                                                DXGI_GPU_PREFERENCE preference) const noexcept
 {
     wis::com_ptr<IDXGIAdapter1> adapter;
     auto hr = factory->EnumAdapterByGpuPreference(index, preference, __uuidof(*adapter),
@@ -61,7 +61,7 @@ wis::DX12Factory::GetAdapterByGPUPreference(uint32_t index,
 }
 
 wis::com_with_result<IDXGIAdapter1>
-wis::DX12Factory::GetAdapter1(uint32_t index) const noexcept
+wis::ImplDX12Factory::GetAdapter1(uint32_t index) const noexcept
 {
     wis::com_ptr<IDXGIAdapter1> adapter;
     auto hr = factory->EnumAdapters1(index, adapter.put());
