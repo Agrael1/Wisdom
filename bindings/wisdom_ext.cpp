@@ -42,6 +42,20 @@ constexpr static inline decltype(auto) DX12DeviceExtensionBridge(wis::DeviceExtI
         return Executor<wis::DX12DeviceExtension>{}(std::forward<Args>(args)...);
     }
 }
+// DX12DebugExtension methods --
+extern "C" WisResult DX12DebugExtensionCreateDebugMessenger(DX12DebugExtension self, DebugCallback callback, void* user_data, DX12DebugMessenger* messenger)
+{
+    auto* xself = reinterpret_cast<wis::DX12DebugExtension*>(self);
+    auto&& [res, value] = xself->CreateDebugMessenger(reinterpret_cast<wis::DebugCallback>(callback), user_data);
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *messenger = reinterpret_cast<DX12DebugMessenger>(new (std::nothrow) wis::DX12DebugMessenger(std::move(value)));
+    if (!*messenger)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12DebugMessenger." };
+    return reinterpret_cast<WisResult&>(res);
+}
 #endif
 
 #if defined(WISDOM_VULKAN)
@@ -83,5 +97,19 @@ constexpr static inline decltype(auto) VKDeviceExtensionBridge(wis::DeviceExtID 
     default:
         return Executor<wis::VKDeviceExtension>{}(std::forward<Args>(args)...);
     }
+}
+// VKDebugExtension methods --
+extern "C" WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self, DebugCallback callback, void* user_data, VKDebugMessenger* messenger)
+{
+    auto* xself = reinterpret_cast<wis::VKDebugExtension*>(self);
+    auto&& [res, value] = xself->CreateDebugMessenger(reinterpret_cast<wis::DebugCallback>(callback), user_data);
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *messenger = reinterpret_cast<VKDebugMessenger>(new (std::nothrow) wis::VKDebugMessenger(std::move(value)));
+    if (!*messenger)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKDebugMessenger." };
+    return reinterpret_cast<WisResult&>(res);
 }
 #endif

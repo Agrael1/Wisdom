@@ -2598,6 +2598,82 @@ inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensio
 
 #endif
 
+// DebugExtension--
+#ifndef WIS_DebugExtension
+#define WIS_DebugExtension 1
+#endif
+
+#ifdef WISDOM_VULKAN
+typedef VKFactoryExtension* VKDebugExtension;
+// VKDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger VKDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self, DebugCallback callback, void* user_data, VKDebugMessenger* messenger);
+
+#endif
+
+#ifdef WISDOM_DX12
+typedef DX12FactoryExtension* DX12DebugExtension;
+// VKDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger VKDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self, DebugCallback callback, void* user_data, VKDebugMessenger* messenger);
+
+#endif
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+typedef DX12DebugExtension WisDebugExtension;
+// WisDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger WisDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDebugExtensionCreateDebugMessenger(WisDebugExtension self, DebugCallback callback, void* user_data, WisDebugMessenger* messenger)
+{
+    return DX12DebugExtensionCreateDebugMessenger(self, callback, user_data, messenger);
+}
+
+#elif defined(WISDOM_VULKAN)
+
+typedef VKDebugExtension WisDebugExtension;
+// WisDebugExtension methods --
+/**
+ * @brief Creates a debug messenger for the factory.
+ * @param self valid handle to the DebugExtension
+ * @param callback The callback that will receive the debug messages.
+ * @param user_data The user data that will be passed to the callback.
+ * @param messenger WisDebugMessenger on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDebugExtensionCreateDebugMessenger(WisDebugExtension self, DebugCallback callback, void* user_data, WisDebugMessenger* messenger)
+{
+    return VKDebugExtensionCreateDebugMessenger(self, callback, user_data, messenger);
+}
+
+#endif
+
+//-------------------------------------------------------------------------
+
 #ifdef __cplusplus
 }
 #endif

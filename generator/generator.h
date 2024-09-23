@@ -131,6 +131,7 @@ enum class TypeInfo {
     String,
     View,
     Variant,
+    ExtHandle
 };
 struct ReplacedParameter {
     ReplaceTypeFor replace_for = ReplaceTypeFor::None;
@@ -182,19 +183,6 @@ struct WisFunction {
     }
 };
 
-enum class ExtensionType {
-    None,
-    Factory,
-    Device
-};
-struct WisExtension {
-    ExtensionType type = ExtensionType::None;
-
-    std::string_view name;
-    std::string_view doc;
-    std::string_view include;
-};
-
 struct WisHandle {
     std::string_view name;
     std::string_view doc;
@@ -235,6 +223,18 @@ struct WisHandle {
         return function_map.at(*enum_value);
     }
 };
+
+
+enum class ExtensionType {
+    None,
+    Factory,
+    Device
+};
+struct WisExtension : WisHandle {
+    ExtensionType type = ExtensionType::None;
+    std::string_view include;
+};
+
 struct WisConversion {
     std::string value;
     ImplementedFor impl = ImplementedFor::None;
@@ -320,7 +320,7 @@ public:
     std::string MakeCHandleMethodImpls(const WisHandle& s, std::string_view impl);
 
     // Extension generation
-    std::string MakeCExtensionHeader(const WisExtension& s, std::string_view impl);
+    std::string MakeCExtensionHeader(const WisExtension& s);
     std::string MakeCExtensionImpl(const WisExtension& s, std::string_view impl);
     std::string MakeCExtensionMap(std::string_view impl);
 #pragma endregion

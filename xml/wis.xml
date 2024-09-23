@@ -118,7 +118,11 @@ The presence of core functionality is checked by the query function."/>
   </functions>
   <extensions>
     <ext name="DebugExtension" type="Factory" id="1" include="wisdom/wisdom_debug.h">
-      <!-- Functions, types, etc -->
+      <func for="DebugExtension" name="CreateDebugMessenger" doc="Creates a debug messenger for the factory.">
+        <ret type="DebugMessenger" name="messenger" result="true" doc="{DebugMessenger::} on success ({Status::Ok})."/>
+        <arg type="DebugCallback" name="callback" doc="The callback that will receive the debug messages."/>
+        <arg type="void" name="user_data" mod="ptr" doc="The user data that will be passed to the callback."/>"
+      </func>
     </ext>
   </extensions>
 </registry>

@@ -180,7 +180,7 @@ enum class AdapterPreference {
 
 /**
  * @brief Log message severity.
- * Used with DebugCallback and internal library logging.
+ * Used with wis::DebugCallback and internal library logging.
  *
  * */
 enum class Severity {
