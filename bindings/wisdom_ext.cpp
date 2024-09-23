@@ -20,9 +20,9 @@ constexpr static inline decltype(auto) DX12FactoryExtensionBridge(wis::FactoryEx
 {
     switch (id) {
     case wis::FactoryExtID::DebugExtension:
-        return Executor<typename DX12FactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type>{}(std::forward<Args>(args)...);
+        return Executor<typename DX12FactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type> {}(std::forward<Args>(args)...);
     default:
-        return Executor<wis::DX12FactoryExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::DX12FactoryExtension> {}(std::forward<Args>(args)...);
     }
 }
 
@@ -39,7 +39,7 @@ constexpr static inline decltype(auto) DX12DeviceExtensionBridge(wis::DeviceExtI
 {
     switch (id) {
     default:
-        return Executor<wis::DX12DeviceExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::DX12DeviceExtension> {}(std::forward<Args>(args)...);
     }
 }
 // DX12DebugExtension methods --
@@ -76,9 +76,9 @@ constexpr static inline decltype(auto) VKFactoryExtensionBridge(wis::FactoryExtI
 {
     switch (id) {
     case wis::FactoryExtID::DebugExtension:
-        return Executor<typename VKFactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type>{}(std::forward<Args>(args)...);
+        return Executor<typename VKFactoryExtensionMap<wis::FactoryExtID::DebugExtension>::Type> {}(std::forward<Args>(args)...);
     default:
-        return Executor<wis::VKFactoryExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::VKFactoryExtension> {}(std::forward<Args>(args)...);
     }
 }
 
@@ -95,7 +95,7 @@ constexpr static inline decltype(auto) VKDeviceExtensionBridge(wis::DeviceExtID 
 {
     switch (id) {
     default:
-        return Executor<wis::VKDeviceExtension>{}(std::forward<Args>(args)...);
+        return Executor<wis::VKDeviceExtension> {}(std::forward<Args>(args)...);
     }
 }
 // VKDebugExtension methods --
