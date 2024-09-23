@@ -49,6 +49,13 @@ struct DestroyExt {
     }
 };
 
+template<typename T>
+struct GetExtSupported {
+    bool operator()(void* memory) const noexcept {
+        return static_cast<T*>(memory)->Supported();
+    }
+};
+
 static inline uint8_t* wisdom_alloc(size_t size, size_t align)
 {
     return static_cast<uint8_t*>(ALIGNED_ALLOC(size, align));
@@ -171,9 +178,8 @@ extern "C" WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
                 size_t align = DX12FactoryExtensionBridge<GetExtAlign>(id);
                 ext_ptr = reinterpret_cast<uint8_t*>(wis::detail::aligned_size((size_t)ext_ptr, align));
 
+                DX12FactoryExtensionBridge<CreateExt>(id, ext_ptr);
                 *data = reinterpret_cast<wis::DX12FactoryExtension*>(ext_ptr);
-                DX12FactoryExtensionBridge<CreateExt>(id, *data);
-                extensions[i].result = ext_ptr;
                 ext_ptr += DX12FactoryExtensionBridge<GetExtSize>(id);
 
                 ext_ids++;
@@ -186,9 +192,20 @@ extern "C" WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
     auto&& [result, hfactory] = wis::DX12CreateFactory(debug_layer, allocator.data(), extension_count);
     std::construct_at(memory.pre_type, std::move(hfactory));
 
+
     if (result.status != wis::Status::Ok) {
         wisdom_free(memory.data());
         return reinterpret_cast<WisResult&>(result);
+    }
+    // Check if ext is supported
+    if (extensions) {
+        for (size_t i = 0; i < extension_count; i++) {
+            if (extensions[i].extension_id != 0) {
+                bool supported = DX12FactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), extensions[i].result);
+                if (!supported)
+                    extensions[i].result = nullptr;
+            }
+        }
     }
 
     *factory = reinterpret_cast<DX12Factory>(memory.data());
@@ -213,6 +230,8 @@ extern "C" void DX12FactoryDestroy(DX12Factory self)
     std::destroy_at(memory.pre_type);
     wisdom_free(memory.data());
 }
+
+//-------------------------------------------------------------------------------------------------
 
 extern "C" WisResult DX12CreateDevice(DX12Adapter adapter, WisDeviceExtQuery* extensions, uint32_t extension_count, bool force, DX12Device* factory)
 {
@@ -257,6 +276,14 @@ extern "C" WisResult DX12CreateDevice(DX12Adapter adapter, WisDeviceExtQuery* ex
     if (result.status != wis::Status::Ok) {
         wisdom_free(memory.data());
         return reinterpret_cast<WisResult&>(result);
+    }
+
+    for (size_t i = 0; i < extension_count; i++) {
+        if (extensions[i].extension_id != 0) {
+            bool supported = DX12DeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), extensions[i].result);
+            if (!supported)
+                extensions[i].result = nullptr;
+        }
     }
 
     *factory = reinterpret_cast<DX12Device>(memory.data());
@@ -379,9 +406,8 @@ extern "C" WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* exten
                 size_t align = VKFactoryExtensionBridge<GetExtAlign>(id);
                 ext_ptr = reinterpret_cast<uint8_t*>(wis::detail::aligned_size((size_t)ext_ptr, align));
 
+                VKFactoryExtensionBridge<CreateExt>(id, ext_ptr);
                 *data = reinterpret_cast<wis::VKFactoryExtension*>(ext_ptr);
-                VKFactoryExtensionBridge<CreateExt>(id, *data);
-                extensions[i].result = ext_ptr;
                 ext_ptr += VKFactoryExtensionBridge<GetExtSize>(id);
 
                 ext_ids++;
@@ -397,6 +423,16 @@ extern "C" WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* exten
     if (result.status != wis::Status::Ok) {
         wisdom_free(memory.data());
         return reinterpret_cast<WisResult&>(result);
+    }
+    // Check if ext is supported
+    if (extensions) {
+        for (size_t i = 0; i < extension_count; i++) {
+            if (extensions[i].extension_id != 0) {
+                bool supported = VKFactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), extensions[i].result);
+                if (!supported)
+                    extensions[i].result = nullptr;
+            }
+        }
     }
 
     *factory = reinterpret_cast<VKFactory>(memory.data());
@@ -465,6 +501,14 @@ extern "C" WisResult VKCreateDevice(VKAdapter adapter, WisDeviceExtQuery* extens
     if (result.status != wis::Status::Ok) {
         wisdom_free(memory.data());
         return reinterpret_cast<WisResult&>(result);
+    }
+
+    for (size_t i = 0; i < extension_count; i++) {
+        if (extensions[i].extension_id != 0) {
+            bool supported = VKDeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), extensions[i].result);
+            if (!supported)
+                extensions[i].result = nullptr;
+        }
     }
 
     *factory = reinterpret_cast<VKDevice>(memory.data());
