@@ -42,7 +42,7 @@ wis::ResultValue<wis::DX12Adapter>
 wis::ImplDX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
 {
     auto gen = has_preference ? GetAdapterByGPUPreference(index, convert_dx(preference))
-               : GetAdapter1(index);
+                              : GetAdapter1(index);
 
     if (!gen)
         return wis::make_result<FUNC, "Failed to get adapter">(gen.result);
@@ -52,11 +52,11 @@ wis::ImplDX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) c
 
 wis::com_with_result<IDXGIAdapter1>
 wis::ImplDX12Factory::GetAdapterByGPUPreference(uint32_t index,
-        DXGI_GPU_PREFERENCE preference) const noexcept
+                                                DXGI_GPU_PREFERENCE preference) const noexcept
 {
     wis::com_ptr<IDXGIAdapter1> adapter;
     auto hr = factory->EnumAdapterByGpuPreference(index, preference, __uuidof(*adapter),
-              adapter.put_void());
+                                                  adapter.put_void());
     return { hr, std::move(adapter) };
 }
 

@@ -28,7 +28,7 @@ int main()
         WisResult result = WisFactoryGetAdapter(factory, i, AdapterPreferencePerformance, &adapter);
 
         if (result.status == StatusOk) {
-            WisAdapterDesc desc = {0};
+            WisAdapterDesc desc = { 0 };
             WisAdapterGetDesc(adapter, &desc);
             printf("Adapter: %s\n", desc.description);
 

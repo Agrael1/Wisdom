@@ -21,7 +21,8 @@ public:
     ImplDX12Adapter() noexcept = default;
     explicit ImplDX12Adapter(wis::com_ptr<IDXGIAdapter1> adapter) noexcept
         : QueryInternal(std::move(adapter)) { }
-    operator bool() const noexcept {
+    operator bool() const noexcept
+    {
         return bool(adapter);
     }
 
