@@ -70,6 +70,21 @@ Must not be NULL."/>
     <func for="Device" name="Destroy" mod="custom-impl" doc="Destroys the {Device::} and all the extensions created by it.
 Order of destruction is Extensions in which they were created, then device."/>
 
+    <func for="Device" name="WaitForMultipleFences" doc="Waits on multiple fences simultaneously.
+If wait_all is {MutiWaitFlags::All}, waits for all fences to be signaled.
+Otherwise waits for any fence to be signaled.">
+      <ret result="true"/>
+      <arg type="FenceView" name="fences" mod="const ptr" doc="Array of fence views to wait on."/>
+      <arg type="u64" name="fence_values" mod="const ptr" doc="Fence values to wait fences to reach.
+Array must have fence_count values."/>
+      <arg type="u32" name="fence_count" doc="How many fences to wait on."/>
+      <arg type="MutiWaitFlags" name="wait_all" default="MutiWaitFlags::All" doc="Specifies the kind of wait. 
+All - waits for all fences to be signaled.
+Any - waits for any fence to be signaled.
+Default is {MutiWaitFlags::All}"/>
+      <arg type="u64" name="timeout" default="UINT64_MAX" doc="The timeout in nanoseconds. If UINT64_MAX, waits indefinitely."/>
+    </func>
+    
     <!--<func for="Fence" name="Destroy"/>
     <func for="ResourceAllocator" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
@@ -117,7 +132,8 @@ The presence of core functionality is checked by the query function."/>
 
   </functions>
   <extensions>
-    <ext name="DebugExtension" type="Factory" id="1" include="wisdom/wisdom_debug.h">
+    <ext name="DebugExtension" type="Factory" id="1" folder="debug_info">
+      <file include="wisdom/wisdom_debug.h"/>
       <func for="DebugExtension" name="CreateDebugMessenger" doc="Creates a debug messenger for the factory.">
         <ret type="DebugMessenger" name="messenger" result="true" doc="{DebugMessenger::} on success ({Status::Ok})."/>
         <arg type="DebugCallback" name="callback" doc="The callback that will receive the debug messages."/>

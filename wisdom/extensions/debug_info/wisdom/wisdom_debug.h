@@ -13,7 +13,7 @@ template<>
 struct Internal<DX12DebugExtension> {
 };
 
-class DX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, DX12FactoryExtension>
+class ImplDX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, DX12FactoryExtension>
 {
 public:
     [[nodiscard]] bool Supported() const noexcept override
@@ -40,6 +40,27 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<DX12DebugMessenger>
     CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
 };
+
+#pragma region DX12DebugExtension
+
+struct DX12DebugExtension : public wis::ImplDX12DebugExtension {
+public:
+    using wis::ImplDX12DebugExtension::ImplDX12DebugExtension;
+
+public:
+    /**
+     * @brief Creates a debug messenger for the factory.
+     * @param callback The callback that will receive the debug messages.
+     * @param user_data The user data that will be passed to the callback.
+     * @return wis::DX12DebugMessenger on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::DX12DebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data)
+    {
+        return wis::ImplDX12DebugExtension::CreateDebugMessenger(callback, user_data);
+    }
+};
+#pragma endregion DX12DebugExtension
+
 } // namespace wis
 
 #endif // WISDOM_DX12
@@ -58,7 +79,7 @@ struct Internal<VKDebugExtension> {
     PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
 };
 
-class VKDebugExtension : public QueryInternalExtension<VKDebugExtension, wis::VKFactoryExtensionImpl<VKDebugExtension>>
+class ImplVKDebugExtension : public QueryInternalExtension<VKDebugExtension, wis::VKFactoryExtensionImpl<VKDebugExtension>>
 {
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -93,6 +114,26 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDebugMessenger>
     CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
 };
+
+#pragma region VKDebugExtension
+
+struct VKDebugExtension : public wis::ImplVKDebugExtension {
+public:
+    using wis::ImplVKDebugExtension::ImplVKDebugExtension;
+
+public:
+    /**
+     * @brief Creates a debug messenger for the factory.
+     * @param callback The callback that will receive the debug messages.
+     * @param user_data The user data that will be passed to the callback.
+     * @return wis::VKDebugMessenger on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKDebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data)
+    {
+        return wis::ImplVKDebugExtension::CreateDebugMessenger(callback, user_data);
+    }
+};
+#pragma endregion VKDebugExtension
 } // namespace wis
 #endif // WISDOM_VULKAN
 

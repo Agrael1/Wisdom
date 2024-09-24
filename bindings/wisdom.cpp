@@ -33,6 +33,13 @@ extern "C" WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_
 }
 
 // DX12Device methods --
+extern "C" WisResult DX12DeviceWaitForMultipleFences(DX12Device self, const DX12FenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto res = xself->WaitForMultipleFences(reinterpret_cast<const wis::DX12FenceView*&>(fences), fence_values, fence_count, static_cast<wis::MutiWaitFlags>(wait_all), timeout);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
 
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
 {
@@ -109,6 +116,13 @@ extern "C" WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc
 }
 
 // VKDevice methods --
+extern "C" WisResult VKDeviceWaitForMultipleFences(VKDevice self, const VKFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto res = xself->WaitForMultipleFences(reinterpret_cast<const wis::VKFenceView*&>(fences), fence_values, fence_count, static_cast<wis::MutiWaitFlags>(wait_all), timeout);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)
 {

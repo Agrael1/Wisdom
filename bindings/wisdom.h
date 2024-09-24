@@ -2062,6 +2062,23 @@ WISDOM_API WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc
  * */
 WISDOM_API void VKDeviceDestroy(VKDevice self);
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+WISDOM_API WisResult VKDeviceWaitForMultipleFences(VKDevice self, const VKFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2310,6 +2327,23 @@ WISDOM_API WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_
  * */
 WISDOM_API void DX12DeviceDestroy(DX12Device self);
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+WISDOM_API WisResult DX12DeviceWaitForMultipleFences(DX12Device self, const DX12FenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2379,6 +2413,22 @@ typedef DX12DescriptorBuffer WisDescriptorBuffer;
 typedef DX12Sampler WisSampler;
 typedef DX12Memory WisMemory;
 typedef DX12ShaderResource WisShaderResource;
+typedef DX12FenceView WisFenceView;
+typedef DX12BufferView WisBufferView;
+typedef DX12TextureView WisTextureView;
+typedef DX12RenderTargetView WisRenderTargetView;
+typedef DX12CommandListView WisCommandListView;
+typedef DX12ShaderView WisShaderView;
+typedef DX12RootSignatureView WisRootSignatureView;
+typedef DX12DescriptorBufferView WisDescriptorBufferView;
+typedef DX12BufferBarrier2 WisBufferBarrier2;
+typedef DX12TextureBarrier2 WisTextureBarrier2;
+typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
+typedef DX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef DX12RenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
+typedef DX12RenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
+typedef DX12RenderPassDesc WisRenderPassDesc;
+typedef DX12VertexBufferBinding WisVertexBufferBinding;
 
 //-------------------------------------------------------------------------
 
@@ -2440,6 +2490,26 @@ inline void WisDeviceDestroy(WisDevice self)
     return DX12DeviceDestroy(self);
 }
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+inline WisResult WisDeviceWaitForMultipleFences(WisDevice self, const WisFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout)
+{
+    return DX12DeviceWaitForMultipleFences(self, fences, fence_values, fence_count, wait_all, timeout);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2499,6 +2569,22 @@ typedef VKDescriptorBuffer WisDescriptorBuffer;
 typedef VKSampler WisSampler;
 typedef VKMemory WisMemory;
 typedef VKShaderResource WisShaderResource;
+typedef VKFenceView WisFenceView;
+typedef VKBufferView WisBufferView;
+typedef VKTextureView WisTextureView;
+typedef VKRenderTargetView WisRenderTargetView;
+typedef VKCommandListView WisCommandListView;
+typedef VKShaderView WisShaderView;
+typedef VKRootSignatureView WisRootSignatureView;
+typedef VKDescriptorBufferView WisDescriptorBufferView;
+typedef VKBufferBarrier2 WisBufferBarrier2;
+typedef VKTextureBarrier2 WisTextureBarrier2;
+typedef VKGraphicsShaderStages WisGraphicsShaderStages;
+typedef VKGraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef VKRenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
+typedef VKRenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
+typedef VKRenderPassDesc WisRenderPassDesc;
+typedef VKVertexBufferBinding WisVertexBufferBinding;
 
 //-------------------------------------------------------------------------
 
@@ -2558,6 +2644,26 @@ inline WisResult WisAdapterGetDesc(WisAdapter self, WisAdapterDesc* inout_desc)
 inline void WisDeviceDestroy(WisDevice self)
 {
     return VKDeviceDestroy(self);
+}
+
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+inline WisResult WisDeviceWaitForMultipleFences(WisDevice self, const WisFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout)
+{
+    return VKDeviceWaitForMultipleFences(self, fences, fence_values, fence_count, wait_all, timeout);
 }
 
 //-------------------------------------------------------------------------
