@@ -27,6 +27,10 @@ public:
     }
     DX12DebugMessenger& operator=(DX12DebugMessenger&& other) noexcept
     {
+        if (this == &other) {
+            return *this;
+        }
+
 		DX12Info::RebindCallback(&other, this);
 		QueryInternal::operator=(std::move(other));
 		return *this;
