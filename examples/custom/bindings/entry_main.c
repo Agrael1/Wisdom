@@ -6,12 +6,14 @@ void ExDebugCallback(WisSeverity sev, const char* message, void* user_data)
     printf("Debug: %s\n", message);
 }
 
-int main()
+struct AppData {
+    WisDevice device;
+    WisDebugMessenger debug;
+};
+
+bool CreateApp(struct AppData* uninit_app)
 {
     WisFactory factory = NULL;
-    WisDevice device = NULL;
-    WisDebugMessenger debug = NULL;
-
     WisFactoryExtQuery exts[] = {
         { FactoryExtIDDebugExtension, NULL },
     };
@@ -20,7 +22,7 @@ int main()
     WisDebugExtension debug_ext = exts[0].result;
 
     // Get debug messenger
-    WisDebugExtensionCreateDebugMessenger(debug_ext, &ExDebugCallback, NULL, &debug);
+    WisDebugExtensionCreateDebugMessenger(debug_ext, &ExDebugCallback, NULL, &uninit_app->debug);
 
     // Create a device
     for (size_t i = 0;; i++) {
@@ -32,7 +34,7 @@ int main()
             WisAdapterGetDesc(adapter, &desc);
             printf("Adapter: %s\n", desc.description);
 
-            WisResult res = WisCreateDevice(adapter, NULL, 0, false, &device);
+            WisResult res = WisCreateDevice(adapter, NULL, 0, false, &uninit_app->device);
             if (res.status == StatusOk) {
                 WisAdapterDestroy(adapter);
                 break;
@@ -43,7 +45,18 @@ int main()
         }
     }
 
-    WisDeviceDestroy(device);
-    WisFactoryDestroy(factory);
+    WisFactoryDestroy(factory); // No longer needed
+}
+void DestroyApp(struct AppData* app)
+{
+    WisDebugMessengerDestroy(app->debug);
+    WisDeviceDestroy(app->device);
+}
+
+int main()
+{
+    struct AppData app = { 0 };
+    CreateApp(&app);
+    DestroyApp(&app);
     return 0;
 }

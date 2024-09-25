@@ -239,6 +239,9 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
     </func>
 
+    <!-- DebugMessenger -->
+    <func for="DebugMessenger" name="Destroy" doc="Destroys the {DebugMessenger::}."/>
+
       <!--<func for="Fence" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
     <func for="CommandQueue" name="Destroy"/>

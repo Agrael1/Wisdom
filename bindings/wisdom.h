@@ -2339,6 +2339,13 @@ WISDOM_API WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VK
  * */
 WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture);
 
+// VKDebugMessenger methods --
+/**
+ * @brief Destroys the VKDebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2865,6 +2872,13 @@ WISDOM_API WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self
  * */
 WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture);
 
+// DX12DebugMessenger methods --
+/**
+ * @brief Destroys the DX12DebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -3356,6 +3370,16 @@ inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, Wis
     return DX12ResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
 }
 
+// WisDebugMessenger methods --
+/**
+ * @brief Destroys the WisDebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+inline void WisDebugMessengerDestroy(WisDebugMessenger self)
+{
+    return DX12DebugMessengerDestroy(self);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -3834,6 +3858,16 @@ inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisM
 inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
 {
     return VKResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
+}
+
+// WisDebugMessenger methods --
+/**
+ * @brief Destroys the WisDebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+inline void WisDebugMessengerDestroy(WisDebugMessenger self)
+{
+    return VKDebugMessengerDestroy(self);
 }
 
 //-------------------------------------------------------------------------

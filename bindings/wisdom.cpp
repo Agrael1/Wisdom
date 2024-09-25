@@ -312,6 +312,13 @@ extern "C" WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator sel
     return reinterpret_cast<WisResult&>(res);
 }
 
+// DX12DebugMessenger methods --
+extern "C" void DX12DebugMessengerDestroy(DX12DebugMessenger self)
+{
+    auto* xself = reinterpret_cast<wis::DX12DebugMessenger*>(self);
+    delete xself;
+}
+
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
 {
     wis::DX12FenceView xself = reinterpret_cast<wis::DX12Fence&>(*self);
@@ -669,6 +676,13 @@ extern "C" WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, V
     if (!*texture)
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKTexture." };
     return reinterpret_cast<WisResult&>(res);
+}
+
+// VKDebugMessenger methods --
+extern "C" void VKDebugMessengerDestroy(VKDebugMessenger self)
+{
+    auto* xself = reinterpret_cast<wis::VKDebugMessenger*>(self);
+    delete xself;
 }
 
 extern "C" VKFenceView AsVKFenceView(VKFence self)
