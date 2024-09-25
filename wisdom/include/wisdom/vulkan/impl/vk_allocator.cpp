@@ -90,8 +90,8 @@ wis::ImplVKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage
 
 wis::ResultValue<wis::VKMemory>
 wis::ImplVKResourceAllocator::AllocateTextureMemory(uint64_t size, wis::TextureUsage usage,
-                                              wis::MemoryType memory,
-                                              wis::MemoryFlags mem_flags) const noexcept
+                                                    wis::MemoryType memory,
+                                                    wis::MemoryFlags mem_flags) const noexcept
 {
     VkMemoryRequirements2 req;
     VKFillTextureAllocationInfo({
@@ -133,8 +133,8 @@ wis::ImplVKResourceAllocator::AllocateTextureMemory(uint64_t size, wis::TextureU
 }
 wis::ResultValue<wis::VKMemory>
 wis::ImplVKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
-                                               wis::MemoryType memory,
-                                               wis::MemoryFlags mem_flags) const noexcept
+                                                   wis::MemoryType memory,
+                                                   wis::MemoryFlags mem_flags) const noexcept
 {
     VkMemoryRequirements2 req{};
     VKFillBufferAllocationInfo(size, usage, req);

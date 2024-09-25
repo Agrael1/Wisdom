@@ -16,12 +16,12 @@ class DX12DebugMessenger : public QueryInternal<DX12DebugMessenger>
 public:
     DX12DebugMessenger() = default;
     DX12DebugMessenger(DX12InfoToken info, DebugCallback callback, void* user_data) noexcept
-        :QueryInternal(std::move(info))
+        : QueryInternal(std::move(info))
     {
         DX12Info::AddCallback(this, callback, user_data);
     }
-    DX12DebugMessenger(DX12DebugMessenger&& other)noexcept
-        :QueryInternal(std::move(other))
+    DX12DebugMessenger(DX12DebugMessenger&& other) noexcept
+        : QueryInternal(std::move(other))
     {
         DX12Info::RebindCallback(&other, this);
     }
@@ -31,18 +31,18 @@ public:
             return *this;
         }
 
-		DX12Info::RebindCallback(&other, this);
-		QueryInternal::operator=(std::move(other));
-		return *this;
-	}
+        DX12Info::RebindCallback(&other, this);
+        QueryInternal::operator=(std::move(other));
+        return *this;
+    }
     ~DX12DebugMessenger() noexcept
     {
-		DX12Info::RemoveCallback(this);
-	}
+        DX12Info::RemoveCallback(this);
+    }
 
     operator bool() const noexcept
     {
-		return info;
-	}
+        return info;
+    }
 };
 } // namespace wis

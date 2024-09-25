@@ -37,9 +37,9 @@ wis::ImplDX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** e
 }
 
 wis::Result wis::ImplDX12Device::WaitForMultipleFences(const DX12FenceView* fences,
-                                                   const uint64_t* values, uint32_t count,
-                                                   MutiWaitFlags wait_all,
-                                                   uint64_t timeout) const noexcept
+                                                       const uint64_t* values, uint32_t count,
+                                                       MutiWaitFlags wait_all,
+                                                       uint64_t timeout) const noexcept
 {
     unique_event e;
     HRESULT hr = S_OK;
@@ -108,9 +108,9 @@ wis::ImplDX12Device::CreateCommandList(wis::QueueType type) const noexcept
 
 wis::ResultValue<wis::DX12RootSignature>
 wis::ImplDX12Device::CreateRootSignature(const RootConstant* root_constants,
-                                     uint32_t constants_size,
-                                     const wis::DescriptorTable* tables,
-                                     uint32_t tables_count) const noexcept
+                                         uint32_t constants_size,
+                                         const wis::DescriptorTable* tables,
+                                         uint32_t tables_count) const noexcept
 {
     wis::com_ptr<ID3D12RootSignature> rsig;
 
@@ -371,7 +371,7 @@ wis::ImplDX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc*
 }
 
 wis::ResultValue<wis::DX12Shader> wis::ImplDX12Device::CreateShader(void* data,
-                                                                size_t size) const noexcept
+                                                                    size_t size) const noexcept
 {
     auto x = wis::detail::make_unique_for_overwrite<std::byte[]>(size);
 

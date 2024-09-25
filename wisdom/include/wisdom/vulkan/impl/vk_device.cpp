@@ -322,15 +322,15 @@ wis::ImplVKCreateDevice(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts
 }
 
 wis::ImplVKDevice::ImplVKDevice(wis::SharedDevice in_device, wis::VKAdapter in_adapter,
-                        wis::VKDeviceExtensionEmbedded1 ext1) noexcept
+                                wis::VKDeviceExtensionEmbedded1 ext1) noexcept
     : QueryInternal(std::move(in_adapter), std::move(in_device), std::move(ext1))
 {
     queues = GetQueueFamilies(adapter.GetInternal().adapter, GetInstanceTable());
 }
 
 wis::Result wis::ImplVKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
-                                                 uint32_t count, MutiWaitFlags wait_all,
-                                                 uint64_t timeout) const noexcept
+                                                     uint32_t count, MutiWaitFlags wait_all,
+                                                     uint64_t timeout) const noexcept
 {
     VkSemaphoreWaitInfo waitInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
                                   .pNext = nullptr,
@@ -397,9 +397,9 @@ wis::ImplVKDevice::CreateCommandQueue(wis::QueueType type) const noexcept
 
 wis::ResultValue<wis::VKRootSignature>
 wis::ImplVKDevice::CreateRootSignature(const RootConstant* constants,
-                                   uint32_t constants_size,
-                                   const wis::DescriptorTable* tables,
-                                   uint32_t tables_count) const noexcept
+                                       uint32_t constants_size,
+                                       const wis::DescriptorTable* tables,
+                                       uint32_t tables_count) const noexcept
 {
     wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
 
@@ -793,7 +793,7 @@ wis::ImplVKDevice::CreateCommandList(wis::QueueType type) const noexcept
 }
 
 wis::ResultValue<wis::VKShader> wis::ImplVKDevice::CreateShader(void* bytecode,
-                                                            uint32_t size) const noexcept
+                                                                uint32_t size) const noexcept
 {
     VkShaderModuleCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -907,8 +907,8 @@ wis::ImplVKDevice::VKCreateAllocator(bool interop) const noexcept
 
 wis::ResultValue<wis::VKSwapChain>
 wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
-                                 const SwapchainDesc* desc,
-                                 VkQueue graphics_queue) const noexcept
+                                     const SwapchainDesc* desc,
+                                     VkQueue graphics_queue) const noexcept
 {
     auto& itable = GetInstanceTable();
     auto& dtable = device.table();

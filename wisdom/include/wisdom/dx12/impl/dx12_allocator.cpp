@@ -66,8 +66,8 @@ wis::ImplDX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsa
 
 wis::ResultValue<wis::DX12Memory>
 wis::ImplDX12ResourceAllocator::AllocateTextureMemory(uint64_t size, wis::TextureUsage usage,
-                                                  wis::MemoryType memory,
-                                                  wis::MemoryFlags mem_flags) const noexcept
+                                                      wis::MemoryType memory,
+                                                      wis::MemoryFlags mem_flags) const noexcept
 
 {
 
@@ -109,8 +109,8 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(uint64_t size, wis::Textur
 
 wis::ResultValue<wis::DX12Memory>
 wis::ImplDX12ResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
-                                                 wis::MemoryType memory,
-                                                 wis::MemoryFlags mem_flags) const noexcept
+                                                     wis::MemoryType memory,
+                                                     wis::MemoryFlags mem_flags) const noexcept
 
 {
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;

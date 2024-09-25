@@ -86,7 +86,7 @@ Otherwise waits for any fence to be signaled.">
       <arg type="u64" name="fence_values" mod="const ptr" doc="Fence values to wait fences to reach.
 Array must have fence_count values."/>
       <arg type="u32" name="fence_count" doc="How many fences to wait on."/>
-      <arg type="MutiWaitFlags" name="wait_all" default="MutiWaitFlags::All" doc="Specifies the kind of wait. 
+      <arg type="MutiWaitFlags" name="wait_all" default="MutiWaitFlags::All" doc="Specifies the kind of wait.
 All - waits for all fences to be signaled.
 Any - waits for any fence to be signaled.
 Default is {MutiWaitFlags::All}"/>
@@ -173,7 +173,7 @@ The value is used to correctly determine descriptor page alignment for descripto
     </func>
 
     <!-- Resource Allocator -->
-    <func for="ResourceAllocator" name="Destroy" doc="Destroys the {ResourceAllocator::}. 
+    <func for="ResourceAllocator" name="Destroy" doc="Destroys the {ResourceAllocator::}.
 You can still use memory allocated by it even if it is destroyed."/>
 
     <func for="ResourceAllocator" name="CreateBuffer" mod="const" doc="Creates a buffer object and allocates memory for it.
