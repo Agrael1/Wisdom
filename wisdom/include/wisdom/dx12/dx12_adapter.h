@@ -1,5 +1,5 @@
-#ifndef DX12_ADAPTER_H
-#define DX12_ADAPTER_H
+#ifndef WIS_DX12_ADAPTER_H
+#define WIS_DX12_ADAPTER_H
 #include <wisdom/generated/api/api.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
@@ -70,7 +70,7 @@ public:
      * @param inout_desc The wis::AdapterDesc to fill.
      * Must not be NULL.
      * */
-    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc)
+    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc) const noexcept
     {
         return wis::ImplDX12Adapter::GetDesc(inout_desc);
     }

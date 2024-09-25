@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_CHECKS_H
+#define WIS_DX12_CHECKS_H
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/error_messages.h>
 #include <wisdom/dx12/dx12_convert.h>
@@ -37,3 +38,5 @@ constexpr inline wis::Result make_result(HRESULT hr) noexcept
 }
 
 } // namespace wis
+
+#endif // !WIS_DX12_CHECKS_H

@@ -1,5 +1,5 @@
-#ifndef DX12_UNIQUE_EVENT_H
-#define DX12_UNIQUE_EVENT_H
+#ifndef WIS_DX12_UNIQUE_EVENT_H
+#define WIS_DX12_UNIQUE_EVENT_H
 #include <wisdom/generated/api/api.h>
 #include <Windows.h>
 

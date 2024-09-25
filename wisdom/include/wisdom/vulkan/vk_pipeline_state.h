@@ -1,5 +1,5 @@
-#ifndef VK_PIPELINE_STATE_H
-#define VK_PIPELINE_STATE_H
+#ifndef WIS_VK_PIPELINE_STATE_H
+#define WIS_VK_PIPELINE_STATE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 

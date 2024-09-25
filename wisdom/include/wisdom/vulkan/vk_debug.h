@@ -1,5 +1,5 @@
-#ifndef VK_DEBUG_H
-#define VK_DEBUG_H
+#ifndef WIS_VK_DEBUG_H
+#define WIS_VK_DEBUG_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_handles.h>
 

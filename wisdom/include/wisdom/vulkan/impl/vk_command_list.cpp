@@ -1,5 +1,5 @@
-#ifndef VK_COMMAND_LIST_CPP
-#define VK_COMMAND_LIST_CPP
+#ifndef WIS_VK_COMMAND_LIST_CPP
+#define WIS_VK_COMMAND_LIST_CPP
 #include <wisdom/vulkan/vk_command_list.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>

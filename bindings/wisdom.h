@@ -1864,8 +1864,9 @@ typedef struct VKShaderView VKShaderView;
 typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKDescriptorBufferView VKDescriptorBufferView;
-typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKMemoryView VKMemoryView;
+typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
 typedef struct VKRenderPassDesc VKRenderPassDesc;
@@ -1906,6 +1907,11 @@ struct VKRootSignatureView {
 struct VKDescriptorBufferView {
     uint64_t value1;
     uint32_t value2;
+};
+
+struct VKMemoryView {
+    void* value1;
+    void* value2;
 };
 
 /**
@@ -2002,9 +2008,9 @@ typedef struct VKDeviceExtension_t* VKDeviceExtension;
 typedef struct VKPipelineState_t* VKPipelineState;
 typedef struct VKAdapter_t* VKAdapter;
 typedef struct VKDevice_t* VKDevice;
-typedef struct VKFence_t* VKFence;
 typedef struct VKFactoryExtension_t* VKFactoryExtension;
 typedef struct VKResourceAllocator_t* VKResourceAllocator;
+typedef struct VKFence_t* VKFence;
 typedef struct VKShader_t* VKShader;
 typedef struct VKCommandList_t* VKCommandList;
 typedef struct VKSwapChain_t* VKSwapChain;
@@ -2062,6 +2068,284 @@ WISDOM_API WisResult VKAdapterGetDesc(VKAdapter self, WisAdapterDesc* inout_desc
  * */
 WISDOM_API void VKDeviceDestroy(VKDevice self);
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+WISDOM_API WisResult VKDeviceWaitForMultipleFences(VKDevice self, const VKFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout);
+
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence VKFence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateFence(VKDevice self, uint64_t initial_value, WisFenceFlags flags, VKFence* fence);
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue VKCommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateCommandQueue(VKDevice self, WisQueueType type, VKCommandQueue* queue);
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list VKCommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateCommandList(VKDevice self, WisQueueType type, VKCommandList* list);
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline VKPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraphicsPipelineDesc* desc, VKPipelineState* pipeline);
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature VKRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature);
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader VKShader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateShader(VKDevice self, void* data, uint32_t size, VKShader* shader);
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator VKResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateAllocator(VKDevice self, VKResourceAllocator* allocator);
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target VKRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTextureView texture, WisRenderTargetDesc desc, VKRenderTarget* target);
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler VKSampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateSampler(VKDevice self, const WisSamplerDesc* desc, VKSampler* sampler);
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource VKShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTextureView texture, WisShaderResourceDesc desc, VKShaderResource* resource);
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap, uint32_t* alignment);
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap, uint32_t* size);
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer VKDescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, VKDescriptorBuffer* buffer);
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+WISDOM_API bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feature);
+
+// VKResourceAllocator methods --
+/**
+ * @brief Destroys the VKResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+WISDOM_API void VKResourceAllocatorDestroy(VKResourceAllocator self);
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer VKBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorCreateBuffer(VKResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, VKBuffer* buffer);
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture VKTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorCreateTexture(VKResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, VKTexture* texture);
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo VKResourceAllocatorGetTextureAllocationInfo(VKResourceAllocator self, const WisTextureDesc* desc);
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo VKResourceAllocatorGetBufferAllocationInfo(VKResourceAllocator self, uint64_t size, WisBufferUsage usage);
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory VKMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorAllocateTextureMemory(VKResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, VKMemory* out_memory);
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory VKMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorAllocateBufferMemory(VKResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, VKMemory* out_memory);
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer VKBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, VKBuffer* buffer);
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture VKTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture);
+
+// VKDebugMessenger methods --
+/**
+ * @brief Destroys the VKDebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2101,6 +2385,7 @@ WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
 WISDOM_API VKShaderView AsVKShaderView(VKShader self);
 WISDOM_API VKRootSignatureView AsVKRootSignatureView(VKRootSignature self);
 WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self);
+WISDOM_API VKMemoryView AsVKMemoryView(VKMemory self);
 #endif
 
 #ifdef WISDOM_DX12
@@ -2114,8 +2399,9 @@ typedef struct DX12ShaderView DX12ShaderView;
 typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
-typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12MemoryView DX12MemoryView;
+typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
 typedef struct DX12RenderPassDesc DX12RenderPassDesc;
@@ -2154,6 +2440,11 @@ struct DX12RootSignatureView {
 
 struct DX12DescriptorBufferView {
     void* value;
+};
+
+struct DX12MemoryView {
+    void* value1;
+    void* value2;
 };
 
 /**
@@ -2250,9 +2541,9 @@ typedef struct DX12DeviceExtension_t* DX12DeviceExtension;
 typedef struct DX12PipelineState_t* DX12PipelineState;
 typedef struct DX12Adapter_t* DX12Adapter;
 typedef struct DX12Device_t* DX12Device;
-typedef struct DX12Fence_t* DX12Fence;
 typedef struct DX12FactoryExtension_t* DX12FactoryExtension;
 typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
+typedef struct DX12Fence_t* DX12Fence;
 typedef struct DX12Shader_t* DX12Shader;
 typedef struct DX12CommandList_t* DX12CommandList;
 typedef struct DX12SwapChain_t* DX12SwapChain;
@@ -2310,6 +2601,284 @@ WISDOM_API WisResult DX12AdapterGetDesc(DX12Adapter self, WisAdapterDesc* inout_
  * */
 WISDOM_API void DX12DeviceDestroy(DX12Device self);
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+WISDOM_API WisResult DX12DeviceWaitForMultipleFences(DX12Device self, const DX12FenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout);
+
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence DX12Fence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateFence(DX12Device self, uint64_t initial_value, WisFenceFlags flags, DX12Fence* fence);
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue DX12CommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateCommandQueue(DX12Device self, WisQueueType type, DX12CommandQueue* queue);
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list DX12CommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateCommandList(DX12Device self, WisQueueType type, DX12CommandList* list);
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline DX12PipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX12GraphicsPipelineDesc* desc, DX12PipelineState* pipeline);
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature DX12RootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature);
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader DX12Shader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateShader(DX12Device self, void* data, uint32_t size, DX12Shader* shader);
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator DX12ResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateAllocator(DX12Device self, DX12ResourceAllocator* allocator);
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target DX12RenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12TextureView texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler DX12Sampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateSampler(DX12Device self, const WisSamplerDesc* desc, DX12Sampler* sampler);
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource DX12ShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12TextureView texture, WisShaderResourceDesc desc, DX12ShaderResource* resource);
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap, uint32_t* alignment);
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap, uint32_t* size);
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer DX12DescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, DX12DescriptorBuffer* buffer);
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+WISDOM_API bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature feature);
+
+// DX12ResourceAllocator methods --
+/**
+ * @brief Destroys the DX12ResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+WISDOM_API void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer DX12Buffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorCreateBuffer(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Buffer* buffer);
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture DX12Texture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorCreateTexture(DX12ResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Texture* texture);
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo DX12ResourceAllocatorGetTextureAllocationInfo(DX12ResourceAllocator self, const WisTextureDesc* desc);
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo DX12ResourceAllocatorGetBufferAllocationInfo(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage);
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory DX12Memory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorAllocateTextureMemory(DX12ResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, DX12Memory* out_memory);
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory DX12Memory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorAllocateBufferMemory(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, DX12Memory* out_memory);
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer DX12Buffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, DX12Buffer* buffer);
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture DX12Texture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture);
+
+// DX12DebugMessenger methods --
+/**
+ * @brief Destroys the DX12DebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2349,6 +2918,7 @@ WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);
 WISDOM_API DX12ShaderView AsDX12ShaderView(DX12Shader self);
 WISDOM_API DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self);
 WISDOM_API DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self);
+WISDOM_API DX12MemoryView AsDX12MemoryView(DX12Memory self);
 #endif
 
 #if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
@@ -2365,9 +2935,9 @@ typedef DX12DeviceExtension WisDeviceExtension;
 typedef DX12PipelineState WisPipelineState;
 typedef DX12Adapter WisAdapter;
 typedef DX12Device WisDevice;
-typedef DX12Fence WisFence;
 typedef DX12FactoryExtension WisFactoryExtension;
 typedef DX12ResourceAllocator WisResourceAllocator;
+typedef DX12Fence WisFence;
 typedef DX12Shader WisShader;
 typedef DX12CommandList WisCommandList;
 typedef DX12SwapChain WisSwapChain;
@@ -2379,6 +2949,23 @@ typedef DX12DescriptorBuffer WisDescriptorBuffer;
 typedef DX12Sampler WisSampler;
 typedef DX12Memory WisMemory;
 typedef DX12ShaderResource WisShaderResource;
+typedef DX12FenceView WisFenceView;
+typedef DX12BufferView WisBufferView;
+typedef DX12TextureView WisTextureView;
+typedef DX12RenderTargetView WisRenderTargetView;
+typedef DX12CommandListView WisCommandListView;
+typedef DX12ShaderView WisShaderView;
+typedef DX12RootSignatureView WisRootSignatureView;
+typedef DX12DescriptorBufferView WisDescriptorBufferView;
+typedef DX12MemoryView WisMemoryView;
+typedef DX12BufferBarrier2 WisBufferBarrier2;
+typedef DX12TextureBarrier2 WisTextureBarrier2;
+typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
+typedef DX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef DX12RenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
+typedef DX12RenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
+typedef DX12RenderPassDesc WisRenderPassDesc;
+typedef DX12VertexBufferBinding WisVertexBufferBinding;
 
 //-------------------------------------------------------------------------
 
@@ -2440,6 +3027,359 @@ inline void WisDeviceDestroy(WisDevice self)
     return DX12DeviceDestroy(self);
 }
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+inline WisResult WisDeviceWaitForMultipleFences(WisDevice self, const WisFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout)
+{
+    return DX12DeviceWaitForMultipleFences(self, fences, fence_values, fence_count, wait_all, timeout);
+}
+
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence WisFence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateFence(WisDevice self, uint64_t initial_value, WisFenceFlags flags, WisFence* fence)
+{
+    return DX12DeviceCreateFence(self, initial_value, flags, fence);
+}
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue WisCommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandQueue(WisDevice self, WisQueueType type, WisCommandQueue* queue)
+{
+    return DX12DeviceCreateCommandQueue(self, type, queue);
+}
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list WisCommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandList(WisDevice self, WisQueueType type, WisCommandList* list)
+{
+    return DX12DeviceCreateCommandList(self, type, list);
+}
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphicsPipelineDesc* desc, WisPipelineState* pipeline)
+{
+    return DX12DeviceCreateGraphicsPipeline(self, desc, pipeline);
+}
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature WisRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
+{
+    return DX12DeviceCreateRootSignature(self, root_constants, constants_size, tables, tables_count, signature);
+}
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader WisShader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShader(WisDevice self, void* data, uint32_t size, WisShader* shader)
+{
+    return DX12DeviceCreateShader(self, data, size, shader);
+}
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator WisResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* allocator)
+{
+    return DX12DeviceCreateAllocator(self, allocator);
+}
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target WisRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTextureView texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+{
+    return DX12DeviceCreateRenderTarget(self, texture, desc, target);
+}
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler WisSampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* desc, WisSampler* sampler)
+{
+    return DX12DeviceCreateSampler(self, desc, sampler);
+}
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource WisShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTextureView texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+{
+    return DX12DeviceCreateShaderResource(self, texture, desc, resource);
+}
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+{
+    return DX12DeviceGetDescriptorTableAlignment(self, heap, alignment);
+}
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap, uint32_t* size)
+{
+    return DX12DeviceGetDescriptorBufferUnitSize(self, heap, size);
+}
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer WisDescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, WisDescriptorBuffer* buffer)
+{
+    return DX12DeviceCreateDescriptorBuffer(self, heap_type, memory_type, descriptor_count, buffer);
+}
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
+{
+    return DX12DeviceQueryFeatureSupport(self, feature);
+}
+
+// WisResourceAllocator methods --
+/**
+ * @brief Destroys the WisResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+inline void WisResourceAllocatorDestroy(WisResourceAllocator self)
+{
+    return DX12ResourceAllocatorDestroy(self);
+}
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateBuffer(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, WisBuffer* buffer)
+{
+    return DX12ResourceAllocatorCreateBuffer(self, size, usage, memory, mem_flags, buffer);
+}
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateTexture(WisResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, WisTexture* texture)
+{
+    return DX12ResourceAllocatorCreateTexture(self, desc, memory, mem_flags, texture);
+}
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetTextureAllocationInfo(WisResourceAllocator self, const WisTextureDesc* desc)
+{
+    return DX12ResourceAllocatorGetTextureAllocationInfo(self, desc);
+}
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetBufferAllocationInfo(WisResourceAllocator self, uint64_t size, WisBufferUsage usage)
+{
+    return DX12ResourceAllocatorGetBufferAllocationInfo(self, size, usage);
+}
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateTextureMemory(WisResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return DX12ResourceAllocatorAllocateTextureMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return DX12ResourceAllocatorAllocateBufferMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
+{
+    return DX12ResourceAllocatorPlaceBuffer(self, memory, memory_offset, size, usage, buffer);
+}
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
+{
+    return DX12ResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
+}
+
+// WisDebugMessenger methods --
+/**
+ * @brief Destroys the WisDebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+inline void WisDebugMessengerDestroy(WisDebugMessenger self)
+{
+    return DX12DebugMessengerDestroy(self);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2485,9 +3425,9 @@ typedef VKDeviceExtension WisDeviceExtension;
 typedef VKPipelineState WisPipelineState;
 typedef VKAdapter WisAdapter;
 typedef VKDevice WisDevice;
-typedef VKFence WisFence;
 typedef VKFactoryExtension WisFactoryExtension;
 typedef VKResourceAllocator WisResourceAllocator;
+typedef VKFence WisFence;
 typedef VKShader WisShader;
 typedef VKCommandList WisCommandList;
 typedef VKSwapChain WisSwapChain;
@@ -2499,6 +3439,23 @@ typedef VKDescriptorBuffer WisDescriptorBuffer;
 typedef VKSampler WisSampler;
 typedef VKMemory WisMemory;
 typedef VKShaderResource WisShaderResource;
+typedef VKFenceView WisFenceView;
+typedef VKBufferView WisBufferView;
+typedef VKTextureView WisTextureView;
+typedef VKRenderTargetView WisRenderTargetView;
+typedef VKCommandListView WisCommandListView;
+typedef VKShaderView WisShaderView;
+typedef VKRootSignatureView WisRootSignatureView;
+typedef VKDescriptorBufferView WisDescriptorBufferView;
+typedef VKMemoryView WisMemoryView;
+typedef VKBufferBarrier2 WisBufferBarrier2;
+typedef VKTextureBarrier2 WisTextureBarrier2;
+typedef VKGraphicsShaderStages WisGraphicsShaderStages;
+typedef VKGraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef VKRenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
+typedef VKRenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
+typedef VKRenderPassDesc WisRenderPassDesc;
+typedef VKVertexBufferBinding WisVertexBufferBinding;
 
 //-------------------------------------------------------------------------
 
@@ -2560,6 +3517,359 @@ inline void WisDeviceDestroy(WisDevice self)
     return VKDeviceDestroy(self);
 }
 
+/**
+ * @brief Waits on multiple fences simultaneously.
+ * If wait_all is MutiWaitFlagsAll, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self valid handle to the Device
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach.
+ * Array must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_all Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is MutiWaitFlagsAll
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * */
+inline WisResult WisDeviceWaitForMultipleFences(WisDevice self, const WisFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout)
+{
+    return VKDeviceWaitForMultipleFences(self, fences, fence_values, fence_count, wait_all, timeout);
+}
+
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence WisFence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateFence(WisDevice self, uint64_t initial_value, WisFenceFlags flags, WisFence* fence)
+{
+    return VKDeviceCreateFence(self, initial_value, flags, fence);
+}
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue WisCommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandQueue(WisDevice self, WisQueueType type, WisCommandQueue* queue)
+{
+    return VKDeviceCreateCommandQueue(self, type, queue);
+}
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list WisCommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandList(WisDevice self, WisQueueType type, WisCommandList* list)
+{
+    return VKDeviceCreateCommandList(self, type, list);
+}
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphicsPipelineDesc* desc, WisPipelineState* pipeline)
+{
+    return VKDeviceCreateGraphicsPipeline(self, desc, pipeline);
+}
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature WisRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
+{
+    return VKDeviceCreateRootSignature(self, root_constants, constants_size, tables, tables_count, signature);
+}
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader WisShader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShader(WisDevice self, void* data, uint32_t size, WisShader* shader)
+{
+    return VKDeviceCreateShader(self, data, size, shader);
+}
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator WisResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* allocator)
+{
+    return VKDeviceCreateAllocator(self, allocator);
+}
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target WisRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTextureView texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+{
+    return VKDeviceCreateRenderTarget(self, texture, desc, target);
+}
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler WisSampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* desc, WisSampler* sampler)
+{
+    return VKDeviceCreateSampler(self, desc, sampler);
+}
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource WisShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTextureView texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+{
+    return VKDeviceCreateShaderResource(self, texture, desc, resource);
+}
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+{
+    return VKDeviceGetDescriptorTableAlignment(self, heap, alignment);
+}
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap, uint32_t* size)
+{
+    return VKDeviceGetDescriptorBufferUnitSize(self, heap, size);
+}
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer WisDescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, WisDescriptorBuffer* buffer)
+{
+    return VKDeviceCreateDescriptorBuffer(self, heap_type, memory_type, descriptor_count, buffer);
+}
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
+{
+    return VKDeviceQueryFeatureSupport(self, feature);
+}
+
+// WisResourceAllocator methods --
+/**
+ * @brief Destroys the WisResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+inline void WisResourceAllocatorDestroy(WisResourceAllocator self)
+{
+    return VKResourceAllocatorDestroy(self);
+}
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateBuffer(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, WisBuffer* buffer)
+{
+    return VKResourceAllocatorCreateBuffer(self, size, usage, memory, mem_flags, buffer);
+}
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateTexture(WisResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, WisTexture* texture)
+{
+    return VKResourceAllocatorCreateTexture(self, desc, memory, mem_flags, texture);
+}
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetTextureAllocationInfo(WisResourceAllocator self, const WisTextureDesc* desc)
+{
+    return VKResourceAllocatorGetTextureAllocationInfo(self, desc);
+}
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetBufferAllocationInfo(WisResourceAllocator self, uint64_t size, WisBufferUsage usage)
+{
+    return VKResourceAllocatorGetBufferAllocationInfo(self, size, usage);
+}
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateTextureMemory(WisResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return VKResourceAllocatorAllocateTextureMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return VKResourceAllocatorAllocateBufferMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
+{
+    return VKResourceAllocatorPlaceBuffer(self, memory, memory_offset, size, usage, buffer);
+}
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
+{
+    return VKResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
+}
+
+// WisDebugMessenger methods --
+/**
+ * @brief Destroys the WisDebugMessenger.
+ * @param self valid handle to the DebugMessenger
+ * */
+inline void WisDebugMessengerDestroy(WisDebugMessenger self)
+{
+    return VKDebugMessengerDestroy(self);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2604,7 +3914,7 @@ inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensio
 #endif
 
 #ifdef WISDOM_VULKAN
-typedef VKFactoryExtension* VKDebugExtension;
+typedef VKFactoryExtension VKDebugExtension;
 // VKDebugExtension methods --
 /**
  * @brief Creates a debug messenger for the factory.
@@ -2620,7 +3930,7 @@ WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self,
 #endif
 
 #ifdef WISDOM_DX12
-typedef DX12FactoryExtension* DX12DebugExtension;
+typedef DX12FactoryExtension DX12DebugExtension;
 // DX12DebugExtension methods --
 /**
  * @brief Creates a debug messenger for the factory.

@@ -1,5 +1,5 @@
-#ifndef VK_ADAPTER_CPP
-#define VK_ADAPTER_CPP
+#ifndef WIS_VK_ADAPTER_CPP
+#define WIS_VK_ADAPTER_CPP
 
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_checks.h>

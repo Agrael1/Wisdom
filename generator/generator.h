@@ -171,6 +171,7 @@ struct WisFunction {
     std::vector<WisFunctionParameter> parameters;
     ReplaceTypeFor implemented_for = ReplaceTypeFor::None;
     bool custom_impl = false;
+    bool const_func = false;
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
     {
@@ -231,7 +232,7 @@ enum class ExtensionType {
 };
 struct WisExtension : WisHandle {
     ExtensionType type = ExtensionType::None;
-    std::string_view include;
+    std::string_view ext_folder;
 };
 
 struct WisConversion {
@@ -243,6 +244,7 @@ class Generator
 {
     static constexpr std::string_view output_dir = OUTPUT_DIR;
     static constexpr std::string_view cpp_output_dir = CPP_OUTPUT_DIR;
+    static constexpr std::string_view ext_dir = CPP_OUTPUT_DIR "/../../extensions";
     static constexpr inline std::array<std::string_view, 5> impls{
         "",
         "DX12",
@@ -299,9 +301,6 @@ public:
     std::string MakeCPPEnum(const WisEnum& s);
     std::string MakeCPPBitmask(const WisBitmask& s);
 
-    std::pair<std::string, std::string> MakeHandle(const WisHandle& s);
-    std::string MakeFunctionImpl(const WisFunction& func, std::string_view decl, std::string_view impl);
-
 #pragma region C API
     // Function generation
     std::string MakeCFunctionGenericDecl(const WisFunction& func, std::string_view impl);
@@ -322,6 +321,8 @@ public:
     std::string MakeCExtensionHeader(const WisExtension& s);
     std::string MakeCExtensionImpl(const WisExtension& s, std::string_view impl);
     std::string MakeCExtensionMap(std::string_view impl);
+
+    std::string MakeCVariantGeneric(const WisVariant& s, std::string_view impl);
 #pragma endregion
 
 #pragma region CPP API

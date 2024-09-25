@@ -1,5 +1,5 @@
-#ifndef DX12_FACTORY_H
-#define DX12_FACTORY_H
+#ifndef WIS_DX12_FACTORY_H
+#define WIS_DX12_FACTORY_H
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/dx12/dx12_adapter.h>
@@ -69,7 +69,7 @@ public:
      * Default is wis::AdapterPreference::Performance.
      * @return wis::DX12Adapter on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance)
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
         return wis::ImplDX12Factory::GetAdapter(index, preference);
     }

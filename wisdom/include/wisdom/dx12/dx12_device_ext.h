@@ -1,5 +1,5 @@
-#ifndef DX12_DEVICE_EXT_H
-#define DX12_DEVICE_EXT_H
+#ifndef WIS_DX12_DEVICE_EXT_H
+#define WIS_DX12_DEVICE_EXT_H
 
 #include <wisdom/generated/api/api.h>
 

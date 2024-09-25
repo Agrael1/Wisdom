@@ -1,10 +1,10 @@
-#ifndef WISDOM_DEBUG_CPP
-#define WISDOM_DEBUG_CPP
+#ifndef WIS_WISDOM_DEBUG_CPP
+#define WIS_WISDOM_DEBUG_CPP
 #include <wisdom/wisdom_debug.h>
 
 #if defined(WISDOM_DX12)
 wis::ResultValue<wis::DX12DebugMessenger>
-wis::DX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
+wis::ImplDX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
 {
     return wis::DX12DebugMessenger{
         DX12InfoToken{ true }, callback, user_data
@@ -15,7 +15,7 @@ wis::DX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void*
 #if defined(WISDOM_VULKAN)
 #include <wisdom/vulkan/vk_checks.h>
 
-VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
+VKAPI_ATTR VkBool32 VKAPI_CALL wis::ImplVKDebugExtension::DebugCallbackThunk(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
@@ -36,7 +36,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::VKDebugExtension::DebugCallbackThunk(
 }
 
 wis::ResultValue<wis::VKDebugMessenger>
-wis::VKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
+wis::ImplVKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
 {
     auto debug_callback = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);
     if (!debug_callback)

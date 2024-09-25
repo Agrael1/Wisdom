@@ -1,5 +1,13 @@
 # Version History
 
+- 0.3.3
+
+  - Fixed Extension creation for C API yet again
+  - Added device and allocator documentation for C and C++ API
+  - C example now uses the new extension creation
+  - Fixed several API functions having different names in C++ (AllocateTextureMemory, GetDescriptorTableAlignment)
+  - Made functions use const correctness and accept const references where possible
+
 - 0.3.2
 
   - Fixed Extension creation for C API
@@ -12,7 +20,7 @@
   - Fixed bug with C CreateFactory crashing on extension creation
   - Fixed documentation not showing up on several C functions
 
-- - 0.3.0
+- 0.3.0
 
   - Changed generation of the API
   - Added support for extensions in C API

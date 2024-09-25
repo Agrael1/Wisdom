@@ -1,5 +1,5 @@
-#ifndef VK_FACTORY_H
-#define VK_FACTORY_H
+#ifndef WIS_VK_FACTORY_H
+#define WIS_VK_FACTORY_H
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
@@ -137,7 +137,7 @@ public:
      * Default is wis::AdapterPreference::Performance.
      * @return wis::VKAdapter on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKAdapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance)
+    [[nodiscard]] inline wis::ResultValue<wis::VKAdapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
         return wis::ImplVKFactory::GetAdapter(index, preference);
     }

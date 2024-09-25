@@ -1,5 +1,5 @@
-#ifndef VK_CONVERT_H
-#define VK_CONVERT_H
+#ifndef WIS_VK_CONVERT_H
+#define WIS_VK_CONVERT_H
 #include <vulkan/vulkan.h>
 #include <wisdom/generated/api/api.h>
 

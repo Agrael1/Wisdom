@@ -1,5 +1,5 @@
-#ifndef DX12_MEMORY_H
-#define DX12_MEMORY_H
+#ifndef WIS_DX12_MEMORY_H
+#define WIS_DX12_MEMORY_H
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>

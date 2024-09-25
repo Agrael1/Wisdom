@@ -1,5 +1,5 @@
-#ifndef VK_SHADER_H
-#define VK_SHADER_H
+#ifndef WIS_VK_SHADER_H
+#define WIS_VK_SHADER_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 

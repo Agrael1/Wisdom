@@ -1,7 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef WIS_DX12_DEVICE_CPP
+#define WIS_DX12_DEVICE_CPP
 #include <wisdom/dx12/dx12_device.h>
-#endif // !WISDOM_HEADER_ONLY
 
 #include <d3dx12/d3dx12_check_feature_support.h>
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
@@ -37,10 +36,10 @@ wis::ImplDX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** e
     return std::move(xdevice);
 }
 
-wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
-                                                   const uint64_t* values, uint32_t count,
-                                                   MutiWaitFlags wait_all,
-                                                   uint64_t timeout) const noexcept
+wis::Result wis::ImplDX12Device::WaitForMultipleFences(const DX12FenceView* fences,
+                                                       const uint64_t* values, uint32_t count,
+                                                       MutiWaitFlags wait_all,
+                                                       uint64_t timeout) const noexcept
 {
     unique_event e;
     HRESULT hr = S_OK;
@@ -58,7 +57,7 @@ wis::Result wis::DX12Device::WaitForMultipleFences(const DX12FenceView* fences,
 }
 
 wis::ResultValue<wis::DX12Fence>
-wis::DX12Device::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const noexcept
+wis::ImplDX12Device::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const noexcept
 {
     wis::com_ptr<ID3D12Fence1> fence;
     HRESULT hr = device->CreateFence(initial_value, convert_dx(flags),
@@ -71,7 +70,7 @@ wis::DX12Device::CreateFence(uint64_t initial_value, wis::FenceFlags flags) cons
 }
 
 wis::ResultValue<wis::DX12CommandQueue>
-wis::DX12Device::CreateCommandQueue(wis::QueueType type) const noexcept
+wis::ImplDX12Device::CreateCommandQueue(wis::QueueType type) const noexcept
 {
     wis::com_ptr<ID3D12CommandQueue> queue;
     D3D12_COMMAND_QUEUE_DESC desc{
@@ -87,7 +86,7 @@ wis::DX12Device::CreateCommandQueue(wis::QueueType type) const noexcept
 }
 
 wis::ResultValue<wis::DX12CommandList>
-wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
+wis::ImplDX12Device::CreateCommandList(wis::QueueType type) const noexcept
 {
     D3D12_COMMAND_LIST_TYPE clty = D3D12_COMMAND_LIST_TYPE(type);
     wis::com_ptr<ID3D12CommandAllocator> allocator;
@@ -108,10 +107,10 @@ wis::DX12Device::CreateCommandList(wis::QueueType type) const noexcept
 }
 
 wis::ResultValue<wis::DX12RootSignature>
-wis::DX12Device::CreateRootSignature(const RootConstant* root_constants,
-                                     uint32_t constants_size,
-                                     const wis::DescriptorTable* tables,
-                                     uint32_t tables_count) const noexcept
+wis::ImplDX12Device::CreateRootSignature(const RootConstant* root_constants,
+                                         uint32_t constants_size,
+                                         const wis::DescriptorTable* tables,
+                                         uint32_t tables_count) const noexcept
 {
     wis::com_ptr<ID3D12RootSignature> rsig;
 
@@ -205,7 +204,7 @@ inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream,
 } // namespace wis::detail
 
 wis::ResultValue<wis::DX12PipelineState>
-wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
+wis::ImplDX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept
 {
     wis::com_ptr<ID3D12PipelineState> state;
     //--Shader stages
@@ -371,8 +370,8 @@ wis::DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* des
     return DX12PipelineState{ std::move(state) };
 }
 
-wis::ResultValue<wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
-                                                                size_t size) const noexcept
+wis::ResultValue<wis::DX12Shader> wis::ImplDX12Device::CreateShader(void* data,
+                                                                    size_t size) const noexcept
 {
     auto x = wis::detail::make_unique_for_overwrite<std::byte[]>(size);
 
@@ -384,7 +383,7 @@ wis::ResultValue<wis::DX12Shader> wis::DX12Device::CreateShader(void* data,
 }
 
 wis::ResultValue<wis::DX12ResourceAllocator>
-wis::DX12Device::CreateAllocator() const noexcept
+wis::ImplDX12Device::CreateAllocator() const noexcept
 {
     D3D12MA::ALLOCATOR_DESC desc{ .Flags = D3D12MA::ALLOCATOR_FLAGS::ALLOCATOR_FLAG_NONE,
                                   .pDevice = device.get(),
@@ -401,7 +400,7 @@ wis::DX12Device::CreateAllocator() const noexcept
 }
 
 wis::ResultValue<wis::DX12RenderTarget>
-wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
+wis::ImplDX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
 {
     D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
         .Format = convert_dx(desc.format),
@@ -465,7 +464,7 @@ wis::DX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDe
 }
 
 wis::ResultValue<wis::DX12DescriptorBuffer>
-wis::DX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+wis::ImplDX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
 {
     D3D12_DESCRIPTOR_HEAP_DESC desc{
         .Type = convert_dx(heap_type),
@@ -482,7 +481,7 @@ wis::DX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::
 }
 
 wis::ResultValue<wis::DX12Sampler>
-wis::DX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
+wis::ImplDX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
 {
     auto min_filter = !desc->anisotropic ? convert_dx(desc->min_filter) : D3D12_FILTER_TYPE_LINEAR;
     auto mag_filter = !desc->anisotropic ? convert_dx(desc->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
@@ -516,7 +515,7 @@ wis::DX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
 }
 
 wis::ResultValue<wis::DX12ShaderResource>
-wis::DX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept
+wis::ImplDX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept
 {
     D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
         .Format = convert_dx(desc.format),
@@ -611,7 +610,7 @@ wis::DX12Device::CreateShaderResource(DX12TextureView texture, wis::ShaderResour
     return wis::DX12ShaderResource{ std::move(heap) };
 }
 
-bool wis::DX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
+bool wis::ImplDX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
 {
     switch (feature) {
     case wis::DeviceFeature::EnchancedBarriers: {
@@ -632,3 +631,4 @@ bool wis::DX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const noex
         return false;
     }
 }
+#endif // !DX12_DEVICE_CPP

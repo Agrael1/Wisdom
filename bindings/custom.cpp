@@ -200,7 +200,7 @@ extern "C" WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
     if (extensions) {
         for (size_t i = 0; i < extension_count; i++) {
             if (extensions[i].extension_id != 0) {
-                bool supported = DX12FactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), extensions[i].result);
+                bool supported = DX12FactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), data[i]);
                 if (!supported)
                     extensions[i].result = nullptr;
             }
@@ -279,7 +279,7 @@ extern "C" WisResult DX12CreateDevice(DX12Adapter adapter, WisDeviceExtQuery* ex
 
     for (size_t i = 0; i < extension_count; i++) {
         if (extensions[i].extension_id != 0) {
-            bool supported = DX12DeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), extensions[i].result);
+            bool supported = DX12DeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), data[i]);
             if (!supported)
                 extensions[i].result = nullptr;
         }
@@ -427,7 +427,7 @@ extern "C" WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* exten
     if (extensions) {
         for (size_t i = 0; i < extension_count; i++) {
             if (extensions[i].extension_id != 0) {
-                bool supported = VKFactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), extensions[i].result);
+                bool supported = VKFactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), data[i]);
                 if (!supported)
                     extensions[i].result = nullptr;
             }
@@ -504,7 +504,7 @@ extern "C" WisResult VKCreateDevice(VKAdapter adapter, WisDeviceExtQuery* extens
 
     for (size_t i = 0; i < extension_count; i++) {
         if (extensions[i].extension_id != 0) {
-            bool supported = VKDeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), extensions[i].result);
+            bool supported = VKDeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), data[i]);
             if (!supported)
                 extensions[i].result = nullptr;
         }

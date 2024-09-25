@@ -1,5 +1,5 @@
-#ifndef VK_FENCE_CPP
-#define VK_FENCE_CPP
+#ifndef WIS_VK_FENCE_CPP
+#define WIS_VK_FENCE_CPP
 #include <wisdom/vulkan/vk_fence.h>
 
 /// @brief Signal the fence from CPU.

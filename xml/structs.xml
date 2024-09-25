@@ -61,6 +61,12 @@
         <member type="u32" name="value2"/>
       </impl>
     </type>
+    <type name="MemoryView" category="variant" for="Memory">
+      <impl name="both">
+        <member type="void" name="value1" mod="ptr"/>
+        <member type="void" name="value2" mod="ptr"/>
+      </impl>
+    </type>
 
 
     <!--Structs-->

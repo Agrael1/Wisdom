@@ -1,5 +1,5 @@
-#ifndef VK_ADAPTER_H
-#define VK_ADAPTER_H
+#ifndef WIS_VK_ADAPTER_H
+#define WIS_VK_ADAPTER_H
 #include <span>
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_checks.h>
@@ -48,7 +48,7 @@ public:
      * @param inout_desc The wis::AdapterDesc to fill.
      * Must not be NULL.
      * */
-    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc)
+    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc) const noexcept
     {
         return wis::ImplVKAdapter::GetDesc(inout_desc);
     }
