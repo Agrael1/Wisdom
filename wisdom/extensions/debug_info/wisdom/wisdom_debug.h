@@ -54,7 +54,7 @@ public:
      * @param user_data The user data that will be passed to the callback.
      * @return wis::DX12DebugMessenger on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12DebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data)
+    [[nodiscard]] inline wis::ResultValue<wis::DX12DebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
         return wis::ImplDX12DebugExtension::CreateDebugMessenger(callback, user_data);
     }
@@ -128,7 +128,7 @@ public:
      * @param user_data The user data that will be passed to the callback.
      * @return wis::VKDebugMessenger on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKDebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data)
+    [[nodiscard]] inline wis::ResultValue<wis::VKDebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
         return wis::ImplVKDebugExtension::CreateDebugMessenger(callback, user_data);
     }

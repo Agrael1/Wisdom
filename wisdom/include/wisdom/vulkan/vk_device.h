@@ -56,8 +56,8 @@ class ImplVKDevice : public QueryInternal<VKDevice>
 public:
     ImplVKDevice() noexcept = default;
     WIS_INLINE explicit ImplVKDevice(wis::SharedDevice device,
-                                 wis::VKAdapter adapter,
-                                 wis::VKDeviceExtensionEmbedded1 ext1) noexcept;
+                                     wis::VKAdapter adapter,
+                                     wis::VKDeviceExtensionEmbedded1 ext1) noexcept;
 
     operator bool() const noexcept
     {
@@ -181,7 +181,7 @@ public:
      * Default is wis::MutiWaitFlags::All
      * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
      * */
-    [[nodiscard]] inline wis::Result WaitForMultipleFences(const wis::VKFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, wis::MutiWaitFlags wait_all = MutiWaitFlags::All, uint64_t timeout = UINT64_MAX)
+    [[nodiscard]] inline wis::Result WaitForMultipleFences(const wis::VKFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, wis::MutiWaitFlags wait_all = MutiWaitFlags::All, uint64_t timeout = UINT64_MAX) const noexcept
     {
         return wis::ImplVKDevice::WaitForMultipleFences(fences, fence_values, fence_count, wait_all, timeout);
     }
@@ -191,7 +191,7 @@ public:
      * @param flags The flags of the fence.
      * @return wis::VKFence on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKFence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = FenceFlags::None)
+    [[nodiscard]] inline wis::ResultValue<wis::VKFence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = FenceFlags::None) const noexcept
     {
         return wis::ImplVKDevice::CreateFence(initial_value, flags);
     }
@@ -200,7 +200,7 @@ public:
      * @param type The type of the queue to create.
      * @return wis::VKCommandQueue on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKCommandQueue> CreateCommandQueue(wis::QueueType type)
+    [[nodiscard]] inline wis::ResultValue<wis::VKCommandQueue> CreateCommandQueue(wis::QueueType type) const noexcept
     {
         return wis::ImplVKDevice::CreateCommandQueue(type);
     }
@@ -209,7 +209,7 @@ public:
      * @param type The type of the queue to create the command list for.
      * @return wis::VKCommandList on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKCommandList> CreateCommandList(wis::QueueType type)
+    [[nodiscard]] inline wis::ResultValue<wis::VKCommandList> CreateCommandList(wis::QueueType type) const noexcept
     {
         return wis::ImplVKDevice::CreateCommandList(type);
     }
@@ -218,7 +218,7 @@ public:
      * @param desc The description of the graphics pipeline to create.
      * @return wis::VKPipelineState on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc)
+    [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
     {
         return wis::ImplVKDevice::CreateGraphicsPipeline(desc);
     }
@@ -230,7 +230,7 @@ public:
      * @param tables_count The number of descriptor tables.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0)
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
         return wis::ImplVKDevice::CreateRootSignature(root_constants, constants_size, tables, tables_count);
     }
@@ -240,7 +240,7 @@ public:
      * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
      * @return wis::VKShader on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKShader> CreateShader(void* data, uint32_t size)
+    [[nodiscard]] inline wis::ResultValue<wis::VKShader> CreateShader(void* data, uint32_t size) const noexcept
     {
         return wis::ImplVKDevice::CreateShader(data, size);
     }
@@ -248,7 +248,7 @@ public:
      * @brief Creates a resource allocator object.
      * @return wis::VKResourceAllocator on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKResourceAllocator> CreateAllocator()
+    [[nodiscard]] inline wis::ResultValue<wis::VKResourceAllocator> CreateAllocator() const noexcept
     {
         return wis::ImplVKDevice::CreateAllocator();
     }
@@ -258,7 +258,7 @@ public:
      * @param desc The description of the render target to create.
      * @return wis::VKRenderTarget on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateRenderTarget(wis::VKTextureView texture, wis::RenderTargetDesc desc)
+    [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateRenderTarget(wis::VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
     {
         return wis::ImplVKDevice::CreateRenderTarget(texture, desc);
     }
@@ -267,7 +267,7 @@ public:
      * @param desc The description of the sampler to create.
      * @return wis::VKSampler on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKSampler> CreateSampler(const wis::SamplerDesc* desc)
+    [[nodiscard]] inline wis::ResultValue<wis::VKSampler> CreateSampler(const wis::SamplerDesc* desc) const noexcept
     {
         return wis::ImplVKDevice::CreateSampler(desc);
     }
@@ -277,7 +277,7 @@ public:
      * @param desc The description of the shader resource to create.
      * @return wis::VKShaderResource on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKShaderResource> CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc)
+    [[nodiscard]] inline wis::ResultValue<wis::VKShaderResource> CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
     {
         return wis::ImplVKDevice::CreateShaderResource(texture, desc);
     }
@@ -287,7 +287,7 @@ public:
      * @param heap The type of the descriptor heap to get the alignment for.
      * @return The alignment of the descriptor table in bytes.
      * */
-    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorTableAlignment(wis::DescriptorHeapType heap)
+    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
     {
         return wis::ImplVKDevice::GetDescriptorTableAlignment(heap);
     }
@@ -296,7 +296,7 @@ public:
      * @param heap The type of the descriptor heap to get the unit size for.
      * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
      * */
-    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap)
+    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
     {
         return wis::ImplVKDevice::GetDescriptorBufferUnitSize(heap);
     }
@@ -307,7 +307,7 @@ public:
      * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
      * @return wis::VKDescriptorBuffer on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count)
+    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
     {
         return wis::ImplVKDevice::CreateDescriptorBuffer(heap_type, memory_type, descriptor_count);
     }
@@ -316,7 +316,7 @@ public:
      * @param feature The feature to query.
      * @return true if feature is supported. false otherwise.
      * */
-    inline bool QueryFeatureSupport(wis::DeviceFeature feature)
+    inline bool QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
     {
         return wis::ImplVKDevice::QueryFeatureSupport(feature);
     }

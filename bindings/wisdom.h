@@ -1864,8 +1864,9 @@ typedef struct VKShaderView VKShaderView;
 typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKDescriptorBufferView VKDescriptorBufferView;
-typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKMemoryView VKMemoryView;
+typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
 typedef struct VKRenderPassDesc VKRenderPassDesc;
@@ -1906,6 +1907,11 @@ struct VKRootSignatureView {
 struct VKDescriptorBufferView {
     uint64_t value1;
     uint32_t value2;
+};
+
+struct VKMemoryView {
+    void* value1;
+    void* value2;
 };
 
 /**
@@ -2002,9 +2008,9 @@ typedef struct VKDeviceExtension_t* VKDeviceExtension;
 typedef struct VKPipelineState_t* VKPipelineState;
 typedef struct VKAdapter_t* VKAdapter;
 typedef struct VKDevice_t* VKDevice;
-typedef struct VKFence_t* VKFence;
 typedef struct VKFactoryExtension_t* VKFactoryExtension;
 typedef struct VKResourceAllocator_t* VKResourceAllocator;
+typedef struct VKFence_t* VKFence;
 typedef struct VKShader_t* VKShader;
 typedef struct VKCommandList_t* VKCommandList;
 typedef struct VKSwapChain_t* VKSwapChain;
@@ -2226,6 +2232,113 @@ WISDOM_API WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptor
  * */
 WISDOM_API bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feature);
 
+// VKResourceAllocator methods --
+/**
+ * @brief Destroys the VKResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+WISDOM_API void VKResourceAllocatorDestroy(VKResourceAllocator self);
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer VKBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorCreateBuffer(VKResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, VKBuffer* buffer);
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture VKTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorCreateTexture(VKResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, VKTexture* texture);
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo VKResourceAllocatorGetTextureAllocationInfo(VKResourceAllocator self, const WisTextureDesc* desc);
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo VKResourceAllocatorGetBufferAllocationInfo(VKResourceAllocator self, uint64_t size, WisBufferUsage usage);
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory VKMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorAllocateTextureMemory(VKResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, VKMemory* out_memory);
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory VKMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorAllocateBufferMemory(VKResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, VKMemory* out_memory);
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer VKBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, VKBuffer* buffer);
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture VKTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2265,6 +2378,7 @@ WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
 WISDOM_API VKShaderView AsVKShaderView(VKShader self);
 WISDOM_API VKRootSignatureView AsVKRootSignatureView(VKRootSignature self);
 WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self);
+WISDOM_API VKMemoryView AsVKMemoryView(VKMemory self);
 #endif
 
 #ifdef WISDOM_DX12
@@ -2278,8 +2392,9 @@ typedef struct DX12ShaderView DX12ShaderView;
 typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
-typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12MemoryView DX12MemoryView;
+typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
 typedef struct DX12RenderPassDesc DX12RenderPassDesc;
@@ -2318,6 +2433,11 @@ struct DX12RootSignatureView {
 
 struct DX12DescriptorBufferView {
     void* value;
+};
+
+struct DX12MemoryView {
+    void* value1;
+    void* value2;
 };
 
 /**
@@ -2414,9 +2534,9 @@ typedef struct DX12DeviceExtension_t* DX12DeviceExtension;
 typedef struct DX12PipelineState_t* DX12PipelineState;
 typedef struct DX12Adapter_t* DX12Adapter;
 typedef struct DX12Device_t* DX12Device;
-typedef struct DX12Fence_t* DX12Fence;
 typedef struct DX12FactoryExtension_t* DX12FactoryExtension;
 typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
+typedef struct DX12Fence_t* DX12Fence;
 typedef struct DX12Shader_t* DX12Shader;
 typedef struct DX12CommandList_t* DX12CommandList;
 typedef struct DX12SwapChain_t* DX12SwapChain;
@@ -2638,6 +2758,113 @@ WISDOM_API WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescri
  * */
 WISDOM_API bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature feature);
 
+// DX12ResourceAllocator methods --
+/**
+ * @brief Destroys the DX12ResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+WISDOM_API void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self);
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer DX12Buffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorCreateBuffer(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Buffer* buffer);
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture DX12Texture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorCreateTexture(DX12ResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Texture* texture);
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo DX12ResourceAllocatorGetTextureAllocationInfo(DX12ResourceAllocator self, const WisTextureDesc* desc);
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+WISDOM_API WisAllocationInfo DX12ResourceAllocatorGetBufferAllocationInfo(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage);
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory DX12Memory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorAllocateTextureMemory(DX12ResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, DX12Memory* out_memory);
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory DX12Memory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorAllocateBufferMemory(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, DX12Memory* out_memory);
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer DX12Buffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, DX12Buffer* buffer);
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture DX12Texture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2677,6 +2904,7 @@ WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);
 WISDOM_API DX12ShaderView AsDX12ShaderView(DX12Shader self);
 WISDOM_API DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self);
 WISDOM_API DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self);
+WISDOM_API DX12MemoryView AsDX12MemoryView(DX12Memory self);
 #endif
 
 #if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
@@ -2693,9 +2921,9 @@ typedef DX12DeviceExtension WisDeviceExtension;
 typedef DX12PipelineState WisPipelineState;
 typedef DX12Adapter WisAdapter;
 typedef DX12Device WisDevice;
-typedef DX12Fence WisFence;
 typedef DX12FactoryExtension WisFactoryExtension;
 typedef DX12ResourceAllocator WisResourceAllocator;
+typedef DX12Fence WisFence;
 typedef DX12Shader WisShader;
 typedef DX12CommandList WisCommandList;
 typedef DX12SwapChain WisSwapChain;
@@ -2715,6 +2943,7 @@ typedef DX12CommandListView WisCommandListView;
 typedef DX12ShaderView WisShaderView;
 typedef DX12RootSignatureView WisRootSignatureView;
 typedef DX12DescriptorBufferView WisDescriptorBufferView;
+typedef DX12MemoryView WisMemoryView;
 typedef DX12BufferBarrier2 WisBufferBarrier2;
 typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
@@ -2993,6 +3222,140 @@ inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature featur
     return DX12DeviceQueryFeatureSupport(self, feature);
 }
 
+// WisResourceAllocator methods --
+/**
+ * @brief Destroys the WisResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+inline void WisResourceAllocatorDestroy(WisResourceAllocator self)
+{
+    return DX12ResourceAllocatorDestroy(self);
+}
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateBuffer(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, WisBuffer* buffer)
+{
+    return DX12ResourceAllocatorCreateBuffer(self, size, usage, memory, mem_flags, buffer);
+}
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateTexture(WisResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, WisTexture* texture)
+{
+    return DX12ResourceAllocatorCreateTexture(self, desc, memory, mem_flags, texture);
+}
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetTextureAllocationInfo(WisResourceAllocator self, const WisTextureDesc* desc)
+{
+    return DX12ResourceAllocatorGetTextureAllocationInfo(self, desc);
+}
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetBufferAllocationInfo(WisResourceAllocator self, uint64_t size, WisBufferUsage usage)
+{
+    return DX12ResourceAllocatorGetBufferAllocationInfo(self, size, usage);
+}
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateTextureMemory(WisResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return DX12ResourceAllocatorAllocateTextureMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return DX12ResourceAllocatorAllocateBufferMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
+{
+    return DX12ResourceAllocatorPlaceBuffer(self, memory, memory_offset, size, usage, buffer);
+}
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
+{
+    return DX12ResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -3038,9 +3401,9 @@ typedef VKDeviceExtension WisDeviceExtension;
 typedef VKPipelineState WisPipelineState;
 typedef VKAdapter WisAdapter;
 typedef VKDevice WisDevice;
-typedef VKFence WisFence;
 typedef VKFactoryExtension WisFactoryExtension;
 typedef VKResourceAllocator WisResourceAllocator;
+typedef VKFence WisFence;
 typedef VKShader WisShader;
 typedef VKCommandList WisCommandList;
 typedef VKSwapChain WisSwapChain;
@@ -3060,6 +3423,7 @@ typedef VKCommandListView WisCommandListView;
 typedef VKShaderView WisShaderView;
 typedef VKRootSignatureView WisRootSignatureView;
 typedef VKDescriptorBufferView WisDescriptorBufferView;
+typedef VKMemoryView WisMemoryView;
 typedef VKBufferBarrier2 WisBufferBarrier2;
 typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;
@@ -3336,6 +3700,140 @@ inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHe
 inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
 {
     return VKDeviceQueryFeatureSupport(self, feature);
+}
+
+// WisResourceAllocator methods --
+/**
+ * @brief Destroys the WisResourceAllocator.
+ * You can still use memory allocated by it even if it is destroyed.
+ * @param self valid handle to the ResourceAllocator
+ * */
+inline void WisResourceAllocatorDestroy(WisResourceAllocator self)
+{
+    return VKResourceAllocatorDestroy(self);
+}
+
+/**
+ * @brief Creates a buffer object and allocates memory for it.
+ * Equivalent to creating a Buffer, allocating a memory and binding buffer to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @param memory The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateBuffer(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, WisBuffer* buffer)
+{
+    return VKResourceAllocatorCreateBuffer(self, size, usage, memory, mem_flags, buffer);
+}
+
+/**
+ * @brief Creates a texture object and allocates memory for it.
+ * Equivalent to creating a Texture, allocating a memory and binding texture to it.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to create.
+ * @param memory The type of the memory to allocate for the texture.
+ * @param mem_flags The flags of the memory to allocate for the texture.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateTexture(WisResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, WisTexture* texture)
+{
+    return VKResourceAllocatorCreateTexture(self, desc, memory, mem_flags, texture);
+}
+
+/**
+ * @brief Returns the allocation info for the texture.
+ * @param self valid handle to the ResourceAllocator
+ * @param desc The description of the texture to get the allocation info for.
+ * @return The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetTextureAllocationInfo(WisResourceAllocator self, const WisTextureDesc* desc)
+{
+    return VKResourceAllocatorGetTextureAllocationInfo(self, desc);
+}
+
+/**
+ * @brief Returns the allocation info for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer to get the allocation info for.
+ * @param usage The usage of the buffer. May affect the alignment of the buffer memory allocation.
+ * @return The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually.
+ * */
+inline WisAllocationInfo WisResourceAllocatorGetBufferAllocationInfo(WisResourceAllocator self, uint64_t size, WisBufferUsage usage)
+{
+    return VKResourceAllocatorGetBufferAllocationInfo(self, size, usage);
+}
+
+/**
+ * @brief Allocates memory for the image.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the image memory.
+ * @param mem_type The type of the memory to allocate for the image.
+ * @param mem_flags The flags of the memory to allocate for the image.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateTextureMemory(WisResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return VKResourceAllocatorAllocateTextureMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Allocates memory for the buffer.
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the memory to allocate.
+ * @param usage The usage of the buffer memory.
+ * @param mem_type The type of the memory to allocate for the buffer.
+ * @param mem_flags The flags of the memory to allocate for the buffer.
+ * @param out_memory WisMemory on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, WisMemory* out_memory)
+{
+    return VKResourceAllocatorAllocateBufferMemory(self, size, usage, mem_type, mem_flags, out_memory);
+}
+
+/**
+ * @brief Creates buffer with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting buffer must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the buffer to.
+ * @param memory_offset The offset in the memory to bind the buffer to.
+ * @param size The size of the buffer to bind.
+ * @param usage The usage of the buffer.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
+{
+    return VKResourceAllocatorPlaceBuffer(self, memory, memory_offset, size, usage, buffer);
+}
+
+/**
+ * @brief Creates texture with provided memory.
+ * Equivalent to creating aliasing resource.
+ * Note, the resulting Texture must be destroyed before Memory backing it up.
+ * @param self valid handle to the ResourceAllocator
+ * @param memory The memory view to bind the texture to.
+ * @param memory_offset The offset in the memory to bind the texture to.
+ * @param desc The description of the texture to create.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
+{
+    return VKResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
 }
 
 //-------------------------------------------------------------------------

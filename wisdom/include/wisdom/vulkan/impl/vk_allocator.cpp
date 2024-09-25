@@ -19,7 +19,7 @@ constexpr static VkExternalMemoryImageCreateInfoKHR external_info_image{
 } // namespace wis::detail
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
+wis::ImplVKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 {
     VkBufferCreateInfo desc;
     VKFillBufferDesc(size, usage, desc);
@@ -49,7 +49,7 @@ wis::VKResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wi
 }
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
+wis::ImplVKResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 {
     VkImageCreateInfo img_desc;
     VKFillImageDesc(desc, img_desc);
@@ -63,7 +63,7 @@ wis::VKResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::Memor
 }
 
 wis::AllocationInfo
-wis::VKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept
+wis::ImplVKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept
 {
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
@@ -76,7 +76,7 @@ wis::VKResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc& desc)
 }
 
 wis::AllocationInfo
-wis::VKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage flags) const noexcept
+wis::ImplVKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage flags) const noexcept
 {
     VkMemoryRequirements2 memReq{
         .sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
@@ -89,7 +89,7 @@ wis::VKResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsage fla
 }
 
 wis::ResultValue<wis::VKMemory>
-wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage usage,
+wis::ImplVKResourceAllocator::AllocateTextureMemory(uint64_t size, wis::TextureUsage usage,
                                               wis::MemoryType memory,
                                               wis::MemoryFlags mem_flags) const noexcept
 {
@@ -132,7 +132,7 @@ wis::VKResourceAllocator::AllocateImageMemory(uint64_t size, wis::TextureUsage u
     return VKMemory{ alloc_ref, allocation };
 }
 wis::ResultValue<wis::VKMemory>
-wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
+wis::ImplVKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
                                                wis::MemoryType memory,
                                                wis::MemoryFlags mem_flags) const noexcept
 {
@@ -170,7 +170,7 @@ wis::VKResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage u
 }
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::PlaceBuffer(wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
+wis::ImplVKResourceAllocator::PlaceBuffer(wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
 {
     auto al1 = std::get<0>(memory);
     if (al1 != allocator.get() && al1 != export_memory_allocator.get())
@@ -188,7 +188,7 @@ wis::VKResourceAllocator::PlaceBuffer(wis::VKMemoryView memory, uint64_t memory_
 }
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::PlaceTexture(wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
+wis::ImplVKResourceAllocator::PlaceTexture(wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
 {
     auto al1 = std::get<0>(memory);
     if (al1 != allocator.get() && al1 != export_memory_allocator.get())
@@ -208,7 +208,7 @@ wis::VKResourceAllocator::PlaceTexture(wis::VKMemoryView memory, uint64_t memory
 // =========================================================================================
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop) const noexcept
+wis::ImplVKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop) const noexcept
 {
     if (interop && !export_memory_allocator)
         return wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
@@ -231,7 +231,7 @@ wis::VKResourceAllocator::VKCreateTexture(VkImageCreateInfo& desc, const VmaAllo
 }
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop) const noexcept
+wis::ImplVKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop) const noexcept
 {
     if (interop && !export_memory_allocator)
         return wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
@@ -253,7 +253,7 @@ wis::VKResourceAllocator::VKCreateBuffer(VkBufferCreateInfo& desc, const VmaAllo
 }
 
 wis::ResultValue<wis::VKBuffer>
-wis::VKResourceAllocator::VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop) const noexcept
+wis::ImplVKResourceAllocator::VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop) const noexcept
 {
     auto& alloc_ref = interop ? export_memory_allocator : allocator;
 
@@ -267,7 +267,7 @@ wis::VKResourceAllocator::VKCreateAliasingBuffer(VkBufferCreateInfo& desc, VkDev
 }
 
 wis::ResultValue<wis::VKTexture>
-wis::VKResourceAllocator::VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop) const noexcept
+wis::ImplVKResourceAllocator::VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop) const noexcept
 {
     auto& alloc_ref = interop ? export_memory_allocator : allocator;
 
@@ -280,7 +280,7 @@ wis::VKResourceAllocator::VKCreateAliasingTexture(VkImageCreateInfo& desc, VkDev
     return VKTexture{ desc.format, buffer, { desc.extent.width, desc.extent.height }, alloc_ref, nullptr };
 }
 
-void wis::VKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUsage flags, VkBufferCreateInfo& info) noexcept
+void wis::ImplVKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUsage flags, VkBufferCreateInfo& info) noexcept
 {
     info = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -288,7 +288,7 @@ void wis::VKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUsage 
         .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VkBufferUsageFlagBits(flags)),
     };
 }
-void wis::VKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkImageCreateInfo& info) noexcept
+void wis::ImplVKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkImageCreateInfo& info) noexcept
 {
     info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -351,7 +351,7 @@ void wis::VKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkI
     }
 }
 
-void wis::VKResourceAllocator::VKFillTextureAllocationInfo(const wis::TextureDesc& desc, VkMemoryRequirements2& out_info) const noexcept
+void wis::ImplVKResourceAllocator::VKFillTextureAllocationInfo(const wis::TextureDesc& desc, VkMemoryRequirements2& out_info) const noexcept
 {
     VkImageCreateInfo imageInfo;
     VKFillImageDesc(desc, imageInfo);
@@ -368,7 +368,7 @@ void wis::VKResourceAllocator::VKFillTextureAllocationInfo(const wis::TextureDes
             allocator.header().get(), &devImgMemReq, &memReq);
     out_info = memReq;
 }
-void wis::VKResourceAllocator::VKFillBufferAllocationInfo(uint64_t size, wis::BufferUsage flags, VkMemoryRequirements2& out_info) const noexcept
+void wis::ImplVKResourceAllocator::VKFillBufferAllocationInfo(uint64_t size, wis::BufferUsage flags, VkMemoryRequirements2& out_info) const noexcept
 {
     VkBufferCreateInfo buf_info;
     VKFillBufferDesc(size, flags, buf_info);

@@ -24,9 +24,17 @@ Creates all the resources and commands for rendering.">
       <file for="dx" include="dx12/dx12_device.h"/>
     </handle>
 
+    <handle name="ResourceAllocator" doc="Main memory and resource allocator.
+Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with TLSF algorithm.">
+      <file for="vk" include="vulkan/vk_allocator.h"/>
+      <file for="dx" include="dx12/dx12_allocator.h"/>
+    </handle>
+
+
+
+
 
     <handle name="Fence"/>
-    <handle name="ResourceAllocator"/>
     <handle name="RootSignature"/>
     <handle name="CommandQueue"/>
     <handle name="Shader"/>
@@ -50,7 +58,7 @@ Creates all the resources and commands for rendering.">
     <func for="Factory" name="Destroy" mod="custom-impl" doc="Destroys the {Factory::} and all the extensions created by it.
 Order of destruction is Extensions in which they were created, then factory."/>
 
-    <func for="Factory" name="GetAdapter" doc="Creates the {Adapter::} for the factory with provided index.">
+    <func for="Factory" name="GetAdapter" mod="const" doc="Creates the {Adapter::} for the factory with provided index.">
       <ret type="Adapter" name="adapter" result="true" doc="{Adapter::} on success ({Status::Ok})."/>
       <arg type="u32" name="index" doc="The index of the adapter to get."/>
       <arg type="AdapterPreference" name="preference" default="wis::AdapterPreference::Performance" doc="The preference of the adapter to get.
@@ -60,7 +68,7 @@ Default is {AdapterPreference::Performance}."/>
     <!-- Adapter -->
     <func for="Adapter" name="Destroy" doc="Destroys the {Adapter::}."/>
 
-    <func for="Adapter" name="GetDesc" doc="Fills {AdapterDesc::} with physical adapter's data.">
+    <func for="Adapter" name="GetDesc" mod="const" doc="Fills {AdapterDesc::} with physical adapter's data.">
       <ret result="true"/>
       <arg type="AdapterDesc" name="inout_desc" mod="ptr" doc="The {AdapterDesc::} to fill.
 Must not be NULL."/>
@@ -70,7 +78,7 @@ Must not be NULL."/>
     <func for="Device" name="Destroy" mod="custom-impl" doc="Destroys the {Device::} and all the extensions created by it.
 Order of destruction is Extensions in which they were created, then device."/>
 
-    <func for="Device" name="WaitForMultipleFences" doc="Waits on multiple fences simultaneously.
+    <func for="Device" name="WaitForMultipleFences" mod="const" doc="Waits on multiple fences simultaneously.
 If wait_all is {MutiWaitFlags::All}, waits for all fences to be signaled.
 Otherwise waits for any fence to be signaled.">
       <ret result="true"/>
@@ -85,28 +93,28 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="u64" name="timeout" default="UINT64_MAX" doc="The timeout in nanoseconds. If UINT64_MAX, waits indefinitely."/>
     </func>
 
-    <func for="Device" name="CreateFence" doc="Creates a fence with initial value and flags.">
+    <func for="Device" name="CreateFence" mod="const" doc="Creates a fence with initial value and flags.">
       <ret type="Fence" name="fence" result="true" doc="{Fence::} on success ({Status::Ok})."/>
       <arg type="u64" name="initial_value" default="0" doc="The initial value of the fence."/>
       <arg type="FenceFlags" name="flags" default="FenceFlags::None" doc="The flags of the fence."/>
     </func>
 
-    <func for="Device" name="CreateCommandQueue" doc="Creates a command queue with specified type.">
+    <func for="Device" name="CreateCommandQueue" mod="const" doc="Creates a command queue with specified type.">
       <ret type="CommandQueue" name="queue" result="true" doc="{CommandQueue::} on success ({Status::Ok})."/>
       <arg type="QueueType" name="type" doc="The type of the queue to create."/>
     </func>
 
-    <func for="Device" name="CreateCommandList" doc="Creates a command list for specific queue type.">
+    <func for="Device" name="CreateCommandList" mod="const" doc="Creates a command list for specific queue type.">
       <ret type="CommandList" name="list" result="true" doc="{CommandList::} on success ({Status::Ok})."/>
       <arg type="QueueType" name="type" doc="The type of the queue to create the command list for."/>
     </func>
 
-    <func for="Device" name="CreateGraphicsPipeline" doc="Creates a graphics pipeline state object.">
+    <func for="Device" name="CreateGraphicsPipeline" mod="const" doc="Creates a graphics pipeline state object.">
       <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
       <arg type="GraphicsPipelineDesc" name="desc" mod="const ptr" doc="The description of the graphics pipeline to create."/>
     </func>
 
-    <func for="Device" name="CreateRootSignature" doc="Creates a root signature object.">
+    <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object.">
       <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
       <arg type="RootConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
       <arg type="u32" name="constants_size" default="0" doc="The number of root constants."/>
@@ -114,59 +122,124 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="u32" name="tables_count" default="0" doc="The number of descriptor tables."/>
     </func>
 
-    <func for="Device" name="CreateShader" doc="Creates a shader object.">
+    <func for="Device" name="CreateShader" mod="const" doc="Creates a shader object.">
       <ret type="Shader" name="shader" result="true" doc="{Shader::} on success ({Status::Ok})."/>
       <arg type="void" name="data" mod="ptr" doc="Shader bytecode."/>
       <arg type="u32" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
     </func>
 
-    <func for="Device" name="CreateAllocator" doc="Creates a resource allocator object.">
+    <func for="Device" name="CreateAllocator" mod="const" doc="Creates a resource allocator object.">
       <ret type="ResourceAllocator" name="allocator" result="true" doc="{ResourceAllocator::} on success ({Status::Ok})."/>
     </func>
 
-    <func for="Device" name="CreateRenderTarget" doc="Creates a render target object.">
+    <func for="Device" name="CreateRenderTarget" mod="const" doc="Creates a render target object.">
       <ret type="RenderTarget" name="target" result="true" doc="{RenderTarget::} on success ({Status::Ok})."/>
       <arg type="TextureView" name="texture" doc="The texture view to create the render target with."/>
       <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create."/>
     </func>
 
-    <func for="Device" name="CreateSampler" doc="Creates a sampler object.">
+    <func for="Device" name="CreateSampler" mod="const" doc="Creates a sampler object.">
       <ret type="Sampler" name="sampler" result="true" doc="{Sampler::} on success ({Status::Ok})."/>
       <arg type="SamplerDesc" name="desc" mod="const ptr" doc="The description of the sampler to create."/>
     </func>
 
-    <func for="Device" name="CreateShaderResource" doc="Creates a shader resource object.">
+    <func for="Device" name="CreateShaderResource" mod="const" doc="Creates a shader resource object.">
       <ret type="ShaderResource" name="resource" result="true" doc="{ShaderResource::} on success ({Status::Ok})."/>
       <arg type="TextureView" name="texture" doc="The texture view to create the shader resource with."/>
       <arg type="ShaderResourceDesc" name="desc" doc="The description of the shader resource to create."/>
     </func>
 
-    <func for="Device" name="GetDescriptorTableAlignment" doc="Returns the alignment of the descriptor table in bytes.
+    <func for="Device" name="GetDescriptorTableAlignment" mod="const" doc="Returns the alignment of the descriptor table in bytes.
 The value is used to correctly determine descriptor page alignment for descriptor buffer.">
       <ret type="u32" name="alignment" result="true" doc="The alignment of the descriptor table in bytes."/>
       <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the alignment for."/>
     </func>
 
-    <func for="Device" name="GetDescriptorBufferUnitSize" doc="Returns the size of the descriptor buffer unit in bytes.">
+    <func for="Device" name="GetDescriptorBufferUnitSize" mod="const" doc="Returns the size of the descriptor buffer unit in bytes.">
       <ret type="u32" name="size" result="true" doc="The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor."/>
       <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the unit size for."/>
     </func>
 
-    <func for="Device" name="CreateDescriptorBuffer" doc="Creates a descriptor buffer object.">
+    <func for="Device" name="CreateDescriptorBuffer" mod="const" doc="Creates a descriptor buffer object.">
       <ret type="DescriptorBuffer" name="buffer" result="true" doc="{DescriptorBuffer::} on success ({Status::Ok})."/>
       <arg type="DescriptorHeapType" name="heap_type" doc="The type of the descriptor heap to create the descriptor buffer with."/>
       <arg type="DescriptorMemory" name="memory_type" doc="The type of the descriptor memory to create the descriptor buffer with."/>
       <arg type="u32" name="descriptor_count" doc="The number of descriptors to allocate in the descriptor buffer."/>
     </func>
 
-    <func for="Device" name="QueryFeatureSupport" doc="Queries if the device supports the feature.">
+    <func for="Device" name="QueryFeatureSupport" mod="const" doc="Queries if the device supports the feature.">
       <ret type="bool" doc="true if feature is supported. false otherwise."/>
       <arg type="DeviceFeature" name="feature" doc="The feature to query."/>
     </func>
 
+    <!-- Resource Allocator -->
+    <func for="ResourceAllocator" name="Destroy" doc="Destroys the {ResourceAllocator::}. 
+You can still use memory allocated by it even if it is destroyed."/>
 
-    <!--<func for="Fence" name="Destroy"/>
-    <func for="ResourceAllocator" name="Destroy"/>
+    <func for="ResourceAllocator" name="CreateBuffer" mod="const" doc="Creates a buffer object and allocates memory for it.
+Equivalent to creating a Buffer, allocating a memory and binding buffer to it.">
+      <ret type="Buffer" name="buffer" result="true" doc="{Buffer::} on success ({Status::Ok})."/>
+      <arg type="u64" name="size" doc="The size of the buffer in bytes."/>
+      <arg type="BufferUsage" name="usage" doc="The usage of the buffer. May affect the alignment of the buffer memory allocation."/>
+      <arg type="MemoryType" name="memory" default="MemoryType::Default" doc="The type of the memory to allocate for the buffer."/>
+      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the buffer."/>
+    </func>
+
+    <func for="ResourceAllocator" name="CreateTexture" mod="const" doc="Creates a texture object and allocates memory for it.
+Equivalent to creating a Texture, allocating a memory and binding texture to it.">
+      <ret type="Texture" name="texture" result="true" doc="{Texture::} on success ({Status::Ok})."/>
+      <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
+      <arg type="MemoryType" name="memory" default="MemoryType::Default" doc="The type of the memory to allocate for the texture."/>
+      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the texture."/>
+    </func>
+
+    <func for="ResourceAllocator" name="GetTextureAllocationInfo" mod="const" doc="Returns the allocation info for the texture.">
+      <ret type="AllocationInfo" name="info" doc="The allocation info for the texture. Contains size and alignment. Useful if allocating memory manually."/>
+      <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to get the allocation info for."/>
+    </func>
+
+    <func for="ResourceAllocator" name="GetBufferAllocationInfo" mod="const" doc="Returns the allocation info for the buffer.">
+      <ret type="AllocationInfo" name="info" doc="The allocation info for the buffer. Contains size and alignment. Useful if allocating memory manually."/>
+      <arg type="u64" name="size" doc="The size of the buffer to get the allocation info for."/>
+      <arg type="BufferUsage" name="usage" doc="The usage of the buffer. May affect the alignment of the buffer memory allocation."/>
+    </func>
+
+    <func for="ResourceAllocator" name="AllocateTextureMemory" mod="const" doc="Allocates memory for the image.">
+      <ret type="Memory" name="out_memory" result="true" doc="{Memory::} on success ({Status::Ok})."/>
+      <arg type="u64" name="size" doc="The size of the memory to allocate."/>
+      <arg type="TextureUsage" name="usage" doc="The usage of the image memory."/>
+      <arg type="MemoryType" name="mem_type" default="MemoryType::Default" doc="The type of the memory to allocate for the image."/>
+      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the image."/>
+    </func>
+
+    <func for="ResourceAllocator" name="AllocateBufferMemory" mod="const" doc="Allocates memory for the buffer.">
+      <ret type="Memory" name="out_memory" result="true" doc="{Memory::} on success ({Status::Ok})."/>
+      <arg type="u64" name="size" doc="The size of the memory to allocate."/>
+      <arg type="BufferUsage" name="usage" doc="The usage of the buffer memory."/>
+      <arg type="MemoryType" name="mem_type" default="MemoryType::Default" doc="The type of the memory to allocate for the buffer."/>
+      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the buffer."/>
+    </func>
+
+    <func for="ResourceAllocator" name="PlaceBuffer" mod="const" doc="Creates buffer with provided memory.
+Equivalent to creating aliasing resource.
+Note, the resulting buffer must be destroyed before Memory backing it up.">
+      <ret type="Buffer" name="buffer" result="true" doc="{Buffer::} on success ({Status::Ok})."/>
+      <arg type="MemoryView" name="memory" doc="The memory view to bind the buffer to."/>
+      <arg type="u64" name="memory_offset" doc="The offset in the memory to bind the buffer to."/>
+      <arg type="u64" name="size" doc="The size of the buffer to bind."/>
+      <arg type="BufferUsage" name="usage" doc="The usage of the buffer."/>
+    </func>
+
+    <func for="ResourceAllocator" name="PlaceTexture" mod="const" doc="Creates texture with provided memory.
+Equivalent to creating aliasing resource.
+Note, the resulting Texture must be destroyed before Memory backing it up.">
+      <ret type="Texture" name="texture" result="true" doc="{Texture::} on success ({Status::Ok})."/>
+      <arg type="MemoryView" name="memory" doc="The memory view to bind the texture to."/>
+      <arg type="u64" name="memory_offset" doc="The offset in the memory to bind the texture to."/>
+      <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
+    </func>
+
+      <!--<func for="Fence" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
     <func for="CommandQueue" name="Destroy"/>
     <func for="Shader" name="Destroy"/>
@@ -182,35 +255,35 @@ The value is used to correctly determine descriptor page alignment for descripto
     <func for="Memory" name="Destroy"/>
     <func for="ShaderResource" name="Destroy"/>-->
 
-    <!-- Free Functions -->
-    <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
-      <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
-      <arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
-      <arg type="FactoryExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
+      <!-- Free Functions -->
+      <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
+        <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
+        <arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
+        <arg type="FactoryExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
 The extensions are initialized through this array.">
-        <replace with="FactoryExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
+          <replace with="FactoryExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
 The extension pointers are initialized if the extension is found and initialized.
 Otherwise returns NULL."/>
-      </arg>
-      <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
-    </func>
+        </arg>
+        <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
+      </func>
 
-    <func name="CreateDevice" mod="custom-impl" doc="Creates the {Device::} with extensions, specified in extension array.">
-      <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
-      <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on. Must not be NULL."/>
-      <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
+      <func name="CreateDevice" mod="custom-impl" doc="Creates the {Device::} with extensions, specified in extension array.">
+        <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
+        <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on. Must not be NULL."/>
+        <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
 The extensions are initialized through this array.">
-        <replace with="DeviceExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
+          <replace with="DeviceExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
 The extension pointers are initialized if the extension is found and initialized.
 Otherwise returns NULL."/>
-      </arg>
-      <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
-      <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
+        </arg>
+        <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
+        <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
 The presence of core functionality is checked by the query function."/>
-    </func>
+      </func>
 
 
-  </functions>
+    </functions>
   <extensions>
     <ext name="DebugExtension" type="Factory" id="1" folder="debug_info">
       <file include="wisdom/wisdom_debug.h"/>

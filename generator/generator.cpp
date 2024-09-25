@@ -881,6 +881,9 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         } else if (smod.find("c-only") != std::string_view::npos) {
             ref.implemented_for = ReplaceTypeFor::C;
         }
+        if (smod.find("const") != std::string_view::npos) {
+            ref.const_func = true;
+        }
     }
 }
 
@@ -2201,8 +2204,8 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
             continue;
         }
 
-        funcs += wis::format("{}{{\n    return {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
-                             MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
+        funcs += wis::format("{}{} noexcept{{\n    return {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
+                             func.const_func ? "const" : "", MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
     }
 
     return wis::format("{} {{\n{}\n{}\n}};\n", head, ctor, funcs);
@@ -2280,7 +2283,7 @@ std::string Generator::GetCFullArg(const WisFunctionParameter& arg, std::string_
 {
     std::string post_decl;
     std::string pre_decl;
-    if (arg.modifier.find("ptr") != std::string_view::npos) {
+    if (arg.modifier.find("ptr") != std::string_view::npos || arg.modifier.find("ref") != std::string_view::npos) {
         post_decl = '*';
     }
     if (arg.modifier.find("pp") != std::string_view::npos) {
@@ -2322,6 +2325,19 @@ std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::strin
 std::string Generator::ConvertFromCType(const WisFunctionParameter& arg, std::string_view impl)
 {
     std::string trsf;
+    if (arg.modifier.find("ref") != std::string_view::npos) {
+        WisFunctionParameter repl{
+            .type_info = arg.type_info,
+            .type = arg.type,
+            .name = arg.name,
+            .modifier = arg.modifier.find("const") != std::string_view::npos ? "const ptr" : "ptr",
+            .default_value = arg.default_value,
+            .doc = arg.doc,
+        };
+        std::string type = GetCPPFullArg(repl, impl, true);
+        return wis::format("*reinterpret_cast<{}>({})", type, arg.name);
+    }
+
     std::string type = GetCPPFullArg(arg, impl, true);
 
     switch (arg.type_info) {

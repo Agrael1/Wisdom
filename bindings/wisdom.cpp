@@ -213,6 +213,105 @@ extern "C" bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature 
     return res;
 }
 
+// DX12ResourceAllocator methods --
+extern "C" void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    delete xself;
+}
+extern "C" WisResult DX12ResourceAllocatorCreateBuffer(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Buffer* buffer)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto&& [res, value] = xself->CreateBuffer(size, static_cast<wis::BufferUsage>(usage), static_cast<wis::MemoryType>(memory), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *buffer = reinterpret_cast<DX12Buffer>(new (std::nothrow) wis::DX12Buffer(std::move(value)));
+    if (!*buffer)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Buffer." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12ResourceAllocatorCreateTexture(DX12ResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Texture* texture)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto&& [res, value] = xself->CreateTexture(*reinterpret_cast<const wis::TextureDesc*>(desc), static_cast<wis::MemoryType>(memory), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *texture = reinterpret_cast<DX12Texture>(new (std::nothrow) wis::DX12Texture(std::move(value)));
+    if (!*texture)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Texture." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisAllocationInfo DX12ResourceAllocatorGetTextureAllocationInfo(DX12ResourceAllocator self, const WisTextureDesc* desc)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto res = xself->GetTextureAllocationInfo(*reinterpret_cast<const wis::TextureDesc*>(desc));
+    ;
+    return reinterpret_cast<WisAllocationInfo&>(res);
+}
+extern "C" WisAllocationInfo DX12ResourceAllocatorGetBufferAllocationInfo(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto res = xself->GetBufferAllocationInfo(size, static_cast<wis::BufferUsage>(usage));
+    ;
+    return reinterpret_cast<WisAllocationInfo&>(res);
+}
+extern "C" WisResult DX12ResourceAllocatorAllocateTextureMemory(DX12ResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, DX12Memory* out_memory)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto&& [res, value] = xself->AllocateTextureMemory(size, static_cast<wis::TextureUsage>(usage), static_cast<wis::MemoryType>(mem_type), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *out_memory = reinterpret_cast<DX12Memory>(new (std::nothrow) wis::DX12Memory(std::move(value)));
+    if (!*out_memory)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Memory." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12ResourceAllocatorAllocateBufferMemory(DX12ResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, DX12Memory* out_memory)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto&& [res, value] = xself->AllocateBufferMemory(size, static_cast<wis::BufferUsage>(usage), static_cast<wis::MemoryType>(mem_type), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *out_memory = reinterpret_cast<DX12Memory>(new (std::nothrow) wis::DX12Memory(std::move(value)));
+    if (!*out_memory)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Memory." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, DX12Buffer* buffer)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto&& [res, value] = xself->PlaceBuffer(reinterpret_cast<wis::DX12MemoryView&>(memory), memory_offset, size, static_cast<wis::BufferUsage>(usage));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *buffer = reinterpret_cast<DX12Buffer>(new (std::nothrow) wis::DX12Buffer(std::move(value)));
+    if (!*buffer)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Buffer." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture)
+{
+    auto* xself = reinterpret_cast<wis::DX12ResourceAllocator*>(self);
+    auto&& [res, value] = xself->PlaceTexture(reinterpret_cast<wis::DX12MemoryView&>(memory), memory_offset, *reinterpret_cast<const wis::TextureDesc*>(desc));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *texture = reinterpret_cast<DX12Texture>(new (std::nothrow) wis::DX12Texture(std::move(value)));
+    if (!*texture)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Texture." };
+    return reinterpret_cast<WisResult&>(res);
+}
+
 extern "C" DX12FenceView AsDX12FenceView(DX12Fence self)
 {
     wis::DX12FenceView xself = reinterpret_cast<wis::DX12Fence&>(*self);
@@ -252,6 +351,11 @@ extern "C" DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuf
 {
     wis::DX12DescriptorBufferView xself = reinterpret_cast<wis::DX12DescriptorBuffer&>(*self);
     return reinterpret_cast<DX12DescriptorBufferView&>(xself);
+}
+extern "C" DX12MemoryView AsDX12MemoryView(DX12Memory self)
+{
+    wis::DX12MemoryView xself = reinterpret_cast<wis::DX12Memory&>(*self);
+    return reinterpret_cast<DX12MemoryView&>(xself);
 }
 #endif
 
@@ -468,6 +572,105 @@ extern "C" bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feat
     return res;
 }
 
+// VKResourceAllocator methods --
+extern "C" void VKResourceAllocatorDestroy(VKResourceAllocator self)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    delete xself;
+}
+extern "C" WisResult VKResourceAllocatorCreateBuffer(VKResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType memory, WisMemoryFlags mem_flags, VKBuffer* buffer)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto&& [res, value] = xself->CreateBuffer(size, static_cast<wis::BufferUsage>(usage), static_cast<wis::MemoryType>(memory), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *buffer = reinterpret_cast<VKBuffer>(new (std::nothrow) wis::VKBuffer(std::move(value)));
+    if (!*buffer)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKBuffer." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKResourceAllocatorCreateTexture(VKResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, VKTexture* texture)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto&& [res, value] = xself->CreateTexture(*reinterpret_cast<const wis::TextureDesc*>(desc), static_cast<wis::MemoryType>(memory), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *texture = reinterpret_cast<VKTexture>(new (std::nothrow) wis::VKTexture(std::move(value)));
+    if (!*texture)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKTexture." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisAllocationInfo VKResourceAllocatorGetTextureAllocationInfo(VKResourceAllocator self, const WisTextureDesc* desc)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto res = xself->GetTextureAllocationInfo(*reinterpret_cast<const wis::TextureDesc*>(desc));
+    ;
+    return reinterpret_cast<WisAllocationInfo&>(res);
+}
+extern "C" WisAllocationInfo VKResourceAllocatorGetBufferAllocationInfo(VKResourceAllocator self, uint64_t size, WisBufferUsage usage)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto res = xself->GetBufferAllocationInfo(size, static_cast<wis::BufferUsage>(usage));
+    ;
+    return reinterpret_cast<WisAllocationInfo&>(res);
+}
+extern "C" WisResult VKResourceAllocatorAllocateTextureMemory(VKResourceAllocator self, uint64_t size, WisTextureUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, VKMemory* out_memory)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto&& [res, value] = xself->AllocateTextureMemory(size, static_cast<wis::TextureUsage>(usage), static_cast<wis::MemoryType>(mem_type), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *out_memory = reinterpret_cast<VKMemory>(new (std::nothrow) wis::VKMemory(std::move(value)));
+    if (!*out_memory)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKMemory." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKResourceAllocatorAllocateBufferMemory(VKResourceAllocator self, uint64_t size, WisBufferUsage usage, WisMemoryType mem_type, WisMemoryFlags mem_flags, VKMemory* out_memory)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto&& [res, value] = xself->AllocateBufferMemory(size, static_cast<wis::BufferUsage>(usage), static_cast<wis::MemoryType>(mem_type), static_cast<wis::MemoryFlags>(mem_flags));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *out_memory = reinterpret_cast<VKMemory>(new (std::nothrow) wis::VKMemory(std::move(value)));
+    if (!*out_memory)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKMemory." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, VKBuffer* buffer)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto&& [res, value] = xself->PlaceBuffer(reinterpret_cast<wis::VKMemoryView&>(memory), memory_offset, size, static_cast<wis::BufferUsage>(usage));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *buffer = reinterpret_cast<VKBuffer>(new (std::nothrow) wis::VKBuffer(std::move(value)));
+    if (!*buffer)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKBuffer." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture)
+{
+    auto* xself = reinterpret_cast<wis::VKResourceAllocator*>(self);
+    auto&& [res, value] = xself->PlaceTexture(reinterpret_cast<wis::VKMemoryView&>(memory), memory_offset, *reinterpret_cast<const wis::TextureDesc*>(desc));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *texture = reinterpret_cast<VKTexture>(new (std::nothrow) wis::VKTexture(std::move(value)));
+    if (!*texture)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKTexture." };
+    return reinterpret_cast<WisResult&>(res);
+}
+
 extern "C" VKFenceView AsVKFenceView(VKFence self)
 {
     wis::VKFenceView xself = reinterpret_cast<wis::VKFence&>(*self);
@@ -507,5 +710,10 @@ extern "C" VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer se
 {
     wis::VKDescriptorBufferView xself = reinterpret_cast<wis::VKDescriptorBuffer&>(*self);
     return reinterpret_cast<VKDescriptorBufferView&>(xself);
+}
+extern "C" VKMemoryView AsVKMemoryView(VKMemory self)
+{
+    wis::VKMemoryView xself = reinterpret_cast<wis::VKMemory&>(*self);
+    return reinterpret_cast<VKMemoryView&>(xself);
 }
 #endif

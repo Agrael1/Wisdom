@@ -48,7 +48,7 @@ public:
      * @param inout_desc The wis::AdapterDesc to fill.
      * Must not be NULL.
      * */
-    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc)
+    [[nodiscard]] inline wis::Result GetDesc(wis::AdapterDesc* inout_desc) const noexcept
     {
         return wis::ImplVKAdapter::GetDesc(inout_desc);
     }

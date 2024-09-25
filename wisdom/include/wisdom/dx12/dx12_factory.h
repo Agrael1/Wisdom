@@ -69,7 +69,7 @@ public:
      * Default is wis::AdapterPreference::Performance.
      * @return wis::DX12Adapter on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance)
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
         return wis::ImplDX12Factory::GetAdapter(index, preference);
     }

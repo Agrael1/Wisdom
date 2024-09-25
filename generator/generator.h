@@ -171,6 +171,7 @@ struct WisFunction {
     std::vector<WisFunctionParameter> parameters;
     ReplaceTypeFor implemented_for = ReplaceTypeFor::None;
     bool custom_impl = false;
+    bool const_func = false;
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
     {
