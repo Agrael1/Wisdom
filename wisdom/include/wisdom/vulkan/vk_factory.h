@@ -80,14 +80,14 @@ class ImplVKFactory : public QueryInternal<VKFactory>
         VKAdapter adapter;
     };
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
     ImplVKFactory() noexcept = default;
     WIS_INLINE explicit ImplVKFactory(
-        wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
+            wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
 
     ImplVKFactory(const ImplVKFactory&) = delete;
     ImplVKFactory(ImplVKFactory&&) noexcept = default;
