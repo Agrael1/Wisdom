@@ -117,7 +117,7 @@ Default is {MutiWaitFlags::All}"/>
     <func for="Device" name="CreateShader" doc="Creates a shader object.">
       <ret type="Shader" name="shader" result="true" doc="{Shader::} on success ({Status::Ok})."/>
       <arg type="void" name="data" mod="ptr" doc="Shader bytecode."/>
-      <arg type="size_t" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
+      <arg type="u32" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
     </func>
 
     <func for="Device" name="CreateAllocator" doc="Creates a resource allocator object.">
@@ -141,7 +141,7 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="ShaderResourceDesc" name="desc" doc="The description of the shader resource to create."/>
     </func>
 
-    <func for="Device" name="GetDescriptorBufferTableAlignment" doc="Returns the alignment of the descriptor table in bytes.
+    <func for="Device" name="GetDescriptorTableAlignment" doc="Returns the alignment of the descriptor table in bytes.
 The value is used to correctly determine descriptor page alignment for descriptor buffer.">
       <ret type="u32" name="alignment" result="true" doc="The alignment of the descriptor table in bytes."/>
       <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the alignment for."/>

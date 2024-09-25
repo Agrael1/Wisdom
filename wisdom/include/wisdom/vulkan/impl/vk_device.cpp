@@ -321,14 +321,14 @@ wis::ImplVKCreateDevice(wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts
     return { wis::success, std::move(vkdevice) };
 }
 
-wis::VKDevice::VKDevice(wis::SharedDevice in_device, wis::VKAdapter in_adapter,
+wis::ImplVKDevice::ImplVKDevice(wis::SharedDevice in_device, wis::VKAdapter in_adapter,
                         wis::VKDeviceExtensionEmbedded1 ext1) noexcept
     : QueryInternal(std::move(in_adapter), std::move(in_device), std::move(ext1))
 {
     queues = GetQueueFamilies(adapter.GetInternal().adapter, GetInstanceTable());
 }
 
-wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
+wis::Result wis::ImplVKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
                                                  uint32_t count, MutiWaitFlags wait_all,
                                                  uint64_t timeout) const noexcept
 {
@@ -346,7 +346,7 @@ wis::Result wis::VKDevice::WaitForMultipleFences(const VKFenceView* fences, cons
 }
 
 wis::ResultValue<wis::VKFence>
-wis::VKDevice::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const noexcept
+wis::ImplVKDevice::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const noexcept
 {
     constexpr static VkExportSemaphoreCreateInfo export_info{
         .sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO,
@@ -375,7 +375,7 @@ wis::VKDevice::CreateFence(uint64_t initial_value, wis::FenceFlags flags) const 
 }
 
 wis::ResultValue<wis::VKCommandQueue>
-wis::VKDevice::CreateCommandQueue(wis::QueueType type) const noexcept
+wis::ImplVKDevice::CreateCommandQueue(wis::QueueType type) const noexcept
 {
     const auto* queue = queues.GetOfType(type);
     if (queue == nullptr)
@@ -396,7 +396,7 @@ wis::VKDevice::CreateCommandQueue(wis::QueueType type) const noexcept
 }
 
 wis::ResultValue<wis::VKRootSignature>
-wis::VKDevice::CreateRootSignature(const RootConstant* constants,
+wis::ImplVKDevice::CreateRootSignature(const RootConstant* constants,
                                    uint32_t constants_size,
                                    const wis::DescriptorTable* tables,
                                    uint32_t tables_count) const noexcept
@@ -468,7 +468,7 @@ inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderSta
 } // namespace wis::detail
 
 wis::ResultValue<wis::VKPipelineState>
-wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
+wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept
 {
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
     wis::detail::VKFillShaderStage(shader_stages, desc->shaders.vertex, VK_SHADER_STAGE_VERTEX_BIT);
@@ -749,7 +749,7 @@ wis::VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) c
 }
 
 wis::ResultValue<wis::VKCommandList>
-wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
+wis::ImplVKDevice::CreateCommandList(wis::QueueType type) const noexcept
 {
     auto& dtable = device.table();
     VkCommandPoolCreateInfo cmd_pool_create_info{
@@ -792,7 +792,7 @@ wis::VKDevice::CreateCommandList(wis::QueueType type) const noexcept
     return wis::VKCommandList{ device, cmd_pool.release(), cmd_buf };
 }
 
-wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
+wis::ResultValue<wis::VKShader> wis::ImplVKDevice::CreateShader(void* bytecode,
                                                             uint32_t size) const noexcept
 {
     VkShaderModuleCreateInfo desc{
@@ -811,7 +811,7 @@ wis::ResultValue<wis::VKShader> wis::VKDevice::CreateShader(void* bytecode,
     return wis::VKShader{ wis::managed_handle_ex<VkShaderModule>{ shader, device, device.table().vkDestroyShaderModule } };
 }
 
-wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() const noexcept
+wis::ResultValue<wis::VKResourceAllocator> wis::ImplVKDevice::CreateAllocator() const noexcept
 {
     wis::shared_handle<VmaAllocator> interop;
     if (ext1.GetFeatures().interop_device) {
@@ -826,7 +826,7 @@ wis::ResultValue<wis::VKResourceAllocator> wis::VKDevice::CreateAllocator() cons
 }
 
 wis::ResultValue<wis::shared_handle<VmaAllocator>>
-wis::VKDevice::VKCreateAllocator(bool interop) const noexcept
+wis::ImplVKDevice::VKCreateAllocator(bool interop) const noexcept
 {
     uint32_t version = 0;
     auto& itable = GetInstanceTable();
@@ -906,7 +906,7 @@ wis::VKDevice::VKCreateAllocator(bool interop) const noexcept
 }
 
 wis::ResultValue<wis::VKSwapChain>
-wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
+wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
                                  const SwapchainDesc* desc,
                                  VkQueue graphics_queue) const noexcept
 {
@@ -1135,7 +1135,7 @@ wis::VKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 }
 
 wis::ResultValue<wis::VKRenderTarget>
-wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
+wis::ImplVKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
 {
     auto vk_format = convert_vk(desc.format);
     VkImageViewCreateInfo info{
@@ -1223,7 +1223,7 @@ wis::VKDevice::CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc d
 }
 
 wis::ResultValue<wis::VKDescriptorBuffer>
-wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
+wis::ImplVKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
 {
     auto& ext1_i = ext1.GetInternal();
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
@@ -1263,7 +1263,7 @@ wis::VKDevice::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::De
     return VKDescriptorBuffer{ allocator, buffer, allocation, heap_type, ext1_i.descriptor_buffer_features, uint32_t(descriptor_size) };
 }
 
-bool wis::VKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
+bool wis::ImplVKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
 {
     auto& features = ext1.GetInternal().features;
 
@@ -1288,7 +1288,7 @@ bool wis::VKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const noexce
 //--------------------------------------------------------------------------------------------------
 
 wis::ResultValue<VkDescriptorSetLayout>
-wis::VKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept
+wis::ImplVKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept
 {
     bool has_mutable = ext1.GetInternal().features.mutable_descriptor;
     constexpr static VkDescriptorType cbvSrvUavTypes[] = {
@@ -1331,7 +1331,7 @@ wis::VKDevice::CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding
 }
 
 wis::ResultValue<VkDescriptorSetLayout>
-wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept
+wis::ImplVKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept
 {
     bool has_mutable = ext1.GetInternal().features.mutable_descriptor;
     constexpr static VkDescriptorType cbvSrvUavTypes[] = {
@@ -1391,7 +1391,7 @@ wis::VKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* t
 }
 
 wis::ResultValue<VkDescriptorSetLayout>
-wis::VKDevice::CreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept
+wis::ImplVKDevice::CreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept
 {
     wis::detail::limited_allocator<VkDescriptorSetLayoutBinding, 32> bindings{ table->entry_count, true };
 
@@ -1424,7 +1424,7 @@ wis::VKDevice::CreateDescriptorSetSamplerLayout(const wis::DescriptorTable* tabl
 }
 
 wis::ResultValue<wis::VKSampler>
-wis::VKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
+wis::ImplVKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
 {
     VkSamplerCustomBorderColorCreateInfoEXT custom_border_color{
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
@@ -1464,7 +1464,7 @@ wis::VKDevice::CreateSampler(const wis::SamplerDesc* desc) const noexcept
 }
 
 wis::ResultValue<wis::VKShaderResource>
-wis::VKDevice::CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
+wis::ImplVKDevice::CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
 {
     VkImageViewCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,

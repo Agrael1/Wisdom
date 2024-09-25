@@ -196,10 +196,6 @@ struct WisHandle {
             files[0] = file;
         if (impl & ImplementedFor::Vulkan)
             files[1] = file;
-        if (impl & ImplementedFor::Both) {
-            files[0] = file;
-            files[1] = file;
-        }
     }
 
     std::string_view GetFile(ImplementedFor impl) const noexcept

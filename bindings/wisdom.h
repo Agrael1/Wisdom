@@ -2079,6 +2079,153 @@ WISDOM_API void VKDeviceDestroy(VKDevice self);
  * */
 WISDOM_API WisResult VKDeviceWaitForMultipleFences(VKDevice self, const VKFenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout);
 
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence VKFence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateFence(VKDevice self, uint64_t initial_value, WisFenceFlags flags, VKFence* fence);
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue VKCommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateCommandQueue(VKDevice self, WisQueueType type, VKCommandQueue* queue);
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list VKCommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateCommandList(VKDevice self, WisQueueType type, VKCommandList* list);
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline VKPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraphicsPipelineDesc* desc, VKPipelineState* pipeline);
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature VKRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature);
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader VKShader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateShader(VKDevice self, void* data, uint32_t size, VKShader* shader);
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator VKResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateAllocator(VKDevice self, VKResourceAllocator* allocator);
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target VKRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTextureView texture, WisRenderTargetDesc desc, VKRenderTarget* target);
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler VKSampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateSampler(VKDevice self, const WisSamplerDesc* desc, VKSampler* sampler);
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource VKShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTextureView texture, WisShaderResourceDesc desc, VKShaderResource* resource);
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap, uint32_t* alignment);
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap, uint32_t* size);
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer VKDescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, VKDescriptorBuffer* buffer);
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+WISDOM_API bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feature);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2344,6 +2491,153 @@ WISDOM_API void DX12DeviceDestroy(DX12Device self);
  * */
 WISDOM_API WisResult DX12DeviceWaitForMultipleFences(DX12Device self, const DX12FenceView* fences, const uint64_t* fence_values, uint32_t fence_count, WisMutiWaitFlags wait_all, uint64_t timeout);
 
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence DX12Fence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateFence(DX12Device self, uint64_t initial_value, WisFenceFlags flags, DX12Fence* fence);
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue DX12CommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateCommandQueue(DX12Device self, WisQueueType type, DX12CommandQueue* queue);
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list DX12CommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateCommandList(DX12Device self, WisQueueType type, DX12CommandList* list);
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline DX12PipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX12GraphicsPipelineDesc* desc, DX12PipelineState* pipeline);
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature DX12RootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature);
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader DX12Shader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateShader(DX12Device self, void* data, uint32_t size, DX12Shader* shader);
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator DX12ResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateAllocator(DX12Device self, DX12ResourceAllocator* allocator);
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target DX12RenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12TextureView texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler DX12Sampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateSampler(DX12Device self, const WisSamplerDesc* desc, DX12Sampler* sampler);
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource DX12ShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12TextureView texture, WisShaderResourceDesc desc, DX12ShaderResource* resource);
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap, uint32_t* alignment);
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap, uint32_t* size);
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer DX12DescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, DX12DescriptorBuffer* buffer);
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+WISDOM_API bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature feature);
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2510,6 +2804,195 @@ inline WisResult WisDeviceWaitForMultipleFences(WisDevice self, const WisFenceVi
     return DX12DeviceWaitForMultipleFences(self, fences, fence_values, fence_count, wait_all, timeout);
 }
 
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence WisFence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateFence(WisDevice self, uint64_t initial_value, WisFenceFlags flags, WisFence* fence)
+{
+    return DX12DeviceCreateFence(self, initial_value, flags, fence);
+}
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue WisCommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandQueue(WisDevice self, WisQueueType type, WisCommandQueue* queue)
+{
+    return DX12DeviceCreateCommandQueue(self, type, queue);
+}
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list WisCommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandList(WisDevice self, WisQueueType type, WisCommandList* list)
+{
+    return DX12DeviceCreateCommandList(self, type, list);
+}
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphicsPipelineDesc* desc, WisPipelineState* pipeline)
+{
+    return DX12DeviceCreateGraphicsPipeline(self, desc, pipeline);
+}
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature WisRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
+{
+    return DX12DeviceCreateRootSignature(self, root_constants, constants_size, tables, tables_count, signature);
+}
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader WisShader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShader(WisDevice self, void* data, uint32_t size, WisShader* shader)
+{
+    return DX12DeviceCreateShader(self, data, size, shader);
+}
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator WisResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* allocator)
+{
+    return DX12DeviceCreateAllocator(self, allocator);
+}
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target WisRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTextureView texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+{
+    return DX12DeviceCreateRenderTarget(self, texture, desc, target);
+}
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler WisSampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* desc, WisSampler* sampler)
+{
+    return DX12DeviceCreateSampler(self, desc, sampler);
+}
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource WisShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTextureView texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+{
+    return DX12DeviceCreateShaderResource(self, texture, desc, resource);
+}
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+{
+    return DX12DeviceGetDescriptorTableAlignment(self, heap, alignment);
+}
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap, uint32_t* size)
+{
+    return DX12DeviceGetDescriptorBufferUnitSize(self, heap, size);
+}
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer WisDescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, WisDescriptorBuffer* buffer)
+{
+    return DX12DeviceCreateDescriptorBuffer(self, heap_type, memory_type, descriptor_count, buffer);
+}
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
+{
+    return DX12DeviceQueryFeatureSupport(self, feature);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2666,6 +3149,195 @@ inline WisResult WisDeviceWaitForMultipleFences(WisDevice self, const WisFenceVi
     return VKDeviceWaitForMultipleFences(self, fences, fence_values, fence_count, wait_all, timeout);
 }
 
+/**
+ * @brief Creates a fence with initial value and flags.
+ * @param self valid handle to the Device
+ * @param initial_value The initial value of the fence.
+ * @param flags The flags of the fence.
+ * @param fence WisFence on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateFence(WisDevice self, uint64_t initial_value, WisFenceFlags flags, WisFence* fence)
+{
+    return VKDeviceCreateFence(self, initial_value, flags, fence);
+}
+
+/**
+ * @brief Creates a command queue with specified type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create.
+ * @param queue WisCommandQueue on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandQueue(WisDevice self, WisQueueType type, WisCommandQueue* queue)
+{
+    return VKDeviceCreateCommandQueue(self, type, queue);
+}
+
+/**
+ * @brief Creates a command list for specific queue type.
+ * @param self valid handle to the Device
+ * @param type The type of the queue to create the command list for.
+ * @param list WisCommandList on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateCommandList(WisDevice self, WisQueueType type, WisCommandList* list)
+{
+    return VKDeviceCreateCommandList(self, type, list);
+}
+
+/**
+ * @brief Creates a graphics pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the graphics pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphicsPipelineDesc* desc, WisPipelineState* pipeline)
+{
+    return VKDeviceCreateGraphicsPipeline(self, desc, pipeline);
+}
+
+/**
+ * @brief Creates a root signature object.
+ * @param self valid handle to the Device
+ * @param root_constants The root constants to create the root signature with.
+ * @param constants_size The number of root constants.
+ * @param tables The descriptor tables to create the root signature with.
+ * @param tables_count The number of descriptor tables.
+ * @param signature WisRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
+{
+    return VKDeviceCreateRootSignature(self, root_constants, constants_size, tables, tables_count, signature);
+}
+
+/**
+ * @brief Creates a shader object.
+ * @param self valid handle to the Device
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V must be multiple of 4.
+ * @param shader WisShader on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShader(WisDevice self, void* data, uint32_t size, WisShader* shader)
+{
+    return VKDeviceCreateShader(self, data, size, shader);
+}
+
+/**
+ * @brief Creates a resource allocator object.
+ * @param self valid handle to the Device
+ * @param allocator WisResourceAllocator on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* allocator)
+{
+    return VKDeviceCreateAllocator(self, allocator);
+}
+
+/**
+ * @brief Creates a render target object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the render target with.
+ * @param desc The description of the render target to create.
+ * @param target WisRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTextureView texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+{
+    return VKDeviceCreateRenderTarget(self, texture, desc, target);
+}
+
+/**
+ * @brief Creates a sampler object.
+ * @param self valid handle to the Device
+ * @param desc The description of the sampler to create.
+ * @param sampler WisSampler on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* desc, WisSampler* sampler)
+{
+    return VKDeviceCreateSampler(self, desc, sampler);
+}
+
+/**
+ * @brief Creates a shader resource object.
+ * @param self valid handle to the Device
+ * @param texture The texture view to create the shader resource with.
+ * @param desc The description of the shader resource to create.
+ * @param resource WisShaderResource on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTextureView texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+{
+    return VKDeviceCreateShaderResource(self, texture, desc, resource);
+}
+
+/**
+ * @brief Returns the alignment of the descriptor table in bytes.
+ * The value is used to correctly determine descriptor page alignment for descriptor buffer.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the alignment for.
+ * @param alignment The alignment of the descriptor table in bytes.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+{
+    return VKDeviceGetDescriptorTableAlignment(self, heap, alignment);
+}
+
+/**
+ * @brief Returns the size of the descriptor buffer unit in bytes.
+ * @param self valid handle to the Device
+ * @param heap The type of the descriptor heap to get the unit size for.
+ * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap, uint32_t* size)
+{
+    return VKDeviceGetDescriptorBufferUnitSize(self, heap, size);
+}
+
+/**
+ * @brief Creates a descriptor buffer object.
+ * @param self valid handle to the Device
+ * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
+ * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
+ * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param buffer WisDescriptorBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, WisDescriptorBuffer* buffer)
+{
+    return VKDeviceCreateDescriptorBuffer(self, heap_type, memory_type, descriptor_count, buffer);
+}
+
+/**
+ * @brief Queries if the device supports the feature.
+ * @param self valid handle to the Device
+ * @param feature The feature to query.
+ * @return true if feature is supported. false otherwise.
+ * */
+inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
+{
+    return VKDeviceQueryFeatureSupport(self, feature);
+}
+
 //-------------------------------------------------------------------------
 
 /**
@@ -2710,7 +3382,7 @@ inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensio
 #endif
 
 #ifdef WISDOM_VULKAN
-typedef VKFactoryExtension* VKDebugExtension;
+typedef VKFactoryExtension VKDebugExtension;
 // VKDebugExtension methods --
 /**
  * @brief Creates a debug messenger for the factory.
