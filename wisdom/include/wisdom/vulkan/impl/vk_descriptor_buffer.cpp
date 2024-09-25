@@ -1,5 +1,5 @@
-#ifndef VK_DESCRIPTOR_BUFFER_CPP
-#define VK_DESCRIPTOR_BUFFER_CPP
+#ifndef WIS_VK_DESCRIPTOR_BUFFER_CPP
+#define WIS_VK_DESCRIPTOR_BUFFER_CPP
 #include <wisdom/vulkan/vk_descriptor_buffer.h>
 
 uint64_t wis::VKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept

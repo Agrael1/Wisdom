@@ -1,5 +1,5 @@
-#ifndef VK_RESOURCE_H
-#define VK_RESOURCE_H
+#ifndef WIS_VK_RESOURCE_H
+#define WIS_VK_RESOURCE_H
 #include <wisdom/vulkan/vk_memory.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/generated/api/api.h>

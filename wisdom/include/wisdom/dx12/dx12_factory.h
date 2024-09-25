@@ -1,5 +1,5 @@
-#ifndef DX12_FACTORY_H
-#define DX12_FACTORY_H
+#ifndef WIS_DX12_FACTORY_H
+#define WIS_DX12_FACTORY_H
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/dx12/dx12_adapter.h>

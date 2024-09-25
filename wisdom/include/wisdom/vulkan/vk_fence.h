@@ -1,5 +1,5 @@
-#ifndef VK_FENCE_H
-#define VK_FENCE_H
+#ifndef WIS_VK_FENCE_H
+#define WIS_VK_FENCE_H
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/global/internal.h>

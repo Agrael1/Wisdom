@@ -1,5 +1,5 @@
-#ifndef VK_DESCRIPTOR_BUFFER_H
-#define VK_DESCRIPTOR_BUFFER_H
+#ifndef WIS_VK_DESCRIPTOR_BUFFER_H
+#define WIS_VK_DESCRIPTOR_BUFFER_H
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_device_ext.h>
 

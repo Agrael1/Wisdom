@@ -1,5 +1,5 @@
-#ifndef VK_ADAPTER_H
-#define VK_ADAPTER_H
+#ifndef WIS_VK_ADAPTER_H
+#define WIS_VK_ADAPTER_H
 #include <span>
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_checks.h>

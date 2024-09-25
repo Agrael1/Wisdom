@@ -1,5 +1,5 @@
-#ifndef VK_ALLOCATOR_CPP
-#define VK_ALLOCATOR_CPP
+#ifndef WIS_VK_ALLOCATOR_CPP
+#define WIS_VK_ALLOCATOR_CPP
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/misc.h>

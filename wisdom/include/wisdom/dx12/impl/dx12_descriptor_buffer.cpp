@@ -1,5 +1,5 @@
-#ifndef DX12_DESCRIPTOR_BUFFER_CPP
-#define DX12_DESCRIPTOR_BUFFER_CPP
+#ifndef WIS_DX12_DESCRIPTOR_BUFFER_CPP
+#define WIS_DX12_DESCRIPTOR_BUFFER_CPP
 #include <wisdom/dx12/dx12_descriptor_buffer.h>
 
 uint64_t wis::DX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept

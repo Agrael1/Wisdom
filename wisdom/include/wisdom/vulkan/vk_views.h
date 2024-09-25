@@ -1,5 +1,5 @@
-#ifndef VK_VIEWS_H
-#define VK_VIEWS_H
+#ifndef WIS_VK_VIEWS_H
+#define WIS_VK_VIEWS_H
 
 #include <tuple>
 #include <wisdom/vulkan/vk_handles.h>

@@ -1,5 +1,5 @@
-#ifndef VK_SWAPCHAIN_CPP
-#define VK_SWAPCHAIN_CPP
+#ifndef WIS_VK_SWAPCHAIN_CPP
+#define WIS_VK_SWAPCHAIN_CPP
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/util/misc.h>

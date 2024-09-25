@@ -1,5 +1,5 @@
-#ifndef VK_FACTORY_H
-#define VK_FACTORY_H
+#ifndef WIS_VK_FACTORY_H
+#define WIS_VK_FACTORY_H
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>

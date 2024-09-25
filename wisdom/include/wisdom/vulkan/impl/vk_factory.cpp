@@ -1,5 +1,5 @@
-#ifndef VK_FACTORY_CPP
-#define VK_FACTORY_CPP
+#ifndef WIS_VK_FACTORY_CPP
+#define WIS_VK_FACTORY_CPP
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_checks.h>
 

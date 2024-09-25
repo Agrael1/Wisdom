@@ -1,5 +1,5 @@
-#ifndef VK_QUEUE_RESIDENCY_H
-#define VK_QUEUE_RESIDENCY_H
+#ifndef WIS_VK_QUEUE_RESIDENCY_H
+#define WIS_VK_QUEUE_RESIDENCY_H
 #include <atomic>
 #include <vulkan/vulkan.h>
 #include <wisdom/generated/api/api.h>

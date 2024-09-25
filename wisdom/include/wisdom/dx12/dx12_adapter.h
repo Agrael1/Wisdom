@@ -1,5 +1,5 @@
-#ifndef DX12_ADAPTER_H
-#define DX12_ADAPTER_H
+#ifndef WIS_DX12_ADAPTER_H
+#define WIS_DX12_ADAPTER_H
 #include <wisdom/generated/api/api.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>

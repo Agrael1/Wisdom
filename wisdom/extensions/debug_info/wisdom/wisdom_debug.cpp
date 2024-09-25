@@ -1,5 +1,5 @@
-#ifndef WISDOM_DEBUG_CPP
-#define WISDOM_DEBUG_CPP
+#ifndef WIS_WISDOM_DEBUG_CPP
+#define WIS_WISDOM_DEBUG_CPP
 #include <wisdom/wisdom_debug.h>
 
 #if defined(WISDOM_DX12)

@@ -1,5 +1,5 @@
-#ifndef VK_SWAPCHAIN_H
-#define VK_SWAPCHAIN_H
+#ifndef WIS_VK_SWAPCHAIN_H
+#define WIS_VK_SWAPCHAIN_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_command_list.h>

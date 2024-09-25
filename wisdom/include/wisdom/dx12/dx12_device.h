@@ -1,5 +1,5 @@
-#ifndef DX12_DEVICE_H
-#define DX12_DEVICE_H
+#ifndef WIS_DX12_DEVICE_H
+#define WIS_DX12_DEVICE_H
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/dx12/dx12_command_list.h>

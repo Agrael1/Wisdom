@@ -1,5 +1,5 @@
-#ifndef VK_COMMAND_QUEUE_CPP
-#define VK_COMMAND_QUEUE_CPP
+#ifndef WIS_VK_COMMAND_QUEUE_CPP
+#define WIS_VK_COMMAND_QUEUE_CPP
 #include <wisdom/vulkan/vk_command_queue.h>
 
 void wis::VKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,

@@ -1,5 +1,5 @@
-#ifndef VK_ALLOCATOR_H
-#define VK_ALLOCATOR_H
+#ifndef WIS_VK_ALLOCATOR_H
+#define WIS_VK_ALLOCATOR_H
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_checks.h>
 

@@ -1,9 +1,6 @@
-#ifndef DX12_FACTORY_CPP
-#define DX12_FACTORY_CPP
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef WIS_DX12_FACTORY_CPP
+#define WIS_DX12_FACTORY_CPP
 #include <wisdom/dx12/dx12_factory.h>
-#endif // !WISDOM_HEADER_ONLY
-
 #include <wisdom/dx12/dx12_checks.h>
 
 wis::ImplDX12Factory::ImplDX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept

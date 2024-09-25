@@ -1,5 +1,5 @@
-#ifndef VK_DEVICE_EXT_H
-#define VK_DEVICE_EXT_H
+#ifndef WIS_VK_DEVICE_EXT_H
+#define WIS_VK_DEVICE_EXT_H
 #include <wisdom/generated/api/api.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/global/internal.h>

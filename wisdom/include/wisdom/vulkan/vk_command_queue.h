@@ -1,5 +1,5 @@
-#ifndef VK_COMMAND_QUEUE_H
-#define VK_COMMAND_QUEUE_H
+#ifndef WIS_VK_COMMAND_QUEUE_H
+#define WIS_VK_COMMAND_QUEUE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>

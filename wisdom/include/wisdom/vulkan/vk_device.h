@@ -1,5 +1,5 @@
-#ifndef VK_DEVICE_H
-#define VK_DEVICE_H
+#ifndef WIS_VK_DEVICE_H
+#define WIS_VK_DEVICE_H
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_queue_residency.h>

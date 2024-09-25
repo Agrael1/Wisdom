@@ -1,5 +1,5 @@
-#ifndef VK_HANDLES_H
-#define VK_HANDLES_H
+#ifndef WIS_VK_HANDLES_H
+#define WIS_VK_HANDLES_H
 #include <memory>
 #include <span>
 #include <vector>

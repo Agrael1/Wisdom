@@ -1,5 +1,5 @@
-#ifndef VK_CHECKS_H
-#define VK_CHECKS_H
+#ifndef WIS_VK_CHECKS_H
+#define WIS_VK_CHECKS_H
 #include <wisdom/vulkan/vk_convert.h>
 #include <wisdom/util/error_messages.h>
 

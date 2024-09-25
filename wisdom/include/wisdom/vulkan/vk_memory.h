@@ -1,5 +1,5 @@
-#ifndef VK_MEMORY_H
-#define VK_MEMORY_H
+#ifndef WIS_VK_MEMORY_H
+#define WIS_VK_MEMORY_H
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisdom/vulkan/vk_views.h>

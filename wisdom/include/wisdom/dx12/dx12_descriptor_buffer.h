@@ -1,5 +1,5 @@
-#ifndef DX12_DESCRIPTOR_BUFFER_H
-#define DX12_DESCRIPTOR_BUFFER_H
+#ifndef WIS_DX12_DESCRIPTOR_BUFFER_H
+#define WIS_DX12_DESCRIPTOR_BUFFER_H
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>

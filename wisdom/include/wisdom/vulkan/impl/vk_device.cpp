@@ -1,5 +1,5 @@
-#ifndef VK_DEVICE_CPP
-#define VK_DEVICE_CPP
+#ifndef WIS_VK_DEVICE_CPP
+#define WIS_VK_DEVICE_CPP
 #include <wisdom/vulkan/vk_device.h>
 
 #include <cassert>

@@ -1,7 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef WIS_DX12_DEVICE_CPP
+#define WIS_DX12_DEVICE_CPP
 #include <wisdom/dx12/dx12_device.h>
-#endif // !WISDOM_HEADER_ONLY
 
 #include <d3dx12/d3dx12_check_feature_support.h>
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
@@ -632,3 +631,4 @@ bool wis::ImplDX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const 
         return false;
     }
 }
+#endif // !DX12_DEVICE_CPP
