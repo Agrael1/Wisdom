@@ -2726,7 +2726,7 @@ WISDOM_API WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self,
 #endif
 
 #ifdef WISDOM_DX12
-typedef DX12FactoryExtension* DX12DebugExtension;
+typedef DX12FactoryExtension DX12DebugExtension;
 // DX12DebugExtension methods --
 /**
  * @brief Creates a debug messenger for the factory.

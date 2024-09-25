@@ -1941,13 +1941,13 @@ std::string Generator::MakeCExtensionHeader(const WisExtension& s)
 
     output += "#ifdef WISDOM_VULKAN\n";
     auto impl_vk = impls[+ImplementedFor::Vulkan];
-    output += wis::format("typedef {}FactoryExtension* {}{};\n", impl_vk, impl_vk, s.name);
+    output += wis::format("typedef {}FactoryExtension {}{};\n", impl_vk, impl_vk, s.name);
     output += MakeCHandleMethods(s, impl_vk) + '\n';
     output += "#endif\n\n";
 
     output += "#ifdef WISDOM_DX12\n";
     auto impl_dx = impls[+ImplementedFor::DX12];
-    output += wis::format("typedef {}FactoryExtension* {}{};\n", impl_dx, impl_dx, s.name);
+    output += wis::format("typedef {}FactoryExtension {}{};\n", impl_dx, impl_dx, s.name);
     output += MakeCHandleMethods(s, impl_dx) + '\n';
     output += "#endif\n\n";
 

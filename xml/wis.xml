@@ -84,7 +84,87 @@ Any - waits for any fence to be signaled.
 Default is {MutiWaitFlags::All}"/>
       <arg type="u64" name="timeout" default="UINT64_MAX" doc="The timeout in nanoseconds. If UINT64_MAX, waits indefinitely."/>
     </func>
-    
+
+    <func for="Device" name="CreateFence" doc="Creates a fence with initial value and flags.">
+      <ret type="Fence" name="fence" result="true" doc="{Fence::} on success ({Status::Ok})."/>
+      <arg type="u64" name="initial_value" default="0" doc="The initial value of the fence."/>
+      <arg type="FenceFlags" name="flags" default="FenceFlags::None" doc="The flags of the fence."/>
+    </func>
+
+    <func for="Device" name="CreateCommandQueue" doc="Creates a command queue with specified type.">
+      <ret type="CommandQueue" name="queue" result="true" doc="{CommandQueue::} on success ({Status::Ok})."/>
+      <arg type="QueueType" name="type" doc="The type of the queue to create."/>
+    </func>
+
+    <func for="Device" name="CreateCommandList" doc="Creates a command list for specific queue type.">
+      <ret type="CommandList" name="list" result="true" doc="{CommandList::} on success ({Status::Ok})."/>
+      <arg type="QueueType" name="type" doc="The type of the queue to create the command list for."/>
+    </func>
+
+    <func for="Device" name="CreateGraphicsPipeline" doc="Creates a graphics pipeline state object.">
+      <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
+      <arg type="GraphicsPipelineDesc" name="desc" mod="const ptr" doc="The description of the graphics pipeline to create."/>
+    </func>
+
+    <func for="Device" name="CreateRootSignature" doc="Creates a root signature object.">
+      <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
+      <arg type="RootConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
+      <arg type="u32" name="constants_size" default="0" doc="The number of root constants."/>
+      <arg type="DescriptorTable" name="tables" mod="const ptr" default="nullptr" doc="The descriptor tables to create the root signature with."/>
+      <arg type="u32" name="tables_count" default="0" doc="The number of descriptor tables."/>
+    </func>
+
+    <func for="Device" name="CreateShader" doc="Creates a shader object.">
+      <ret type="Shader" name="shader" result="true" doc="{Shader::} on success ({Status::Ok})."/>
+      <arg type="void" name="data" mod="ptr" doc="Shader bytecode."/>
+      <arg type="size_t" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
+    </func>
+
+    <func for="Device" name="CreateAllocator" doc="Creates a resource allocator object.">
+      <ret type="ResourceAllocator" name="allocator" result="true" doc="{ResourceAllocator::} on success ({Status::Ok})."/>
+    </func>
+
+    <func for="Device" name="CreateRenderTarget" doc="Creates a render target object.">
+      <ret type="RenderTarget" name="target" result="true" doc="{RenderTarget::} on success ({Status::Ok})."/>
+      <arg type="TextureView" name="texture" doc="The texture view to create the render target with."/>
+      <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create."/>
+    </func>
+
+    <func for="Device" name="CreateSampler" doc="Creates a sampler object.">
+      <ret type="Sampler" name="sampler" result="true" doc="{Sampler::} on success ({Status::Ok})."/>
+      <arg type="SamplerDesc" name="desc" mod="const ptr" doc="The description of the sampler to create."/>
+    </func>
+
+    <func for="Device" name="CreateShaderResource" doc="Creates a shader resource object.">
+      <ret type="ShaderResource" name="resource" result="true" doc="{ShaderResource::} on success ({Status::Ok})."/>
+      <arg type="TextureView" name="texture" doc="The texture view to create the shader resource with."/>
+      <arg type="ShaderResourceDesc" name="desc" doc="The description of the shader resource to create."/>
+    </func>
+
+    <func for="Device" name="GetDescriptorBufferTableAlignment" doc="Returns the alignment of the descriptor table in bytes.
+The value is used to correctly determine descriptor page alignment for descriptor buffer.">
+      <ret type="u32" name="alignment" result="true" doc="The alignment of the descriptor table in bytes."/>
+      <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the alignment for."/>
+    </func>
+
+    <func for="Device" name="GetDescriptorBufferUnitSize" doc="Returns the size of the descriptor buffer unit in bytes.">
+      <ret type="u32" name="size" result="true" doc="The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor."/>
+      <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the unit size for."/>
+    </func>
+
+    <func for="Device" name="CreateDescriptorBuffer" doc="Creates a descriptor buffer object.">
+      <ret type="DescriptorBuffer" name="buffer" result="true" doc="{DescriptorBuffer::} on success ({Status::Ok})."/>
+      <arg type="DescriptorHeapType" name="heap_type" doc="The type of the descriptor heap to create the descriptor buffer with."/>
+      <arg type="DescriptorMemory" name="memory_type" doc="The type of the descriptor memory to create the descriptor buffer with."/>
+      <arg type="u32" name="descriptor_count" doc="The number of descriptors to allocate in the descriptor buffer."/>
+    </func>
+
+    <func for="Device" name="QueryFeatureSupport" doc="Queries if the device supports the feature.">
+      <ret type="bool" doc="true if feature is supported. false otherwise."/>
+      <arg type="DeviceFeature" name="feature" doc="The feature to query."/>
+    </func>
+
+
     <!--<func for="Fence" name="Destroy"/>
     <func for="ResourceAllocator" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
