@@ -124,7 +124,7 @@ static inline ExtLayout<PreType, EnumT> wisdom_alloc_ext_dx12(std::span<ExtT> ex
     uint8_t* memory = wisdom_alloc(overall_size, alignof(PreType));
     *reinterpret_cast<uint32_t*>(memory + wis::detail::aligned_size(sizeof(PreType), alignof(uint32_t))) = all_exts;
 
-    return ExtLayout<PreType, EnumT>{
+    return ExtLayout<PreType, EnumT> {
         .pre_type = reinterpret_cast<PreType*>(memory),
         .exts = { reinterpret_cast<EnumT*>(memory + base_size - array_size), all_exts },
         .ext_memory = all_exts ? memory + overall_size - size : nullptr
@@ -146,7 +146,7 @@ static inline ExtLayout<PreType, EnumT> from_stream_dx12(uint8_t* stream) noexce
     size_t align = DX12BridgeSelector<PreType, GetExtAlign>(span[0]);
     uint8_t* ext_ptr = reinterpret_cast<uint8_t*>(wis::detail::aligned_size((size_t)span.data() + span.size_bytes(), align));
 
-    return ExtLayout<PreType, EnumT>{
+    return ExtLayout<PreType, EnumT> {
         .pre_type = pre_type,
         .exts = span,
         .ext_memory = ext_ptr
@@ -351,7 +351,7 @@ static inline ExtLayout<PreType, EnumT> wisdom_alloc_ext_vk(std::span<ExtT> exts
     uint8_t* memory = wisdom_alloc(overall_size, alignof(PreType));
     *reinterpret_cast<uint32_t*>(memory + wis::detail::aligned_size(sizeof(PreType), alignof(uint32_t))) = all_exts;
 
-    return ExtLayout<PreType, EnumT>{
+    return ExtLayout<PreType, EnumT> {
         .pre_type = reinterpret_cast<PreType*>(memory),
         .exts = { reinterpret_cast<EnumT*>(memory + base_size - array_size), all_exts },
         .ext_memory = all_exts ? memory + overall_size - size : nullptr
@@ -373,7 +373,7 @@ static inline ExtLayout<PreType, EnumT> from_stream_vk(uint8_t* stream) noexcept
     size_t align = VKBridgeSelector<PreType, GetExtAlign>(span[0]);
     uint8_t* ext_ptr = reinterpret_cast<uint8_t*>(wis::detail::aligned_size((size_t)span.data() + span.size_bytes(), align));
 
-    return ExtLayout<PreType, EnumT>{
+    return ExtLayout<PreType, EnumT> {
         .pre_type = pre_type,
         .exts = span,
         .ext_memory = ext_ptr

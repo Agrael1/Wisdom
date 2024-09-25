@@ -31,18 +31,18 @@ public:
             return *this;
         }
 
-		DX12Info::RebindCallback(&other, this);
-		QueryInternal::operator=(std::move(other));
-		return *this;
-	}
+        DX12Info::RebindCallback(&other, this);
+        QueryInternal::operator=(std::move(other));
+        return *this;
+    }
     ~DX12DebugMessenger() noexcept
     {
-		DX12Info::RemoveCallback(this);
-	}
+        DX12Info::RemoveCallback(this);
+    }
 
     operator bool() const noexcept
     {
-		return info;
-	}
+        return info;
+    }
 };
 } // namespace wis

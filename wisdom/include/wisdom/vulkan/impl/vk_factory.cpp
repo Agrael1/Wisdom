@@ -49,19 +49,19 @@ wis::Result VKFactoryGlobals::InitializeFactoryGlobals() noexcept
     wis::Result vr = {};
 
     std::call_once(
-            global_flag, [this, &vr]() {
-                vr = InitializeGlobalTable();
-                if (vr.status != wis::Status::Ok)
-                    return;
+    global_flag, [this, &vr]() {
+        vr = InitializeGlobalTable();
+        if (vr.status != wis::Status::Ok)
+            return;
 
-                vr = InitializeInstanceExtensions();
-                if (vr.status != wis::Status::Ok)
-                    return;
+        vr = InitializeInstanceExtensions();
+        if (vr.status != wis::Status::Ok)
+            return;
 
-                vr = InitializeInstanceLayers();
-                if (vr.status != wis::Status::Ok)
-                    return;
-            });
+        vr = InitializeInstanceLayers();
+        if (vr.status != wis::Status::Ok)
+            return;
+    });
 
     initialized = true;
     return vr;
@@ -117,7 +117,7 @@ wis::Result VKFactoryGlobals::InitializeInstanceLayers() noexcept
 } // namespace wis::detail
 
 wis::ImplVKFactory::ImplVKFactory(
-        wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
+    wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept
     : QueryInternal(std::move(instance), api_ver, debug)
 {
 }
@@ -149,7 +149,7 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
     do
         phys_adapters.resize(count);
     while ((vr = itable.vkEnumeratePhysicalDevices(factory.get(), &count,
-                                                   phys_adapters.data())) == VK_INCOMPLETE);
+                 phys_adapters.data())) == VK_INCOMPLETE);
     if (!wis::succeeded(vr))
         return vr;
 
@@ -168,9 +168,9 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
             return wis::detail::order_power(a_properties.deviceType) > wis::detail::order_power(b_properties.deviceType)
-                    ? true
-                    : a_properties.limits.maxMemoryAllocationCount >
-                            b_properties.limits.maxMemoryAllocationCount;
+                   ? true
+                   : a_properties.limits.maxMemoryAllocationCount >
+                   b_properties.limits.maxMemoryAllocationCount;
         };
         auto less_performance = [this](VkPhysicalDevice a, VkPhysicalDevice b) {
             auto& itable = factory.table();
@@ -180,19 +180,19 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
             itable.vkGetPhysicalDeviceProperties(b, &b_properties);
 
             return wis::detail::order_performance(a_properties.deviceType) > wis::detail::order_performance(b_properties.deviceType)
-                    ? true
-                    : a_properties.limits.maxMemoryAllocationCount >
-                            b_properties.limits.maxMemoryAllocationCount;
+                   ? true
+                   : a_properties.limits.maxMemoryAllocationCount >
+                   b_properties.limits.maxMemoryAllocationCount;
         };
 
         std::ranges::sort(indices_cons,
-                          [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
-                              return less_consumption(phys_adapters[a], phys_adapters[b]);
-                          });
+        [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
+            return less_consumption(phys_adapters[a], phys_adapters[b]);
+        });
         std::ranges::sort(indices_perf,
-                          [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
-                              return less_consumption(phys_adapters[a], phys_adapters[b]);
-                          });
+        [this, &phys_adapters, less_consumption](uint32_t a, uint32_t b) {
+            return less_consumption(phys_adapters[a], phys_adapters[b]);
+        });
 
         for (size_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
