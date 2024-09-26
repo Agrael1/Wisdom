@@ -5,7 +5,7 @@
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/small_allocator.h>
 
-void wis::VKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
+void wis::ImplVKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
 {
     VkBufferCopy copy{
         .srcOffset = region.src_offset,
@@ -15,7 +15,7 @@ void wis::VKCommandList::CopyBuffer(VKBufferView source, VKBufferView destinatio
     device.table().vkCmdCopyBuffer(command_list, std::get<0>(source), std::get<0>(destination), 1, &copy);
 }
 
-void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
+void wis::ImplVKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
     auto* copies = allocator.data();
@@ -50,7 +50,7 @@ void wis::VKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureV
     device.table().vkCmdCopyBufferToImage2(command_list, &copy);
 }
 
-void wis::VKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dst_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
+void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dst_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
     auto* copies = allocator.data();
@@ -86,7 +86,7 @@ void wis::VKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBuffer
     device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
 }
 
-wis::Result wis::VKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept
+wis::Result wis::ImplVKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept
 {
     Close();
 
@@ -114,7 +114,7 @@ wis::Result wis::VKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept
     return wis::success;
 }
 
-bool wis::VKCommandList::Close() noexcept
+bool wis::ImplVKCommandList::Close() noexcept
 {
     if (closed) {
         return true;
@@ -165,7 +165,7 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
 }
 } // namespace wis::detail
 
-void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept
+void wis::ImplVKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept
 {
     auto hbuffer = std::get<0>(buffer);
     if (!hbuffer)
@@ -182,7 +182,7 @@ void wis::VKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView 
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept
+void wis::ImplVKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<VkBufferMemoryBarrier2, 8> allocator(barrier_count, true);
     auto* data = allocator.data();
@@ -200,7 +200,7 @@ void wis::VKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barriers, u
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept
+void wis::ImplVKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept
 {
     auto htexture = std::get<0>(texture);
     if (!htexture)
@@ -217,7 +217,7 @@ void wis::VKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureVi
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barriers, uint32_t barrier_count) noexcept
+void wis::ImplVKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<VkImageMemoryBarrier2, 8> allocator(barrier_count, true);
     auto* data = allocator.data();
@@ -235,7 +235,7 @@ void wis::VKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barriers,
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc) noexcept
+void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc) noexcept
 {
     auto ds_selector = pass_desc->depth_stencil ? pass_desc->depth_stencil->depth_stencil_select : DSSelect::None;
 
@@ -310,12 +310,12 @@ void wis::VKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc)
     dtable.vkCmdBeginRendering(command_list, &info);
 }
 
-void wis::VKCommandList::EndRenderPass() noexcept
+void wis::ImplVKCommandList::EndRenderPass() noexcept
 {
     device.table().vkCmdEndRendering(command_list);
 }
 
-void wis::VKCommandList::RSSetViewport(wis::Viewport vp) noexcept
+void wis::ImplVKCommandList::RSSetViewport(wis::Viewport vp) noexcept
 {
     VkViewport vkvp{
         .x = vp.top_leftx,
@@ -327,7 +327,7 @@ void wis::VKCommandList::RSSetViewport(wis::Viewport vp) noexcept
     };
     device.table().vkCmdSetViewport(command_list, 0, 1, &vkvp);
 }
-void wis::VKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
+void wis::ImplVKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
 {
     wis::detail::limited_allocator<VkViewport, 8> allocator(count, true);
     auto* viewports = allocator.data();
@@ -345,7 +345,7 @@ void wis::VKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count)
     device.table().vkCmdSetViewport(command_list, 0, count, viewports);
 }
 
-void wis::VKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
+void wis::ImplVKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
 {
     VkRect2D rect{
         .offset = { scissor.left, scissor.top },
@@ -353,18 +353,30 @@ void wis::VKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
     };
     device.table().vkCmdSetScissor(command_list, 0, 1, &rect);
 }
+void wis::ImplVKCommandList::RSSetScissors(const wis::Scissor* vp, uint32_t count) noexcept
+{
+    wis::detail::limited_allocator<VkRect2D, 8> allocator(count, true);
+    auto* scissors = allocator.data();
+    for (size_t i = 0; i < count; i++) {
+        scissors[i] = {
+            .offset = { vp[i].left, vp[i].top },
+            .extent = { uint32_t(vp[i].right - vp[i].left), uint32_t(vp[i].bottom - vp[i].top) },
+        };
+    }
+    device.table().vkCmdSetScissor(command_list, 0, count, scissors);
+}
 
-void wis::VKCommandList::IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept
+void wis::ImplVKCommandList::IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept
 {
     device.table().vkCmdSetPrimitiveTopology(command_list, convert_vk(topology));
 }
 
-void wis::VKCommandList::SetRootSignature(wis::VKRootSignatureView root_signature) noexcept
+void wis::ImplVKCommandList::SetRootSignature(wis::VKRootSignatureView root_signature) noexcept
 {
     pipeline_layout = std::get<0>(root_signature);
 }
 
-void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
+void wis::ImplVKCommandList::IASetVertexBuffers(const wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
 {
     wis::detail::limited_allocator<VkBuffer, 8> allocator(count, true);
     auto* buffers = allocator.data();
@@ -386,16 +398,16 @@ void wis::VKCommandList::IASetVertexBuffers(wis::VKVertexBufferBinding* resource
     device.table().vkCmdBindVertexBuffers2(command_list, start_slot, count, buffers, offsets, sizes, strides);
 }
 
-void wis::VKCommandList::IASetIndexBuffer(wis::VKBufferView buffer, wis::IndexType type, uint64_t offset) noexcept
+void wis::ImplVKCommandList::IASetIndexBuffer(wis::VKBufferView buffer, wis::IndexType type, uint64_t offset) noexcept
 {
     device.table().vkCmdBindIndexBuffer(command_list, std::get<0>(buffer), offset, convert_vk(type));
 }
-void wis::VKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
+void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
 {
     device.table().vkCmdBindIndexBuffer2KHR(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
 }
 
-void wis::VKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
+void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
                                               uint32_t instance_count,
                                               uint32_t start_index,
                                               uint32_t base_vertex,
@@ -404,7 +416,7 @@ void wis::VKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance
     device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
-void wis::VKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
+void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
                                        uint32_t instance_count,
                                        uint32_t base_vertex,
                                        uint32_t start_instance) noexcept
@@ -412,12 +424,12 @@ void wis::VKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::VKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+void wis::ImplVKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
 
-void wis::VKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView* buffers, uint32_t buffer_count) noexcept
+void wis::ImplVKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView* buffers, uint32_t buffer_count) noexcept
 {
     if (buffer_count == 0)
         return;
@@ -454,7 +466,7 @@ void wis::VKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView*
     device.table().vkCmdBindDescriptorBuffersEXT(command_list, xbuffer_count, pinfos);
 }
 
-void wis::VKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_bytes) noexcept
+void wis::ImplVKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_bytes) noexcept
 {
     auto binding = std::get<1>(buffer);
     uint32_t index = uint32_t(binding == wis::DescriptorHeapType::Sampler);

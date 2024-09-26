@@ -260,7 +260,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateRenderTarget(wis::VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
     {
-        return wis::ImplVKDevice::CreateRenderTarget(texture, desc);
+        return wis::ImplVKDevice::CreateRenderTarget(std::move(texture), desc);
     }
     /**
      * @brief Creates a sampler object.
@@ -279,7 +279,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKShaderResource> CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
     {
-        return wis::ImplVKDevice::CreateShaderResource(texture, desc);
+        return wis::ImplVKDevice::CreateShaderResource(std::move(texture), desc);
     }
     /**
      * @brief Returns the alignment of the descriptor table in bytes.

@@ -30,6 +30,10 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
       <file for="dx" include="dx12/dx12_allocator.h"/>
     </handle>
 
+    <handle name="CommandList" doc="Represents command list for recording commands.">
+      <file for="vk" include="vulkan/vk_command_list.h"/>
+      <file for="dx" include="dx12/dx12_command_list.h"/>
+    </handle>
 
 
 
@@ -39,7 +43,6 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
     <handle name="CommandQueue"/>
     <handle name="Shader"/>
     <handle name="PipelineState"/>
-    <handle name="CommandList"/>
     <handle name="Buffer"/>
     <handle name="Texture"/>
     <handle name="SwapChain"/>
@@ -134,7 +137,9 @@ Default is {MutiWaitFlags::All}"/>
 
     <func for="Device" name="CreateRenderTarget" mod="const" doc="Creates a render target object.">
       <ret type="RenderTarget" name="target" result="true" doc="{RenderTarget::} on success ({Status::Ok})."/>
-      <arg type="TextureView" name="texture" doc="The texture view to create the render target with."/>
+      <arg type="Texture" name="texture" doc="The texture to create the render target with.">
+        <replace with="TextureView" for="cpp" doc="The texture view to create the render target with."/>
+      </arg>
       <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create."/>
     </func>
 
@@ -145,7 +150,9 @@ Default is {MutiWaitFlags::All}"/>
 
     <func for="Device" name="CreateShaderResource" mod="const" doc="Creates a shader resource object.">
       <ret type="ShaderResource" name="resource" result="true" doc="{ShaderResource::} on success ({Status::Ok})."/>
-      <arg type="TextureView" name="texture" doc="The texture view to create the shader resource with."/>
+      <arg type="Texture" name="texture" doc="The texture to create the shader resource with.">
+        <replace with="TextureView" for="cpp" doc="The texture view to create the shader resource with."/>
+      </arg>
       <arg type="ShaderResourceDesc" name="desc" doc="The description of the shader resource to create."/>
     </func>
 
@@ -224,7 +231,9 @@ Equivalent to creating a Texture, allocating a memory and binding texture to it.
 Equivalent to creating aliasing resource.
 Note, the resulting buffer must be destroyed before Memory backing it up.">
       <ret type="Buffer" name="buffer" result="true" doc="{Buffer::} on success ({Status::Ok})."/>
-      <arg type="MemoryView" name="memory" doc="The memory view to bind the buffer to."/>
+      <arg type="Memory" name="memory" doc="The memory to bind the buffer to.">
+        <replace with="MemoryView" for="cpp" doc="The memory to bind the buffer to."/>
+      </arg>
       <arg type="u64" name="memory_offset" doc="The offset in the memory to bind the buffer to."/>
       <arg type="u64" name="size" doc="The size of the buffer to bind."/>
       <arg type="BufferUsage" name="usage" doc="The usage of the buffer."/>
@@ -234,7 +243,9 @@ Note, the resulting buffer must be destroyed before Memory backing it up.">
 Equivalent to creating aliasing resource.
 Note, the resulting Texture must be destroyed before Memory backing it up.">
       <ret type="Texture" name="texture" result="true" doc="{Texture::} on success ({Status::Ok})."/>
-      <arg type="MemoryView" name="memory" doc="The memory view to bind the texture to."/>
+      <arg type="Memory" name="memory" doc="The memory to bind the buffer to.">
+        <replace with="MemoryView" for="cpp" doc="The memory to bind the buffer to."/>
+      </arg>
       <arg type="u64" name="memory_offset" doc="The offset in the memory to bind the texture to."/>
       <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
     </func>
@@ -242,7 +253,179 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     <!-- DebugMessenger -->
     <func for="DebugMessenger" name="Destroy" doc="Destroys the {DebugMessenger::}."/>
 
-      <!--<func for="Fence" name="Destroy"/>
+    <!-- Command List -->
+    <func for="CommandList" name="Destroy" doc="Destroys the {CommandList::}."/>
+    <func for="CommandList" name="Closed" mod="const" doc="Closes the command list for recording.">
+      <ret type="bool" name="closed" doc="true if command list is closed. false otherwise."/>
+    </func>
+
+    <func for="CommandList" name="Close" doc="Closes the command list for recording.">
+      <ret type="bool" name="closed" doc="true if command list is closed. false otherwise."/>
+    </func>
+
+    <func for="CommandList" name="Reset" doc="Resets the command list for recording.">
+      <ret result="true"/>
+      <arg type="PipelineState" name="pipeline" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline.">
+        <replace with="PipelineHandle" for="cpp" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="CopyBuffer" doc="Copies data from one buffer to another.">
+      <arg type="Buffer" name="source" doc="The source buffer to copy from.">
+        <replace with="BufferView" for="cpp" doc="The source buffer to copy from."/>
+      </arg>
+      <arg type="Buffer" name="destination" doc="The destination buffer to copy to.">
+        <replace with="BufferView" for="cpp" doc="The destination buffer to copy to."/>
+      </arg>
+      <arg type="BufferRegion" name="region" doc="The region to copy."/>
+    </func>
+
+    <func for="CommandList" name="CopyBufferToTexture" doc="Copies data from buffer to texture.">
+      <arg type="Buffer" name="source" doc="The source buffer to copy from.">
+        <replace with="BufferView" for="cpp" doc="The source buffer to copy from."/>
+      </arg>
+      <arg type="Texture" name="destination" doc="The destination texture to copy to.">
+        <replace with="TextureView" for="cpp" doc="The destination texture to copy to."/>
+      </arg>
+      <arg type="BufferTextureCopyRegion" name="regions" mod="const ptr" doc="The regions to copy."/>
+      <arg type="u32" name="region_count" doc="The number of regions to copy."/>
+    </func>
+
+    <func for="CommandList" name="CopyTextureToBuffer" doc="Copies data from one texture to another.">
+      <arg type="Texture" name="source" doc="The source texture to copy from.">
+        <replace with="TextureView" for="cpp" doc="The source texture to copy from."/>
+      </arg>
+      <arg type="Buffer" name="destination" doc="The destination buffer to copy to.">
+        <replace with="BufferView" for="cpp" doc="The destination buffer to copy to."/>
+      </arg>
+      <arg type="BufferTextureCopyRegion" name="regions" mod="const ptr" doc="The regions to copy."/>
+      <arg type="u32" name="region_count" doc="The number of regions to copy."/>
+    </func>
+
+    <func for="CommandList" name="BufferBarrier" doc="Sets the barrier on the buffer.">
+      <arg type="BufferBarrier" name="barrier" doc="The barrier to set."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to set the barrier on.">
+        <replace with="BufferView" for="cpp" doc="The buffer to set the barrier on."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="BufferBarriers" doc="Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.">
+      <arg type="BufferBarrier2" name="barriers" mod="const ptr" doc="The barriers to set."/>
+      <arg type="u32" name="barrier_count" doc="The number of barriers to set."/>
+    </func>
+
+    <func for="CommandList" name="TextureBarrier" doc="Sets the barrier on the texture.">
+      <arg type="TextureBarrier" name="barrier" doc="The barrier to set."/>
+      <arg type="Texture" name="texture" doc="The texture to set the barrier on.">
+        <replace with="TextureView" for="cpp" doc="The texture to set the barrier on."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="TextureBarriers" doc="Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.">
+      <arg type="TextureBarrier2" name="barriers" mod="const ptr" doc="The barriers to set."/>
+      <arg type="u32" name="barrier_count" doc="The number of barriers to set."/>
+    </func>
+
+    <func for="CommandList" name="BeginRenderPass" doc="Begins the render pass.">
+      <arg type="RenderPassDesc" name="pass_desc" mod="const ptr" doc="The description of the render pass to begin."/>
+    </func>
+
+    <func for="CommandList" name="EndRenderPass" doc="Ends the render pass."/>
+
+    <func for="CommandList" name="SetRootSignature" doc="Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.">
+      <arg type="RootSignature" name="root_signature" doc="The root signature to set.">
+        <replace with="RootSignatureView" for="cpp" doc="The root signature to set."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="IASetPrimitiveTopology" doc="Sets the primitive topology. Detemines how vertices shall be processed.">
+      <arg type="PrimitiveTopology" name="topology" doc="The primitive topology to set."/>
+    </func>
+
+    <func for="CommandList" name="IASetVertexBuffers" doc="Sets the vertex buffers.">
+      <arg type="VertexBufferBinding" name="resources" mod="const ptr" doc="The vertex buffers to set."/>
+      <arg type="u32" name="count" doc="The number of vertex buffers to set."/>
+      <arg type="u32" name="start_slot" default="0" doc="The start slot to set the vertex buffers to. Default is 0."/>
+    </func>
+
+    <func for="CommandList" name="IASetIndexBuffer" doc="Sets the index buffer.">
+      <arg type="Buffer" name="buffer" doc="The index buffer to set.">
+        <replace with="BufferView" for="cpp" doc="The index buffer to set."/>
+      </arg>
+      <arg type="IndexType" name="type" doc="The type of the index buffer."/>
+      <arg type="u64" name="offset" doc="The offset in the index buffer in bytes."/>
+    </func>
+
+    <func for="CommandList" name="IASetIndexBuffer2" doc="Sets the index buffer. 
+You may provide the offset in the buffer to take only a range of the buffer.
+Requires {DeviceFeature::AdvancedIndexBuffer} to be supported.">
+      <arg type="Buffer" name="buffer" doc="The index buffer to set.">
+        <replace with="BufferView" for="cpp" doc="The index buffer to set."/>
+      </arg>
+      <arg type="IndexType" name="type" doc="The type of the index buffer."/>
+      <arg type="u32" name="size" doc="The size of the index buffer in bytes."/>
+      <arg type="u64" name="offset" doc="The offset in the index buffer in bytes."/>
+    </func>
+
+    <func for="CommandList" name="RSSetViewport" doc="Sets the viewport.">
+      <arg type="Viewport" name="viewport" doc="The viewport to set."/>
+    </func>
+
+    <func for="CommandList" name="RSSetViewports" doc="Sets multiple viewports.">
+      <arg type="Viewport" name="viewports" mod="const ptr" doc="The viewports to set."/>
+      <arg type="u32" name="count" doc="The number of viewports to set."/>
+    </func>
+
+    <func for="CommandList" name="RSSetScissor" doc="Sets the scissor rect.">
+      <arg type="Scissor" name="scissor" doc="The scissor to set."/>
+    </func>
+
+    <func for="CommandList" name="RSSetScissors" doc="Sets multiple scissor rects. 
+Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+Otherwise the first is chosen.">
+      <arg type="Scissor" name="scissors" mod="const ptr" doc="The scissors to set."/>
+      <arg type="u32" name="count" doc="The number of scissors to set."/>
+    </func>
+
+    <func for="CommandList" name="DrawIndexedInstanced" doc="Draws indexed instanced geometry.">
+      <arg type="u32" name="vertex_count_per_instance" doc="The number of vertices to draw per instance."/>
+      <arg type="u32" name="instance_count" default="1" doc="The number of instances to draw. Default is 1."/>
+      <arg type="u32" name="start_index" default="0" doc="The index of the first vertex to draw. Default is 0."/>
+      <arg type="u32" name="base_vertex" default="0" doc="The index of the first vertex to start drawing from. Default is 0."/>
+      <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
+    </func>
+
+    <func for="CommandList" name="DrawInstanced" doc="Draws instanced geometry. (Without indexing)">
+      <arg type="u32" name="vertex_count_per_instance" doc="The number of vertices to draw per instance."/>
+      <arg type="u32" name="instance_count" default="1" doc="The number of instances to draw. Default is 1."/>
+      <arg type="u32" name="start_vertex" default="0" doc="The index of the first vertex to draw. Default is 0."/>
+      <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
+    </func>
+
+    <func for="CommandList" name="SetRootConstants" doc="Sets the root constants for the shader.">
+      <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
+      <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
+      <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
+      <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
+    </func>
+
+    <func for="CommandList" name="SetDescriptorBuffers" doc="Sets the root descriptor tables for the shader. 
+Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often. ">
+      <arg type="DescriptorBufferView" name="buffers" mod="const ptr" doc="The descriptor buffers to set the root descriptor tables with.
+May only be one of each type (one Descriptor and one Sampler buffer)"/>
+      <arg type="u32" name="buffer_count" doc="The number of descriptor buffers to set. May be 1 or 2."/>
+    </func>
+
+    <func for="CommandList" name="SetDescriptorTableOffset" doc="Sets the offset in the descriptor table for the descriptor buffer.">
+      <arg type="u32" name="root_table_index" doc="The index of the root table to set the offset for."/>
+      <arg type="DescriptorBuffer" name="buffer" doc="The descriptor buffer to set the offset for.">
+        <replace with="DescriptorBufferGPUView" for="cpp" doc="The descriptor buffer to set the offset for."/>
+      </arg>
+      <arg type="u32" name="offset_bytes" doc="The offset in the descriptor buffer in bytes."/>
+    </func>
+
+
+    <!--<func for="Fence" name="Destroy"/>
     <func for="RootSignature" name="Destroy"/>
     <func for="CommandQueue" name="Destroy"/>
     <func for="Shader" name="Destroy"/>
@@ -258,35 +441,35 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     <func for="Memory" name="Destroy"/>
     <func for="ShaderResource" name="Destroy"/>-->
 
-      <!-- Free Functions -->
-      <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
-        <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
-        <arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
-        <arg type="FactoryExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
+    <!-- Free Functions -->
+    <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
+      <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
+      <arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
+      <arg type="FactoryExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
 The extensions are initialized through this array.">
-          <replace with="FactoryExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
+        <replace with="FactoryExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
 The extension pointers are initialized if the extension is found and initialized.
 Otherwise returns NULL."/>
-        </arg>
-        <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
-      </func>
+      </arg>
+      <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
+    </func>
 
-      <func name="CreateDevice" mod="custom-impl" doc="Creates the {Device::} with extensions, specified in extension array.">
-        <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
-        <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on. Must not be NULL."/>
-        <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
+    <func name="CreateDevice" mod="custom-impl" doc="Creates the {Device::} with extensions, specified in extension array.">
+      <ret type="Device" name="device" result="true" doc="{Device::} on success ({Status::Ok})."/>
+      <arg type="Adapter" name="adapter" doc="The adapter to create the logical device on. Must not be NULL."/>
+      <arg type="DeviceExtension" name="extensions" mod="pp" default="nullptr" doc="The extensions to enable.
 The extensions are initialized through this array.">
-          <replace with="DeviceExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
+        <replace with="DeviceExtQuery" for="c" mod="ptr" default="nullptr" doc="Query the extensions that need to be present.
 The extension pointers are initialized if the extension is found and initialized.
 Otherwise returns NULL."/>
-        </arg>
-        <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
-        <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
+      </arg>
+      <arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
+      <arg type="bool" name="force" default="false" doc="Create logical device even if some core functionality is absent.
 The presence of core functionality is checked by the query function."/>
-      </func>
+    </func>
 
 
-    </functions>
+  </functions>
   <extensions>
     <ext name="DebugExtension" type="Factory" id="1" folder="debug_info">
       <file include="wisdom/wisdom_debug.h"/>

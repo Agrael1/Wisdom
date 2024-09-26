@@ -199,7 +199,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RenderTarget> CreateRenderTarget(wis::DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
     {
-        return wis::ImplDX12Device::CreateRenderTarget(texture, desc);
+        return wis::ImplDX12Device::CreateRenderTarget(std::move(texture), desc);
     }
     /**
      * @brief Creates a sampler object.
@@ -218,7 +218,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12ShaderResource> CreateShaderResource(wis::DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept
     {
-        return wis::ImplDX12Device::CreateShaderResource(texture, desc);
+        return wis::ImplDX12Device::CreateShaderResource(std::move(texture), desc);
     }
     /**
      * @brief Returns the alignment of the descriptor table in bytes.

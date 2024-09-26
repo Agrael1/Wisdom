@@ -21,6 +21,7 @@ using VKTextureView = std::tuple<VkImage, VkFormat, wis::Size2D>;
 using VKBufferView = std::tuple<VkBuffer>;
 using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
 using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType, uint32_t>;
+using VKDescriptorBufferGPUView = VKDescriptorBufferView;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
