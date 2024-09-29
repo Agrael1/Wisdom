@@ -43,13 +43,13 @@ struct Internal<VKBuffer> {
     }
 };
 
-class VKBuffer : public QueryInternal<VKBuffer>
+class ImplVKBuffer : public QueryInternal<VKBuffer>
 {
 public:
-    VKBuffer() noexcept = default;
-    explicit VKBuffer(wis::shared_handle<VmaAllocator> allocator,
-                      VkBuffer buffer,
-                      VmaAllocation allocation = nullptr) noexcept
+    ImplVKBuffer() noexcept = default;
+    explicit ImplVKBuffer(wis::shared_handle<VmaAllocator> allocator,
+                          VkBuffer buffer,
+                          VmaAllocation allocation = nullptr) noexcept
         : QueryInternal<VKBuffer>(std::move(allocator), buffer, allocation)
     {
     }
@@ -67,6 +67,10 @@ public:
     T* Map() const noexcept
     {
         return static_cast<T*>(memory.VKMap());
+    }
+    void* MapRaw() const noexcept
+    {
+        return memory.VKMap();
     }
     void Unmap() const noexcept
     {
@@ -209,6 +213,33 @@ public:
         return view.get();
     }
 };
+
+#pragma region VKBuffer
+/**
+ * @brief Represents buffer object for storing linear data.
+ * */
+struct VKBuffer : public wis::ImplVKBuffer {
+public:
+    using wis::ImplVKBuffer::ImplVKBuffer;
+
+public:
+    /**
+     * @brief Maps the buffer memory to CPU address space.
+     * @return The pointer to the mapped memory.
+     * */
+    inline void* MapRaw() const noexcept
+    {
+        return wis::ImplVKBuffer::MapRaw();
+    }
+    /**
+     * @brief Unmaps the buffer memory from CPU address space.
+     * */
+    inline void Unmap() const noexcept
+    {
+        return wis::ImplVKBuffer::Unmap();
+    }
+};
+#pragma endregion VKBuffer
 
 } // namespace wis
 

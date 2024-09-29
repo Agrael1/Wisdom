@@ -145,6 +145,9 @@ int Generator::GenerateCAPI()
     out_vk += out_vk_methods;
 
     for (auto* v : variants) {
+        if (v->implemented_for == Language::CPP)
+            continue;
+
         out_default_dx += MakeCVariantGeneric(*v, impls[+ImplementedFor::DX12]) + '\n';
         out_default_vk += MakeCVariantGeneric(*v, impls[+ImplementedFor::Vulkan]) + '\n';
     }
@@ -810,9 +813,9 @@ std::vector<WisFunctionParameter> Generator::ParseFunctionArgs(tinyxml2::XMLElem
             rval.type_info = GetTypeInfo(type);
 
             if (rfor == "c"sv) {
-                rval.replace_for = ReplaceTypeFor::C;
+                rval.replace_for = Language::C;
             } else if (rfor == "cpp"sv) {
-                rval.replace_for = ReplaceTypeFor::CPP;
+                rval.replace_for = Language::CPP;
             }
 
             if (auto* doc = replace->FindAttribute("doc"))
@@ -877,9 +880,9 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             ref.custom_impl = true;
         }
         if (smod.find("cpp-only") != std::string_view::npos) {
-            ref.implemented_for = ReplaceTypeFor::CPP;
+            ref.implemented_for = Language::CPP;
         } else if (smod.find("c-only") != std::string_view::npos) {
-            ref.implemented_for = ReplaceTypeFor::C;
+            ref.implemented_for = Language::C;
         }
         if (smod.find("const") != std::string_view::npos) {
             ref.const_func = true;
@@ -1161,6 +1164,13 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type)
     if (auto* size = type.FindAttribute("doc"))
         ref.doc = size->Value();
 
+    if (auto* mod = type.FindAttribute("mod")) {
+        if (std::string_view(mod->Value()) == "cpp-only")
+            ref.implemented_for = Language::CPP;
+        else if (std::string_view(mod->Value()) == "c-only")
+            ref.implemented_for = Language::C;
+    }
+
     for (auto* impl = type.FirstChildElement("impl"); impl; impl = impl->NextSiblingElement("impl")) {
         auto impl_name = impl->FindAttribute("name")->Value();
         auto& impl_ref = ref.impls.emplace_back();
@@ -1335,6 +1345,10 @@ std::string Generator::MakeCPPValueDocumentation(std::string value, std::string_
 std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
 {
     using namespace std::string_literals;
+
+    if (s.implemented_for == Language::CPP)
+        return {};
+
     std::string st_decls;
 
     auto make_impl = [this](const WisVariant& s, const WisVariantImpl& impl,
@@ -1629,7 +1643,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
     // Arguments
     for (auto& arg : func.parameters) {
-        if (arg.replaced && arg.replaced->replace_for == ReplaceTypeFor::C) {
+        if (arg.replaced && arg.replaced->replace_for == Language::C) {
             WisFunctionParameter repl{
                 .type_info = arg.replaced->type_info,
                 .type = arg.replaced->type,
@@ -1654,15 +1668,22 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
             .type_info = func.return_type.type_info,
             .type = func.return_type.type,
             .name = func.return_type.opt_name,
-            .modifier = "ptr",
+            .modifier = func.return_type.modifier == "ptr" ? "pp" : "ptr",
         };
         doc += wis::format("@param {} {}\n", res.name, func.return_type.doc);
         doc += wis::format("@return {}\n", ResultDoc);
         return_t = GetCFullTypename("Result");
         args += GetCFullArg(res, impl);
     } else {
+        WisFunctionParameter res{
+            .type_info = func.return_type.type_info,
+            .type = func.return_type.type,
+            .name = "",
+            .modifier = func.return_type.modifier,
+        };
+
         doc += wis::format("@return {}\n", func.return_type.doc);
-        return_t = GetCFullTypename(func.return_type.type, impl);
+        return_t = GetCFullArg(res, impl);
     }
 
     // Remove trailing ", "
@@ -1753,7 +1774,12 @@ std::string Generator::MakeCFunctionImpl(const WisFunction& func, std::string_vi
     // Arguments
     std::string args;
     for (auto& arg : func.parameters) {
-        args += ConvertFromCType(arg, impl) + ", ";
+        auto converted = ConvertFromCType(arg, impl);
+
+        if ((arg.type_info == TypeInfo::Handle || arg.type_info == TypeInfo::ExtHandle) && arg.modifier.empty()) {
+            converted = wis::format("*{}", converted);
+        }
+        args += converted + ", ";
     }
 
     // Remove trailing ", "
@@ -1833,6 +1859,7 @@ std::string Generator::MakeCFunctionImpl(const WisFunction& func, std::string_vi
         .type_info = func.return_type.type_info,
         .type = func.return_type.type,
         .name = "res",
+        .modifier = func.return_type.modifier,
     };
 
     body += wis::format("    auto res = {};\n", call);
@@ -2054,7 +2081,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
 
     // Arguments
     for (auto& arg : func.parameters) {
-        if (arg.replaced && arg.replaced->replace_for == ReplaceTypeFor::CPP) {
+        if (arg.replaced && arg.replaced->replace_for == Language::CPP) {
             WisFunctionParameter repl{
                 .type_info = arg.replaced->type_info,
                 .type = arg.replaced->type,
@@ -2079,8 +2106,15 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         doc += wis::format("@return {}\n", func.return_type.doc);
         return_t = wis::format("wis::ResultValue<{}>", GetCPPFullTypename(func.return_type.type, impl));
     } else {
+        WisFunctionParameter res{
+            .type_info = func.return_type.type_info,
+            .type = func.return_type.type,
+            .name = "",
+            .modifier = func.return_type.modifier,
+        };
+
         doc += wis::format("@return {}\n", func.return_type.doc);
-        return_t = GetCPPFullTypename(func.return_type.type, impl);
+        return_t = GetCPPFullArg(res, impl);
     }
 
     // Remove trailing ", "
@@ -2200,7 +2234,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
     std::string funcs = "public:\n";
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];
-        if (func.name == "Destroy" || func.implemented_for == ReplaceTypeFor::C || func.custom_impl) {
+        if (func.name == "Destroy" || func.implemented_for == Language::C || func.custom_impl) {
             continue;
         }
 

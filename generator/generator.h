@@ -78,6 +78,12 @@ struct WisBitmask {
     }
 };
 
+enum class Language {
+    None,
+    C,
+    CPP
+};
+
 struct WisStructMember {
     std::string_view name;
     std::string_view type;
@@ -110,15 +116,11 @@ struct WisVariant {
     std::string_view doc;
     std::string_view this_type;
     std::vector<WisVariantImpl> impls;
+    Language implemented_for = Language::None;
 };
 
 static constexpr std::string_view ResultDoc = "Result with {Status::Ok} on success.\nError in {Result::error} otherwise.";
 
-enum class ReplaceTypeFor {
-    None,
-    C,
-    CPP
-};
 enum class TypeInfo {
     None,
     Result,
@@ -134,7 +136,7 @@ enum class TypeInfo {
     ExtHandle
 };
 struct ReplacedParameter {
-    ReplaceTypeFor replace_for = ReplaceTypeFor::None;
+    Language replace_for = Language::None;
 
     TypeInfo type_info = TypeInfo::None;
     std::string_view type;
@@ -169,7 +171,7 @@ struct WisFunction {
 
     WisReturnType return_type;
     std::vector<WisFunctionParameter> parameters;
-    ReplaceTypeFor implemented_for = ReplaceTypeFor::None;
+    Language implemented_for = Language::None;
     bool custom_impl = false;
     bool const_func = false;
 

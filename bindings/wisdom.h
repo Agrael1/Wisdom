@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.2</b>
+<b>Version 0.3.3</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1865,7 +1865,6 @@ typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKDescriptorBufferView VKDescriptorBufferView;
 typedef struct VKTextureBarrier2 VKTextureBarrier2;
-typedef struct VKMemoryView VKMemoryView;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
@@ -1907,11 +1906,6 @@ struct VKRootSignatureView {
 struct VKDescriptorBufferView {
     uint64_t value1;
     uint32_t value2;
-};
-
-struct VKMemoryView {
-    void* value1;
-    void* value2;
 };
 
 /**
@@ -2002,28 +1996,60 @@ struct VKVertexBufferBinding {
 //-------------------------------------------------------------------------
 
 typedef struct VKCommandQueue_t* VKCommandQueue;
-typedef struct VKRootSignature_t* VKRootSignature;
 typedef struct VKFactory_t* VKFactory;
 typedef struct VKDeviceExtension_t* VKDeviceExtension;
 typedef struct VKPipelineState_t* VKPipelineState;
 typedef struct VKAdapter_t* VKAdapter;
 typedef struct VKDevice_t* VKDevice;
+typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
 typedef struct VKFactoryExtension_t* VKFactoryExtension;
 typedef struct VKResourceAllocator_t* VKResourceAllocator;
 typedef struct VKFence_t* VKFence;
-typedef struct VKShader_t* VKShader;
 typedef struct VKCommandList_t* VKCommandList;
+typedef struct VKMemory_t* VKMemory;
 typedef struct VKSwapChain_t* VKSwapChain;
 typedef struct VKBuffer_t* VKBuffer;
 typedef struct VKTexture_t* VKTexture;
+typedef struct VKRootSignature_t* VKRootSignature;
+typedef struct VKShader_t* VKShader;
 typedef struct VKDebugMessenger_t* VKDebugMessenger;
 typedef struct VKRenderTarget_t* VKRenderTarget;
-typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
 typedef struct VKSampler_t* VKSampler;
-typedef struct VKMemory_t* VKMemory;
 typedef struct VKShaderResource_t* VKShaderResource;
 
 //-------------------------------------------------------------------------
+
+// VKCommandQueue methods --
+/**
+ * @brief Destroys the VKCommandQueue.
+ * @param self valid handle to the CommandQueue
+ * */
+WISDOM_API void VKCommandQueueDestroy(VKCommandQueue self);
+
+/**
+ * @brief Executes the command lists.
+ * @param self valid handle to the CommandQueue
+ * @param lists The command lists to execute.
+ * @param count The number of command lists to execute.
+ * */
+WISDOM_API void VKCommandQueueExecuteCommandLists(VKCommandQueue self, const VKCommandListView* lists, uint32_t count);
+
+/**
+ * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to signal.
+ * @param value The value to signal the fence with.
+ * */
+WISDOM_API WisResult VKCommandQueueSignalQueue(VKCommandQueue self, VKFence fence, uint64_t value);
+
+/**
+ * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+ * Can still be enqueued after the signal.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to wait on.
+ * @param value The value to wait the fence to reach.
+ * */
+WISDOM_API WisResult VKCommandQueueWaitQueue(VKCommandQueue self, VKFence fence, uint64_t value);
 
 // VKFactory methods --
 /**
@@ -2044,6 +2070,13 @@ WISDOM_API void VKFactoryDestroy(VKFactory self);
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult VKFactoryGetAdapter(VKFactory self, uint32_t index, WisAdapterPreference preference, VKAdapter* adapter);
+
+// VKPipelineState methods --
+/**
+ * @brief Destroys the VKPipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+WISDOM_API void VKPipelineStateDestroy(VKPipelineState self);
 
 // VKAdapter methods --
 /**
@@ -2162,13 +2195,13 @@ WISDOM_API WisResult VKDeviceCreateAllocator(VKDevice self, VKResourceAllocator*
 /**
  * @brief Creates a render target object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the render target with.
+ * @param texture The texture to create the render target with.
  * @param desc The description of the render target to create.
  * @param target VKRenderTarget on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTextureView texture, WisRenderTargetDesc desc, VKRenderTarget* target);
+WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTexture texture, WisRenderTargetDesc desc, VKRenderTarget* target);
 
 /**
  * @brief Creates a sampler object.
@@ -2183,13 +2216,13 @@ WISDOM_API WisResult VKDeviceCreateSampler(VKDevice self, const WisSamplerDesc* 
 /**
  * @brief Creates a shader resource object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the shader resource with.
+ * @param texture The texture to create the shader resource with.
  * @param desc The description of the shader resource to create.
  * @param resource VKShaderResource on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTextureView texture, WisShaderResourceDesc desc, VKShaderResource* resource);
+WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture texture, WisShaderResourceDesc desc, VKShaderResource* resource);
 
 /**
  * @brief Returns the alignment of the descriptor table in bytes.
@@ -2231,6 +2264,81 @@ WISDOM_API WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptor
  * @return true if feature is supported. false otherwise.
  * */
 WISDOM_API bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feature);
+
+// VKDescriptorBuffer methods --
+/**
+ * @brief Destroys the VKDescriptorBuffer.
+ * @param self valid handle to the DescriptorBuffer
+ * */
+WISDOM_API void VKDescriptorBufferDestroy(VKDescriptorBuffer self);
+
+/**
+ * @brief Writes the sampler to the sampler descriptor buffer.
+ * Must be called with Sampler descriptor buffer, which was created with DescriptorHeapTypeSampler.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with VKDevice.
+ * @param index Binding index in descriptor table.
+ * @param sampler The sampler to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t VKDescriptorBufferWriteSampler(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKSampler sampler);
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with VKDevice.
+ * @param index Binding index in descriptor table.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t VKDescriptorBufferWriteShaderResource2(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKShaderResource resource);
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * Must be called with Constant Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with VKDevice.
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t VKDescriptorBufferWriteConstantBuffer2(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKBuffer buffer, uint32_t buffer_size);
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with VKDevice.
+ * @param root_table_index Index of the descriptor table in VKRootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t VKDescriptorBufferWriteShaderResource(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, VKRootSignature root_signature, VKShaderResource resource);
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with VKDevice.
+ * @param root_table_index Index of the descriptor table in VKRootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t VKDescriptorBufferWriteConstantBuffer(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, VKRootSignature root_signature, VKBuffer buffer, uint32_t buffer_size);
 
 // VKResourceAllocator methods --
 /**
@@ -2315,7 +2423,7 @@ WISDOM_API WisResult VKResourceAllocatorAllocateBufferMemory(VKResourceAllocator
  * Equivalent to creating aliasing resource.
  * Note, the resulting buffer must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the buffer to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the buffer to.
  * @param size The size of the buffer to bind.
  * @param usage The usage of the buffer.
@@ -2323,21 +2431,396 @@ WISDOM_API WisResult VKResourceAllocatorAllocateBufferMemory(VKResourceAllocator
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, VKBuffer* buffer);
+WISDOM_API WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VKMemory memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, VKBuffer* buffer);
 
 /**
  * @brief Creates texture with provided memory.
  * Equivalent to creating aliasing resource.
  * Note, the resulting Texture must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the texture to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the texture to.
  * @param desc The description of the texture to create.
  * @param texture VKTexture on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture);
+WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemory memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture);
+
+// VKFence methods --
+/**
+ * @brief Destroys the VKFence.
+ * @param self valid handle to the Fence
+ * */
+WISDOM_API void VKFenceDestroy(VKFence self);
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+WISDOM_API uint64_t VKFenceGetCompletedValue(VKFence self);
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult VKFenceWait(VKFence self, uint64_t value, uint64_t wait_ns);
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+WISDOM_API WisResult VKFenceSignal(VKFence self, uint64_t value);
+
+// VKCommandList methods --
+/**
+ * @brief Destroys the VKCommandList.
+ * @param self valid handle to the CommandList
+ * */
+WISDOM_API void VKCommandListDestroy(VKCommandList self);
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+WISDOM_API bool VKCommandListClosed(VKCommandList self);
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+WISDOM_API bool VKCommandListClose(VKCommandList self);
+
+/**
+ * @brief Resets the command list for recording.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * */
+WISDOM_API WisResult VKCommandListReset(VKCommandList self, VKPipelineState pipeline);
+
+/**
+ * @brief Copies data from one buffer to another.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param region The region to copy.
+ * */
+WISDOM_API void VKCommandListCopyBuffer(VKCommandList self, VKBuffer source, VKBuffer destination, WisBufferRegion region);
+
+/**
+ * @brief Copies data from buffer to texture.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void VKCommandListCopyBufferToTexture(VKCommandList self, VKBuffer source, VKTexture destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
+
+/**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void VKCommandListCopyTextureToBuffer(VKCommandList self, VKTexture source, VKBuffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
+
+/**
+ * @brief Sets the barrier on the buffer.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param buffer The buffer to set the barrier on.
+ * */
+WISDOM_API void VKCommandListBufferBarrier(VKCommandList self, WisBufferBarrier barrier, VKBuffer buffer);
+
+/**
+ * @brief Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+WISDOM_API void VKCommandListBufferBarriers(VKCommandList self, const VKBufferBarrier2* barriers, uint32_t barrier_count);
+
+/**
+ * @brief Sets the barrier on the texture.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param texture The texture to set the barrier on.
+ * */
+WISDOM_API void VKCommandListTextureBarrier(VKCommandList self, WisTextureBarrier barrier, VKTexture texture);
+
+/**
+ * @brief Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+WISDOM_API void VKCommandListTextureBarriers(VKCommandList self, const VKTextureBarrier2* barriers, uint32_t barrier_count);
+
+/**
+ * @brief Begins the render pass.
+ * @param self valid handle to the CommandList
+ * @param pass_desc The description of the render pass to begin.
+ * */
+WISDOM_API void VKCommandListBeginRenderPass(VKCommandList self, const VKRenderPassDesc* pass_desc);
+
+/**
+ * @brief Ends the render pass.
+ * @param self valid handle to the CommandList
+ * */
+WISDOM_API void VKCommandListEndRenderPass(VKCommandList self);
+
+/**
+ * @brief Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+WISDOM_API void VKCommandListSetRootSignature(VKCommandList self, VKRootSignature root_signature);
+
+/**
+ * @brief Sets the primitive topology. Detemines how vertices shall be processed.
+ * @param self valid handle to the CommandList
+ * @param topology The primitive topology to set.
+ * */
+WISDOM_API void VKCommandListIASetPrimitiveTopology(VKCommandList self, WisPrimitiveTopology topology);
+
+/**
+ * @brief Sets the vertex buffers.
+ * @param self valid handle to the CommandList
+ * @param resources The vertex buffers to set.
+ * @param count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ * */
+WISDOM_API void VKCommandListIASetVertexBuffers(VKCommandList self, const VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot);
+
+/**
+ * @brief Sets the index buffer.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+WISDOM_API void VKCommandListIASetIndexBuffer(VKCommandList self, VKBuffer buffer, WisIndexType type, uint64_t offset);
+
+/**
+ * @brief Sets the index buffer.
+ * You may provide the offset in the buffer to take only a range of the buffer.
+ * Requires DeviceFeatureAdvancedIndexBuffer to be supported.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param size The size of the index buffer in bytes.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+WISDOM_API void VKCommandListIASetIndexBuffer2(VKCommandList self, VKBuffer buffer, WisIndexType type, uint32_t size, uint64_t offset);
+
+/**
+ * @brief Sets the viewport.
+ * @param self valid handle to the CommandList
+ * @param viewport The viewport to set.
+ * */
+WISDOM_API void VKCommandListRSSetViewport(VKCommandList self, WisViewport viewport);
+
+/**
+ * @brief Sets multiple viewports.
+ * @param self valid handle to the CommandList
+ * @param viewports The viewports to set.
+ * @param count The number of viewports to set.
+ * */
+WISDOM_API void VKCommandListRSSetViewports(VKCommandList self, const WisViewport* viewports, uint32_t count);
+
+/**
+ * @brief Sets the scissor rect.
+ * @param self valid handle to the CommandList
+ * @param scissor The scissor to set.
+ * */
+WISDOM_API void VKCommandListRSSetScissor(VKCommandList self, WisScissor scissor);
+
+/**
+ * @brief Sets multiple scissor rects.
+ * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+ * Otherwise the first is chosen.
+ * @param self valid handle to the CommandList
+ * @param scissors The scissors to set.
+ * @param count The number of scissors to set.
+ * */
+WISDOM_API void VKCommandListRSSetScissors(VKCommandList self, const WisScissor* scissors, uint32_t count);
+
+/**
+ * @brief Draws indexed instanced geometry.
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_index The index of the first vertex to draw. Default is 0.
+ * @param base_vertex The index of the first vertex to start drawing from. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+WISDOM_API void VKCommandListDrawIndexedInstanced(VKCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_index, uint32_t base_vertex, uint32_t start_instance);
+
+/**
+ * @brief Draws instanced geometry. (Without indexing)
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_vertex The index of the first vertex to draw. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+WISDOM_API void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance);
+
+/**
+ * @brief Sets the root constants for the shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * @param stage The shader stages to set the root constants for.
+ * */
+WISDOM_API void VKCommandListSetRootConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+
+/**
+ * @brief Sets the root descriptor tables for the shader.
+ * Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often.
+ * @param self valid handle to the CommandList
+ * @param buffers The descriptor buffers to set the root descriptor tables with.
+ * May only be one of each type (one Descriptor and one Sampler buffer)
+ * @param buffer_count The number of descriptor buffers to set. May be 1 or 2.
+ * */
+WISDOM_API void VKCommandListSetDescriptorBuffers(VKCommandList self, const VKDescriptorBufferView* buffers, uint32_t buffer_count);
+
+/**
+ * @brief Sets the offset in the descriptor table for the descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_table_index The index of the root table to set the offset for.
+ * @param buffer The descriptor buffer to set the offset for.
+ * @param offset_bytes The offset in the descriptor buffer in bytes.
+ * */
+WISDOM_API void VKCommandListSetDescriptorTableOffset(VKCommandList self, uint32_t root_table_index, VKDescriptorBuffer buffer, uint32_t offset_bytes);
+
+// VKMemory methods --
+/**
+ * @brief Destroys the VKMemory.
+ * @param self valid handle to the Memory
+ * */
+WISDOM_API void VKMemoryDestroy(VKMemory self);
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+WISDOM_API uint64_t VKMemoryGetBlockOffset(VKMemory self);
+
+// VKSwapChain methods --
+/**
+ * @brief Destroys the VKSwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API void VKSwapChainDestroy(VKSwapChain self);
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+WISDOM_API uint32_t VKSwapChainGetCurrentIndex(VKSwapChain self);
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+WISDOM_API bool VKSwapChainStereoSupported(VKSwapChain self);
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+WISDOM_API WisResult VKSwapChainResize(VKSwapChain self, uint32_t width, uint32_t height);
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API WisResult VKSwapChainPresent(VKSwapChain self);
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to VKSwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+WISDOM_API WisResult VKSwapChainPresent2(VKSwapChain self, bool in_vsync);
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+WISDOM_API uint32_t VKSwapChainGetBuffers(VKSwapChain self, const VKTexture** buffers);
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult VKSwapChainWaitForPresent(VKSwapChain self, uint64_t timeout_ns);
+
+// VKBuffer methods --
+/**
+ * @brief Destroys the VKBuffer.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void VKBufferDestroy(VKBuffer self);
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+WISDOM_API void* VKBufferMapRaw(VKBuffer self);
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void VKBufferUnmap(VKBuffer self);
+
+// VKTexture methods --
+/**
+ * @brief Destroys the VKTexture.
+ * @param self valid handle to the Texture
+ * */
+WISDOM_API void VKTextureDestroy(VKTexture self);
+
+// VKRootSignature methods --
+/**
+ * @brief Destroys the VKRootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+WISDOM_API void VKRootSignatureDestroy(VKRootSignature self);
+
+// VKShader methods --
+/**
+ * @brief Destroys the VKShader.
+ * @param self valid handle to the Shader
+ * */
+WISDOM_API void VKShaderDestroy(VKShader self);
 
 // VKDebugMessenger methods --
 /**
@@ -2345,6 +2828,27 @@ WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, V
  * @param self valid handle to the DebugMessenger
  * */
 WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
+
+// VKRenderTarget methods --
+/**
+ * @brief Destroys the VKRenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
+
+// VKSampler methods --
+/**
+ * @brief Destroys the VKSampler.
+ * @param self valid handle to the Sampler
+ * */
+WISDOM_API void VKSamplerDestroy(VKSampler self);
+
+// VKShaderResource methods --
+/**
+ * @brief Destroys the VKShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
 
 //-------------------------------------------------------------------------
 
@@ -2385,7 +2889,6 @@ WISDOM_API VKCommandListView AsVKCommandListView(VKCommandList self);
 WISDOM_API VKShaderView AsVKShaderView(VKShader self);
 WISDOM_API VKRootSignatureView AsVKRootSignatureView(VKRootSignature self);
 WISDOM_API VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self);
-WISDOM_API VKMemoryView AsVKMemoryView(VKMemory self);
 #endif
 
 #ifdef WISDOM_DX12
@@ -2400,7 +2903,6 @@ typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12DescriptorBufferView DX12DescriptorBufferView;
 typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
-typedef struct DX12MemoryView DX12MemoryView;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
@@ -2440,11 +2942,6 @@ struct DX12RootSignatureView {
 
 struct DX12DescriptorBufferView {
     void* value;
-};
-
-struct DX12MemoryView {
-    void* value1;
-    void* value2;
 };
 
 /**
@@ -2535,28 +3032,60 @@ struct DX12VertexBufferBinding {
 //-------------------------------------------------------------------------
 
 typedef struct DX12CommandQueue_t* DX12CommandQueue;
-typedef struct DX12RootSignature_t* DX12RootSignature;
 typedef struct DX12Factory_t* DX12Factory;
 typedef struct DX12DeviceExtension_t* DX12DeviceExtension;
 typedef struct DX12PipelineState_t* DX12PipelineState;
 typedef struct DX12Adapter_t* DX12Adapter;
 typedef struct DX12Device_t* DX12Device;
+typedef struct DX12DescriptorBuffer_t* DX12DescriptorBuffer;
 typedef struct DX12FactoryExtension_t* DX12FactoryExtension;
 typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
 typedef struct DX12Fence_t* DX12Fence;
-typedef struct DX12Shader_t* DX12Shader;
 typedef struct DX12CommandList_t* DX12CommandList;
+typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12SwapChain_t* DX12SwapChain;
 typedef struct DX12Buffer_t* DX12Buffer;
 typedef struct DX12Texture_t* DX12Texture;
+typedef struct DX12RootSignature_t* DX12RootSignature;
+typedef struct DX12Shader_t* DX12Shader;
 typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
-typedef struct DX12DescriptorBuffer_t* DX12DescriptorBuffer;
 typedef struct DX12Sampler_t* DX12Sampler;
-typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
 
 //-------------------------------------------------------------------------
+
+// DX12CommandQueue methods --
+/**
+ * @brief Destroys the DX12CommandQueue.
+ * @param self valid handle to the CommandQueue
+ * */
+WISDOM_API void DX12CommandQueueDestroy(DX12CommandQueue self);
+
+/**
+ * @brief Executes the command lists.
+ * @param self valid handle to the CommandQueue
+ * @param lists The command lists to execute.
+ * @param count The number of command lists to execute.
+ * */
+WISDOM_API void DX12CommandQueueExecuteCommandLists(DX12CommandQueue self, const DX12CommandListView* lists, uint32_t count);
+
+/**
+ * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to signal.
+ * @param value The value to signal the fence with.
+ * */
+WISDOM_API WisResult DX12CommandQueueSignalQueue(DX12CommandQueue self, DX12Fence fence, uint64_t value);
+
+/**
+ * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+ * Can still be enqueued after the signal.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to wait on.
+ * @param value The value to wait the fence to reach.
+ * */
+WISDOM_API WisResult DX12CommandQueueWaitQueue(DX12CommandQueue self, DX12Fence fence, uint64_t value);
 
 // DX12Factory methods --
 /**
@@ -2577,6 +3106,13 @@ WISDOM_API void DX12FactoryDestroy(DX12Factory self);
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult DX12FactoryGetAdapter(DX12Factory self, uint32_t index, WisAdapterPreference preference, DX12Adapter* adapter);
+
+// DX12PipelineState methods --
+/**
+ * @brief Destroys the DX12PipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+WISDOM_API void DX12PipelineStateDestroy(DX12PipelineState self);
 
 // DX12Adapter methods --
 /**
@@ -2695,13 +3231,13 @@ WISDOM_API WisResult DX12DeviceCreateAllocator(DX12Device self, DX12ResourceAllo
 /**
  * @brief Creates a render target object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the render target with.
+ * @param texture The texture to create the render target with.
  * @param desc The description of the render target to create.
  * @param target DX12RenderTarget on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12TextureView texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
+WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12Texture texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
 
 /**
  * @brief Creates a sampler object.
@@ -2716,13 +3252,13 @@ WISDOM_API WisResult DX12DeviceCreateSampler(DX12Device self, const WisSamplerDe
 /**
  * @brief Creates a shader resource object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the shader resource with.
+ * @param texture The texture to create the shader resource with.
  * @param desc The description of the shader resource to create.
  * @param resource DX12ShaderResource on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12TextureView texture, WisShaderResourceDesc desc, DX12ShaderResource* resource);
+WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture texture, WisShaderResourceDesc desc, DX12ShaderResource* resource);
 
 /**
  * @brief Returns the alignment of the descriptor table in bytes.
@@ -2764,6 +3300,81 @@ WISDOM_API WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescri
  * @return true if feature is supported. false otherwise.
  * */
 WISDOM_API bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature feature);
+
+// DX12DescriptorBuffer methods --
+/**
+ * @brief Destroys the DX12DescriptorBuffer.
+ * @param self valid handle to the DescriptorBuffer
+ * */
+WISDOM_API void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self);
+
+/**
+ * @brief Writes the sampler to the sampler descriptor buffer.
+ * Must be called with Sampler descriptor buffer, which was created with DescriptorHeapTypeSampler.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with DX12Device.
+ * @param index Binding index in descriptor table.
+ * @param sampler The sampler to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t DX12DescriptorBufferWriteSampler(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Sampler sampler);
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with DX12Device.
+ * @param index Binding index in descriptor table.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t DX12DescriptorBufferWriteShaderResource2(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12ShaderResource resource);
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * Must be called with Constant Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with DX12Device.
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t DX12DescriptorBufferWriteConstantBuffer2(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Buffer buffer, uint32_t buffer_size);
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with DX12Device.
+ * @param root_table_index Index of the descriptor table in DX12RootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t DX12DescriptorBufferWriteShaderResource(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, DX12RootSignature root_signature, DX12ShaderResource resource);
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with DX12Device.
+ * @param root_table_index Index of the descriptor table in DX12RootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+WISDOM_API uint64_t DX12DescriptorBufferWriteConstantBuffer(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, DX12RootSignature root_signature, DX12Buffer buffer, uint32_t buffer_size);
 
 // DX12ResourceAllocator methods --
 /**
@@ -2848,7 +3459,7 @@ WISDOM_API WisResult DX12ResourceAllocatorAllocateBufferMemory(DX12ResourceAlloc
  * Equivalent to creating aliasing resource.
  * Note, the resulting buffer must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the buffer to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the buffer to.
  * @param size The size of the buffer to bind.
  * @param usage The usage of the buffer.
@@ -2856,21 +3467,396 @@ WISDOM_API WisResult DX12ResourceAllocatorAllocateBufferMemory(DX12ResourceAlloc
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, DX12Buffer* buffer);
+WISDOM_API WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self, DX12Memory memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, DX12Buffer* buffer);
 
 /**
  * @brief Creates texture with provided memory.
  * Equivalent to creating aliasing resource.
  * Note, the resulting Texture must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the texture to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the texture to.
  * @param desc The description of the texture to create.
  * @param texture DX12Texture on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12MemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture);
+WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12Memory memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture);
+
+// DX12Fence methods --
+/**
+ * @brief Destroys the DX12Fence.
+ * @param self valid handle to the Fence
+ * */
+WISDOM_API void DX12FenceDestroy(DX12Fence self);
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+WISDOM_API uint64_t DX12FenceGetCompletedValue(DX12Fence self);
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult DX12FenceWait(DX12Fence self, uint64_t value, uint64_t wait_ns);
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+WISDOM_API WisResult DX12FenceSignal(DX12Fence self, uint64_t value);
+
+// DX12CommandList methods --
+/**
+ * @brief Destroys the DX12CommandList.
+ * @param self valid handle to the CommandList
+ * */
+WISDOM_API void DX12CommandListDestroy(DX12CommandList self);
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+WISDOM_API bool DX12CommandListClosed(DX12CommandList self);
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+WISDOM_API bool DX12CommandListClose(DX12CommandList self);
+
+/**
+ * @brief Resets the command list for recording.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * */
+WISDOM_API WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineState pipeline);
+
+/**
+ * @brief Copies data from one buffer to another.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param region The region to copy.
+ * */
+WISDOM_API void DX12CommandListCopyBuffer(DX12CommandList self, DX12Buffer source, DX12Buffer destination, WisBufferRegion region);
+
+/**
+ * @brief Copies data from buffer to texture.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void DX12CommandListCopyBufferToTexture(DX12CommandList self, DX12Buffer source, DX12Texture destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
+
+/**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void DX12CommandListCopyTextureToBuffer(DX12CommandList self, DX12Texture source, DX12Buffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
+
+/**
+ * @brief Sets the barrier on the buffer.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param buffer The buffer to set the barrier on.
+ * */
+WISDOM_API void DX12CommandListBufferBarrier(DX12CommandList self, WisBufferBarrier barrier, DX12Buffer buffer);
+
+/**
+ * @brief Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+WISDOM_API void DX12CommandListBufferBarriers(DX12CommandList self, const DX12BufferBarrier2* barriers, uint32_t barrier_count);
+
+/**
+ * @brief Sets the barrier on the texture.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param texture The texture to set the barrier on.
+ * */
+WISDOM_API void DX12CommandListTextureBarrier(DX12CommandList self, WisTextureBarrier barrier, DX12Texture texture);
+
+/**
+ * @brief Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+WISDOM_API void DX12CommandListTextureBarriers(DX12CommandList self, const DX12TextureBarrier2* barriers, uint32_t barrier_count);
+
+/**
+ * @brief Begins the render pass.
+ * @param self valid handle to the CommandList
+ * @param pass_desc The description of the render pass to begin.
+ * */
+WISDOM_API void DX12CommandListBeginRenderPass(DX12CommandList self, const DX12RenderPassDesc* pass_desc);
+
+/**
+ * @brief Ends the render pass.
+ * @param self valid handle to the CommandList
+ * */
+WISDOM_API void DX12CommandListEndRenderPass(DX12CommandList self);
+
+/**
+ * @brief Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+WISDOM_API void DX12CommandListSetRootSignature(DX12CommandList self, DX12RootSignature root_signature);
+
+/**
+ * @brief Sets the primitive topology. Detemines how vertices shall be processed.
+ * @param self valid handle to the CommandList
+ * @param topology The primitive topology to set.
+ * */
+WISDOM_API void DX12CommandListIASetPrimitiveTopology(DX12CommandList self, WisPrimitiveTopology topology);
+
+/**
+ * @brief Sets the vertex buffers.
+ * @param self valid handle to the CommandList
+ * @param resources The vertex buffers to set.
+ * @param count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ * */
+WISDOM_API void DX12CommandListIASetVertexBuffers(DX12CommandList self, const DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot);
+
+/**
+ * @brief Sets the index buffer.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+WISDOM_API void DX12CommandListIASetIndexBuffer(DX12CommandList self, DX12Buffer buffer, WisIndexType type, uint64_t offset);
+
+/**
+ * @brief Sets the index buffer.
+ * You may provide the offset in the buffer to take only a range of the buffer.
+ * Requires DeviceFeatureAdvancedIndexBuffer to be supported.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param size The size of the index buffer in bytes.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+WISDOM_API void DX12CommandListIASetIndexBuffer2(DX12CommandList self, DX12Buffer buffer, WisIndexType type, uint32_t size, uint64_t offset);
+
+/**
+ * @brief Sets the viewport.
+ * @param self valid handle to the CommandList
+ * @param viewport The viewport to set.
+ * */
+WISDOM_API void DX12CommandListRSSetViewport(DX12CommandList self, WisViewport viewport);
+
+/**
+ * @brief Sets multiple viewports.
+ * @param self valid handle to the CommandList
+ * @param viewports The viewports to set.
+ * @param count The number of viewports to set.
+ * */
+WISDOM_API void DX12CommandListRSSetViewports(DX12CommandList self, const WisViewport* viewports, uint32_t count);
+
+/**
+ * @brief Sets the scissor rect.
+ * @param self valid handle to the CommandList
+ * @param scissor The scissor to set.
+ * */
+WISDOM_API void DX12CommandListRSSetScissor(DX12CommandList self, WisScissor scissor);
+
+/**
+ * @brief Sets multiple scissor rects.
+ * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+ * Otherwise the first is chosen.
+ * @param self valid handle to the CommandList
+ * @param scissors The scissors to set.
+ * @param count The number of scissors to set.
+ * */
+WISDOM_API void DX12CommandListRSSetScissors(DX12CommandList self, const WisScissor* scissors, uint32_t count);
+
+/**
+ * @brief Draws indexed instanced geometry.
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_index The index of the first vertex to draw. Default is 0.
+ * @param base_vertex The index of the first vertex to start drawing from. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+WISDOM_API void DX12CommandListDrawIndexedInstanced(DX12CommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_index, uint32_t base_vertex, uint32_t start_instance);
+
+/**
+ * @brief Draws instanced geometry. (Without indexing)
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_vertex The index of the first vertex to draw. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+WISDOM_API void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance);
+
+/**
+ * @brief Sets the root constants for the shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * @param stage The shader stages to set the root constants for.
+ * */
+WISDOM_API void DX12CommandListSetRootConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+
+/**
+ * @brief Sets the root descriptor tables for the shader.
+ * Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often.
+ * @param self valid handle to the CommandList
+ * @param buffers The descriptor buffers to set the root descriptor tables with.
+ * May only be one of each type (one Descriptor and one Sampler buffer)
+ * @param buffer_count The number of descriptor buffers to set. May be 1 or 2.
+ * */
+WISDOM_API void DX12CommandListSetDescriptorBuffers(DX12CommandList self, const DX12DescriptorBufferView* buffers, uint32_t buffer_count);
+
+/**
+ * @brief Sets the offset in the descriptor table for the descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_table_index The index of the root table to set the offset for.
+ * @param buffer The descriptor buffer to set the offset for.
+ * @param offset_bytes The offset in the descriptor buffer in bytes.
+ * */
+WISDOM_API void DX12CommandListSetDescriptorTableOffset(DX12CommandList self, uint32_t root_table_index, DX12DescriptorBuffer buffer, uint32_t offset_bytes);
+
+// DX12Memory methods --
+/**
+ * @brief Destroys the DX12Memory.
+ * @param self valid handle to the Memory
+ * */
+WISDOM_API void DX12MemoryDestroy(DX12Memory self);
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+WISDOM_API uint64_t DX12MemoryGetBlockOffset(DX12Memory self);
+
+// DX12SwapChain methods --
+/**
+ * @brief Destroys the DX12SwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API void DX12SwapChainDestroy(DX12SwapChain self);
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+WISDOM_API uint32_t DX12SwapChainGetCurrentIndex(DX12SwapChain self);
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+WISDOM_API bool DX12SwapChainStereoSupported(DX12SwapChain self);
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+WISDOM_API WisResult DX12SwapChainResize(DX12SwapChain self, uint32_t width, uint32_t height);
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API WisResult DX12SwapChainPresent(DX12SwapChain self);
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to DX12SwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+WISDOM_API WisResult DX12SwapChainPresent2(DX12SwapChain self, bool in_vsync);
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+WISDOM_API uint32_t DX12SwapChainGetBuffers(DX12SwapChain self, const DX12Texture** buffers);
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult DX12SwapChainWaitForPresent(DX12SwapChain self, uint64_t timeout_ns);
+
+// DX12Buffer methods --
+/**
+ * @brief Destroys the DX12Buffer.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void DX12BufferDestroy(DX12Buffer self);
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+WISDOM_API void* DX12BufferMapRaw(DX12Buffer self);
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void DX12BufferUnmap(DX12Buffer self);
+
+// DX12Texture methods --
+/**
+ * @brief Destroys the DX12Texture.
+ * @param self valid handle to the Texture
+ * */
+WISDOM_API void DX12TextureDestroy(DX12Texture self);
+
+// DX12RootSignature methods --
+/**
+ * @brief Destroys the DX12RootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+WISDOM_API void DX12RootSignatureDestroy(DX12RootSignature self);
+
+// DX12Shader methods --
+/**
+ * @brief Destroys the DX12Shader.
+ * @param self valid handle to the Shader
+ * */
+WISDOM_API void DX12ShaderDestroy(DX12Shader self);
 
 // DX12DebugMessenger methods --
 /**
@@ -2878,6 +3864,27 @@ WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator sel
  * @param self valid handle to the DebugMessenger
  * */
 WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
+
+// DX12RenderTarget methods --
+/**
+ * @brief Destroys the DX12RenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
+
+// DX12Sampler methods --
+/**
+ * @brief Destroys the DX12Sampler.
+ * @param self valid handle to the Sampler
+ * */
+WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
+
+// DX12ShaderResource methods --
+/**
+ * @brief Destroys the DX12ShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
 
 //-------------------------------------------------------------------------
 
@@ -2918,7 +3925,6 @@ WISDOM_API DX12CommandListView AsDX12CommandListView(DX12CommandList self);
 WISDOM_API DX12ShaderView AsDX12ShaderView(DX12Shader self);
 WISDOM_API DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self);
 WISDOM_API DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self);
-WISDOM_API DX12MemoryView AsDX12MemoryView(DX12Memory self);
 #endif
 
 #if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
@@ -2929,25 +3935,25 @@ WISDOM_API DX12MemoryView AsDX12MemoryView(DX12Memory self);
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 typedef DX12CommandQueue WisCommandQueue;
-typedef DX12RootSignature WisRootSignature;
 typedef DX12Factory WisFactory;
 typedef DX12DeviceExtension WisDeviceExtension;
 typedef DX12PipelineState WisPipelineState;
 typedef DX12Adapter WisAdapter;
 typedef DX12Device WisDevice;
+typedef DX12DescriptorBuffer WisDescriptorBuffer;
 typedef DX12FactoryExtension WisFactoryExtension;
 typedef DX12ResourceAllocator WisResourceAllocator;
 typedef DX12Fence WisFence;
-typedef DX12Shader WisShader;
 typedef DX12CommandList WisCommandList;
+typedef DX12Memory WisMemory;
 typedef DX12SwapChain WisSwapChain;
 typedef DX12Buffer WisBuffer;
 typedef DX12Texture WisTexture;
+typedef DX12RootSignature WisRootSignature;
+typedef DX12Shader WisShader;
 typedef DX12DebugMessenger WisDebugMessenger;
 typedef DX12RenderTarget WisRenderTarget;
-typedef DX12DescriptorBuffer WisDescriptorBuffer;
 typedef DX12Sampler WisSampler;
-typedef DX12Memory WisMemory;
 typedef DX12ShaderResource WisShaderResource;
 typedef DX12FenceView WisFenceView;
 typedef DX12BufferView WisBufferView;
@@ -2957,7 +3963,6 @@ typedef DX12CommandListView WisCommandListView;
 typedef DX12ShaderView WisShaderView;
 typedef DX12RootSignatureView WisRootSignatureView;
 typedef DX12DescriptorBufferView WisDescriptorBufferView;
-typedef DX12MemoryView WisMemoryView;
 typedef DX12BufferBarrier2 WisBufferBarrier2;
 typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
@@ -2968,6 +3973,50 @@ typedef DX12RenderPassDesc WisRenderPassDesc;
 typedef DX12VertexBufferBinding WisVertexBufferBinding;
 
 //-------------------------------------------------------------------------
+
+// WisCommandQueue methods --
+/**
+ * @brief Destroys the WisCommandQueue.
+ * @param self valid handle to the CommandQueue
+ * */
+inline void WisCommandQueueDestroy(WisCommandQueue self)
+{
+    return DX12CommandQueueDestroy(self);
+}
+
+/**
+ * @brief Executes the command lists.
+ * @param self valid handle to the CommandQueue
+ * @param lists The command lists to execute.
+ * @param count The number of command lists to execute.
+ * */
+inline void WisCommandQueueExecuteCommandLists(WisCommandQueue self, const WisCommandListView* lists, uint32_t count)
+{
+    return DX12CommandQueueExecuteCommandLists(self, lists, count);
+}
+
+/**
+ * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to signal.
+ * @param value The value to signal the fence with.
+ * */
+inline WisResult WisCommandQueueSignalQueue(WisCommandQueue self, WisFence fence, uint64_t value)
+{
+    return DX12CommandQueueSignalQueue(self, fence, value);
+}
+
+/**
+ * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+ * Can still be enqueued after the signal.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to wait on.
+ * @param value The value to wait the fence to reach.
+ * */
+inline WisResult WisCommandQueueWaitQueue(WisCommandQueue self, WisFence fence, uint64_t value)
+{
+    return DX12CommandQueueWaitQueue(self, fence, value);
+}
 
 // WisFactory methods --
 /**
@@ -2993,6 +4042,16 @@ inline void WisFactoryDestroy(WisFactory self)
 inline WisResult WisFactoryGetAdapter(WisFactory self, uint32_t index, WisAdapterPreference preference, WisAdapter* adapter)
 {
     return DX12FactoryGetAdapter(self, index, preference, adapter);
+}
+
+// WisPipelineState methods --
+/**
+ * @brief Destroys the WisPipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+inline void WisPipelineStateDestroy(WisPipelineState self)
+{
+    return DX12PipelineStateDestroy(self);
 }
 
 // WisAdapter methods --
@@ -3145,13 +4204,13 @@ inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* 
 /**
  * @brief Creates a render target object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the render target with.
+ * @param texture The texture to create the render target with.
  * @param desc The description of the render target to create.
  * @param target WisRenderTarget on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTextureView texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
 {
     return DX12DeviceCreateRenderTarget(self, texture, desc, target);
 }
@@ -3172,13 +4231,13 @@ inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* de
 /**
  * @brief Creates a shader resource object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the shader resource with.
+ * @param texture The texture to create the shader resource with.
  * @param desc The description of the shader resource to create.
  * @param resource WisShaderResource on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTextureView texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture texture, WisShaderResourceDesc desc, WisShaderResource* resource)
 {
     return DX12DeviceCreateShaderResource(self, texture, desc, resource);
 }
@@ -3234,6 +4293,99 @@ inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHe
 inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
 {
     return DX12DeviceQueryFeatureSupport(self, feature);
+}
+
+// WisDescriptorBuffer methods --
+/**
+ * @brief Destroys the WisDescriptorBuffer.
+ * @param self valid handle to the DescriptorBuffer
+ * */
+inline void WisDescriptorBufferDestroy(WisDescriptorBuffer self)
+{
+    return DX12DescriptorBufferDestroy(self);
+}
+
+/**
+ * @brief Writes the sampler to the sampler descriptor buffer.
+ * Must be called with Sampler descriptor buffer, which was created with DescriptorHeapTypeSampler.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param index Binding index in descriptor table.
+ * @param sampler The sampler to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteSampler(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisSampler sampler)
+{
+    return DX12DescriptorBufferWriteSampler(self, aligned_table_offset, index, sampler);
+}
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param index Binding index in descriptor table.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteShaderResource2(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisShaderResource resource)
+{
+    return DX12DescriptorBufferWriteShaderResource2(self, aligned_table_offset, index, resource);
+}
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * Must be called with Constant Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteConstantBuffer2(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t buffer_size)
+{
+    return DX12DescriptorBufferWriteConstantBuffer2(self, aligned_table_offset, index, buffer, buffer_size);
+}
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param root_table_index Index of the descriptor table in WisRootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, WisRootSignature root_signature, WisShaderResource resource)
+{
+    return DX12DescriptorBufferWriteShaderResource(self, aligned_table_offset, root_table_index, binding, array_member, root_signature, resource);
+}
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param root_table_index Index of the descriptor table in WisRootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteConstantBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, WisRootSignature root_signature, WisBuffer buffer, uint32_t buffer_size)
+{
+    return DX12DescriptorBufferWriteConstantBuffer(self, aligned_table_offset, root_table_index, binding, array_member, root_signature, buffer, buffer_size);
 }
 
 // WisResourceAllocator methods --
@@ -3340,7 +4492,7 @@ inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator s
  * Equivalent to creating aliasing resource.
  * Note, the resulting buffer must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the buffer to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the buffer to.
  * @param size The size of the buffer to bind.
  * @param usage The usage of the buffer.
@@ -3348,7 +4500,7 @@ inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator s
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
+inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemory memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
 {
     return DX12ResourceAllocatorPlaceBuffer(self, memory, memory_offset, size, usage, buffer);
 }
@@ -3358,16 +4510,532 @@ inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisM
  * Equivalent to creating aliasing resource.
  * Note, the resulting Texture must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the texture to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the texture to.
  * @param desc The description of the texture to create.
  * @param texture WisTexture on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
+inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemory memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
 {
     return DX12ResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
+}
+
+// WisFence methods --
+/**
+ * @brief Destroys the WisFence.
+ * @param self valid handle to the Fence
+ * */
+inline void WisFenceDestroy(WisFence self)
+{
+    return DX12FenceDestroy(self);
+}
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+inline uint64_t WisFenceGetCompletedValue(WisFence self)
+{
+    return DX12FenceGetCompletedValue(self);
+}
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisFenceWait(WisFence self, uint64_t value, uint64_t wait_ns)
+{
+    return DX12FenceWait(self, value, wait_ns);
+}
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+inline WisResult WisFenceSignal(WisFence self, uint64_t value)
+{
+    return DX12FenceSignal(self, value);
+}
+
+// WisCommandList methods --
+/**
+ * @brief Destroys the WisCommandList.
+ * @param self valid handle to the CommandList
+ * */
+inline void WisCommandListDestroy(WisCommandList self)
+{
+    return DX12CommandListDestroy(self);
+}
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+inline bool WisCommandListClosed(WisCommandList self)
+{
+    return DX12CommandListClosed(self);
+}
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+inline bool WisCommandListClose(WisCommandList self)
+{
+    return DX12CommandListClose(self);
+}
+
+/**
+ * @brief Resets the command list for recording.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * */
+inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState pipeline)
+{
+    return DX12CommandListReset(self, pipeline);
+}
+
+/**
+ * @brief Copies data from one buffer to another.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param region The region to copy.
+ * */
+inline void WisCommandListCopyBuffer(WisCommandList self, WisBuffer source, WisBuffer destination, WisBufferRegion region)
+{
+    return DX12CommandListCopyBuffer(self, source, destination, region);
+}
+
+/**
+ * @brief Copies data from buffer to texture.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyBufferToTexture(WisCommandList self, WisBuffer source, WisTexture destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count)
+{
+    return DX12CommandListCopyBufferToTexture(self, source, destination, regions, region_count);
+}
+
+/**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture source, WisBuffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count)
+{
+    return DX12CommandListCopyTextureToBuffer(self, source, destination, regions, region_count);
+}
+
+/**
+ * @brief Sets the barrier on the buffer.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param buffer The buffer to set the barrier on.
+ * */
+inline void WisCommandListBufferBarrier(WisCommandList self, WisBufferBarrier barrier, WisBuffer buffer)
+{
+    return DX12CommandListBufferBarrier(self, barrier, buffer);
+}
+
+/**
+ * @brief Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+inline void WisCommandListBufferBarriers(WisCommandList self, const WisBufferBarrier2* barriers, uint32_t barrier_count)
+{
+    return DX12CommandListBufferBarriers(self, barriers, barrier_count);
+}
+
+/**
+ * @brief Sets the barrier on the texture.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param texture The texture to set the barrier on.
+ * */
+inline void WisCommandListTextureBarrier(WisCommandList self, WisTextureBarrier barrier, WisTexture texture)
+{
+    return DX12CommandListTextureBarrier(self, barrier, texture);
+}
+
+/**
+ * @brief Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+inline void WisCommandListTextureBarriers(WisCommandList self, const WisTextureBarrier2* barriers, uint32_t barrier_count)
+{
+    return DX12CommandListTextureBarriers(self, barriers, barrier_count);
+}
+
+/**
+ * @brief Begins the render pass.
+ * @param self valid handle to the CommandList
+ * @param pass_desc The description of the render pass to begin.
+ * */
+inline void WisCommandListBeginRenderPass(WisCommandList self, const WisRenderPassDesc* pass_desc)
+{
+    return DX12CommandListBeginRenderPass(self, pass_desc);
+}
+
+/**
+ * @brief Ends the render pass.
+ * @param self valid handle to the CommandList
+ * */
+inline void WisCommandListEndRenderPass(WisCommandList self)
+{
+    return DX12CommandListEndRenderPass(self);
+}
+
+/**
+ * @brief Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+inline void WisCommandListSetRootSignature(WisCommandList self, WisRootSignature root_signature)
+{
+    return DX12CommandListSetRootSignature(self, root_signature);
+}
+
+/**
+ * @brief Sets the primitive topology. Detemines how vertices shall be processed.
+ * @param self valid handle to the CommandList
+ * @param topology The primitive topology to set.
+ * */
+inline void WisCommandListIASetPrimitiveTopology(WisCommandList self, WisPrimitiveTopology topology)
+{
+    return DX12CommandListIASetPrimitiveTopology(self, topology);
+}
+
+/**
+ * @brief Sets the vertex buffers.
+ * @param self valid handle to the CommandList
+ * @param resources The vertex buffers to set.
+ * @param count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ * */
+inline void WisCommandListIASetVertexBuffers(WisCommandList self, const WisVertexBufferBinding* resources, uint32_t count, uint32_t start_slot)
+{
+    return DX12CommandListIASetVertexBuffers(self, resources, count, start_slot);
+}
+
+/**
+ * @brief Sets the index buffer.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+inline void WisCommandListIASetIndexBuffer(WisCommandList self, WisBuffer buffer, WisIndexType type, uint64_t offset)
+{
+    return DX12CommandListIASetIndexBuffer(self, buffer, type, offset);
+}
+
+/**
+ * @brief Sets the index buffer.
+ * You may provide the offset in the buffer to take only a range of the buffer.
+ * Requires DeviceFeatureAdvancedIndexBuffer to be supported.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param size The size of the index buffer in bytes.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+inline void WisCommandListIASetIndexBuffer2(WisCommandList self, WisBuffer buffer, WisIndexType type, uint32_t size, uint64_t offset)
+{
+    return DX12CommandListIASetIndexBuffer2(self, buffer, type, size, offset);
+}
+
+/**
+ * @brief Sets the viewport.
+ * @param self valid handle to the CommandList
+ * @param viewport The viewport to set.
+ * */
+inline void WisCommandListRSSetViewport(WisCommandList self, WisViewport viewport)
+{
+    return DX12CommandListRSSetViewport(self, viewport);
+}
+
+/**
+ * @brief Sets multiple viewports.
+ * @param self valid handle to the CommandList
+ * @param viewports The viewports to set.
+ * @param count The number of viewports to set.
+ * */
+inline void WisCommandListRSSetViewports(WisCommandList self, const WisViewport* viewports, uint32_t count)
+{
+    return DX12CommandListRSSetViewports(self, viewports, count);
+}
+
+/**
+ * @brief Sets the scissor rect.
+ * @param self valid handle to the CommandList
+ * @param scissor The scissor to set.
+ * */
+inline void WisCommandListRSSetScissor(WisCommandList self, WisScissor scissor)
+{
+    return DX12CommandListRSSetScissor(self, scissor);
+}
+
+/**
+ * @brief Sets multiple scissor rects.
+ * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+ * Otherwise the first is chosen.
+ * @param self valid handle to the CommandList
+ * @param scissors The scissors to set.
+ * @param count The number of scissors to set.
+ * */
+inline void WisCommandListRSSetScissors(WisCommandList self, const WisScissor* scissors, uint32_t count)
+{
+    return DX12CommandListRSSetScissors(self, scissors, count);
+}
+
+/**
+ * @brief Draws indexed instanced geometry.
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_index The index of the first vertex to draw. Default is 0.
+ * @param base_vertex The index of the first vertex to start drawing from. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+inline void WisCommandListDrawIndexedInstanced(WisCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_index, uint32_t base_vertex, uint32_t start_instance)
+{
+    return DX12CommandListDrawIndexedInstanced(self, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
+}
+
+/**
+ * @brief Draws instanced geometry. (Without indexing)
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_vertex The index of the first vertex to draw. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance)
+{
+    return DX12CommandListDrawInstanced(self, vertex_count_per_instance, instance_count, start_vertex, start_instance);
+}
+
+/**
+ * @brief Sets the root constants for the shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * @param stage The shader stages to set the root constants for.
+ * */
+inline void WisCommandListSetRootConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
+{
+    return DX12CommandListSetRootConstants(self, data, size_4bytes, offset_4bytes, stage);
+}
+
+/**
+ * @brief Sets the root descriptor tables for the shader.
+ * Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often.
+ * @param self valid handle to the CommandList
+ * @param buffers The descriptor buffers to set the root descriptor tables with.
+ * May only be one of each type (one Descriptor and one Sampler buffer)
+ * @param buffer_count The number of descriptor buffers to set. May be 1 or 2.
+ * */
+inline void WisCommandListSetDescriptorBuffers(WisCommandList self, const WisDescriptorBufferView* buffers, uint32_t buffer_count)
+{
+    return DX12CommandListSetDescriptorBuffers(self, buffers, buffer_count);
+}
+
+/**
+ * @brief Sets the offset in the descriptor table for the descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_table_index The index of the root table to set the offset for.
+ * @param buffer The descriptor buffer to set the offset for.
+ * @param offset_bytes The offset in the descriptor buffer in bytes.
+ * */
+inline void WisCommandListSetDescriptorTableOffset(WisCommandList self, uint32_t root_table_index, WisDescriptorBuffer buffer, uint32_t offset_bytes)
+{
+    return DX12CommandListSetDescriptorTableOffset(self, root_table_index, buffer, offset_bytes);
+}
+
+// WisMemory methods --
+/**
+ * @brief Destroys the WisMemory.
+ * @param self valid handle to the Memory
+ * */
+inline void WisMemoryDestroy(WisMemory self)
+{
+    return DX12MemoryDestroy(self);
+}
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+inline uint64_t WisMemoryGetBlockOffset(WisMemory self)
+{
+    return DX12MemoryGetBlockOffset(self);
+}
+
+// WisSwapChain methods --
+/**
+ * @brief Destroys the WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+inline void WisSwapChainDestroy(WisSwapChain self)
+{
+    return DX12SwapChainDestroy(self);
+}
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+inline uint32_t WisSwapChainGetCurrentIndex(WisSwapChain self)
+{
+    return DX12SwapChainGetCurrentIndex(self);
+}
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+inline bool WisSwapChainStereoSupported(WisSwapChain self)
+{
+    return DX12SwapChainStereoSupported(self);
+}
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+inline WisResult WisSwapChainResize(WisSwapChain self, uint32_t width, uint32_t height)
+{
+    return DX12SwapChainResize(self, width, height);
+}
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+inline WisResult WisSwapChainPresent(WisSwapChain self)
+{
+    return DX12SwapChainPresent(self);
+}
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+inline WisResult WisSwapChainPresent2(WisSwapChain self, bool in_vsync)
+{
+    return DX12SwapChainPresent2(self, in_vsync);
+}
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+inline uint32_t WisSwapChainGetBuffers(WisSwapChain self, const WisTexture** buffers)
+{
+    return DX12SwapChainGetBuffers(self, buffers);
+}
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisSwapChainWaitForPresent(WisSwapChain self, uint64_t timeout_ns)
+{
+    return DX12SwapChainWaitForPresent(self, timeout_ns);
+}
+
+// WisBuffer methods --
+/**
+ * @brief Destroys the WisBuffer.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferDestroy(WisBuffer self)
+{
+    return DX12BufferDestroy(self);
+}
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+inline void* WisBufferMapRaw(WisBuffer self)
+{
+    return DX12BufferMapRaw(self);
+}
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferUnmap(WisBuffer self)
+{
+    return DX12BufferUnmap(self);
+}
+
+// WisTexture methods --
+/**
+ * @brief Destroys the WisTexture.
+ * @param self valid handle to the Texture
+ * */
+inline void WisTextureDestroy(WisTexture self)
+{
+    return DX12TextureDestroy(self);
+}
+
+// WisRootSignature methods --
+/**
+ * @brief Destroys the WisRootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+inline void WisRootSignatureDestroy(WisRootSignature self)
+{
+    return DX12RootSignatureDestroy(self);
+}
+
+// WisShader methods --
+/**
+ * @brief Destroys the WisShader.
+ * @param self valid handle to the Shader
+ * */
+inline void WisShaderDestroy(WisShader self)
+{
+    return DX12ShaderDestroy(self);
 }
 
 // WisDebugMessenger methods --
@@ -3378,6 +5046,36 @@ inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, Wis
 inline void WisDebugMessengerDestroy(WisDebugMessenger self)
 {
     return DX12DebugMessengerDestroy(self);
+}
+
+// WisRenderTarget methods --
+/**
+ * @brief Destroys the WisRenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+inline void WisRenderTargetDestroy(WisRenderTarget self)
+{
+    return DX12RenderTargetDestroy(self);
+}
+
+// WisSampler methods --
+/**
+ * @brief Destroys the WisSampler.
+ * @param self valid handle to the Sampler
+ * */
+inline void WisSamplerDestroy(WisSampler self)
+{
+    return DX12SamplerDestroy(self);
+}
+
+// WisShaderResource methods --
+/**
+ * @brief Destroys the WisShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+inline void WisShaderResourceDestroy(WisShaderResource self)
+{
+    return DX12ShaderResourceDestroy(self);
 }
 
 //-------------------------------------------------------------------------
@@ -3419,25 +5117,25 @@ inline WisResult WisCreateDevice(WisAdapter adapter, WisDeviceExtQuery* extensio
 #elif defined(WISDOM_VULKAN)
 
 typedef VKCommandQueue WisCommandQueue;
-typedef VKRootSignature WisRootSignature;
 typedef VKFactory WisFactory;
 typedef VKDeviceExtension WisDeviceExtension;
 typedef VKPipelineState WisPipelineState;
 typedef VKAdapter WisAdapter;
 typedef VKDevice WisDevice;
+typedef VKDescriptorBuffer WisDescriptorBuffer;
 typedef VKFactoryExtension WisFactoryExtension;
 typedef VKResourceAllocator WisResourceAllocator;
 typedef VKFence WisFence;
-typedef VKShader WisShader;
 typedef VKCommandList WisCommandList;
+typedef VKMemory WisMemory;
 typedef VKSwapChain WisSwapChain;
 typedef VKBuffer WisBuffer;
 typedef VKTexture WisTexture;
+typedef VKRootSignature WisRootSignature;
+typedef VKShader WisShader;
 typedef VKDebugMessenger WisDebugMessenger;
 typedef VKRenderTarget WisRenderTarget;
-typedef VKDescriptorBuffer WisDescriptorBuffer;
 typedef VKSampler WisSampler;
-typedef VKMemory WisMemory;
 typedef VKShaderResource WisShaderResource;
 typedef VKFenceView WisFenceView;
 typedef VKBufferView WisBufferView;
@@ -3447,7 +5145,6 @@ typedef VKCommandListView WisCommandListView;
 typedef VKShaderView WisShaderView;
 typedef VKRootSignatureView WisRootSignatureView;
 typedef VKDescriptorBufferView WisDescriptorBufferView;
-typedef VKMemoryView WisMemoryView;
 typedef VKBufferBarrier2 WisBufferBarrier2;
 typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;
@@ -3458,6 +5155,50 @@ typedef VKRenderPassDesc WisRenderPassDesc;
 typedef VKVertexBufferBinding WisVertexBufferBinding;
 
 //-------------------------------------------------------------------------
+
+// WisCommandQueue methods --
+/**
+ * @brief Destroys the WisCommandQueue.
+ * @param self valid handle to the CommandQueue
+ * */
+inline void WisCommandQueueDestroy(WisCommandQueue self)
+{
+    return VKCommandQueueDestroy(self);
+}
+
+/**
+ * @brief Executes the command lists.
+ * @param self valid handle to the CommandQueue
+ * @param lists The command lists to execute.
+ * @param count The number of command lists to execute.
+ * */
+inline void WisCommandQueueExecuteCommandLists(WisCommandQueue self, const WisCommandListView* lists, uint32_t count)
+{
+    return VKCommandQueueExecuteCommandLists(self, lists, count);
+}
+
+/**
+ * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to signal.
+ * @param value The value to signal the fence with.
+ * */
+inline WisResult WisCommandQueueSignalQueue(WisCommandQueue self, WisFence fence, uint64_t value)
+{
+    return VKCommandQueueSignalQueue(self, fence, value);
+}
+
+/**
+ * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+ * Can still be enqueued after the signal.
+ * @param self valid handle to the CommandQueue
+ * @param fence The fence to wait on.
+ * @param value The value to wait the fence to reach.
+ * */
+inline WisResult WisCommandQueueWaitQueue(WisCommandQueue self, WisFence fence, uint64_t value)
+{
+    return VKCommandQueueWaitQueue(self, fence, value);
+}
 
 // WisFactory methods --
 /**
@@ -3483,6 +5224,16 @@ inline void WisFactoryDestroy(WisFactory self)
 inline WisResult WisFactoryGetAdapter(WisFactory self, uint32_t index, WisAdapterPreference preference, WisAdapter* adapter)
 {
     return VKFactoryGetAdapter(self, index, preference, adapter);
+}
+
+// WisPipelineState methods --
+/**
+ * @brief Destroys the WisPipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+inline void WisPipelineStateDestroy(WisPipelineState self)
+{
+    return VKPipelineStateDestroy(self);
 }
 
 // WisAdapter methods --
@@ -3635,13 +5386,13 @@ inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* 
 /**
  * @brief Creates a render target object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the render target with.
+ * @param texture The texture to create the render target with.
  * @param desc The description of the render target to create.
  * @param target WisRenderTarget on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTextureView texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
 {
     return VKDeviceCreateRenderTarget(self, texture, desc, target);
 }
@@ -3662,13 +5413,13 @@ inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* de
 /**
  * @brief Creates a shader resource object.
  * @param self valid handle to the Device
- * @param texture The texture view to create the shader resource with.
+ * @param texture The texture to create the shader resource with.
  * @param desc The description of the shader resource to create.
  * @param resource WisShaderResource on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTextureView texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture texture, WisShaderResourceDesc desc, WisShaderResource* resource)
 {
     return VKDeviceCreateShaderResource(self, texture, desc, resource);
 }
@@ -3724,6 +5475,99 @@ inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHe
 inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
 {
     return VKDeviceQueryFeatureSupport(self, feature);
+}
+
+// WisDescriptorBuffer methods --
+/**
+ * @brief Destroys the WisDescriptorBuffer.
+ * @param self valid handle to the DescriptorBuffer
+ * */
+inline void WisDescriptorBufferDestroy(WisDescriptorBuffer self)
+{
+    return VKDescriptorBufferDestroy(self);
+}
+
+/**
+ * @brief Writes the sampler to the sampler descriptor buffer.
+ * Must be called with Sampler descriptor buffer, which was created with DescriptorHeapTypeSampler.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param index Binding index in descriptor table.
+ * @param sampler The sampler to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteSampler(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisSampler sampler)
+{
+    return VKDescriptorBufferWriteSampler(self, aligned_table_offset, index, sampler);
+}
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param index Binding index in descriptor table.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteShaderResource2(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisShaderResource resource)
+{
+    return VKDescriptorBufferWriteShaderResource2(self, aligned_table_offset, index, resource);
+}
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * Must be called with Constant Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * Requires DeviceFeatureDescriptorEqualSize to run, otherwise program is ill-formed.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteConstantBuffer2(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t buffer_size)
+{
+    return VKDescriptorBufferWriteConstantBuffer2(self, aligned_table_offset, index, buffer, buffer_size);
+}
+
+/**
+ * @brief Writes the shader resource to the shader resource descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param root_table_index Index of the descriptor table in WisRootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param resource The shader resource to write.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, WisRootSignature root_signature, WisShaderResource resource)
+{
+    return VKDescriptorBufferWriteShaderResource(self, aligned_table_offset, root_table_index, binding, array_member, root_signature, resource);
+}
+
+/**
+ * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with WisDevice.
+ * @param root_table_index Index of the descriptor table in WisRootSignature
+ * @param binding Binding index in descriptor table.
+ * @param array_member Array member index in the binding.
+ * @param root_signature The root signature to get the binding position from.
+ * @param buffer The buffer to write.
+ * @param buffer_size The size of the buffer in bytes.
+ * @return Byte offset from buffer beginning. May help determine next table address.
+ * */
+inline uint64_t WisDescriptorBufferWriteConstantBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, WisRootSignature root_signature, WisBuffer buffer, uint32_t buffer_size)
+{
+    return VKDescriptorBufferWriteConstantBuffer(self, aligned_table_offset, root_table_index, binding, array_member, root_signature, buffer, buffer_size);
 }
 
 // WisResourceAllocator methods --
@@ -3830,7 +5674,7 @@ inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator s
  * Equivalent to creating aliasing resource.
  * Note, the resulting buffer must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the buffer to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the buffer to.
  * @param size The size of the buffer to bind.
  * @param usage The usage of the buffer.
@@ -3838,7 +5682,7 @@ inline WisResult WisResourceAllocatorAllocateBufferMemory(WisResourceAllocator s
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
+inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisMemory memory, uint64_t memory_offset, uint64_t size, WisBufferUsage usage, WisBuffer* buffer)
 {
     return VKResourceAllocatorPlaceBuffer(self, memory, memory_offset, size, usage, buffer);
 }
@@ -3848,16 +5692,532 @@ inline WisResult WisResourceAllocatorPlaceBuffer(WisResourceAllocator self, WisM
  * Equivalent to creating aliasing resource.
  * Note, the resulting Texture must be destroyed before Memory backing it up.
  * @param self valid handle to the ResourceAllocator
- * @param memory The memory view to bind the texture to.
+ * @param memory The memory to bind the buffer to.
  * @param memory_offset The offset in the memory to bind the texture to.
  * @param desc The description of the texture to create.
  * @param texture WisTexture on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemoryView memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
+inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, WisMemory memory, uint64_t memory_offset, const WisTextureDesc* desc, WisTexture* texture)
 {
     return VKResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
+}
+
+// WisFence methods --
+/**
+ * @brief Destroys the WisFence.
+ * @param self valid handle to the Fence
+ * */
+inline void WisFenceDestroy(WisFence self)
+{
+    return VKFenceDestroy(self);
+}
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+inline uint64_t WisFenceGetCompletedValue(WisFence self)
+{
+    return VKFenceGetCompletedValue(self);
+}
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisFenceWait(WisFence self, uint64_t value, uint64_t wait_ns)
+{
+    return VKFenceWait(self, value, wait_ns);
+}
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+inline WisResult WisFenceSignal(WisFence self, uint64_t value)
+{
+    return VKFenceSignal(self, value);
+}
+
+// WisCommandList methods --
+/**
+ * @brief Destroys the WisCommandList.
+ * @param self valid handle to the CommandList
+ * */
+inline void WisCommandListDestroy(WisCommandList self)
+{
+    return VKCommandListDestroy(self);
+}
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+inline bool WisCommandListClosed(WisCommandList self)
+{
+    return VKCommandListClosed(self);
+}
+
+/**
+ * @brief Closes the command list for recording.
+ * @param self valid handle to the CommandList
+ * @return true if command list is closed. false otherwise.
+ * */
+inline bool WisCommandListClose(WisCommandList self)
+{
+    return VKCommandListClose(self);
+}
+
+/**
+ * @brief Resets the command list for recording.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * */
+inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState pipeline)
+{
+    return VKCommandListReset(self, pipeline);
+}
+
+/**
+ * @brief Copies data from one buffer to another.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param region The region to copy.
+ * */
+inline void WisCommandListCopyBuffer(WisCommandList self, WisBuffer source, WisBuffer destination, WisBufferRegion region)
+{
+    return VKCommandListCopyBuffer(self, source, destination, region);
+}
+
+/**
+ * @brief Copies data from buffer to texture.
+ * @param self valid handle to the CommandList
+ * @param source The source buffer to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyBufferToTexture(WisCommandList self, WisBuffer source, WisTexture destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count)
+{
+    return VKCommandListCopyBufferToTexture(self, source, destination, regions, region_count);
+}
+
+/**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination buffer to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture source, WisBuffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count)
+{
+    return VKCommandListCopyTextureToBuffer(self, source, destination, regions, region_count);
+}
+
+/**
+ * @brief Sets the barrier on the buffer.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param buffer The buffer to set the barrier on.
+ * */
+inline void WisCommandListBufferBarrier(WisCommandList self, WisBufferBarrier barrier, WisBuffer buffer)
+{
+    return VKCommandListBufferBarrier(self, barrier, buffer);
+}
+
+/**
+ * @brief Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+inline void WisCommandListBufferBarriers(WisCommandList self, const WisBufferBarrier2* barriers, uint32_t barrier_count)
+{
+    return VKCommandListBufferBarriers(self, barriers, barrier_count);
+}
+
+/**
+ * @brief Sets the barrier on the texture.
+ * @param self valid handle to the CommandList
+ * @param barrier The barrier to set.
+ * @param texture The texture to set the barrier on.
+ * */
+inline void WisCommandListTextureBarrier(WisCommandList self, WisTextureBarrier barrier, WisTexture texture)
+{
+    return VKCommandListTextureBarrier(self, barrier, texture);
+}
+
+/**
+ * @brief Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.
+ * @param self valid handle to the CommandList
+ * @param barriers The barriers to set.
+ * @param barrier_count The number of barriers to set.
+ * */
+inline void WisCommandListTextureBarriers(WisCommandList self, const WisTextureBarrier2* barriers, uint32_t barrier_count)
+{
+    return VKCommandListTextureBarriers(self, barriers, barrier_count);
+}
+
+/**
+ * @brief Begins the render pass.
+ * @param self valid handle to the CommandList
+ * @param pass_desc The description of the render pass to begin.
+ * */
+inline void WisCommandListBeginRenderPass(WisCommandList self, const WisRenderPassDesc* pass_desc)
+{
+    return VKCommandListBeginRenderPass(self, pass_desc);
+}
+
+/**
+ * @brief Ends the render pass.
+ * @param self valid handle to the CommandList
+ * */
+inline void WisCommandListEndRenderPass(WisCommandList self)
+{
+    return VKCommandListEndRenderPass(self);
+}
+
+/**
+ * @brief Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+inline void WisCommandListSetRootSignature(WisCommandList self, WisRootSignature root_signature)
+{
+    return VKCommandListSetRootSignature(self, root_signature);
+}
+
+/**
+ * @brief Sets the primitive topology. Detemines how vertices shall be processed.
+ * @param self valid handle to the CommandList
+ * @param topology The primitive topology to set.
+ * */
+inline void WisCommandListIASetPrimitiveTopology(WisCommandList self, WisPrimitiveTopology topology)
+{
+    return VKCommandListIASetPrimitiveTopology(self, topology);
+}
+
+/**
+ * @brief Sets the vertex buffers.
+ * @param self valid handle to the CommandList
+ * @param resources The vertex buffers to set.
+ * @param count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ * */
+inline void WisCommandListIASetVertexBuffers(WisCommandList self, const WisVertexBufferBinding* resources, uint32_t count, uint32_t start_slot)
+{
+    return VKCommandListIASetVertexBuffers(self, resources, count, start_slot);
+}
+
+/**
+ * @brief Sets the index buffer.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+inline void WisCommandListIASetIndexBuffer(WisCommandList self, WisBuffer buffer, WisIndexType type, uint64_t offset)
+{
+    return VKCommandListIASetIndexBuffer(self, buffer, type, offset);
+}
+
+/**
+ * @brief Sets the index buffer.
+ * You may provide the offset in the buffer to take only a range of the buffer.
+ * Requires DeviceFeatureAdvancedIndexBuffer to be supported.
+ * @param self valid handle to the CommandList
+ * @param buffer The index buffer to set.
+ * @param type The type of the index buffer.
+ * @param size The size of the index buffer in bytes.
+ * @param offset The offset in the index buffer in bytes.
+ * */
+inline void WisCommandListIASetIndexBuffer2(WisCommandList self, WisBuffer buffer, WisIndexType type, uint32_t size, uint64_t offset)
+{
+    return VKCommandListIASetIndexBuffer2(self, buffer, type, size, offset);
+}
+
+/**
+ * @brief Sets the viewport.
+ * @param self valid handle to the CommandList
+ * @param viewport The viewport to set.
+ * */
+inline void WisCommandListRSSetViewport(WisCommandList self, WisViewport viewport)
+{
+    return VKCommandListRSSetViewport(self, viewport);
+}
+
+/**
+ * @brief Sets multiple viewports.
+ * @param self valid handle to the CommandList
+ * @param viewports The viewports to set.
+ * @param count The number of viewports to set.
+ * */
+inline void WisCommandListRSSetViewports(WisCommandList self, const WisViewport* viewports, uint32_t count)
+{
+    return VKCommandListRSSetViewports(self, viewports, count);
+}
+
+/**
+ * @brief Sets the scissor rect.
+ * @param self valid handle to the CommandList
+ * @param scissor The scissor to set.
+ * */
+inline void WisCommandListRSSetScissor(WisCommandList self, WisScissor scissor)
+{
+    return VKCommandListRSSetScissor(self, scissor);
+}
+
+/**
+ * @brief Sets multiple scissor rects.
+ * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+ * Otherwise the first is chosen.
+ * @param self valid handle to the CommandList
+ * @param scissors The scissors to set.
+ * @param count The number of scissors to set.
+ * */
+inline void WisCommandListRSSetScissors(WisCommandList self, const WisScissor* scissors, uint32_t count)
+{
+    return VKCommandListRSSetScissors(self, scissors, count);
+}
+
+/**
+ * @brief Draws indexed instanced geometry.
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_index The index of the first vertex to draw. Default is 0.
+ * @param base_vertex The index of the first vertex to start drawing from. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+inline void WisCommandListDrawIndexedInstanced(WisCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_index, uint32_t base_vertex, uint32_t start_instance)
+{
+    return VKCommandListDrawIndexedInstanced(self, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
+}
+
+/**
+ * @brief Draws instanced geometry. (Without indexing)
+ * @param self valid handle to the CommandList
+ * @param vertex_count_per_instance The number of vertices to draw per instance.
+ * @param instance_count The number of instances to draw. Default is 1.
+ * @param start_vertex The index of the first vertex to draw. Default is 0.
+ * @param start_instance The index of the first instance to draw. Default is 0.
+ * */
+inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance)
+{
+    return VKCommandListDrawInstanced(self, vertex_count_per_instance, instance_count, start_vertex, start_instance);
+}
+
+/**
+ * @brief Sets the root constants for the shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * @param stage The shader stages to set the root constants for.
+ * */
+inline void WisCommandListSetRootConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
+{
+    return VKCommandListSetRootConstants(self, data, size_4bytes, offset_4bytes, stage);
+}
+
+/**
+ * @brief Sets the root descriptor tables for the shader.
+ * Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often.
+ * @param self valid handle to the CommandList
+ * @param buffers The descriptor buffers to set the root descriptor tables with.
+ * May only be one of each type (one Descriptor and one Sampler buffer)
+ * @param buffer_count The number of descriptor buffers to set. May be 1 or 2.
+ * */
+inline void WisCommandListSetDescriptorBuffers(WisCommandList self, const WisDescriptorBufferView* buffers, uint32_t buffer_count)
+{
+    return VKCommandListSetDescriptorBuffers(self, buffers, buffer_count);
+}
+
+/**
+ * @brief Sets the offset in the descriptor table for the descriptor buffer.
+ * @param self valid handle to the CommandList
+ * @param root_table_index The index of the root table to set the offset for.
+ * @param buffer The descriptor buffer to set the offset for.
+ * @param offset_bytes The offset in the descriptor buffer in bytes.
+ * */
+inline void WisCommandListSetDescriptorTableOffset(WisCommandList self, uint32_t root_table_index, WisDescriptorBuffer buffer, uint32_t offset_bytes)
+{
+    return VKCommandListSetDescriptorTableOffset(self, root_table_index, buffer, offset_bytes);
+}
+
+// WisMemory methods --
+/**
+ * @brief Destroys the WisMemory.
+ * @param self valid handle to the Memory
+ * */
+inline void WisMemoryDestroy(WisMemory self)
+{
+    return VKMemoryDestroy(self);
+}
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+inline uint64_t WisMemoryGetBlockOffset(WisMemory self)
+{
+    return VKMemoryGetBlockOffset(self);
+}
+
+// WisSwapChain methods --
+/**
+ * @brief Destroys the WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+inline void WisSwapChainDestroy(WisSwapChain self)
+{
+    return VKSwapChainDestroy(self);
+}
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+inline uint32_t WisSwapChainGetCurrentIndex(WisSwapChain self)
+{
+    return VKSwapChainGetCurrentIndex(self);
+}
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+inline bool WisSwapChainStereoSupported(WisSwapChain self)
+{
+    return VKSwapChainStereoSupported(self);
+}
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+inline WisResult WisSwapChainResize(WisSwapChain self, uint32_t width, uint32_t height)
+{
+    return VKSwapChainResize(self, width, height);
+}
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+inline WisResult WisSwapChainPresent(WisSwapChain self)
+{
+    return VKSwapChainPresent(self);
+}
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+inline WisResult WisSwapChainPresent2(WisSwapChain self, bool in_vsync)
+{
+    return VKSwapChainPresent2(self, in_vsync);
+}
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+inline uint32_t WisSwapChainGetBuffers(WisSwapChain self, const WisTexture** buffers)
+{
+    return VKSwapChainGetBuffers(self, buffers);
+}
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisSwapChainWaitForPresent(WisSwapChain self, uint64_t timeout_ns)
+{
+    return VKSwapChainWaitForPresent(self, timeout_ns);
+}
+
+// WisBuffer methods --
+/**
+ * @brief Destroys the WisBuffer.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferDestroy(WisBuffer self)
+{
+    return VKBufferDestroy(self);
+}
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+inline void* WisBufferMapRaw(WisBuffer self)
+{
+    return VKBufferMapRaw(self);
+}
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferUnmap(WisBuffer self)
+{
+    return VKBufferUnmap(self);
+}
+
+// WisTexture methods --
+/**
+ * @brief Destroys the WisTexture.
+ * @param self valid handle to the Texture
+ * */
+inline void WisTextureDestroy(WisTexture self)
+{
+    return VKTextureDestroy(self);
+}
+
+// WisRootSignature methods --
+/**
+ * @brief Destroys the WisRootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+inline void WisRootSignatureDestroy(WisRootSignature self)
+{
+    return VKRootSignatureDestroy(self);
+}
+
+// WisShader methods --
+/**
+ * @brief Destroys the WisShader.
+ * @param self valid handle to the Shader
+ * */
+inline void WisShaderDestroy(WisShader self)
+{
+    return VKShaderDestroy(self);
 }
 
 // WisDebugMessenger methods --
@@ -3868,6 +6228,36 @@ inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, Wis
 inline void WisDebugMessengerDestroy(WisDebugMessenger self)
 {
     return VKDebugMessengerDestroy(self);
+}
+
+// WisRenderTarget methods --
+/**
+ * @brief Destroys the WisRenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+inline void WisRenderTargetDestroy(WisRenderTarget self)
+{
+    return VKRenderTargetDestroy(self);
+}
+
+// WisSampler methods --
+/**
+ * @brief Destroys the WisSampler.
+ * @param self valid handle to the Sampler
+ * */
+inline void WisSamplerDestroy(WisSampler self)
+{
+    return VKSamplerDestroy(self);
+}
+
+// WisShaderResource methods --
+/**
+ * @brief Destroys the WisShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+inline void WisShaderResourceDestroy(WisShaderResource self)
+{
+    return VKShaderResourceDestroy(self);
 }
 
 //-------------------------------------------------------------------------

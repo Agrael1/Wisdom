@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_SHADER_H
+#define WIS_DX12_SHADER_H
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <memory>
@@ -30,3 +31,5 @@ public:
     }
 };
 } // namespace wis
+
+#endif // WIS_DX12_SHADER_H

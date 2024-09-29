@@ -29,25 +29,25 @@ namespace wis {
 inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 
 using CommandQueue = DX12CommandQueue;
-using RootSignature = DX12RootSignature;
 using Factory = DX12Factory;
 using DeviceExtension = DX12DeviceExtension;
 using PipelineState = DX12PipelineState;
 using Adapter = DX12Adapter;
 using Device = DX12Device;
+using DescriptorBuffer = DX12DescriptorBuffer;
 using FactoryExtension = DX12FactoryExtension;
 using ResourceAllocator = DX12ResourceAllocator;
 using Fence = DX12Fence;
-using Shader = DX12Shader;
 using CommandList = DX12CommandList;
+using Memory = DX12Memory;
 using SwapChain = DX12SwapChain;
 using Buffer = DX12Buffer;
 using Texture = DX12Texture;
+using RootSignature = DX12RootSignature;
+using Shader = DX12Shader;
 using DebugMessenger = DX12DebugMessenger;
 using RenderTarget = DX12RenderTarget;
-using DescriptorBuffer = DX12DescriptorBuffer;
 using Sampler = DX12Sampler;
-using Memory = DX12Memory;
 using ShaderResource = DX12ShaderResource;
 
 //-------------------------------------------------------------------------
@@ -89,7 +89,12 @@ using CommandListView = DX12CommandListView;
 using ShaderView = DX12ShaderView;
 using RootSignatureView = DX12RootSignatureView;
 using DescriptorBufferView = DX12DescriptorBufferView;
+using DescriptorBufferGPUView = DX12DescriptorBufferGPUView;
+using RootSignatureView2 = DX12RootSignatureView2;
 using MemoryView = DX12MemoryView;
+using PipelineHandle = DX12PipelineHandle;
+using SamplerView = DX12SamplerView;
+using ShaderResourceView = DX12ShaderResourceView;
 using BufferBarrier2 = DX12BufferBarrier2;
 using TextureBarrier2 = DX12TextureBarrier2;
 using GraphicsShaderStages = DX12GraphicsShaderStages;
@@ -108,25 +113,25 @@ namespace wis {
 inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
 
 using CommandQueue = VKCommandQueue;
-using RootSignature = VKRootSignature;
 using Factory = VKFactory;
 using DeviceExtension = VKDeviceExtension;
 using PipelineState = VKPipelineState;
 using Adapter = VKAdapter;
 using Device = VKDevice;
+using DescriptorBuffer = VKDescriptorBuffer;
 using FactoryExtension = VKFactoryExtension;
 using ResourceAllocator = VKResourceAllocator;
 using Fence = VKFence;
-using Shader = VKShader;
 using CommandList = VKCommandList;
+using Memory = VKMemory;
 using SwapChain = VKSwapChain;
 using Buffer = VKBuffer;
 using Texture = VKTexture;
+using RootSignature = VKRootSignature;
+using Shader = VKShader;
 using DebugMessenger = VKDebugMessenger;
 using RenderTarget = VKRenderTarget;
-using DescriptorBuffer = VKDescriptorBuffer;
 using Sampler = VKSampler;
-using Memory = VKMemory;
 using ShaderResource = VKShaderResource;
 
 //-------------------------------------------------------------------------
@@ -168,7 +173,12 @@ using CommandListView = VKCommandListView;
 using ShaderView = VKShaderView;
 using RootSignatureView = VKRootSignatureView;
 using DescriptorBufferView = VKDescriptorBufferView;
+using DescriptorBufferGPUView = VKDescriptorBufferGPUView;
+using RootSignatureView2 = VKRootSignatureView2;
 using MemoryView = VKMemoryView;
+using PipelineHandle = VKPipelineHandle;
+using SamplerView = VKSamplerView;
+using ShaderResourceView = VKShaderResourceView;
 using BufferBarrier2 = VKBufferBarrier2;
 using TextureBarrier2 = VKTextureBarrier2;
 using GraphicsShaderStages = VKGraphicsShaderStages;

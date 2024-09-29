@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_PIPELINE_STATE_H
+#define WIS_DX12_PIPELINE_STATE_H
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <d3d12.h>
@@ -29,3 +30,5 @@ public:
     }
 };
 } // namespace wis
+
+#endif // WIS_DX12_PIPELINE_STATE_H

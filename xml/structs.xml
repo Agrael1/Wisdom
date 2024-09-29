@@ -61,12 +61,12 @@
         <member type="u32" name="value2"/>
       </impl>
     </type>
-    <type name="MemoryView" category="variant" for="Memory">
-      <impl name="both">
-        <member type="void" name="value1" mod="ptr"/>
-        <member type="void" name="value2" mod="ptr"/>
-      </impl>
-    </type>
+    <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
+    <type name="RootSignatureView2" category="variant" for="RootSignature" mod="cpp-only"/>
+    <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
+    <type name="PipelineHandle" category="variant" for="Pipeline" mod="cpp-only"/>
+    <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
+    <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
 
 
     <!--Structs-->

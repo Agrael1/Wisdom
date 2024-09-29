@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.2</b>
+<b>Version 0.3.3</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT

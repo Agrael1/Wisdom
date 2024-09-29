@@ -18,11 +18,11 @@ struct Internal<DX12Memory> {
         : allocator(std::move(allocator)), allocation(std::move(allocation)) { }
 };
 
-class DX12Memory : public QueryInternal<DX12Memory>
+class ImplDX12Memory : public QueryInternal<DX12Memory>
 {
 public:
-    DX12Memory() noexcept = default;
-    explicit DX12Memory(wis::com_ptr<D3D12MA::Allocator> allocator, wis::com_ptr<D3D12MA::Allocation> allocation) noexcept
+    ImplDX12Memory() noexcept = default;
+    explicit ImplDX12Memory(wis::com_ptr<D3D12MA::Allocator> allocator, wis::com_ptr<D3D12MA::Allocation> allocation) noexcept
         : QueryInternal<DX12Memory>(std::move(allocator), std::move(allocation))
     {
     }
@@ -40,7 +40,7 @@ public:
         return !allocation;
     }
     [[nodiscard]] bool
-    operator==(const DX12Memory& other) const noexcept
+    operator==(const ImplDX12Memory& other) const noexcept
     {
         return allocation.get() == other.allocation.get();
     }
@@ -54,6 +54,26 @@ public:
         return allocation->GetOffset();
     }
 };
+
+#pragma region DX12Memory
+/**
+ * @brief Represents memory object for binding resources.
+ * */
+struct DX12Memory : public wis::ImplDX12Memory {
+public:
+    using wis::ImplDX12Memory::ImplDX12Memory;
+
+public:
+    /**
+     * @brief Returns the offset of the block in the global memory.
+     * @return The offset of the block in the global memory.
+     * */
+    inline uint64_t GetBlockOffset() const noexcept
+    {
+        return wis::ImplDX12Memory::GetBlockOffset();
+    }
+};
+#pragma endregion DX12Memory
 
 } // namespace wis
 

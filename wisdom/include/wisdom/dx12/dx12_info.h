@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_INFO_H
+#define WIS_DX12_INFO_H
 #include <dxgidebug.h>
 #include <semaphore>
 #include <unordered_map>
@@ -94,3 +95,4 @@ private:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_info.cpp"
 #endif
+#endif // WIS_DX12_INFO_H

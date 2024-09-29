@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_RESOURCE_H
+#define WIS_DX12_RESOURCE_H
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/dx12/dx12_memory.h>
 #include <optional>
@@ -12,11 +13,11 @@ struct Internal<DX12Buffer> {
     wis::com_ptr<ID3D12Resource> resource;
 };
 
-class DX12Buffer : public QueryInternal<DX12Buffer>
+class ImplDX12Buffer : public QueryInternal<DX12Buffer>
 {
 public:
-    DX12Buffer() noexcept = default;
-    explicit DX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
+    ImplDX12Buffer() noexcept = default;
+    explicit ImplDX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
         : QueryInternal(DX12Memory{
                                 std::move(allocator), std::move(al) },
                         std::move(rc))
@@ -39,6 +40,11 @@ public:
         void* data;
         resource->Map(0, nullptr, &data);
         return static_cast<T*>(data);
+    }
+
+    void* MapRaw() const noexcept
+    {
+        return Map();
     }
     void Unmap() const noexcept
     {
@@ -126,4 +132,33 @@ public:
     }
 };
 
+#pragma region DX12Buffer
+/**
+ * @brief Represents buffer object for storing linear data.
+ * */
+struct DX12Buffer : public wis::ImplDX12Buffer {
+public:
+    using wis::ImplDX12Buffer::ImplDX12Buffer;
+
+public:
+    /**
+     * @brief Maps the buffer memory to CPU address space.
+     * @return The pointer to the mapped memory.
+     * */
+    inline void* MapRaw() const noexcept
+    {
+        return wis::ImplDX12Buffer::MapRaw();
+    }
+    /**
+     * @brief Unmaps the buffer memory from CPU address space.
+     * */
+    inline void Unmap() const noexcept
+    {
+        return wis::ImplDX12Buffer::Unmap();
+    }
+};
+#pragma endregion DX12Buffer
+
 } // namespace wis
+
+#endif // WIS_DX12_RESOURCE_H

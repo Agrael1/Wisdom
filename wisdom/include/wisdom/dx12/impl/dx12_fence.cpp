@@ -1,13 +1,8 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef WIS_DX12_FENCE_CPP
+#define WIS_DX12_FENCE_CPP
 #include <wisdom/dx12/dx12_fence.h>
-#endif // !WISDOM_HEADER_ONLY
 
-/// @brief Wait for the fence to reach a certain value.
-/// @param value Value to wait for.
-/// @return Boolean indicating whether the fence reached the value.
-
-wis::Result wis::DX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noexcept
+wis::Result wis::ImplDX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noexcept
 {
     if (GetCompletedValue() >= value)
         return wis::success;
@@ -21,3 +16,4 @@ wis::Result wis::DX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noexcep
             : st != wis::Status::Error ? wis::success
                                        : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
 }
+#endif // DX12_FENCE_CPP

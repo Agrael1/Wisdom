@@ -14,8 +14,6 @@ struct VKSwapChainCreateInfo {
     wis::SharedDevice device;
 
     VkPhysicalDevice adapter = nullptr;
-    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR getCaps = nullptr;
-
     h::VkSwapchainKHR swapchain = nullptr;
     h::VkCommandBuffer initialization = nullptr;
     h::VkCommandPool command_pool = nullptr;
@@ -44,7 +42,6 @@ public:
     VKSwapChainCreateInfo(wis::SharedSurface surface,
                           wis::SharedDevice device,
                           VkPhysicalDevice adapter,
-                          PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR getCaps,
                           VkSwapchainKHR swapchain,
                           VkCommandBuffer initialization,
                           VkCommandPool command_pool,
@@ -57,7 +54,6 @@ public:
         : surface(std::move(surface))
         , device(std::move(device))
         , adapter(adapter)
-        , getCaps(getCaps)
         , swapchain(swapchain)
         , initialization(initialization)
         , command_pool(command_pool)
@@ -95,11 +91,11 @@ template<>
 struct Internal<VKSwapChain> : detail::VKSwapChainCreateInfo {
 };
 
-class VKSwapChain : public QueryInternal<VKSwapChain>
+class ImplVKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
-    VKSwapChain() = default;
-    explicit VKSwapChain(detail::VKSwapChainCreateInfo internals) noexcept
+    ImplVKSwapChain() = default;
+    explicit ImplVKSwapChain(detail::VKSwapChainCreateInfo internals) noexcept
         : QueryInternal(std::move(internals))
     {
     }
@@ -129,12 +125,83 @@ public:
     {
         return { back_buffers.get(), back_buffer_count };
     }
+    [[nodiscard]] const VKTexture* GetBuffers(uint32_t* out_textures_count) const noexcept
+    {
+        *out_textures_count = back_buffer_count;
+        return back_buffers.get();
+    }
     [[nodiscard]] std::span<const VKTexture> GetBufferSpan() const noexcept
     {
         return { back_buffers.get(), back_buffer_count };
     }
     [[nodiscard]] WIS_INLINE wis::Result WaitForPresent(uint64_t timeout_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 };
+
+#pragma region VKSwapChain
+/**
+ * @brief Represents swap chain object for presenting images.
+ * */
+struct VKSwapChain : public wis::ImplVKSwapChain {
+public:
+    using wis::ImplVKSwapChain::ImplVKSwapChain;
+
+public:
+    /**
+     * @brief Get the current image index in the swapchain.
+     * @return Index of the current image.
+     * */
+    inline uint32_t GetCurrentIndex() const noexcept
+    {
+        return wis::ImplVKSwapChain::GetCurrentIndex();
+    }
+    /**
+     * @brief Check if stereo is supported.
+     * @return true if stereo is supported.
+     * */
+    inline bool StereoSupported() const noexcept
+    {
+        return wis::ImplVKSwapChain::StereoSupported();
+    }
+    /**
+     * @brief Resize the swapchain.
+     * Transition may be expensive.
+     * For the method to succeed, all swapchain buffers must be destroyed first
+     * @param width New width
+     * @param height New height
+     * */
+    [[nodiscard]] inline wis::Result Resize(uint32_t width, uint32_t height) noexcept
+    {
+        return wis::ImplVKSwapChain::Resize(width, height);
+    }
+    /**
+     * @brief Present the swapchain.
+     * Presentation always gets queued to the queue specified upon creation.
+     * */
+    [[nodiscard]] inline wis::Result Present() noexcept
+    {
+        return wis::ImplVKSwapChain::Present();
+    }
+    /**
+     * @brief Present the swapchain with vsync option.
+     * Requires wis::DeviceFeature::DynamicVSync to be supported.
+     * Otherwise is identical to wis::VKSwapChain.
+     * @param in_vsync Enable vsync.
+     * */
+    [[nodiscard]] inline wis::Result Present2(bool in_vsync) noexcept
+    {
+        return wis::ImplVKSwapChain::Present2(in_vsync);
+    }
+    /**
+     * @brief Wait for the presentation to finish.
+     * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+     * */
+    [[nodiscard]] inline wis::Result WaitForPresent(uint64_t timeout_ns = UINT64_MAX) const noexcept
+    {
+        return wis::ImplVKSwapChain::WaitForPresent(timeout_ns);
+    }
+};
+#pragma endregion VKSwapChain
+
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

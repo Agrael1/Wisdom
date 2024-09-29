@@ -166,7 +166,7 @@ public:
      * @brief Creates buffer with provided memory.
      * Equivalent to creating aliasing resource.
      * Note, the resulting buffer must be destroyed before Memory backing it up.
-     * @param memory The memory view to bind the buffer to.
+     * @param memory The memory to bind the buffer to.
      * @param memory_offset The offset in the memory to bind the buffer to.
      * @param size The size of the buffer to bind.
      * @param usage The usage of the buffer.
@@ -174,20 +174,20 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> PlaceBuffer(wis::DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
     {
-        return wis::ImplDX12ResourceAllocator::PlaceBuffer(memory, memory_offset, size, usage);
+        return wis::ImplDX12ResourceAllocator::PlaceBuffer(std::move(memory), memory_offset, size, usage);
     }
     /**
      * @brief Creates texture with provided memory.
      * Equivalent to creating aliasing resource.
      * Note, the resulting Texture must be destroyed before Memory backing it up.
-     * @param memory The memory view to bind the texture to.
+     * @param memory The memory to bind the buffer to.
      * @param memory_offset The offset in the memory to bind the texture to.
      * @param desc The description of the texture to create.
      * @return wis::DX12Texture on success (wis::Status::Ok).
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> PlaceTexture(wis::DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
     {
-        return wis::ImplDX12ResourceAllocator::PlaceTexture(memory, memory_offset, desc);
+        return wis::ImplDX12ResourceAllocator::PlaceTexture(std::move(memory), memory_offset, desc);
     }
 };
 #pragma endregion DX12ResourceAllocator

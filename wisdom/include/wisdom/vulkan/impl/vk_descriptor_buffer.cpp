@@ -2,7 +2,7 @@
 #define WIS_VK_DESCRIPTOR_BUFFER_CPP
 #include <wisdom/vulkan/vk_descriptor_buffer.h>
 
-uint64_t wis::VKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept
+uint64_t wis::ImplVKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept
 {
     auto& device = allocator.header();
     VkDescriptorGetInfoEXT info{
@@ -17,7 +17,7 @@ uint64_t wis::VKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, ui
     return desc_offset + descriptor_size;
 }
 
-uint64_t wis::VKDescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept
+uint64_t wis::ImplVKDescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept
 {
     auto& device = allocator.header();
     VkDescriptorImageInfo image_info{
@@ -37,7 +37,7 @@ uint64_t wis::VKDescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_of
     return desc_offset + descriptor_size;
 }
 
-uint64_t wis::VKDescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKShaderResourceView resource) noexcept
+uint64_t wis::ImplVKDescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKShaderResourceView resource) noexcept
 {
     auto& device = allocator.header();
     VkDescriptorImageInfo image_info{
@@ -55,13 +55,13 @@ uint64_t wis::VKDescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_bef
     return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties.sampled_image_size), info, root_signature);
 }
 
-uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table,
-                                                      uint32_t root_table_index,
-                                                      uint32_t binding,
-                                                      uint32_t array_member,
-                                                      wis::VKRootSignatureView2 root_signature,
-                                                      wis::VKBufferView buffer,
-                                                      uint32_t buffer_size) noexcept
+uint64_t wis::ImplVKDescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table,
+                                                          uint32_t root_table_index,
+                                                          uint32_t binding,
+                                                          uint32_t array_member,
+                                                          wis::VKRootSignatureView2 root_signature,
+                                                          wis::VKBufferView buffer,
+                                                          uint32_t buffer_size) noexcept
 {
     auto& device = allocator.header();
     VkBufferDeviceAddressInfo address_info{
@@ -84,13 +84,13 @@ uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_bef
     return WriteDescriptor(buffer_offset_before_table, root_table_index, binding, array_member, uint32_t(properties.constant_buffer_size), info, root_signature);
 }
 
-uint64_t wis::VKDescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_table,
-                                                  uint32_t root_table_index,
-                                                  uint32_t binding,
-                                                  uint32_t array_member,
-                                                  uint32_t descriptor_true_size,
-                                                  const VkDescriptorGetInfoEXT& info,
-                                                  wis::VKRootSignatureView2 root_signature) noexcept
+uint64_t wis::ImplVKDescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_table,
+                                                      uint32_t root_table_index,
+                                                      uint32_t binding,
+                                                      uint32_t array_member,
+                                                      uint32_t descriptor_true_size,
+                                                      const VkDescriptorGetInfoEXT& info,
+                                                      wis::VKRootSignatureView2 root_signature) noexcept
 {
     auto& device = allocator.header();
     auto& dtable = device.table();
@@ -103,7 +103,7 @@ uint64_t wis::VKDescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_
     return buffer_offset_before_table + descriptor_offsetx + descriptor_sizex + array_member * descriptor_sizex;
 }
 
-uint64_t wis::VKDescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
+uint64_t wis::ImplVKDescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
 {
     auto& device = allocator.header();
     VkBufferDeviceAddressInfo address_info{

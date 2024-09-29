@@ -28,6 +28,10 @@ public:
     {
         return { root.get(), stage_map, root_table_offset };
     }
+    operator DX12RootSignatureView2() const noexcept
+    {
+        return {};
+    }
     operator bool() const noexcept
     {
         return bool(root);

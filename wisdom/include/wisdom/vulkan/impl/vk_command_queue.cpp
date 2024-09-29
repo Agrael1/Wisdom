@@ -2,8 +2,8 @@
 #define WIS_VK_COMMAND_QUEUE_CPP
 #include <wisdom/vulkan/vk_command_queue.h>
 
-void wis::VKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
-                                              uint32_t count) const noexcept
+void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
+                                                  uint32_t count) const noexcept
 {
     VkSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -15,7 +15,7 @@ void wis::VKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
     std::ignore = device.table().vkQueueSubmit(queue, 1, &submit_info, nullptr);
 }
 
-wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) const noexcept
+wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) const noexcept
 {
     VkSemaphore sem = std::get<0>(fence);
     VkTimelineSemaphoreSubmitInfoKHR submit{
@@ -43,7 +43,7 @@ wis::Result wis::VKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) 
                              : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
 
-wis::Result wis::VKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
+wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
 {
     VkSemaphore sem = std::get<0>(fence);
     VkTimelineSemaphoreSubmitInfoKHR submit{

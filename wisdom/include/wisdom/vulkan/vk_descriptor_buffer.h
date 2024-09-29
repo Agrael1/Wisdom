@@ -70,16 +70,16 @@ public:
     }
 };
 
-class VKDescriptorBuffer : public QueryInternal<VKDescriptorBuffer>
+class ImplVKDescriptorBuffer : public QueryInternal<VKDescriptorBuffer>
 {
 public:
-    VKDescriptorBuffer() noexcept = default;
-    explicit VKDescriptorBuffer(wis::shared_handle<VmaAllocator> allocator,
-                                VkBuffer buffer,
-                                VmaAllocation allocation,
-                                wis::DescriptorHeapType type,
-                                XDescriptorBufferProperties properties,
-                                uint32_t descriptor_size) noexcept
+    ImplVKDescriptorBuffer() noexcept = default;
+    explicit ImplVKDescriptorBuffer(wis::shared_handle<VmaAllocator> allocator,
+                                    VkBuffer buffer,
+                                    VmaAllocation allocation,
+                                    wis::DescriptorHeapType type,
+                                    XDescriptorBufferProperties properties,
+                                    uint32_t descriptor_size) noexcept
         : QueryInternal(std::move(allocator), buffer, allocation, type, properties, descriptor_size) { }
     operator bool() const noexcept
     {
@@ -120,6 +120,92 @@ protected:
                                         const VkDescriptorGetInfoEXT& info,
                                         wis::VKRootSignatureView2 root_signature) noexcept;
 };
+
+#pragma region VKDescriptorBuffer
+/**
+ * @brief Represents descriptor buffer for binding descriptors.
+ * */
+struct VKDescriptorBuffer : public wis::ImplVKDescriptorBuffer {
+public:
+    using wis::ImplVKDescriptorBuffer::ImplVKDescriptorBuffer;
+
+public:
+    /**
+     * @brief Writes the sampler to the sampler descriptor buffer.
+     * Must be called with Sampler descriptor buffer, which was created with wis::DescriptorHeapType::Sampler.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with wis::VKDevice.
+     * @param index Binding index in descriptor table.
+     * @param sampler The sampler to write.
+     * @return Byte offset from buffer beginning. May help determine next table address.
+     * */
+    inline uint64_t WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept
+    {
+        return wis::ImplVKDescriptorBuffer::WriteSampler(aligned_table_offset, index, std::move(sampler));
+    }
+    /**
+     * @brief Writes the shader resource to the shader resource descriptor buffer.
+     * Must be called with Shader Resource descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * Requires wis::DeviceFeature::DescriptorEqualSize to run, otherwise program is ill-formed.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with wis::VKDevice.
+     * @param index Binding index in descriptor table.
+     * @param resource The shader resource to write.
+     * @return Byte offset from buffer beginning. May help determine next table address.
+     * */
+    inline uint64_t WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept
+    {
+        return wis::ImplVKDescriptorBuffer::WriteShaderResource2(aligned_table_offset, index, std::move(resource));
+    }
+    /**
+     * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+     * Must be called with Constant Buffer descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * Requires wis::DeviceFeature::DescriptorEqualSize to run, otherwise program is ill-formed.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with wis::VKDevice.
+     * @param index Binding index in descriptor table.
+     * @param buffer The buffer to write.
+     * @param buffer_size The size of the buffer in bytes.
+     * @return Byte offset from buffer beginning. May help determine next table address.
+     * */
+    inline uint64_t WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
+    {
+        return wis::ImplVKDescriptorBuffer::WriteConstantBuffer2(aligned_table_offset, index, std::move(buffer), buffer_size);
+    }
+    /**
+     * @brief Writes the shader resource to the shader resource descriptor buffer.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with wis::VKDevice.
+     * @param root_table_index Index of the descriptor table in wis::VKRootSignature
+     * @param binding Binding index in descriptor table.
+     * @param array_member Array member index in the binding.
+     * @param root_signature The root signature to get the binding position from.
+     * @param resource The shader resource to write.
+     * @return Byte offset from buffer beginning. May help determine next table address.
+     * */
+    inline uint64_t WriteShaderResource(uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKShaderResourceView resource) noexcept
+    {
+        return wis::ImplVKDescriptorBuffer::WriteShaderResource(aligned_table_offset, root_table_index, binding, array_member, std::move(root_signature), std::move(resource));
+    }
+    /**
+     * @brief Writes the constant buffer to the constant buffer descriptor buffer.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with wis::VKDevice.
+     * @param root_table_index Index of the descriptor table in wis::VKRootSignature
+     * @param binding Binding index in descriptor table.
+     * @param array_member Array member index in the binding.
+     * @param root_signature The root signature to get the binding position from.
+     * @param buffer The buffer to write.
+     * @param buffer_size The size of the buffer in bytes.
+     * @return Byte offset from buffer beginning. May help determine next table address.
+     * */
+    inline uint64_t WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
+    {
+        return wis::ImplVKDescriptorBuffer::WriteConstantBuffer(aligned_table_offset, root_table_index, binding, array_member, std::move(root_signature), std::move(buffer), buffer_size);
+    }
+};
+#pragma endregion VKDescriptorBuffer
+
 } // namespace wis
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/vk_descriptor_buffer.cpp"
