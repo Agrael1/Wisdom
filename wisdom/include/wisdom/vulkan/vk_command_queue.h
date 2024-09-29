@@ -32,11 +32,11 @@ public:
 };
 
 /// @brief A command queue is used to submit command lists to the GPU.
-class VKCommandQueue : public QueryInternal<VKCommandQueue>
+class ImplVKCommandQueue : public QueryInternal<VKCommandQueue>
 {
 public:
-    VKCommandQueue() = default;
-    explicit VKCommandQueue(wis::SharedDevice device, VkQueue queue)
+    ImplVKCommandQueue() = default;
+    explicit ImplVKCommandQueue(wis::SharedDevice device, VkQueue queue)
         : QueryInternal(std::move(device), queue) { }
 
     operator bool() const noexcept
@@ -53,6 +53,46 @@ public:
     WIS_INLINE wis::Result SignalQueue(VKFenceView fence, uint64_t value) const noexcept;
     WIS_INLINE wis::Result WaitQueue(VKFenceView fence, uint64_t value) const noexcept;
 };
+#pragma region VKCommandQueue
+/**
+ * @brief Represents command queue for executing command lists.
+ * */
+struct VKCommandQueue : public wis::ImplVKCommandQueue {
+public:
+    using wis::ImplVKCommandQueue::ImplVKCommandQueue;
+
+public:
+    /**
+     * @brief Executes the command lists.
+     * @param lists The command lists to execute.
+     * @param count The number of command lists to execute.
+     * */
+    inline void ExecuteCommandLists(const wis::VKCommandListView* lists, uint32_t count) const noexcept
+    {
+        return wis::ImplVKCommandQueue::ExecuteCommandLists(lists, count);
+    }
+    /**
+     * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.
+     * @param fence The fence to signal.
+     * @param value The value to signal the fence with.
+     * */
+    [[nodiscard]] inline wis::Result SignalQueue(wis::VKFenceView fence, uint64_t value) const noexcept
+    {
+        return wis::ImplVKCommandQueue::SignalQueue(std::move(fence), value);
+    }
+    /**
+     * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+     * Can still be enqueued after the signal.
+     * @param fence The fence to wait on.
+     * @param value The value to wait the fence to reach.
+     * */
+    [[nodiscard]] inline wis::Result WaitQueue(wis::VKFenceView fence, uint64_t value) const noexcept
+    {
+        return wis::ImplVKCommandQueue::WaitQueue(std::move(fence), value);
+    }
+};
+#pragma endregion VKCommandQueue
+
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

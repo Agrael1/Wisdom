@@ -2,7 +2,7 @@
 #define WIS_DX12_DESCRIPTOR_BUFFER_CPP
 #include <wisdom/dx12/dx12_descriptor_buffer.h>
 
-uint64_t wis::DX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept
 {
     auto handle = heap->GetCPUDescriptorHandleForHeapStart();
     handle.ptr += aligned_table_offset + index * heap_increment;
@@ -13,13 +13,13 @@ uint64_t wis::DX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, 
     return aligned_table_offset + index * heap_increment + heap_increment;
 }
 
-uint64_t wis::DX12DescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView root_signature, wis::DX12ShaderResourceView resource) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView root_signature, wis::DX12ShaderResourceView resource) noexcept
 {
     auto srv_handle = std::get<0>(resource);
     return WriteDescriptor(buffer_offset_before_table, binding, array_member, srv_handle);
 }
 
-uint64_t wis::DX12DescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView root_signature, wis::DX12BufferView buffer, uint32_t size) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView root_signature, wis::DX12BufferView buffer, uint32_t size) noexcept
 {
     auto* cbv = std::get<0>(buffer);
     D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
@@ -34,7 +34,7 @@ uint64_t wis::DX12DescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_b
     return buffer_offset_before_table + (binding + array_member) * heap_increment + heap_increment;
 }
 
-uint64_t wis::DX12DescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept
 {
     auto handle = heap->GetCPUDescriptorHandleForHeapStart();
     handle.ptr += index * heap_increment;
@@ -45,7 +45,7 @@ uint64_t wis::DX12DescriptorBuffer::WriteShaderResource2(uint64_t aligned_table_
     return aligned_table_offset + index * heap_increment + heap_increment;
 }
 
-uint64_t wis::DX12DescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t size) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t size) noexcept
 {
     auto handle = heap->GetCPUDescriptorHandleForHeapStart();
     handle.ptr += index * heap_increment;
@@ -60,7 +60,7 @@ uint64_t wis::DX12DescriptorBuffer::WriteConstantBuffer2(uint64_t aligned_table_
     return aligned_table_offset + index * heap_increment + heap_increment;
 }
 
-uint64_t wis::DX12DescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_table, uint32_t binding, uint32_t array_member, D3D12_CPU_DESCRIPTOR_HANDLE resource) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteDescriptor(uint64_t buffer_offset_before_table, uint32_t binding, uint32_t array_member, D3D12_CPU_DESCRIPTOR_HANDLE resource) noexcept
 {
     auto handle = heap->GetCPUDescriptorHandleForHeapStart();
     handle.ptr += buffer_offset_before_table + (binding + array_member) * heap_increment;

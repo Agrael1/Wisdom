@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_CONVERT_H
+#define WIS_DX12_CONVERT_H
 #include <dxgi1_6.h>
 #include <string>
 #include <wisdom/generated/api/api.h>
@@ -36,3 +37,5 @@ inline std::string to_string(std::wstring_view value) noexcept
     return result;
 }
 } // namespace wis
+
+#endif // WIS_DX12_CONVERT_H

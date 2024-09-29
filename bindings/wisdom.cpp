@@ -3,6 +3,32 @@
 #if defined(WISDOM_DX12)
 #include <wisdom/wisdom_dx12.hpp>
 
+// DX12CommandQueue methods --
+extern "C" void DX12CommandQueueDestroy(DX12CommandQueue self)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandQueue*>(self);
+    delete xself;
+}
+extern "C" void DX12CommandQueueExecuteCommandLists(DX12CommandQueue self, const DX12CommandListView* lists, uint32_t count)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandQueue*>(self);
+    xself->ExecuteCommandLists(reinterpret_cast<const wis::DX12CommandListView*&>(lists), count);
+}
+extern "C" WisResult DX12CommandQueueSignalQueue(DX12CommandQueue self, DX12Fence fence, uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandQueue*>(self);
+    auto res = xself->SignalQueue(*reinterpret_cast<wis::DX12Fence*>(fence), value);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12CommandQueueWaitQueue(DX12CommandQueue self, DX12Fence fence, uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandQueue*>(self);
+    auto res = xself->WaitQueue(*reinterpret_cast<wis::DX12Fence*>(fence), value);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+
 // DX12Factory methods --
 extern "C" WisResult DX12FactoryGetAdapter(DX12Factory self, uint32_t index, WisAdapterPreference preference, DX12Adapter* adapter)
 {
@@ -209,6 +235,48 @@ extern "C" bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature 
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
     auto res = xself->QueryFeatureSupport(static_cast<wis::DeviceFeature>(feature));
+    ;
+    return res;
+}
+
+// DX12DescriptorBuffer methods --
+extern "C" void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
+    delete xself;
+}
+extern "C" uint64_t DX12DescriptorBufferWriteSampler(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Sampler sampler)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
+    auto res = xself->WriteSampler(aligned_table_offset, index, *reinterpret_cast<wis::DX12Sampler*>(sampler));
+    ;
+    return res;
+}
+extern "C" uint64_t DX12DescriptorBufferWriteShaderResource2(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12ShaderResource resource)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
+    auto res = xself->WriteShaderResource2(aligned_table_offset, index, *reinterpret_cast<wis::DX12ShaderResource*>(resource));
+    ;
+    return res;
+}
+extern "C" uint64_t DX12DescriptorBufferWriteConstantBuffer2(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Buffer buffer, uint32_t buffer_size)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
+    auto res = xself->WriteConstantBuffer2(aligned_table_offset, index, *reinterpret_cast<wis::DX12Buffer*>(buffer), buffer_size);
+    ;
+    return res;
+}
+extern "C" uint64_t DX12DescriptorBufferWriteShaderResource(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, DX12RootSignature root_signature, DX12ShaderResource resource)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
+    auto res = xself->WriteShaderResource(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::DX12RootSignature*>(root_signature), *reinterpret_cast<wis::DX12ShaderResource*>(resource));
+    ;
+    return res;
+}
+extern "C" uint64_t DX12DescriptorBufferWriteConstantBuffer(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, DX12RootSignature root_signature, DX12Buffer buffer, uint32_t buffer_size)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
+    auto res = xself->WriteConstantBuffer(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::DX12RootSignature*>(root_signature), *reinterpret_cast<wis::DX12Buffer*>(buffer), buffer_size);
     ;
     return res;
 }
@@ -507,6 +575,32 @@ extern "C" DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuf
 #if defined(WISDOM_VULKAN)
 #include <wisdom/wisdom_vk.hpp>
 
+// VKCommandQueue methods --
+extern "C" void VKCommandQueueDestroy(VKCommandQueue self)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandQueue*>(self);
+    delete xself;
+}
+extern "C" void VKCommandQueueExecuteCommandLists(VKCommandQueue self, const VKCommandListView* lists, uint32_t count)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandQueue*>(self);
+    xself->ExecuteCommandLists(reinterpret_cast<const wis::VKCommandListView*&>(lists), count);
+}
+extern "C" WisResult VKCommandQueueSignalQueue(VKCommandQueue self, VKFence fence, uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandQueue*>(self);
+    auto res = xself->SignalQueue(*reinterpret_cast<wis::VKFence*>(fence), value);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKCommandQueueWaitQueue(VKCommandQueue self, VKFence fence, uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandQueue*>(self);
+    auto res = xself->WaitQueue(*reinterpret_cast<wis::VKFence*>(fence), value);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+
 // VKFactory methods --
 extern "C" WisResult VKFactoryGetAdapter(VKFactory self, uint32_t index, WisAdapterPreference preference, VKAdapter* adapter)
 {
@@ -713,6 +807,48 @@ extern "C" bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feat
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
     auto res = xself->QueryFeatureSupport(static_cast<wis::DeviceFeature>(feature));
+    ;
+    return res;
+}
+
+// VKDescriptorBuffer methods --
+extern "C" void VKDescriptorBufferDestroy(VKDescriptorBuffer self)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
+    delete xself;
+}
+extern "C" uint64_t VKDescriptorBufferWriteSampler(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKSampler sampler)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
+    auto res = xself->WriteSampler(aligned_table_offset, index, *reinterpret_cast<wis::VKSampler*>(sampler));
+    ;
+    return res;
+}
+extern "C" uint64_t VKDescriptorBufferWriteShaderResource2(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKShaderResource resource)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
+    auto res = xself->WriteShaderResource2(aligned_table_offset, index, *reinterpret_cast<wis::VKShaderResource*>(resource));
+    ;
+    return res;
+}
+extern "C" uint64_t VKDescriptorBufferWriteConstantBuffer2(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKBuffer buffer, uint32_t buffer_size)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
+    auto res = xself->WriteConstantBuffer2(aligned_table_offset, index, *reinterpret_cast<wis::VKBuffer*>(buffer), buffer_size);
+    ;
+    return res;
+}
+extern "C" uint64_t VKDescriptorBufferWriteShaderResource(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, VKRootSignature root_signature, VKShaderResource resource)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
+    auto res = xself->WriteShaderResource(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::VKRootSignature*>(root_signature), *reinterpret_cast<wis::VKShaderResource*>(resource));
+    ;
+    return res;
+}
+extern "C" uint64_t VKDescriptorBufferWriteConstantBuffer(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, VKRootSignature root_signature, VKBuffer buffer, uint32_t buffer_size)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
+    auto res = xself->WriteConstantBuffer(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::VKRootSignature*>(root_signature), *reinterpret_cast<wis::VKBuffer*>(buffer), buffer_size);
     ;
     return res;
 }

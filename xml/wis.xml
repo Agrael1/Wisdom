@@ -35,12 +35,19 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
       <file for="dx" include="dx12/dx12_command_list.h"/>
     </handle>
 
+    <handle name="CommandQueue" doc="Represents command queue for executing command lists.">
+      <file for="vk" include="vulkan/vk_command_queue.h"/>
+      <file for="dx" include="dx12/dx12_command_queue.h"/>
+    </handle>
 
+    <handle name="DescriptorBuffer" doc="Represents descriptor buffer for binding descriptors.">
+      <file for="vk" include="vulkan/vk_descriptor_buffer.h"/>
+      <file for="dx" include="dx12/dx12_descriptor_buffer.h"/>
+    </handle>
 
 
     <handle name="Fence"/>
     <handle name="RootSignature"/>
-    <handle name="CommandQueue"/>
     <handle name="Shader"/>
     <handle name="PipelineState"/>
     <handle name="Buffer"/>
@@ -48,7 +55,6 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
     <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>
     <handle name="RenderTarget"/>
-    <handle name="DescriptorBuffer"/>
     <handle name="Sampler"/>
     <handle name="Memory"/>
     <handle name="ShaderResource"/>
@@ -422,6 +428,103 @@ May only be one of each type (one Descriptor and one Sampler buffer)"/>
         <replace with="DescriptorBufferGPUView" for="cpp" doc="The descriptor buffer to set the offset for."/>
       </arg>
       <arg type="u32" name="offset_bytes" doc="The offset in the descriptor buffer in bytes."/>
+    </func>
+
+
+    <!-- CommandQueue -->
+    <func for="CommandQueue" name="Destroy" doc="Destroys the {CommandQueue::}."/>
+
+    <func for="CommandQueue" name="ExecuteCommandLists" mod="const" doc="Executes the command lists.">
+      <arg type="CommandListView" name="lists" mod="const ptr" doc="The command lists to execute."/>
+      <arg type="u32" name="count" doc="The number of command lists to execute."/>
+    </func>
+
+    <func for="CommandQueue" name="SignalQueue" mod="const" doc="Enqueue the signal to the queue, that gets executed after all the work has been done.">
+      <ret result="true"/>
+      <arg type="Fence" name="fence" doc="The fence to signal.">
+        <replace with="FenceView" for="cpp" doc="The fence to signal."/>
+      </arg>
+      <arg type="u64" name="value" doc="The value to signal the fence with."/>
+    </func>
+
+    <func for="CommandQueue" name="WaitQueue" mod="const" doc="Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue. 
+Can still be enqueued after the signal.">
+      <ret result="true"/>
+      <arg type="Fence" name="fence" doc="The fence to wait on.">
+        <replace with="FenceView" for="cpp" doc="The fence to wait on."/>
+      </arg>
+      <arg type="u64" name="value" doc="The value to wait the fence to reach."/>
+    </func>
+
+    <!-- DescriptorBuffer -->
+    <func for="DescriptorBuffer" name="Destroy" doc="Destroys the {DescriptorBuffer::}."/>
+
+    <func for="DescriptorBuffer" name="WriteSampler" doc="Writes the sampler to the sampler descriptor buffer.
+Must be called with Sampler descriptor buffer, which was created with {DescriptorHeapType::Sampler}.">
+      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
+      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
+      <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+      <arg type="Sampler" name="sampler" doc="The sampler to write.">
+        <replace with="SamplerView" for="cpp" doc="The sampler to write."/>
+      </arg>
+    </func>
+
+    <func for="DescriptorBuffer" name="WriteShaderResource2" doc="Writes the shader resource to the shader resource descriptor buffer.
+Must be called with Shader Resource descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.
+Requires {DeviceFeature::DescriptorEqualSize} to run, otherwise program is ill-formed.">
+      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
+      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
+      <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+      <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
+        <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
+      </arg>
+    </func>
+
+    <func for="DescriptorBuffer" name="WriteConstantBuffer2" doc="Writes the constant buffer to the constant buffer descriptor buffer.
+Must be called with Constant Buffer descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.
+Requires {DeviceFeature::DescriptorEqualSize} to run, otherwise program is ill-formed.">
+      ">
+      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
+      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
+      <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to write.">
+        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+      </arg>
+      <arg type="u32" name="buffer_size" doc="The size of the buffer in bytes."/>
+    </func>
+
+    <func for="DescriptorBuffer" name="WriteShaderResource" doc="Writes the shader resource to the shader resource descriptor buffer.">
+      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
+      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
+      <arg type="u32" name="root_table_index" doc="Index of the descriptor table in {RootSignature::}"/>
+      <arg type="u32" name="binding" doc="Binding index in descriptor table."/>
+      <arg type="u32" name="array_member" doc="Array member index in the binding."/>
+      <arg type="RootSignature" name="root_signature" doc="The root signature to get the binding position from.">
+        <replace with="RootSignatureView" for="cpp" doc="The root signature to get the binding position from."/>
+      </arg>
+      <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
+        <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
+      </arg>
+    </func>
+
+    <func for="DescriptorBuffer" name="WriteConstantBuffer" doc="Writes the constant buffer to the constant buffer descriptor buffer.">
+      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
+      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
+      <arg type="u32" name="root_table_index" doc="Index of the descriptor table in {RootSignature::}"/>
+      <arg type="u32" name="binding" doc="Binding index in descriptor table."/>
+      <arg type="u32" name="array_member" doc="Array member index in the binding."/>
+      <arg type="RootSignature" name="root_signature" doc="The root signature to get the binding position from.">
+        <replace with="RootSignatureView" for="cpp" doc="The root signature to get the binding position from."/>
+      </arg>
+      <arg type="Buffer" name="buffer" doc="The buffer to write.">
+        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+      </arg>
+      <arg type="u32" name="buffer_size" doc="The size of the buffer in bytes."/>
     </func>
 
 

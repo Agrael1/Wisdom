@@ -64,6 +64,8 @@
     <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
     <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
     <type name="PipelineHandle" category="variant" for="Pipeline" mod="cpp-only"/>
+    <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
+    <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
 
 
     <!--Structs-->
