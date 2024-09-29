@@ -3,7 +3,7 @@
 #include <wisdom/vulkan/vk_command_queue.h>
 
 void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
-                                              uint32_t count) const noexcept
+                                                  uint32_t count) const noexcept
 {
     VkSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,

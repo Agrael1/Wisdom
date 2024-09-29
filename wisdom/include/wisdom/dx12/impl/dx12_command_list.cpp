@@ -340,18 +340,18 @@ void wis::ImplDX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_
 }
 
 void wis::ImplDX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-                                                uint32_t instance_count,
-                                                uint32_t start_index,
-                                                uint32_t base_vertex,
-                                                uint32_t start_instance) noexcept
+                                                    uint32_t instance_count,
+                                                    uint32_t start_index,
+                                                    uint32_t base_vertex,
+                                                    uint32_t start_instance) noexcept
 {
     list->DrawIndexedInstanced(vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
 void wis::ImplDX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
-                                         uint32_t instance_count,
-                                         uint32_t base_vertex,
-                                         uint32_t start_instance) noexcept
+                                             uint32_t instance_count,
+                                             uint32_t base_vertex,
+                                             uint32_t start_instance) noexcept
 {
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }

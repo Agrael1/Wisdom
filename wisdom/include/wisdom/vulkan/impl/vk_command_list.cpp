@@ -408,18 +408,18 @@ void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::In
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-                                              uint32_t instance_count,
-                                              uint32_t start_index,
-                                              uint32_t base_vertex,
-                                              uint32_t start_instance) noexcept
+                                                  uint32_t instance_count,
+                                                  uint32_t start_index,
+                                                  uint32_t base_vertex,
+                                                  uint32_t start_instance) noexcept
 {
     device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
 void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
-                                       uint32_t instance_count,
-                                       uint32_t base_vertex,
-                                       uint32_t start_instance) noexcept
+                                           uint32_t instance_count,
+                                           uint32_t base_vertex,
+                                           uint32_t start_instance) noexcept
 {
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }

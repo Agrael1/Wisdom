@@ -386,7 +386,7 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <arg type="u64" name="offset" doc="The offset in the index buffer in bytes."/>
     </func>
 
-    <func for="CommandList" name="IASetIndexBuffer2" doc="Sets the index buffer. 
+    <func for="CommandList" name="IASetIndexBuffer2" doc="Sets the index buffer.
 You may provide the offset in the buffer to take only a range of the buffer.
 Requires {DeviceFeature::AdvancedIndexBuffer} to be supported.">
       <arg type="Buffer" name="buffer" doc="The index buffer to set.">
@@ -410,7 +410,7 @@ Requires {DeviceFeature::AdvancedIndexBuffer} to be supported.">
       <arg type="Scissor" name="scissor" doc="The scissor to set."/>
     </func>
 
-    <func for="CommandList" name="RSSetScissors" doc="Sets multiple scissor rects. 
+    <func for="CommandList" name="RSSetScissors" doc="Sets multiple scissor rects.
 Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
 Otherwise the first is chosen.">
       <arg type="Scissor" name="scissors" mod="const ptr" doc="The scissors to set."/>
@@ -439,7 +439,7 @@ Otherwise the first is chosen.">
       <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
     </func>
 
-    <func for="CommandList" name="SetDescriptorBuffers" doc="Sets the root descriptor tables for the shader. 
+    <func for="CommandList" name="SetDescriptorBuffers" doc="Sets the root descriptor tables for the shader.
 Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often. ">
       <arg type="DescriptorBufferView" name="buffers" mod="const ptr" doc="The descriptor buffers to set the root descriptor tables with.
 May only be one of each type (one Descriptor and one Sampler buffer)"/>
@@ -471,7 +471,7 @@ May only be one of each type (one Descriptor and one Sampler buffer)"/>
       <arg type="u64" name="value" doc="The value to signal the fence with."/>
     </func>
 
-    <func for="CommandQueue" name="WaitQueue" mod="const" doc="Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue. 
+    <func for="CommandQueue" name="WaitQueue" mod="const" doc="Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
 Can still be enqueued after the signal.">
       <ret result="true"/>
       <arg type="Fence" name="fence" doc="The fence to wait on.">
@@ -626,7 +626,7 @@ Presentation always gets queued to the queue specified upon creation.">
     </func>
 
     <func for="SwapChain" name="Present2" doc="Present the swapchain with vsync option.
-Requires {DeviceFeature::DynamicVSync} to be supported. 
+Requires {DeviceFeature::DynamicVSync} to be supported.
 Otherwise is identical to {SwapChain::Present}.">
       <ret result="true"/>
       <arg type="bool" name="in_vsync" doc="Enable vsync."/>

@@ -1776,9 +1776,7 @@ std::string Generator::MakeCFunctionImpl(const WisFunction& func, std::string_vi
     for (auto& arg : func.parameters) {
         auto converted = ConvertFromCType(arg, impl);
 
-        if ((arg.type_info == TypeInfo::Handle || arg.type_info == TypeInfo::ExtHandle) 
-            && arg.modifier.empty() )
-        {
+        if ((arg.type_info == TypeInfo::Handle || arg.type_info == TypeInfo::ExtHandle) && arg.modifier.empty()) {
             converted = wis::format("*{}", converted);
         }
         args += converted + ", ";

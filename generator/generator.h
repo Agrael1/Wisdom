@@ -121,7 +121,6 @@ struct WisVariant {
 
 static constexpr std::string_view ResultDoc = "Result with {Status::Ok} on success.\nError in {Result::error} otherwise.";
 
-
 enum class TypeInfo {
     None,
     Result,
