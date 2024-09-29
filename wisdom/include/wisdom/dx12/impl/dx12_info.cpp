@@ -66,7 +66,7 @@ void DX12Info::AddCallback(void* factory, DebugCallback callback, void* user_dat
 {
     auto& inst = instance();
     inst.callback_sem.acquire();
-    inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*>{ callback, user_data });
+    inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*> { callback, user_data });
     inst.callback_sem.release();
 }
 void DX12Info::RemoveCallback(void* factrory) noexcept
