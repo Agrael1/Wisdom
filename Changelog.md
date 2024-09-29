@@ -1,5 +1,12 @@
 # Version History
 
+- 0.3.4
+
+  - Made a lot of views CPP API only, that makes C API more lightweight
+  - Finished documentation for C and CPP APIs
+  - Fixed Present2 for Vulkan not working correctly with moved swapchain
+  - Added a present fence to the swapchain for Vulkan, makes resizing slightly faster, works if the DynamicVSync is enabled, otherwise it is ignored
+
 - 0.3.3
 
   - Fixed Extension creation for C API yet again
