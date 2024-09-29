@@ -29,11 +29,11 @@ template<>
 struct Internal<DX12SwapChain> : public detail::DX12SwapChainCreateInfo {
 };
 
-class DX12SwapChain : public QueryInternal<DX12SwapChain>
+class ImplDX12SwapChain : public QueryInternal<DX12SwapChain>
 {
 public:
-    DX12SwapChain() noexcept = default;
-    explicit DX12SwapChain(detail::DX12SwapChainCreateInfo&& swap_i) noexcept
+    ImplDX12SwapChain() noexcept = default;
+    explicit ImplDX12SwapChain(detail::DX12SwapChainCreateInfo&& swap_i) noexcept
         : QueryInternal(std::move(swap_i))
     {
     }
@@ -89,6 +89,11 @@ public:
     {
         return { back_buffers.get(), back_buffer_count };
     }
+    [[nodiscard]] const DX12Texture* GetBuffers(uint32_t* out_tex_count) const noexcept
+    {
+        *out_tex_count = back_buffer_count;
+        return back_buffers.get();
+    }
     [[nodiscard]] std::span<const DX12Texture> GetBufferSpan() const noexcept
     {
         return { back_buffers.get(), back_buffer_count };
@@ -101,6 +106,72 @@ public:
                                            : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
     }
 };
+
+#pragma region DX12SwapChain
+/**
+ * @brief Represents swap chain object for presenting images.
+ * */
+struct DX12SwapChain : public wis::ImplDX12SwapChain {
+public:
+    using wis::ImplDX12SwapChain::ImplDX12SwapChain;
+
+public:
+    /**
+     * @brief Get the current image index in the swapchain.
+     * @return Index of the current image.
+     * */
+    inline uint32_t GetCurrentIndex() const noexcept
+    {
+        return wis::ImplDX12SwapChain::GetCurrentIndex();
+    }
+    /**
+     * @brief Check if stereo is supported.
+     * @return true if stereo is supported.
+     * */
+    inline bool StereoSupported() const noexcept
+    {
+        return wis::ImplDX12SwapChain::StereoSupported();
+    }
+    /**
+     * @brief Resize the swapchain.
+     * Transition may be expensive.
+     * For the method to succeed, all swapchain buffers must be destroyed first
+     * @param width New width
+     * @param height New height
+     * */
+    [[nodiscard]] inline wis::Result Resize(uint32_t width, uint32_t height) noexcept
+    {
+        return wis::ImplDX12SwapChain::Resize(width, height);
+    }
+    /**
+     * @brief Present the swapchain.
+     * Presentation always gets queued to the queue specified upon creation.
+     * */
+    [[nodiscard]] inline wis::Result Present() noexcept
+    {
+        return wis::ImplDX12SwapChain::Present();
+    }
+    /**
+     * @brief Present the swapchain with vsync option.
+     * Requires wis::DeviceFeature::DynamicVSync to be supported.
+     * Otherwise is identical to wis::DX12SwapChain.
+     * @param in_vsync Enable vsync.
+     * */
+    [[nodiscard]] inline wis::Result Present2(bool in_vsync) noexcept
+    {
+        return wis::ImplDX12SwapChain::Present2(in_vsync);
+    }
+    /**
+     * @brief Wait for the presentation to finish.
+     * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+     * */
+    [[nodiscard]] inline wis::Result WaitForPresent(uint64_t timeout_ns = UINT64_MAX) const noexcept
+    {
+        return wis::ImplDX12SwapChain::WaitForPresent(timeout_ns);
+    }
+};
+#pragma endregion DX12SwapChain
+
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

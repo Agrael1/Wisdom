@@ -1668,15 +1668,22 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
             .type_info = func.return_type.type_info,
             .type = func.return_type.type,
             .name = func.return_type.opt_name,
-            .modifier = "ptr",
+            .modifier = func.return_type.modifier == "ptr" ? "pp" : "ptr",
         };
         doc += wis::format("@param {} {}\n", res.name, func.return_type.doc);
         doc += wis::format("@return {}\n", ResultDoc);
         return_t = GetCFullTypename("Result");
         args += GetCFullArg(res, impl);
     } else {
+        WisFunctionParameter res{
+            .type_info = func.return_type.type_info,
+            .type = func.return_type.type,
+            .name = "",
+            .modifier = func.return_type.modifier,
+        };
+
         doc += wis::format("@return {}\n", func.return_type.doc);
-        return_t = GetCFullTypename(func.return_type.type, impl);
+        return_t = GetCFullArg(res, impl);
     }
 
     // Remove trailing ", "
@@ -1854,6 +1861,7 @@ std::string Generator::MakeCFunctionImpl(const WisFunction& func, std::string_vi
         .type_info = func.return_type.type_info,
         .type = func.return_type.type,
         .name = "res",
+        .modifier = func.return_type.modifier,
     };
 
     body += wis::format("    auto res = {};\n", call);
@@ -2100,8 +2108,15 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         doc += wis::format("@return {}\n", func.return_type.doc);
         return_t = wis::format("wis::ResultValue<{}>", GetCPPFullTypename(func.return_type.type, impl));
     } else {
+        WisFunctionParameter res{
+            .type_info = func.return_type.type_info,
+            .type = func.return_type.type,
+            .name = "",
+            .modifier = func.return_type.modifier,
+        };
+
         doc += wis::format("@return {}\n", func.return_type.doc);
-        return_t = GetCPPFullTypename(func.return_type.type, impl);
+        return_t = GetCPPFullArg(res, impl);
     }
 
     // Remove trailing ", "

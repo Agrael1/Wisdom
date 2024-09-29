@@ -5,7 +5,7 @@
 /// @brief Signal the fence from CPU.
 /// @param value Value to signal.
 
-wis::Result wis::VKFence::Signal(uint64_t value) const noexcept
+wis::Result wis::ImplVKFence::Signal(uint64_t value) const noexcept
 {
     auto& device = fence.header().parent;
     VkSemaphoreSignalInfo signalInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO, nullptr, fence.get(),
@@ -19,7 +19,7 @@ wis::Result wis::VKFence::Signal(uint64_t value) const noexcept
 /// @param value Value to wait for.
 /// @return Boolean indicating whether the fence reached the value.
 
-wis::Result wis::VKFence::Wait(uint64_t value, uint64_t wait_ns) const noexcept // NOLINT
+wis::Result wis::ImplVKFence::Wait(uint64_t value, uint64_t wait_ns) const noexcept // NOLINT
 {
     if (GetCompletedValue() >= value)
         return wis::success;
@@ -39,7 +39,7 @@ wis::Result wis::VKFence::Wait(uint64_t value, uint64_t wait_ns) const noexcept 
 /// @brief Get the current value of the fence.
 /// @return Value of the fence.
 
-uint64_t wis::VKFence::GetCompletedValue() const noexcept
+uint64_t wis::ImplVKFence::GetCompletedValue() const noexcept
 {
     auto& device = fence.header().parent;
     uint64_t value = 0;

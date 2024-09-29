@@ -14,11 +14,11 @@ struct Internal<VKFence> {
     wis::managed_handle_ex<VkSemaphore> fence;
 };
 
-class VKFence : public QueryInternal<VKFence>
+class ImplVKFence : public QueryInternal<VKFence>
 {
 public:
-    VKFence() = default;
-    explicit VKFence(wis::managed_handle_ex<VkSemaphore> in_fence) noexcept
+    ImplVKFence() = default;
+    explicit ImplVKFence(wis::managed_handle_ex<VkSemaphore> in_fence) noexcept
         : QueryInternal(std::move(in_fence))
     {
     }
@@ -48,6 +48,44 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result
     Signal(uint64_t value) const noexcept;
 };
+
+#pragma region VKFence
+/**
+ * @brief Represents fence for synchronization of GPU timeline.
+ * */
+struct VKFence : public wis::ImplVKFence {
+public:
+    using wis::ImplVKFence::ImplVKFence;
+
+public:
+    /**
+     * @brief Get the current value of the fence.
+     * @return Value of the fence.
+     * */
+    inline uint64_t GetCompletedValue() const noexcept
+    {
+        return wis::ImplVKFence::GetCompletedValue();
+    }
+    /**
+     * @brief Wait on CPU for the fence to reach a certain value.
+     * @param value Value to wait for.
+     * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+     * */
+    [[nodiscard]] inline wis::Result Wait(uint64_t value, uint64_t wait_ns = UINT64_MAX) const noexcept
+    {
+        return wis::ImplVKFence::Wait(value, wait_ns);
+    }
+    /**
+     * @brief Signal the fence from CPU.
+     * @param value Value to signal.
+     * */
+    [[nodiscard]] inline wis::Result Signal(uint64_t value) const noexcept
+    {
+        return wis::ImplVKFence::Signal(value);
+    }
+};
+#pragma endregion VKFence
+
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

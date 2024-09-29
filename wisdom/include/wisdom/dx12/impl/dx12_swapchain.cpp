@@ -32,7 +32,7 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
     return wis::success;
 }
 
-wis::Result wis::DX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
+wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
 {
     if (width == 0 || height == 0)
         return wis::make_result<FUNC, "Invalid size">(E_INVALIDARG);

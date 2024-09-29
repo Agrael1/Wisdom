@@ -13,13 +13,13 @@ uint64_t wis::ImplDX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offs
     return aligned_table_offset + index * heap_increment + heap_increment;
 }
 
-uint64_t wis::ImplDX12DescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView root_signature, wis::DX12ShaderResourceView resource) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteShaderResource(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView2 root_signature, wis::DX12ShaderResourceView resource) noexcept
 {
     auto srv_handle = std::get<0>(resource);
     return WriteDescriptor(buffer_offset_before_table, binding, array_member, srv_handle);
 }
 
-uint64_t wis::ImplDX12DescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView root_signature, wis::DX12BufferView buffer, uint32_t size) noexcept
+uint64_t wis::ImplDX12DescriptorBuffer::WriteConstantBuffer(uint64_t buffer_offset_before_table, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::DX12RootSignatureView2 root_signature, wis::DX12BufferView buffer, uint32_t size) noexcept
 {
     auto* cbv = std::get<0>(buffer);
     D3D12_CONSTANT_BUFFER_VIEW_DESC desc{

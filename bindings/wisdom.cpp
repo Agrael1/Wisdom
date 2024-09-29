@@ -44,6 +44,13 @@ extern "C" WisResult DX12FactoryGetAdapter(DX12Factory self, uint32_t index, Wis
     return reinterpret_cast<WisResult&>(res);
 }
 
+// DX12PipelineState methods --
+extern "C" void DX12PipelineStateDestroy(DX12PipelineState self)
+{
+    auto* xself = reinterpret_cast<wis::DX12PipelineState*>(self);
+    delete xself;
+}
+
 // DX12Adapter methods --
 extern "C" void DX12AdapterDestroy(DX12Adapter self)
 {
@@ -380,6 +387,34 @@ extern "C" WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator sel
     return reinterpret_cast<WisResult&>(res);
 }
 
+// DX12Fence methods --
+extern "C" void DX12FenceDestroy(DX12Fence self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    delete xself;
+}
+extern "C" uint64_t DX12FenceGetCompletedValue(DX12Fence self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    auto res = xself->GetCompletedValue();
+    ;
+    return res;
+}
+extern "C" WisResult DX12FenceWait(DX12Fence self, uint64_t value, uint64_t wait_ns)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    auto res = xself->Wait(value, wait_ns);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12FenceSignal(DX12Fence self, uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::DX12Fence*>(self);
+    auto res = xself->Signal(value);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+
 // DX12CommandList methods --
 extern "C" void DX12CommandListDestroy(DX12CommandList self)
 {
@@ -523,10 +558,134 @@ extern "C" void DX12CommandListSetDescriptorTableOffset(DX12CommandList self, ui
     xself->SetDescriptorTableOffset(root_table_index, *reinterpret_cast<wis::DX12DescriptorBuffer*>(buffer), offset_bytes);
 }
 
+// DX12Memory methods --
+extern "C" void DX12MemoryDestroy(DX12Memory self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
+    delete xself;
+}
+extern "C" uint64_t DX12MemoryGetBlockOffset(DX12Memory self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
+    auto res = xself->GetBlockOffset();
+    ;
+    return res;
+}
+
+// DX12SwapChain methods --
+extern "C" void DX12SwapChainDestroy(DX12SwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    delete xself;
+}
+extern "C" uint32_t DX12SwapChainGetCurrentIndex(DX12SwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    auto res = xself->GetCurrentIndex();
+    ;
+    return res;
+}
+extern "C" bool DX12SwapChainStereoSupported(DX12SwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    auto res = xself->StereoSupported();
+    ;
+    return res;
+}
+extern "C" WisResult DX12SwapChainResize(DX12SwapChain self, uint32_t width, uint32_t height)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    auto res = xself->Resize(width, height);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12SwapChainPresent(DX12SwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    auto res = xself->Present();
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12SwapChainPresent2(DX12SwapChain self, bool in_vsync)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    auto res = xself->Present2(in_vsync);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12SwapChainWaitForPresent(DX12SwapChain self, uint64_t timeout_ns)
+{
+    auto* xself = reinterpret_cast<wis::DX12SwapChain*>(self);
+    auto res = xself->WaitForPresent(timeout_ns);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+
+// DX12Buffer methods --
+extern "C" void DX12BufferDestroy(DX12Buffer self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Buffer*>(self);
+    delete xself;
+}
+extern "C" void* DX12BufferMapRaw(DX12Buffer self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Buffer*>(self);
+    auto res = xself->MapRaw();
+    ;
+    return res;
+}
+extern "C" void DX12BufferUnmap(DX12Buffer self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Buffer*>(self);
+    xself->Unmap();
+}
+
+// DX12Texture methods --
+extern "C" void DX12TextureDestroy(DX12Texture self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Texture*>(self);
+    delete xself;
+}
+
+// DX12RootSignature methods --
+extern "C" void DX12RootSignatureDestroy(DX12RootSignature self)
+{
+    auto* xself = reinterpret_cast<wis::DX12RootSignature*>(self);
+    delete xself;
+}
+
+// DX12Shader methods --
+extern "C" void DX12ShaderDestroy(DX12Shader self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Shader*>(self);
+    delete xself;
+}
+
 // DX12DebugMessenger methods --
 extern "C" void DX12DebugMessengerDestroy(DX12DebugMessenger self)
 {
     auto* xself = reinterpret_cast<wis::DX12DebugMessenger*>(self);
+    delete xself;
+}
+
+// DX12RenderTarget methods --
+extern "C" void DX12RenderTargetDestroy(DX12RenderTarget self)
+{
+    auto* xself = reinterpret_cast<wis::DX12RenderTarget*>(self);
+    delete xself;
+}
+
+// DX12Sampler methods --
+extern "C" void DX12SamplerDestroy(DX12Sampler self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Sampler*>(self);
+    delete xself;
+}
+
+// DX12ShaderResource methods --
+extern "C" void DX12ShaderResourceDestroy(DX12ShaderResource self)
+{
+    auto* xself = reinterpret_cast<wis::DX12ShaderResource*>(self);
     delete xself;
 }
 
@@ -614,6 +773,13 @@ extern "C" WisResult VKFactoryGetAdapter(VKFactory self, uint32_t index, WisAdap
     if (!*adapter)
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKAdapter." };
     return reinterpret_cast<WisResult&>(res);
+}
+
+// VKPipelineState methods --
+extern "C" void VKPipelineStateDestroy(VKPipelineState self)
+{
+    auto* xself = reinterpret_cast<wis::VKPipelineState*>(self);
+    delete xself;
 }
 
 // VKAdapter methods --
@@ -952,6 +1118,34 @@ extern "C" WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, V
     return reinterpret_cast<WisResult&>(res);
 }
 
+// VKFence methods --
+extern "C" void VKFenceDestroy(VKFence self)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    delete xself;
+}
+extern "C" uint64_t VKFenceGetCompletedValue(VKFence self)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    auto res = xself->GetCompletedValue();
+    ;
+    return res;
+}
+extern "C" WisResult VKFenceWait(VKFence self, uint64_t value, uint64_t wait_ns)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    auto res = xself->Wait(value, wait_ns);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKFenceSignal(VKFence self, uint64_t value)
+{
+    auto* xself = reinterpret_cast<wis::VKFence*>(self);
+    auto res = xself->Signal(value);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+
 // VKCommandList methods --
 extern "C" void VKCommandListDestroy(VKCommandList self)
 {
@@ -1095,10 +1289,134 @@ extern "C" void VKCommandListSetDescriptorTableOffset(VKCommandList self, uint32
     xself->SetDescriptorTableOffset(root_table_index, *reinterpret_cast<wis::VKDescriptorBuffer*>(buffer), offset_bytes);
 }
 
+// VKMemory methods --
+extern "C" void VKMemoryDestroy(VKMemory self)
+{
+    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
+    delete xself;
+}
+extern "C" uint64_t VKMemoryGetBlockOffset(VKMemory self)
+{
+    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
+    auto res = xself->GetBlockOffset();
+    ;
+    return res;
+}
+
+// VKSwapChain methods --
+extern "C" void VKSwapChainDestroy(VKSwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    delete xself;
+}
+extern "C" uint32_t VKSwapChainGetCurrentIndex(VKSwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    auto res = xself->GetCurrentIndex();
+    ;
+    return res;
+}
+extern "C" bool VKSwapChainStereoSupported(VKSwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    auto res = xself->StereoSupported();
+    ;
+    return res;
+}
+extern "C" WisResult VKSwapChainResize(VKSwapChain self, uint32_t width, uint32_t height)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    auto res = xself->Resize(width, height);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKSwapChainPresent(VKSwapChain self)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    auto res = xself->Present();
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKSwapChainPresent2(VKSwapChain self, bool in_vsync)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    auto res = xself->Present2(in_vsync);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKSwapChainWaitForPresent(VKSwapChain self, uint64_t timeout_ns)
+{
+    auto* xself = reinterpret_cast<wis::VKSwapChain*>(self);
+    auto res = xself->WaitForPresent(timeout_ns);
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+
+// VKBuffer methods --
+extern "C" void VKBufferDestroy(VKBuffer self)
+{
+    auto* xself = reinterpret_cast<wis::VKBuffer*>(self);
+    delete xself;
+}
+extern "C" void* VKBufferMapRaw(VKBuffer self)
+{
+    auto* xself = reinterpret_cast<wis::VKBuffer*>(self);
+    auto res = xself->MapRaw();
+    ;
+    return res;
+}
+extern "C" void VKBufferUnmap(VKBuffer self)
+{
+    auto* xself = reinterpret_cast<wis::VKBuffer*>(self);
+    xself->Unmap();
+}
+
+// VKTexture methods --
+extern "C" void VKTextureDestroy(VKTexture self)
+{
+    auto* xself = reinterpret_cast<wis::VKTexture*>(self);
+    delete xself;
+}
+
+// VKRootSignature methods --
+extern "C" void VKRootSignatureDestroy(VKRootSignature self)
+{
+    auto* xself = reinterpret_cast<wis::VKRootSignature*>(self);
+    delete xself;
+}
+
+// VKShader methods --
+extern "C" void VKShaderDestroy(VKShader self)
+{
+    auto* xself = reinterpret_cast<wis::VKShader*>(self);
+    delete xself;
+}
+
 // VKDebugMessenger methods --
 extern "C" void VKDebugMessengerDestroy(VKDebugMessenger self)
 {
     auto* xself = reinterpret_cast<wis::VKDebugMessenger*>(self);
+    delete xself;
+}
+
+// VKRenderTarget methods --
+extern "C" void VKRenderTargetDestroy(VKRenderTarget self)
+{
+    auto* xself = reinterpret_cast<wis::VKRenderTarget*>(self);
+    delete xself;
+}
+
+// VKSampler methods --
+extern "C" void VKSamplerDestroy(VKSampler self)
+{
+    auto* xself = reinterpret_cast<wis::VKSampler*>(self);
+    delete xself;
+}
+
+// VKShaderResource methods --
+extern "C" void VKShaderResourceDestroy(VKShaderResource self)
+{
+    auto* xself = reinterpret_cast<wis::VKShaderResource*>(self);
     delete xself;
 }
 

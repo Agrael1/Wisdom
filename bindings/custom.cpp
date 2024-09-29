@@ -307,6 +307,21 @@ extern "C" void DX12DeviceDestroy(DX12Device self)
     std::destroy_at(memory.pre_type);
     wisdom_free(memory.data());
 }
+
+extern "C" uint32_t DX12SwapChainGetBuffers(DX12SwapChain self, const DX12Texture** buffers)
+{
+    auto* swapchain = reinterpret_cast<wis::DX12SwapChain*>(self);
+    uint32_t count = swapchain->GetInternal().back_buffer_count;
+    if (!buffers) {
+        return count;
+    }
+
+    auto&& [result, xcount] = swapchain->GetBuffers();
+    for (uint32_t i = 0; i < xcount; i++) {
+        buffers[i] = reinterpret_cast<const DX12Texture*>(result + i);
+    }
+    return xcount;
+}
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
@@ -531,5 +546,19 @@ extern "C" void VKDeviceDestroy(VKDevice self)
 
     std::destroy_at(memory.pre_type);
     wisdom_free(memory.data());
+}
+extern "C" uint32_t VKSwapChainGetBuffers(VKSwapChain self, const VKTexture** buffers)
+{
+    auto* swapchain = reinterpret_cast<wis::VKSwapChain*>(self);
+    uint32_t count = swapchain->GetInternal().back_buffer_count;
+    if (!buffers) {
+        return count;
+    }
+
+    auto&& [result, xcount] = swapchain->GetBuffers();
+    for (uint32_t i = 0; i < xcount; i++) {
+        buffers[i] = reinterpret_cast<const VKTexture*>(result + i);
+    }
+    return xcount;
 }
 #endif // WISDOM_VK

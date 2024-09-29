@@ -62,6 +62,7 @@
       </impl>
     </type>
     <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
+    <type name="RootSignatureView2" category="variant" for="RootSignature" mod="cpp-only"/>
     <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
     <type name="PipelineHandle" category="variant" for="Pipeline" mod="cpp-only"/>
     <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>

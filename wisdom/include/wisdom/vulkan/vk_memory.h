@@ -42,11 +42,11 @@ struct Internal<VKMemory> {
     }
 };
 
-class VKMemory : public QueryInternal<VKMemory>
+class ImplVKMemory : public QueryInternal<VKMemory>
 {
 public:
-    VKMemory() noexcept = default;
-    explicit VKMemory(wis::shared_handle<VmaAllocator> allocator, VmaAllocation allocation) noexcept
+    ImplVKMemory() noexcept = default;
+    explicit ImplVKMemory(wis::shared_handle<VmaAllocator> allocator, VmaAllocation allocation) noexcept
         : QueryInternal<VKMemory>(std::move(allocator), allocation)
     {
     }
@@ -64,7 +64,7 @@ public:
         return !allocation;
     }
     [[nodiscard]] bool
-    operator==(const VKMemory& other) const noexcept
+    operator==(const ImplVKMemory& other) const noexcept
     {
         return allocator.get() == other.allocator.get() && allocation == other.allocation;
     }
@@ -92,6 +92,26 @@ public:
         vmaUnmapMemory(allocator.get(), allocation);
     }
 };
+
+#pragma region VKMemory
+/**
+ * @brief Represents memory object for binding resources.
+ * */
+struct VKMemory : public wis::ImplVKMemory {
+public:
+    using wis::ImplVKMemory::ImplVKMemory;
+
+public:
+    /**
+     * @brief Returns the offset of the block in the global memory.
+     * @return The offset of the block in the global memory.
+     * */
+    inline uint64_t GetBlockOffset() const noexcept
+    {
+        return wis::ImplVKMemory::GetBlockOffset();
+    }
+};
+#pragma endregion VKMemory
 
 } // namespace wis
 

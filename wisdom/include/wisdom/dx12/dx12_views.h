@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_VIEWS_H
+#define WIS_DX12_VIEWS_H
 #include <wisdom/generated/api/api.h>
 #include <array>
 #include <d3d12.h>
@@ -29,3 +30,5 @@ using DX12SamplerView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12ShaderResourceView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12MemoryView = std::tuple<D3D12MA::Allocator*, D3D12MA::Allocation*>;
 } // namespace wis
+
+#endif // !WIS_DX12_VIEWS_H

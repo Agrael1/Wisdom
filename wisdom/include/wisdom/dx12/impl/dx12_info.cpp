@@ -1,8 +1,6 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef WIS_DX12_INFO_CPP
+#define WIS_DX12_INFO_CPP
 #include <wisdom/dx12/dx12_info.h>
-#endif // !WISDOM_HEADER_ONLY
-
 #include <d3d12sdklayers.h>
 #include <dxgi1_6.h>
 #include <vector>
@@ -148,3 +146,4 @@ void wis::DX12Info::PollInternal() noexcept
     }
     info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
 }
+#endif // WIS_DX12_INFO_CPP

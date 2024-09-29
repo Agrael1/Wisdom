@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_DX12_FENCE_H
+#define WIS_DX12_FENCE_H
 #include <d3d12.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
@@ -15,16 +16,12 @@ struct Internal<DX12Fence> {
     wis::unique_event fence_event;
 };
 
-/// @brief A fence is a synchronization primitive that allows the CPU to wait for the GPU to finish
-/// rendering a frame.
-class DX12Fence : public QueryInternal<DX12Fence>
+class ImplDX12Fence : public QueryInternal<DX12Fence>
 {
 public:
-    DX12Fence() = default;
-    explicit DX12Fence(wis::com_ptr<ID3D12Fence1> xfence) noexcept
+    ImplDX12Fence() = default;
+    explicit ImplDX12Fence(wis::com_ptr<ID3D12Fence1> xfence) noexcept
         : QueryInternal(std::move(xfence), CreateEventW(nullptr, false, false, nullptr)) { }
-    DX12Fence(DX12Fence&& o) noexcept = default;
-    DX12Fence& operator=(DX12Fence&& o) noexcept = default;
 
     operator DX12FenceView() const noexcept
     {
@@ -37,31 +34,64 @@ public:
     }
 
 public:
-    /// @brief Get the current value of the fence.
-    /// @return Value of the fence.
     [[nodiscard]] uint64_t
     GetCompletedValue() const noexcept
     {
         return fence->GetCompletedValue();
     }
 
-    /// @brief Wait for the fence to reach a certain value.
-    /// @param value Value to wait for.
-    /// @return Boolean indicating whether the fence reached the value.
     [[nodiscard]] WIS_INLINE wis::Result
     Wait(uint64_t value,
          uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
-    /// @brief Signal the fence from CPU.
-    /// @param value Value to signal.
-    [[nodiscard]] WIS_INLINE wis::Result Signal(uint64_t value) const noexcept
+    [[nodiscard]] wis::Result
+    Signal(uint64_t value) const noexcept
     {
         HRESULT hr = fence->Signal(value);
         return !succeeded(hr) ? wis::make_result<FUNC, "Failed to signal fence">(hr) : wis::success;
     }
 };
+
+#pragma region DX12Fence
+/**
+ * @brief Represents fence for synchronization of GPU timeline.
+ * */
+struct DX12Fence : public wis::ImplDX12Fence {
+public:
+    using wis::ImplDX12Fence::ImplDX12Fence;
+
+public:
+    /**
+     * @brief Get the current value of the fence.
+     * @return Value of the fence.
+     * */
+    inline uint64_t GetCompletedValue() const noexcept
+    {
+        return wis::ImplDX12Fence::GetCompletedValue();
+    }
+    /**
+     * @brief Wait on CPU for the fence to reach a certain value.
+     * @param value Value to wait for.
+     * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+     * */
+    [[nodiscard]] inline wis::Result Wait(uint64_t value, uint64_t wait_ns = UINT64_MAX) const noexcept
+    {
+        return wis::ImplDX12Fence::Wait(value, wait_ns);
+    }
+    /**
+     * @brief Signal the fence from CPU.
+     * @param value Value to signal.
+     * */
+    [[nodiscard]] inline wis::Result Signal(uint64_t value) const noexcept
+    {
+        return wis::ImplDX12Fence::Signal(value);
+    }
+};
+#pragma endregion DX12Fence
+
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_fence.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // WIS_DX12_FENCE_H

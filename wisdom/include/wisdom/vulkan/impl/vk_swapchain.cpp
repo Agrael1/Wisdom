@@ -123,7 +123,6 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
     surface = std::move(o.surface);
     device = std::move(o.device);
     adapter = o.adapter;
-    getCaps = o.getCaps;
     swapchain = std::move(o.swapchain);
     initialization = std::move(o.initialization);
 
@@ -143,6 +142,7 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
     stereo_requested = o.stereo_requested;
     acquire_index = o.acquire_index;
     present_index = o.present_index;
+    supported_presentations = o.supported_presentations;
 
     return *this;
 }
@@ -196,14 +196,18 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
 void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphores() noexcept
 {
     auto& dtable = device.table();
+    if (!supported_presentations) {
+        dtable.vkQueueSubmit(graphics_queue, 0, nullptr, fence);
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
 
-    dtable.vkQueueSubmit(graphics_queue, 0, nullptr, fence);
-    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    dtable.vkResetFences(device.get(), 1, &fence);
-
-    dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
-    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    dtable.vkResetFences(device.get(), 1, &fence);
+        dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
+    } else {
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
+    }
 
     if (fence) {
         dtable.vkDestroyFence(device.get(), fence, nullptr);
@@ -211,29 +215,47 @@ void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphores() noexcept
     }
 }
 
-wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
+wis::Result wis::ImplVKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
 {
     auto& dtable = device.table();
+    auto& itable = surface.header().parent.table();
 
-    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    if (!supported_presentations) {
+        VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
-    VkSubmitInfo wait_desc{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = nullptr,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-        .pWaitDstStageMask = &wait_stages,
-    };
-    dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
-    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    dtable.vkResetFences(device.get(), 1, &fence);
+        VkSubmitInfo wait_desc{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &image_ready_semaphores[acquire_index],
+            .pWaitDstStageMask = &wait_stages,
+        };
+        dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
 
-    dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
-    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    dtable.vkResetFences(device.get(), 1, &fence);
+        dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
+    } else {
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
+
+        VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        VkSubmitInfo wait_desc{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &image_ready_semaphores[acquire_index],
+            .pWaitDstStageMask = &wait_stages,
+        };
+        dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
+        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        dtable.vkResetFences(device.get(), 1, &fence);
+    }
 
     VkSurfaceCapabilitiesKHR caps{};
-    getCaps(adapter, surface.get(), &caps);
+    itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(adapter, surface.get(), &caps);
 
     width = std::clamp(width, caps.minImageExtent.width, caps.maxImageExtent.width);
     height = std::clamp(height, caps.minImageExtent.height, caps.maxImageExtent.height);
@@ -275,7 +297,7 @@ wis::Result wis::VKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
     return AquireNextIndex();
 }
 
-wis::Result wis::VKSwapChain::Present() const noexcept
+wis::Result wis::ImplVKSwapChain::Present() const noexcept
 {
     auto& dtable = device.table();
 
@@ -299,9 +321,16 @@ wis::Result wis::VKSwapChain::Present() const noexcept
         .pPresentIds = &this->present_id,
     };
 
+    VkSwapchainPresentFenceInfoEXT present_fence{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT,
+        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
+        .swapchainCount = 1,
+        .pFences = &fence.handle
+    };
+
     VkPresentInfoKHR present_info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
+        .pNext = supported_presentations ? &present_fence : present_fence.pNext,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &present_semaphores[present_index],
         .swapchainCount = 1,
@@ -327,7 +356,7 @@ wis::Result wis::VKSwapChain::Present() const noexcept
     return AquireNextIndex();
 }
 
-wis::Result wis::VKSwapChain::Present2(bool in_vsync) const noexcept
+wis::Result wis::ImplVKSwapChain::Present2(bool in_vsync) const noexcept
 {
     // relaxed behavior
     if (!supported_presentations)
@@ -375,9 +404,16 @@ wis::Result wis::VKSwapChain::Present2(bool in_vsync) const noexcept
         .pPresentIds = &this->present_id,
     };
 
+    VkSwapchainPresentFenceInfoEXT present_fence{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT,
+        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
+        .swapchainCount = 1,
+        .pFences = &fence.handle
+    };
+
     VkSwapchainPresentModeInfoEXT present_mode_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
-        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
+        .pNext = &present_fence,
         .swapchainCount = 1,
         .pPresentModes = &new_present_mode,
     };
@@ -411,7 +447,7 @@ wis::Result wis::VKSwapChain::Present2(bool in_vsync) const noexcept
 }
 
 wis::Result
-wis::VKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
+wis::ImplVKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 {
     auto& dtable = device.table();
     if (!dtable.vkWaitForPresentKHR)

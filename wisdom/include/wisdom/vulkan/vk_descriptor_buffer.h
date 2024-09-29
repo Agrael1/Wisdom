@@ -183,7 +183,7 @@ public:
      * @param resource The shader resource to write.
      * @return Byte offset from buffer beginning. May help determine next table address.
      * */
-    inline uint64_t WriteShaderResource(uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView root_signature, wis::VKShaderResourceView resource) noexcept
+    inline uint64_t WriteShaderResource(uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKShaderResourceView resource) noexcept
     {
         return wis::ImplVKDescriptorBuffer::WriteShaderResource(aligned_table_offset, root_table_index, binding, array_member, std::move(root_signature), std::move(resource));
     }
@@ -199,7 +199,7 @@ public:
      * @param buffer_size The size of the buffer in bytes.
      * @return Byte offset from buffer beginning. May help determine next table address.
      * */
-    inline uint64_t WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView root_signature, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
+    inline uint64_t WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, wis::VKRootSignatureView2 root_signature, wis::VKBufferView buffer, uint32_t buffer_size) noexcept
     {
         return wis::ImplVKDescriptorBuffer::WriteConstantBuffer(aligned_table_offset, root_table_index, binding, array_member, std::move(root_signature), std::move(buffer), buffer_size);
     }

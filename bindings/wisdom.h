@@ -2006,15 +2006,15 @@ typedef struct VKFactoryExtension_t* VKFactoryExtension;
 typedef struct VKResourceAllocator_t* VKResourceAllocator;
 typedef struct VKFence_t* VKFence;
 typedef struct VKCommandList_t* VKCommandList;
-typedef struct VKRootSignature_t* VKRootSignature;
-typedef struct VKShader_t* VKShader;
+typedef struct VKMemory_t* VKMemory;
 typedef struct VKSwapChain_t* VKSwapChain;
 typedef struct VKBuffer_t* VKBuffer;
 typedef struct VKTexture_t* VKTexture;
+typedef struct VKRootSignature_t* VKRootSignature;
+typedef struct VKShader_t* VKShader;
 typedef struct VKDebugMessenger_t* VKDebugMessenger;
 typedef struct VKRenderTarget_t* VKRenderTarget;
 typedef struct VKSampler_t* VKSampler;
-typedef struct VKMemory_t* VKMemory;
 typedef struct VKShaderResource_t* VKShaderResource;
 
 //-------------------------------------------------------------------------
@@ -2070,6 +2070,13 @@ WISDOM_API void VKFactoryDestroy(VKFactory self);
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult VKFactoryGetAdapter(VKFactory self, uint32_t index, WisAdapterPreference preference, VKAdapter* adapter);
+
+// VKPipelineState methods --
+/**
+ * @brief Destroys the VKPipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+WISDOM_API void VKPipelineStateDestroy(VKPipelineState self);
 
 // VKAdapter methods --
 /**
@@ -2440,6 +2447,35 @@ WISDOM_API WisResult VKResourceAllocatorPlaceBuffer(VKResourceAllocator self, VK
  * */
 WISDOM_API WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, VKMemory memory, uint64_t memory_offset, const WisTextureDesc* desc, VKTexture* texture);
 
+// VKFence methods --
+/**
+ * @brief Destroys the VKFence.
+ * @param self valid handle to the Fence
+ * */
+WISDOM_API void VKFenceDestroy(VKFence self);
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+WISDOM_API uint64_t VKFenceGetCompletedValue(VKFence self);
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult VKFenceWait(VKFence self, uint64_t value, uint64_t wait_ns);
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+WISDOM_API WisResult VKFenceSignal(VKFence self, uint64_t value);
+
 // VKCommandList methods --
 /**
  * @brief Destroys the VKCommandList.
@@ -2668,12 +2704,151 @@ WISDOM_API void VKCommandListSetDescriptorBuffers(VKCommandList self, const VKDe
  * */
 WISDOM_API void VKCommandListSetDescriptorTableOffset(VKCommandList self, uint32_t root_table_index, VKDescriptorBuffer buffer, uint32_t offset_bytes);
 
+// VKMemory methods --
+/**
+ * @brief Destroys the VKMemory.
+ * @param self valid handle to the Memory
+ * */
+WISDOM_API void VKMemoryDestroy(VKMemory self);
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+WISDOM_API uint64_t VKMemoryGetBlockOffset(VKMemory self);
+
+// VKSwapChain methods --
+/**
+ * @brief Destroys the VKSwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API void VKSwapChainDestroy(VKSwapChain self);
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+WISDOM_API uint32_t VKSwapChainGetCurrentIndex(VKSwapChain self);
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+WISDOM_API bool VKSwapChainStereoSupported(VKSwapChain self);
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+WISDOM_API WisResult VKSwapChainResize(VKSwapChain self, uint32_t width, uint32_t height);
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API WisResult VKSwapChainPresent(VKSwapChain self);
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to VKSwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+WISDOM_API WisResult VKSwapChainPresent2(VKSwapChain self, bool in_vsync);
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+WISDOM_API uint32_t VKSwapChainGetBuffers(VKSwapChain self, const VKTexture** buffers);
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult VKSwapChainWaitForPresent(VKSwapChain self, uint64_t timeout_ns);
+
+// VKBuffer methods --
+/**
+ * @brief Destroys the VKBuffer.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void VKBufferDestroy(VKBuffer self);
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+WISDOM_API void* VKBufferMapRaw(VKBuffer self);
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void VKBufferUnmap(VKBuffer self);
+
+// VKTexture methods --
+/**
+ * @brief Destroys the VKTexture.
+ * @param self valid handle to the Texture
+ * */
+WISDOM_API void VKTextureDestroy(VKTexture self);
+
+// VKRootSignature methods --
+/**
+ * @brief Destroys the VKRootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+WISDOM_API void VKRootSignatureDestroy(VKRootSignature self);
+
+// VKShader methods --
+/**
+ * @brief Destroys the VKShader.
+ * @param self valid handle to the Shader
+ * */
+WISDOM_API void VKShaderDestroy(VKShader self);
+
 // VKDebugMessenger methods --
 /**
  * @brief Destroys the VKDebugMessenger.
  * @param self valid handle to the DebugMessenger
  * */
 WISDOM_API void VKDebugMessengerDestroy(VKDebugMessenger self);
+
+// VKRenderTarget methods --
+/**
+ * @brief Destroys the VKRenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+WISDOM_API void VKRenderTargetDestroy(VKRenderTarget self);
+
+// VKSampler methods --
+/**
+ * @brief Destroys the VKSampler.
+ * @param self valid handle to the Sampler
+ * */
+WISDOM_API void VKSamplerDestroy(VKSampler self);
+
+// VKShaderResource methods --
+/**
+ * @brief Destroys the VKShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+WISDOM_API void VKShaderResourceDestroy(VKShaderResource self);
 
 //-------------------------------------------------------------------------
 
@@ -2867,15 +3042,15 @@ typedef struct DX12FactoryExtension_t* DX12FactoryExtension;
 typedef struct DX12ResourceAllocator_t* DX12ResourceAllocator;
 typedef struct DX12Fence_t* DX12Fence;
 typedef struct DX12CommandList_t* DX12CommandList;
-typedef struct DX12RootSignature_t* DX12RootSignature;
-typedef struct DX12Shader_t* DX12Shader;
+typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12SwapChain_t* DX12SwapChain;
 typedef struct DX12Buffer_t* DX12Buffer;
 typedef struct DX12Texture_t* DX12Texture;
+typedef struct DX12RootSignature_t* DX12RootSignature;
+typedef struct DX12Shader_t* DX12Shader;
 typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
 typedef struct DX12Sampler_t* DX12Sampler;
-typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
 
 //-------------------------------------------------------------------------
@@ -2931,6 +3106,13 @@ WISDOM_API void DX12FactoryDestroy(DX12Factory self);
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult DX12FactoryGetAdapter(DX12Factory self, uint32_t index, WisAdapterPreference preference, DX12Adapter* adapter);
+
+// DX12PipelineState methods --
+/**
+ * @brief Destroys the DX12PipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+WISDOM_API void DX12PipelineStateDestroy(DX12PipelineState self);
 
 // DX12Adapter methods --
 /**
@@ -3301,6 +3483,35 @@ WISDOM_API WisResult DX12ResourceAllocatorPlaceBuffer(DX12ResourceAllocator self
  * */
 WISDOM_API WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator self, DX12Memory memory, uint64_t memory_offset, const WisTextureDesc* desc, DX12Texture* texture);
 
+// DX12Fence methods --
+/**
+ * @brief Destroys the DX12Fence.
+ * @param self valid handle to the Fence
+ * */
+WISDOM_API void DX12FenceDestroy(DX12Fence self);
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+WISDOM_API uint64_t DX12FenceGetCompletedValue(DX12Fence self);
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult DX12FenceWait(DX12Fence self, uint64_t value, uint64_t wait_ns);
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+WISDOM_API WisResult DX12FenceSignal(DX12Fence self, uint64_t value);
+
 // DX12CommandList methods --
 /**
  * @brief Destroys the DX12CommandList.
@@ -3529,12 +3740,151 @@ WISDOM_API void DX12CommandListSetDescriptorBuffers(DX12CommandList self, const 
  * */
 WISDOM_API void DX12CommandListSetDescriptorTableOffset(DX12CommandList self, uint32_t root_table_index, DX12DescriptorBuffer buffer, uint32_t offset_bytes);
 
+// DX12Memory methods --
+/**
+ * @brief Destroys the DX12Memory.
+ * @param self valid handle to the Memory
+ * */
+WISDOM_API void DX12MemoryDestroy(DX12Memory self);
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+WISDOM_API uint64_t DX12MemoryGetBlockOffset(DX12Memory self);
+
+// DX12SwapChain methods --
+/**
+ * @brief Destroys the DX12SwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API void DX12SwapChainDestroy(DX12SwapChain self);
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+WISDOM_API uint32_t DX12SwapChainGetCurrentIndex(DX12SwapChain self);
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+WISDOM_API bool DX12SwapChainStereoSupported(DX12SwapChain self);
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+WISDOM_API WisResult DX12SwapChainResize(DX12SwapChain self, uint32_t width, uint32_t height);
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+WISDOM_API WisResult DX12SwapChainPresent(DX12SwapChain self);
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to DX12SwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+WISDOM_API WisResult DX12SwapChainPresent2(DX12SwapChain self, bool in_vsync);
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+WISDOM_API uint32_t DX12SwapChainGetBuffers(DX12SwapChain self, const DX12Texture** buffers);
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+WISDOM_API WisResult DX12SwapChainWaitForPresent(DX12SwapChain self, uint64_t timeout_ns);
+
+// DX12Buffer methods --
+/**
+ * @brief Destroys the DX12Buffer.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void DX12BufferDestroy(DX12Buffer self);
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+WISDOM_API void* DX12BufferMapRaw(DX12Buffer self);
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+WISDOM_API void DX12BufferUnmap(DX12Buffer self);
+
+// DX12Texture methods --
+/**
+ * @brief Destroys the DX12Texture.
+ * @param self valid handle to the Texture
+ * */
+WISDOM_API void DX12TextureDestroy(DX12Texture self);
+
+// DX12RootSignature methods --
+/**
+ * @brief Destroys the DX12RootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+WISDOM_API void DX12RootSignatureDestroy(DX12RootSignature self);
+
+// DX12Shader methods --
+/**
+ * @brief Destroys the DX12Shader.
+ * @param self valid handle to the Shader
+ * */
+WISDOM_API void DX12ShaderDestroy(DX12Shader self);
+
 // DX12DebugMessenger methods --
 /**
  * @brief Destroys the DX12DebugMessenger.
  * @param self valid handle to the DebugMessenger
  * */
 WISDOM_API void DX12DebugMessengerDestroy(DX12DebugMessenger self);
+
+// DX12RenderTarget methods --
+/**
+ * @brief Destroys the DX12RenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+WISDOM_API void DX12RenderTargetDestroy(DX12RenderTarget self);
+
+// DX12Sampler methods --
+/**
+ * @brief Destroys the DX12Sampler.
+ * @param self valid handle to the Sampler
+ * */
+WISDOM_API void DX12SamplerDestroy(DX12Sampler self);
+
+// DX12ShaderResource methods --
+/**
+ * @brief Destroys the DX12ShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+WISDOM_API void DX12ShaderResourceDestroy(DX12ShaderResource self);
 
 //-------------------------------------------------------------------------
 
@@ -3595,15 +3945,15 @@ typedef DX12FactoryExtension WisFactoryExtension;
 typedef DX12ResourceAllocator WisResourceAllocator;
 typedef DX12Fence WisFence;
 typedef DX12CommandList WisCommandList;
-typedef DX12RootSignature WisRootSignature;
-typedef DX12Shader WisShader;
+typedef DX12Memory WisMemory;
 typedef DX12SwapChain WisSwapChain;
 typedef DX12Buffer WisBuffer;
 typedef DX12Texture WisTexture;
+typedef DX12RootSignature WisRootSignature;
+typedef DX12Shader WisShader;
 typedef DX12DebugMessenger WisDebugMessenger;
 typedef DX12RenderTarget WisRenderTarget;
 typedef DX12Sampler WisSampler;
-typedef DX12Memory WisMemory;
 typedef DX12ShaderResource WisShaderResource;
 typedef DX12FenceView WisFenceView;
 typedef DX12BufferView WisBufferView;
@@ -3692,6 +4042,16 @@ inline void WisFactoryDestroy(WisFactory self)
 inline WisResult WisFactoryGetAdapter(WisFactory self, uint32_t index, WisAdapterPreference preference, WisAdapter* adapter)
 {
     return DX12FactoryGetAdapter(self, index, preference, adapter);
+}
+
+// WisPipelineState methods --
+/**
+ * @brief Destroys the WisPipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+inline void WisPipelineStateDestroy(WisPipelineState self)
+{
+    return DX12PipelineStateDestroy(self);
 }
 
 // WisAdapter methods --
@@ -4162,6 +4522,47 @@ inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, Wis
     return DX12ResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
 }
 
+// WisFence methods --
+/**
+ * @brief Destroys the WisFence.
+ * @param self valid handle to the Fence
+ * */
+inline void WisFenceDestroy(WisFence self)
+{
+    return DX12FenceDestroy(self);
+}
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+inline uint64_t WisFenceGetCompletedValue(WisFence self)
+{
+    return DX12FenceGetCompletedValue(self);
+}
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisFenceWait(WisFence self, uint64_t value, uint64_t wait_ns)
+{
+    return DX12FenceWait(self, value, wait_ns);
+}
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+inline WisResult WisFenceSignal(WisFence self, uint64_t value)
+{
+    return DX12FenceSignal(self, value);
+}
+
 // WisCommandList methods --
 /**
  * @brief Destroys the WisCommandList.
@@ -4471,6 +4872,172 @@ inline void WisCommandListSetDescriptorTableOffset(WisCommandList self, uint32_t
     return DX12CommandListSetDescriptorTableOffset(self, root_table_index, buffer, offset_bytes);
 }
 
+// WisMemory methods --
+/**
+ * @brief Destroys the WisMemory.
+ * @param self valid handle to the Memory
+ * */
+inline void WisMemoryDestroy(WisMemory self)
+{
+    return DX12MemoryDestroy(self);
+}
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+inline uint64_t WisMemoryGetBlockOffset(WisMemory self)
+{
+    return DX12MemoryGetBlockOffset(self);
+}
+
+// WisSwapChain methods --
+/**
+ * @brief Destroys the WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+inline void WisSwapChainDestroy(WisSwapChain self)
+{
+    return DX12SwapChainDestroy(self);
+}
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+inline uint32_t WisSwapChainGetCurrentIndex(WisSwapChain self)
+{
+    return DX12SwapChainGetCurrentIndex(self);
+}
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+inline bool WisSwapChainStereoSupported(WisSwapChain self)
+{
+    return DX12SwapChainStereoSupported(self);
+}
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+inline WisResult WisSwapChainResize(WisSwapChain self, uint32_t width, uint32_t height)
+{
+    return DX12SwapChainResize(self, width, height);
+}
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+inline WisResult WisSwapChainPresent(WisSwapChain self)
+{
+    return DX12SwapChainPresent(self);
+}
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+inline WisResult WisSwapChainPresent2(WisSwapChain self, bool in_vsync)
+{
+    return DX12SwapChainPresent2(self, in_vsync);
+}
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+inline uint32_t WisSwapChainGetBuffers(WisSwapChain self, const WisTexture** buffers)
+{
+    return DX12SwapChainGetBuffers(self, buffers);
+}
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisSwapChainWaitForPresent(WisSwapChain self, uint64_t timeout_ns)
+{
+    return DX12SwapChainWaitForPresent(self, timeout_ns);
+}
+
+// WisBuffer methods --
+/**
+ * @brief Destroys the WisBuffer.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferDestroy(WisBuffer self)
+{
+    return DX12BufferDestroy(self);
+}
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+inline void* WisBufferMapRaw(WisBuffer self)
+{
+    return DX12BufferMapRaw(self);
+}
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferUnmap(WisBuffer self)
+{
+    return DX12BufferUnmap(self);
+}
+
+// WisTexture methods --
+/**
+ * @brief Destroys the WisTexture.
+ * @param self valid handle to the Texture
+ * */
+inline void WisTextureDestroy(WisTexture self)
+{
+    return DX12TextureDestroy(self);
+}
+
+// WisRootSignature methods --
+/**
+ * @brief Destroys the WisRootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+inline void WisRootSignatureDestroy(WisRootSignature self)
+{
+    return DX12RootSignatureDestroy(self);
+}
+
+// WisShader methods --
+/**
+ * @brief Destroys the WisShader.
+ * @param self valid handle to the Shader
+ * */
+inline void WisShaderDestroy(WisShader self)
+{
+    return DX12ShaderDestroy(self);
+}
+
 // WisDebugMessenger methods --
 /**
  * @brief Destroys the WisDebugMessenger.
@@ -4479,6 +5046,36 @@ inline void WisCommandListSetDescriptorTableOffset(WisCommandList self, uint32_t
 inline void WisDebugMessengerDestroy(WisDebugMessenger self)
 {
     return DX12DebugMessengerDestroy(self);
+}
+
+// WisRenderTarget methods --
+/**
+ * @brief Destroys the WisRenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+inline void WisRenderTargetDestroy(WisRenderTarget self)
+{
+    return DX12RenderTargetDestroy(self);
+}
+
+// WisSampler methods --
+/**
+ * @brief Destroys the WisSampler.
+ * @param self valid handle to the Sampler
+ * */
+inline void WisSamplerDestroy(WisSampler self)
+{
+    return DX12SamplerDestroy(self);
+}
+
+// WisShaderResource methods --
+/**
+ * @brief Destroys the WisShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+inline void WisShaderResourceDestroy(WisShaderResource self)
+{
+    return DX12ShaderResourceDestroy(self);
 }
 
 //-------------------------------------------------------------------------
@@ -4530,15 +5127,15 @@ typedef VKFactoryExtension WisFactoryExtension;
 typedef VKResourceAllocator WisResourceAllocator;
 typedef VKFence WisFence;
 typedef VKCommandList WisCommandList;
-typedef VKRootSignature WisRootSignature;
-typedef VKShader WisShader;
+typedef VKMemory WisMemory;
 typedef VKSwapChain WisSwapChain;
 typedef VKBuffer WisBuffer;
 typedef VKTexture WisTexture;
+typedef VKRootSignature WisRootSignature;
+typedef VKShader WisShader;
 typedef VKDebugMessenger WisDebugMessenger;
 typedef VKRenderTarget WisRenderTarget;
 typedef VKSampler WisSampler;
-typedef VKMemory WisMemory;
 typedef VKShaderResource WisShaderResource;
 typedef VKFenceView WisFenceView;
 typedef VKBufferView WisBufferView;
@@ -4627,6 +5224,16 @@ inline void WisFactoryDestroy(WisFactory self)
 inline WisResult WisFactoryGetAdapter(WisFactory self, uint32_t index, WisAdapterPreference preference, WisAdapter* adapter)
 {
     return VKFactoryGetAdapter(self, index, preference, adapter);
+}
+
+// WisPipelineState methods --
+/**
+ * @brief Destroys the WisPipelineState.
+ * @param self valid handle to the PipelineState
+ * */
+inline void WisPipelineStateDestroy(WisPipelineState self)
+{
+    return VKPipelineStateDestroy(self);
 }
 
 // WisAdapter methods --
@@ -5097,6 +5704,47 @@ inline WisResult WisResourceAllocatorPlaceTexture(WisResourceAllocator self, Wis
     return VKResourceAllocatorPlaceTexture(self, memory, memory_offset, desc, texture);
 }
 
+// WisFence methods --
+/**
+ * @brief Destroys the WisFence.
+ * @param self valid handle to the Fence
+ * */
+inline void WisFenceDestroy(WisFence self)
+{
+    return VKFenceDestroy(self);
+}
+
+/**
+ * @brief Get the current value of the fence.
+ * @param self valid handle to the Fence
+ * @return Value of the fence.
+ * */
+inline uint64_t WisFenceGetCompletedValue(WisFence self)
+{
+    return VKFenceGetCompletedValue(self);
+}
+
+/**
+ * @brief Wait on CPU for the fence to reach a certain value.
+ * @param self valid handle to the Fence
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisFenceWait(WisFence self, uint64_t value, uint64_t wait_ns)
+{
+    return VKFenceWait(self, value, wait_ns);
+}
+
+/**
+ * @brief Signal the fence from CPU.
+ * @param self valid handle to the Fence
+ * @param value Value to signal.
+ * */
+inline WisResult WisFenceSignal(WisFence self, uint64_t value)
+{
+    return VKFenceSignal(self, value);
+}
+
 // WisCommandList methods --
 /**
  * @brief Destroys the WisCommandList.
@@ -5406,6 +6054,172 @@ inline void WisCommandListSetDescriptorTableOffset(WisCommandList self, uint32_t
     return VKCommandListSetDescriptorTableOffset(self, root_table_index, buffer, offset_bytes);
 }
 
+// WisMemory methods --
+/**
+ * @brief Destroys the WisMemory.
+ * @param self valid handle to the Memory
+ * */
+inline void WisMemoryDestroy(WisMemory self)
+{
+    return VKMemoryDestroy(self);
+}
+
+/**
+ * @brief Returns the offset of the block in the global memory.
+ * @param self valid handle to the Memory
+ * @return The offset of the block in the global memory.
+ * */
+inline uint64_t WisMemoryGetBlockOffset(WisMemory self)
+{
+    return VKMemoryGetBlockOffset(self);
+}
+
+// WisSwapChain methods --
+/**
+ * @brief Destroys the WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * */
+inline void WisSwapChainDestroy(WisSwapChain self)
+{
+    return VKSwapChainDestroy(self);
+}
+
+/**
+ * @brief Get the current image index in the swapchain.
+ * @param self valid handle to the SwapChain
+ * @return Index of the current image.
+ * */
+inline uint32_t WisSwapChainGetCurrentIndex(WisSwapChain self)
+{
+    return VKSwapChainGetCurrentIndex(self);
+}
+
+/**
+ * @brief Check if stereo is supported.
+ * @param self valid handle to the SwapChain
+ * @return true if stereo is supported.
+ * */
+inline bool WisSwapChainStereoSupported(WisSwapChain self)
+{
+    return VKSwapChainStereoSupported(self);
+}
+
+/**
+ * @brief Resize the swapchain.
+ * Transition may be expensive.
+ * For the method to succeed, all swapchain buffers must be destroyed first
+ * @param self valid handle to the SwapChain
+ * @param width New width
+ * @param height New height
+ * */
+inline WisResult WisSwapChainResize(WisSwapChain self, uint32_t width, uint32_t height)
+{
+    return VKSwapChainResize(self, width, height);
+}
+
+/**
+ * @brief Present the swapchain.
+ * Presentation always gets queued to the queue specified upon creation.
+ * @param self valid handle to the SwapChain
+ * */
+inline WisResult WisSwapChainPresent(WisSwapChain self)
+{
+    return VKSwapChainPresent(self);
+}
+
+/**
+ * @brief Present the swapchain with vsync option.
+ * Requires DeviceFeatureDynamicVSync to be supported.
+ * Otherwise is identical to WisSwapChain.
+ * @param self valid handle to the SwapChain
+ * @param in_vsync Enable vsync.
+ * */
+inline WisResult WisSwapChainPresent2(WisSwapChain self, bool in_vsync)
+{
+    return VKSwapChainPresent2(self, in_vsync);
+}
+
+/**
+ * @brief Get the back buffers of the swapchain.
+ * @param self valid handle to the SwapChain
+ * @param buffers The back buffers of the swapchain.
+ * If NULL, returns the amount of images swapchain has.
+ * @return Buffer count.
+ * */
+inline uint32_t WisSwapChainGetBuffers(WisSwapChain self, const WisTexture** buffers)
+{
+    return VKSwapChainGetBuffers(self, buffers);
+}
+
+/**
+ * @brief Wait for the presentation to finish.
+ * @param self valid handle to the SwapChain
+ * @param timeout_ns The timeout in nanoseconds. Default is infinite.
+ * */
+inline WisResult WisSwapChainWaitForPresent(WisSwapChain self, uint64_t timeout_ns)
+{
+    return VKSwapChainWaitForPresent(self, timeout_ns);
+}
+
+// WisBuffer methods --
+/**
+ * @brief Destroys the WisBuffer.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferDestroy(WisBuffer self)
+{
+    return VKBufferDestroy(self);
+}
+
+/**
+ * @brief Maps the buffer memory to CPU address space.
+ * @param self valid handle to the Buffer
+ * @return The pointer to the mapped memory.
+ * */
+inline void* WisBufferMapRaw(WisBuffer self)
+{
+    return VKBufferMapRaw(self);
+}
+
+/**
+ * @brief Unmaps the buffer memory from CPU address space.
+ * @param self valid handle to the Buffer
+ * */
+inline void WisBufferUnmap(WisBuffer self)
+{
+    return VKBufferUnmap(self);
+}
+
+// WisTexture methods --
+/**
+ * @brief Destroys the WisTexture.
+ * @param self valid handle to the Texture
+ * */
+inline void WisTextureDestroy(WisTexture self)
+{
+    return VKTextureDestroy(self);
+}
+
+// WisRootSignature methods --
+/**
+ * @brief Destroys the WisRootSignature.
+ * @param self valid handle to the RootSignature
+ * */
+inline void WisRootSignatureDestroy(WisRootSignature self)
+{
+    return VKRootSignatureDestroy(self);
+}
+
+// WisShader methods --
+/**
+ * @brief Destroys the WisShader.
+ * @param self valid handle to the Shader
+ * */
+inline void WisShaderDestroy(WisShader self)
+{
+    return VKShaderDestroy(self);
+}
+
 // WisDebugMessenger methods --
 /**
  * @brief Destroys the WisDebugMessenger.
@@ -5414,6 +6228,36 @@ inline void WisCommandListSetDescriptorTableOffset(WisCommandList self, uint32_t
 inline void WisDebugMessengerDestroy(WisDebugMessenger self)
 {
     return VKDebugMessengerDestroy(self);
+}
+
+// WisRenderTarget methods --
+/**
+ * @brief Destroys the WisRenderTarget.
+ * @param self valid handle to the RenderTarget
+ * */
+inline void WisRenderTargetDestroy(WisRenderTarget self)
+{
+    return VKRenderTargetDestroy(self);
+}
+
+// WisSampler methods --
+/**
+ * @brief Destroys the WisSampler.
+ * @param self valid handle to the Sampler
+ * */
+inline void WisSamplerDestroy(WisSampler self)
+{
+    return VKSamplerDestroy(self);
+}
+
+// WisShaderResource methods --
+/**
+ * @brief Destroys the WisShaderResource.
+ * @param self valid handle to the ShaderResource
+ * */
+inline void WisShaderResourceDestroy(WisShaderResource self)
+{
+    return VKShaderResourceDestroy(self);
 }
 
 //-------------------------------------------------------------------------

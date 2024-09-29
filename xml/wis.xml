@@ -45,18 +45,42 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
       <file for="dx" include="dx12/dx12_descriptor_buffer.h"/>
     </handle>
 
+    <handle name="Fence" doc="Represents fence for synchronization of GPU timeline.">
+      <file for="vk" include="vulkan/vk_fence.h"/>
+      <file for="dx" include="dx12/dx12_fence.h"/>
+    </handle>
 
-    <handle name="Fence"/>
+    <handle name="Memory" doc="Represents memory object for binding resources.">
+      <file for="vk" include="vulkan/vk_memory.h"/>
+      <file for="dx" include="dx12/dx12_memory.h"/>
+    </handle>
+
+    <handle name="PipelineState" doc="Represents pipeline state object for rendering.">
+      <file for="vk" include="vulkan/vk_pipeline_state.h"/>
+      <file for="dx" include="dx12/dx12_pipeline_state.h"/>
+    </handle>
+
+    <handle name="Buffer" doc="Represents buffer object for storing linear data.">
+      <file for="vk" include="vulkan/vk_resource.h"/>
+      <file for="dx" include="dx12/dx12_resource.h"/>
+    </handle>
+
+    <handle name="Texture" doc="Represents texture object for storing image data.">
+      <file for="vk" include="vulkan/vk_resource.h"/>
+      <file for="dx" include="dx12/dx12_resource.h"/>
+    </handle>
+
+    <handle name="SwapChain" doc="Represents swap chain object for presenting images.">
+      <file for="vk" include="vulkan/vk_swapchain.h"/>
+      <file for="dx" include="dx12/dx12_swapchain.h"/>
+    </handle>
+
+
     <handle name="RootSignature"/>
     <handle name="Shader"/>
-    <handle name="PipelineState"/>
-    <handle name="Buffer"/>
-    <handle name="Texture"/>
-    <handle name="SwapChain"/>
     <handle name="DebugMessenger"/>
     <handle name="RenderTarget"/>
     <handle name="Sampler"/>
-    <handle name="Memory"/>
     <handle name="ShaderResource"/>
     <handle name="FactoryExtension"/>
     <handle name="DeviceExtension"/>
@@ -504,7 +528,7 @@ Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
       <arg type="u32" name="binding" doc="Binding index in descriptor table."/>
       <arg type="u32" name="array_member" doc="Array member index in the binding."/>
       <arg type="RootSignature" name="root_signature" doc="The root signature to get the binding position from.">
-        <replace with="RootSignatureView" for="cpp" doc="The root signature to get the binding position from."/>
+        <replace with="RootSignatureView2" for="cpp" doc="The root signature to get the binding position from."/>
       </arg>
       <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
         <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
@@ -519,7 +543,7 @@ Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
       <arg type="u32" name="binding" doc="Binding index in descriptor table."/>
       <arg type="u32" name="array_member" doc="Array member index in the binding."/>
       <arg type="RootSignature" name="root_signature" doc="The root signature to get the binding position from.">
-        <replace with="RootSignatureView" for="cpp" doc="The root signature to get the binding position from."/>
+        <replace with="RootSignatureView2" for="cpp" doc="The root signature to get the binding position from."/>
       </arg>
       <arg type="Buffer" name="buffer" doc="The buffer to write.">
         <replace with="BufferView" for="cpp" doc="The buffer to write."/>
@@ -528,21 +552,96 @@ Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
     </func>
 
 
-    <!--<func for="Fence" name="Destroy"/>
-    <func for="RootSignature" name="Destroy"/>
-    <func for="CommandQueue" name="Destroy"/>
-    <func for="Shader" name="Destroy"/>
-    <func for="PipelineState" name="Destroy"/>
-    <func for="CommandList" name="Destroy"/>
-    <func for="Buffer" name="Destroy"/>
-    <func for="Texture" name="Destroy"/>
-    <func for="SwapChain" name="Destroy"/>
-    <func for="DebugMessenger" name="Destroy"/>
-    <func for="RenderTarget" name="Destroy"/>
-    <func for="DescriptorBuffer" name="Destroy"/>
-    <func for="Sampler" name="Destroy"/>
-    <func for="Memory" name="Destroy"/>
-    <func for="ShaderResource" name="Destroy"/>-->
+    <!-- Fence -->
+    <func for="Fence" name="Destroy" doc="Destroys the {Fence::}."/>
+
+    <func for="Fence" name="GetCompletedValue" mod="const" doc="Get the current value of the fence.">
+      <ret type="u64" name="value" doc="Value of the fence."/>
+    </func>
+
+    <func for="Fence" name="Wait" mod="const" doc="Wait on CPU for the fence to reach a certain value.">
+      <ret result="true"/>
+      <arg type="u64" name="value" doc="Value to wait for."/>
+      <arg type="u64" name="wait_ns" default="UINT64_MAX" doc="The time to wait for the fence to reach the value in nanoseconds. Default is infinite."/>
+    </func>
+
+    <func for="Fence" name="Signal" mod="const" doc="Signal the fence from CPU.">
+      <ret result="true"/>
+      <arg type="u64" name="value" doc="Value to signal."/>
+    </func>
+
+    <!-- Memory -->
+    <func for="Memory" name="Destroy" doc="Destroys the {Memory::}."/>
+    <func for="Memory" name="GetBlockOffset" mod="const" doc="Returns the offset of the block in the global memory.">
+      <ret type="u64" name="offset" doc="The offset of the block in the global memory."/>
+    </func>
+
+    <!-- PipelineState -->
+    <func for="PipelineState" name="Destroy" doc="Destroys the {PipelineState::}."/>
+
+    <!-- Buffer -->
+    <func for="Buffer" name="Destroy" doc="Destroys the {Buffer::}."/>
+    <func for="Buffer" name="MapRaw" mod="const" doc="Maps the buffer memory to CPU address space.">
+      <ret type="void" mod="ptr" name="data" doc="The pointer to the mapped memory."/>
+    </func>
+    <func for="Buffer" name="Unmap" mod="const" doc="Unmaps the buffer memory from CPU address space."/>
+
+    <!-- Texture -->
+    <func for="Texture" name="Destroy" doc="Destroys the {Texture::}."/>
+
+    <!-- RenderTarget -->
+    <func for="RenderTarget" name="Destroy" doc="Destroys the {RenderTarget::}."/>
+
+    <!-- Sampler -->
+    <func for="Sampler" name="Destroy" doc="Destroys the {Sampler::}."/>
+
+    <!-- ShaderResource -->
+    <func for="ShaderResource" name="Destroy" doc="Destroys the {ShaderResource::}."/>
+
+    <!-- RootSignature -->
+    <func for="RootSignature" name="Destroy" doc="Destroys the {RootSignature::}."/>
+
+    <!-- Shader -->
+    <func for="Shader" name="Destroy" doc="Destroys the {Shader::}."/>
+
+    <!-- SwapChain -->
+    <func for="SwapChain" name="Destroy" doc="Destroys the {SwapChain::}."/>
+    <func for="SwapChain" name="GetCurrentIndex" mod="const" doc="Get the current image index in the swapchain.">
+      <ret type="u32" name="index" doc="Index of the current image."/>
+    </func>
+    <func for="SwapChain" name="StereoSupported" mod="const" doc="Check if stereo is supported.">
+      <ret type="bool" doc="true if stereo is supported."/>
+    </func>
+    <func for="SwapChain" name="Resize" doc="Resize the swapchain.
+Transition may be expensive.
+For the method to succeed, all swapchain buffers must be destroyed first">
+      <ret result="true"/>
+      <arg type="u32" name="width" doc="New width"/>
+      <arg type="u32" name="height" doc="New height"/>
+    </func>
+
+    <func for="SwapChain" name="Present" doc="Present the swapchain.
+Presentation always gets queued to the queue specified upon creation.">
+      <ret result="true"/>
+    </func>
+
+    <func for="SwapChain" name="Present2" doc="Present the swapchain with vsync option.
+Requires {DeviceFeature::DynamicVSync} to be supported. 
+Otherwise is identical to {SwapChain::Present}.">
+      <ret result="true"/>
+      <arg type="bool" name="in_vsync" doc="Enable vsync."/>
+    </func>
+
+    <func for="SwapChain" name="GetBuffers" mod="const custom-impl c-only" doc="Get the back buffers of the swapchain.">
+      <ret type="u32" name="count" doc="Buffer count."/>
+      <arg type="Texture" name="buffers" mod="const pp" doc="The back buffers of the swapchain.
+If NULL, returns the amount of images swapchain has."/>
+    </func>
+
+    <func for="SwapChain" name="WaitForPresent" mod="const" doc="Wait for the presentation to finish.">
+      <ret result="true"/>
+      <arg type="u64" name="timeout_ns" default="UINT64_MAX" doc="The timeout in nanoseconds. Default is infinite."/>
+    </func>
 
     <!-- Free Functions -->
     <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
