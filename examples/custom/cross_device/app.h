@@ -10,6 +10,7 @@ class App
 
 public:
     App(uint32_t width, uint32_t height);
+    ~App();
 
 public:
     void CreateDevices();

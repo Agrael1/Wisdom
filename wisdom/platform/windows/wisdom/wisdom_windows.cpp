@@ -3,7 +3,6 @@
 #include <wisdom/wisdom_windows.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
-#include <wisdom/util/log_layer.h>
 #include <d3d11.h>
 
 namespace wis::detail {

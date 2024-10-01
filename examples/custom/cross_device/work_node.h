@@ -8,10 +8,9 @@ struct ExternalBuffer {
     ExternalBuffer(wis::SharedDevice device, VkBuffer buffer, VkDeviceMemory memory)
         : device(std::move(device)), buffer(buffer), memory(memory)
     {
-        this->device.table().vkMapMemory(this->device.get(), memory, 0, VK_WHOLE_SIZE, 0, &mapping);
     }
     ExternalBuffer(ExternalBuffer&& other) noexcept
-        : device(std::move(other.device)), buffer(std::move(other.buffer)), memory(std::move(other.memory)), mapping(std::exchange(other.mapping, nullptr))
+        : device(std::move(other.device)), buffer(std::move(other.buffer)), memory(std::move(other.memory))
     {
     }
     ExternalBuffer& operator=(ExternalBuffer&& other) noexcept
@@ -19,18 +18,22 @@ struct ExternalBuffer {
         if (this == &other)
             return *this;
 
+        Destroy();
         device = std::move(other.device);
         buffer = std::move(other.buffer);
         memory = std::move(other.memory);
-        mapping = std::exchange(other.mapping, nullptr);
         return *this;
     }
-    ~ExternalBuffer()
+    void Destroy() noexcept
     {
         if (buffer)
             device.table().vkDestroyBuffer(device.get(), buffer, nullptr);
         if (memory)
             device.table().vkFreeMemory(device.get(), memory, nullptr);
+    }
+    ~ExternalBuffer()
+    {
+        Destroy();
     }
 
 public:
@@ -42,7 +45,6 @@ public:
     wis::SharedDevice device;
     wis::h::VkBuffer buffer;
     wis::h::VkDeviceMemory memory;
-    void* mapping = nullptr;
 };
 
 struct ExtMemoryHost : public wis::DeviceExtension {

@@ -135,6 +135,9 @@ public:
         return { back_buffers.get(), back_buffer_count };
     }
     [[nodiscard]] WIS_INLINE wis::Result WaitForPresent(uint64_t timeout_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+
+public:
+    [[nodiscard]] WIS_INLINE wis::Result VKRecreateSwapchain(uint32_t width, uint32_t height, void* pNext) noexcept;
 };
 
 #pragma region VKSwapChain
