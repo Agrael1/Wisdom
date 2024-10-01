@@ -359,7 +359,7 @@ wis::ImplVKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
     return wis::succeeded(res) ? wis::success : wis::make_result<FUNC, "vkWaitForPresentKHR failed">(res);
 }
 
-wis::Result 
+wis::Result
 wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void* pNext) noexcept
 {
     auto& dtable = device.table();
