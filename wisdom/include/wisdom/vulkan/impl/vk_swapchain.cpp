@@ -196,105 +196,21 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
 void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphores() noexcept
 {
     auto& dtable = device.table();
-    if (!supported_presentations) {
-        dtable.vkQueueSubmit(graphics_queue, 0, nullptr, fence);
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
+    dtable.vkQueueSubmit(graphics_queue, 0, nullptr, fence);
+    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    dtable.vkResetFences(device.get(), 1, &fence);
 
-        dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
-    } else {
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
-    }
+    dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
+    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    dtable.vkResetFences(device.get(), 1, &fence);
 
-    if (fence) {
-        dtable.vkDestroyFence(device.get(), fence, nullptr);
-        fence = nullptr;
-    }
+    dtable.vkDestroyFence(device.get(), fence, nullptr);
+    fence = nullptr;
 }
 
 wis::Result wis::ImplVKSwapChain::Resize(uint32_t width, uint32_t height) noexcept
 {
-    auto& dtable = device.table();
-    auto& itable = surface.header().parent.table();
-
-    if (!supported_presentations) {
-        VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-        VkSubmitInfo wait_desc{
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .pNext = nullptr,
-            .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-            .pWaitDstStageMask = &wait_stages,
-        };
-        dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
-
-        dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
-    } else {
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
-
-        VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-        VkSubmitInfo wait_desc{
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .pNext = nullptr,
-            .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-            .pWaitDstStageMask = &wait_stages,
-        };
-        dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
-        dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        dtable.vkResetFences(device.get(), 1, &fence);
-    }
-
-    VkSurfaceCapabilitiesKHR caps{};
-    itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(adapter, surface.get(), &caps);
-
-    width = std::clamp(width, caps.minImageExtent.width, caps.maxImageExtent.width);
-    height = std::clamp(height, caps.minImageExtent.height, caps.maxImageExtent.height);
-    stereo = stereo_requested && caps.maxImageArrayLayers > 1;
-
-    VkSwapchainKHR old_swapchain = swapchain;
-    VkSwapchainCreateInfoKHR desc{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .flags = 0,
-        .surface = surface.get(),
-        .minImageCount = back_buffer_count,
-        .imageFormat = format.format,
-        .imageColorSpace = format.colorSpace,
-        .imageExtent = { width, height },
-        .imageArrayLayers = stereo ? 2u : 1u,
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-        .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
-        .queueFamilyIndexCount = 0,
-        .pQueueFamilyIndices = nullptr,
-        .preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode = present_mode,
-        .clipped = VK_TRUE,
-        .oldSwapchain = old_swapchain,
-    };
-
-    auto result = dtable.vkCreateSwapchainKHR(device.get(), &desc, nullptr, &swapchain);
-    if (!succeeded(result)) {
-        return wis::make_result<FUNC, "vkCreateSwapchainKHR failed">(result);
-    }
-
-    dtable.vkDestroySwapchainKHR(device.get(), old_swapchain, nullptr);
-
-    auto rres = InitBackBuffers(desc.imageExtent);
-    if (rres.status != wis::Status::Ok)
-        return rres;
-
-    return AquireNextIndex();
+    return VKRecreateSwapchain(width, height, nullptr);
 }
 
 wis::Result wis::ImplVKSwapChain::Present() const noexcept
@@ -321,16 +237,9 @@ wis::Result wis::ImplVKSwapChain::Present() const noexcept
         .pPresentIds = &this->present_id,
     };
 
-    VkSwapchainPresentFenceInfoEXT present_fence{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT,
-        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
-        .swapchainCount = 1,
-        .pFences = &fence.handle
-    };
-
     VkPresentInfoKHR present_info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = supported_presentations ? &present_fence : present_fence.pNext,
+        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &present_semaphores[present_index],
         .swapchainCount = 1,
@@ -404,16 +313,9 @@ wis::Result wis::ImplVKSwapChain::Present2(bool in_vsync) const noexcept
         .pPresentIds = &this->present_id,
     };
 
-    VkSwapchainPresentFenceInfoEXT present_fence{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT,
-        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
-        .swapchainCount = 1,
-        .pFences = &fence.handle
-    };
-
     VkSwapchainPresentModeInfoEXT present_mode_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
-        .pNext = &present_fence,
+        .pNext = &dtable.vkWaitForPresentKHR ? &present_id : nullptr,
         .swapchainCount = 1,
         .pPresentModes = &new_present_mode,
     };
@@ -455,6 +357,72 @@ wis::ImplVKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 
     auto res = dtable.vkWaitForPresentKHR(device.get(), swapchain, present_id, timeout_ns);
     return wis::succeeded(res) ? wis::success : wis::make_result<FUNC, "vkWaitForPresentKHR failed">(res);
+}
+
+wis::Result 
+wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void* pNext) noexcept
+{
+    auto& dtable = device.table();
+    auto& itable = surface.header().parent.table();
+
+    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+    VkSubmitInfo wait_desc{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
+        .pWaitDstStageMask = &wait_stages,
+    };
+    dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
+    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    dtable.vkResetFences(device.get(), 1, &fence);
+
+    dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
+    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    dtable.vkResetFences(device.get(), 1, &fence);
+
+    VkSurfaceCapabilitiesKHR caps{};
+    itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(adapter, surface.get(), &caps);
+
+    width = std::clamp(width, caps.minImageExtent.width, caps.maxImageExtent.width);
+    height = std::clamp(height, caps.minImageExtent.height, caps.maxImageExtent.height);
+    stereo = stereo_requested && caps.maxImageArrayLayers > 1;
+
+    VkSwapchainKHR old_swapchain = swapchain;
+    VkSwapchainCreateInfoKHR desc{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .pNext = pNext,
+        .flags = 0,
+        .surface = surface.get(),
+        .minImageCount = back_buffer_count,
+        .imageFormat = format.format,
+        .imageColorSpace = format.colorSpace,
+        .imageExtent = { width, height },
+        .imageArrayLayers = stereo ? 2u : 1u,
+        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 0,
+        .pQueueFamilyIndices = nullptr,
+        .preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
+        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .presentMode = present_mode,
+        .clipped = VK_TRUE,
+        .oldSwapchain = old_swapchain,
+    };
+
+    auto result = dtable.vkCreateSwapchainKHR(device.get(), &desc, nullptr, &swapchain);
+    if (!succeeded(result)) {
+        return wis::make_result<FUNC, "vkCreateSwapchainKHR failed">(result);
+    }
+
+    dtable.vkDestroySwapchainKHR(device.get(), old_swapchain, nullptr);
+
+    auto rres = InitBackBuffers(desc.imageExtent);
+    if (rres.status != wis::Status::Ok)
+        return rres;
+
+    return AquireNextIndex();
 }
 
 #endif // VK_SWAPCHAIN_H

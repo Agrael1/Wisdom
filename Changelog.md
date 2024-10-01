@@ -1,5 +1,11 @@
 # Version History
 
+- 0.3.5
+
+  - Made internal function for swapchain recreation in Vulkan accept a pNext chain
+  - Fixed cross-adapter example not finishing correctly
+  - Fixed swapchain deadlocking on resize for Vulkan
+
 - 0.3.4
 
   - Made a lot of views CPP API only, that makes C API more lightweight

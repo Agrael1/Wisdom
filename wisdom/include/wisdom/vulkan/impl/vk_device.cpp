@@ -908,7 +908,8 @@ wis::ImplVKDevice::VKCreateAllocator(bool interop) const noexcept
 wis::ResultValue<wis::VKSwapChain>
 wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
                                      const SwapchainDesc* desc,
-                                     VkQueue graphics_queue) const noexcept
+                                     VkQueue graphics_queue,
+                                     void* pNext) const noexcept
 {
     auto& itable = GetInstanceTable();
     auto& dtable = device.table();
@@ -1045,14 +1046,14 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
 
     VkSwapchainPresentModesCreateInfoEXT present_modes{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
-        .pNext = nullptr,
+        .pNext = pNext,
         .presentModeCount = compatible_modes_count,
         .pPresentModes = compatible_modes.data(),
     };
 
     VkSwapchainCreateInfoKHR swap_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext = ext1.GetFeatures().dynamic_vsync ? &present_modes : nullptr,
+        .pNext = ext1.GetFeatures().dynamic_vsync ? &present_modes : pNext,
         .flags = 0,
         .surface = surface.get(),
         .minImageCount = desc->buffer_count,

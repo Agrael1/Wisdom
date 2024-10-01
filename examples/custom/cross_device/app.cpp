@@ -26,6 +26,10 @@ App::App(uint32_t width, uint32_t height)
 {
     CreateDevices();
 }
+App::~App()
+{
+    transfer.input_buffer.Unmap();
+}
 
 void App::CreateDevices()
 {
