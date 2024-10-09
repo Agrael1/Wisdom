@@ -5,6 +5,7 @@
   - Fixed inconsistency with Descriptor tables (bytes vs descriptors)
   - Removed non-existing barrier access Present
   - Removed result value from the Descriptor Table device methods
+  - Fixed examples
   - Preparing for refactoring of descriptor tables
 
 - 0.3.5
