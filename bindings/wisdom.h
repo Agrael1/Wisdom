@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.5</b>
+<b>Version 0.3.6</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -2228,21 +2228,17 @@ WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture textu
  * The value is used to correctly determine descriptor page alignment for descriptor buffer.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the alignment for.
- * @param alignment The alignment of the descriptor table in bytes.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The alignment of the descriptor table in bytes.
  * */
-WISDOM_API WisResult VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap, uint32_t* alignment);
+WISDOM_API uint32_t VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap);
 
 /**
  * @brief Returns the size of the descriptor buffer unit in bytes.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the unit size for.
- * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
  * */
-WISDOM_API WisResult VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap, uint32_t* size);
+WISDOM_API uint32_t VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap);
 
 /**
  * @brief Creates a descriptor buffer object.
@@ -3264,21 +3260,17 @@ WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture
  * The value is used to correctly determine descriptor page alignment for descriptor buffer.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the alignment for.
- * @param alignment The alignment of the descriptor table in bytes.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The alignment of the descriptor table in bytes.
  * */
-WISDOM_API WisResult DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap, uint32_t* alignment);
+WISDOM_API uint32_t DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap);
 
 /**
  * @brief Returns the size of the descriptor buffer unit in bytes.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the unit size for.
- * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
  * */
-WISDOM_API WisResult DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap, uint32_t* size);
+WISDOM_API uint32_t DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap);
 
 /**
  * @brief Creates a descriptor buffer object.
@@ -4246,26 +4238,22 @@ inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture textur
  * The value is used to correctly determine descriptor page alignment for descriptor buffer.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the alignment for.
- * @param alignment The alignment of the descriptor table in bytes.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The alignment of the descriptor table in bytes.
  * */
-inline WisResult WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+inline uint32_t WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap)
 {
-    return DX12DeviceGetDescriptorTableAlignment(self, heap, alignment);
+    return DX12DeviceGetDescriptorTableAlignment(self, heap);
 }
 
 /**
  * @brief Returns the size of the descriptor buffer unit in bytes.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the unit size for.
- * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
  * */
-inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap, uint32_t* size)
+inline uint32_t WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap)
 {
-    return DX12DeviceGetDescriptorBufferUnitSize(self, heap, size);
+    return DX12DeviceGetDescriptorBufferUnitSize(self, heap);
 }
 
 /**
@@ -5428,26 +5416,22 @@ inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture textur
  * The value is used to correctly determine descriptor page alignment for descriptor buffer.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the alignment for.
- * @param alignment The alignment of the descriptor table in bytes.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The alignment of the descriptor table in bytes.
  * */
-inline WisResult WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+inline uint32_t WisDeviceGetDescriptorTableAlignment(WisDevice self, WisDescriptorHeapType heap)
 {
-    return VKDeviceGetDescriptorTableAlignment(self, heap, alignment);
+    return VKDeviceGetDescriptorTableAlignment(self, heap);
 }
 
 /**
  * @brief Returns the size of the descriptor buffer unit in bytes.
  * @param self valid handle to the Device
  * @param heap The type of the descriptor heap to get the unit size for.
- * @param size The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
+ * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
  * */
-inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap, uint32_t* size)
+inline uint32_t WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescriptorHeapType heap)
 {
-    return VKDeviceGetDescriptorBufferUnitSize(self, heap, size);
+    return VKDeviceGetDescriptorBufferUnitSize(self, heap);
 }
 
 /**

@@ -287,7 +287,7 @@ public:
      * @param heap The type of the descriptor heap to get the alignment for.
      * @return The alignment of the descriptor table in bytes.
      * */
-    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
+    inline uint32_t GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
     {
         return wis::ImplVKDevice::GetDescriptorTableAlignment(heap);
     }
@@ -296,7 +296,7 @@ public:
      * @param heap The type of the descriptor heap to get the unit size for.
      * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
      * */
-    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
+    inline uint32_t GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
     {
         return wis::ImplVKDevice::GetDescriptorBufferUnitSize(heap);
     }
