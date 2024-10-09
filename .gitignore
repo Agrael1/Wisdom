@@ -369,3 +369,4 @@ FodyWeavers.xsd
 
 #restyler
 *.orig
+/wisdom/include/wisdom/dx12/impl/dx12_device.cpp.orig
