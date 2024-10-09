@@ -1404,15 +1404,11 @@ Subresource data must be available for any layout-compatible access after a barr
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
       </value>
-      <value name="Present" bit="18" doc="Present access. Used fpr swapchain presentation.">
-        <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
-        <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
-      </value>
-      <value name="ResolveDest" bit="19" doc="Resolve destination access. Used in multisampling.">
+      <value name="ResolveDest" bit="18" doc="Resolve destination access. Used in multisampling.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_DEST"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT"/>
       </value>
-      <value name="ResolveSource" bit="20" doc="Resolve source access. Used in multisampling.">
+      <value name="ResolveSource" bit="19" doc="Resolve source access. Used in multisampling.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>

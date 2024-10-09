@@ -225,10 +225,10 @@ extern "C" WisResult DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisD
     *size = value;
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, DX12DescriptorBuffer* buffer)
+extern "C" WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, DX12DescriptorBuffer* buffer)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), descriptor_count);
+    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), size_bytes);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -956,10 +956,10 @@ extern "C" WisResult VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescr
     *size = value;
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, VKDescriptorBuffer* buffer)
+extern "C" WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, VKDescriptorBuffer* buffer)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), descriptor_count);
+    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), size_bytes);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);

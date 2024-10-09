@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.3</b>
+<b>Version 0.3.5</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1306,9 +1306,8 @@ enum WisResourceAccessBits {
     ResourceAccessShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
     ResourceAccessVideoDecodeRead = 1 << 16, ///< Video decode read access.
     ResourceAccessVideoDecodeWrite = 1 << 17, ///< Video decode write access.
-    ResourceAccessPresent = 1 << 18, ///< Present access. Used fpr swapchain presentation.
-    ResourceAccessResolveDest = 1 << 19, ///< Resolve destination access. Used in multisampling.
-    ResourceAccessResolveSource = 1 << 20, ///< Resolve source access. Used in multisampling.
+    ResourceAccessResolveDest = 1 << 18, ///< Resolve destination access. Used in multisampling.
+    ResourceAccessResolveSource = 1 << 19, ///< Resolve source access. Used in multisampling.
     ResourceAccessNoAccess = 1 << 31, ///< No access. Used to indicate no access throughout pipeline.
 };
 
@@ -2250,12 +2249,12 @@ WISDOM_API WisResult VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescr
  * @param self valid handle to the Device
  * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
  * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
- * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param size_bytes The number of bytes to allocate for the descriptor buffer.
  * @param buffer VKDescriptorBuffer on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, VKDescriptorBuffer* buffer);
+WISDOM_API WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, VKDescriptorBuffer* buffer);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -3286,12 +3285,12 @@ WISDOM_API WisResult DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisD
  * @param self valid handle to the Device
  * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
  * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
- * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param size_bytes The number of bytes to allocate for the descriptor buffer.
  * @param buffer DX12DescriptorBuffer on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, DX12DescriptorBuffer* buffer);
+WISDOM_API WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, DX12DescriptorBuffer* buffer);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -4274,14 +4273,14 @@ inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescrip
  * @param self valid handle to the Device
  * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
  * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
- * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param size_bytes The number of bytes to allocate for the descriptor buffer.
  * @param buffer WisDescriptorBuffer on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, WisDescriptorBuffer* buffer)
+inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, WisDescriptorBuffer* buffer)
 {
-    return DX12DeviceCreateDescriptorBuffer(self, heap_type, memory_type, descriptor_count, buffer);
+    return DX12DeviceCreateDescriptorBuffer(self, heap_type, memory_type, size_bytes, buffer);
 }
 
 /**
@@ -5456,14 +5455,14 @@ inline WisResult WisDeviceGetDescriptorBufferUnitSize(WisDevice self, WisDescrip
  * @param self valid handle to the Device
  * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
  * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
- * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+ * @param size_bytes The number of bytes to allocate for the descriptor buffer.
  * @param buffer WisDescriptorBuffer on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, WisDescriptorBuffer* buffer)
+inline WisResult WisDeviceCreateDescriptorBuffer(WisDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, WisDescriptorBuffer* buffer)
 {
-    return VKDeviceCreateDescriptorBuffer(self, heap_type, memory_type, descriptor_count, buffer);
+    return VKDeviceCreateDescriptorBuffer(self, heap_type, memory_type, size_bytes, buffer);
 }
 
 /**

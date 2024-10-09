@@ -464,11 +464,14 @@ wis::ImplDX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTarg
 }
 
 wis::ResultValue<wis::DX12DescriptorBuffer>
-wis::ImplDX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+wis::ImplDX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
 {
+    auto xheap_type = convert_dx(heap_type);
+    auto inc_size = device->GetDescriptorHandleIncrementSize(xheap_type);
+    auto aligned_size = wis::detail::aligned_size(memory_bytes, uint64_t(inc_size));
     D3D12_DESCRIPTOR_HEAP_DESC desc{
         .Type = convert_dx(heap_type),
-        .NumDescriptors = descriptor_count,
+        .NumDescriptors = uint32_t(aligned_size / inc_size),
         .Flags = convert_dx(memory_type),
         .NodeMask = 0,
     };

@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.3</b>
+<b>Version 0.3.5</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1336,9 +1336,8 @@ enum class ResourceAccess {
     ShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
     VideoDecodeRead = 1 << 16, ///< Video decode read access.
     VideoDecodeWrite = 1 << 17, ///< Video decode write access.
-    Present = 1 << 18, ///< Present access. Used fpr swapchain presentation.
-    ResolveDest = 1 << 19, ///< Resolve destination access. Used in multisampling.
-    ResolveSource = 1 << 20, ///< Resolve source access. Used in multisampling.
+    ResolveDest = 1 << 18, ///< Resolve destination access. Used in multisampling.
+    ResolveSource = 1 << 19, ///< Resolve source access. Used in multisampling.
     NoAccess = 1 << 31, ///< No access. Used to indicate no access throughout pipeline.
 };
 

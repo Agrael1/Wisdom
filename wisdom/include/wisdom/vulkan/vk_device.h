@@ -304,12 +304,12 @@ public:
      * @brief Creates a descriptor buffer object.
      * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
      * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
-     * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+     * @param size_bytes The number of bytes to allocate for the descriptor buffer.
      * @return wis::VKDescriptorBuffer on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t size_bytes) const noexcept
     {
-        return wis::ImplVKDevice::CreateDescriptorBuffer(heap_type, memory_type, descriptor_count);
+        return wis::ImplVKDevice::CreateDescriptorBuffer(heap_type, memory_type, size_bytes);
     }
     /**
      * @brief Queries if the device supports the feature.
