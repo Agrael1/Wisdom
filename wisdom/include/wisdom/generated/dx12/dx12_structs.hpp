@@ -438,8 +438,6 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
         output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
     if (value & ResourceAccess::VideoDecodeWrite)
         output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
-    if (value & ResourceAccess::Present)
-        output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
     if (value & ResourceAccess::ResolveDest)
         output |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
     if (value & ResourceAccess::ResolveSource)

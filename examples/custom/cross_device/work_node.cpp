@@ -1,4 +1,5 @@
 #include "work_node.h"
+#include "work_node.h"
 #include "lut_loader.h"
 #include <fstream>
 
@@ -299,11 +300,13 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create Descriptor Buffers
     {
-        auto [res, hdesc] = node.work_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2);
+        auto desc_increment = node.work_device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Descriptor);
+        auto [res, hdesc] = node.work_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2 * desc_increment);
         if (res.status != wis::Status::Ok)
             return std::unexpected(res.error);
 
-        auto [res2, hdesc2] = node.work_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 1);
+        auto sampler_increment = node.work_device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Sampler);
+        auto [res2, hdesc2] = node.work_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 1 * sampler_increment);
         if (res2.status != wis::Status::Ok)
             return std::unexpected(res2.error);
 

@@ -89,7 +89,7 @@ public:
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
-    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept;
+    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
 
     // returns true only for now
     [[nodiscard]] WIS_INLINE bool
@@ -226,7 +226,7 @@ public:
      * @param heap The type of the descriptor heap to get the alignment for.
      * @return The alignment of the descriptor table in bytes.
      * */
-    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
+    inline uint32_t GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
     {
         return wis::ImplDX12Device::GetDescriptorTableAlignment(heap);
     }
@@ -235,7 +235,7 @@ public:
      * @param heap The type of the descriptor heap to get the unit size for.
      * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
      * */
-    [[nodiscard]] inline wis::ResultValue<uint32_t> GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
+    inline uint32_t GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
     {
         return wis::ImplDX12Device::GetDescriptorBufferUnitSize(heap);
     }
@@ -243,12 +243,12 @@ public:
      * @brief Creates a descriptor buffer object.
      * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
      * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
-     * @param descriptor_count The number of descriptors to allocate in the descriptor buffer.
+     * @param size_bytes The number of bytes to allocate for the descriptor buffer.
      * @return wis::DX12DescriptorBuffer on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12DescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint32_t descriptor_count) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12DescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t size_bytes) const noexcept
     {
-        return wis::ImplDX12Device::CreateDescriptorBuffer(heap_type, memory_type, descriptor_count);
+        return wis::ImplDX12Device::CreateDescriptorBuffer(heap_type, memory_type, size_bytes);
     }
     /**
      * @brief Queries if the device supports the feature.

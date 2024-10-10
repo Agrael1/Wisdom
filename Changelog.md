@@ -1,5 +1,13 @@
 # Version History
 
+- 0.3.6
+
+  - Fixed inconsistency with Descriptor tables (bytes vs descriptors)
+  - Removed non-existing barrier access Present
+  - Removed result value from the Descriptor Table device methods
+  - Fixed examples
+  - Preparing for refactoring of descriptor tables
+
 - 0.3.5
 
   - Made internal function for swapchain recreation in Vulkan accept a pNext chain

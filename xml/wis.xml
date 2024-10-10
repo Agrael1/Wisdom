@@ -188,12 +188,12 @@ Default is {MutiWaitFlags::All}"/>
 
     <func for="Device" name="GetDescriptorTableAlignment" mod="const" doc="Returns the alignment of the descriptor table in bytes.
 The value is used to correctly determine descriptor page alignment for descriptor buffer.">
-      <ret type="u32" name="alignment" result="true" doc="The alignment of the descriptor table in bytes."/>
+      <ret type="u32" name="alignment" doc="The alignment of the descriptor table in bytes."/>
       <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the alignment for."/>
     </func>
 
     <func for="Device" name="GetDescriptorBufferUnitSize" mod="const" doc="Returns the size of the descriptor buffer unit in bytes.">
-      <ret type="u32" name="size" result="true" doc="The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor."/>
+      <ret type="u32" name="size" doc="The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor."/>
       <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the unit size for."/>
     </func>
 
@@ -201,7 +201,7 @@ The value is used to correctly determine descriptor page alignment for descripto
       <ret type="DescriptorBuffer" name="buffer" result="true" doc="{DescriptorBuffer::} on success ({Status::Ok})."/>
       <arg type="DescriptorHeapType" name="heap_type" doc="The type of the descriptor heap to create the descriptor buffer with."/>
       <arg type="DescriptorMemory" name="memory_type" doc="The type of the descriptor memory to create the descriptor buffer with."/>
-      <arg type="u32" name="descriptor_count" doc="The number of descriptors to allocate in the descriptor buffer."/>
+      <arg type="u64" name="size_bytes" doc="The number of bytes to allocate for the descriptor buffer."/>
     </func>
 
     <func for="Device" name="QueryFeatureSupport" mod="const" doc="Queries if the device supports the feature.">

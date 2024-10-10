@@ -757,8 +757,6 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
         output |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
     if (value & ResourceAccess::VideoDecodeWrite)
         output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
-    if (value & ResourceAccess::Present)
-        output |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
     if (value & ResourceAccess::ResolveDest)
         output |= VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT;
     if (value & ResourceAccess::ResolveSource)

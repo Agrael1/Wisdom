@@ -203,32 +203,24 @@ extern "C" WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12ShaderResource." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap, uint32_t* alignment)
+extern "C" uint32_t DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->GetDescriptorTableAlignment(static_cast<wis::DescriptorHeapType>(heap));
-
-    if (res.status != wis::Status::Ok)
-        return reinterpret_cast<WisResult&>(res);
-
-    *alignment = value;
-    return reinterpret_cast<WisResult&>(res);
+    auto res = xself->GetDescriptorTableAlignment(static_cast<wis::DescriptorHeapType>(heap));
+    ;
+    return res;
 }
-extern "C" WisResult DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap, uint32_t* size)
+extern "C" uint32_t DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->GetDescriptorBufferUnitSize(static_cast<wis::DescriptorHeapType>(heap));
-
-    if (res.status != wis::Status::Ok)
-        return reinterpret_cast<WisResult&>(res);
-
-    *size = value;
-    return reinterpret_cast<WisResult&>(res);
+    auto res = xself->GetDescriptorBufferUnitSize(static_cast<wis::DescriptorHeapType>(heap));
+    ;
+    return res;
 }
-extern "C" WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, DX12DescriptorBuffer* buffer)
+extern "C" WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, DX12DescriptorBuffer* buffer)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), descriptor_count);
+    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), size_bytes);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -934,32 +926,24 @@ extern "C" WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture textu
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKShaderResource." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap, uint32_t* alignment)
+extern "C" uint32_t VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->GetDescriptorTableAlignment(static_cast<wis::DescriptorHeapType>(heap));
-
-    if (res.status != wis::Status::Ok)
-        return reinterpret_cast<WisResult&>(res);
-
-    *alignment = value;
-    return reinterpret_cast<WisResult&>(res);
+    auto res = xself->GetDescriptorTableAlignment(static_cast<wis::DescriptorHeapType>(heap));
+    ;
+    return res;
 }
-extern "C" WisResult VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap, uint32_t* size)
+extern "C" uint32_t VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->GetDescriptorBufferUnitSize(static_cast<wis::DescriptorHeapType>(heap));
-
-    if (res.status != wis::Status::Ok)
-        return reinterpret_cast<WisResult&>(res);
-
-    *size = value;
-    return reinterpret_cast<WisResult&>(res);
+    auto res = xself->GetDescriptorBufferUnitSize(static_cast<wis::DescriptorHeapType>(heap));
+    ;
+    return res;
 }
-extern "C" WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint32_t descriptor_count, VKDescriptorBuffer* buffer)
+extern "C" WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, VKDescriptorBuffer* buffer)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), descriptor_count);
+    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), size_bytes);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);

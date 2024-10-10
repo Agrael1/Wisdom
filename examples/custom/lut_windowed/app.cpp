@@ -204,10 +204,12 @@ void App::CreateResources()
 {
     // Create descriptor buffer
     {
-        auto [res, hdesc] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2);
+        auto desc_increment = device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Descriptor);
+        auto [res, hdesc] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2 * desc_increment);
         desc_buffer = std::move(hdesc);
 
-        auto [res2, hdesc2] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 2);
+        auto sampler_increment = device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Sampler);
+        auto [res2, hdesc2] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 2 * sampler_increment);
         sampler_buffer = std::move(hdesc2);
     }
 
