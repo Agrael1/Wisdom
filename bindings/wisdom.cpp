@@ -177,6 +177,19 @@ extern "C" WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12Texture t
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12RenderTarget." };
     return reinterpret_cast<WisResult&>(res);
 }
+extern "C" WisResult DX12DeviceCreateDepthStencilTarget(DX12Device self, DX12Texture texture, WisRenderTargetDesc desc, DX12RenderTarget* target)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& [res, value] = xself->CreateDepthStencilTarget(*reinterpret_cast<wis::DX12Texture*>(texture), reinterpret_cast<wis::RenderTargetDesc&>(desc));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *target = reinterpret_cast<DX12RenderTarget>(new (std::nothrow) wis::DX12RenderTarget(std::move(value)));
+    if (!*target)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12RenderTarget." };
+    return reinterpret_cast<WisResult&>(res);
+}
 extern "C" WisResult DX12DeviceCreateSampler(DX12Device self, const WisSamplerDesc* desc, DX12Sampler* sampler)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
@@ -891,6 +904,19 @@ extern "C" WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTexture texture
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
     auto&& [res, value] = xself->CreateRenderTarget(*reinterpret_cast<wis::VKTexture*>(texture), reinterpret_cast<wis::RenderTargetDesc&>(desc));
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *target = reinterpret_cast<VKRenderTarget>(new (std::nothrow) wis::VKRenderTarget(std::move(value)));
+    if (!*target)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKRenderTarget." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKDeviceCreateDepthStencilTarget(VKDevice self, VKTexture texture, WisRenderTargetDesc desc, VKRenderTarget* target)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& [res, value] = xself->CreateDepthStencilTarget(*reinterpret_cast<wis::VKTexture*>(texture), reinterpret_cast<wis::RenderTargetDesc&>(desc));
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);

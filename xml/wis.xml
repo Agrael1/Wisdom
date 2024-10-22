@@ -173,6 +173,17 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create."/>
     </func>
 
+    <func for="Device" name="CreateDepthStencilTarget" mod="const" doc="Creates a depth stencil target object.
+Works only with depth formats.
+Used with render passes.">
+      <ret type="RenderTarget" name="target" result="true" doc="{RenderTarget::} on success ({Status::Ok})."/>
+      <arg type="Texture" name="texture" doc="The texture to create the render target with.">
+        <replace with="TextureView" for="cpp" doc="The texture view to create the render target with."/>
+      </arg>
+      <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create.
+Does not work with 3D textures."/>
+    </func>
+
     <func for="Device" name="CreateSampler" mod="const" doc="Creates a sampler object.">
       <ret type="Sampler" name="sampler" result="true" doc="{Sampler::} on success ({Status::Ok})."/>
       <arg type="SamplerDesc" name="desc" mod="const ptr" doc="The description of the sampler to create."/>

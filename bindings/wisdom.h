@@ -2203,6 +2203,20 @@ WISDOM_API WisResult VKDeviceCreateAllocator(VKDevice self, VKResourceAllocator*
 WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTexture texture, WisRenderTargetDesc desc, VKRenderTarget* target);
 
 /**
+ * @brief Creates a depth stencil target object.
+ * Works only with depth formats.
+ * Used with render passes.
+ * @param self valid handle to the Device
+ * @param texture The texture to create the render target with.
+ * @param desc The description of the render target to create.
+ * Does not work with 3D textures.
+ * @param target VKRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateDepthStencilTarget(VKDevice self, VKTexture texture, WisRenderTargetDesc desc, VKRenderTarget* target);
+
+/**
  * @brief Creates a sampler object.
  * @param self valid handle to the Device
  * @param desc The description of the sampler to create.
@@ -3235,6 +3249,20 @@ WISDOM_API WisResult DX12DeviceCreateAllocator(DX12Device self, DX12ResourceAllo
 WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12Texture texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
 
 /**
+ * @brief Creates a depth stencil target object.
+ * Works only with depth formats.
+ * Used with render passes.
+ * @param self valid handle to the Device
+ * @param texture The texture to create the render target with.
+ * @param desc The description of the render target to create.
+ * Does not work with 3D textures.
+ * @param target DX12RenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateDepthStencilTarget(DX12Device self, DX12Texture texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
+
+/**
  * @brief Creates a sampler object.
  * @param self valid handle to the Device
  * @param desc The description of the sampler to create.
@@ -4204,6 +4232,23 @@ inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* 
 inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
 {
     return DX12DeviceCreateRenderTarget(self, texture, desc, target);
+}
+
+/**
+ * @brief Creates a depth stencil target object.
+ * Works only with depth formats.
+ * Used with render passes.
+ * @param self valid handle to the Device
+ * @param texture The texture to create the render target with.
+ * @param desc The description of the render target to create.
+ * Does not work with 3D textures.
+ * @param target WisRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDepthStencilTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+{
+    return DX12DeviceCreateDepthStencilTarget(self, texture, desc, target);
 }
 
 /**
@@ -5382,6 +5427,23 @@ inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* 
 inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
 {
     return VKDeviceCreateRenderTarget(self, texture, desc, target);
+}
+
+/**
+ * @brief Creates a depth stencil target object.
+ * Works only with depth formats.
+ * Used with render passes.
+ * @param self valid handle to the Device
+ * @param texture The texture to create the render target with.
+ * @param desc The description of the render target to create.
+ * Does not work with 3D textures.
+ * @param target WisRenderTarget on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDepthStencilTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+{
+    return VKDeviceCreateDepthStencilTarget(self, texture, desc, target);
 }
 
 /**

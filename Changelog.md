@@ -1,5 +1,9 @@
 # Version History
 
+- 0.3.7
+
+  - Added specific function for creating depth stencil views
+
 - 0.3.6
 
   - Fixed inconsistency with Descriptor tables (bytes vs descriptors)

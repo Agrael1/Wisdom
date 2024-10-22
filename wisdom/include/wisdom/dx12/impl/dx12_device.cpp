@@ -463,6 +463,84 @@ wis::ImplDX12Device::CreateRenderTarget(DX12TextureView texture, wis::RenderTarg
     return DX12RenderTarget{ std::move(heap), handle };
 }
 
+namespace wis::detail {
+inline constexpr D3D12_DSV_DIMENSION to_dsv(wis::TextureLayout layout) noexcept
+{
+    switch (layout) {
+    case wis::TextureLayout::Texture1D:
+        return D3D12_DSV_DIMENSION_TEXTURE1D;
+    case wis::TextureLayout::Texture1DArray:
+        return D3D12_DSV_DIMENSION_TEXTURE1DARRAY;
+    case wis::TextureLayout::Texture2D:
+        return D3D12_DSV_DIMENSION_TEXTURE2D;
+    case wis::TextureLayout::Texture2DArray:
+        return D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+    case wis::TextureLayout::Texture2DMS:
+        return D3D12_DSV_DIMENSION_TEXTURE2DMS;
+    case wis::TextureLayout::Texture2DMSArray:
+        return D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY;
+    default:
+        return D3D12_DSV_DIMENSION_UNKNOWN;
+    }
+}
+} // namespace wis::detail
+
+wis::ResultValue<wis::DX12RenderTarget>
+wis::ImplDX12Device::CreateDepthStencilTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
+{
+    D3D12_DEPTH_STENCIL_VIEW_DESC rtv_desc{
+        .Format = convert_dx(desc.format),
+        .ViewDimension = detail::to_dsv(desc.layout),
+        .Texture2DArray{
+                .MipSlice = desc.mip,
+                .FirstArraySlice = desc.base_array_layer,
+                .ArraySize = desc.layer_count }
+    };
+    switch (desc.layout) {
+    case wis::TextureLayout::Texture1D:
+        rtv_desc.Texture1D = {
+            .MipSlice = desc.mip
+        };
+        break;
+    case wis::TextureLayout::Texture1DArray:
+        rtv_desc.Texture1DArray = {
+            .MipSlice = desc.mip,
+            .FirstArraySlice = desc.base_array_layer,
+            .ArraySize = desc.layer_count
+        };
+        break;
+    case wis::TextureLayout::Texture2D:
+        rtv_desc.Texture2D = {
+            .MipSlice = desc.mip
+        };
+        break;
+    case wis::TextureLayout::Texture2DMSArray:
+        rtv_desc.Texture2DMSArray = {
+            .FirstArraySlice = desc.base_array_layer,
+            .ArraySize = desc.layer_count
+        };
+        break;
+    default:
+        break;
+    }
+
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+        .NumDescriptors = 1,
+        .Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+        .NodeMask = 0u
+    };
+
+    wis::com_ptr<ID3D12DescriptorHeap> heap;
+    auto hr = device->CreateDescriptorHeap(&heap_desc, __uuidof(*heap), heap.put_void());
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create descriptor heap for render target view">(hr);
+
+    auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+    device->CreateDepthStencilView(std::get<0>(texture), &rtv_desc, handle);
+    return DX12RenderTarget{ std::move(heap), handle };
+}
+
 wis::ResultValue<wis::DX12DescriptorBuffer>
 wis::ImplDX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
 {
