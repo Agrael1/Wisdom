@@ -151,6 +151,6 @@ void App::OnResize(uint32_t width, uint32_t height, uint32_t win_num)
 void App::Frame()
 {
     work.Frame();
-    //work.DumpFrame("garbage.png");
+    // work.DumpFrame("garbage.png");
     transfer.Frame();
 }

@@ -513,7 +513,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // process the raw input data
         auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
         if (ri.header.dwType == RIM_TYPEMOUSE &&
-                (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
+            (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
             mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
         }
         break;
