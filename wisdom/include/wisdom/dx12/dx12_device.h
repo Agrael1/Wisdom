@@ -70,6 +70,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RenderTarget>
     CreateRenderTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RenderTarget>
+    CreateDepthStencilTarget(DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
+
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Sampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 
@@ -200,6 +203,19 @@ public:
     [[nodiscard]] inline wis::ResultValue<wis::DX12RenderTarget> CreateRenderTarget(wis::DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
     {
         return wis::ImplDX12Device::CreateRenderTarget(std::move(texture), desc);
+    }
+    /**
+     * @brief Creates a depth stencil target object.
+     * Works only with depth formats.
+     * Used with render passes.
+     * @param texture The texture view to create the render target with.
+     * @param desc The description of the render target to create.
+     * Does not work with 3D textures.
+     * @return wis::DX12RenderTarget on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::DX12RenderTarget> CreateDepthStencilTarget(wis::DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept
+    {
+        return wis::ImplDX12Device::CreateDepthStencilTarget(std::move(texture), desc);
     }
     /**
      * @brief Creates a sampler object.

@@ -103,6 +103,12 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRenderTarget>
     CreateRenderTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRenderTarget>
+    CreateDepthStencilTarget(VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
+    {
+        return CreateRenderTarget(texture, desc);
+    }
+
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKSampler>
     CreateSampler(const wis::SamplerDesc* desc) const noexcept;
 
@@ -261,6 +267,19 @@ public:
     [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateRenderTarget(wis::VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
     {
         return wis::ImplVKDevice::CreateRenderTarget(std::move(texture), desc);
+    }
+    /**
+     * @brief Creates a depth stencil target object.
+     * Works only with depth formats.
+     * Used with render passes.
+     * @param texture The texture view to create the render target with.
+     * @param desc The description of the render target to create.
+     * Does not work with 3D textures.
+     * @return wis::VKRenderTarget on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateDepthStencilTarget(wis::VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
+    {
+        return wis::ImplVKDevice::CreateDepthStencilTarget(std::move(texture), desc);
     }
     /**
      * @brief Creates a sampler object.
