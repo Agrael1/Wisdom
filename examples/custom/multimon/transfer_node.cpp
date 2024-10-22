@@ -12,15 +12,15 @@ LoadShader(std::filesystem::path p) noexcept
         p += u".spv";
 
     if (!std::filesystem::exists(p))
-        return std::expected<std::string, std::string_view>{
-            std::unexpect, "File not found"
-        };
+        return std::expected<std::string, std::string_view> {
+        std::unexpect, "File not found"
+    };
 
     std::ifstream t{ p, std::ios::binary };
     if (!t.is_open())
-        return std::expected<std::string, std::string_view>{
-            std::unexpect, "Failed to open file"
-        };
+        return std::expected<std::string, std::string_view> {
+        std::unexpect, "Failed to open file"
+    };
 
     t.seekg(0, std::ios::end);
     size_t size = t.tellg();
@@ -38,7 +38,7 @@ CreateTransferNode(wis::Adapter&& adapter)
 
     // Create transfer device
     {
-        wis::DeviceExtension* exts[]{
+        wis::DeviceExtension* exts[] {
             &node.ext_mem_host,
             &node.ext_alloc
         };
@@ -115,38 +115,38 @@ CreateTransferNode(wis::Adapter&& adapter)
         using namespace wis;
         wis::DescriptorTableEntry entries[] = {
             {
-                    .type = wis::DescriptorType::ShaderResource,
-                    .bind_register = 0,
-                    .binding = 0,
-                    .count = 1,
+                .type = wis::DescriptorType::ShaderResource,
+                .bind_register = 0,
+                .binding = 0,
+                .count = 1,
             },
             {
-                    .type = wis::DescriptorType::Sampler,
-                    .bind_register = 0,
-                    .binding = 0,
-                    .count = 1,
+                .type = wis::DescriptorType::Sampler,
+                .bind_register = 0,
+                .binding = 0,
+                .count = 1,
             },
         };
 
         wis::DescriptorTable tables[] = {
             {
-                    .type = wis::DescriptorHeapType::Descriptor,
-                    .entries = entries,
-                    .entry_count = 1,
-                    .stage = wis::ShaderStages::Pixel,
+                .type = wis::DescriptorHeapType::Descriptor,
+                .entries = entries,
+                .entry_count = 1,
+                .stage = wis::ShaderStages::Pixel,
             },
             {
-                    .type = wis::DescriptorHeapType::Sampler,
-                    .entries = entries + 1,
-                    .entry_count = 1,
-                    .stage = wis::ShaderStages::Pixel,
+                .type = wis::DescriptorHeapType::Sampler,
+                .entries = entries + 1,
+                .entry_count = 1,
+                .stage = wis::ShaderStages::Pixel,
             },
 
         };
         wis::RootConstant constants[] = {
             {
-                    .stage = wis::ShaderStages::Vertex,
-                    .size_bytes = 4 * sizeof(float),
+                .stage = wis::ShaderStages::Vertex,
+                .size_bytes = 4 * sizeof(float),
             },
         };
         auto [result, root] = node.transfer_device.CreateRootSignature(constants, 1, tables, sizeof(tables) / sizeof(tables[0]));
@@ -163,8 +163,8 @@ CreateTransferNode(wis::Adapter&& adapter)
             .root_signature = node.root_signature,
             .shaders = { .vertex = node.vs, .pixel = node.ps },
             .attachments = {
-                    .attachment_formats = attachment_formats,
-                    .attachments_count = 1,
+                .attachment_formats = attachment_formats,
+                .attachments_count = 1,
             }
         };
         auto [res2, hpipeline] = node.transfer_device.CreateGraphicsPipeline(&desc);
@@ -313,10 +313,12 @@ void TransferNode::VKImportFrame(wis::Size2D frame, void* mapping)
         .access_after = wis::ResourceAccess::ShaderResource,
         .state_before = wis::TextureState::Undefined,
         .state_after = wis::TextureState::ShaderResource,
-        .subresource_range = { 0,
-                               1,
-                               0,
-                               1 }
+        .subresource_range = {
+            0,
+            1,
+            0,
+            1
+        }
     };
 
     cmd_list.BufferBarrier(source_barrier, input_buffer);
@@ -355,39 +357,41 @@ void TransferNode::Frame()
     };
 
     wis::TextureBarrier2 ainput_barriers[] = {
-        { .barrier{ .sync_before = wis::BarrierSync::None,
-                    .sync_after = wis::BarrierSync::Copy,
-                    .access_before = wis::ResourceAccess::NoAccess,
-                    .access_after = wis::ResourceAccess::CopyDest,
-                    .state_before = wis::TextureState::ShaderResource,
-                    .state_after = wis::TextureState::CopyDest,
-                    .subresource_range = { 0, 1, 0, 1 } },
-          .texture = texture }
+        {   .barrier{ .sync_before = wis::BarrierSync::None,
+                .sync_after = wis::BarrierSync::Copy,
+                .access_before = wis::ResourceAccess::NoAccess,
+                .access_after = wis::ResourceAccess::CopyDest,
+                .state_before = wis::TextureState::ShaderResource,
+                .state_after = wis::TextureState::CopyDest,
+                .subresource_range = { 0, 1, 0, 1 } },
+            .texture = texture
+        }
     };
     wis::TextureBarrier2 inter_barriers[] = {
-        { .barrier{ .sync_before = wis::BarrierSync::Copy,
-                    .sync_after = wis::BarrierSync::Draw,
-                    .access_before = wis::ResourceAccess::CopyDest,
-                    .access_after = wis::ResourceAccess::ShaderResource,
-                    .state_before = wis::TextureState::CopyDest,
-                    .state_after = wis::TextureState::ShaderResource,
-                    .subresource_range = { 0, 1, 0, 1 } },
-          .texture = texture },
+        {   .barrier{ .sync_before = wis::BarrierSync::Copy,
+                .sync_after = wis::BarrierSync::Draw,
+                .access_before = wis::ResourceAccess::CopyDest,
+                .access_after = wis::ResourceAccess::ShaderResource,
+                .state_before = wis::TextureState::CopyDest,
+                .state_after = wis::TextureState::ShaderResource,
+                .subresource_range = { 0, 1, 0, 1 } },
+            .texture = texture
+        },
     };
 
     copy_cmd_list.TextureBarriers(ainput_barriers, std::size(ainput_barriers));
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-                .size = { input_size.width, input_size.height, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
+            .size = { input_size.width, input_size.height, 1 },
+            .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     copy_cmd_list.CopyBufferToTexture(input_buffer, texture, &region, 1);
     copy_cmd_list.TextureBarriers(inter_barriers, std::size(inter_barriers));
     copy_cmd_list.Close();
 
-    wis::CommandListView cmd_list_view[]{ copy_cmd_list, /*cmd_list*/ };
+    wis::CommandListView cmd_list_view[] { copy_cmd_list, /*cmd_list*/ };
     queue.ExecuteCommandLists(cmd_list_view, std::size(cmd_list_view));
     WaitForGPU();
 
@@ -395,45 +399,49 @@ void TransferNode::Frame()
     std::ignore = cmd_list.Reset(pipeline_state);
 
     wis::TextureBarrier2 input_barriers[] = {
-        { .barrier{ .sync_before = wis::BarrierSync::None,
-                    .sync_after = wis::BarrierSync::Draw,
-                    .access_before = wis::ResourceAccess::NoAccess,
-                    .access_after = wis::ResourceAccess::RenderTarget,
-                    .state_before = wis::TextureState::Present,
-                    .state_after = wis::TextureState::RenderTarget,
-                    .subresource_range = { 0, 1, 0, 1 } },
-          .texture = back_buffers[0][index[0]] },
-        { .barrier{ .sync_before = wis::BarrierSync::None,
-                    .sync_after = wis::BarrierSync::Draw,
-                    .access_before = wis::ResourceAccess::NoAccess,
-                    .access_after = wis::ResourceAccess::RenderTarget,
-                    .state_before = wis::TextureState::Present,
-                    .state_after = wis::TextureState::RenderTarget,
-                    .subresource_range = { 0, 1, 0, 1 } },
-          .texture = back_buffers[1][index[1]] },
+        {   .barrier{ .sync_before = wis::BarrierSync::None,
+                .sync_after = wis::BarrierSync::Draw,
+                .access_before = wis::ResourceAccess::NoAccess,
+                .access_after = wis::ResourceAccess::RenderTarget,
+                .state_before = wis::TextureState::Present,
+                .state_after = wis::TextureState::RenderTarget,
+                .subresource_range = { 0, 1, 0, 1 } },
+            .texture = back_buffers[0][index[0]]
+        },
+        {   .barrier{ .sync_before = wis::BarrierSync::None,
+                .sync_after = wis::BarrierSync::Draw,
+                .access_before = wis::ResourceAccess::NoAccess,
+                .access_after = wis::ResourceAccess::RenderTarget,
+                .state_before = wis::TextureState::Present,
+                .state_after = wis::TextureState::RenderTarget,
+                .subresource_range = { 0, 1, 0, 1 } },
+            .texture = back_buffers[1][index[1]]
+        },
     };
 
     wis::TextureBarrier2 output_barriers[] = {
-        { .barrier{ .sync_before = wis::BarrierSync::Draw,
-                    .sync_after = wis::BarrierSync::None,
-                    .access_before = wis::ResourceAccess::RenderTarget,
-                    .access_after = wis::ResourceAccess::Common,
-                    .state_before = wis::TextureState::RenderTarget,
-                    .state_after = wis::TextureState::Present,
-                    .subresource_range = { 0, 1, 0, 1 } },
-          .texture = back_buffers[0][index[0]] },
-        { .barrier{ .sync_before = wis::BarrierSync::Draw,
-                    .sync_after = wis::BarrierSync::None,
-                    .access_before = wis::ResourceAccess::RenderTarget,
-                    .access_after = wis::ResourceAccess::Common,
-                    .state_before = wis::TextureState::RenderTarget,
-                    .state_after = wis::TextureState::Present,
-                    .subresource_range = { 0, 1, 0, 1 } },
-          .texture = back_buffers[1][index[1]] },
+        {   .barrier{ .sync_before = wis::BarrierSync::Draw,
+                .sync_after = wis::BarrierSync::None,
+                .access_before = wis::ResourceAccess::RenderTarget,
+                .access_after = wis::ResourceAccess::Common,
+                .state_before = wis::TextureState::RenderTarget,
+                .state_after = wis::TextureState::Present,
+                .subresource_range = { 0, 1, 0, 1 } },
+            .texture = back_buffers[0][index[0]]
+        },
+        {   .barrier{ .sync_before = wis::BarrierSync::Draw,
+                .sync_after = wis::BarrierSync::None,
+                .access_before = wis::ResourceAccess::RenderTarget,
+                .access_after = wis::ResourceAccess::Common,
+                .state_before = wis::TextureState::RenderTarget,
+                .state_after = wis::TextureState::Present,
+                .subresource_range = { 0, 1, 0, 1 } },
+            .texture = back_buffers[1][index[1]]
+        },
     };
 
     cmd_list.TextureBarriers(input_barriers, std::size(input_barriers));
-    wis::DescriptorBufferView desc_buffer_views[]{ desc_buffer, sampler_buffer };
+    wis::DescriptorBufferView desc_buffer_views[] { desc_buffer, sampler_buffer };
     cmd_list.SetDescriptorBuffers(desc_buffer_views, 2);
     cmd_list.SetRootSignature(root_signature);
 
@@ -483,7 +491,7 @@ void TransferNode::Frame()
     cmd_list.TextureBarriers(output_barriers, std::size(output_barriers));
     cmd_list.Close();
 
-    wis::CommandListView cmd_list_view3[]{ cmd_list };
+    wis::CommandListView cmd_list_view3[] { cmd_list };
     queue.ExecuteCommandLists(cmd_list_view3, std::size(cmd_list_view3));
 
     auto result = swap[0].Present();

@@ -98,9 +98,9 @@ public:
             .sType = VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT,
         };
         auto res = vkGetMemoryHostPointerPropertiesEXT(shared_device.get(),
-                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
-                                                       mapping,
-                                                       &props);
+                   VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
+                   mapping,
+                   &props);
         if (res != VK_SUCCESS)
             return wis::make_result<FUNC, "vkGetMemoryHostPointerPropertiesEXT failed: ">(res);
 
@@ -182,7 +182,7 @@ public:
     wis::ResourceAllocator allocator;
     wis::SwapChain swap[2];
     std::span<const wis::Texture> back_buffers[2];
-    std::array<wis::RenderTarget, 2> render_targets[2]; 
+    std::array<wis::RenderTarget, 2> render_targets[2];
     wis::CommandQueue queue;
     wis::CommandList cmd_list;
     wis::CommandList copy_cmd_list;
