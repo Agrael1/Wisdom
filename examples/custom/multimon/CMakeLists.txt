@@ -36,7 +36,7 @@ wis_compile_shader(TARGET ${PROJECT_NAME} SHADER
                    ${CMAKE_CURRENT_SOURCE_DIR}/lut.vs.hlsl)
 wis_compile_shader(TARGET ${PROJECT_NAME} SHADER
                    ${CMAKE_CURRENT_SOURCE_DIR}/lut.ps.hlsl)
-                   
+
 wis_compile_shader(TARGET ${PROJECT_NAME} SHADER
                    ${CMAKE_CURRENT_SOURCE_DIR}/present.vs.hlsl)
 wis_compile_shader(TARGET ${PROJECT_NAME} SHADER
