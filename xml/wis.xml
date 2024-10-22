@@ -172,7 +172,7 @@ Default is {MutiWaitFlags::All}"/>
       </arg>
       <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create."/>
     </func>
-    
+
     <func for="Device" name="CreateDepthStencilTarget" mod="const" doc="Creates a depth stencil target object.
 Works only with depth formats.
 Used with render passes.">

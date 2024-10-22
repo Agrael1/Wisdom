@@ -87,7 +87,7 @@ Window::Window(unsigned int width, unsigned int height, const char* name)
         ss << "Monitor " << dwData << ": " << mi.szDevice;
         OutputDebugStringA(ss.str().c_str());
         OutputDebugStringA("\n");
-        
+
         A& mon = *reinterpret_cast<A*>(dwData);
         if (mon.monitor++ == monitor) {
             mon.rMonitor = mi.rcMonitor;

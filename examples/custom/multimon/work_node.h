@@ -3,12 +3,10 @@
 #include <wisdom/wisdom_extended_allocation.h>
 #include <expected>
 
-
-
 struct WorkNode {
     WorkNode() = default;
     WorkNode(const WorkNode&) = default;
-    WorkNode(WorkNode&&)noexcept = default;
+    WorkNode(WorkNode&&) noexcept = default;
     WorkNode& operator=(const WorkNode&) = default;
     WorkNode& operator=(WorkNode&&) noexcept = default;
     ~WorkNode() noexcept
@@ -16,6 +14,7 @@ struct WorkNode {
         if (mapping)
             out_buffer.Unmap();
     }
+
 public:
     void PrepareResources();
     void CreateOutputTexture(wis::Size2D frame);

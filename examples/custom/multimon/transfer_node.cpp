@@ -313,10 +313,11 @@ void TransferNode::VKImportFrame(wis::Size2D frame, void* mapping)
         .access_after = wis::ResourceAccess::ShaderResource,
         .state_before = wis::TextureState::Undefined,
         .state_after = wis::TextureState::ShaderResource,
-        .subresource_range = { 0,
-                               1,
-                               0,
-                               1 }
+        .subresource_range = {
+                0,
+                1,
+                0,
+                1 }
     };
 
     cmd_list.BufferBarrier(source_barrier, input_buffer);
@@ -463,7 +464,6 @@ void TransferNode::Frame()
 
     cmd_list.DrawInstanced(3, 1, 0, 0);
     cmd_list.EndRenderPass();
-
 
     // Render Pass 2
     rprtdesc.target = render_targets[1][index[1]];

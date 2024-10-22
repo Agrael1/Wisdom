@@ -7,7 +7,6 @@
 #include <string_view>
 #include <expected>
 
-
 struct ExternalBuffer {
     ExternalBuffer() = default;
     ExternalBuffer(wis::SharedDevice device, VkBuffer buffer, VkDeviceMemory memory)
@@ -182,7 +181,7 @@ public:
     wis::ResourceAllocator allocator;
     wis::SwapChain swap[2];
     std::span<const wis::Texture> back_buffers[2];
-    std::array<wis::RenderTarget, 2> render_targets[2]; 
+    std::array<wis::RenderTarget, 2> render_targets[2];
     wis::CommandQueue queue;
     wis::CommandList cmd_list;
     wis::CommandList copy_cmd_list;
