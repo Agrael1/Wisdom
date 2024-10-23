@@ -60,7 +60,8 @@ public:
  * @brief Represents physical device.
  * Can safely be deleted once logical device has been created.
  * */
-struct DX12Adapter : public wis::ImplDX12Adapter {
+class DX12Adapter : public wis::ImplDX12Adapter
+{
 public:
     using wis::ImplDX12Adapter::ImplDX12Adapter;
 

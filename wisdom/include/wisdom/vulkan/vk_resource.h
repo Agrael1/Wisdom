@@ -218,7 +218,8 @@ public:
 /**
  * @brief Represents buffer object for storing linear data.
  * */
-struct VKBuffer : public wis::ImplVKBuffer {
+class VKBuffer : public wis::ImplVKBuffer
+{
 public:
     using wis::ImplVKBuffer::ImplVKBuffer;
 

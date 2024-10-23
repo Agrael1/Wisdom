@@ -136,7 +136,8 @@ public:
 /**
  * @brief Represents buffer object for storing linear data.
  * */
-struct DX12Buffer : public wis::ImplDX12Buffer {
+class DX12Buffer : public wis::ImplDX12Buffer
+{
 public:
     using wis::ImplDX12Buffer::ImplDX12Buffer;
 

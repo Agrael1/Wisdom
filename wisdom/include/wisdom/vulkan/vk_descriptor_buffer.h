@@ -125,7 +125,8 @@ protected:
 /**
  * @brief Represents descriptor buffer for binding descriptors.
  * */
-struct VKDescriptorBuffer : public wis::ImplVKDescriptorBuffer {
+class VKDescriptorBuffer : public wis::ImplVKDescriptorBuffer
+{
 public:
     using wis::ImplVKDescriptorBuffer::ImplVKDescriptorBuffer;
 

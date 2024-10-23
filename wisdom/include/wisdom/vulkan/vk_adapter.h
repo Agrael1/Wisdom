@@ -38,7 +38,8 @@ public:
  * @brief Represents physical device.
  * Can safely be deleted once logical device has been created.
  * */
-struct VKAdapter : public wis::ImplVKAdapter {
+class VKAdapter : public wis::ImplVKAdapter
+{
 public:
     using wis::ImplVKAdapter::ImplVKAdapter;
 

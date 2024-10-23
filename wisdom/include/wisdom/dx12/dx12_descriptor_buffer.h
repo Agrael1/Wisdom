@@ -81,7 +81,8 @@ protected:
 /**
  * @brief Represents descriptor buffer for binding descriptors.
  * */
-struct DX12DescriptorBuffer : public wis::ImplDX12DescriptorBuffer {
+class DX12DescriptorBuffer : public wis::ImplDX12DescriptorBuffer
+{
 public:
     using wis::ImplDX12DescriptorBuffer::ImplDX12DescriptorBuffer;
 

@@ -125,7 +125,8 @@ private:
  * @brief Class for creating adapters.
  * Can be safely destroyed after adapter has been chosen.
  * */
-struct VKFactory : public wis::ImplVKFactory {
+class VKFactory : public wis::ImplVKFactory
+{
 public:
     using wis::ImplVKFactory::ImplVKFactory;
 

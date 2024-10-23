@@ -104,7 +104,8 @@ public:
  * @brief Main memory and resource allocator.
  * Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with TLSF algorithm.
  * */
-struct VKResourceAllocator : public wis::ImplVKResourceAllocator {
+class VKResourceAllocator : public wis::ImplVKResourceAllocator
+{
 public:
     using wis::ImplVKResourceAllocator::ImplVKResourceAllocator;
 

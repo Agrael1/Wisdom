@@ -105,7 +105,8 @@ protected:
 /**
  * @brief Represents command list for recording commands.
  * */
-struct DX12CommandList : public wis::ImplDX12CommandList {
+class DX12CommandList : public wis::ImplDX12CommandList
+{
 public:
     using wis::ImplDX12CommandList::ImplDX12CommandList;
 

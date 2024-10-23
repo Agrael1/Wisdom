@@ -1,5 +1,9 @@
 # Version History
 
+- 0.3.9
+
+  - Fixed annoying warning about class/struct mismatch in C++ API
+ 
 - 0.3.8
 
   - Fixed render pass for DX12 always clearing, despite of value

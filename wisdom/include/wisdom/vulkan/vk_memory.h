@@ -97,7 +97,8 @@ public:
 /**
  * @brief Represents memory object for binding resources.
  * */
-struct VKMemory : public wis::ImplVKMemory {
+class VKMemory : public wis::ImplVKMemory
+{
 public:
     using wis::ImplVKMemory::ImplVKMemory;
 

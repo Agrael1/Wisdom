@@ -89,7 +89,8 @@ public:
  * @brief Main memory and resource allocator.
  * Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with TLSF algorithm.
  * */
-struct DX12ResourceAllocator : public wis::ImplDX12ResourceAllocator {
+class DX12ResourceAllocator : public wis::ImplDX12ResourceAllocator
+{
 public:
     using wis::ImplDX12ResourceAllocator::ImplDX12ResourceAllocator;
 

@@ -42,8 +42,8 @@ public:
 };
 
 #pragma region DX12DebugExtension
-
-struct DX12DebugExtension : public wis::ImplDX12DebugExtension {
+class DX12DebugExtension : public wis::ImplDX12DebugExtension
+{
 public:
     using wis::ImplDX12DebugExtension::ImplDX12DebugExtension;
 
@@ -116,8 +116,8 @@ public:
 };
 
 #pragma region VKDebugExtension
-
-struct VKDebugExtension : public wis::ImplVKDebugExtension {
+class VKDebugExtension : public wis::ImplVKDebugExtension
+{
 public:
     using wis::ImplVKDebugExtension::ImplVKDebugExtension;
 

@@ -57,7 +57,8 @@ private:
  * @brief Class for creating adapters.
  * Can be safely destroyed after adapter has been chosen.
  * */
-struct DX12Factory : public wis::ImplDX12Factory {
+class DX12Factory : public wis::ImplDX12Factory
+{
 public:
     using wis::ImplDX12Factory::ImplDX12Factory;
 

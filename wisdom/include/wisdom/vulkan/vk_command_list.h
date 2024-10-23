@@ -138,7 +138,8 @@ protected:
 /**
  * @brief Represents command list for recording commands.
  * */
-struct VKCommandList : public wis::ImplVKCommandList {
+class VKCommandList : public wis::ImplVKCommandList
+{
 public:
     using wis::ImplVKCommandList::ImplVKCommandList;
 

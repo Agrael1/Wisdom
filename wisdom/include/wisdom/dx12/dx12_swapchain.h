@@ -111,7 +111,8 @@ public:
 /**
  * @brief Represents swap chain object for presenting images.
  * */
-struct DX12SwapChain : public wis::ImplDX12SwapChain {
+class DX12SwapChain : public wis::ImplDX12SwapChain
+{
 public:
     using wis::ImplDX12SwapChain::ImplDX12SwapChain;
 

@@ -168,7 +168,8 @@ private:
  * @brief Represents logical device.
  * Creates all the resources and commands for rendering.
  * */
-struct VKDevice : public wis::ImplVKDevice {
+class VKDevice : public wis::ImplVKDevice
+{
 public:
     using wis::ImplVKDevice::ImplVKDevice;
 

@@ -55,7 +55,8 @@ public:
 /**
  * @brief Represents command queue for executing command lists.
  * */
-struct DX12CommandQueue : public wis::ImplDX12CommandQueue {
+class DX12CommandQueue : public wis::ImplDX12CommandQueue
+{
 public:
     using wis::ImplDX12CommandQueue::ImplDX12CommandQueue;
 

@@ -56,7 +56,8 @@ public:
 /**
  * @brief Represents fence for synchronization of GPU timeline.
  * */
-struct DX12Fence : public wis::ImplDX12Fence {
+class DX12Fence : public wis::ImplDX12Fence
+{
 public:
     using wis::ImplDX12Fence::ImplDX12Fence;
 

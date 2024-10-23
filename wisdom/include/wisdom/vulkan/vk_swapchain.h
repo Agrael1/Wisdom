@@ -144,7 +144,8 @@ public:
 /**
  * @brief Represents swap chain object for presenting images.
  * */
-struct VKSwapChain : public wis::ImplVKSwapChain {
+class VKSwapChain : public wis::ImplVKSwapChain
+{
 public:
     using wis::ImplVKSwapChain::ImplVKSwapChain;
 

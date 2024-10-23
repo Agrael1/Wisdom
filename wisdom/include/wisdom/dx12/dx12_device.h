@@ -104,7 +104,8 @@ public:
  * @brief Represents logical device.
  * Creates all the resources and commands for rendering.
  * */
-struct DX12Device : public wis::ImplDX12Device {
+class DX12Device : public wis::ImplDX12Device
+{
 public:
     using wis::ImplDX12Device::ImplDX12Device;
 

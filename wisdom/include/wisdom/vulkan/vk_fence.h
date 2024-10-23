@@ -53,7 +53,8 @@ public:
 /**
  * @brief Represents fence for synchronization of GPU timeline.
  * */
-struct VKFence : public wis::ImplVKFence {
+class VKFence : public wis::ImplVKFence
+{
 public:
     using wis::ImplVKFence::ImplVKFence;
 

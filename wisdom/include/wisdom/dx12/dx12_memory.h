@@ -59,7 +59,8 @@ public:
 /**
  * @brief Represents memory object for binding resources.
  * */
-struct DX12Memory : public wis::ImplDX12Memory {
+class DX12Memory : public wis::ImplDX12Memory
+{
 public:
     using wis::ImplDX12Memory::ImplDX12Memory;
 

@@ -57,7 +57,8 @@ public:
 /**
  * @brief Represents command queue for executing command lists.
  * */
-struct VKCommandQueue : public wis::ImplVKCommandQueue {
+class VKCommandQueue : public wis::ImplVKCommandQueue
+{
 public:
     using wis::ImplVKCommandQueue::ImplVKCommandQueue;
 

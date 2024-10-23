@@ -2228,7 +2228,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
         ReplaceAll(doc, "\n", "\n * ");
     }
 
-    std::string head = wis::format("{}\nstruct {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
+    std::string head = wis::format("{}\class {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
     std::string ctor = wis::format("public:\n using wis::Impl{}{}::Impl{}{};", impl, s.name, impl, s.name);
 
     std::string funcs = "public:\n";
