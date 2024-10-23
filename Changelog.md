@@ -1,16 +1,12 @@
 # Version History
 
-- 0.3.9
+- 0.3.7-0.3.10 
 
   - Fixed annoying warning about class/struct mismatch in C++ API
- 
-- 0.3.8
-
   - Fixed render pass for DX12 always clearing, despite of value
-	
-- 0.3.7
-
   - Added specific function for creating depth stencil views
+  - Fixed missing DXGI lib dependency for DX12 under NuGet
+
 
 - 0.3.6
 
