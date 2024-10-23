@@ -1,5 +1,9 @@
 # Version History
 
+- 0.3.8
+
+  - Fixed render pass for DX12 always clearing, despite of value
+	
 - 0.3.7
 
   - Added specific function for creating depth stencil views

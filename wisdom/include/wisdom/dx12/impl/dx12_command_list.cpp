@@ -222,7 +222,7 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pa
                     .Type = convert_dx(target.store_op),
             }
         };
-        if (data[i].BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR) {
+        if (data[i].BeginningAccess.Type == D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR) {
             std::copy(std::begin(target.clear_value), std::end(target.clear_value), std::begin(data[i].BeginningAccess.Clear.ClearValue.Color));
         }
     }
