@@ -310,7 +310,7 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
         <replace with="PipelineView" for="cpp" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline."/>
       </arg>
     </func>
-    
+
     <func for="CommandList" name="SetPipelineState" doc="Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.">
       <arg type="PipelineState" name="pipeline" doc="The pipeline to use with the command list with.">
         <replace with="PipelineView" for="cpp" doc="The pipeline to use with the command list with."/>
