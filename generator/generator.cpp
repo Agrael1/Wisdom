@@ -1481,7 +1481,7 @@ std::string Generator::MakeCStruct(const WisStruct& s)
             .modifier = m.modifier,
             .default_value = m.default_value,
             .doc = m.doc,
-        };        
+        };
         auto val_str = m.array_size.empty()
                 ? wis::format("    {};", GetCFullArg(wfp, ""))
                 : wis::format("    {} {}[{}];", GetCFullArg(wfp, "", true), m.name, m.array_size);
