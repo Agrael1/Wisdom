@@ -124,7 +124,7 @@ public:
      * Default is wis::MutiWaitFlags::All
      * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
      * */
-    [[nodiscard]] inline wis::Result WaitForMultipleFences(const wis::DX12FenceView* fences, const uint64_t* fence_values, uint32_t fence_count, wis::MutiWaitFlags wait_all = MutiWaitFlags::All, uint64_t timeout = UINT64_MAX) const noexcept
+    [[nodiscard]] inline wis::Result WaitForMultipleFences(const wis::DX12FenceView* fences, const uint64_t* fence_values, uint32_t fence_count, wis::MutiWaitFlags wait_all = wis::MutiWaitFlags::All, uint64_t timeout = UINT64_MAX) const noexcept
     {
         return wis::ImplDX12Device::WaitForMultipleFences(fences, fence_values, fence_count, wait_all, timeout);
     }
@@ -134,7 +134,7 @@ public:
      * @param flags The flags of the fence.
      * @return wis::DX12Fence on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Fence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = FenceFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Fence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept
     {
         return wis::ImplDX12Device::CreateFence(initial_value, flags);
     }

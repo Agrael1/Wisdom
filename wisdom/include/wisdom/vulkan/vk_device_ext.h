@@ -57,6 +57,7 @@ struct XInternalFeatures {
     bool interop_device : 1 = false;
     bool index_buffer_range : 1 = false;
     bool dynamic_vsync : 1 = false;
+    bool dynamic_render_unused_attachments : 1 = false;
 };
 
 // Lightweight struct for descriptor buffer features
@@ -95,6 +96,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
         VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME, // for PushDescriptor
         VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, // for Tessellation control point count
         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // for dynamic render pass
+        VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME, // for dynamic render pass
 
         VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, // for Border Color
         VK_KHR_PRESENT_WAIT_EXTENSION_NAME, // for Present Wait
@@ -179,6 +181,12 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             features.dynamic_vsync = true;
             ext_name_set.insert(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT] = sizeof(VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
+        }
+
+        if (available_extensions.contains(VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME)) {
+            features.dynamic_render_unused_attachments = true;
+            ext_name_set.insert(VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT] = sizeof(VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT);
         }
 
         return true;

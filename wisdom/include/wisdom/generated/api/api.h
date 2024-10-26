@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.9</b>
+<b>Version 0.3.11</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1088,6 +1088,7 @@ enum class DeviceFeature : uint32_t {
      * Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present.
      * */
     DynamicVSync = 5,
+    UnusedRenderTargets = 6, ///< Supports unused render targets. Support for VK, always true for DX12.
 };
 
 /**
@@ -1676,7 +1677,11 @@ struct TextureBarrier {
     wis::ResourceAccess access_after; ///< Resource access after the barrier.
     wis::TextureState state_before; ///< Texture state before the barrier.
     wis::TextureState state_after; ///< Texture state after the barrier.
-    wis::SubresourceRange subresource_range; ///< Subresource range of the texture.
+    /**
+     * @brief Subresource range of the texture.
+     * Zero initialized range means all subresources are selected.
+     * */
+    wis::SubresourceRange subresource_range;
 };
 
 /**
@@ -1686,7 +1691,7 @@ struct DescriptorTableEntry {
     wis::DescriptorType type; ///< Descriptor type.
     uint32_t bind_register; ///< Bind register number in HLSL.
     uint32_t binding; ///< Binding number in HLSL.
-    uint32_t count; ///< Descriptor count for Array descriptors.
+    uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
 };
 
 /**
@@ -1694,7 +1699,7 @@ struct DescriptorTableEntry {
  * */
 struct DescriptorTable {
     wis::DescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
-    wis::DescriptorTableEntry* entries; ///< Descriptor table entries array.
+    const wis::DescriptorTableEntry* entries; ///< Descriptor table entries array.
     uint32_t entry_count; ///< Descriptor table entries count.
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the table is used.
 };

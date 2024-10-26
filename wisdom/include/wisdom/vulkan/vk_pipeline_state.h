@@ -20,9 +20,9 @@ public:
         : QueryInternal(std::move(pipeline))
     {
     }
-    operator VKPipelineHandle() const noexcept
+    operator VKPipelineView() const noexcept
     {
-        return pipeline;
+        return pipeline.get();
     }
     operator bool() const noexcept
     {

@@ -96,16 +96,17 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
     }
 }
 
-wis::Result wis::ImplDX12CommandList::Reset(wis::DX12PipelineHandle pipeline) noexcept
+wis::Result wis::ImplDX12CommandList::Reset(wis::DX12PipelineView pipeline) noexcept
 {
     Close();
-    auto hr = allocator->Reset();
-    if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Reset failed (allocator)">(hr);
-    }
-    hr = list->Reset(allocator.get(), std::get<0>(pipeline));
+    auto hr = list->Reset(allocator.get(), std::get<0>(pipeline));
     closed = false;
     return wis::succeeded(hr) ? wis::success : wis::make_result<FUNC, "Reset failed (command list)">(hr);
+}
+
+void wis::ImplDX12CommandList::SetPipelineState(wis::DX12PipelineView pipeline) noexcept
+{
+    list->SetPipelineState(std::get<0>(pipeline));
 }
 
 bool wis::ImplDX12CommandList::Close() noexcept
@@ -132,6 +133,8 @@ inline D3D12_BUFFER_BARRIER to_dx(wis::BufferBarrier barrier, ID3D12Resource* bu
 inline D3D12_TEXTURE_BARRIER to_dx(wis::TextureBarrier barrier, ID3D12Resource* buffer) noexcept
 {
     auto& subresource = barrier.subresource_range;
+    bool zero_range = subresource.base_array_layer == 0 && subresource.base_mip_level == 0 && subresource.layer_count == 0 && subresource.level_count == 0;
+
     return D3D12_TEXTURE_BARRIER{
         .SyncBefore = convert_dx(barrier.sync_before),
         .SyncAfter = convert_dx(barrier.sync_after),
@@ -140,13 +143,14 @@ inline D3D12_TEXTURE_BARRIER to_dx(wis::TextureBarrier barrier, ID3D12Resource* 
         .LayoutBefore = convert_dx(barrier.state_before),
         .LayoutAfter = convert_dx(barrier.state_after),
         .pResource = buffer,
-        .Subresources = {
-                .IndexOrFirstMipLevel = subresource.base_mip_level,
-                .NumMipLevels = subresource.level_count,
-                .FirstArraySlice = subresource.base_array_layer,
-                .NumArraySlices = subresource.layer_count,
-                .FirstPlane = 0,
-                .NumPlanes = 1 }
+        .Subresources = zero_range ? D3D12_BARRIER_SUBRESOURCE_RANGE{ .IndexOrFirstMipLevel = 0xffffffff }
+                                   : D3D12_BARRIER_SUBRESOURCE_RANGE{
+                                             .IndexOrFirstMipLevel = subresource.base_mip_level,
+                                             .NumMipLevels = subresource.level_count,
+                                             .FirstArraySlice = subresource.base_array_layer,
+                                             .NumArraySlices = subresource.layer_count,
+                                             .FirstPlane = 0,
+                                             .NumPlanes = 1 }
     };
 }
 } // namespace wis::detail
@@ -269,8 +273,9 @@ void wis::ImplDX12CommandList::IASetVertexBuffers(const wis::DX12VertexBufferBin
     wis::detail::limited_allocator<D3D12_VERTEX_BUFFER_VIEW, 8> allocator(count, true);
     auto* data = allocator.data();
     for (size_t i = 0; i < count; i++) {
+        const DX12VertexBufferBinding& resource = resources[i];
         data[i] = {
-            .BufferLocation = std::get<0>(resources[i].buffer)->GetGPUVirtualAddress(),
+            .BufferLocation = std::get<0>(resource.buffer)->GetGPUVirtualAddress() + resource.offset,
             .SizeInBytes = resources[i].size,
             .StrideInBytes = resources[i].stride
         };

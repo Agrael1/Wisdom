@@ -564,19 +564,41 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
         .primitiveRestartEnable = false,
     };
 
-    constexpr static VkPipelineColorBlendStateCreateInfo default_color_blending{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+    //--Render targets
+    uint32_t rt_size = std::min(desc->attachments.attachments_count, wis::max_render_targets);
+    VkFormat rt_formats[8];
+    uint32_t view_mask = 0;
+    for (uint32_t i = 0; i < rt_size; i++) {
+        rt_formats[i] = convert_vk(desc->attachments.attachment_formats[i]);
+        view_mask |= 1 << i;
+    }
+
+    VkPipelineRenderingCreateInfo dynamic_rendering{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
         .pNext = nullptr,
-        .flags = 0,
-        .logicOpEnable = false,
-        .logicOp = VK_LOGIC_OP_NO_OP,
-        .attachmentCount = 0,
-        .pAttachments = nullptr,
-        .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
+        .viewMask = view_mask,
+        .colorAttachmentCount = rt_size,
+        .pColorAttachmentFormats = rt_formats,
+        .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),
+        .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
     };
 
+    //--Color blending
+    constexpr static VkPipelineColorBlendAttachmentState default_color_blend_attachment{
+        .blendEnable = false,
+        .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
+        .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
+        .colorBlendOp = VK_BLEND_OP_ADD,
+        .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+        .alphaBlendOp = VK_BLEND_OP_ADD,
+        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+    };
     VkPipelineColorBlendAttachmentState color_blend_attachment[max_render_targets]{};
     VkPipelineColorBlendStateCreateInfo color_blending;
+    for (uint32_t i = 0; i < rt_size; i++)
+        color_blend_attachment[i] = default_color_blend_attachment;
+
     if (desc->blend) {
         auto& blend = *desc->blend;
         if (!blend.logic_op_enable) {
@@ -602,6 +624,17 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
             .logicOp = convert_vk(blend.logic_op),
             .attachmentCount = blend.logic_op_enable ? 0u : blend.attachment_count,
             .pAttachments = blend.logic_op_enable ? nullptr : color_blend_attachment,
+            .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
+        };
+    } else {
+        color_blending = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .logicOpEnable = false,
+            .logicOp = VK_LOGIC_OP_NO_OP,
+            .attachmentCount = rt_size,
+            .pAttachments = color_blend_attachment,
             .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
         };
     }
@@ -701,28 +734,12 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
         .pDynamicStates = dynamic_state_enables.data()
     };
 
-    uint32_t rt_size = std::min(desc->attachments.attachments_count, wis::max_render_targets);
-    VkFormat rt_formats[8];
-    for (uint32_t i = 0; i < rt_size; i++) {
-        rt_formats[i] = convert_vk(desc->attachments.attachment_formats[i]);
-    }
-
-    VkPipelineRenderingCreateInfo dynamic_rendering{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
-        .pNext = nullptr,
-        .viewMask = 0xff,
-        .colorAttachmentCount = desc->attachments.attachments_count,
-        .pColorAttachmentFormats = rt_formats,
-        .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),
-        .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
-    };
-
     VkPipelineCreateFlags flags =
             VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
 
     VkGraphicsPipelineCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .pNext = nullptr,
+        .pNext = &dynamic_rendering,
         .flags = flags,
         .stageCount = static_cast<uint32_t>(shader_stages.size()),
         .pStages = shader_stages.data(),
@@ -732,7 +749,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
         .pRasterizationState = desc->rasterizer ? &rasterizer : &default_rasterizer,
         .pMultisampleState = desc->sample ? &multisampling : &default_multisampling,
         .pDepthStencilState = desc->depth_stencil ? &depth_stencil_state : &default_depth_stencil,
-        .pColorBlendState = desc->blend ? &color_blending : &default_color_blending,
+        .pColorBlendState = &color_blending,
         .pDynamicState = &dynamic_state,
         .layout = std::get<0>(desc->root_signature),
     };
@@ -1280,6 +1297,8 @@ bool wis::ImplVKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const no
         return features.synchronization_2;
     case wis::DeviceFeature::DynamicVSync:
         return features.dynamic_vsync;
+    case wis::DeviceFeature::UnusedRenderTargets:
+        return features.dynamic_render_unused_attachments;
     default:
         return false;
     }
@@ -1350,11 +1369,19 @@ wis::ImplVKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTabl
     };
 
     wis::detail::limited_allocator<VkDescriptorSetLayoutBinding, 32> bindings{ table->entry_count, true };
+    wis::detail::limited_allocator<VkDescriptorBindingFlags, 32> binding_flags{ table->entry_count, true };
     wis::detail::limited_allocator<VkMutableDescriptorTypeListVALVE, 32> bindings_mutable{ has_mutable ? table->entry_count : 0, true };
 
     if (has_mutable)
         for (size_t i = 0; i < table->entry_count; i++)
             bindings_mutable.data()[i] = a;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .bindingCount = table->entry_count,
+        .pBindingFlags = binding_flags.data(),
+    };
 
     for (size_t i = 0; i < table->entry_count; i++) {
         auto& entry = table->entries[i];
@@ -1365,17 +1392,20 @@ wis::ImplVKDevice::CreateDescriptorSetDescriptorLayout(const wis::DescriptorTabl
             .stageFlags = uint32_t(convert_vk(table->stage)),
             .pImmutableSamplers = nullptr,
         };
+        if (entry.count == UINT32_MAX) {
+            binding_flags.data()[i] = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT;
+        }
     }
     VkMutableDescriptorTypeCreateInfoEXT mutableTypeInfo{
         .sType = VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT,
-        .pNext = nullptr,
+        .pNext = &binding_flags_info,
         .mutableDescriptorTypeListCount = table->entry_count,
         .pMutableDescriptorTypeLists = bindings_mutable.data(),
     };
 
     VkDescriptorSetLayoutCreateInfo desc{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .pNext = has_mutable ? &mutableTypeInfo : nullptr,
+        .pNext = has_mutable ? (const void*)&mutableTypeInfo : (const void*)&binding_flags_info,
         .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT,
         .bindingCount = table->entry_count,
         .pBindings = bindings.data(),

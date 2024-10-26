@@ -94,7 +94,7 @@ Order of destruction is Extensions in which they were created, then factory."/>
     <func for="Factory" name="GetAdapter" mod="const" doc="Creates the {Adapter::} for the factory with provided index.">
       <ret type="Adapter" name="adapter" result="true" doc="{Adapter::} on success ({Status::Ok})."/>
       <arg type="u32" name="index" doc="The index of the adapter to get."/>
-      <arg type="AdapterPreference" name="preference" default="wis::AdapterPreference::Performance" doc="The preference of the adapter to get.
+      <arg type="AdapterPreference" name="preference" default="Performance" doc="The preference of the adapter to get.
 Default is {AdapterPreference::Performance}."/>
     </func>
 
@@ -119,7 +119,7 @@ Otherwise waits for any fence to be signaled.">
       <arg type="u64" name="fence_values" mod="const ptr" doc="Fence values to wait fences to reach.
 Array must have fence_count values."/>
       <arg type="u32" name="fence_count" doc="How many fences to wait on."/>
-      <arg type="MutiWaitFlags" name="wait_all" default="MutiWaitFlags::All" doc="Specifies the kind of wait.
+      <arg type="MutiWaitFlags" name="wait_all" default="All" doc="Specifies the kind of wait.
 All - waits for all fences to be signaled.
 Any - waits for any fence to be signaled.
 Default is {MutiWaitFlags::All}"/>
@@ -129,7 +129,7 @@ Default is {MutiWaitFlags::All}"/>
     <func for="Device" name="CreateFence" mod="const" doc="Creates a fence with initial value and flags.">
       <ret type="Fence" name="fence" result="true" doc="{Fence::} on success ({Status::Ok})."/>
       <arg type="u64" name="initial_value" default="0" doc="The initial value of the fence."/>
-      <arg type="FenceFlags" name="flags" default="FenceFlags::None" doc="The flags of the fence."/>
+      <arg type="FenceFlags" name="flags" default="None" doc="The flags of the fence."/>
     </func>
 
     <func for="Device" name="CreateCommandQueue" mod="const" doc="Creates a command queue with specified type.">
@@ -229,16 +229,16 @@ Equivalent to creating a Buffer, allocating a memory and binding buffer to it.">
       <ret type="Buffer" name="buffer" result="true" doc="{Buffer::} on success ({Status::Ok})."/>
       <arg type="u64" name="size" doc="The size of the buffer in bytes."/>
       <arg type="BufferUsage" name="usage" doc="The usage of the buffer. May affect the alignment of the buffer memory allocation."/>
-      <arg type="MemoryType" name="memory" default="MemoryType::Default" doc="The type of the memory to allocate for the buffer."/>
-      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the buffer."/>
+      <arg type="MemoryType" name="memory" default="Default" doc="The type of the memory to allocate for the buffer."/>
+      <arg type="MemoryFlags" name="mem_flags" default="None" doc="The flags of the memory to allocate for the buffer."/>
     </func>
 
     <func for="ResourceAllocator" name="CreateTexture" mod="const" doc="Creates a texture object and allocates memory for it.
 Equivalent to creating a Texture, allocating a memory and binding texture to it.">
       <ret type="Texture" name="texture" result="true" doc="{Texture::} on success ({Status::Ok})."/>
       <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
-      <arg type="MemoryType" name="memory" default="MemoryType::Default" doc="The type of the memory to allocate for the texture."/>
-      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the texture."/>
+      <arg type="MemoryType" name="memory" default="Default" doc="The type of the memory to allocate for the texture."/>
+      <arg type="MemoryFlags" name="mem_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
     </func>
 
     <func for="ResourceAllocator" name="GetTextureAllocationInfo" mod="const" doc="Returns the allocation info for the texture.">
@@ -256,16 +256,16 @@ Equivalent to creating a Texture, allocating a memory and binding texture to it.
       <ret type="Memory" name="out_memory" result="true" doc="{Memory::} on success ({Status::Ok})."/>
       <arg type="u64" name="size" doc="The size of the memory to allocate."/>
       <arg type="TextureUsage" name="usage" doc="The usage of the image memory."/>
-      <arg type="MemoryType" name="mem_type" default="MemoryType::Default" doc="The type of the memory to allocate for the image."/>
-      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the image."/>
+      <arg type="MemoryType" name="mem_type" default="Default" doc="The type of the memory to allocate for the image."/>
+      <arg type="MemoryFlags" name="mem_flags" default="None" doc="The flags of the memory to allocate for the image."/>
     </func>
 
     <func for="ResourceAllocator" name="AllocateBufferMemory" mod="const" doc="Allocates memory for the buffer.">
       <ret type="Memory" name="out_memory" result="true" doc="{Memory::} on success ({Status::Ok})."/>
       <arg type="u64" name="size" doc="The size of the memory to allocate."/>
       <arg type="BufferUsage" name="usage" doc="The usage of the buffer memory."/>
-      <arg type="MemoryType" name="mem_type" default="MemoryType::Default" doc="The type of the memory to allocate for the buffer."/>
-      <arg type="MemoryFlags" name="mem_flags" default="MemoryFlags::None" doc="The flags of the memory to allocate for the buffer."/>
+      <arg type="MemoryType" name="mem_type" default="Default" doc="The type of the memory to allocate for the buffer."/>
+      <arg type="MemoryFlags" name="mem_flags" default="None" doc="The flags of the memory to allocate for the buffer."/>
     </func>
 
     <func for="ResourceAllocator" name="PlaceBuffer" mod="const" doc="Creates buffer with provided memory.
@@ -304,10 +304,16 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <ret type="bool" name="closed" doc="true if command list is closed. false otherwise."/>
     </func>
 
-    <func for="CommandList" name="Reset" doc="Resets the command list for recording.">
+    <func for="CommandList" name="Reset" doc="Resets the command list for recording. Can be reset while executing, but">
       <ret result="true"/>
       <arg type="PipelineState" name="pipeline" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline.">
-        <replace with="PipelineHandle" for="cpp" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline."/>
+        <replace with="PipelineView" for="cpp" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="SetPipelineState" doc="Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.">
+      <arg type="PipelineState" name="pipeline" doc="The pipeline to use with the command list with.">
+        <replace with="PipelineView" for="cpp" doc="The pipeline to use with the command list with."/>
       </arg>
     </func>
 

@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.9</b>
+<b>Version 0.3.11</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1056,6 +1056,7 @@ enum WisDeviceFeature {
      * Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present.
      * */
     DeviceFeatureDynamicVSync = 5,
+    DeviceFeatureUnusedRenderTargets = 6, ///< Supports unused render targets. Support for VK, always true for DX12.
 };
 
 /**
@@ -1742,7 +1743,11 @@ struct WisTextureBarrier {
     WisResourceAccess access_after; ///< Resource access after the barrier.
     WisTextureState state_before; ///< Texture state before the barrier.
     WisTextureState state_after; ///< Texture state after the barrier.
-    WisSubresourceRange subresource_range; ///< Subresource range of the texture.
+    /**
+     * @brief Subresource range of the texture.
+     * Zero initialized range means all subresources are selected.
+     * */
+    WisSubresourceRange subresource_range;
 };
 
 /**
@@ -1752,7 +1757,7 @@ struct WisDescriptorTableEntry {
     WisDescriptorType type; ///< Descriptor type.
     uint32_t bind_register; ///< Bind register number in HLSL.
     uint32_t binding; ///< Binding number in HLSL.
-    uint32_t count; ///< Descriptor count for Array descriptors.
+    uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
 };
 
 /**
@@ -1760,7 +1765,7 @@ struct WisDescriptorTableEntry {
  * */
 struct WisDescriptorTable {
     WisDescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
-    WisDescriptorTableEntry* entries; ///< Descriptor table entries array.
+    const WisDescriptorTableEntry* entries; ///< Descriptor table entries array.
     uint32_t entry_count; ///< Descriptor table entries count.
     WisShaderStages stage; ///< Shader stage. Defines the stage where the table is used.
 };
@@ -1990,6 +1995,7 @@ struct VKVertexBufferBinding {
     VKBufferView buffer; ///< Buffer view.
     uint32_t size; ///< Size of the buffer in bytes.
     uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 //-------------------------------------------------------------------------
@@ -2507,11 +2513,18 @@ WISDOM_API bool VKCommandListClosed(VKCommandList self);
 WISDOM_API bool VKCommandListClose(VKCommandList self);
 
 /**
- * @brief Resets the command list for recording.
+ * @brief Resets the command list for recording. Can be reset while executing, but
  * @param self valid handle to the CommandList
  * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
  * */
 WISDOM_API WisResult VKCommandListReset(VKCommandList self, VKPipelineState pipeline);
+
+/**
+ * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to use with the command list with.
+ * */
+WISDOM_API void VKCommandListSetPipelineState(VKCommandList self, VKPipelineState pipeline);
 
 /**
  * @brief Copies data from one buffer to another.
@@ -3036,6 +3049,7 @@ struct DX12VertexBufferBinding {
     DX12BufferView buffer; ///< Buffer view.
     uint32_t size; ///< Size of the buffer in bytes.
     uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 //-------------------------------------------------------------------------
@@ -3553,11 +3567,18 @@ WISDOM_API bool DX12CommandListClosed(DX12CommandList self);
 WISDOM_API bool DX12CommandListClose(DX12CommandList self);
 
 /**
- * @brief Resets the command list for recording.
+ * @brief Resets the command list for recording. Can be reset while executing, but
  * @param self valid handle to the CommandList
  * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
  * */
 WISDOM_API WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineState pipeline);
+
+/**
+ * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to use with the command list with.
+ * */
+WISDOM_API void DX12CommandListSetPipelineState(DX12CommandList self, DX12PipelineState pipeline);
 
 /**
  * @brief Copies data from one buffer to another.
@@ -4626,13 +4647,23 @@ inline bool WisCommandListClose(WisCommandList self)
 }
 
 /**
- * @brief Resets the command list for recording.
+ * @brief Resets the command list for recording. Can be reset while executing, but
  * @param self valid handle to the CommandList
  * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
  * */
 inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState pipeline)
 {
     return DX12CommandListReset(self, pipeline);
+}
+
+/**
+ * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to use with the command list with.
+ * */
+inline void WisCommandListSetPipelineState(WisCommandList self, WisPipelineState pipeline)
+{
+    return DX12CommandListSetPipelineState(self, pipeline);
 }
 
 /**
@@ -5821,13 +5852,23 @@ inline bool WisCommandListClose(WisCommandList self)
 }
 
 /**
- * @brief Resets the command list for recording.
+ * @brief Resets the command list for recording. Can be reset while executing, but
  * @param self valid handle to the CommandList
  * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
  * */
 inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState pipeline)
 {
     return VKCommandListReset(self, pipeline);
+}
+
+/**
+ * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+ * @param self valid handle to the CommandList
+ * @param pipeline The pipeline to use with the command list with.
+ * */
+inline void WisCommandListSetPipelineState(WisCommandList self, WisPipelineState pipeline)
+{
+    return VKCommandListSetPipelineState(self, pipeline);
 }
 
 /**

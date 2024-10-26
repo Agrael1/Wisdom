@@ -104,7 +104,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the buffer.
      * @return wis::DX12Buffer on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplDX12ResourceAllocator::CreateBuffer(size, usage, memory, mem_flags);
     }
@@ -116,7 +116,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the texture.
      * @return wis::DX12Texture on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplDX12ResourceAllocator::CreateTexture(desc, memory, mem_flags);
     }
@@ -147,7 +147,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the image.
      * @return wis::DX12Memory on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Memory> AllocateTextureMemory(uint64_t size, wis::TextureUsage usage, wis::MemoryType mem_type = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Memory> AllocateTextureMemory(uint64_t size, wis::TextureUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplDX12ResourceAllocator::AllocateTextureMemory(size, usage, mem_type, mem_flags);
     }
@@ -159,7 +159,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the buffer.
      * @return wis::DX12Memory on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12Memory> AllocateBufferMemory(uint64_t size, wis::BufferUsage usage, wis::MemoryType mem_type = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Memory> AllocateBufferMemory(uint64_t size, wis::BufferUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplDX12ResourceAllocator::AllocateBufferMemory(size, usage, mem_type, mem_flags);
     }
