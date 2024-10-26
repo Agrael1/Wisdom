@@ -1,7 +1,7 @@
 # Version History
 
 - 0.3.11
-  
+
   - Resolved inconsistencies with API generation of struct members (ignoring const)
   - Added offset member to the Vertex buffer binding. Default is 0.
   - Fixed DX12 Unbounded descriptor array feature not being documented and not working correctly
@@ -11,14 +11,13 @@
   - Added forgotten setting pipeline state call to both command list APIs
   - Removed brutal reset from DX12 command list, now it will not reset the allocator which may have lead to UB if list was executed currently
   - Subresource ranges were annoying part of the TextureBarrier api. Now if left empty, it will be filled with the whole resource.
-	 
-- 0.3.7-0.3.10 
+
+- 0.3.7-0.3.10
 
   - Fixed annoying warning about class/struct mismatch in C++ API
   - Fixed render pass for DX12 always clearing, despite of value
   - Added specific function for creating depth stencil views
   - Fixed missing DXGI lib dependency for DX12 under NuGet
-
 
 - 0.3.6
 
