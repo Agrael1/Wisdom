@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.11</b>
+<b>Version 0.3.12</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -2513,11 +2513,11 @@ WISDOM_API bool VKCommandListClosed(VKCommandList self);
 WISDOM_API bool VKCommandListClose(VKCommandList self);
 
 /**
- * @brief Resets the command list for recording. Can be reset while executing, but
+ * @brief Resets the command list for recording. Can't be reset while executed!
  * @param self valid handle to the CommandList
- * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
  * */
-WISDOM_API WisResult VKCommandListReset(VKCommandList self, VKPipelineState pipeline);
+WISDOM_API WisResult VKCommandListReset(VKCommandList self, VKPipelineState initial_state);
 
 /**
  * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
@@ -3567,11 +3567,11 @@ WISDOM_API bool DX12CommandListClosed(DX12CommandList self);
 WISDOM_API bool DX12CommandListClose(DX12CommandList self);
 
 /**
- * @brief Resets the command list for recording. Can be reset while executing, but
+ * @brief Resets the command list for recording. Can't be reset while executed!
  * @param self valid handle to the CommandList
- * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
  * */
-WISDOM_API WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineState pipeline);
+WISDOM_API WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineState initial_state);
 
 /**
  * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
@@ -4647,13 +4647,13 @@ inline bool WisCommandListClose(WisCommandList self)
 }
 
 /**
- * @brief Resets the command list for recording. Can be reset while executing, but
+ * @brief Resets the command list for recording. Can't be reset while executed!
  * @param self valid handle to the CommandList
- * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
  * */
-inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState pipeline)
+inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState initial_state)
 {
-    return DX12CommandListReset(self, pipeline);
+    return DX12CommandListReset(self, initial_state);
 }
 
 /**
@@ -5852,13 +5852,13 @@ inline bool WisCommandListClose(WisCommandList self)
 }
 
 /**
- * @brief Resets the command list for recording. Can be reset while executing, but
+ * @brief Resets the command list for recording. Can't be reset while executed!
  * @param self valid handle to the CommandList
- * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+ * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
  * */
-inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState pipeline)
+inline WisResult WisCommandListReset(WisCommandList self, WisPipelineState initial_state)
 {
-    return VKCommandListReset(self, pipeline);
+    return VKCommandListReset(self, initial_state);
 }
 
 /**

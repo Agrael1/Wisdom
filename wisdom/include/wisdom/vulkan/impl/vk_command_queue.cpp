@@ -55,16 +55,17 @@ wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value
         .pSignalSemaphoreValues = nullptr
     };
 
+    VkPipelineStageFlags stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     VkSubmitInfo info{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .pNext = &submit,
-        .waitSemaphoreCount = 0,
-        .pWaitSemaphores = nullptr,
-        .pWaitDstStageMask = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &sem,
+        .pWaitDstStageMask = &stage,
         .commandBufferCount = 0,
         .pCommandBuffers = nullptr,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &sem
+        .signalSemaphoreCount = 0,
+        .pSignalSemaphores = nullptr
     };
     VkResult result = device.table().vkQueueSubmit(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success

@@ -111,6 +111,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
 wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() const noexcept
 {
     auto& dtable = device.table();
+    dtable.vkWaitForFences(device.get(), 1, &image_ready_fences[acquire_index], VK_TRUE, std::numeric_limits<uint64_t>::max());
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
     return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
 }
@@ -132,6 +133,7 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
 
     present_semaphores = std::move(o.present_semaphores);
     image_ready_semaphores = std::move(o.image_ready_semaphores);
+    image_ready_fences = std::move(o.image_ready_fences);
     back_buffers = std::move(o.back_buffers);
     fence = std::move(o.fence);
 
@@ -159,6 +161,7 @@ void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
     for (uint32_t n = 0; n < back_buffer_count; n++) {
         table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
         table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
+        table.vkDestroyFence(hdevice, image_ready_fences[n], nullptr);
     }
     table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
     table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
@@ -173,22 +176,34 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
     if (!image_ready_semaphores)
         return { wis::make_result<FUNC, "failed to allocate image_ready_semaphores array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
 
+    image_ready_fences = wis::detail::make_unique_for_overwrite<VkFence[]>(back_buffer_count);
+    if (!image_ready_fences)
+        return { wis::make_result<FUNC, "failed to allocate image_ready_fences array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
+
     auto& table = device.table();
     VkSemaphoreCreateInfo semaphore_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
     };
+    VkFenceCreateInfo fence_info{
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT,
+    };
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
         auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &present_semaphores[n]);
         if (!wis::succeeded(result))
             return { wis::make_result<FUNC, "vkCreateSemaphore failed for present_semaphore">(result) };
-    }
-    for (uint32_t n = 0; n < back_buffer_count; n++) {
-        auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &image_ready_semaphores[n]);
-        if (!wis::succeeded(result))
+
+        auto result2 = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &image_ready_semaphores[n]);
+        if (!wis::succeeded(result2))
             return { wis::make_result<FUNC, "vkCreateSemaphore failed for image_ready_semaphore">(result) };
+
+        auto result3 = table.vkCreateFence(device.get(), &fence_info, nullptr, &image_ready_fences[n]);
+        if (!wis::succeeded(result3))
+            return { wis::make_result<FUNC, "vkCreateFence failed for image_ready_fence">(result) };
     }
     return wis::success;
 }
@@ -219,6 +234,7 @@ wis::Result wis::ImplVKSwapChain::Present() const noexcept
 
     VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
+    dtable.vkResetFences(device.get(), 1, &image_ready_fences[acquire_index]);
     VkSubmitInfo desc{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .pNext = nullptr,
@@ -228,7 +244,7 @@ wis::Result wis::ImplVKSwapChain::Present() const noexcept
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &present_semaphores[present_index],
     };
-    dtable.vkQueueSubmit(graphics_queue, 1, &desc, nullptr);
+    dtable.vkQueueSubmit(graphics_queue, 1, &desc, image_ready_fences[acquire_index]);
 
     VkPresentIdKHR present_id{
         .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,

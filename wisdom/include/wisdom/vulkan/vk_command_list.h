@@ -162,12 +162,12 @@ public:
         return wis::ImplVKCommandList::Close();
     }
     /**
-     * @brief Resets the command list for recording. Can be reset while executing, but
-     * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
+     * @brief Resets the command list for recording. Can't be reset while executed!
+     * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
      * */
-    [[nodiscard]] inline wis::Result Reset(wis::VKPipelineView pipeline = {}) noexcept
+    [[nodiscard]] inline wis::Result Reset(wis::VKPipelineView initial_state = {}) noexcept
     {
-        return wis::ImplVKCommandList::Reset(std::move(pipeline));
+        return wis::ImplVKCommandList::Reset(std::move(initial_state));
     }
     /**
      * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.

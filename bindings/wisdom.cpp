@@ -440,10 +440,10 @@ extern "C" bool DX12CommandListClose(DX12CommandList self)
     ;
     return res;
 }
-extern "C" WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineState pipeline)
+extern "C" WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineState initial_state)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
-    auto res = xself->Reset(*reinterpret_cast<wis::DX12PipelineState*>(pipeline));
+    auto res = xself->Reset(*reinterpret_cast<wis::DX12PipelineState*>(initial_state));
     ;
     return reinterpret_cast<WisResult&>(res);
 }
@@ -1181,10 +1181,10 @@ extern "C" bool VKCommandListClose(VKCommandList self)
     ;
     return res;
 }
-extern "C" WisResult VKCommandListReset(VKCommandList self, VKPipelineState pipeline)
+extern "C" WisResult VKCommandListReset(VKCommandList self, VKPipelineState initial_state)
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
-    auto res = xself->Reset(*reinterpret_cast<wis::VKPipelineState*>(pipeline));
+    auto res = xself->Reset(*reinterpret_cast<wis::VKPipelineState*>(initial_state));
     ;
     return reinterpret_cast<WisResult&>(res);
 }

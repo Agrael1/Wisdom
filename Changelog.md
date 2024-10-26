@@ -1,4 +1,11 @@
 # Version History
+
+- 0.3.13
+  
+  - Fixed swapchain stability for Vulkan (in some cases Waiting for image was not finished before aquire next image)
+  - Fixed CommandQueue WaitQueue for Vulkan not working correctly (wrong pointers)
+  - Reverted change to DX12 command list reset, now it will reset the allocator again (Vulkan does not support resetting on-the-fly)
+  
 - 0.3.12
   
   - Hotfix for Vulkan not creating the pipeline correctly

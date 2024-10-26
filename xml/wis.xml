@@ -304,10 +304,10 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <ret type="bool" name="closed" doc="true if command list is closed. false otherwise."/>
     </func>
 
-    <func for="CommandList" name="Reset" doc="Resets the command list for recording. Can be reset while executing, but">
+    <func for="CommandList" name="Reset" doc="Resets the command list for recording. Can't be reset while executed!">
       <ret result="true"/>
-      <arg type="PipelineState" name="pipeline" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline.">
-        <replace with="PipelineView" for="cpp" default="{}" doc="The pipeline to reset the command list with. Default is empty pipeline."/>
+      <arg type="PipelineState" name="initial_state" default="{}" doc="The pipeline to use as a starting state. Default is empty pipeline.">
+        <replace with="PipelineView" for="cpp" default="{}" doc="The pipeline to use as a starting state. Default is empty pipeline."/>
       </arg>
     </func>
 
