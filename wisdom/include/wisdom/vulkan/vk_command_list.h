@@ -2,6 +2,7 @@
 #define WIS_VK_COMMAND_LIST_H
 #include <wisdom/generated/api/api.h>
 #include <wisdom/vulkan/vk_views.h>
+#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
@@ -19,7 +20,6 @@ struct Internal<VKCommandList> {
     h::VkCommandPool allocator = nullptr;
     h::VkCommandBuffer command_list = nullptr;
 
-    wis::SharedPipeline pipeline;
     VkPipelineLayout pipeline_layout = nullptr;
 
 public:
@@ -38,7 +38,6 @@ public:
         device = std::move(o.device);
         allocator = std::move(o.allocator);
         command_list = std::move(o.command_list);
-        pipeline = std::move(o.pipeline);
         pipeline_layout = std::move(o.pipeline_layout);
         return *this;
     }
@@ -78,7 +77,7 @@ public:
         return closed;
     }
     WIS_INLINE bool Close() noexcept;
-    [[nodiscard]] WIS_INLINE wis::Result Reset(VKPipelineHandle pipeline = {}) noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Reset(wis::VKPipelineView initial_state = {}) noexcept;
     WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
     WIS_INLINE void CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
@@ -97,6 +96,8 @@ public:
     WIS_INLINE void EndRenderPass() noexcept;
 
     WIS_INLINE void SetRootSignature(wis::VKRootSignatureView root_signature) noexcept;
+
+    WIS_INLINE void SetPipelineState(wis::VKPipelineView pipeline_state) noexcept;
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept;
 
@@ -161,12 +162,20 @@ public:
         return wis::ImplVKCommandList::Close();
     }
     /**
-     * @brief Resets the command list for recording.
+     * @brief Resets the command list for recording. Can be reset while executing, but
      * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
      * */
-    [[nodiscard]] inline wis::Result Reset(wis::VKPipelineHandle pipeline = {}) noexcept
+    [[nodiscard]] inline wis::Result Reset(wis::VKPipelineView pipeline = {}) noexcept
     {
         return wis::ImplVKCommandList::Reset(std::move(pipeline));
+    }
+    /**
+     * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+     * @param pipeline The pipeline to use with the command list with.
+     * */
+    inline void SetPipelineState(wis::VKPipelineView pipeline) noexcept
+    {
+        return wis::ImplVKCommandList::SetPipelineState(std::move(pipeline));
     }
     /**
      * @brief Copies data from one buffer to another.

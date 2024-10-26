@@ -88,6 +88,7 @@ struct DX12VertexBufferBinding {
     wis::DX12BufferView buffer; ///< Buffer view.
     uint32_t size; ///< Size of the buffer in bytes.
     uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept

@@ -9,7 +9,6 @@
 namespace wis {
 using VKFactoryHandle = std::tuple<wis::SharedInstance>;
 using VKDeviceHandle = std::tuple<wis::SharedDevice>;
-using VKPipelineHandle = std::tuple<wis::SharedPipeline>;
 
 using VKFenceView = std::tuple<VkSemaphore>;
 using VKShaderView = std::tuple<VkShaderModule>;
@@ -25,6 +24,7 @@ using VKDescriptorBufferGPUView = VKDescriptorBufferView;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
+using VKPipelineView = std::tuple<VkPipeline>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

@@ -1168,6 +1168,7 @@ Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantB
 Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined."/>
       <value name="DynamicVSync" value="5" doc="Supports dynamic VSync. Support for VK, always true for DX12.
 Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present."/>
+      <value name="UnusedRenderTargets" value="6" doc="Supports unused render targets. Support for VK, always true for DX12."/>
     </type>
 
     <type name="FactoryExtID" category="enum" type="u32" doc="Factory extension ID.

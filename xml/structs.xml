@@ -64,7 +64,7 @@
     <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
     <type name="RootSignatureView2" category="variant" for="RootSignature" mod="cpp-only"/>
     <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
-    <type name="PipelineHandle" category="variant" for="Pipeline" mod="cpp-only"/>
+    <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
     <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
     <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
 
@@ -298,19 +298,20 @@ Viewport is considered from Top Left corner.">
       <member type="ResourceAccess" name="access_after" doc="Resource access after the barrier."/>
       <member type="TextureState" name="state_before" doc="Texture state before the barrier."/>
       <member type="TextureState" name="state_after" doc="Texture state after the barrier."/>
-      <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the texture."/>
+      <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the texture.
+Zero initialized range means all subresources are selected."/>
     </type>
 
     <type name="DescriptorTableEntry" category="struct" doc="Descriptor table entry for {DescriptorTable::}.">
       <member type="DescriptorType" name="type" doc="Descriptor type."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
       <member type="u32" name="binding" doc="Binding number in HLSL."/>
-      <member type="u32" name="count" doc="Descriptor count for Array descriptors."/>
+      <member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array."/>
     </type>
 
     <type name="DescriptorTable" category="struct" doc="Descriptor table for {RootSignatureDesc::}.">
       <member type="DescriptorHeapType" name="type" doc="Descriptor heap type. Either Descriptor or Sampler."/>
-      <member type="DescriptorTableEntry" name="entries" mod="ptr" doc="Descriptor table entries array."/>
+      <member type="DescriptorTableEntry" name="entries" mod="const ptr" doc="Descriptor table entries array."/>
       <member type="u32" name="entry_count" doc="Descriptor table entries count."/>
       <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the table is used."/>
     </type>
@@ -440,6 +441,7 @@ If the extension is not supported/failed to initialize the result is NULL."/>
         <member type="BufferView" name="buffer" doc="Buffer view."/>
         <member type="u32" name="size" doc="Size of the buffer in bytes."/>
         <member type="u32" name="stride" doc="Stride of the buffer in bytes."/>
+        <member type="u32" name="offset" doc="Offset in buffer in bytes. Default is 0."/>
       </impl>
     </type>
   </types>

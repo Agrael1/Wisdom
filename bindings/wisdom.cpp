@@ -447,6 +447,11 @@ extern "C" WisResult DX12CommandListReset(DX12CommandList self, DX12PipelineStat
     ;
     return reinterpret_cast<WisResult&>(res);
 }
+extern "C" void DX12CommandListSetPipelineState(DX12CommandList self, DX12PipelineState pipeline)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->SetPipelineState(*reinterpret_cast<wis::DX12PipelineState*>(pipeline));
+}
 extern "C" void DX12CommandListCopyBuffer(DX12CommandList self, DX12Buffer source, DX12Buffer destination, WisBufferRegion region)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
@@ -1182,6 +1187,11 @@ extern "C" WisResult VKCommandListReset(VKCommandList self, VKPipelineState pipe
     auto res = xself->Reset(*reinterpret_cast<wis::VKPipelineState*>(pipeline));
     ;
     return reinterpret_cast<WisResult&>(res);
+}
+extern "C" void VKCommandListSetPipelineState(VKCommandList self, VKPipelineState pipeline)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->SetPipelineState(*reinterpret_cast<wis::VKPipelineState*>(pipeline));
 }
 extern "C" void VKCommandListCopyBuffer(VKCommandList self, VKBuffer source, VKBuffer destination, WisBufferRegion region)
 {

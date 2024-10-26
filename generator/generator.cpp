@@ -1474,16 +1474,17 @@ std::string Generator::MakeCStruct(const WisStruct& s)
     }
 
     for (auto& m : s.members) {
-        auto mfullname = GetCFullTypename(m.type);
-
-        std::string res_type;
-
-        if (m.modifier == "ptr")
-            res_type = '*';
-
+        WisFunctionParameter wfp{
+            .type_info = GetTypeInfo(m.type),
+            .type = m.type,
+            .name = m.name,
+            .modifier = m.modifier,
+            .default_value = m.default_value,
+            .doc = m.doc,
+        };        
         auto val_str = m.array_size.empty()
-                ? wis::format("    {} {};", mfullname + res_type, m.name)
-                : wis::format("    {} {}[{}];", mfullname, m.name, m.array_size);
+                ? wis::format("    {};", GetCFullArg(wfp, ""))
+                : wis::format("    {} {}[{}];", GetCFullArg(wfp, "", true), m.name, m.array_size);
         st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
     }
 
@@ -1503,22 +1504,19 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
 
     for (auto& m : s.members) {
         std::string val_str;
-        auto mfullname = GetCPPFullTypename(m.type);
-
-        std::string mod;
-        if (m.modifier == "ptr")
-            mod = '*';
+        WisFunctionParameter wfp{
+            .type_info = GetTypeInfo(m.type),
+            .type = m.type,
+            .name = m.name,
+            .modifier = m.modifier,
+            .default_value = m.default_value,
+            .doc = m.doc,
+        };
 
         if (m.array_size.empty()) {
-            std::string def = "";
-            if (!m.default_value.empty()) {
-                def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
-                        ? wis::format(" = {}::{}", mfullname, m.default_value)
-                        : wis::format(" = {}", m.default_value);
-            }
-            val_str = wis::format("    {} {}{};", mfullname + mod, m.name, def);
+            val_str = wis::format("    {};", GetCPPFullArg(wfp, ""));
         } else {
-            val_str = wis::format("    std::array<{}, {}> {} {{}};", mfullname, m.array_size, m.name);
+            val_str = wis::format("    std::array<{}, {}> {} {{}};", GetCPPFullArg(wfp, "", true), m.array_size, m.name);
         }
         st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
     }
@@ -2335,6 +2333,8 @@ std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::strin
     std::string post_decl;
     std::string post_name;
     std::string pre_decl;
+    std::string mfullname = GetCPPFullTypename(arg.type, impl);
+
     if (arg.modifier.find("ptr") != std::string_view::npos) {
         post_decl = '*';
     }
@@ -2348,7 +2348,9 @@ std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::strin
         post_decl = '&';
     }
     if (!arg.default_value.empty()) {
-        post_name = wis::format(" = {}", arg.default_value);
+        post_name = enum_map.contains(arg.type) || bitmask_map.contains(arg.type)
+                ? wis::format(" = {}::{}", mfullname, arg.default_value)
+                : wis::format(" = {}", arg.default_value);
     }
     return only_type
             ? wis::format("{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl)

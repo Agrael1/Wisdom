@@ -44,7 +44,7 @@ public:
         return closed;
     }
     WIS_INLINE bool Close() noexcept;
-    [[nodiscard]] WIS_INLINE wis::Result Reset(DX12PipelineHandle pipeline = nullptr) noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Reset(wis::DX12PipelineView pipeline = {}) noexcept;
     WIS_INLINE void CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
 
     WIS_INLINE void CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
@@ -64,6 +64,8 @@ public:
     WIS_INLINE void EndRenderPass() noexcept;
 
     WIS_INLINE void SetRootSignature(wis::DX12RootSignatureView root_signature) noexcept;
+
+    WIS_INLINE void SetPipelineState(wis::DX12PipelineView pipeline_state) noexcept;
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept;
 
@@ -128,12 +130,20 @@ public:
         return wis::ImplDX12CommandList::Close();
     }
     /**
-     * @brief Resets the command list for recording.
+     * @brief Resets the command list for recording. Can be reset while executing, but
      * @param pipeline The pipeline to reset the command list with. Default is empty pipeline.
      * */
-    [[nodiscard]] inline wis::Result Reset(wis::DX12PipelineHandle pipeline = {}) noexcept
+    [[nodiscard]] inline wis::Result Reset(wis::DX12PipelineView pipeline = {}) noexcept
     {
         return wis::ImplDX12CommandList::Reset(std::move(pipeline));
+    }
+    /**
+     * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+     * @param pipeline The pipeline to use with the command list with.
+     * */
+    inline void SetPipelineState(wis::DX12PipelineView pipeline) noexcept
+    {
+        return wis::ImplDX12CommandList::SetPipelineState(std::move(pipeline));
     }
     /**
      * @brief Copies data from one buffer to another.

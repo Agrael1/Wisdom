@@ -86,17 +86,16 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
     device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
 }
 
-wis::Result wis::ImplVKCommandList::Reset(VKPipelineHandle new_pipeline) noexcept
+wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noexcept
 {
     Close();
 
     auto& dtable = device.table();
-
     auto result = dtable.vkResetCommandBuffer(command_list, {});
     if (!succeeded(result)) {
         return make_result<FUNC, "vkResetCommandBuffer failed">(result);
     }
-    pipeline = std::move(std::get<0>(new_pipeline));
+    auto pipeline = std::move(std::get<0>(new_pipeline));
 
     VkCommandBufferBeginInfo desc{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -110,8 +109,13 @@ wis::Result wis::ImplVKCommandList::Reset(VKPipelineHandle new_pipeline) noexcep
     }
     closed = false;
     if (pipeline)
-        dtable.vkCmdBindPipeline(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
+        dtable.vkCmdBindPipeline(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     return wis::success;
+}
+
+void wis::ImplVKCommandList::SetPipelineState(wis::VKPipelineView pipeline_state) noexcept
+{
+    device.table().vkCmdBindPipeline(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, std::get<0>(pipeline_state));
 }
 
 bool wis::ImplVKCommandList::Close() noexcept
@@ -142,6 +146,8 @@ inline VkBufferMemoryBarrier2 to_vk(wis::BufferBarrier barrier, VkBuffer buffer)
 inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture, VkFormat format) noexcept
 {
     auto& subresource = barrier.subresource_range;
+    bool zero_range = subresource.base_array_layer == 0 && subresource.base_mip_level == 0 && subresource.layer_count == 0 && subresource.level_count == 0;
+
     return VkImageMemoryBarrier2{
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
         .pNext = nullptr,
@@ -157,9 +163,9 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
         .subresourceRange = {
                 .aspectMask = aspect_flags(format),
                 .baseMipLevel = subresource.base_mip_level,
-                .levelCount = subresource.level_count,
+                .levelCount = zero_range ? subresource.level_count : VK_REMAINING_MIP_LEVELS,
                 .baseArrayLayer = subresource.base_array_layer,
-                .layerCount = subresource.layer_count,
+                .layerCount = zero_range ? subresource.layer_count : VK_REMAINING_ARRAY_LAYERS,
         }
     };
 }
@@ -244,6 +250,7 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
     auto* data = allocator.data();
     wis::Size2D extent = std::get<1>(pass_desc->targets[0].target);
 
+    uint32_t view_mask = (1u << pass_desc->target_count) - 1;
     for (size_t i = 0; i < pass_desc->target_count; i++) {
         auto& target = pass_desc->targets[i];
         data[i] = VkRenderingAttachmentInfo{
@@ -299,8 +306,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
                 .offset = { 0, 0 },
                 .extent = { extent.width, extent.height },
         },
-        .layerCount = 1,
-        .viewMask = 0,
+        .layerCount = 0,
+        .viewMask = view_mask,
         .colorAttachmentCount = pass_desc->target_count,
         .pColorAttachments = data,
         .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,
@@ -394,6 +401,7 @@ void wis::ImplVKCommandList::IASetVertexBuffers(const wis::VKVertexBufferBinding
         buffers[i] = std::get<0>(resources[i].buffer);
         sizes[i] = resources[i].size;
         strides[i] = resources[i].stride;
+        offsets[i] = resources[i].offset;
     }
     device.table().vkCmdBindVertexBuffers2(command_list, start_slot, count, buffers, offsets, sizes, strides);
 }

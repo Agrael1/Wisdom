@@ -1,5 +1,16 @@
 # Version History
 
+- 0.3.11
+  
+  - Resolved inconsistencies with API generation of struct members (ignoring const)
+  - Added offset member to the Vertex buffer binding. Default is 0.
+  - Fixed DX12 Unbounded descriptor array feature not being documented and not working correctly
+  - Added forgotten dynamic rendering to Vulkan pipeline creation
+  - Added unbounded descriptor array feature to Vulkan
+  - Vulkan now supports unused render attachments if possible
+  - Added forgotten setting pipeline state call to both command list APIs
+  - Removed brutal reset from DX12 command list, now it will not reset the allocator which may have lead to UB if list was executed currently
+
 - 0.3.7-0.3.10 
 
   - Fixed annoying warning about class/struct mismatch in C++ API

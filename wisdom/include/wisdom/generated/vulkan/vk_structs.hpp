@@ -87,6 +87,7 @@ struct VKVertexBufferBinding {
     wis::VKBufferView buffer; ///< Buffer view.
     uint32_t size; ///< Size of the buffer in bytes.
     uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept

@@ -119,7 +119,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the buffer.
      * @return wis::VKBuffer on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKBuffer> CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKBuffer> CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplVKResourceAllocator::CreateBuffer(size, usage, memory, mem_flags);
     }
@@ -131,7 +131,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the texture.
      * @return wis::VKTexture on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKTexture> CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKTexture> CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplVKResourceAllocator::CreateTexture(desc, memory, mem_flags);
     }
@@ -162,7 +162,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the image.
      * @return wis::VKMemory on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKMemory> AllocateTextureMemory(uint64_t size, wis::TextureUsage usage, wis::MemoryType mem_type = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKMemory> AllocateTextureMemory(uint64_t size, wis::TextureUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplVKResourceAllocator::AllocateTextureMemory(size, usage, mem_type, mem_flags);
     }
@@ -174,7 +174,7 @@ public:
      * @param mem_flags The flags of the memory to allocate for the buffer.
      * @return wis::VKMemory on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKMemory> AllocateBufferMemory(uint64_t size, wis::BufferUsage usage, wis::MemoryType mem_type = MemoryType::Default, wis::MemoryFlags mem_flags = MemoryFlags::None) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKMemory> AllocateBufferMemory(uint64_t size, wis::BufferUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
         return wis::ImplVKResourceAllocator::AllocateBufferMemory(size, usage, mem_type, mem_flags);
     }

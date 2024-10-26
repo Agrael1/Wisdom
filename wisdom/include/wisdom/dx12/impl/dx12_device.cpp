@@ -156,6 +156,7 @@ wis::ImplDX12Device::CreateRootSignature(const RootConstant* root_constants,
                 .NumDescriptors = entry.count,
                 .BaseShaderRegister = entry.bind_register,
                 .RegisterSpace = 0,
+                .Flags = entry.count == UINT32_MAX ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE, // always volatile for unbounded arrays
                 .OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
             };
         }
@@ -707,6 +708,7 @@ bool wis::ImplDX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const 
     case wis::DeviceFeature::DescriptorEqualSize:
     case wis::DeviceFeature::DynamicVSync:
     case wis::DeviceFeature::AdvancedIndexBuffer:
+    case wis::DeviceFeature::UnusedRenderTargets:
         return true;
     default:
         return false;

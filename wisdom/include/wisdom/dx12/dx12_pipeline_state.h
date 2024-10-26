@@ -20,7 +20,7 @@ public:
     explicit DX12PipelineState(wis::com_ptr<ID3D12PipelineState> xpipeline) noexcept
         : QueryInternal(std::move(xpipeline)) { }
 
-    operator DX12PipelineHandle() const noexcept
+    operator DX12PipelineView() const noexcept
     {
         return pipeline.get();
     }
