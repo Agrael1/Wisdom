@@ -1,4 +1,7 @@
 # Version History
+- 0.3.12
+  
+  - Hotfix for Vulkan not creating the pipeline correctly
 
 - 0.3.11
 

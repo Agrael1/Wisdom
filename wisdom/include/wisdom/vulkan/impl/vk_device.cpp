@@ -544,7 +544,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
             .pNext = nullptr,
             .flags = 0,
             .depthClampEnable = desc->rasterizer->depth_clip_enable,
-            .rasterizerDiscardEnable = true,
+            .rasterizerDiscardEnable = false,
             .polygonMode = convert_vk(desc->rasterizer->fill_mode),
             .cullMode = convert_vk(desc->rasterizer->cull_mode),
             .frontFace = convert_vk(desc->rasterizer->front_face),
