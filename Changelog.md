@@ -10,7 +10,8 @@
   - Vulkan now supports unused render attachments if possible
   - Added forgotten setting pipeline state call to both command list APIs
   - Removed brutal reset from DX12 command list, now it will not reset the allocator which may have lead to UB if list was executed currently
-
+  - Subresource ranges were annoying part of the TextureBarrier api. Now if left empty, it will be filled with the whole resource.
+	 
 - 0.3.7-0.3.10 
 
   - Fixed annoying warning about class/struct mismatch in C++ API
