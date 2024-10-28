@@ -92,7 +92,8 @@ public:
     };
     static constexpr std::array required_layers = {
         "VK_LAYER_KHRONOS_validation",
-        "VK_LAYER_KHRONOS_synchronization2"
+        //"VK_LAYER_KHRONOS_synchronization2",
+        //"VK_LAYER_LUNARG_monitor"
     };
 
     [[nodiscard]] wis::Result

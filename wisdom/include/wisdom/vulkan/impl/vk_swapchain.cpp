@@ -298,19 +298,6 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     auto& dtable = device.table();
     auto& itable = surface.header().parent.table();
 
-    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-    VkSubmitInfo wait_desc{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = nullptr,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-        .pWaitDstStageMask = &wait_stages,
-    };
-    dtable.vkQueueSubmit(graphics_queue, 1, &wait_desc, fence);
-    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    dtable.vkResetFences(device.get(), 1, &fence);
-
     dtable.vkQueueSubmit(present_queue, 0, nullptr, fence);
     dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
     dtable.vkResetFences(device.get(), 1, &fence);
