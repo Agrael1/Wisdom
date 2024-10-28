@@ -18,27 +18,19 @@ void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists
 wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) const noexcept
 {
     VkSemaphore sem = std::get<0>(fence);
-    VkTimelineSemaphoreSubmitInfoKHR submit{
-        .sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO_KHR,
-        .pNext = nullptr,
-        .waitSemaphoreValueCount = 0,
-        .pWaitSemaphoreValues = nullptr,
-        .signalSemaphoreValueCount = 1,
-        .pSignalSemaphoreValues = &value
+    VkSemaphoreSubmitInfo sem_submit{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = sem,
+        .value = value,
+        .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
     };
 
-    VkSubmitInfo info{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = &submit,
-        .waitSemaphoreCount = 0,
-        .pWaitSemaphores = nullptr,
-        .pWaitDstStageMask = nullptr,
-        .commandBufferCount = 0,
-        .pCommandBuffers = nullptr,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &sem
+    VkSubmitInfo2 info{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .signalSemaphoreInfoCount = 1,
+        .pSignalSemaphoreInfos = &sem_submit
     };
-    VkResult result = device.table().vkQueueSubmit(queue, 1, &info, nullptr);
+    VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
                              : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
@@ -46,28 +38,19 @@ wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t val
 wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
 {
     VkSemaphore sem = std::get<0>(fence);
-    VkTimelineSemaphoreSubmitInfoKHR submit{
-        .sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO_KHR,
-        .pNext = nullptr,
-        .waitSemaphoreValueCount = 1,
-        .pWaitSemaphoreValues = &value,
-        .signalSemaphoreValueCount = 0,
-        .pSignalSemaphoreValues = nullptr
+    VkSemaphoreSubmitInfo sem_submit{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = sem,
+        .value = value,
+        .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
     };
 
-    VkPipelineStageFlags stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-    VkSubmitInfo info{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = &submit,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &sem,
-        .pWaitDstStageMask = &stage,
-        .commandBufferCount = 0,
-        .pCommandBuffers = nullptr,
-        .signalSemaphoreCount = 0,
-        .pSignalSemaphores = nullptr
+    VkSubmitInfo2 info{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .waitSemaphoreInfoCount = 1,
+        .pWaitSemaphoreInfos = &sem_submit
     };
-    VkResult result = device.table().vkQueueSubmit(queue, 1, &info, nullptr);
+    VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
                              : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }

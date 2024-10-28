@@ -117,14 +117,19 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() const noexcept
 
 
     constexpr static VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkSubmitInfo desc2{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = nullptr,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-        .pWaitDstStageMask = &wait_stages,
+    VkSemaphoreSubmitInfo submit_info{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = image_ready_semaphores[acquire_index],
+        .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
     };
-    result = dtable.vkQueueSubmit(graphics_queue, 1, &desc2, nullptr);
+
+    VkSubmitInfo2 desc2{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .pNext = nullptr,
+        .waitSemaphoreInfoCount = 1,
+        .pWaitSemaphoreInfos = &submit_info,
+    };
+    result = dtable.vkQueueSubmit2(graphics_queue, 1, &desc2, nullptr);
     return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkQueueSubmit failed">(result);
 }
 wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator=(VKSwapChainCreateInfo&& o) noexcept
@@ -145,7 +150,6 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
 
     present_semaphores = std::move(o.present_semaphores);
     image_ready_semaphores = std::move(o.image_ready_semaphores);
-    image_ready_fences = std::move(o.image_ready_fences);
     back_buffers = std::move(o.back_buffers);
     fence = std::move(o.fence);
 
@@ -173,7 +177,6 @@ void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
     for (uint32_t n = 0; n < back_buffer_count; n++) {
         table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
         table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
-        table.vkDestroyFence(hdevice, image_ready_fences[n], nullptr);
     }
     table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
     table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
@@ -188,20 +191,11 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
     if (!image_ready_semaphores)
         return { wis::make_result<FUNC, "failed to allocate image_ready_semaphores array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
 
-    image_ready_fences = wis::detail::make_unique_for_overwrite<VkFence[]>(back_buffer_count);
-    if (!image_ready_fences)
-        return { wis::make_result<FUNC, "failed to allocate image_ready_fences array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
-
     auto& table = device.table();
     VkSemaphoreCreateInfo semaphore_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-    };
-    VkFenceCreateInfo fence_info{
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = VK_FENCE_CREATE_SIGNALED_BIT,
     };
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
@@ -212,10 +206,6 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
         auto result2 = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &image_ready_semaphores[n]);
         if (!wis::succeeded(result2))
             return { wis::make_result<FUNC, "vkCreateSemaphore failed for image_ready_semaphore">(result) };
-
-        auto result3 = table.vkCreateFence(device.get(), &fence_info, nullptr, &image_ready_fences[n]);
-        if (!wis::succeeded(result3))
-            return { wis::make_result<FUNC, "vkCreateFence failed for image_ready_fence">(result) };
     }
     return wis::success;
 }
@@ -350,13 +340,20 @@ wis::ImplVKSwapChain::VKPresent(void* pNext)const noexcept
 {
     auto& dtable = device.table();
 
-    VkSubmitInfo desc{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    VkSemaphoreSubmitInfo present_submit_info{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .pNext = nullptr,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &present_semaphores[present_index],
+        .semaphore = present_semaphores[present_index],
+        .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
     };
-    dtable.vkQueueSubmit(graphics_queue, 1, &desc, nullptr);
+
+    VkSubmitInfo2 desc{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .pNext = nullptr,
+        .signalSemaphoreInfoCount = 1,
+        .pSignalSemaphoreInfos = &present_submit_info,
+    };
+    dtable.vkQueueSubmit2(graphics_queue, 1, &desc, nullptr);
 
     VkPresentIdKHR present_id{
         .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
