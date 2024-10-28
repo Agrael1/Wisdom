@@ -110,11 +110,10 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
 
 wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() const noexcept
 {
-    auto& dtable = device.table(); 
+    auto& dtable = device.table();
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
     if (!wis::succeeded(result))
         return wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
-
 
     constexpr static VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkSemaphoreSubmitInfo submit_info{
@@ -259,7 +258,6 @@ wis::Result wis::ImplVKSwapChain::Present2(bool in_vsync) const noexcept
     if (new_present_mode == present_mode)
         return Present();
 
-
     present_mode = new_present_mode;
     VkSwapchainPresentModeInfoEXT present_mode_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
@@ -335,8 +333,8 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     return AquireNextIndex();
 }
 
-wis::Result 
-wis::ImplVKSwapChain::VKPresent(void* pNext)const noexcept
+wis::Result
+wis::ImplVKSwapChain::VKPresent(void* pNext) const noexcept
 {
     auto& dtable = device.table();
 
