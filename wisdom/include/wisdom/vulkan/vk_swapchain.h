@@ -139,6 +139,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result VKRecreateSwapchain(uint32_t width, uint32_t height, void* pNext) noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result VKPresent(void* pNext)const noexcept;
 };
 
 #pragma region VKSwapChain

@@ -110,10 +110,22 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
 
 wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() const noexcept
 {
-    auto& dtable = device.table();
-    dtable.vkWaitForFences(device.get(), 1, &image_ready_fences[acquire_index], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    auto& dtable = device.table(); 
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
-    return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
+    if (!wis::succeeded(result))
+        return wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
+
+
+    constexpr static VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkSubmitInfo desc2{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
+        .pWaitDstStageMask = &wait_stages,
+    };
+    result = dtable.vkQueueSubmit(graphics_queue, 1, &desc2, nullptr);
+    return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkQueueSubmit failed">(result);
 }
 wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator=(VKSwapChainCreateInfo&& o) noexcept
 {
@@ -230,55 +242,7 @@ wis::Result wis::ImplVKSwapChain::Resize(uint32_t width, uint32_t height) noexce
 
 wis::Result wis::ImplVKSwapChain::Present() const noexcept
 {
-    auto& dtable = device.table();
-
-    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-    dtable.vkResetFences(device.get(), 1, &image_ready_fences[acquire_index]);
-    VkSubmitInfo desc{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = nullptr,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-        .pWaitDstStageMask = &wait_stages,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &present_semaphores[present_index],
-    };
-    dtable.vkQueueSubmit(graphics_queue, 1, &desc, image_ready_fences[acquire_index]);
-
-    VkPresentIdKHR present_id{
-        .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
-        .pNext = nullptr,
-        .swapchainCount = 1,
-        .pPresentIds = &this->present_id,
-    };
-
-    VkPresentInfoKHR present_info{
-        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = dtable.vkWaitForPresentKHR ? &present_id : nullptr,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &present_semaphores[present_index],
-        .swapchainCount = 1,
-        .pSwapchains = &swapchain.handle,
-        .pImageIndices = &present_index,
-        .pResults = nullptr,
-    };
-
-    auto result = dtable.vkQueuePresentKHR(present_queue, &present_info);
-    if (!wis::succeeded(result)) {
-        VkSubmitInfo wait{
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .pNext = nullptr,
-            .signalSemaphoreCount = 1,
-            .pSignalSemaphores = &image_ready_semaphores[acquire_index],
-        };
-        dtable.vkQueueSubmit(present_queue, 1, &wait, nullptr);
-        return wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
-    }
-
-    acquire_index = (acquire_index + 1) % back_buffer_count;
-
-    return AquireNextIndex();
+    return VKPresent(nullptr);
 }
 
 wis::Result wis::ImplVKSwapChain::Present2(bool in_vsync) const noexcept
@@ -305,63 +269,16 @@ wis::Result wis::ImplVKSwapChain::Present2(bool in_vsync) const noexcept
     if (new_present_mode == present_mode)
         return Present();
 
+
     present_mode = new_present_mode;
-
-    auto& dtable = device.table();
-
-    VkPipelineStageFlags wait_stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-    VkSubmitInfo desc{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = nullptr,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &image_ready_semaphores[acquire_index],
-        .pWaitDstStageMask = &wait_stages,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &present_semaphores[present_index],
-    };
-    dtable.vkQueueSubmit(graphics_queue, 1, &desc, nullptr);
-
-    VkPresentIdKHR present_id{
-        .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
-        .pNext = nullptr,
-        .swapchainCount = 1,
-        .pPresentIds = &this->present_id,
-    };
-
     VkSwapchainPresentModeInfoEXT present_mode_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
-        .pNext = &dtable.vkWaitForPresentKHR ? &present_id : nullptr,
+        .pNext = nullptr,
         .swapchainCount = 1,
         .pPresentModes = &new_present_mode,
     };
 
-    VkPresentInfoKHR present_info{
-        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = &present_mode_info,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &present_semaphores[present_index],
-        .swapchainCount = 1,
-        .pSwapchains = &swapchain.handle,
-        .pImageIndices = &present_index,
-        .pResults = nullptr,
-    };
-
-    auto result = dtable.vkQueuePresentKHR(present_queue, &present_info);
-    if (!wis::succeeded(result)) {
-        VkSubmitInfo wait{
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .pNext = nullptr,
-            .signalSemaphoreCount = 1,
-            .pSignalSemaphores = &image_ready_semaphores[acquire_index],
-        };
-        dtable.vkQueueSubmit(present_queue, 1, &wait, nullptr);
-        return wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
-    }
-
-    acquire_index = (acquire_index + 1) % back_buffer_count;
-
-    return AquireNextIndex();
+    return VKPresent(&present_mode_info);
 }
 
 wis::Result
@@ -438,6 +355,46 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     if (rres.status != wis::Status::Ok)
         return rres;
 
+    return AquireNextIndex();
+}
+
+wis::Result 
+wis::ImplVKSwapChain::VKPresent(void* pNext)const noexcept
+{
+    auto& dtable = device.table();
+
+    VkSubmitInfo desc{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext = nullptr,
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores = &present_semaphores[present_index],
+    };
+    dtable.vkQueueSubmit(graphics_queue, 1, &desc, nullptr);
+
+    VkPresentIdKHR present_id{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
+        .pNext = pNext,
+        .swapchainCount = 1,
+        .pPresentIds = &this->present_id,
+    };
+
+    VkPresentInfoKHR present_info{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .pNext = dtable.vkWaitForPresentKHR ? &present_id : pNext,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &present_semaphores[present_index],
+        .swapchainCount = 1,
+        .pSwapchains = &swapchain.handle,
+        .pImageIndices = &present_index,
+        .pResults = nullptr,
+    };
+
+    auto result = dtable.vkQueuePresentKHR(present_queue, &present_info);
+    if (!wis::succeeded(result)) {
+        return wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
+    }
+
+    acquire_index = (acquire_index + 1) % back_buffer_count;
     return AquireNextIndex();
 }
 

@@ -91,7 +91,8 @@ public:
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
     static constexpr std::array required_layers = {
-        "VK_LAYER_KHRONOS_validation"
+        "VK_LAYER_KHRONOS_validation",
+        "VK_LAYER_KHRONOS_synchronization2"
     };
 
     [[nodiscard]] wis::Result
