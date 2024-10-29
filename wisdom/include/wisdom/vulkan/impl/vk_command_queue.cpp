@@ -3,7 +3,7 @@
 #include <wisdom/vulkan/vk_command_queue.h>
 
 void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
-        uint32_t count) const noexcept
+                                                  uint32_t count) const noexcept
 {
     VkSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -32,7 +32,7 @@ wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t val
     };
     VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
-           : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+                             : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
 
 wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
@@ -52,7 +52,7 @@ wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value
     };
     VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
-           : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+                             : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
 }
 
 #endif // !VK_COMMAND_QUEUE_CPP
