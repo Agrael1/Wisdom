@@ -98,6 +98,11 @@ using PFN_vkCmdPipelineBarrier2 = PFN_vkCmdPipelineBarrier2KHR;
 #endif
 #endif
 #if !(defined(VK_VERSION_1_3))
+#if defined(VK_KHR_synchronization2)
+using PFN_vkQueueSubmit2 = PFN_vkQueueSubmit2KHR;
+#endif
+#endif
+#if !(defined(VK_VERSION_1_3))
 #if defined(VK_KHR_dynamic_rendering)
 using PFN_vkCmdBeginRendering = PFN_vkCmdBeginRenderingKHR;
 #endif
@@ -301,13 +306,14 @@ struct VKMainDevice {
     PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
     PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
     PFN_vkCmdPushConstants vkCmdPushConstants;
+    PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
+    PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
+    PFN_vkGetDeviceQueue2 vkGetDeviceQueue2;
     PFN_vkCmdSetDescriptorBufferOffsetsEXT vkCmdSetDescriptorBufferOffsetsEXT;
     PFN_vkGetDescriptorEXT vkGetDescriptorEXT;
     PFN_vkGetDescriptorSetLayoutSizeEXT vkGetDescriptorSetLayoutSizeEXT;
     PFN_vkGetDescriptorSetLayoutBindingOffsetEXT vkGetDescriptorSetLayoutBindingOffsetEXT;
     PFN_vkCmdBindDescriptorBuffersEXT vkCmdBindDescriptorBuffersEXT;
-    PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2;
-    PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
 #if defined(VK_KHR_maintenance5)
     PFN_vkCmdBindIndexBuffer2KHR vkCmdBindIndexBuffer2KHR;
 #else
@@ -337,12 +343,12 @@ struct VKMainDevice {
     PFN_vkSignalSemaphore vkSignalSemaphore;
     PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue;
     PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2;
-    PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
-    PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
-    PFN_vkGetDeviceQueue2 vkGetDeviceQueue2;
+    PFN_vkQueueSubmit2 vkQueueSubmit2;
     PFN_vkCmdEndRendering vkCmdEndRendering;
     PFN_vkCmdBeginRendering vkCmdBeginRendering;
     PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
+    PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
+    PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2;
     PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
     PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
     PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
@@ -527,6 +533,35 @@ public:
         vkCmdPushConstants = (PFN_vkCmdPushConstants)vkGetDeviceProcAddr(device, "vkCmdPushConstants");
         if (vkCmdPushConstants == nullptr)
             return false;
+        static constexpr std::array vkGetDeviceBufferMemoryRequirements_strings{
+#if defined(VK_VERSION_1_3)
+            "vkGetDeviceBufferMemoryRequirements",
+#endif
+#if defined(VK_KHR_maintenance4)
+            "vkGetDeviceBufferMemoryRequirementsKHR",
+#endif
+        };
+        for (auto vkGetDeviceBufferMemoryRequirements_it : vkGetDeviceBufferMemoryRequirements_strings)
+            if ((vkGetDeviceBufferMemoryRequirements = (PFN_vkGetDeviceBufferMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceBufferMemoryRequirements_it)))
+                break;
+        if (vkGetDeviceBufferMemoryRequirements == nullptr)
+            return false;
+        static constexpr std::array vkGetDeviceImageMemoryRequirements_strings{
+#if defined(VK_VERSION_1_3)
+            "vkGetDeviceImageMemoryRequirements",
+#endif
+#if defined(VK_KHR_maintenance4)
+            "vkGetDeviceImageMemoryRequirementsKHR",
+#endif
+        };
+        for (auto vkGetDeviceImageMemoryRequirements_it : vkGetDeviceImageMemoryRequirements_strings)
+            if ((vkGetDeviceImageMemoryRequirements = (PFN_vkGetDeviceImageMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceImageMemoryRequirements_it)))
+                break;
+        if (vkGetDeviceImageMemoryRequirements == nullptr)
+            return false;
+        vkGetDeviceQueue2 = (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(device, "vkGetDeviceQueue2");
+        if (vkGetDeviceQueue2 == nullptr)
+            return false;
         vkCmdSetDescriptorBufferOffsetsEXT = (PFN_vkCmdSetDescriptorBufferOffsetsEXT)vkGetDeviceProcAddr(device, "vkCmdSetDescriptorBufferOffsetsEXT");
         if (vkCmdSetDescriptorBufferOffsetsEXT == nullptr)
             return false;
@@ -541,32 +576,6 @@ public:
             return false;
         vkCmdBindDescriptorBuffersEXT = (PFN_vkCmdBindDescriptorBuffersEXT)vkGetDeviceProcAddr(device, "vkCmdBindDescriptorBuffersEXT");
         if (vkCmdBindDescriptorBuffersEXT == nullptr)
-            return false;
-        static constexpr std::array vkCmdBindVertexBuffers2_strings{
-#if defined(VK_VERSION_1_3)
-            "vkCmdBindVertexBuffers2",
-#endif
-#if defined(VK_EXT_shader_object) || defined(VK_EXT_extended_dynamic_state)
-            "vkCmdBindVertexBuffers2EXT",
-#endif
-        };
-        for (auto vkCmdBindVertexBuffers2_it : vkCmdBindVertexBuffers2_strings)
-            if ((vkCmdBindVertexBuffers2 = (PFN_vkCmdBindVertexBuffers2)vkGetDeviceProcAddr(device, vkCmdBindVertexBuffers2_it)))
-                break;
-        if (vkCmdBindVertexBuffers2 == nullptr)
-            return false;
-        static constexpr std::array vkCmdSetPrimitiveTopology_strings{
-#if defined(VK_VERSION_1_3)
-            "vkCmdSetPrimitiveTopology",
-#endif
-#if defined(VK_EXT_shader_object) || defined(VK_EXT_extended_dynamic_state)
-            "vkCmdSetPrimitiveTopologyEXT",
-#endif
-        };
-        for (auto vkCmdSetPrimitiveTopology_it : vkCmdSetPrimitiveTopology_strings)
-            if ((vkCmdSetPrimitiveTopology = (PFN_vkCmdSetPrimitiveTopology)vkGetDeviceProcAddr(device, vkCmdSetPrimitiveTopology_it)))
-                break;
-        if (vkCmdSetPrimitiveTopology == nullptr)
             return false;
         vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer2KHR");
         static constexpr std::array vkGetImageMemoryRequirements2_strings{
@@ -665,34 +674,18 @@ public:
                 break;
         if (vkCmdPipelineBarrier2 == nullptr)
             return false;
-        static constexpr std::array vkGetDeviceBufferMemoryRequirements_strings{
+        static constexpr std::array vkQueueSubmit2_strings{
 #if defined(VK_VERSION_1_3)
-            "vkGetDeviceBufferMemoryRequirements",
+            "vkQueueSubmit2",
 #endif
-#if defined(VK_KHR_maintenance4)
-            "vkGetDeviceBufferMemoryRequirementsKHR",
+#if defined(VK_KHR_synchronization2)
+            "vkQueueSubmit2KHR",
 #endif
         };
-        for (auto vkGetDeviceBufferMemoryRequirements_it : vkGetDeviceBufferMemoryRequirements_strings)
-            if ((vkGetDeviceBufferMemoryRequirements = (PFN_vkGetDeviceBufferMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceBufferMemoryRequirements_it)))
+        for (auto vkQueueSubmit2_it : vkQueueSubmit2_strings)
+            if ((vkQueueSubmit2 = (PFN_vkQueueSubmit2)vkGetDeviceProcAddr(device, vkQueueSubmit2_it)))
                 break;
-        if (vkGetDeviceBufferMemoryRequirements == nullptr)
-            return false;
-        static constexpr std::array vkGetDeviceImageMemoryRequirements_strings{
-#if defined(VK_VERSION_1_3)
-            "vkGetDeviceImageMemoryRequirements",
-#endif
-#if defined(VK_KHR_maintenance4)
-            "vkGetDeviceImageMemoryRequirementsKHR",
-#endif
-        };
-        for (auto vkGetDeviceImageMemoryRequirements_it : vkGetDeviceImageMemoryRequirements_strings)
-            if ((vkGetDeviceImageMemoryRequirements = (PFN_vkGetDeviceImageMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceImageMemoryRequirements_it)))
-                break;
-        if (vkGetDeviceImageMemoryRequirements == nullptr)
-            return false;
-        vkGetDeviceQueue2 = (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(device, "vkGetDeviceQueue2");
-        if (vkGetDeviceQueue2 == nullptr)
+        if (vkQueueSubmit2 == nullptr)
             return false;
         static constexpr std::array vkCmdEndRendering_strings{
 #if defined(VK_VERSION_1_3)
@@ -735,6 +728,32 @@ public:
             if ((vkGetBufferDeviceAddress = (PFN_vkGetBufferDeviceAddress)vkGetDeviceProcAddr(device, vkGetBufferDeviceAddress_it)))
                 break;
         if (vkGetBufferDeviceAddress == nullptr)
+            return false;
+        static constexpr std::array vkCmdSetPrimitiveTopology_strings{
+#if defined(VK_VERSION_1_3)
+            "vkCmdSetPrimitiveTopology",
+#endif
+#if defined(VK_EXT_shader_object) || defined(VK_EXT_extended_dynamic_state)
+            "vkCmdSetPrimitiveTopologyEXT",
+#endif
+        };
+        for (auto vkCmdSetPrimitiveTopology_it : vkCmdSetPrimitiveTopology_strings)
+            if ((vkCmdSetPrimitiveTopology = (PFN_vkCmdSetPrimitiveTopology)vkGetDeviceProcAddr(device, vkCmdSetPrimitiveTopology_it)))
+                break;
+        if (vkCmdSetPrimitiveTopology == nullptr)
+            return false;
+        static constexpr std::array vkCmdBindVertexBuffers2_strings{
+#if defined(VK_VERSION_1_3)
+            "vkCmdBindVertexBuffers2",
+#endif
+#if defined(VK_EXT_shader_object) || defined(VK_EXT_extended_dynamic_state)
+            "vkCmdBindVertexBuffers2EXT",
+#endif
+        };
+        for (auto vkCmdBindVertexBuffers2_it : vkCmdBindVertexBuffers2_strings)
+            if ((vkCmdBindVertexBuffers2 = (PFN_vkCmdBindVertexBuffers2)vkGetDeviceProcAddr(device, vkCmdBindVertexBuffers2_it)))
+                break;
+        if (vkCmdBindVertexBuffers2 == nullptr)
             return false;
         vkCreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)vkGetDeviceProcAddr(device, "vkCreateSwapchainKHR");
         if (vkCreateSwapchainKHR == nullptr)
