@@ -1,19 +1,19 @@
 # Version History
 
 - 0.3.14
-  
+
   - Finally fixed swapchain stutters on VSync for Vulkan, thanks to Sascha Willems for the ship of theseus example
   - Fixed Validation on swapchain resize for Vulkan
   - Removed unnecessary fences for Vulkan swapchain, as well as dynamic VSync. It was bothering me for a long time, but now it is gone.
 
 - 0.3.13
-  
+
   - Fixed swapchain stability for Vulkan (in some cases Waiting for image was not finished before aquire next image)
   - Fixed CommandQueue WaitQueue for Vulkan not working correctly (wrong pointers)
   - Reverted change to DX12 command list reset, now it will reset the allocator again (Vulkan does not support resetting on-the-fly)
-  
+
 - 0.3.12
-  
+
   - Hotfix for Vulkan not creating the pipeline correctly
 
 - 0.3.11
