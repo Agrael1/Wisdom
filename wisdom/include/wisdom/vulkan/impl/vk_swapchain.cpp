@@ -119,7 +119,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AquireNextIndex() const noexcept
     VkSemaphoreSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .semaphore = image_ready_semaphores[acquire_index],
-        .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        .stageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
     };
 
     VkSubmitInfo2 desc2{
@@ -147,7 +147,7 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
     present_queue = std::move(o.present_queue);
     graphics_queue = std::move(o.graphics_queue);
 
-    present_semaphores = std::move(o.present_semaphores);
+    render_completed_semaphore = std::move(o.render_completed_semaphore);
     image_ready_semaphores = std::move(o.image_ready_semaphores);
     back_buffers = std::move(o.back_buffers);
     fence = std::move(o.fence);
@@ -174,7 +174,7 @@ void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
     ReleaseSemaphores();
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
-        table.vkDestroySemaphore(hdevice, present_semaphores[n], nullptr);
+        table.vkDestroySemaphore(hdevice, render_completed_semaphore[n], nullptr);
         table.vkDestroySemaphore(hdevice, image_ready_semaphores[n], nullptr);
     }
     table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
@@ -182,9 +182,9 @@ void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
 }
 wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
 {
-    present_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
-    if (!present_semaphores)
-        return { wis::make_result<FUNC, "failed to allocate present_semaphores array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
+    render_completed_semaphore = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
+    if (!render_completed_semaphore)
+        return { wis::make_result<FUNC, "failed to allocate render_completed_semaphore array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
 
     image_ready_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
     if (!image_ready_semaphores)
@@ -198,7 +198,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
     };
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
-        auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &present_semaphores[n]);
+        auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &render_completed_semaphore[n]);
         if (!wis::succeeded(result))
             return { wis::make_result<FUNC, "vkCreateSemaphore failed for present_semaphore">(result) };
 
@@ -290,6 +290,10 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
     dtable.vkResetFences(device.get(), 1, &fence);
 
+    dtable.vkQueueSubmit(graphics_queue, 0, nullptr, fence);
+    dtable.vkWaitForFences(device.get(), 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    dtable.vkResetFences(device.get(), 1, &fence);
+
     VkSurfaceCapabilitiesKHR caps{};
     itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(adapter, surface.get(), &caps);
 
@@ -341,7 +345,7 @@ wis::ImplVKSwapChain::VKPresent(void* pNext) const noexcept
     VkSemaphoreSubmitInfo present_submit_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .pNext = nullptr,
-        .semaphore = present_semaphores[present_index],
+        .semaphore = render_completed_semaphore[present_index],
         .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
     };
 
@@ -364,7 +368,7 @@ wis::ImplVKSwapChain::VKPresent(void* pNext) const noexcept
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .pNext = dtable.vkWaitForPresentKHR ? &present_id : pNext,
         .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &present_semaphores[present_index],
+        .pWaitSemaphores = &render_completed_semaphore[present_index],
         .swapchainCount = 1,
         .pSwapchains = &swapchain.handle,
         .pImageIndices = &present_index,

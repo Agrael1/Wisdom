@@ -19,7 +19,7 @@ struct VKSwapChainCreateInfo {
     h::VkCommandPool command_pool = nullptr;
     h::VkQueue present_queue = nullptr;
     h::VkQueue graphics_queue = nullptr;
-    std::unique_ptr<VkSemaphore[]> present_semaphores = nullptr; // if signalled, it means the presentation is required
+    std::unique_ptr<VkSemaphore[]> render_completed_semaphore = nullptr;
     std::unique_ptr<VkSemaphore[]> image_ready_semaphores = nullptr; // if signalled, it means the rendering is available
     std::unique_ptr<VKTexture[]> back_buffers;
     h::VkFence fence = nullptr; // only used for initialization and resizing

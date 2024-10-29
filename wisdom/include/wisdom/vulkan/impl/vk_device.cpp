@@ -566,17 +566,15 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
 
     //--Render targets
     uint32_t rt_size = std::min(desc->attachments.attachments_count, wis::max_render_targets);
-    VkFormat rt_formats[8];
-    uint32_t view_mask = 0;
+    VkFormat rt_formats[8]{};
     for (uint32_t i = 0; i < rt_size; i++) {
         rt_formats[i] = convert_vk(desc->attachments.attachment_formats[i]);
-        view_mask |= 1 << i;
     }
 
     VkPipelineRenderingCreateInfo dynamic_rendering{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
         .pNext = nullptr,
-        .viewMask = view_mask,
+        .viewMask = 0,
         .colorAttachmentCount = rt_size,
         .pColorAttachmentFormats = rt_formats,
         .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),
@@ -909,7 +907,7 @@ wis::ImplVKDevice::VKCreateAllocator(bool interop) const noexcept
     if (ext1.GetFeatures().interop_device && interop) {
 #ifdef _WIN32
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
-        allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
+        (void*&)allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
 #endif // WIN32
     }
 

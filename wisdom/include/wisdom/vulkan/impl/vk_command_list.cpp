@@ -250,7 +250,6 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
     auto* data = allocator.data();
     wis::Size2D extent = std::get<1>(pass_desc->targets[0].target);
 
-    uint32_t view_mask = (1u << pass_desc->target_count) - 1;
     for (size_t i = 0; i < pass_desc->target_count; i++) {
         auto& target = pass_desc->targets[i];
         data[i] = VkRenderingAttachmentInfo{
@@ -306,8 +305,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
                 .offset = { 0, 0 },
                 .extent = { extent.width, extent.height },
         },
-        .layerCount = 0,
-        .viewMask = view_mask,
+        .layerCount = 1,
+        .viewMask = 0,
         .colorAttachmentCount = pass_desc->target_count,
         .pColorAttachments = data,
         .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,
