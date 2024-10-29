@@ -236,37 +236,8 @@ wis::Result wis::ImplVKSwapChain::Present() const noexcept
 
 wis::Result wis::ImplVKSwapChain::Present2(bool in_vsync) const noexcept
 {
-    // relaxed behavior
-    if (!supported_presentations)
-        return Present();
-
-    auto new_present_mode = present_mode;
-    if (!in_vsync) {
-        if (tearing) {
-            if (supported_presentations & (1 << VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR))
-                new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR;
-            else if (supported_presentations & (1 << VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR))
-                new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR;
-        } else if (supported_presentations & (1 << VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR) && !stereo) {
-            new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR;
-        }
-    } else {
-        new_present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-    }
-
-    // no change
-    if (new_present_mode == present_mode)
-        return Present();
-
-    present_mode = new_present_mode;
-    VkSwapchainPresentModeInfoEXT present_mode_info{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
-        .pNext = nullptr,
-        .swapchainCount = 1,
-        .pPresentModes = &new_present_mode,
-    };
-
-    return VKPresent(&present_mode_info);
+    // Dynamic VSync results in performance degradation, hence it was removed
+    return Present();
 }
 
 wis::Result

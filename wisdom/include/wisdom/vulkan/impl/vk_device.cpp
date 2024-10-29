@@ -1024,51 +1024,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     uint8_t supported_presentation = 0;
     uint32_t compatible_modes_count = 0;
 
-    // Check if the extension is supported
-    if (ext1.GetFeatures().dynamic_vsync) {
-        compatible_modes_count = [&]() {
-            VkSurfacePresentModeCompatibilityEXT present_mode_compat{
-                .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT,
-                .pNext = nullptr,
-                .pPresentModes = nullptr,
-            };
-            VkSurfaceCapabilities2KHR cap2{
-                .sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR,
-                .pNext = &present_mode_compat,
-            };
-            VkSurfacePresentModeEXT xpresent_mode{
-                .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT,
-                .presentMode = present_mode,
-            };
-            VkPhysicalDeviceSurfaceInfo2KHR surface_info{
-                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR,
-                .pNext = &xpresent_mode,
-                .surface = surface.get(),
-            };
-            itable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(hadapter, &surface_info, &cap2);
-            present_mode_compat.pPresentModes = compatible_modes.data();
-            itable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(hadapter, &surface_info, &cap2);
-            return present_mode_compat.presentModeCount;
-        }();
-
-        for (size_t i = 0; i < compatible_modes_count; i++)
-            if (modes[i] < 8)
-                supported_presentation |= 1 << compatible_modes[i];
-
-        // Transfer back to the original present mode
-        supported_presentation |= 1 << present_mode;
-    }
-
-    VkSwapchainPresentModesCreateInfoEXT present_modes{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
-        .pNext = pNext,
-        .presentModeCount = compatible_modes_count,
-        .pPresentModes = compatible_modes.data(),
-    };
-
     VkSwapchainCreateInfoKHR swap_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext = ext1.GetFeatures().dynamic_vsync ? &present_modes : pNext,
+        .pNext = pNext,
         .flags = 0,
         .surface = surface.get(),
         .minImageCount = desc->buffer_count,

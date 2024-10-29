@@ -56,7 +56,7 @@ struct XInternalFeatures {
     bool mutable_descriptor : 1 = false;
     bool interop_device : 1 = false;
     bool index_buffer_range : 1 = false;
-    bool dynamic_vsync : 1 = false;
+    bool dynamic_vsync : 1 = false; // Shall remain false until the perf is not fixed
     bool dynamic_render_unused_attachments : 1 = false;
 };
 
@@ -177,11 +177,12 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR);
         }
 
-        if (available_extensions.contains(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)) {
-            features.dynamic_vsync = true;
-            ext_name_set.insert(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
-            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT] = sizeof(VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
-        }
+        // REASON: Unstable extension
+        //if (available_extensions.contains(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)) {
+        //    features.dynamic_vsync = true;
+        //    ext_name_set.insert(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
+        //    structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT] = sizeof(VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
+        //}
 
         if (available_extensions.contains(VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME)) {
             features.dynamic_render_unused_attachments = true;
