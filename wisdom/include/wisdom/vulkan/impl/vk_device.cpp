@@ -566,17 +566,15 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
 
     //--Render targets
     uint32_t rt_size = std::min(desc->attachments.attachments_count, wis::max_render_targets);
-    VkFormat rt_formats[8];
-    uint32_t view_mask = 0;
+    VkFormat rt_formats[8]{};
     for (uint32_t i = 0; i < rt_size; i++) {
         rt_formats[i] = convert_vk(desc->attachments.attachment_formats[i]);
-        view_mask |= 1 << i;
     }
 
     VkPipelineRenderingCreateInfo dynamic_rendering{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
         .pNext = nullptr,
-        .viewMask = view_mask,
+        .viewMask = 0,
         .colorAttachmentCount = rt_size,
         .pColorAttachmentFormats = rt_formats,
         .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),
@@ -909,7 +907,7 @@ wis::ImplVKDevice::VKCreateAllocator(bool interop) const noexcept
     if (ext1.GetFeatures().interop_device && interop) {
 #ifdef _WIN32
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
-        allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
+        (void*&)allocator_functions.vkGetMemoryWin32HandleKHR = GetDeviceProcAddr<void*>("vkGetMemoryWin32HandleKHR");
 #endif // WIN32
     }
 
@@ -1026,51 +1024,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     uint8_t supported_presentation = 0;
     uint32_t compatible_modes_count = 0;
 
-    // Check if the extension is supported
-    if (ext1.GetFeatures().dynamic_vsync) {
-        compatible_modes_count = [&]() {
-            VkSurfacePresentModeCompatibilityEXT present_mode_compat{
-                .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT,
-                .pNext = nullptr,
-                .pPresentModes = nullptr,
-            };
-            VkSurfaceCapabilities2KHR cap2{
-                .sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR,
-                .pNext = &present_mode_compat,
-            };
-            VkSurfacePresentModeEXT xpresent_mode{
-                .sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT,
-                .presentMode = present_mode,
-            };
-            VkPhysicalDeviceSurfaceInfo2KHR surface_info{
-                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR,
-                .pNext = &xpresent_mode,
-                .surface = surface.get(),
-            };
-            itable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(hadapter, &surface_info, &cap2);
-            present_mode_compat.pPresentModes = compatible_modes.data();
-            itable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(hadapter, &surface_info, &cap2);
-            return present_mode_compat.presentModeCount;
-        }();
-
-        for (size_t i = 0; i < compatible_modes_count; i++)
-            if (modes[i] < 8)
-                supported_presentation |= 1 << compatible_modes[i];
-
-        // Transfer back to the original present mode
-        supported_presentation |= 1 << present_mode;
-    }
-
-    VkSwapchainPresentModesCreateInfoEXT present_modes{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
-        .pNext = pNext,
-        .presentModeCount = compatible_modes_count,
-        .pPresentModes = compatible_modes.data(),
-    };
-
     VkSwapchainCreateInfoKHR swap_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext = ext1.GetFeatures().dynamic_vsync ? &present_modes : pNext,
+        .pNext = pNext,
         .flags = 0,
         .surface = surface.get(),
         .minImageCount = desc->buffer_count,

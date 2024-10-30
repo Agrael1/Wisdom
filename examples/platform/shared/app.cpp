@@ -344,9 +344,9 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
 void Test::App::Frame()
 {
-    // rotation += 0.01f;
-    // if (rotation > 1)
-    //     rotation -= 1;
+    rotation += 0.01f;
+    if (rotation > 1)
+        rotation -= 1;
 
     auto res = cmd_list.Reset(pipeline);
     cmd_list.TextureBarrier({
@@ -417,7 +417,7 @@ void Test::App::Frame()
     wis::CommandListView lists[] = { cmd_list };
     queue.ExecuteCommandLists(lists, 1);
 
-    auto result = swap.Present2(false);
+    auto result = swap.Present2(true);
     if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)
         throw std::runtime_error("Failed to present swapchain");
 
