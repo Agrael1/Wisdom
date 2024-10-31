@@ -396,7 +396,7 @@ inline constexpr VkBlendFactor convert_vk(BlendFactor value) noexcept
         return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
     case BlendFactor::SrcAlphaSat:
         return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
-    case BlendFactor::BlendFactor:
+    case BlendFactor::ConstantColor:
         return VK_BLEND_FACTOR_CONSTANT_COLOR;
     case BlendFactor::InvBlendFactor:
         return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;

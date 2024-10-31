@@ -721,7 +721,7 @@ Triangle culling depends on {WindingOrder::} option.">
       <value name="SrcAlphaSat" value="11" doc="Use the source alpha saturated for blending.">
         <impl name="vk" value="VK_BLEND_FACTOR_SRC_ALPHA_SATURATE"/>
       </value>
-      <value name="BlendFactor" value="14" doc="Use a constant blend factor for blending.">
+      <value name="ConstantColor" value="14" doc="Use a constant blend factor for blending.">
         <impl name="vk" value="VK_BLEND_FACTOR_CONSTANT_COLOR"/>
       </value>
       <value name="InvBlendFactor" value="15" doc="Use the inverse constant blend factor for blending.">
