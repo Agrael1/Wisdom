@@ -163,9 +163,9 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
         .subresourceRange = {
                 .aspectMask = aspect_flags(format),
                 .baseMipLevel = subresource.base_mip_level,
-                .levelCount = zero_range ? subresource.level_count : VK_REMAINING_MIP_LEVELS,
+                .levelCount = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
                 .baseArrayLayer = subresource.base_array_layer,
-                .layerCount = zero_range ? subresource.layer_count : VK_REMAINING_ARRAY_LAYERS,
+                .layerCount = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
         }
     };
 }
@@ -246,8 +246,9 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
     auto ds_selector = pass_desc->depth_stencil ? pass_desc->depth_stencil->depth_stencil_select : DSSelect::None;
 
     auto& dtable = device.table();
-    wis::detail::limited_allocator<VkRenderingAttachmentInfo, 8> allocator(pass_desc->target_count, true);
-    auto* data = allocator.data();
+
+    uint32_t attachment_count = std::min(pass_desc->target_count, 8u);
+    VkRenderingAttachmentInfo data[8]{};
     wis::Size2D extent = std::get<1>(pass_desc->targets[0].target);
 
     for (size_t i = 0; i < pass_desc->target_count; i++) {

@@ -1,5 +1,10 @@
 # Version History
 
+- 0.3.15
+
+  - Fixed Vulkan default texture barriers
+  - Fixed static analysis warning for blending enum, thanks to @jaw
+
 - 0.3.14
 
   - Finally fixed swapchain stutters on VSync for Vulkan, thanks to Sascha Willems for the ship of theseus example
