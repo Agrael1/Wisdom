@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.12</b>
+<b>Version 0.3.14</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -850,7 +850,7 @@ enum class BlendFactor : uint32_t {
     DestColor = 9, ///< Use the destination color for blending.
     InvDestColor = 10, ///< Use the inverse destination color for blending.
     SrcAlphaSat = 11, ///< Use the source alpha saturated for blending.
-    BlendFactor = 14, ///< Use a constant blend factor for blending.
+    ConstantColor = 14, ///< Use a constant blend factor for blending.
     InvBlendFactor = 15, ///< Use the inverse constant blend factor for blending.
     Src1Color = 16, ///< Use the source color for blending. Dual source blending mode.
     InvSrc1Color = 17, ///< Use the inverse source color for blending. Dual source blending mode.

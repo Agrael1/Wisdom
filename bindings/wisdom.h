@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.12</b>
+<b>Version 0.3.14</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -818,7 +818,7 @@ enum WisBlendFactor {
     BlendFactorDestColor = 9, ///< Use the destination color for blending.
     BlendFactorInvDestColor = 10, ///< Use the inverse destination color for blending.
     BlendFactorSrcAlphaSat = 11, ///< Use the source alpha saturated for blending.
-    BlendFactorBlendFactor = 14, ///< Use a constant blend factor for blending.
+    BlendFactorConstantColor = 14, ///< Use a constant blend factor for blending.
     BlendFactorInvBlendFactor = 15, ///< Use the inverse constant blend factor for blending.
     BlendFactorSrc1Color = 16, ///< Use the source color for blending. Dual source blending mode.
     BlendFactorInvSrc1Color = 17, ///< Use the inverse source color for blending. Dual source blending mode.
