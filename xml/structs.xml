@@ -402,6 +402,8 @@ If the extension is not supported/failed to initialize the result is NULL."/>
         <member type="BlendStateDesc" name="blend" mod="ptr" default="nullptr" doc="Blend state description."/>
         <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr" doc="Depth stencil description."/>
         <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
+        <member type="u32" name="view_mask" default="0" doc="View mask for Multiview feature. If multiview is not available it is ignored.
+Default is 0. 0 means regular rendering."/>
       </impl>
     </type>
 
@@ -430,6 +432,9 @@ If the extension is not supported/failed to initialize the result is NULL."/>
     <type name="RenderPassDesc" category="variant" doc="Variant of PipelineStateDesc for render pass.">
       <impl name="both">
         <member type="RenderPassFlags" name="flags" doc="Render pass flags."/>
+        <member type="u32" name="view_mask" default="0" doc="View mask for Multiview feature. If multiview is not available it is ignored.
+Value must be the same as in {GraphicsPipelineDesc::view_mask} upon pipeline creation. Otherwise behavior is undefined.
+Default is 0. 0 means regular rendering."/>
         <member type="u32" name="target_count" doc="Render target count."/>
         <member type="RenderPassRenderTargetDesc" name="targets" mod="ptr" default="nullptr" doc="Render target descriptions."/>
         <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr" doc="Depth stencil description."/>

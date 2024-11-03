@@ -43,6 +43,7 @@ private:
 
     std::span<const wis::Texture> back_buffers;
     std::array<wis::RenderTarget, 2> render_targets;
+    std::array<wis::RenderTarget, 2> render_targets2;
 
     wis::Fence fence;
     uint64_t fence_value = 1;
@@ -62,6 +63,7 @@ private:
     wis::Texture texture;
 
     float rotation = 0.0f;
+    float rotation2 = 0.0f;
 
     wis::DescriptorBuffer desc_buffer;
     wis::DescriptorBuffer sampler_buffer;

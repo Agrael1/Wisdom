@@ -574,7 +574,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
     VkPipelineRenderingCreateInfo dynamic_rendering{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
         .pNext = nullptr,
-        .viewMask = 0,
+        .viewMask = ext1.GetFeatures().multiview ? desc->view_mask : 0,
         .colorAttachmentCount = rt_size,
         .pColorAttachmentFormats = rt_formats,
         .depthAttachmentFormat = convert_vk(desc->attachments.depth_attachment),

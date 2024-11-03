@@ -58,6 +58,7 @@ struct XInternalFeatures {
     bool index_buffer_range : 1 = false;
     bool dynamic_vsync : 1 = false; // Shall remain false until the perf is not fixed
     bool dynamic_render_unused_attachments : 1 = false;
+    bool multiview : 1 = false;
 };
 
 // Lightweight struct for descriptor buffer features
@@ -228,7 +229,8 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             descriptor_buffer_features.sampler_size = uint16_t(vk_descriptor_buffer_properties.samplerDescriptorSize);
             descriptor_buffer_features.offset_alignment = uint16_t(vk_descriptor_buffer_properties.descriptorBufferOffsetAlignment);
         }
-
+        auto& vk_11_features = *reinterpret_cast<VkPhysicalDeviceVulkan11Features*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES));
+        features.multiview = vk_11_features.multiview;
         return {};
     }
 

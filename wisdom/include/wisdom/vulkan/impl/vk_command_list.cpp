@@ -307,7 +307,7 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
                 .extent = { extent.width, extent.height },
         },
         .layerCount = 1,
-        .viewMask = 0,
+        .viewMask = pass_desc->view_mask,
         .colorAttachmentCount = pass_desc->target_count,
         .pColorAttachments = data,
         .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,

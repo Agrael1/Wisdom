@@ -8,6 +8,7 @@
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/util/misc.h>
 #include <numeric>
+#include <bit>
 
 wis::ResultValue<wis::DX12Device>
 wis::ImplDX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
@@ -326,6 +327,25 @@ wis::ImplDX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc*
         rta.RTFormats[i] = convert_dx(desc->attachments.attachment_formats[i]);
     }
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
+
+    //--Multiview
+    if (desc->view_mask) {
+        D3D12_VIEW_INSTANCE_LOCATION view_locs[8]{};
+        for (uint32_t i = 0u; i < 8u; i++) {
+            if (!(desc->view_mask & (1u << i)))
+                continue;
+
+            view_locs[i] = D3D12_VIEW_INSTANCE_LOCATION{
+                .ViewportArrayIndex = 0,
+                .RenderTargetArrayIndex = i,
+            };
+        }
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_VIEW_INSTANCING>() = CD3DX12_VIEW_INSTANCING_DESC{
+            uint32_t(std::popcount(desc->view_mask)),
+            view_locs,
+            D3D12_VIEW_INSTANCING_FLAGS::D3D12_VIEW_INSTANCING_FLAG_NONE
+        };
+    }
 
     //--Blend
     if (desc->blend) {

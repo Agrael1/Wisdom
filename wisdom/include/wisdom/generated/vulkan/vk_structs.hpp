@@ -44,6 +44,11 @@ struct VKGraphicsPipelineDesc {
     wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
     wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
     wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask = 0;
 };
 
 /**
@@ -75,6 +80,12 @@ struct VKRenderPassDepthStencilDesc {
  * */
 struct VKRenderPassDesc {
     wis::RenderPassFlags flags; ///< Render pass flags.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Value must be the same as in  upon pipeline creation. Otherwise behavior is undefined.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask = 0;
     uint32_t target_count; ///< Render target count.
     wis::VKRenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
     wis::VKRenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.

@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.14</b>
+<b>Version 0.3.16</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1952,6 +1952,11 @@ struct VKGraphicsPipelineDesc {
     WisBlendStateDesc* blend; ///< Blend state description.
     WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
     WisTopologyType topology_type; ///< Topology type. Default is TopologyTypeTriangle.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask;
 };
 
 /**
@@ -1983,6 +1988,12 @@ struct VKRenderPassDepthStencilDesc {
  * */
 struct VKRenderPassDesc {
     WisRenderPassFlags flags; ///< Render pass flags.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Value must be the same as in  upon pipeline creation. Otherwise behavior is undefined.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask;
     uint32_t target_count; ///< Render target count.
     VKRenderPassRenderTargetDesc* targets; ///< Render target descriptions.
     VKRenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
@@ -3006,6 +3017,11 @@ struct DX12GraphicsPipelineDesc {
     WisBlendStateDesc* blend; ///< Blend state description.
     WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
     WisTopologyType topology_type; ///< Topology type. Default is TopologyTypeTriangle.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask;
 };
 
 /**
@@ -3037,6 +3053,12 @@ struct DX12RenderPassDepthStencilDesc {
  * */
 struct DX12RenderPassDesc {
     WisRenderPassFlags flags; ///< Render pass flags.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Value must be the same as in  upon pipeline creation. Otherwise behavior is undefined.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask;
     uint32_t target_count; ///< Render target count.
     DX12RenderPassRenderTargetDesc* targets; ///< Render target descriptions.
     DX12RenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.

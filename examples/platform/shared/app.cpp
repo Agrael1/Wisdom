@@ -73,11 +73,12 @@ void Test::App::SetSwapChain(wis::SwapChain hswap, uint32_t width, uint32_t heig
 
     wis::RenderTargetDesc rt_desc{
         .format = wis::DataFormat::BGRA8Unorm,
-        .layout = wis::TextureLayout::Texture2D,
+        .layout = wis::TextureLayout::Texture2DArray,
         .mip = 0,
         .base_array_layer = 0,
-        .layer_count = 1,
+        .layer_count = 2,
     };
+
     for (size_t i = 0; i < render_targets.size(); i++) {
         auto [res, hrt] = device.CreateRenderTarget(back_buffers[i], rt_desc);
         render_targets[i] = std::move(hrt);
@@ -287,7 +288,8 @@ void Test::App::CreateResources()
             .attachments = {
                     .attachment_formats = attachment_formats,
                     .attachments_count = 1,
-            }
+            },
+           .view_mask = 0b11,
         };
         auto [res2, hpipeline] = device.CreateGraphicsPipeline(&desc);
         pipeline = std::move(hpipeline);
@@ -329,10 +331,10 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
 
     wis::RenderTargetDesc rt_desc{
         .format = wis::DataFormat::BGRA8Unorm,
-        .layout = wis::TextureLayout::Texture2D,
+        .layout = wis::TextureLayout::Texture2DArray,
         .mip = 0,
         .base_array_layer = 0,
-        .layer_count = 1,
+        .layer_count = 2,
     };
 
     back_buffers = swap.GetBufferSpan();
@@ -348,33 +350,32 @@ void Test::App::Frame()
     if (rotation > 1)
         rotation -= 1;
 
+    rotation2 -= 0.01f;
+    if (rotation2 < -1)
+        rotation2 += 1;
+
     auto res = cmd_list.Reset(pipeline);
-    cmd_list.TextureBarrier({
-                                    .sync_before = wis::BarrierSync::All,
-                                    .sync_after = wis::BarrierSync::Draw,
-                                    .access_before = wis::ResourceAccess::Common,
-                                    .access_after = wis::ResourceAccess::RenderTarget,
-                                    .state_before = wis::TextureState::Present,
-                                    .state_after = wis::TextureState::RenderTarget,
-                                    .subresource_range = {
-                                            .base_mip_level = 0,
-                                            .level_count = 1,
-                                            .base_array_layer = 0,
-                                            .layer_count = 1,
-                                    },
-                            },
+    cmd_list.TextureBarrier({ .sync_before = wis::BarrierSync::All,
+                              .sync_after = wis::BarrierSync::Draw,
+                              .access_before = wis::ResourceAccess::Common,
+                              .access_after = wis::ResourceAccess::RenderTarget,
+                              .state_before = wis::TextureState::Present,
+                              .state_after = wis::TextureState::RenderTarget },
                             back_buffers[swap.GetCurrentIndex()]);
 
-    wis::RenderPassRenderTargetDesc targets{
-        .target = render_targets[swap.GetCurrentIndex()],
-        .load_op = wis::LoadOperation::Clear,
-        .store_op = wis::StoreOperation::Store,
-        .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f },
+    wis::RenderPassRenderTargetDesc targets[]{
+        {
+                .target = render_targets[swap.GetCurrentIndex()],
+                .load_op = wis::LoadOperation::Clear,
+                .store_op = wis::StoreOperation::Store,
+                .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f },
+        }
     };
     wis::RenderPassDesc rp{
         .flags = wis::RenderPassFlags::None,
+        .view_mask = 0b11,
         .target_count = 1,
-        .targets = &targets,
+        .targets = targets,
     };
 
     cmd_list.BeginRenderPass(&rp);
@@ -387,30 +388,27 @@ void Test::App::Frame()
     cmd_list.SetDescriptorTableOffset(1, sampler_buffer, 0);
 
     cmd_list.SetRootConstants(&rotation, 1, 0, wis::ShaderStages::Vertex);
+    cmd_list.SetRootConstants(&rotation2, 1, 1, wis::ShaderStages::Vertex);
 
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
     cmd_list.IASetVertexBuffers(&vertex_binding, 1);
-    cmd_list.RSSetViewport({ 0, 0, float(width), float(height), 0, 1 });
-    cmd_list.RSSetScissor({ 0, 0, int(width), int(height) });
+
+    wis::Viewport vps[] = { { 0, 0, float(width), float(height), 0, 1 }, { 0, 0, float(width), float(height), 0, 1 } };
+    cmd_list.RSSetViewports(vps,2);
+
+    wis::Scissor scs[] = { { 0, 0, int(width), int(height) }, { 0, 0, int(width), int(height) } };
+    cmd_list.RSSetScissors(scs,2);
 
     cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
 
-    cmd_list.TextureBarrier({
-                                    .sync_before = wis::BarrierSync::Draw,
-                                    .sync_after = wis::BarrierSync::All,
-                                    .access_before = wis::ResourceAccess::RenderTarget,
-                                    .access_after = wis::ResourceAccess::Common,
-                                    .state_before = wis::TextureState::RenderTarget,
-                                    .state_after = wis::TextureState::Present,
-                                    .subresource_range = {
-                                            .base_mip_level = 0,
-                                            .level_count = 1,
-                                            .base_array_layer = 0,
-                                            .layer_count = 1,
-                                    },
-                            },
+    cmd_list.TextureBarrier({ .sync_before = wis::BarrierSync::Draw,
+                              .sync_after = wis::BarrierSync::All,
+                              .access_before = wis::ResourceAccess::RenderTarget,
+                              .access_after = wis::ResourceAccess::Common,
+                              .state_before = wis::TextureState::RenderTarget,
+                              .state_after = wis::TextureState::Present },
                             back_buffers[swap.GetCurrentIndex()]);
     cmd_list.Close();
 
@@ -437,7 +435,7 @@ void Test::App::CreateRootSignature()
     wis::RootConstant root_constants[] = {
         {
                 .stage = wis::ShaderStages::Vertex,
-                .size_bytes = 4,
+                .size_bytes = 8,
         },
     };
 
