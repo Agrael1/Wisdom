@@ -329,8 +329,8 @@ wis::ImplDX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc*
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
 
     //--Multiview
+    D3D12_VIEW_INSTANCE_LOCATION view_locs[8]{};
     if (desc->view_mask) {
-        D3D12_VIEW_INSTANCE_LOCATION view_locs[8]{};
         for (uint32_t i = 0u; i < 8u; i++) {
             if (!(desc->view_mask & (1u << i)))
                 continue;
@@ -343,7 +343,7 @@ wis::ImplDX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc*
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_VIEW_INSTANCING>() = CD3DX12_VIEW_INSTANCING_DESC{
             uint32_t(std::popcount(desc->view_mask)),
             view_locs,
-            D3D12_VIEW_INSTANCING_FLAGS::D3D12_VIEW_INSTANCING_FLAG_NONE
+            D3D12_VIEW_INSTANCING_FLAGS::D3D12_VIEW_INSTANCING_FLAG_ENABLE_VIEW_INSTANCE_MASKING 
         };
     }
 

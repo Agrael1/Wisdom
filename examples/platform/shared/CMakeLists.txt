@@ -13,3 +13,4 @@ add_dependencies(${PROJECT_NAME} compile_shaders_kd)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_compile_definitions(${PROJECT_NAME} PUBLIC SHADER_DIR="${SHADER_DIR}")
+target_include_directories(${PROJECT_NAME} PRIVATE ${fpng_SOURCE_DIR}/src)

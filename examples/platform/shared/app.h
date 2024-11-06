@@ -29,7 +29,8 @@ public:
 
 private:
     void CreateRootSignature();
-
+    void CreateRootSignature2();
+    void DumpFrame(const char* name);
 private:
     uint32_t width;
     uint32_t height;
@@ -39,6 +40,7 @@ private:
     wis::Device device;
     wis::CommandQueue queue;
     wis::CommandList cmd_list;
+    wis::CommandList cmd_list2;
     wis::SwapChain swap;
 
     std::span<const wis::Texture> back_buffers;
@@ -50,17 +52,24 @@ private:
 
     wis::Buffer vertex_buffer;
     wis::Buffer ubuf_2;
-    wis::Buffer cbuf;
     wis::VertexBufferBinding vertex_binding;
     wis::ResourceAllocator allocator;
 
     wis::Shader vertex_shader;
+    wis::Shader vertex_shader2;
     wis::Shader pixel_shader;
+    wis::Shader pixel_shader2;
 
     wis::RootSignature root;
+    wis::RootSignature root2;
     wis::PipelineState pipeline;
+    wis::PipelineState pipeline2;
 
     wis::Texture texture;
+
+    wis::Texture texture_inter;
+    wis::RenderTarget rt_inter;
+    wis::ShaderResource srv_inter[2];
 
     float rotation = 0.0f;
     float rotation2 = 0.0f;

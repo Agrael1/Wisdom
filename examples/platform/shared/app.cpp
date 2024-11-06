@@ -10,6 +10,11 @@
 #include <filesystem>
 #include <fstream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image.h>
+#include <stb_image_write.h>
+
 struct LogProvider : public wis::LogLayer {
     virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
     {
@@ -25,6 +30,7 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 
 Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
 {
+    using namespace wis;
     wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
 
     wis::DebugExtension debug_ext;
@@ -33,7 +39,7 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
     std::copy(factory_exts.begin(), factory_exts.end(), xfactory_exts.get() + 1);
 
     auto [result, factory] = wis::CreateFactory(true, xfactory_exts.get(), factory_exts.size() + 1);
-    auto [resx, hinfo] = debug_ext.CreateDebugMessenger(DebugCallback, &std::cout);
+    auto [resx, hinfo] = debug_ext.CreateDebugMessenger(::DebugCallback, &std::cout);
     info = std::move(hinfo);
 
     for (size_t i = 0;; i++) {
@@ -41,6 +47,9 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
         if (res.status == wis::Status::Ok) {
             wis::AdapterDesc desc;
             res = adapter.GetDesc(&desc);
+            if (!(desc.flags & wis::AdapterFlags::Software))
+                continue;
+
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
             auto [res, hdevice] = wis::CreateDevice(std::move(adapter));
@@ -62,10 +71,14 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
 
     auto [res5, hcmd_list] = device.CreateCommandList(wis::QueueType::Graphics);
     cmd_list = std::move(hcmd_list);
+
+    auto [res6, hcmd_list2] = device.CreateCommandList(wis::QueueType::Graphics);
+    cmd_list2 = std::move(hcmd_list2);
 }
 
 void Test::App::SetSwapChain(wis::SwapChain hswap, uint32_t width, uint32_t height)
 {
+    using namespace wis;
     swap = std::move(hswap);
     back_buffers = swap.GetBufferSpan();
     this->width = width;
@@ -76,7 +89,7 @@ void Test::App::SetSwapChain(wis::SwapChain hswap, uint32_t width, uint32_t heig
         .layout = wis::TextureLayout::Texture2DArray,
         .mip = 0,
         .base_array_layer = 0,
-        .layer_count = 2,
+        .layer_count = 1,
     };
 
     for (size_t i = 0; i < render_targets.size(); i++) {
@@ -106,6 +119,7 @@ void Test::App::CreateResources()
 {
     using namespace wis;
     CreateRootSignature();
+    CreateRootSignature2();
 
     struct Vertex {
         glm::vec3 pos;
@@ -150,18 +164,59 @@ void Test::App::CreateResources()
     }
 
     // Create descriptor buffer
+    auto desc_alignment = device.GetDescriptorTableAlignment(wis::DescriptorHeapType::Descriptor);
     {
         auto desc_increment = device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Descriptor);
-        auto [res, hdesc] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2u * desc_increment);
+        auto bufsize = wis::detail::aligned_size(desc_increment, desc_alignment) * 2;
+        auto bufsize2 = wis::detail::aligned_size(desc_increment, desc_alignment) * 1;
+
+        auto [res, hdesc] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, bufsize + bufsize2);
         desc_buffer = std::move(hdesc);
 
         auto sampler_increment = device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Sampler);
         auto [res2, hdesc2] = device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 1u * sampler_increment);
         sampler_buffer = std::move(hdesc2);
     }
+
+    // Create texture for intermediate render target
     {
-        auto [res, val] = allocator.CreateBuffer(sizeof(float) * 4, wis::BufferUsage::ConstantBuffer | wis::BufferUsage::CopyDst);
-        cbuf = std::move(val);
+        wis::TextureDesc tdesc{
+            .format = wis::DataFormat::BGRA8Unorm,
+            .size = { width, height, 2 },
+            .mip_levels = 1,
+            .layout = wis::TextureLayout::Texture2DArray,
+            .usage = wis::TextureUsage::RenderTarget | wis::TextureUsage::ShaderResource,
+        };
+
+        auto [res, htexture] = allocator.CreateTexture(tdesc);
+        texture_inter = std::move(htexture);
+
+        wis::RenderTargetDesc rt_desc{
+            .format = wis::DataFormat::BGRA8Unorm,
+            .layout = wis::TextureLayout::Texture2DArray,
+            .mip = 0,
+            .base_array_layer = 0,
+            .layer_count = 2,
+        };
+        auto [res2, hrt_inter] = device.CreateRenderTarget(texture_inter, rt_desc);
+        rt_inter = std::move(hrt_inter);
+
+        wis::ShaderResourceDesc srv_desc{
+            .format = wis::DataFormat::BGRA8Unorm,
+            .view_type = wis::TextureViewType::Texture2D,
+            .subresource_range = {
+                    .base_mip_level = 0,
+                    .level_count = 1,
+                    .base_array_layer = 0,
+                    .layer_count = 1,
+            },
+        };
+        auto [res3, hsrv_inter] = device.CreateShaderResource(texture_inter, srv_desc);
+        srv_inter[0] = std::move(hsrv_inter);
+
+        srv_desc.subresource_range.base_array_layer = 1;
+        auto [res4, hsrv_inter2] = device.CreateShaderResource(texture_inter, srv_desc);
+        srv_inter[1] = std::move(hsrv_inter2);
     }
 
     // Upload vertex data to a buffer
@@ -182,7 +237,6 @@ void Test::App::CreateResources()
         ubuf2.Unmap();
 
         cmd_list.CopyBuffer(ubuf, vertex_buffer, { .size_bytes = sizeof(triangleVertices) });
-        cmd_list.CopyBuffer(ubuf3, cbuf, { .size_bytes = sizeof(float) * 4 });
         cmd_list.BufferBarrier({
                                        .sync_before = wis::BarrierSync::All,
                                        .sync_after = wis::BarrierSync::Draw,
@@ -190,14 +244,6 @@ void Test::App::CreateResources()
                                        .access_after = wis::ResourceAccess::VertexBuffer,
                                },
                                vertex_buffer);
-
-        cmd_list.BufferBarrier({
-                                       .sync_before = wis::BarrierSync::All,
-                                       .sync_after = wis::BarrierSync::Draw,
-                                       .access_before = wis::ResourceAccess::Common,
-                                       .access_after = wis::ResourceAccess::ConstantBuffer,
-                               },
-                               cbuf);
 
         cmd_list.TextureBarrier({
                                         .sync_before = wis::BarrierSync::All,
@@ -214,6 +260,16 @@ void Test::App::CreateResources()
                                         },
                                 },
                                 texture);
+
+        cmd_list.TextureBarrier({
+                                        .sync_before = wis::BarrierSync::None,
+                                        .sync_after = wis::BarrierSync::Draw,
+                                        .access_before = wis::ResourceAccess::NoAccess,
+                                        .access_after = wis::ResourceAccess::ShaderResource,
+                                        .state_before = wis::TextureState::Undefined,
+                                        .state_after = wis::TextureState::ShaderResource,
+                                },
+                                texture_inter);
 
         wis::BufferTextureCopyRegion region{
             .texture = {
@@ -253,19 +309,27 @@ void Test::App::CreateResources()
                                                                                                                                                        } });
         srv = std::move(hsrv);
         desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv);
-        desc_buffer.WriteConstantBuffer(0, 0, 1, 0, root, cbuf, sizeof(float) * 4);
+        desc_buffer.WriteShaderResource(desc_alignment, 0, 0, 0, root, srv_inter[0]);
+        desc_buffer.WriteShaderResource(desc_alignment, 0, 0, 1, root, srv_inter[1]);
     }
 
     {
         auto s1 = LoadShader(SHADER_DIR "/example.vs");
+        auto s12 = LoadShader(SHADER_DIR "/fullscreen.vs");
         auto s2 = LoadShader(SHADER_DIR "/example.ps");
+        auto s22 = LoadShader(SHADER_DIR "/fullscreen.ps");
         auto [result, vs] = device.CreateShader(s1.data(), uint32_t(s1.size()));
+        auto [result1, vs2] = device.CreateShader(s12.data(), uint32_t(s12.size()));
         auto [result2, ps] = device.CreateShader(s2.data(), uint32_t(s2.size()));
+        auto [result22, ps2] = device.CreateShader(s22.data(), uint32_t(s22.size()));
 
         vertex_shader = std::move(vs);
         pixel_shader = std::move(ps);
+        vertex_shader2 = std::move(vs2);
+        pixel_shader2 = std::move(ps2);
     }
 
+    // Create Pipeline
     {
         wis::InputSlotDesc input_slots[] = {
             { .slot = 0, .stride_bytes = sizeof(Vertex), .input_class = wis::InputClass::PerVertex },
@@ -287,12 +351,28 @@ void Test::App::CreateResources()
             .shaders = { .vertex = vertex_shader, .pixel = pixel_shader },
             .attachments = {
                     .attachment_formats = attachment_formats,
-                    .attachments_count = 1,
+                    .attachments_count = std::size(attachment_formats),
             },
-           .view_mask = 0b11,
+            .view_mask = 0b11,
         };
         auto [res2, hpipeline] = device.CreateGraphicsPipeline(&desc);
         pipeline = std::move(hpipeline);
+    }
+
+    // Create fullscreen pipeline
+    {
+        wis::DataFormat attachment_formats[] = { wis::DataFormat::BGRA8Unorm };
+
+        wis::GraphicsPipelineDesc desc{
+            .root_signature = root2,
+            .shaders = { .vertex = vertex_shader2, .pixel = pixel_shader2 },
+            .attachments = {
+                    .attachment_formats = attachment_formats,
+                    .attachments_count = std::size(attachment_formats),
+            },
+        };
+        auto [res2, hpipeline] = device.CreateGraphicsPipeline(&desc);
+        pipeline2 = std::move(hpipeline);
     }
 
     // Create Sampler
@@ -336,6 +416,13 @@ void Test::App::OnResize(uint32_t width, uint32_t height)
         .base_array_layer = 0,
         .layer_count = 2,
     };
+    // wis::RenderTargetDesc rt_desc2{
+    //     .format = wis::DataFormat::BGRA8Unorm,
+    //     .layout = wis::TextureLayout::Texture2DArray,
+    //     .mip = 0,
+    //     .base_array_layer = 1,
+    //     .layer_count = 1,
+    // };
 
     back_buffers = swap.GetBufferSpan();
     for (size_t i = 0; i < render_targets.size(); i++) {
@@ -354,22 +441,26 @@ void Test::App::Frame()
     if (rotation2 < -1)
         rotation2 += 1;
 
+    desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv);
+
     auto res = cmd_list.Reset(pipeline);
-    cmd_list.TextureBarrier({ .sync_before = wis::BarrierSync::All,
+    cmd_list.TextureBarrier({ .sync_before = wis::BarrierSync::None,
                               .sync_after = wis::BarrierSync::Draw,
-                              .access_before = wis::ResourceAccess::Common,
+                              .access_before = wis::ResourceAccess::NoAccess,
                               .access_after = wis::ResourceAccess::RenderTarget,
-                              .state_before = wis::TextureState::Present,
+                              .state_before = wis::TextureState::ShaderResource,
                               .state_after = wis::TextureState::RenderTarget },
-                            back_buffers[swap.GetCurrentIndex()]);
+                            texture_inter);
 
     wis::RenderPassRenderTargetDesc targets[]{
-        {
-                .target = render_targets[swap.GetCurrentIndex()],
-                .load_op = wis::LoadOperation::Clear,
-                .store_op = wis::StoreOperation::Store,
-                .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f },
-        }
+        { .target = rt_inter,
+          .load_op = wis::LoadOperation::Clear,
+          .store_op = wis::StoreOperation::Store,
+          .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f } },
+        { .target = render_targets[swap.GetCurrentIndex()],
+          .load_op = wis::LoadOperation::Clear,
+          .store_op = wis::StoreOperation::Store,
+          .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f } }
     };
     wis::RenderPassDesc rp{
         .flags = wis::RenderPassFlags::None,
@@ -394,32 +485,133 @@ void Test::App::Frame()
 
     cmd_list.IASetVertexBuffers(&vertex_binding, 1);
 
-    wis::Viewport vps[] = { { 0, 0, float(width), float(height), 0, 1 }, { 0, 0, float(width), float(height), 0, 1 } };
-    cmd_list.RSSetViewports(vps,2);
-
-    wis::Scissor scs[] = { { 0, 0, int(width), int(height) }, { 0, 0, int(width), int(height) } };
-    cmd_list.RSSetScissors(scs,2);
+    cmd_list.RSSetViewport({ 0, 0, float(width), float(height), 0, 1 });
+    cmd_list.RSSetScissor({ 0, 0, int(width), int(height) });
 
     cmd_list.DrawInstanced(3);
     cmd_list.EndRenderPass();
 
     cmd_list.TextureBarrier({ .sync_before = wis::BarrierSync::Draw,
-                              .sync_after = wis::BarrierSync::All,
+                              .sync_after = wis::BarrierSync::Draw,
                               .access_before = wis::ResourceAccess::RenderTarget,
-                              .access_after = wis::ResourceAccess::Common,
+                              .access_after = wis::ResourceAccess::ShaderResource,
                               .state_before = wis::TextureState::RenderTarget,
-                              .state_after = wis::TextureState::Present },
-                            back_buffers[swap.GetCurrentIndex()]);
+                              .state_after = wis::TextureState::ShaderResource },
+                            texture_inter);
     cmd_list.Close();
 
     wis::CommandListView lists[] = { cmd_list };
-    queue.ExecuteCommandLists(lists, 1);
+    queue.ExecuteCommandLists(lists, std::size(lists));
+
+    WaitForGPU();
+
+    // render to back buffer
+    cmd_list2.Reset(pipeline2);
+    cmd_list2.TextureBarrier({ .sync_before = wis::BarrierSync::All,
+                               .sync_after = wis::BarrierSync::Draw,
+                               .access_before = wis::ResourceAccess::Common,
+                               .access_after = wis::ResourceAccess::RenderTarget,
+                               .state_before = wis::TextureState::Present,
+                               .state_after = wis::TextureState::RenderTarget },
+                             back_buffers[swap.GetCurrentIndex()]);
+    rp.targets = targets + 1;
+    rp.view_mask = 0b01;
+
+    desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_inter[0]);
+    desc_buffer.WriteShaderResource(0, 0, 0, 1, root, srv_inter[1]);
+
+    cmd_list2.BeginRenderPass(&rp);
+    cmd_list2.SetRootSignature(root2);
+    cmd_list2.SetDescriptorBuffers(desc_buffers, 2);
+    cmd_list2.SetDescriptorTableOffset(0, desc_buffer, 0);
+    cmd_list2.SetDescriptorTableOffset(1, sampler_buffer, 0);
+
+    cmd_list2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
+    cmd_list2.RSSetViewport({ 0, 0, float(width), float(height), 0, 1 });
+    cmd_list2.RSSetScissor({ 0, 0, int(width), int(height) });
+
+    cmd_list2.DrawInstanced(3);
+    cmd_list2.EndRenderPass();
+
+    cmd_list2.TextureBarrier({ .sync_before = wis::BarrierSync::Draw,
+                               .sync_after = wis::BarrierSync::All,
+                               .access_before = wis::ResourceAccess::RenderTarget,
+                               .access_after = wis::ResourceAccess::Common,
+                               .state_before = wis::TextureState::RenderTarget,
+                               .state_after = wis::TextureState::Present },
+                             back_buffers[swap.GetCurrentIndex()]);
+    cmd_list2.Close();
+
+    wis::CommandListView lists2[] = { cmd_list2 };
+    queue.ExecuteCommandLists(lists2, std::size(lists2));
 
     auto result = swap.Present2(true);
     if (result.status != wis::Status::Ok && result.status != wis::Status::Occluded)
         throw std::runtime_error("Failed to present swapchain");
 
     WaitForGPU();
+
+    // DumpFrame("out.png");
+}
+
+void Test::App::DumpFrame(const char* name)
+{
+    auto [res, data] = allocator.CreateReadbackBuffer(width * height * 4);
+    auto [res2, data2] = allocator.CreateReadbackBuffer(width * height * 4);
+
+    std::ignore = cmd_list.Reset();
+
+    wis::TextureBarrier2 barriers[] = {
+        { { .sync_before = wis::BarrierSync::All,
+            .sync_after = wis::BarrierSync::All,
+            .access_before = wis::ResourceAccess::RenderTarget,
+            .access_after = wis::ResourceAccess::CopySource,
+            .state_before = wis::TextureState::RenderTarget,
+            .state_after = wis::TextureState::CopySource },
+          texture_inter },
+        { { .sync_before = wis::BarrierSync::All,
+            .sync_after = wis::BarrierSync::All,
+            .access_before = wis::ResourceAccess::CopySource,
+            .access_after = wis::ResourceAccess::RenderTarget,
+            .state_before = wis::TextureState::CopySource,
+            .state_after = wis::TextureState::RenderTarget },
+          texture_inter },
+    };
+
+    cmd_list.TextureBarriers(barriers, 1);
+
+    wis::BufferTextureCopyRegion region{
+        .texture = {
+                .size = { width, height, 1 },
+                .format = wis::DataFormat::BGRA8Unorm,
+        }
+    };
+
+    wis::BufferTextureCopyRegion region2{
+        .texture = {
+                .size = { width, height, 1 },
+                .array_layer = 1,
+                .format = wis::DataFormat::BGRA8Unorm,
+        }
+    };
+
+    cmd_list.CopyTextureToBuffer(texture_inter, data, &region, 1);
+    cmd_list.CopyTextureToBuffer(texture_inter, data2, &region2, 1);
+    cmd_list.TextureBarriers(barriers + 1, 1);
+    cmd_list.Close();
+
+    wis::CommandListView lists[] = { cmd_list };
+    queue.ExecuteCommandLists(lists, 1);
+
+    WaitForGPU();
+
+    auto* ptr = data.Map<uint8_t>();
+    auto* ptr2 = data2.Map<uint8_t>();
+
+    stbi_write_png(name, width, height, 4, ptr, width * 4);
+    stbi_write_png("out2.png", width, height, 4, ptr2, width * 4);
+    data.Unmap();
+    data2.Unmap();
 }
 
 void Test::App::WaitForGPU()
@@ -447,10 +639,47 @@ void Test::App::CreateRootSignature()
                 .count = 1,
         },
         {
-                .type = wis::DescriptorType::ConstantBuffer,
+                .type = wis::DescriptorType::Sampler,
                 .bind_register = 0,
-                .binding = 1,
+                .binding = 0,
                 .count = 1,
+        },
+    };
+
+    wis::DescriptorTable tables[] = {
+        {
+                .type = wis::DescriptorHeapType::Descriptor,
+                .entries = entries,
+                .entry_count = 1,
+                .stage = wis::ShaderStages::Pixel,
+        },
+        {
+                .type = wis::DescriptorHeapType::Sampler,
+                .entries = entries + 1,
+                .entry_count = 1,
+                .stage = wis::ShaderStages::Pixel,
+        },
+
+    };
+    auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]), tables, sizeof(tables) / sizeof(tables[0]));
+    root = std::move(hroot);
+}
+
+void Test::App::CreateRootSignature2()
+{
+    wis::RootConstant root_constants[] = {
+        {
+                .stage = wis::ShaderStages::Vertex,
+                .size_bytes = 8,
+        },
+    };
+
+    wis::DescriptorTableEntry entries[] = {
+        {
+                .type = wis::DescriptorType::ShaderResource,
+                .bind_register = 0,
+                .binding = 0,
+                .count = 2,
         },
         {
                 .type = wis::DescriptorType::Sampler,
@@ -464,17 +693,17 @@ void Test::App::CreateRootSignature()
         {
                 .type = wis::DescriptorHeapType::Descriptor,
                 .entries = entries,
-                .entry_count = 2,
+                .entry_count = 1,
                 .stage = wis::ShaderStages::Pixel,
         },
         {
                 .type = wis::DescriptorHeapType::Sampler,
-                .entries = entries + 2,
+                .entries = entries + 1,
                 .entry_count = 1,
                 .stage = wis::ShaderStages::Pixel,
         },
 
     };
     auto [result, hroot] = device.CreateRootSignature(root_constants, sizeof(root_constants) / sizeof(root_constants[0]), tables, sizeof(tables) / sizeof(tables[0]));
-    root = std::move(hroot);
+    root2 = std::move(hroot);
 }

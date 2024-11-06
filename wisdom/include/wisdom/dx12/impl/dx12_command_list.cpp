@@ -262,7 +262,7 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pa
         return list->BeginRenderPass(pass_desc->target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, convert_dx(pass_desc->flags));
     }
     list->BeginRenderPass(pass_desc->target_count, data, nullptr, convert_dx(pass_desc->flags));
-    //list->SetViewInstanceMask(pass_desc->view_mask);
+    list->SetViewInstanceMask(pass_desc->view_mask);
 }
 
 void wis::ImplDX12CommandList::EndRenderPass() noexcept

@@ -5,7 +5,7 @@ struct PSInput
 };
 
 struct PushConstants {
-    float displacement[2];
+    float2 displacement;
 };
 
 [[vk::push_constant]] ConstantBuffer<PushConstants> pushConstants : register(b16);
@@ -14,7 +14,7 @@ PSInput main(float3 position : POSITION, float2 tc : TEXCOORD0, uint view : SV_V
 {
     PSInput result;
     
-    float displacement = pushConstants.displacement[view];
+    float displacement = view == 0 ? pushConstants.displacement.x : pushConstants.displacement.y;
 
     result.position = float4(position.x + displacement, position.y, position.z, 1.0f);
     result.tc = tc;
