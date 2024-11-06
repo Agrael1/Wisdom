@@ -460,7 +460,7 @@ void Test::App::Frame()
         { .target = render_targets[swap.GetCurrentIndex()],
           .load_op = wis::LoadOperation::Clear,
           .store_op = wis::StoreOperation::Store,
-          .clear_value = { 0.0f, 0.2f, 0.4f, 1.0f } }
+          .clear_value = { 0.0f, 0.2f, 0.0f, 1.0f } }
     };
     wis::RenderPassDesc rp{
         .flags = wis::RenderPassFlags::None,
