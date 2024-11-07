@@ -47,8 +47,8 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
         if (res.status == wis::Status::Ok) {
             wis::AdapterDesc desc;
             res = adapter.GetDesc(&desc);
-            if (!(desc.flags & wis::AdapterFlags::Software))
-                continue;
+            //if (!(desc.flags & wis::AdapterFlags::Software))
+            //    continue;
 
             std::cout << "Adapter: " << desc.description.data() << "\n";
 
@@ -64,7 +64,7 @@ Test::App::App(std::span<wis::FactoryExtension*> factory_exts)
     }
 
     auto [res2, hqueue] = device.CreateCommandQueue(wis::QueueType::Graphics);
-    queue = std::move(hqueue);
+     queue = std::move(hqueue);
 
     auto [res4, hfence] = device.CreateFence();
     fence = std::move(hfence);
@@ -203,7 +203,7 @@ void Test::App::CreateResources()
 
         wis::ShaderResourceDesc srv_desc{
             .format = wis::DataFormat::BGRA8Unorm,
-            .view_type = wis::TextureViewType::Texture2D,
+            .view_type = wis::TextureViewType::Texture2DArray,
             .subresource_range = {
                     .base_mip_level = 0,
                     .level_count = 1,
@@ -515,7 +515,7 @@ void Test::App::Frame()
                                .state_after = wis::TextureState::RenderTarget },
                              back_buffers[swap.GetCurrentIndex()]);
     rp.targets = targets + 1;
-    rp.view_mask = 0b01;
+    rp.view_mask = 0b00;
 
     desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_inter[0]);
     desc_buffer.WriteShaderResource(0, 0, 0, 1, root, srv_inter[1]);
