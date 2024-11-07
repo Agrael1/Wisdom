@@ -1,0 +1,19 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/ECM")
+find_dependency(x11)
+
+if(x11_FOUND)
+	include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-x11-targets.cmake" )
+	add_alias_target(wis::x11 wis::wisdom-x11)
+	add_alias_target(wis::x11-headers wis::wisdom-x11-headers)
+else()
+	add_library(wisdom-x11 INTERFACE) # Dummy target
+	add_library(wisdom-x11-headers INTERFACE) # Dummy target
+
+	add_library(wis::wisdom-x11 ALIAS wisdom-x11)
+	add_library(wis::wisdom-x11-headers ALIAS wisdom-x11-headers)
+
+	message(STATUS "x11 not found, skipping x11 targets")
+endif()
