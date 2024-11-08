@@ -10,6 +10,9 @@
 #ifdef WIS_XCB_PLATFORM
 #include <wisdom/wisdom_xcb.h>
 #endif // WIS_XCB_PLATFORM
+#ifdef WIS_X11_PLATFORM
+#include <wisdom/wisdom_x11.h>
+#endif // WIS_X11_PLATFORM
 #ifdef WIS_WAYLAND_PLATFORM
 #include <wisdom/wisdom_wayland.h>
 #endif // WIS_WAYLAND_PLATFORM
