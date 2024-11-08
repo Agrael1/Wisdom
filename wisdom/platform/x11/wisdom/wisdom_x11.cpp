@@ -4,8 +4,6 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
 
-
-
 wis::ResultValue<wis::VKSwapChain>
 wis::platform::X11Extension::CreateSwapchain(const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, Display* display, Window window) const noexcept
 {
