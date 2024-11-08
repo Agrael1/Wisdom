@@ -17,7 +17,7 @@ int main()
         .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
         .format = wis::DataFormat::BGRA8Unorm,
         .buffer_count = 2,
-        .stereo = true,
+        .stereo = false,
         .vsync = true,
     };
 

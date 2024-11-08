@@ -1,9 +1,19 @@
-# plugins
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-include(FetchContent)
+include(cmake/deps.cmake)
 
-add_subdirectory(shaders)
-add_subdirectory(deps)
+function(add_example name)
+  if (WISDOM_VULKAN)
+	set(POSTFIX "vk")
+	add_subdirectory(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}-${POSTFIX})
+  endif()
+  if (WISDOM_DX12)
+    set(POSTFIX "dx12")
+	add_subdirectory(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}-${POSTFIX})
+  endif()
+  unset(POSTFIX)
+endfunction()
 
+set(EXAMPLE_BIN_OUTPUT ${CMAKE_BINARY_DIR}/bin/examples)
+
+add_example(common)
 add_subdirectory(platform)
-add_subdirectory(custom)
+#add_subdirectory(custom)

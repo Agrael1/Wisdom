@@ -1,7 +1,7 @@
 # CMakeList.txt : CMake project for Wisdom, include source and define project
 # specific logic here.
 #
-project(Example)
+project(hello-triangle-win32-${POSTFIX})
 
 # Add source to this project's executable.
 add_executable(${PROJECT_NAME} "resources/WinD3D.rc" "include/example/util.h")

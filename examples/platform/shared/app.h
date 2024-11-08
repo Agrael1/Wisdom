@@ -1,54 +1,42 @@
 #pragma once
-#include <wisdom/wisdom.hpp>
+#include <wis_helper.h>
+#include <wis_swapchain.h>
 
-namespace Test {
+namespace ex {
 class App
 {
 public:
-    // input from platform window
-    App(std::span<wis::FactoryExtension*> factory_exts);
+    App(wis::FactoryExtension* platform_ext);
+    ~App();
 
+public:
     void SetSwapChain(wis::SwapChain swap, uint32_t width, uint32_t height);
 
 public:
     void CreateResources();
-
     void Frame();
     void OnResize(uint32_t width, uint32_t height);
-    void WaitForGPU();
 
 public:
     const wis::Device& GetDevice() const
     {
-        return device;
+        return setup.device;
     }
     const wis::CommandQueue& GetQueue() const
     {
-        return queue;
+        return setup.queue;
     }
 
 private:
     void CreateRootSignature();
     void CreateRootSignature2();
-    void DumpFrame(const char* name);
 private:
     uint32_t width;
     uint32_t height;
 
-    wis::DebugMessenger info;
-
-    wis::Device device;
-    wis::CommandQueue queue;
-    wis::CommandList cmd_list;
-    wis::CommandList cmd_list2;
-    wis::SwapChain swap;
-
-    std::span<const wis::Texture> back_buffers;
-    std::array<wis::RenderTarget, 2> render_targets;
-    std::array<wis::RenderTarget, 2> render_targets2;
-
-    wis::Fence fence;
-    uint64_t fence_value = 1;
+    ex::ExampleSetup setup;
+    ex::FramedCommandList cmd_list;
+    ex::Swapchain swap;
 
     wis::Buffer vertex_buffer;
     wis::Buffer ubuf_2;

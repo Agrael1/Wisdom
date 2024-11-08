@@ -1,13 +1,7 @@
-add_subdirectory(shared)
+add_subdirectory(shaders)
+add_example(shared)
 
 # only winrt is supported on windows store apps
-if(WISDOM_WINDOWS_STORE)
-  # add_subdirectory(hello-triangle-winrt)
-else()
-  if(NOT WISDOM_EXCLUDE_KDGUI)
-    add_subdirectory(hello-triangle-kdgui-t)
-  endif()
-  if(WISDOM_WINDOWS)
-    add_subdirectory(hello-triangle-win32-t)
-  endif()
+if(NOT WISDOM_WINDOWS_STORE AND WISDOM_WINDOWS)
+  #add_example(hello-triangle-win32)
 endif()

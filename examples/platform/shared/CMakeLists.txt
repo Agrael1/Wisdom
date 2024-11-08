@@ -1,4 +1,4 @@
-project(PlatformExamplesShared)
+project(platform-shared-${POSTFIX})
 
 find_package(glm QUIET)
 
@@ -8,9 +8,8 @@ target_sources(
   PUBLIC "app.h"
   PRIVATE "app.cpp")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(${PROJECT_NAME} PUBLIC wis::debug glm::glm)
-add_dependencies(${PROJECT_NAME} compile_shaders_kd)
+target_link_libraries(${PROJECT_NAME} PUBLIC common-${POSTFIX} glm::glm)
+add_dependencies(${PROJECT_NAME} compile_shaders_shared)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_compile_definitions(${PROJECT_NAME} PUBLIC SHADER_DIR="${SHADER_DIR}")
-target_include_directories(${PROJECT_NAME} PRIVATE ${fpng_SOURCE_DIR}/src)

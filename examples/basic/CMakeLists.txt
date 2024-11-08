@@ -1,0 +1,2 @@
+add_example(example_helper)
+add_example(multiview)
