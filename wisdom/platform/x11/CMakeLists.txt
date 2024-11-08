@@ -48,10 +48,8 @@ configure_package_config_file(
   "${CMAKE_CURRENT_BINARY_DIR}/wisdom-x11-config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
 
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-x11-config.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-x11-config.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
