@@ -16,7 +16,6 @@ file(GLOB_RECURSE cs "${CMAKE_CURRENT_SOURCE_DIR}/*/*.cs.hlsl")
 
 foreach(FILE ${vs} ${ps} ${ds} ${hs} ${gs})
   get_filename_component(FILE_WE ${FILE} NAME_WLE)
-  wis_compile_shader(TARGET compile_shaders_basic SHADER ${FILE} OUTPUT ${SHADER_DIR}/${FILE_WE})
+  wis_compile_shader(TARGET compile_shaders_basic SHADER ${FILE} OUTPUT
+                     ${SHADER_DIR}/${FILE_WE})
 endforeach(FILE)
-
-
