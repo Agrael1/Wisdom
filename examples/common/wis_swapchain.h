@@ -6,8 +6,8 @@ class Swapchain
 {
 public:
     Swapchain() = default;
-    Swapchain(wis::Device& device, wis::SwapChain swap, uint32_t width, uint32_t height, wis::DataFormat format = ex::swapchain_format, bool stereo = false)
-        : swap(std::move(swap)), width(width), height(height), stereo(stereo), format(format)
+    Swapchain(wis::Device& device, wis::SwapChain xswap, uint32_t width, uint32_t height, wis::DataFormat format = ex::swapchain_format, bool stereo = false)
+        : swap(std::move(xswap)), width(width), height(height), stereo(stereo), format(format)
     {
         fence = Unwrap(device.CreateFence(0));
         textures = swap.GetBufferSpan();
@@ -23,7 +23,8 @@ public:
     }
     ~Swapchain()
     {
-        Throttle();
+        if (swap)
+            Throttle();
     }
 
 public:
@@ -39,8 +40,10 @@ public:
         }
 
         CheckResult(main_queue.SignalQueue(fence, fence_value));
-        frame_index = swap.GetCurrentIndex();
+
+        frame_index = swap.GetCurrentIndex() % ex::flight_frames;
         CheckResult(fence.Wait(fence_values[frame_index]));
+
         fence_values[frame_index] = ++fence_value;
         return true;
     }
@@ -48,7 +51,7 @@ public:
     {
         this->width = width;
         this->height = height;
-        swap.Resize(width, height);
+        CheckResult(swap.Resize(width, height));
         textures = swap.GetBufferSpan();
 
         wis::RenderTargetDesc rt_desc{
@@ -95,10 +98,10 @@ private:
     wis::Fence fence;
     uint64_t fence_value = 1;
     uint64_t frame_index = 0;
-    std::array<uint64_t, ex::flight_frames> fence_values{};
+    std::array<uint64_t, ex::flight_frames> fence_values{1,0};
 
     std::span<const wis::Texture> textures;
-    std::array<wis::RenderTarget, 2> render_targets;
+    std::array<wis::RenderTarget, ex::swap_buffer_count> render_targets;
 
     wis::DataFormat format;
     uint32_t width;

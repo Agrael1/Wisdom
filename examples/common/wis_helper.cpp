@@ -30,9 +30,9 @@ void ex::ExampleSetup::InitDefaultDevice(const wis::Factory& factory)
         res = adapter.GetDesc(&desc);
         std::cout << "Adapter: " << desc.description.data() << "\n";
 
-        auto [res2, device] = wis::CreateDevice(std::move(adapter));
+        auto [res2, hdevice] = wis::CreateDevice(std::move(adapter));
         if (res2.status == wis::Status::Ok) {
-            device = std::move(device);
+            device = std::move(hdevice);
             return;
         }
     }
@@ -43,6 +43,7 @@ void ex::ExampleSetup::InitDefaultQueue()
 {
     queue = Unwrap(device.CreateCommandQueue(wis::QueueType::Graphics));
     fence = Unwrap(device.CreateFence(0));
+    allocator = Unwrap(device.CreateAllocator());
 }
 
 void ex::ExampleSetup::InitDefault(wis::FactoryExtension* platform_ext)
@@ -54,8 +55,8 @@ void ex::ExampleSetup::InitDefault(wis::FactoryExtension* platform_ext)
 
 void ex::ExampleSetup::WaitForGPU()
 {
-    queue.SignalQueue(fence, ++fence_value);
-    fence.Wait(fence, fence_value);
+    CheckResult(queue.SignalQueue(fence, ++fence_value));
+    CheckResult(fence.Wait(fence_value));
 }
 
 std::string ex::LoadShader(std::filesystem::path p)

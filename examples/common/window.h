@@ -49,7 +49,7 @@ class Window
 public:
     Window(const char* title, int width, int height)
     {
-        window = SDL_CreateWindow(title, width, height, 0);
+        window = SDL_CreateWindow(title, width, height, SDL_WINDOW_RESIZABLE);
     }
     ~Window()
     {

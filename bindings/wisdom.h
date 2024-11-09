@@ -1608,7 +1608,7 @@ struct WisRenderAttachmentsDesc {
  * */
 struct WisRootConstant {
     WisShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
-    uint32_t size_bytes; ///< Size of the constant in bytes.
+    uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
 };
 
 /**

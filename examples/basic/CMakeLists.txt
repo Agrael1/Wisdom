@@ -1,2 +1,3 @@
-add_example(example_helper)
+add_subdirectory(shaders)
+
 add_example(multiview)

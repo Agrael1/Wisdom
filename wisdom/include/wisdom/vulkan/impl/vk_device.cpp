@@ -1100,7 +1100,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::SharedSurface surface,
     if (rres.status != wis::Status::Ok)
         return rres;
 
-    rres = sci.AquireNextIndex();
+    rres = sci.AcquireNextIndex();
     if (rres.status != wis::Status::Ok)
         return rres;
 

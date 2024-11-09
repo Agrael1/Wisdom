@@ -22,7 +22,7 @@ struct VKSwapChainCreateInfo {
     std::unique_ptr<VkSemaphore[]> render_completed_semaphore = nullptr;
     std::unique_ptr<VkSemaphore[]> image_ready_semaphores = nullptr; // if signalled, it means the rendering is available
     std::unique_ptr<VKTexture[]> back_buffers;
-    h::VkFence fence = nullptr; // only used for initialization and resizing
+    std::array<h::VkFence,2> fences = {}; // only used for initialization and resizing
 
     VkSurfaceFormatKHR format{};
     uint64_t present_id = 0;
@@ -82,7 +82,8 @@ public:
 public:
     [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers(VkExtent2D image_size) noexcept;
-    [[nodiscard]] WIS_INLINE wis::Result AquireNextIndex() const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result AcquireNextIndex() const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result AcquireNextIndexAndWait() const noexcept;
     WIS_INLINE void ReleaseSemaphores() noexcept;
 };
 } // namespace detail

@@ -15,5 +15,6 @@ endfunction()
 set(EXAMPLE_BIN_OUTPUT ${CMAKE_BINARY_DIR}/bin/examples)
 
 add_example(common)
-add_subdirectory(platform)
+add_subdirectory(basic)
+#add_subdirectory(platform)
 #add_subdirectory(custom)

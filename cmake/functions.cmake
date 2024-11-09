@@ -1,6 +1,6 @@
 # Function for installing DirectX SDK for UWP
 function(wis_install_dx_uwp PROJECT)
-    message("Installing DirectX Agility SDK Dependency")
+    #message("Installing DirectX Agility SDK Dependency")
 
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
 
@@ -29,7 +29,7 @@ endfunction()
 
 # Function for installing DirectX SDK
 function(wis_install_dx_win32 PROJECT)
-	message("Installing DirectX Agility SDK Dependency")
+	#message("Installing DirectX Agility SDK Dependency")
 
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
 

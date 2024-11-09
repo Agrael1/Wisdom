@@ -69,6 +69,7 @@ vkDestroyFence
 vkCreateSemaphore
 vkDestroySemaphore
 vkQueueSubmit
+vkQueueWaitIdle
 vkQueueSubmit2
 vkWaitForFences
 vkResetFences
