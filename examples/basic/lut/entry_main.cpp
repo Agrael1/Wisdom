@@ -201,7 +201,7 @@ public:
             ps = ex::Unwrap(setup.device.CreateShader(xps.data(), uint32_t(xps.size())));
         }
 
-                // Create root signature with 2 textures and 2 samplers (pair for lut and pair for image)
+        // Create root signature with 2 textures and 2 samplers (pair for lut and pair for image)
         {
             wis::DescriptorTableEntry entries[]{
                 { .type = wis::DescriptorType::ShaderResource, // LUT texture (3D cube)
@@ -310,7 +310,7 @@ public:
             srv_lut = ex::Unwrap(device.CreateShaderResource(texture_lut, srv_desc));
 
             // Write LUT SRV to the descriptor buffer
-            //desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_lut);
+            // desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_lut);
             desc_buffer.WriteShaderResource2(0, 0, srv_lut);
 
             // Create sampler for LUT
@@ -390,7 +390,7 @@ public:
             srv = ex::Unwrap(device.CreateShaderResource(texture, srv_desc));
 
             // Write image SRV to the descriptor buffer
-            //desc_buffer.WriteShaderResource(0, 1, 0, 0, root, srv);
+            // desc_buffer.WriteShaderResource(0, 1, 0, 0, root, srv);
             desc_buffer.WriteShaderResource2(0, 1, srv);
 
             // Create sampler for image
@@ -413,8 +413,6 @@ public:
             // Write image sampler to the descriptor buffer
             sampler_buffer.WriteSampler(0, 1, sampler);
         }
-
-
 
         cmd.Close();
         wis::CommandListView lists[] = { cmd };

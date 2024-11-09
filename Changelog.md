@@ -1,7 +1,7 @@
 # Version History
 
 - 0.4.0
-  
+
   - Fixed Vulkan Swapchain on resize occasionally result in error messages
   - Revisited Examples and made them use SDL3 for window creation
   - Added common library for examples

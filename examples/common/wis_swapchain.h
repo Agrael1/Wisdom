@@ -98,7 +98,7 @@ private:
     wis::Fence fence;
     uint64_t fence_value = 1;
     uint64_t frame_index = 0;
-    std::array<uint64_t, ex::flight_frames> fence_values{1,0};
+    std::array<uint64_t, ex::flight_frames> fence_values{ 1, 0 };
 
     std::span<const wis::Texture> textures;
     std::array<wis::RenderTarget, ex::swap_buffer_count> render_targets;

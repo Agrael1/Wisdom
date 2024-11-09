@@ -65,7 +65,7 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
         HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
             return Unwrap(static_cast<wis::platform::WindowsExtension*>(_platform.get())
-                                     ->CreateSwapchain(setup.device, setup.queue, &desc, hwnd));
+                                  ->CreateSwapchain(setup.device, setup.queue, &desc, hwnd));
         }
     } break;
 #elif defined(SDL_PLATFORM_LINUX)

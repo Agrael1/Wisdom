@@ -22,7 +22,7 @@ struct VKSwapChainCreateInfo {
     std::unique_ptr<VkSemaphore[]> render_completed_semaphore = nullptr;
     std::unique_ptr<VkSemaphore[]> image_ready_semaphores = nullptr; // if signalled, it means the rendering is available
     std::unique_ptr<VKTexture[]> back_buffers;
-    std::array<h::VkFence,2> fences = {}; // only used for initialization and resizing
+    std::array<h::VkFence, 2> fences = {}; // only used for initialization and resizing
 
     VkSurfaceFormatKHR format{};
     uint64_t present_id = 0;
