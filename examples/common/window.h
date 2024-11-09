@@ -5,7 +5,6 @@
 #include "window_event.h"
 #include "wis_helper.h"
 
-
 namespace ex {
 class Instance
 {

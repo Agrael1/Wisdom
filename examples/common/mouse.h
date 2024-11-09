@@ -136,6 +136,7 @@ public:
 
 private:
     static constexpr unsigned int buffer_size = 16u;
+
 private:
     int x;
     int y;
@@ -147,4 +148,4 @@ private:
     std::queue<Event> buffer;
     std::queue<RawDelta> raw_delta_buffer;
 };
-} // namespace w
+} // namespace ex
