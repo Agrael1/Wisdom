@@ -8,8 +8,7 @@ struct PSQuadIn {
 [[vk::binding(0, 1)]] SamplerState sampler_lut : register(s0);
 [[vk::binding(1, 1)]] SamplerState sampler_tex : register(s1);
 
-
-float3 cscApplyLut3DTetra(const float3 color)
+float3 Lut3DTetra(const float3 color)
 {
     float3 dims;
     lut.GetDimensions(dims.x, dims.y, dims.z);
@@ -74,16 +73,13 @@ float3 cscApplyLut3DTetra(const float3 color)
     return ((1.0f - delta.x) * s1 + (delta.x - delta.y) * s2 + (delta.y - delta.z) * s3 + delta.z * s4).rgb;
 }
 
-float4 main(PSQuadIn ps_in) : SV_Target0
+float4 main(PSQuadIn ps_in)
+    : SV_Target0
 {
-    float4 color = tex.Sample(sampler_tex, ps_in.texcoord);
-    float3 color3 = color.rgb;
+    float2 texcoord = ps_in.texcoord * float2(2, 1); // repeat texture
+    float4 color = tex.Sample(sampler_tex, texcoord);
 
-#ifdef TETRA
-    float3 color3_lut = cscApplyLut3DTetra(color3);
-#else
-    float3 color3_lut = lut.Sample(sampler_lut, color3).rgb;
-#endif // TETRA
-
-    return float4(color3_lut.r, color3_lut.g, color3_lut.b, color.a);
+    // apply 3D LUT with tetrahedral interpolation
+    float3 color3_lut = (texcoord.x > 1 ? Lut3DTetra(color.rgb) : color.rgb);
+    return float4(color3_lut, color.a);
 }

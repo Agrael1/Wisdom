@@ -1,7 +1,7 @@
-project(multiview-${POSTFIX})
+project(lut-${POSTFIX})
 
-set(HEADERS )
-set(SOURCES entry_main.cpp)
+set(HEADERS lut_loader.h)
+set(SOURCES entry_main.cpp lut_loader.cpp)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PUBLIC common-${POSTFIX})
@@ -16,4 +16,17 @@ if (POSTFIX STREQUAL "dx12")
 	wis_make_exports_dx(${PROJECT_NAME}) # install the d3d12 agility sdk, for examples this is enough
 	# for the main project, use wis_installdeps(${PROJECT_NAME}) instead
 endif()
+
+add_custom_command(
+  TARGET ${PROJECT_NAME}
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/lut.cube
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/lut.cube)
+add_custom_command(
+  TARGET ${PROJECT_NAME}
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/image.png
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/image.png)
 
