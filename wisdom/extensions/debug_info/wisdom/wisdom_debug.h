@@ -30,8 +30,8 @@ public:
         if (!debugController)
             return wis::make_result<FUNC, "Debug Extension is unsupported">(E_NOTIMPL);
 
-        //if (auto dc = debugController.as<ID3D12Debug1>())
-        //    dc->SetEnableGPUBasedValidation(true);
+        // if (auto dc = debugController.as<ID3D12Debug1>())
+        //     dc->SetEnableGPUBasedValidation(true);
 
         return {};
     }

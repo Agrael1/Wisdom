@@ -265,6 +265,8 @@ struct VKMainDevice {
     PFN_vkCreateSampler vkCreateSampler;
     PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
     PFN_vkAllocateMemory vkAllocateMemory;
+    PFN_vkDestroyPipeline vkDestroyPipeline;
+    PFN_vkQueueWaitIdle vkQueueWaitIdle;
     PFN_vkCreateImage vkCreateImage;
     PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;
     PFN_vkFreeMemory vkFreeMemory;
@@ -296,7 +298,6 @@ struct VKMainDevice {
     PFN_vkDestroyShaderModule vkDestroyShaderModule;
     PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
     PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
-    PFN_vkDestroyPipeline vkDestroyPipeline;
     PFN_vkResetCommandBuffer vkResetCommandBuffer;
     PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
     PFN_vkDestroyCommandPool vkDestroyCommandPool;
@@ -410,6 +411,12 @@ public:
         vkAllocateMemory = (PFN_vkAllocateMemory)vkGetDeviceProcAddr(device, "vkAllocateMemory");
         if (vkAllocateMemory == nullptr)
             return false;
+        vkDestroyPipeline = (PFN_vkDestroyPipeline)vkGetDeviceProcAddr(device, "vkDestroyPipeline");
+        if (vkDestroyPipeline == nullptr)
+            return false;
+        vkQueueWaitIdle = (PFN_vkQueueWaitIdle)vkGetDeviceProcAddr(device, "vkQueueWaitIdle");
+        if (vkQueueWaitIdle == nullptr)
+            return false;
         vkCreateImage = (PFN_vkCreateImage)vkGetDeviceProcAddr(device, "vkCreateImage");
         if (vkCreateImage == nullptr)
             return false;
@@ -502,9 +509,6 @@ public:
             return false;
         vkCreateGraphicsPipelines = (PFN_vkCreateGraphicsPipelines)vkGetDeviceProcAddr(device, "vkCreateGraphicsPipelines");
         if (vkCreateGraphicsPipelines == nullptr)
-            return false;
-        vkDestroyPipeline = (PFN_vkDestroyPipeline)vkGetDeviceProcAddr(device, "vkDestroyPipeline");
-        if (vkDestroyPipeline == nullptr)
             return false;
         vkResetCommandBuffer = (PFN_vkResetCommandBuffer)vkGetDeviceProcAddr(device, "vkResetCommandBuffer");
         if (vkResetCommandBuffer == nullptr)

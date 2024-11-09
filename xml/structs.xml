@@ -201,7 +201,7 @@ Describes hardware driver identificators as well as memory limits.">
 
     <type name="RootConstant" category="struct" doc="Root constant description for {RootSignatureDesc::}.">
       <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
-      <member type="u32" name="size_bytes" doc="Size of the constant in bytes."/>
+      <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
     </type>
 
     <type name="SwapchainDesc" category="struct" doc="Swapchain description for {SwapChain::} creation.">
