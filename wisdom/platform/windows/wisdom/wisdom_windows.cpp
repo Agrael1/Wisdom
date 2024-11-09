@@ -23,7 +23,7 @@ inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::Swapcha
 }
 inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 {
-    constexpr D3D_FEATURE_LEVEL featureLevels[]{
+    constexpr D3D_FEATURE_LEVEL featureLevels[] {
         D3D_FEATURE_LEVEL_11_1,
         D3D_FEATURE_LEVEL_11_0
     };
@@ -55,7 +55,8 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
         BOOL xtearing = FALSE;
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
-    }();
+    }
+    ();
     if (tearing && desc->tearing)
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
@@ -68,12 +69,12 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
     }
 
     hr = devicei.factory->CreateSwapChainForHwnd(
-            std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
-            hwnd,
-            &swap_desc,
-            nullptr,
-            nullptr,
-            swap.put());
+             std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
+             hwnd,
+             &swap_desc,
+             nullptr,
+             nullptr,
+             swap.put());
 
     if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
@@ -114,7 +115,8 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
         BOOL xtearing = FALSE;
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
-    }();
+    }
+    ();
     if (tearing)
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
@@ -127,11 +129,11 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
     }
 
     hr = devicei.factory->CreateSwapChainForCoreWindow(
-            std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
-            window,
-            &swap_desc,
-            nullptr,
-            swap.put());
+             std::get<0>(main_queue), // Swap chain needs the queue so that it can force a flush on it.
+             window,
+             &swap_desc,
+             nullptr,
+             swap.put());
 
     if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
@@ -184,9 +186,9 @@ wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQue
 }
 
 bool wis::platform::VKInteropDeviceExtension::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                                                               std::unordered_set<std::string_view>& ext_name_set,
-                                                               std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                                               std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+        std::unordered_set<std::string_view>& ext_name_set,
+        std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+        std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (available_extensions.contains(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME)) {
         ext_name_set.emplace(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME);
@@ -200,8 +202,8 @@ bool wis::platform::VKInteropDeviceExtension::GetExtensionInfo(const std::unorde
 
 wis::Result
 wis::platform::VKInteropDeviceExtension::Init(const wis::VKDevice& instance,
-                                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                              const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+        const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+        const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     device = instance.GetInternal().device;
     vkGetMemoryWin32HandleKHR = device.GetDeviceProcAddr<PFN_vkGetMemoryWin32HandleKHR>("vkGetMemoryWin32HandleKHR");
