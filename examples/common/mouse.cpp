@@ -1,4 +1,4 @@
-#include <Mouse.h>
+#include "mouse.h"
 #include <algorithm>
 
 std::optional<ex::Mouse::RawDelta> ex::Mouse::ReadRawDelta() noexcept

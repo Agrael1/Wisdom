@@ -159,6 +159,7 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
 
     std::cout << "Elapsed time: " << elapsed.count() << "s\n";
     std::cout << "Per copy time: " << elapsed.count() / 1000 << "s\n";
+    return 0;
 }
 
 int TestDirectWrite(const Test& test, const wis::Device& device, const wis::ResourceAllocator& alloc, wis::Size2D img_size)
@@ -213,6 +214,7 @@ int TestDirectWrite(const Test& test, const wis::Device& device, const wis::Reso
 
     std::cout << "Elapsed time: " << elapsed.count() << "s\n";
     std::cout << "Per copy time: " << elapsed.count() / 1000 << "s\n";
+    return 0;
 }
 
 int main()

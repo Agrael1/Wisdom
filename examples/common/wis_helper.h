@@ -124,7 +124,7 @@ public:
         auto upload = Unwrap(allocator.CreateUploadBuffer(data.size_bytes()));
         auto buffer = Unwrap(allocator.CreateBuffer(data.size_bytes(), usage | wis::BufferUsage::CopyDst));
 
-        auto memory = upload.Map<uint8_t>();
+        auto memory = (uint8_t*)upload.MapRaw();
         std::copy_n(reinterpret_cast<const uint8_t*>(data.data()), data.size_bytes(), memory);
         upload.Unmap();
 

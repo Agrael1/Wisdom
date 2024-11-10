@@ -71,7 +71,7 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
 #elif defined(SDL_PLATFORM_LINUX)
     case X11: {
         Display* xdisplay = (Display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
-        Window xwindow = (Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+        ::Window xwindow = (::Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
             return Unwrap(static_cast<wis::platform::X11Extension*>(_platform.get())
                                   ->CreateSwapchain(setup.device, setup.queue, &desc, xdisplay, xwindow));
@@ -101,16 +101,17 @@ ex::PlatformExtension::PlatformExtension()
 {
     current = Selector::None;
     platform = {};
+    const char* platform_name = SDL_GetCurrentVideoDriver();
 #if defined(SDL_PLATFORM_WIN32)
     platform = std::make_unique<wis::platform::WindowsExtension>();
     current = Selector::Windows;
 #elif defined(SDL_PLATFORM_LINUX)
-    if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
+    //if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
         platform = std::make_unique<wis::platform::X11Extension>();
         current = Selector::X11;
-    } else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0) {
-        platform = std::make_unique<wis::platform::WaylandExtension>();
-        current = Selector::Wayland;
-    }
+    //} else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0) {
+    //    platform = std::make_unique<wis::platform::WaylandExtension>();
+    //    current = Selector::Wayland;
+    //}
 #endif
 }
