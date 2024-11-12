@@ -1377,6 +1377,7 @@ typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
 typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef struct WisDeviceExtQuery WisDeviceExtQuery;
+typedef struct WisDescriptorStorageDesc WisDescriptorStorageDesc;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -1609,6 +1610,7 @@ struct WisRenderAttachmentsDesc {
 struct WisRootConstant {
     WisShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
     uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    uint32_t bind_register; ///< Bind register number in HLSL.
 };
 
 /**
@@ -1841,6 +1843,19 @@ struct WisDeviceExtQuery {
     void* result;
 };
 
+/**
+ * @brief Descriptor storage description for DescriptorStorage creation.
+ * */
+struct WisDescriptorStorageDesc {
+    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
+    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
+    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
+    uint32_t texture_count; ///< Count of texture descriptors to allocate.
+    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
+    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
+    WisDescriptorMemory memory; ///< Descriptor memory to use.
+};
+
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
@@ -2026,6 +2041,7 @@ typedef struct VKMemory_t* VKMemory;
 typedef struct VKSwapChain_t* VKSwapChain;
 typedef struct VKBuffer_t* VKBuffer;
 typedef struct VKTexture_t* VKTexture;
+typedef struct VKDescriptorStorage_t* VKDescriptorStorage;
 typedef struct VKRootSignature_t* VKRootSignature;
 typedef struct VKShader_t* VKShader;
 typedef struct VKDebugMessenger_t* VKDebugMessenger;
@@ -2841,6 +2857,21 @@ WISDOM_API void VKBufferUnmap(VKBuffer self);
  * */
 WISDOM_API void VKTextureDestroy(VKTexture self);
 
+// VKDescriptorStorage methods --
+/**
+ * @brief Destroys the VKDescriptorStorage.
+ * @param self valid handle to the DescriptorStorage
+ * */
+WISDOM_API void VKDescriptorStorageDestroy(VKDescriptorStorage self);
+
+/**
+ * @brief Writes the sampler to the sampler descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param index Index in array of samplers to fill.
+ * @param sampler The sampler to write.
+ * */
+WISDOM_API void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32_t index, VKSampler sampler);
+
 // VKRootSignature methods --
 /**
  * @brief Destroys the VKRootSignature.
@@ -3091,6 +3122,7 @@ typedef struct DX12Memory_t* DX12Memory;
 typedef struct DX12SwapChain_t* DX12SwapChain;
 typedef struct DX12Buffer_t* DX12Buffer;
 typedef struct DX12Texture_t* DX12Texture;
+typedef struct DX12DescriptorStorage_t* DX12DescriptorStorage;
 typedef struct DX12RootSignature_t* DX12RootSignature;
 typedef struct DX12Shader_t* DX12Shader;
 typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
@@ -3906,6 +3938,21 @@ WISDOM_API void DX12BufferUnmap(DX12Buffer self);
  * */
 WISDOM_API void DX12TextureDestroy(DX12Texture self);
 
+// DX12DescriptorStorage methods --
+/**
+ * @brief Destroys the DX12DescriptorStorage.
+ * @param self valid handle to the DescriptorStorage
+ * */
+WISDOM_API void DX12DescriptorStorageDestroy(DX12DescriptorStorage self);
+
+/**
+ * @brief Writes the sampler to the sampler descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param index Index in array of samplers to fill.
+ * @param sampler The sampler to write.
+ * */
+WISDOM_API void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, uint32_t index, DX12Sampler sampler);
+
 // DX12RootSignature methods --
 /**
  * @brief Destroys the DX12RootSignature.
@@ -4011,6 +4058,7 @@ typedef DX12Memory WisMemory;
 typedef DX12SwapChain WisSwapChain;
 typedef DX12Buffer WisBuffer;
 typedef DX12Texture WisTexture;
+typedef DX12DescriptorStorage WisDescriptorStorage;
 typedef DX12RootSignature WisRootSignature;
 typedef DX12Shader WisShader;
 typedef DX12DebugMessenger WisDebugMessenger;
@@ -5103,6 +5151,27 @@ inline void WisTextureDestroy(WisTexture self)
     return DX12TextureDestroy(self);
 }
 
+// WisDescriptorStorage methods --
+/**
+ * @brief Destroys the WisDescriptorStorage.
+ * @param self valid handle to the DescriptorStorage
+ * */
+inline void WisDescriptorStorageDestroy(WisDescriptorStorage self)
+{
+    return DX12DescriptorStorageDestroy(self);
+}
+
+/**
+ * @brief Writes the sampler to the sampler descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param index Index in array of samplers to fill.
+ * @param sampler The sampler to write.
+ * */
+inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t index, WisSampler sampler)
+{
+    return DX12DescriptorStorageWriteSampler(self, index, sampler);
+}
+
 // WisRootSignature methods --
 /**
  * @brief Destroys the WisRootSignature.
@@ -5216,6 +5285,7 @@ typedef VKMemory WisMemory;
 typedef VKSwapChain WisSwapChain;
 typedef VKBuffer WisBuffer;
 typedef VKTexture WisTexture;
+typedef VKDescriptorStorage WisDescriptorStorage;
 typedef VKRootSignature WisRootSignature;
 typedef VKShader WisShader;
 typedef VKDebugMessenger WisDebugMessenger;
@@ -6306,6 +6376,27 @@ inline void WisBufferUnmap(WisBuffer self)
 inline void WisTextureDestroy(WisTexture self)
 {
     return VKTextureDestroy(self);
+}
+
+// WisDescriptorStorage methods --
+/**
+ * @brief Destroys the WisDescriptorStorage.
+ * @param self valid handle to the DescriptorStorage
+ * */
+inline void WisDescriptorStorageDestroy(WisDescriptorStorage self)
+{
+    return VKDescriptorStorageDestroy(self);
+}
+
+/**
+ * @brief Writes the sampler to the sampler descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param index Index in array of samplers to fill.
+ * @param sampler The sampler to write.
+ * */
+inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t index, WisSampler sampler)
+{
+    return VKDescriptorStorageWriteSampler(self, index, sampler);
 }
 
 // WisRootSignature methods --

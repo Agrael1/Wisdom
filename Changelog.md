@@ -7,6 +7,7 @@
   - Added common library for examples
   - Added Multiview support with example
   - Examples are now stored in examples/bin folder with compiled shaders and resources
+  - Added support for Xlib without XCB for Vulkan
 
 - 0.3.15
 

@@ -484,4 +484,14 @@ void wis::ImplVKCommandList::SetDescriptorTableOffset(uint32_t root_table_index,
                                                       &index, &offset);
 }
 
+void wis::ImplVKCommandList::SetDescriptorStorage(wis::VKDescriptorStorageView desc_storage) noexcept
+{
+    auto& set_span = std::get<0>(desc_storage);
+    device.table().vkCmdBindDescriptorSets(command_list,
+                                           VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                           pipeline_layout, 0,
+                                           set_span.size(), set_span.data(),
+                                           0, nullptr);
+}
+
 #endif // !

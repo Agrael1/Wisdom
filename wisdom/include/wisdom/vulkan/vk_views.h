@@ -2,11 +2,14 @@
 #define WIS_VK_VIEWS_H
 
 #include <tuple>
+#include <span>
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisvk/vk_loader.hpp>
 #include <wisdom/generated/api/api.h>
 
 namespace wis {
+static inline constexpr uint32_t max_desc_storage_desc_sets_vk = 6;
+
 using VKFactoryHandle = std::tuple<wis::SharedInstance>;
 using VKDeviceHandle = std::tuple<wis::SharedDevice>;
 
@@ -25,6 +28,7 @@ using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
 using VKPipelineView = std::tuple<VkPipeline>;
+using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet, max_desc_storage_desc_sets_vk>>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

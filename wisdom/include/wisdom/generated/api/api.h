@@ -48,6 +48,7 @@ struct ComponentMapping;
 struct ShaderResourceDesc;
 struct FactoryExtQuery;
 struct DeviceExtQuery;
+struct DescriptorStorageDesc;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1543,6 +1544,7 @@ struct RenderAttachmentsDesc {
 struct RootConstant {
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
     uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    uint32_t bind_register; ///< Bind register number in HLSL.
 };
 
 /**
@@ -1773,6 +1775,19 @@ struct DeviceExtQuery {
      * If the extension is not supported/failed to initialize the result is NULL.
      * */
     void* result;
+};
+
+/**
+ * @brief Descriptor storage description for wis::DescriptorStorage creation.
+ * */
+struct DescriptorStorageDesc {
+    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
+    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
+    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
+    uint32_t texture_count; ///< Count of texture descriptors to allocate.
+    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
+    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
+    wis::DescriptorMemory memory; ///< Descriptor memory to use.
 };
 
 //=================================DELEGATES=================================

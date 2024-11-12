@@ -733,7 +733,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* des
     };
 
     VkPipelineCreateFlags flags =
-            VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
+           0 /*VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT*/;
 
     VkGraphicsPipelineCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -1524,4 +1524,208 @@ wis::ImplVKDevice::CreateShaderResource(wis::VKTextureView texture, wis::ShaderR
 
     return wis::VKShaderResource{ wis::managed_handle_ex<VkImageView>{ view, device, device.table().vkDestroyImageView } };
 }
-#endif // WISIMPL_VULKAN
+
+wis::ResultValue<wis::VKDescriptorStorage>
+wis::ImplVKDevice::CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept
+{
+    constexpr static uint32_t num_sets = Internal<VKDescriptorStorage>::max_sets;
+    // Get max descriptor counts
+    std::array<uint32_t, num_sets> desc_counts{
+        desc.sampler_count,
+        desc.cbuffer_count,
+        desc.sbuffer_count,
+        desc.texture_count,
+        desc.stexture_count,
+        desc.rbuffer_count
+    };
+    VkDescriptorSetLayoutBinding bindings[num_sets]{
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
+          .descriptorCount = 2048,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+    };
+
+    constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+    constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .bindingCount = 1,
+        .pBindingFlags = &flags,
+    };
+
+    std::array<VkDescriptorSetLayoutCreateInfo, num_sets> desc_info{};
+    for (size_t i = 0; i < num_sets; i++) {
+        desc_info[i] = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext = &binding_flags_info,
+            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT,
+            .bindingCount = 1,
+            .pBindings = &bindings[i],
+        };
+    }
+
+    VkDescriptorSetLayout layouts[num_sets]{};
+    for (size_t i = 0; i < num_sets; i++) {
+        auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &desc_info[i], nullptr, &layouts[i]);
+        if (!succeeded(res))
+            return wis::make_result<FUNC, "Failed to create a descriptor set layout">(res);
+    }
+
+    uint32_t iterator = 0;
+    VkDescriptorPoolSize pool_sizes[num_sets]{};
+    for (size_t i = 0; i < num_sets; i++) {
+        if (bindings[i].descriptorCount != 0) {
+            pool_sizes[iterator].type = bindings[i].descriptorType;
+            pool_sizes[iterator].descriptorCount = bindings[i].descriptorCount;
+            iterator++;
+        }
+    }
+
+    VkDescriptorPoolCreateInfo pool_info{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT,
+        .maxSets = num_sets,
+        .poolSizeCount = iterator,
+        .pPoolSizes = pool_sizes,
+    };
+    wis::scoped_handle<VkDescriptorPool> pool;
+    auto res = device.table().vkCreateDescriptorPool(device.get(), &pool_info, nullptr, pool.put(device.get(), device.table().vkDestroyDescriptorPool));
+
+    VkDescriptorSetVariableDescriptorCountAllocateInfo variable_desc_info{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
+        .pNext = nullptr,
+        .descriptorSetCount = num_sets,
+        .pDescriptorCounts = desc_counts.data(),
+    };
+
+    std::array<VkDescriptorSet, num_sets> desc_sets{};
+    VkDescriptorSetAllocateInfo desc_alloc_info{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .pNext = &variable_desc_info,
+        .descriptorPool = pool.get(),
+        .descriptorSetCount = std::size(desc_sets),
+        .pSetLayouts = layouts,
+    };
+    res = device.table().vkAllocateDescriptorSets(device.get(), &desc_alloc_info, desc_sets.data());
+    if (!succeeded(res))
+        return wis::make_result<FUNC, "Failed to allocate descriptor sets">(res);
+
+    //for (size_t i = 0; i < num_sets; i++)
+    //    device.table().vkDestroyDescriptorSetLayout(device.get(), layouts[i], nullptr);
+
+    return wis::VKDescriptorStorage{ device, pool.release(), std::move(desc_sets) };
+}
+
+wis::ResultValue<wis::VKRootSignature>
+wis::ImplVKDevice::CreateDescriptorStorageRootSignature(const wis::RootConstant* constants,
+                                                        uint32_t constants_size) const noexcept
+{
+    constexpr static uint32_t num_sets = Internal<VKDescriptorStorage>::max_sets;
+
+    VkDescriptorSetLayoutBinding bindings[num_sets]{
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
+          .descriptorCount = 2048,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+        { .binding = 0,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+          .descriptorCount = 4096,
+          .stageFlags = VK_SHADER_STAGE_ALL },
+    };
+
+    constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+    constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .bindingCount = 1,
+        .pBindingFlags = &flags,
+    };
+
+    std::array<VkDescriptorSetLayoutCreateInfo, num_sets> desc_info{};
+    for (size_t i = 0; i < num_sets; i++) {
+        desc_info[i] = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext = &binding_flags_info,
+            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT,
+            .bindingCount = 1,
+            .pBindings = &bindings[i],
+        };
+    }
+
+    std::unique_ptr<VkDescriptorSetLayout[]> vk_dsl;
+    if (vk_dsl = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(num_sets); !vk_dsl)
+        return wis::make_result<FUNC, "Failed to allocate descriptor set layout array">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+
+    for (size_t i = 0; i < num_sets; i++) {
+        auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &desc_info[i], nullptr, &vk_dsl[i]);
+        if (!succeeded(res)) {
+            for (size_t j = 0; j < i; j++)
+                device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl[j], nullptr);
+            return wis::make_result<FUNC, "Failed to create a descriptor set layout">(res);
+        }
+    }
+
+    wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
+    for (uint32_t i = 0; i < constants_size; i++) {
+        auto& c = vk_constants.data()[i];
+        auto& r = constants[i];
+        c.stageFlags = convert_vk(r.stage);
+        c.offset = 0;
+        c.size = r.size_bytes;
+    }
+
+    VkPipelineLayoutCreateInfo pipeline_layout_info{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .setLayoutCount = num_sets,
+        .pSetLayouts = vk_dsl.get(),
+        .pushConstantRangeCount = constants_size,
+        .pPushConstantRanges = vk_constants.data(),
+    };
+    VkPipelineLayout layout;
+    auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
+
+    if (!succeeded(vr))
+        return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
+
+    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout }, std::move(vk_dsl), num_sets };
+}
+#endif

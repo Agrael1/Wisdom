@@ -107,3 +107,8 @@ vkGetDescriptorEXT
 vkGetSemaphoreCounterValue
 vkSignalSemaphore
 [opt]vkWaitForPresentKHR
+vkDestroyDescriptorPool
+vkCreateDescriptorPool
+vkAllocateDescriptorSets
+vkUpdateDescriptorSets
+vkCmdBindDescriptorSets

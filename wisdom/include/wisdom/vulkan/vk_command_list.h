@@ -131,6 +131,8 @@ public:
 
     WIS_INLINE void SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t aligned_offset_bytes) noexcept;
 
+    WIS_INLINE void SetDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept;
+
 protected:
     bool closed = false;
 };

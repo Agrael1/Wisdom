@@ -657,6 +657,18 @@ extern "C" void DX12TextureDestroy(DX12Texture self)
     delete xself;
 }
 
+// DX12DescriptorStorage methods --
+extern "C" void DX12DescriptorStorageDestroy(DX12DescriptorStorage self)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    delete xself;
+}
+extern "C" void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, uint32_t index, DX12Sampler sampler)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteSampler(index, *reinterpret_cast<wis::DX12Sampler*>(sampler));
+}
+
 // DX12RootSignature methods --
 extern "C" void DX12RootSignatureDestroy(DX12RootSignature self)
 {
@@ -1396,6 +1408,18 @@ extern "C" void VKTextureDestroy(VKTexture self)
 {
     auto* xself = reinterpret_cast<wis::VKTexture*>(self);
     delete xself;
+}
+
+// VKDescriptorStorage methods --
+extern "C" void VKDescriptorStorageDestroy(VKDescriptorStorage self)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    delete xself;
+}
+extern "C" void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32_t index, VKSampler sampler)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteSampler(index, *reinterpret_cast<wis::VKSampler*>(sampler));
 }
 
 // VKRootSignature methods --

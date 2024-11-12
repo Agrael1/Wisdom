@@ -28,6 +28,7 @@ if(WISDOM_BUILD_BINARIES)
  		"include/wisdom/vulkan/vk_command_list.h"
  		"include/wisdom/vulkan/vk_root_signature.h"
  		"include/wisdom/vulkan/vk_descriptor_buffer.h"
+ 		"include/wisdom/vulkan/vk_descriptor_storage.h"
  		"include/wisdom/vulkan/vk_resource.h"
  		"include/wisdom/vulkan/vk_shader.h"
  		"include/wisdom/vulkan/vk_allocator.h"

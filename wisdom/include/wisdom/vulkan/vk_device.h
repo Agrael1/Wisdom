@@ -11,6 +11,7 @@
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_descriptor_buffer.h>
+#include <wisdom/vulkan/vk_descriptor_storage.h>
 #include <wisdom/vulkan/vk_device_ext.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 
@@ -137,11 +138,18 @@ public:
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDescriptorStorage>
+    CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
+    CreateDescriptorStorageRootSignature(const RootConstant* constants = nullptr,
+                                         uint32_t constants_size = 0) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
 
-private:
+protected:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::shared_handle<VmaAllocator>>
     VKCreateAllocator(bool interop = false) const noexcept;
 

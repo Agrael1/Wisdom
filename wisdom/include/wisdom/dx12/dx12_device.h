@@ -9,6 +9,7 @@
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_allocator.h>
 #include <wisdom/dx12/dx12_descriptor_buffer.h>
+#include <wisdom/dx12/dx12_descriptor_storage.h>
 #include <wisdom/dx12/dx12_device_ext.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 
@@ -97,6 +98,13 @@ public:
     // returns true only for now
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorStorage>
+    CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
+    CreateDescriptorStorageRootSignature(const RootConstant* constants = nullptr,
+                                         uint32_t constants_size = 0) const noexcept;
 };
 
 #pragma region DX12Device

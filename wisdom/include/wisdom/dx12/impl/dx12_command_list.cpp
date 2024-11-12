@@ -3,6 +3,7 @@
 #include <wisdom/dx12/dx12_command_list.h>
 
 #include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/dx12/dx12_descriptor_storage.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/util/small_allocator.h>
 #include <d3dx12/d3dx12_resource_helpers.h>
@@ -387,4 +388,39 @@ void wis::ImplDX12CommandList::SetDescriptorTableOffset(uint32_t root_table_inde
                                          CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_bytes));
 }
 
+void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept
+{
+    auto& storage = std::get<0>(desc_storage)->GetInternal();
+
+    std::array<ID3D12DescriptorHeap*, 2> heaps{};
+    uint32_t increment = 0;
+    if (storage.heap_sampler) {
+        heaps[increment++] = storage.heap_sampler.get();
+        list->SetGraphicsRootDescriptorTable(0, storage.heap_gpu_starts[1]);
+    }
+    if (storage.heap_resource) {
+        heaps[increment++] = storage.heap_resource.get();
+    }
+
+    list->SetDescriptorHeaps(increment, heaps.data());
+    
+    if (storage.heap_sampler) {
+        list->SetGraphicsRootDescriptorTable(1, storage.heap_gpu_starts[1]);
+    }
+    if (storage.heap_resource) {
+        CD3DX12_GPU_DESCRIPTOR_HANDLE handles[wis::max_desc_storage_desc_sets_dx12 - 1]{
+            // 0 is reserved for sampler heap
+            storage.heap_gpu_starts[0],
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[1].ptr - storage.heap_starts[0].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[2].ptr - storage.heap_starts[0].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[3].ptr - storage.heap_starts[0].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[4].ptr - storage.heap_starts[0].ptr)),
+        };
+        list->SetGraphicsRootDescriptorTable(2, handles[0]);
+        //list->SetGraphicsRootDescriptorTable(3, handles[1]);
+        //list->SetGraphicsRootDescriptorTable(4, handles[2]);
+        //list->SetGraphicsRootDescriptorTable(5, handles[3]);
+        //list->SetGraphicsRootDescriptorTable(6, handles[4]);
+    }
+}
 #endif // WIS_DX12_COMMAND_LIST_H

@@ -75,6 +75,12 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
       <file for="dx" include="dx12/dx12_swapchain.h"/>
     </handle>
 
+    <handle name="DescriptorStorage" doc="Represents descriptor storage object for storing descriptors.
+Used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.">
+      <file for="vk" include="vulkan/vk_descriptor_storage.h"/>
+      <file for="dx" include="dx12/dx12_descriptor_storage.h"/>
+    </handle>
+
 
     <handle name="RootSignature"/>
     <handle name="Shader"/>
@@ -658,6 +664,16 @@ If NULL, returns the amount of images swapchain has."/>
     <func for="SwapChain" name="WaitForPresent" mod="const" doc="Wait for the presentation to finish.">
       <ret result="true"/>
       <arg type="u64" name="timeout_ns" default="UINT64_MAX" doc="The timeout in nanoseconds. Default is infinite."/>
+    </func>
+
+    <!-- DescriptorStorage -->
+    <func for="DescriptorStorage" name="Destroy" doc="Destroys the {DescriptorStorage::}."/>
+
+    <func for="DescriptorStorage" name="WriteSampler" doc="Writes the sampler to the sampler descriptor storage.">
+      <arg type="u32" name="index" doc="Index in array of samplers to fill."/>
+      <arg type="Sampler" name="sampler" doc="The sampler to write.">
+        <replace with="SamplerView" for="cpp" doc="The sampler to write."/>
+      </arg>
     </func>
 
     <!-- Free Functions -->
