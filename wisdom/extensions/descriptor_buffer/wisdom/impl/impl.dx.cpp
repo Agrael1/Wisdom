@@ -1,8 +1,10 @@
 #ifndef WISDOM_DESCRIPTOR_BUFFER_DX_CPP
 #define WISDOM_DESCRIPTOR_BUFFER_DX_CPP
-#include <wisdom/wisdom_descriptor_buffer.h>
 
 #if defined(WISDOM_DX12)
+#include <wisdom/wisdom_descriptor_buffer.h>
+#include <wisdom/util/small_allocator.h>
+
 wis::ResultValue<wis::DX12RootSignature>
 wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* root_constants,
                                                             uint32_t constants_size,
