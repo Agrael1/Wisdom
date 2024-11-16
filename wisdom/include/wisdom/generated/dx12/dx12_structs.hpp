@@ -50,6 +50,7 @@ struct DX12GraphicsPipelineDesc {
      * Default is 0. 0 means regular rendering.
      * */
     uint32_t view_mask = 0;
+    wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
 };
 
 /**
@@ -491,6 +492,11 @@ inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
     D3D12_FENCE_FLAGS output = {};
     if (value & FenceFlags::Shared)
         output |= D3D12_FENCE_FLAG_SHARED;
+    return output;
+}
+inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noexcept
+{
+    D3D12_PIPELINE_STATE_FLAGS output = {};
     return output;
 }
 } // namespace wis

@@ -46,6 +46,7 @@ bool CreateApp(struct AppData* uninit_app)
     }
 
     WisFactoryDestroy(factory); // No longer needed
+    return 0;
 }
 void DestroyApp(struct AppData* app)
 {

@@ -7,3 +7,13 @@ add_library(wis::extension ALIAS wisdom-extension)
 
 add_subdirectory(debug_info)
 add_subdirectory(extended_allocation)
+add_subdirectory(descriptor_buffer)
+
+install(
+  TARGETS wisdom-extension wisdom-extension-headers
+  EXPORT wisdom-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

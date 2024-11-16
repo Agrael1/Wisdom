@@ -30,6 +30,11 @@ else()
                         INTERFACE wisdom-extended-allocation-headers)
 endif()
 
+# link the debug library to the main wisdom extension library
+target_link_libraries(wisdom-extension INTERFACE wisdom-extended-allocation)
+target_link_libraries(wisdom-extension-headers
+                      INTERFACE wisdom-extended-allocation-headers)
+
 install(
   TARGETS wisdom-extended-allocation wisdom-extended-allocation-headers
   EXPORT wisdom-targets

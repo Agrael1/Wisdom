@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_descriptor_buffer.h>
 #include <wisdom/wisdom_platform.h>
 #include <span>
 #include <array>
@@ -177,6 +178,7 @@ public:
     wis::Size2D frame_size[2];
 
     wis::ExtendedAllocation ext_alloc;
+    wis::DescriptorBufferExtension desc_buffer_ext;
     wis::Device transfer_device;
     wis::ResourceAllocator allocator;
     wis::SwapChain swap[2];

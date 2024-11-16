@@ -25,7 +25,7 @@ class App
 
     // Resources
     // First pass resources
-    wis::RootSignature root; // root signature for first stage
+    wis::RootSignature root; // root signature for first stage and second stage (same)
     wis::PipelineState pipeline; // pipeline for first stage
     wis::Shader vs; // vertex shader
     wis::Shader ps; // pixel shader
@@ -37,15 +37,13 @@ class App
     wis::Buffer vertex_buffer; // vertex buffer for triangle
 
     // Second pass resources
-    wis::RootSignature fullscreen_root; // root signature for second stage
     wis::PipelineState fullscreen_pipeline; // pipeline for second stage
     wis::Shader fullscreen_vs; // vertex shader for second stage
     wis::Shader fullscreen_ps; // pixel shader for second stage
     wis::Sampler sampler; // sampler for texture
 
     // Descriptor buffers
-    ex::FramedDescriptorSetup desc_buffer; // descriptor buffer for shader resources
-    wis::DescriptorBuffer sampler_buffer; // descriptor buffer for samplers
+    wis::DescriptorStorage desc_storage; // descriptor storage for shader resources
 
 public:
     App()
@@ -58,15 +56,9 @@ public:
         cmd_list = setup.CreateLists();
         cmd_list2 = setup.CreateLists();
 
-        // Only a single descriptor table with 1 descriptor
-        std::array<ex::DescTable, 1> desc_tables{
-            ex::DescTable{ .descriptor_count = 1 }
-        };
-        std::construct_at(&desc_buffer, setup.device, wis::DescriptorHeapType::Descriptor, std::span{ desc_tables });
-
-        // No need for multiple samplers
-        uint32_t desc_increment = setup.device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Sampler);
-        sampler_buffer = ex::Unwrap(setup.device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 1 * desc_increment));
+        desc_storage = ex::Unwrap(setup.device.CreateDescriptorStorage({ .sampler_count = 1,
+                                                                         .texture_count = ex::flight_frames,
+                                                                         .memory = wis::DescriptorMemory::ShaderVisible }));
     }
 
 public:
@@ -198,13 +190,10 @@ public:
                 swap.GetTexture(frame_index));
 
         cmd2.BeginRenderPass(&rp2);
-        cmd2.SetRootSignature(fullscreen_root); // always set root signature before binding resources
+        cmd2.SetRootSignature(root); // always set root signature before binding resources
 
-        wis::DescriptorBufferView desc_buffers[] = { desc_buffer.desc_buffer, sampler_buffer };
-        cmd2.SetDescriptorBuffers(desc_buffers, 2);
-
-        cmd2.SetDescriptorTableOffset(0, desc_buffer.desc_buffer, desc_buffer.offset_frame(frame_index));
-        cmd2.SetDescriptorTableOffset(1, sampler_buffer, 0);
+        cmd2.SetDescriptorStorage(desc_storage);
+        cmd2.SetRootConstants(&frame_index, 1, 0, wis::ShaderStages::Pixel);
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
         auto [w, h] = window.PixelSize();
@@ -294,8 +283,13 @@ public:
             }
         }
 
-        // Create empty root signature
-        root = ex::Unwrap(setup.device.CreateRootSignature(nullptr, 0, nullptr, 0));
+        // Create root signature with
+        {
+            wis::RootConstant root_constants[]{
+                { .stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t) }
+            };
+            root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, 1));
+        }
 
         // Create pipeline
         {
@@ -350,37 +344,11 @@ public:
             fullscreen_ps = ex::Unwrap(setup.device.CreateShader(xps.data(), uint32_t(xps.size())));
         }
 
-        // Create root signature with 1 texture and 1 sampler
-        {
-            wis::DescriptorTableEntry entries[]{
-                { .type = wis::DescriptorType::ShaderResource,
-                  .bind_register = 0,
-                  .binding = 0,
-                  .count = 1 },
-                { .type = wis::DescriptorType::Sampler,
-                  .bind_register = 0,
-                  .binding = 0,
-                  .count = 1 }
-            };
-
-            wis::DescriptorTable tables[]{
-                { .type = wis::DescriptorHeapType::Descriptor,
-                  .entries = entries, // first entry
-                  .entry_count = 1,
-                  .stage = wis::ShaderStages::Pixel },
-                { .type = wis::DescriptorHeapType::Sampler,
-                  .entries = entries + 1, // skip first entry
-                  .entry_count = 1,
-                  .stage = wis::ShaderStages::Pixel }
-            };
-            fullscreen_root = ex::Unwrap(setup.device.CreateRootSignature(nullptr, 0, tables, std::size(tables)));
-        }
-
         // Create pipeline
         {
             wis::DataFormat attachment_formats[] = { ex::swapchain_format };
             wis::GraphicsPipelineDesc desc{
-                .root_signature = fullscreen_root,
+                .root_signature = root,
                 .shaders = { .vertex = fullscreen_vs, .pixel = fullscreen_ps },
                 .attachments = {
                         .attachment_formats = attachment_formats,
@@ -408,13 +376,13 @@ public:
                 .comparison_op = wis::Compare::None,
             };
             sampler = ex::Unwrap(setup.device.CreateSampler(&sample_desc));
-            sampler_buffer.WriteSampler(0, 0, sampler);
+            desc_storage.WriteSampler(0, sampler);
         }
 
         // fill desc buffer
         {
             for (uint32_t i = 0; i < ex::flight_frames; i++) {
-                desc_buffer.desc_buffer.WriteShaderResource(desc_buffer.offsets[i], 0, 0, 0, fullscreen_root, srvs[i]);
+                desc_storage.WriteTexture(i, srvs[i]);
             }
         }
     }

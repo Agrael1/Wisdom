@@ -49,6 +49,7 @@ struct VKGraphicsPipelineDesc {
      * Default is 0. 0 means regular rendering.
      * */
     uint32_t view_mask = 0;
+    wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
 };
 
 /**
@@ -803,6 +804,13 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
         output |= VK_IMAGE_USAGE_STORAGE_BIT;
     if (value & TextureUsage::HostCopy)
         output |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
+    return output;
+}
+inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
+{
+    VkPipelineCreateFlags output = {};
+    if (value & PipelineFlags::DescriptorBuffer)
+        output |= VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
     return output;
 }
 } // namespace wis

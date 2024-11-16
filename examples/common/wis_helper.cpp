@@ -21,7 +21,7 @@ wis::Factory ex::ExampleSetup::InitDefaultFactory(wis::FactoryExtension* platfor
     return std::move(factory);
 }
 
-void ex::ExampleSetup::InitDefaultDevice(const wis::Factory& factory)
+void ex::ExampleSetup::InitDefaultDevice(const wis::Factory& factory, std::span<wis::DeviceExtension*> device_exts)
 {
     for (size_t i = 0;; i++) {
         auto [res, adapter] = factory.GetAdapter(i);
@@ -32,7 +32,7 @@ void ex::ExampleSetup::InitDefaultDevice(const wis::Factory& factory)
         res = adapter.GetDesc(&desc);
         std::cout << "Adapter: " << desc.description.data() << "\n";
 
-        auto [res2, hdevice] = wis::CreateDevice(std::move(adapter));
+        auto [res2, hdevice] = wis::CreateDevice(std::move(adapter), device_exts.data(), device_exts.size());
         if (res2.status == wis::Status::Ok) {
             device = std::move(hdevice);
             return;
@@ -48,10 +48,10 @@ void ex::ExampleSetup::InitDefaultQueue()
     allocator = Unwrap(device.CreateAllocator());
 }
 
-void ex::ExampleSetup::InitDefault(wis::FactoryExtension* platform_ext)
+void ex::ExampleSetup::InitDefault(wis::FactoryExtension* platform_ext, std::span<wis::DeviceExtension*> device_exts)
 {
     wis::Factory factory = InitDefaultFactory(platform_ext);
-    InitDefaultDevice(factory);
+    InitDefaultDevice(factory, device_exts);
     InitDefaultQueue();
 }
 

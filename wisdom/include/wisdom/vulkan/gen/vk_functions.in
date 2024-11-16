@@ -62,8 +62,6 @@ vkCmdBindIndexBuffer
 vkCmdDrawIndexed
 vkCmdDraw
 vkCmdPushConstants
-vkCmdBindDescriptorBuffersEXT
-vkCmdSetDescriptorBufferOffsetsEXT
 vkCreateFence
 vkDestroyFence
 vkCreateSemaphore
@@ -75,7 +73,6 @@ vkWaitForFences
 vkResetFences
 vkCreateImageView
 vkDestroyImageView
-vkGetDescriptorSetLayoutSizeEXT
 vkDestroyDescriptorSetLayout
 vkCreateDescriptorSetLayout
 vkCreateSampler
@@ -102,8 +99,11 @@ vkGetImageMemoryRequirements
 vkGetDeviceBufferMemoryRequirements
 vkGetDeviceImageMemoryRequirements
 vkGetBufferDeviceAddress
-vkGetDescriptorSetLayoutBindingOffsetEXT
-vkGetDescriptorEXT
 vkGetSemaphoreCounterValue
 vkSignalSemaphore
 [opt]vkWaitForPresentKHR
+vkDestroyDescriptorPool
+vkCreateDescriptorPool
+vkAllocateDescriptorSets
+vkUpdateDescriptorSets
+vkCmdBindDescriptorSets

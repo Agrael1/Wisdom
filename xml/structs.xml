@@ -52,16 +52,6 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
-    <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer">
-      <impl name="dx">
-        <member type="void" name="value" mod="ptr"/>
-      </impl>
-      <impl name="vk">
-        <member type="u64" name="value1"/>
-        <member type="u32" name="value2"/>
-      </impl>
-    </type>
-    <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
     <type name="RootSignatureView2" category="variant" for="RootSignature" mod="cpp-only"/>
     <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
     <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
@@ -202,6 +192,7 @@ Describes hardware driver identificators as well as memory limits.">
     <type name="RootConstant" category="struct" doc="Root constant description for {RootSignatureDesc::}.">
       <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
       <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
+      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
     </type>
 
     <type name="SwapchainDesc" category="struct" doc="Swapchain description for {SwapChain::} creation.">
@@ -366,6 +357,16 @@ Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
 
+    <type name="DescriptorStorageDesc" category="struct" doc="Descriptor storage description for {DescriptorStorage::} creation.">
+      <member type="u32" name="sampler_count" doc="Count of sampler descriptors to allocate."/>
+      <member type="u32" name="cbuffer_count" doc="Count of constant buffer descriptors to allocate."/>
+      <member type="u32" name="sbuffer_count" doc="Count of storage buffer descriptors to allocate."/>
+      <member type="u32" name="texture_count" doc="Count of texture descriptors to allocate."/>
+      <member type="u32" name="stexture_count" doc="Count of storage texture descriptors to allocate."/>
+      <member type="u32" name="rbuffer_count" doc="Count of read only storage buffer descriptors to allocate."/>
+      <member type="DescriptorMemory" name="memory" doc="Descriptor memory to use."/>
+    </type>
+
     <!--Variants-->
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">
       <impl name="both">
@@ -404,6 +405,7 @@ If the extension is not supported/failed to initialize the result is NULL."/>
         <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
         <member type="u32" name="view_mask" default="0" doc="View mask for Multiview feature. If multiview is not available it is ignored.
 Default is 0. 0 means regular rendering."/>
+        <member type="PipelineFlags" name="flags" doc="Pipeline flags to add options to pipeline creation."/>
       </impl>
     </type>
 

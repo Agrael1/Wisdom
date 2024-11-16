@@ -64,6 +64,7 @@ CreateWorkNode(wis::Adapter&& adapter)
     WorkNode node{};
     wis::DeviceExtension* extensions[] = {
         &node.extended_alloc,
+        &node.desc_buffer_ext
     };
 
     // Create Device
@@ -256,7 +257,7 @@ CreateWorkNode(wis::Adapter&& adapter)
             },
 
         };
-        auto [result, root] = node.work_device.CreateRootSignature(nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
+        auto [result, root] = node.desc_buffer_ext.CreateRootSignature(nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
         if (result.status != wis::Status::Ok)
             return std::unexpected(result.error);
         node.root = std::move(root);
@@ -272,7 +273,8 @@ CreateWorkNode(wis::Adapter&& adapter)
             .attachments = {
                     .attachment_formats = attachment_formats,
                     .attachments_count = 1,
-            }
+            },
+            .flags = wis::PipelineFlags::DescriptorBuffer,
         };
         auto [res2, hpipeline] = node.work_device.CreateGraphicsPipeline(&desc);
         if (res2.status != wis::Status::Ok)
@@ -298,17 +300,24 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create Descriptor Buffers
     {
-        auto [res, hdesc] = node.work_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2);
+        uint32_t al_d = node.desc_buffer_ext.GetDescriptorTableAlignment(wis::DescriptorHeapType::Descriptor);
+        uint32_t al_s = node.desc_buffer_ext.GetDescriptorTableAlignment(wis::DescriptorHeapType::Sampler);
+        uint32_t inc_d = node.desc_buffer_ext.GetDescriptorSize(wis::DescriptorHeapType::Descriptor);
+        uint32_t inc_s = node.desc_buffer_ext.GetDescriptorSize(wis::DescriptorHeapType::Sampler);
+
+        auto desc_size = wis::detail::aligned_size(inc_d * 2, al_d);
+        auto [res, hdesc] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, desc_size);
         if (res.status != wis::Status::Ok)
             return std::unexpected(res.error);
 
-        auto [res2, hdesc2] = node.work_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 1);
+        auto sampler_size = wis::detail::aligned_size(inc_s, al_s);
+        auto [res2, hdesc2] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, sampler_size);
         if (res2.status != wis::Status::Ok)
             return std::unexpected(res2.error);
 
         // Set Descriptor Buffers
-        hdesc.WriteShaderResource2(0, 1, node.srv);
-        hdesc.WriteShaderResource2(0, 0, node.srv_lut);
+        hdesc.WriteShaderResource(0, 1, node.srv);
+        hdesc.WriteShaderResource(0, 0, node.srv_lut);
 
         hdesc2.WriteSampler(0, 0, node.sampler);
 
@@ -444,11 +453,10 @@ void WorkNode::Frame()
     cmd_list.BeginRenderPass(&rpdesc);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     cmd_list.SetRootSignature(root);
-
-    wis::DescriptorBufferView desc_buffers[] = { desc_buffer, sampler_buffer };
-    cmd_list.SetDescriptorBuffers(desc_buffers, std::size(desc_buffers));
-    cmd_list.SetDescriptorTableOffset(0, desc_buffer, 0);
-    cmd_list.SetDescriptorTableOffset(1, sampler_buffer, 0);
+    ;
+    desc_buffer_ext.SetDescriptorBuffers(cmd_list, desc_buffer, sampler_buffer);
+    desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root, 0, desc_buffer, 0);
+    desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root, 1, sampler_buffer, 0);
 
     cmd_list.RSSetViewport({ 0, 0, float(width), float(height), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, int(width), int(height) });

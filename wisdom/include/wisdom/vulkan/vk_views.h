@@ -2,6 +2,7 @@
 #define WIS_VK_VIEWS_H
 
 #include <tuple>
+#include <span>
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisvk/vk_loader.hpp>
 #include <wisdom/generated/api/api.h>
@@ -19,12 +20,11 @@ using VKQueueView = std::tuple<VkQueue>;
 using VKTextureView = std::tuple<VkImage, VkFormat, wis::Size2D>;
 using VKBufferView = std::tuple<VkBuffer>;
 using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
-using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType, uint32_t>;
-using VKDescriptorBufferGPUView = VKDescriptorBufferView;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
 using VKPipelineView = std::tuple<VkPipeline>;
+using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet, uint32_t(wis::BindingIndex::Count)>>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

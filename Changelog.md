@@ -7,6 +7,10 @@
   - Added common library for examples
   - Added Multiview support with example
   - Examples are now stored in examples/bin folder with compiled shaders and resources
+  - Added support for Xlib without XCB for Vulkan
+  - Moved DescriptorBuffer to its own extension. It is now only possible to use if both VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer are enabled
+  - Added support for VK_EXT_descriptor_indexing and created DescriptorStorage for bindless descriptors. This is now the default way of creating descriptor tables
+  - Lifted the restriction of mandatory VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer for Vulkan. It is now possible to use Wisdom with Vulkan 1.2 (with other mandatory extensions of course)
 
 - 0.3.15
 

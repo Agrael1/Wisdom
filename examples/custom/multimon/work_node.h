@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_descriptor_buffer.h>
 #include <expected>
 
 struct WorkNode {
@@ -29,6 +30,7 @@ public:
 
     wis::Device work_device;
     wis::ExtendedAllocation extended_alloc;
+    wis::DescriptorBufferExtension desc_buffer_ext;
     wis::ResourceAllocator allocator;
 
     wis::Texture lut;
