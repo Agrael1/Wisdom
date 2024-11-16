@@ -5,7 +5,7 @@ struct PSInput {
 struct PushConstants {
     uint buffer;
 };
-[[vk::push_constant]] ConstantBuffer<PushConstants> pushConstants : register(b0); 
+[[vk::push_constant]] ConstantBuffer<PushConstants> pushConstants : register(b0);
 
 struct Offsets {
     float offset;

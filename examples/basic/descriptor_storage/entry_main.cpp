@@ -216,8 +216,8 @@ public:
             using namespace wis;
             constant_buffers[0] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
             constant_buffers[1] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
-            desc_storage.WriteConstantBuffer(0, constant_buffers[0], sizeof(float));        
-            desc_storage.WriteConstantBuffer(1, constant_buffers[1], sizeof(float));        
+            desc_storage.WriteConstantBuffer(0, constant_buffers[0], sizeof(float));
+            desc_storage.WriteConstantBuffer(1, constant_buffers[1], sizeof(float));
 
             for (size_t i = 0; i < ex::flight_frames; i++) {
                 constant_data[i] = static_cast<float*>(constant_buffers[i].Map());

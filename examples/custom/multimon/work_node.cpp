@@ -453,7 +453,7 @@ void WorkNode::Frame()
     cmd_list.BeginRenderPass(&rpdesc);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     cmd_list.SetRootSignature(root);
-;
+    ;
     desc_buffer_ext.SetDescriptorBuffers(cmd_list, desc_buffer, sampler_buffer);
     desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root, 0, desc_buffer, 0);
     desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root, 1, sampler_buffer, 0);

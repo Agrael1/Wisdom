@@ -9,7 +9,7 @@ struct PSOutput {
 struct PushConstants {
     uint frame;
 };
-[[vk::push_constant]] ConstantBuffer<PushConstants> pushConstants : register(b0); 
+[[vk::push_constant]] ConstantBuffer<PushConstants> pushConstants : register(b0);
 
 // binding 0, space 1 is used for samplers
 [[vk::binding(0, 1)]] SamplerState sampler_point[] : register(s0, space1);

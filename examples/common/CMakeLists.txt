@@ -11,8 +11,9 @@ if(POSTFIX STREQUAL "vk")
   target_compile_definitions(${PROJECT_NAME} PUBLIC WISDOM_FORCE_VULKAN=1)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PUBLIC wis::debug wis::wisdom wis::descriptor-buffer
-                                             wis::platform SDL3::SDL3 glm::glm)
+target_link_libraries(
+  ${PROJECT_NAME} PUBLIC wis::debug wis::wisdom wis::descriptor-buffer
+                         wis::platform SDL3::SDL3 glm::glm)
 target_include_directories(${PROJECT_NAME} PUBLIC ${fpng_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
