@@ -31,7 +31,6 @@ if(WISDOM_BUILD_BINARIES)
 		"include/wisdom/dx12/dx12_device.h"
 		"include/wisdom/dx12/dx12_command_queue.h"
 		"include/wisdom/dx12/dx12_command_list.h"
-		"include/wisdom/dx12/dx12_descriptor_buffer.h"
 		"include/wisdom/dx12/dx12_descriptor_storage.h"
 		"include/wisdom/dx12/dx12_root_signature.h"
 		"include/wisdom/dx12/dx12_resource.h"
@@ -46,7 +45,6 @@ if(WISDOM_BUILD_BINARIES)
 		PRIVATE
 			"include/wisdom/dx12/impl/dx12_allocator.cpp"
 			"include/wisdom/dx12/impl/dx12_command_list.cpp"
- 			"include/wisdom/dx12/impl/dx12_descriptor_buffer.cpp"
 			"include/wisdom/dx12/impl/dx12_device.cpp"
 			"include/wisdom/dx12/impl/dx12_factory.cpp"
 			"include/wisdom/dx12/impl/dx12_fence.cpp"

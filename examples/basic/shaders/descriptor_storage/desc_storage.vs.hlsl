@@ -11,10 +11,9 @@ struct Offsets {
     float offset;
 };
 
-// binding 0, space 0 is used for samplers
-// binding 0, space 1 is used for constant buffers
-// binding 0, space 2 is used for storage buffers
-[[vk::binding(0, 1)]] ConstantBuffer<Offsets> offsets[] : register(b0, space1);
+// binding 0, space 1 is used for samplers
+// binding 0, space 2 is used for constant buffers
+[[vk::binding(0, 2)]] ConstantBuffer<Offsets> offsets[] : register(b0, space2);
 
 PSInput main(float3 position : POSITION, uint view : SV_VIEWID)
 {

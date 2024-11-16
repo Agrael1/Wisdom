@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_debug.h>
+#include <wisdom/wisdom_descriptor_buffer.h>
 #include <exception>
 #include <filesystem>
 #include <span>
@@ -68,10 +69,10 @@ struct DescTable {
 struct FramedDescriptorSetup {
 
     FramedDescriptorSetup() = default;
-    FramedDescriptorSetup(wis::Device& device, wis::DescriptorHeapType desc_type, std::span<const DescTable> tables)
+    FramedDescriptorSetup(wis::DescriptorBufferExtension& device, wis::DescriptorHeapType desc_type, std::span<const DescTable> tables)
     {
         auto desc_alignment = device.GetDescriptorTableAlignment(desc_type);
-        auto desc_increment = device.GetDescriptorBufferUnitSize(desc_type);
+        auto desc_increment = device.GetDescriptorSize(desc_type);
 
         // Create equal tables for each frame
         size_t bytes = 0;
@@ -105,10 +106,10 @@ public:
 
 public:
     wis::Factory InitDefaultFactory(wis::FactoryExtension* platform_ext);
-    void InitDefaultDevice(const wis::Factory& factory);
+    void InitDefaultDevice(const wis::Factory& factory, std::span<wis::DeviceExtension*> device_exts);
 
     void InitDefaultQueue();
-    void InitDefault(wis::FactoryExtension* platform_ext);
+    void InitDefault(wis::FactoryExtension* platform_ext, std::span<wis::DeviceExtension*> device_exts = {});
     void WaitForGPU();
 
     FramedCommandList CreateLists(wis::QueueType type = wis::QueueType::Graphics)

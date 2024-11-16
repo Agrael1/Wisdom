@@ -1,6 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_descriptor_buffer.h>
 #include <expected>
 
 struct ExternalBuffer {
@@ -175,6 +176,7 @@ public:
     ExtMemoryHost ext_mem_host;
     ExternalBuffer ext_buffer;
     wis::ExtendedAllocation extended_alloc;
+    wis::DescriptorBufferExtension desc_buffer_ext;
     wis::ResourceAllocator allocator;
 
     wis::Texture lut;

@@ -12,6 +12,7 @@
 // In this example, we will use a 3D texture with size 16x16x16, which is a common size for LUTs.
 // The LUT texture will be applied to the image, and the color correction will be visible.
 // The LUT texture is loaded from a file, and the image is rendered to the screen.
+// This example uses descriptor buffers, which are available on NVidia>=16xx.
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -60,6 +61,7 @@ class App
     wis::Sampler sampler_lut; // sampler for LUT (point)
 
     // Descriptor buffers
+    wis::DescriptorBufferExtension desc_ext; // descriptor buffer extension for shader resources
     wis::DescriptorBuffer desc_buffer; // descriptor buffer for shader resources
     wis::DescriptorBuffer sampler_buffer; // descriptor buffer for samplers
 
@@ -67,19 +69,20 @@ public:
     App()
         : window("LUT", 800, 600)
     {
-        setup.InitDefault(window.GetPlatformExtension());
+        wis::DeviceExtension* exts[] = { &desc_ext };
+        setup.InitDefault(window.GetPlatformExtension(), exts);
         auto [w, h] = window.PixelSize();
         auto swapx = window.CreateSwapchain(setup);
         std::construct_at(&swap, setup.device, std::move(swapx), w, h);
         cmd_list = setup.CreateLists();
 
         // Only a single descriptor table with 1 descriptor
-        uint32_t desc_increment = setup.device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Descriptor);
-        desc_buffer = ex::Unwrap(setup.device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2 * desc_increment));
+        uint32_t desc_increment = desc_ext.GetDescriptorSize(wis::DescriptorHeapType::Descriptor);
+        desc_buffer = ex::Unwrap(desc_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2 * desc_increment));
 
         // No need for multiple samplers
-        uint32_t samp_increment = setup.device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Sampler);
-        sampler_buffer = ex::Unwrap(setup.device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 2 * samp_increment));
+        uint32_t samp_increment = desc_ext.GetDescriptorSize(wis::DescriptorHeapType::Sampler);
+        sampler_buffer = ex::Unwrap(desc_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 2 * samp_increment));
     }
 
 public:
@@ -154,11 +157,11 @@ public:
         cmd2.BeginRenderPass(&rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
 
-        wis::DescriptorBufferView desc_buffers[] = { desc_buffer, sampler_buffer };
-        cmd2.SetDescriptorBuffers(desc_buffers, 2);
+        // Bind resources
+        desc_ext.SetDescriptorBuffers(cmd2, desc_buffer, sampler_buffer);
+        desc_ext.SetDescriptorTableOffset(cmd2, root, 0, desc_buffer, 0);
+        desc_ext.SetDescriptorTableOffset(cmd2, root, 1, sampler_buffer, 0);
 
-        cmd2.SetDescriptorTableOffset(0, desc_buffer, 0);
-        cmd2.SetDescriptorTableOffset(1, sampler_buffer, 0);
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
         auto [w, h] = window.PixelSize();
@@ -232,7 +235,7 @@ public:
                   .entry_count = 2,
                   .stage = wis::ShaderStages::Pixel }
             };
-            root = ex::Unwrap(setup.device.CreateRootSignature(nullptr, 0, tables, std::size(tables)));
+            root = ex::Unwrap(desc_ext.CreateRootSignature(nullptr, 0, tables, std::size(tables)));
         }
 
         // Create pipeline
@@ -245,6 +248,7 @@ public:
                         .attachment_formats = attachment_formats,
                         .attachments_count = 1,
                 },
+                .flags = wis::PipelineFlags::DescriptorBuffer, // use descriptor buffer for root signature
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(&desc));
         }
@@ -311,7 +315,7 @@ public:
 
             // Write LUT SRV to the descriptor buffer
             // desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_lut);
-            desc_buffer.WriteShaderResource2(0, 0, srv_lut);
+            desc_buffer.WriteShaderResource(0, 0, srv_lut);
 
             // Create sampler for LUT
             wis::SamplerDesc sample_desc{
@@ -390,8 +394,7 @@ public:
             srv = ex::Unwrap(device.CreateShaderResource(texture, srv_desc));
 
             // Write image SRV to the descriptor buffer
-            // desc_buffer.WriteShaderResource(0, 1, 0, 0, root, srv);
-            desc_buffer.WriteShaderResource2(0, 1, srv);
+            desc_buffer.WriteShaderResource(0, 1, srv);
 
             // Create sampler for image
             wis::SamplerDesc sample_desc{

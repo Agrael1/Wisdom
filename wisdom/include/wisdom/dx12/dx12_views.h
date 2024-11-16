@@ -13,8 +13,6 @@ class Allocation;
 
 namespace wis {
 class DX12DescriptorStorage;
-
-static inline constexpr uint32_t max_desc_storage_desc_sets_dx12 = 6;
 using DX12FactoryHandle = std::tuple<IDXGIFactory6*>;
 
 using DX12FenceView = std::tuple<ID3D12Fence*>;

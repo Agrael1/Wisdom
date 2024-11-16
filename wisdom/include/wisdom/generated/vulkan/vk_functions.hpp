@@ -259,6 +259,8 @@ public:
 };
 
 struct VKMainDevice {
+    PFN_vkCmdCopyBufferToImage2 vkCmdCopyBufferToImage2;
+    PFN_vkCmdCopyImageToBuffer2 vkCmdCopyImageToBuffer2;
     PFN_vkUnmapMemory vkUnmapMemory;
     PFN_vkDestroyDevice vkDestroyDevice;
     PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
@@ -316,11 +318,6 @@ struct VKMainDevice {
     PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
     PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
     PFN_vkGetDeviceQueue2 vkGetDeviceQueue2;
-    PFN_vkCmdSetDescriptorBufferOffsetsEXT vkCmdSetDescriptorBufferOffsetsEXT;
-    PFN_vkGetDescriptorEXT vkGetDescriptorEXT;
-    PFN_vkGetDescriptorSetLayoutSizeEXT vkGetDescriptorSetLayoutSizeEXT;
-    PFN_vkGetDescriptorSetLayoutBindingOffsetEXT vkGetDescriptorSetLayoutBindingOffsetEXT;
-    PFN_vkCmdBindDescriptorBuffersEXT vkCmdBindDescriptorBuffersEXT;
 #if defined(VK_KHR_maintenance5)
     PFN_vkCmdBindIndexBuffer2KHR vkCmdBindIndexBuffer2KHR;
 #else
@@ -352,8 +349,6 @@ struct VKMainDevice {
     PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2;
     PFN_vkQueueSubmit2 vkQueueSubmit2;
     PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
-    PFN_vkCmdCopyBufferToImage2 vkCmdCopyBufferToImage2;
-    PFN_vkCmdCopyImageToBuffer2 vkCmdCopyImageToBuffer2;
     PFN_vkCmdBeginRendering vkCmdBeginRendering;
     PFN_vkCmdEndRendering vkCmdEndRendering;
     PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
@@ -372,6 +367,34 @@ struct VKMainDevice {
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
+        static constexpr std::array vkCmdCopyBufferToImage2_strings
+        {
+#if defined(VK_VERSION_1_3)
+            "vkCmdCopyBufferToImage2",
+#endif
+#if defined(VK_KHR_copy_commands2)
+                    "vkCmdCopyBufferToImage2KHR",
+#endif
+        };
+        for (auto vkCmdCopyBufferToImage2_it : vkCmdCopyBufferToImage2_strings)
+            if ((vkCmdCopyBufferToImage2 = (PFN_vkCmdCopyBufferToImage2)vkGetDeviceProcAddr(device, vkCmdCopyBufferToImage2_it)))
+                break;
+        if (vkCmdCopyBufferToImage2 == nullptr)
+            return false;
+        static constexpr std::array vkCmdCopyImageToBuffer2_strings
+        {
+#if defined(VK_VERSION_1_3)
+            "vkCmdCopyImageToBuffer2",
+#endif
+#if defined(VK_KHR_copy_commands2)
+                    "vkCmdCopyImageToBuffer2KHR",
+#endif
+        };
+        for (auto vkCmdCopyImageToBuffer2_it : vkCmdCopyImageToBuffer2_strings)
+            if ((vkCmdCopyImageToBuffer2 = (PFN_vkCmdCopyImageToBuffer2)vkGetDeviceProcAddr(device, vkCmdCopyImageToBuffer2_it)))
+                break;
+        if (vkCmdCopyImageToBuffer2 == nullptr)
+            return false;
         vkUnmapMemory = (PFN_vkUnmapMemory)vkGetDeviceProcAddr(device, "vkUnmapMemory");
         if (vkUnmapMemory == nullptr)
             return false;
@@ -565,21 +588,6 @@ public:
         vkGetDeviceQueue2 = (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(device, "vkGetDeviceQueue2");
         if (vkGetDeviceQueue2 == nullptr)
             return false;
-        vkCmdSetDescriptorBufferOffsetsEXT = (PFN_vkCmdSetDescriptorBufferOffsetsEXT)vkGetDeviceProcAddr(device, "vkCmdSetDescriptorBufferOffsetsEXT");
-        if (vkCmdSetDescriptorBufferOffsetsEXT == nullptr)
-            return false;
-        vkGetDescriptorEXT = (PFN_vkGetDescriptorEXT)vkGetDeviceProcAddr(device, "vkGetDescriptorEXT");
-        if (vkGetDescriptorEXT == nullptr)
-            return false;
-        vkGetDescriptorSetLayoutSizeEXT = (PFN_vkGetDescriptorSetLayoutSizeEXT)vkGetDeviceProcAddr(device, "vkGetDescriptorSetLayoutSizeEXT");
-        if (vkGetDescriptorSetLayoutSizeEXT == nullptr)
-            return false;
-        vkGetDescriptorSetLayoutBindingOffsetEXT = (PFN_vkGetDescriptorSetLayoutBindingOffsetEXT)vkGetDeviceProcAddr(device, "vkGetDescriptorSetLayoutBindingOffsetEXT");
-        if (vkGetDescriptorSetLayoutBindingOffsetEXT == nullptr)
-            return false;
-        vkCmdBindDescriptorBuffersEXT = (PFN_vkCmdBindDescriptorBuffersEXT)vkGetDeviceProcAddr(device, "vkCmdBindDescriptorBuffersEXT");
-        if (vkCmdBindDescriptorBuffersEXT == nullptr)
-            return false;
         vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer2KHR");
         static constexpr std::array vkGetImageMemoryRequirements2_strings
         {
@@ -715,34 +723,6 @@ public:
             if ((vkGetBufferDeviceAddress = (PFN_vkGetBufferDeviceAddress)vkGetDeviceProcAddr(device, vkGetBufferDeviceAddress_it)))
                 break;
         if (vkGetBufferDeviceAddress == nullptr)
-            return false;
-        static constexpr std::array vkCmdCopyBufferToImage2_strings
-        {
-#if defined(VK_VERSION_1_3)
-            "vkCmdCopyBufferToImage2",
-#endif
-#if defined(VK_KHR_copy_commands2)
-                    "vkCmdCopyBufferToImage2KHR",
-#endif
-        };
-        for (auto vkCmdCopyBufferToImage2_it : vkCmdCopyBufferToImage2_strings)
-            if ((vkCmdCopyBufferToImage2 = (PFN_vkCmdCopyBufferToImage2)vkGetDeviceProcAddr(device, vkCmdCopyBufferToImage2_it)))
-                break;
-        if (vkCmdCopyBufferToImage2 == nullptr)
-            return false;
-        static constexpr std::array vkCmdCopyImageToBuffer2_strings
-        {
-#if defined(VK_VERSION_1_3)
-            "vkCmdCopyImageToBuffer2",
-#endif
-#if defined(VK_KHR_copy_commands2)
-                    "vkCmdCopyImageToBuffer2KHR",
-#endif
-        };
-        for (auto vkCmdCopyImageToBuffer2_it : vkCmdCopyImageToBuffer2_strings)
-            if ((vkCmdCopyImageToBuffer2 = (PFN_vkCmdCopyImageToBuffer2)vkGetDeviceProcAddr(device, vkCmdCopyImageToBuffer2_it)))
-                break;
-        if (vkCmdCopyImageToBuffer2 == nullptr)
             return false;
         static constexpr std::array vkCmdBeginRendering_strings
         {

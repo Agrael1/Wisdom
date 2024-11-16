@@ -68,7 +68,7 @@ public:
      * */
     inline void ExecuteCommandLists(const wis::DX12CommandListView* lists, uint32_t count) const noexcept
     {
-        return wis::ImplDX12CommandQueue::ExecuteCommandLists(lists, count);
+        wis::ImplDX12CommandQueue::ExecuteCommandLists(lists, count);
     }
     /**
      * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.

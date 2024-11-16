@@ -27,7 +27,6 @@ if(WISDOM_BUILD_BINARIES)
  		"include/wisdom/vulkan/vk_command_queue.h"
  		"include/wisdom/vulkan/vk_command_list.h"
  		"include/wisdom/vulkan/vk_root_signature.h"
- 		"include/wisdom/vulkan/vk_descriptor_buffer.h"
  		"include/wisdom/vulkan/vk_descriptor_storage.h"
  		"include/wisdom/vulkan/vk_resource.h"
  		"include/wisdom/vulkan/vk_shader.h"
@@ -40,7 +39,6 @@ if(WISDOM_BUILD_BINARIES)
 	add_library(wis::vulkan ALIAS wisdom-vk)
 	target_sources(wisdom-vk
 		PRIVATE
- 			"include/wisdom/vulkan/impl/vk_descriptor_buffer.cpp"
 			"include/wisdom/vulkan/impl/vk_factory.cpp"
 			"include/wisdom/vulkan/impl/vk_create_factory.cpp"
 			"include/wisdom/vulkan/impl/vk_allocator.cpp"

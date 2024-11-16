@@ -437,59 +437,12 @@ void wis::ImplVKCommandList::SetRootConstants(const void* data, uint32_t size_4b
     device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
 
-void wis::ImplVKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView* buffers, uint32_t buffer_count) noexcept
-{
-    if (buffer_count == 0)
-        return;
-
-    VkDescriptorBufferBindingInfoEXT infos[2] = {
-        {
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-                .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT,
-        },
-
-        {
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-                .usage = VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT,
-        }
-    };
-
-    uint8_t id = false;
-
-    for (size_t i = 0; i < buffer_count; i++) {
-        auto& buffer = buffers[i];
-        auto address = std::get<0>(buffer);
-        if (std::get<1>(buffer) == wis::DescriptorHeapType::Descriptor) {
-            infos[0].address = address;
-            id |= 1;
-        } else {
-            infos[1].address = address;
-            id |= 2;
-        }
-    }
-
-    auto* pinfos = infos + (id == 2);
-    uint32_t xbuffer_count = 1 + uint32_t(id == 3);
-
-    device.table().vkCmdBindDescriptorBuffersEXT(command_list, xbuffer_count, pinfos);
-}
-
-void wis::ImplVKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_bytes) noexcept
-{
-    auto binding = std::get<1>(buffer);
-    uint32_t index = uint32_t(binding == wis::DescriptorHeapType::Sampler);
-    VkDeviceSize offset = offset_bytes;
-
-    device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
-                                                      &index, &offset);
-}
-
 void wis::ImplVKCommandList::SetDescriptorStorage(wis::VKDescriptorStorageView desc_storage) noexcept
 {
     auto& set_span = std::get<0>(desc_storage);
     device.table().vkCmdBindDescriptorSets(command_list,
                                            VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                           pipeline_layout, 0,
+                                           pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
                                            set_span.size(), set_span.data(),
                                            0, nullptr);
 }

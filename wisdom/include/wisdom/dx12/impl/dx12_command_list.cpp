@@ -376,18 +376,6 @@ void wis::ImplDX12CommandList::SetRootConstants(const void* data, uint32_t size_
     list->SetGraphicsRoot32BitConstants(UINT(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
 }
 
-void wis::ImplDX12CommandList::SetDescriptorBuffers(const wis::DX12DescriptorBufferView* buffers, uint32_t buffer_count) noexcept
-{
-    list->SetDescriptorHeaps(buffer_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(buffers));
-}
-
-void wis::ImplDX12CommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_bytes) noexcept
-{
-    auto handle = std::get<0>(buffer);
-    list->SetGraphicsRootDescriptorTable(root_table_offset + root_table_index,
-                                         CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_bytes));
-}
-
 void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept
 {
     auto& storage = std::get<0>(desc_storage)->GetInternal();
@@ -396,31 +384,40 @@ void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageVi
     uint32_t increment = 0;
     if (storage.heap_sampler) {
         heaps[increment++] = storage.heap_sampler.get();
-        list->SetGraphicsRootDescriptorTable(0, storage.heap_gpu_starts[1]);
     }
     if (storage.heap_resource) {
         heaps[increment++] = storage.heap_resource.get();
     }
 
     list->SetDescriptorHeaps(increment, heaps.data());
-    
+
     if (storage.heap_sampler) {
-        list->SetGraphicsRootDescriptorTable(1, storage.heap_gpu_starts[1]);
+        list->SetGraphicsRootDescriptorTable(uint32_t(wis::BindingIndex::Sampler), storage.heap_gpu_starts[1]); // 0 is reserved for push constants and push descriptors
     }
     if (storage.heap_resource) {
-        CD3DX12_GPU_DESCRIPTOR_HANDLE handles[wis::max_desc_storage_desc_sets_dx12 - 1]{
+        CD3DX12_GPU_DESCRIPTOR_HANDLE handles[+wis::BindingIndex::Count - 1]{
             // 0 is reserved for sampler heap
             storage.heap_gpu_starts[0],
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[1].ptr - storage.heap_starts[0].ptr)),
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[2].ptr - storage.heap_starts[0].ptr)),
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[3].ptr - storage.heap_starts[0].ptr)),
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[4].ptr - storage.heap_starts[0].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[2].ptr - storage.heap_starts[1].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[3].ptr - storage.heap_starts[1].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[4].ptr - storage.heap_starts[1].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[5].ptr - storage.heap_starts[1].ptr)),
         };
-        list->SetGraphicsRootDescriptorTable(2, handles[0]);
-        //list->SetGraphicsRootDescriptorTable(3, handles[1]);
-        //list->SetGraphicsRootDescriptorTable(4, handles[2]);
-        //list->SetGraphicsRootDescriptorTable(5, handles[3]);
-        //list->SetGraphicsRootDescriptorTable(6, handles[4]);
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::ConstantBuffer) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::ConstantBuffer) - 1, handles[0]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::Texture) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::Texture) - 1, handles[1]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::RWTexture) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::RWTexture) - 1, handles[2]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::RWBuffer) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::RWBuffer) - 1, handles[3]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::Buffer) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::Buffer) - 1, handles[4]);
+        }
     }
 }
 #endif // WIS_DX12_COMMAND_LIST_H

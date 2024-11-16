@@ -8,8 +8,6 @@
 #include <wisdom/generated/api/api.h>
 
 namespace wis {
-static inline constexpr uint32_t max_desc_storage_desc_sets_vk = 6;
-
 using VKFactoryHandle = std::tuple<wis::SharedInstance>;
 using VKDeviceHandle = std::tuple<wis::SharedDevice>;
 
@@ -22,13 +20,11 @@ using VKQueueView = std::tuple<VkQueue>;
 using VKTextureView = std::tuple<VkImage, VkFormat, wis::Size2D>;
 using VKBufferView = std::tuple<VkBuffer>;
 using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
-using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType, uint32_t>;
-using VKDescriptorBufferGPUView = VKDescriptorBufferView;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
 using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
 using VKPipelineView = std::tuple<VkPipeline>;
-using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet, max_desc_storage_desc_sets_vk>>;
+using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet, uint32_t(wis::BindingIndex::Count)>>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

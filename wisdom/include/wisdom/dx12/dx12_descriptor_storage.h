@@ -13,7 +13,7 @@ class DX12DescriptorStorage;
 template<>
 struct Internal<DX12DescriptorStorage> {
     // sampler, Uniform buffer, storage RW buffer, sampled image, storage RW image. Maybe storage read buffer will be needed.
-    static constexpr uint32_t max_sets = max_desc_storage_desc_sets_dx12;
+    static constexpr uint32_t max_sets = uint32_t(wis::BindingIndex::Count);
 
     wis::com_ptr<ID3D12Device> device;
     wis::com_ptr<ID3D12DescriptorHeap> heap_resource;
@@ -27,14 +27,6 @@ struct Internal<DX12DescriptorStorage> {
 
 class ImplDX12DescriptorStorage : public QueryInternal<DX12DescriptorStorage>
 {
-    enum SetIndex : uint32_t {
-        Sampler = 0,
-        ConstantBuffer = 1,
-        StorageBuffer = 2,
-        SampledImage = 3,
-        StorageImage = 4,
-        StorageReadBuffer = 5
-    };
 public:
     ImplDX12DescriptorStorage() = default;
     explicit ImplDX12DescriptorStorage(Internal<DX12DescriptorStorage>&& internal) noexcept
@@ -55,7 +47,7 @@ public:
 public:
     void WriteSampler(uint32_t index, wis::DX12SamplerView sampler) noexcept
     {
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_starts[Sampler], index, heap_sampler_increment);
+        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_starts[uint32_t(wis::BindingIndex::Sampler) - 1], index, heap_sampler_increment);
         auto& sampler_handle = std::get<0>(sampler);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
     }
@@ -67,8 +59,14 @@ public:
             .SizeInBytes = wis::detail::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT))
         };
 
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_starts[ConstantBuffer], index, heap_resource_increment);
+        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_starts[uint32_t(wis::BindingIndex::ConstantBuffer) - 1], index, heap_resource_increment);
         device->CreateConstantBufferView(&desc, handle);
+    }
+    void WriteTexture(uint32_t index, wis::DX12ShaderResourceView srv) noexcept
+    {
+        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_starts[uint32_t(wis::BindingIndex::Texture) - 1], index, heap_resource_increment);
+        auto& srv_handle = std::get<0>(srv);
+        device->CopyDescriptorsSimple(1, handle, srv_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 };
 
@@ -90,7 +88,28 @@ public:
      * */
     inline void WriteSampler(uint32_t index, wis::DX12SamplerView sampler) noexcept
     {
-        return wis::ImplDX12DescriptorStorage::WriteSampler(index, std::move(sampler));
+        wis::ImplDX12DescriptorStorage::WriteSampler(index, std::move(sampler));
+    }
+    /**
+     * @brief Writes the constant buffer to the constant buffer descriptor storage.
+     * @param index Index in array of constant buffers to fill.
+     * @param buffer The buffer to write.
+     * @param size The size of the constant buffer in bytes.
+     * @param offset The offset in the buffer to write the constant buffer to.
+     * size + offset must be less or equal the overall size of the bound buffer.
+     * */
+    inline void WriteConstantBuffer(uint32_t index, wis::DX12BufferView buffer, uint32_t size, uint32_t offset = 0) noexcept
+    {
+        wis::ImplDX12DescriptorStorage::WriteConstantBuffer(index, std::move(buffer), size, offset);
+    }
+    /**
+     * @brief Writes the texture to the shader resource descriptor storage.
+     * @param index Index in array of shader resources to fill.
+     * @param resource The shader resource to write.
+     * */
+    inline void WriteTexture(uint32_t index, wis::DX12ShaderResourceView resource) noexcept
+    {
+        wis::ImplDX12DescriptorStorage::WriteTexture(index, std::move(resource));
     }
 };
 #pragma endregion DX12DescriptorStorage

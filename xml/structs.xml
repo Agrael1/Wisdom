@@ -52,16 +52,6 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
-    <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer">
-      <impl name="dx">
-        <member type="void" name="value" mod="ptr"/>
-      </impl>
-      <impl name="vk">
-        <member type="u64" name="value1"/>
-        <member type="u32" name="value2"/>
-      </impl>
-    </type>
-    <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
     <type name="RootSignatureView2" category="variant" for="RootSignature" mod="cpp-only"/>
     <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
     <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
@@ -415,6 +405,7 @@ If the extension is not supported/failed to initialize the result is NULL."/>
         <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
         <member type="u32" name="view_mask" default="0" doc="View mask for Multiview feature. If multiview is not available it is ignored.
 Default is 0. 0 means regular rendering."/>
+        <member type="PipelineFlags" name="flags" doc="Pipeline flags to add options to pipeline creation."/>
       </impl>
     </type>
 

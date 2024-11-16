@@ -989,6 +989,32 @@ enum class TextureLayout : uint32_t {
 };
 
 /**
+ * @brief Binding index for resources.
+ * Used in wis::DescriptorStorage to determine which descriptor type goes where when binding.
+ * Same values are used for HLSL side to pick descriptors up.
+ * Space 0 and set 0 are reserved for push descriptors and push constants.
+ *
+ * */
+enum class BindingIndex : uint32_t {
+    /**
+     * @brief No binding index set.Results in [[vk::binding(*,0)]] and register(*).
+     * This space is reserved for push constants and push descriptors.
+     * */
+    None = 0,
+    Sampler = 1, ///< Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1).
+    ConstantBuffer = 2, ///< Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2).
+    Texture = 3, ///< Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3).
+    RWTexture = 4, ///< Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4).
+    RWBuffer = 5, ///< Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5).
+    /**
+     * @brief Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
+     * Can't be merged with Texture because of Vulkan.
+     * */
+    Buffer = 6,
+    Count = 6, ///< Number of binding indices. Used for array sizes.
+};
+
+/**
  * @brief Descriptor heap type.
  *
  * Translates to D3D12_DESCRIPTOR_HEAP_TYPE for dx implementation.
@@ -1058,11 +1084,6 @@ enum class TopologyType : uint32_t {
  * */
 enum class DeviceFeature : uint32_t {
     /**
-     * @brief Core Functionality. Descriptor buffer support for VK, always true for DX12.
-     * Vulkan provides DescriptorPool and DescriptorSet functionalities, that have to be used manually through library internals.
-     * */
-    DescriptorBuffer = 0,
-    /**
      * @brief Core Functionality. Supports enhanced barriers. Support for VK and DX12.
      * Used in all barriers to provide more control over synchronization. Without the feature behavior is undefined.
      * To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals.
@@ -1074,11 +1095,6 @@ enum class DeviceFeature : uint32_t {
      * Unlocks Swapchain::WaitForPresent.
      * */
     WaitForPresent = 2,
-    /**
-     * @brief Descriptor size for SRV UAV and CBV are equal in size, support for VK, always true for DX12.
-     * Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined.
-     * */
-    DescriptorEqualSize = 3,
     /**
      * @brief Supports advanced index buffer features. Support for VK, always true for DX12.
      * Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined.
@@ -1181,6 +1197,7 @@ enum class FactoryExtID : uint32_t {
  * */
 enum class DeviceExtID : uint32_t {
     Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
+    DescriptorBufferExtension = 1,
 };
 
 /**
@@ -1369,6 +1386,21 @@ enum class TextureUsage {
 enum class FenceFlags {
     None = 0x0, ///< No flags set. Fence is regular.
     Shared = 1 << 0, ///< Fence is shared. Used for sharing fences for single physical device.
+};
+
+/**
+ * @brief Pipeline flags for additional pipeline features
+ *
+ * Translates to D3D12_PIPELINE_STATE_FLAGS for dx implementation.
+ * Translates to VkPipelineCreateFlags for vk implementation.
+ * */
+enum class PipelineFlags {
+    None = 0x0, ///< No flags set. Pipeline is regular.
+    /**
+     * @brief Pipeline is created to be used with DescriptorBuffer extension.
+     * Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.
+     * */
+    DescriptorBuffer = 1 << 0,
 };
 
 /**
@@ -1833,6 +1865,9 @@ struct is_flag_enum<wis::TextureUsage> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::FenceFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::PipelineFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 

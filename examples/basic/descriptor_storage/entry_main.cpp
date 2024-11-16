@@ -173,7 +173,7 @@ public:
         wis::RootConstant root_constants[]{
             { .stage = wis::ShaderStages::Vertex, .size_bytes = sizeof(uint32_t) }
         };
-        root = ex::Unwrap(setup.device.CreateDescriptorStorageRootSignature(root_constants, std::size(root_constants)));
+        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants)));
 
         // Create pipeline
         {

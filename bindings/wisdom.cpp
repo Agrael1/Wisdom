@@ -125,10 +125,10 @@ extern "C" WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12PipelineState." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature)
+extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisRootConstant* root_constants, uint32_t constants_size, DX12RootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -216,79 +216,10 @@ extern "C" WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12ShaderResource." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" uint32_t DX12DeviceGetDescriptorTableAlignment(DX12Device self, WisDescriptorHeapType heap)
-{
-    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto res = xself->GetDescriptorTableAlignment(static_cast<wis::DescriptorHeapType>(heap));
-    ;
-    return res;
-}
-extern "C" uint32_t DX12DeviceGetDescriptorBufferUnitSize(DX12Device self, WisDescriptorHeapType heap)
-{
-    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto res = xself->GetDescriptorBufferUnitSize(static_cast<wis::DescriptorHeapType>(heap));
-    ;
-    return res;
-}
-extern "C" WisResult DX12DeviceCreateDescriptorBuffer(DX12Device self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, DX12DescriptorBuffer* buffer)
-{
-    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), size_bytes);
-
-    if (res.status != wis::Status::Ok)
-        return reinterpret_cast<WisResult&>(res);
-
-    *buffer = reinterpret_cast<DX12DescriptorBuffer>(new (std::nothrow) wis::DX12DescriptorBuffer(std::move(value)));
-    if (!*buffer)
-        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12DescriptorBuffer." };
-    return reinterpret_cast<WisResult&>(res);
-}
 extern "C" bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature feature)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
     auto res = xself->QueryFeatureSupport(static_cast<wis::DeviceFeature>(feature));
-    ;
-    return res;
-}
-
-// DX12DescriptorBuffer methods --
-extern "C" void DX12DescriptorBufferDestroy(DX12DescriptorBuffer self)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
-    delete xself;
-}
-extern "C" uint64_t DX12DescriptorBufferWriteSampler(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Sampler sampler)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
-    auto res = xself->WriteSampler(aligned_table_offset, index, *reinterpret_cast<wis::DX12Sampler*>(sampler));
-    ;
-    return res;
-}
-extern "C" uint64_t DX12DescriptorBufferWriteShaderResource2(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12ShaderResource resource)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
-    auto res = xself->WriteShaderResource2(aligned_table_offset, index, *reinterpret_cast<wis::DX12ShaderResource*>(resource));
-    ;
-    return res;
-}
-extern "C" uint64_t DX12DescriptorBufferWriteConstantBuffer2(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Buffer buffer, uint32_t buffer_size)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
-    auto res = xself->WriteConstantBuffer2(aligned_table_offset, index, *reinterpret_cast<wis::DX12Buffer*>(buffer), buffer_size);
-    ;
-    return res;
-}
-extern "C" uint64_t DX12DescriptorBufferWriteShaderResource(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, DX12RootSignature root_signature, DX12ShaderResource resource)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
-    auto res = xself->WriteShaderResource(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::DX12RootSignature*>(root_signature), *reinterpret_cast<wis::DX12ShaderResource*>(resource));
-    ;
-    return res;
-}
-extern "C" uint64_t DX12DescriptorBufferWriteConstantBuffer(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, DX12RootSignature root_signature, DX12Buffer buffer, uint32_t buffer_size)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorBuffer*>(self);
-    auto res = xself->WriteConstantBuffer(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::DX12RootSignature*>(root_signature), *reinterpret_cast<wis::DX12Buffer*>(buffer), buffer_size);
     ;
     return res;
 }
@@ -390,6 +321,20 @@ extern "C" WisResult DX12ResourceAllocatorPlaceTexture(DX12ResourceAllocator sel
     if (!*texture)
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Texture." };
     return reinterpret_cast<WisResult&>(res);
+}
+
+// DX12Memory methods --
+extern "C" void DX12MemoryDestroy(DX12Memory self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
+    delete xself;
+}
+extern "C" uint64_t DX12MemoryGetBlockOffset(DX12Memory self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
+    auto res = xself->GetBlockOffset();
+    ;
+    return res;
 }
 
 // DX12Fence methods --
@@ -557,30 +502,6 @@ extern "C" void DX12CommandListSetRootConstants(DX12CommandList self, void* data
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->SetRootConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
 }
-extern "C" void DX12CommandListSetDescriptorBuffers(DX12CommandList self, const DX12DescriptorBufferView* buffers, uint32_t buffer_count)
-{
-    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
-    xself->SetDescriptorBuffers(reinterpret_cast<const wis::DX12DescriptorBufferView*&>(buffers), buffer_count);
-}
-extern "C" void DX12CommandListSetDescriptorTableOffset(DX12CommandList self, uint32_t root_table_index, DX12DescriptorBuffer buffer, uint32_t offset_bytes)
-{
-    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
-    xself->SetDescriptorTableOffset(root_table_index, *reinterpret_cast<wis::DX12DescriptorBuffer*>(buffer), offset_bytes);
-}
-
-// DX12Memory methods --
-extern "C" void DX12MemoryDestroy(DX12Memory self)
-{
-    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
-    delete xself;
-}
-extern "C" uint64_t DX12MemoryGetBlockOffset(DX12Memory self)
-{
-    auto* xself = reinterpret_cast<wis::DX12Memory*>(self);
-    auto res = xself->GetBlockOffset();
-    ;
-    return res;
-}
 
 // DX12SwapChain methods --
 extern "C" void DX12SwapChainDestroy(DX12SwapChain self)
@@ -668,6 +589,16 @@ extern "C" void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, ui
     auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
     xself->WriteSampler(index, *reinterpret_cast<wis::DX12Sampler*>(sampler));
 }
+extern "C" void DX12DescriptorStorageWriteConstantBuffer(DX12DescriptorStorage self, uint32_t index, DX12Buffer buffer, uint32_t size, uint32_t offset)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteConstantBuffer(index, *reinterpret_cast<wis::DX12Buffer*>(buffer), size, offset);
+}
+extern "C" void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, uint32_t index, DX12ShaderResource resource)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteTexture(index, *reinterpret_cast<wis::DX12ShaderResource*>(resource));
+}
 
 // DX12RootSignature methods --
 extern "C" void DX12RootSignatureDestroy(DX12RootSignature self)
@@ -745,11 +676,6 @@ extern "C" DX12RootSignatureView AsDX12RootSignatureView(DX12RootSignature self)
 {
     wis::DX12RootSignatureView xself = reinterpret_cast<wis::DX12RootSignature&>(*self);
     return reinterpret_cast<DX12RootSignatureView&>(xself);
-}
-extern "C" DX12DescriptorBufferView AsDX12DescriptorBufferView(DX12DescriptorBuffer self)
-{
-    wis::DX12DescriptorBufferView xself = reinterpret_cast<wis::DX12DescriptorBuffer&>(*self);
-    return reinterpret_cast<DX12DescriptorBufferView&>(xself);
 }
 #endif
 
@@ -878,10 +804,10 @@ extern "C" WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKPipelineState." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult VKDeviceCreateRootSignature(VKDevice self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature)
+extern "C" WisResult VKDeviceCreateRootSignature(VKDevice self, const WisRootConstant* root_constants, uint32_t constants_size, VKRootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -969,79 +895,10 @@ extern "C" WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture textu
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKShaderResource." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" uint32_t VKDeviceGetDescriptorTableAlignment(VKDevice self, WisDescriptorHeapType heap)
-{
-    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto res = xself->GetDescriptorTableAlignment(static_cast<wis::DescriptorHeapType>(heap));
-    ;
-    return res;
-}
-extern "C" uint32_t VKDeviceGetDescriptorBufferUnitSize(VKDevice self, WisDescriptorHeapType heap)
-{
-    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto res = xself->GetDescriptorBufferUnitSize(static_cast<wis::DescriptorHeapType>(heap));
-    ;
-    return res;
-}
-extern "C" WisResult VKDeviceCreateDescriptorBuffer(VKDevice self, WisDescriptorHeapType heap_type, WisDescriptorMemory memory_type, uint64_t size_bytes, VKDescriptorBuffer* buffer)
-{
-    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(heap_type), static_cast<wis::DescriptorMemory>(memory_type), size_bytes);
-
-    if (res.status != wis::Status::Ok)
-        return reinterpret_cast<WisResult&>(res);
-
-    *buffer = reinterpret_cast<VKDescriptorBuffer>(new (std::nothrow) wis::VKDescriptorBuffer(std::move(value)));
-    if (!*buffer)
-        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKDescriptorBuffer." };
-    return reinterpret_cast<WisResult&>(res);
-}
 extern "C" bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feature)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
     auto res = xself->QueryFeatureSupport(static_cast<wis::DeviceFeature>(feature));
-    ;
-    return res;
-}
-
-// VKDescriptorBuffer methods --
-extern "C" void VKDescriptorBufferDestroy(VKDescriptorBuffer self)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
-    delete xself;
-}
-extern "C" uint64_t VKDescriptorBufferWriteSampler(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKSampler sampler)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
-    auto res = xself->WriteSampler(aligned_table_offset, index, *reinterpret_cast<wis::VKSampler*>(sampler));
-    ;
-    return res;
-}
-extern "C" uint64_t VKDescriptorBufferWriteShaderResource2(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKShaderResource resource)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
-    auto res = xself->WriteShaderResource2(aligned_table_offset, index, *reinterpret_cast<wis::VKShaderResource*>(resource));
-    ;
-    return res;
-}
-extern "C" uint64_t VKDescriptorBufferWriteConstantBuffer2(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKBuffer buffer, uint32_t buffer_size)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
-    auto res = xself->WriteConstantBuffer2(aligned_table_offset, index, *reinterpret_cast<wis::VKBuffer*>(buffer), buffer_size);
-    ;
-    return res;
-}
-extern "C" uint64_t VKDescriptorBufferWriteShaderResource(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, VKRootSignature root_signature, VKShaderResource resource)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
-    auto res = xself->WriteShaderResource(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::VKRootSignature*>(root_signature), *reinterpret_cast<wis::VKShaderResource*>(resource));
-    ;
-    return res;
-}
-extern "C" uint64_t VKDescriptorBufferWriteConstantBuffer(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t root_table_index, uint32_t binding, uint32_t array_member, VKRootSignature root_signature, VKBuffer buffer, uint32_t buffer_size)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorBuffer*>(self);
-    auto res = xself->WriteConstantBuffer(aligned_table_offset, root_table_index, binding, array_member, *reinterpret_cast<wis::VKRootSignature*>(root_signature), *reinterpret_cast<wis::VKBuffer*>(buffer), buffer_size);
     ;
     return res;
 }
@@ -1143,6 +1000,20 @@ extern "C" WisResult VKResourceAllocatorPlaceTexture(VKResourceAllocator self, V
     if (!*texture)
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKTexture." };
     return reinterpret_cast<WisResult&>(res);
+}
+
+// VKMemory methods --
+extern "C" void VKMemoryDestroy(VKMemory self)
+{
+    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
+    delete xself;
+}
+extern "C" uint64_t VKMemoryGetBlockOffset(VKMemory self)
+{
+    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
+    auto res = xself->GetBlockOffset();
+    ;
+    return res;
 }
 
 // VKFence methods --
@@ -1310,30 +1181,6 @@ extern "C" void VKCommandListSetRootConstants(VKCommandList self, void* data, ui
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->SetRootConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
 }
-extern "C" void VKCommandListSetDescriptorBuffers(VKCommandList self, const VKDescriptorBufferView* buffers, uint32_t buffer_count)
-{
-    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
-    xself->SetDescriptorBuffers(reinterpret_cast<const wis::VKDescriptorBufferView*&>(buffers), buffer_count);
-}
-extern "C" void VKCommandListSetDescriptorTableOffset(VKCommandList self, uint32_t root_table_index, VKDescriptorBuffer buffer, uint32_t offset_bytes)
-{
-    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
-    xself->SetDescriptorTableOffset(root_table_index, *reinterpret_cast<wis::VKDescriptorBuffer*>(buffer), offset_bytes);
-}
-
-// VKMemory methods --
-extern "C" void VKMemoryDestroy(VKMemory self)
-{
-    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
-    delete xself;
-}
-extern "C" uint64_t VKMemoryGetBlockOffset(VKMemory self)
-{
-    auto* xself = reinterpret_cast<wis::VKMemory*>(self);
-    auto res = xself->GetBlockOffset();
-    ;
-    return res;
-}
 
 // VKSwapChain methods --
 extern "C" void VKSwapChainDestroy(VKSwapChain self)
@@ -1421,6 +1268,16 @@ extern "C" void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32
     auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
     xself->WriteSampler(index, *reinterpret_cast<wis::VKSampler*>(sampler));
 }
+extern "C" void VKDescriptorStorageWriteConstantBuffer(VKDescriptorStorage self, uint32_t index, VKBuffer buffer, uint32_t size, uint32_t offset)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteConstantBuffer(index, *reinterpret_cast<wis::VKBuffer*>(buffer), size, offset);
+}
+extern "C" void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32_t index, VKShaderResource resource)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteTexture(index, *reinterpret_cast<wis::VKShaderResource*>(resource));
+}
 
 // VKRootSignature methods --
 extern "C" void VKRootSignatureDestroy(VKRootSignature self)
@@ -1498,10 +1355,5 @@ extern "C" VKRootSignatureView AsVKRootSignatureView(VKRootSignature self)
 {
     wis::VKRootSignatureView xself = reinterpret_cast<wis::VKRootSignature&>(*self);
     return reinterpret_cast<VKRootSignatureView&>(xself);
-}
-extern "C" VKDescriptorBufferView AsVKDescriptorBufferView(VKDescriptorBuffer self)
-{
-    wis::VKDescriptorBufferView xself = reinterpret_cast<wis::VKDescriptorBuffer&>(*self);
-    return reinterpret_cast<VKDescriptorBufferView&>(xself);
 }
 #endif

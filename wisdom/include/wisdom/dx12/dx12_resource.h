@@ -155,7 +155,7 @@ public:
      * */
     inline void Unmap() const noexcept
     {
-        return wis::ImplDX12Buffer::Unmap();
+        wis::ImplDX12Buffer::Unmap();
     }
 };
 #pragma endregion DX12Buffer

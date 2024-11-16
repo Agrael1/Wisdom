@@ -10,7 +10,7 @@ class VKDescriptorStorage;
 template<>
 struct Internal<VKDescriptorStorage> {
     // sampler, Uniform buffer, storage RW buffer, sampled image, storage RW image, maybe storage read buffer will be needed.
-    constexpr static uint32_t max_sets = max_desc_storage_desc_sets_vk;
+    constexpr static uint32_t max_sets = uint32_t(wis::BindingIndex::Count);
 
     wis::SharedDevice device;
     h::VkDescriptorPool pool;
@@ -48,15 +48,6 @@ public:
 
 class ImplVKDescriptorStorage : public QueryInternal<VKDescriptorStorage>
 {
-    enum SetIndex : uint32_t {
-        Sampler = 0,
-        ConstantBuffer = 1,
-        StorageBuffer = 2,
-        SampledImage = 3,
-        StorageImage = 4,
-        StorageReadBuffer = 5
-    };
-
 public:
     ImplVKDescriptorStorage() noexcept = default;
     explicit ImplVKDescriptorStorage(wis::SharedDevice device, VkDescriptorPool pool, std::array<VkDescriptorSet, max_sets> set) noexcept
@@ -85,7 +76,7 @@ public:
         };
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .dstSet = set[Sampler],
+            .dstSet = set[uint32_t(wis::BindingIndex::Sampler) - 1],
             .dstBinding = 0,
             .dstArrayElement = index,
             .descriptorCount = 1,
@@ -103,12 +94,30 @@ public:
         };
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .dstSet = set[ConstantBuffer],
+            .dstSet = set[uint32_t(wis::BindingIndex::ConstantBuffer) - 1],
             .dstBinding = 0,
             .dstArrayElement = index,
             .descriptorCount = 1,
             .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .pBufferInfo = &info
+        };
+        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
+    }
+    void WriteTexture(uint32_t index, wis::VKShaderResourceView srv) noexcept
+    {
+        VkDescriptorImageInfo info{
+            .sampler = VK_NULL_HANDLE,
+            .imageView = std::get<0>(srv),
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        };
+        VkWriteDescriptorSet write{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = set[uint32_t(wis::BindingIndex::Texture) - 1],
+            .dstBinding = 0,
+            .dstArrayElement = index,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            .pImageInfo = &info
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
@@ -132,7 +141,28 @@ public:
      * */
     inline void WriteSampler(uint32_t index, wis::VKSamplerView sampler) noexcept
     {
-        return wis::ImplVKDescriptorStorage::WriteSampler(index, std::move(sampler));
+        wis::ImplVKDescriptorStorage::WriteSampler(index, std::move(sampler));
+    }
+    /**
+     * @brief Writes the constant buffer to the constant buffer descriptor storage.
+     * @param index Index in array of constant buffers to fill.
+     * @param buffer The buffer to write.
+     * @param size The size of the constant buffer in bytes.
+     * @param offset The offset in the buffer to write the constant buffer to.
+     * size + offset must be less or equal the overall size of the bound buffer.
+     * */
+    inline void WriteConstantBuffer(uint32_t index, wis::VKBufferView buffer, uint32_t size, uint32_t offset = 0) noexcept
+    {
+        wis::ImplVKDescriptorStorage::WriteConstantBuffer(index, std::move(buffer), size, offset);
+    }
+    /**
+     * @brief Writes the texture to the shader resource descriptor storage.
+     * @param index Index in array of shader resources to fill.
+     * @param resource The shader resource to write.
+     * */
+    inline void WriteTexture(uint32_t index, wis::VKShaderResourceView resource) noexcept
+    {
+        wis::ImplVKDescriptorStorage::WriteTexture(index, std::move(resource));
     }
 };
 #pragma endregion VKDescriptorStorage

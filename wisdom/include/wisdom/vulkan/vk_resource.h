@@ -237,7 +237,7 @@ public:
      * */
     inline void Unmap() const noexcept
     {
-        return wis::ImplVKBuffer::Unmap();
+        wis::ImplVKBuffer::Unmap();
     }
 };
 #pragma endregion VKBuffer

@@ -33,6 +33,7 @@
 #  define WISDOM_DEPRECATED_NO_EXPORT WISDOM_NO_EXPORT WISDOM_DEPRECATED
 #endif
 
+/* NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if) */
 #if 0 /* DEFINE_NO_DEPRECATED */
 #  ifndef WISDOM_NO_DEPRECATED
 #    define WISDOM_NO_DEPRECATED
