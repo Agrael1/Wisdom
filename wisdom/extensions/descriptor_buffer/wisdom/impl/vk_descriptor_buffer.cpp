@@ -1,5 +1,7 @@
 #ifndef WIS_VK_DESCRIPTOR_BUFFER_CPP
 #define WIS_VK_DESCRIPTOR_BUFFER_CPP
+
+#if defined(WISDOM_VULKAN)
 #include <wisdom/vk_descriptor_buffer.h>
 
 void wis::ImplVKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept
@@ -56,4 +58,5 @@ void wis::ImplVKDescriptorBuffer::WriteConstantBuffer(uint64_t aligned_table_off
     uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
     vkGetDescriptorEXT(device.get(), &info, properties.constant_buffer_size, data + desc_offset);
 }
+#endif // WISDOM_VULKAN
 #endif // ! VK_DESCRIPTOR_BUFFER_CPP

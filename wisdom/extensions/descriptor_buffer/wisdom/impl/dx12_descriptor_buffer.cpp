@@ -1,5 +1,7 @@
 #ifndef WIS_DX12_DESCRIPTOR_BUFFER_CPP
 #define WIS_DX12_DESCRIPTOR_BUFFER_CPP
+
+#if defined(WISDOM_DX12)
 #include <wisdom/dx12_descriptor_buffer.h>
 
 void wis::ImplDX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept
@@ -32,4 +34,7 @@ void wis::ImplDX12DescriptorBuffer::WriteConstantBuffer(uint64_t aligned_table_o
 
     device->CreateConstantBufferView(&desc, handle);
 }
+
+#endif // WISDOM_DX12
+
 #endif // !DX12_DESCRIPTOR_BUFFER_CPP
