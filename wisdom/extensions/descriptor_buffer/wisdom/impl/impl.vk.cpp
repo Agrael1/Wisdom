@@ -4,9 +4,9 @@
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKDescriptorBufferExtension::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-        std::unordered_set<std::string_view>& ext_name_set,
-        std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-        std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                                            std::unordered_set<std::string_view>& ext_name_set,
+                                                            std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                                            std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (available_extensions.contains(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME)) {
         ext_name_set.insert(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME);
@@ -29,8 +29,8 @@ bool wis::ImplVKDescriptorBufferExtension::GetExtensionInfo(const std::unordered
 
 wis::Result
 wis::ImplVKDescriptorBufferExtension::Init(const wis::VKDevice& instance,
-        const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-        const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                           const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                           const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (!property_map.contains(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT)) {
         return wis::success;
@@ -66,9 +66,9 @@ wis::ImplVKDescriptorBufferExtension::Init(const wis::VKDevice& instance,
 
 wis::ResultValue<wis::VKRootSignature>
 wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const RootConstant* constants,
-        uint32_t constants_size,
-        const wis::DescriptorTable* tables,
-        uint32_t tables_count) const noexcept
+                                                          uint32_t constants_size,
+                                                          const wis::DescriptorTable* tables,
+                                                          uint32_t tables_count) const noexcept
 {
     wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
 
@@ -117,18 +117,18 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const RootConstant* co
 
 wis::ResultValue<wis::VKDescriptorBuffer>
 wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type,
-        wis::DescriptorMemory memory_type,
-        uint64_t memory_bytes) const noexcept
+                                                             wis::DescriptorMemory memory_type,
+                                                             uint64_t memory_bytes) const noexcept
 {
 
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
-                               ? descriptor_buffer_props.mutable_descriptor_size
-                               : descriptor_buffer_props.sampler_size;
+            ? descriptor_buffer_props.mutable_descriptor_size
+            : descriptor_buffer_props.sampler_size;
 
     VkBufferUsageFlags usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
-                               (heap_type == wis::DescriptorHeapType::Descriptor
-                                ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
-                                : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
+            (heap_type == wis::DescriptorHeapType::Descriptor
+                     ? VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
+                     : VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT);
 
     VkBufferCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -157,32 +157,29 @@ wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHeap
 
     return wis::VKDescriptorBuffer{
         wis::Internal<VKDescriptorBuffer>{
-            allocator,
-            buffer,
-            allocation,
-            heap_type,
-            descriptor_buffer_props,
-            ftable
-        }
+                allocator,
+                buffer,
+                allocation,
+                heap_type,
+                descriptor_buffer_props,
+                ftable }
     };
 }
 void wis::ImplVKDescriptorBufferExtension::SetDescriptorBuffers(wis::VKCommandListView cmd_list,
-        wis::VKDescriptorBufferView resource_desc_buffer,
-        wis::VKDescriptorBufferView sampler_desc_buffer) const noexcept
+                                                                wis::VKDescriptorBufferView resource_desc_buffer,
+                                                                wis::VKDescriptorBufferView sampler_desc_buffer) const noexcept
 {
     auto b1 = std::get<0>(resource_desc_buffer);
     auto b2 = std::get<0>(sampler_desc_buffer);
 
     VkDescriptorBufferBindingInfoEXT infos[2] = {
-        {   .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-            .address = b1 ? b1 : b2,
-            .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
-        },
+        { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
+          .address = b1 ? b1 : b2,
+          .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT },
 
-        {   .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-            .address = b2,
-            .usage = VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT
-        }
+        { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
+          .address = b2,
+          .usage = VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT }
     };
 
     uint32_t buffer_count = (b1 != 0) + (b2 != 0);
@@ -190,22 +187,22 @@ void wis::ImplVKDescriptorBufferExtension::SetDescriptorBuffers(wis::VKCommandLi
 }
 
 void wis::ImplVKDescriptorBufferExtension::SetDescriptorTableOffset(wis::VKCommandListView cmd_list,
-        wis::VKRootSignatureView root_signature,
-        uint32_t root_table_index,
-        wis::VKDescriptorBufferGPUView buffer,
-        uint32_t table_aligned_byte_offset) const noexcept
+                                                                    wis::VKRootSignatureView root_signature,
+                                                                    uint32_t root_table_index,
+                                                                    wis::VKDescriptorBufferGPUView buffer,
+                                                                    uint32_t table_aligned_byte_offset) const noexcept
 {
     auto binding = std::get<1>(buffer);
     uint32_t index = uint32_t(binding == wis::DescriptorHeapType::Sampler);
     VkDeviceSize offset = table_aligned_byte_offset;
 
     ftable.vkCmdSetDescriptorBufferOffsetsEXT(std::get<0>(cmd_list),
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            std::get<0>(root_signature),
-            root_table_index,
-            1,
-            &index,
-            &offset);
+                                              VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                              std::get<0>(root_signature),
+                                              root_table_index,
+                                              1,
+                                              &index,
+                                              &offset);
 }
 
 // Auxiliary functions

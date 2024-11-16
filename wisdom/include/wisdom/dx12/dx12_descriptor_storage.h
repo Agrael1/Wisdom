@@ -19,8 +19,8 @@ struct Internal<DX12DescriptorStorage> {
     wis::com_ptr<ID3D12DescriptorHeap> heap_resource;
     wis::com_ptr<ID3D12DescriptorHeap> heap_sampler;
 
-    CD3DX12_CPU_DESCRIPTOR_HANDLE heap_starts[max_sets] {};
-    CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_starts[2] {}; // 0 - resource, 1 - sampler. Used for SetDescriptorHeaps
+    CD3DX12_CPU_DESCRIPTOR_HANDLE heap_starts[max_sets]{};
+    CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_starts[2]{}; // 0 - resource, 1 - sampler. Used for SetDescriptorHeaps
     uint32_t heap_resource_increment = 0;
     uint32_t heap_sampler_increment = 0;
 };
