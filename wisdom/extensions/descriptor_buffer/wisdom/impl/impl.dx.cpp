@@ -5,9 +5,9 @@
 #if defined(WISDOM_DX12)
 wis::ResultValue<wis::DX12RootSignature>
 wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* root_constants,
-                                                            uint32_t constants_size,
-                                                            const wis::DescriptorTable* tables,
-                                                            uint32_t tables_count) const noexcept
+        uint32_t constants_size,
+        const wis::DescriptorTable* tables,
+        uint32_t tables_count) const noexcept
 {
     wis::com_ptr<ID3D12RootSignature> rsig;
 
@@ -23,9 +23,9 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
         root_params.data()[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
             .Constants = {
-                    .ShaderRegister = constant.bind_register,
-                    .RegisterSpace = 0,
-                    .Num32BitValues = constant.size_bytes / 4,
+                .ShaderRegister = constant.bind_register,
+                .RegisterSpace = 0,
+                .Num32BitValues = constant.size_bytes / 4,
             },
             .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
         };
@@ -61,8 +61,8 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
         root_params.data()[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
             .DescriptorTable = {
-                    .NumDescriptorRanges = table.entry_count,
-                    .pDescriptorRanges = memory.get() + offset,
+                .NumDescriptorRanges = table.entry_count,
+                .pDescriptorRanges = memory.get() + offset,
             },
             .ShaderVisibility = D3D12_SHADER_VISIBILITY(table.stage),
         };
@@ -90,8 +90,8 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
 
 wis::ResultValue<wis::DX12DescriptorBuffer>
 wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type,
-                                                               wis::DescriptorMemory memory_type,
-                                                               uint64_t memory_bytes) const noexcept
+        wis::DescriptorMemory memory_type,
+        uint64_t memory_bytes) const noexcept
 {
     auto xheap_type = convert_dx(heap_type);
     auto inc_size = device->GetDescriptorHandleIncrementSize(xheap_type);
@@ -111,8 +111,8 @@ wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHe
 }
 
 void wis::ImplDX12DescriptorBufferExtension::SetDescriptorBuffers(wis::DX12CommandListView cmd_list,
-                                                                  wis::DX12DescriptorBufferView resource_desc_buffer,
-                                                                  wis::DX12DescriptorBufferView sampler_desc_buffer) const noexcept
+        wis::DX12DescriptorBufferView resource_desc_buffer,
+        wis::DX12DescriptorBufferView sampler_desc_buffer) const noexcept
 {
     auto* list = reinterpret_cast<ID3D12GraphicsCommandList*>(std::get<0>(cmd_list));
 
@@ -129,10 +129,10 @@ void wis::ImplDX12DescriptorBufferExtension::SetDescriptorBuffers(wis::DX12Comma
 }
 
 void wis::ImplDX12DescriptorBufferExtension::SetDescriptorTableOffset(wis::DX12CommandListView cmd_list,
-                                                                      wis::DX12RootSignatureView root_signature,
-                                                                      uint32_t root_table_index,
-                                                                      wis::DX12DescriptorBufferGPUView buffer,
-                                                                      uint32_t table_aligned_byte_offset) const noexcept
+        wis::DX12RootSignatureView root_signature,
+        uint32_t root_table_index,
+        wis::DX12DescriptorBufferGPUView buffer,
+        uint32_t table_aligned_byte_offset) const noexcept
 {
     auto handle = std::get<0>(buffer);
     auto* list = reinterpret_cast<ID3D12GraphicsCommandList*>(std::get<0>(cmd_list));

@@ -218,7 +218,7 @@ struct WisHandle {
     }
 
     std::optional<const WisFunction> HasValue(std::string_view name,
-                                              const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
+            const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
     {
         if (name.empty())
             return {};
@@ -311,7 +311,7 @@ public:
     std::string MakeCPPEnum(const WisEnum& s);
     std::string MakeCPPBitmask(const WisBitmask& s);
 
-#pragma region C API
+    #pragma region C API
     // Function generation
     std::string MakeCFunctionGenericDecl(const WisFunction& func, std::string_view impl);
     std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true);
@@ -333,9 +333,9 @@ public:
     std::string MakeCExtensionMap(std::string_view impl);
 
     std::string MakeCVariantGeneric(const WisVariant& s, std::string_view impl);
-#pragma endregion
+    #pragma endregion
 
-#pragma region CPP API
+    #pragma region CPP API
     // Function generation
     std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl);
     std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true);
@@ -345,7 +345,7 @@ public:
 
     // Handle generation
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl);
-#pragma endregion
+    #pragma endregion
 
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");

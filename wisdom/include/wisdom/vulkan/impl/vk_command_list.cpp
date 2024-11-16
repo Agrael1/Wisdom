@@ -28,10 +28,10 @@ void wis::ImplVKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKText
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
-                    .aspectMask = aspect_flags(std::get<1>(dest_texture)),
-                    .mipLevel = region.texture.mip,
-                    .baseArrayLayer = region.texture.array_layer,
-                    .layerCount = 1u,
+                .aspectMask = aspect_flags(std::get<1>(dest_texture)),
+                .mipLevel = region.texture.mip,
+                .baseArrayLayer = region.texture.array_layer,
+                .layerCount = 1u,
             },
             .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
             .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
@@ -63,10 +63,10 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
-                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
-                    .mipLevel = region.texture.mip,
-                    .baseArrayLayer = region.texture.array_layer,
-                    .layerCount = 1u,
+                .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                .mipLevel = region.texture.mip,
+                .baseArrayLayer = region.texture.array_layer,
+                .layerCount = 1u,
             },
             .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
             .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
@@ -161,11 +161,11 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image = texture,
         .subresourceRange = {
-                .aspectMask = aspect_flags(format),
-                .baseMipLevel = subresource.base_mip_level,
-                .levelCount = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
-                .baseArrayLayer = subresource.base_array_layer,
-                .layerCount = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
+            .aspectMask = aspect_flags(format),
+            .baseMipLevel = subresource.base_mip_level,
+            .levelCount = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
+            .baseArrayLayer = subresource.base_array_layer,
+            .layerCount = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
         }
     };
 }
@@ -248,7 +248,7 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
     auto& dtable = device.table();
 
     uint32_t attachment_count = std::min(pass_desc->target_count, 8u);
-    VkRenderingAttachmentInfo data[8]{};
+    VkRenderingAttachmentInfo data[8] {};
     wis::Size2D extent = std::get<1>(pass_desc->targets[0].target);
 
     for (size_t i = 0; i < pass_desc->target_count; i++) {
@@ -263,8 +263,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
         };
         if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
             data[i].clearValue = {
-                .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
-            };
+            .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
+        };
     }
 
     VkRenderingAttachmentInfo d_info{};
@@ -280,8 +280,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
         };
         if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
             d_info.clearValue = {
-                .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
-            };
+            .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
+        };
     }
     if (ds_selector & DSSelect::Stencil) {
         s_info = {
@@ -294,8 +294,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
         };
         if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
             s_info.clearValue = {
-                .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
-            };
+            .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
+        };
     }
 
     VkRenderingInfo info{
@@ -303,8 +303,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
         .pNext = nullptr,
         .flags = convert_vk(pass_desc->flags),
         .renderArea = {
-                .offset = { 0, 0 },
-                .extent = { extent.width, extent.height },
+            .offset = { 0, 0 },
+            .extent = { extent.width, extent.height },
         },
         .layerCount = 1,
         .viewMask = pass_desc->view_mask,
@@ -416,18 +416,18 @@ void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::In
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-                                                  uint32_t instance_count,
-                                                  uint32_t start_index,
-                                                  uint32_t base_vertex,
-                                                  uint32_t start_instance) noexcept
+        uint32_t instance_count,
+        uint32_t start_index,
+        uint32_t base_vertex,
+        uint32_t start_instance) noexcept
 {
     device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
 void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
-                                           uint32_t instance_count,
-                                           uint32_t base_vertex,
-                                           uint32_t start_instance) noexcept
+        uint32_t instance_count,
+        uint32_t base_vertex,
+        uint32_t start_instance) noexcept
 {
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
