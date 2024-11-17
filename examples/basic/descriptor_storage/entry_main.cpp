@@ -20,10 +20,13 @@ class App
     wis::Shader ps; // pixel shader
 
     wis::Buffer vertex_buffer; // vertex buffer for triangle
-    wis::Buffer constant_buffers[ex::flight_frames]; // constant buffer for triangle
+    wis::Buffer constant_buffersx[ex::flight_frames]; // constant buffer for triangle
+    wis::Buffer constant_buffersy[ex::flight_frames]; // constant buffer for triangle
 
-    float* constant_data[ex::flight_frames]; // constant buffer data
-    float offset = 0.0f; // x offset for the triangle
+    float* constant_datax[ex::flight_frames]; // constant buffer data
+    float* constant_datay[ex::flight_frames]; // constant buffer data
+    float offsetx = 0.0f; // x offset for the triangle
+    float offsety = 0.0f; // y offset for the triangle
 
     // Descriptor buffers
     wis::DescriptorStorage desc_storage;
@@ -40,8 +43,8 @@ public:
 
         // Only a single descriptor table with 1 descriptor
         wis::DescriptorStorageDesc desc{
-            .cbuffer_count = ex::flight_frames, // one cbuffer per frame
-            .memory = wis::DescriptorMemory::ShaderVisible,
+            .cbuffer_count = ex::flight_frames * 2, // one cbuffer per frame
+            .memory = wis::DescriptorMemory::ShaderVisible, // visible to shaders
         };
         desc_storage = ex::Unwrap(setup.device.CreateDescriptorStorage(desc));
     }
@@ -72,7 +75,8 @@ public:
             case ex::WindowEvent::Quit:
                 swap.Throttle(); // wait for GPU to finish, then exit
                 for (size_t i = 0; i < ex::flight_frames; i++) {
-                    constant_buffers[i].Unmap();
+                    constant_buffersx[i].Unmap();
+                    constant_buffersy[i].Unmap();
                 }
                 return false;
             case ex::WindowEvent::NoEvent:
@@ -90,9 +94,13 @@ public:
     {
         uint32_t frame_index = swap.CurrentFrame();
 
-        offset += 0.01f;
-        if (offset > 1.0f)
-            offset = -1.0f;
+        offsetx += 0.01f;
+        if (offsetx > 1.0f) {
+            offsety += 0.5f;
+            if (offsety > 1.0f)
+                offsety = -1.0f;
+            offsetx = -1.0f;
+        }
 
         // ------------------------------
         // Second pass
@@ -109,7 +117,8 @@ public:
             .targets = targets2,
         };
 
-        constant_data[frame_index][0] = offset;
+        constant_datax[frame_index][0] = offsetx;
+        constant_datay[frame_index][0] = offsety;
 
         // Begin recording
         ex::CheckResult(cmd2.Reset(pipeline));
@@ -129,6 +138,9 @@ public:
 
         // Bind descriptor storage
         cmd2.SetDescriptorStorage(desc_storage);
+
+        uint32_t root_constants[] = { frame_index, ex::flight_frames }; // frame index and frame count to get offset to the second cbuffer
+        cmd2.SetRootConstants(root_constants, std::size(root_constants), 0, wis::ShaderStages::All);
 
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
         wis::VertexBufferBinding vertex_binding{
@@ -171,7 +183,7 @@ public:
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
         wis::RootConstant root_constants[]{
-            { .stage = wis::ShaderStages::Vertex, .size_bytes = sizeof(uint32_t) }
+            { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
         };
         root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants)));
 
@@ -214,14 +226,16 @@ public:
         // Create constant buffer
         {
             using namespace wis;
-            constant_buffers[0] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
-            constant_buffers[1] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
-            desc_storage.WriteConstantBuffer(0, constant_buffers[0], sizeof(float));
-            desc_storage.WriteConstantBuffer(1, constant_buffers[1], sizeof(float));
-
             for (size_t i = 0; i < ex::flight_frames; i++) {
-                constant_data[i] = static_cast<float*>(constant_buffers[i].Map());
-                constant_data[i][0] = 0.0f;
+                constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
+                constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
+                desc_storage.WriteConstantBuffer(i, constant_buffersx[i], sizeof(float));
+                desc_storage.WriteConstantBuffer(ex::flight_frames + i, constant_buffersy[i], sizeof(float));
+                constant_datax[i] = static_cast<float*>(constant_buffersx[i].Map());
+                constant_datax[i][0] = 0.0f;
+
+                constant_datay[i] = static_cast<float*>(constant_buffersy[i].Map());
+                constant_datay[i][0] = 0.0f;
             }
         }
     }
