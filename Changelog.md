@@ -11,6 +11,8 @@
   - Moved DescriptorBuffer to its own extension. It is now only possible to use if both VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer are enabled
   - Added support for VK_EXT_descriptor_indexing and created DescriptorStorage for bindless descriptors. This is now the default way of creating descriptor tables
   - Lifted the restriction of mandatory VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer for Vulkan. It is now possible to use Wisdom with Vulkan 1.2 (with other mandatory extensions of course)
+  - Renamed RootConstants to PushConstants because it is more common name
+  - Added support for push descriptors. Maximum number of push descriptors is 8 for now.
 
 - 0.3.15
 

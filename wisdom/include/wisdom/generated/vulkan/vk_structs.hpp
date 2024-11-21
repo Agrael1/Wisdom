@@ -130,14 +130,18 @@ inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
     switch (value) {
     default:
         return {};
-    case DescriptorType::ShaderResource:
-        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    case DescriptorType::ConstantBuffer:
-        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    case DescriptorType::UnorderedAccess:
-        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     case DescriptorType::Sampler:
         return VK_DESCRIPTOR_TYPE_SAMPLER;
+    case DescriptorType::ConstantBuffer:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    case DescriptorType::Texture:
+        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    case DescriptorType::RWTexture:
+        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    case DescriptorType::RWBuffer:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    case DescriptorType::Buffer:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     }
 }
 inline constexpr VkFormat convert_vk(DataFormat value) noexcept

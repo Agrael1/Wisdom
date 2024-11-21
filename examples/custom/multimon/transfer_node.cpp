@@ -116,7 +116,7 @@ CreateTransferNode(wis::Adapter&& adapter)
         using namespace wis;
         wis::DescriptorTableEntry entries[] = {
             {
-                    .type = wis::DescriptorType::ShaderResource,
+                    .type = wis::DescriptorType::Texture,
                     .bind_register = 0,
                     .binding = 0,
                     .count = 1,
@@ -144,13 +144,13 @@ CreateTransferNode(wis::Adapter&& adapter)
             },
 
         };
-        wis::RootConstant constants[] = {
+        wis::PushConstant constants[] = {
             {
                     .stage = wis::ShaderStages::Vertex,
                     .size_bytes = 4 * sizeof(float),
             },
         };
-        auto [result, root] = node.desc_buffer_ext.CreateRootSignature(constants, 1, tables, sizeof(tables) / sizeof(tables[0]));
+        auto [result, root] = node.desc_buffer_ext.CreateRootSignature(constants, 1, nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
         if (result.status != wis::Status::Ok)
             return std::unexpected(result.error);
         node.root_signature = std::move(root);
@@ -459,7 +459,7 @@ void TransferNode::Frame()
         float size[2];
     } rc{ { 0.0f, 0.0f }, { 0.5, 1 } };
 
-    cmd_list.SetRootConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
+    cmd_list.SetPushConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
     desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 0, desc_buffer, 0);
     desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 1, sampler_buffer, 0);
 
@@ -474,7 +474,7 @@ void TransferNode::Frame()
     cmd_list.RSSetScissor({ 0, 0, int(frame_size[1].width), int(frame_size[1].height) });
 
     rc.offset[0] = 0.5f;
-    cmd_list.SetRootConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
+    cmd_list.SetPushConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
     desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 0, desc_buffer, 0);
     desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 1, sampler_buffer, 0);
 

@@ -94,26 +94,35 @@ Stages have no granularity, either all or one can be selected.">
     <type name="DescriptorType" category="enum" type="u32" doc="Type of the descriptor in the descriptor table.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
       <impl_type for="vk" name="VkDescriptorType"/>
-      <value name="ShaderResource" value="0" doc="Descriptor is a shader resource view.
-Used for textures.">
-        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
-        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      <value name="Sampler" value="0" doc="Descriptor is a sampler.
+Sampler is used to sample textures in shaders.
+Stored in separate descriptor table and
+can't be mixed with other descriptor types.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
       </value>
-      <value name="ConstantBuffer" value="1" doc="Descriptor is a constant buffer view.">
+      <value name="ConstantBuffer" value="1" doc="Descriptor is a constant buffer.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_CBV"/>
       </value>
-      <value name="UnorderedAccess" value="2" doc="Descriptor is an unordered access view.
+      <value name="Texture" value="2" doc="Descriptor is a texture.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      </value>
+      <value name="RWTexture" value="3" doc="Descriptor is an unordered access read-write texture.
+Used for read/write operations in compute shaders.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_IMAGE"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
+      </value>
+      <value name="RWBuffer" value="4" doc="Descriptor is an unordered access read-write buffer.
 Used for read/write operations in compute shaders.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
       </value>
-      <value name="Sampler" value="3" doc="Descriptor is a sampler.
-Sampler is used to sample textures in shaders.
-Stored in separate descriptor table and
-can't be mixed with other descriptor types">
-        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
-        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
+      <value name="Buffer" value="5" doc="Descriptor is a shader resource buffer.
+May be bigger than constant buffers, but slower.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
       </value>
     </type>
 
@@ -1165,6 +1174,7 @@ Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior 
       <value name="DynamicVSync" value="5" doc="Supports dynamic VSync. Support for VK, always true for DX12.
 Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present."/>
       <value name="UnusedRenderTargets" value="6" doc="Supports unused render targets. Support for VK, always true for DX12."/>
+      <value name="PushDescriptors" value="7" doc="Supports push descriptors. Support for VK, always true for DX12."/>
     </type>
 
     <type name="FactoryExtID" category="enum" type="u32" doc="Factory extension ID.

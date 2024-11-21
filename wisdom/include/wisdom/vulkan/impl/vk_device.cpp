@@ -1161,6 +1161,8 @@ bool wis::ImplVKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const no
         return features.dynamic_vsync;
     case wis::DeviceFeature::UnusedRenderTargets:
         return features.dynamic_render_unused_attachments;
+    case wis::DeviceFeature::PushDescriptors:
+        return features.push_descriptor;
     default:
         return false;
     }
@@ -1342,37 +1344,54 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::DescriptorStorageDesc desc) cons
 }
 
 wis::ResultValue<wis::VKRootSignature>
-wis::ImplVKDevice::CreateRootSignature(const wis::RootConstant* constants,
-                                       uint32_t constants_size) const noexcept
+wis::ImplVKDevice::CreateRootSignature(const wis::PushConstant* constants,
+                                       uint32_t constants_size,
+                                       const PushDescriptor* push_descriptors,
+                                       uint32_t push_descriptors_size,
+                                       uint32_t space_overlap_count) const noexcept
 {
-    constexpr static uint32_t num_sets = Internal<VKDescriptorStorage>::max_sets;
+    constexpr static uint32_t num_sets = uint32_t(wis::BindingIndex::Count);
+    if (constants_size > wis::max_push_constants) {
+        return wis::make_result<FUNC, "constants_size exceeds max_push_constants">(VkResult::VK_ERROR_UNKNOWN);
+    }
+    if (push_descriptors_size > wis::max_push_descriptors) {
+        return wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(VkResult::VK_ERROR_UNKNOWN);
+    }
+    if (space_overlap_count > wis::max_descriptor_space_overlap) {
+        return wis::make_result<FUNC, "space_overlap_count exceeds max_descriptor_space_overlap">(VkResult::VK_ERROR_UNKNOWN);
+    }
 
     std::unique_ptr<VkDescriptorSetLayout[]> vk_dsl;
     if (vk_dsl = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(num_sets + 1); !vk_dsl)
         return wis::make_result<FUNC, "Failed to allocate descriptor set layout array">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
 
-    // Create descriptor set layout for binding 0 (push descriptors)
-    VkDescriptorSetLayoutBinding push_binding{
-        .binding = 0,
-        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        .descriptorCount = 0,
-        .stageFlags = VK_SHADER_STAGE_ALL,
-    };
-    VkDescriptorSetLayoutCreateInfo push_desc_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
-        .bindingCount = 1,
-        .pBindings = &push_binding,
-    };
-    auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &vk_dsl[0]);
-    if (!succeeded(res))
-        return wis::make_result<FUNC, "Failed to create a push descriptor set layout">(res);
-    std::copy_n(default_layout.desc_sets.begin(), num_sets, vk_dsl.get() + 1);
+    // Create push descriptor set layout
+    {
+        VkDescriptorSetLayoutBinding push_bindings[wis::max_push_descriptors]{};
+        for (uint32_t i = 0; i < push_descriptors_size; i++) {
+            auto& r = push_descriptors[i];
+            auto& b = push_bindings[i];
+            b.binding = 0; // Push descriptors always have binding 0
+            b.descriptorType = convert_vk(r.type);
+            b.descriptorCount = 1; // Push descriptors are always single
+            b.stageFlags = convert_vk(r.stage);
+        }
+        VkDescriptorSetLayoutCreateInfo push_desc_info{
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+            .bindingCount = push_descriptors_size,
+            .pBindings = push_bindings,
+        };
+        auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &vk_dsl[0]);
+        if (!succeeded(res))
+            return wis::make_result<FUNC, "Failed to create a push descriptor set layout">(res);
+        std::copy_n(default_layout.desc_sets.begin(), num_sets, vk_dsl.get() + 1);
+    }
 
-    wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
+    VkPushConstantRange push_constants[wis::max_push_constants]{};
     for (uint32_t i = 0; i < constants_size; i++) {
-        auto& c = vk_constants.data()[i];
+        auto& c = push_constants[i];
         auto& r = constants[i];
         c.stageFlags = convert_vk(r.stage);
         c.offset = 0;
@@ -1386,13 +1405,15 @@ wis::ImplVKDevice::CreateRootSignature(const wis::RootConstant* constants,
         .setLayoutCount = num_sets + 1,
         .pSetLayouts = vk_dsl.get(),
         .pushConstantRangeCount = constants_size,
-        .pPushConstantRanges = vk_constants.data(),
+        .pPushConstantRanges = push_constants,
     };
     VkPipelineLayout layout;
     auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
 
-    if (!succeeded(vr))
+    if (!succeeded(vr)) {
+        device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl[0], nullptr);
         return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
+    }
 
     return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout }, std::move(vk_dsl), 1 };
 }

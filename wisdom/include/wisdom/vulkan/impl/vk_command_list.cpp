@@ -432,7 +432,7 @@ void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::ImplVKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+void wis::ImplVKCommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
@@ -445,6 +445,31 @@ void wis::ImplVKCommandList::SetDescriptorStorage(wis::VKDescriptorStorageView d
                                            pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
                                            set_span.size(), set_span.data(),
                                            0, nullptr);
+}
+
+void wis::ImplVKCommandList::PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset) noexcept
+{
+    VkDescriptorBufferInfo buffer_info{
+        .buffer = std::get<0>(view),
+        .offset = offset,
+        .range = VK_WHOLE_SIZE,
+    };
+    VkWriteDescriptorSet descriptor{
+        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .pNext = nullptr,
+        .dstSet = VK_NULL_HANDLE,
+        .dstBinding = binding,
+        .dstArrayElement = 0,
+        .descriptorCount = 1,
+        .descriptorType = convert_vk(type),
+        .pBufferInfo = &buffer_info
+    };
+    device.table().vkCmdPushDescriptorSetKHR(command_list,
+                              VK_PIPELINE_BIND_POINT_GRAPHICS,
+                              pipeline_layout,
+                              0, // set 0, because set 0 is reserved for push descriptors
+                              1,
+                              &descriptor);
 }
 
 #endif // !

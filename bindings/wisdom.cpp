@@ -125,10 +125,10 @@ extern "C" WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12PipelineState." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisRootConstant* root_constants, uint32_t constants_size, DX12RootSignature* signature)
+extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, space_overlap_count);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -497,10 +497,15 @@ extern "C" void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vert
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
 }
-extern "C" void DX12CommandListSetRootConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
+extern "C" void DX12CommandListSetPushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
-    xself->SetRootConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
+    xself->SetPushConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
+}
+extern "C" void DX12CommandListPushDescriptor(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->PushDescriptor(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::DX12Buffer*>(buffer), offset);
 }
 
 // DX12SwapChain methods --
@@ -804,10 +809,10 @@ extern "C" WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKPipelineState." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult VKDeviceCreateRootSignature(VKDevice self, const WisRootConstant* root_constants, uint32_t constants_size, VKRootSignature* signature)
+extern "C" WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, space_overlap_count);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -1176,10 +1181,15 @@ extern "C" void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_c
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
 }
-extern "C" void VKCommandListSetRootConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
+extern "C" void VKCommandListSetPushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
-    xself->SetRootConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
+    xself->SetPushConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
+}
+extern "C" void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->PushDescriptor(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::VKBuffer*>(buffer), offset);
 }
 
 // VKSwapChain methods --

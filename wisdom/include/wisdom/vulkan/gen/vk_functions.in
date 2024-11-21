@@ -107,3 +107,4 @@ vkCreateDescriptorPool
 vkAllocateDescriptorSets
 vkUpdateDescriptorSets
 vkCmdBindDescriptorSets
+[opt]vkCmdPushDescriptorSetKHR

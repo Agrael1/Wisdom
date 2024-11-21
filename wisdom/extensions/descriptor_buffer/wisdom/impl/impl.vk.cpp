@@ -65,28 +65,61 @@ wis::ImplVKDescriptorBufferExtension::Init(const wis::VKDevice& instance,
 }
 
 wis::ResultValue<wis::VKRootSignature>
-wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const RootConstant* constants,
+wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const PushConstant* constants,
                                                           uint32_t constants_size,
+                                                          const PushDescriptor* push_descriptors,
+                                                          uint32_t push_descriptors_size,
                                                           const wis::DescriptorTable* tables,
                                                           uint32_t tables_count) const noexcept
 {
-    wis::detail::limited_allocator<VkPushConstantRange, 8> vk_constants{ constants_size, true };
+
+    if (constants_size > wis::max_push_constants) {
+        return wis::make_result<FUNC, "constants_size exceeds max_push_constants">(VkResult::VK_ERROR_UNKNOWN);
+    }
+    if (push_descriptors_size > wis::max_push_descriptors) {
+        return wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(VkResult::VK_ERROR_UNKNOWN);
+    }
 
     std::unique_ptr<VkDescriptorSetLayout[]> vk_dsl;
-    if (tables_count > 0) {
-        if (vk_dsl = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(tables_count); !vk_dsl)
+    if (tables_count > 0 || push_descriptors_size > 0) {
+        if (vk_dsl = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(tables_count + 1); !vk_dsl)
             return wis::make_result<FUNC, "Failed to allocate descriptor set layout array">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
+    // Create push descriptor set layout
+    {
+        uint32_t push_binding_count = constants_size;
+        VkDescriptorSetLayoutBinding push_bindings[wis::max_push_descriptors]{};
+        for (uint32_t i = 0; i < push_binding_count; i++) {
+            auto& r = push_descriptors[i];
+            auto& b = push_bindings[i];
+            b.binding = 0; // Push descriptors always have binding 0
+            b.descriptorType = convert_vk(r.type);
+            b.descriptorCount = 1; // Push descriptors are always single
+            b.stageFlags = convert_vk(r.stage);
+        }
+        VkDescriptorSetLayoutCreateInfo push_desc_info{
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+            .bindingCount = push_binding_count,
+            .pBindings = push_bindings,
+        };
+        auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &vk_dsl[0]);
+        if (!succeeded(res))
+            return wis::make_result<FUNC, "Failed to create a push descriptor set layout">(res);
+    }
+
+    VkPushConstantRange push_constants[wis::max_push_constants]{}; // max push constants
     for (uint32_t i = 0; i < constants_size; i++) {
-        auto& c = vk_constants.data()[i];
+        auto& c = push_constants[i];
         auto& r = constants[i];
         c.stageFlags = convert_vk(r.stage);
         c.offset = 0;
         c.size = r.size_bytes;
     }
 
-    for (size_t i = 0; i < tables_count; i++) {
+    for (size_t i = 1; i < tables_count + 1; i++) {
         auto [res, h] = CreateDescriptorSetLayout(&tables[i]);
         if (res.status != wis::Status::Ok) {
             for (size_t j = 0; j < i; j++)
@@ -101,16 +134,20 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const RootConstant* co
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .setLayoutCount = tables_count,
+        .setLayoutCount = tables_count + 1, // push descriptor set layout
         .pSetLayouts = vk_dsl.get(),
         .pushConstantRangeCount = constants_size,
-        .pPushConstantRanges = vk_constants.data(),
+        .pPushConstantRanges = push_constants,
     };
     VkPipelineLayout layout;
     auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
 
-    if (!succeeded(vr))
+    if (!succeeded(vr)) {
+        for (uint32_t i = 0; i < tables_count; i++)
+            device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl[i], nullptr);
+
         return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
+    }
 
     return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout }, std::move(vk_dsl), tables_count };
 }

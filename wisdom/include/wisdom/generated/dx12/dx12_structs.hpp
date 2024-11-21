@@ -116,14 +116,18 @@ inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) no
     switch (value) {
     default:
         return {};
-    case DescriptorType::ShaderResource:
-        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    case DescriptorType::ConstantBuffer:
-        return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-    case DescriptorType::UnorderedAccess:
-        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     case DescriptorType::Sampler:
         return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+    case DescriptorType::ConstantBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    case DescriptorType::Texture:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case DescriptorType::RWTexture:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case DescriptorType::RWBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case DescriptorType::Buffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     }
 }
 inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept

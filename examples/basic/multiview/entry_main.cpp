@@ -193,7 +193,7 @@ public:
         cmd2.SetRootSignature(root); // always set root signature before binding resources
 
         cmd2.SetDescriptorStorage(desc_storage);
-        cmd2.SetRootConstants(&frame_index, 1, 0, wis::ShaderStages::Pixel);
+        cmd2.SetPushConstants(&frame_index, 1, 0, wis::ShaderStages::Pixel);
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
         auto [w, h] = window.PixelSize();
@@ -285,10 +285,10 @@ public:
 
         // Create root signature with
         {
-            wis::RootConstant root_constants[]{
+            wis::PushConstant root_constants[]{
                 { .stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t) }
             };
-            root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, 1));
+            root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, 1, nullptr, 0, 2));
         }
 
         // Create pipeline

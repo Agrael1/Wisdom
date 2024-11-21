@@ -189,7 +189,8 @@ Describes hardware driver identificators as well as memory limits.">
       <arg type="void" name="user_data" mod="ptr" doc="User data pointer."/>
     </type>
 
-    <type name="RootConstant" category="struct" doc="Root constant description for {RootSignatureDesc::}.">
+    <type name="PushConstant" category="struct" doc="A set of constants that get pushed directly to the pipeline.
+Only one set can be created per shader stage.">
       <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
       <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
@@ -234,11 +235,9 @@ In TextureToBuffer - offset of source image."/>
       <member type="TextureRegion" name="texture" doc="Texture region."/>
     </type>
 
-    <type name="PushDescriptor" category="struct" doc="Push descriptor. Unused for now.">
-      <member type="ShaderStages" name="stage"/>
-      <member type="u32" name="bind_register"/>
-      <member type="DescriptorType" name="type"/>
-      <member type="u32" name="reserved"/>
+    <type name="PushDescriptor" category="struct" doc="Push descriptor. Used to push data directly to pipeline.">
+      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
+      <member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer-like bindings."/>
     </type>
 
     <type name="SubresourceRange" category="struct" doc="Subresource range for {TextureBarrier::}.">
@@ -356,7 +355,7 @@ Otherwise extension is ignored.">
 Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
-
+    
     <type name="DescriptorStorageDesc" category="struct" doc="Descriptor storage description for {DescriptorStorage::} creation.">
       <member type="u32" name="sampler_count" doc="Count of sampler descriptors to allocate."/>
       <member type="u32" name="cbuffer_count" doc="Count of constant buffer descriptors to allocate."/>

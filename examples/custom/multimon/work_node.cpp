@@ -223,13 +223,13 @@ CreateWorkNode(wis::Adapter&& adapter)
         using namespace wis;
         wis::DescriptorTableEntry entries[] = {
             {
-                    .type = wis::DescriptorType::ShaderResource,
+                    .type = wis::DescriptorType::Texture,
                     .bind_register = 0,
                     .binding = 0,
                     .count = 1,
             },
             {
-                    .type = wis::DescriptorType::ShaderResource,
+                    .type = wis::DescriptorType::Texture,
                     .bind_register = 1,
                     .binding = 1,
                     .count = 1,
@@ -257,7 +257,7 @@ CreateWorkNode(wis::Adapter&& adapter)
             },
 
         };
-        auto [result, root] = node.desc_buffer_ext.CreateRootSignature(nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
+        auto [result, root] = node.desc_buffer_ext.CreateRootSignature(nullptr, 0, nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
         if (result.status != wis::Status::Ok)
             return std::unexpected(result.error);
         node.root = std::move(root);

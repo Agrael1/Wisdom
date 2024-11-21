@@ -140,7 +140,7 @@ public:
         cmd2.SetDescriptorStorage(desc_storage);
 
         uint32_t root_constants[] = { frame_index, ex::flight_frames }; // frame index and frame count to get offset to the second cbuffer
-        cmd2.SetRootConstants(root_constants, std::size(root_constants), 0, wis::ShaderStages::All);
+        cmd2.SetPushConstants(root_constants, std::size(root_constants), 0, wis::ShaderStages::All);
 
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
         wis::VertexBufferBinding vertex_binding{
@@ -182,10 +182,11 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::RootConstant root_constants[]{
+        wis::PushConstant root_constants[]{
             { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
         };
-        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants)));
+        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants), nullptr, 0, 2));
+        // Note the 2 in the CreateRootSignature call. This is the space overlap count, which is 2 in this case.
 
         // Create pipeline
         {

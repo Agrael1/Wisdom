@@ -13,9 +13,7 @@ struct PushConstants {
 
 // binding 0, space 1 is used for samplers
 [[vk::binding(0, 1)]] SamplerState sampler_point[] : register(s0, space1);
-// binding 0, space 2 is used for constant buffers
-// binding 0, space 3 is used for textures
-[[vk::binding(0, 3)]] Texture2DArray tex[] : register(t0, space3);
+[[vk::binding(0, 3)]] Texture2DArray tex[] : register(t0, space5);
 
 PSOutput main(PSInput ps_in)
 {

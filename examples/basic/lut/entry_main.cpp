@@ -207,11 +207,11 @@ public:
         // Create root signature with 2 textures and 2 samplers (pair for lut and pair for image)
         {
             wis::DescriptorTableEntry entries[]{
-                { .type = wis::DescriptorType::ShaderResource, // LUT texture (3D cube)
+                { .type = wis::DescriptorType::Texture, // LUT texture (3D cube)
                   .bind_register = 0,
                   .binding = 0,
                   .count = 1 },
-                { .type = wis::DescriptorType::ShaderResource, // Image texture (2D)
+                { .type = wis::DescriptorType::Texture, // Image texture (2D)
                   .bind_register = 1,
                   .binding = 1,
                   .count = 1 },
@@ -235,7 +235,7 @@ public:
                   .entry_count = 2,
                   .stage = wis::ShaderStages::Pixel }
             };
-            root = ex::Unwrap(desc_ext.CreateRootSignature(nullptr, 0, tables, std::size(tables)));
+            root = ex::Unwrap(desc_ext.CreateRootSignature(nullptr, 0, nullptr, 0, tables, std::size(tables)));
         }
 
         // Create pipeline

@@ -96,23 +96,29 @@ enum WisMutiWaitFlags {
  * */
 enum WisDescriptorType {
     /**
-     * @brief Descriptor is a shader resource view.
-     * Used for textures.
-     * */
-    DescriptorTypeShaderResource = 0,
-    DescriptorTypeConstantBuffer = 1, ///< Descriptor is a constant buffer view.
-    /**
-     * @brief Descriptor is an unordered access view.
-     * Used for read/write operations in compute shaders.
-     * */
-    DescriptorTypeUnorderedAccess = 2,
-    /**
      * @brief Descriptor is a sampler.
      * Sampler is used to sample textures in shaders.
      * Stored in separate descriptor table and
-     * can't be mixed with other descriptor types
+     * can't be mixed with other descriptor types.
      * */
-    DescriptorTypeSampler = 3,
+    DescriptorTypeSampler = 0,
+    DescriptorTypeConstantBuffer = 1, ///< Descriptor is a constant buffer.
+    DescriptorTypeTexture = 2, ///< Descriptor is a texture.
+    /**
+     * @brief Descriptor is an unordered access read-write texture.
+     * Used for read/write operations in compute shaders.
+     * */
+    DescriptorTypeRWTexture = 3,
+    /**
+     * @brief Descriptor is an unordered access read-write buffer.
+     * Used for read/write operations in compute shaders.
+     * */
+    DescriptorTypeRWBuffer = 4,
+    /**
+     * @brief Descriptor is a shader resource buffer.
+     * May be bigger than constant buffers, but slower.
+     * */
+    DescriptorTypeBuffer = 5,
 };
 
 /**
@@ -1073,6 +1079,7 @@ enum WisDeviceFeature {
      * */
     DeviceFeatureDynamicVSync = 5,
     DeviceFeatureUnusedRenderTargets = 6, ///< Supports unused render targets. Support for VK, always true for DX12.
+    DeviceFeaturePushDescriptors = 7, ///< Supports push descriptors. Support for VK, always true for DX12.
 };
 
 /**
@@ -1389,7 +1396,7 @@ typedef struct WisDepthStencilDesc WisDepthStencilDesc;
 typedef struct WisBlendAttachmentDesc WisBlendAttachmentDesc;
 typedef struct WisBlendStateDesc WisBlendStateDesc;
 typedef struct WisRenderAttachmentsDesc WisRenderAttachmentsDesc;
-typedef struct WisRootConstant WisRootConstant;
+typedef struct WisPushConstant WisPushConstant;
 typedef struct WisSwapchainDesc WisSwapchainDesc;
 typedef struct WisTextureDesc WisTextureDesc;
 typedef struct WisAllocationInfo WisAllocationInfo;
@@ -1640,9 +1647,10 @@ struct WisRenderAttachmentsDesc {
 };
 
 /**
- * @brief Root constant description for .
+ * @brief A set of constants that get pushed directly to the pipeline.
+ * Only one set can be created per shader stage.
  * */
-struct WisRootConstant {
+struct WisPushConstant {
     WisShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
     uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
     uint32_t bind_register; ///< Bind register number in HLSL.
@@ -1705,13 +1713,11 @@ struct WisBufferTextureCopyRegion {
 };
 
 /**
- * @brief Push descriptor. Unused for now.
+ * @brief Push descriptor. Used to push data directly to pipeline.
  * */
 struct WisPushDescriptor {
-    WisShaderStages stage;
-    uint32_t bind_register;
-    WisDescriptorType type;
-    uint32_t reserved;
+    WisShaderStages stage; ///< Shader stage. Defines the stage where the descriptor is used.
+    WisDescriptorType type; ///< Descriptor type. Works only with buffer-like bindings.
 };
 
 /**
@@ -2223,13 +2229,22 @@ WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
- * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+ * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+ * Example: If VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+ *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+ *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+ *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
  * @param signature VKRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisRootConstant* root_constants, uint32_t constants_size, VKRootSignature* signature);
+WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -2669,7 +2684,19 @@ WISDOM_API void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_c
  * @param offset_4bytes The offset in the data in 4-byte units.
  * @param stage The shader stages to set the root constants for.
  * */
-WISDOM_API void VKCommandListSetRootConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+WISDOM_API void VKCommandListSetPushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+WISDOM_API void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset);
 
 // VKSwapChain methods --
 /**
@@ -3192,13 +3219,22 @@ WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
- * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+ * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+ * Example: If DX12Device is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+ *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+ *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+ *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
  * @param signature DX12RootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisRootConstant* root_constants, uint32_t constants_size, DX12RootSignature* signature);
+WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -3638,7 +3674,19 @@ WISDOM_API void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vert
  * @param offset_4bytes The offset in the data in 4-byte units.
  * @param stage The shader stages to set the root constants for.
  * */
-WISDOM_API void DX12CommandListSetRootConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+WISDOM_API void DX12CommandListSetPushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+WISDOM_API void DX12CommandListPushDescriptor(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset);
 
 // DX12SwapChain methods --
 /**
@@ -4080,15 +4128,24 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
- * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+ * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+ * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+ *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+ *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+ *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisRootConstant* root_constants, uint32_t constants_size, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
 {
-    return DX12DeviceCreateRootSignature(self, root_constants, constants_size, signature);
+    return DX12DeviceCreateRootSignature(self, push_constants, constants_count, root_descriptors, descriptors_count, space_overlap_count, signature);
 }
 
 /**
@@ -4670,9 +4727,24 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
  * @param offset_4bytes The offset in the data in 4-byte units.
  * @param stage The shader stages to set the root constants for.
  * */
-inline void WisCommandListSetRootConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
+inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
-    DX12CommandListSetRootConstants(self, data, size_4bytes, offset_4bytes, stage);
+    DX12CommandListSetPushConstants(self, data, size_4bytes, offset_4bytes, stage);
+}
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
+{
+    DX12CommandListPushDescriptor(self, type, root_index, buffer, offset);
 }
 
 // WisSwapChain methods --
@@ -5172,15 +5244,24 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
- * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+ * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+ * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+ *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+ *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+ *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisRootConstant* root_constants, uint32_t constants_size, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
 {
-    return VKDeviceCreateRootSignature(self, root_constants, constants_size, signature);
+    return VKDeviceCreateRootSignature(self, push_constants, constants_count, root_descriptors, descriptors_count, space_overlap_count, signature);
 }
 
 /**
@@ -5762,9 +5843,24 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
  * @param offset_4bytes The offset in the data in 4-byte units.
  * @param stage The shader stages to set the root constants for.
  * */
-inline void WisCommandListSetRootConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
+inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
-    VKCommandListSetRootConstants(self, data, size_4bytes, offset_4bytes, stage);
+    VKCommandListSetPushConstants(self, data, size_4bytes, offset_4bytes, stage);
+}
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
+{
+    VKCommandListPushDescriptor(self, type, root_index, buffer, offset);
 }
 
 // WisSwapChain methods --
@@ -6127,14 +6223,16 @@ typedef struct VKDescriptorBuffer_t* VKDescriptorBuffer;
  * @brief Creates a root signature object.
  * @param self valid handle to the DescriptorBufferExtension
  * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * @param descriptors_count The number of root descriptors. Max is 8.
  * @param tables The descriptor tables to create the root signature with.
  * @param tables_count The number of descriptor tables.
  * @param signature VKRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDescriptorBufferExtensionCreateRootSignature(VKDescriptorBufferExtension self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature);
+WISDOM_API WisResult VKDescriptorBufferExtensionCreateRootSignature(VKDescriptorBufferExtension self, const WisPushConstant* root_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature);
 
 /**
  * @brief Creates a descriptor buffer object.
@@ -6238,14 +6336,16 @@ typedef struct DX12DescriptorBuffer_t* DX12DescriptorBuffer;
  * @brief Creates a root signature object.
  * @param self valid handle to the DescriptorBufferExtension
  * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * @param descriptors_count The number of root descriptors. Max is 8.
  * @param tables The descriptor tables to create the root signature with.
  * @param tables_count The number of descriptor tables.
  * @param signature DX12RootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DescriptorBufferExtensionCreateRootSignature(DX12DescriptorBufferExtension self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature);
+WISDOM_API WisResult DX12DescriptorBufferExtensionCreateRootSignature(DX12DescriptorBufferExtension self, const WisPushConstant* root_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature);
 
 /**
  * @brief Creates a descriptor buffer object.
@@ -6349,16 +6449,18 @@ typedef DX12DescriptorBuffer WisDescriptorBuffer;
  * @brief Creates a root signature object.
  * @param self valid handle to the DescriptorBufferExtension
  * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * @param descriptors_count The number of root descriptors. Max is 8.
  * @param tables The descriptor tables to create the root signature with.
  * @param tables_count The number of descriptor tables.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDescriptorBufferExtensionCreateRootSignature(WisDescriptorBufferExtension self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
+inline WisResult WisDescriptorBufferExtensionCreateRootSignature(WisDescriptorBufferExtension self, const WisPushConstant* root_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
 {
-    return DX12DescriptorBufferExtensionCreateRootSignature(self, root_constants, constants_size, tables, tables_count, signature);
+    return DX12DescriptorBufferExtensionCreateRootSignature(self, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count, signature);
 }
 
 /**
@@ -6489,16 +6591,18 @@ typedef VKDescriptorBuffer WisDescriptorBuffer;
  * @brief Creates a root signature object.
  * @param self valid handle to the DescriptorBufferExtension
  * @param root_constants The root constants to create the root signature with.
- * @param constants_size The number of root constants.
+ * @param constants_count The number of root constants. Max is 5.
+ * @param root_descriptors The root descriptors to create the root signature with.
+ * @param descriptors_count The number of root descriptors. Max is 8.
  * @param tables The descriptor tables to create the root signature with.
  * @param tables_count The number of descriptor tables.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDescriptorBufferExtensionCreateRootSignature(WisDescriptorBufferExtension self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
+inline WisResult WisDescriptorBufferExtensionCreateRootSignature(WisDescriptorBufferExtension self, const WisPushConstant* root_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, const WisDescriptorTable* tables, uint32_t tables_count, WisRootSignature* signature)
 {
-    return VKDescriptorBufferExtensionCreateRootSignature(self, root_constants, constants_size, tables, tables_count, signature);
+    return VKDescriptorBufferExtensionCreateRootSignature(self, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count, signature);
 }
 
 /**

@@ -28,7 +28,7 @@ struct DepthStencilDesc;
 struct BlendAttachmentDesc;
 struct BlendStateDesc;
 struct RenderAttachmentsDesc;
-struct RootConstant;
+struct PushConstant;
 struct SwapchainDesc;
 struct TextureDesc;
 struct AllocationInfo;
@@ -129,23 +129,29 @@ enum class MutiWaitFlags : uint32_t {
  * */
 enum class DescriptorType : uint32_t {
     /**
-     * @brief Descriptor is a shader resource view.
-     * Used for textures.
-     * */
-    ShaderResource = 0,
-    ConstantBuffer = 1, ///< Descriptor is a constant buffer view.
-    /**
-     * @brief Descriptor is an unordered access view.
-     * Used for read/write operations in compute shaders.
-     * */
-    UnorderedAccess = 2,
-    /**
      * @brief Descriptor is a sampler.
      * Sampler is used to sample textures in shaders.
      * Stored in separate descriptor table and
-     * can't be mixed with other descriptor types
+     * can't be mixed with other descriptor types.
      * */
-    Sampler = 3,
+    Sampler = 0,
+    ConstantBuffer = 1, ///< Descriptor is a constant buffer.
+    Texture = 2, ///< Descriptor is a texture.
+    /**
+     * @brief Descriptor is an unordered access read-write texture.
+     * Used for read/write operations in compute shaders.
+     * */
+    RWTexture = 3,
+    /**
+     * @brief Descriptor is an unordered access read-write buffer.
+     * Used for read/write operations in compute shaders.
+     * */
+    RWBuffer = 4,
+    /**
+     * @brief Descriptor is a shader resource buffer.
+     * May be bigger than constant buffers, but slower.
+     * */
+    Buffer = 5,
 };
 
 /**
@@ -1106,6 +1112,7 @@ enum class DeviceFeature : uint32_t {
      * */
     DynamicVSync = 5,
     UnusedRenderTargets = 6, ///< Supports unused render targets. Support for VK, always true for DX12.
+    PushDescriptors = 7, ///< Supports push descriptors. Support for VK, always true for DX12.
 };
 
 /**
@@ -1571,9 +1578,10 @@ struct RenderAttachmentsDesc {
 };
 
 /**
- * @brief Root constant description for .
+ * @brief A set of constants that get pushed directly to the pipeline.
+ * Only one set can be created per shader stage.
  * */
-struct RootConstant {
+struct PushConstant {
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
     uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
     uint32_t bind_register; ///< Bind register number in HLSL.
@@ -1636,13 +1644,11 @@ struct BufferTextureCopyRegion {
 };
 
 /**
- * @brief Push descriptor. Unused for now.
+ * @brief Push descriptor. Used to push data directly to pipeline.
  * */
 struct PushDescriptor {
-    wis::ShaderStages stage;
-    uint32_t bind_register;
-    wis::DescriptorType type;
-    uint32_t reserved;
+    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the descriptor is used.
+    wis::DescriptorType type; ///< Descriptor type. Works only with buffer-like bindings.
 };
 
 /**

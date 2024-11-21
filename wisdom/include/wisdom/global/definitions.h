@@ -1,6 +1,4 @@
 #pragma once
-#define WIS_DOC(a) ///< Documentation macro, used by Generator to generate documentation automatically
-
 #ifdef WISDOM_BUILD_BINARIES // If we are building the binaries
 #define WIS_INLINE
 #else
@@ -13,5 +11,8 @@ inline constexpr const bool debug_layer = debug_mode;
 
 inline constexpr const unsigned max_render_targets = 8u;
 inline constexpr const unsigned max_vertex_bindings = 16u;
-inline constexpr const unsigned max_shader_stages = 5;
+inline constexpr const unsigned max_shader_stages = 5u;
+inline constexpr const unsigned max_push_constants = 5u;
+inline constexpr const unsigned max_push_descriptors = 8u;
+inline constexpr const unsigned max_descriptor_space_overlap = 32u;
 } // namespace wis

@@ -239,8 +239,11 @@ public:
     CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
-    CreateRootSignature(const RootConstant* constants = nullptr,
-                        uint32_t constants_size = 0) const noexcept;
+    CreateRootSignature(const PushConstant* constants = nullptr,
+                        uint32_t constants_size = 0,
+                        const PushDescriptor* push_descriptors = nullptr,
+                        uint32_t push_descriptors_size = 0,
+                        [[maybe_unused]] uint32_t space_overlap_count = 1) const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
@@ -319,13 +322,22 @@ public:
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
-     * @param root_constants The root constants to create the root signature with.
-     * @param constants_size The number of root constants.
+     * @param push_constants The root constants to create the root signature with.
+     * @param constants_count The number of root constants. Max is 5.
+     * @param root_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param descriptors_count The number of root descriptors. Max is 8.
+     * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+     * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+     * Example: If wis::VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+     *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+     *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+     *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
     {
-        return wis::ImplVKDevice::CreateRootSignature(root_constants, constants_size);
+        return wis::ImplVKDevice::CreateRootSignature(push_constants, constants_count, root_descriptors, descriptors_count, space_overlap_count);
     }
     /**
      * @brief Creates a shader object.

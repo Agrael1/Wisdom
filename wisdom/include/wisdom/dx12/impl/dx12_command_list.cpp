@@ -351,7 +351,8 @@ void wis::ImplDX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_
 {
     list->SetGraphicsRootSignature(std::get<0>(root_signature));
     root_stage_map = std::get<1>(root_signature);
-    root_table_offset = std::get<2>(root_signature);
+    push_constant_count = std::get<2>(root_signature);
+    push_descriptor_count = std::get<3>(root_signature);
 }
 
 void wis::ImplDX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -371,7 +372,7 @@ void wis::ImplDX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::ImplDX12CommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+void wis::ImplDX12CommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     list->SetGraphicsRoot32BitConstants(UINT(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
 }
@@ -404,20 +405,39 @@ void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageVi
             CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[5].ptr - storage.heap_starts[1].ptr)),
         };
         if (storage.heap_starts[uint32_t(wis::BindingIndex::ConstantBuffer) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::ConstantBuffer) - 1, handles[0]);
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::ConstantBuffer) - 1, handles[0]);
         }
         if (storage.heap_starts[uint32_t(wis::BindingIndex::Texture) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::Texture) - 1, handles[1]);
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::Texture) - 1, handles[1]);
         }
         if (storage.heap_starts[uint32_t(wis::BindingIndex::RWTexture) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::RWTexture) - 1, handles[2]);
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::RWTexture) - 1, handles[2]);
         }
         if (storage.heap_starts[uint32_t(wis::BindingIndex::RWBuffer) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::RWBuffer) - 1, handles[3]);
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::RWBuffer) - 1, handles[3]);
         }
         if (storage.heap_starts[uint32_t(wis::BindingIndex::Buffer) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(root_table_offset + uint32_t(wis::BindingIndex::Buffer) - 1, handles[4]);
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::Buffer) - 1, handles[4]);
         }
+    }
+}
+
+void wis::ImplDX12CommandList::PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::DX12BufferView view, uint32_t offset) noexcept
+{
+    auto handle = std::get<0>(view)->GetGPUVirtualAddress();
+    switch (type) {
+    case wis::DescriptorType::Buffer:
+        list->SetGraphicsRootShaderResourceView(push_constant_count + binding, handle + offset);
+        break;
+    case wis::DescriptorType::Texture:
+    case wis::DescriptorType::RWTexture:
+        return;
+    case wis::DescriptorType::ConstantBuffer:
+        list->SetGraphicsRootConstantBufferView(push_constant_count + binding, handle + offset);
+        break;
+    case wis::DescriptorType::RWBuffer:
+        list->SetGraphicsRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
     }
 }
 #endif // WIS_DX12_COMMAND_LIST_H

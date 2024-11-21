@@ -64,10 +64,10 @@ extern "C" WisResult DX12DebugExtensionCreateDebugMessenger(DX12DebugExtension s
     return reinterpret_cast<WisResult&>(res);
 }
 // DX12DescriptorBufferExtension methods --
-extern "C" WisResult DX12DescriptorBufferExtensionCreateRootSignature(DX12DescriptorBufferExtension self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature)
+extern "C" WisResult DX12DescriptorBufferExtensionCreateRootSignature(DX12DescriptorBufferExtension self, const WisPushConstant* root_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, const WisDescriptorTable* tables, uint32_t tables_count, DX12RootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::DX12DescriptorBufferExtension*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(root_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -177,10 +177,10 @@ extern "C" WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self,
     return reinterpret_cast<WisResult&>(res);
 }
 // VKDescriptorBufferExtension methods --
-extern "C" WisResult VKDescriptorBufferExtensionCreateRootSignature(VKDescriptorBufferExtension self, const WisRootConstant* root_constants, uint32_t constants_size, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature)
+extern "C" WisResult VKDescriptorBufferExtensionCreateRootSignature(VKDescriptorBufferExtension self, const WisPushConstant* root_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, const WisDescriptorTable* tables, uint32_t tables_count, VKRootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::VKDescriptorBufferExtension*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::RootConstant*&>(root_constants), constants_size, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(root_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);

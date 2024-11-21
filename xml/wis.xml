@@ -150,8 +150,17 @@ Default is {MutiWaitFlags::All}"/>
 
     <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.">
       <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
-      <arg type="RootConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
-      <arg type="u32" name="constants_size" default="0" doc="The number of root constants."/>
+      <arg type="PushConstant" name="push_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
+      <arg type="u32" name="constants_count" default="0" doc="The number of root constants. Max is 5."/>
+      <arg type="PushDescriptor" name="root_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with.
+In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
+      <arg type="u32" name="descriptors_count" default="0" doc="The number of root descriptors. Max is 8."/>
+      <arg type="u32" name="space_overlap_count" default="1" doc="Count of descriptor spaces to overlap for each of the DescriptorStorage types. 
+Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+Example: If {::space_overlap_count} is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+    [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState 
+    [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+    [[vk::binding(0,1)]] ConstantBuffer &lt;CB0&gt; cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc."/>
     </func>
 
     <func for="Device" name="CreateShader" mod="const" doc="Creates a shader object.">
@@ -430,11 +439,22 @@ Otherwise the first is chosen.">
       <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
     </func>
 
-    <func for="CommandList" name="SetRootConstants" doc="Sets the root constants for the shader.">
+    <func for="CommandList" name="SetPushConstants" doc="Sets the root constants for the shader.">
       <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
       <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
       <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
       <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
+    </func>
+
+    <func for="CommandList" name="PushDescriptor" doc="Pushes descriptor directly to the command list, without putting it to the table.
+Works only with buffer bindings.
+Buffer is always bound with full size.">
+      <arg type="DescriptorType" name="type" doc="The type of the descriptor to set."/>
+      <arg type="u32" name="root_index" doc="The index of the root descriptor to set."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to set.">
+        <replace with="BufferView" for="cpp" doc="The buffer to set."/>
+      </arg>
+      <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
 
     <!-- CommandQueue -->
@@ -670,8 +690,10 @@ Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
 
       <func for="DescriptorBufferExtension" name="CreateRootSignature" mod="const" doc="Creates a root signature object.">
         <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
-        <arg type="RootConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
-        <arg type="u32" name="constants_size" default="0" doc="The number of root constants."/>
+        <arg type="PushConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
+        <arg type="u32" name="constants_count" default="0" doc="The number of root constants. Max is 5."/>
+        <arg type="PushDescriptor" name="root_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with."/>
+        <arg type="u32" name="descriptors_count" default="0" doc="The number of root descriptors. Max is 8."/>
         <arg type="DescriptorTable" name="tables" mod="const ptr" default="nullptr" doc="The descriptor tables to create the root signature with."/>
         <arg type="u32" name="tables_count" default="0" doc="The number of descriptor tables."/>
       </func>

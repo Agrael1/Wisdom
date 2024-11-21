@@ -5,24 +5,51 @@
 #include <wisdom/wisdom_descriptor_buffer.h>
 #include <wisdom/util/small_allocator.h>
 
+namespace wis::detail {
+constexpr inline D3D12_ROOT_PARAMETER_TYPE to_dx_ext(wis::DescriptorType type) noexcept
+{
+    switch (type) {
+    case wis::DescriptorType::Buffer:
+    case wis::DescriptorType::Texture:
+        return D3D12_ROOT_PARAMETER_TYPE_SRV;
+    case wis::DescriptorType::ConstantBuffer:
+        return D3D12_ROOT_PARAMETER_TYPE_CBV;
+    case wis::DescriptorType::RWBuffer:
+    case wis::DescriptorType::RWTexture:
+        return D3D12_ROOT_PARAMETER_TYPE_UAV;
+    default:
+        return D3D12_ROOT_PARAMETER_TYPE_CBV;
+    }
+}
+} // namespace wis::detail
+
 wis::ResultValue<wis::DX12RootSignature>
-wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* root_constants,
+wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const PushConstant* root_constants,
                                                             uint32_t constants_size,
+                                                            const PushDescriptor* push_descriptors,
+                                                            uint32_t push_descriptors_size,
                                                             const wis::DescriptorTable* tables,
                                                             uint32_t tables_count) const noexcept
 {
-    wis::com_ptr<ID3D12RootSignature> rsig;
+    if (constants_size > wis::max_push_constants) {
+        return wis::make_result<FUNC, "constants_size exceeds max_push_constants">(E_INVALIDARG);
+    }
+    if (push_descriptors_size > wis::max_push_descriptors) {
+        return wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(E_INVALIDARG);
+    }
+    if (tables_count + constants_size + push_descriptors_size > 64) {
+        return wis::make_result<FUNC, "sum of all parameters exceeds max amount of root parameters">(E_INVALIDARG);
+    }
 
-    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    D3D12_ROOT_PARAMETER1 root_params[64]{}; // max overall size of root parameters
 
-    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 16> root_params{ constants_size + tables_count, true };
-
+    // push constants
     std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map{};
     std::fill(stage_map.begin(), stage_map.end(), -1);
 
     for (uint32_t i = 0; i < constants_size; ++i) {
         auto& constant = root_constants[i];
-        root_params.data()[i] = {
+        root_params[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
             .Constants = {
                     .ShaderRegister = constant.bind_register,
@@ -32,6 +59,19 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
             .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
         };
         stage_map[+constant.stage] = i;
+    }
+
+    // push descriptors
+    for (uint32_t i = 0; i < push_descriptors_size; ++i) {
+        auto& descriptor = push_descriptors[i];
+        root_params[i + constants_size] = {
+            .ParameterType = detail::to_dx_ext(descriptor.type),
+            .Descriptor = {
+                    .ShaderRegister = i,
+                    .RegisterSpace = 0, // always 0 for push descriptors
+            },
+            .ShaderVisibility = convert_dx(descriptor.stage),
+        };
     }
 
     size_t memory_size = 0;
@@ -60,7 +100,7 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
             };
         }
 
-        root_params.data()[i] = {
+        root_params[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
             .DescriptorTable = {
                     .NumDescriptorRanges = table.entry_count,
@@ -71,8 +111,9 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
         offset += table.entry_count;
     }
 
+    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-    desc.Init_1_1(constants_size + tables_count, root_params.data(), 0, nullptr, flags);
+    desc.Init_1_1(constants_size + push_descriptors_size + tables_count, root_params, 0, nullptr, flags);
 
     wis::com_ptr<ID3DBlob> signature;
     wis::com_ptr<ID3DBlob> error;
@@ -81,13 +122,14 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const RootConstant* 
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to serialize root signature">(hr);
 
+    wis::com_ptr<ID3D12RootSignature> rsig;
     hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
                                      __uuidof(*rsig), rsig.put_void());
 
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Failed to create root signature">(hr);
 
-    return DX12RootSignature{ std::move(rsig), stage_map, constants_size };
+    return DX12RootSignature{ std::move(rsig), stage_map, constants_size, push_descriptors_size };
 }
 
 wis::ResultValue<wis::DX12DescriptorBuffer>

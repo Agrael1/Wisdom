@@ -17,7 +17,7 @@ using DX12FactoryHandle = std::tuple<IDXGIFactory6*>;
 
 using DX12FenceView = std::tuple<ID3D12Fence*>;
 using DX12ShaderView = std::tuple<void*, uint32_t>;
-using DX12RootSignatureView = std::tuple<ID3D12RootSignature*, std::array<int8_t, size_t(wis::ShaderStages::Count)>, uint32_t>;
+using DX12RootSignatureView = std::tuple<ID3D12RootSignature*, std::array<int8_t, size_t(wis::ShaderStages::Count)>, uint32_t, uint32_t>;
 using DX12RootSignatureView2 = decltype(std::ignore);
 using DX12CommandListView = std::tuple<ID3D12CommandList*>;
 using DX12QueueView = std::tuple<ID3D12CommandQueue*>;

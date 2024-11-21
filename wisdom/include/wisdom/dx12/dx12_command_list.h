@@ -17,7 +17,8 @@ struct Internal<DX12CommandList> {
     wis::com_ptr<ID3D12CommandAllocator> allocator;
     wis::com_ptr<ID3D12GraphicsCommandList9> list;
     std::array<int8_t, size_t(wis::ShaderStages::Count)> root_stage_map;
-    uint32_t root_table_offset = 0;
+    uint32_t push_constant_count = 0;
+    uint32_t push_descriptor_count = 0;
 };
 
 class ImplDX12CommandList : public QueryInternal<DX12CommandList>
@@ -93,7 +94,9 @@ public:
                                   uint32_t start_vertex = 0,
                                   uint32_t start_instance = 0) noexcept;
 
-    WIS_INLINE void SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
+    WIS_INLINE void SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
+
+    WIS_INLINE void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::DX12BufferView view, uint32_t offset = 0) noexcept;
 
     WIS_INLINE void SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept;
 
@@ -341,9 +344,22 @@ public:
      * @param offset_4bytes The offset in the data in 4-byte units.
      * @param stage The shader stages to set the root constants for.
      * */
-    inline void SetRootConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+    inline void SetPushConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
     {
-        wis::ImplDX12CommandList::SetRootConstants(data, size_4bytes, offset_4bytes, stage);
+        wis::ImplDX12CommandList::SetPushConstants(data, size_4bytes, offset_4bytes, stage);
+    }
+    /**
+     * @brief Pushes descriptor directly to the command list, without putting it to the table.
+     * Works only with buffer bindings.
+     * Buffer is always bound with full size.
+     * @param type The type of the descriptor to set.
+     * @param root_index The index of the root descriptor to set.
+     * @param buffer The buffer to set.
+     * @param offset The offset in the descriptor table to set the descriptor to.
+     * */
+    inline void PushDescriptor(wis::DescriptorType type, uint32_t root_index, wis::DX12BufferView buffer, uint32_t offset) noexcept
+    {
+        wis::ImplDX12CommandList::PushDescriptor(type, root_index, std::move(buffer), offset);
     }
 };
 #pragma endregion DX12CommandList

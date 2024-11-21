@@ -30,8 +30,10 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
-    CreateRootSignature(const RootConstant* root_constants = nullptr,
+    CreateRootSignature(const PushConstant* root_constants = nullptr,
                         uint32_t constants_size = 0,
+                        const PushDescriptor* push_descriptors = nullptr,
+                        uint32_t push_descriptors_size = 0,
                         const wis::DescriptorTable* tables = nullptr,
                         uint32_t tables_count = 0) const noexcept;
 
@@ -71,14 +73,16 @@ public:
     /**
      * @brief Creates a root signature object.
      * @param root_constants The root constants to create the root signature with.
-     * @param constants_size The number of root constants.
+     * @param constants_count The number of root constants. Max is 5.
+     * @param root_descriptors The root descriptors to create the root signature with.
+     * @param descriptors_count The number of root descriptors. Max is 8.
      * @param tables The descriptor tables to create the root signature with.
      * @param tables_count The number of descriptor tables.
      * @return wis::DX12RootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
-        return wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(root_constants, constants_size, tables, tables_count);
+        return wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count);
     }
     /**
      * @brief Creates a descriptor buffer object.
@@ -178,8 +182,10 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
-    CreateRootSignature(const RootConstant* constants = nullptr,
+    CreateRootSignature(const PushConstant* constants = nullptr,
                         uint32_t constants_size = 0,
+                        const PushDescriptor* push_descriptors = nullptr,
+                        uint32_t push_descriptors_size = 0,
                         const wis::DescriptorTable* tables = nullptr,
                         uint32_t tables_count = 0) const noexcept;
 
@@ -236,14 +242,16 @@ public:
     /**
      * @brief Creates a root signature object.
      * @param root_constants The root constants to create the root signature with.
-     * @param constants_size The number of root constants.
+     * @param constants_count The number of root constants. Max is 5.
+     * @param root_descriptors The root descriptors to create the root signature with.
+     * @param descriptors_count The number of root descriptors. Max is 8.
      * @param tables The descriptor tables to create the root signature with.
      * @param tables_count The number of descriptor tables.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
-        return wis::ImplVKDescriptorBufferExtension::CreateRootSignature(root_constants, constants_size, tables, tables_count);
+        return wis::ImplVKDescriptorBufferExtension::CreateRootSignature(root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count);
     }
     /**
      * @brief Creates a descriptor buffer object.
