@@ -393,7 +393,7 @@ void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageVi
     list->SetDescriptorHeaps(increment, heaps.data());
 
     if (storage.heap_sampler) {
-        list->SetGraphicsRootDescriptorTable(uint32_t(wis::BindingIndex::Sampler), storage.heap_gpu_starts[1]); // 0 is reserved for push constants and push descriptors
+        list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count, storage.heap_gpu_starts[1]); // 0 is reserved for push constants and push descriptors
     }
     if (storage.heap_resource) {
         CD3DX12_GPU_DESCRIPTOR_HANDLE handles[+wis::BindingIndex::Count - 1]{

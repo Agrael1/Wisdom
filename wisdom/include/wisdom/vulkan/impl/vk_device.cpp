@@ -1371,7 +1371,7 @@ wis::ImplVKDevice::CreateRootSignature(const wis::PushConstant* constants,
         for (uint32_t i = 0; i < push_descriptors_size; i++) {
             auto& r = push_descriptors[i];
             auto& b = push_bindings[i];
-            b.binding = 0; // Push descriptors always have binding 0
+            b.binding = i;
             b.descriptorType = convert_vk(r.type);
             b.descriptorCount = 1; // Push descriptors are always single
             b.stageFlags = convert_vk(r.stage);
