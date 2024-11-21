@@ -85,7 +85,7 @@ struct Internal<VKDevice> {
                   .stageFlags = VK_SHADER_STAGE_ALL },
             };
 
-            constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+            constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
             constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
                 .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
                 .pNext = nullptr,
@@ -98,7 +98,7 @@ struct Internal<VKDevice> {
                 desc_info[i] = {
                     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
                     .pNext = &binding_flags_info,
-                    .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT,
+                    .flags = 0,
                     .bindingCount = 1,
                     .pBindings = &bindings[i],
                 };

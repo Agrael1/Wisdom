@@ -1313,7 +1313,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::DescriptorStorageDesc desc) cons
     VkDescriptorPoolCreateInfo pool_info{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
         .pNext = nullptr,
-        .flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT,
+        .flags = 0,
         .maxSets = num_sets,
         .poolSizeCount = iterator,
         .pPoolSizes = pool_sizes,
