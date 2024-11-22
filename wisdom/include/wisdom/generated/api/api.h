@@ -1490,9 +1490,9 @@ struct InputAttribute {
  * @brief Input layout description for .
  * */
 struct InputLayout {
-    wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
+    const wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
     uint32_t slot_count; ///< Input slots count. Max number is 16.
-    wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
+    const wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
     uint32_t attribute_count; ///< Input attributes count.
 };
 
@@ -1572,8 +1572,8 @@ struct BlendStateDesc {
  * @brief Render attachments description for .
  * */
 struct RenderAttachmentsDesc {
-    wis::DataFormat* attachment_formats; ///< Attachment formats array. Describes the format of the render target.
-    uint32_t attachments_count; ///< Attachment formats count.
+    std::array<wis::DataFormat, 8> attachment_formats{}; ///< Attachment formats array. Describes the format of the render target.
+    uint32_t attachments_count; ///< Attachment formats count. Max is 8.
     wis::DataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
 };
 

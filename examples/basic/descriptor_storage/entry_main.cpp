@@ -196,7 +196,6 @@ public:
             wis::InputAttribute input_attributes[] = {
                 { .input_slot = 0, .semantic_name = "POSITION", .semantic_index = 0, .location = 0, .format = wis::DataFormat::RGB32Float, .offset_bytes = 0 }
             };
-            wis::DataFormat attachment_formats[] = { ex::swapchain_format };
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
                 .input_layout = {
@@ -207,7 +206,7 @@ public:
                 },
                 .shaders = { .vertex = vs, .pixel = ps },
                 .attachments = {
-                        .attachment_formats = attachment_formats,
+                        .attachment_formats = { ex::swapchain_format },
                         .attachments_count = 1,
                 },
             };

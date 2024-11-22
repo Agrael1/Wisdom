@@ -117,9 +117,9 @@ Describes hardware driver identificators as well as memory limits.">
     </type>
 
     <type name="InputLayout" category="struct" doc="Input layout description for {GraphicsPipelineDesc::}.">
-      <member type="InputSlotDesc" name="slots" mod="ptr" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
+      <member type="InputSlotDesc" name="slots" mod="const ptr" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
       <member type="u32" name="slot_count" doc="Input slots count. Max number is 16."/>
-      <member type="InputAttribute" name="attributes" mod="ptr" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
+      <member type="InputAttribute" name="attributes" mod="const ptr" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
       <member type="u32" name="attribute_count" doc="Input attributes count."/>
     </type>
 
@@ -178,8 +178,8 @@ Describes hardware driver identificators as well as memory limits.">
     </type>
 
     <type name="RenderAttachmentsDesc" category="struct" doc="Render attachments description for {GraphicsPipelineDesc::}.">
-      <member type="DataFormat" name="attachment_formats" mod="ptr" doc="Attachment formats array. Describes the format of the render target."/>
-      <member type="u32" name="attachments_count" doc="Attachment formats count."/>
+      <member type="DataFormat" name="attachment_formats" array="8" doc="Attachment formats array. Describes the format of the render target."/>
+      <member type="u32" name="attachments_count" doc="Attachment formats count. Max is 8."/>
       <member type="DataFormat" name="depth_attachment" doc="Depth attachment format. Describes the format of the depth buffer."/>
     </type>
 

@@ -267,13 +267,11 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create Pipeline
     {
-        wis::DataFormat attachment_formats[] = { wis::DataFormat::RGBA8Unorm };
-
         wis::GraphicsPipelineDesc desc{
             .root_signature = node.root,
             .shaders = { .vertex = node.vertex_shader, .pixel = node.pixel_shader },
             .attachments = {
-                    .attachment_formats = attachment_formats,
+                    .attachment_formats = { wis::DataFormat::RGBA8Unorm },
                     .attachments_count = 1,
             },
             .flags = wis::PipelineFlags::DescriptorBuffer,
