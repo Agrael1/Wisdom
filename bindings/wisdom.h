@@ -1997,10 +1997,10 @@ struct VKGraphicsPipelineDesc {
     WisInputLayout input_layout; ///< Input layout.
     VKGraphicsShaderStages shaders; ///< Shader stages.
     WisRenderAttachmentsDesc attachments; ///< Render attachments.
-    WisRasterizerDesc* rasterizer; ///< Rasterizer description.
-    WisSampleDesc* sample; ///< Sample description.
-    WisBlendStateDesc* blend; ///< Blend state description.
-    WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
+    const WisRasterizerDesc* rasterizer; ///< Rasterizer description.
+    const WisSampleDesc* sample; ///< Sample description.
+    const WisBlendStateDesc* blend; ///< Blend state description.
+    const WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
     WisTopologyType topology_type; ///< Topology type. Default is TopologyTypeTriangle.
     /**
      * @brief View mask for Multiview feature. If multiview is not available it is ignored.
@@ -2046,8 +2046,8 @@ struct VKRenderPassDesc {
      * */
     uint32_t view_mask;
     uint32_t target_count; ///< Render target count.
-    VKRenderPassRenderTargetDesc* targets; ///< Render target descriptions.
-    VKRenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
+    const VKRenderPassRenderTargetDesc* targets; ///< Render target descriptions.
+    const VKRenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
 };
 
 /**
@@ -2987,10 +2987,10 @@ struct DX12GraphicsPipelineDesc {
     WisInputLayout input_layout; ///< Input layout.
     DX12GraphicsShaderStages shaders; ///< Shader stages.
     WisRenderAttachmentsDesc attachments; ///< Render attachments.
-    WisRasterizerDesc* rasterizer; ///< Rasterizer description.
-    WisSampleDesc* sample; ///< Sample description.
-    WisBlendStateDesc* blend; ///< Blend state description.
-    WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
+    const WisRasterizerDesc* rasterizer; ///< Rasterizer description.
+    const WisSampleDesc* sample; ///< Sample description.
+    const WisBlendStateDesc* blend; ///< Blend state description.
+    const WisDepthStencilDesc* depth_stencil; ///< Depth stencil description.
     WisTopologyType topology_type; ///< Topology type. Default is TopologyTypeTriangle.
     /**
      * @brief View mask for Multiview feature. If multiview is not available it is ignored.
@@ -3036,8 +3036,8 @@ struct DX12RenderPassDesc {
      * */
     uint32_t view_mask;
     uint32_t target_count; ///< Render target count.
-    DX12RenderPassRenderTargetDesc* targets; ///< Render target descriptions.
-    DX12RenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
+    const DX12RenderPassRenderTargetDesc* targets; ///< Render target descriptions.
+    const DX12RenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
 };
 
 /**

@@ -1415,16 +1415,17 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
         }
 
         for (auto& m : impl.members) {
-            auto mfull_name = GetCFullTypename(m.type, impl_tag);
-            std::string res_type;
-
-            if (m.modifier == "ptr")
-                res_type = "*";
-
+            WisFunctionParameter wfp{
+                .type_info = GetTypeInfo(m.type),
+                .type = m.type,
+                .name = m.name,
+                .modifier = m.modifier,
+                .default_value = m.default_value,
+                .doc = m.doc,
+            };
             auto val_str = m.array_size.empty()
-                    ? wis::format("    {} {};", mfull_name + res_type, m.name)
-                    : wis::format("    {} {}[{}];", mfull_name, m.name, m.array_size);
-
+                    ? wis::format("    {};", GetCFullArg(wfp, impl_tag))
+                    : wis::format("    {} {}[{}];", GetCFullArg(wfp, impl_tag, true), m.name, m.array_size);
             st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
         }
 
@@ -1464,23 +1465,20 @@ std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
         }
 
         for (auto& m : impl.members) {
-            auto mfull_name = GetCPPFullTypename(m.type, impl_tag);
-
             std::string val_str;
-            std::string mod;
-            if (m.modifier == "ptr")
-                mod = '*';
+            WisFunctionParameter wfp{
+                .type_info = GetTypeInfo(m.type),
+                .type = m.type,
+                .name = m.name,
+                .modifier = m.modifier,
+                .default_value = m.default_value,
+                .doc = m.doc,
+            };
 
             if (m.array_size.empty()) {
-                std::string def = "";
-                if (!m.default_value.empty()) {
-                    def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
-                            ? wis::format(" = {}::{}", mfull_name, m.default_value)
-                            : wis::format(" = {}", m.default_value);
-                }
-                val_str = wis::format("    {} {}{};", mfull_name + mod, m.name, def);
+                val_str = wis::format("    {};", GetCPPFullArg(wfp, impl_tag));
             } else {
-                val_str = wis::format("    std::array<{}, {}> {} {{}};", mfull_name, m.array_size, m.name);
+                val_str = wis::format("    std::array<{}, {}> {} {{}};", GetCPPFullArg(wfp, impl_tag, true), m.array_size, m.name);
             }
             st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
         }

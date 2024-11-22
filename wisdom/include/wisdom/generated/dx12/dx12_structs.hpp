@@ -40,10 +40,10 @@ struct DX12GraphicsPipelineDesc {
     wis::InputLayout input_layout; ///< Input layout.
     wis::DX12GraphicsShaderStages shaders; ///< Shader stages.
     wis::RenderAttachmentsDesc attachments; ///< Render attachments.
-    wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
-    wis::SampleDesc* sample = nullptr; ///< Sample description.
-    wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
-    wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    const wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
+    const wis::SampleDesc* sample = nullptr; ///< Sample description.
+    const wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
+    const wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
     wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
     /**
      * @brief View mask for Multiview feature. If multiview is not available it is ignored.
@@ -89,8 +89,8 @@ struct DX12RenderPassDesc {
      * */
     uint32_t view_mask = 0;
     uint32_t target_count; ///< Render target count.
-    wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
-    wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    const wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    const wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 
 /**
