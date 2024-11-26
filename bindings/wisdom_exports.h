@@ -8,16 +8,16 @@
 #else
 #  ifndef WISDOM_API
 #    ifdef wisdom_bindings_EXPORTS
-        /* We are building this library */
+/* We are building this library */
 #      define WISDOM_API __declspec(dllexport)
 #    else
-        /* We are using this library */
+/* We are using this library */
 #      define WISDOM_API __declspec(dllimport)
 #    endif
 #  endif
 
 #  ifndef WISDOM_NO_EXPORT
-#    define WISDOM_NO_EXPORT 
+#    define WISDOM_NO_EXPORT
 #  endif
 #endif
 

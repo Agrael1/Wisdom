@@ -8,9 +8,9 @@
 
 wis::ResultValue<wis::DX12Texture>
 wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
-                                                    wis::TextureDesc desc,
-                                                    wis::TextureState initial_state,
-                                                    wis::MemoryFlags flags) const noexcept
+        wis::TextureDesc desc,
+        wis::TextureState initial_state,
+        wis::MemoryFlags flags) const noexcept
 {
     if (!supports_gpu_upload)
         return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
@@ -30,8 +30,8 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
     auto hallocator = allocator.GetInternal().allocator;
 
     HRESULT hr = hallocator->CreateResource3(&all_desc, &tex_desc,
-                                             convert_dx(initial_state), nullptr, 0, nullptr,
-                                             al.put(), __uuidof(*rc), rc.put_void());
+                 convert_dx(initial_state), nullptr, 0, nullptr,
+                 al.put(), __uuidof(*rc), rc.put_void());
 
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
@@ -41,9 +41,9 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
 
 wis::Result
 wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                            wis::DX12TextureView dst_texture,
-                                                            wis::TextureState initial_state,
-                                                            wis::TextureRegion region) const noexcept
+        wis::DX12TextureView dst_texture,
+        wis::TextureState initial_state,
+        wis::TextureRegion region) const noexcept
 {
     auto resource = std::get<0>(dst_texture);
     auto texture_desc = resource->GetDesc();

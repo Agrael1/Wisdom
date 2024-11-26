@@ -81,13 +81,13 @@ TEST_CASE("basic_device")
     {
         wis::Texture a;
         auto [res6, texture] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
-                                                                         .size = {
+        .size = {
 
-                                                                                 .width = 1024,
-                                                                                 .height = 1024,
-                                                                                 .depth_or_layers = 1,
-                                                                         },
-                                                                         .usage = wis::TextureUsage::CopySrc });
+            .width = 1024,
+            .height = 1024,
+            .depth_or_layers = 1,
+        },
+        .usage = wis::TextureUsage::CopySrc });
         REQUIRE(texture);
 
         a = std::move(texture);
@@ -95,13 +95,13 @@ TEST_CASE("basic_device")
         REQUIRE_FALSE(texture);
 
         auto [res7, texture2] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
-                                                                          .size = {
+        .size = {
 
-                                                                                  .width = 1024,
-                                                                                  .height = 1024,
-                                                                                  .depth_or_layers = 1,
-                                                                          },
-                                                                          .usage = wis::TextureUsage::CopySrc });
+            .width = 1024,
+            .height = 1024,
+            .depth_or_layers = 1,
+        },
+        .usage = wis::TextureUsage::CopySrc });
 
         REQUIRE(texture2);
         texture = std::move(texture2);

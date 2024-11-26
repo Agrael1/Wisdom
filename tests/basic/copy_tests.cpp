@@ -81,12 +81,12 @@ TEST_CASE("basic_copy_region")
     // clang-format on
 
     extres = ext_alloc.WriteMemoryToSubresourceDirect(data,
-                                                      texture,
-                                                      wis::TextureState::Common,
-                                                      wis::TextureRegion{
-                                                              .size = { 4, 4, 1 },
-                                                              .format = wis::DataFormat::RGBA8Unorm,
-                                                      });
+             texture,
+             wis::TextureState::Common,
+    wis::TextureRegion{
+        .size = { 4, 4, 1 },
+        .format = wis::DataFormat::RGBA8Unorm,
+    });
 
     REQUIRE(extres.status == wis::Status::Ok);
 
@@ -103,9 +103,9 @@ TEST_CASE("basic_copy_region")
     wis::BufferTextureCopyRegion region{
         .buffer_offset = 4,
         .texture = {
-                .offset = { 2, 2, 0 },
-                .size = { 2, 2, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
+            .offset = { 2, 2, 0 },
+            .size = { 2, 2, 1 },
+            .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyTextureToBuffer(texture, buffer, &region, 1);
