@@ -155,10 +155,10 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="PushDescriptor" name="push_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with.
 In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
       <arg type="u32" name="descriptors_count" default="0" doc="The number of push descriptors. Max is 8."/>
-      <arg type="u32" name="space_overlap_count" default="1" doc="Count of descriptor spaces to overlap for each of the DescriptorStorage types. 
+      <arg type="u32" name="space_overlap_count" default="1" doc="Count of descriptor spaces to overlap for each of the DescriptorStorage types.
 Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
 Example: If {::space_overlap_count} is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
-    [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState 
+    [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
     [[vk::binding(0,1)]] ConstantBuffer &lt;CB0&gt; cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc."/>
     </func>
