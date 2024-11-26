@@ -57,10 +57,10 @@ public: // Command List
                                          wis::DX12DescriptorBufferView sampler_desc_buffer) const noexcept;
 
     WIS_INLINE void SetDescriptorTableOffset(wis::DX12CommandListView cmd_list,
-            wis::DX12RootSignatureView root_signature,
-            uint32_t root_table_index,
-            wis::DX12DescriptorBufferGPUView buffer,
-            uint32_t table_aligned_byte_offset) const noexcept;
+                                             wis::DX12RootSignatureView root_signature,
+                                             uint32_t root_table_index,
+                                             wis::DX12DescriptorBufferGPUView buffer,
+                                             uint32_t table_aligned_byte_offset) const noexcept;
 };
 
 #pragma region DX12DescriptorBufferExtension
@@ -200,8 +200,8 @@ public:
     {
         auto& heap_features = descriptor_buffer_props;
         return heap == wis::DescriptorHeapType::Descriptor
-               ? heap_features.mutable_descriptor_size
-               : heap_features.sampler_size;
+                ? heap_features.mutable_descriptor_size
+                : heap_features.sampler_size;
     }
 
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
@@ -215,18 +215,18 @@ public: // Command List
                                          wis::VKDescriptorBufferView sampler_desc_buffer) const noexcept;
 
     WIS_INLINE void SetDescriptorTableOffset(wis::VKCommandListView cmd_list,
-            wis::VKRootSignatureView root_signature,
-            uint32_t root_table_index,
-            wis::VKDescriptorBufferGPUView buffer,
-            uint32_t table_aligned_byte_offset) const noexcept;
+                                             wis::VKRootSignatureView root_signature,
+                                             uint32_t root_table_index,
+                                             wis::VKDescriptorBufferGPUView buffer,
+                                             uint32_t table_aligned_byte_offset) const noexcept;
 
 protected:
     [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
     CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
     {
         return table->type == wis::DescriptorHeapType::Descriptor
-               ? VKCreateDescriptorSetDescriptorLayout(table)
-               : VKCreateDescriptorSetSamplerLayout(table);
+                ? VKCreateDescriptorSetDescriptorLayout(table)
+                : VKCreateDescriptorSetSamplerLayout(table);
     }
     WIS_INLINE wis::ResultValue<VkDescriptorSetLayout> VKCreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept;
     WIS_INLINE wis::ResultValue<VkDescriptorSetLayout> VKCreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept;

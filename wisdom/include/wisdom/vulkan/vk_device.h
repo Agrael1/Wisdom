@@ -58,37 +58,31 @@ struct Internal<VKDevice> {
         wis::Result Init(PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout, VkDevice device)
         {
             constexpr static size_t num_sets = Internal<VKDescriptorStorage>::max_sets;
-            constexpr static VkDescriptorSetLayoutBinding bindings[num_sets] {
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
-                    .descriptorCount = 2048,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
+            constexpr static VkDescriptorSetLayoutBinding bindings[num_sets]{
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
+                  .descriptorCount = 2048,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
             };
 
             constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;

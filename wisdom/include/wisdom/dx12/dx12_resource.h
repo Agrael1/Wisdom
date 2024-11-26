@@ -18,10 +18,9 @@ class ImplDX12Buffer : public QueryInternal<DX12Buffer>
 public:
     ImplDX12Buffer() noexcept = default;
     explicit ImplDX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
-        : QueryInternal(DX12Memory {
-        std::move(allocator), std::move(al)
-    },
-    std::move(rc))
+        : QueryInternal(DX12Memory{
+                                std::move(allocator), std::move(al) },
+                        std::move(rc))
     {
     }
 

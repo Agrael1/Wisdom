@@ -81,12 +81,12 @@ TEST_CASE("basic_copy_region")
     // clang-format on
 
     extres = ext_alloc.WriteMemoryToSubresourceDirect(data,
-             texture,
-             wis::TextureState::Common,
-    wis::TextureRegion{
-        .size = { 4, 4, 1 },
-        .format = wis::DataFormat::RGBA8Unorm,
-    });
+                                                      texture,
+                                                      wis::TextureState::Common,
+                                                      wis::TextureRegion{
+                                                              .size = { 4, 4, 1 },
+                                                              .format = wis::DataFormat::RGBA8Unorm,
+                                                      });
 
     REQUIRE(extres.status == wis::Status::Ok);
 
@@ -103,9 +103,9 @@ TEST_CASE("basic_copy_region")
     wis::BufferTextureCopyRegion region{
         .buffer_offset = 4,
         .texture = {
-            .offset = { 2, 2, 0 },
-            .size = { 2, 2, 1 },
-            .format = wis::DataFormat::RGBA8Unorm,
+                .offset = { 2, 2, 0 },
+                .size = { 2, 2, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyTextureToBuffer(texture, buffer, &region, 1);
@@ -117,7 +117,7 @@ TEST_CASE("basic_copy_region")
     fence.Wait(1);
 
     auto* data_ptr = buffer.Map<uint32_t>();
-    constexpr uint32_t data_expected[] = { 0, 0xffffffff,0xffffffff,0xffffffff,0xffffffff };
+    constexpr uint32_t data_expected[] = { 0, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff };
 
     for (size_t i = 0; i < 5; i++) {
         REQUIRE(data_ptr[i] == data_expected[i]);

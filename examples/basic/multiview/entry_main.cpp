@@ -57,8 +57,8 @@ public:
         cmd_list2 = setup.CreateLists();
 
         desc_storage = ex::Unwrap(setup.device.CreateDescriptorStorage({ .sampler_count = 1,
-                                  .texture_count = ex::flight_frames,
-                                  .memory = wis::DescriptorMemory::ShaderVisible }));
+                                                                         .texture_count = ex::flight_frames,
+                                                                         .memory = wis::DescriptorMemory::ShaderVisible }));
     }
 
 public:
@@ -104,12 +104,11 @@ public:
         uint32_t frame_index = swap.CurrentFrame();
         auto& cmd = cmd_list[frame_index];
 
-        wis::RenderPassRenderTargetDesc targets[] {
-            {   .target = rts[frame_index],
-                .load_op = wis::LoadOperation::Clear,
-                .store_op = wis::StoreOperation::Store,
-                .clear_value = { 0.1f, 0.1f, 0.1f, 1.0f }
-            } // clear with gray color
+        wis::RenderPassRenderTargetDesc targets[]{
+            { .target = rts[frame_index],
+              .load_op = wis::LoadOperation::Clear,
+              .store_op = wis::StoreOperation::Store,
+              .clear_value = { 0.1f, 0.1f, 0.1f, 1.0f } } // clear with gray color
         };
         wis::RenderPassDesc rp1{
             .flags = wis::RenderPassFlags::None,
@@ -123,13 +122,13 @@ public:
 
         // Insert barriers for the texture
         cmd.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::None,
-            .sync_after = wis::BarrierSync::Draw,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::RenderTarget,
-            .state_before = wis::TextureState::ShaderResource,
-            .state_after = wis::TextureState::RenderTarget },
-        textures[frame_index]);
+                { .sync_before = wis::BarrierSync::None,
+                  .sync_after = wis::BarrierSync::Draw,
+                  .access_before = wis::ResourceAccess::NoAccess,
+                  .access_after = wis::ResourceAccess::RenderTarget,
+                  .state_before = wis::TextureState::ShaderResource,
+                  .state_after = wis::TextureState::RenderTarget },
+                textures[frame_index]);
 
         // Record commands for the first pass
         // ...
@@ -150,13 +149,13 @@ public:
         cmd.EndRenderPass();
         // Insert barriers for the texture
         cmd.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::Draw,
-            .sync_after = wis::BarrierSync::All,
-            .access_before = wis::ResourceAccess::RenderTarget,
-            .access_after = wis::ResourceAccess::ShaderResource,
-            .state_before = wis::TextureState::RenderTarget,
-            .state_after = wis::TextureState::ShaderResource },
-        textures[frame_index]);
+                { .sync_before = wis::BarrierSync::Draw,
+                  .sync_after = wis::BarrierSync::All,
+                  .access_before = wis::ResourceAccess::RenderTarget,
+                  .access_after = wis::ResourceAccess::ShaderResource,
+                  .state_before = wis::TextureState::RenderTarget,
+                  .state_after = wis::TextureState::ShaderResource },
+                textures[frame_index]);
 
         // End recording
         cmd.Close();
@@ -164,12 +163,11 @@ public:
         // ------------------------------
         // Second pass
         auto& cmd2 = cmd_list2[frame_index];
-        wis::RenderPassRenderTargetDesc targets2[] {
-            {   .target = swap.GetRenderTarget(frame_index),
-                              .load_op = wis::LoadOperation::Clear,
-                              .store_op = wis::StoreOperation::Store,
-                .clear_value = { 0.0f, 0.5f, 0.5f, 1.0f }
-            }
+        wis::RenderPassRenderTargetDesc targets2[]{
+            { .target = swap.GetRenderTarget(frame_index),
+              .load_op = wis::LoadOperation::Clear,
+              .store_op = wis::StoreOperation::Store,
+              .clear_value = { 0.0f, 0.5f, 0.5f, 1.0f } }
         };
         wis::RenderPassDesc rp2{
             .flags = wis::RenderPassFlags::None,
@@ -183,13 +181,13 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::None,
-            .sync_after = wis::BarrierSync::Draw,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::RenderTarget,
-            .state_before = wis::TextureState::Present,
-            .state_after = wis::TextureState::RenderTarget },
-        swap.GetTexture(frame_index));
+                { .sync_before = wis::BarrierSync::None,
+                  .sync_after = wis::BarrierSync::Draw,
+                  .access_before = wis::ResourceAccess::NoAccess,
+                  .access_after = wis::ResourceAccess::RenderTarget,
+                  .state_before = wis::TextureState::Present,
+                  .state_after = wis::TextureState::RenderTarget },
+                swap.GetTexture(frame_index));
 
         cmd2.BeginRenderPass(&rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
@@ -206,13 +204,13 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::Draw,
-            .sync_after = wis::BarrierSync::Draw,
-            .access_before = wis::ResourceAccess::RenderTarget,
-            .access_after = wis::ResourceAccess::Common,
-            .state_before = wis::TextureState::RenderTarget,
-            .state_after = wis::TextureState::Present },
-        swap.GetTexture(frame_index));
+                { .sync_before = wis::BarrierSync::Draw,
+                  .sync_after = wis::BarrierSync::Draw,
+                  .access_before = wis::ResourceAccess::RenderTarget,
+                  .access_after = wis::ResourceAccess::Common,
+                  .state_before = wis::TextureState::RenderTarget,
+                  .state_after = wis::TextureState::Present },
+                swap.GetTexture(frame_index));
 
         // End recording
         cmd2.Close();
@@ -262,10 +260,10 @@ public:
                 .format = wis::DataFormat::BGRA8Unorm,
                 .view_type = wis::TextureViewType::Texture2DArray,
                 .subresource_range = {
-                    .base_mip_level = 0,
-                    .level_count = 1,
-                    .base_array_layer = 0,
-                    .layer_count = 2,
+                        .base_mip_level = 0,
+                        .level_count = 1,
+                        .base_array_layer = 0,
+                        .layer_count = 2,
                 },
             };
 
@@ -275,19 +273,19 @@ public:
                 srvs[i] = ex::Unwrap(device.CreateShaderResource(textures[i], srv_desc));
                 // Texture is in undefined state, so we need to transition it to render target state
                 cmd.TextureBarrier(
-                {   .sync_before = wis::BarrierSync::None,
-                    .sync_after = wis::BarrierSync::None,
-                    .access_before = wis::ResourceAccess::NoAccess,
-                    .access_after = wis::ResourceAccess::NoAccess,
-                    .state_before = wis::TextureState::Undefined,
-                    .state_after = wis::TextureState::ShaderResource }, // we will change this later
-                textures[i]);
+                        { .sync_before = wis::BarrierSync::None,
+                          .sync_after = wis::BarrierSync::None,
+                          .access_before = wis::ResourceAccess::NoAccess,
+                          .access_after = wis::ResourceAccess::NoAccess,
+                          .state_before = wis::TextureState::Undefined,
+                          .state_after = wis::TextureState::ShaderResource }, // we will change this later
+                        textures[i]);
             }
         }
 
         // Create root signature with
         {
-            wis::PushConstant root_constants[] {
+            wis::PushConstant root_constants[]{
                 { .stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t) }
             };
             root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, 1, nullptr, 0, 2));
@@ -304,15 +302,15 @@ public:
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
                 .input_layout = {
-                    .slots = input_slots,
-                    .slot_count = 1,
-                    .attributes = input_attributes,
-                    .attribute_count = 1,
+                        .slots = input_slots,
+                        .slot_count = 1,
+                        .attributes = input_attributes,
+                        .attribute_count = 1,
                 },
                 .shaders = { .vertex = vs, .pixel = ps },
                 .attachments = {
-                    .attachment_formats = { wis::DataFormat::BGRA8Unorm },
-                    .attachments_count = 1,
+                        .attachment_formats = { wis::DataFormat::BGRA8Unorm },
+                        .attachments_count = 1,
                 },
                 .view_mask = 0b11, // 2 array layers
             };
@@ -326,7 +324,7 @@ public:
                 { 0.5f, -0.5f, 0.0f },
                 { -0.5f, -0.5f, 0.0f }
             };
-            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3> { triangle_vertices }, wis::BufferUsage::VertexBuffer);
+            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3>{ triangle_vertices }, wis::BufferUsage::VertexBuffer);
         }
 
         cmd.Close();
@@ -351,8 +349,8 @@ public:
                 .root_signature = root,
                 .shaders = { .vertex = fullscreen_vs, .pixel = fullscreen_ps },
                 .attachments = {
-                    .attachment_formats = { ex::swapchain_format },
-                    .attachments_count = 1,
+                        .attachment_formats = { ex::swapchain_format },
+                        .attachments_count = 1,
                 },
                 // view mask is 0b00, because we will render to the back buffer
             };
