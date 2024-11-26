@@ -16,26 +16,27 @@ void wis::ImplDX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView 
 void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     auto texture = std::get<0>(dest_texture);
+
     auto texture_desc = texture->GetDesc();
+    auto desc1 = D3DX12ResourceDesc0ToDesc1(texture_desc);
 
     wis::com_ptr<ID3D12Device> device;
     auto hr = texture->GetDevice(__uuidof(*device), device.put_void());
 
     for (uint32_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
-        UINT num_rows = 0;
-        UINT64 row_size = 0;
-        UINT64 required_size = 0;
+        uint32_t num_rows = 0;
+        uint64_t row_size = 0;
+        uint64_t required_size = 0;
 
-        UINT dest_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        uint32_t dest_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
         D3D12_TEXTURE_COPY_LOCATION dst{
             .pResource = texture,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
             .SubresourceIndex = dest_subresource
         };
 
-        UINT row_pitch = 0;
+        uint32_t row_pitch = 0;
         D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION src{
@@ -59,25 +60,25 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
 {
     auto texture = std::get<0>(src_texture);
     auto texture_desc = texture->GetDesc();
+    auto desc1 = D3DX12ResourceDesc0ToDesc1(texture_desc);
 
     wis::com_ptr<ID3D12Device> device;
     auto hr = texture->GetDevice(__uuidof(*device), device.put_void());
 
     for (uint32_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
-        UINT num_rows = 0;
-        UINT64 row_size = 0;
-        UINT64 required_size = 0;
+        uint32_t num_rows = 0;
+        uint64_t row_size = 0;
+        uint64_t required_size = 0;
 
-        UINT src_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        uint32_t src_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
         D3D12_TEXTURE_COPY_LOCATION src{
             .pResource = texture,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
             .SubresourceIndex = src_subresource
         };
 
-        UINT row_pitch = 0;
+        uint32_t row_pitch = 0;
         D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION dst{
@@ -93,7 +94,16 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
                             .RowPitch = row_pitch } }
         };
 
-        list->CopyTextureRegion(&dst, UINT(region.buffer_offset), 0, 0, &src, nullptr);
+        D3D12_BOX box{
+            .left = region.texture.offset.width,
+            .top = region.texture.offset.height,
+            .front = region.texture.offset.depth_or_layers,
+            .right = region.texture.offset.width + region.texture.size.width,
+            .bottom = region.texture.offset.height + region.texture.size.height,
+            .back = region.texture.offset.depth_or_layers + region.texture.size.depth_or_layers
+        };
+
+        list->CopyTextureRegion(&dst, 0, 0, 0, &src, &box);
     }
 }
 
@@ -374,7 +384,7 @@ void wis::ImplDX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
 
 void wis::ImplDX12CommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
-    list->SetGraphicsRoot32BitConstants(UINT(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
+    list->SetGraphicsRoot32BitConstants(uint32_t(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
 }
 
 void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept

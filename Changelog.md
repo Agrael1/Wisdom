@@ -18,6 +18,7 @@
 - Bugfixes:
   
   - Fixed textures not being destroyed correctly in DX12 on replacement (texture1 = std::move(texture2)) was resulting in leaks)
+  - Fixed DX12 copy texture not working correctly with offsets
 
 - 0.3.15
 
