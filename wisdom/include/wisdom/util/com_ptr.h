@@ -100,15 +100,17 @@ public:
     template<class U>
     com_ptr& operator=(com_ptr<U>&& other) noexcept
     {
-        if constexpr (std::same_as<U, T>) {
-            if (get() == other.get()) {
-                std::exchange(other.ptr, {});
-                return *this;
-            }
-        }
-
         release();
         ptr = std::exchange(other.ptr, {});
+        return *this;
+    }
+
+    com_ptr& operator=(com_ptr<T>&& other) noexcept
+    {
+        if (this != &other) {
+            release();
+            ptr = std::exchange(other.ptr, {});
+        }
         return *this;
     }
 

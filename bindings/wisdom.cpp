@@ -125,10 +125,23 @@ extern "C" WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12PipelineState." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature)
+extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, space_overlap_count);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(push_descriptors), descriptors_count, space_overlap_count);
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *signature = reinterpret_cast<DX12RootSignature>(new (std::nothrow) wis::DX12RootSignature(std::move(value)));
+    if (!*signature)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12RootSignature." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12DeviceCreateRootSignature2(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, DX12RootSignature* signature)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& [res, value] = xself->CreateRootSignature2(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(push_descriptors), push_descriptors_count, reinterpret_cast<const wis::DescriptorSpacing*&>(descriptor_spacing));
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);
@@ -809,10 +822,23 @@ extern "C" WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKPipelineState." };
     return reinterpret_cast<WisResult&>(res);
 }
-extern "C" WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature)
+extern "C" WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
-    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, space_overlap_count);
+    auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(push_descriptors), descriptors_count, space_overlap_count);
+
+    if (res.status != wis::Status::Ok)
+        return reinterpret_cast<WisResult&>(res);
+
+    *signature = reinterpret_cast<VKRootSignature>(new (std::nothrow) wis::VKRootSignature(std::move(value)));
+    if (!*signature)
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKRootSignature." };
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKDeviceCreateRootSignature2(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, VKRootSignature* signature)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& [res, value] = xself->CreateRootSignature2(reinterpret_cast<const wis::PushConstant*&>(push_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(push_descriptors), push_descriptors_count, reinterpret_cast<const wis::DescriptorSpacing*&>(descriptor_spacing));
 
     if (res.status != wis::Status::Ok)
         return reinterpret_cast<WisResult&>(res);

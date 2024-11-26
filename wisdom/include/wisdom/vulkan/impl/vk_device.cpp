@@ -1417,4 +1417,14 @@ wis::ImplVKDevice::CreateRootSignature(const wis::PushConstant* constants,
 
     return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout }, std::move(vk_dsl), 1 };
 }
+
+wis::ResultValue<wis::VKRootSignature>
+wis::ImplVKDevice::CreateRootSignature2(const wis::PushConstant* push_constants,
+                                        uint32_t constants_count,
+                                        const wis::PushDescriptor* push_descriptors,
+                                        uint32_t push_descriptors_count,
+                                        const wis::DescriptorSpacing* descriptor_spacing) const noexcept
+{
+    return CreateRootSignature(push_constants, constants_count, push_descriptors, push_descriptors_count, 1);
+}
 #endif

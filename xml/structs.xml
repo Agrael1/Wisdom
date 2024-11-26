@@ -366,6 +366,17 @@ If the extension is not supported/failed to initialize the result is NULL."/>
       <member type="DescriptorMemory" name="memory" doc="Descriptor memory to use."/>
     </type>
 
+    <type name="DescriptorSpacing" category="struct" doc="Describes how many types can descriptors be reinterpreted as.
+Minimal amount of spaces for each type is 1, 0 is treated as 1.
+Used for RootSignature.">
+      <member type="u32" name="sampler_count"  doc="Count of spaces of sampler descriptors to allocate."/>
+      <member type="u32" name="cbuffer_count"  doc="Count of spaces of constant buffer descriptors to allocate."/>
+      <member type="u32" name="sbuffer_count"  doc="Count of spaces of storage buffer descriptors to allocate."/>
+      <member type="u32" name="texture_count"  doc="Count of spaces of texture descriptors to allocate."/>
+      <member type="u32" name="stexture_count" doc="Count of spaces of storage texture descriptors to allocate."/>
+      <member type="u32" name="rbuffer_count"  doc="Count of spaces of read only storage buffer descriptors to allocate."/>
+    </type> 
+
     <!--Variants-->
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">
       <impl name="both">

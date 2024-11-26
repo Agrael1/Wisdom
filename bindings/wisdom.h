@@ -1417,6 +1417,7 @@ typedef struct WisShaderResourceDesc WisShaderResourceDesc;
 typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef struct WisDeviceExtQuery WisDeviceExtQuery;
 typedef struct WisDescriptorStorageDesc WisDescriptorStorageDesc;
+typedef struct WisDescriptorSpacing WisDescriptorSpacing;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -1897,6 +1898,19 @@ struct WisDescriptorStorageDesc {
     WisDescriptorMemory memory; ///< Descriptor memory to use.
 };
 
+/**
+ * @brief Describes how many types can descriptors be reinterpreted as.
+ * Used for RootSignature.
+ * */
+struct WisDescriptorSpacing {
+    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
+    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
+    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
+    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
+    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
+    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
+};
+
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
@@ -2230,10 +2244,10 @@ WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of root constants. Max is 5.
- * @param root_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of push descriptors. Max is 8.
  * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
  * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
  * Example: If VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
@@ -2244,7 +2258,23 @@ WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature);
+WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature);
+
+/**
+ * @brief Creates a root signature object for use with DescriptorStorage.
+ * Supplies number of types for each descriptor type separately.
+ * @param self valid handle to the Device
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptors_count The number of push descriptors. Max is 8.
+ * @param descriptor_spacing Descriptor spacing allocation.
+ * @param signature VKRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateRootSignature2(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, VKRootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -3220,10 +3250,10 @@ WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of root constants. Max is 5.
- * @param root_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of push descriptors. Max is 8.
  * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
  * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
  * Example: If DX12Device is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
@@ -3234,7 +3264,23 @@ WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature);
+WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature);
+
+/**
+ * @brief Creates a root signature object for use with DescriptorStorage.
+ * Supplies number of types for each descriptor type separately.
+ * @param self valid handle to the Device
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptors_count The number of push descriptors. Max is 8.
+ * @param descriptor_spacing Descriptor spacing allocation.
+ * @param signature DX12RootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateRootSignature2(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, DX12RootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -4129,10 +4175,10 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of root constants. Max is 5.
- * @param root_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of push descriptors. Max is 8.
  * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
  * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
  * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
@@ -4143,9 +4189,28 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
 {
-    return DX12DeviceCreateRootSignature(self, push_constants, constants_count, root_descriptors, descriptors_count, space_overlap_count, signature);
+    return DX12DeviceCreateRootSignature(self, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count, signature);
+}
+
+/**
+ * @brief Creates a root signature object for use with DescriptorStorage.
+ * Supplies number of types for each descriptor type separately.
+ * @param self valid handle to the Device
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptors_count The number of push descriptors. Max is 8.
+ * @param descriptor_spacing Descriptor spacing allocation.
+ * @param signature WisRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRootSignature2(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, WisRootSignature* signature)
+{
+    return DX12DeviceCreateRootSignature2(self, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing, signature);
 }
 
 /**
@@ -5245,10 +5310,10 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
  * @brief Creates a root signature object for use with DescriptorStorage.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of root constants. Max is 5.
- * @param root_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of root descriptors. Max is 8.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param descriptors_count The number of push descriptors. Max is 8.
  * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
  * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
  * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
@@ -5259,9 +5324,28 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* root_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
 {
-    return VKDeviceCreateRootSignature(self, push_constants, constants_count, root_descriptors, descriptors_count, space_overlap_count, signature);
+    return VKDeviceCreateRootSignature(self, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count, signature);
+}
+
+/**
+ * @brief Creates a root signature object for use with DescriptorStorage.
+ * Supplies number of types for each descriptor type separately.
+ * @param self valid handle to the Device
+ * @param push_constants The root constants to create the root signature with.
+ * @param constants_count The number of push constants. Max is 5.
+ * @param push_descriptors The root descriptors to create the root signature with.
+ * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptors_count The number of push descriptors. Max is 8.
+ * @param descriptor_spacing Descriptor spacing allocation.
+ * @param signature WisRootSignature on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateRootSignature2(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, WisRootSignature* signature)
+{
+    return VKDeviceCreateRootSignature2(self, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing, signature);
 }
 
 /**

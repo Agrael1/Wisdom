@@ -1,6 +1,6 @@
 # Version History
 
-- 0.4.0
+- 0.4.0 Major Update
 
   - Fixed Vulkan Swapchain on resize occasionally result in error messages
   - Revisited Examples and made them use SDL3 for window creation
@@ -13,6 +13,11 @@
   - Lifted the restriction of mandatory VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer for Vulkan. It is now possible to use Wisdom with Vulkan 1.2 (with other mandatory extensions of course)
   - Renamed RootConstants to PushConstants because it is more common name
   - Added support for push descriptors. Maximum number of push descriptors is 8 for now.
+  - Added new CreateRootSignature method for DX12 and Vulkan. It is now possible to create a root signatures with non-uniform spacing.
+
+- Bugfixes:
+  
+  - Fixed textures not being destroyed correctly in DX12 on replacement (texture1 = std::move(texture2)) was resulting in leaks)
 
 - 0.3.15
 

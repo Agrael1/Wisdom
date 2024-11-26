@@ -49,6 +49,7 @@ struct ShaderResourceDesc;
 struct FactoryExtQuery;
 struct DeviceExtQuery;
 struct DescriptorStorageDesc;
+struct DescriptorSpacing;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1826,6 +1827,19 @@ struct DescriptorStorageDesc {
     uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
     uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
     wis::DescriptorMemory memory; ///< Descriptor memory to use.
+};
+
+/**
+ * @brief Describes how many types can descriptors be reinterpreted as.
+ * Used for RootSignature.
+ * */
+struct DescriptorSpacing {
+    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
+    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
+    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
+    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
+    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
+    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
 };
 
 //=================================DELEGATES=================================

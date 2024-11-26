@@ -245,6 +245,13 @@ public:
                         uint32_t push_descriptors_size = 0,
                         [[maybe_unused]] uint32_t space_overlap_count = 1) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
+    CreateRootSignature2(const wis::PushConstant* push_constants = nullptr,
+                         uint32_t constants_count = 0,
+                         const wis::PushDescriptor* push_descriptors = nullptr,
+                         uint32_t push_descriptors_count = 0,
+                         const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
@@ -323,10 +330,10 @@ public:
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
      * @param push_constants The root constants to create the root signature with.
-     * @param constants_count The number of root constants. Max is 5.
-     * @param root_descriptors The root descriptors to create the root signature with.
-     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
-     * @param descriptors_count The number of root descriptors. Max is 8.
+     * @param constants_count The number of push constants. Max is 5.
+     * @param push_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param descriptors_count The number of push descriptors. Max is 8.
      * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
      * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
      * Example: If wis::VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
@@ -335,9 +342,24 @@ public:
      *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
     {
-        return wis::ImplVKDevice::CreateRootSignature(push_constants, constants_count, root_descriptors, descriptors_count, space_overlap_count);
+        return wis::ImplVKDevice::CreateRootSignature(push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count);
+    }
+    /**
+     * @brief Creates a root signature object for use with DescriptorStorage.
+     * Supplies number of types for each descriptor type separately.
+     * @param push_constants The root constants to create the root signature with.
+     * @param constants_count The number of push constants. Max is 5.
+     * @param push_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param push_descriptors_count The number of push descriptors. Max is 8.
+     * @param descriptor_spacing Descriptor spacing allocation.
+     * @return wis::VKRootSignature on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
+    {
+        return wis::ImplVKDevice::CreateRootSignature2(push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing);
     }
     /**
      * @brief Creates a shader object.
