@@ -10,7 +10,8 @@ template<>
 struct Internal<DX12RootSignature> {
     wis::com_ptr<ID3D12RootSignature> root;
     std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map;
-    uint32_t root_table_offset = 0;
+    uint32_t push_constant_count = 0;
+    uint32_t push_descriptor_count = 0;
 };
 
 class DX12RootSignature : public QueryInternal<DX12RootSignature>
@@ -20,13 +21,13 @@ public:
 
 public:
     DX12RootSignature() = default;
-    explicit DX12RootSignature(wis::com_ptr<ID3D12RootSignature> xroot, std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map, uint32_t root_table_offset) noexcept
-        : QueryInternal(std::move(xroot), stage_map, root_table_offset)
+    explicit DX12RootSignature(wis::com_ptr<ID3D12RootSignature> xroot, std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map, uint32_t push_constant_count, uint32_t push_descriptor_count) noexcept
+        : QueryInternal(std::move(xroot), stage_map, push_constant_count, push_descriptor_count)
     {
     }
     operator DX12RootSignatureView() const noexcept
     {
-        return { root.get(), stage_map, root_table_offset };
+        return { root.get(), stage_map, push_constant_count, push_descriptor_count };
     }
     operator DX12RootSignatureView2() const noexcept
     {

@@ -70,7 +70,7 @@ public:
      * */
     inline void ExecuteCommandLists(const wis::VKCommandListView* lists, uint32_t count) const noexcept
     {
-        return wis::ImplVKCommandQueue::ExecuteCommandLists(lists, count);
+        wis::ImplVKCommandQueue::ExecuteCommandLists(lists, count);
     }
     /**
      * @brief Enqueue the signal to the queue, that gets executed after all the work has been done.

@@ -52,16 +52,6 @@
         <member type="void" name="value" mod="ptr"/>
       </impl>
     </type>
-    <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer">
-      <impl name="dx">
-        <member type="void" name="value" mod="ptr"/>
-      </impl>
-      <impl name="vk">
-        <member type="u64" name="value1"/>
-        <member type="u32" name="value2"/>
-      </impl>
-    </type>
-    <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
     <type name="RootSignatureView2" category="variant" for="RootSignature" mod="cpp-only"/>
     <type name="MemoryView" category="variant" for="Memory" mod="cpp-only"/>
     <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
@@ -127,9 +117,9 @@ Describes hardware driver identificators as well as memory limits.">
     </type>
 
     <type name="InputLayout" category="struct" doc="Input layout description for {GraphicsPipelineDesc::}.">
-      <member type="InputSlotDesc" name="slots" mod="ptr" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
+      <member type="InputSlotDesc" name="slots" mod="const ptr" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
       <member type="u32" name="slot_count" doc="Input slots count. Max number is 16."/>
-      <member type="InputAttribute" name="attributes" mod="ptr" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
+      <member type="InputAttribute" name="attributes" mod="const ptr" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
       <member type="u32" name="attribute_count" doc="Input attributes count."/>
     </type>
 
@@ -188,8 +178,8 @@ Describes hardware driver identificators as well as memory limits.">
     </type>
 
     <type name="RenderAttachmentsDesc" category="struct" doc="Render attachments description for {GraphicsPipelineDesc::}.">
-      <member type="DataFormat" name="attachment_formats" mod="ptr" doc="Attachment formats array. Describes the format of the render target."/>
-      <member type="u32" name="attachments_count" doc="Attachment formats count."/>
+      <member type="DataFormat" name="attachment_formats" array="8" doc="Attachment formats array. Describes the format of the render target."/>
+      <member type="u32" name="attachments_count" doc="Attachment formats count. Max is 8."/>
       <member type="DataFormat" name="depth_attachment" doc="Depth attachment format. Describes the format of the depth buffer."/>
     </type>
 
@@ -199,9 +189,11 @@ Describes hardware driver identificators as well as memory limits.">
       <arg type="void" name="user_data" mod="ptr" doc="User data pointer."/>
     </type>
 
-    <type name="RootConstant" category="struct" doc="Root constant description for {RootSignatureDesc::}.">
+    <type name="PushConstant" category="struct" doc="A set of constants that get pushed directly to the pipeline.
+Only one set can be created per shader stage.">
       <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
-      <member type="u32" name="size_bytes" doc="Size of the constant in bytes."/>
+      <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
+      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
     </type>
 
     <type name="SwapchainDesc" category="struct" doc="Swapchain description for {SwapChain::} creation.">
@@ -243,11 +235,9 @@ In TextureToBuffer - offset of source image."/>
       <member type="TextureRegion" name="texture" doc="Texture region."/>
     </type>
 
-    <type name="PushDescriptor" category="struct" doc="Push descriptor. Unused for now.">
-      <member type="ShaderStages" name="stage"/>
-      <member type="u32" name="bind_register"/>
-      <member type="DescriptorType" name="type"/>
-      <member type="u32" name="reserved"/>
+    <type name="PushDescriptor" category="struct" doc="Push descriptor. Used to push data directly to pipeline.">
+      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
+      <member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer-like bindings."/>
     </type>
 
     <type name="SubresourceRange" category="struct" doc="Subresource range for {TextureBarrier::}.">
@@ -366,6 +356,27 @@ Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
 
+    <type name="DescriptorStorageDesc" category="struct" doc="Descriptor storage description for {DescriptorStorage::} creation.">
+      <member type="u32" name="sampler_count" doc="Count of sampler descriptors to allocate."/>
+      <member type="u32" name="cbuffer_count" doc="Count of constant buffer descriptors to allocate."/>
+      <member type="u32" name="sbuffer_count" doc="Count of storage buffer descriptors to allocate."/>
+      <member type="u32" name="texture_count" doc="Count of texture descriptors to allocate."/>
+      <member type="u32" name="stexture_count" doc="Count of storage texture descriptors to allocate."/>
+      <member type="u32" name="rbuffer_count" doc="Count of read only storage buffer descriptors to allocate."/>
+      <member type="DescriptorMemory" name="memory" doc="Descriptor memory to use."/>
+    </type>
+
+    <type name="DescriptorSpacing" category="struct" doc="Describes how many types can descriptors be reinterpreted as.
+Minimal amount of spaces for each type is 1, 0 is treated as 1.
+Used for RootSignature.">
+      <member type="u32" name="sampler_count"  doc="Count of spaces of sampler descriptors to allocate."/>
+      <member type="u32" name="cbuffer_count"  doc="Count of spaces of constant buffer descriptors to allocate."/>
+      <member type="u32" name="sbuffer_count"  doc="Count of spaces of storage buffer descriptors to allocate."/>
+      <member type="u32" name="texture_count"  doc="Count of spaces of texture descriptors to allocate."/>
+      <member type="u32" name="stexture_count" doc="Count of spaces of storage texture descriptors to allocate."/>
+      <member type="u32" name="rbuffer_count"  doc="Count of spaces of read only storage buffer descriptors to allocate."/>
+    </type>
+
     <!--Variants-->
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">
       <impl name="both">
@@ -397,11 +408,14 @@ If the extension is not supported/failed to initialize the result is NULL."/>
         <member type="InputLayout" name="input_layout" doc="Input layout."/>
         <member type="GraphicsShaderStages" name="shaders" doc="Shader stages."/>
         <member type="RenderAttachmentsDesc" name="attachments" doc="Render attachments."/>
-        <member type="RasterizerDesc" name="rasterizer" mod="ptr" default="nullptr" doc="Rasterizer description."/>
-        <member type="SampleDesc" name="sample" mod="ptr" default="nullptr" doc="Sample description."/>
-        <member type="BlendStateDesc" name="blend" mod="ptr" default="nullptr" doc="Blend state description."/>
-        <member type="DepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr" doc="Depth stencil description."/>
+        <member type="RasterizerDesc" name="rasterizer" mod="const ptr" default="nullptr" doc="Rasterizer description."/>
+        <member type="SampleDesc" name="sample" mod="const ptr" default="nullptr" doc="Sample description."/>
+        <member type="BlendStateDesc" name="blend" mod="const ptr" default="nullptr" doc="Blend state description."/>
+        <member type="DepthStencilDesc" name="depth_stencil" mod="const ptr" default="nullptr" doc="Depth stencil description."/>
         <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
+        <member type="u32" name="view_mask" default="0" doc="View mask for Multiview feature. If multiview is not available it is ignored.
+Default is 0. 0 means regular rendering."/>
+        <member type="PipelineFlags" name="flags" doc="Pipeline flags to add options to pipeline creation."/>
       </impl>
     </type>
 
@@ -430,9 +444,12 @@ If the extension is not supported/failed to initialize the result is NULL."/>
     <type name="RenderPassDesc" category="variant" doc="Variant of PipelineStateDesc for render pass.">
       <impl name="both">
         <member type="RenderPassFlags" name="flags" doc="Render pass flags."/>
+        <member type="u32" name="view_mask" default="0" doc="View mask for Multiview feature. If multiview is not available it is ignored.
+Value must be the same as in {GraphicsPipelineDesc::view_mask} upon pipeline creation. Otherwise behavior is undefined.
+Default is 0. 0 means regular rendering."/>
         <member type="u32" name="target_count" doc="Render target count."/>
-        <member type="RenderPassRenderTargetDesc" name="targets" mod="ptr" default="nullptr" doc="Render target descriptions."/>
-        <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="ptr" default="nullptr" doc="Depth stencil description."/>
+        <member type="RenderPassRenderTargetDesc" name="targets" mod="const ptr" default="nullptr" doc="Render target descriptions."/>
+        <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="const ptr" default="nullptr" doc="Depth stencil description."/>
       </impl>
     </type>
 

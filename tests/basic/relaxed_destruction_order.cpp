@@ -5,8 +5,9 @@
 #include <iostream>
 
 struct LogProvider : public wis::LogLayer {
-    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override {
-        // std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
+    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
+    {
+        std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
     };
 };
 
@@ -75,6 +76,42 @@ TEST_CASE("basic_device")
     REQUIRE(queue);
     REQUIRE(fence);
     REQUIRE(cmd_list);
+
+    SECTION("texture replacement")
+    {
+        wis::Texture a;
+        auto [res6, texture] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
+                                                                         .size = {
+
+                                                                                 .width = 1024,
+                                                                                 .height = 1024,
+                                                                                 .depth_or_layers = 1,
+                                                                         },
+                                                                         .usage = wis::TextureUsage::CopySrc });
+        REQUIRE(texture);
+
+        a = std::move(texture);
+        REQUIRE(a);
+        REQUIRE_FALSE(texture);
+
+        auto [res7, texture2] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
+                                                                          .size = {
+
+                                                                                  .width = 1024,
+                                                                                  .height = 1024,
+                                                                                  .depth_or_layers = 1,
+                                                                          },
+                                                                          .usage = wis::TextureUsage::CopySrc });
+
+        REQUIRE(texture2);
+        texture = std::move(texture2);
+        REQUIRE(texture);
+        REQUIRE_FALSE(texture2);
+
+        a = std::move(texture);
+        REQUIRE(a);
+        REQUIRE_FALSE(texture);
+    }
 
     SECTION("fence destruction")
     {

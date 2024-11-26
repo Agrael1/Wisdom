@@ -40,11 +40,6 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
       <file for="dx" include="dx12/dx12_command_queue.h"/>
     </handle>
 
-    <handle name="DescriptorBuffer" doc="Represents descriptor buffer for binding descriptors.">
-      <file for="vk" include="vulkan/vk_descriptor_buffer.h"/>
-      <file for="dx" include="dx12/dx12_descriptor_buffer.h"/>
-    </handle>
-
     <handle name="Fence" doc="Represents fence for synchronization of GPU timeline.">
       <file for="vk" include="vulkan/vk_fence.h"/>
       <file for="dx" include="dx12/dx12_fence.h"/>
@@ -73,6 +68,12 @@ Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with 
     <handle name="SwapChain" doc="Represents swap chain object for presenting images.">
       <file for="vk" include="vulkan/vk_swapchain.h"/>
       <file for="dx" include="dx12/dx12_swapchain.h"/>
+    </handle>
+
+    <handle name="DescriptorStorage" doc="Represents descriptor storage object for storing descriptors.
+Used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.">
+      <file for="vk" include="vulkan/vk_descriptor_storage.h"/>
+      <file for="dx" include="dx12/dx12_descriptor_storage.h"/>
     </handle>
 
 
@@ -147,12 +148,31 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="GraphicsPipelineDesc" name="desc" mod="const ptr" doc="The description of the graphics pipeline to create."/>
     </func>
 
-    <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object.">
+    <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.">
       <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
-      <arg type="RootConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
-      <arg type="u32" name="constants_size" default="0" doc="The number of root constants."/>
-      <arg type="DescriptorTable" name="tables" mod="const ptr" default="nullptr" doc="The descriptor tables to create the root signature with."/>
-      <arg type="u32" name="tables_count" default="0" doc="The number of descriptor tables."/>
+      <arg type="PushConstant" name="push_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
+      <arg type="u32" name="constants_count" default="0" doc="The number of push constants. Max is 5."/>
+      <arg type="PushDescriptor" name="push_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with.
+In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
+      <arg type="u32" name="descriptors_count" default="0" doc="The number of push descriptors. Max is 8."/>
+      <arg type="u32" name="space_overlap_count" default="1" doc="Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+Example: If {::space_overlap_count} is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+    [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+    [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+    [[vk::binding(0,1)]] ConstantBuffer &lt;CB0&gt; cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc."/>
+    </func>
+
+    <func for="Device" name="CreateRootSignature2" mod="const" doc="Creates a root signature object for use with DescriptorStorage.
+Supplies number of types for each descriptor type separately.">
+      <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
+      <arg type="PushConstant" name="push_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
+      <arg type="u32" name="constants_count" default="0" doc="The number of push constants. Max is 5."/>
+      <arg type="PushDescriptor" name="push_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with.
+In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
+      <arg type="u32" name="push_descriptors_count" default="0" doc="The number of push descriptors. Max is 8."/>
+      <arg type="DescriptorSpacing" name="descriptor_spacing" mod="const ptr" default="nullptr" doc="Descriptor spacing allocation.
+nullptr means allocate 1 space for each."/>
     </func>
 
     <func for="Device" name="CreateShader" mod="const" doc="Creates a shader object.">
@@ -195,24 +215,6 @@ Does not work with 3D textures."/>
         <replace with="TextureView" for="cpp" doc="The texture view to create the shader resource with."/>
       </arg>
       <arg type="ShaderResourceDesc" name="desc" doc="The description of the shader resource to create."/>
-    </func>
-
-    <func for="Device" name="GetDescriptorTableAlignment" mod="const" doc="Returns the alignment of the descriptor table in bytes.
-The value is used to correctly determine descriptor page alignment for descriptor buffer.">
-      <ret type="u32" name="alignment" doc="The alignment of the descriptor table in bytes."/>
-      <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the alignment for."/>
-    </func>
-
-    <func for="Device" name="GetDescriptorBufferUnitSize" mod="const" doc="Returns the size of the descriptor buffer unit in bytes.">
-      <ret type="u32" name="size" doc="The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor."/>
-      <arg type="DescriptorHeapType" name="heap" doc="The type of the descriptor heap to get the unit size for."/>
-    </func>
-
-    <func for="Device" name="CreateDescriptorBuffer" mod="const" doc="Creates a descriptor buffer object.">
-      <ret type="DescriptorBuffer" name="buffer" result="true" doc="{DescriptorBuffer::} on success ({Status::Ok})."/>
-      <arg type="DescriptorHeapType" name="heap_type" doc="The type of the descriptor heap to create the descriptor buffer with."/>
-      <arg type="DescriptorMemory" name="memory_type" doc="The type of the descriptor memory to create the descriptor buffer with."/>
-      <arg type="u64" name="size_bytes" doc="The number of bytes to allocate for the descriptor buffer."/>
     </func>
 
     <func for="Device" name="QueryFeatureSupport" mod="const" doc="Queries if the device supports the feature.">
@@ -449,28 +451,23 @@ Otherwise the first is chosen.">
       <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
     </func>
 
-    <func for="CommandList" name="SetRootConstants" doc="Sets the root constants for the shader.">
+    <func for="CommandList" name="SetPushConstants" doc="Sets the root constants for the shader.">
       <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
       <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
       <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
       <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
     </func>
 
-    <func for="CommandList" name="SetDescriptorBuffers" doc="Sets the root descriptor tables for the shader.
-Operation will perform flush in some cases, so it's not recommended to rebind descriptor buffers too often. ">
-      <arg type="DescriptorBufferView" name="buffers" mod="const ptr" doc="The descriptor buffers to set the root descriptor tables with.
-May only be one of each type (one Descriptor and one Sampler buffer)"/>
-      <arg type="u32" name="buffer_count" doc="The number of descriptor buffers to set. May be 1 or 2."/>
-    </func>
-
-    <func for="CommandList" name="SetDescriptorTableOffset" doc="Sets the offset in the descriptor table for the descriptor buffer.">
-      <arg type="u32" name="root_table_index" doc="The index of the root table to set the offset for."/>
-      <arg type="DescriptorBuffer" name="buffer" doc="The descriptor buffer to set the offset for.">
-        <replace with="DescriptorBufferGPUView" for="cpp" doc="The descriptor buffer to set the offset for."/>
+    <func for="CommandList" name="PushDescriptor" doc="Pushes descriptor directly to the command list, without putting it to the table.
+Works only with buffer bindings.
+Buffer is always bound with full size.">
+      <arg type="DescriptorType" name="type" doc="The type of the descriptor to set."/>
+      <arg type="u32" name="root_index" doc="The index of the root descriptor to set."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to set.">
+        <replace with="BufferView" for="cpp" doc="The buffer to set."/>
       </arg>
-      <arg type="u32" name="offset_bytes" doc="The offset in the descriptor buffer in bytes."/>
+      <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
-
 
     <!-- CommandQueue -->
     <func for="CommandQueue" name="Destroy" doc="Destroys the {CommandQueue::}."/>
@@ -496,78 +493,6 @@ Can still be enqueued after the signal.">
       </arg>
       <arg type="u64" name="value" doc="The value to wait the fence to reach."/>
     </func>
-
-    <!-- DescriptorBuffer -->
-    <func for="DescriptorBuffer" name="Destroy" doc="Destroys the {DescriptorBuffer::}."/>
-
-    <func for="DescriptorBuffer" name="WriteSampler" doc="Writes the sampler to the sampler descriptor buffer.
-Must be called with Sampler descriptor buffer, which was created with {DescriptorHeapType::Sampler}.">
-      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
-      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
-Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
-      <arg type="u32" name="index" doc="Binding index in descriptor table."/>
-      <arg type="Sampler" name="sampler" doc="The sampler to write.">
-        <replace with="SamplerView" for="cpp" doc="The sampler to write."/>
-      </arg>
-    </func>
-
-    <func for="DescriptorBuffer" name="WriteShaderResource2" doc="Writes the shader resource to the shader resource descriptor buffer.
-Must be called with Shader Resource descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.
-Requires {DeviceFeature::DescriptorEqualSize} to run, otherwise program is ill-formed.">
-      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
-      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
-Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
-      <arg type="u32" name="index" doc="Binding index in descriptor table."/>
-      <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
-        <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
-      </arg>
-    </func>
-
-    <func for="DescriptorBuffer" name="WriteConstantBuffer2" doc="Writes the constant buffer to the constant buffer descriptor buffer.
-Must be called with Constant Buffer descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.
-Requires {DeviceFeature::DescriptorEqualSize} to run, otherwise program is ill-formed.">
-      ">
-      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
-      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
-Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
-      <arg type="u32" name="index" doc="Binding index in descriptor table."/>
-      <arg type="Buffer" name="buffer" doc="The buffer to write.">
-        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
-      </arg>
-      <arg type="u32" name="buffer_size" doc="The size of the buffer in bytes."/>
-    </func>
-
-    <func for="DescriptorBuffer" name="WriteShaderResource" doc="Writes the shader resource to the shader resource descriptor buffer.">
-      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
-      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
-Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
-      <arg type="u32" name="root_table_index" doc="Index of the descriptor table in {RootSignature::}"/>
-      <arg type="u32" name="binding" doc="Binding index in descriptor table."/>
-      <arg type="u32" name="array_member" doc="Array member index in the binding."/>
-      <arg type="RootSignature" name="root_signature" doc="The root signature to get the binding position from.">
-        <replace with="RootSignatureView2" for="cpp" doc="The root signature to get the binding position from."/>
-      </arg>
-      <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
-        <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
-      </arg>
-    </func>
-
-    <func for="DescriptorBuffer" name="WriteConstantBuffer" doc="Writes the constant buffer to the constant buffer descriptor buffer.">
-      <ret type="u64" name="byte_position_after" doc="Byte offset from buffer beginning. May help determine next table address."/>
-      <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
-Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
-      <arg type="u32" name="root_table_index" doc="Index of the descriptor table in {RootSignature::}"/>
-      <arg type="u32" name="binding" doc="Binding index in descriptor table."/>
-      <arg type="u32" name="array_member" doc="Array member index in the binding."/>
-      <arg type="RootSignature" name="root_signature" doc="The root signature to get the binding position from.">
-        <replace with="RootSignatureView2" for="cpp" doc="The root signature to get the binding position from."/>
-      </arg>
-      <arg type="Buffer" name="buffer" doc="The buffer to write.">
-        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
-      </arg>
-      <arg type="u32" name="buffer_size" doc="The size of the buffer in bytes."/>
-    </func>
-
 
     <!-- Fence -->
     <func for="Fence" name="Destroy" doc="Destroys the {Fence::}."/>
@@ -660,6 +585,33 @@ If NULL, returns the amount of images swapchain has."/>
       <arg type="u64" name="timeout_ns" default="UINT64_MAX" doc="The timeout in nanoseconds. Default is infinite."/>
     </func>
 
+    <!-- DescriptorStorage -->
+    <func for="DescriptorStorage" name="Destroy" doc="Destroys the {DescriptorStorage::}."/>
+
+    <func for="DescriptorStorage" name="WriteSampler" doc="Writes the sampler to the sampler descriptor storage.">
+      <arg type="u32" name="index" doc="Index in array of samplers to fill."/>
+      <arg type="Sampler" name="sampler" doc="The sampler to write.">
+        <replace with="SamplerView" for="cpp" doc="The sampler to write."/>
+      </arg>
+    </func>
+
+    <func for="DescriptorStorage" name="WriteConstantBuffer" doc="Writes the constant buffer to the constant buffer descriptor storage.">
+      <arg type="u32" name="index" doc="Index in array of constant buffers to fill."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to write.">
+        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+      </arg>
+      <arg type="u32" name="size" doc="The size of the constant buffer in bytes."/>
+      <arg type="u32" name="offset" default="0" doc="The offset in the buffer to write the constant buffer to.
+size + offset must be less or equal the overall size of the bound buffer."/>
+    </func>
+
+    <func for="DescriptorStorage" name="WriteTexture" doc="Writes the texture to the shader resource descriptor storage.">
+      <arg type="u32" name="index" doc="Index in array of shader resources to fill."/>
+      <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
+        <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
+      </arg>
+    </func>
+
     <!-- Free Functions -->
     <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
       <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
@@ -697,6 +649,111 @@ The presence of core functionality is checked by the query function."/>
         <arg type="DebugCallback" name="callback" doc="The callback that will receive the debug messages."/>
         <arg type="void" name="user_data" mod="ptr" doc="The user data that will be passed to the callback."/>"
       </func>
+    </ext>
+
+    <ext name="DescriptorBufferExtension" type="Device" id="1" folder="descriptor_buffer">
+      <file include="wisdom/wisdom_descriptor_buffer.h"/>
+      <handle name="DescriptorBuffer" doc="Buffer storage for descriptors.
+It is the most flexible implementation of storage for descriptors, as it supports both bindful and bindless
+Descriptor approaches. Works like an aligned table of elements of the same size.
+Alignment and size of descriptors are varying between implementation and heap types.
+Both metrixs are available to retrieval from {DescriptorBufferExtension::}">
+        <file for="vk" include="wisdom/vk_descriptor_buffer.h"/>
+        <file for="dx" include="wisdom/dx12_descriptor_buffer.h"/>
+      </handle>
+
+      <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
+      <type name="DescriptorBufferGPUView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
+
+      <!-- DescriptorBuffer -->
+      <func for="DescriptorBuffer" name="Destroy" doc="Destroys the {DescriptorBuffer::}."/>
+
+      <func for="DescriptorBuffer" name="WriteSampler" doc="Writes the sampler to the sampler descriptor buffer.
+Must be called with Sampler descriptor buffer, which was created with {DescriptorHeapType::Sampler}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="Sampler" name="sampler" doc="The sampler to write.">
+          <replace with="SamplerView" for="cpp" doc="The sampler to write."/>
+        </arg>
+      </func>
+
+      <func for="DescriptorBuffer" name="WriteShaderResource" doc="Writes the shader resource to the shader resource descriptor buffer.
+Must be called with Shader Resource descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
+          <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
+        </arg>
+      </func>
+
+      <func for="DescriptorBuffer" name="WriteConstantBuffer" doc="Writes the constant buffer to the constant buffer descriptor buffer.
+Must be called with Constant Buffer descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="Buffer" name="buffer" doc="The buffer to write.">
+          <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+        </arg>
+        <arg type="u32" name="buffer_size" doc="The size of the part of the buffer in bytes."/>
+        <arg type="u32" name="offset" default="0" doc="Offset from buffer beginning. offset + buffer_size must be less or equal buffer overall size."/>
+      </func>
+
+      <func for="DescriptorBufferExtension" name="CreateRootSignature" mod="const" doc="Creates a root signature object.">
+        <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
+        <arg type="PushConstant" name="root_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
+        <arg type="u32" name="constants_count" default="0" doc="The number of root constants. Max is 5."/>
+        <arg type="PushDescriptor" name="root_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with."/>
+        <arg type="u32" name="descriptors_count" default="0" doc="The number of root descriptors. Max is 8."/>
+        <arg type="DescriptorTable" name="tables" mod="const ptr" default="nullptr" doc="The descriptor tables to create the root signature with."/>
+        <arg type="u32" name="tables_count" default="0" doc="The number of descriptor tables."/>
+      </func>
+
+      <func for="DescriptorBufferExtension" name="CreateDescriptorBuffer" mod="const" doc="Creates a descriptor buffer object.">
+        <ret type="DescriptorBuffer" name="buffer" result="true" doc="{DescriptorBuffer::} on success ({Status::Ok})."/>
+        <arg type="DescriptorHeapType" name="type" doc="The type of the descriptor buffer to create."/>
+        <arg type="DescriptorMemory" name="memory" doc="Memory location of the buffer (CPU or GPU)."/>
+        <arg type="u64" name="memory_bytes" doc="The size of the descriptor buffer in bytes."/>
+      </func>
+
+      <func for="DescriptorBufferExtension" name="GetDescriptorTableAlignment" mod="const" doc="Returns the alignment of the descriptor table in bytes.">
+        <ret type="u64" name="alignment" doc="The alignment of the descriptor table in bytes."/>
+        <arg type="DescriptorHeapType" name="type" doc="The type of the descriptor buffer to get the alignment for."/>
+      </func>
+
+      <func for="DescriptorBufferExtension" name="GetDescriptorSize" mod="const" doc="Returns the size of single descriptor in bytes.">
+        <ret type="u64" name="size" doc="The size of the descriptor table in bytes."/>
+        <arg type="DescriptorHeapType" name="type" doc="The type of the descriptor buffer to get the size for."/>
+      </func>
+
+      <func for="DescriptorBufferExtension" name="SetDescriptorBuffers" mod="const" doc="Sets the descriptor buffers to the command list.">
+        <arg type="CommandList" name="list" doc="The command list to set the descriptor buffers to.">
+          <replace with="CommandListView" for="cpp" doc="The command list to set the descriptor buffers to."/>
+        </arg>
+        <arg type="DescriptorBuffer" name="resource_buffer" doc="The resource descriptor buffer to set.">
+          <replace with="DescriptorBufferView" for="cpp" doc="The resource descriptor buffer to set."/>
+        </arg>
+        <arg type="DescriptorBuffer" name="sampler_buffer" doc="The sampler descriptor buffer to set.">
+          <replace with="DescriptorBufferView" for="cpp" doc="The sampler descriptor buffer to set."/>
+        </arg>
+      </func>
+
+      <func for="DescriptorBufferExtension" name="SetDescriptorTableOffset" mod="const" doc="Sets the offset into the descriptor buffer
+for selected descriptor table. Pipeline will get the bindings from that offset.">
+        <arg type="CommandList" name="list" doc="The command list to set the descriptor buffer offset to.">
+          <replace with="CommandListView" for="cpp" doc="The command list to set the descriptor buffer offset to."/>
+        </arg>
+        <arg type="RootSignature" name="root_signature" doc="The root signature to get binding table from.">
+          <replace with="RootSignatureView" for="cpp" doc="The root signature to get binding table from."/>
+        </arg>
+        <arg type="u32" name="table_index" doc="Index of the descriptor table in the root signature."/>
+        <arg type="DescriptorBuffer" name="buffer" doc="The descriptor buffer to set the offset for.">
+          <replace with="DescriptorBufferGPUView" for="cpp" doc="The descriptor buffer to set the offset for."/>
+        </arg>
+        <arg type="u32" name="table_aligned_byte_offset" doc="Byte offset from the buffer beginning in table alignment sizes."/>
+      </func>
+
     </ext>
   </extensions>
 </registry>

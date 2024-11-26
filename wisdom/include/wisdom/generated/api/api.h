@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.14</b>
+<b>Version 0.4.0</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -28,7 +28,7 @@ struct DepthStencilDesc;
 struct BlendAttachmentDesc;
 struct BlendStateDesc;
 struct RenderAttachmentsDesc;
-struct RootConstant;
+struct PushConstant;
 struct SwapchainDesc;
 struct TextureDesc;
 struct AllocationInfo;
@@ -48,6 +48,8 @@ struct ComponentMapping;
 struct ShaderResourceDesc;
 struct FactoryExtQuery;
 struct DeviceExtQuery;
+struct DescriptorStorageDesc;
+struct DescriptorSpacing;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -128,23 +130,29 @@ enum class MutiWaitFlags : uint32_t {
  * */
 enum class DescriptorType : uint32_t {
     /**
-     * @brief Descriptor is a shader resource view.
-     * Used for textures.
-     * */
-    ShaderResource = 0,
-    ConstantBuffer = 1, ///< Descriptor is a constant buffer view.
-    /**
-     * @brief Descriptor is an unordered access view.
-     * Used for read/write operations in compute shaders.
-     * */
-    UnorderedAccess = 2,
-    /**
      * @brief Descriptor is a sampler.
      * Sampler is used to sample textures in shaders.
      * Stored in separate descriptor table and
-     * can't be mixed with other descriptor types
+     * can't be mixed with other descriptor types.
      * */
-    Sampler = 3,
+    Sampler = 0,
+    ConstantBuffer = 1, ///< Descriptor is a constant buffer.
+    Texture = 2, ///< Descriptor is a texture.
+    /**
+     * @brief Descriptor is an unordered access read-write texture.
+     * Used for read/write operations in compute shaders.
+     * */
+    RWTexture = 3,
+    /**
+     * @brief Descriptor is an unordered access read-write buffer.
+     * Used for read/write operations in compute shaders.
+     * */
+    RWBuffer = 4,
+    /**
+     * @brief Descriptor is a shader resource buffer.
+     * May be bigger than constant buffers, but slower.
+     * */
+    Buffer = 5,
 };
 
 /**
@@ -988,6 +996,32 @@ enum class TextureLayout : uint32_t {
 };
 
 /**
+ * @brief Binding index for resources.
+ * Used in wis::DescriptorStorage to determine which descriptor type goes where when binding.
+ * Same values are used for HLSL side to pick descriptors up.
+ * Space 0 and set 0 are reserved for push descriptors and push constants.
+ *
+ * */
+enum class BindingIndex : uint32_t {
+    /**
+     * @brief No binding index set.Results in [[vk::binding(*,0)]] and register(*).
+     * This space is reserved for push constants and push descriptors.
+     * */
+    None = 0,
+    Sampler = 1, ///< Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1).
+    ConstantBuffer = 2, ///< Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2).
+    Texture = 3, ///< Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3).
+    RWTexture = 4, ///< Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4).
+    RWBuffer = 5, ///< Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5).
+    /**
+     * @brief Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
+     * Can't be merged with Texture because of Vulkan.
+     * */
+    Buffer = 6,
+    Count = 6, ///< Number of binding indices. Used for array sizes.
+};
+
+/**
  * @brief Descriptor heap type.
  *
  * Translates to D3D12_DESCRIPTOR_HEAP_TYPE for dx implementation.
@@ -1057,11 +1091,6 @@ enum class TopologyType : uint32_t {
  * */
 enum class DeviceFeature : uint32_t {
     /**
-     * @brief Core Functionality. Descriptor buffer support for VK, always true for DX12.
-     * Vulkan provides DescriptorPool and DescriptorSet functionalities, that have to be used manually through library internals.
-     * */
-    DescriptorBuffer = 0,
-    /**
      * @brief Core Functionality. Supports enhanced barriers. Support for VK and DX12.
      * Used in all barriers to provide more control over synchronization. Without the feature behavior is undefined.
      * To run without this feature for DX12 there are legacy barriers, which can be manually submitted through CommandList internals.
@@ -1074,11 +1103,6 @@ enum class DeviceFeature : uint32_t {
      * */
     WaitForPresent = 2,
     /**
-     * @brief Descriptor size for SRV UAV and CBV are equal in size, support for VK, always true for DX12.
-     * Unlocks DescriptorBuffer::WriteShaderResource2, DescriptorBuffer::WriteConstantBuffer2 functions. Without the feature their behavior is undefined.
-     * */
-    DescriptorEqualSize = 3,
-    /**
      * @brief Supports advanced index buffer features. Support for VK, always true for DX12.
      * Unlocks CommandList::IASetIndexBuffer2 function. Without the extension behavior is undefined.
      * */
@@ -1089,6 +1113,7 @@ enum class DeviceFeature : uint32_t {
      * */
     DynamicVSync = 5,
     UnusedRenderTargets = 6, ///< Supports unused render targets. Support for VK, always true for DX12.
+    PushDescriptors = 7, ///< Supports push descriptors. Support for VK, always true for DX12.
 };
 
 /**
@@ -1180,6 +1205,7 @@ enum class FactoryExtID : uint32_t {
  * */
 enum class DeviceExtID : uint32_t {
     Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
+    DescriptorBufferExtension = 1,
 };
 
 /**
@@ -1371,6 +1397,21 @@ enum class FenceFlags {
 };
 
 /**
+ * @brief Pipeline flags for additional pipeline features
+ *
+ * Translates to D3D12_PIPELINE_STATE_FLAGS for dx implementation.
+ * Translates to VkPipelineCreateFlags for vk implementation.
+ * */
+enum class PipelineFlags {
+    None = 0x0, ///< No flags set. Pipeline is regular.
+    /**
+     * @brief Pipeline is created to be used with DescriptorBuffer extension.
+     * Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.
+     * */
+    DescriptorBuffer = 1 << 0,
+};
+
+/**
  * @brief Main source of communication of operation success.
  * To check for success compare wis::Result::status with wis::Status::Ok.
  * If there is any error there is  string which is compile-time.
@@ -1450,9 +1491,9 @@ struct InputAttribute {
  * @brief Input layout description for .
  * */
 struct InputLayout {
-    wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
+    const wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
     uint32_t slot_count; ///< Input slots count. Max number is 16.
-    wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
+    const wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
     uint32_t attribute_count; ///< Input attributes count.
 };
 
@@ -1532,17 +1573,19 @@ struct BlendStateDesc {
  * @brief Render attachments description for .
  * */
 struct RenderAttachmentsDesc {
-    wis::DataFormat* attachment_formats; ///< Attachment formats array. Describes the format of the render target.
-    uint32_t attachments_count; ///< Attachment formats count.
+    std::array<wis::DataFormat, 8> attachment_formats{}; ///< Attachment formats array. Describes the format of the render target.
+    uint32_t attachments_count; ///< Attachment formats count. Max is 8.
     wis::DataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
 };
 
 /**
- * @brief Root constant description for .
+ * @brief A set of constants that get pushed directly to the pipeline.
+ * Only one set can be created per shader stage.
  * */
-struct RootConstant {
+struct PushConstant {
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
-    uint32_t size_bytes; ///< Size of the constant in bytes.
+    uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    uint32_t bind_register; ///< Bind register number in HLSL.
 };
 
 /**
@@ -1602,13 +1645,11 @@ struct BufferTextureCopyRegion {
 };
 
 /**
- * @brief Push descriptor. Unused for now.
+ * @brief Push descriptor. Used to push data directly to pipeline.
  * */
 struct PushDescriptor {
-    wis::ShaderStages stage;
-    uint32_t bind_register;
-    wis::DescriptorType type;
-    uint32_t reserved;
+    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the descriptor is used.
+    wis::DescriptorType type; ///< Descriptor type. Works only with buffer-like bindings.
 };
 
 /**
@@ -1775,6 +1816,33 @@ struct DeviceExtQuery {
     void* result;
 };
 
+/**
+ * @brief Descriptor storage description for wis::DescriptorStorage creation.
+ * */
+struct DescriptorStorageDesc {
+    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
+    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
+    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
+    uint32_t texture_count; ///< Count of texture descriptors to allocate.
+    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
+    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
+    wis::DescriptorMemory memory; ///< Descriptor memory to use.
+};
+
+/**
+ * @brief Describes how many types can descriptors be reinterpreted as.
+ * Minimal amount of spaces for each type is 1, 0 is treated as 1.
+ * Used for RootSignature.
+ * */
+struct DescriptorSpacing {
+    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
+    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
+    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
+    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
+    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
+    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
+};
+
 //=================================DELEGATES=================================
 
 /**
@@ -1818,6 +1886,9 @@ struct is_flag_enum<wis::TextureUsage> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::FenceFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::PipelineFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 

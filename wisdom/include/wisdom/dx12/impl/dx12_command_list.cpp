@@ -3,6 +3,7 @@
 #include <wisdom/dx12/dx12_command_list.h>
 
 #include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/dx12/dx12_descriptor_storage.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/util/small_allocator.h>
 #include <d3dx12/d3dx12_resource_helpers.h>
@@ -15,26 +16,27 @@ void wis::ImplDX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView 
 void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     auto texture = std::get<0>(dest_texture);
+
     auto texture_desc = texture->GetDesc();
+    auto desc1 = D3DX12ResourceDesc0ToDesc1(texture_desc);
 
     wis::com_ptr<ID3D12Device> device;
     auto hr = texture->GetDevice(__uuidof(*device), device.put_void());
 
     for (uint32_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
-        UINT num_rows = 0;
-        UINT64 row_size = 0;
-        UINT64 required_size = 0;
+        uint32_t num_rows = 0;
+        uint64_t row_size = 0;
+        uint64_t required_size = 0;
 
-        UINT dest_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        uint32_t dest_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
         D3D12_TEXTURE_COPY_LOCATION dst{
             .pResource = texture,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
             .SubresourceIndex = dest_subresource
         };
 
-        UINT row_pitch = 0;
+        uint32_t row_pitch = 0;
         D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION src{
@@ -58,25 +60,25 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
 {
     auto texture = std::get<0>(src_texture);
     auto texture_desc = texture->GetDesc();
+    auto desc1 = D3DX12ResourceDesc0ToDesc1(texture_desc);
 
     wis::com_ptr<ID3D12Device> device;
     auto hr = texture->GetDevice(__uuidof(*device), device.put_void());
 
     for (uint32_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
-        UINT num_rows = 0;
-        UINT64 row_size = 0;
-        UINT64 required_size = 0;
+        uint32_t num_rows = 0;
+        uint64_t row_size = 0;
+        uint64_t required_size = 0;
 
-        UINT src_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
+        uint32_t src_subresource = D3D12CalcSubresource(region.texture.mip, region.texture.array_layer, 0u, texture_desc.MipLevels, texture_desc.DepthOrArraySize);
         D3D12_TEXTURE_COPY_LOCATION src{
             .pResource = texture,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
             .SubresourceIndex = src_subresource
         };
 
-        UINT row_pitch = 0;
+        uint32_t row_pitch = 0;
         D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION dst{
@@ -92,7 +94,16 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
                             .RowPitch = row_pitch } }
         };
 
-        list->CopyTextureRegion(&dst, UINT(region.buffer_offset), 0, 0, &src, nullptr);
+        D3D12_BOX box{
+            .left = region.texture.offset.width,
+            .top = region.texture.offset.height,
+            .front = region.texture.offset.depth_or_layers,
+            .right = region.texture.offset.width + region.texture.size.width,
+            .bottom = region.texture.offset.height + region.texture.size.height,
+            .back = region.texture.offset.depth_or_layers + region.texture.size.depth_or_layers
+        };
+
+        list->CopyTextureRegion(&dst, 0, 0, 0, &src, &box);
     }
 }
 
@@ -237,10 +248,11 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pa
         }
     }
 
-    if (pass_desc->depth_stencil) {
-        auto ds_selector = pass_desc->depth_stencil->depth_stencil_select;
+    D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depth_stencil;
+    auto ds_selector = pass_desc->depth_stencil ? pass_desc->depth_stencil->depth_stencil_select : DSSelect::None;
 
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depth_stencil{
+    if (ds_selector != DSSelect::None) {
+        depth_stencil = {
             .cpuDescriptor = std::get<0>(pass_desc->depth_stencil->target),
             .DepthBeginningAccess = {
                     .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc->depth_stencil->load_op_depth) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS,
@@ -258,10 +270,12 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pa
                     .Type = ds_selector & DSSelect::Stencil ? convert_dx(pass_desc->depth_stencil->store_op_stencil) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
             }
         };
-
-        return list->BeginRenderPass(pass_desc->target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, convert_dx(pass_desc->flags));
     }
-    list->BeginRenderPass(pass_desc->target_count, data, nullptr, convert_dx(pass_desc->flags));
+
+    list->BeginRenderPass(pass_desc->target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, convert_dx(pass_desc->flags));
+
+    if (pass_desc->view_mask)
+        list->SetViewInstanceMask(pass_desc->view_mask);
 }
 
 void wis::ImplDX12CommandList::EndRenderPass() noexcept
@@ -347,7 +361,8 @@ void wis::ImplDX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_
 {
     list->SetGraphicsRootSignature(std::get<0>(root_signature));
     root_stage_map = std::get<1>(root_signature);
-    root_table_offset = std::get<2>(root_signature);
+    push_constant_count = std::get<2>(root_signature);
+    push_descriptor_count = std::get<3>(root_signature);
 }
 
 void wis::ImplDX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -367,21 +382,72 @@ void wis::ImplDX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::ImplDX12CommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+void wis::ImplDX12CommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
-    list->SetGraphicsRoot32BitConstants(UINT(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
+    list->SetGraphicsRoot32BitConstants(uint32_t(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
 }
 
-void wis::ImplDX12CommandList::SetDescriptorBuffers(const wis::DX12DescriptorBufferView* buffers, uint32_t buffer_count) noexcept
+void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept
 {
-    list->SetDescriptorHeaps(buffer_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(buffers));
+    auto& storage = std::get<0>(desc_storage)->GetInternal();
+
+    std::array<ID3D12DescriptorHeap*, 2> heaps{};
+    uint32_t increment = 0;
+    if (storage.heap_sampler) {
+        heaps[increment++] = storage.heap_sampler.get();
+    }
+    if (storage.heap_resource) {
+        heaps[increment++] = storage.heap_resource.get();
+    }
+
+    list->SetDescriptorHeaps(increment, heaps.data());
+
+    if (storage.heap_sampler) {
+        list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count, storage.heap_gpu_starts[1]); // 0 is reserved for push constants and push descriptors
+    }
+    if (storage.heap_resource) {
+        CD3DX12_GPU_DESCRIPTOR_HANDLE handles[+wis::BindingIndex::Count - 1]{
+            // 0 is reserved for sampler heap
+            storage.heap_gpu_starts[0],
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[2].ptr - storage.heap_starts[1].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[3].ptr - storage.heap_starts[1].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[4].ptr - storage.heap_starts[1].ptr)),
+            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[5].ptr - storage.heap_starts[1].ptr)),
+        };
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::ConstantBuffer) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::ConstantBuffer) - 1, handles[0]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::Texture) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::Texture) - 1, handles[1]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::RWTexture) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::RWTexture) - 1, handles[2]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::RWBuffer) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::RWBuffer) - 1, handles[3]);
+        }
+        if (storage.heap_starts[uint32_t(wis::BindingIndex::Buffer) - 1].ptr != 0) {
+            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::Buffer) - 1, handles[4]);
+        }
+    }
 }
 
-void wis::ImplDX12CommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::DX12DescriptorBufferGPUView buffer, uint32_t offset_bytes) noexcept
+void wis::ImplDX12CommandList::PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::DX12BufferView view, uint32_t offset) noexcept
 {
-    auto handle = std::get<0>(buffer);
-    list->SetGraphicsRootDescriptorTable(root_table_offset + root_table_index,
-                                         CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, offset_bytes));
+    auto handle = std::get<0>(view)->GetGPUVirtualAddress();
+    switch (type) {
+    case wis::DescriptorType::Buffer:
+        list->SetGraphicsRootShaderResourceView(push_constant_count + binding, handle + offset);
+        break;
+    case wis::DescriptorType::Texture:
+    case wis::DescriptorType::RWTexture:
+        return;
+    case wis::DescriptorType::ConstantBuffer:
+        list->SetGraphicsRootConstantBufferView(push_constant_count + binding, handle + offset);
+        break;
+    case wis::DescriptorType::RWBuffer:
+        list->SetGraphicsRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
+    }
 }
-
 #endif // WIS_DX12_COMMAND_LIST_H

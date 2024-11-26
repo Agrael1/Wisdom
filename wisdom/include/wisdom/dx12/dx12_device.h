@@ -8,7 +8,7 @@
 #include <wisdom/dx12/dx12_shader.h>
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_allocator.h>
-#include <wisdom/dx12/dx12_descriptor_buffer.h>
+#include <wisdom/dx12/dx12_descriptor_storage.h>
 #include <wisdom/dx12/dx12_device_ext.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 
@@ -55,12 +55,6 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12PipelineState>
     CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc* desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
-    CreateRootSignature(const RootConstant* root_constants = nullptr,
-                        uint32_t constants_size = 0,
-                        const wis::DescriptorTable* tables = nullptr,
-                        uint32_t tables_count = 0) const noexcept;
-
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Shader>
     CreateShader(void* data, size_t size) const noexcept;
 
@@ -79,24 +73,26 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12ShaderResource>
     CreateShaderResource(DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept;
 
-    // Descriptor buffer
-    [[nodiscard]] uint32_t
-    GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
-    {
-        return device->GetDescriptorHandleIncrementSize(wis::convert_dx(heap));
-    }
-    [[nodiscard]] uint32_t
-    GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
-    {
-        return device->GetDescriptorHandleIncrementSize(wis::convert_dx(heap));
-    }
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
-    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
-
     // returns true only for now
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorStorage>
+    CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
+    CreateRootSignature(const PushConstant* constants = nullptr,
+                        uint32_t constants_size = 0,
+                        const PushDescriptor* push_descriptors = nullptr,
+                        uint32_t push_descriptors_size = 0,
+                        uint32_t space_overlap_count = 1) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
+    CreateRootSignature2(const wis::PushConstant* push_constants = nullptr,
+                         uint32_t constants_count = 0,
+                         const wis::PushDescriptor* push_descriptors = nullptr,
+                         uint32_t push_descriptors_count = 0,
+                         const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept;
 };
 
 #pragma region DX12Device
@@ -166,16 +162,39 @@ public:
         return wis::ImplDX12Device::CreateGraphicsPipeline(desc);
     }
     /**
-     * @brief Creates a root signature object.
-     * @param root_constants The root constants to create the root signature with.
-     * @param constants_size The number of root constants.
-     * @param tables The descriptor tables to create the root signature with.
-     * @param tables_count The number of descriptor tables.
+     * @brief Creates a root signature object for use with DescriptorStorage.
+     * @param push_constants The root constants to create the root signature with.
+     * @param constants_count The number of push constants. Max is 5.
+     * @param push_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param descriptors_count The number of push descriptors. Max is 8.
+     * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+     * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+     * Example: If wis::DX12Device is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+     *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+     *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+     *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
      * @return wis::DX12RootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
     {
-        return wis::ImplDX12Device::CreateRootSignature(root_constants, constants_size, tables, tables_count);
+        return wis::ImplDX12Device::CreateRootSignature(push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count);
+    }
+    /**
+     * @brief Creates a root signature object for use with DescriptorStorage.
+     * Supplies number of types for each descriptor type separately.
+     * @param push_constants The root constants to create the root signature with.
+     * @param constants_count The number of push constants. Max is 5.
+     * @param push_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param push_descriptors_count The number of push descriptors. Max is 8.
+     * @param descriptor_spacing Descriptor spacing allocation.
+     * nullptr means allocate 1 space for each.
+     * @return wis::DX12RootSignature on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
+    {
+        return wis::ImplDX12Device::CreateRootSignature2(push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing);
     }
     /**
      * @brief Creates a shader object.
@@ -236,36 +255,6 @@ public:
     [[nodiscard]] inline wis::ResultValue<wis::DX12ShaderResource> CreateShaderResource(wis::DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept
     {
         return wis::ImplDX12Device::CreateShaderResource(std::move(texture), desc);
-    }
-    /**
-     * @brief Returns the alignment of the descriptor table in bytes.
-     * The value is used to correctly determine descriptor page alignment for descriptor buffer.
-     * @param heap The type of the descriptor heap to get the alignment for.
-     * @return The alignment of the descriptor table in bytes.
-     * */
-    inline uint32_t GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
-    {
-        return wis::ImplDX12Device::GetDescriptorTableAlignment(heap);
-    }
-    /**
-     * @brief Returns the size of the descriptor buffer unit in bytes.
-     * @param heap The type of the descriptor heap to get the unit size for.
-     * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
-     * */
-    inline uint32_t GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
-    {
-        return wis::ImplDX12Device::GetDescriptorBufferUnitSize(heap);
-    }
-    /**
-     * @brief Creates a descriptor buffer object.
-     * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
-     * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
-     * @param size_bytes The number of bytes to allocate for the descriptor buffer.
-     * @return wis::DX12DescriptorBuffer on success (wis::Status::Ok).
-     * */
-    [[nodiscard]] inline wis::ResultValue<wis::DX12DescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t size_bytes) const noexcept
-    {
-        return wis::ImplDX12Device::CreateDescriptorBuffer(heap_type, memory_type, size_bytes);
     }
     /**
      * @brief Queries if the device supports the feature.

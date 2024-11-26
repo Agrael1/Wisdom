@@ -47,7 +47,11 @@ public:
 public:
     com_ptr() noexcept
         : ptr(nullptr) { }
-    com_ptr(pointer p) noexcept
+
+    com_ptr(std::nullptr_t) noexcept
+        : ptr(nullptr) { }
+
+    explicit com_ptr(pointer p) noexcept
         : ptr(p)
     {
         add_ref();
@@ -86,18 +90,27 @@ public:
         copy_ref(ptr.ptr);
         return *this;
     }
+
+    com_ptr& operator=(const com_ptr<T>& other) noexcept
+    {
+        copy_ref(other.ptr);
+        return *this;
+    }
+
     template<class U>
     com_ptr& operator=(com_ptr<U>&& other) noexcept
     {
-        if constexpr (std::same_as<U, T>) {
-            if (get() == other.get()) {
-                std::exchange(other.ptr, {});
-                return *this;
-            }
-        }
-
         release();
         ptr = std::exchange(other.ptr, {});
+        return *this;
+    }
+
+    com_ptr& operator=(com_ptr<T>&& other) noexcept
+    {
+        if (this != &other) {
+            release();
+            ptr = std::exchange(other.ptr, {});
+        }
         return *this;
     }
 

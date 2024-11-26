@@ -39,11 +39,17 @@ struct VKGraphicsPipelineDesc {
     wis::InputLayout input_layout; ///< Input layout.
     wis::VKGraphicsShaderStages shaders; ///< Shader stages.
     wis::RenderAttachmentsDesc attachments; ///< Render attachments.
-    wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
-    wis::SampleDesc* sample = nullptr; ///< Sample description.
-    wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
-    wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    const wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
+    const wis::SampleDesc* sample = nullptr; ///< Sample description.
+    const wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
+    const wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
     wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask = 0;
+    wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
 };
 
 /**
@@ -75,9 +81,15 @@ struct VKRenderPassDepthStencilDesc {
  * */
 struct VKRenderPassDesc {
     wis::RenderPassFlags flags; ///< Render pass flags.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Value must be the same as in  upon pipeline creation. Otherwise behavior is undefined.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask = 0;
     uint32_t target_count; ///< Render target count.
-    wis::VKRenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
-    wis::VKRenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    const wis::VKRenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    const wis::VKRenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 
 /**
@@ -118,14 +130,18 @@ inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
     switch (value) {
     default:
         return {};
-    case DescriptorType::ShaderResource:
-        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    case DescriptorType::ConstantBuffer:
-        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    case DescriptorType::UnorderedAccess:
-        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     case DescriptorType::Sampler:
         return VK_DESCRIPTOR_TYPE_SAMPLER;
+    case DescriptorType::ConstantBuffer:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    case DescriptorType::Texture:
+        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    case DescriptorType::RWTexture:
+        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    case DescriptorType::RWBuffer:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    case DescriptorType::Buffer:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     }
 }
 inline constexpr VkFormat convert_vk(DataFormat value) noexcept
@@ -792,6 +808,13 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
         output |= VK_IMAGE_USAGE_STORAGE_BIT;
     if (value & TextureUsage::HostCopy)
         output |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
+    return output;
+}
+inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
+{
+    VkPipelineCreateFlags output = {};
+    if (value & PipelineFlags::DescriptorBuffer)
+        output |= VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
     return output;
 }
 } // namespace wis

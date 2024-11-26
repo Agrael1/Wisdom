@@ -26,8 +26,10 @@ add_executable(
 wis_install_deps(${PROJECT_NAME})
 
 target_link_libraries(
-  ${PROJECT_NAME} PRIVATE wis::debug-headers wis::platform-headers
-                          wis::extended-allocation-headers glm::glm Wil)
+  ${PROJECT_NAME}
+  PRIVATE wis::debug-headers wis::platform-headers
+          wis::descriptor-buffer-headers wis::extended-allocation-headers
+          glm::glm Wil)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23)
 target_include_directories(${PROJECT_NAME} PRIVATE ${fpng_SOURCE_DIR}/src)
 target_compile_definitions(${PROJECT_NAME} PRIVATE WISDOM_FORCE_VULKAN)

@@ -1,6 +1,20 @@
+function(wis_make_exports_dx PROJECT)
+  get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
+
+  set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
+  					_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
+  )
+
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/exports.c" "${EXPORT_AGILITY}")
+
+  target_sources(${PROJECT} PRIVATE
+  	${CMAKE_CURRENT_BINARY_DIR}/exports.c
+  )
+endfunction()
+
 # Function for installing DirectX SDK for UWP
 function(wis_install_dx_uwp PROJECT)
-    message("Installing DirectX Agility SDK Dependency")
+    #message("Installing DirectX Agility SDK Dependency")
 
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
 
@@ -29,8 +43,6 @@ endfunction()
 
 # Function for installing DirectX SDK
 function(wis_install_dx_win32 PROJECT)
-	message("Installing DirectX Agility SDK Dependency")
-
 	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
 
 	set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
@@ -166,7 +178,7 @@ function(wis_compile_shader)
 
     if(WISDOM_WINDOWS)
         add_custom_command(TARGET ${TARGET}
-            COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${INCLUDES} ${DEFINES} -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
+            COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
             MAIN_DEPENDENCY ${SHADER}
             COMMENT "HLSL ${SHADER}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -174,7 +186,7 @@ function(wis_compile_shader)
     endif()
 
     add_custom_command(TARGET ${TARGET}
-        COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -Fo${OUTPUT_SPV} ${SHADER}
+        COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
         MAIN_DEPENDENCY ${SHADER}
         COMMENT "SPV ${SHADER}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

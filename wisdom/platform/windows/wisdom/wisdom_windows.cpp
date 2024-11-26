@@ -56,7 +56,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
     }();
-    if (tearing)
+    if (tearing && desc->tearing)
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
     HRESULT hr;
@@ -90,7 +90,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
         .present_event{ hnd },
         .stereo = desc->stereo,
         .vsync = desc->vsync,
-        .tearing = tearing,
+        .tearing = tearing && desc->tearing,
     };
     if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
         return resw;

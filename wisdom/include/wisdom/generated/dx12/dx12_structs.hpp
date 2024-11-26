@@ -40,11 +40,17 @@ struct DX12GraphicsPipelineDesc {
     wis::InputLayout input_layout; ///< Input layout.
     wis::DX12GraphicsShaderStages shaders; ///< Shader stages.
     wis::RenderAttachmentsDesc attachments; ///< Render attachments.
-    wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
-    wis::SampleDesc* sample = nullptr; ///< Sample description.
-    wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
-    wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    const wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
+    const wis::SampleDesc* sample = nullptr; ///< Sample description.
+    const wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
+    const wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
     wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask = 0;
+    wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
 };
 
 /**
@@ -76,9 +82,15 @@ struct DX12RenderPassDepthStencilDesc {
  * */
 struct DX12RenderPassDesc {
     wis::RenderPassFlags flags; ///< Render pass flags.
+    /**
+     * @brief View mask for Multiview feature. If multiview is not available it is ignored.
+     * Value must be the same as in  upon pipeline creation. Otherwise behavior is undefined.
+     * Default is 0. 0 means regular rendering.
+     * */
+    uint32_t view_mask = 0;
     uint32_t target_count; ///< Render target count.
-    wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
-    wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
+    const wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    const wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 
 /**
@@ -104,14 +116,18 @@ inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) no
     switch (value) {
     default:
         return {};
-    case DescriptorType::ShaderResource:
-        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    case DescriptorType::ConstantBuffer:
-        return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-    case DescriptorType::UnorderedAccess:
-        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     case DescriptorType::Sampler:
         return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+    case DescriptorType::ConstantBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    case DescriptorType::Texture:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case DescriptorType::RWTexture:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case DescriptorType::RWBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case DescriptorType::Buffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     }
 }
 inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept
@@ -480,6 +496,11 @@ inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
     D3D12_FENCE_FLAGS output = {};
     if (value & FenceFlags::Shared)
         output |= D3D12_FENCE_FLAG_SHARED;
+    return output;
+}
+inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noexcept
+{
+    D3D12_PIPELINE_STATE_FLAGS output = {};
     return output;
 }
 } // namespace wis

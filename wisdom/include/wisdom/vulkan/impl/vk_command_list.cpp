@@ -307,7 +307,7 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
                 .extent = { extent.width, extent.height },
         },
         .layerCount = 1,
-        .viewMask = 0,
+        .viewMask = pass_desc->view_mask,
         .colorAttachmentCount = pass_desc->target_count,
         .pColorAttachments = data,
         .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,
@@ -432,56 +432,44 @@ void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
-void wis::ImplVKCommandList::SetRootConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+void wis::ImplVKCommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
 
-void wis::ImplVKCommandList::SetDescriptorBuffers(const wis::VKDescriptorBufferView* buffers, uint32_t buffer_count) noexcept
+void wis::ImplVKCommandList::SetDescriptorStorage(wis::VKDescriptorStorageView desc_storage) noexcept
 {
-    if (buffer_count == 0)
-        return;
-
-    VkDescriptorBufferBindingInfoEXT infos[2] = {
-        {
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-                .usage = VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT,
-        },
-
-        {
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
-                .usage = VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT,
-        }
-    };
-
-    uint8_t id = false;
-
-    for (size_t i = 0; i < buffer_count; i++) {
-        auto& buffer = buffers[i];
-        auto address = std::get<0>(buffer);
-        if (std::get<1>(buffer) == wis::DescriptorHeapType::Descriptor) {
-            infos[0].address = address;
-            id |= 1;
-        } else {
-            infos[1].address = address;
-            id |= 2;
-        }
-    }
-
-    auto* pinfos = infos + (id == 2);
-    uint32_t xbuffer_count = 1 + uint32_t(id == 3);
-
-    device.table().vkCmdBindDescriptorBuffersEXT(command_list, xbuffer_count, pinfos);
+    auto& set_span = std::get<0>(desc_storage);
+    device.table().vkCmdBindDescriptorSets(command_list,
+                                           VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                           pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
+                                           set_span.size(), set_span.data(),
+                                           0, nullptr);
 }
 
-void wis::ImplVKCommandList::SetDescriptorTableOffset(uint32_t root_table_index, wis::VKDescriptorBufferView buffer, uint32_t offset_bytes) noexcept
+void wis::ImplVKCommandList::PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset) noexcept
 {
-    auto binding = std::get<1>(buffer);
-    uint32_t index = uint32_t(binding == wis::DescriptorHeapType::Sampler);
-    VkDeviceSize offset = offset_bytes;
-
-    device.table().vkCmdSetDescriptorBufferOffsetsEXT(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, root_table_index, 1,
-                                                      &index, &offset);
+    VkDescriptorBufferInfo buffer_info{
+        .buffer = std::get<0>(view),
+        .offset = offset,
+        .range = VK_WHOLE_SIZE,
+    };
+    VkWriteDescriptorSet descriptor{
+        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .pNext = nullptr,
+        .dstSet = VK_NULL_HANDLE,
+        .dstBinding = binding,
+        .dstArrayElement = 0,
+        .descriptorCount = 1,
+        .descriptorType = convert_vk(type),
+        .pBufferInfo = &buffer_info
+    };
+    device.table().vkCmdPushDescriptorSetKHR(command_list,
+                                             VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                             pipeline_layout,
+                                             0, // set 0, because set 0 is reserved for push descriptors
+                                             1,
+                                             &descriptor);
 }
 
 #endif // !

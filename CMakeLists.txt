@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-set(WISDOM_VERSION "0.3.15")
+set(WISDOM_VERSION "0.4.0")
 project("Wisdom" VERSION ${WISDOM_VERSION})
 
 set(CMAKE_DEBUG_POSTFIX d)
@@ -43,7 +43,6 @@ if(WISDOM_BUILD_BINDINGS)
   add_subdirectory("bindings")
 endif()
 if(WISDOM_BUILD_EXAMPLES)
-  option(WISDOM_EXCLUDE_KDGUI "Exclude KDGui Example from build" ON)
   add_subdirectory("examples")
 endif()
 

@@ -10,7 +10,7 @@
 #include <wisdom/vulkan/vk_shader.h>
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vulkan/vk_swapchain.h>
-#include <wisdom/vulkan/vk_descriptor_buffer.h>
+#include <wisdom/vulkan/vk_descriptor_storage.h>
 #include <wisdom/vulkan/vk_device_ext.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 
@@ -25,6 +25,124 @@ struct Internal<VKDevice> {
 
     wis::shared_handle<VmaAllocator> allocator;
     detail::QueueResidency queues;
+
+    struct DefaultLayout {
+        constexpr static std::array<VkDescriptorType, Internal<VKDescriptorStorage>::max_sets> desc_types{
+            VK_DESCRIPTOR_TYPE_SAMPLER,
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+        };
+
+        std::array<VkDescriptorSetLayout, Internal<VKDescriptorStorage>::max_sets> desc_sets{};
+
+    public:
+        bool operator==(const DefaultLayout& o) const noexcept
+        {
+            return std::memcmp(desc_sets.data(), o.desc_sets.data(), sizeof(desc_sets)) == 0;
+        }
+        bool Valid() const noexcept
+        {
+            return *this != DefaultLayout{};
+        }
+        void Destroy(PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout, VkDevice device) noexcept
+        {
+            if (Valid()) {
+                for (auto& set : desc_sets) {
+                    vkDestroyDescriptorSetLayout(device, set, nullptr);
+                }
+            }
+        }
+        wis::Result Init(PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout, VkDevice device)
+        {
+            constexpr static size_t num_sets = Internal<VKDescriptorStorage>::max_sets;
+            constexpr static VkDescriptorSetLayoutBinding bindings[num_sets]{
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
+                  .descriptorCount = 2048,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+            };
+
+            constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
+            constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+                .pNext = nullptr,
+                .bindingCount = 1,
+                .pBindingFlags = &flags,
+            };
+
+            std::array<VkDescriptorSetLayoutCreateInfo, num_sets> desc_info{};
+            for (size_t i = 0; i < num_sets; i++) {
+                desc_info[i] = {
+                    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                    .pNext = &binding_flags_info,
+                    .flags = 0,
+                    .bindingCount = 1,
+                    .pBindings = &bindings[i],
+                };
+            }
+            for (size_t i = 0; i < num_sets; i++) {
+                auto res = vkCreateDescriptorSetLayout(device, &desc_info[i], nullptr, &desc_sets[i]);
+                if (!succeeded(res))
+                    return wis::make_result<FUNC, "Failed to create a descriptor set layout">(res);
+            }
+            return wis::success;
+        }
+    } default_layout;
+
+public:
+    Internal() noexcept = default;
+    Internal(wis::VKAdapter adapter, wis::SharedDevice device, wis::VKDeviceExtensionEmbedded1 ext1) noexcept
+        : adapter(std::move(adapter)), device(std::move(device)), ext1(std::move(ext1))
+    {
+    }
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept
+    {
+        if (this == &o) {
+            return *this;
+        }
+        if (device.get()) {
+            default_layout.Destroy(device.table().vkDestroyDescriptorSetLayout, device.get());
+        }
+
+        adapter = std::move(o.adapter);
+        device = std::move(o.device);
+        ext1 = std::move(o.ext1);
+        allocator = std::move(o.allocator);
+        queues = std::move(o.queues);
+        std::memcpy(&default_layout, &o.default_layout, sizeof(default_layout));
+        std::memset(&o.default_layout, 0, sizeof(default_layout));
+        return *this;
+    }
+    ~Internal() noexcept
+    {
+        if (device.get()) {
+            default_layout.Destroy(device.table().vkDestroyDescriptorSetLayout, device.get());
+        }
+    }
 
 public:
     auto& GetInstanceTable() const noexcept
@@ -45,6 +163,11 @@ public:
     [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept
     {
         return device.GetDeviceProcAddr<PFN>(name);
+    }
+
+    wis::Result InitDefaultLayout() noexcept
+    {
+        return default_layout.Init(device.table().vkCreateDescriptorSetLayout, device.get());
     }
 };
 
@@ -88,12 +211,6 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKPipelineState>
     CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc* desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
-    CreateRootSignature(const RootConstant* constants = nullptr,
-                        uint32_t constants_size = 0,
-                        const wis::DescriptorTable* tables = nullptr,
-                        uint32_t tables_count = 0) const noexcept;
-
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKShader>
     CreateShader(void* bytecode, uint32_t size) const noexcept;
 
@@ -115,52 +232,33 @@ public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<VKShaderResource>
     CreateShaderResource(VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept;
 
-    // Descriptor Buffer
-    [[nodiscard]] uint32_t
-    GetDescriptorTableAlignment([[maybe_unused]] wis::DescriptorHeapType heap) const noexcept
-    {
-        return ext1.GetInternal().descriptor_buffer_features.offset_alignment;
-    }
-
-    [[nodiscard]] uint32_t
-    GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
-    {
-        auto& heap_features = ext1.GetInternal().descriptor_buffer_features;
-        return heap == wis::DescriptorHeapType::Descriptor
-                ? heap_features.mutable_descriptor_size
-                : heap_features.sampler_size;
-    }
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
-    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
-
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKDescriptorStorage>
+    CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
+    CreateRootSignature(const PushConstant* constants = nullptr,
+                        uint32_t constants_size = 0,
+                        const PushDescriptor* push_descriptors = nullptr,
+                        uint32_t push_descriptors_size = 0,
+                        [[maybe_unused]] uint32_t space_overlap_count = 1) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
+    CreateRootSignature2(const wis::PushConstant* push_constants = nullptr,
+                         uint32_t constants_count = 0,
+                         const wis::PushDescriptor* push_descriptors = nullptr,
+                         uint32_t push_descriptors_count = 0,
+                         const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
     VKCreateSwapChain(wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
 
-private:
+protected:
     [[nodiscard]] WIS_INLINE wis::ResultValue<wis::shared_handle<VmaAllocator>>
     VKCreateAllocator(bool interop = false) const noexcept;
-
-    [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
-    CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
-    {
-        return table->type == wis::DescriptorHeapType::Descriptor
-                ? CreateDescriptorSetDescriptorLayout(table)
-                : CreateDescriptorSetSamplerLayout(table);
-    }
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
-    CreateDummyDescriptorSetLayout(const VkDescriptorSetLayoutBinding& binding) const noexcept;
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
-    CreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept;
-
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VkDescriptorSetLayout>
-    CreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept;
 };
 
 #pragma region VKDevice
@@ -230,16 +328,39 @@ public:
         return wis::ImplVKDevice::CreateGraphicsPipeline(desc);
     }
     /**
-     * @brief Creates a root signature object.
-     * @param root_constants The root constants to create the root signature with.
-     * @param constants_size The number of root constants.
-     * @param tables The descriptor tables to create the root signature with.
-     * @param tables_count The number of descriptor tables.
+     * @brief Creates a root signature object for use with DescriptorStorage.
+     * @param push_constants The root constants to create the root signature with.
+     * @param constants_count The number of push constants. Max is 5.
+     * @param push_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param descriptors_count The number of push descriptors. Max is 8.
+     * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
+     * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
+     * Example: If wis::VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
+     *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
+     *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
+     *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::RootConstant* root_constants = nullptr, uint32_t constants_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
     {
-        return wis::ImplVKDevice::CreateRootSignature(root_constants, constants_size, tables, tables_count);
+        return wis::ImplVKDevice::CreateRootSignature(push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count);
+    }
+    /**
+     * @brief Creates a root signature object for use with DescriptorStorage.
+     * Supplies number of types for each descriptor type separately.
+     * @param push_constants The root constants to create the root signature with.
+     * @param constants_count The number of push constants. Max is 5.
+     * @param push_descriptors The root descriptors to create the root signature with.
+     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+     * @param push_descriptors_count The number of push descriptors. Max is 8.
+     * @param descriptor_spacing Descriptor spacing allocation.
+     * nullptr means allocate 1 space for each.
+     * @return wis::VKRootSignature on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
+    {
+        return wis::ImplVKDevice::CreateRootSignature2(push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing);
     }
     /**
      * @brief Creates a shader object.
@@ -300,36 +421,6 @@ public:
     [[nodiscard]] inline wis::ResultValue<wis::VKShaderResource> CreateShaderResource(wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
     {
         return wis::ImplVKDevice::CreateShaderResource(std::move(texture), desc);
-    }
-    /**
-     * @brief Returns the alignment of the descriptor table in bytes.
-     * The value is used to correctly determine descriptor page alignment for descriptor buffer.
-     * @param heap The type of the descriptor heap to get the alignment for.
-     * @return The alignment of the descriptor table in bytes.
-     * */
-    inline uint32_t GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
-    {
-        return wis::ImplVKDevice::GetDescriptorTableAlignment(heap);
-    }
-    /**
-     * @brief Returns the size of the descriptor buffer unit in bytes.
-     * @param heap The type of the descriptor heap to get the unit size for.
-     * @return The size of the descriptor buffer unit in bytes. Descriptor unit is the size of one descriptor.
-     * */
-    inline uint32_t GetDescriptorBufferUnitSize(wis::DescriptorHeapType heap) const noexcept
-    {
-        return wis::ImplVKDevice::GetDescriptorBufferUnitSize(heap);
-    }
-    /**
-     * @brief Creates a descriptor buffer object.
-     * @param heap_type The type of the descriptor heap to create the descriptor buffer with.
-     * @param memory_type The type of the descriptor memory to create the descriptor buffer with.
-     * @param size_bytes The number of bytes to allocate for the descriptor buffer.
-     * @return wis::VKDescriptorBuffer on success (wis::Status::Ok).
-     * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t size_bytes) const noexcept
-    {
-        return wis::ImplVKDevice::CreateDescriptorBuffer(heap_type, memory_type, size_bytes);
     }
     /**
      * @brief Queries if the device supports the feature.

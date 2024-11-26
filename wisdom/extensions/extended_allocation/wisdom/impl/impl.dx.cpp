@@ -27,7 +27,7 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
     wis::com_ptr<ID3D12Resource> rc;
     wis::com_ptr<D3D12MA::Allocation> al;
 
-    auto* hallocator = allocator.GetInternal().allocator.get();
+    auto hallocator = allocator.GetInternal().allocator;
 
     HRESULT hr = hallocator->CreateResource3(&all_desc, &tex_desc,
                                              convert_dx(initial_state), nullptr, 0, nullptr,
@@ -36,7 +36,7 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
     if (!wis::succeeded(hr))
         return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
 
-    return DX12Buffer{ std::move(rc), std::move(al), hallocator };
+    return DX12Buffer{ std::move(rc), std::move(al), std::move(hallocator) };
 }
 
 wis::Result

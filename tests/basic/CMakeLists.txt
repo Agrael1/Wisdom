@@ -1,6 +1,7 @@
 project("test-basic")
 
-set(TEST_SOURCES "relaxed_destruction_order.cpp" "extension_tests.cpp")
+set(TEST_SOURCES "relaxed_destruction_order.cpp" "extension_tests.cpp"
+                 "copy_tests.cpp")
 
 if(WISDOM_DX12)
   add_executable(${PROJECT_NAME}-dx12 ${TEST_SOURCES})

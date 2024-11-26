@@ -1,5 +1,25 @@
 # Version History
 
+- 0.4.0 Major Update
+
+  - Fixed Vulkan Swapchain on resize occasionally result in error messages
+  - Revisited Examples and made them use SDL3 for window creation
+  - Added common library for examples
+  - Added Multiview support with example
+  - Examples are now stored in examples/bin folder with compiled shaders and resources
+  - Added support for Xlib without XCB for Vulkan
+  - Moved DescriptorBuffer to its own extension. It is now only possible to use if both VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer are enabled
+  - Added support for VK_EXT_descriptor_indexing and created DescriptorStorage for bindless descriptors. This is now the default way of creating descriptor tables
+  - Lifted the restriction of mandatory VK_EXT_mutable_descriptor_type and VK_EXT_descritpor_buffer for Vulkan. It is now possible to use Wisdom with Vulkan 1.2 (with other mandatory extensions of course)
+  - Renamed RootConstants to PushConstants because it is more common name
+  - Added support for push descriptors. Maximum number of push descriptors is 8 for now.
+  - Added new CreateRootSignature method for DX12 and Vulkan. It is now possible to create a root signatures with non-uniform spacing.
+
+- Bugfixes:
+
+  - Fixed textures not being destroyed correctly in DX12 on replacement (texture1 = std::move(texture2)) was resulting in leaks)
+  - Fixed DX12 copy texture not working correctly with offsets
+
 - 0.3.15
 
   - Fixed Vulkan default texture barriers

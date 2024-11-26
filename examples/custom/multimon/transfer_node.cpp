@@ -40,7 +40,8 @@ CreateTransferNode(wis::Adapter&& adapter)
     {
         wis::DeviceExtension* exts[]{
             &node.ext_mem_host,
-            &node.ext_alloc
+            &node.ext_alloc,
+            &node.desc_buffer_ext
         };
         auto [result, device] = wis::CreateDevice(adapter, exts, std::size(exts));
         if (result.status != wis::Status::Ok)
@@ -115,7 +116,7 @@ CreateTransferNode(wis::Adapter&& adapter)
         using namespace wis;
         wis::DescriptorTableEntry entries[] = {
             {
-                    .type = wis::DescriptorType::ShaderResource,
+                    .type = wis::DescriptorType::Texture,
                     .bind_register = 0,
                     .binding = 0,
                     .count = 1,
@@ -143,13 +144,13 @@ CreateTransferNode(wis::Adapter&& adapter)
             },
 
         };
-        wis::RootConstant constants[] = {
+        wis::PushConstant constants[] = {
             {
                     .stage = wis::ShaderStages::Vertex,
                     .size_bytes = 4 * sizeof(float),
             },
         };
-        auto [result, root] = node.transfer_device.CreateRootSignature(constants, 1, tables, sizeof(tables) / sizeof(tables[0]));
+        auto [result, root] = node.desc_buffer_ext.CreateRootSignature(constants, 1, nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
         if (result.status != wis::Status::Ok)
             return std::unexpected(result.error);
         node.root_signature = std::move(root);
@@ -157,15 +158,14 @@ CreateTransferNode(wis::Adapter&& adapter)
 
     // Create Pipeline
     {
-        wis::DataFormat attachment_formats[] = { wis::DataFormat::RGBA8Unorm };
-
         wis::GraphicsPipelineDesc desc{
             .root_signature = node.root_signature,
             .shaders = { .vertex = node.vs, .pixel = node.ps },
             .attachments = {
-                    .attachment_formats = attachment_formats,
+                    .attachment_formats = { wis::DataFormat::RGBA8Unorm },
                     .attachments_count = 1,
-            }
+            },
+            .flags = wis::PipelineFlags::DescriptorBuffer,
         };
         auto [res2, hpipeline] = node.transfer_device.CreateGraphicsPipeline(&desc);
         if (res2.status != wis::Status::Ok)
@@ -195,15 +195,15 @@ CreateTransferNode(wis::Adapter&& adapter)
 
     // Create Descriptor Buffers
     {
-        auto table_alignment = node.transfer_device.GetDescriptorTableAlignment(wis::DescriptorHeapType::Descriptor);
-        auto unit_size = node.transfer_device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Descriptor);
+        auto table_alignment = node.desc_buffer_ext.GetDescriptorTableAlignment(wis::DescriptorHeapType::Descriptor);
+        auto unit_size = node.desc_buffer_ext.GetDescriptorSize(wis::DescriptorHeapType::Descriptor);
 
-        auto [res, hdesc] = node.transfer_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, unit_size);
+        auto [res, hdesc] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, unit_size);
         if (res.status != wis::Status::Ok)
             return std::unexpected(res.error);
 
-        unit_size = node.transfer_device.GetDescriptorBufferUnitSize(wis::DescriptorHeapType::Sampler);
-        auto [res2, hdesc2] = node.transfer_device.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, unit_size);
+        unit_size = node.desc_buffer_ext.GetDescriptorSize(wis::DescriptorHeapType::Sampler);
+        auto [res2, hdesc2] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, unit_size);
         if (res2.status != wis::Status::Ok)
             return std::unexpected(res2.error);
 
@@ -290,7 +290,7 @@ void TransferNode::VKImportFrame(wis::Size2D frame, void* mapping)
     texture_srv = std::move(srv);
 
     // write data to Descriptor Buffer
-    desc_buffer.WriteShaderResource2(0, 0, texture_srv);
+    desc_buffer.WriteShaderResource(0, 0, texture_srv);
     input_size = frame;
 
     std::ignore = cmd_list.Reset();
@@ -434,9 +434,8 @@ void TransferNode::Frame()
     };
 
     cmd_list.TextureBarriers(input_barriers, std::size(input_barriers));
-    wis::DescriptorBufferView desc_buffer_views[]{ desc_buffer, sampler_buffer };
-    cmd_list.SetDescriptorBuffers(desc_buffer_views, 2);
     cmd_list.SetRootSignature(root_signature);
+    desc_buffer_ext.SetDescriptorBuffers(cmd_list, desc_buffer, sampler_buffer);
 
     // Render Pass 1
     wis::RenderPassRenderTargetDesc rprtdesc{
@@ -458,9 +457,9 @@ void TransferNode::Frame()
         float size[2];
     } rc{ { 0.0f, 0.0f }, { 0.5, 1 } };
 
-    cmd_list.SetRootConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
-    cmd_list.SetDescriptorTableOffset(0, desc_buffer, 0);
-    cmd_list.SetDescriptorTableOffset(1, sampler_buffer, 0);
+    cmd_list.SetPushConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
+    desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 0, desc_buffer, 0);
+    desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 1, sampler_buffer, 0);
 
     cmd_list.DrawInstanced(3, 1, 0, 0);
     cmd_list.EndRenderPass();
@@ -473,9 +472,9 @@ void TransferNode::Frame()
     cmd_list.RSSetScissor({ 0, 0, int(frame_size[1].width), int(frame_size[1].height) });
 
     rc.offset[0] = 0.5f;
-    cmd_list.SetRootConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
-    cmd_list.SetDescriptorTableOffset(0, desc_buffer, 0);
-    cmd_list.SetDescriptorTableOffset(1, sampler_buffer, 0);
+    cmd_list.SetPushConstants(&rc, sizeof(rc) / 4, 0, wis::ShaderStages::Vertex);
+    desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 0, desc_buffer, 0);
+    desc_buffer_ext.SetDescriptorTableOffset(cmd_list, root_signature, 1, sampler_buffer, 0);
 
     cmd_list.DrawInstanced(3, 1, 0, 0);
     cmd_list.EndRenderPass();

@@ -110,6 +110,9 @@ int Generator::GenerateCAPI()
     }
 
     for (auto& [name, h] : handle_map) {
+        if (!h.ext.empty())
+            continue;
+
         out_dx += MakeCHandle(h, impls[+ImplementedFor::DX12]);
         out_vk += MakeCHandle(h, impls[+ImplementedFor::Vulkan]);
 
@@ -465,16 +468,28 @@ int Generator::GenerateCPPInlineDoc()
         }
     };
 
-    for (auto& [k, v] : handle_map) {
-        if (v.functions.empty())
+    for (auto& [k, h] : handle_map) {
+        if (h.functions.empty())
             continue;
 
-        if (auto file = v.GetFile(ImplementedFor::DX12); !file.empty()) {
-            write_doc(v, file, impls[+ImplementedFor::DX12]);
+        if (!h.ext.empty()) {
+            auto ext_folder = extension_map[h.ext].ext_folder;
+            if (auto file = h.GetFile(ImplementedFor::DX12); !file.empty()) {
+                write_doc(h, file, impls[+ImplementedFor::DX12], std::filesystem::path{ ext_dir } / ext_folder);
+            }
+
+            if (auto file = h.GetFile(ImplementedFor::Vulkan); !file.empty()) {
+                write_doc(h, file, impls[+ImplementedFor::Vulkan], std::filesystem::path{ ext_dir } / ext_folder);
+            }
+            continue;
         }
 
-        if (auto file = v.GetFile(ImplementedFor::Vulkan); !file.empty()) {
-            write_doc(v, file, impls[+ImplementedFor::Vulkan]);
+        if (auto file = h.GetFile(ImplementedFor::DX12); !file.empty()) {
+            write_doc(h, file, impls[+ImplementedFor::DX12]);
+        }
+
+        if (auto file = h.GetFile(ImplementedFor::Vulkan); !file.empty()) {
+            write_doc(h, file, impls[+ImplementedFor::Vulkan]);
         }
     }
 
@@ -598,6 +613,9 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
     output += wis::format("inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::{};\n\n",
                           impl == "VK" ? "SPIRV" : "DXIL");
     for (auto& [name, h] : handle_map) {
+        if (!h.ext.empty())
+            continue;
+
         output += wis::format("using {} = {}{};\n", name, impl, name);
     }
 
@@ -610,7 +628,8 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
     output += k_delimiter;
 
     for (auto& v : variants) {
-        output += wis::format("using {} = {}{};\n", v->name, impl, v->name);
+        if (v->ext.empty())
+            output += wis::format("using {} = {}{};\n", v->name, impl, v->name);
     }
 
     return output + "}\n";
@@ -718,7 +737,7 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
         ParseExtensions(exts);
 }
 
-void Generator::ParseTypes(tinyxml2::XMLElement* types)
+void Generator::ParseTypes(tinyxml2::XMLElement* types, std::string_view extension)
 {
     for (auto* type = types->FirstChildElement("type"); type;
          type = type->NextSiblingElement("type")) {
@@ -732,7 +751,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         } else if (std::string_view(category) == "delegate") {
             ParseDelegate(type);
         } else if (std::string_view(category) == "variant") {
-            ParseVariant(*type);
+            ParseVariant(*type, extension);
         }
     }
 }
@@ -932,19 +951,32 @@ void Generator::ParseExtensions(tinyxml2::XMLElement* extensions)
             enum_map.at("FactoryExtID").values.emplace_back(val);
         } else if (type == "Device") {
             ref.type = ExtensionType::Device;
+            WisEnumValue val{
+                .name = name,
+                .doc = ref.doc,
+                .value = std::stoll(id),
+            };
+
+            enum_map.at("DeviceExtID").values.emplace_back(val);
         }
 
+        ParseHandles(ext, name);
+        ParseTypes(ext, name);
         ParseFunctions(ext);
     }
 }
 
-void Generator::ParseHandles(tinyxml2::XMLElement* types)
+void Generator::ParseHandles(tinyxml2::XMLElement* types, std::string_view extension)
 {
     for (auto* type = types->FirstChildElement("handle"); type;
          type = type->NextSiblingElement("handle")) {
         auto name = type->FindAttribute("name")->Value();
         auto& ref = handle_map[name];
         ref.name = name;
+        ref.ext = extension;
+
+        if (!extension.empty())
+            extension_map[extension].handles.emplace_back(name);
 
         if (auto* doc = type->FindAttribute("doc"))
             ref.doc = doc->Value();
@@ -1150,11 +1182,12 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* type)
         ref.doc = size->Value();
 }
 
-void Generator::ParseVariant(tinyxml2::XMLElement& type)
+void Generator::ParseVariant(tinyxml2::XMLElement& type, std::string_view extension)
 {
     auto name = type.FindAttribute("name")->Value();
     auto& ref = variant_map[name];
     ref.name = name;
+    ref.ext = extension;
     variants.emplace_back(&ref);
 
     if (auto* this_t = type.FindAttribute("for")) {
@@ -1382,16 +1415,17 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
         }
 
         for (auto& m : impl.members) {
-            auto mfull_name = GetCFullTypename(m.type, impl_tag);
-            std::string res_type;
-
-            if (m.modifier == "ptr")
-                res_type = "*";
-
+            WisFunctionParameter wfp{
+                .type_info = GetTypeInfo(m.type),
+                .type = m.type,
+                .name = m.name,
+                .modifier = m.modifier,
+                .default_value = m.default_value,
+                .doc = m.doc,
+            };
             auto val_str = m.array_size.empty()
-                    ? wis::format("    {} {};", mfull_name + res_type, m.name)
-                    : wis::format("    {} {}[{}];", mfull_name, m.name, m.array_size);
-
+                    ? wis::format("    {};", GetCFullArg(wfp, impl_tag))
+                    : wis::format("    {} {}[{}];", GetCFullArg(wfp, impl_tag, true), m.name, m.array_size);
             st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
         }
 
@@ -1431,23 +1465,20 @@ std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
         }
 
         for (auto& m : impl.members) {
-            auto mfull_name = GetCPPFullTypename(m.type, impl_tag);
-
             std::string val_str;
-            std::string mod;
-            if (m.modifier == "ptr")
-                mod = '*';
+            WisFunctionParameter wfp{
+                .type_info = GetTypeInfo(m.type),
+                .type = m.type,
+                .name = m.name,
+                .modifier = m.modifier,
+                .default_value = m.default_value,
+                .doc = m.doc,
+            };
 
             if (m.array_size.empty()) {
-                std::string def = "";
-                if (!m.default_value.empty()) {
-                    def = enum_map.contains(m.type) || bitmask_map.contains(m.type)
-                            ? wis::format(" = {}::{}", mfull_name, m.default_value)
-                            : wis::format(" = {}", m.default_value);
-                }
-                val_str = wis::format("    {} {}{};", mfull_name + mod, m.name, def);
+                val_str = wis::format("    {};", GetCPPFullArg(wfp, impl_tag));
             } else {
-                val_str = wis::format("    std::array<{}, {}> {} {{}};", mfull_name, m.array_size, m.name);
+                val_str = wis::format("    std::array<{}, {}> {} {{}};", GetCPPFullArg(wfp, impl_tag, true), m.array_size, m.name);
             }
             st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
         }
@@ -1616,8 +1647,8 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
 #pragma region C API
 std::string Generator::MakeCFunctionGenericDecl(const WisFunction& func, std::string_view impl)
 {
-    return wis::format("{}{{ return {}; }}\n", MakeCFunctionProto(func, "Wis", "inline"),
-                       MakeCFunctionCall(func, "", impl));
+    return wis::format("{}{{ {} {}; }}\n", MakeCFunctionProto(func, "Wis", "inline"),
+                       func.return_type.IsVoid() ? "" : "return", MakeCFunctionCall(func, "", impl));
 }
 std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc)
 {
@@ -1970,21 +2001,52 @@ std::string Generator::MakeCExtensionHeader(const WisExtension& s)
     output += "#ifdef WISDOM_VULKAN\n";
     auto impl_vk = impls[+ImplementedFor::Vulkan];
     output += wis::format("typedef {}FactoryExtension {}{};\n", impl_vk, impl_vk, s.name);
+    for (auto& h : s.handles) {
+        output += MakeCHandle(handle_map[h], impl_vk) + '\n';
+    }
+
     output += MakeCHandleMethods(s, impl_vk) + '\n';
+    for (auto& h : s.handles) {
+        output += MakeCHandleMethods(handle_map[h], impl_vk) + '\n';
+    }
     output += "#endif\n\n";
 
     output += "#ifdef WISDOM_DX12\n";
     auto impl_dx = impls[+ImplementedFor::DX12];
     output += wis::format("typedef {}FactoryExtension {}{};\n", impl_dx, impl_dx, s.name);
+    for (auto& h : s.handles) {
+        output += MakeCHandle(handle_map[h], impl_dx) + '\n';
+    }
+
     output += MakeCHandleMethods(s, impl_dx) + '\n';
+    for (auto& h : s.handles) {
+        output += MakeCHandleMethods(handle_map[h], impl_dx) + '\n';
+    }
     output += "#endif\n\n";
 
     output += "#if defined(WISDOM_DX12) && !FORCEVK_SWITCH\n";
     output += wis::format("typedef {}{} Wis{};\n", impl_dx, s.name, s.name);
+    for (auto& h : s.handles) {
+        output += MakeCHandleGeneric(handle_map[h], impl_dx) + '\n';
+    }
+
     output += MakeCHandleMethodsGeneric(s, impl_dx) + '\n';
+
+    for (auto& h : s.handles) {
+        output += MakeCHandleMethodsGeneric(handle_map[h], impl_dx) + '\n';
+    }
+
     output += "#elif defined(WISDOM_VULKAN)\n\n";
     output += wis::format("typedef {}{} Wis{};\n", impl_vk, s.name, s.name);
+    for (auto& h : s.handles) {
+        output += MakeCHandleGeneric(handle_map[h], impl_vk) + '\n';
+    }
+
     output += MakeCHandleMethodsGeneric(s, impl_vk) + '\n';
+
+    for (auto& h : s.handles) {
+        output += MakeCHandleMethodsGeneric(handle_map[h], impl_vk) + '\n';
+    }
     output += "#endif\n\n";
 
     output += k_delimiter;
@@ -2236,8 +2298,8 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
             continue;
         }
 
-        funcs += wis::format("{}{} noexcept{{\n    return {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
-                             func.const_func ? "const" : "", MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
+        funcs += wis::format("{}{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
+                             func.const_func ? "const" : "", !func.return_type.IsVoid() ? "return" : "", MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
     }
 
     return wis::format("{} {{\n{}\n{}\n}};\n", head, ctor, funcs);

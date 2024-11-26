@@ -8,6 +8,7 @@
 #include <wisdom/util/small_allocator.h>
 #include <wisdom/util/misc.h>
 #include <numeric>
+#include <bit>
 
 wis::ResultValue<wis::DX12Device>
 wis::ImplDX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
@@ -104,91 +105,6 @@ wis::ImplDX12Device::CreateCommandList(wis::QueueType type) const noexcept
         return wis::make_result<FUNC, "Failed to create command list">(hr);
 
     return DX12CommandList{ std::move(allocator), std::move(command_list) };
-}
-
-wis::ResultValue<wis::DX12RootSignature>
-wis::ImplDX12Device::CreateRootSignature(const RootConstant* root_constants,
-                                         uint32_t constants_size,
-                                         const wis::DescriptorTable* tables,
-                                         uint32_t tables_count) const noexcept
-{
-    wis::com_ptr<ID3D12RootSignature> rsig;
-
-    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-    wis::detail::limited_allocator<D3D12_ROOT_PARAMETER1, 16> root_params{ constants_size + tables_count, true };
-
-    std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map{};
-    std::fill(stage_map.begin(), stage_map.end(), -1);
-
-    for (uint32_t i = 0; i < constants_size; ++i) {
-        auto& constant = root_constants[i];
-        root_params.data()[i] = {
-            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
-            .Constants = {
-                    .ShaderRegister = DX12RootSignature::root_const_register,
-                    .RegisterSpace = 0,
-                    .Num32BitValues = constant.size_bytes / 4,
-            },
-            .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
-        };
-        stage_map[+constant.stage] = i;
-    }
-
-    size_t memory_size = 0;
-    for (uint32_t i = 0; i < tables_count; ++i) {
-        auto& table = tables[i];
-        memory_size += table.entry_count;
-    }
-
-    auto memory = wis::detail::make_unique_for_overwrite<D3D12_DESCRIPTOR_RANGE1[]>(memory_size);
-    if (!memory)
-        return wis::make_result<FUNC, "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
-
-    uint32_t offset = 0;
-    for (uint32_t i = constants_size; i < constants_size + tables_count; ++i) {
-        auto& table = tables[i - constants_size];
-
-        for (size_t j = offset; j < table.entry_count + offset; j++) {
-            auto& entry = table.entries[j - offset];
-            memory[j] = {
-                .RangeType = convert_dx(entry.type),
-                .NumDescriptors = entry.count,
-                .BaseShaderRegister = entry.bind_register,
-                .RegisterSpace = 0,
-                .Flags = entry.count == UINT32_MAX ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE, // always volatile for unbounded arrays
-                .OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
-            };
-        }
-
-        root_params.data()[i] = {
-            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
-            .DescriptorTable = {
-                    .NumDescriptorRanges = table.entry_count,
-                    .pDescriptorRanges = memory.get() + offset,
-            },
-            .ShaderVisibility = D3D12_SHADER_VISIBILITY(table.stage),
-        };
-        offset += table.entry_count;
-    }
-
-    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-    desc.Init_1_1(constants_size + tables_count, root_params.data(), 0, nullptr, flags);
-
-    wis::com_ptr<ID3DBlob> signature;
-    wis::com_ptr<ID3DBlob> error;
-    HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
-
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to serialize root signature">(hr);
-
-    hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
-                                     __uuidof(*rsig), rsig.put_void());
-
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to create root signature">(hr);
-
-    return DX12RootSignature{ std::move(rsig), stage_map, constants_size };
 }
 
 namespace wis::detail {
@@ -326,6 +242,25 @@ wis::ImplDX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc*
         rta.RTFormats[i] = convert_dx(desc->attachments.attachment_formats[i]);
     }
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
+
+    //--Multiview
+    D3D12_VIEW_INSTANCE_LOCATION view_locs[8]{};
+    if (desc->view_mask) {
+        for (uint32_t i = 0u; i < 8u; i++) {
+            if (!(desc->view_mask & (1u << i)))
+                continue;
+
+            view_locs[i] = D3D12_VIEW_INSTANCE_LOCATION{
+                .ViewportArrayIndex = 0,
+                .RenderTargetArrayIndex = i,
+            };
+        }
+        pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_VIEW_INSTANCING>() = CD3DX12_VIEW_INSTANCING_DESC{
+            uint32_t(std::popcount(desc->view_mask)),
+            view_locs,
+            D3D12_VIEW_INSTANCING_FLAGS::D3D12_VIEW_INSTANCING_FLAG_ENABLE_VIEW_INSTANCE_MASKING
+        };
+    }
 
     //--Blend
     if (desc->blend) {
@@ -542,26 +477,6 @@ wis::ImplDX12Device::CreateDepthStencilTarget(DX12TextureView texture, wis::Rend
     return DX12RenderTarget{ std::move(heap), handle };
 }
 
-wis::ResultValue<wis::DX12DescriptorBuffer>
-wis::ImplDX12Device::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept
-{
-    auto xheap_type = convert_dx(heap_type);
-    auto inc_size = device->GetDescriptorHandleIncrementSize(xheap_type);
-    auto aligned_size = wis::detail::aligned_size(memory_bytes, uint64_t(inc_size));
-    D3D12_DESCRIPTOR_HEAP_DESC desc{
-        .Type = convert_dx(heap_type),
-        .NumDescriptors = uint32_t(aligned_size / inc_size),
-        .Flags = convert_dx(memory_type),
-        .NodeMask = 0,
-    };
-    wis::com_ptr<ID3D12DescriptorHeap> heap;
-    auto hr = device->CreateDescriptorHeap(&desc, heap.iid(), heap.put_void());
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to create descriptor buffer">(hr);
-
-    return DX12DescriptorBuffer{ std::move(heap), device->GetDescriptorHandleIncrementSize(desc.Type) };
-}
-
 wis::ResultValue<wis::DX12Sampler>
 wis::ImplDX12Device::CreateSampler(const wis::SamplerDesc* desc) const noexcept
 {
@@ -703,15 +618,327 @@ bool wis::ImplDX12Device::QueryFeatureSupport(wis::DeviceFeature feature) const 
         }
         return EnhancedBarriersSupported;
     }
-    case wis::DeviceFeature::DescriptorBuffer:
     case wis::DeviceFeature::WaitForPresent:
-    case wis::DeviceFeature::DescriptorEqualSize:
     case wis::DeviceFeature::DynamicVSync:
     case wis::DeviceFeature::AdvancedIndexBuffer:
     case wis::DeviceFeature::UnusedRenderTargets:
+    case wis::DeviceFeature::PushDescriptors:
         return true;
     default:
         return false;
     }
 }
+
+wis::ResultValue<wis::DX12DescriptorStorage>
+wis::ImplDX12Device::CreateDescriptorStorage(wis::DescriptorStorageDesc desc) const noexcept
+{
+    uint32_t size_resources = desc.cbuffer_count + desc.sbuffer_count + desc.stexture_count + desc.texture_count + desc.rbuffer_count;
+    uint32_t size_samplers = desc.sampler_count;
+
+    std::array<uint32_t, +wis::BindingIndex::Count> sizes{
+        desc.sampler_count, desc.cbuffer_count, desc.texture_count, desc.stexture_count, desc.sbuffer_count, desc.rbuffer_count
+    };
+
+    D3D12_DESCRIPTOR_HEAP_DESC resource_heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+        .NumDescriptors = size_resources,
+        .Flags = convert_dx(desc.memory),
+        .NodeMask = 0u
+    };
+
+    D3D12_DESCRIPTOR_HEAP_DESC sampler_heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+        .NumDescriptors = size_samplers,
+        .Flags = convert_dx(desc.memory),
+        .NodeMask = 0u
+    };
+
+    wis::Internal<DX12DescriptorStorage> storage{};
+    if (size_resources) {
+        // create resource heap
+        auto hr = device->CreateDescriptorHeap(&resource_heap_desc, __uuidof(*storage.heap_resource), storage.heap_resource.put_void());
+        if (!wis::succeeded(hr))
+            return wis::make_result<FUNC, "Failed to create descriptor heap for resources">(hr);
+
+        storage.heap_resource_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        storage.heap_starts[1] = storage.heap_resource->GetCPUDescriptorHandleForHeapStart();
+        storage.heap_gpu_starts[0] = storage.heap_resource->GetGPUDescriptorHandleForHeapStart();
+
+        for (uint32_t i = 2; i < sizes.size(); i++) { // first one is sampler
+            storage.heap_starts[i] =
+                    sizes[i]
+                    ? CD3DX12_CPU_DESCRIPTOR_HANDLE(storage.heap_starts[i - 1], sizes[i - 1], storage.heap_resource_increment)
+                    : CD3DX12_CPU_DESCRIPTOR_HANDLE();
+        }
+    }
+
+    if (size_samplers) {
+        // create sampler heap
+        auto hr = device->CreateDescriptorHeap(&sampler_heap_desc, __uuidof(*storage.heap_sampler), storage.heap_sampler.put_void());
+        if (!wis::succeeded(hr))
+            return wis::make_result<FUNC, "Failed to create descriptor heap for samplers">(hr);
+        storage.heap_sampler_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        storage.heap_starts[0] = storage.heap_sampler->GetCPUDescriptorHandleForHeapStart();
+        storage.heap_gpu_starts[1] = storage.heap_sampler->GetGPUDescriptorHandleForHeapStart();
+    }
+    storage.device = device;
+
+    return DX12DescriptorStorage{ std::move(storage) };
+}
+
+namespace wis::detail {
+constexpr inline D3D12_ROOT_PARAMETER_TYPE to_dx(wis::DescriptorType type) noexcept
+{
+    switch (type) {
+    case wis::DescriptorType::Buffer:
+    case wis::DescriptorType::Texture:
+        return D3D12_ROOT_PARAMETER_TYPE_SRV;
+    case wis::DescriptorType::ConstantBuffer:
+        return D3D12_ROOT_PARAMETER_TYPE_CBV;
+    case wis::DescriptorType::RWBuffer:
+    case wis::DescriptorType::RWTexture:
+        return D3D12_ROOT_PARAMETER_TYPE_UAV;
+    default:
+        return D3D12_ROOT_PARAMETER_TYPE_CBV;
+    }
+}
+} // namespace wis::detail
+
+wis::ResultValue<wis::DX12RootSignature>
+wis::ImplDX12Device::CreateRootSignature(const wis::PushConstant* constants,
+                                         uint32_t constants_size,
+                                         const PushDescriptor* push_descriptors,
+                                         uint32_t push_descriptors_size,
+                                         uint32_t space_overlap_count) const noexcept
+{
+    if (constants_size > wis::max_push_constants) {
+        return wis::make_result<FUNC, "constants_size exceeds max_push_constants">(E_INVALIDARG);
+    }
+    if (push_descriptors_size > wis::max_push_descriptors) {
+        return wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(E_INVALIDARG);
+    }
+    if (space_overlap_count > wis::max_descriptor_space_overlap) {
+        return wis::make_result<FUNC, "space_overlap_count exceeds max_descriptor_space_overlap">(E_INVALIDARG);
+    }
+
+    uint32_t push_constants_count = constants_size;
+    uint32_t push_descriptors_count = push_descriptors_size;
+    uint32_t space_overlap = space_overlap_count;
+    constexpr static uint32_t tables_size = +wis::BindingIndex::Count;
+
+    // max push constants + max push descriptors + max tables
+    D3D12_ROOT_PARAMETER1 root_params[wis::max_push_constants + wis::max_push_descriptors + tables_size]{};
+
+    // push constants
+    std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map{};
+    std::fill(stage_map.begin(), stage_map.end(), -1);
+
+    for (uint32_t i = 0; i < push_constants_count; ++i) {
+        auto& constant = constants[i];
+        root_params[i] = {
+            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+            .Constants = {
+                    .ShaderRegister = constant.bind_register,
+                    .RegisterSpace = 0,
+                    .Num32BitValues = constant.size_bytes / 4,
+            },
+            .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
+        };
+        stage_map[+constant.stage] = i;
+    }
+
+    // push descriptors
+    for (uint32_t i = 0; i < push_descriptors_count; ++i) {
+        auto& descriptor = push_descriptors[i];
+        root_params[i + push_constants_count] = {
+            .ParameterType = detail::to_dx(descriptor.type),
+            .Descriptor = {
+                    .ShaderRegister = i,
+                    .RegisterSpace = 0, // always 0 for push descriptors
+            },
+            .ShaderVisibility = convert_dx(descriptor.stage),
+        };
+    }
+
+    //
+    D3D12_DESCRIPTOR_RANGE1 memory[+wis::BindingIndex::Count][wis::max_descriptor_space_overlap]{};
+    constexpr static D3D12_DESCRIPTOR_RANGE_TYPE types[+wis::BindingIndex::Count]{
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, // sampler
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV, // cbuffer
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV, // texture
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_UAV, // stexture
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_UAV, // sbuffer
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV, // read only buffer
+    };
+
+    uint32_t spaces = 1; // 0 is reserved for push constants
+    for (uint32_t i = 0; i < +wis::BindingIndex::Count; ++i) {
+        for (uint32_t j = 0; j < space_overlap; ++j) {
+            memory[i][j] = {
+                .RangeType = types[i],
+                .NumDescriptors = UINT32_MAX,
+                .BaseShaderRegister = 0,
+                .RegisterSpace = spaces++,
+                .Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE, // always volatile for unbounded arrays
+                .OffsetInDescriptorsFromTableStart = j ? 0 : D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
+            };
+        }
+
+        root_params[i + push_constants_count + push_descriptors_count] = {
+            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+            .DescriptorTable = {
+                    .NumDescriptorRanges = space_overlap,
+                    .pDescriptorRanges = memory[i],
+            },
+            .ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL,
+        };
+    }
+
+    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+    desc.Init_1_1(push_constants_count + push_descriptors_count + tables_size, root_params, 0, nullptr, flags);
+
+    wis::com_ptr<ID3DBlob> signature;
+    wis::com_ptr<ID3DBlob> error;
+    HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to serialize root signature">(hr);
+
+    wis::com_ptr<ID3D12RootSignature> rsig;
+    hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
+                                     __uuidof(*rsig), rsig.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create root signature">(hr);
+
+    return DX12RootSignature{ std::move(rsig), stage_map, push_constants_count, push_descriptors_count };
+}
+
+namespace wis::detail {
+inline constexpr uint32_t allocate_space(
+        D3D12_ROOT_PARAMETER1* root_params,
+        D3D12_DESCRIPTOR_RANGE1* memory,
+        uint32_t spaces,
+        uint32_t base_space)
+{
+    spaces = std::min(spaces, 1u);
+    for (uint32_t j = 0; j < spaces; ++j) {
+        memory[j] = {
+            .RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
+            .NumDescriptors = UINT32_MAX,
+            .BaseShaderRegister = 0,
+            .RegisterSpace = base_space + j,
+            .Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE,
+            .OffsetInDescriptorsFromTableStart = j ? 0 : D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
+        };
+    }
+    *root_params = {
+        .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+        .DescriptorTable = {
+                .NumDescriptorRanges = spaces,
+                .pDescriptorRanges = memory,
+        },
+        .ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL,
+    };
+    return spaces;
+}
+} // namespace wis::detail
+
+wis::ResultValue<wis::DX12RootSignature>
+wis::ImplDX12Device::CreateRootSignature2(const wis::PushConstant* push_constants,
+                                          uint32_t constants_count,
+                                          const wis::PushDescriptor* push_descriptors,
+                                          uint32_t push_descriptors_count,
+                                          const wis::DescriptorSpacing* descriptor_spacing) const noexcept
+{
+    if (constants_count > wis::max_push_constants) {
+        return wis::make_result<FUNC, "constants_count exceeds max_push_constants">(E_INVALIDARG);
+    }
+    if (push_descriptors_count > wis::max_push_descriptors) {
+        return wis::make_result<FUNC, "push_descriptors_count exceeds max_push_descriptors">(E_INVALIDARG);
+    }
+    wis::DescriptorSpacing default_spacing{};
+    if (!descriptor_spacing) {
+        descriptor_spacing = &default_spacing;
+    }
+
+    uint32_t push_constants_count = constants_count;
+    constexpr static uint32_t tables_size = +wis::BindingIndex::Count;
+
+    // max push constants + max push descriptors + max tables
+    D3D12_ROOT_PARAMETER1 root_params[wis::max_push_constants + wis::max_push_descriptors + tables_size]{};
+
+    // push constants
+    std::array<int8_t, size_t(wis::ShaderStages::Count)> stage_map{};
+    std::fill(stage_map.begin(), stage_map.end(), -1);
+
+    for (uint32_t i = 0; i < push_constants_count; ++i) {
+        auto& constant = push_constants[i];
+        root_params[i] = {
+            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+            .Constants = {
+                    .ShaderRegister = constant.bind_register,
+                    .RegisterSpace = 0,
+                    .Num32BitValues = constant.size_bytes / 4,
+            },
+            .ShaderVisibility = D3D12_SHADER_VISIBILITY(constant.stage),
+        };
+        stage_map[+constant.stage] = i;
+    }
+
+    // push descriptors
+    for (uint32_t i = 0; i < push_descriptors_count; ++i) {
+        auto& descriptor = push_descriptors[i];
+        root_params[i + push_constants_count] = {
+            .ParameterType = detail::to_dx(descriptor.type),
+            .Descriptor = {
+                    .ShaderRegister = i,
+                    .RegisterSpace = 0, // always 0 for push descriptors
+            },
+            .ShaderVisibility = convert_dx(descriptor.stage),
+        };
+    }
+
+    //
+    D3D12_DESCRIPTOR_RANGE1 memory[+wis::BindingIndex::Count][wis::max_descriptor_space_overlap]{};
+    constexpr static D3D12_DESCRIPTOR_RANGE_TYPE types[+wis::BindingIndex::Count]{
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, // sampler
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV, // cbuffer
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV, // texture
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_UAV, // stexture
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_UAV, // sbuffer
+        D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV, // read only buffer
+    };
+
+    uint32_t base_space = 1; // 0 is reserved for push constants
+    uint32_t allocated_spaces = 0; // 0 is reserved for push constants
+    allocated_spaces = detail::allocate_space(&root_params[0 + push_constants_count + push_descriptors_count], memory[0], descriptor_spacing->sampler_count, base_space);
+    allocated_spaces = detail::allocate_space(&root_params[1 + push_constants_count + push_descriptors_count], memory[1], descriptor_spacing->cbuffer_count, base_space += allocated_spaces);
+    allocated_spaces = detail::allocate_space(&root_params[2 + push_constants_count + push_descriptors_count], memory[2], descriptor_spacing->texture_count, base_space += allocated_spaces);
+    allocated_spaces = detail::allocate_space(&root_params[3 + push_constants_count + push_descriptors_count], memory[3], descriptor_spacing->stexture_count, base_space += allocated_spaces);
+    allocated_spaces = detail::allocate_space(&root_params[4 + push_constants_count + push_descriptors_count], memory[4], descriptor_spacing->sbuffer_count, base_space += allocated_spaces);
+    allocated_spaces = detail::allocate_space(&root_params[5 + push_constants_count + push_descriptors_count], memory[5], descriptor_spacing->rbuffer_count, base_space += allocated_spaces);
+
+    D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+    desc.Init_1_1(push_constants_count + push_descriptors_count + tables_size, root_params, 0, nullptr, flags);
+
+    wis::com_ptr<ID3DBlob> signature;
+    wis::com_ptr<ID3DBlob> error;
+    HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to serialize root signature">(hr);
+
+    wis::com_ptr<ID3D12RootSignature> rsig;
+    hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
+                                     __uuidof(*rsig), rsig.put_void());
+
+    if (!wis::succeeded(hr))
+        return wis::make_result<FUNC, "Failed to create root signature">(hr);
+
+    return DX12RootSignature{ std::move(rsig), stage_map, push_constants_count, push_descriptors_count };
+}
+
 #endif // !DX12_DEVICE_CPP

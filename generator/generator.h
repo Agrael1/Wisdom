@@ -114,6 +114,7 @@ struct WisVariantImpl {
 struct WisVariant {
     std::string_view name;
     std::string_view doc;
+    std::string_view ext;
     std::string_view this_type;
     std::vector<WisVariantImpl> impls;
     Language implemented_for = Language::None;
@@ -162,6 +163,11 @@ struct WisReturnType {
     std::string_view doc;
     std::string_view opt_name;
     std::string_view modifier;
+
+    bool IsVoid() const noexcept
+    {
+        return type.empty() && !has_result;
+    }
 };
 struct WisFunction {
     std::string_view name;
@@ -189,6 +195,7 @@ struct WisFunction {
 struct WisHandle {
     std::string_view name;
     std::string_view doc;
+    std::string_view ext;
 
     std::vector<std::string_view> functions;
     std::array<std::string_view, 2> files; // first is DX12, second is Vulkan
@@ -235,6 +242,7 @@ enum class ExtensionType {
 struct WisExtension : WisHandle {
     ExtensionType type = ExtensionType::None;
     std::string_view ext_folder;
+    std::vector<std::string_view> handles;
 };
 
 struct WisConversion {
@@ -277,9 +285,9 @@ public:
     std::string GenerateCPPPlatformExportHeader(std::string_view impl);
 
     void ParseFile(tinyxml2::XMLDocument& doc);
-    void ParseTypes(tinyxml2::XMLElement* types);
+    void ParseTypes(tinyxml2::XMLElement* types, std::string_view extension = "");
     void ParseIncludes(tinyxml2::XMLElement* handles);
-    void ParseHandles(tinyxml2::XMLElement* handles);
+    void ParseHandles(tinyxml2::XMLElement* handles, std::string_view extension = "");
     void ParseFunctions(tinyxml2::XMLElement* functions);
     void ParseExtensions(tinyxml2::XMLElement* extensions);
 
@@ -287,7 +295,7 @@ public:
     void ParseEnum(tinyxml2::XMLElement& type);
     void ParseBitmask(tinyxml2::XMLElement& type);
     void ParseDelegate(tinyxml2::XMLElement* type);
-    void ParseVariant(tinyxml2::XMLElement& type);
+    void ParseVariant(tinyxml2::XMLElement& type, std::string_view extension);
 
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
     std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
