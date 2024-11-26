@@ -77,6 +77,42 @@ TEST_CASE("basic_device")
     REQUIRE(fence);
     REQUIRE(cmd_list);
 
+    SECTION("texture replacement")
+    {
+        wis::Texture a;
+        auto [res6, texture] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
+                                                                         .size = {
+
+                                                                                 .width = 1024,
+                                                                                 .height = 1024,
+                                                                                 .depth_or_layers = 1,
+                                                                         },
+                                                                         .usage = wis::TextureUsage::CopySrc });
+        REQUIRE(texture);
+
+        a = std::move(texture);
+        REQUIRE(a);
+        REQUIRE_FALSE(texture);
+
+        auto [res7, texture2] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
+                                                                          .size = {
+
+                                                                                  .width = 1024,
+                                                                                  .height = 1024,
+                                                                                  .depth_or_layers = 1,
+                                                                          },
+                                                                          .usage = wis::TextureUsage::CopySrc });
+
+        REQUIRE(texture2);
+        texture = std::move(texture2);
+        REQUIRE(texture);
+        REQUIRE_FALSE(texture2);
+
+        a = std::move(texture);
+        REQUIRE(a);
+        REQUIRE_FALSE(texture);
+    }
+
     SECTION("fence destruction")
     {
         fence = {};
@@ -120,41 +156,5 @@ TEST_CASE("basic_device")
         a = {};
         REQUIRE_FALSE(error);
         REQUIRE_FALSE(a);
-    }
-
-    SECTION("texture replacement")
-    {
-        wis::Texture a;
-        auto [res6, texture] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
-                                                                         .size = {
-
-                                                                                 .width = 1024,
-                                                                                 .height = 1024,
-                                                                                 .depth_or_layers = 1,
-                                                                         } });
-        REQUIRE(texture);
-
-        a = std::move(texture);
-        REQUIRE(a);
-        REQUIRE_FALSE(texture);
-
-        auto [res7, texture2] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
-                                                                          .size = {
-
-                                                                                  .width = 1024,
-                                                                                  .height = 1024,
-                                                                                  .depth_or_layers = 1,
-                                                                          } });
-
-        REQUIRE(texture2);
-        texture = std::move(texture2);
-        REQUIRE(texture);
-        REQUIRE_FALSE(texture2);
-
-        a = std::move(texture);
-        REQUIRE(a);
-        REQUIRE_FALSE(texture);
-
-
     }
 }

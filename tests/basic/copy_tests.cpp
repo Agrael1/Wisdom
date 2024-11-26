@@ -68,15 +68,15 @@ TEST_CASE("basic_copy_region")
         .size = { 4, 4, 1 },
         .usage = wis::TextureUsage::CopySrc | wis::TextureUsage::HostCopy
     };
-    auto [extres, texture] = ext_alloc.CreateGPUUploadTexture(allocator, desc);
+    auto [extres, texture] = ext_alloc.CreateGPUUploadTexture(allocator, desc, wis::TextureState::Common);
     REQUIRE(extres.status == wis::Status::Ok);
 
     // clang-format off
     constexpr uint32_t data[16] = {
         0,0,0,0,
         0,0,0,0,
-        0,0,-1,-1,
-        0,0,-1,-1
+        0,0,0xffffffff,0xffffffff,
+        0,0,0xffffffff,0xffffffff
     };
     // clang-format on
 
@@ -90,11 +90,21 @@ TEST_CASE("basic_copy_region")
 
     REQUIRE(extres.status == wis::Status::Ok);
 
+    wis::TextureBarrier barrier{
+        .sync_before = wis::BarrierSync::None,
+        .sync_after = wis::BarrierSync::Copy,
+        .access_before = wis::ResourceAccess::NoAccess,
+        .access_after = wis::ResourceAccess::CopySource,
+        .state_before = wis::TextureState::Common,
+        .state_after = wis::TextureState::CopySource,
+    };
+
+    cmd_list.TextureBarrier(barrier, texture);
     wis::BufferTextureCopyRegion region{
         .buffer_offset = 4,
         .texture = {
-                .offset = { 3, 3, 0 },
-                .size = { 1, 1, 1 },
+                .offset = { 2, 2, 0 },
+                .size = { 2, 2, 1 },
                 .format = wis::DataFormat::RGBA8Unorm,
         }
     };
@@ -107,9 +117,10 @@ TEST_CASE("basic_copy_region")
     fence.Wait(1);
 
     auto* data_ptr = buffer.Map<uint32_t>();
-    constexpr uint32_t data_expected[] = { 0, -1,-1,-1,-1 };
+    constexpr uint32_t data_expected[] = { 0, 0xffffffff,0xffffffff,0xffffffff,0xffffffff };
 
     for (size_t i = 0; i < 5; i++) {
         REQUIRE(data_ptr[i] == data_expected[i]);
     }
+    buffer.Unmap();
 }
