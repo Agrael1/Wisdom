@@ -106,9 +106,9 @@ ex::PlatformExtension::PlatformExtension()
     platform = std::make_unique<wis::platform::WindowsExtension>();
     current = Selector::Windows;
 #elif defined(SDL_PLATFORM_LINUX)
-    //if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
-        platform = std::make_unique<wis::platform::X11Extension>();
-        current = Selector::X11;
+    // if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
+    platform = std::make_unique<wis::platform::X11Extension>();
+    current = Selector::X11;
     //} else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0) {
     //    platform = std::make_unique<wis::platform::WaylandExtension>();
     //    current = Selector::Wayland;

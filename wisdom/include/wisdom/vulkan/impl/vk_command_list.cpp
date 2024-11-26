@@ -465,11 +465,11 @@ void wis::ImplVKCommandList::PushDescriptor(wis::DescriptorType type, uint32_t b
         .pBufferInfo = &buffer_info
     };
     device.table().vkCmdPushDescriptorSetKHR(command_list,
-                              VK_PIPELINE_BIND_POINT_GRAPHICS,
-                              pipeline_layout,
-                              0, // set 0, because set 0 is reserved for push descriptors
-                              1,
-                              &descriptor);
+                                             VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                             pipeline_layout,
+                                             0, // set 0, because set 0 is reserved for push descriptors
+                                             1,
+                                             &descriptor);
 }
 
 #endif // !

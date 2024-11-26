@@ -355,7 +355,7 @@ Otherwise extension is ignored.">
 Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
-    
+
     <type name="DescriptorStorageDesc" category="struct" doc="Descriptor storage description for {DescriptorStorage::} creation.">
       <member type="u32" name="sampler_count" doc="Count of sampler descriptors to allocate."/>
       <member type="u32" name="cbuffer_count" doc="Count of constant buffer descriptors to allocate."/>
@@ -375,7 +375,7 @@ Used for RootSignature.">
       <member type="u32" name="texture_count"  doc="Count of spaces of texture descriptors to allocate."/>
       <member type="u32" name="stexture_count" doc="Count of spaces of storage texture descriptors to allocate."/>
       <member type="u32" name="rbuffer_count"  doc="Count of spaces of read only storage buffer descriptors to allocate."/>
-    </type> 
+    </type>
 
     <!--Variants-->
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">

@@ -117,7 +117,7 @@ TEST_CASE("basic_copy_region")
     fence.Wait(1);
 
     auto* data_ptr = buffer.Map<uint32_t>();
-    constexpr uint32_t data_expected[] = { 0, 0xffffffff,0xffffffff,0xffffffff,0xffffffff };
+    constexpr uint32_t data_expected[] = { 0, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff };
 
     for (size_t i = 0; i < 5; i++) {
         REQUIRE(data_ptr[i] == data_expected[i]);

@@ -16,7 +16,7 @@
   - Added new CreateRootSignature method for DX12 and Vulkan. It is now possible to create a root signatures with non-uniform spacing.
 
 - Bugfixes:
-  
+
   - Fixed textures not being destroyed correctly in DX12 on replacement (texture1 = std::move(texture2)) was resulting in leaks)
   - Fixed DX12 copy texture not working correctly with offsets
 

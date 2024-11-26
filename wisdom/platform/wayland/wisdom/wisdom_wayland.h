@@ -11,8 +11,6 @@ struct wl_surface;
 
 #include <vulkan/vulkan_wayland.h>
 
-
-
 namespace wis {
 namespace platform {
 class WaylandExtension;
