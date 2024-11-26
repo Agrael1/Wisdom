@@ -5,7 +5,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.16</b>
+<b>Version 0.4.0</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1831,6 +1831,7 @@ struct DescriptorStorageDesc {
 
 /**
  * @brief Describes how many types can descriptors be reinterpreted as.
+ * Minimal amount of spaces for each type is 1, 0 is treated as 1.
  * Used for RootSignature.
  * */
 struct DescriptorSpacing {

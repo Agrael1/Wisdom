@@ -355,6 +355,7 @@ public:
      * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
      * @param push_descriptors_count The number of push descriptors. Max is 8.
      * @param descriptor_spacing Descriptor spacing allocation.
+     * nullptr means allocate 1 space for each.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept

@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.3.16</b>
+<b>Version 0.4.0</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1900,6 +1900,7 @@ struct WisDescriptorStorageDesc {
 
 /**
  * @brief Describes how many types can descriptors be reinterpreted as.
+ * Minimal amount of spaces for each type is 1, 0 is treated as 1.
  * Used for RootSignature.
  * */
 struct WisDescriptorSpacing {
@@ -2270,6 +2271,7 @@ WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushCon
  * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
  * @param push_descriptors_count The number of push descriptors. Max is 8.
  * @param descriptor_spacing Descriptor spacing allocation.
+ * nullptr means allocate 1 space for each.
  * @param signature VKRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
@@ -3276,6 +3278,7 @@ WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPus
  * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
  * @param push_descriptors_count The number of push descriptors. Max is 8.
  * @param descriptor_spacing Descriptor spacing allocation.
+ * nullptr means allocate 1 space for each.
  * @param signature DX12RootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
@@ -4204,6 +4207,7 @@ inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConst
  * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
  * @param push_descriptors_count The number of push descriptors. Max is 8.
  * @param descriptor_spacing Descriptor spacing allocation.
+ * nullptr means allocate 1 space for each.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
@@ -5339,6 +5343,7 @@ inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConst
  * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
  * @param push_descriptors_count The number of push descriptors. Max is 8.
  * @param descriptor_spacing Descriptor spacing allocation.
+ * nullptr means allocate 1 space for each.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.

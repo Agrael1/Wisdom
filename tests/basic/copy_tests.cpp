@@ -109,7 +109,7 @@ TEST_CASE("basic_copy_region")
     auto* data_ptr = buffer.Map<uint32_t>();
     constexpr uint32_t data_expected[] = { 0, -1,-1,-1,-1 };
 
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < 5; i++) {
         REQUIRE(data_ptr[i] == data_expected[i]);
     }
 }
