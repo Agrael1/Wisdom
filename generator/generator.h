@@ -40,8 +40,9 @@ struct WisEnum {
 
     std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
@@ -70,8 +71,9 @@ struct WisBitmask {
 
     std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
@@ -100,8 +102,9 @@ struct WisStruct {
     std::vector<WisStructMember> members;
     std::optional<WisStructMember> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) {
             return v.name == name;
@@ -189,8 +192,9 @@ struct WisFunction {
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
         auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
             return v.name == name;
         });
@@ -208,33 +212,39 @@ struct WisHandle {
 
     void AddFile(std::string_view file, ImplementedFor impl) noexcept
     {
-        if (impl & ImplementedFor::DX12)
+        if (impl & ImplementedFor::DX12) {
             files[0] = file;
-        if (impl & ImplementedFor::Vulkan)
+        }
+        if (impl & ImplementedFor::Vulkan) {
             files[1] = file;
+        }
     }
 
     std::string_view GetFile(ImplementedFor impl) const noexcept
     {
-        if (impl & ImplementedFor::DX12)
+        if (impl & ImplementedFor::DX12) {
             return files[0];
-        if (impl & ImplementedFor::Vulkan)
+        }
+        if (impl & ImplementedFor::Vulkan) {
             return files[1];
+        }
         return "";
     }
 
     std::optional<const WisFunction> HasValue(std::string_view name,
                                               const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(functions.begin(), functions.end(), [&](auto& v) {
             return v == name;
         });
 
-        if (enum_value == functions.end())
+        if (enum_value == functions.end()) {
             return {};
+        }
 
         return function_map.at(*enum_value);
     }

@@ -8,7 +8,6 @@
   - API structure is consistent. Now all the structures are passed by const reference. This is done to enable language interop.
   - Consumed headers are now .hpp instead of .h. Implementation headers are still .h, since they are not intended to be used standalone anyway.
 
-
 - 0.4.0 Major Update
 
   - Fixed Vulkan Swapchain on resize occasionally result in error messages

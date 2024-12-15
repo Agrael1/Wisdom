@@ -4,9 +4,9 @@
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                                                 std::unordered_set<std::string_view>& ext_name_set,
-                                                 std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                                 std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                                     std::unordered_set<std::string_view>& ext_name_set,
+                                                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (available_extensions.contains(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME)) {
         ext_name_set.emplace(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
@@ -22,8 +22,8 @@ bool wis::ImplVKExtendedAllocation::GetExtensionInfo(const std::unordered_map<st
 
 wis::Result
 wis::ImplVKExtendedAllocation::Init(const wis::VKDevice& instance,
-                                const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                    const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                    const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (!structure_map.contains(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT)) {
         return {};
@@ -48,15 +48,14 @@ wis::ImplVKExtendedAllocation::Init(const wis::VKDevice& instance,
 
 wis::VKTexture
 wis::ImplVKExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::VKResourceAllocator& allocator,
-                                                  wis::TextureDesc desc,
-                                                  wis::TextureState initial_state,
-                                                  wis::MemoryFlags flags) const noexcept
+                                                      wis::TextureDesc desc,
+                                                      wis::TextureState initial_state,
+                                                      wis::MemoryFlags flags) const noexcept
 {
     auto synth_1 = [this](wis::Result& result, const wis::VKResourceAllocator& allocator,
-                                                  wis::TextureDesc desc,
-                                                  wis::TextureState initial_state,
-                                                  wis::MemoryFlags flags)
-    {
+                          wis::TextureDesc desc,
+                          wis::TextureState initial_state,
+                          wis::MemoryFlags flags) {
         VkImageCreateInfo info;
         VKResourceAllocator::VKFillImageDesc(desc, info);
         wis::VKTexture texture = allocator.CreateTexture(result, desc, wis::MemoryType::GPUUpload, flags);
@@ -98,9 +97,9 @@ wis::ImplVKExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const
 
 wis::Result
 wis::ImplVKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                          wis::VKTextureView dst_texture,
-                                                          wis::TextureState initial_state,
-                                                          wis::TextureRegion region) const noexcept
+                                                              wis::VKTextureView dst_texture,
+                                                              wis::TextureState initial_state,
+                                                              wis::TextureRegion region) const noexcept
 {
     auto aspects = aspect_flags(std::get<1>(dst_texture));
 
@@ -131,8 +130,9 @@ wis::ImplVKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_d
     };
 
     auto vr = vkCopyMemoryToImageEXT(device.get(), &copy_info);
-    if (!wis::succeeded(vr))
+    if (!wis::succeeded(vr)) {
         return wis::make_result<FUNC, "Failed to copy memory to image">(vr);
+    }
     return wis::success;
 }
 

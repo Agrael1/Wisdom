@@ -59,8 +59,9 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(wis::Result& result, const 
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
     }();
-    if (tearing && desc->tearing)
+    if (tearing && desc->tearing) {
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    }
 
     HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;
@@ -121,8 +122,9 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, con
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
     }();
-    if (tearing && desc->tearing)
+    if (tearing && desc->tearing) {
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    }
 
     HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;

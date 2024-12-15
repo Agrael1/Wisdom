@@ -91,8 +91,9 @@ public:
     {
         CreateResources();
         while (true) {
-            if (!ProcessEvents())
+            if (!ProcessEvents()) {
                 break;
+            }
 
             Frame();
         }

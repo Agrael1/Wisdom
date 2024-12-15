@@ -146,8 +146,9 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     }
 
     size_t i = 0;
-    for (auto& ext : ext_name_set)
+    for (auto& ext : ext_name_set) {
         ext_names[i++] = ext.data();
+    }
 
     // Initialize features
     VkPhysicalDeviceFeatures2 features{
@@ -169,8 +170,9 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
 
     // Allocate memory for all structures
     size_t allocation_size = 0;
-    for (auto& [type, size] : struct_map)
+    for (auto& [type, size] : struct_map) {
         allocation_size += size;
+    }
 
     auto allocation = wis::detail::make_fixed_allocation<uint8_t>(allocation_size);
     if (!allocation) {
@@ -222,8 +224,9 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
 
     // Allocate memory for all properties
     allocation_size = 0;
-    for (auto& [type, size] : property_map)
+    for (auto& [type, size] : property_map) {
         allocation_size += size;
+    }
 
     auto allocation_props = wis::detail::make_fixed_allocation<uint8_t>(allocation_size);
     if (!allocation_props) {
@@ -268,8 +271,9 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
 
     for (size_t queue_info_size = 0; queue_info_size < max_queue_count; queue_info_size++) {
         auto& q = internal.queues.available_queues[queue_info_size];
-        if (q.count == 0u)
+        if (q.count == 0u) {
             continue;
+        }
         queue_infos.allocate() = {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             nullptr,
@@ -336,8 +340,9 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
 
     // Init the rest of the extensions
     for (auto*& ext : exts_span) {
-        if (ext == nullptr)
+        if (ext == nullptr) {
             continue;
+        }
         ext->Init(out_device, struct_map, property_map);
     }
 
@@ -422,8 +427,9 @@ inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderSta
                               wis::VKShaderView shader, VkShaderStageFlagBits stage) noexcept
 {
     auto sh = std::get<0>(shader);
-    if (sh == nullptr)
+    if (sh == nullptr) {
         return;
+    }
 
     shader_stages.allocate() = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -569,8 +575,9 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     };
     VkPipelineColorBlendAttachmentState color_blend_attachment[max_render_targets]{};
     VkPipelineColorBlendStateCreateInfo color_blending;
-    for (uint32_t i = 0; i < rt_size; i++)
+    for (uint32_t i = 0; i < rt_size; i++) {
         color_blend_attachment[i] = default_color_blend_attachment;
+    }
 
     if (desc.blend) {
         auto& blend = *desc.blend;
@@ -691,11 +698,13 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_SCISSOR);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY);
 
-    if (ia_count)
+    if (ia_count) {
         dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
+    }
 
-    if (std::get<0>(desc.shaders.hull))
+    if (std::get<0>(desc.shaders.hull)) {
         dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT);
+    }
 
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_BLEND_CONSTANTS);
 
@@ -816,8 +825,9 @@ wis::ImplVKDevice::CreateAllocator(wis::Result& result) const noexcept
     wis::shared_handle<VmaAllocator> interop;
     if (ext1.GetFeatures().interop_device) {
         internal.export_memory_allocator = VKCreateAllocator(result, true);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return allocator;
+        }
     }
     internal.allocator = this->allocator;
     return allocator;
@@ -883,8 +893,9 @@ wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const no
         .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device && interop ? handle_types.data() : nullptr
     };
 
-    if (ext1.GetFeatures().index_buffer_range)
+    if (ext1.GetFeatures().index_buffer_range) {
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
+    }
 
     // Only if there is an interop extension
     if (ext1.GetFeatures().interop_device && interop) {
@@ -922,8 +933,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         auto hadapter = adapter.GetInternal().adapter;
         for (uint16_t i = 0; i < size_t(wis::detail::QueueTypes::Count); i++) {
             const auto& x = queues.available_queues[i];
-            if (x.Empty())
+            if (x.Empty()) {
                 continue;
+            }
 
             VkBool32 supported = false;
             auto vr = itable.vkGetPhysicalDeviceSurfaceSupportKHR(hadapter, x.family_index,
@@ -986,8 +998,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         return out_swapchain;
     }
     bool stereo = cap.maxImageArrayLayers > 1 && desc->stereo;
-    if (stereo)
+    if (stereo) {
         lib_info("Stereo mode is ativated");
+    }
 
     uint32_t layers = stereo ? 2u : 1u;
 
@@ -1004,10 +1017,11 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     bool tearing = desc->tearing;
     if (!desc->vsync) {
         if (desc->tearing) {
-            if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0)
+            if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0) {
                 present_mode = VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR;
-            else if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)
+            } else if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0) {
                 present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+            }
         } else if (std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !stereo) {
             present_mode = VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR;
         }

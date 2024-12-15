@@ -68,8 +68,9 @@ public:
         CreateFirstPassResources();
         CreateSecondPassResources();
         while (true) {
-            if (!ProcessEvents())
+            if (!ProcessEvents()) {
                 break;
+            }
 
             Frame();
         }

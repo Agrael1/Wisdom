@@ -12,8 +12,9 @@ bool wis::ImplVKDescriptorBufferExtension::GetExtensionInfo(const std::unordered
         ext_name_set.insert(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME);
         structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT] = sizeof(VkPhysicalDeviceDescriptorBufferFeaturesEXT);
         property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT] = sizeof(VkPhysicalDeviceDescriptorBufferPropertiesEXT);
-    } else
+    } else {
         return false;
+    }
 
     if (available_extensions.contains(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME)) {
         ext_name_set.insert(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME);
@@ -21,8 +22,9 @@ bool wis::ImplVKDescriptorBufferExtension::GetExtensionInfo(const std::unordered
     } else if (available_extensions.contains(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME)) {
         ext_name_set.insert(VK_VALVE_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME);
         structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE] = sizeof(VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE);
-    } else
+    } else {
         return false;
+    }
 
     return true;
 }
@@ -92,10 +94,8 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(wis::Result& result, c
         }
     }
 
-
     // Create push descriptor set layout
-    if (table_offset)
-    {
+    if (table_offset) {
         uint32_t push_binding_count = constants_size;
         VkDescriptorSetLayoutBinding push_bindings[wis::max_push_descriptors]{};
         for (uint32_t i = 0; i < push_binding_count; i++) {
@@ -283,8 +283,9 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetDescriptorLayout(wis:
     wis::detail::limited_allocator<VkDescriptorBindingFlags, 32> binding_flags{ table->entry_count, true };
     wis::detail::limited_allocator<VkMutableDescriptorTypeListVALVE, 32> bindings_mutable{ table->entry_count };
 
-    for (size_t i = 0; i < table->entry_count; i++)
+    for (size_t i = 0; i < table->entry_count; i++) {
         bindings_mutable.data()[i] = a;
+    }
 
     VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,

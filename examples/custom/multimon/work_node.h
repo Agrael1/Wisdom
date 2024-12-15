@@ -12,8 +12,9 @@ struct WorkNode {
     WorkNode& operator=(WorkNode&&) noexcept = default;
     ~WorkNode() noexcept
     {
-        if (mapping)
+        if (mapping) {
             out_buffer.Unmap();
+        }
     }
 
 public:

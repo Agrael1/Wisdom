@@ -56,8 +56,9 @@ public:
     {
         CreateResources();
         while (true) {
-            if (!ProcessEvents())
+            if (!ProcessEvents()) {
                 break;
+            }
 
             Frame();
         }
@@ -99,8 +100,9 @@ public:
         offsetx += 0.01f;
         if (offsetx > 1.0f) {
             offsety += 0.5f;
-            if (offsety > 1.0f)
+            if (offsety > 1.0f) {
                 offsety = -1.0f;
+            }
             offsetx = -1.0f;
         }
 

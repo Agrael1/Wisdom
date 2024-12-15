@@ -43,24 +43,28 @@ inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
 
 wis::Result VKFactoryGlobals::InitializeFactoryGlobals() noexcept
 {
-    if (initialized)
+    if (initialized) {
         return {};
+    }
 
     wis::Result vr = {};
 
     std::call_once(
             global_flag, [this, &vr]() {
                 vr = InitializeGlobalTable();
-                if (vr.status != wis::Status::Ok)
+                if (vr.status != wis::Status::Ok) {
                     return;
+                }
 
                 vr = InitializeInstanceExtensions();
-                if (vr.status != wis::Status::Ok)
+                if (vr.status != wis::Status::Ok) {
                     return;
+                }
 
                 vr = InitializeInstanceLayers();
-                if (vr.status != wis::Status::Ok)
+                if (vr.status != wis::Status::Ok) {
                     return;
+                }
             });
 
     initialized = true;
@@ -69,8 +73,9 @@ wis::Result VKFactoryGlobals::InitializeFactoryGlobals() noexcept
 
 wis::Result VKFactoryGlobals::InitializeGlobalTable() noexcept
 {
-    if (!global_table.Init(lib_token))
+    if (!global_table.Init(lib_token)) {
         return wis::make_result<FUNC, "Failed to initialize global table">(VK_ERROR_INITIALIZATION_FAILED);
+    }
     return {};
 }
 
@@ -80,12 +85,14 @@ wis::Result VKFactoryGlobals::InitializeInstanceExtensions() noexcept
     uint32_t count = 0;
     gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
     auto extensions = wis::detail::make_fixed_allocation<VkExtensionProperties>(count);
-    if (!extensions)
+    if (!extensions) {
         return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
 
     auto vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions.get());
-    if (!wis::succeeded(vr))
+    if (!wis::succeeded(vr)) {
         return wis::make_result<FUNC, "Failed to enumerate extensions">(vr);
+    }
 
     // may throw
     instance_extensions.reserve(count);
@@ -100,12 +107,14 @@ wis::Result VKFactoryGlobals::InitializeInstanceLayers() noexcept
     uint32_t count = 0;
     gt.vkEnumerateInstanceLayerProperties(&count, nullptr);
     auto layers = wis::detail::make_fixed_allocation<VkLayerProperties>(count);
-    if (!layers)
+    if (!layers) {
         return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
 
     auto vr = gt.vkEnumerateInstanceLayerProperties(&count, layers.get());
-    if (!wis::succeeded(vr))
+    if (!wis::succeeded(vr)) {
         return wis::make_result<FUNC, "Failed to enumerate layers">(vr);
+    }
 
     // may throw
     instance_layers.reserve(count);
@@ -115,7 +124,6 @@ wis::Result VKFactoryGlobals::InitializeInstanceLayers() noexcept
     return {};
 }
 } // namespace wis::detail
-
 
 wis::VKAdapter
 wis::ImplVKFactory::GetAdapter(wis::Result& result, uint32_t index, AdapterPreference preference) const noexcept
@@ -146,12 +154,13 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
     std::vector<VkPhysicalDevice> phys_adapters;
     uint32_t count = 0;
     auto vr = factory.table().vkEnumeratePhysicalDevices(factory.get(), &count, nullptr);
-    do
+    do {
         phys_adapters.resize(count);
-    while ((vr = itable.vkEnumeratePhysicalDevices(factory.get(), &count,
-                                                   phys_adapters.data())) == VK_INCOMPLETE);
-    if (!wis::succeeded(vr))
+    } while ((vr = itable.vkEnumeratePhysicalDevices(factory.get(), &count,
+                                                     phys_adapters.data())) == VK_INCOMPLETE);
+    if (!wis::succeeded(vr)) {
         return vr;
+    }
 
     adapters.resize(count);
 

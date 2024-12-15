@@ -6,21 +6,24 @@
 static std::expected<std::string, std::string_view>
 LoadShader(std::filesystem::path p) noexcept
 {
-    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL)
+    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL) {
         p += u".cso";
-    else
+    } else {
         p += u".spv";
+    }
 
-    if (!std::filesystem::exists(p))
+    if (!std::filesystem::exists(p)) {
         return std::expected<std::string, std::string_view>{
             std::unexpect, "File not found"
         };
+    }
 
     std::ifstream t{ p, std::ios::binary };
-    if (!t.is_open())
+    if (!t.is_open()) {
         return std::expected<std::string, std::string_view>{
             std::unexpect, "Failed to open file"
         };
+    }
 
     t.seekg(0, std::ios::end);
     size_t size = t.tellg();
@@ -44,8 +47,9 @@ CreateTransferNode(wis::Adapter&& adapter)
             &node.desc_buffer_ext
         };
         auto [result, device] = wis::CreateDevice(adapter, exts, std::size(exts));
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
 
         node.transfer_device = std::move(device);
     }
@@ -53,8 +57,9 @@ CreateTransferNode(wis::Adapter&& adapter)
     // Create allocator
     {
         auto [result, allocator] = node.transfer_device.CreateAllocator();
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
 
         node.allocator = std::move(allocator);
     }
@@ -63,8 +68,9 @@ CreateTransferNode(wis::Adapter&& adapter)
     {
         // Has to be graphics queue for copy operations, because present
         auto [result, queue] = node.transfer_device.CreateCommandQueue(wis::QueueType::Graphics);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
 
         node.queue = std::move(queue);
     }
@@ -72,8 +78,9 @@ CreateTransferNode(wis::Adapter&& adapter)
     // Create Fence
     {
         auto [result, fence] = node.transfer_device.CreateFence();
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
         node.fence = std::move(fence);
     }
 
@@ -81,10 +88,12 @@ CreateTransferNode(wis::Adapter&& adapter)
     {
         auto [result, cmd_list] = node.transfer_device.CreateCommandList(wis::QueueType::Graphics);
         auto [result2, cmd_list2] = node.transfer_device.CreateCommandList(wis::QueueType::Graphics);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
-        if (result2.status != wis::Status::Ok)
+        }
+        if (result2.status != wis::Status::Ok) {
             return std::unexpected(result2.error);
+        }
         node.cmd_list = std::move(cmd_list);
         node.copy_cmd_list = std::move(cmd_list2);
     }
@@ -94,18 +103,22 @@ CreateTransferNode(wis::Adapter&& adapter)
         auto sv = LoadShader("present.vs");
         auto sp = LoadShader("present.ps");
 
-        if (!sv)
+        if (!sv) {
             return std::unexpected(sp.error());
-        if (!sp)
+        }
+        if (!sp) {
             return std::unexpected(sp.error());
+        }
 
         auto [res, vertex_shader] = node.transfer_device.CreateShader(sv.value().data(), sv.value().size());
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
 
         auto [res2, pixel_shader] = node.transfer_device.CreateShader(sp.value().data(), sp.value().size());
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
 
         node.vs = std::move(vertex_shader);
         node.ps = std::move(pixel_shader);
@@ -151,8 +164,9 @@ CreateTransferNode(wis::Adapter&& adapter)
             },
         };
         auto [result, root] = node.desc_buffer_ext.CreateRootSignature(constants, 1, nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
         node.root_signature = std::move(root);
     }
 
@@ -168,8 +182,9 @@ CreateTransferNode(wis::Adapter&& adapter)
             .flags = wis::PipelineFlags::DescriptorBuffer,
         };
         auto [res2, hpipeline] = node.transfer_device.CreateGraphicsPipeline(desc);
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
         node.pipeline_state = std::move(hpipeline);
     }
 
@@ -188,8 +203,9 @@ CreateTransferNode(wis::Adapter&& adapter)
             .comparison_op = wis::Compare::None,
         };
         auto [r, s] = node.transfer_device.CreateSampler(desc);
-        if (r.status != wis::Status::Ok)
+        if (r.status != wis::Status::Ok) {
             return std::unexpected(r.error);
+        }
         node.sampler = std::move(s);
     }
 
@@ -199,13 +215,15 @@ CreateTransferNode(wis::Adapter&& adapter)
         auto unit_size = node.desc_buffer_ext.GetDescriptorSize(wis::DescriptorHeapType::Descriptor);
 
         auto [res, hdesc] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, unit_size);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
 
         unit_size = node.desc_buffer_ext.GetDescriptorSize(wis::DescriptorHeapType::Sampler);
         auto [res2, hdesc2] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, unit_size);
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
 
         // Set Descriptor Buffers
         hdesc2.WriteSampler(0, 0, node.sampler);
@@ -243,8 +261,9 @@ void TransferNode::Resize(uint32_t width, uint32_t height, uint32_t swapn)
 {
     wis::Size2D xframe_size = { width, height };
     auto result = swap[swapn].Resize(width, height);
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok) {
         return;
+    }
 
     back_buffers[swapn] = swap[swapn].GetBufferSpan();
     frame_size[swapn] = xframe_size;

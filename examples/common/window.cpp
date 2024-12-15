@@ -74,7 +74,7 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::ExampleSetup
         ::Window xwindow = (::Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
             return static_cast<wis::platform::X11Extension*>(_platform.get())
-                                  ->CreateSwapchain(result, setup.device, setup.queue, &desc, xdisplay, xwindow);
+                    ->CreateSwapchain(result, setup.device, setup.queue, &desc, xdisplay, xwindow);
         }
     } break;
     case Wayland: {

@@ -97,8 +97,9 @@ public:
 
         if (q->count == 0u) {
             idx = FindResembling(QueueTypes(idx));
-            if (idx == -1)
+            if (idx == -1) {
                 return nullptr;
+            }
             q = &available_queues[idx];
         }
         return q;
@@ -107,8 +108,9 @@ public:
     {
         for (size_t i = 0; i < size_t(QueueTypes::Count); i++) {
             const auto& r = available_queues[i];
-            if ((r.queue_flags & QueueFlag(type)) != 0u)
+            if ((r.queue_flags & QueueFlag(type)) != 0u) {
                 return static_cast<int>(i);
+            }
         }
         return -1;
     }

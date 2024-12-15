@@ -45,9 +45,10 @@ wis::Result wis::ImplDX12Device::WaitForMultipleFences(const DX12FenceView* fenc
 
     if (!succeeded(hr = device->SetEventOnMultipleFenceCompletion(
                            reinterpret_cast<ID3D12Fence* const*>(fences), values, count,
-                           static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get())))
+                           static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get()))) {
         return wis::make_result<FUNC, "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set "
                                       "event on multiple fence completion">(hr);
+    }
 
     auto st = e.wait(uint32_t(timeout));
     return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
@@ -167,8 +168,9 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
                 std::find_if(slots.begin(), slots.end(), [&](auto& s) {
                     return s.slot == i.input_slot;
                 });
-        if (slot == slots.end())
+        if (slot == slots.end()) {
             continue;
+        }
 
         *ia_stage.allocate() = { .SemanticName = i.semantic_name,
                                  .SemanticIndex = i.semantic_index,
@@ -254,8 +256,9 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
     D3D12_VIEW_INSTANCE_LOCATION view_locs[8]{};
     if (desc.view_mask) {
         for (uint32_t i = 0u; i < 8u; i++) {
-            if (!(desc.view_mask & (1u << i)))
+            if (!(desc.view_mask & (1u << i))) {
                 continue;
+            }
 
             view_locs[i] = D3D12_VIEW_INSTANCE_LOCATION{
                 .ViewportArrayIndex = 0,

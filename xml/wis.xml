@@ -776,7 +776,7 @@ for selected descriptor table. Pipeline will get the bindings from that offset."
     <ext name="ExtendedAllocation" type="Device" id="2" folder="extended_allocation">
       <file include="wisdom/wisdom_extended_allocation.hpp"/>
       <func for="ExtendedAllocation" name="CreateGPUUploadTexture" mod="const" doc="Creates a texture that is optimized for GPU upload.
-Subsequently this texture may be directly mapped and does not require copying through copy queue. 
+Subsequently this texture may be directly mapped and does not require copying through copy queue.
 The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.">
         <ret type="Texture" name="texture" result="true" doc="{Texture::} on success ({Status::Ok})."/>
         <arg type="ResourceAllocator" name="allocator" mod="const ref" doc="The allocator to create the texture with.

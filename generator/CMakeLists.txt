@@ -16,7 +16,9 @@ if(NOT tinyxml2_POPULATED)
   FetchContent_Populate(tinyxml2)
   # Disable tinyxml2 installation
 endif()
-add_library(re_tinyxml2 STATIC EXCLUDE_FROM_ALL ${tinyxml2_SOURCE_DIR}/tinyxml2.cpp ${tinyxml2_SOURCE_DIR}/tinyxml2.h)
+add_library(
+  re_tinyxml2 STATIC EXCLUDE_FROM_ALL ${tinyxml2_SOURCE_DIR}/tinyxml2.cpp
+                                      ${tinyxml2_SOURCE_DIR}/tinyxml2.h)
 target_include_directories(re_tinyxml2 PUBLIC ${tinyxml2_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME})

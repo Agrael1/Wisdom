@@ -9,7 +9,6 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/dx12/dx12_checks.h>
 
-
 wis::DX12Buffer
 wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 {
@@ -83,10 +82,11 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
         }
         flags |= D3D12_HEAP_FLAG_SHARED;
     }
-    if (!(usage & (wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil)))
+    if (!(usage & (wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil))) {
         flags |= D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES;
-    else if (!(usage & ~(wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil)))
+    } else if (!(usage & ~(wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil))) {
         flags |= D3D12_HEAP_FLAG_DENY_NON_RT_DS_TEXTURES;
+    }
 
     auto info = GetTextureAllocationInfo({ .format = wis::DataFormat::RGBA8Unorm, .size = { 1, 1, 1 }, .mip_levels = 1, .usage = usage });
 
@@ -102,8 +102,9 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
     };
     auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
 
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Image memory allocation failed">(hr);
+    }
 
     internal.allocator = allocator; // Copy allocator to memory
     return out_memory;
@@ -140,8 +141,9 @@ wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64
     };
 
     auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Buffer memory allocation failed">(hr);
+    }
 
     internal.allocator = allocator; // Copy allocator to memory
     return out_memory;
@@ -196,8 +198,9 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3
                                             state, nullptr,
                                             memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+    }
 
     memory_internal.allocator = allocator; // Copy allocator to memory
 
