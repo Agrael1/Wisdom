@@ -73,7 +73,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
-        return wis::ResultValue<wis::DX12Adapter>{ &wis::ImplDX12Factory::GetAdapter, this, index, preference };
+        return wis::ResultValue<wis::DX12Adapter> { &wis::ImplDX12Factory::GetAdapter, this, index, preference };
     }
 };
 #pragma endregion DX12Factory

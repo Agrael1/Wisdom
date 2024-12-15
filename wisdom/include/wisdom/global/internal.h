@@ -7,7 +7,7 @@
 
 namespace wis {
 template<typename T, bool enabled = false>
-        class atype
+class atype
 {
     static inline void xprint(std::source_location sl = std::source_location::current())
     {
@@ -16,10 +16,18 @@ template<typename T, bool enabled = false>
     }
 
 public:
-    atype() { xprint(); }
-    ~atype() { xprint(); }
-    atype(const atype&) { xprint(); }
-    atype(atype&&) noexcept { xprint(); }
+    atype() {
+        xprint();
+    }
+    ~atype() {
+        xprint();
+    }
+    atype(const atype&) {
+        xprint();
+    }
+    atype(atype&&) noexcept {
+        xprint();
+    }
     atype& operator=(atype&&) noexcept
     {
         xprint();
@@ -41,7 +49,7 @@ struct Internal {
 /// @brief QueryInternal class for querying the internal implementation
 /// @tparam Impl Implementation class type, passed to Internal
 template<class Impl>
-struct QueryInternal : protected Internal<Impl>/*, public atype<Impl, enable>*/ {
+struct QueryInternal : protected Internal<Impl> { /*, public atype<Impl, enable>*/
     QueryInternal() = default;
 
     template<class... Args>

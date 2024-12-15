@@ -18,7 +18,7 @@ wis::ImplDX12CreateFactory(wis::Result& res, bool enable_debug, DX12FactoryExten
         return f;
     }
 
-    for (auto ext : std::span<DX12FactoryExtension*>{ extensions, extension_count }) {
+    for (auto ext : std::span<DX12FactoryExtension*> { extensions, extension_count }) {
         ext->Init(f);
     }
     return f;
@@ -31,7 +31,7 @@ wis::ImplDX12Factory::GetAdapter(wis::Result& result, uint32_t index, AdapterPre
     auto& internal = adapter.GetMutableInternal();
 
     auto hr = factory->EnumAdapterByGpuPreference(index, convert_dx(preference), internal.adapter.iid(),
-                                                  internal.adapter.put_void());
+              internal.adapter.put_void());
     if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Failed to get adapter">(hr);
     }
