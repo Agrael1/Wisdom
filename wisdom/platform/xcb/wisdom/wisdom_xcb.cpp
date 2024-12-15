@@ -1,6 +1,6 @@
 #ifndef WISDOM_XCB_CPP
 #define WISDOM_XCB_CPP
-#include <wisdom/wisdom_xcb.h>
+#include <wisdom/wisdom_xcb.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
 

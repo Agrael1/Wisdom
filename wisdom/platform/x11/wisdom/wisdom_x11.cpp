@@ -1,6 +1,6 @@
 #ifndef WISDOM_X11_CPP
 #define WISDOM_X11_CPP
-#include <wisdom/wisdom_x11.h>
+#include <wisdom/wisdom_x11.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
 
