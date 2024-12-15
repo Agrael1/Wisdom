@@ -60,7 +60,7 @@ template<>
 struct Internal<VKSwapChain> : detail::VKSwapChainCreateInfo {
 };
 
-class ImplVKSwapChain : public QueryInternal<VKSwapChain, true>
+class ImplVKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
     ImplVKSwapChain() = default;

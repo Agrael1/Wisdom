@@ -1,6 +1,6 @@
 #ifndef WIS_WISDOM_DEBUG_CPP
 #define WIS_WISDOM_DEBUG_CPP
-#include <wisdom/wisdom_debug.h>
+#include <wisdom/wisdom_debug.hpp>
 
 #if defined(WISDOM_DX12)
 wis::DX12DebugMessenger

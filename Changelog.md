@@ -6,6 +6,7 @@
   - There are 2 versions of return values. One is the ResultValue<> which was there from the beginning, and the other is RVO enabled return value. ResultValue<> is left for compatibility and local use, while RVO enabled return value is for inline construction and chaining. It is recommended to use RVO enabled return value for all new code.
   - Added documentation for extended allocation. With Vulkan 1.4 it has become a core feature.
   - API structure is consistent. Now all the structures are passed by const reference. This is done to enable language interop.
+  - Consumed headers are now .hpp instead of .h. Implementation headers are still .h, since they are not intended to be used standalone anyway.
 
 
 - 0.4.0 Major Update

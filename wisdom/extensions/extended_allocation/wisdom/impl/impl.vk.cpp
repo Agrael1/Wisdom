@@ -1,6 +1,6 @@
 #ifndef WISDOM_EXTENDED_ALLOCATION_VK_CPP
 #define WISDOM_EXTENDED_ALLOCATION_VK_CPP
-#include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_extended_allocation.hpp>
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,

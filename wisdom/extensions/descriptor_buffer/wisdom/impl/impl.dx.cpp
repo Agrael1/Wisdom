@@ -2,7 +2,7 @@
 #define WISDOM_DESCRIPTOR_BUFFER_DX_CPP
 
 #if defined(WISDOM_DX12)
-#include <wisdom/wisdom_descriptor_buffer.h>
+#include <wisdom/wisdom_descriptor_buffer.hpp>
 #include <wisdom/util/small_allocator.h>
 
 namespace wis::detail {

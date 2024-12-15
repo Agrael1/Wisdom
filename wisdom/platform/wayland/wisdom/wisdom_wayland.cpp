@@ -5,8 +5,8 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
 
-wis::ResultValue<wis::VKSwapChain>
-wis::platform::WaylandExtension::CreateSwapchain(const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface) const noexcept
+wis::VKSwapChain
+wis::platform::WaylandExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface) const noexcept
 {
     VkWaylandSurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
@@ -20,12 +20,12 @@ wis::platform::WaylandExtension::CreateSwapchain(const wis::VKDevice& device, wi
     auto& devicei = device.GetInternal();
     const auto& instance_table = instance.table();
     VkSurfaceKHR out_surface;
-    auto result = vkCreateWaylandSurfaceKHR(instance.get(), &surface_desc, nullptr, &out_surface);
-    if (!wis::succeeded(result)) {
-        return wis::make_result<FUNC, "Failed to create Win32 surface">(result);
+    auto vr = vkCreateWaylandSurfaceKHR(instance.get(), &surface_desc, nullptr, &out_surface);
+    if (!wis::succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create Win32 surface">(vr);
+        return {};
     }
-    wis::SharedSurface surface_handle{ out_surface, instance, instance_table.vkDestroySurfaceKHR };
-    return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
+    return device.VKCreateSwapChain(result, wis::SharedSurface{ out_surface, instance, instance_table.vkDestroySurfaceKHR }, desc, std::get<0>(main_queue));
 }
 
 #endif // WISDOM_WAYLAND_CPP

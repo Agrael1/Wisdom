@@ -7,6 +7,8 @@
 #include <vector>
 #include <span>
 #include <array>
+#include <optional>
+#include <algorithm>
 
 static constexpr std::string_view documentation_header = R"(/** \mainpage Wisdom API Documentation
 

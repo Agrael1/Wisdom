@@ -292,7 +292,7 @@ int Generator::GenerateCPPAPI()
 {
     using namespace std::chrono;
 
-    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n\n";
+    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n#include <functional>\n\n";
 
     output_api += wis::format(documentation_header, WISDOM_VERSION);
     output_api += "\n*/\n\n";
@@ -339,7 +339,6 @@ struct ResultValue{
     {
     }
     template<typename Callable, typename... Args>
-    requires !std::is_member_function_pointer_v<Callable> 
     constexpr ResultValue(Callable && f, Args&&... args) noexcept
         : value(f(status, std::forward<Args>(args)...))
     {
@@ -375,7 +374,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     std::filesystem::create_directories(cpp_output_path_dx12);
     std::filesystem::create_directories(cpp_output_path_vulkan);
 
-    auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "api.h");
+    auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "api.hpp");
     std::ofstream out_api(output_api_abs);
     if (!out_api.is_open())
         return 1;
@@ -410,7 +409,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 
     std::string dxapi =
             "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
-            "<wisdom/generated/api/api.h>\n#include "
+            "<wisdom/generated/api/api.hpp>\n#include "
             "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {
@@ -431,7 +430,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 
     std::string vkapi =
             "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
-            "<wisdom/generated/api/api.h>\n#include "
+            "<wisdom/generated/api/api.hpp>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {

@@ -2,6 +2,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <functional>
 
 /** \mainpage Wisdom API Documentation
 
@@ -1915,8 +1916,7 @@ struct ResultValue {
     {
     }
     template<typename Callable, typename... Args>
-        requires !std::is_member_function_pointer_v<Callable>
-                 constexpr ResultValue(Callable && f, Args&&... args) noexcept
+    constexpr ResultValue(Callable&& f, Args&&... args) noexcept
         : value(f(status, std::forward<Args>(args)...))
     {
     }

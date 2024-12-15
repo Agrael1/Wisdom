@@ -13,7 +13,7 @@ target_include_directories(
                                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if(WISDOM_BUILD_BINARIES)
-  add_library(wisdom-x11 STATIC "wisdom/wisdom_x11.h" "wisdom/wisdom_x11.cpp")
+  add_library(wisdom-x11 STATIC "wisdom/wisdom_x11.hpp" "wisdom/wisdom_x11.cpp")
   add_library(wis::x11 ALIAS wisdom-x11)
   target_link_libraries(wisdom-x11 PUBLIC wis::wisdom)
   target_compile_definitions(wisdom-x11 PUBLIC WIS_X11_PLATFORM=1)

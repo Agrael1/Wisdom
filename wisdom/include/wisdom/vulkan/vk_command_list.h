@@ -1,6 +1,6 @@
 #ifndef WIS_VK_COMMAND_LIST_H
 #define WIS_VK_COMMAND_LIST_H
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/global/internal.h>

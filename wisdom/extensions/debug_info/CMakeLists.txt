@@ -11,7 +11,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if(WISDOM_BUILD_BINARIES)
-  add_library(wisdom-debug STATIC "wisdom/wisdom_debug.h"
+  add_library(wisdom-debug STATIC "wisdom/wisdom_debug.hpp"
                                   "wisdom/wisdom_debug.cpp")
   add_library(wis::debug ALIAS wisdom-debug)
   target_link_libraries(wisdom-debug PUBLIC wis::wisdom)

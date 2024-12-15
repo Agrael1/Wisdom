@@ -1,8 +1,8 @@
 #include "wisdom.h"
 
-#include "wisdom/wisdom_debug.h"
-#include "wisdom/wisdom_descriptor_buffer.h"
-#include "wisdom/wisdom_extended_allocation.h"
+#include "wisdom/wisdom_debug.hpp"
+#include "wisdom/wisdom_descriptor_buffer.hpp"
+#include "wisdom/wisdom_extended_allocation.hpp"
 
 #if defined(WISDOM_DX12)
 #include <wisdom/wisdom_dx12.hpp>

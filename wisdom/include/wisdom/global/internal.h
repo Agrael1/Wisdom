@@ -40,8 +40,8 @@ struct Internal {
 
 /// @brief QueryInternal class for querying the internal implementation
 /// @tparam Impl Implementation class type, passed to Internal
-template<class Impl, bool enable = false>
-struct QueryInternal : protected Internal<Impl>, public atype<Impl, enable> {
+template<class Impl>
+struct QueryInternal : protected Internal<Impl>/*, public atype<Impl, enable>*/ {
     QueryInternal() = default;
 
     template<class... Args>

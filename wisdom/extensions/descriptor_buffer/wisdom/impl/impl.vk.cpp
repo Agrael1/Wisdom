@@ -1,6 +1,6 @@
 #ifndef WISDOM_DESCRIPTOR_BUFFER_VK_CPP
 #define WISDOM_DESCRIPTOR_BUFFER_VK_CPP
-#include <wisdom/wisdom_descriptor_buffer.h>
+#include <wisdom/wisdom_descriptor_buffer.hpp>
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKDescriptorBufferExtension::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,

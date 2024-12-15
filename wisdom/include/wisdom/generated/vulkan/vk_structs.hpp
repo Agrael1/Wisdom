@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/vulkan/vk_views.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/flags.h>
 
 namespace wis {

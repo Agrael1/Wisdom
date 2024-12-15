@@ -16,7 +16,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if(WISDOM_BUILD_BINARIES)
-  add_library(wisdom-wayland STATIC "wisdom/wisdom_wayland.h"
+  add_library(wisdom-wayland STATIC "wisdom/wisdom_wayland.hpp"
                                     "wisdom/wisdom_wayland.cpp")
   add_library(wis::wayland ALIAS wisdom-wayland)
   target_link_libraries(wisdom-wayland PUBLIC wis::wisdom)

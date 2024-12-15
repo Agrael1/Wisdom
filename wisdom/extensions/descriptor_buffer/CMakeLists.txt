@@ -14,10 +14,10 @@ target_include_directories(
 if(WISDOM_BUILD_BINARIES)
   add_library(
     wisdom-descriptor-buffer STATIC
-    "wisdom/wisdom_descriptor_buffer.h"
-    "wisdom/vk_descriptor_buffer.h"
+    "wisdom/wisdom_descriptor_buffer.hpp"
+    "wisdom/vk_descriptor_buffer.hpp"
     "wisdom/impl/vk_descriptor_buffer.cpp"
-    "wisdom/dx12_descriptor_buffer.h"
+    "wisdom/dx12_descriptor_buffer.hpp"
     "wisdom/impl/dx12_descriptor_buffer.cpp"
     "wisdom/impl/impl.dx.cpp"
     "wisdom/impl/impl.vk.cpp")

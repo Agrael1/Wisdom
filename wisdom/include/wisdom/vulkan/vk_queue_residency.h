@@ -2,7 +2,7 @@
 #define WIS_VK_QUEUE_RESIDENCY_H
 #include <atomic>
 #include <vulkan/vulkan.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/flags.h>
 #include <wisdom/util/small_allocator.h>
 

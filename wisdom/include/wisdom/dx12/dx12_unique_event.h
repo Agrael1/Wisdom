@@ -1,6 +1,6 @@
 #ifndef WIS_DX12_UNIQUE_EVENT_H
 #define WIS_DX12_UNIQUE_EVENT_H
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <Windows.h>
 
 namespace wis {

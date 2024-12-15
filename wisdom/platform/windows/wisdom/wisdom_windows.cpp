@@ -1,6 +1,6 @@
 #ifndef WISDOM_WINDOWS_CPP
 #define WISDOM_WINDOWS_CPP
-#include <wisdom/wisdom_windows.h>
+#include <wisdom/wisdom_windows.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <d3d11.h>

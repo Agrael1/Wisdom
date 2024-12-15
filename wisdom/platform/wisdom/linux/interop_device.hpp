@@ -57,8 +57,8 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<int>
-    GetSemaphoreHandle(const wis::VKFence& fence) const noexcept
+    [[nodiscard]] WIS_INLINE int
+    GetSemaphoreHandle(wis::Result& result, const wis::VKFence& fence) const noexcept
     {
         int handle;
         VkSemaphoreGetFdInfoKHR handle_info{
@@ -67,14 +67,14 @@ public:
             .semaphore = fence.GetInternal().fence.get(),
             .handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT
         };
-        auto result = vkGetSemaphoreFdKHR(device.get(), &handle_info, &handle);
-        if (!wis::succeeded(result)) {
-            return wis::make_result<FUNC, "Failed to get semaphore handle">(result);
+        auto vr = vkGetSemaphoreFdKHR(device.get(), &handle_info, &handle);
+        if (!wis::succeeded(vr)) {
+            result = wis::make_result<FUNC, "Failed to get semaphore handle">(vr);
         }
         return handle;
     }
-    [[nodiscard]] WIS_INLINE wis::ResultValue<int>
-    GetMemoryHandle(wis::VKMemoryView memory) const noexcept
+    [[nodiscard]] WIS_INLINE int
+    GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
         int handle;
         auto allocator = std::get<0>(memory);
@@ -93,9 +93,9 @@ public:
             .handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT
         };
 
-        auto result = vkGetMemoryFdKHR(al_info.device, &handle_info, &handle);
-        if (!wis::succeeded(result)) {
-            return wis::make_result<FUNC, "Failed to get memory handle">(result);
+        auto vr = vkGetMemoryFdKHR(al_info.device, &handle_info, &handle);
+        if (!wis::succeeded(vr)) {
+            result = wis::make_result<FUNC, "Failed to get memory handle">(vr);
         }
         return handle;
     }

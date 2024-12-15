@@ -1,6 +1,6 @@
 #ifndef WISDOM_EXTENDED_ALLOCATION_DX_CPP
 #define WISDOM_EXTENDED_ALLOCATION_DX_CPP
-#include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_extended_allocation.hpp>
 
 #if defined(WISDOM_DX12)
 #include <d3dx12/d3dx12_core.h>

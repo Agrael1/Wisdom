@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
-#include <wisdom/wisdom_platform.h>
+#include <wisdom/wisdom_platform.hpp>
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_debug.h>
-#include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_debug.hpp>
+#include <wisdom/wisdom_extended_allocation.hpp>
 #include <iostream>
 
 struct LogProvider : public wis::LogLayer {

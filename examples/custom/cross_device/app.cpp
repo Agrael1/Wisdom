@@ -1,7 +1,7 @@
 #include "app.h"
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
-#include <wisdom/wisdom_debug.h>
+#include <wisdom/wisdom_debug.hpp>
 #include <iostream>
 #include <stb_image_write.h>
 

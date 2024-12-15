@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/util/flags.h>
 #include <wisdom/bridge/source_location.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <memory>
 #include <string>
 

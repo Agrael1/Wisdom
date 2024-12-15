@@ -1,7 +1,7 @@
 #ifndef WIS_VK_CONVERT_H
 #define WIS_VK_CONVERT_H
 #include <vulkan/vulkan.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 
 namespace wis {
 inline constexpr wis::Status convert_vk(VkResult hr) noexcept

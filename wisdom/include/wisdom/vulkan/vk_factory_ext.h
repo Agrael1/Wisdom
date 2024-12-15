@@ -1,6 +1,6 @@
 #ifndef WIS_VK_FACTORY_EXT_H
 #define WIS_VK_FACTORY_EXT_H
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <memory>
 #include <span>
 

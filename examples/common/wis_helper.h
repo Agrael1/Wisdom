@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_debug.h>
-#include <wisdom/wisdom_descriptor_buffer.h>
+#include <wisdom/wisdom_debug.hpp>
+#include <wisdom/wisdom_descriptor_buffer.hpp>
 #include <exception>
 #include <filesystem>
 #include <span>

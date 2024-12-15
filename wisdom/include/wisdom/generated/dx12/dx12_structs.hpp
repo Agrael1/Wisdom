@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/dx12/dx12_views.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/flags.h>
 #include <D3D12MemAlloc.h>
 

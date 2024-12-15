@@ -9,7 +9,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if(WISDOM_BUILD_BINARIES)
-  add_library(wisdom-windows STATIC "wisdom/wisdom_windows.h"
+  add_library(wisdom-windows STATIC "wisdom/wisdom_windows.hpp"
                                     "wisdom/wisdom_windows.cpp")
   add_library(wis::windows ALIAS wisdom-windows)
   target_link_libraries(wisdom-windows PUBLIC wis::wisdom d3d11)

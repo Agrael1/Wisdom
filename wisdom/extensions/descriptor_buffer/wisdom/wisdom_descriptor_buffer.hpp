@@ -4,7 +4,7 @@
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/dx12/dx12_debug.h>
 #include <wisdom/dx12/dx12_checks.h>
-#include <wisdom/dx12_descriptor_buffer.h>
+#include <wisdom/dx12_descriptor_buffer.hpp>
 #include <d3d12.h>
 
 namespace wis {
@@ -173,7 +173,7 @@ public:
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_allocator.h>
-#include <wisdom/vk_descriptor_buffer.h>
+#include <wisdom/vk_descriptor_buffer.hpp>
 
 namespace wis {
 class VKDescriptorBufferExtension;

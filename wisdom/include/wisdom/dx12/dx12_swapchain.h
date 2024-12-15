@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/global/internal.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_resource.h>

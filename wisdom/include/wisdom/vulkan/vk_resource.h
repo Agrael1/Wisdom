@@ -2,7 +2,7 @@
 #define WIS_VK_RESOURCE_H
 #include <wisdom/vulkan/vk_memory.h>
 #include <wisdom/vulkan/vk_views.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 
 namespace wis {
 class VKBuffer;
@@ -105,7 +105,7 @@ public:
     }
 };
 
-class VKTexture : public QueryInternal<VKTexture, true>
+class VKTexture : public QueryInternal<VKTexture>
 {
 public:
     VKTexture() = default;
@@ -132,10 +132,6 @@ class VKRenderTarget : public QueryInternal<VKRenderTarget>
 {
 public:
     VKRenderTarget() = default;
-    explicit VKRenderTarget(wis::managed_handle_ex<VkImageView> view, wis::Size2D size) noexcept
-        : QueryInternal(std::move(view), size)
-    {
-    }
     operator bool() const noexcept
     {
         return bool(view);
@@ -157,9 +153,6 @@ class VKSampler : public QueryInternal<VKSampler>
 {
 public:
     VKSampler() noexcept = default;
-    explicit VKSampler(wis::managed_handle_ex<VkSampler> sampler) noexcept
-        : QueryInternal(std::move(sampler)) { }
-
     operator bool() const noexcept
     {
         return bool(sampler);
@@ -183,9 +176,6 @@ class VKShaderResource : public QueryInternal<VKShaderResource>
 {
 public:
     VKShaderResource() noexcept = default;
-    explicit VKShaderResource(wis::managed_handle_ex<VkImageView> view) noexcept
-        : QueryInternal(std::move(view)) { }
-
     operator bool() const noexcept
     {
         return bool(view);

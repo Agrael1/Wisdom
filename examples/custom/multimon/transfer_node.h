@@ -1,8 +1,8 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_extended_allocation.h>
-#include <wisdom/wisdom_descriptor_buffer.h>
-#include <wisdom/wisdom_platform.h>
+#include <wisdom/wisdom_extended_allocation.hpp>
+#include <wisdom/wisdom_descriptor_buffer.hpp>
+#include <wisdom/wisdom_platform.hpp>
 #include <span>
 #include <array>
 #include <string_view>

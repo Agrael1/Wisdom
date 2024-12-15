@@ -661,7 +661,7 @@ The presence of core functionality is checked by the query function."/>
   </functions>
   <extensions>
     <ext name="DebugExtension" type="Factory" id="1" folder="debug_info">
-      <file include="wisdom/wisdom_debug.h"/>
+      <file include="wisdom/wisdom_debug.hpp"/>
       <func for="DebugExtension" name="CreateDebugMessenger" doc="Creates a debug messenger for the factory.">
         <ret type="DebugMessenger" name="messenger" result="true" doc="{DebugMessenger::} on success ({Status::Ok})."/>
         <arg type="DebugCallback" name="callback" doc="The callback that will receive the debug messages."/>
@@ -670,7 +670,7 @@ The presence of core functionality is checked by the query function."/>
     </ext>
 
     <ext name="DescriptorBufferExtension" type="Device" id="1" folder="descriptor_buffer">
-      <file include="wisdom/wisdom_descriptor_buffer.h"/>
+      <file include="wisdom/wisdom_descriptor_buffer.hpp"/>
       <handle name="DescriptorBuffer" doc="Buffer storage for descriptors.
 It is the most flexible implementation of storage for descriptors, as it supports both bindful and bindless
 Descriptor approaches. Works like an aligned table of elements of the same size.
@@ -774,7 +774,7 @@ for selected descriptor table. Pipeline will get the bindings from that offset."
     </ext>
 
     <ext name="ExtendedAllocation" type="Device" id="2" folder="extended_allocation">
-      <file include="wisdom/wisdom_extended_allocation.h"/>
+      <file include="wisdom/wisdom_extended_allocation.hpp"/>
       <func for="ExtendedAllocation" name="CreateGPUUploadTexture" mod="const" doc="Creates a texture that is optimized for GPU upload.
 Subsequently this texture may be directly mapped and does not require copying through copy queue. 
 The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.">
