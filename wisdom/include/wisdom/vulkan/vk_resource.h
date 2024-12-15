@@ -14,10 +14,6 @@ struct Internal<VKBuffer> {
     h::VkBuffer buffer;
 
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator,
-             VkBuffer buffer,
-             VmaAllocation allocation = nullptr) noexcept
-        : memory(std::move(allocator), allocation), buffer(buffer) { }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -47,12 +43,6 @@ class ImplVKBuffer : public QueryInternal<VKBuffer>
 {
 public:
     ImplVKBuffer() noexcept = default;
-    explicit ImplVKBuffer(wis::shared_handle<VmaAllocator> allocator,
-                          VkBuffer buffer,
-                          VmaAllocation allocation = nullptr) noexcept
-        : QueryInternal<VKBuffer>(std::move(allocator), buffer, allocation)
-    {
-    }
     operator VKBufferView() const noexcept
     {
         return { buffer };
@@ -88,10 +78,6 @@ public:
     wis::Size2D size{};
 
     Internal() noexcept = default;
-    Internal(VkFormat format, VkImage buffer, wis::shared_handle<VmaAllocator> allocator, VmaAllocation allocation, Size2D size) noexcept
-        : memory(std::move(allocator), allocation), buffer(buffer), format(format), size(size)
-    {
-    }
     Internal(Internal&& other) noexcept = default;
     Internal& operator=(Internal&& other) noexcept
     {
@@ -119,14 +105,10 @@ public:
     }
 };
 
-class VKTexture : public QueryInternal<VKTexture>
+class VKTexture : public QueryInternal<VKTexture, true>
 {
 public:
     VKTexture() = default;
-    explicit VKTexture(VkFormat format, VkImage buffer, wis::Size2D size, wis::shared_handle<VmaAllocator> allocator = {}, VmaAllocation allocation = nullptr) noexcept
-        : QueryInternal(format, std::move(buffer), std::move(allocator), allocation, size)
-    {
-    }
     operator VKTextureView() const noexcept
     {
         return { buffer, format, size };

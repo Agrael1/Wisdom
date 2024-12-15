@@ -17,10 +17,6 @@ class DX12Shader : public QueryInternal<DX12Shader>
 {
 public:
     DX12Shader() = default;
-    explicit DX12Shader(std::unique_ptr<std::byte[]> bytecode, size_t size) noexcept
-        : QueryInternal(std::move(bytecode), size)
-    {
-    }
     operator DX12ShaderView() const noexcept
     {
         return DX12ShaderView((void*)(bytecode.get()), uint32_t(size));

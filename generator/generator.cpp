@@ -326,9 +326,32 @@ struct ResultValue{
     Result status;
     RetTy value;
 
-    constexpr ResultValue(RetTy value)noexcept :status(success), value(std::move(value)){}
-    constexpr ResultValue(Result status)noexcept :status(status){}
-    constexpr ResultValue(Result status, RetTy value)noexcept :status(status), value(std::move(value)){}
+    constexpr ResultValue() noexcept = default;
+    constexpr ResultValue(wis::Result status) noexcept
+        : status(status)
+    {
+    }
+
+    template<typename Callable, typename Callee, typename... Args>
+    requires std::is_member_function_pointer_v<Callable>
+    constexpr ResultValue(Callable&& f, Callee* self, Args&&... args) noexcept
+        : value(std::invoke(f, self, status, std::forward<Args>(args)...))
+    {
+    }
+    template<typename Callable, typename... Args>
+    requires !std::is_member_function_pointer_v<Callable> 
+    constexpr ResultValue(Callable && f, Args&&... args) noexcept
+        : value(f(status, std::forward<Args>(args)...))
+    {
+    }
+
+    template<typename Callable, typename Callee, typename... Args>
+    static constexpr ResultValue<RetTy> from_member_func(Callable&& f, Callee* self, Args&&... args) noexcept
+    {
+        ResultValue<RetTy> rv;
+        rv.value = std::invoke(f, self, rv.status, std::forward<Args>(args)...);
+        return rv;
+    }
 };
 
 template<uint32_t s, typename RetTy>
@@ -622,7 +645,8 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
     output += k_delimiter;
 
     for (auto& f : cpp_funcs) {
-        output += MakeCPPFunctionGenericDecl(*f, impl) + '\n';
+        output += MakeCPPFunctionGenericDecl(*f, impl, true) + '\n';
+        output += MakeCPPFunctionGenericDecl(*f, impl, false) + '\n';
     }
 
     output += k_delimiter;
@@ -701,8 +725,13 @@ std::string Generator::GenerateCPPPlatformExportHeader(std::string_view impl)
 
     // Generate platform funcs
     for (auto& f : functions) {
-        output += wis::format("{}{{ return wis::Impl{}; }}\n", MakeCPPFunctionProto(*f, impl, "inline"),
-                              MakeCPPFunctionCall(*f, impl));
+        std::string_view prefix = f->return_type.has_result ? "[[nodiscard]] inline" : "inline";
+
+        output += wis::format("{}{{ return wis::Impl{}; }}\n", MakeCPPFunctionProto(*f, impl, prefix, true, true, true),
+                              MakeCPPFunctionCall(*f, impl, true));
+
+        output += wis::format("{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(*f, impl, prefix, true, true, false),
+                              !f->return_type.IsVoid() ? "return" : "", MakeCPPRVFunctionCall(*f, wis::format("wis::Impl{}{}", impl, ""), impl));
     }
 
     output += k_delimiter;
@@ -2124,12 +2153,12 @@ std::string Generator::MakeCVariantGeneric(const WisVariant& s, std::string_view
 #pragma endregion
 
 #pragma region C++ API
-std::string Generator::MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl)
+std::string Generator::MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl, bool explicit_result)
 {
-    return wis::format("{}{{ return {}; }}", MakeCPPFunctionProto(func, "", "inline"),
-                       MakeCPPFunctionCall(func, impl));
+    return wis::format("{}{{ return {}; }}", MakeCPPFunctionProto(func, "", "inline", true, true, explicit_result),
+                       MakeCPPFunctionCall(func, impl, explicit_result));
 }
-std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc, bool impl_on_fdecl)
+std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, bool enable_doc, bool impl_on_fdecl, bool explicit_result)
 {
     std::string args;
     std::string return_t;
@@ -2137,6 +2166,10 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
 
     if (!func.doc.empty()) {
         doc = wis::format("/**\n@brief {}\n", func.doc);
+    }
+
+    if (explicit_result && func.return_type.has_result && !func.return_type.type.empty()) {
+        args += "wis::Result& result, ";
     }
 
     // Arguments
@@ -2162,9 +2195,11 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
     if (func.return_type.type == "") {
         return_t = func.return_type.has_result ? GetCPPFullTypename("Result") : "void";
     } else if (func.return_type.has_result) {
-        // make wis::ResultValue<type> return type
+        return_t = explicit_result
+                ? wis::format("{}", GetCPPFullTypename(func.return_type.type, impl))
+                : wis::format("wis::ResultValue<{}>", GetCPPFullTypename(func.return_type.type, impl));
+
         doc += wis::format("@return {}\n", func.return_type.doc);
-        return_t = wis::format("wis::ResultValue<{}>", GetCPPFullTypename(func.return_type.type, impl));
     } else {
         WisFunctionParameter res{
             .type_info = func.return_type.type_info,
@@ -2199,9 +2234,13 @@ std::string Generator::MakeCPPFunctionDecl(const WisFunction& func, std::string_
 {
     return MakeCPPFunctionProto(func, impl, pre_decl) + ";\n";
 }
-std::string Generator::MakeCPPFunctionCall(const WisFunction& func, std::string_view impl)
+std::string Generator::MakeCPPFunctionCall(const WisFunction& func, std::string_view impl, bool explicit_result)
 {
     std::string args;
+
+    if (explicit_result && func.return_type.IsRV()) {
+        args += "result, ";
+    }
 
     // Arguments
     for (auto& arg : func.parameters) {
@@ -2220,6 +2259,34 @@ std::string Generator::MakeCPPFunctionCall(const WisFunction& func, std::string_
     }
 
     return wis::format("{}{}({})", impl, func.name, args);
+}
+
+std::string Generator::MakeCPPRVFunctionCall(const WisFunction& func, std::string_view impl, std::string_view class_impl)
+{
+    // return wis::ResultValue<wis::DX12Adapter>{
+    //     &ImplDX12Factory::GetAdapter, this, index, preference
+    // };
+
+    std::string args;
+
+    // Arguments
+    for (auto& arg : func.parameters) {
+
+        if (arg.type_info == TypeInfo::Handle && arg.modifier.empty()) {
+            args += wis::format("std::move({}), ", arg.name);
+        } else {
+            args += std::string(arg.name) + ", ";
+        }
+    }
+
+    // Remove trailing ", "
+    if (args.ends_with(", ")) {
+        args.pop_back();
+        args.pop_back();
+    }
+    return func.this_type.empty()
+            ? wis::format("wis::ResultValue<{}>{{&{}{},{}}}", GetCPPFullTypename(func.return_type.type, class_impl), impl, func.name, args)
+            : wis::format("wis::ResultValue<{}>{{&{}{},this,{}}}", GetCPPFullTypename(func.return_type.type, class_impl), impl, func.name, args);
 }
 std::string Generator::MakeCPPDelegate(const WisFunction& func)
 {
@@ -2288,7 +2355,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
         ReplaceAll(doc, "\n", "\n * ");
     }
 
-    std::string head = wis::format("{}\class {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
+    std::string head = wis::format("{}\nclass {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
     std::string ctor = wis::format("public:\n using wis::Impl{}{}::Impl{}{};", impl, s.name, impl, s.name);
 
     std::string funcs = "public:\n";
@@ -2298,8 +2365,15 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
             continue;
         }
 
-        funcs += wis::format("{}{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
-                             func.const_func ? "const" : "", !func.return_type.IsVoid() ? "return" : "", MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
+        if (func.return_type.IsRV()) {
+            funcs += wis::format("{}{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false, true),
+                                 func.const_func ? "const" : "", !func.return_type.IsVoid() ? "return" : "", MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name), true));
+            funcs += wis::format("{}{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false, false),
+                                 func.const_func ? "const" : "", !func.return_type.IsVoid() ? "return" : "", MakeCPPRVFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name), impl));
+        } else {
+            funcs += wis::format("{}{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(func, impl, func.return_type.has_result ? "[[nodiscard]] inline" : "inline", true, false),
+                                 func.const_func ? "const" : "", !func.return_type.IsVoid() ? "return" : "", MakeCPPFunctionCall(func, wis::format("wis::Impl{}{}::", impl, s.name)));
+        }
     }
 
     return wis::format("{} {{\n{}\n{}\n}};\n", head, ctor, funcs);

@@ -3,66 +3,38 @@
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_checks.h>
 
-wis::ImplDX12Factory::ImplDX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept
-    : QueryInternal(std::move(factory))
+wis::DX12Factory
+wis::ImplDX12CreateFactory(wis::Result& res, bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept
 {
-}
+    // Enable RVO
+    DX12Factory f;
+    auto& internal = f.GetMutableInternal();
 
-wis::ResultValue<wis::DX12Factory>
-wis::ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept
-{
-    std::span<DX12FactoryExtension*> exts{
-        extensions, extensions + extension_count
-    };
-
-    wis::com_ptr<IDXGIFactory6> factory;
-    auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, __uuidof(*factory),
-                                 factory.put_void());
+    auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, internal.factory.iid(),
+                                 internal.factory.put_void());
 
     if (!wis::succeeded(hr)) {
-        hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory4),
-                                factory.put_void());
-        DX12Factory::has_preference = false;
-        if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Failed to create DXGI factory">(hr);
-        }
+        res = wis::make_result<FUNC, "Failed to create DXGI factory">(hr);
+        return f;
     }
-    auto f = DX12Factory(std::move(factory));
 
-    for (auto ext : exts) {
+    for (auto ext : std::span<DX12FactoryExtension*>{ extensions, extension_count }) {
         ext->Init(f);
     }
-    return std::move(f);
+    return f;
 }
 
-wis::ResultValue<wis::DX12Adapter>
-wis::ImplDX12Factory::GetAdapter(uint32_t index, AdapterPreference preference) const noexcept
+wis::DX12Adapter
+wis::ImplDX12Factory::GetAdapter(wis::Result& result, uint32_t index, AdapterPreference preference) const noexcept
 {
-    auto gen = has_preference ? GetAdapterByGPUPreference(index, convert_dx(preference))
-                              : GetAdapter1(index);
+    wis::DX12Adapter adapter;
+    auto& internal = adapter.GetMutableInternal();
 
-    if (!gen)
-        return wis::make_result<FUNC, "Failed to get adapter">(gen.result);
-
-    return wis::DX12Adapter(std::move(gen.ptr));
+    auto hr = factory->EnumAdapterByGpuPreference(index, convert_dx(preference), internal.adapter.iid(),
+                                                  internal.adapter.put_void());
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to get adapter">(hr);
+    }
+    return adapter;
 }
-
-wis::com_with_result<IDXGIAdapter1>
-wis::ImplDX12Factory::GetAdapterByGPUPreference(uint32_t index,
-                                                DXGI_GPU_PREFERENCE preference) const noexcept
-{
-    wis::com_ptr<IDXGIAdapter1> adapter;
-    auto hr = factory->EnumAdapterByGpuPreference(index, preference, __uuidof(*adapter),
-                                                  adapter.put_void());
-    return { hr, std::move(adapter) };
-}
-
-wis::com_with_result<IDXGIAdapter1>
-wis::ImplDX12Factory::GetAdapter1(uint32_t index) const noexcept
-{
-    wis::com_ptr<IDXGIAdapter1> adapter;
-    auto hr = factory->EnumAdapters1(index, adapter.put());
-    return { hr, std::move(adapter) };
-}
-
 #endif // !DX12_FACTORY_CPP

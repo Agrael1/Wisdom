@@ -33,10 +33,6 @@ class ImplDX12SwapChain : public QueryInternal<DX12SwapChain>
 {
 public:
     ImplDX12SwapChain() noexcept = default;
-    explicit ImplDX12SwapChain(detail::DX12SwapChainCreateInfo&& swap_i) noexcept
-        : QueryInternal(std::move(swap_i))
-    {
-    }
     operator bool() const noexcept
     {
         return bool(chain);

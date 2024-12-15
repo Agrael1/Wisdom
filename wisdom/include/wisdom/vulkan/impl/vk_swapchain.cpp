@@ -10,21 +10,6 @@
 wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image_size) noexcept
 {
     auto& table = device.table();
-    if (!fences[0]) {
-        VkFenceCreateInfo fence_info{
-            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-        };
-        auto result = table.vkCreateFence(device.get(), &fence_info, nullptr, &fences[0]);
-        if (!wis::succeeded(result))
-            return { wis::make_result<FUNC, "vkCreateFence failed">(result) };
-
-        result = table.vkCreateFence(device.get(), &fence_info, nullptr, &fences[1]);
-        if (!wis::succeeded(result))
-            return { wis::make_result<FUNC, "vkCreateFence failed">(result) };
-    }
-
     uint32_t new_back_buffer_count = 0;
     auto result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, nullptr);
 
@@ -44,7 +29,10 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
         return { wis::make_result<FUNC, "vkGetSwapchainImagesKHR failed">(result) };
 
     for (uint32_t i = 0; i < back_buffer_count; ++i) {
-        back_buffers[i] = VKTexture{ format.format, image_data[i], { image_size.width, image_size.height } };
+        auto& internal = back_buffers[i].GetMutableInternal();
+        internal.buffer = image_data[i];
+        internal.size = { image_size.width, image_size.height };
+        internal.format = format.format;
     }
 
     result = table.vkResetCommandBuffer(initialization, 0);
@@ -216,34 +204,7 @@ void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
     table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
     table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
 }
-wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
-{
-    render_completed_semaphore = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
-    if (!render_completed_semaphore)
-        return { wis::make_result<FUNC, "failed to allocate render_completed_semaphore array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
 
-    image_ready_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
-    if (!image_ready_semaphores)
-        return { wis::make_result<FUNC, "failed to allocate image_ready_semaphores array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
-
-    auto& table = device.table();
-    VkSemaphoreCreateInfo semaphore_info{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-    };
-
-    for (uint32_t n = 0; n < back_buffer_count; n++) {
-        auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &render_completed_semaphore[n]);
-        if (!wis::succeeded(result))
-            return { wis::make_result<FUNC, "vkCreateSemaphore failed for present_semaphore">(result) };
-
-        auto result2 = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &image_ready_semaphores[n]);
-        if (!wis::succeeded(result2))
-            return { wis::make_result<FUNC, "vkCreateSemaphore failed for image_ready_semaphore">(result) };
-    }
-    return wis::success;
-}
 
 void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphores() noexcept
 {

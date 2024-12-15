@@ -17,9 +17,6 @@ class ImplDX12CommandQueue : public QueryInternal<DX12CommandQueue>
 {
 public:
     ImplDX12CommandQueue() = default;
-    explicit ImplDX12CommandQueue(wis::com_ptr<ID3D12CommandQueue> queue) noexcept
-        : QueryInternal(std::move(queue)) { }
-
     operator bool() const noexcept
     {
         return bool(queue);

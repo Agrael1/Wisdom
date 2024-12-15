@@ -29,8 +29,8 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12RootSignature>
-    CreateRootSignature(const PushConstant* root_constants = nullptr,
+    [[nodiscard]] WIS_INLINE wis::DX12RootSignature
+    CreateRootSignature(wis::Result& result, const PushConstant* root_constants = nullptr,
                         uint32_t constants_size = 0,
                         const PushDescriptor* push_descriptors = nullptr,
                         uint32_t push_descriptors_size = 0,
@@ -48,8 +48,8 @@ public:
         return device->GetDescriptorHandleIncrementSize(wis::convert_dx(heap));
     }
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12DescriptorBuffer>
-    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::DX12DescriptorBuffer
+    CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
 
 public: // Command List
     WIS_INLINE void SetDescriptorBuffers(wis::DX12CommandListView cmd_list,
@@ -64,6 +64,7 @@ public: // Command List
 };
 
 #pragma region DX12DescriptorBufferExtension
+
 class DX12DescriptorBufferExtension : public wis::ImplDX12DescriptorBufferExtension
 {
 public:
@@ -80,9 +81,34 @@ public:
      * @param tables_count The number of descriptor tables.
      * @return wis::DX12RootSignature on success (wis::Status::Ok).
      * */
+    [[nodiscard]] inline wis::DX12RootSignature CreateRootSignature(wis::Result& result, const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
+    {
+        return wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(result, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count);
+    }
+    /**
+     * @brief Creates a root signature object.
+     * @param root_constants The root constants to create the root signature with.
+     * @param constants_count The number of root constants. Max is 5.
+     * @param root_descriptors The root descriptors to create the root signature with.
+     * @param descriptors_count The number of root descriptors. Max is 8.
+     * @param tables The descriptor tables to create the root signature with.
+     * @param tables_count The number of descriptor tables.
+     * @return wis::DX12RootSignature on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
-        return wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count);
+        return wis::ResultValue<wis::DX12RootSignature>{ &wis::ImplDX12DescriptorBufferExtension::CreateRootSignature, this, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count };
+    }
+    /**
+     * @brief Creates a descriptor buffer object.
+     * @param type The type of the descriptor buffer to create.
+     * @param memory Memory location of the buffer (CPU or GPU).
+     * @param memory_bytes The size of the descriptor buffer in bytes.
+     * @return wis::DX12DescriptorBuffer on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::DX12DescriptorBuffer CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType type, wis::DescriptorMemory memory, uint64_t memory_bytes) const noexcept
+    {
+        return wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(result, type, memory, memory_bytes);
     }
     /**
      * @brief Creates a descriptor buffer object.
@@ -93,7 +119,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12DescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType type, wis::DescriptorMemory memory, uint64_t memory_bytes) const noexcept
     {
-        return wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(type, memory, memory_bytes);
+        return wis::ResultValue<wis::DX12DescriptorBuffer>{ &wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer, this, type, memory, memory_bytes };
     }
     /**
      * @brief Returns the alignment of the descriptor table in bytes.
@@ -181,8 +207,8 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKRootSignature>
-    CreateRootSignature(const PushConstant* constants = nullptr,
+    [[nodiscard]] WIS_INLINE wis::VKRootSignature
+    CreateRootSignature(wis::Result& result, const PushConstant* constants = nullptr,
                         uint32_t constants_size = 0,
                         const PushDescriptor* push_descriptors = nullptr,
                         uint32_t push_descriptors_size = 0,
@@ -204,8 +230,8 @@ public:
                 : heap_features.sampler_size;
     }
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VKDescriptorBuffer>
-    CreateDescriptorBuffer(wis::DescriptorHeapType heap_type,
+    [[nodiscard]] WIS_INLINE VKDescriptorBuffer
+    CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type,
                            wis::DescriptorMemory memory_type,
                            uint64_t memory_bytes) const noexcept;
 
@@ -221,18 +247,19 @@ public: // Command List
                                              uint32_t table_aligned_byte_offset) const noexcept;
 
 protected:
-    [[nodiscard]] wis::ResultValue<VkDescriptorSetLayout>
-    CreateDescriptorSetLayout(const wis::DescriptorTable* table) const noexcept
+    [[nodiscard]] VkDescriptorSetLayout
+    CreateDescriptorSetLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept
     {
         return table->type == wis::DescriptorHeapType::Descriptor
-                ? VKCreateDescriptorSetDescriptorLayout(table)
-                : VKCreateDescriptorSetSamplerLayout(table);
+                ? VKCreateDescriptorSetDescriptorLayout(result, table)
+                : VKCreateDescriptorSetSamplerLayout(result, table);
     }
-    WIS_INLINE wis::ResultValue<VkDescriptorSetLayout> VKCreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept;
-    WIS_INLINE wis::ResultValue<VkDescriptorSetLayout> VKCreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept;
+    WIS_INLINE VkDescriptorSetLayout VKCreateDescriptorSetDescriptorLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept;
+    WIS_INLINE VkDescriptorSetLayout VKCreateDescriptorSetSamplerLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept;
 };
 
 #pragma region VKDescriptorBufferExtension
+
 class VKDescriptorBufferExtension : public wis::ImplVKDescriptorBufferExtension
 {
 public:
@@ -249,9 +276,34 @@ public:
      * @param tables_count The number of descriptor tables.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
+    [[nodiscard]] inline wis::VKRootSignature CreateRootSignature(wis::Result& result, const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
+    {
+        return wis::ImplVKDescriptorBufferExtension::CreateRootSignature(result, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count);
+    }
+    /**
+     * @brief Creates a root signature object.
+     * @param root_constants The root constants to create the root signature with.
+     * @param constants_count The number of root constants. Max is 5.
+     * @param root_descriptors The root descriptors to create the root signature with.
+     * @param descriptors_count The number of root descriptors. Max is 8.
+     * @param tables The descriptor tables to create the root signature with.
+     * @param tables_count The number of descriptor tables.
+     * @return wis::VKRootSignature on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
-        return wis::ImplVKDescriptorBufferExtension::CreateRootSignature(root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count);
+        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDescriptorBufferExtension::CreateRootSignature, this, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count };
+    }
+    /**
+     * @brief Creates a descriptor buffer object.
+     * @param type The type of the descriptor buffer to create.
+     * @param memory Memory location of the buffer (CPU or GPU).
+     * @param memory_bytes The size of the descriptor buffer in bytes.
+     * @return wis::VKDescriptorBuffer on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::VKDescriptorBuffer CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType type, wis::DescriptorMemory memory, uint64_t memory_bytes) const noexcept
+    {
+        return wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(result, type, memory, memory_bytes);
     }
     /**
      * @brief Creates a descriptor buffer object.
@@ -262,7 +314,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType type, wis::DescriptorMemory memory, uint64_t memory_bytes) const noexcept
     {
-        return wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(type, memory, memory_bytes);
+        return wis::ResultValue<wis::VKDescriptorBuffer>{ &wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer, this, type, memory, memory_bytes };
     }
     /**
      * @brief Returns the alignment of the descriptor table in bytes.

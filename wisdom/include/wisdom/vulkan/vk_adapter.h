@@ -20,9 +20,6 @@ class ImplVKAdapter : public QueryInternal<VKAdapter>
 {
 public:
     ImplVKAdapter() noexcept = default;
-    explicit ImplVKAdapter(wis::SharedInstance instance, VkPhysicalDevice adapter) noexcept
-        : QueryInternal(std::move(instance), adapter) { }
-
     operator bool() const noexcept
     {
         return adapter != nullptr;

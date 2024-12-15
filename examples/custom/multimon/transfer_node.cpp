@@ -167,7 +167,7 @@ CreateTransferNode(wis::Adapter&& adapter)
             },
             .flags = wis::PipelineFlags::DescriptorBuffer,
         };
-        auto [res2, hpipeline] = node.transfer_device.CreateGraphicsPipeline(&desc);
+        auto [res2, hpipeline] = node.transfer_device.CreateGraphicsPipeline(desc);
         if (res2.status != wis::Status::Ok)
             return std::unexpected(res2.error);
         node.pipeline_state = std::move(hpipeline);
@@ -187,7 +187,7 @@ CreateTransferNode(wis::Adapter&& adapter)
             .mip_lod_bias = 0.0f,
             .comparison_op = wis::Compare::None,
         };
-        auto [r, s] = node.transfer_device.CreateSampler(&desc);
+        auto [r, s] = node.transfer_device.CreateSampler(desc);
         if (r.status != wis::Status::Ok)
             return std::unexpected(r.error);
         node.sampler = std::move(s);
@@ -264,8 +264,8 @@ void TransferNode::VKImportFrame(wis::Size2D frame, void* mapping)
 {
     using namespace wis;
     // create an external buffer
-    auto [r, b] = ext_mem_host.CreateExternalBuffer(allocator, mapping, frame.width * frame.height * 4);
-    input_buffer = std::move(b);
+    wis::Result result = success;
+    input_buffer = ext_mem_host.CreateExternalBuffer(result, allocator, mapping, frame.width * frame.height * 4);
 
     // create debug buffer
     auto [r1, b1] = allocator.CreateReadbackBuffer(frame.width * frame.height * 4);

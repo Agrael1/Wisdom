@@ -10,7 +10,7 @@
 wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
     if (!pout_desc)
-        return wis::make_result<FUNC, "AdapterDesc was nullptr">(VK_ERROR_UNKNOWN);
+        return wis::make_result<"AdapterDesc was nullptr ">(VK_ERROR_UNKNOWN);
 
     auto& out_desc = *pout_desc;
     auto& instance_table = instance.table();

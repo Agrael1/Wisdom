@@ -64,29 +64,37 @@ wis::ImplVKDescriptorBufferExtension::Init(const wis::VKDevice& instance,
     return wis::success;
 }
 
-wis::ResultValue<wis::VKRootSignature>
-wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const PushConstant* constants,
+wis::VKRootSignature
+wis::ImplVKDescriptorBufferExtension::CreateRootSignature(wis::Result& result, const PushConstant* constants,
                                                           uint32_t constants_size,
                                                           const PushDescriptor* push_descriptors,
                                                           uint32_t push_descriptors_size,
                                                           const wis::DescriptorTable* tables,
                                                           uint32_t tables_count) const noexcept
 {
+    VKRootSignature out_signature;
+    auto& internal = out_signature.GetMutableInternal();
 
     if (constants_size > wis::max_push_constants) {
-        return wis::make_result<FUNC, "constants_size exceeds max_push_constants">(VkResult::VK_ERROR_UNKNOWN);
+        result = wis::make_result<FUNC, "constants_size exceeds max_push_constants">(VkResult::VK_ERROR_UNKNOWN);
+        return out_signature;
     }
     if (push_descriptors_size > wis::max_push_descriptors) {
-        return wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(VkResult::VK_ERROR_UNKNOWN);
+        result = wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(VkResult::VK_ERROR_UNKNOWN);
+        return out_signature;
     }
 
-    std::unique_ptr<VkDescriptorSetLayout[]> vk_dsl;
+    uint32_t table_offset = push_descriptors_size > 0;
     if (tables_count > 0 || push_descriptors_size > 0) {
-        if (vk_dsl = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(tables_count + 1); !vk_dsl)
-            return wis::make_result<FUNC, "Failed to allocate descriptor set layout array">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+        if (internal.vk_dsls = wis::detail::make_unique_for_overwrite<VkDescriptorSetLayout[]>(tables_count + table_offset); !internal.vk_dsls) {
+            result = wis::make_result<FUNC, "Failed to allocate descriptor set layout array">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
+            return out_signature;
+        }
     }
+
 
     // Create push descriptor set layout
+    if (table_offset)
     {
         uint32_t push_binding_count = constants_size;
         VkDescriptorSetLayoutBinding push_bindings[wis::max_push_descriptors]{};
@@ -101,13 +109,15 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const PushConstant* co
         VkDescriptorSetLayoutCreateInfo push_desc_info{
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
             .pNext = nullptr,
-            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR | VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT,
             .bindingCount = push_binding_count,
             .pBindings = push_bindings,
         };
-        auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &vk_dsl[0]);
-        if (!succeeded(res))
-            return wis::make_result<FUNC, "Failed to create a push descriptor set layout">(res);
+        auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &internal.vk_dsls[0]);
+        if (!succeeded(res)) {
+            result = wis::make_result<FUNC, "Failed to create a push descriptor set layout">(res);
+            return out_signature;
+        }
     }
 
     VkPushConstantRange push_constants[wis::max_push_constants]{}; // max push constants
@@ -119,44 +129,46 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(const PushConstant* co
         c.size = r.size_bytes;
     }
 
-    for (size_t i = 1; i < tables_count + 1; i++) {
-        auto [res, h] = CreateDescriptorSetLayout(&tables[i]);
-        if (res.status != wis::Status::Ok) {
-            for (size_t j = 0; j < i; j++)
-                device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl[j], nullptr);
+    for (size_t i = 0; i < tables_count; i++) {
+        auto h = CreateDescriptorSetLayout(result, &tables[i]);
+        if (result.status != wis::Status::Ok) {
+            for (size_t j = 0; j < i + table_offset; j++) {
+                device.table().vkDestroyDescriptorSetLayout(device.get(), internal.vk_dsls[j], nullptr);
+            }
 
-            return res;
+            return out_signature;
         }
-        vk_dsl[i] = h;
+        internal.vk_dsls[i + table_offset] = h;
     }
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .pNext = nullptr,
         .flags = 0,
-        .setLayoutCount = tables_count + 1, // push descriptor set layout
-        .pSetLayouts = vk_dsl.get(),
+        .setLayoutCount = tables_count + table_offset, // push descriptor set layout
+        .pSetLayouts = internal.vk_dsls.get(),
         .pushConstantRangeCount = constants_size,
         .pPushConstantRanges = push_constants,
     };
-    VkPipelineLayout layout;
-    auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, &layout);
-
+    auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, internal.root.put(device, device.table().vkDestroyPipelineLayout));
     if (!succeeded(vr)) {
-        for (uint32_t i = 0; i < tables_count; i++)
-            device.table().vkDestroyDescriptorSetLayout(device.get(), vk_dsl[i], nullptr);
-
-        return wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
+        for (uint32_t i = 0; i < tables_count; i++) {
+            device.table().vkDestroyDescriptorSetLayout(device.get(), internal.vk_dsls[i], nullptr);
+        }
+        result = wis::make_result<FUNC, "Failed to create a pipeline layout">(vr);
+        return out_signature;
     }
-
-    return VKRootSignature{ wis::managed_handle_ex<VkPipelineLayout>{ layout, device, device.table().vkDestroyPipelineLayout }, std::move(vk_dsl), tables_count };
+    internal.dsl_count = tables_count + table_offset; // number of descriptor set layouts to destroy
+    return out_signature;
 }
 
-wis::ResultValue<wis::VKDescriptorBuffer>
-wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type,
+wis::VKDescriptorBuffer
+wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type,
                                                              wis::DescriptorMemory memory_type,
                                                              uint64_t memory_bytes) const noexcept
 {
+    VKDescriptorBuffer out_buffer;
+    auto& internal = out_buffer.GetMutableInternal();
 
     uint32_t descriptor_size = heap_type == wis::DescriptorHeapType::Descriptor
             ? descriptor_buffer_props.mutable_descriptor_size
@@ -184,23 +196,28 @@ wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHeap
         .requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         .preferredFlags = 0,
     };
+    auto vr = vmaCreateBuffer(allocator.get(), &info, &alloc_info, &internal.buffer, &internal.allocation, nullptr);
+    if (!succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(vr);
+        return out_buffer;
+    }
+    internal.allocator = allocator;
+    internal.type = heap_type;
+    internal.properties = descriptor_buffer_props;
+    internal.vkGetDescriptorEXT = ftable.vkGetDescriptorEXT;
 
-    VkBuffer buffer;
-    VmaAllocation allocation;
-
-    auto result = vmaCreateBuffer(allocator.get(), &info, &alloc_info, &buffer, &allocation, nullptr);
-    if (!succeeded(result))
-        return wis::make_result<FUNC, "Failed to create a descriptor heap buffer">(result);
-
-    return wis::VKDescriptorBuffer{
-        wis::Internal<VKDescriptorBuffer>{
-                allocator,
-                buffer,
-                allocation,
-                heap_type,
-                descriptor_buffer_props,
-                ftable }
+    auto& device = this->allocator.header();
+    VkBufferDeviceAddressInfo address_info{
+        .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+        .buffer = internal.buffer
     };
+    internal.address = device.table().vkGetBufferDeviceAddress(device.get(), &address_info);
+    vmaMapMemory(this->allocator.get(), internal.allocation, reinterpret_cast<void**>(&internal.data));
+    internal.descriptor_size = internal.type == wis::DescriptorHeapType::Descriptor
+            ? descriptor_buffer_props.mutable_descriptor_size
+            : descriptor_buffer_props.sampler_size;
+
+    return out_buffer;
 }
 void wis::ImplVKDescriptorBufferExtension::SetDescriptorBuffers(wis::VKCommandListView cmd_list,
                                                                 wis::VKDescriptorBufferView resource_desc_buffer,
@@ -244,8 +261,8 @@ void wis::ImplVKDescriptorBufferExtension::SetDescriptorTableOffset(wis::VKComma
 
 // Auxiliary functions
 
-wis::ResultValue<VkDescriptorSetLayout>
-wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetDescriptorLayout(const wis::DescriptorTable* table) const noexcept
+VkDescriptorSetLayout
+wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetDescriptorLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept
 {
     constexpr static VkDescriptorType cbvSrvUavTypes[] = {
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -306,16 +323,15 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetDescriptorLayout(cons
     };
 
     VkDescriptorSetLayout layout;
-    auto result = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
-
-    if (!succeeded(result))
-        return wis::make_result<FUNC, "Failed to create a descriptor set layout">(result);
-
+    auto vr = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
+    if (!succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create a descriptor set layout">(vr);
+    }
     return layout;
 }
 
-wis::ResultValue<VkDescriptorSetLayout>
-wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetSamplerLayout(const wis::DescriptorTable* table) const noexcept
+VkDescriptorSetLayout
+wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetSamplerLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept
 {
     wis::detail::limited_allocator<VkDescriptorSetLayoutBinding, 32> bindings{ table->entry_count, true };
 
@@ -339,11 +355,10 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetSamplerLayout(const w
     };
 
     VkDescriptorSetLayout layout;
-    auto result = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
-
-    if (!succeeded(result))
-        return wis::make_result<FUNC, "Failed to create a descriptor set layout">(result);
-
+    auto vr = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
+    if (!succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create a descriptor set layout">(vr);
+    }
     return layout;
 }
 

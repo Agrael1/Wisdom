@@ -17,8 +17,6 @@ struct Internal<VKMemory> {
     h::VmaAllocation allocation;
 
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator, ::VmaAllocation allocation) noexcept
-        : allocator(std::move(allocator)), allocation(allocation) { }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -46,10 +44,6 @@ class ImplVKMemory : public QueryInternal<VKMemory>
 {
 public:
     ImplVKMemory() noexcept = default;
-    explicit ImplVKMemory(wis::shared_handle<VmaAllocator> allocator, VmaAllocation allocation) noexcept
-        : QueryInternal<VKMemory>(std::move(allocator), allocation)
-    {
-    }
     operator bool() const noexcept
     {
         return bool(allocation);
@@ -72,8 +66,9 @@ public:
 public:
     [[nodiscard]] uint64_t GetBlockOffset() const noexcept
     {
-        if (!allocation)
+        if (!allocation) {
             return 0;
+        }
 
         VmaAllocationInfo2 info{};
         vmaGetAllocationInfo2(allocator.get(), allocation, &info);

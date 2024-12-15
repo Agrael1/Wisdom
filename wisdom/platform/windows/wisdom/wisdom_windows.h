@@ -25,11 +25,24 @@ namespace platform {
 class DX12WindowsExtension : public QueryInternalExtension<DX12WindowsExtension, DX12FactoryExtension>
 {
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12SwapChain>
-    CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::DX12SwapChain
+    CreateSwapchain(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
 
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12SwapChain>
-    CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept;
+    [[nodiscard]] inline wis::ResultValue<DX12SwapChain>
+    CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
+    {
+        auto fptr = static_cast<wis::DX12SwapChain (DX12WindowsExtension::*)(wis::Result&, const DX12Device&, DX12QueueView, const wis::SwapchainDesc*, HWND) const noexcept>(&DX12WindowsExtension::CreateSwapchain);
+        return wis::ResultValue<DX12SwapChain>::from_member_func(fptr, this, device, main_queue, desc, hwnd);
+    }
+
+    [[nodiscard]] WIS_INLINE wis::DX12SwapChain
+    CreateSwapchainUWP(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept;
+    [[nodiscard]] inline wis::ResultValue<DX12SwapChain>
+    CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept
+    {
+        auto fptr = static_cast<wis::DX12SwapChain (DX12WindowsExtension::*)(wis::Result&, const DX12Device&, DX12QueueView, const wis::SwapchainDesc*, IUnknown*) const noexcept>(&DX12WindowsExtension::CreateSwapchainUWP);
+        return wis::ResultValue<DX12SwapChain>::from_member_func(fptr, this, device, main_queue, desc, window);
+    }
 };
 
 class DX12InteropDeviceExtension : public QueryInternalExtension<DX12InteropDeviceExtension, DX12DeviceExtension>
@@ -42,19 +55,20 @@ protected:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
-    GetSemaphoreHandle(const wis::DX12Fence& fence) const noexcept
+    [[nodiscard]] WIS_INLINE HANDLE
+    GetSemaphoreHandle(wis::Result& result, const wis::DX12Fence& fence) const noexcept
     {
         HANDLE handle;
         auto hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Failed to create shared handle for fence">(hr);
+            result = wis::make_result<FUNC, "Failed to create shared handle for fence">(hr);
         }
         return handle;
     }
-    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
-    GetMemoryHandle(wis::DX12MemoryView memory) const noexcept
+
+    [[nodiscard]] WIS_INLINE HANDLE
+    GetMemoryHandle(wis::Result& result, wis::DX12MemoryView memory) const noexcept
     {
         auto allocation = std::get<1>(memory);
 
@@ -62,7 +76,7 @@ public:
         auto hr = device->CreateSharedHandle(allocation->GetHeap(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Failed to create shared handle for memory allocation">(hr);
+            result = wis::make_result<FUNC, "Failed to create shared handle for memory allocation">(hr);
         }
         return handle;
     }
@@ -124,8 +138,14 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
-    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::VKSwapChain
+    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
+    [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
+    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
+    {
+        auto fptr = static_cast<wis::VKSwapChain (VKWindowsExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc*, HWND) const noexcept>(&VKWindowsExtension::CreateSwapchain);
+        return wis::ResultValue<wis::VKSwapChain>::from_member_func(fptr, this, device, main_queue, desc, hwnd);
+    }
 };
 
 // Device Extension for memory and semaphore interop
@@ -150,8 +170,8 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
-    GetSemaphoreHandle(const wis::VKFence& fence) const noexcept
+    [[nodiscard]] WIS_INLINE HANDLE
+    GetSemaphoreHandle(wis::Result& result, const wis::VKFence& fence) const noexcept
     {
         HANDLE handle;
         VkSemaphoreGetWin32HandleInfoKHR handle_info{
@@ -160,14 +180,14 @@ public:
             .semaphore = fence.GetInternal().fence.get(),
             .handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
         };
-        auto result = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
-        if (!wis::succeeded(result)) {
-            return wis::make_result<FUNC, "Failed to get semaphore handle">(result);
+        auto vr = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
+        if (!wis::succeeded(vr)) {
+            result = wis::make_result<FUNC, "Failed to get semaphore handle">(vr);
         }
         return handle;
     }
-    [[nodiscard]] WIS_INLINE wis::ResultValue<HANDLE>
-    GetMemoryHandle(wis::VKMemoryView memory) const noexcept
+    [[nodiscard]] WIS_INLINE HANDLE
+    GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
         // I know it exists, but platform code is the pain in the ass :(
         extern VMA_CALL_PRE VkResult VMA_CALL_POST vmaGetMemoryWin32Handle(VmaAllocator VMA_NOT_NULL allocator,
@@ -178,9 +198,9 @@ public:
         auto allocator = std::get<0>(memory);
         auto allocation = std::get<1>(memory);
         HANDLE handle;
-        auto result = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
-        if (!wis::succeeded(result)) {
-            return wis::make_result<FUNC, "Failed to get memory handle">(result);
+        auto vr = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
+        if (!wis::succeeded(vr)) {
+            result = wis::make_result<FUNC, "Failed to get memory handle">(vr);
         }
         return handle;
     }

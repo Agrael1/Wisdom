@@ -86,12 +86,7 @@ class ImplVKFactory : public QueryInternal<VKFactory>
 
 public:
     ImplVKFactory() noexcept = default;
-    WIS_INLINE explicit ImplVKFactory(
-            wis::SharedInstance instance, uint32_t api_ver, bool debug) noexcept;
-
-    ImplVKFactory(const ImplVKFactory&) = delete;
     ImplVKFactory(ImplVKFactory&&) noexcept = default;
-    ImplVKFactory& operator=(const ImplVKFactory&) = delete;
     ImplVKFactory& operator=(ImplVKFactory&&) noexcept = default;
 
     operator bool() const noexcept
@@ -104,17 +99,17 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VKAdapter>
-    GetAdapter(uint32_t index,
+    [[nodiscard]] WIS_INLINE VKAdapter
+    GetAdapter(wis::Result& resutlt, uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
 public:
     WIS_INLINE VkResult VKEnumeratePhysicalDevices() noexcept;
 
-    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-    FoundExtensions(std::span<const char*> in_extensions) noexcept;
-    [[nodiscard]] static WIS_INLINE wis::ResultValue<wis::detail::fixed_allocation<const char*>>
-    FoundLayers(std::span<const char*> in_layers) noexcept;
+    [[nodiscard]] static WIS_INLINE wis::detail::fixed_allocation<const char*>
+    FoundExtensions(wis::Result& result, std::span<const char*> in_extensions) noexcept;
+    [[nodiscard]] static WIS_INLINE wis::detail::fixed_allocation<const char*>
+    FoundLayers(wis::Result& result, std::span<const char*> in_layers) noexcept;
 
 private:
     mutable std::vector<IndexedAdapter> adapters{};
@@ -138,23 +133,26 @@ public:
      * Default is wis::AdapterPreference::Performance.
      * @return wis::VKAdapter on success (wis::Status::Ok).
      * */
+    [[nodiscard]] inline wis::VKAdapter GetAdapter(wis::Result& result, uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
+    {
+        return wis::ImplVKFactory::GetAdapter(result, index, preference);
+    }
+    /**
+     * @brief Creates the wis::VKAdapter for the factory with provided index.
+     * @param index The index of the adapter to get.
+     * @param preference The preference of the adapter to get.
+     * Default is wis::AdapterPreference::Performance.
+     * @return wis::VKAdapter on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::VKAdapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
-        return wis::ImplVKFactory::GetAdapter(index, preference);
+        return wis::ResultValue<wis::VKAdapter>{ &wis::ImplVKFactory::GetAdapter, this, index, preference };
     }
 };
 #pragma endregion VKFactory
 
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
-ImplVKCreateFactory(bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;
-
-namespace detail {
-[[nodiscard]] WIS_INLINE wis::ResultValue<VKFactory>
-VKCreateFactoryEx(VkInstance instance, uint32_t version, bool debug_layer) noexcept;
-
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKFactory>
-VKCreateFactoryWithExtensions(bool debug_layer, const char** exts, size_t extension_count, const char** layers, size_t layer_count) noexcept;
-} // namespace detail
+[[nodiscard]] WIS_INLINE wis::VKFactory
+ImplVKCreateFactory(wis::Result& result, bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

@@ -24,9 +24,6 @@ struct Internal<VKCommandList> {
 
 public:
     Internal() noexcept = default;
-    Internal(wis::SharedDevice device, VkCommandPool allocator, VkCommandBuffer command_list) noexcept
-        : device(std::move(device)), allocator(allocator), command_list(command_list) { }
-
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -59,9 +56,6 @@ class ImplVKCommandList : public QueryInternal<VKCommandList>
 {
 public:
     ImplVKCommandList() noexcept = default;
-    explicit ImplVKCommandList(wis::SharedDevice device, VkCommandPool allocator, VkCommandBuffer command_list) noexcept
-        : QueryInternal(std::move(device), allocator, command_list) { }
-
     operator bool() const noexcept
     {
         return bool(command_list);
@@ -183,7 +177,7 @@ public:
      * @param destination The destination buffer to copy to.
      * @param region The region to copy.
      * */
-    inline void CopyBuffer(wis::VKBufferView source, wis::VKBufferView destination, wis::BufferRegion region) noexcept
+    inline void CopyBuffer(wis::VKBufferView source, wis::VKBufferView destination, const wis::BufferRegion& region) noexcept
     {
         wis::ImplVKCommandList::CopyBuffer(std::move(source), std::move(destination), region);
     }
@@ -214,7 +208,7 @@ public:
      * @param barrier The barrier to set.
      * @param buffer The buffer to set the barrier on.
      * */
-    inline void BufferBarrier(wis::BufferBarrier barrier, wis::VKBufferView buffer) noexcept
+    inline void BufferBarrier(const wis::BufferBarrier& barrier, wis::VKBufferView buffer) noexcept
     {
         wis::ImplVKCommandList::BufferBarrier(barrier, std::move(buffer));
     }
@@ -232,7 +226,7 @@ public:
      * @param barrier The barrier to set.
      * @param texture The texture to set the barrier on.
      * */
-    inline void TextureBarrier(wis::TextureBarrier barrier, wis::VKTextureView texture) noexcept
+    inline void TextureBarrier(const wis::TextureBarrier& barrier, wis::VKTextureView texture) noexcept
     {
         wis::ImplVKCommandList::TextureBarrier(barrier, std::move(texture));
     }
@@ -313,7 +307,7 @@ public:
      * @brief Sets the viewport.
      * @param viewport The viewport to set.
      * */
-    inline void RSSetViewport(wis::Viewport viewport) noexcept
+    inline void RSSetViewport(const wis::Viewport& viewport) noexcept
     {
         wis::ImplVKCommandList::RSSetViewport(viewport);
     }
@@ -330,7 +324,7 @@ public:
      * @brief Sets the scissor rect.
      * @param scissor The scissor to set.
      * */
-    inline void RSSetScissor(wis::Scissor scissor) noexcept
+    inline void RSSetScissor(const wis::Scissor& scissor) noexcept
     {
         wis::ImplVKCommandList::RSSetScissor(scissor);
     }

@@ -1,6 +1,5 @@
 #ifndef WIS_DX12_CHECKS_H
 #define WIS_DX12_CHECKS_H
-#include <wisdom/global/definitions.h>
 #include <wisdom/util/error_messages.h>
 #include <wisdom/dx12/dx12_convert.h>
 #include <wisdom/dx12/dx12_info.h>

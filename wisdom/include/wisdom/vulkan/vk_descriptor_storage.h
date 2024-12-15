@@ -18,8 +18,6 @@ struct Internal<VKDescriptorStorage> {
 
 public:
     Internal() noexcept = default;
-    Internal(wis::SharedDevice device, VkDescriptorPool pool, std::array<VkDescriptorSet, max_sets> set) noexcept
-        : device(std::move(device)), pool(pool), set(std::move(set)) { }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -50,9 +48,6 @@ class ImplVKDescriptorStorage : public QueryInternal<VKDescriptorStorage>
 {
 public:
     ImplVKDescriptorStorage() noexcept = default;
-    explicit ImplVKDescriptorStorage(wis::SharedDevice device, VkDescriptorPool pool, std::array<VkDescriptorSet, max_sets> set) noexcept
-        : QueryInternal(std::move(device), pool, std::move(set)) { }
-
     operator bool() const noexcept
     {
         return bool(pool);

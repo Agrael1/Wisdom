@@ -39,39 +39,8 @@ struct VKSwapChainCreateInfo {
 
 public:
     VKSwapChainCreateInfo() = default;
-    VKSwapChainCreateInfo(wis::SharedSurface surface,
-                          wis::SharedDevice device,
-                          VkPhysicalDevice adapter,
-                          VkSwapchainKHR swapchain,
-                          VkCommandBuffer initialization,
-                          VkCommandPool command_pool,
-                          VkQueue present_queue,
-                          VkQueue graphics_queue,
-                          VkSurfaceFormatKHR format,
-                          VkPresentModeKHR present_mode, uint8_t supported_presentations,
-                          bool tearing,
-                          bool stereo, bool stereo_requested) noexcept
-        : surface(std::move(surface))
-        , device(std::move(device))
-        , adapter(adapter)
-        , swapchain(swapchain)
-        , initialization(initialization)
-        , command_pool(command_pool)
-        , present_queue(present_queue)
-        , graphics_queue(graphics_queue)
-        , format(format)
-        , present_mode(present_mode)
-        , supported_presentations(supported_presentations)
-        , tearing(tearing)
-        , stereo(stereo)
-        , stereo_requested(stereo_requested)
-    {
-    }
-    VKSwapChainCreateInfo(const VKSwapChainCreateInfo&) = delete;
-    VKSwapChainCreateInfo& operator=(const VKSwapChainCreateInfo&) = delete;
     VKSwapChainCreateInfo(VKSwapChainCreateInfo&&) noexcept = default;
     WIS_INLINE VKSwapChainCreateInfo& operator=(VKSwapChainCreateInfo&&) noexcept;
-
     ~VKSwapChainCreateInfo() noexcept
     {
         Destroy();
@@ -80,7 +49,6 @@ public:
     WIS_INLINE void Destroy() noexcept;
 
 public:
-    [[nodiscard]] WIS_INLINE wis::Result InitSemaphores() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers(VkExtent2D image_size) noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AcquireNextIndex() const noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AcquireNextIndexAndWait() const noexcept;
@@ -92,14 +60,10 @@ template<>
 struct Internal<VKSwapChain> : detail::VKSwapChainCreateInfo {
 };
 
-class ImplVKSwapChain : public QueryInternal<VKSwapChain>
+class ImplVKSwapChain : public QueryInternal<VKSwapChain, true>
 {
 public:
     ImplVKSwapChain() = default;
-    explicit ImplVKSwapChain(detail::VKSwapChainCreateInfo internals) noexcept
-        : QueryInternal(std::move(internals))
-    {
-    }
     operator bool() const noexcept
     {
         return bool(swapchain);

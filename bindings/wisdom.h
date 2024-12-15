@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.4.0</b>
+<b>Version 0.5.0</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1172,6 +1172,7 @@ enum WisFactoryExtID {
 enum WisDeviceExtID {
     DeviceExtIDCustom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DeviceExtIDDescriptorBufferExtension = 1,
+    DeviceExtIDExtendedAllocation = 2,
 };
 
 //-------------------------------------------------------------------------
@@ -2307,7 +2308,7 @@ WISDOM_API WisResult VKDeviceCreateAllocator(VKDevice self, VKResourceAllocator*
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTexture texture, WisRenderTargetDesc desc, VKRenderTarget* target);
+WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTexture texture, const WisRenderTargetDesc* desc, VKRenderTarget* target);
 
 /**
  * @brief Creates a depth stencil target object.
@@ -2321,7 +2322,7 @@ WISDOM_API WisResult VKDeviceCreateRenderTarget(VKDevice self, VKTexture texture
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateDepthStencilTarget(VKDevice self, VKTexture texture, WisRenderTargetDesc desc, VKRenderTarget* target);
+WISDOM_API WisResult VKDeviceCreateDepthStencilTarget(VKDevice self, VKTexture texture, const WisRenderTargetDesc* desc, VKRenderTarget* target);
 
 /**
  * @brief Creates a sampler object.
@@ -2342,7 +2343,18 @@ WISDOM_API WisResult VKDeviceCreateSampler(VKDevice self, const WisSamplerDesc* 
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture texture, WisShaderResourceDesc desc, VKShaderResource* resource);
+WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture texture, const WisShaderResourceDesc* desc, VKShaderResource* resource);
+
+/**
+ * @brief Creates a descriptor storage object with specified number of bindings to allocate.
+ * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
+ * @param self valid handle to the Device
+ * @param desc The description of the descriptor storage to create.
+ * @param storage VKDescriptorStorage on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateDescriptorStorage(VKDevice self, const WisDescriptorStorageDesc* desc, VKDescriptorStorage* storage);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -2386,6 +2398,28 @@ WISDOM_API WisResult VKResourceAllocatorCreateBuffer(VKResourceAllocator self, u
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult VKResourceAllocatorCreateTexture(VKResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, VKTexture* texture);
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer VKBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorCreateUploadBuffer(VKResourceAllocator self, uint64_t size, VKBuffer* buffer);
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer VKBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKResourceAllocatorCreateReadbackBuffer(VKResourceAllocator self, uint64_t size, VKBuffer* buffer);
 
 /**
  * @brief Returns the allocation info for the texture.
@@ -2544,7 +2578,7 @@ WISDOM_API void VKCommandListSetPipelineState(VKCommandList self, VKPipelineStat
  * @param destination The destination buffer to copy to.
  * @param region The region to copy.
  * */
-WISDOM_API void VKCommandListCopyBuffer(VKCommandList self, VKBuffer source, VKBuffer destination, WisBufferRegion region);
+WISDOM_API void VKCommandListCopyBuffer(VKCommandList self, VKBuffer source, VKBuffer destination, const WisBufferRegion* region);
 
 /**
  * @brief Copies data from buffer to texture.
@@ -2572,7 +2606,7 @@ WISDOM_API void VKCommandListCopyTextureToBuffer(VKCommandList self, VKTexture s
  * @param barrier The barrier to set.
  * @param buffer The buffer to set the barrier on.
  * */
-WISDOM_API void VKCommandListBufferBarrier(VKCommandList self, WisBufferBarrier barrier, VKBuffer buffer);
+WISDOM_API void VKCommandListBufferBarrier(VKCommandList self, const WisBufferBarrier* barrier, VKBuffer buffer);
 
 /**
  * @brief Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.
@@ -2588,7 +2622,7 @@ WISDOM_API void VKCommandListBufferBarriers(VKCommandList self, const VKBufferBa
  * @param barrier The barrier to set.
  * @param texture The texture to set the barrier on.
  * */
-WISDOM_API void VKCommandListTextureBarrier(VKCommandList self, WisTextureBarrier barrier, VKTexture texture);
+WISDOM_API void VKCommandListTextureBarrier(VKCommandList self, const WisTextureBarrier* barrier, VKTexture texture);
 
 /**
  * @brief Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.
@@ -2660,7 +2694,7 @@ WISDOM_API void VKCommandListIASetIndexBuffer2(VKCommandList self, VKBuffer buff
  * @param self valid handle to the CommandList
  * @param viewport The viewport to set.
  * */
-WISDOM_API void VKCommandListRSSetViewport(VKCommandList self, WisViewport viewport);
+WISDOM_API void VKCommandListRSSetViewport(VKCommandList self, const WisViewport* viewport);
 
 /**
  * @brief Sets multiple viewports.
@@ -2675,7 +2709,7 @@ WISDOM_API void VKCommandListRSSetViewports(VKCommandList self, const WisViewpor
  * @param self valid handle to the CommandList
  * @param scissor The scissor to set.
  * */
-WISDOM_API void VKCommandListRSSetScissor(VKCommandList self, WisScissor scissor);
+WISDOM_API void VKCommandListRSSetScissor(VKCommandList self, const WisScissor* scissor);
 
 /**
  * @brief Sets multiple scissor rects.
@@ -3314,7 +3348,7 @@ WISDOM_API WisResult DX12DeviceCreateAllocator(DX12Device self, DX12ResourceAllo
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12Texture texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
+WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12Texture texture, const WisRenderTargetDesc* desc, DX12RenderTarget* target);
 
 /**
  * @brief Creates a depth stencil target object.
@@ -3328,7 +3362,7 @@ WISDOM_API WisResult DX12DeviceCreateRenderTarget(DX12Device self, DX12Texture t
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateDepthStencilTarget(DX12Device self, DX12Texture texture, WisRenderTargetDesc desc, DX12RenderTarget* target);
+WISDOM_API WisResult DX12DeviceCreateDepthStencilTarget(DX12Device self, DX12Texture texture, const WisRenderTargetDesc* desc, DX12RenderTarget* target);
 
 /**
  * @brief Creates a sampler object.
@@ -3349,7 +3383,18 @@ WISDOM_API WisResult DX12DeviceCreateSampler(DX12Device self, const WisSamplerDe
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture texture, WisShaderResourceDesc desc, DX12ShaderResource* resource);
+WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture texture, const WisShaderResourceDesc* desc, DX12ShaderResource* resource);
+
+/**
+ * @brief Creates a descriptor storage object with specified number of bindings to allocate.
+ * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
+ * @param self valid handle to the Device
+ * @param desc The description of the descriptor storage to create.
+ * @param storage DX12DescriptorStorage on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateDescriptorStorage(DX12Device self, const WisDescriptorStorageDesc* desc, DX12DescriptorStorage* storage);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -3393,6 +3438,28 @@ WISDOM_API WisResult DX12ResourceAllocatorCreateBuffer(DX12ResourceAllocator sel
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult DX12ResourceAllocatorCreateTexture(DX12ResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, DX12Texture* texture);
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer DX12Buffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorCreateUploadBuffer(DX12ResourceAllocator self, uint64_t size, DX12Buffer* buffer);
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer DX12Buffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ResourceAllocatorCreateReadbackBuffer(DX12ResourceAllocator self, uint64_t size, DX12Buffer* buffer);
 
 /**
  * @brief Returns the allocation info for the texture.
@@ -3551,7 +3618,7 @@ WISDOM_API void DX12CommandListSetPipelineState(DX12CommandList self, DX12Pipeli
  * @param destination The destination buffer to copy to.
  * @param region The region to copy.
  * */
-WISDOM_API void DX12CommandListCopyBuffer(DX12CommandList self, DX12Buffer source, DX12Buffer destination, WisBufferRegion region);
+WISDOM_API void DX12CommandListCopyBuffer(DX12CommandList self, DX12Buffer source, DX12Buffer destination, const WisBufferRegion* region);
 
 /**
  * @brief Copies data from buffer to texture.
@@ -3579,7 +3646,7 @@ WISDOM_API void DX12CommandListCopyTextureToBuffer(DX12CommandList self, DX12Tex
  * @param barrier The barrier to set.
  * @param buffer The buffer to set the barrier on.
  * */
-WISDOM_API void DX12CommandListBufferBarrier(DX12CommandList self, WisBufferBarrier barrier, DX12Buffer buffer);
+WISDOM_API void DX12CommandListBufferBarrier(DX12CommandList self, const WisBufferBarrier* barrier, DX12Buffer buffer);
 
 /**
  * @brief Sets the barriers on the buffers. You may set up to 8 buffer barriers for max efficiency.
@@ -3595,7 +3662,7 @@ WISDOM_API void DX12CommandListBufferBarriers(DX12CommandList self, const DX12Bu
  * @param barrier The barrier to set.
  * @param texture The texture to set the barrier on.
  * */
-WISDOM_API void DX12CommandListTextureBarrier(DX12CommandList self, WisTextureBarrier barrier, DX12Texture texture);
+WISDOM_API void DX12CommandListTextureBarrier(DX12CommandList self, const WisTextureBarrier* barrier, DX12Texture texture);
 
 /**
  * @brief Sets the barriers on the textures. You may set up to 8 texture barriers for max efficiency.
@@ -3667,7 +3734,7 @@ WISDOM_API void DX12CommandListIASetIndexBuffer2(DX12CommandList self, DX12Buffe
  * @param self valid handle to the CommandList
  * @param viewport The viewport to set.
  * */
-WISDOM_API void DX12CommandListRSSetViewport(DX12CommandList self, WisViewport viewport);
+WISDOM_API void DX12CommandListRSSetViewport(DX12CommandList self, const WisViewport* viewport);
 
 /**
  * @brief Sets multiple viewports.
@@ -3682,7 +3749,7 @@ WISDOM_API void DX12CommandListRSSetViewports(DX12CommandList self, const WisVie
  * @param self valid handle to the CommandList
  * @param scissor The scissor to set.
  * */
-WISDOM_API void DX12CommandListRSSetScissor(DX12CommandList self, WisScissor scissor);
+WISDOM_API void DX12CommandListRSSetScissor(DX12CommandList self, const WisScissor* scissor);
 
 /**
  * @brief Sets multiple scissor rects.
@@ -4252,7 +4319,7 @@ inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* 
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, const WisRenderTargetDesc* desc, WisRenderTarget* target)
 {
     return DX12DeviceCreateRenderTarget(self, texture, desc, target);
 }
@@ -4269,7 +4336,7 @@ inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture,
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDepthStencilTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+inline WisResult WisDeviceCreateDepthStencilTarget(WisDevice self, WisTexture texture, const WisRenderTargetDesc* desc, WisRenderTarget* target)
 {
     return DX12DeviceCreateDepthStencilTarget(self, texture, desc, target);
 }
@@ -4296,9 +4363,23 @@ inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* de
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture texture, const WisShaderResourceDesc* desc, WisShaderResource* resource)
 {
     return DX12DeviceCreateShaderResource(self, texture, desc, resource);
+}
+
+/**
+ * @brief Creates a descriptor storage object with specified number of bindings to allocate.
+ * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
+ * @param self valid handle to the Device
+ * @param desc The description of the descriptor storage to create.
+ * @param storage WisDescriptorStorage on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorStorageDesc* desc, WisDescriptorStorage* storage)
+{
+    return DX12DeviceCreateDescriptorStorage(self, desc, storage);
 }
 
 /**
@@ -4354,6 +4435,34 @@ inline WisResult WisResourceAllocatorCreateBuffer(WisResourceAllocator self, uin
 inline WisResult WisResourceAllocatorCreateTexture(WisResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, WisTexture* texture)
 {
     return DX12ResourceAllocatorCreateTexture(self, desc, memory, mem_flags, texture);
+}
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateUploadBuffer(WisResourceAllocator self, uint64_t size, WisBuffer* buffer)
+{
+    return DX12ResourceAllocatorCreateUploadBuffer(self, size, buffer);
+}
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateReadbackBuffer(WisResourceAllocator self, uint64_t size, WisBuffer* buffer)
+{
+    return DX12ResourceAllocatorCreateReadbackBuffer(self, size, buffer);
 }
 
 /**
@@ -4564,7 +4673,7 @@ inline void WisCommandListSetPipelineState(WisCommandList self, WisPipelineState
  * @param destination The destination buffer to copy to.
  * @param region The region to copy.
  * */
-inline void WisCommandListCopyBuffer(WisCommandList self, WisBuffer source, WisBuffer destination, WisBufferRegion region)
+inline void WisCommandListCopyBuffer(WisCommandList self, WisBuffer source, WisBuffer destination, const WisBufferRegion* region)
 {
     DX12CommandListCopyBuffer(self, source, destination, region);
 }
@@ -4601,7 +4710,7 @@ inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture so
  * @param barrier The barrier to set.
  * @param buffer The buffer to set the barrier on.
  * */
-inline void WisCommandListBufferBarrier(WisCommandList self, WisBufferBarrier barrier, WisBuffer buffer)
+inline void WisCommandListBufferBarrier(WisCommandList self, const WisBufferBarrier* barrier, WisBuffer buffer)
 {
     DX12CommandListBufferBarrier(self, barrier, buffer);
 }
@@ -4623,7 +4732,7 @@ inline void WisCommandListBufferBarriers(WisCommandList self, const WisBufferBar
  * @param barrier The barrier to set.
  * @param texture The texture to set the barrier on.
  * */
-inline void WisCommandListTextureBarrier(WisCommandList self, WisTextureBarrier barrier, WisTexture texture)
+inline void WisCommandListTextureBarrier(WisCommandList self, const WisTextureBarrier* barrier, WisTexture texture)
 {
     DX12CommandListTextureBarrier(self, barrier, texture);
 }
@@ -4722,7 +4831,7 @@ inline void WisCommandListIASetIndexBuffer2(WisCommandList self, WisBuffer buffe
  * @param self valid handle to the CommandList
  * @param viewport The viewport to set.
  * */
-inline void WisCommandListRSSetViewport(WisCommandList self, WisViewport viewport)
+inline void WisCommandListRSSetViewport(WisCommandList self, const WisViewport* viewport)
 {
     DX12CommandListRSSetViewport(self, viewport);
 }
@@ -4743,7 +4852,7 @@ inline void WisCommandListRSSetViewports(WisCommandList self, const WisViewport*
  * @param self valid handle to the CommandList
  * @param scissor The scissor to set.
  * */
-inline void WisCommandListRSSetScissor(WisCommandList self, WisScissor scissor)
+inline void WisCommandListRSSetScissor(WisCommandList self, const WisScissor* scissor)
 {
     DX12CommandListRSSetScissor(self, scissor);
 }
@@ -5388,7 +5497,7 @@ inline WisResult WisDeviceCreateAllocator(WisDevice self, WisResourceAllocator* 
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture, const WisRenderTargetDesc* desc, WisRenderTarget* target)
 {
     return VKDeviceCreateRenderTarget(self, texture, desc, target);
 }
@@ -5405,7 +5514,7 @@ inline WisResult WisDeviceCreateRenderTarget(WisDevice self, WisTexture texture,
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDepthStencilTarget(WisDevice self, WisTexture texture, WisRenderTargetDesc desc, WisRenderTarget* target)
+inline WisResult WisDeviceCreateDepthStencilTarget(WisDevice self, WisTexture texture, const WisRenderTargetDesc* desc, WisRenderTarget* target)
 {
     return VKDeviceCreateDepthStencilTarget(self, texture, desc, target);
 }
@@ -5432,9 +5541,23 @@ inline WisResult WisDeviceCreateSampler(WisDevice self, const WisSamplerDesc* de
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture texture, WisShaderResourceDesc desc, WisShaderResource* resource)
+inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture texture, const WisShaderResourceDesc* desc, WisShaderResource* resource)
 {
     return VKDeviceCreateShaderResource(self, texture, desc, resource);
+}
+
+/**
+ * @brief Creates a descriptor storage object with specified number of bindings to allocate.
+ * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
+ * @param self valid handle to the Device
+ * @param desc The description of the descriptor storage to create.
+ * @param storage WisDescriptorStorage on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorStorageDesc* desc, WisDescriptorStorage* storage)
+{
+    return VKDeviceCreateDescriptorStorage(self, desc, storage);
 }
 
 /**
@@ -5490,6 +5613,34 @@ inline WisResult WisResourceAllocatorCreateBuffer(WisResourceAllocator self, uin
 inline WisResult WisResourceAllocatorCreateTexture(WisResourceAllocator self, const WisTextureDesc* desc, WisMemoryType memory, WisMemoryFlags mem_flags, WisTexture* texture)
 {
     return VKResourceAllocatorCreateTexture(self, desc, memory, mem_flags, texture);
+}
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateUploadBuffer(WisResourceAllocator self, uint64_t size, WisBuffer* buffer)
+{
+    return VKResourceAllocatorCreateUploadBuffer(self, size, buffer);
+}
+
+/**
+ * @brief Convenience function for creating a buffer object and allocating memory for it.
+ * Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)
+ * @param self valid handle to the ResourceAllocator
+ * @param size The size of the buffer in bytes.
+ * @param buffer WisBuffer on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisResourceAllocatorCreateReadbackBuffer(WisResourceAllocator self, uint64_t size, WisBuffer* buffer)
+{
+    return VKResourceAllocatorCreateReadbackBuffer(self, size, buffer);
 }
 
 /**
@@ -5700,7 +5851,7 @@ inline void WisCommandListSetPipelineState(WisCommandList self, WisPipelineState
  * @param destination The destination buffer to copy to.
  * @param region The region to copy.
  * */
-inline void WisCommandListCopyBuffer(WisCommandList self, WisBuffer source, WisBuffer destination, WisBufferRegion region)
+inline void WisCommandListCopyBuffer(WisCommandList self, WisBuffer source, WisBuffer destination, const WisBufferRegion* region)
 {
     VKCommandListCopyBuffer(self, source, destination, region);
 }
@@ -5737,7 +5888,7 @@ inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture so
  * @param barrier The barrier to set.
  * @param buffer The buffer to set the barrier on.
  * */
-inline void WisCommandListBufferBarrier(WisCommandList self, WisBufferBarrier barrier, WisBuffer buffer)
+inline void WisCommandListBufferBarrier(WisCommandList self, const WisBufferBarrier* barrier, WisBuffer buffer)
 {
     VKCommandListBufferBarrier(self, barrier, buffer);
 }
@@ -5759,7 +5910,7 @@ inline void WisCommandListBufferBarriers(WisCommandList self, const WisBufferBar
  * @param barrier The barrier to set.
  * @param texture The texture to set the barrier on.
  * */
-inline void WisCommandListTextureBarrier(WisCommandList self, WisTextureBarrier barrier, WisTexture texture)
+inline void WisCommandListTextureBarrier(WisCommandList self, const WisTextureBarrier* barrier, WisTexture texture)
 {
     VKCommandListTextureBarrier(self, barrier, texture);
 }
@@ -5858,7 +6009,7 @@ inline void WisCommandListIASetIndexBuffer2(WisCommandList self, WisBuffer buffe
  * @param self valid handle to the CommandList
  * @param viewport The viewport to set.
  * */
-inline void WisCommandListRSSetViewport(WisCommandList self, WisViewport viewport)
+inline void WisCommandListRSSetViewport(WisCommandList self, const WisViewport* viewport)
 {
     VKCommandListRSSetViewport(self, viewport);
 }
@@ -5879,7 +6030,7 @@ inline void WisCommandListRSSetViewports(WisCommandList self, const WisViewport*
  * @param self valid handle to the CommandList
  * @param scissor The scissor to set.
  * */
-inline void WisCommandListRSSetScissor(WisCommandList self, WisScissor scissor)
+inline void WisCommandListRSSetScissor(WisCommandList self, const WisScissor* scissor)
 {
     VKCommandListRSSetScissor(self, scissor);
 }
@@ -6810,6 +6961,190 @@ inline void WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uin
 inline void WisDescriptorBufferWriteConstantBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t buffer_size, uint32_t offset)
 {
     VKDescriptorBufferWriteConstantBuffer(self, aligned_table_offset, index, buffer, buffer_size, offset);
+}
+
+#endif
+
+//-------------------------------------------------------------------------
+
+// ExtendedAllocation--
+#ifndef WIS_ExtendedAllocation
+#define WIS_ExtendedAllocation 1
+#endif
+
+#ifdef WISDOM_VULKAN
+typedef VKFactoryExtension VKExtendedAllocation;
+// VKExtendedAllocation methods --
+/**
+ * @brief Creates a texture that is optimized for GPU upload.
+ * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+ * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+ * @param self valid handle to the ExtendedAllocation
+ * @param allocator The allocator to create the texture with.
+ * Allocator must be created by the same device, that initialized this extension.
+ * @param desc The description of the texture to create.
+ * @param initial_state The initial state of the texture. Default is Common.
+ * @param flags The flags of the memory to create the texture with. Default is None.
+ * @param texture VKTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKExtendedAllocationCreateGPUUploadTexture(VKExtendedAllocation self, const VKResourceAllocator* allocator, const WisTextureDesc* desc, WisTextureState initial_state, WisMemoryFlags flags, VKTexture* texture);
+
+/**
+ * @brief Writes memory directly to the subresource of the texture.
+ * Subresource is array slice or mip level.
+ * @param self valid handle to the ExtendedAllocation
+ * @param host_data The data to write to the texture.
+ * @param dst_texture The texture to write the data to.
+ * @param initial_state The initial state of the texture.
+ * @param region The region to write the data to.
+ * */
+WISDOM_API WisResult VKExtendedAllocationWriteMemoryToSubresourceDirect(VKExtendedAllocation self, const void* host_data, VKTexture dst_texture, WisTextureState initial_state, WisTextureRegion region);
+
+/**
+ * @brief Check if direct GPU upload is supported for the given format.
+ * @param self valid handle to the ExtendedAllocation
+ * @param format The format to check.
+ * @return true if direct GPU upload is supported.
+ * */
+WISDOM_API bool VKExtendedAllocationSupportedDirectGPUUpload(VKExtendedAllocation self, WisDataFormat format);
+
+#endif
+
+#ifdef WISDOM_DX12
+typedef DX12FactoryExtension DX12ExtendedAllocation;
+// DX12ExtendedAllocation methods --
+/**
+ * @brief Creates a texture that is optimized for GPU upload.
+ * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+ * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+ * @param self valid handle to the ExtendedAllocation
+ * @param allocator The allocator to create the texture with.
+ * Allocator must be created by the same device, that initialized this extension.
+ * @param desc The description of the texture to create.
+ * @param initial_state The initial state of the texture. Default is Common.
+ * @param flags The flags of the memory to create the texture with. Default is None.
+ * @param texture DX12Texture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12ExtendedAllocationCreateGPUUploadTexture(DX12ExtendedAllocation self, const DX12ResourceAllocator* allocator, const WisTextureDesc* desc, WisTextureState initial_state, WisMemoryFlags flags, DX12Texture* texture);
+
+/**
+ * @brief Writes memory directly to the subresource of the texture.
+ * Subresource is array slice or mip level.
+ * @param self valid handle to the ExtendedAllocation
+ * @param host_data The data to write to the texture.
+ * @param dst_texture The texture to write the data to.
+ * @param initial_state The initial state of the texture.
+ * @param region The region to write the data to.
+ * */
+WISDOM_API WisResult DX12ExtendedAllocationWriteMemoryToSubresourceDirect(DX12ExtendedAllocation self, const void* host_data, DX12Texture dst_texture, WisTextureState initial_state, WisTextureRegion region);
+
+/**
+ * @brief Check if direct GPU upload is supported for the given format.
+ * @param self valid handle to the ExtendedAllocation
+ * @param format The format to check.
+ * @return true if direct GPU upload is supported.
+ * */
+WISDOM_API bool DX12ExtendedAllocationSupportedDirectGPUUpload(DX12ExtendedAllocation self, WisDataFormat format);
+
+#endif
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+typedef DX12ExtendedAllocation WisExtendedAllocation;
+// WisExtendedAllocation methods --
+/**
+ * @brief Creates a texture that is optimized for GPU upload.
+ * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+ * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+ * @param self valid handle to the ExtendedAllocation
+ * @param allocator The allocator to create the texture with.
+ * Allocator must be created by the same device, that initialized this extension.
+ * @param desc The description of the texture to create.
+ * @param initial_state The initial state of the texture. Default is Common.
+ * @param flags The flags of the memory to create the texture with. Default is None.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisExtendedAllocationCreateGPUUploadTexture(WisExtendedAllocation self, const WisResourceAllocator* allocator, const WisTextureDesc* desc, WisTextureState initial_state, WisMemoryFlags flags, WisTexture* texture)
+{
+    return DX12ExtendedAllocationCreateGPUUploadTexture(self, allocator, desc, initial_state, flags, texture);
+}
+
+/**
+ * @brief Writes memory directly to the subresource of the texture.
+ * Subresource is array slice or mip level.
+ * @param self valid handle to the ExtendedAllocation
+ * @param host_data The data to write to the texture.
+ * @param dst_texture The texture to write the data to.
+ * @param initial_state The initial state of the texture.
+ * @param region The region to write the data to.
+ * */
+inline WisResult WisExtendedAllocationWriteMemoryToSubresourceDirect(WisExtendedAllocation self, const void* host_data, WisTexture dst_texture, WisTextureState initial_state, WisTextureRegion region)
+{
+    return DX12ExtendedAllocationWriteMemoryToSubresourceDirect(self, host_data, dst_texture, initial_state, region);
+}
+
+/**
+ * @brief Check if direct GPU upload is supported for the given format.
+ * @param self valid handle to the ExtendedAllocation
+ * @param format The format to check.
+ * @return true if direct GPU upload is supported.
+ * */
+inline bool WisExtendedAllocationSupportedDirectGPUUpload(WisExtendedAllocation self, WisDataFormat format)
+{
+    return DX12ExtendedAllocationSupportedDirectGPUUpload(self, format);
+}
+
+#elif defined(WISDOM_VULKAN)
+
+typedef VKExtendedAllocation WisExtendedAllocation;
+// WisExtendedAllocation methods --
+/**
+ * @brief Creates a texture that is optimized for GPU upload.
+ * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+ * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+ * @param self valid handle to the ExtendedAllocation
+ * @param allocator The allocator to create the texture with.
+ * Allocator must be created by the same device, that initialized this extension.
+ * @param desc The description of the texture to create.
+ * @param initial_state The initial state of the texture. Default is Common.
+ * @param flags The flags of the memory to create the texture with. Default is None.
+ * @param texture WisTexture on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisExtendedAllocationCreateGPUUploadTexture(WisExtendedAllocation self, const WisResourceAllocator* allocator, const WisTextureDesc* desc, WisTextureState initial_state, WisMemoryFlags flags, WisTexture* texture)
+{
+    return VKExtendedAllocationCreateGPUUploadTexture(self, allocator, desc, initial_state, flags, texture);
+}
+
+/**
+ * @brief Writes memory directly to the subresource of the texture.
+ * Subresource is array slice or mip level.
+ * @param self valid handle to the ExtendedAllocation
+ * @param host_data The data to write to the texture.
+ * @param dst_texture The texture to write the data to.
+ * @param initial_state The initial state of the texture.
+ * @param region The region to write the data to.
+ * */
+inline WisResult WisExtendedAllocationWriteMemoryToSubresourceDirect(WisExtendedAllocation self, const void* host_data, WisTexture dst_texture, WisTextureState initial_state, WisTextureRegion region)
+{
+    return VKExtendedAllocationWriteMemoryToSubresourceDirect(self, host_data, dst_texture, initial_state, region);
+}
+
+/**
+ * @brief Check if direct GPU upload is supported for the given format.
+ * @param self valid handle to the ExtendedAllocation
+ * @param format The format to check.
+ * @return true if direct GPU upload is supported.
+ * */
+inline bool WisExtendedAllocationSupportedDirectGPUUpload(WisExtendedAllocation self, WisDataFormat format)
+{
+    return VKExtendedAllocationSupportedDirectGPUUpload(self, format);
 }
 
 #endif

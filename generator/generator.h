@@ -168,6 +168,10 @@ struct WisReturnType {
     {
         return type.empty() && !has_result;
     }
+    bool IsRV() const noexcept
+    {
+        return has_result && !type.empty();
+    }
 };
 struct WisFunction {
     std::string_view name;
@@ -337,10 +341,11 @@ public:
 
 #pragma region CPP API
     // Function generation
-    std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl);
-    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true);
+    std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl, bool explicit_result);
+    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true, bool explicit_result = false);
     std::string MakeCPPFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API");
-    std::string MakeCPPFunctionCall(const WisFunction& func, std::string_view impl);
+    std::string MakeCPPFunctionCall(const WisFunction& func, std::string_view impl, bool explicit_result = false);
+    std::string MakeCPPRVFunctionCall(const WisFunction& func, std::string_view impl, std::string_view class_impl);
     std::string MakeCPPDelegate(const WisFunction& s);
 
     // Handle generation

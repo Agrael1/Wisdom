@@ -16,10 +16,6 @@ class VKPipelineState : public QueryInternal<VKPipelineState>
 {
 public:
     VKPipelineState() = default;
-    explicit VKPipelineState(wis::SharedPipeline pipeline) noexcept
-        : QueryInternal(std::move(pipeline))
-    {
-    }
     operator VKPipelineView() const noexcept
     {
         return pipeline.get();

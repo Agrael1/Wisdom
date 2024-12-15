@@ -60,9 +60,35 @@ using ShaderResource = DX12ShaderResource;
  * @param extension_count The number of extensions to enable.
  * @return wis::Factory on success (wis::Status::Ok).
  * */
+inline wis::Factory CreateFactory(wis::Result& result, bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+{
+    return DX12CreateFactory(result, debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @return wis::Factory on success (wis::Status::Ok).
+ * */
 inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
 {
     return DX12CreateFactory(debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @return wis::Device on success (wis::Status::Ok).
+ * */
+inline wis::Device CreateDevice(wis::Result& result, wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
+{
+    return DX12CreateDevice(result, std::move(adapter), extensions, extension_count, force);
 }
 /**
  * @brief Creates the wis::Device with extensions, specified in extension array.
@@ -142,9 +168,35 @@ using ShaderResource = VKShaderResource;
  * @param extension_count The number of extensions to enable.
  * @return wis::Factory on success (wis::Status::Ok).
  * */
+inline wis::Factory CreateFactory(wis::Result& result, bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+{
+    return VKCreateFactory(result, debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @return wis::Factory on success (wis::Status::Ok).
+ * */
 inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
 {
     return VKCreateFactory(debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @return wis::Device on success (wis::Status::Ok).
+ * */
+inline wis::Device CreateDevice(wis::Result& result, wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
+{
+    return VKCreateDevice(result, std::move(adapter), extensions, extension_count, force);
 }
 /**
  * @brief Creates the wis::Device with extensions, specified in extension array.

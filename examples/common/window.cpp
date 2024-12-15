@@ -42,7 +42,7 @@ ex::WindowEvent ex::Window::PollEvents()
     return WindowEvent::NoEvent;
 }
 
-wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFormat fmt, bool stereo)
+wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::ExampleSetup& setup, wis::DataFormat fmt, bool stereo)
 {
     using enum PlatformExtension::Selector;
     if (_platform.current == None) {
@@ -64,8 +64,8 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
     case Windows: {
         HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
-            return Unwrap(static_cast<wis::platform::WindowsExtension*>(_platform.get())
-                                  ->CreateSwapchain(setup.device, setup.queue, &desc, hwnd));
+            return static_cast<wis::platform::WindowsExtension*>(_platform.get())
+                    ->CreateSwapchain(result, setup.device, setup.queue, &desc, hwnd);
         }
     } break;
 #elif defined(SDL_PLATFORM_LINUX)
@@ -74,7 +74,7 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
         ::Window xwindow = (::Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
             return Unwrap(static_cast<wis::platform::X11Extension*>(_platform.get())
-                                  ->CreateSwapchain(setup.device, setup.queue, &desc, xdisplay, xwindow));
+                                  ->CreateSwapchain(result, setup.device, setup.queue, &desc, xdisplay, xwindow));
         }
     } break;
     case Wayland: {
@@ -82,7 +82,7 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
         struct wl_surface* surface = (struct wl_surface*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, NULL);
         if (display && surface) {
             return Unwrap(static_cast<wis::platform::WaylandExtension*>(_platform.get())
-                                  ->CreateSwapchain(setup.device, setup.queue, &desc, display, surface));
+                                  ->CreateSwapchain(result, setup.device, setup.queue, &desc, display, surface));
         }
     } break;
 #endif

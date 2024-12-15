@@ -18,10 +18,6 @@ class ImplVKFence : public QueryInternal<VKFence>
 {
 public:
     ImplVKFence() = default;
-    explicit ImplVKFence(wis::managed_handle_ex<VkSemaphore> in_fence) noexcept
-        : QueryInternal(std::move(in_fence))
-    {
-    }
     operator VKFenceView() const noexcept
     {
         return fence.get();

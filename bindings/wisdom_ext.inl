@@ -2,6 +2,7 @@
 
 #include "wisdom/wisdom_debug.h"
 #include "wisdom/wisdom_descriptor_buffer.h"
+#include "wisdom/wisdom_extended_allocation.h"
 
 #if defined(WISDOM_DX12)
 #include <wisdom/wisdom_dx12.hpp>
@@ -37,6 +38,10 @@ template<>
 struct DX12DeviceExtensionMap<wis::DeviceExtID::DescriptorBufferExtension> {
     using Type = wis::DX12DescriptorBufferExtension;
 };
+template<>
+struct DX12DeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation> {
+    using Type = wis::DX12ExtendedAllocation;
+};
 //-------------------------------------------------------------------------
 
 template<template<typename T> typename Executor, typename... Args>
@@ -45,6 +50,8 @@ constexpr static inline decltype(auto) DX12DeviceExtensionBridge(wis::DeviceExtI
     switch (id) {
     case wis::DeviceExtID::DescriptorBufferExtension:
         return Executor<typename DX12DeviceExtensionMap<wis::DeviceExtID::DescriptorBufferExtension>::Type>{}(std::forward<Args>(args)...);
+    case wis::DeviceExtID::ExtendedAllocation:
+        return Executor<typename DX12DeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation>::Type>{}(std::forward<Args>(args)...);
     default:
         return Executor<wis::DX12DeviceExtension>{}(std::forward<Args>(args)...);
     }
@@ -55,12 +62,14 @@ extern "C" WisResult DX12DebugExtensionCreateDebugMessenger(DX12DebugExtension s
     auto* xself = reinterpret_cast<wis::DX12DebugExtension*>(self);
     auto&& [res, value] = xself->CreateDebugMessenger(reinterpret_cast<wis::DebugCallback>(callback), user_data);
 
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
+    }
 
     *messenger = reinterpret_cast<DX12DebugMessenger>(new (std::nothrow) wis::DX12DebugMessenger(std::move(value)));
-    if (!*messenger)
+    if (!*messenger) {
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12DebugMessenger." };
+    }
     return reinterpret_cast<WisResult&>(res);
 }
 // DX12DescriptorBufferExtension methods --
@@ -69,12 +78,14 @@ extern "C" WisResult DX12DescriptorBufferExtensionCreateRootSignature(DX12Descri
     auto* xself = reinterpret_cast<wis::DX12DescriptorBufferExtension*>(self);
     auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(root_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
 
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
+    }
 
     *signature = reinterpret_cast<DX12RootSignature>(new (std::nothrow) wis::DX12RootSignature(std::move(value)));
-    if (!*signature)
+    if (!*signature) {
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12RootSignature." };
+    }
     return reinterpret_cast<WisResult&>(res);
 }
 extern "C" WisResult DX12DescriptorBufferExtensionCreateDescriptorBuffer(DX12DescriptorBufferExtension self, WisDescriptorHeapType type, WisDescriptorMemory memory, uint64_t memory_bytes, DX12DescriptorBuffer* buffer)
@@ -82,12 +93,14 @@ extern "C" WisResult DX12DescriptorBufferExtensionCreateDescriptorBuffer(DX12Des
     auto* xself = reinterpret_cast<wis::DX12DescriptorBufferExtension*>(self);
     auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(type), static_cast<wis::DescriptorMemory>(memory), memory_bytes);
 
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
+    }
 
     *buffer = reinterpret_cast<DX12DescriptorBuffer>(new (std::nothrow) wis::DX12DescriptorBuffer(std::move(value)));
-    if (!*buffer)
+    if (!*buffer) {
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12DescriptorBuffer." };
+    }
     return reinterpret_cast<WisResult&>(res);
 }
 extern "C" uint64_t DX12DescriptorBufferExtensionGetDescriptorTableAlignment(DX12DescriptorBufferExtension self, WisDescriptorHeapType type)
@@ -113,6 +126,36 @@ extern "C" void DX12DescriptorBufferExtensionSetDescriptorTableOffset(DX12Descri
 {
     auto* xself = reinterpret_cast<wis::DX12DescriptorBufferExtension*>(self);
     xself->SetDescriptorTableOffset(*reinterpret_cast<wis::DX12CommandList*>(list), *reinterpret_cast<wis::DX12RootSignature*>(root_signature), table_index, *reinterpret_cast<wis::DX12DescriptorBuffer*>(buffer), table_aligned_byte_offset);
+}
+// DX12ExtendedAllocation methods --
+extern "C" WisResult DX12ExtendedAllocationCreateGPUUploadTexture(DX12ExtendedAllocation self, const DX12ResourceAllocator* allocator, const WisTextureDesc* desc, WisTextureState initial_state, WisMemoryFlags flags, DX12Texture* texture)
+{
+    auto* xself = reinterpret_cast<wis::DX12ExtendedAllocation*>(self);
+    auto&& [res, value] = xself->CreateGPUUploadTexture(*reinterpret_cast<const wis::DX12ResourceAllocator*>(allocator), *reinterpret_cast<const wis::TextureDesc*>(desc), static_cast<wis::TextureState>(initial_state), static_cast<wis::MemoryFlags>(flags));
+
+    if (res.status != wis::Status::Ok) {
+        return reinterpret_cast<WisResult&>(res);
+    }
+
+    *texture = reinterpret_cast<DX12Texture>(new (std::nothrow) wis::DX12Texture(std::move(value)));
+    if (!*texture) {
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12Texture." };
+    }
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult DX12ExtendedAllocationWriteMemoryToSubresourceDirect(DX12ExtendedAllocation self, const void* host_data, DX12Texture dst_texture, WisTextureState initial_state, WisTextureRegion region)
+{
+    auto* xself = reinterpret_cast<wis::DX12ExtendedAllocation*>(self);
+    auto res = xself->WriteMemoryToSubresourceDirect(host_data, *reinterpret_cast<wis::DX12Texture*>(dst_texture), static_cast<wis::TextureState>(initial_state), reinterpret_cast<wis::TextureRegion&>(region));
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" bool DX12ExtendedAllocationSupportedDirectGPUUpload(DX12ExtendedAllocation self, WisDataFormat format)
+{
+    auto* xself = reinterpret_cast<wis::DX12ExtendedAllocation*>(self);
+    auto res = xself->SupportedDirectGPUUpload(static_cast<wis::DataFormat>(format));
+    ;
+    return res;
 }
 #endif
 
@@ -150,6 +193,10 @@ template<>
 struct VKDeviceExtensionMap<wis::DeviceExtID::DescriptorBufferExtension> {
     using Type = wis::VKDescriptorBufferExtension;
 };
+template<>
+struct VKDeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation> {
+    using Type = wis::VKExtendedAllocation;
+};
 //-------------------------------------------------------------------------
 
 template<template<typename T> typename Executor, typename... Args>
@@ -158,6 +205,8 @@ constexpr static inline decltype(auto) VKDeviceExtensionBridge(wis::DeviceExtID 
     switch (id) {
     case wis::DeviceExtID::DescriptorBufferExtension:
         return Executor<typename VKDeviceExtensionMap<wis::DeviceExtID::DescriptorBufferExtension>::Type>{}(std::forward<Args>(args)...);
+    case wis::DeviceExtID::ExtendedAllocation:
+        return Executor<typename VKDeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation>::Type>{}(std::forward<Args>(args)...);
     default:
         return Executor<wis::VKDeviceExtension>{}(std::forward<Args>(args)...);
     }
@@ -168,12 +217,14 @@ extern "C" WisResult VKDebugExtensionCreateDebugMessenger(VKDebugExtension self,
     auto* xself = reinterpret_cast<wis::VKDebugExtension*>(self);
     auto&& [res, value] = xself->CreateDebugMessenger(reinterpret_cast<wis::DebugCallback>(callback), user_data);
 
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
+    }
 
     *messenger = reinterpret_cast<VKDebugMessenger>(new (std::nothrow) wis::VKDebugMessenger(std::move(value)));
-    if (!*messenger)
+    if (!*messenger) {
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKDebugMessenger." };
+    }
     return reinterpret_cast<WisResult&>(res);
 }
 // VKDescriptorBufferExtension methods --
@@ -182,12 +233,14 @@ extern "C" WisResult VKDescriptorBufferExtensionCreateRootSignature(VKDescriptor
     auto* xself = reinterpret_cast<wis::VKDescriptorBufferExtension*>(self);
     auto&& [res, value] = xself->CreateRootSignature(reinterpret_cast<const wis::PushConstant*&>(root_constants), constants_count, reinterpret_cast<const wis::PushDescriptor*&>(root_descriptors), descriptors_count, reinterpret_cast<const wis::DescriptorTable*&>(tables), tables_count);
 
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
+    }
 
     *signature = reinterpret_cast<VKRootSignature>(new (std::nothrow) wis::VKRootSignature(std::move(value)));
-    if (!*signature)
+    if (!*signature) {
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKRootSignature." };
+    }
     return reinterpret_cast<WisResult&>(res);
 }
 extern "C" WisResult VKDescriptorBufferExtensionCreateDescriptorBuffer(VKDescriptorBufferExtension self, WisDescriptorHeapType type, WisDescriptorMemory memory, uint64_t memory_bytes, VKDescriptorBuffer* buffer)
@@ -195,12 +248,14 @@ extern "C" WisResult VKDescriptorBufferExtensionCreateDescriptorBuffer(VKDescrip
     auto* xself = reinterpret_cast<wis::VKDescriptorBufferExtension*>(self);
     auto&& [res, value] = xself->CreateDescriptorBuffer(static_cast<wis::DescriptorHeapType>(type), static_cast<wis::DescriptorMemory>(memory), memory_bytes);
 
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
+    }
 
     *buffer = reinterpret_cast<VKDescriptorBuffer>(new (std::nothrow) wis::VKDescriptorBuffer(std::move(value)));
-    if (!*buffer)
+    if (!*buffer) {
         return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKDescriptorBuffer." };
+    }
     return reinterpret_cast<WisResult&>(res);
 }
 extern "C" uint64_t VKDescriptorBufferExtensionGetDescriptorTableAlignment(VKDescriptorBufferExtension self, WisDescriptorHeapType type)
@@ -226,5 +281,35 @@ extern "C" void VKDescriptorBufferExtensionSetDescriptorTableOffset(VKDescriptor
 {
     auto* xself = reinterpret_cast<wis::VKDescriptorBufferExtension*>(self);
     xself->SetDescriptorTableOffset(*reinterpret_cast<wis::VKCommandList*>(list), *reinterpret_cast<wis::VKRootSignature*>(root_signature), table_index, *reinterpret_cast<wis::VKDescriptorBuffer*>(buffer), table_aligned_byte_offset);
+}
+// VKExtendedAllocation methods --
+extern "C" WisResult VKExtendedAllocationCreateGPUUploadTexture(VKExtendedAllocation self, const VKResourceAllocator* allocator, const WisTextureDesc* desc, WisTextureState initial_state, WisMemoryFlags flags, VKTexture* texture)
+{
+    auto* xself = reinterpret_cast<wis::VKExtendedAllocation*>(self);
+    auto&& [res, value] = xself->CreateGPUUploadTexture(*reinterpret_cast<const wis::VKResourceAllocator*>(allocator), *reinterpret_cast<const wis::TextureDesc*>(desc), static_cast<wis::TextureState>(initial_state), static_cast<wis::MemoryFlags>(flags));
+
+    if (res.status != wis::Status::Ok) {
+        return reinterpret_cast<WisResult&>(res);
+    }
+
+    *texture = reinterpret_cast<VKTexture>(new (std::nothrow) wis::VKTexture(std::move(value)));
+    if (!*texture) {
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKTexture." };
+    }
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKExtendedAllocationWriteMemoryToSubresourceDirect(VKExtendedAllocation self, const void* host_data, VKTexture dst_texture, WisTextureState initial_state, WisTextureRegion region)
+{
+    auto* xself = reinterpret_cast<wis::VKExtendedAllocation*>(self);
+    auto res = xself->WriteMemoryToSubresourceDirect(host_data, *reinterpret_cast<wis::VKTexture*>(dst_texture), static_cast<wis::TextureState>(initial_state), reinterpret_cast<wis::TextureRegion&>(region));
+    ;
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" bool VKExtendedAllocationSupportedDirectGPUUpload(VKExtendedAllocation self, WisDataFormat format)
+{
+    auto* xself = reinterpret_cast<wis::VKExtendedAllocation*>(self);
+    auto res = xself->SupportedDirectGPUUpload(static_cast<wis::DataFormat>(format));
+    ;
+    return res;
 }
 #endif

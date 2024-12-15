@@ -17,16 +17,15 @@ struct Internal<DX12Factory> {
 /// @brief Main Factory class
 class ImplDX12Factory : public QueryInternal<DX12Factory>
 {
-    friend wis::ResultValue<wis::DX12Factory>
-    ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
+    // friend wis::ResultValue<wis::DX12Factory>
+    // ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
+    friend wis::DX12Factory
+    ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count, wis::Result& res) noexcept;
 
 public:
     ImplDX12Factory() noexcept = default;
-    WIS_INLINE explicit ImplDX12Factory(wis::com_ptr<IDXGIFactory6> factory) noexcept;
     ImplDX12Factory(ImplDX12Factory&& other) noexcept = default;
     ImplDX12Factory& operator=(ImplDX12Factory&& other) noexcept = default;
-    ImplDX12Factory(const ImplDX12Factory&) = delete;
-    ImplDX12Factory& operator=(const ImplDX12Factory&) = delete;
 
     operator bool() const noexcept
     {
@@ -38,18 +37,9 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Adapter>
-    GetAdapter(uint32_t index,
+    [[nodiscard]] WIS_INLINE wis::DX12Adapter
+    GetAdapter(wis::Result& result, uint32_t index,
                AdapterPreference preference = AdapterPreference::Performance) const noexcept;
-
-private:
-    WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapterByGPUPreference(
-            uint32_t index, DXGI_GPU_PREFERENCE preference = DXGI_GPU_PREFERENCE::DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE) const noexcept;
-
-    WIS_INLINE wis::com_with_result<IDXGIAdapter1> GetAdapter1(uint32_t index) const noexcept;
-
-private:
-    static inline bool has_preference = true;
 };
 
 #pragma region DX12Factory
@@ -70,16 +60,26 @@ public:
      * Default is wis::AdapterPreference::Performance.
      * @return wis::DX12Adapter on success (wis::Status::Ok).
      * */
+    [[nodiscard]] inline wis::DX12Adapter GetAdapter(wis::Result& result, uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
+    {
+        return wis::ImplDX12Factory::GetAdapter(result, index, preference);
+    }
+    /**
+     * @brief Creates the wis::DX12Adapter for the factory with provided index.
+     * @param index The index of the adapter to get.
+     * @param preference The preference of the adapter to get.
+     * Default is wis::AdapterPreference::Performance.
+     * @return wis::DX12Adapter on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
-        return wis::ImplDX12Factory::GetAdapter(index, preference);
+        return wis::ResultValue<wis::DX12Adapter>{ &wis::ImplDX12Factory::GetAdapter, this, index, preference };
     }
 };
 #pragma endregion DX12Factory
 
-[[nodiscard]] WIS_INLINE wis::ResultValue<wis::DX12Factory>
-ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
-
+[[nodiscard]] WIS_INLINE wis::DX12Factory
+ImplDX12CreateFactory(wis::Result& result, bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

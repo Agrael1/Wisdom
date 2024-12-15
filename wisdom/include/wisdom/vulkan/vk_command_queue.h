@@ -15,9 +15,6 @@ struct Internal<VKCommandQueue> {
 public:
     Internal() noexcept = default;
     ~Internal() noexcept = default;
-    Internal(wis::SharedDevice device, VkQueue queue) noexcept
-        : device(std::move(device)), queue(queue) { }
-
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -36,9 +33,6 @@ class ImplVKCommandQueue : public QueryInternal<VKCommandQueue>
 {
 public:
     ImplVKCommandQueue() = default;
-    explicit ImplVKCommandQueue(wis::SharedDevice device, VkQueue queue)
-        : QueryInternal(std::move(device), queue) { }
-
     operator bool() const noexcept
     {
         return bool(queue);

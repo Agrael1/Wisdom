@@ -6,14 +6,20 @@
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_property_format_table.h>
 
-wis::ResultValue<wis::DX12Texture>
-wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
+wis::DX12Texture
+wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,
                                                     wis::TextureDesc desc,
                                                     wis::TextureState initial_state,
                                                     wis::MemoryFlags flags) const noexcept
 {
-    if (!supports_gpu_upload)
-        return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
+    DX12Texture out_texture;
+    auto& internal = out_texture.GetMutableInternal();
+    auto& mem_internal = internal.memory.GetMutableInternal();
+
+    if (!supports_gpu_upload) {
+        result = wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
+        return out_texture;
+    }
 
     D3D12_RESOURCE_DESC1 tex_desc;
     DX12ResourceAllocator::DX12FillTextureDesc(desc, tex_desc);
@@ -23,24 +29,20 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
         .HeapType = convert_dx(wis::MemoryType::GPUUpload),
         .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
     };
+    HRESULT hr = allocator.GetInternal().allocator->CreateResource3(&all_desc, &tex_desc,
+                                                                    convert_dx(initial_state), nullptr, 0, nullptr,
+                                                                    mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
-    wis::com_ptr<ID3D12Resource> rc;
-    wis::com_ptr<D3D12MA::Allocation> al;
-
-    auto hallocator = allocator.GetInternal().allocator;
-
-    HRESULT hr = hallocator->CreateResource3(&all_desc, &tex_desc,
-                                             convert_dx(initial_state), nullptr, 0, nullptr,
-                                             al.put(), __uuidof(*rc), rc.put_void());
-
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
-
-    return DX12Buffer{ std::move(rc), std::move(al), std::move(hallocator) };
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+        return out_texture;
+    }
+    mem_internal.allocator = allocator.GetInternal().allocator;
+    return out_texture;
 }
 
 wis::Result
-wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
+wis::ImplDX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
                                                             wis::DX12TextureView dst_texture,
                                                             wis::TextureState initial_state,
                                                             wis::TextureRegion region) const noexcept

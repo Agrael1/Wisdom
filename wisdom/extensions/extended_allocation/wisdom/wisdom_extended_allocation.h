@@ -14,7 +14,7 @@ struct Internal<DX12ExtendedAllocation> {
     bool supports_gpu_upload = false;
 };
 
-class DX12ExtendedAllocation : public QueryInternalExtension<DX12ExtendedAllocation, DX12DeviceExtension>
+class ImplDX12ExtendedAllocation : public QueryInternalExtension<DX12ExtendedAllocation, DX12DeviceExtension>
 {
 protected:
     virtual wis::Result Init(const wis::DX12Device& instance) noexcept override
@@ -33,8 +33,9 @@ public:
 
 public:
     // may only transition to copy states
-    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12Texture>
-    CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
+
+    [[nodiscard]] WIS_INLINE DX12Texture
+    CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,
                            wis::TextureDesc desc,
                            wis::TextureState initial_state = wis::TextureState::Common,
                            wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
@@ -50,8 +51,69 @@ public:
         return supports_gpu_upload;
     }
 };
-} // namespace wis
+#pragma region DX12ExtendedAllocation
 
+class DX12ExtendedAllocation : public wis::ImplDX12ExtendedAllocation
+{
+public:
+    using wis::ImplDX12ExtendedAllocation::ImplDX12ExtendedAllocation;
+
+public:
+    /**
+     * @brief Creates a texture that is optimized for GPU upload.
+     * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+     * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+     * @param allocator The allocator to create the texture with.
+     * Allocator must be created by the same device, that initialized this extension.
+     * @param desc The description of the texture to create.
+     * @param initial_state The initial state of the texture. Default is Common.
+     * @param flags The flags of the memory to create the texture with. Default is None.
+     * @return wis::DX12Texture on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::DX12Texture CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
+    {
+        return wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(result, allocator, desc, initial_state, flags);
+    }
+    /**
+     * @brief Creates a texture that is optimized for GPU upload.
+     * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+     * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+     * @param allocator The allocator to create the texture with.
+     * Allocator must be created by the same device, that initialized this extension.
+     * @param desc The description of the texture to create.
+     * @param initial_state The initial state of the texture. Default is Common.
+     * @param flags The flags of the memory to create the texture with. Default is None.
+     * @return wis::DX12Texture on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
+    {
+        return wis::ResultValue<wis::DX12Texture>{ &wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
+    }
+    /**
+     * @brief Writes memory directly to the subresource of the texture.
+     * Subresource is array slice or mip level.
+     * @param host_data The data to write to the texture.
+     * @param dst_texture The texture to write the data to.
+     * @param initial_state The initial state of the texture.
+     * @param region The region to write the data to.
+     * */
+    [[nodiscard]] inline wis::Result WriteMemoryToSubresourceDirect(const void* host_data, wis::DX12TextureView dst_texture, wis::TextureState initial_state, wis::TextureRegion region) const noexcept
+    {
+        return wis::ImplDX12ExtendedAllocation::WriteMemoryToSubresourceDirect(host_data, std::move(dst_texture), initial_state, region);
+    }
+    /**
+     * @brief Check if direct GPU upload is supported for the given format.
+     * @param format The format to check.
+     * @return true if direct GPU upload is supported.
+     * */
+    inline bool SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
+    {
+        return wis::ImplDX12ExtendedAllocation::SupportedDirectGPUUpload(format);
+    }
+};
+#pragma endregion DX12ExtendedAllocation
+
+} // namespace wis
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
@@ -71,7 +133,7 @@ struct Internal<VKExtendedAllocation> {
     PFN_vkGetPhysicalDeviceImageFormatProperties2KHR vkGetPhysicalDeviceImageFormatProperties2 = nullptr;
 };
 
-class VKExtendedAllocation : public QueryInternalExtension<VKExtendedAllocation, wis::VKDeviceExtension>
+class ImplVKExtendedAllocation : public QueryInternalExtension<VKExtendedAllocation, wis::VKDeviceExtension>
 {
 protected:
     virtual WIS_INLINE bool
@@ -93,8 +155,8 @@ public:
 
 public:
     // may only transition to copy states
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VKTexture>
-    CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
+    [[nodiscard]] WIS_INLINE wis::VKTexture
+    CreateGPUUploadTexture(wis::Result& result, const wis::VKResourceAllocator& allocator,
                            wis::TextureDesc desc,
                            wis::TextureState initial_state = wis::TextureState::Common,
                            wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
@@ -108,6 +170,68 @@ public:
     [[nodiscard]] WIS_INLINE bool
     SupportedDirectGPUUpload(wis::DataFormat format) const noexcept;
 };
+#pragma region VKExtendedAllocation
+
+class VKExtendedAllocation : public wis::ImplVKExtendedAllocation
+{
+public:
+    using wis::ImplVKExtendedAllocation::ImplVKExtendedAllocation;
+
+public:
+    /**
+     * @brief Creates a texture that is optimized for GPU upload.
+     * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+     * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+     * @param allocator The allocator to create the texture with.
+     * Allocator must be created by the same device, that initialized this extension.
+     * @param desc The description of the texture to create.
+     * @param initial_state The initial state of the texture. Default is Common.
+     * @param flags The flags of the memory to create the texture with. Default is None.
+     * @return wis::VKTexture on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::VKTexture CreateGPUUploadTexture(wis::Result& result, const wis::VKResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
+    {
+        return wis::ImplVKExtendedAllocation::CreateGPUUploadTexture(result, allocator, desc, initial_state, flags);
+    }
+    /**
+     * @brief Creates a texture that is optimized for GPU upload.
+     * Subsequently this texture may be directly mapped and does not require copying through copy queue.
+     * The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.
+     * @param allocator The allocator to create the texture with.
+     * Allocator must be created by the same device, that initialized this extension.
+     * @param desc The description of the texture to create.
+     * @param initial_state The initial state of the texture. Default is Common.
+     * @param flags The flags of the memory to create the texture with. Default is None.
+     * @return wis::VKTexture on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKTexture> CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
+    {
+        return wis::ResultValue<wis::VKTexture>{ &wis::ImplVKExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
+    }
+    /**
+     * @brief Writes memory directly to the subresource of the texture.
+     * Subresource is array slice or mip level.
+     * @param host_data The data to write to the texture.
+     * @param dst_texture The texture to write the data to.
+     * @param initial_state The initial state of the texture.
+     * @param region The region to write the data to.
+     * */
+    [[nodiscard]] inline wis::Result WriteMemoryToSubresourceDirect(const void* host_data, wis::VKTextureView dst_texture, wis::TextureState initial_state, wis::TextureRegion region) const noexcept
+    {
+        return wis::ImplVKExtendedAllocation::WriteMemoryToSubresourceDirect(host_data, std::move(dst_texture), initial_state, region);
+    }
+    /**
+     * @brief Check if direct GPU upload is supported for the given format.
+     * @param format The format to check.
+     * @return true if direct GPU upload is supported.
+     * */
+    inline bool SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
+    {
+        return wis::ImplVKExtendedAllocation::SupportedDirectGPUUpload(format);
+    }
+};
+#pragma endregion VKExtendedAllocation
+
 } // namespace wis
 #endif // WISDOM_VULKAN
 

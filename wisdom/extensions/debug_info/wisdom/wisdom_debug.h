@@ -24,11 +24,13 @@ public:
     {
         wis::com_ptr<ID3D12Debug> debugController;
         if (wis::succeeded(
-                    D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void())))
+                    D3D12GetDebugInterface(__uuidof(*debugController), debugController.put_void()))) {
             debugController->EnableDebugLayer();
+        }
 
-        if (!debugController)
+        if (!debugController) {
             return wis::make_result<FUNC, "Debug Extension is unsupported">(E_NOTIMPL);
+        }
 
         // if (auto dc = debugController.as<ID3D12Debug1>())
         //     dc->SetEnableGPUBasedValidation(true);
@@ -37,11 +39,12 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<DX12DebugMessenger>
-    CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
+    [[nodiscard]] WIS_INLINE DX12DebugMessenger
+    CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) const noexcept;
 };
 
 #pragma region DX12DebugExtension
+
 class DX12DebugExtension : public wis::ImplDX12DebugExtension
 {
 public:
@@ -54,9 +57,19 @@ public:
      * @param user_data The user data that will be passed to the callback.
      * @return wis::DX12DebugMessenger on success (wis::Status::Ok).
      * */
+    [[nodiscard]] inline wis::DX12DebugMessenger CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) noexcept
+    {
+        return wis::ImplDX12DebugExtension::CreateDebugMessenger(result, callback, user_data);
+    }
+    /**
+     * @brief Creates a debug messenger for the factory.
+     * @param callback The callback that will receive the debug messages.
+     * @param user_data The user data that will be passed to the callback.
+     * @return wis::DX12DebugMessenger on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12DebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
-        return wis::ImplDX12DebugExtension::CreateDebugMessenger(callback, user_data);
+        return wis::ResultValue<wis::DX12DebugMessenger>{ &wis::ImplDX12DebugExtension::CreateDebugMessenger, this, callback, user_data };
     }
 };
 #pragma endregion DX12DebugExtension
@@ -113,11 +126,12 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<VKDebugMessenger>
-    CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept;
+    [[nodiscard]] WIS_INLINE VKDebugMessenger
+    CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) const noexcept;
 };
 
 #pragma region VKDebugExtension
+
 class VKDebugExtension : public wis::ImplVKDebugExtension
 {
 public:
@@ -130,9 +144,19 @@ public:
      * @param user_data The user data that will be passed to the callback.
      * @return wis::VKDebugMessenger on success (wis::Status::Ok).
      * */
+    [[nodiscard]] inline wis::VKDebugMessenger CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) noexcept
+    {
+        return wis::ImplVKDebugExtension::CreateDebugMessenger(result, callback, user_data);
+    }
+    /**
+     * @brief Creates a debug messenger for the factory.
+     * @param callback The callback that will receive the debug messages.
+     * @param user_data The user data that will be passed to the callback.
+     * @return wis::VKDebugMessenger on success (wis::Status::Ok).
+     * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
-        return wis::ImplVKDebugExtension::CreateDebugMessenger(callback, user_data);
+        return wis::ResultValue<wis::VKDebugMessenger>{ &wis::ImplVKDebugExtension::CreateDebugMessenger, this, callback, user_data };
     }
 };
 #pragma endregion VKDebugExtension

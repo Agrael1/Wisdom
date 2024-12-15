@@ -64,7 +64,7 @@ public:
     {
         return _platform.get();
     }
-    wis::SwapChain CreateSwapchain(ex::ExampleSetup& setup, wis::DataFormat fmt = ex::swapchain_format, bool stereo = false);
+    wis::SwapChain CreateSwapchain(wis::Result& result, ex::ExampleSetup& setup, wis::DataFormat fmt = ex::swapchain_format, bool stereo = false);
 
     void PostQuit();
     ex::WindowEvent PollEvents();

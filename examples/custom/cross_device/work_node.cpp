@@ -192,7 +192,7 @@ CreateWorkNode(wis::Adapter&& adapter)
             .mip_lod_bias = 0.0f,
             .comparison_op = wis::Compare::None,
         };
-        auto [res, sampler] = node.work_device.CreateSampler(&sample_desc);
+        auto [res, sampler] = node.work_device.CreateSampler(sample_desc);
         if (res.status != wis::Status::Ok)
             return std::unexpected(res.error);
         node.sampler = std::move(sampler);
@@ -276,7 +276,7 @@ CreateWorkNode(wis::Adapter&& adapter)
             },
             .flags = wis::PipelineFlags::DescriptorBuffer,
         };
-        auto [res2, hpipeline] = node.work_device.CreateGraphicsPipeline(&desc);
+        auto [res2, hpipeline] = node.work_device.CreateGraphicsPipeline(desc);
         if (res2.status != wis::Status::Ok)
             return std::unexpected(res2.error);
         node.pipeline = std::move(hpipeline);
@@ -482,9 +482,6 @@ void WorkNode::Frame()
 
 void WorkNode::ImportExternalBuffer(void* mapping, uint64_t size)
 {
-    auto [res, buffer] = ext_mem_host.CreateExternalBuffer(allocator, mapping, size);
-    if (res.status != wis::Status::Ok)
-        return;
-
-    ext_buffer = std::move(buffer);
+    wis::Result result = wis::success;
+    ext_buffer = ext_mem_host.CreateExternalBuffer(result, allocator, mapping, size);
 }

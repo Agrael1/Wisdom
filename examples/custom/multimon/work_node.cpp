@@ -190,7 +190,7 @@ CreateWorkNode(wis::Adapter&& adapter)
             .mip_lod_bias = 0.0f,
             .comparison_op = wis::Compare::None,
         };
-        auto [res, sampler] = node.work_device.CreateSampler(&sample_desc);
+        auto [res, sampler] = node.work_device.CreateSampler(sample_desc);
         if (res.status != wis::Status::Ok)
             return std::unexpected(res.error);
         node.sampler = std::move(sampler);
@@ -274,7 +274,7 @@ CreateWorkNode(wis::Adapter&& adapter)
             },
             .flags = wis::PipelineFlags::DescriptorBuffer,
         };
-        auto [res2, hpipeline] = node.work_device.CreateGraphicsPipeline(&desc);
+        auto [res2, hpipeline] = node.work_device.CreateGraphicsPipeline(desc);
         if (res2.status != wis::Status::Ok)
             return std::unexpected(res2.error);
         node.pipeline = std::move(hpipeline);
