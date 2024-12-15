@@ -2,7 +2,7 @@
 #define WISDOM_DESCRIPTOR_BUFFER_DX_CPP
 
 #if defined(WISDOM_DX12)
-#include <wisdom/wisdom_descriptor_buffer.h>
+#include <wisdom/wisdom_descriptor_buffer.hpp>
 #include <wisdom/util/small_allocator.h>
 
 namespace wis::detail {
@@ -23,22 +23,28 @@ constexpr inline D3D12_ROOT_PARAMETER_TYPE to_dx_ext(wis::DescriptorType type) n
 }
 } // namespace wis::detail
 
-wis::ResultValue<wis::DX12RootSignature>
-wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const PushConstant* root_constants,
+wis::DX12RootSignature
+wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result, const PushConstant* root_constants,
                                                             uint32_t constants_size,
                                                             const PushDescriptor* push_descriptors,
                                                             uint32_t push_descriptors_size,
                                                             const wis::DescriptorTable* tables,
                                                             uint32_t tables_count) const noexcept
 {
+    DX12RootSignature out_signature;
+    auto& internal = out_signature.GetMutableInternal();
+
     if (constants_size > wis::max_push_constants) {
-        return wis::make_result<FUNC, "constants_size exceeds max_push_constants">(E_INVALIDARG);
+        result = wis::make_result<FUNC, "constants_size exceeds max_push_constants">(E_INVALIDARG);
+        return out_signature;
     }
     if (push_descriptors_size > wis::max_push_descriptors) {
-        return wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(E_INVALIDARG);
+        result = wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(E_INVALIDARG);
+        return out_signature;
     }
     if (tables_count + constants_size + push_descriptors_size > 64) {
-        return wis::make_result<FUNC, "sum of all parameters exceeds max amount of root parameters">(E_INVALIDARG);
+        result = wis::make_result<FUNC, "sum of all parameters exceeds max amount of root parameters">(E_INVALIDARG);
+        return out_signature;
     }
 
     D3D12_ROOT_PARAMETER1 root_params[64]{}; // max overall size of root parameters
@@ -81,8 +87,10 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const PushConstant* 
     }
 
     auto memory = wis::detail::make_unique_for_overwrite<D3D12_DESCRIPTOR_RANGE1[]>(memory_size);
-    if (!memory)
-        return wis::make_result<FUNC, "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
+    if (!memory) {
+        result = wis::make_result<FUNC, "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
+        return out_signature;
+    }
 
     uint32_t offset = 0;
     for (uint32_t i = constants_size; i < constants_size + tables_count; ++i) {
@@ -119,24 +127,31 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(const PushConstant* 
     wis::com_ptr<ID3DBlob> error;
     HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
 
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to serialize root signature">(hr);
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to serialize root signature">(hr);
+        return out_signature;
+    }
 
-    wis::com_ptr<ID3D12RootSignature> rsig;
     hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
-                                     __uuidof(*rsig), rsig.put_void());
-
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to create root signature">(hr);
-
-    return DX12RootSignature{ std::move(rsig), stage_map, constants_size, push_descriptors_size };
+                                     __uuidof(*internal.root), internal.root.put_void());
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to create root signature">(hr);
+        return out_signature;
+    }
+    internal.push_constant_count = constants_size;
+    internal.push_descriptor_count = push_descriptors_size;
+    internal.stage_map = stage_map;
+    return out_signature;
 }
 
-wis::ResultValue<wis::DX12DescriptorBuffer>
-wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHeapType heap_type,
+wis::DX12DescriptorBuffer
+wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type,
                                                                wis::DescriptorMemory memory_type,
                                                                uint64_t memory_bytes) const noexcept
 {
+    DX12DescriptorBuffer out_buffer;
+    auto& internal = out_buffer.GetMutableInternal();
+
     auto xheap_type = convert_dx(heap_type);
     auto inc_size = device->GetDescriptorHandleIncrementSize(xheap_type);
     auto aligned_size = wis::detail::aligned_size(memory_bytes, uint64_t(inc_size));
@@ -146,12 +161,17 @@ wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::DescriptorHe
         .Flags = convert_dx(memory_type),
         .NodeMask = 0,
     };
-    wis::com_ptr<ID3D12DescriptorHeap> heap;
-    auto hr = device->CreateDescriptorHeap(&desc, heap.iid(), heap.put_void());
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Failed to create descriptor buffer">(hr);
 
-    return DX12DescriptorBuffer{ std::move(heap), device->GetDescriptorHandleIncrementSize(desc.Type) };
+    auto hr = device->CreateDescriptorHeap(&desc, internal.heap.iid(), internal.heap.put_void());
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to create descriptor heap">(hr);
+        return out_buffer;
+    }
+    internal.heap_increment = device->GetDescriptorHandleIncrementSize(desc.Type);
+    internal.heap_start = CD3DX12_CPU_DESCRIPTOR_HANDLE(internal.heap->GetCPUDescriptorHandleForHeapStart());
+    internal.heap_gpu_start = CD3DX12_GPU_DESCRIPTOR_HANDLE(internal.heap->GetGPUDescriptorHandleForHeapStart());
+    internal.heap->GetDevice(internal.device.iid(), internal.device.put_void());
+    return out_buffer;
 }
 
 void wis::ImplDX12DescriptorBufferExtension::SetDescriptorBuffers(wis::DX12CommandListView cmd_list,

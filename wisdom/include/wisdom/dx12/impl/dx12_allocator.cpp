@@ -7,9 +7,10 @@
 #include <d3dx12/d3dx12_resource_helpers.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/util/misc.h>
+#include <wisdom/dx12/dx12_checks.h>
 
-wis::ResultValue<wis::DX12Buffer>
-wis::ImplDX12ResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
+wis::DX12Buffer
+wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 {
     D3D12_RESOURCE_DESC1 buffer_desc;
     DX12FillBufferDesc(size, usage, buffer_desc);
@@ -19,10 +20,10 @@ wis::ImplDX12ResourceAllocator::CreateBuffer(uint64_t size, wis::BufferUsage usa
         .HeapType = convert_dx(memory),
     };
 
-    return DX12CreateResource(all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON);
+    return DX12CreateResource(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON);
 }
-wis::ResultValue<wis::DX12Texture>
-wis::ImplDX12ResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
+wis::DX12Texture
+wis::ImplDX12ResourceAllocator::CreateTexture(wis::Result& result, const wis::TextureDesc& desc, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 {
     D3D12_RESOURCE_DESC1 tex_desc;
     DX12FillTextureDesc(desc, tex_desc);
@@ -32,7 +33,7 @@ wis::ImplDX12ResourceAllocator::CreateTexture(const wis::TextureDesc& desc, wis:
         .HeapType = convert_dx(memory),
     };
 
-    return DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
+    return DX12CreateResource(result, all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
 }
 
 wis::AllocationInfo
@@ -64,23 +65,28 @@ wis::ImplDX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsa
     };
 }
 
-wis::ResultValue<wis::DX12Memory>
-wis::ImplDX12ResourceAllocator::AllocateTextureMemory(uint64_t size, wis::TextureUsage usage,
+wis::DX12Memory
+wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage,
                                                       wis::MemoryType memory,
                                                       wis::MemoryFlags mem_flags) const noexcept
 
 {
+    DX12Memory out_memory;
+    auto& internal = out_memory.GetMutableInternal();
 
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_DENY_BUFFERS;
     if ((mem_flags & MemoryFlags::Exportable)) {
-        if (memory != MemoryType::Default)
-            return wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+        if (memory != MemoryType::Default) {
+            result = wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+            return out_memory;
+        }
         flags |= D3D12_HEAP_FLAG_SHARED;
     }
-    if (!(usage & (wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil)))
+    if (!(usage & (wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil))) {
         flags |= D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES;
-    else if (!(usage & ~(wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil)))
+    } else if (!(usage & ~(wis::TextureUsage::RenderTarget | wis::TextureUsage::DepthStencil))) {
         flags |= D3D12_HEAP_FLAG_DENY_NON_RT_DS_TEXTURES;
+    }
 
     auto info = GetTextureAllocationInfo({ .format = wis::DataFormat::RGBA8Unorm, .size = { 1, 1, 1 }, .mip_levels = 1, .usage = usage });
 
@@ -94,29 +100,31 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(uint64_t size, wis::Textur
         .SizeInBytes = size,
         .Alignment = info.alignment_bytes,
     };
+    auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
 
-    wis::com_ptr<D3D12MA::Allocation> allocation;
-    auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, allocation.put());
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Image memory allocation failed">(hr);
+    }
 
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Image memory allocation failed">(hr);
-
-    return DX12Memory{
-        allocator,
-        std::move(allocation)
-    };
+    internal.allocator = allocator; // Copy allocator to memory
+    return out_memory;
 }
 
-wis::ResultValue<wis::DX12Memory>
-wis::ImplDX12ResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferUsage usage,
+wis::DX12Memory
+wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage,
                                                      wis::MemoryType memory,
                                                      wis::MemoryFlags mem_flags) const noexcept
 
 {
+    DX12Memory out_memory;
+    auto& internal = out_memory.GetMutableInternal();
+
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
     if ((mem_flags & MemoryFlags::Exportable)) {
-        if (memory != MemoryType::Default)
-            return wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+        if (memory != MemoryType::Default) {
+            result = wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+            return out_memory;
+        }
         flags |= D3D12_HEAP_FLAG_SHARED;
     }
 
@@ -132,66 +140,71 @@ wis::ImplDX12ResourceAllocator::AllocateBufferMemory(uint64_t size, wis::BufferU
         .Alignment = info.alignment_bytes,
     };
 
-    wis::com_ptr<D3D12MA::Allocation> allocation;
-    auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, allocation.put());
+    auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer memory allocation failed">(hr);
+    }
 
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Buffer memory allocation failed">(hr);
-
-    return DX12Memory{
-        allocator,
-        std::move(allocation),
-    };
+    internal.allocator = allocator; // Copy allocator to memory
+    return out_memory;
 }
 
-wis::ResultValue<wis::DX12Buffer>
-wis::ImplDX12ResourceAllocator::PlaceBuffer(DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
+wis::DX12Buffer
+wis::ImplDX12ResourceAllocator::PlaceBuffer(wis::Result& result, DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
 {
+    wis::DX12Buffer buffer;
+    auto& internal = buffer.GetMutableInternal();
+
     auto* alloc = std::get<1>(memory);
     D3D12_RESOURCE_DESC1 buffer_desc;
     DX12FillBufferDesc(size, usage, buffer_desc);
 
-    wis::com_ptr<ID3D12Resource> rc;
     auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &buffer_desc,
-                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, rc.iid(), rc.put_void());
+                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Buffer Placement failed">(hr);
-
-    return DX12Buffer{ std::move(rc), nullptr, nullptr };
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Placement failed">(hr);
+    }
+    return buffer;
 }
 
-wis::ResultValue<wis::DX12Texture>
-wis::ImplDX12ResourceAllocator::PlaceTexture(DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
+wis::DX12Texture
+wis::ImplDX12ResourceAllocator::PlaceTexture(wis::Result& result, DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
 {
+    wis::DX12Texture texture;
+    auto& internal = texture.GetMutableInternal();
+
     auto* alloc = std::get<1>(memory);
     D3D12_RESOURCE_DESC1 tex_desc;
     DX12FillTextureDesc(desc, tex_desc);
 
-    wis::com_ptr<ID3D12Resource> rc;
     auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &tex_desc,
-                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, rc.iid(), rc.put_void());
+                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Buffer Placement failed">(hr);
-
-    return DX12Buffer{ std::move(rc), nullptr, nullptr };
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Placement failed">(hr);
+    }
+    return texture;
 }
 
-wis::ResultValue<wis::DX12Buffer>
-wis::ImplDX12ResourceAllocator::DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
+wis::DX12Buffer
+wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
 {
-    wis::com_ptr<ID3D12Resource> rc;
-    wis::com_ptr<D3D12MA::Allocation> al;
+    wis::DX12Buffer buffer;
+    auto& internal = buffer.GetMutableInternal();
+    auto& memory_internal = internal.memory.GetMutableInternal();
 
     HRESULT hr = allocator->CreateResource2(&all_desc, &res_desc,
                                             state, nullptr,
-                                            al.put(), __uuidof(*rc), rc.put_void());
+                                            memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+    }
 
-    return DX12Buffer{ std::move(rc), std::move(al), allocator };
+    memory_internal.allocator = allocator; // Copy allocator to memory
+
+    return buffer;
 }
 
 void wis::ImplDX12ResourceAllocator::DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept

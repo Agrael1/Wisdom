@@ -2,10 +2,11 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <functional>
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.4.0</b>
+<b>Version 0.5.0</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1206,6 +1207,7 @@ enum class FactoryExtID : uint32_t {
 enum class DeviceExtID : uint32_t {
     Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DescriptorBufferExtension = 1,
+    ExtendedAllocation = 2,
 };
 
 /**
@@ -1901,21 +1903,41 @@ struct ResultValue {
     Result status;
     RetTy value;
 
-    constexpr ResultValue(RetTy value) noexcept
-        : status(success), value(std::move(value)) { }
-    constexpr ResultValue(Result status) noexcept
-        : status(status) { }
-    constexpr ResultValue(Result status, RetTy value) noexcept
-        : status(status), value(std::move(value)) { }
+    constexpr ResultValue() noexcept = default;
+    constexpr ResultValue(wis::Result status) noexcept
+        : status(status)
+    {
+    }
+
+    template<typename Callable, typename Callee, typename... Args>
+        requires std::is_member_function_pointer_v<Callable>
+    constexpr ResultValue(Callable&& f, Callee* self, Args&&... args) noexcept
+        : value(std::invoke(f, self, status, std::forward<Args>(args)...))
+    {
+    }
+    template<typename Callable, typename... Args>
+    constexpr ResultValue(Callable&& f, Args&&... args) noexcept
+        : value(f(status, std::forward<Args>(args)...))
+    {
+    }
+
+    template<typename Callable, typename Callee, typename... Args>
+    static constexpr ResultValue<RetTy> from_member_func(Callable&& f, Callee* self, Args&&... args) noexcept
+    {
+        ResultValue<RetTy> rv;
+        rv.value = std::invoke(f, self, rv.status, std::forward<Args>(args)...);
+        return rv;
+    }
 };
 
 template<uint32_t s, typename RetTy>
 constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 {
-    if constexpr (s == 0)
+    if constexpr (s == 0) {
         return std::forward<Result>(rv.status);
-    else
+    } else {
         return std::forward<RetTy>(rv.value);
+    }
 }
 
 } // namespace wis

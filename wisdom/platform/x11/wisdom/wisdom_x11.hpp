@@ -52,8 +52,15 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::ResultValue<wis::VKSwapChain>
-    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, Display* display, Window window) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::VKSwapChain
+    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, Display* display, Window window) const noexcept;
+
+    [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
+    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, Display* display, Window window) const noexcept
+    {
+        auto fptr = static_cast<wis::VKSwapChain (X11Extension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc*, Display*, Window) const noexcept>(&X11Extension::CreateSwapchain);
+        return wis::ResultValue<wis::VKSwapChain>::from_member_func(fptr, this, device, main_queue, desc, display, window);
+    }
 };
 } // namespace platform
 } // namespace wis

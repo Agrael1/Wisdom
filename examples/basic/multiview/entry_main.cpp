@@ -49,9 +49,10 @@ public:
     App()
         : window("Multiview", 800, 600)
     {
+        wis::Result result = wis::success;
         setup.InitDefault(window.GetPlatformExtension());
         auto [w, h] = window.PixelSize();
-        auto swapx = window.CreateSwapchain(setup);
+        auto swapx = window.CreateSwapchain(result, setup);
         std::construct_at(&swap, setup.device, std::move(swapx), w, h);
         cmd_list = setup.CreateLists();
         cmd_list2 = setup.CreateLists();
@@ -67,8 +68,9 @@ public:
         CreateFirstPassResources();
         CreateSecondPassResources();
         while (true) {
-            if (!ProcessEvents())
+            if (!ProcessEvents()) {
                 break;
+            }
 
             Frame();
         }
@@ -314,7 +316,7 @@ public:
                 },
                 .view_mask = 0b11, // 2 array layers
             };
-            pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(&desc));
+            pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
         }
 
         // Create vertex buffer
@@ -354,7 +356,7 @@ public:
                 },
                 // view mask is 0b00, because we will render to the back buffer
             };
-            fullscreen_pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(&desc));
+            fullscreen_pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
         }
 
         // Create Sampler
@@ -373,7 +375,7 @@ public:
                 .mip_lod_bias = 0.0f,
                 .comparison_op = wis::Compare::None,
             };
-            sampler = ex::Unwrap(setup.device.CreateSampler(&sample_desc));
+            sampler = ex::Unwrap(setup.device.CreateSampler(sample_desc));
             desc_storage.WriteSampler(0, sampler);
         }
 

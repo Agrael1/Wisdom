@@ -1,6 +1,6 @@
 #ifndef WISDOM_WINDOWS_CPP
 #define WISDOM_WINDOWS_CPP
-#include <wisdom/wisdom_windows.h>
+#include <wisdom/wisdom_windows.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <d3d11.h>
@@ -38,9 +38,12 @@ inline wis::com_ptr<ID3D11Device> CreateD3D11Device() noexcept
 
 } // namespace wis::detail
 
-wis::ResultValue<wis::DX12SwapChain>
-wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
+wis::DX12SwapChain
+wis::platform::DX12WindowsExtension::CreateSwapchain(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
 {
+    DX12SwapChain out_swapchain;
+    auto& internal = out_swapchain.GetMutableInternal();
+
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
     auto& devicei = device.GetInternal();
@@ -56,15 +59,16 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
     }();
-    if (tearing && desc->tearing)
+    if (tearing && desc->tearing) {
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    }
 
     HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;
 
     // until microsoft fixes this
     if (desc->stereo && !wis::succeeded(hr = devicei.factory->CreateSwapChainForHwnd(detail::CreateD3D11Device().get(), hwnd, &swap_desc, nullptr, nullptr, swap.put()))) {
-        return wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
+        result = wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
     }
 
     hr = devicei.factory->CreateSwapChainForHwnd(
@@ -76,36 +80,39 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(const DX12Device& device, D
             swap.put());
 
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        return out_swapchain;
     }
-    auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
-    if (!wis::succeeded(hrx)) {
-        return wis::make_result<FUNC, "Failed to create swapchain for HWND">(hr);
+    hr = swap.as<IDXGISwapChain4>(&internal.chain);
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        return out_swapchain;
     }
 
-    auto hnd = swap4->GetFrameLatencyWaitableObject();
+    internal.present_event = internal.chain->GetFrameLatencyWaitableObject();
+    internal.stereo = swap_desc.Stereo;
+    internal.vsync = desc->vsync;
+    internal.tearing = tearing && desc->tearing;
 
-    wis::detail::DX12SwapChainCreateInfo create_info{
-        .chain = std::move(swap4),
-        .present_event{ hnd },
-        .stereo = desc->stereo,
-        .vsync = desc->vsync,
-        .tearing = tearing && desc->tearing,
-    };
-    if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
-        return resw;
+    if (auto resw = internal.InitBackBuffers(); resw.status != wis::Status::Ok) {
+        result = resw;
+    }
 
-    return DX12SwapChain{ std::move(create_info) };
+    return out_swapchain;
 }
 
-wis::ResultValue<wis::DX12SwapChain>
-wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept
+wis::DX12SwapChain
+wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept
 {
+    DX12SwapChain out_swapchain;
+    auto& internal = out_swapchain.GetMutableInternal();
+
     DXGI_SWAP_CHAIN_DESC1 swap_desc;
     detail::ToSwapchainDesc(swap_desc, desc);
     auto& devicei = device.GetInternal();
 
     swap_desc.Stereo &= devicei.factory->IsWindowedStereoEnabled();
+
     bool tearing = [&]() {
         auto [hr, factory5] = devicei.factory.as<IDXGIFactory5>();
         if (!wis::succeeded(hr)) {
@@ -115,15 +122,16 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
         factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
     }();
-    if (tearing)
+    if (tearing && desc->tearing) {
         swap_desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    }
 
     HRESULT hr;
     wis::com_ptr<IDXGISwapChain1> swap;
 
     // until microsoft fixes this
     if (desc->stereo && !wis::succeeded(hr = devicei.factory->CreateSwapChainForCoreWindow(detail::CreateD3D11Device().get(), window, &swap_desc, nullptr, swap.put()))) {
-        return wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
+        result = wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
     }
 
     hr = devicei.factory->CreateSwapChainForCoreWindow(
@@ -134,25 +142,25 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
             swap.put());
 
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
+        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        return out_swapchain;
     }
-    auto [hrx, swap4] = swap.as<IDXGISwapChain4>();
-    if (!wis::succeeded(hrx)) {
-        return wis::make_result<FUNC, "Failed to create swapchain for core window">(hr);
+    hr = swap.as<IDXGISwapChain4>(&internal.chain);
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        return out_swapchain;
     }
-    auto hnd = swap4->GetFrameLatencyWaitableObject();
 
-    wis::detail::DX12SwapChainCreateInfo create_info{
-        .chain = std::move(swap4),
-        .present_event{ hnd },
-        .stereo = desc->stereo,
-        .vsync = desc->vsync,
-        .tearing = tearing,
-    };
-    if (auto resw = create_info.InitBackBuffers(); resw.status != wis::Status::Ok)
-        return resw;
+    internal.present_event = internal.chain->GetFrameLatencyWaitableObject();
+    internal.stereo = swap_desc.Stereo;
+    internal.vsync = desc->vsync;
+    internal.tearing = tearing && desc->tearing;
 
-    return DX12SwapChain{ std::move(create_info) };
+    if (auto resw = internal.InitBackBuffers(); resw.status != wis::Status::Ok) {
+        result = resw;
+    }
+
+    return out_swapchain;
 }
 
 #ifdef WISDOM_VULKAN
@@ -160,8 +168,8 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(const DX12Device& device
 
 // #error error
 
-wis::ResultValue<wis::VKSwapChain>
-wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
+wis::VKSwapChain
+wis::platform::VKWindowsExtension::CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
 {
     VkWin32SurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
@@ -175,12 +183,13 @@ wis::platform::VKWindowsExtension::CreateSwapchain(const VKDevice& device, VKQue
     auto& devicei = device.GetInternal();
     const auto& instance_table = instance.table();
     VkSurfaceKHR surface;
-    auto result = vkCreateWin32SurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
-    if (!wis::succeeded(result)) {
-        return wis::make_result<FUNC, "Failed to create Win32 surface">(result);
+    auto vr = vkCreateWin32SurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
+    if (!wis::succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create Win32 surface">(vr);
+        return {};
     }
     wis::SharedSurface surface_handle{ surface, instance, instance_table.vkDestroySurfaceKHR };
-    return device.VKCreateSwapChain(surface_handle, desc, std::get<0>(main_queue));
+    return device.VKCreateSwapChain(result, surface_handle, desc, std::get<0>(main_queue));
 }
 
 bool wis::platform::VKInteropDeviceExtension::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,

@@ -1,7 +1,7 @@
 #ifndef WIS_DX12_DEVICE_EXT_H
 #define WIS_DX12_DEVICE_EXT_H
 
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 
 namespace wis {
 class DX12Device;

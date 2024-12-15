@@ -17,9 +17,6 @@ class DX12PipelineState : public QueryInternal<DX12PipelineState>
 {
 public:
     DX12PipelineState() = default;
-    explicit DX12PipelineState(wis::com_ptr<ID3D12PipelineState> xpipeline) noexcept
-        : QueryInternal(std::move(xpipeline)) { }
-
     operator DX12PipelineView() const noexcept
     {
         return pipeline.get();

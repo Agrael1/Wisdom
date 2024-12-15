@@ -2,7 +2,7 @@
 #include "window.h"
 #include "work_node.h"
 #include "transfer_node.h"
-#include <wisdom/wisdom_windows.h>
+#include <wisdom/wisdom_windows.hpp>
 
 class App
 {

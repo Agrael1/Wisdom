@@ -10,28 +10,14 @@
 wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image_size) noexcept
 {
     auto& table = device.table();
-    if (!fences[0]) {
-        VkFenceCreateInfo fence_info{
-            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-        };
-        auto result = table.vkCreateFence(device.get(), &fence_info, nullptr, &fences[0]);
-        if (!wis::succeeded(result))
-            return { wis::make_result<FUNC, "vkCreateFence failed">(result) };
-
-        result = table.vkCreateFence(device.get(), &fence_info, nullptr, &fences[1]);
-        if (!wis::succeeded(result))
-            return { wis::make_result<FUNC, "vkCreateFence failed">(result) };
-    }
-
     uint32_t new_back_buffer_count = 0;
     auto result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, nullptr);
 
     if (new_back_buffer_count > back_buffer_count) {
         back_buffers = wis::detail::make_unique_for_overwrite<VKTexture[]>(new_back_buffer_count);
-        if (!back_buffers)
+        if (!back_buffers) {
             return { wis::make_result<FUNC, "failed to allocate back_buffers array">(result) };
+        }
 
         back_buffer_count = new_back_buffer_count;
     }
@@ -40,11 +26,15 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
     auto* image_data = allocator.data();
     result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, image_data);
 
-    if (!wis::succeeded(result))
+    if (!wis::succeeded(result)) {
         return { wis::make_result<FUNC, "vkGetSwapchainImagesKHR failed">(result) };
+    }
 
     for (uint32_t i = 0; i < back_buffer_count; ++i) {
-        back_buffers[i] = VKTexture{ format.format, image_data[i], { image_size.width, image_size.height } };
+        auto& internal = back_buffers[i].GetMutableInternal();
+        internal.buffer = image_data[i];
+        internal.size = { image_size.width, image_size.height };
+        internal.format = format.format;
     }
 
     result = table.vkResetCommandBuffer(initialization, 0);
@@ -118,8 +108,9 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndex() const noexcep
 {
     auto& dtable = device.table();
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
-    if (!wis::succeeded(result))
+    if (!wis::succeeded(result)) {
         return wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
+    }
 
     VkSemaphoreSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
@@ -140,8 +131,9 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndexAndWait() const 
 {
     auto& dtable = device.table();
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
-    if (!wis::succeeded(result))
+    if (!wis::succeeded(result)) {
         return wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
+    }
 
     VkSemaphoreSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
@@ -166,8 +158,9 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndexAndWait() const 
 
 wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator=(VKSwapChainCreateInfo&& o) noexcept
 {
-    if (this == &o)
+    if (this == &o) {
         return *this;
+    }
 
     Destroy();
     surface = std::move(o.surface);
@@ -198,8 +191,9 @@ wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator
 }
 void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
 {
-    if (!swapchain)
+    if (!swapchain) {
         return;
+    }
 
     auto& table = device.table();
     auto hdevice = device.get();
@@ -215,34 +209,6 @@ void wis::detail::VKSwapChainCreateInfo::Destroy() noexcept
     }
     table.vkDestroyCommandPool(hdevice, command_pool, nullptr);
     table.vkDestroySwapchainKHR(hdevice, swapchain, nullptr);
-}
-wis::Result wis::detail::VKSwapChainCreateInfo::InitSemaphores() noexcept
-{
-    render_completed_semaphore = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
-    if (!render_completed_semaphore)
-        return { wis::make_result<FUNC, "failed to allocate render_completed_semaphore array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
-
-    image_ready_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(back_buffer_count);
-    if (!image_ready_semaphores)
-        return { wis::make_result<FUNC, "failed to allocate image_ready_semaphores array">(VK_ERROR_OUT_OF_HOST_MEMORY) };
-
-    auto& table = device.table();
-    VkSemaphoreCreateInfo semaphore_info{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-    };
-
-    for (uint32_t n = 0; n < back_buffer_count; n++) {
-        auto result = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &render_completed_semaphore[n]);
-        if (!wis::succeeded(result))
-            return { wis::make_result<FUNC, "vkCreateSemaphore failed for present_semaphore">(result) };
-
-        auto result2 = table.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &image_ready_semaphores[n]);
-        if (!wis::succeeded(result2))
-            return { wis::make_result<FUNC, "vkCreateSemaphore failed for image_ready_semaphore">(result) };
-    }
-    return wis::success;
 }
 
 void wis::detail::VKSwapChainCreateInfo::ReleaseSemaphores() noexcept
@@ -275,8 +241,9 @@ wis::Result
 wis::ImplVKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 {
     auto& dtable = device.table();
-    if (!dtable.vkWaitForPresentKHR)
+    if (!dtable.vkWaitForPresentKHR) {
         return wis::make_result<FUNC, "vkWaitForPresentKHR not available">(VK_ERROR_UNKNOWN);
+    }
 
     auto res = dtable.vkWaitForPresentKHR(device.get(), swapchain, present_id, timeout_ns);
     return wis::succeeded(res) ? wis::success : wis::make_result<FUNC, "vkWaitForPresentKHR failed">(res);
@@ -327,8 +294,9 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     dtable.vkDestroySwapchainKHR(device.get(), old_swapchain, nullptr);
 
     auto rres = InitBackBuffers(desc.imageExtent);
-    if (rres.status != wis::Status::Ok)
+    if (rres.status != wis::Status::Ok) {
         return rres;
+    }
 
     return AcquireNextIndexAndWait();
 }

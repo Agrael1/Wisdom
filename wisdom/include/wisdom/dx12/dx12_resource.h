@@ -17,13 +17,6 @@ class ImplDX12Buffer : public QueryInternal<DX12Buffer>
 {
 public:
     ImplDX12Buffer() noexcept = default;
-    explicit ImplDX12Buffer(wis::com_ptr<ID3D12Resource> rc, wis::com_ptr<D3D12MA::Allocation> al, wis::com_ptr<D3D12MA::Allocator> allocator) noexcept
-        : QueryInternal(DX12Memory{
-                                std::move(allocator), std::move(al) },
-                        std::move(rc))
-    {
-    }
-
     operator DX12BufferView() const noexcept
     {
         return resource.get();
@@ -67,9 +60,6 @@ class DX12RenderTarget : public QueryInternal<DX12RenderTarget>
 {
 public:
     DX12RenderTarget() = default;
-    explicit DX12RenderTarget(wis::com_ptr<ID3D12DescriptorHeap> desc, D3D12_CPU_DESCRIPTOR_HANDLE handle) noexcept
-        : QueryInternal(std::move(desc), handle) { }
-
     operator bool() const noexcept
     {
         return bool(heap);
@@ -93,9 +83,6 @@ class DX12Sampler : public QueryInternal<DX12Sampler>
 {
 public:
     DX12Sampler() noexcept = default;
-    explicit DX12Sampler(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
-        : QueryInternal(std::move(heap)) { }
-
     operator bool() const noexcept
     {
         return bool(heap);
@@ -119,9 +106,6 @@ class DX12ShaderResource : public QueryInternal<DX12ShaderResource>
 {
 public:
     DX12ShaderResource() noexcept = default;
-    explicit DX12ShaderResource(wis::com_ptr<ID3D12DescriptorHeap> heap) noexcept
-        : QueryInternal(std::move(heap)) { }
-
     operator bool() const noexcept
     {
         return bool(heap);

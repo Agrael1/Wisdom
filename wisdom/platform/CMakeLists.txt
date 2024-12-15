@@ -1,14 +1,14 @@
 set(AUX_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
 set(PLATFORM_CONFIG_DIR "${AUX_CMAKE_DIR}/platform")
 
-add_library(wisdom-platform-headers INTERFACE "wisdom/wisdom_platform.h")
+add_library(wisdom-platform-headers INTERFACE "wisdom/wisdom_platform.hpp")
 add_library(wis::platform-headers ALIAS wisdom-platform-headers)
 target_include_directories(
   wisdom-platform-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.h"
-            "wisdom/linux/interop_device.h")
+add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.hpp"
+            "wisdom/linux/interop_device.hpp")
 add_library(wis::platform ALIAS wisdom-platform)
 target_include_directories(
   wisdom-platform INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

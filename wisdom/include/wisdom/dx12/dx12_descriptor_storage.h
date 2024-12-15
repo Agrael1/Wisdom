@@ -29,11 +29,6 @@ class ImplDX12DescriptorStorage : public QueryInternal<DX12DescriptorStorage>
 {
 public:
     ImplDX12DescriptorStorage() = default;
-    explicit ImplDX12DescriptorStorage(Internal<DX12DescriptorStorage>&& internal) noexcept
-        : QueryInternal(std::move(internal))
-    {
-    }
-
     operator bool() const noexcept
     {
         return bool(heap_resource) || bool(heap_sampler);

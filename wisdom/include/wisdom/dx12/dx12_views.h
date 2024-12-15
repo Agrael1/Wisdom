@@ -1,6 +1,6 @@
 #ifndef WIS_DX12_VIEWS_H
 #define WIS_DX12_VIEWS_H
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <array>
 #include <d3d12.h>
 #include <dxgi1_6.h>

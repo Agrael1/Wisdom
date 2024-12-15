@@ -1,11 +1,7 @@
 #ifndef WIS_DX12_ADAPTER_H
 #define WIS_DX12_ADAPTER_H
-#include <wisdom/generated/api/api.h>
-#include <wisdom/global/internal.h>
-#include <wisdom/util/com_ptr.h>
 #include <wisdom/dx12/dx12_checks.h>
-#include <wisdom/dx12/dx12_convert.h>
-#include <wisdom/dx12/dx12_views.h>
+#include <wisdom/global/internal.h>
 
 namespace wis {
 class DX12Adapter;
@@ -19,8 +15,6 @@ class ImplDX12Adapter : public QueryInternal<DX12Adapter>
 {
 public:
     ImplDX12Adapter() noexcept = default;
-    explicit ImplDX12Adapter(wis::com_ptr<IDXGIAdapter1> adapter) noexcept
-        : QueryInternal(std::move(adapter)) { }
     operator bool() const noexcept
     {
         return bool(adapter);
@@ -29,15 +23,17 @@ public:
 public:
     [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept
     {
-        if (!pout_desc)
+        if (!pout_desc) {
             return wis::make_result<FUNC, "AdapterDesc was nullptr">(E_INVALIDARG);
+        }
 
         auto& out_desc = *pout_desc;
 
         DXGI_ADAPTER_DESC1 desc;
         auto hr = adapter->GetDesc1(&desc);
-        if (!wis::succeeded(hr))
+        if (!wis::succeeded(hr)) {
             return wis::make_result<FUNC, "IDXGIAdapter1::GetDesc1 failed">(hr);
+        }
 
         auto description = wis::to_string(desc.Description);
         std::strncpy(const_cast<char*>(out_desc.description.data()), description.c_str(),

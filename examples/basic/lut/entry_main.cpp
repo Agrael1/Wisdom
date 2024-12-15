@@ -69,20 +69,21 @@ public:
     App()
         : window("LUT", 800, 600)
     {
+        wis::Result result = wis::success;
         wis::DeviceExtension* exts[] = { &desc_ext };
         setup.InitDefault(window.GetPlatformExtension(), exts);
         auto [w, h] = window.PixelSize();
-        auto swapx = window.CreateSwapchain(setup);
+        auto swapx = window.CreateSwapchain(result, setup);
         std::construct_at(&swap, setup.device, std::move(swapx), w, h);
         cmd_list = setup.CreateLists();
 
         // Only a single descriptor table with 1 descriptor
         uint32_t desc_increment = desc_ext.GetDescriptorSize(wis::DescriptorHeapType::Descriptor);
-        desc_buffer = ex::Unwrap(desc_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2 * desc_increment));
+        desc_buffer = desc_ext.CreateDescriptorBuffer(result, wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, 2 * desc_increment);
 
         // No need for multiple samplers
         uint32_t samp_increment = desc_ext.GetDescriptorSize(wis::DescriptorHeapType::Sampler);
-        sampler_buffer = ex::Unwrap(desc_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 2 * samp_increment));
+        sampler_buffer = desc_ext.CreateDescriptorBuffer(result, wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, 2 * samp_increment);
     }
 
 public:
@@ -90,8 +91,9 @@ public:
     {
         CreateResources();
         while (true) {
-            if (!ProcessEvents())
+            if (!ProcessEvents()) {
                 break;
+            }
 
             Frame();
         }
@@ -249,7 +251,7 @@ public:
                 },
                 .flags = wis::PipelineFlags::DescriptorBuffer, // use descriptor buffer for root signature
             };
-            pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(&desc));
+            pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
         }
 
         // Load LUT (using uploaded buffer)
@@ -331,7 +333,7 @@ public:
                 .mip_lod_bias = 0.0f,
                 .comparison_op = wis::Compare::None,
             };
-            sampler_lut = ex::Unwrap(device.CreateSampler(&sample_desc));
+            sampler_lut = ex::Unwrap(device.CreateSampler(sample_desc));
 
             // Write LUT sampler to the descriptor buffer
             sampler_buffer.WriteSampler(0, 0, sampler_lut);
@@ -410,7 +412,7 @@ public:
                 .mip_lod_bias = 0.0f,
                 .comparison_op = wis::Compare::None,
             };
-            sampler = ex::Unwrap(device.CreateSampler(&sample_desc));
+            sampler = ex::Unwrap(device.CreateSampler(sample_desc));
 
             // Write image sampler to the descriptor buffer
             sampler_buffer.WriteSampler(0, 1, sampler);

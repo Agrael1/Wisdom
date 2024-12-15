@@ -145,7 +145,7 @@ Default is {MutiWaitFlags::All}"/>
 
     <func for="Device" name="CreateGraphicsPipeline" mod="const" doc="Creates a graphics pipeline state object.">
       <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
-      <arg type="GraphicsPipelineDesc" name="desc" mod="const ptr" doc="The description of the graphics pipeline to create."/>
+      <arg type="GraphicsPipelineDesc" name="desc" mod="const ref" doc="The description of the graphics pipeline to create."/>
     </func>
 
     <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.">
@@ -190,7 +190,7 @@ nullptr means allocate 1 space for each."/>
       <arg type="Texture" name="texture" doc="The texture to create the render target with.">
         <replace with="TextureView" for="cpp" doc="The texture view to create the render target with."/>
       </arg>
-      <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create."/>
+      <arg type="RenderTargetDesc" name="desc" mod="const ref" doc="The description of the render target to create."/>
     </func>
 
     <func for="Device" name="CreateDepthStencilTarget" mod="const" doc="Creates a depth stencil target object.
@@ -200,13 +200,13 @@ Used with render passes.">
       <arg type="Texture" name="texture" doc="The texture to create the render target with.">
         <replace with="TextureView" for="cpp" doc="The texture view to create the render target with."/>
       </arg>
-      <arg type="RenderTargetDesc" name="desc" doc="The description of the render target to create.
+      <arg type="RenderTargetDesc" name="desc" mod="const ref" doc="The description of the render target to create.
 Does not work with 3D textures."/>
     </func>
 
     <func for="Device" name="CreateSampler" mod="const" doc="Creates a sampler object.">
       <ret type="Sampler" name="sampler" result="true" doc="{Sampler::} on success ({Status::Ok})."/>
-      <arg type="SamplerDesc" name="desc" mod="const ptr" doc="The description of the sampler to create."/>
+      <arg type="SamplerDesc" name="desc" mod="const ref" doc="The description of the sampler to create."/>
     </func>
 
     <func for="Device" name="CreateShaderResource" mod="const" doc="Creates a shader resource object.">
@@ -214,7 +214,13 @@ Does not work with 3D textures."/>
       <arg type="Texture" name="texture" doc="The texture to create the shader resource with.">
         <replace with="TextureView" for="cpp" doc="The texture view to create the shader resource with."/>
       </arg>
-      <arg type="ShaderResourceDesc" name="desc" doc="The description of the shader resource to create."/>
+      <arg type="ShaderResourceDesc" name="desc" mod="const ref" doc="The description of the shader resource to create."/>
+    </func>
+
+    <func for="Device" name="CreateDescriptorStorage" mod="const" doc="Creates a descriptor storage object with specified number of bindings to allocate.
+Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.">
+      <ret type="DescriptorStorage" name="storage" result="true" doc="{DescriptorStorage::} on success ({Status::Ok})."/>
+      <arg type="DescriptorStorageDesc" name="desc" mod="const ref" doc="The description of the descriptor storage to create."/>
     </func>
 
     <func for="Device" name="QueryFeatureSupport" mod="const" doc="Queries if the device supports the feature.">
@@ -241,6 +247,18 @@ Equivalent to creating a Texture, allocating a memory and binding texture to it.
       <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
       <arg type="MemoryType" name="memory" default="Default" doc="The type of the memory to allocate for the texture."/>
       <arg type="MemoryFlags" name="mem_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
+    </func>
+
+    <func for="ResourceAllocator" name="CreateUploadBuffer" mod="const" doc="Convenience function for creating a buffer object and allocating memory for it.
+Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)">
+      <ret type="Buffer" name="buffer" result="true" doc="{Buffer::} on success ({Status::Ok})."/>
+      <arg type="u64" name="size" doc="The size of the buffer in bytes."/>
+    </func>
+
+    <func for="ResourceAllocator" name="CreateReadbackBuffer" mod="const" doc="Convenience function for creating a buffer object and allocating memory for it.
+Equivalent to calling CreateBuffer(size, BufferUsage::CopySrc, MemoryType::Upload, wis::MemoryFlags::Mapped)">
+      <ret type="Buffer" name="buffer" result="true" doc="{Buffer::} on success ({Status::Ok})."/>
+      <arg type="u64" name="size" doc="The size of the buffer in bytes."/>
     </func>
 
     <func for="ResourceAllocator" name="GetTextureAllocationInfo" mod="const" doc="Returns the allocation info for the texture.">
@@ -326,7 +344,7 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <arg type="Buffer" name="destination" doc="The destination buffer to copy to.">
         <replace with="BufferView" for="cpp" doc="The destination buffer to copy to."/>
       </arg>
-      <arg type="BufferRegion" name="region" doc="The region to copy."/>
+      <arg type="BufferRegion" name="region" mod="const ref" doc="The region to copy."/>
     </func>
 
     <func for="CommandList" name="CopyBufferToTexture" doc="Copies data from buffer to texture.">
@@ -352,7 +370,7 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     </func>
 
     <func for="CommandList" name="BufferBarrier" doc="Sets the barrier on the buffer.">
-      <arg type="BufferBarrier" name="barrier" doc="The barrier to set."/>
+      <arg type="BufferBarrier" name="barrier" mod="const ref" doc="The barrier to set."/>
       <arg type="Buffer" name="buffer" doc="The buffer to set the barrier on.">
         <replace with="BufferView" for="cpp" doc="The buffer to set the barrier on."/>
       </arg>
@@ -364,7 +382,7 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     </func>
 
     <func for="CommandList" name="TextureBarrier" doc="Sets the barrier on the texture.">
-      <arg type="TextureBarrier" name="barrier" doc="The barrier to set."/>
+      <arg type="TextureBarrier" name="barrier" mod="const ref" doc="The barrier to set."/>
       <arg type="Texture" name="texture" doc="The texture to set the barrier on.">
         <replace with="TextureView" for="cpp" doc="The texture to set the barrier on."/>
       </arg>
@@ -417,7 +435,7 @@ Requires {DeviceFeature::AdvancedIndexBuffer} to be supported.">
     </func>
 
     <func for="CommandList" name="RSSetViewport" doc="Sets the viewport.">
-      <arg type="Viewport" name="viewport" doc="The viewport to set."/>
+      <arg type="Viewport" name="viewport" mod="const ref" doc="The viewport to set."/>
     </func>
 
     <func for="CommandList" name="RSSetViewports" doc="Sets multiple viewports.">
@@ -426,7 +444,7 @@ Requires {DeviceFeature::AdvancedIndexBuffer} to be supported.">
     </func>
 
     <func for="CommandList" name="RSSetScissor" doc="Sets the scissor rect.">
-      <arg type="Scissor" name="scissor" doc="The scissor to set."/>
+      <arg type="Scissor" name="scissor" mod="const ref" doc="The scissor to set."/>
     </func>
 
     <func for="CommandList" name="RSSetScissors" doc="Sets multiple scissor rects.
@@ -643,7 +661,7 @@ The presence of core functionality is checked by the query function."/>
   </functions>
   <extensions>
     <ext name="DebugExtension" type="Factory" id="1" folder="debug_info">
-      <file include="wisdom/wisdom_debug.h"/>
+      <file include="wisdom/wisdom_debug.hpp"/>
       <func for="DebugExtension" name="CreateDebugMessenger" doc="Creates a debug messenger for the factory.">
         <ret type="DebugMessenger" name="messenger" result="true" doc="{DebugMessenger::} on success ({Status::Ok})."/>
         <arg type="DebugCallback" name="callback" doc="The callback that will receive the debug messages."/>
@@ -652,7 +670,7 @@ The presence of core functionality is checked by the query function."/>
     </ext>
 
     <ext name="DescriptorBufferExtension" type="Device" id="1" folder="descriptor_buffer">
-      <file include="wisdom/wisdom_descriptor_buffer.h"/>
+      <file include="wisdom/wisdom_descriptor_buffer.hpp"/>
       <handle name="DescriptorBuffer" doc="Buffer storage for descriptors.
 It is the most flexible implementation of storage for descriptors, as it supports both bindful and bindless
 Descriptor approaches. Works like an aligned table of elements of the same size.
@@ -753,7 +771,36 @@ for selected descriptor table. Pipeline will get the bindings from that offset."
         </arg>
         <arg type="u32" name="table_aligned_byte_offset" doc="Byte offset from the buffer beginning in table alignment sizes."/>
       </func>
+    </ext>
 
+    <ext name="ExtendedAllocation" type="Device" id="2" folder="extended_allocation">
+      <file include="wisdom/wisdom_extended_allocation.hpp"/>
+      <func for="ExtendedAllocation" name="CreateGPUUploadTexture" mod="const" doc="Creates a texture that is optimized for GPU upload.
+Subsequently this texture may be directly mapped and does not require copying through copy queue.
+The memory behaves as GPU local memory. Requires ReBAR enabled in BIOS.">
+        <ret type="Texture" name="texture" result="true" doc="{Texture::} on success ({Status::Ok})."/>
+        <arg type="ResourceAllocator" name="allocator" mod="const ref" doc="The allocator to create the texture with.
+Allocator must be created by the same device, that initialized this extension."/>
+        <arg type="TextureDesc" name="desc" mod="const ref" doc="The description of the texture to create."/>
+        <arg type="TextureState" name="initial_state" default="Common" doc="The initial state of the texture. Default is Common."/>
+        <arg type="MemoryFlags" name="flags" default="None" doc="The flags of the memory to create the texture with. Default is None."/>
+      </func>
+
+      <func for="ExtendedAllocation" name="WriteMemoryToSubresourceDirect" mod="const" doc="Writes memory directly to the subresource of the texture.
+Subresource is array slice or mip level.">
+        <ret result="true"/>
+        <arg type="void" name="host_data" mod="const ptr" doc="The data to write to the texture."/>
+        <arg type="Texture" name="dst_texture" doc="The texture to write the data to.">
+          <replace with="TextureView" for="cpp" doc="The texture to write the data to."/>
+        </arg>
+        <arg type="TextureState" name="initial_state" doc="The initial state of the texture."/>
+        <arg type="TextureRegion" name="region" doc="The region to write the data to."/>
+      </func>
+
+      <func for="ExtendedAllocation" name="SupportedDirectGPUUpload" mod="const" doc="Check if direct GPU upload is supported for the given format.">
+        <ret type="bool" name="supported" doc="true if direct GPU upload is supported."/>
+        <arg type="DataFormat" name="format" doc="The format to check."/>
+      </func>
     </ext>
   </extensions>
 </registry>

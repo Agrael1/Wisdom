@@ -16,17 +16,17 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
 
     if (frame_count > back_buffer_count) {
         back_buffers = wis::detail::make_unique_for_overwrite<wis::DX12Texture[]>(frame_count);
-        if (!back_buffers)
+        if (!back_buffers) {
             return wis::make_result<FUNC, "Out of memory">(E_OUTOFMEMORY);
+        }
     }
 
     for (uint32_t n = 0; n < frame_count; n++) {
-        wis::com_ptr<ID3D12Resource> rc;
-        if (!succeeded(chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void()))) {
+        auto& bb_internal = back_buffers[n].GetMutableInternal();
+        if (!succeeded(chain->GetBuffer(n, __uuidof(*bb_internal.resource), bb_internal.resource.put_void()))) {
             back_buffer_count = n + 1;
             break;
         }
-        back_buffers[n] = wis::DX12Texture(std::move(rc), nullptr, nullptr);
     }
     back_buffer_count = frame_count;
     return wis::success;
@@ -34,8 +34,9 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
 
 wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
 {
-    if (width == 0 || height == 0)
+    if (width == 0 || height == 0) {
         return wis::make_result<FUNC, "Invalid size">(E_INVALIDARG);
+    }
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
         back_buffers[n] = {};
@@ -47,15 +48,16 @@ wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noex
                                       DXGI_FORMAT_UNKNOWN,
                                       DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING * uint32_t(tearing));
 
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to resize swap chain">(hr);
+    }
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
-        wis::com_ptr<ID3D12Resource> rc;
-        if (!wis::succeeded(hr = chain->GetBuffer(n, __uuidof(ID3D12Resource), rc.put_void())))
-            return wis::make_result<FUNC, "Failed to get back buffer">(hr);
-
-        back_buffers[n] = wis::DX12Texture(std::move(rc), nullptr, nullptr);
+        auto& bb_internal = back_buffers[n].GetMutableInternal();
+        if (!succeeded(chain->GetBuffer(n, __uuidof(*bb_internal.resource), bb_internal.resource.put_void()))) {
+            back_buffer_count = n + 1;
+            break;
+        }
     }
     return wis::success;
 }

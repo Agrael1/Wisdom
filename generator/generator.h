@@ -7,6 +7,8 @@
 #include <vector>
 #include <span>
 #include <array>
+#include <optional>
+#include <algorithm>
 
 static constexpr std::string_view documentation_header = R"(/** \mainpage Wisdom API Documentation
 
@@ -38,8 +40,9 @@ struct WisEnum {
 
     std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
@@ -68,8 +71,9 @@ struct WisBitmask {
 
     std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
@@ -98,8 +102,9 @@ struct WisStruct {
     std::vector<WisStructMember> members;
     std::optional<WisStructMember> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) {
             return v.name == name;
@@ -168,6 +173,10 @@ struct WisReturnType {
     {
         return type.empty() && !has_result;
     }
+    bool IsRV() const noexcept
+    {
+        return has_result && !type.empty();
+    }
 };
 struct WisFunction {
     std::string_view name;
@@ -183,8 +192,9 @@ struct WisFunction {
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
         auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
             return v.name == name;
         });
@@ -202,33 +212,39 @@ struct WisHandle {
 
     void AddFile(std::string_view file, ImplementedFor impl) noexcept
     {
-        if (impl & ImplementedFor::DX12)
+        if (impl & ImplementedFor::DX12) {
             files[0] = file;
-        if (impl & ImplementedFor::Vulkan)
+        }
+        if (impl & ImplementedFor::Vulkan) {
             files[1] = file;
+        }
     }
 
     std::string_view GetFile(ImplementedFor impl) const noexcept
     {
-        if (impl & ImplementedFor::DX12)
+        if (impl & ImplementedFor::DX12) {
             return files[0];
-        if (impl & ImplementedFor::Vulkan)
+        }
+        if (impl & ImplementedFor::Vulkan) {
             return files[1];
+        }
         return "";
     }
 
     std::optional<const WisFunction> HasValue(std::string_view name,
                                               const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(functions.begin(), functions.end(), [&](auto& v) {
             return v == name;
         });
 
-        if (enum_value == functions.end())
+        if (enum_value == functions.end()) {
             return {};
+        }
 
         return function_map.at(*enum_value);
     }
@@ -337,10 +353,11 @@ public:
 
 #pragma region CPP API
     // Function generation
-    std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl);
-    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true);
+    std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl, bool explicit_result);
+    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true, bool explicit_result = false);
     std::string MakeCPPFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API");
-    std::string MakeCPPFunctionCall(const WisFunction& func, std::string_view impl);
+    std::string MakeCPPFunctionCall(const WisFunction& func, std::string_view impl, bool explicit_result = false);
+    std::string MakeCPPRVFunctionCall(const WisFunction& func, std::string_view impl, std::string_view class_impl);
     std::string MakeCPPDelegate(const WisFunction& s);
 
     // Handle generation

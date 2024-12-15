@@ -1,12 +1,12 @@
 #ifndef WISDOM_EXTENDED_ALLOCATION_VK_CPP
 #define WISDOM_EXTENDED_ALLOCATION_VK_CPP
-#include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_extended_allocation.hpp>
 
 #if defined(WISDOM_VULKAN)
-bool wis::VKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                                                 std::unordered_set<std::string_view>& ext_name_set,
-                                                 std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                                 std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+bool wis::ImplVKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
+                                                     std::unordered_set<std::string_view>& ext_name_set,
+                                                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (available_extensions.contains(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME)) {
         ext_name_set.emplace(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
@@ -21,9 +21,9 @@ bool wis::VKExtendedAllocation::GetExtensionInfo(const std::unordered_map<std::s
 }
 
 wis::Result
-wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
-                                const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+wis::ImplVKExtendedAllocation::Init(const wis::VKDevice& instance,
+                                    const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                    const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (!structure_map.contains(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT)) {
         return {};
@@ -46,47 +46,60 @@ wis::VKExtendedAllocation::Init(const wis::VKDevice& instance,
     return {};
 }
 
-wis::ResultValue<wis::VKTexture>
-wis::VKExtendedAllocation::CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator,
-                                                  wis::TextureDesc desc,
-                                                  wis::TextureState initial_state,
-                                                  wis::MemoryFlags flags) const noexcept
+wis::VKTexture
+wis::ImplVKExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::VKResourceAllocator& allocator,
+                                                      wis::TextureDesc desc,
+                                                      wis::TextureState initial_state,
+                                                      wis::MemoryFlags flags) const noexcept
 {
-    if (!vkCopyMemoryToImageEXT)
-        return wis::make_result<FUNC, "GPU upload heap not supported by device">(VK_ERROR_UNKNOWN);
+    auto synth_1 = [this](wis::Result& result, const wis::VKResourceAllocator& allocator,
+                          wis::TextureDesc desc,
+                          wis::TextureState initial_state,
+                          wis::MemoryFlags flags) {
+        VkImageCreateInfo info;
+        VKResourceAllocator::VKFillImageDesc(desc, info);
+        wis::VKTexture texture = allocator.CreateTexture(result, desc, wis::MemoryType::GPUUpload, flags);
+        if (result.status != wis::Status::Ok) {
+            return texture;
+        }
 
-    VkImageCreateInfo info;
-    VKResourceAllocator::VKFillImageDesc(desc, info);
-    auto [res, texture] = allocator.CreateTexture(desc, wis::MemoryType::GPUUpload, flags);
+        // Transition image layout to general for host copy layouts
+        auto& tex_i = texture.GetInternal();
+        VkHostImageLayoutTransitionInfoEXT transition{
+            .sType = VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT,
+            .pNext = nullptr,
+            .image = texture.GetInternal().buffer,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = convert_vk(initial_state),
+            .subresourceRange = {
+                    .aspectMask = wis::aspect_flags(tex_i.format),
+                    .baseMipLevel = 0,
+                    .levelCount = desc.mip_levels,
+                    .baseArrayLayer = 0,
+                    .layerCount = info.arrayLayers,
+            },
+        };
 
-    // Transition image layout to general for host copy layouts
-    auto& tex_i = texture.GetInternal();
-    VkHostImageLayoutTransitionInfoEXT transition{
-        .sType = VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT,
-        .pNext = nullptr,
-        .image = texture.GetInternal().buffer,
-        .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .newLayout = convert_vk(initial_state),
-        .subresourceRange = {
-                .aspectMask = wis::aspect_flags(tex_i.format),
-                .baseMipLevel = 0,
-                .levelCount = desc.mip_levels,
-                .baseArrayLayer = 0,
-                .layerCount = info.arrayLayers,
-        },
+        auto vr = vkTransitionImageLayoutEXT(device.get(), 1, &transition);
+        if (!wis::succeeded(vr)) {
+            result = wis::make_result<FUNC, "Failed to transition image layout">(vr);
+        }
+        return texture;
     };
 
-    auto vr = vkTransitionImageLayoutEXT(device.get(), 1, &transition);
-    if (!wis::succeeded(vr))
-        return wis::make_result<FUNC, "Failed to transition image layout">(vr);
-    return std::move(texture);
+    if (!vkCopyMemoryToImageEXT) {
+        result = wis::make_result<FUNC, "VK_EXT_HOST_IMAGE_COPY not supported by device">(VK_ERROR_UNKNOWN);
+        return {};
+    } else {
+        return synth_1(result, allocator, desc, initial_state, flags);
+    }
 }
 
 wis::Result
-wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                          wis::VKTextureView dst_texture,
-                                                          wis::TextureState initial_state,
-                                                          wis::TextureRegion region) const noexcept
+wis::ImplVKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
+                                                              wis::VKTextureView dst_texture,
+                                                              wis::TextureState initial_state,
+                                                              wis::TextureRegion region) const noexcept
 {
     auto aspects = aspect_flags(std::get<1>(dst_texture));
 
@@ -117,12 +130,13 @@ wis::VKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
     };
 
     auto vr = vkCopyMemoryToImageEXT(device.get(), &copy_info);
-    if (!wis::succeeded(vr))
+    if (!wis::succeeded(vr)) {
         return wis::make_result<FUNC, "Failed to copy memory to image">(vr);
+    }
     return wis::success;
 }
 
-bool wis::VKExtendedAllocation::SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
+bool wis::ImplVKExtendedAllocation::SupportedDirectGPUUpload(wis::DataFormat format) const noexcept
 {
     VkHostImageCopyDevicePerformanceQueryEXT query{
         .sType = VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT,

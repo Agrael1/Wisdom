@@ -1,7 +1,7 @@
 #include "app.h"
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
-#include <wisdom/wisdom_debug.h>
+#include <wisdom/wisdom_debug.hpp>
 #include <iostream>
 #include <stb_image_write.h>
 
@@ -39,13 +39,15 @@ void App::CreateDevices()
 
     wis::FactoryExtension* extensions[] = { &windows_ext, &debug_ext };
     auto [result, factory] = wis::CreateFactory(false, extensions, std::size(extensions));
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create factory");
+    }
 
     // Create debug messenger
     auto [result2, hinfo] = debug_ext.CreateDebugMessenger(DebugCallback, nullptr);
-    if (result2.status != wis::Status::Ok)
+    if (result2.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create debug messenger");
+    }
 
     info = std::move(hinfo);
 
@@ -58,21 +60,25 @@ void App::CreateDevices()
             if (!transfer.transfer_device) {
                 std::cout << wis::format("Work adapter: {}\n", desc.description.data());
                 auto result = CreateTransferNode(std::move(adapter));
-                if (result)
+                if (result) {
                     transfer = std::move(result.value());
+                }
                 continue;
             }
             if (!work.work_device) {
                 std::cout << wis::format("Work adapter: {}\n", desc.description.data());
                 auto result = CreateWorkNode(std::move(adapter));
-                if (result)
+                if (result) {
                     work = std::move(result.value());
+                }
             }
         } else {
-            if (!work.work_device)
+            if (!work.work_device) {
                 throw std::runtime_error("Failed to create work device");
-            if (!transfer.transfer_device)
+            }
+            if (!transfer.transfer_device) {
                 throw std::runtime_error("Failed to create transfer device");
+            }
             break;
         }
     }
@@ -93,8 +99,9 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
         .tearing = false,
     };
     auto [result, swap] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, &desc, wnd.GetHandle());
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create swapchain");
+    }
 
     transfer.InitSwapchain(std::move(swap));
     work.CreateOutputTexture(desc.size);
@@ -111,14 +118,16 @@ int App::Start()
     uint32_t frame_count = 0;
     long long elapsed = 0;
     while (frame_count != 100) {
-        if (const auto a = wnd.ProcessMessages())
+        if (const auto a = wnd.ProcessMessages()) {
             return (int)a.value();
+        }
 
-        for (auto e : wnd.GetEvents())
+        for (auto e : wnd.GetEvents()) {
             switch (e) {
             case Event::Resize:
                 OnResize(wnd.GetWidth(), wnd.GetHeight());
             }
+        }
 
         auto start = std::chrono::high_resolution_clock::now();
         Frame();
@@ -133,8 +142,9 @@ int App::Start()
 
 void App::OnResize(uint32_t width, uint32_t height)
 {
-    if (width == this->width && height == this->height)
+    if (width == this->width && height == this->height) {
         return;
+    }
 
     transfer.input_buffer.Unmap();
     work.CreateOutputTexture({ width, height });

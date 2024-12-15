@@ -1,5 +1,5 @@
 #include "window.h"
-#include <wisdom/wisdom_platform.h>
+#include <wisdom/wisdom_platform.hpp>
 
 ex::WindowEvent ex::Window::PollEvents()
 {
@@ -42,7 +42,7 @@ ex::WindowEvent ex::Window::PollEvents()
     return WindowEvent::NoEvent;
 }
 
-wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFormat fmt, bool stereo)
+wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::ExampleSetup& setup, wis::DataFormat fmt, bool stereo)
 {
     using enum PlatformExtension::Selector;
     if (_platform.current == None) {
@@ -64,8 +64,8 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
     case Windows: {
         HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
-            return Unwrap(static_cast<wis::platform::WindowsExtension*>(_platform.get())
-                                  ->CreateSwapchain(setup.device, setup.queue, &desc, hwnd));
+            return static_cast<wis::platform::WindowsExtension*>(_platform.get())
+                    ->CreateSwapchain(result, setup.device, setup.queue, &desc, hwnd);
         }
     } break;
 #elif defined(SDL_PLATFORM_LINUX)
@@ -73,16 +73,16 @@ wis::SwapChain ex::Window::CreateSwapchain(ex::ExampleSetup& setup, wis::DataFor
         Display* xdisplay = (Display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
         ::Window xwindow = (::Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
-            return Unwrap(static_cast<wis::platform::X11Extension*>(_platform.get())
-                                  ->CreateSwapchain(setup.device, setup.queue, &desc, xdisplay, xwindow));
+            return static_cast<wis::platform::X11Extension*>(_platform.get())
+                    ->CreateSwapchain(result, setup.device, setup.queue, &desc, xdisplay, xwindow);
         }
     } break;
     case Wayland: {
         struct wl_display* display = (struct wl_display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, NULL);
         struct wl_surface* surface = (struct wl_surface*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, NULL);
         if (display && surface) {
-            return Unwrap(static_cast<wis::platform::WaylandExtension*>(_platform.get())
-                                  ->CreateSwapchain(setup.device, setup.queue, &desc, display, surface));
+            return static_cast<wis::platform::WaylandExtension*>(_platform.get())
+                    ->CreateSwapchain(result, setup.device, setup.queue, &desc, display, surface);
         }
     } break;
 #endif
@@ -106,12 +106,12 @@ ex::PlatformExtension::PlatformExtension()
     platform = std::make_unique<wis::platform::WindowsExtension>();
     current = Selector::Windows;
 #elif defined(SDL_PLATFORM_LINUX)
-    // if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
-    platform = std::make_unique<wis::platform::X11Extension>();
-    current = Selector::X11;
-    //} else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0) {
-    //    platform = std::make_unique<wis::platform::WaylandExtension>();
-    //    current = Selector::Wayland;
-    //}
+    if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
+        platform = std::make_unique<wis::platform::X11Extension>();
+        current = Selector::X11;
+    } else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0) {
+        platform = std::make_unique<wis::platform::WaylandExtension>();
+        current = Selector::Wayland;
+    }
 #endif
 }

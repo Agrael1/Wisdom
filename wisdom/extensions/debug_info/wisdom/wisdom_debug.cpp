@@ -1,10 +1,10 @@
 #ifndef WIS_WISDOM_DEBUG_CPP
 #define WIS_WISDOM_DEBUG_CPP
-#include <wisdom/wisdom_debug.h>
+#include <wisdom/wisdom_debug.hpp>
 
 #if defined(WISDOM_DX12)
-wis::ResultValue<wis::DX12DebugMessenger>
-wis::ImplDX12DebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
+wis::DX12DebugMessenger
+wis::ImplDX12DebugExtension::CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) const noexcept
 {
     return wis::DX12DebugMessenger{
         DX12InfoToken{ true }, callback, user_data
@@ -21,8 +21,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::ImplVKDebugExtension::DebugCallbackThunk(
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept
 {
     // Ignore this validation error, until it is fixed in the Vulkan SDK
-    if (pCallbackData->pMessageIdName && std::string_view(pCallbackData->pMessageIdName) == "VUID-vkCmdSetDescriptorBufferOffsetsEXT-pOffsets-08063")
+    if (pCallbackData->pMessageIdName && std::string_view(pCallbackData->pMessageIdName) == "VUID-vkCmdSetDescriptorBufferOffsetsEXT-pOffsets-08063") {
         return false;
+    }
 
     auto& [callback, user_data] = *reinterpret_cast<std::pair<wis::DebugCallback, void*>*>(pUserData);
 
@@ -35,12 +36,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL wis::ImplVKDebugExtension::DebugCallbackThunk(
     return false;
 }
 
-wis::ResultValue<wis::VKDebugMessenger>
-wis::ImplVKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, void* user_data) const noexcept
+wis::VKDebugMessenger
+wis::ImplVKDebugExtension::CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) const noexcept
 {
-    auto debug_callback = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);
-    if (!debug_callback)
-        return wis::make_result<FUNC, "Failed to create debug callback data">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    VKDebugMessenger out_messenger;
+    auto& internal = out_messenger.GetMutableInternal();
+
+    internal.data = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);
+    if (!internal.data) {
+        result = wis::make_result<FUNC, "Failed to create debug callback data">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return out_messenger;
+    }
 
     VkDebugUtilsMessengerCreateInfoEXT create_info{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -51,16 +57,17 @@ wis::ImplVKDebugExtension::CreateDebugMessenger(wis::DebugCallback callback, voi
                 VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = DebugCallbackThunk,
-        .pUserData = debug_callback.get()
+        .pUserData = internal.data.get()
     };
-
-    VkDebugUtilsMessengerEXT messenger;
     auto vr = vkCreateDebugUtilsMessengerEXT(instance.get(), &create_info, nullptr,
-                                             &messenger);
-    if (!wis::succeeded(vr))
-        return wis::make_result<FUNC, "Failed to create debug messenger">(vr);
-
-    return wis::VKDebugMessenger{ instance, messenger, std::move(debug_callback), vkDestroyDebugUtilsMessengerEXT };
+                                             &internal.messenger);
+    if (!wis::succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create debug messenger">(vr);
+        return out_messenger;
+    }
+    internal.instance = instance;
+    internal.vkDestroyDebugUtilsMessengerEXT = vkDestroyDebugUtilsMessengerEXT;
+    return out_messenger;
 }
 #endif // WISDOM_VULKAN
 #endif // WISDOM_DEBUG_CPP

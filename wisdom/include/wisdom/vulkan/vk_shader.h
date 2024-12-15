@@ -15,10 +15,6 @@ class VKShader : public QueryInternal<VKShader>
 {
 public:
     VKShader() = default;
-    explicit VKShader(wis::managed_handle_ex<VkShaderModule> shader) noexcept
-        : QueryInternal(std::move(shader))
-    {
-    }
     operator VKShaderView() const noexcept
     {
         return shader.get();

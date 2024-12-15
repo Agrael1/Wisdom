@@ -1,6 +1,5 @@
 #ifndef WIS_DX12_CHECKS_H
 #define WIS_DX12_CHECKS_H
-#include <wisdom/global/definitions.h>
 #include <wisdom/util/error_messages.h>
 #include <wisdom/dx12/dx12_convert.h>
 #include <wisdom/dx12/dx12_info.h>
@@ -18,16 +17,18 @@ inline void log_dxgi_errors() noexcept
 /// @return True if the HRESULT is a success code
 inline bool succeeded(HRESULT hr) noexcept
 {
-    if constexpr (debug_layer)
+    if constexpr (debug_layer) {
         log_dxgi_errors();
+    }
     return hr >= 0;
 }
 
 /// @brief Check if there are any errors in the current context, logging any errors
 inline void check_context() noexcept
 {
-    if constexpr (debug_layer)
+    if constexpr (debug_layer) {
         log_dxgi_errors();
+    }
 }
 
 template<wis::string_literal func, wis::string_literal message>

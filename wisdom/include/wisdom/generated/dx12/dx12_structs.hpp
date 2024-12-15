@@ -1,6 +1,6 @@
 #pragma once
 #include <wisdom/dx12/dx12_views.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/flags.h>
 #include <D3D12MemAlloc.h>
 
@@ -367,135 +367,187 @@ inline constexpr DXGI_FORMAT convert_dx(IndexType value) noexcept
 inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS output = {};
-    if (value & MemoryFlags::DedicatedAllocation)
+    if (value & MemoryFlags::DedicatedAllocation) {
         output |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
-    if (value & MemoryFlags::Mapped)
+    }
+    if (value & MemoryFlags::Mapped) {
         output |= D3D12MA::ALLOCATION_FLAG_NONE;
+    }
     return output;
 }
 inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
 {
     D3D12_BARRIER_SYNC output = {};
-    if (value & BarrierSync::All)
+    if (value & BarrierSync::All) {
         output |= D3D12_BARRIER_SYNC_ALL;
-    if (value & BarrierSync::Draw)
+    }
+    if (value & BarrierSync::Draw) {
         output |= D3D12_BARRIER_SYNC_DRAW;
-    if (value & BarrierSync::IndexInput)
+    }
+    if (value & BarrierSync::IndexInput) {
         output |= D3D12_BARRIER_SYNC_INDEX_INPUT;
-    if (value & BarrierSync::VertexShading)
+    }
+    if (value & BarrierSync::VertexShading) {
         output |= D3D12_BARRIER_SYNC_VERTEX_SHADING;
-    if (value & BarrierSync::PixelShading)
+    }
+    if (value & BarrierSync::PixelShading) {
         output |= D3D12_BARRIER_SYNC_PIXEL_SHADING;
-    if (value & BarrierSync::DepthStencil)
+    }
+    if (value & BarrierSync::DepthStencil) {
         output |= D3D12_BARRIER_SYNC_DEPTH_STENCIL;
-    if (value & BarrierSync::RenderTarget)
+    }
+    if (value & BarrierSync::RenderTarget) {
         output |= D3D12_BARRIER_SYNC_RENDER_TARGET;
-    if (value & BarrierSync::Compute)
+    }
+    if (value & BarrierSync::Compute) {
         output |= D3D12_BARRIER_SYNC_COMPUTE_SHADING;
-    if (value & BarrierSync::Raytracing)
+    }
+    if (value & BarrierSync::Raytracing) {
         output |= D3D12_BARRIER_SYNC_RAYTRACING;
-    if (value & BarrierSync::Copy)
+    }
+    if (value & BarrierSync::Copy) {
         output |= D3D12_BARRIER_SYNC_COPY;
-    if (value & BarrierSync::Resolve)
+    }
+    if (value & BarrierSync::Resolve) {
         output |= D3D12_BARRIER_SYNC_RESOLVE;
-    if (value & BarrierSync::ExecuteIndirect)
+    }
+    if (value & BarrierSync::ExecuteIndirect) {
         output |= D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
-    if (value & BarrierSync::AllShading)
+    }
+    if (value & BarrierSync::AllShading) {
         output |= D3D12_BARRIER_SYNC_ALL_SHADING;
-    if (value & BarrierSync::NonPixelShading)
+    }
+    if (value & BarrierSync::NonPixelShading) {
         output |= D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
-    if (value & BarrierSync::ClearUAV)
+    }
+    if (value & BarrierSync::ClearUAV) {
         output |= D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW;
-    if (value & BarrierSync::VideoDecode)
+    }
+    if (value & BarrierSync::VideoDecode) {
         output |= D3D12_BARRIER_SYNC_VIDEO_DECODE;
-    if (value & BarrierSync::VideoEncode)
+    }
+    if (value & BarrierSync::VideoEncode) {
         output |= D3D12_BARRIER_SYNC_VIDEO_ENCODE;
-    if (value & BarrierSync::BuildRTAS)
+    }
+    if (value & BarrierSync::BuildRTAS) {
         output |= D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE;
-    if (value & BarrierSync::CopyRTAS)
+    }
+    if (value & BarrierSync::CopyRTAS) {
         output |= D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE;
+    }
     return output;
 }
 inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
 {
     D3D12_BARRIER_ACCESS output = {};
-    if (value & ResourceAccess::VertexBuffer)
+    if (value & ResourceAccess::VertexBuffer) {
         output |= D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
-    if (value & ResourceAccess::ConstantBuffer)
+    }
+    if (value & ResourceAccess::ConstantBuffer) {
         output |= D3D12_BARRIER_ACCESS_CONSTANT_BUFFER;
-    if (value & ResourceAccess::IndexBuffer)
+    }
+    if (value & ResourceAccess::IndexBuffer) {
         output |= D3D12_BARRIER_ACCESS_INDEX_BUFFER;
-    if (value & ResourceAccess::RenderTarget)
+    }
+    if (value & ResourceAccess::RenderTarget) {
         output |= D3D12_BARRIER_ACCESS_RENDER_TARGET;
-    if (value & ResourceAccess::UnorderedAccess)
+    }
+    if (value & ResourceAccess::UnorderedAccess) {
         output |= D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
-    if (value & ResourceAccess::DepthWrite)
+    }
+    if (value & ResourceAccess::DepthWrite) {
         output |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
-    if (value & ResourceAccess::DepthRead)
+    }
+    if (value & ResourceAccess::DepthRead) {
         output |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
-    if (value & ResourceAccess::ShaderResource)
+    }
+    if (value & ResourceAccess::ShaderResource) {
         output |= D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
-    if (value & ResourceAccess::StreamOutput)
+    }
+    if (value & ResourceAccess::StreamOutput) {
         output |= D3D12_BARRIER_ACCESS_STREAM_OUTPUT;
-    if (value & ResourceAccess::IndirectArgument)
+    }
+    if (value & ResourceAccess::IndirectArgument) {
         output |= D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
-    if (value & ResourceAccess::CopyDest)
+    }
+    if (value & ResourceAccess::CopyDest) {
         output |= D3D12_BARRIER_ACCESS_COPY_DEST;
-    if (value & ResourceAccess::CopySource)
+    }
+    if (value & ResourceAccess::CopySource) {
         output |= D3D12_BARRIER_ACCESS_COPY_SOURCE;
-    if (value & ResourceAccess::ConditionalRendering)
+    }
+    if (value & ResourceAccess::ConditionalRendering) {
         output |= D3D12_BARRIER_ACCESS_PREDICATION;
-    if (value & ResourceAccess::AccelerationStrucureRead)
+    }
+    if (value & ResourceAccess::AccelerationStrucureRead) {
         output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
-    if (value & ResourceAccess::AccelerationStrucureWrite)
+    }
+    if (value & ResourceAccess::AccelerationStrucureWrite) {
         output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
-    if (value & ResourceAccess::ShadingRate)
+    }
+    if (value & ResourceAccess::ShadingRate) {
         output |= D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE;
-    if (value & ResourceAccess::VideoDecodeRead)
+    }
+    if (value & ResourceAccess::VideoDecodeRead) {
         output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
-    if (value & ResourceAccess::VideoDecodeWrite)
+    }
+    if (value & ResourceAccess::VideoDecodeWrite) {
         output |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
-    if (value & ResourceAccess::ResolveDest)
+    }
+    if (value & ResourceAccess::ResolveDest) {
         output |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
-    if (value & ResourceAccess::ResolveSource)
+    }
+    if (value & ResourceAccess::ResolveSource) {
         output |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
-    if (value & ResourceAccess::NoAccess)
+    }
+    if (value & ResourceAccess::NoAccess) {
         output |= D3D12_BARRIER_ACCESS_NO_ACCESS;
+    }
     return output;
 }
 inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexcept
 {
     D3D12_RENDER_PASS_FLAGS output = {};
-    if (value & RenderPassFlags::Suspending)
+    if (value & RenderPassFlags::Suspending) {
         output |= D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS;
-    if (value & RenderPassFlags::Resuming)
+    }
+    if (value & RenderPassFlags::Resuming) {
         output |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
+    }
     return output;
 }
 inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
 {
     D3D12_RESOURCE_FLAGS output = {};
-    if (value & TextureUsage::RenderTarget)
+    if (value & TextureUsage::RenderTarget) {
         output |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-    if (value & TextureUsage::DepthStencil)
+    }
+    if (value & TextureUsage::DepthStencil) {
         output |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-    if (value & TextureUsage::CopySrc)
+    }
+    if (value & TextureUsage::CopySrc) {
         output |= D3D12_RESOURCE_FLAG_NONE;
-    if (value & TextureUsage::CopyDst)
+    }
+    if (value & TextureUsage::CopyDst) {
         output |= D3D12_RESOURCE_FLAG_NONE;
-    if (value & TextureUsage::ShaderResource)
+    }
+    if (value & TextureUsage::ShaderResource) {
         output |= D3D12_RESOURCE_FLAG_NONE;
-    if (value & TextureUsage::UnorderedAccess)
+    }
+    if (value & TextureUsage::UnorderedAccess) {
         output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-    if (value & TextureUsage::HostCopy)
+    }
+    if (value & TextureUsage::HostCopy) {
         output |= D3D12_RESOURCE_FLAG_NONE;
+    }
     return output;
 }
 inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
 {
     D3D12_FENCE_FLAGS output = {};
-    if (value & FenceFlags::Shared)
+    if (value & FenceFlags::Shared) {
         output |= D3D12_FENCE_FLAG_SHARED;
+    }
     return output;
 }
 inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noexcept

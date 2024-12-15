@@ -4,7 +4,7 @@
 #include <semaphore>
 #include <unordered_map>
 #include <utility>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/com_ptr.h>
 
@@ -58,15 +58,17 @@ struct DX12InfoToken {
     }
     DX12InfoToken& operator=(DX12InfoToken&& other) noexcept
     {
-        if (bound)
+        if (bound) {
             Release();
+        }
         bound = std::exchange(other.bound, false);
         return *this;
     }
     ~DX12InfoToken()
     {
-        if (bound)
+        if (bound) {
             Release();
+        }
     }
 
     void Acquire() noexcept

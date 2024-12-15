@@ -12,20 +12,12 @@ template<>
 struct Internal<DX12Memory> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
     wis::com_ptr<D3D12MA::Allocation> allocation;
-
-    Internal() noexcept = default;
-    Internal(wis::com_ptr<D3D12MA::Allocator> allocator, wis::com_ptr<D3D12MA::Allocation> allocation) noexcept
-        : allocator(std::move(allocator)), allocation(std::move(allocation)) { }
 };
 
 class ImplDX12Memory : public QueryInternal<DX12Memory>
 {
 public:
     ImplDX12Memory() noexcept = default;
-    explicit ImplDX12Memory(wis::com_ptr<D3D12MA::Allocator> allocator, wis::com_ptr<D3D12MA::Allocation> allocation) noexcept
-        : QueryInternal<DX12Memory>(std::move(allocator), std::move(allocation))
-    {
-    }
     operator bool() const noexcept
     {
         return bool(allocation);
@@ -48,8 +40,9 @@ public:
 public:
     [[nodiscard]] uint64_t GetBlockOffset() const noexcept
     {
-        if (!allocation)
+        if (!allocation) {
             return 0;
+        }
 
         return allocation->GetOffset();
     }

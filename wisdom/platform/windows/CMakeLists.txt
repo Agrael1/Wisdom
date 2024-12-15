@@ -9,7 +9,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if(WISDOM_BUILD_BINARIES)
-  add_library(wisdom-windows STATIC "wisdom/wisdom_windows.h"
+  add_library(wisdom-windows STATIC "wisdom/wisdom_windows.hpp"
                                     "wisdom/wisdom_windows.cpp")
   add_library(wis::windows ALIAS wisdom-windows)
   target_link_libraries(wisdom-windows PUBLIC wis::wisdom d3d11)
@@ -32,15 +32,13 @@ install(
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
   EXPORT wisdom-windows-targets
   FILE wisdom-windows-targets.cmake
   NAMESPACE wis::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
-  )
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
@@ -48,12 +46,8 @@ configure_package_config_file(
   "${CMAKE_CURRENT_BINARY_DIR}/wisdom-windows-config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
 
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-windows-config.cmake"
-  
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-windows-config.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom
-  )
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)

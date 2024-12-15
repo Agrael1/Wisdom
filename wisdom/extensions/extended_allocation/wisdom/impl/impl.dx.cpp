@@ -1,19 +1,25 @@
 #ifndef WISDOM_EXTENDED_ALLOCATION_DX_CPP
 #define WISDOM_EXTENDED_ALLOCATION_DX_CPP
-#include <wisdom/wisdom_extended_allocation.h>
+#include <wisdom/wisdom_extended_allocation.hpp>
 
 #if defined(WISDOM_DX12)
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_property_format_table.h>
 
-wis::ResultValue<wis::DX12Texture>
-wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator,
-                                                    wis::TextureDesc desc,
-                                                    wis::TextureState initial_state,
-                                                    wis::MemoryFlags flags) const noexcept
+wis::DX12Texture
+wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,
+                                                        wis::TextureDesc desc,
+                                                        wis::TextureState initial_state,
+                                                        wis::MemoryFlags flags) const noexcept
 {
-    if (!supports_gpu_upload)
-        return wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
+    DX12Texture out_texture;
+    auto& internal = out_texture.GetMutableInternal();
+    auto& mem_internal = internal.memory.GetMutableInternal();
+
+    if (!supports_gpu_upload) {
+        result = wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
+        return out_texture;
+    }
 
     D3D12_RESOURCE_DESC1 tex_desc;
     DX12ResourceAllocator::DX12FillTextureDesc(desc, tex_desc);
@@ -23,27 +29,23 @@ wis::DX12ExtendedAllocation::CreateGPUUploadTexture(const wis::DX12ResourceAlloc
         .HeapType = convert_dx(wis::MemoryType::GPUUpload),
         .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
     };
+    HRESULT hr = allocator.GetInternal().allocator->CreateResource3(&all_desc, &tex_desc,
+                                                                    convert_dx(initial_state), nullptr, 0, nullptr,
+                                                                    mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
-    wis::com_ptr<ID3D12Resource> rc;
-    wis::com_ptr<D3D12MA::Allocation> al;
-
-    auto hallocator = allocator.GetInternal().allocator;
-
-    HRESULT hr = hallocator->CreateResource3(&all_desc, &tex_desc,
-                                             convert_dx(initial_state), nullptr, 0, nullptr,
-                                             al.put(), __uuidof(*rc), rc.put_void());
-
-    if (!wis::succeeded(hr))
-        return wis::make_result<FUNC, "Buffer Allocation failed">(hr);
-
-    return DX12Buffer{ std::move(rc), std::move(al), std::move(hallocator) };
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+        return out_texture;
+    }
+    mem_internal.allocator = allocator.GetInternal().allocator;
+    return out_texture;
 }
 
 wis::Result
-wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-                                                            wis::DX12TextureView dst_texture,
-                                                            wis::TextureState initial_state,
-                                                            wis::TextureRegion region) const noexcept
+wis::ImplDX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
+                                                                wis::DX12TextureView dst_texture,
+                                                                wis::TextureState initial_state,
+                                                                wis::TextureRegion region) const noexcept
 {
     auto resource = std::get<0>(dst_texture);
     auto texture_desc = resource->GetDesc();
@@ -52,12 +54,14 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_dat
     UINT row_pitch = 0;
     UINT slice_pitch = 0;
     auto hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.format), region.size.width, row_pitch);
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to calculate row pitch">(hr);
+    }
 
     hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(convert_dx(region.format), row_pitch, region.size.height, slice_pitch);
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to calculate slice pitch">(hr);
+    }
 
     D3D12_BOX box{
         .left = region.offset.width,
@@ -68,8 +72,9 @@ wis::DX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_dat
         .back = region.offset.depth_or_layers + region.size.depth_or_layers,
     };
     hr = resource->WriteToSubresource(dest_subresource, &box, host_data, row_pitch, slice_pitch);
-    if (!wis::succeeded(hr))
+    if (!wis::succeeded(hr)) {
         return wis::make_result<FUNC, "Failed to write to subresource">(hr);
+    }
     return wis::success;
 }
 #endif // WISDOM_DX12

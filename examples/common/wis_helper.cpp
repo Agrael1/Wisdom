@@ -15,26 +15,28 @@ wis::Factory ex::ExampleSetup::InitDefaultFactory(wis::FactoryExtension* platfor
     using namespace wis;
     wis::DebugExtension debug_ext; // no need to store it, it will be destroyed when it goes out of scope
 
+    wis::Result res;
     wis::FactoryExtension* xfactory_exts[] = { &debug_ext, platform_ext };
-    wis::Factory factory = Unwrap(wis::CreateFactory(true, xfactory_exts, std::size(xfactory_exts)));
-    info = Unwrap(debug_ext.CreateDebugMessenger(&DebugCallback, &std::cout));
-    return std::move(factory);
+    wis::Factory factory = wis::CreateFactory(res, true, xfactory_exts, std::size(xfactory_exts));
+    info = debug_ext.CreateDebugMessenger(res, &DebugCallback, &std::cout);
+    return factory;
 }
 
 void ex::ExampleSetup::InitDefaultDevice(const wis::Factory& factory, std::span<wis::DeviceExtension*> device_exts)
 {
+    wis::Result result = wis::success;
     for (size_t i = 0;; i++) {
-        auto [res, adapter] = factory.GetAdapter(i);
-        if (res.status != wis::Status::Ok)
+        auto adapter = factory.GetAdapter(result, i);
+        if (result.status != wis::Status::Ok) {
             break;
+        }
 
         wis::AdapterDesc desc;
-        res = adapter.GetDesc(&desc);
+        result = adapter.GetDesc(&desc);
         std::cout << "Adapter: " << desc.description.data() << "\n";
 
-        auto [res2, hdevice] = wis::CreateDevice(std::move(adapter), device_exts.data(), device_exts.size());
-        if (res2.status == wis::Status::Ok) {
-            device = std::move(hdevice);
+        device = wis::CreateDevice(result, std::move(adapter), device_exts.data(), device_exts.size());
+        if (result.status == wis::Status::Ok) {
             return;
         }
     }
@@ -63,13 +65,15 @@ void ex::ExampleSetup::WaitForGPU()
 
 std::string ex::LoadShader(std::filesystem::path p)
 {
-    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL)
+    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL) {
         p += u".cso";
-    else
+    } else {
         p += u".spv";
+    }
 
-    if (!std::filesystem::exists(p))
+    if (!std::filesystem::exists(p)) {
         throw Exception(wis::format("Shader file not found: {}", p.string()));
+    }
 
     std::ifstream t{ p, std::ios::binary };
     t.seekg(0, std::ios::end);

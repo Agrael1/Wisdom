@@ -1,7 +1,7 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_debug.h>
-#include <wisdom/wisdom_descriptor_buffer.h>
+#include <wisdom/wisdom_debug.hpp>
+#include <wisdom/wisdom_descriptor_buffer.hpp>
 #include <exception>
 #include <filesystem>
 #include <span>
@@ -23,8 +23,9 @@ struct Exception : public std::exception {
 
 inline void CheckResult(wis::Result res)
 {
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         throw Exception(res.error);
+    }
 }
 template<typename T>
 inline T Unwrap(wis::ResultValue<T>&& res)

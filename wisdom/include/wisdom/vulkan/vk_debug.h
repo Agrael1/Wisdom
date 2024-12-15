@@ -22,10 +22,6 @@ struct Internal<VKDebugMessenger> {
 
 public:
     Internal() noexcept = default;
-    Internal(wis::SharedInstance instance, VkDebugUtilsMessengerEXT messenger, std::unique_ptr<detail::DebugCallbackData> data, PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT) noexcept
-        : instance(std::move(instance)), messenger(messenger), data(std::move(data)), vkDestroyDebugUtilsMessengerEXT(vkDestroyDebugUtilsMessengerEXT)
-    {
-    }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& other) noexcept
     {
@@ -47,8 +43,9 @@ public:
 
     void Destroy() noexcept
     {
-        if (messenger)
+        if (messenger) {
             vkDestroyDebugUtilsMessengerEXT(instance.get(), messenger, nullptr);
+        }
         messenger = nullptr;
     }
 };
@@ -57,10 +54,6 @@ class VKDebugMessenger : public QueryInternal<VKDebugMessenger>
 {
 public:
     VKDebugMessenger() noexcept = default;
-    explicit VKDebugMessenger(wis::SharedInstance instance, VkDebugUtilsMessengerEXT messenger, std::unique_ptr<detail::DebugCallbackData> data, PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT) noexcept
-        : QueryInternal(std::move(instance), messenger, std::move(data), vkDestroyDebugUtilsMessengerEXT)
-    {
-    }
     operator bool() const noexcept
     {
         return bool(messenger);

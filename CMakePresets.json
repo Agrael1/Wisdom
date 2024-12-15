@@ -100,6 +100,22 @@
       }
     },
     {
+      "name": "x64-vs",
+      "displayName": "x64 VS",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "WISDOM_GENERATE_FUNCTIONS": false,
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
       "name": "x64-debug-only-lib",
       "displayName": "x64 Lib Debug",
       "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",

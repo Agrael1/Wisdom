@@ -35,9 +35,11 @@ public:
     App()
         : window("Descriptor Storage", 800, 600)
     {
+        wis::Result result = wis::success;
+
         setup.InitDefault(window.GetPlatformExtension());
         auto [w, h] = window.PixelSize();
-        auto swapx = window.CreateSwapchain(setup);
+        auto swapx = window.CreateSwapchain(result, setup);
         std::construct_at(&swap, setup.device, std::move(swapx), w, h);
         cmd_list = setup.CreateLists();
 
@@ -46,7 +48,7 @@ public:
             .cbuffer_count = ex::flight_frames * 2, // one cbuffer per frame
             .memory = wis::DescriptorMemory::ShaderVisible, // visible to shaders
         };
-        desc_storage = ex::Unwrap(setup.device.CreateDescriptorStorage(desc));
+        desc_storage = setup.device.CreateDescriptorStorage(result, desc);
     }
 
 public:
@@ -54,8 +56,9 @@ public:
     {
         CreateResources();
         while (true) {
-            if (!ProcessEvents())
+            if (!ProcessEvents()) {
                 break;
+            }
 
             Frame();
         }
@@ -97,8 +100,9 @@ public:
         offsetx += 0.01f;
         if (offsetx > 1.0f) {
             offsety += 0.5f;
-            if (offsety > 1.0f)
+            if (offsety > 1.0f) {
                 offsety = -1.0f;
+            }
             offsetx = -1.0f;
         }
 
@@ -210,7 +214,7 @@ public:
                         .attachments_count = 1,
                 },
             };
-            pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(&desc));
+            pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
         }
 
         // Create vertex buffer

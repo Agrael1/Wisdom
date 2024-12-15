@@ -2,7 +2,7 @@
 #define WIS_VK_RESOURCE_H
 #include <wisdom/vulkan/vk_memory.h>
 #include <wisdom/vulkan/vk_views.h>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 
 namespace wis {
 class VKBuffer;
@@ -14,10 +14,6 @@ struct Internal<VKBuffer> {
     h::VkBuffer buffer;
 
     Internal() noexcept = default;
-    Internal(wis::shared_handle<VmaAllocator> allocator,
-             VkBuffer buffer,
-             VmaAllocation allocation = nullptr) noexcept
-        : memory(std::move(allocator), allocation), buffer(buffer) { }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -47,12 +43,6 @@ class ImplVKBuffer : public QueryInternal<VKBuffer>
 {
 public:
     ImplVKBuffer() noexcept = default;
-    explicit ImplVKBuffer(wis::shared_handle<VmaAllocator> allocator,
-                          VkBuffer buffer,
-                          VmaAllocation allocation = nullptr) noexcept
-        : QueryInternal<VKBuffer>(std::move(allocator), buffer, allocation)
-    {
-    }
     operator VKBufferView() const noexcept
     {
         return { buffer };
@@ -88,10 +78,6 @@ public:
     wis::Size2D size{};
 
     Internal() noexcept = default;
-    Internal(VkFormat format, VkImage buffer, wis::shared_handle<VmaAllocator> allocator, VmaAllocation allocation, Size2D size) noexcept
-        : memory(std::move(allocator), allocation), buffer(buffer), format(format), size(size)
-    {
-    }
     Internal(Internal&& other) noexcept = default;
     Internal& operator=(Internal&& other) noexcept
     {
@@ -123,10 +109,6 @@ class VKTexture : public QueryInternal<VKTexture>
 {
 public:
     VKTexture() = default;
-    explicit VKTexture(VkFormat format, VkImage buffer, wis::Size2D size, wis::shared_handle<VmaAllocator> allocator = {}, VmaAllocation allocation = nullptr) noexcept
-        : QueryInternal(format, std::move(buffer), std::move(allocator), allocation, size)
-    {
-    }
     operator VKTextureView() const noexcept
     {
         return { buffer, format, size };
@@ -150,10 +132,6 @@ class VKRenderTarget : public QueryInternal<VKRenderTarget>
 {
 public:
     VKRenderTarget() = default;
-    explicit VKRenderTarget(wis::managed_handle_ex<VkImageView> view, wis::Size2D size) noexcept
-        : QueryInternal(std::move(view), size)
-    {
-    }
     operator bool() const noexcept
     {
         return bool(view);
@@ -175,9 +153,6 @@ class VKSampler : public QueryInternal<VKSampler>
 {
 public:
     VKSampler() noexcept = default;
-    explicit VKSampler(wis::managed_handle_ex<VkSampler> sampler) noexcept
-        : QueryInternal(std::move(sampler)) { }
-
     operator bool() const noexcept
     {
         return bool(sampler);
@@ -201,9 +176,6 @@ class VKShaderResource : public QueryInternal<VKShaderResource>
 {
 public:
     VKShaderResource() noexcept = default;
-    explicit VKShaderResource(wis::managed_handle_ex<VkImageView> view) noexcept
-        : QueryInternal(std::move(view)) { }
-
     operator bool() const noexcept
     {
         return bool(view);

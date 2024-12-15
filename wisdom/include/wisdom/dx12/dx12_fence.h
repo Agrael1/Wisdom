@@ -13,15 +13,13 @@ class DX12Fence;
 template<>
 struct Internal<DX12Fence> {
     wis::com_ptr<ID3D12Fence1> fence;
-    wis::unique_event fence_event;
+    wis::unique_event fence_event = CreateEventW(nullptr, false, false, nullptr);
 };
 
 class ImplDX12Fence : public QueryInternal<DX12Fence>
 {
 public:
-    ImplDX12Fence() = default;
-    explicit ImplDX12Fence(wis::com_ptr<ID3D12Fence1> xfence) noexcept
-        : QueryInternal(std::move(xfence), CreateEventW(nullptr, false, false, nullptr)) { }
+    ImplDX12Fence() noexcept = default;
 
     operator DX12FenceView() const noexcept
     {

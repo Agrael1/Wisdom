@@ -1,7 +1,6 @@
 #ifndef WIS_DX12_COMMAND_LIST_H
 #define WIS_DX12_COMMAND_LIST_H
 #include <wisdom/global/internal.h>
-#include <wisdom/generated/api/api.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
 
@@ -25,11 +24,6 @@ class ImplDX12CommandList : public QueryInternal<DX12CommandList>
 {
 public:
     ImplDX12CommandList() noexcept = default;
-    explicit ImplDX12CommandList(wis::com_ptr<ID3D12CommandAllocator> allocator,
-                                 wis::com_ptr<ID3D12GraphicsCommandList9> list) noexcept
-        : QueryInternal(std::move(allocator), std::move(list))
-    {
-    }
     operator bool() const noexcept
     {
         return bool(list);
@@ -152,7 +146,7 @@ public:
      * @param destination The destination buffer to copy to.
      * @param region The region to copy.
      * */
-    inline void CopyBuffer(wis::DX12BufferView source, wis::DX12BufferView destination, wis::BufferRegion region) noexcept
+    inline void CopyBuffer(wis::DX12BufferView source, wis::DX12BufferView destination, const wis::BufferRegion& region) noexcept
     {
         wis::ImplDX12CommandList::CopyBuffer(std::move(source), std::move(destination), region);
     }
@@ -183,7 +177,7 @@ public:
      * @param barrier The barrier to set.
      * @param buffer The buffer to set the barrier on.
      * */
-    inline void BufferBarrier(wis::BufferBarrier barrier, wis::DX12BufferView buffer) noexcept
+    inline void BufferBarrier(const wis::BufferBarrier& barrier, wis::DX12BufferView buffer) noexcept
     {
         wis::ImplDX12CommandList::BufferBarrier(barrier, std::move(buffer));
     }
@@ -201,7 +195,7 @@ public:
      * @param barrier The barrier to set.
      * @param texture The texture to set the barrier on.
      * */
-    inline void TextureBarrier(wis::TextureBarrier barrier, wis::DX12TextureView texture) noexcept
+    inline void TextureBarrier(const wis::TextureBarrier& barrier, wis::DX12TextureView texture) noexcept
     {
         wis::ImplDX12CommandList::TextureBarrier(barrier, std::move(texture));
     }
@@ -282,7 +276,7 @@ public:
      * @brief Sets the viewport.
      * @param viewport The viewport to set.
      * */
-    inline void RSSetViewport(wis::Viewport viewport) noexcept
+    inline void RSSetViewport(const wis::Viewport& viewport) noexcept
     {
         wis::ImplDX12CommandList::RSSetViewport(viewport);
     }
@@ -299,7 +293,7 @@ public:
      * @brief Sets the scissor rect.
      * @param scissor The scissor to set.
      * */
-    inline void RSSetScissor(wis::Scissor scissor) noexcept
+    inline void RSSetScissor(const wis::Scissor& scissor) noexcept
     {
         wis::ImplDX12CommandList::RSSetScissor(scissor);
     }

@@ -2,7 +2,7 @@
 #define WIS_DX12_CONVERT_H
 #include <dxgi1_6.h>
 #include <string>
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 
 namespace wis {
 inline constexpr wis::Status convert(HRESULT hr) noexcept

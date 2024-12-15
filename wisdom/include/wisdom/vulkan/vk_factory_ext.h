@@ -1,6 +1,6 @@
 #ifndef WIS_VK_FACTORY_EXT_H
 #define WIS_VK_FACTORY_EXT_H
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <memory>
 #include <span>
 
@@ -43,37 +43,41 @@ struct VKFactoryExtensionImpl : public VKFactoryExtension {
     virtual std::span<const char* const>
     GetRequiredExtensions() const noexcept override
     {
-        if constexpr (requires { T::required_extensions; })
+        if constexpr (requires { T::required_extensions; }) {
             return T::required_extensions;
-        else
+        } else {
             return {};
+        }
     }
 
     virtual size_t
     RequiredExtensionsSize() const noexcept override
     {
-        if constexpr (requires { T::required_extensions; })
+        if constexpr (requires { T::required_extensions; }) {
             return T::required_extensions.size();
-        else
+        } else {
             return 0;
+        }
     }
 
     virtual std::span<const char* const>
     GetRequiredLayers() const noexcept override
     {
-        if constexpr (requires { T::required_layers; })
+        if constexpr (requires { T::required_layers; }) {
             return T::required_layers;
-        else
+        } else {
             return {};
+        }
     }
 
     virtual size_t
     RequiredLayersSize() const noexcept
     {
-        if constexpr (requires { T::required_layers; })
+        if constexpr (requires { T::required_layers; }) {
             return T::required_layers.size();
-        else
+        } else {
             return 0;
+        }
     }
 };
 } // namespace wis

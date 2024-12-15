@@ -1,6 +1,6 @@
 #ifndef WIS_DX12_UNIQUE_EVENT_H
 #define WIS_DX12_UNIQUE_EVENT_H
-#include <wisdom/generated/api/api.h>
+#include <wisdom/generated/api/api.hpp>
 #include <Windows.h>
 
 namespace wis {
@@ -18,8 +18,9 @@ struct unique_event {
     }
     ~unique_event() noexcept
     {
-        if (hevent)
+        if (hevent) {
             CloseHandle(hevent);
+        }
     }
     auto get() const noexcept
     {
@@ -32,10 +33,12 @@ struct unique_event {
     wis::Status wait(uint32_t wait_ms) const noexcept
     {
         auto st = WaitForSingleObject(hevent, wait_ms);
-        if (st == WAIT_OBJECT_0)
+        if (st == WAIT_OBJECT_0) {
             return wis::Status::Ok;
-        if (st == WAIT_TIMEOUT)
+        }
+        if (st == WAIT_TIMEOUT) {
             return wis::Status::Timeout;
+        }
         return wis::Status::Error;
     }
 
