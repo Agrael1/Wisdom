@@ -143,7 +143,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Fence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Fence> { &wis::ImplDX12Device::CreateFence, this, initial_value, flags };
+        return wis::ResultValue<wis::DX12Fence>{ &wis::ImplDX12Device::CreateFence, this, initial_value, flags };
     }
     /**
      * @brief Creates a command queue with specified type.
@@ -161,7 +161,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12CommandQueue> CreateCommandQueue(wis::QueueType type) const noexcept
     {
-        return wis::ResultValue<wis::DX12CommandQueue> { &wis::ImplDX12Device::CreateCommandQueue, this, type };
+        return wis::ResultValue<wis::DX12CommandQueue>{ &wis::ImplDX12Device::CreateCommandQueue, this, type };
     }
     /**
      * @brief Creates a command list for specific queue type.
@@ -179,7 +179,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12CommandList> CreateCommandList(wis::QueueType type) const noexcept
     {
-        return wis::ResultValue<wis::DX12CommandList> { &wis::ImplDX12Device::CreateCommandList, this, type };
+        return wis::ResultValue<wis::DX12CommandList>{ &wis::ImplDX12Device::CreateCommandList, this, type };
     }
     /**
      * @brief Creates a graphics pipeline state object.
@@ -197,7 +197,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12PipelineState> CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12PipelineState> { &wis::ImplDX12Device::CreateGraphicsPipeline, this, desc };
+        return wis::ResultValue<wis::DX12PipelineState>{ &wis::ImplDX12Device::CreateGraphicsPipeline, this, desc };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
@@ -235,7 +235,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
     {
-        return wis::ResultValue<wis::DX12RootSignature> { &wis::ImplDX12Device::CreateRootSignature, this, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count };
+        return wis::ResultValue<wis::DX12RootSignature>{ &wis::ImplDX12Device::CreateRootSignature, this, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
@@ -267,7 +267,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
     {
-        return wis::ResultValue<wis::DX12RootSignature> { &wis::ImplDX12Device::CreateRootSignature2, this, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing };
+        return wis::ResultValue<wis::DX12RootSignature>{ &wis::ImplDX12Device::CreateRootSignature2, this, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing };
     }
     /**
      * @brief Creates a shader object.
@@ -287,7 +287,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Shader> CreateShader(void* data, uint32_t size) const noexcept
     {
-        return wis::ResultValue<wis::DX12Shader> { &wis::ImplDX12Device::CreateShader, this, data, size };
+        return wis::ResultValue<wis::DX12Shader>{ &wis::ImplDX12Device::CreateShader, this, data, size };
     }
     /**
      * @brief Creates a resource allocator object.
@@ -303,7 +303,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12ResourceAllocator> CreateAllocator() const noexcept
     {
-        return wis::ResultValue<wis::DX12ResourceAllocator> {
+        return wis::ResultValue<wis::DX12ResourceAllocator>{
             &wis::ImplDX12Device::CreateAllocator,
             this,
         };
@@ -326,7 +326,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RenderTarget> CreateRenderTarget(wis::DX12TextureView texture, const wis::RenderTargetDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12RenderTarget> { &wis::ImplDX12Device::CreateRenderTarget, this, std::move(texture), desc };
+        return wis::ResultValue<wis::DX12RenderTarget>{ &wis::ImplDX12Device::CreateRenderTarget, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a depth stencil target object.
@@ -352,7 +352,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RenderTarget> CreateDepthStencilTarget(wis::DX12TextureView texture, const wis::RenderTargetDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12RenderTarget> { &wis::ImplDX12Device::CreateDepthStencilTarget, this, std::move(texture), desc };
+        return wis::ResultValue<wis::DX12RenderTarget>{ &wis::ImplDX12Device::CreateDepthStencilTarget, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a sampler object.
@@ -370,7 +370,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Sampler> CreateSampler(const wis::SamplerDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12Sampler> { &wis::ImplDX12Device::CreateSampler, this, desc };
+        return wis::ResultValue<wis::DX12Sampler>{ &wis::ImplDX12Device::CreateSampler, this, desc };
     }
     /**
      * @brief Creates a shader resource object.
@@ -390,7 +390,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12ShaderResource> CreateShaderResource(wis::DX12TextureView texture, const wis::ShaderResourceDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12ShaderResource> { &wis::ImplDX12Device::CreateShaderResource, this, std::move(texture), desc };
+        return wis::ResultValue<wis::DX12ShaderResource>{ &wis::ImplDX12Device::CreateShaderResource, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a descriptor storage object with specified number of bindings to allocate.
@@ -410,7 +410,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12DescriptorStorage> CreateDescriptorStorage(const wis::DescriptorStorageDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12DescriptorStorage> { &wis::ImplDX12Device::CreateDescriptorStorage, this, desc };
+        return wis::ResultValue<wis::DX12DescriptorStorage>{ &wis::ImplDX12Device::CreateDescriptorStorage, this, desc };
     }
     /**
      * @brief Queries if the device supports the feature.

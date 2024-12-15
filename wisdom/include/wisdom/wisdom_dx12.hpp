@@ -28,7 +28,7 @@ namespace wis {
  * */
 [[nodiscard]] inline wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool debug_layer = false, wis::DX12FactoryExtension** extensions = nullptr, uint32_t extension_count = 0) noexcept
 {
-    return wis::ResultValue<wis::DX12Factory> { &wis::ImplDX12CreateFactory, debug_layer, extensions, extension_count };
+    return wis::ResultValue<wis::DX12Factory>{ &wis::ImplDX12CreateFactory, debug_layer, extensions, extension_count };
 }
 /**
  * @brief Creates the wis::DX12Device with extensions, specified in extension array.
@@ -56,7 +56,7 @@ namespace wis {
  * */
 [[nodiscard]] inline wis::ResultValue<wis::DX12Device> DX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false) noexcept
 {
-    return wis::ResultValue<wis::DX12Device> { &wis::ImplDX12CreateDevice, std::move(adapter), extensions, extension_count, force };
+    return wis::ResultValue<wis::DX12Device>{ &wis::ImplDX12CreateDevice, std::move(adapter), extensions, extension_count, force };
 }
 
 //-------------------------------------------------------------------------

@@ -27,8 +27,9 @@ void ex::ExampleSetup::InitDefaultDevice(const wis::Factory& factory, std::span<
     wis::Result result = wis::success;
     for (size_t i = 0;; i++) {
         auto adapter = factory.GetAdapter(result, i);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             break;
+        }
 
         wis::AdapterDesc desc;
         result = adapter.GetDesc(&desc);
@@ -64,13 +65,15 @@ void ex::ExampleSetup::WaitForGPU()
 
 std::string ex::LoadShader(std::filesystem::path p)
 {
-    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL)
+    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL) {
         p += u".cso";
-    else
+    } else {
         p += u".spv";
+    }
 
-    if (!std::filesystem::exists(p))
+    if (!std::filesystem::exists(p)) {
         throw Exception(wis::format("Shader file not found: {}", p.string()));
+    }
 
     std::ifstream t{ p, std::ios::binary };
     t.seekg(0, std::ios::end);

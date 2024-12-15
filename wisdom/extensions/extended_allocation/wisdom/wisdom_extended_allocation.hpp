@@ -87,7 +87,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Texture> { &wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
+        return wis::ResultValue<wis::DX12Texture>{ &wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
     }
     /**
      * @brief Writes memory directly to the subresource of the texture.
@@ -206,7 +206,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKTexture> CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKTexture> { &wis::ImplVKExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
+        return wis::ResultValue<wis::VKTexture>{ &wis::ImplVKExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
     }
     /**
      * @brief Writes memory directly to the subresource of the texture.

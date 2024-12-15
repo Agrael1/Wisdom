@@ -17,16 +17,18 @@ inline void log_dxgi_errors() noexcept
 /// @return True if the HRESULT is a success code
 inline bool succeeded(HRESULT hr) noexcept
 {
-    if constexpr (debug_layer)
+    if constexpr (debug_layer) {
         log_dxgi_errors();
+    }
     return hr >= 0;
 }
 
 /// @brief Check if there are any errors in the current context, logging any errors
 inline void check_context() noexcept
 {
-    if constexpr (debug_layer)
+    if constexpr (debug_layer) {
         log_dxgi_errors();
+    }
 }
 
 template<wis::string_literal func, wis::string_literal message>

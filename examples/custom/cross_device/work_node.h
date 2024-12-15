@@ -16,8 +16,9 @@ struct ExternalBuffer {
     }
     ExternalBuffer& operator=(ExternalBuffer&& other) noexcept
     {
-        if (this == &other)
+        if (this == &other) {
             return *this;
+        }
 
         Destroy();
         device = std::move(other.device);
@@ -27,10 +28,12 @@ struct ExternalBuffer {
     }
     void Destroy() noexcept
     {
-        if (buffer)
+        if (buffer) {
             device.table().vkDestroyBuffer(device.get(), buffer, nullptr);
-        if (memory)
+        }
+        if (memory) {
             device.table().vkFreeMemory(device.get(), memory, nullptr);
+        }
     }
     ~ExternalBuffer()
     {
@@ -60,8 +63,9 @@ protected:
                      std::unordered_map<VkStructureType, uintptr_t>& structure_map,
                      std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
     {
-        if (available_extensions.find(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME) == available_extensions.end())
+        if (available_extensions.find(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME) == available_extensions.end()) {
             return false;
+        }
 
         ext_name_set.insert(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME);
         property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT] = sizeof(VkPhysicalDeviceExternalMemoryHostPropertiesEXT);
@@ -96,9 +100,9 @@ public:
             .sType = VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT,
         };
         auto res = vkGetMemoryHostPointerPropertiesEXT(shared_device.get(),
-                   VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
-                   mapping,
-                   &props);
+                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
+                                                       mapping,
+                                                       &props);
         if (res != VK_SUCCESS) {
             result = wis::make_result<FUNC, "vkGetMemoryHostPointerPropertiesEXT failed: ">(res);
             return buffer;

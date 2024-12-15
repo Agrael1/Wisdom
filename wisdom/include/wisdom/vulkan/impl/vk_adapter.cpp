@@ -9,8 +9,9 @@
 
 wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
-    if (!pout_desc)
+    if (!pout_desc) {
         return wis::make_result<"AdapterDesc was nullptr ">(VK_ERROR_UNKNOWN);
+    }
 
     auto& out_desc = *pout_desc;
     auto& instance_table = instance.table();
@@ -42,23 +43,26 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 
     for (auto& i : types) {
         if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &&
-                memory_props.memoryHeaps[i.heapIndex].flags &
-                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+            memory_props.memoryHeaps[i.heapIndex].flags &
+                    VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
             local_mem = memory_props.memoryHeaps[i.heapIndex].size;
         }
 
         if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
             system_mem = memory_props.memoryHeaps[i.heapIndex].size;
         }
-        if ((system_mem != 0u) && (local_mem != 0u))
+        if ((system_mem != 0u) && (local_mem != 0u)) {
             break;
+        }
     }
 
     AdapterFlags flag{};
-    if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
+    if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
         flag = AdapterFlags(flag | AdapterFlags::Remote);
-    if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
+    }
+    if (desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU) {
         flag = AdapterFlags(flag | AdapterFlags::Software);
+    }
 
     std::strncpy(const_cast<char*>(out_desc.description.data()), desc.deviceName,
                  sizeof(out_desc.description) - 1);

@@ -58,37 +58,31 @@ struct Internal<VKDevice> {
         wis::Result Init(PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout, VkDevice device)
         {
             constexpr static size_t num_sets = Internal<VKDescriptorStorage>::max_sets;
-            constexpr static VkDescriptorSetLayoutBinding bindings[num_sets] {
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
-                    .descriptorCount = 2048,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
-                {   .binding = 0,
-                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                    .descriptorCount = 4096,
-                    .stageFlags = VK_SHADER_STAGE_ALL
-                },
+            constexpr static VkDescriptorSetLayoutBinding bindings[num_sets]{
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
+                  .descriptorCount = 2048,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
+                { .binding = 0,
+                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                  .descriptorCount = 4096,
+                  .stageFlags = VK_SHADER_STAGE_ALL },
             };
 
             constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
@@ -307,7 +301,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKFence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKFence> { &wis::ImplVKDevice::CreateFence, this, initial_value, flags };
+        return wis::ResultValue<wis::VKFence>{ &wis::ImplVKDevice::CreateFence, this, initial_value, flags };
     }
     /**
      * @brief Creates a command queue with specified type.
@@ -325,7 +319,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKCommandQueue> CreateCommandQueue(wis::QueueType type) const noexcept
     {
-        return wis::ResultValue<wis::VKCommandQueue> { &wis::ImplVKDevice::CreateCommandQueue, this, type };
+        return wis::ResultValue<wis::VKCommandQueue>{ &wis::ImplVKDevice::CreateCommandQueue, this, type };
     }
     /**
      * @brief Creates a command list for specific queue type.
@@ -343,7 +337,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKCommandList> CreateCommandList(wis::QueueType type) const noexcept
     {
-        return wis::ResultValue<wis::VKCommandList> { &wis::ImplVKDevice::CreateCommandList, this, type };
+        return wis::ResultValue<wis::VKCommandList>{ &wis::ImplVKDevice::CreateCommandList, this, type };
     }
     /**
      * @brief Creates a graphics pipeline state object.
@@ -361,7 +355,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKPipelineState> { &wis::ImplVKDevice::CreateGraphicsPipeline, this, desc };
+        return wis::ResultValue<wis::VKPipelineState>{ &wis::ImplVKDevice::CreateGraphicsPipeline, this, desc };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
@@ -399,7 +393,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
     {
-        return wis::ResultValue<wis::VKRootSignature> { &wis::ImplVKDevice::CreateRootSignature, this, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count };
+        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDevice::CreateRootSignature, this, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
@@ -431,7 +425,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
     {
-        return wis::ResultValue<wis::VKRootSignature> { &wis::ImplVKDevice::CreateRootSignature2, this, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing };
+        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDevice::CreateRootSignature2, this, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing };
     }
     /**
      * @brief Creates a shader object.
@@ -451,7 +445,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKShader> CreateShader(void* data, uint32_t size) const noexcept
     {
-        return wis::ResultValue<wis::VKShader> { &wis::ImplVKDevice::CreateShader, this, data, size };
+        return wis::ResultValue<wis::VKShader>{ &wis::ImplVKDevice::CreateShader, this, data, size };
     }
     /**
      * @brief Creates a resource allocator object.
@@ -467,7 +461,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKResourceAllocator> CreateAllocator() const noexcept
     {
-        return wis::ResultValue<wis::VKResourceAllocator> {
+        return wis::ResultValue<wis::VKResourceAllocator>{
             &wis::ImplVKDevice::CreateAllocator,
             this,
         };
@@ -490,7 +484,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateRenderTarget(wis::VKTextureView texture, const wis::RenderTargetDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKRenderTarget> { &wis::ImplVKDevice::CreateRenderTarget, this, std::move(texture), desc };
+        return wis::ResultValue<wis::VKRenderTarget>{ &wis::ImplVKDevice::CreateRenderTarget, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a depth stencil target object.
@@ -516,7 +510,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateDepthStencilTarget(wis::VKTextureView texture, const wis::RenderTargetDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKRenderTarget> { &wis::ImplVKDevice::CreateDepthStencilTarget, this, std::move(texture), desc };
+        return wis::ResultValue<wis::VKRenderTarget>{ &wis::ImplVKDevice::CreateDepthStencilTarget, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a sampler object.
@@ -534,7 +528,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKSampler> CreateSampler(const wis::SamplerDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKSampler> { &wis::ImplVKDevice::CreateSampler, this, desc };
+        return wis::ResultValue<wis::VKSampler>{ &wis::ImplVKDevice::CreateSampler, this, desc };
     }
     /**
      * @brief Creates a shader resource object.
@@ -554,7 +548,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKShaderResource> CreateShaderResource(wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKShaderResource> { &wis::ImplVKDevice::CreateShaderResource, this, std::move(texture), desc };
+        return wis::ResultValue<wis::VKShaderResource>{ &wis::ImplVKDevice::CreateShaderResource, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a descriptor storage object with specified number of bindings to allocate.
@@ -574,7 +568,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorStorage> CreateDescriptorStorage(const wis::DescriptorStorageDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKDescriptorStorage> { &wis::ImplVKDevice::CreateDescriptorStorage, this, desc };
+        return wis::ResultValue<wis::VKDescriptorStorage>{ &wis::ImplVKDevice::CreateDescriptorStorage, this, desc };
     }
     /**
      * @brief Queries if the device supports the feature.

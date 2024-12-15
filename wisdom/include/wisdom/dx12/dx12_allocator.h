@@ -114,7 +114,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Buffer> { &wis::ImplDX12ResourceAllocator::CreateBuffer, this, size, usage, memory, mem_flags };
+        return wis::ResultValue<wis::DX12Buffer>{ &wis::ImplDX12ResourceAllocator::CreateBuffer, this, size, usage, memory, mem_flags };
     }
     /**
      * @brief Creates a texture object and allocates memory for it.
@@ -138,7 +138,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Texture> { &wis::ImplDX12ResourceAllocator::CreateTexture, this, desc, memory, mem_flags };
+        return wis::ResultValue<wis::DX12Texture>{ &wis::ImplDX12ResourceAllocator::CreateTexture, this, desc, memory, mem_flags };
     }
     /**
      * @brief Convenience function for creating a buffer object and allocating memory for it.
@@ -158,7 +158,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> CreateUploadBuffer(uint64_t size) const noexcept
     {
-        return wis::ResultValue<wis::DX12Buffer> { &wis::ImplDX12ResourceAllocator::CreateUploadBuffer, this, size };
+        return wis::ResultValue<wis::DX12Buffer>{ &wis::ImplDX12ResourceAllocator::CreateUploadBuffer, this, size };
     }
     /**
      * @brief Convenience function for creating a buffer object and allocating memory for it.
@@ -178,7 +178,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> CreateReadbackBuffer(uint64_t size) const noexcept
     {
-        return wis::ResultValue<wis::DX12Buffer> { &wis::ImplDX12ResourceAllocator::CreateReadbackBuffer, this, size };
+        return wis::ResultValue<wis::DX12Buffer>{ &wis::ImplDX12ResourceAllocator::CreateReadbackBuffer, this, size };
     }
     /**
      * @brief Returns the allocation info for the texture.
@@ -221,7 +221,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Memory> AllocateTextureMemory(uint64_t size, wis::TextureUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Memory> { &wis::ImplDX12ResourceAllocator::AllocateTextureMemory, this, size, usage, mem_type, mem_flags };
+        return wis::ResultValue<wis::DX12Memory>{ &wis::ImplDX12ResourceAllocator::AllocateTextureMemory, this, size, usage, mem_type, mem_flags };
     }
     /**
      * @brief Allocates memory for the buffer.
@@ -245,7 +245,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Memory> AllocateBufferMemory(uint64_t size, wis::BufferUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Memory> { &wis::ImplDX12ResourceAllocator::AllocateBufferMemory, this, size, usage, mem_type, mem_flags };
+        return wis::ResultValue<wis::DX12Memory>{ &wis::ImplDX12ResourceAllocator::AllocateBufferMemory, this, size, usage, mem_type, mem_flags };
     }
     /**
      * @brief Creates buffer with provided memory.
@@ -273,7 +273,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Buffer> PlaceBuffer(wis::DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
     {
-        return wis::ResultValue<wis::DX12Buffer> { &wis::ImplDX12ResourceAllocator::PlaceBuffer, this, std::move(memory), memory_offset, size, usage };
+        return wis::ResultValue<wis::DX12Buffer>{ &wis::ImplDX12ResourceAllocator::PlaceBuffer, this, std::move(memory), memory_offset, size, usage };
     }
     /**
      * @brief Creates texture with provided memory.
@@ -299,7 +299,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> PlaceTexture(wis::DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::DX12Texture> { &wis::ImplDX12ResourceAllocator::PlaceTexture, this, std::move(memory), memory_offset, desc };
+        return wis::ResultValue<wis::DX12Texture>{ &wis::ImplDX12ResourceAllocator::PlaceTexture, this, std::move(memory), memory_offset, desc };
     }
 };
 #pragma endregion DX12ResourceAllocator

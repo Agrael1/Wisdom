@@ -26,13 +26,15 @@ static inline InlineTypeInfo FindInlineType(std::string_view str, size_t initial
 {
     // Find caption enclosed in { }
     auto pos = str.find('{', initial);
-    if (pos == std::string_view::npos)
+    if (pos == std::string_view::npos) {
         return {};
+    }
 
     auto end = str.find('}', pos);
     auto end_n = str.find('\n', pos);
-    if (end == std::string_view::npos || end_n < end)
+    if (end == std::string_view::npos || end_n < end) {
         return {};
+    }
 
     std::string_view caption = str.substr(pos + 1, end - pos - 1);
     std::string_view type, value;
@@ -49,10 +51,12 @@ static inline InlineTypeInfo FindInlineType(std::string_view str, size_t initial
 
 static ImplementedFor ImplCode(std::string_view impl) noexcept
 {
-    if (impl == "dx")
+    if (impl == "dx") {
         return ImplementedFor::DX12;
-    if (impl == "vk")
+    }
+    if (impl == "vk") {
         return ImplementedFor::Vulkan;
+    }
     return ImplementedFor::Both;
 }
 
@@ -110,8 +114,9 @@ int Generator::GenerateCAPI()
     }
 
     for (auto& [name, h] : handle_map) {
-        if (!h.ext.empty())
+        if (!h.ext.empty()) {
             continue;
+        }
 
         out_dx += MakeCHandle(h, impls[+ImplementedFor::DX12]);
         out_vk += MakeCHandle(h, impls[+ImplementedFor::Vulkan]);
@@ -119,8 +124,9 @@ int Generator::GenerateCAPI()
         out_default_dx += MakeCHandleGeneric(h, impls[+ImplementedFor::DX12]);
         out_default_vk += MakeCHandleGeneric(h, impls[+ImplementedFor::Vulkan]);
 
-        if (h.functions.empty())
+        if (h.functions.empty()) {
             continue;
+        }
 
         out_vk_methods += MakeCHandleMethods(h, impls[+ImplementedFor::Vulkan]) + '\n';
         out_dx_methods += MakeCHandleMethods(h, impls[+ImplementedFor::DX12]) + '\n';
@@ -148,8 +154,9 @@ int Generator::GenerateCAPI()
     out_vk += out_vk_methods;
 
     for (auto* v : variants) {
-        if (v->implemented_for == Language::CPP)
+        if (v->implemented_for == Language::CPP) {
             continue;
+        }
 
         out_default_dx += MakeCVariantGeneric(*v, impls[+ImplementedFor::DX12]) + '\n';
         out_default_vk += MakeCVariantGeneric(*v, impls[+ImplementedFor::Vulkan]) + '\n';
@@ -242,9 +249,9 @@ int Generator::GenerateCAPI()
     std::string output_vk_ext_impl;
     std::string output_dx_ext_impl;
     for (auto& [name, h] : extension_map) {
-        if (auto x = h.GetFile(ImplementedFor::DX12); x == h.GetFile(ImplementedFor::Vulkan))
+        if (auto x = h.GetFile(ImplementedFor::DX12); x == h.GetFile(ImplementedFor::Vulkan)) {
             output_cpp_ext += wis::format("#include \"{}\"\n", x);
-        else {
+        } else {
             output_vk_ext_impl += wis::format("#include \"{}\"\n", h.GetFile(ImplementedFor::Vulkan));
             output_dx_ext_impl += wis::format("#include \"{}\"\n", h.GetFile(ImplementedFor::DX12));
         }
@@ -268,22 +275,25 @@ int Generator::GenerateCAPI()
 
     auto output_cpp_abs = std::filesystem::absolute(output_path / "wisdom.cpp");
     std::ofstream out_cpp(output_cpp_abs);
-    if (!out_cpp.is_open())
+    if (!out_cpp.is_open()) {
         return 1;
+    }
     out_cpp << output_cpp;
     files.emplace_back(output_cpp_abs);
 
     auto output_cpp_ext_abs = std::filesystem::absolute(output_path / "wisdom_ext.inl");
     std::ofstream out_cpp_ext(output_cpp_ext_abs);
-    if (!out_cpp_ext.is_open())
+    if (!out_cpp_ext.is_open()) {
         return 1;
+    }
     out_cpp_ext << output_cpp_ext;
     files.emplace_back(output_cpp_ext_abs);
 
     auto output_abs = std::filesystem::absolute(output_path / "wisdom.h");
     std::ofstream out(output_abs);
-    if (!out.is_open())
+    if (!out.is_open()) {
         return 1;
+    }
     out << output;
     files.emplace_back(output_abs);
     return 0;
@@ -376,8 +386,9 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 
     auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "api.hpp");
     std::ofstream out_api(output_api_abs);
-    if (!out_api.is_open())
+    if (!out_api.is_open()) {
         return 1;
+    }
     out_api << output_api;
     files.emplace_back(output_api_abs);
 
@@ -385,61 +396,68 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     auto output_wisdom_vk_abs = std::filesystem::absolute(cpp_output_path / "wisdom_vk.hpp");
     auto output_wisdom_abs = std::filesystem::absolute(cpp_output_path / "wisdom.hpp");
     std::ofstream out_wisdom(output_wisdom_abs);
-    if (!out_wisdom.is_open())
+    if (!out_wisdom.is_open()) {
         return 1;
+    }
     out_wisdom << GenerateCPPExportHeader();
     files.emplace_back(output_wisdom_abs);
 
     std::ofstream out_wisdom_dx(output_wisdom_dx_abs);
-    if (!out_wisdom_dx.is_open())
+    if (!out_wisdom_dx.is_open()) {
         return 1;
+    }
     out_wisdom_dx << GenerateCPPPlatformExportHeader(impls[+ImplementedFor::DX12]);
     files.emplace_back(output_wisdom_dx_abs);
 
     std::ofstream out_wisdom_vk(output_wisdom_vk_abs);
-    if (!out_wisdom_vk.is_open())
+    if (!out_wisdom_vk.is_open()) {
         return 1;
+    }
     out_wisdom_vk << GenerateCPPPlatformExportHeader(impls[+ImplementedFor::Vulkan]);
     files.emplace_back(output_wisdom_vk_abs);
 
     auto output_dx_abs = std::filesystem::absolute(cpp_output_path_dx12 / "dx12_structs.hpp");
     std::ofstream out_dxapi(output_dx_abs);
-    if (!out_dxapi.is_open())
+    if (!out_dxapi.is_open()) {
         return 1;
+    }
 
     std::string dxapi =
-        "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
-        "<wisdom/generated/api/api.hpp>\n#include "
-        "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n\nnamespace wis{\n";
+            "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
+            "<wisdom/generated/api/api.hpp>\n#include "
+            "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {
             dxapi += MakeCPPVariant(*i, ImplementedFor::DX12);
         }
     }
     for (auto& c : cpp_conversion) {
-        if (c.impl == ImplementedFor::DX12)
+        if (c.impl == ImplementedFor::DX12) {
             dxapi += c.value;
+        }
     }
     out_dxapi << dxapi + "}\n";
     files.emplace_back(output_dx_abs);
 
     auto output_vk_abs = std::filesystem::absolute(cpp_output_path_vulkan / "vk_structs.hpp");
     std::ofstream out_vkapi(output_vk_abs);
-    if (!out_vkapi.is_open())
+    if (!out_vkapi.is_open()) {
         return 1;
+    }
 
     std::string vkapi =
-        "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
-        "<wisdom/generated/api/api.hpp>\n#include "
-        "<wisdom/util/flags.h>\n\nnamespace wis{\n";
+            "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
+            "<wisdom/generated/api/api.hpp>\n#include "
+            "<wisdom/util/flags.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->this_type.empty()) {
             vkapi += MakeCPPVariant(*i, ImplementedFor::Vulkan);
         }
     }
     for (auto& c : cpp_conversion) {
-        if (c.impl == ImplementedFor::Vulkan)
+        if (c.impl == ImplementedFor::Vulkan) {
             vkapi += c.value;
+        }
     }
 
     out_vkapi << vkapi + "}\n";
@@ -491,8 +509,9 @@ int Generator::GenerateCPPInlineDoc()
     };
 
     for (auto& [k, h] : handle_map) {
-        if (h.functions.empty())
+        if (h.functions.empty()) {
             continue;
+        }
 
         if (!h.ext.empty()) {
             auto ext_folder = extension_map[h.ext].ext_folder;
@@ -516,8 +535,9 @@ int Generator::GenerateCPPInlineDoc()
     }
 
     for (auto& [k, v] : extension_map) {
-        if (v.functions.empty())
+        if (v.functions.empty()) {
             continue;
+        }
 
         if (auto file = v.GetFile(ImplementedFor::DX12); !file.empty()) {
             write_doc(v, file, impls[+ImplementedFor::DX12], std::filesystem::path{ ext_dir } / v.ext_folder);
@@ -530,8 +550,9 @@ int Generator::GenerateCPPInlineDoc()
     // mt?
     for (auto& [p, d] : file_contents) {
         std::ofstream out(p);
-        if (!out.is_open())
+        if (!out.is_open()) {
             return 1;
+        }
         out << d << std::flush;
     }
 
@@ -635,8 +656,9 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
     output += wis::format("inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::{};\n\n",
                           impl == "VK" ? "SPIRV" : "DXIL");
     for (auto& [name, h] : handle_map) {
-        if (!h.ext.empty())
+        if (!h.ext.empty()) {
             continue;
+        }
 
         output += wis::format("using {} = {}{};\n", name, impl, name);
     }
@@ -651,8 +673,9 @@ std::string Generator::GenerateCPPPlatformTypedefs(std::string_view impl)
     output += k_delimiter;
 
     for (auto& v : variants) {
-        if (v->ext.empty())
+        if (v->ext.empty()) {
             output += wis::format("using {} = {}{};\n", v->name, impl, v->name);
+        }
     }
 
     return output + "}\n";
@@ -714,7 +737,7 @@ std::string Generator::GenerateCPPPlatformExportHeader(std::string_view impl)
 #include "dx12/dx12_swapchain.h"
 #include "dx12/dx12_device.h"
 )"
-                         : R"(//GENERATED
+                                        : R"(//GENERATED
 #pragma once
 #include "vulkan/vk_factory.h"
 #include "vulkan/vk_swapchain.h"
@@ -746,29 +769,35 @@ std::string Generator::GenerateCPPPlatformExportHeader(std::string_view impl)
 void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 {
     auto* root = doc.FirstChildElement("registry");
-    if (!root)
+    if (!root) {
         throw std::runtime_error("Failed to load root");
+    }
 
-    if (auto* include = root->FirstChildElement("includes"))
+    if (auto* include = root->FirstChildElement("includes")) {
         ParseIncludes(include);
+    }
 
-    if (auto* handles = root->FirstChildElement("handles"))
+    if (auto* handles = root->FirstChildElement("handles")) {
         ParseHandles(handles);
+    }
 
-    if (auto* types = root->FirstChildElement("types"))
+    if (auto* types = root->FirstChildElement("types")) {
         ParseTypes(types);
+    }
 
-    if (auto* funcs = root->FirstChildElement("functions"))
+    if (auto* funcs = root->FirstChildElement("functions")) {
         ParseFunctions(funcs);
+    }
 
-    if (auto* exts = root->FirstChildElement("extensions"))
+    if (auto* exts = root->FirstChildElement("extensions")) {
         ParseExtensions(exts);
+    }
 }
 
 void Generator::ParseTypes(tinyxml2::XMLElement* types, std::string_view extension)
 {
     for (auto* type = types->FirstChildElement("type"); type;
-            type = type->NextSiblingElement("type")) {
+         type = type->NextSiblingElement("type")) {
         auto category = type->FindAttribute("category")->Value();
         if (std::string_view(category) == "struct") {
             ParseStruct(*type);
@@ -787,15 +816,16 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types, std::string_view extensi
 void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 {
     for (auto* include = includes->FirstChildElement("include"); include;
-            include = include->NextSiblingElement("include")) {
+         include = include->NextSiblingElement("include")) {
         auto file = include->GetText();
         auto rpath = std::filesystem::path(INPUT_FILE).parent_path() / file;
         auto absolute = std::filesystem::absolute(rpath);
 
         if (std::filesystem::exists(absolute) && !this->includes.contains(absolute)) {
             auto& doc = this->includes[absolute];
-            if (doc.LoadFile(absolute.string().c_str()) != tinyxml2::XMLError::XML_SUCCESS)
+            if (doc.LoadFile(absolute.string().c_str()) != tinyxml2::XMLError::XML_SUCCESS) {
                 throw std::runtime_error("Failed to load include file");
+            }
             ParseFile(doc);
         }
     }
@@ -806,24 +836,29 @@ WisReturnType Generator::ParseFunctionReturn(tinyxml2::XMLElement* func)
     WisReturnType ret;
 
     if (auto* param = func->FirstChildElement("ret")) {
-        if (auto* res = param->FindAttribute("result"))
+        if (auto* res = param->FindAttribute("result")) {
             ret.has_result = true;
+        }
 
         auto* type = param->FindAttribute("type");
-        if (!type)
+        if (!type) {
             return ret; // No return type
+        }
 
         ret.type = type->Value();
         ret.type_info = GetTypeInfo(type->Value());
 
-        if (auto* name = param->FindAttribute("name"))
+        if (auto* name = param->FindAttribute("name")) {
             ret.opt_name = name->Value();
+        }
 
-        if (auto* mod = param->FindAttribute("mod"))
+        if (auto* mod = param->FindAttribute("mod")) {
             ret.modifier = mod->Value();
+        }
 
-        if (auto* doc = param->FindAttribute("doc"))
+        if (auto* doc = param->FindAttribute("doc")) {
             ret.doc = doc->Value();
+        }
     }
     return ret;
 }
@@ -831,7 +866,7 @@ std::vector<WisFunctionParameter> Generator::ParseFunctionArgs(tinyxml2::XMLElem
 {
     std::vector<WisFunctionParameter> ret;
     for (auto* param = func->FirstChildElement("arg"); param;
-            param = param->NextSiblingElement("arg")) {
+         param = param->NextSiblingElement("arg")) {
         auto& p = ret.emplace_back();
 
         auto* type = param->FindAttribute("type")->Value();
@@ -841,14 +876,17 @@ std::vector<WisFunctionParameter> Generator::ParseFunctionArgs(tinyxml2::XMLElem
         p.name = name;
         p.type_info = GetTypeInfo(type);
 
-        if (auto* mod = param->FindAttribute("mod"))
+        if (auto* mod = param->FindAttribute("mod")) {
             p.modifier = mod->Value();
+        }
 
-        if (auto* def = param->FindAttribute("default"))
+        if (auto* def = param->FindAttribute("default")) {
             p.default_value = def->Value();
+        }
 
-        if (auto* doc = param->FindAttribute("doc"))
+        if (auto* doc = param->FindAttribute("doc")) {
             p.doc = doc->Value();
+        }
 
         if (auto replace = param->FirstChildElement("replace")) {
             using namespace std::string_view_literals;
@@ -865,17 +903,21 @@ std::vector<WisFunctionParameter> Generator::ParseFunctionArgs(tinyxml2::XMLElem
                 rval.replace_for = Language::CPP;
             }
 
-            if (auto* doc = replace->FindAttribute("doc"))
+            if (auto* doc = replace->FindAttribute("doc")) {
                 rval.doc = doc->Value();
+            }
 
-            if (auto* mod = replace->FindAttribute("mod"))
+            if (auto* mod = replace->FindAttribute("mod")) {
                 rval.modifier = mod->Value();
+            }
 
-            if (auto* def = replace->FindAttribute("default"))
+            if (auto* def = replace->FindAttribute("default")) {
                 rval.default_value = def->Value();
+            }
 
-            if (auto* name = replace->FindAttribute("name"))
+            if (auto* name = replace->FindAttribute("name")) {
                 rval.name = name->Value();
+            }
         }
     }
     return ret;
@@ -884,7 +926,7 @@ std::vector<WisFunctionParameter> Generator::ParseFunctionArgs(tinyxml2::XMLElem
 void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 {
     for (auto* func = type->FirstChildElement("func"); func;
-            func = func->NextSiblingElement("func")) {
+         func = func->NextSiblingElement("func")) {
 
         // Refactor: This is a mess
         auto name = func->FindAttribute("name")->Value();
@@ -899,14 +941,16 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         if (ret) {
             ref.this_type = ret->Value();
             ref.this_type_info = GetTypeInfo(ref.this_type);
-            if (ref.this_type_info == TypeInfo::Handle)
+            if (ref.this_type_info == TypeInfo::Handle) {
                 handle_map[ref.this_type].functions.emplace_back(xkey);
-            else if (ref.this_type_info == TypeInfo::ExtHandle)
+            } else if (ref.this_type_info == TypeInfo::ExtHandle) {
                 extension_map[ref.this_type].functions.emplace_back(xkey);
+            }
         }
 
-        if (auto* doc = func->FindAttribute("doc"))
+        if (auto* doc = func->FindAttribute("doc")) {
             ref.doc = doc->Value();
+        }
 
         ref.return_type = ParseFunctionReturn(func);
         ref.parameters = ParseFunctionArgs(func);
@@ -940,21 +984,23 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 void Generator::ParseExtensions(tinyxml2::XMLElement* extensions)
 {
     for (auto* ext = extensions->FirstChildElement("ext"); ext;
-            ext = ext->NextSiblingElement("ext")) {
+         ext = ext->NextSiblingElement("ext")) {
 
         auto name = ext->FindAttribute("name")->Value();
         auto& ref = extension_map[name];
 
         ref.name = name;
 
-        if (auto* doc = ext->FindAttribute("doc"))
+        if (auto* doc = ext->FindAttribute("doc")) {
             ref.doc = doc->Value();
+        }
 
-        if (auto* ext_folder = ext->FindAttribute("folder"))
+        if (auto* ext_folder = ext->FindAttribute("folder")) {
             ref.ext_folder = ext_folder->Value();
+        }
 
         for (auto* impl = ext->FirstChildElement("file"); impl;
-                impl = impl->NextSiblingElement("file")) {
+             impl = impl->NextSiblingElement("file")) {
 
             if (auto* impl_for = impl->FindAttribute("for")) {
                 auto impl_for_code = ImplCode(impl_for->Value());
@@ -997,20 +1043,22 @@ void Generator::ParseExtensions(tinyxml2::XMLElement* extensions)
 void Generator::ParseHandles(tinyxml2::XMLElement* types, std::string_view extension)
 {
     for (auto* type = types->FirstChildElement("handle"); type;
-            type = type->NextSiblingElement("handle")) {
+         type = type->NextSiblingElement("handle")) {
         auto name = type->FindAttribute("name")->Value();
         auto& ref = handle_map[name];
         ref.name = name;
         ref.ext = extension;
 
-        if (!extension.empty())
+        if (!extension.empty()) {
             extension_map[extension].handles.emplace_back(name);
+        }
 
-        if (auto* doc = type->FindAttribute("doc"))
+        if (auto* doc = type->FindAttribute("doc")) {
             ref.doc = doc->Value();
+        }
 
         for (auto* impl = type->FirstChildElement("file"); impl;
-                impl = impl->NextSiblingElement("file")) {
+             impl = impl->NextSiblingElement("file")) {
             auto impl_for = impl->FindAttribute("for")->Value();
             auto impl_for_code = ImplCode(impl_for);
             auto impl_file = impl->FindAttribute("include")->Value();
@@ -1027,11 +1075,12 @@ void Generator::ParseStruct(tinyxml2::XMLElement& type)
     structs.emplace_back(&ref);
     ref.name = name;
 
-    if (auto* size = type.FindAttribute("doc"))
+    if (auto* size = type.FindAttribute("doc")) {
         ref.doc = size->Value();
+    }
 
     for (auto* member = type.FirstChildElement("member"); member;
-            member = member->NextSiblingElement("member")) {
+         member = member->NextSiblingElement("member")) {
         auto& m = ref.members.emplace_back();
 
         auto* type = member->FindAttribute("type")->Value();
@@ -1069,14 +1118,16 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
     auto& ref = enum_map[name];
     ref.name = name;
 
-    if (auto* size = type.FindAttribute("type"))
+    if (auto* size = type.FindAttribute("type")) {
         ref.type = size->Value();
+    }
 
-    if (auto* size = type.FindAttribute("doc"))
+    if (auto* size = type.FindAttribute("doc")) {
         ref.doc = size->Value();
+    }
 
     for (auto* impl_type = type.FirstChildElement("impl_type"); impl_type;
-            impl_type = impl_type->NextSiblingElement("impl_type")) {
+         impl_type = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for = impl_type->FindAttribute("for")->Value();
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
@@ -1084,8 +1135,9 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
         ref.doc_translates += wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
 
         std::string_view def_value = "{}";
-        if (auto xdefault = impl_type->FindAttribute("default"))
+        if (auto xdefault = impl_type->FindAttribute("default")) {
             def_value = xdefault->Value();
+        }
 
         if (auto direct = impl_type->FindAttribute("direct")) {
             auto cvt = wis::format("inline constexpr {} convert_{}({} value) noexcept {{\n  "
@@ -1100,19 +1152,21 @@ void Generator::ParseEnum(tinyxml2::XMLElement& type)
     }
 
     for (auto* member = type.FirstChildElement("value"); member;
-            member = member->NextSiblingElement("value")) {
+         member = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
 
         m.name = member->FindAttribute("name")->Value();
         m.value = std::stoll(member->FindAttribute("value")->Value());
-        if (auto* impl = member->FindAttribute("impl"))
+        if (auto* impl = member->FindAttribute("impl")) {
             m.impl = ImplCode(impl->Value());
+        }
 
-        if (auto* doc = member->FindAttribute("doc"))
+        if (auto* doc = member->FindAttribute("doc")) {
             m.doc = doc->Value();
+        }
 
         for (auto* impl = member->FirstChildElement("impl"); impl;
-                impl = impl->NextSiblingElement("impl")) {
+             impl = impl->NextSiblingElement("impl")) {
             auto impl_name = impl->FindAttribute("name")->Value();
             auto value = impl->FindAttribute("value")->Value();
 
@@ -1132,14 +1186,16 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
     auto& ref = bitmask_map[name];
     ref.name = name;
 
-    if (auto* size = type.FindAttribute("type"))
+    if (auto* size = type.FindAttribute("type")) {
         ref.type = size->Value();
+    }
 
-    if (auto* size = type.FindAttribute("doc"))
+    if (auto* size = type.FindAttribute("doc")) {
         ref.doc = size->Value();
+    }
 
     for (auto* impl_type = type.FirstChildElement("impl_type"); impl_type;
-            impl_type = impl_type->NextSiblingElement("impl_type")) {
+         impl_type = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for = impl_type->FindAttribute("for")->Value();
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
@@ -1147,8 +1203,9 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
         ref.doc_translates += wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
 
         std::string_view def_value = "{}";
-        if (auto xdefault = impl_type->FindAttribute("default"))
+        if (auto xdefault = impl_type->FindAttribute("default")) {
             def_value = xdefault->Value();
+        }
 
         if (auto direct = impl_type->FindAttribute("direct")) {
             auto cvt = wis::format("inline constexpr {} convert_{}({} value) noexcept {{\n  "
@@ -1163,18 +1220,20 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
     }
 
     for (auto* member = type.FirstChildElement("value"); member;
-            member = member->NextSiblingElement("value")) {
+         member = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
 
         m.name = member->FindAttribute("name")->Value();
-        if (auto* impl = member->FindAttribute("impl"))
+        if (auto* impl = member->FindAttribute("impl")) {
             m.impl = ImplCode(impl->Value());
+        }
 
         auto* value = member->FindAttribute("value");
         auto* bit = member->FindAttribute("bit");
 
-        if (auto* doc = member->FindAttribute("doc"))
+        if (auto* doc = member->FindAttribute("doc")) {
             m.doc = doc->Value();
+        }
 
         if (value) {
             m.value = std::stoull(value->Value());
@@ -1186,7 +1245,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement& type)
         m.type = WisBitmaskValue::Type::Bit;
 
         for (auto* impl = member->FirstChildElement("impl"); impl;
-                impl = impl->NextSiblingElement("impl")) {
+             impl = impl->NextSiblingElement("impl")) {
             auto impl_name = impl->FindAttribute("name")->Value();
             auto value = impl->FindAttribute("value")->Value();
 
@@ -1206,8 +1265,9 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* type)
     ref.name = name;
     ref.parameters = ParseFunctionArgs(type);
 
-    if (auto* size = type->FindAttribute("doc"))
+    if (auto* size = type->FindAttribute("doc")) {
         ref.doc = size->Value();
+    }
 }
 
 void Generator::ParseVariant(tinyxml2::XMLElement& type, std::string_view extension)
@@ -1222,14 +1282,16 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type, std::string_view extens
         ref.this_type = this_t->Value();
     }
 
-    if (auto* size = type.FindAttribute("doc"))
+    if (auto* size = type.FindAttribute("doc")) {
         ref.doc = size->Value();
+    }
 
     if (auto* mod = type.FindAttribute("mod")) {
-        if (std::string_view(mod->Value()) == "cpp-only")
+        if (std::string_view(mod->Value()) == "cpp-only") {
             ref.implemented_for = Language::CPP;
-        else if (std::string_view(mod->Value()) == "c-only")
+        } else if (std::string_view(mod->Value()) == "c-only") {
             ref.implemented_for = Language::C;
+        }
     }
 
     for (auto* impl = type.FirstChildElement("impl"); impl; impl = impl->NextSiblingElement("impl")) {
@@ -1238,7 +1300,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type, std::string_view extens
         impl_ref.impl = ImplCode(impl_name);
 
         for (auto* member = impl->FirstChildElement("member"); member;
-                member = member->NextSiblingElement("member")) {
+             member = member->NextSiblingElement("member")) {
             auto& m = impl_ref.members.emplace_back();
 
             auto* type = member->FindAttribute("type")->Value();
@@ -1267,46 +1329,49 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type, std::string_view extens
 
 std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
 {
-    if (doc.empty())
+    if (doc.empty()) {
         return doc;
+    }
 
     size_t pos = 0;
     std::string_view this_type_view = this_type;
 
     while (true) {
         auto&& [type, value, first, last] = FindInlineType(doc, pos);
-        if (type.empty() && value.empty())
+        if (type.empty() && value.empty()) {
             break;
+        }
 
         // Replace with this_type
-        if (!type.empty())
+        if (!type.empty()) {
             this_type_view = type;
+        }
 
         std::string replacement;
 
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
             replacement = evalue ? wis::format("{}{}{}", x->second.name, impls[+evalue->impl], evalue->name)
-                          : GetCFullTypename(x->second.name, impl);
+                                 : GetCFullTypename(x->second.name, impl);
 
         } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
             auto evalue = y->second.HasValue(value);
             replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
-                          : GetCFullTypename(y->second.name, impl);
+                                 : GetCFullTypename(y->second.name, impl);
         } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name, impl), member->name)
-                          : GetCFullTypename(z->second.name, impl);
+                                 : GetCFullTypename(z->second.name, impl);
         } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
-                          : GetCFullTypename(d->second.name, impl);
+                                 : GetCFullTypename(d->second.name, impl);
         } else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
             replacement = GetCFullTypename(h->second.name, impl);
         } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("{}({})", GetCFullTypename(f->second.name, impl), member->name)
-                          : GetCFullTypename(f->second.name, impl);
+                                 : GetCFullTypename(f->second.name, impl);
         }
 
         pos = last;
@@ -1316,46 +1381,49 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
 }
 std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
 {
-    if (doc.empty())
+    if (doc.empty()) {
         return doc;
+    }
 
     size_t pos = 0;
     std::string_view this_type_view = this_type;
 
     while (true) {
         auto&& [type, value, first, last] = FindInlineType(doc, pos);
-        if (type.empty() && value.empty())
+        if (type.empty() && value.empty()) {
             break;
+        }
 
         // Replace with this_type
-        if (!type.empty())
+        if (!type.empty()) {
             this_type_view = type;
+        }
 
         std::string replacement;
 
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
             replacement = evalue ? wis::format("{}::{}{}", GetCPPFullTypename(x->second.name, impl), impls[+evalue->impl], evalue->name)
-                          : GetCPPFullTypename(x->second.name, impl);
+                                 : GetCPPFullTypename(x->second.name, impl);
 
         } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
             auto evalue = y->second.HasValue(value);
             replacement = evalue ? wis::format("{}::{}{}", GetCPPFullTypename(y->second.name, impl), impls[+evalue->impl], evalue->name)
-                          : GetCPPFullTypename(y->second.name, impl);
+                                 : GetCPPFullTypename(y->second.name, impl);
         } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCPPFullTypename(z->second.name, impl), member->name)
-                          : GetCPPFullTypename(z->second.name, impl);
+                                 : GetCPPFullTypename(z->second.name, impl);
         } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCPPFullTypename(d->second.name, impl), member->name)
-                          : GetCPPFullTypename(d->second.name, impl);
+                                 : GetCPPFullTypename(d->second.name, impl);
         } else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
             replacement = GetCPPFullTypename(h->second.name, impl);
         } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("{}({})", GetCPPFullTypename(f->second.name, impl), member->name)
-                          : GetCPPFullTypename(f->second.name, impl);
+                                 : GetCPPFullTypename(f->second.name, impl);
         }
 
         pos = last;
@@ -1379,8 +1447,8 @@ std::string Generator::MakeCValueDocumentation(std::string value, std::string_vi
         documentation = FinalizeCDocumentation(documentation, type_name);
     }
     return pre_doc
-           ? wis::format("    {}\n    {}\n", documentation, value)
-           : wis::format("{}{}\n", value, documentation);
+            ? wis::format("    {}\n    {}\n", documentation, value)
+            : wis::format("{}{}\n", value, documentation);
 }
 
 std::string Generator::MakeCPPValueDocumentation(std::string value, std::string_view doc, std::string_view type_name)
@@ -1398,8 +1466,8 @@ std::string Generator::MakeCPPValueDocumentation(std::string value, std::string_
         documentation = FinalizeCPPDocumentation(documentation, type_name);
     }
     return pre_doc
-           ? wis::format("    {}\n    {}\n", documentation, value)
-           : wis::format("{}{}\n", value, documentation);
+            ? wis::format("    {}\n    {}\n", documentation, value)
+            : wis::format("{}{}\n", value, documentation);
 }
 
 //-----------------------------------------------------------------------------
@@ -1407,13 +1475,14 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
 {
     using namespace std::string_literals;
 
-    if (s.implemented_for == Language::CPP)
+    if (s.implemented_for == Language::CPP) {
         return {};
+    }
 
     std::string st_decls;
 
     auto make_impl = [this](const WisVariant& s, const WisVariantImpl& impl,
-    std::string_view impl_tag) {
+                            std::string_view impl_tag) {
         auto full_name = GetCFullTypename(s.name, impl_tag);
 
         if (!s.this_type.empty()) {
@@ -1452,8 +1521,8 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
                 .doc = m.doc,
             };
             auto val_str = m.array_size.empty()
-                           ? wis::format("    {};", GetCFullArg(wfp, impl_tag))
-                           : wis::format("    {} {}[{}];", GetCFullArg(wfp, impl_tag, true), m.name, m.array_size);
+                    ? wis::format("    {};", GetCFullArg(wfp, impl_tag))
+                    : wis::format("    {} {}[{}];", GetCFullArg(wfp, impl_tag, true), m.name, m.array_size);
             st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
         }
 
@@ -1468,10 +1537,11 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
             vk += make_impl(s, i, impls[2]);
             return { std::move(dx), std::move(vk) };
         }
-        if (+i.impl == 1)
+        if (+i.impl == 1) {
             dx += make_impl(s, i, impls[+i.impl]);
-        else if (+i.impl == 2)
+        } else if (+i.impl == 2) {
             vk += make_impl(s, i, impls[+i.impl]);
+        }
     }
     return { dx, vk };
 }
@@ -1482,7 +1552,7 @@ std::string Generator::MakeCPPVariant(const WisVariant& s, ImplementedFor impl)
     std::string st_decls;
 
     auto make_impl = [this](const WisVariant& s, const WisVariantImpl& impl,
-    std::string_view impl_tag) {
+                            std::string_view impl_tag) {
         auto full_name = s.name;
         auto st_decl = wis::format("struct {}{}{{\n", impl_tag, full_name);
 
@@ -1542,8 +1612,8 @@ std::string Generator::MakeCStruct(const WisStruct& s)
             .doc = m.doc,
         };
         auto val_str = m.array_size.empty()
-                       ? wis::format("    {};", GetCFullArg(wfp, ""))
-                       : wis::format("    {} {}[{}];", GetCFullArg(wfp, "", true), m.name, m.array_size);
+                ? wis::format("    {};", GetCFullArg(wfp, ""))
+                : wis::format("    {} {}[{}];", GetCFullArg(wfp, "", true), m.name, m.array_size);
         st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
     }
 
@@ -1606,8 +1676,8 @@ std::string Generator::MakeCEnum(const WisEnum& s)
 std::string Generator::MakeCPPEnum(const WisEnum& s)
 {
     std::string st_decl =
-        !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
-        : wis::format("enum class {} {{\n", s.name);
+            !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
+                            : wis::format("enum class {} {{\n", s.name);
 
     if (!s.doc.empty()) {
         std::string documentation = wis::format("/**\n@brief {}\n\n{}*/", s.doc, s.doc_translates);
@@ -1637,8 +1707,8 @@ std::string Generator::MakeCBitmask(const WisBitmask& s)
 
     for (auto& m : s.values) {
         std::string val_str = m.type == WisBitmaskValue::Type::Value
-                              ? wis::format("    {}{}{} = 0x{:X},", s.name, impls[+m.impl], m.name, m.value)
-                              : wis::format("    {}{}{} = 1 << {},", s.name, impls[+m.impl], m.name, m.bit);
+                ? wis::format("    {}{}{} = 0x{:X},", s.name, impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{}{} = 1 << {},", s.name, impls[+m.impl], m.name, m.bit);
 
         st_decl += MakeCValueDocumentation(val_str, m.doc, s.name);
     }
@@ -1649,8 +1719,8 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
 {
     auto full_name = GetCFullTypename(s.name, "");
     std::string st_decl =
-        !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
-        : wis::format("enum class {} {{\n", s.name);
+            !s.type.empty() ? wis::format("enum class {} : {} {{\n", s.name, standard_types.at(s.type))
+                            : wis::format("enum class {} {{\n", s.name);
 
     if (!s.doc.empty()) {
         std::string documentation = wis::format("/**\n@brief {}\n\n{}*/", s.doc, s.doc_translates);
@@ -1660,15 +1730,15 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s)
 
     for (auto& m : s.values) {
         auto val_str = m.type == WisBitmaskValue::Type::Value
-                       ? wis::format("    {}{} = 0x{:X},", impls[+m.impl], m.name, m.value)
-                       : wis::format("    {}{} = 1 << {},", impls[+m.impl], m.name, m.bit);
+                ? wis::format("    {}{} = 0x{:X},", impls[+m.impl], m.name, m.value)
+                : wis::format("    {}{} = 1 << {},", impls[+m.impl], m.name, m.bit);
 
         st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
     }
 
     st_decl += "};\n\n";
     cpp_type_traits.emplace_back(wis::format(
-                                     "template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));
+            "template <> struct is_flag_enum<wis::{}>:public std::true_type {{}};\n", s.name));
     return st_decl;
 }
 
@@ -1761,8 +1831,8 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
     return wis::format("{}{} {} {}{}({})", doc, pre_decl, return_t,
                        func.this_type.empty()
-                       ? std::string(impl)
-                       : GetCFullTypename(func.this_type, impl),
+                               ? std::string(impl)
+                               : GetCFullTypename(func.this_type, impl),
                        func.name, args);
 }
 std::string Generator::MakeCFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl)
@@ -1799,8 +1869,9 @@ std::string Generator::MakeCFunctionCall(const WisFunction& func, std::string_vi
 }
 std::string Generator::MakeCFunctionImpl(const WisFunction& func, std::string_view prefix, std::string_view impl)
 {
-    if (func.custom_impl)
+    if (func.custom_impl) {
         return "";
+    }
 
     std::string output;
 
@@ -2105,18 +2176,18 @@ struct {}DeviceExtensionMap{} {{
     };
 
     std::string bridge_f = wis::format(
-                               R"(template<template<typename T> typename Executor, typename...Args>
+            R"(template<template<typename T> typename Executor, typename...Args>
 constexpr static inline decltype(auto) {}FactoryExtensionBridge(wis::FactoryExtID id, Args&&...args) {{
     switch(id) {{
 )",
-                               impl);
+            impl);
 
     std::string bridge_d = wis::format(
-                               R"(template<template<typename T> typename Executor, typename...Args>
+            R"(template<template<typename T> typename Executor, typename...Args>
 constexpr static inline decltype(auto) {}DeviceExtensionBridge(wis::DeviceExtID id, Args&&...args) {{
     switch(id) {{
 )",
-                               impl);
+            impl);
 
     std::string factory_map = wis::format(generic_template_f, "wis::FactoryExtID", impl, "", impl, "FactoryExtension");
     std::string device_map = wis::format(generic_template_d, "wis::DeviceExtID", impl, "", impl, "DeviceExtension");
@@ -2125,14 +2196,14 @@ constexpr static inline decltype(auto) {}DeviceExtensionBridge(wis::DeviceExtID 
         case ExtensionType::Device:
             device_map += wis::format(generic_template_d, "", impl, make_template_d(v.name), impl, k);
             bridge_d += wis::format(
-                            "       case wis::DeviceExtID::{}: return Executor<typename {}DeviceExtensionMap{}::Type>{{}}(std::forward<Args>(args)...);",
-                            v.name, impl, make_template_d(v.name));
+                    "       case wis::DeviceExtID::{}: return Executor<typename {}DeviceExtensionMap{}::Type>{{}}(std::forward<Args>(args)...);",
+                    v.name, impl, make_template_d(v.name));
             break;
         case ExtensionType::Factory:
             factory_map += wis::format(generic_template_f, "", impl, make_template_f(v.name), impl, k);
             bridge_f += wis::format(
-                            "       case wis::FactoryExtID::{}: return Executor<typename {}FactoryExtensionMap{}::Type>{{}}(std::forward<Args>(args)...);",
-                            v.name, impl, make_template_f(v.name));
+                    "       case wis::FactoryExtID::{}: return Executor<typename {}FactoryExtensionMap{}::Type>{{}}(std::forward<Args>(args)...);",
+                    v.name, impl, make_template_f(v.name));
             break;
         default:
             break;
@@ -2195,8 +2266,8 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         return_t = func.return_type.has_result ? GetCPPFullTypename("Result") : "void";
     } else if (func.return_type.has_result) {
         return_t = explicit_result
-                   ? wis::format("{}", GetCPPFullTypename(func.return_type.type, impl))
-                   : wis::format("wis::ResultValue<{}>", GetCPPFullTypename(func.return_type.type, impl));
+                ? wis::format("{}", GetCPPFullTypename(func.return_type.type, impl))
+                : wis::format("wis::ResultValue<{}>", GetCPPFullTypename(func.return_type.type, impl));
 
         doc += wis::format("@return {}\n", func.return_type.doc);
     } else {
@@ -2284,8 +2355,8 @@ std::string Generator::MakeCPPRVFunctionCall(const WisFunction& func, std::strin
         args.pop_back();
     }
     return func.this_type.empty()
-           ? wis::format("wis::ResultValue<{}>{{&{}{},{}}}", GetCPPFullTypename(func.return_type.type, class_impl), impl, func.name, args)
-           : wis::format("wis::ResultValue<{}>{{&{}{},this,{}}}", GetCPPFullTypename(func.return_type.type, class_impl), impl, func.name, args);
+            ? wis::format("wis::ResultValue<{}>{{&{}{},{}}}", GetCPPFullTypename(func.return_type.type, class_impl), impl, func.name, args)
+            : wis::format("wis::ResultValue<{}>{{&{}{},this,{}}}", GetCPPFullTypename(func.return_type.type, class_impl), impl, func.name, args);
 }
 std::string Generator::MakeCPPDelegate(const WisFunction& func)
 {
@@ -2381,67 +2452,87 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
 
 std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
 {
-    if (type.empty())
+    if (type.empty()) {
         return "";
+    }
 
-    if (auto it = standard_types.find(type); it != standard_types.end())
+    if (auto it = standard_types.find(type); it != standard_types.end()) {
         return std::string(it->second);
+    }
 
-    if (auto it = enum_map.find(type); it != enum_map.end())
+    if (auto it = enum_map.find(type); it != enum_map.end()) {
         return "Wis" + std::string(type);
+    }
 
-    if (auto it = bitmask_map.find(type); it != bitmask_map.end())
+    if (auto it = bitmask_map.find(type); it != bitmask_map.end()) {
         return "Wis" + std::string(type);
+    }
 
-    if (auto it = variant_map.find(type); it != variant_map.end())
+    if (auto it = variant_map.find(type); it != variant_map.end()) {
         return std::string(impl) + std::string(type);
+    }
 
-    if (auto it = struct_map.find(type); it != struct_map.end())
+    if (auto it = struct_map.find(type); it != struct_map.end()) {
         return "Wis" + std::string(type);
+    }
 
-    if (auto it = handle_map.find(type); it != handle_map.end())
+    if (auto it = handle_map.find(type); it != handle_map.end()) {
         return std::string(impl) + std::string(type);
-    if (auto it = extension_map.find(type); it != extension_map.end())
+    }
+    if (auto it = extension_map.find(type); it != extension_map.end()) {
         return std::string(impl) + std::string(type);
+    }
 
-    if (auto it = delegate_map.find(type); it != delegate_map.end())
+    if (auto it = delegate_map.find(type); it != delegate_map.end()) {
         return std::string(type);
+    }
 
-    if (auto it = function_map.find(std::string(type)); it != function_map.end())
+    if (auto it = function_map.find(std::string(type)); it != function_map.end()) {
         return std::string(impl) + std::string(type);
+    }
 
     return "";
 }
 std::string Generator::GetCPPFullTypename(std::string_view type, std::string_view impl)
 {
-    if (type.empty())
+    if (type.empty()) {
         return "";
+    }
 
-    if (auto it = standard_types.find(type); it != standard_types.end())
+    if (auto it = standard_types.find(type); it != standard_types.end()) {
         return std::string(it->second);
+    }
 
-    if (auto it = enum_map.find(type); it != enum_map.end())
+    if (auto it = enum_map.find(type); it != enum_map.end()) {
         return "wis::" + std::string(type);
+    }
 
-    if (auto it = bitmask_map.find(type); it != bitmask_map.end())
+    if (auto it = bitmask_map.find(type); it != bitmask_map.end()) {
         return "wis::" + std::string(type);
+    }
 
-    if (auto it = variant_map.find(type); it != variant_map.end())
+    if (auto it = variant_map.find(type); it != variant_map.end()) {
         return "wis::" + std::string(impl) + std::string(type);
+    }
 
-    if (auto it = struct_map.find(type); it != struct_map.end())
+    if (auto it = struct_map.find(type); it != struct_map.end()) {
         return "wis::" + std::string(type);
+    }
 
-    if (auto it = handle_map.find(type); it != handle_map.end())
+    if (auto it = handle_map.find(type); it != handle_map.end()) {
         return "wis::" + std::string(impl) + std::string(type);
-    if (auto it = extension_map.find(type); it != extension_map.end())
+    }
+    if (auto it = extension_map.find(type); it != extension_map.end()) {
         return "wis::" + std::string(impl) + std::string(type);
+    }
 
-    if (auto it = delegate_map.find(type); it != delegate_map.end())
+    if (auto it = delegate_map.find(type); it != delegate_map.end()) {
         return "wis::" + std::string(type);
+    }
 
-    if (auto it = function_map.find(std::string(type)); it != function_map.end())
+    if (auto it = function_map.find(std::string(type)); it != function_map.end()) {
         return "wis::" + std::string(impl) + std::string(type);
+    }
 
     return "";
 }
@@ -2460,8 +2551,8 @@ std::string Generator::GetCFullArg(const WisFunctionParameter& arg, std::string_
         pre_decl += "const";
     }
     return only_type
-           ? wis::format("{} {}{}", pre_decl, GetCFullTypename(arg.type, impl), post_decl)
-           : wis::format("{} {}{} {}", pre_decl, GetCFullTypename(arg.type, impl), post_decl, arg.name);
+            ? wis::format("{} {}{}", pre_decl, GetCFullTypename(arg.type, impl), post_decl)
+            : wis::format("{} {}{} {}", pre_decl, GetCFullTypename(arg.type, impl), post_decl, arg.name);
 }
 std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::string_view impl, bool only_type)
 {
@@ -2484,13 +2575,13 @@ std::string Generator::GetCPPFullArg(const WisFunctionParameter& arg, std::strin
     }
     if (!arg.default_value.empty()) {
         post_name = enum_map.contains(arg.type) || bitmask_map.contains(arg.type)
-                    ? wis::format(" = {}::{}", mfullname, arg.default_value)
-                    : wis::format(" = {}", arg.default_value);
+                ? wis::format(" = {}::{}", mfullname, arg.default_value)
+                : wis::format(" = {}", arg.default_value);
     }
     return only_type
-           ? wis::format("{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl)
-           : wis::format("{} {}{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl,
-                         arg.name, post_name);
+            ? wis::format("{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl)
+            : wis::format("{} {}{} {}{}", pre_decl, GetCPPFullTypename(arg.type, impl), post_decl,
+                          arg.name, post_name);
 }
 
 std::string Generator::ConvertFromCType(const WisFunctionParameter& arg, std::string_view impl)
@@ -2560,32 +2651,41 @@ std::string Generator::ConvertToCType(const WisFunctionParameter& arg, std::stri
 
 TypeInfo Generator::GetTypeInfo(std::string_view type)
 {
-    if (type == "Result")
+    if (type == "Result") {
         return TypeInfo::Result;
+    }
 
-    if (standard_types.contains(type))
+    if (standard_types.contains(type)) {
         return TypeInfo::Regular;
+    }
 
-    if (enum_map.contains(type))
+    if (enum_map.contains(type)) {
         return TypeInfo::Enum;
+    }
 
-    if (bitmask_map.contains(type))
+    if (bitmask_map.contains(type)) {
         return TypeInfo::Bitmask;
+    }
 
-    if (variant_map.contains(type))
+    if (variant_map.contains(type)) {
         return TypeInfo::Variant;
+    }
 
-    if (struct_map.contains(type))
+    if (struct_map.contains(type)) {
         return TypeInfo::Struct;
+    }
 
-    if (handle_map.contains(type))
+    if (handle_map.contains(type)) {
         return TypeInfo::Handle;
+    }
 
-    if (extension_map.contains(type))
+    if (extension_map.contains(type)) {
         return TypeInfo::ExtHandle;
+    }
 
-    if (delegate_map.contains(type))
+    if (delegate_map.contains(type)) {
         return TypeInfo::Delegate;
+    }
 
     return TypeInfo::None;
 }

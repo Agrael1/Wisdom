@@ -23,8 +23,9 @@ struct Exception : public std::exception {
 
 inline void CheckResult(wis::Result res)
 {
-    if (res.status != wis::Status::Ok)
+    if (res.status != wis::Status::Ok) {
         throw Exception(res.error);
+    }
 }
 template<typename T>
 inline T Unwrap(wis::ResultValue<T>&& res)

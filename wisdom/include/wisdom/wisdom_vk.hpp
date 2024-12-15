@@ -28,7 +28,7 @@ namespace wis {
  * */
 [[nodiscard]] inline wis::ResultValue<wis::VKFactory> VKCreateFactory(bool debug_layer = false, wis::VKFactoryExtension** extensions = nullptr, uint32_t extension_count = 0) noexcept
 {
-    return wis::ResultValue<wis::VKFactory> { &wis::ImplVKCreateFactory, debug_layer, extensions, extension_count };
+    return wis::ResultValue<wis::VKFactory>{ &wis::ImplVKCreateFactory, debug_layer, extensions, extension_count };
 }
 /**
  * @brief Creates the wis::VKDevice with extensions, specified in extension array.
@@ -56,7 +56,7 @@ namespace wis {
  * */
 [[nodiscard]] inline wis::ResultValue<wis::VKDevice> VKCreateDevice(wis::VKAdapter adapter, wis::VKDeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false) noexcept
 {
-    return wis::ResultValue<wis::VKDevice> { &wis::ImplVKCreateDevice, std::move(adapter), extensions, extension_count, force };
+    return wis::ResultValue<wis::VKDevice>{ &wis::ImplVKCreateDevice, std::move(adapter), extensions, extension_count, force };
 }
 
 //-------------------------------------------------------------------------

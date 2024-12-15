@@ -11,21 +11,26 @@ class atype
 {
     static inline void xprint(std::source_location sl = std::source_location::current())
     {
-        if constexpr (enabled)
+        if constexpr (enabled) {
             std::printf("%s\n", sl.function_name());
+        }
     }
 
 public:
-    atype() {
+    atype()
+    {
         xprint();
     }
-    ~atype() {
+    ~atype()
+    {
         xprint();
     }
-    atype(const atype&) {
+    atype(const atype&)
+    {
         xprint();
     }
-    atype(atype&&) noexcept {
+    atype(atype&&) noexcept
+    {
         xprint();
     }
     atype& operator=(atype&&) noexcept

@@ -10,21 +10,24 @@
 static std::expected<std::string, std::string_view>
 LoadShader(std::filesystem::path p) noexcept
 {
-    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL)
+    if constexpr (wis::shader_intermediate == wis::ShaderIntermediate::DXIL) {
         p += u".cso";
-    else
+    } else {
         p += u".spv";
+    }
 
-    if (!std::filesystem::exists(p))
-        return std::expected<std::string, std::string_view> {
-        std::unexpect, "File not found"
-    };
+    if (!std::filesystem::exists(p)) {
+        return std::expected<std::string, std::string_view>{
+            std::unexpect, "File not found"
+        };
+    }
 
     std::ifstream t{ p, std::ios::binary };
-    if (!t.is_open())
-        return std::expected<std::string, std::string_view> {
-        std::unexpect, "Failed to open file"
-    };
+    if (!t.is_open()) {
+        return std::expected<std::string, std::string_view>{
+            std::unexpect, "Failed to open file"
+        };
+    }
 
     t.seekg(0, std::ios::end);
     size_t size = t.tellg();
@@ -70,24 +73,27 @@ CreateWorkNode(wis::Adapter&& adapter)
     // Create Device
     {
         auto [res, device] = wis::CreateDevice(adapter, extensions, std::size(extensions));
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.work_device = std::move(device);
     }
 
     // Create Graphics Queue
     {
         auto [res, queue] = node.work_device.CreateCommandQueue(wis::QueueType::Graphics);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.queue = std::move(queue);
     }
 
     // Create Resource Allocator
     {
         auto [res, allocator] = node.work_device.CreateAllocator();
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.allocator = std::move(allocator);
     }
 
@@ -96,8 +102,9 @@ CreateWorkNode(wis::Adapter&& adapter)
         using namespace wis;
         LutLoader loader;
         auto lut_data = loader.LoadLut("lut.cube");
-        if (lut_data.type == LutType::Undefined)
+        if (lut_data.type == LutType::Undefined) {
             return std::unexpected("Invalid LUT file");
+        }
 
         wis::TextureDesc desc{
             .format = wis::DataFormat::RGBA32Float,
@@ -106,8 +113,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .usage = wis::TextureUsage::ShaderResource | wis::TextureUsage::HostCopy
         };
         auto [res, texture] = node.extended_alloc.CreateGPUUploadTexture(node.allocator, desc, wis::TextureState::CopyDest, wis::MemoryFlags::DedicatedAllocation);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
 
         wis::TextureRegion region{
             .offset = { 0, 0, 0 },
@@ -115,8 +123,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .format = wis::DataFormat::RGBA32Float
         };
         auto res2 = node.extended_alloc.WriteMemoryToSubresourceDirect(lut_data.data.get(), texture, wis::TextureState::CopyDest, region);
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
 
         node.lut = std::move(texture);
     }
@@ -133,8 +142,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .usage = wis::TextureUsage::ShaderResource | wis::TextureUsage::HostCopy
         };
         auto [res, texture] = node.extended_alloc.CreateGPUUploadTexture(node.allocator, desc, wis::TextureState::CopyDest, wis::MemoryFlags::DedicatedAllocation);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
 
         wis::TextureRegion region{
             .offset = { 0, 0, 0 },
@@ -142,8 +152,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .format = wis::DataFormat::RGBA8Unorm
         };
         auto res2 = node.extended_alloc.WriteMemoryToSubresourceDirect(data.data.data(), texture, wis::TextureState::CopyDest, region);
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
 
         node.texture = std::move(texture);
     }
@@ -157,8 +168,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .subresource_range = { 0, 1, 0, 1 }
         };
         auto [res, srv] = node.work_device.CreateShaderResource(node.lut, desc);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.srv_lut = std::move(srv);
     }
 
@@ -171,8 +183,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .subresource_range = { 0, 1, 0, 1 }
         };
         auto [res, srv] = node.work_device.CreateShaderResource(node.texture, desc);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.srv = std::move(srv);
     }
 
@@ -191,8 +204,9 @@ CreateWorkNode(wis::Adapter&& adapter)
             .comparison_op = wis::Compare::None,
         };
         auto [res, sampler] = node.work_device.CreateSampler(sample_desc);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.sampler = std::move(sampler);
     }
 
@@ -201,18 +215,22 @@ CreateWorkNode(wis::Adapter&& adapter)
         auto sv = LoadShader("lut.vs");
         auto sp = LoadShader("lut_tetra.ps");
 
-        if (!sv)
+        if (!sv) {
             return std::unexpected(sp.error());
-        if (!sp)
+        }
+        if (!sp) {
             return std::unexpected(sp.error());
+        }
 
         auto [res, vertex_shader] = node.work_device.CreateShader(sv.value().data(), sv.value().size());
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
 
         auto [res2, pixel_shader] = node.work_device.CreateShader(sp.value().data(), sp.value().size());
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
 
         node.vertex_shader = std::move(vertex_shader);
         node.pixel_shader = std::move(pixel_shader);
@@ -223,43 +241,44 @@ CreateWorkNode(wis::Adapter&& adapter)
         using namespace wis;
         wis::DescriptorTableEntry entries[] = {
             {
-                .type = wis::DescriptorType::Texture,
-                .bind_register = 0,
-                .binding = 0,
-                .count = 1,
+                    .type = wis::DescriptorType::Texture,
+                    .bind_register = 0,
+                    .binding = 0,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::Texture,
-                .bind_register = 1,
-                .binding = 1,
-                .count = 1,
+                    .type = wis::DescriptorType::Texture,
+                    .bind_register = 1,
+                    .binding = 1,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::Sampler,
-                .bind_register = 0,
-                .binding = 0,
-                .count = 1,
+                    .type = wis::DescriptorType::Sampler,
+                    .bind_register = 0,
+                    .binding = 0,
+                    .count = 1,
             },
         };
 
         wis::DescriptorTable tables[] = {
             {
-                .type = wis::DescriptorHeapType::Descriptor,
-                .entries = entries,
-                .entry_count = 2,
-                .stage = wis::ShaderStages::Pixel,
+                    .type = wis::DescriptorHeapType::Descriptor,
+                    .entries = entries,
+                    .entry_count = 2,
+                    .stage = wis::ShaderStages::Pixel,
             },
             {
-                .type = wis::DescriptorHeapType::Sampler,
-                .entries = entries + 2,
-                .entry_count = 1,
-                .stage = wis::ShaderStages::Pixel,
+                    .type = wis::DescriptorHeapType::Sampler,
+                    .entries = entries + 2,
+                    .entry_count = 1,
+                    .stage = wis::ShaderStages::Pixel,
             },
 
         };
         auto [result, root] = node.desc_buffer_ext.CreateRootSignature(nullptr, 0, nullptr, 0, tables, sizeof(tables) / sizeof(tables[0]));
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
         node.root = std::move(root);
     }
 
@@ -269,30 +288,33 @@ CreateWorkNode(wis::Adapter&& adapter)
             .root_signature = node.root,
             .shaders = { .vertex = node.vertex_shader, .pixel = node.pixel_shader },
             .attachments = {
-                .attachment_formats = { wis::DataFormat::RGBA8Unorm },
-                .attachments_count = 1,
+                    .attachment_formats = { wis::DataFormat::RGBA8Unorm },
+                    .attachments_count = 1,
             },
             .flags = wis::PipelineFlags::DescriptorBuffer,
         };
         auto [res2, hpipeline] = node.work_device.CreateGraphicsPipeline(desc);
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
         node.pipeline = std::move(hpipeline);
     }
 
     // Create Fence
     {
         auto [res, fence] = node.work_device.CreateFence(0);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.fence = std::move(fence);
     }
 
     // Create Command List
     {
         auto [res, cmd_list] = node.work_device.CreateCommandList(wis::QueueType::Graphics);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
         node.cmd_list = std::move(cmd_list);
     }
 
@@ -305,13 +327,15 @@ CreateWorkNode(wis::Adapter&& adapter)
 
         auto desc_size = wis::detail::aligned_size(inc_d * 2, al_d);
         auto [res, hdesc] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Descriptor, wis::DescriptorMemory::ShaderVisible, desc_size);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return std::unexpected(res.error);
+        }
 
         auto sampler_size = wis::detail::aligned_size(inc_s, al_s);
         auto [res2, hdesc2] = node.desc_buffer_ext.CreateDescriptorBuffer(wis::DescriptorHeapType::Sampler, wis::DescriptorMemory::ShaderVisible, sampler_size);
-        if (res2.status != wis::Status::Ok)
+        if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
+        }
 
         // Set Descriptor Buffers
         hdesc.WriteShaderResource(0, 1, node.srv);
@@ -325,7 +349,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     node.PrepareResources();
 
-    return std::expected<WorkNode, std::string_view> { std::move(node) };
+    return std::expected<WorkNode, std::string_view>{ std::move(node) };
 }
 
 void WorkNode::PrepareResources()
@@ -334,24 +358,24 @@ void WorkNode::PrepareResources()
 
     wis::TextureBarrier2 barriers[] = {
         {
-            .barrier = {
-                .access_before = wis::ResourceAccess::NoAccess,
-                .access_after = wis::ResourceAccess::NoAccess,
-                .state_before = wis::TextureState::Undefined,
-                .state_after = wis::TextureState::ShaderResource,
-                .subresource_range = { 0, 1, 0, 1 },
-            },
-            .texture = texture,
+                .barrier = {
+                        .access_before = wis::ResourceAccess::NoAccess,
+                        .access_after = wis::ResourceAccess::NoAccess,
+                        .state_before = wis::TextureState::Undefined,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = { 0, 1, 0, 1 },
+                },
+                .texture = texture,
         },
         {
-            .barrier = {
-                .access_before = wis::ResourceAccess::NoAccess,
-                .access_after = wis::ResourceAccess::NoAccess,
-                .state_before = wis::TextureState::Undefined,
-                .state_after = wis::TextureState::ShaderResource,
-                .subresource_range = { 0, 1, 0, 1 },
-            },
-            .texture = lut,
+                .barrier = {
+                        .access_before = wis::ResourceAccess::NoAccess,
+                        .access_after = wis::ResourceAccess::NoAccess,
+                        .state_before = wis::TextureState::Undefined,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = { 0, 1, 0, 1 },
+                },
+                .texture = lut,
         }
     };
     cmd_list.TextureBarriers(barriers, std::size(barriers));
@@ -374,14 +398,16 @@ void WorkNode::CreateOutputTexture(wis::Size2D frame)
         .usage = wis::TextureUsage::RenderTarget | wis::TextureUsage::CopySrc,
     };
     auto [result, tex] = allocator.CreateTexture(desc);
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok) {
         return;
+    }
 
     // Create buffer
     {
         auto [r, b] = allocator.CreateReadbackBuffer(frame.width * frame.height * 4);
-        if (r.status != wis::Status::Ok)
+        if (r.status != wis::Status::Ok) {
             return;
+        }
         out_buffer = std::move(b);
         mapping = out_buffer.Map();
     }
@@ -392,8 +418,9 @@ void WorkNode::CreateOutputTexture(wis::Size2D frame)
             .format = wis::DataFormat::RGBA8Unorm,
         };
         auto [res, rt] = work_device.CreateRenderTarget(tex, rt_desc);
-        if (res.status != wis::Status::Ok)
+        if (res.status != wis::Status::Ok) {
             return;
+        }
         render_target = std::move(rt);
     }
 
@@ -481,8 +508,8 @@ void WorkNode::Frame()
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-            .size = { width, height, 1 },
-            .format = wis::DataFormat::RGBA8Unorm,
+                .size = { width, height, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyTextureToBuffer(out_texture, out_buffer, &region, 1);

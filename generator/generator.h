@@ -40,8 +40,9 @@ struct WisEnum {
 
     std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
@@ -70,8 +71,9 @@ struct WisBitmask {
 
     std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
@@ -100,8 +102,9 @@ struct WisStruct {
     std::vector<WisStructMember> members;
     std::optional<WisStructMember> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) {
             return v.name == name;
@@ -189,8 +192,9 @@ struct WisFunction {
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
         auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
             return v.name == name;
         });
@@ -208,33 +212,39 @@ struct WisHandle {
 
     void AddFile(std::string_view file, ImplementedFor impl) noexcept
     {
-        if (impl & ImplementedFor::DX12)
+        if (impl & ImplementedFor::DX12) {
             files[0] = file;
-        if (impl & ImplementedFor::Vulkan)
+        }
+        if (impl & ImplementedFor::Vulkan) {
             files[1] = file;
+        }
     }
 
     std::string_view GetFile(ImplementedFor impl) const noexcept
     {
-        if (impl & ImplementedFor::DX12)
+        if (impl & ImplementedFor::DX12) {
             return files[0];
-        if (impl & ImplementedFor::Vulkan)
+        }
+        if (impl & ImplementedFor::Vulkan) {
             return files[1];
+        }
         return "";
     }
 
     std::optional<const WisFunction> HasValue(std::string_view name,
-            const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
+                                              const std::unordered_map<std::string_view, WisFunction>& function_map) const noexcept
     {
-        if (name.empty())
+        if (name.empty()) {
             return {};
+        }
 
         auto enum_value = std::find_if(functions.begin(), functions.end(), [&](auto& v) {
             return v == name;
         });
 
-        if (enum_value == functions.end())
+        if (enum_value == functions.end()) {
             return {};
+        }
 
         return function_map.at(*enum_value);
     }
@@ -317,7 +327,7 @@ public:
     std::string MakeCPPEnum(const WisEnum& s);
     std::string MakeCPPBitmask(const WisBitmask& s);
 
-    #pragma region C API
+#pragma region C API
     // Function generation
     std::string MakeCFunctionGenericDecl(const WisFunction& func, std::string_view impl);
     std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true);
@@ -339,9 +349,9 @@ public:
     std::string MakeCExtensionMap(std::string_view impl);
 
     std::string MakeCVariantGeneric(const WisVariant& s, std::string_view impl);
-    #pragma endregion
+#pragma endregion
 
-    #pragma region CPP API
+#pragma region CPP API
     // Function generation
     std::string MakeCPPFunctionGenericDecl(const WisFunction& func, std::string_view impl, bool explicit_result);
     std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl = "WISDOM_API", bool doc = true, bool impl_on_fdecl = true, bool explicit_result = false);
@@ -352,7 +362,7 @@ public:
 
     // Handle generation
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl);
-    #pragma endregion
+#pragma endregion
 
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
