@@ -17,7 +17,8 @@ if(WISDOM_BUILD_BINARIES)
     wisdom-raytracing STATIC
     "wisdom/wisdom_raytracing.hpp"
     "wisdom/impl/impl.vk.cpp"
-  )
+   
+   "wisdom/vk_rtas.h")
   add_library(wis::raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(

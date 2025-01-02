@@ -103,9 +103,9 @@ private:
     std::span<const wis::Texture> textures;
     std::array<wis::RenderTarget, ex::swap_buffer_count> render_targets;
 
-    wis::DataFormat format;
-    uint32_t width;
-    uint32_t height;
-    bool stereo;
+    wis::DataFormat format = ex::swapchain_format;
+    uint32_t width = 0;
+    uint32_t height = 0;
+    bool stereo = false;
 };
 } // namespace ex

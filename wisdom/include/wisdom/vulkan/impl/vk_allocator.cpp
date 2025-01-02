@@ -329,7 +329,7 @@ void wis::ImplVKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUs
     info = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .size = size,
-        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VkBufferUsageFlagBits(flags)),
+        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | convert_vk(flags)),
     };
 }
 void wis::ImplVKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkImageCreateInfo& info) noexcept

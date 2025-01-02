@@ -545,6 +545,9 @@ Can still be enqueued after the signal.">
       <ret type="void" mod="ptr" name="data" doc="The pointer to the mapped memory."/>
     </func>
     <func for="Buffer" name="Unmap" mod="const" doc="Unmaps the buffer memory from CPU address space."/>
+    <func for="Buffer" name="GetGPUAddress" mod="const" doc="Returns the address of the resource in GPU memory.">
+      <ret type="u64" name="address" doc="The address of the resource in GPU memory."/>
+    </func>
 
     <!-- Texture -->
     <func for="Texture" name="Destroy" doc="Destroys the {Texture::}."/>

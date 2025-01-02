@@ -51,6 +51,8 @@ struct FactoryExtQuery;
 struct DeviceExtQuery;
 struct DescriptorStorageDesc;
 struct DescriptorSpacing;
+struct TopLevelASBuildDesc;
+struct ASAllocationInfo;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1211,6 +1213,15 @@ enum class DeviceExtID : uint32_t {
 };
 
 /**
+ * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
+ *
+ * */
+enum class ASLevel : uint32_t {
+    Bottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
+    Top = 1, ///< Top level Acceleration Structure. Contains instance data.
+};
+
+/**
  * @brief Flags that describe adapter.
  *
  * */
@@ -1250,14 +1261,18 @@ enum class ColorComponents {
  * @brief Buffer usage flags.
  * Determine how the buffer can be used throughout its lifetime.
  *
+ * Translates to VkBufferUsageFlags for vk implementation.
  * */
 enum class BufferUsage {
     None = 0x0, ///< No flags set. Buffer is not used.
     CopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
     CopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
-    ConstantBuffer = 1 << 4, ///< Buffer is used as a constant buffer.
-    IndexBuffer = 1 << 6, ///< Buffer is used as an index buffer.
-    VertexBuffer = 1 << 7, ///< Buffer is used as a vertex buffer or an instance buffer.
+    ConstantBuffer = 1 << 2, ///< Buffer is used as a constant buffer.
+    IndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
+    VertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
+    IndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
+    AccelerationStructureBuffer = 1 << 6, ///< Buffer is used as an acceleration structure buffer.
+    AccelerationStructureInput = 1 << 7, ///< Buffer is used as a read only acceleration instance input buffer.
 };
 
 /**
@@ -1411,6 +1426,33 @@ enum class PipelineFlags {
      * Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.
      * */
     DescriptorBuffer = 1 << 0,
+};
+
+/**
+ * @brief Geometry flags for additional geometry features
+ *
+ * Translates to D3D12_RAYTRACING_GEOMETRY_FLAGS for dx implementation.
+ * Translates to VkGeometryFlagsKHR for vk implementation.
+ * */
+enum class GeometryFlags {
+    None = 0x0, ///< No flags set. Geometry is regular.
+    Opaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
+    NoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
+};
+
+/**
+ * @brief Acceleration structure flags for additional acceleration structure features
+ *
+ * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS for dx implementation.
+ * Translates to VkBuildAccelerationStructureFlagsKHR for vk implementation.
+ * */
+enum class AccelerationStructureFlags {
+    None = 0x0, ///< No flags set. Acceleration structure is regular.
+    AllowUpdate = 1 << 0, ///< Acceleration structure is allowed to be updated.
+    AllowCompaction = 1 << 1, ///< Acceleration structure is allowed to be compacted.
+    PreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
+    PreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
+    MinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
 };
 
 /**
@@ -1845,6 +1887,30 @@ struct DescriptorSpacing {
     uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
 };
 
+/**
+ * @brief Top level acceleration structure build description.
+ * */
+struct TopLevelASBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< Build flags.
+    uint32_t instance_count; ///< Instance count.
+    uint64_t gpu_address; ///< Address of instances.
+    bool indirect; ///< true Buffer under address contains pointers to the instances, rather than instances themselves.
+    /**
+     * @brief true If the acceleration structure is being updated.
+     * flags must have contained wis::AccelerationStructureFlags::AllowUpdate to perfom updates.
+     * */
+    bool update;
+};
+
+/**
+ * @brief Acceleration structure allocation info. Used to query sizes for AS build/update buffers.
+ * */
+struct ASAllocationInfo {
+    uint64_t scratch_size; ///< Size of the scratch buffer.
+    uint64_t result_size; ///< Size of the result buffer.
+    uint64_t update_size; ///< Size of the update buffer.
+};
+
 //=================================DELEGATES=================================
 
 /**
@@ -1891,6 +1957,12 @@ struct is_flag_enum<wis::FenceFlags> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::PipelineFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::GeometryFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::AccelerationStructureFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 

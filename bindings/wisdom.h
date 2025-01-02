@@ -1175,6 +1175,15 @@ enum WisDeviceExtID {
     DeviceExtIDExtendedAllocation = 2,
 };
 
+/**
+ * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
+ *
+ * */
+enum WisASLevel {
+    ASLevelBottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
+    ASLevelTop = 1, ///< Top level Acceleration Structure. Contains instance data.
+};
+
 //-------------------------------------------------------------------------
 
 /**
@@ -1217,14 +1226,18 @@ enum WisColorComponentsBits {
  * @brief Buffer usage flags.
  * Determine how the buffer can be used throughout its lifetime.
  *
+ * Translates to VkBufferUsageFlags for vk implementation.
  * */
 enum WisBufferUsageBits {
     BufferUsageNone = 0x0, ///< No flags set. Buffer is not used.
     BufferUsageCopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
     BufferUsageCopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
-    BufferUsageConstantBuffer = 1 << 4, ///< Buffer is used as a constant buffer.
-    BufferUsageIndexBuffer = 1 << 6, ///< Buffer is used as an index buffer.
-    BufferUsageVertexBuffer = 1 << 7, ///< Buffer is used as a vertex buffer or an instance buffer.
+    BufferUsageConstantBuffer = 1 << 2, ///< Buffer is used as a constant buffer.
+    BufferUsageIndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
+    BufferUsageVertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
+    BufferUsageIndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
+    BufferUsageAccelerationStructureBuffer = 1 << 6, ///< Buffer is used as an acceleration structure buffer.
+    BufferUsageAccelerationStructureInput = 1 << 7, ///< Buffer is used as a read only acceleration instance input buffer.
 };
 
 /**
@@ -1380,6 +1393,33 @@ enum WisPipelineFlagsBits {
     PipelineFlagsDescriptorBuffer = 1 << 0,
 };
 
+/**
+ * @brief Geometry flags for additional geometry features
+ *
+ * Translates to D3D12_RAYTRACING_GEOMETRY_FLAGS for dx implementation.
+ * Translates to VkGeometryFlagsKHR for vk implementation.
+ * */
+enum WisGeometryFlagsBits {
+    GeometryFlagsNone = 0x0, ///< No flags set. Geometry is regular.
+    GeometryFlagsOpaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
+    GeometryFlagsNoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
+};
+
+/**
+ * @brief Acceleration structure flags for additional acceleration structure features
+ *
+ * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS for dx implementation.
+ * Translates to VkBuildAccelerationStructureFlagsKHR for vk implementation.
+ * */
+enum WisAccelerationStructureFlagsBits {
+    AccelerationStructureFlagsNone = 0x0, ///< No flags set. Acceleration structure is regular.
+    AccelerationStructureFlagsAllowUpdate = 1 << 0, ///< Acceleration structure is allowed to be updated.
+    AccelerationStructureFlagsAllowCompaction = 1 << 1, ///< Acceleration structure is allowed to be compacted.
+    AccelerationStructureFlagsPreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
+    AccelerationStructureFlagsPreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
+    AccelerationStructureFlagsMinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
+};
+
 //-------------------------------------------------------------------------
 
 typedef struct WisResult WisResult;
@@ -1419,6 +1459,8 @@ typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef struct WisDeviceExtQuery WisDeviceExtQuery;
 typedef struct WisDescriptorStorageDesc WisDescriptorStorageDesc;
 typedef struct WisDescriptorSpacing WisDescriptorSpacing;
+typedef struct WisTopLevelASBuildDesc WisTopLevelASBuildDesc;
+typedef struct WisASAllocationInfo WisASAllocationInfo;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -1456,6 +1498,7 @@ typedef enum WisComponentSwizzle WisComponentSwizzle;
 typedef enum WisIndexType WisIndexType;
 typedef enum WisFactoryExtID WisFactoryExtID;
 typedef enum WisDeviceExtID WisDeviceExtID;
+typedef enum WisASLevel WisASLevel;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisDSSelectBits WisDSSelectBits;
@@ -1478,6 +1521,10 @@ typedef enum WisFenceFlagsBits WisFenceFlagsBits;
 typedef uint32_t WisFenceFlags;
 typedef enum WisPipelineFlagsBits WisPipelineFlagsBits;
 typedef uint32_t WisPipelineFlags;
+typedef enum WisGeometryFlagsBits WisGeometryFlagsBits;
+typedef uint32_t WisGeometryFlags;
+typedef enum WisAccelerationStructureFlagsBits WisAccelerationStructureFlagsBits;
+typedef uint32_t WisAccelerationStructureFlags;
 
 //-------------------------------------------------------------------------
 
@@ -1911,6 +1958,30 @@ struct WisDescriptorSpacing {
     uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
     uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
     uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
+};
+
+/**
+ * @brief Top level acceleration structure build description.
+ * */
+struct WisTopLevelASBuildDesc {
+    WisAccelerationStructureFlags flags; ///< Build flags.
+    uint32_t instance_count; ///< Instance count.
+    uint64_t gpu_address; ///< Address of instances.
+    bool indirect; ///< true Buffer under address contains pointers to the instances, rather than instances themselves.
+    /**
+     * @brief true If the acceleration structure is being updated.
+     * flags must have contained AccelerationStructureFlagsAllowUpdate to perfom updates.
+     * */
+    bool update;
+};
+
+/**
+ * @brief Acceleration structure allocation info. Used to query sizes for AS build/update buffers.
+ * */
+struct WisASAllocationInfo {
+    uint64_t scratch_size; ///< Size of the scratch buffer.
+    uint64_t result_size; ///< Size of the result buffer.
+    uint64_t update_size; ///< Size of the update buffer.
 };
 
 //-------------------------------------------------------------------------
@@ -2846,6 +2917,13 @@ WISDOM_API void* VKBufferMapRaw(VKBuffer self);
  * @param self valid handle to the Buffer
  * */
 WISDOM_API void VKBufferUnmap(VKBuffer self);
+
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+WISDOM_API uint64_t VKBufferGetGPUAddress(VKBuffer self);
 
 // VKTexture methods --
 /**
@@ -3886,6 +3964,13 @@ WISDOM_API void* DX12BufferMapRaw(DX12Buffer self);
  * @param self valid handle to the Buffer
  * */
 WISDOM_API void DX12BufferUnmap(DX12Buffer self);
+
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+WISDOM_API uint64_t DX12BufferGetGPUAddress(DX12Buffer self);
 
 // DX12Texture methods --
 /**
@@ -5039,6 +5124,16 @@ inline void* WisBufferMapRaw(WisBuffer self)
 inline void WisBufferUnmap(WisBuffer self)
 {
     DX12BufferUnmap(self);
+}
+
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+inline uint64_t WisBufferGetGPUAddress(WisBuffer self)
+{
+    return DX12BufferGetGPUAddress(self);
 }
 
 // WisTexture methods --
@@ -6217,6 +6312,16 @@ inline void* WisBufferMapRaw(WisBuffer self)
 inline void WisBufferUnmap(WisBuffer self)
 {
     VKBufferUnmap(self);
+}
+
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+inline uint64_t WisBufferGetGPUAddress(WisBuffer self)
+{
+    return VKBufferGetGPUAddress(self);
 }
 
 // WisTexture methods --

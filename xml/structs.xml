@@ -377,6 +377,21 @@ Used for RootSignature.">
       <member type="u32" name="rbuffer_count"  doc="Count of spaces of read only storage buffer descriptors to allocate."/>
     </type>
 
+    <type name="TopLevelASBuildDesc" category="struct" doc="Top level acceleration structure build description.">
+      <member type="AccelerationStructureFlags" name="flags" doc="Build flags."/>
+      <member type="u32" name="instance_count" doc="Instance count."/>
+      <member type="u64" name="gpu_address" doc="Address of instances."/>
+      <member type="bool" name="indirect" doc="true Buffer under address contains pointers to the instances, rather than instances themselves."/>
+      <member type="bool" name="update" doc="true If the acceleration structure is being updated. 
+flags must have contained {AccelerationStructureFlags::AllowUpdate} to perfom updates."/>
+    </type>
+
+    <type name="ASAllocationInfo" category="struct" doc="Acceleration structure allocation info. Used to query sizes for AS build/update buffers.">
+      <member type="u64" name="scratch_size" doc="Size of the scratch buffer."/>
+      <member type="u64" name="result_size" doc="Size of the result buffer."/>
+      <member type="u64" name="update_size" doc="Size of the update buffer."/>
+    </type>
+
     <!--Variants-->
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">
       <impl name="both">

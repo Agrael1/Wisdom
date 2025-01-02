@@ -555,4 +555,35 @@ inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noex
     D3D12_PIPELINE_STATE_FLAGS output = {};
     return output;
 }
+inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS convert_dx(GeometryFlags value) noexcept
+{
+    D3D12_RAYTRACING_GEOMETRY_FLAGS output = {};
+    if (value & GeometryFlags::Opaque) {
+        output |= D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+    }
+    if (value & GeometryFlags::NoDuplicateAnyHitInvocation) {
+        output |= D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION;
+    }
+    return output;
+}
+inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS convert_dx(AccelerationStructureFlags value) noexcept
+{
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS output = {};
+    if (value & AccelerationStructureFlags::AllowUpdate) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+    }
+    if (value & AccelerationStructureFlags::AllowCompaction) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION;
+    }
+    if (value & AccelerationStructureFlags::PreferFastTrace) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+    }
+    if (value & AccelerationStructureFlags::PreferFastBuild) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+    }
+    if (value & AccelerationStructureFlags::MinimizeMemory) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY;
+    }
+    return output;
+}
 } // namespace wis

@@ -671,6 +671,13 @@ extern "C" void DX12BufferUnmap(DX12Buffer self)
     auto* xself = reinterpret_cast<wis::DX12Buffer*>(self);
     xself->Unmap();
 }
+extern "C" uint64_t DX12BufferGetGPUAddress(DX12Buffer self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Buffer*>(self);
+    auto res = xself->GetGPUAddress();
+    ;
+    return res;
+}
 
 // DX12Texture methods --
 extern "C" void DX12TextureDestroy(DX12Texture self)
@@ -1450,6 +1457,13 @@ extern "C" void VKBufferUnmap(VKBuffer self)
 {
     auto* xself = reinterpret_cast<wis::VKBuffer*>(self);
     xself->Unmap();
+}
+extern "C" uint64_t VKBufferGetGPUAddress(VKBuffer self)
+{
+    auto* xself = reinterpret_cast<wis::VKBuffer*>(self);
+    auto res = xself->GetGPUAddress();
+    ;
+    return res;
 }
 
 // VKTexture methods --

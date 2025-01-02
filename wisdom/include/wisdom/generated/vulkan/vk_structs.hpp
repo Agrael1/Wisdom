@@ -683,6 +683,35 @@ inline constexpr VkIndexType convert_vk(IndexType value) noexcept
         return VK_INDEX_TYPE_UINT32;
     }
 }
+inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
+{
+    VkBufferUsageFlags output = {};
+    if (value & BufferUsage::CopySrc) {
+        output |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+    if (value & BufferUsage::CopyDst) {
+        output |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    }
+    if (value & BufferUsage::ConstantBuffer) {
+        output |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    }
+    if (value & BufferUsage::IndexBuffer) {
+        output |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    }
+    if (value & BufferUsage::VertexBuffer) {
+        output |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    }
+    if (value & BufferUsage::IndirectBuffer) {
+        output |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+    }
+    if (value & BufferUsage::AccelerationStructureBuffer) {
+        output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
+    }
+    if (value & BufferUsage::AccelerationStructureInput) {
+        output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    }
+    return output;
+}
 inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags output = {};
@@ -866,6 +895,37 @@ inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
     VkPipelineCreateFlags output = {};
     if (value & PipelineFlags::DescriptorBuffer) {
         output |= VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
+    }
+    return output;
+}
+inline constexpr VkGeometryFlagsKHR convert_vk(GeometryFlags value) noexcept
+{
+    VkGeometryFlagsKHR output = {};
+    if (value & GeometryFlags::Opaque) {
+        output |= VK_GEOMETRY_OPAQUE_BIT_KHR;
+    }
+    if (value & GeometryFlags::NoDuplicateAnyHitInvocation) {
+        output |= VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR;
+    }
+    return output;
+}
+inline constexpr VkBuildAccelerationStructureFlagsKHR convert_vk(AccelerationStructureFlags value) noexcept
+{
+    VkBuildAccelerationStructureFlagsKHR output = {};
+    if (value & AccelerationStructureFlags::AllowUpdate) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::AllowCompaction) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::PreferFastTrace) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::PreferFastBuild) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::MinimizeMemory) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR;
     }
     return output;
 }

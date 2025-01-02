@@ -9,7 +9,7 @@ class DX12Device;
 template<>
 struct Internal<DX12ResourceAllocator> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
-    ID3D12Device10* device; // ownedby allocator, no need to release
+    ID3D12Device10* device = nullptr; // ownedby allocator, no need to release
 };
 
 /// @brief Resource allocator for DX12
