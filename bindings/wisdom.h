@@ -133,6 +133,17 @@ enum WisQueueType {
 };
 
 /**
+ * @brief Type of the geometry in the Acceleration Structure.
+ *
+ * Translates to VkGeometryTypeKHR for vk implementation.
+ * Translates to D3D12_RAYTRACING_GEOMETRY_TYPE for dx implementation.
+ * */
+enum WisASGeometryType {
+    ASGeometryTypeTriangles = 0, ///< Triangles geometry type. Used for triangle meshes.
+    ASGeometryTypeAABBs = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
+};
+
+/**
  * @brief Oreders the adapters according to preference
  * using builtin heuristics of underlying APIs.
  *
@@ -1227,6 +1238,7 @@ enum WisColorComponentsBits {
  * Determine how the buffer can be used throughout its lifetime.
  *
  * Translates to VkBufferUsageFlags for vk implementation.
+ * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
  * */
 enum WisBufferUsageBits {
     BufferUsageNone = 0x0, ///< No flags set. Buffer is not used.
@@ -1236,8 +1248,9 @@ enum WisBufferUsageBits {
     BufferUsageIndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
     BufferUsageVertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
     BufferUsageIndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
-    BufferUsageAccelerationStructureBuffer = 1 << 6, ///< Buffer is used as an acceleration structure buffer.
-    BufferUsageAccelerationStructureInput = 1 << 7, ///< Buffer is used as a read only acceleration instance input buffer.
+    BufferUsageStorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
+    BufferUsageAccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
+    BufferUsageAccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
 };
 
 /**
@@ -1399,10 +1412,10 @@ enum WisPipelineFlagsBits {
  * Translates to D3D12_RAYTRACING_GEOMETRY_FLAGS for dx implementation.
  * Translates to VkGeometryFlagsKHR for vk implementation.
  * */
-enum WisGeometryFlagsBits {
-    GeometryFlagsNone = 0x0, ///< No flags set. Geometry is regular.
-    GeometryFlagsOpaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
-    GeometryFlagsNoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
+enum WisASGeometryFlagsBits {
+    ASGeometryFlagsNone = 0x0, ///< No flags set. Geometry is regular.
+    ASGeometryFlagsOpaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
+    ASGeometryFlagsNoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
 };
 
 /**
@@ -1418,6 +1431,20 @@ enum WisAccelerationStructureFlagsBits {
     AccelerationStructureFlagsPreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
     AccelerationStructureFlagsPreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
     AccelerationStructureFlagsMinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
+};
+
+/**
+ * @brief Instance flags for additional instance features
+ *
+ * Translates to D3D12_RAYTRACING_INSTANCE_FLAGS for dx implementation.
+ * Translates to VkGeometryInstanceFlagsKHR for vk implementation.
+ * */
+enum WisASInstanceFlagsBits {
+    ASInstanceFlagsNone = 0x0, ///< No flags set. Instance is regular.
+    ASInstanceFlagsTriangleCullDisable = 1 << 0, ///< Triangle cull is disabled.
+    ASInstanceFlagsTriangleFrontCounterClockwise = 1 << 1, ///< Triangle front is counter clockwise.
+    ASInstanceFlagsForceOpaque = 1 << 2, ///< Force opaque.
+    ASInstanceFlagsForceNoOpaque = 1 << 3, ///< Force no opaque.
 };
 
 //-------------------------------------------------------------------------
@@ -1460,12 +1487,14 @@ typedef struct WisDeviceExtQuery WisDeviceExtQuery;
 typedef struct WisDescriptorStorageDesc WisDescriptorStorageDesc;
 typedef struct WisDescriptorSpacing WisDescriptorSpacing;
 typedef struct WisTopLevelASBuildDesc WisTopLevelASBuildDesc;
+typedef struct WisAcceleratedGeometryInput WisAcceleratedGeometryInput;
 typedef struct WisASAllocationInfo WisASAllocationInfo;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
 typedef enum WisDescriptorType WisDescriptorType;
 typedef enum WisQueueType WisQueueType;
+typedef enum WisASGeometryType WisASGeometryType;
 typedef enum WisAdapterPreference WisAdapterPreference;
 typedef enum WisSeverity WisSeverity;
 typedef enum WisInputClass WisInputClass;
@@ -1521,10 +1550,12 @@ typedef enum WisFenceFlagsBits WisFenceFlagsBits;
 typedef uint32_t WisFenceFlags;
 typedef enum WisPipelineFlagsBits WisPipelineFlagsBits;
 typedef uint32_t WisPipelineFlags;
-typedef enum WisGeometryFlagsBits WisGeometryFlagsBits;
-typedef uint32_t WisGeometryFlags;
+typedef enum WisASGeometryFlagsBits WisASGeometryFlagsBits;
+typedef uint32_t WisASGeometryFlags;
 typedef enum WisAccelerationStructureFlagsBits WisAccelerationStructureFlagsBits;
 typedef uint32_t WisAccelerationStructureFlags;
+typedef enum WisASInstanceFlagsBits WisASInstanceFlagsBits;
+typedef uint32_t WisASInstanceFlags;
 
 //-------------------------------------------------------------------------
 
@@ -1967,12 +1998,28 @@ struct WisTopLevelASBuildDesc {
     WisAccelerationStructureFlags flags; ///< Build flags.
     uint32_t instance_count; ///< Instance count.
     uint64_t gpu_address; ///< Address of instances.
-    bool indirect; ///< true Buffer under address contains pointers to the instances, rather than instances themselves.
+    bool indirect; ///< If true Buffer under address contains pointers to the instances, rather than instances themselves.
     /**
-     * @brief true If the acceleration structure is being updated.
+     * @brief true means the acceleration structure is being updated.
      * flags must have contained AccelerationStructureFlagsAllowUpdate to perfom updates.
      * */
     bool update;
+};
+
+/**
+ * @brief Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.
+ * */
+struct WisAcceleratedGeometryInput {
+    WisASGeometryType geometry_type; ///< Type of the geometry (Triangles/AABB).
+    WisASGeometryFlags flags; ///< Geometry flags.
+    uint64_t vertex_or_aabb_buffer_address; ///< Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type.
+    uint64_t vertex_or_aabb_buffer_stride; ///< Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes.
+    uint64_t index_buffer_address; ///< Buffer address of the buffer containing index data. Unused for ASGeometryTypeAABBs.
+    uint64_t transform_matrix_address; ///< GPU Buffer address of the containing transform matrix (float [3][4]). Unused for ASGeometryTypeAABBs.
+    uint32_t vertex_count; ///< Vertex count. Unused for ASGeometryTypeAABBs.
+    uint32_t triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
+    WisDataFormat vertex_format; ///< Format of the vertices. Unused for ASGeometryTypeAABBs.
+    WisIndexType index_format; ///< Format of the indices. Unused for ASGeometryTypeAABBs.
 };
 
 /**
@@ -2011,6 +2058,7 @@ typedef struct VKShaderView VKShaderView;
 typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKBottomLevelASBuildDesc VKBottomLevelASBuildDesc;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
@@ -2047,6 +2095,17 @@ struct VKShaderView {
 
 struct VKRootSignatureView {
     void* value;
+};
+
+/**
+ * @brief Bottom level acceleration structure build description.
+ * */
+struct VKBottomLevelASBuildDesc {
+    WisAccelerationStructureFlags flags; ///< Build flags.
+    uint32_t geometry_count; ///< Geometry count.
+    const VKAcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    const VKAcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
+    bool update; ///< true If the acceleration structure is being updated.
 };
 
 /**
@@ -3059,6 +3118,7 @@ typedef struct DX12ShaderView DX12ShaderView;
 typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12BottomLevelASBuildDesc DX12BottomLevelASBuildDesc;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
@@ -3094,6 +3154,17 @@ struct DX12ShaderView {
 
 struct DX12RootSignatureView {
     void* value;
+};
+
+/**
+ * @brief Bottom level acceleration structure build description.
+ * */
+struct DX12BottomLevelASBuildDesc {
+    WisAccelerationStructureFlags flags; ///< Build flags.
+    uint32_t geometry_count; ///< Geometry count.
+    const DX12AcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    const DX12AcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
+    bool update; ///< true If the acceleration structure is being updated.
 };
 
 /**
@@ -4130,6 +4201,7 @@ typedef DX12RenderTargetView WisRenderTargetView;
 typedef DX12CommandListView WisCommandListView;
 typedef DX12ShaderView WisShaderView;
 typedef DX12RootSignatureView WisRootSignatureView;
+typedef DX12BottomLevelASBuildDesc WisBottomLevelASBuildDesc;
 typedef DX12BufferBarrier2 WisBufferBarrier2;
 typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
@@ -5318,6 +5390,7 @@ typedef VKRenderTargetView WisRenderTargetView;
 typedef VKCommandListView WisCommandListView;
 typedef VKShaderView WisShaderView;
 typedef VKRootSignatureView WisRootSignatureView;
+typedef VKBottomLevelASBuildDesc WisBottomLevelASBuildDesc;
 typedef VKBufferBarrier2 WisBufferBarrier2;
 typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;

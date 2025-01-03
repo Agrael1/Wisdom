@@ -427,6 +427,9 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
             "<wisdom/generated/api/api.hpp>\n#include "
             "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
+        if (i->implemented_for == Language::Hidden) {
+            continue;
+        }
         if (i->this_type.empty()) {
             dxapi += MakeCPPVariant(*i, ImplementedFor::DX12);
         }
@@ -450,6 +453,9 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
             "<wisdom/generated/api/api.hpp>\n#include "
             "<wisdom/util/flags.h>\n\nnamespace wis{\n";
     for (auto i : variants) {
+        if (i->implemented_for == Language::Hidden) {
+            continue;
+        }
         if (i->this_type.empty()) {
             vkapi += MakeCPPVariant(*i, ImplementedFor::Vulkan);
         }
@@ -1291,6 +1297,8 @@ void Generator::ParseVariant(tinyxml2::XMLElement& type, std::string_view extens
             ref.implemented_for = Language::CPP;
         } else if (std::string_view(mod->Value()) == "c-only") {
             ref.implemented_for = Language::C;
+        } else if (std::string_view(mod->Value()) == "hidden") {
+            ref.implemented_for = Language::Hidden;
         }
     }
 
@@ -1475,7 +1483,7 @@ std::pair<std::string, std::string> Generator::MakeCVariant(const WisVariant& s)
 {
     using namespace std::string_literals;
 
-    if (s.implemented_for == Language::CPP) {
+    if (s.implemented_for == Language::CPP || s.implemented_for == Language::Hidden) {
         return {};
     }
 

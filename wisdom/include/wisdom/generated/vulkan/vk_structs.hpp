@@ -5,6 +5,17 @@
 
 namespace wis {
 /**
+ * @brief Bottom level acceleration structure build description.
+ * */
+struct VKBottomLevelASBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< Build flags.
+    uint32_t geometry_count; ///< Geometry count.
+    const wis::VKAcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    const wis::VKAcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
+    bool update; ///< true If the acceleration structure is being updated.
+};
+
+/**
  * @brief Variant of BufferBarrier with BufferView.
  * */
 struct VKBufferBarrier2 {
@@ -683,6 +694,17 @@ inline constexpr VkIndexType convert_vk(IndexType value) noexcept
         return VK_INDEX_TYPE_UINT32;
     }
 }
+inline constexpr VkGeometryTypeKHR convert_vk(ASGeometryType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ASGeometryType::Triangles:
+        return VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+    case ASGeometryType::AABBs:
+        return VK_GEOMETRY_TYPE_AABBS_KHR;
+    }
+}
 inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
 {
     VkBufferUsageFlags output = {};
@@ -704,8 +726,11 @@ inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
     if (value & BufferUsage::IndirectBuffer) {
         output |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
     }
+    if (value & BufferUsage::StorageBuffer) {
+        output |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    }
     if (value & BufferUsage::AccelerationStructureBuffer) {
-        output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
+        output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     }
     if (value & BufferUsage::AccelerationStructureInput) {
         output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
@@ -898,13 +923,13 @@ inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
     }
     return output;
 }
-inline constexpr VkGeometryFlagsKHR convert_vk(GeometryFlags value) noexcept
+inline constexpr VkGeometryFlagsKHR convert_vk(ASGeometryFlags value) noexcept
 {
     VkGeometryFlagsKHR output = {};
-    if (value & GeometryFlags::Opaque) {
+    if (value & ASGeometryFlags::Opaque) {
         output |= VK_GEOMETRY_OPAQUE_BIT_KHR;
     }
-    if (value & GeometryFlags::NoDuplicateAnyHitInvocation) {
+    if (value & ASGeometryFlags::NoDuplicateAnyHitInvocation) {
         output |= VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR;
     }
     return output;
@@ -926,6 +951,23 @@ inline constexpr VkBuildAccelerationStructureFlagsKHR convert_vk(AccelerationStr
     }
     if (value & AccelerationStructureFlags::MinimizeMemory) {
         output |= VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR;
+    }
+    return output;
+}
+inline constexpr VkGeometryInstanceFlagsKHR convert_vk(ASInstanceFlags value) noexcept
+{
+    VkGeometryInstanceFlagsKHR output = {};
+    if (value & ASInstanceFlags::TriangleCullDisable) {
+        output |= VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    }
+    if (value & ASInstanceFlags::TriangleFrontCounterClockwise) {
+        output |= VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR;
+    }
+    if (value & ASInstanceFlags::ForceOpaque) {
+        output |= VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
+    }
+    if (value & ASInstanceFlags::ForceNoOpaque) {
+        output |= VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR;
     }
     return output;
 }

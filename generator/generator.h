@@ -85,7 +85,8 @@ struct WisBitmask {
 enum class Language {
     None,
     C,
-    CPP
+    CPP,
+    Hidden, // Special case, cancels generation
 };
 
 struct WisStructMember {

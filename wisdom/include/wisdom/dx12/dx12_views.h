@@ -31,6 +31,7 @@ using DX12ShaderResourceView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12MemoryView = std::tuple<D3D12MA::Allocator*, D3D12MA::Allocation*>;
 using DX12PipelineView = std::tuple<ID3D12PipelineState*>;
 using DX12DescriptorStorageView = std::tuple<DX12DescriptorStorage*>;
+using DX12AcceleratedGeometryDesc = D3D12_RAYTRACING_GEOMETRY_DESC;
 } // namespace wis
 
 #endif // !WIS_DX12_VIEWS_H

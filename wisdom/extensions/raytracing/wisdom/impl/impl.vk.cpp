@@ -45,6 +45,7 @@ wis::Result wis::ImplVKRaytracing::Init(const wis::VKDevice& instance,
     vkCreateAccelerationStructureKHR = device.GetDeviceProcAddr<PFN_vkCreateAccelerationStructureKHR>("vkCreateAccelerationStructureKHR");
     vkDestroyAccelerationStructureKHR = device.GetDeviceProcAddr<PFN_vkDestroyAccelerationStructureKHR>("vkDestroyAccelerationStructureKHR");
     vkGetAccelerationStructureDeviceAddressKHR = device.GetDeviceProcAddr<PFN_vkGetAccelerationStructureDeviceAddressKHR>("vkGetAccelerationStructureDeviceAddressKHR");
+    vkCmdBuildAccelerationStructuresKHR = device.GetDeviceProcAddr<PFN_vkCmdBuildAccelerationStructuresKHR>("vkCmdBuildAccelerationStructuresKHR");
     return wis::success;
 }
 

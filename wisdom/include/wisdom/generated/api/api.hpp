@@ -52,6 +52,7 @@ struct DeviceExtQuery;
 struct DescriptorStorageDesc;
 struct DescriptorSpacing;
 struct TopLevelASBuildDesc;
+struct AcceleratedGeometryInput;
 struct ASAllocationInfo;
 
 /**
@@ -167,6 +168,17 @@ enum class QueueType : uint32_t {
     Compute = 2, ///< Queue is used for compute operations.
     Copy = 3, ///< Queue is used for copy operations.
     VideoDecode = 4, ///< Queue is used for video decoding operations.
+};
+
+/**
+ * @brief Type of the geometry in the Acceleration Structure.
+ *
+ * Translates to VkGeometryTypeKHR for vk implementation.
+ * Translates to D3D12_RAYTRACING_GEOMETRY_TYPE for dx implementation.
+ * */
+enum class ASGeometryType : uint32_t {
+    Triangles = 0, ///< Triangles geometry type. Used for triangle meshes.
+    AABBs = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
 };
 
 /**
@@ -1262,6 +1274,7 @@ enum class ColorComponents {
  * Determine how the buffer can be used throughout its lifetime.
  *
  * Translates to VkBufferUsageFlags for vk implementation.
+ * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
  * */
 enum class BufferUsage {
     None = 0x0, ///< No flags set. Buffer is not used.
@@ -1271,8 +1284,9 @@ enum class BufferUsage {
     IndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
     VertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
     IndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
-    AccelerationStructureBuffer = 1 << 6, ///< Buffer is used as an acceleration structure buffer.
-    AccelerationStructureInput = 1 << 7, ///< Buffer is used as a read only acceleration instance input buffer.
+    StorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
+    AccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
+    AccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
 };
 
 /**
@@ -1434,7 +1448,7 @@ enum class PipelineFlags {
  * Translates to D3D12_RAYTRACING_GEOMETRY_FLAGS for dx implementation.
  * Translates to VkGeometryFlagsKHR for vk implementation.
  * */
-enum class GeometryFlags {
+enum class ASGeometryFlags {
     None = 0x0, ///< No flags set. Geometry is regular.
     Opaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
     NoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
@@ -1453,6 +1467,20 @@ enum class AccelerationStructureFlags {
     PreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
     PreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
     MinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
+};
+
+/**
+ * @brief Instance flags for additional instance features
+ *
+ * Translates to D3D12_RAYTRACING_INSTANCE_FLAGS for dx implementation.
+ * Translates to VkGeometryInstanceFlagsKHR for vk implementation.
+ * */
+enum class ASInstanceFlags {
+    None = 0x0, ///< No flags set. Instance is regular.
+    TriangleCullDisable = 1 << 0, ///< Triangle cull is disabled.
+    TriangleFrontCounterClockwise = 1 << 1, ///< Triangle front is counter clockwise.
+    ForceOpaque = 1 << 2, ///< Force opaque.
+    ForceNoOpaque = 1 << 3, ///< Force no opaque.
 };
 
 /**
@@ -1894,12 +1922,28 @@ struct TopLevelASBuildDesc {
     wis::AccelerationStructureFlags flags; ///< Build flags.
     uint32_t instance_count; ///< Instance count.
     uint64_t gpu_address; ///< Address of instances.
-    bool indirect; ///< true Buffer under address contains pointers to the instances, rather than instances themselves.
+    bool indirect; ///< If true Buffer under address contains pointers to the instances, rather than instances themselves.
     /**
-     * @brief true If the acceleration structure is being updated.
+     * @brief true means the acceleration structure is being updated.
      * flags must have contained wis::AccelerationStructureFlags::AllowUpdate to perfom updates.
      * */
     bool update;
+};
+
+/**
+ * @brief Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.
+ * */
+struct AcceleratedGeometryInput {
+    wis::ASGeometryType geometry_type; ///< Type of the geometry (Triangles/AABB).
+    wis::ASGeometryFlags flags; ///< Geometry flags.
+    uint64_t vertex_or_aabb_buffer_address; ///< Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type.
+    uint64_t vertex_or_aabb_buffer_stride; ///< Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes.
+    uint64_t index_buffer_address; ///< Buffer address of the buffer containing index data. Unused for wis::ASGeometryType::AABBs.
+    uint64_t transform_matrix_address; ///< GPU Buffer address of the containing transform matrix (float [3][4]). Unused for wis::ASGeometryType::AABBs.
+    uint32_t vertex_count; ///< Vertex count. Unused for wis::ASGeometryType::AABBs.
+    uint32_t triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
+    wis::DataFormat vertex_format; ///< Format of the vertices. Unused for wis::ASGeometryType::AABBs.
+    wis::IndexType index_format; ///< Format of the indices. Unused for wis::ASGeometryType::AABBs.
 };
 
 /**
@@ -1959,10 +2003,13 @@ template<>
 struct is_flag_enum<wis::PipelineFlags> : public std::true_type {
 };
 template<>
-struct is_flag_enum<wis::GeometryFlags> : public std::true_type {
+struct is_flag_enum<wis::ASGeometryFlags> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::AccelerationStructureFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ASInstanceFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 

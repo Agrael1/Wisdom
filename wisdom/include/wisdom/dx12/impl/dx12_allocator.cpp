@@ -19,8 +19,8 @@ wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size,
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
     };
-
-    return DX12CreateResource(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON);
+    D3D12_RESOURCE_STATES state = usage & wis::BufferUsage::AccelerationStructureBuffer ? D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE : D3D12_RESOURCE_STATE_COMMON;
+    return DX12CreateResource(result, all_desc, buffer_desc, state);
 }
 wis::DX12Texture
 wis::ImplDX12ResourceAllocator::CreateTexture(wis::Result& result, const wis::TextureDesc& desc, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
@@ -209,9 +209,9 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3
 
 void wis::ImplDX12ResourceAllocator::DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept
 {
-    uint64_t alignment = flags & BufferUsage::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
+    uint64_t alignment = flags & wis::BufferUsage::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
     size = wis::detail::aligned_size(size, alignment);
-    info = CD3DX12_RESOURCE_DESC1::Buffer(size);
+    info = CD3DX12_RESOURCE_DESC1::Buffer(size, convert_dx(flags));
 }
 void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc, D3D12_RESOURCE_DESC1& info) noexcept
 {

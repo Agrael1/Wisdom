@@ -57,6 +57,8 @@
     <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
     <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
     <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
+    <type name="AcceleratedGeometryDesc" category="variant" for="ShaderResource" mod="cpp-only"/>
+    <!--TODO: make C equivalent-->
 
 
     <!--Structs-->
@@ -381,9 +383,32 @@ Used for RootSignature.">
       <member type="AccelerationStructureFlags" name="flags" doc="Build flags."/>
       <member type="u32" name="instance_count" doc="Instance count."/>
       <member type="u64" name="gpu_address" doc="Address of instances."/>
-      <member type="bool" name="indirect" doc="true Buffer under address contains pointers to the instances, rather than instances themselves."/>
-      <member type="bool" name="update" doc="true If the acceleration structure is being updated. 
+      <member type="bool" name="indirect" doc="If true Buffer under address contains pointers to the instances, rather than instances themselves."/>
+      <member type="bool" name="update" doc="true means the acceleration structure is being updated. 
 flags must have contained {AccelerationStructureFlags::AllowUpdate} to perfom updates."/>
+    </type>
+
+    <type name="AcceleratedGeometryInput" category="struct" doc="Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.">
+      <member type="ASGeometryType" name="geometry_type" doc="Type of the geometry (Triangles/AABB)."/>
+      <member type="ASGeometryFlags" name="flags" doc="Geometry flags."/>
+      <member type="u64" name="vertex_or_aabb_buffer_address" doc="Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type."/>
+      <member type="u64" name="vertex_or_aabb_buffer_stride" doc="Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes."/>
+      <member type="u64" name="index_buffer_address" doc="Buffer address of the buffer containing index data. Unused for {ASGeometryType::AABBs}."/>
+      <member type="u64" name="transform_matrix_address" doc="GPU Buffer address of the containing transform matrix (float [3][4]). Unused for {ASGeometryType::AABBs}."/>
+      <member type="u32" name="vertex_count" doc="Vertex count. Unused for {ASGeometryType::AABBs}."/>
+      <member type="u32" name="triangle_or_aabb_count" doc="For triangles it is equal to (index_count/3) and count for AABBs."/>
+      <member type="DataFormat" name="vertex_format" doc="Format of the vertices. Unused for {ASGeometryType::AABBs}."/>
+      <member type="IndexType" name="index_format" doc="Format of the indices. Unused for {ASGeometryType::AABBs}."/>
+    </type>
+
+    <type name="BottomLevelASBuildDesc" category="variant" doc="Bottom level acceleration structure build description.">
+      <impl name="both">
+        <member type="AccelerationStructureFlags" name="flags" doc="Build flags."/>
+        <member type="u32" name="geometry_count" doc="Geometry count."/>
+        <member type="AcceleratedGeometryDesc" name="geometry_array" mod="const ptr" doc="Buffer of geometries."/>
+        <member type="AcceleratedGeometryDesc" name="geometry_indirect" mod="const pp" doc="Buffer of pointers to geometry. geometry_array must be NULL for this to be used."/>
+        <member type="bool" name="update" doc="true If the acceleration structure is being updated."/>
+      </impl>
     </type>
 
     <type name="ASAllocationInfo" category="struct" doc="Acceleration structure allocation info. Used to query sizes for AS build/update buffers.">

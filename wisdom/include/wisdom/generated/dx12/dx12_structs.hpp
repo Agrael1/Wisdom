@@ -6,6 +6,17 @@
 
 namespace wis {
 /**
+ * @brief Bottom level acceleration structure build description.
+ * */
+struct DX12BottomLevelASBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< Build flags.
+    uint32_t geometry_count; ///< Geometry count.
+    const wis::DX12AcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    const wis::DX12AcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
+    bool update; ///< true If the acceleration structure is being updated.
+};
+
+/**
  * @brief Variant of BufferBarrier with BufferView.
  * */
 struct DX12BufferBarrier2 {
@@ -364,6 +375,28 @@ inline constexpr DXGI_FORMAT convert_dx(IndexType value) noexcept
         return DXGI_FORMAT_R32_UINT;
     }
 }
+inline constexpr D3D12_RAYTRACING_GEOMETRY_TYPE convert_dx(ASGeometryType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ASGeometryType::Triangles:
+        return D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+    case ASGeometryType::AABBs:
+        return D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+    }
+}
+inline constexpr D3D12_RESOURCE_FLAGS convert_dx(BufferUsage value) noexcept
+{
+    D3D12_RESOURCE_FLAGS output = {};
+    if (value & BufferUsage::StorageBuffer) {
+        output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    }
+    if (value & BufferUsage::AccelerationStructureBuffer) {
+        output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
+    }
+    return output;
+}
 inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS output = {};
@@ -555,13 +588,13 @@ inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noex
     D3D12_PIPELINE_STATE_FLAGS output = {};
     return output;
 }
-inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS convert_dx(GeometryFlags value) noexcept
+inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS convert_dx(ASGeometryFlags value) noexcept
 {
     D3D12_RAYTRACING_GEOMETRY_FLAGS output = {};
-    if (value & GeometryFlags::Opaque) {
+    if (value & ASGeometryFlags::Opaque) {
         output |= D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
     }
-    if (value & GeometryFlags::NoDuplicateAnyHitInvocation) {
+    if (value & ASGeometryFlags::NoDuplicateAnyHitInvocation) {
         output |= D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION;
     }
     return output;
@@ -583,6 +616,23 @@ inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS convert_dx(
     }
     if (value & AccelerationStructureFlags::MinimizeMemory) {
         output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY;
+    }
+    return output;
+}
+inline constexpr D3D12_RAYTRACING_INSTANCE_FLAGS convert_dx(ASInstanceFlags value) noexcept
+{
+    D3D12_RAYTRACING_INSTANCE_FLAGS output = {};
+    if (value & ASInstanceFlags::TriangleCullDisable) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE;
+    }
+    if (value & ASInstanceFlags::TriangleFrontCounterClockwise) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE;
+    }
+    if (value & ASInstanceFlags::ForceOpaque) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_OPAQUE;
+    }
+    if (value & ASInstanceFlags::ForceNoOpaque) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_NON_OPAQUE;
     }
     return output;
 }

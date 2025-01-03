@@ -29,9 +29,15 @@ class App
     wis::Texture uav_texture;
     wis::Shader raygen_shader;
 
+    wis::Buffer vertex_buffer;
+    wis::Buffer index_buffer;
+
     wis::Buffer rtas_buffer;
+    wis::Buffer rtas_scratch_buffer;
+    wis::Buffer rtas_update_buffer;
     wis::Buffer rtas_instance_buffer;
     wis::AccelerationStructure top_rtas;
+    wis::AccelerationStructure bottom_rtas;
 
 public:
     App()
@@ -52,6 +58,7 @@ public:
         raygen_shader = setup.device.CreateShader(result, buf.data(), uint32_t(buf.size()));
 
         // Create ...
+        CreatePrimitives();
         CreateAccelerationStructures();
         MakeTransitions();
     }
@@ -133,6 +140,29 @@ private:
         };
         uav_texture = setup.allocator.CreateTexture(result, desc);
     }
+    void CreatePrimitives()
+    {
+        // clang-format off
+        constexpr static float vertices[] = {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+        };
+        // clang-format on
+        constexpr static uint16_t indices[] = { 0, 1, 2 };
+
+        wis::Result result = wis::success;
+        vertex_buffer = setup.allocator.CreateBuffer(result, sizeof(vertices), wis::BufferUsage::AccelerationStructureInput, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
+        index_buffer = setup.allocator.CreateBuffer(result, sizeof(indices), wis::BufferUsage::AccelerationStructureInput, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
+
+        auto memory = vertex_buffer.Map<float>();
+        std::copy_n(vertices, std::size(vertices), memory);
+        vertex_buffer.Unmap();
+
+        auto memory2 = index_buffer.Map<uint16_t>();
+        std::copy_n(indices, std::size(indices), memory);
+        index_buffer.Unmap();
+    }
 
     void MakeTransitions()
     {
@@ -155,9 +185,9 @@ private:
     {
         wis::Result result = wis::success;
 
-        rtas_instance_buffer = setup.allocator.CreateBuffer(result, sizeof(wis::AccelerationInstance), wis::BufferUsage::AccelerationStructureInput, wis::MemoryType::Upload);
-        
-        // Create top level acceleration structure
+        rtas_instance_buffer = setup.allocator.CreateBuffer(result, sizeof(wis::AccelerationInstance), wis::BufferUsage::AccelerationStructureInput, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
+
+        // get tlas size
         wis::TopLevelASBuildDesc build_desc{
             .flags = wis::AccelerationStructureFlags::AllowUpdate,
             .instance_count = 1,
@@ -167,9 +197,59 @@ private:
         };
         auto as_size = raytracing_extension.GetTopLevelASSize(build_desc);
 
-        rtas_buffer = setup.allocator.CreateBuffer(result, as_size.result_size, wis::BufferUsage::AccelerationStructureBuffer);
+        // get blas size
+        wis::AcceleratedGeometryInput geometry_input{
+            .geometry_type = wis::ASGeometryType::Triangles,
+            .flags = wis::ASGeometryFlags::Opaque,
+            .vertex_or_aabb_buffer_address = vertex_buffer.GetGPUAddress(),
+            .vertex_or_aabb_buffer_stride = sizeof(float[3]),
+            .index_buffer_address = index_buffer.GetGPUAddress(),
+            .transform_matrix_address = 0,
+            .vertex_count = 3,
+            .triangle_or_aabb_count = 1,
+            .vertex_format = wis::DataFormat::RGB32Float,
+            .index_format = wis::IndexType::UInt16,
+        };
+        wis::AcceleratedGeometryDesc geometry_desc = wis::CreateGeometryDesc(geometry_input);
+        wis::BottomLevelASBuildDesc blas_desc{
+            .flags = wis::AccelerationStructureFlags::None,
+            .geometry_count = 1,
+            .geometry_array = &geometry_desc,
+            .update = false,
+        };
+        auto blas_size = raytracing_extension.GetBottomLevelASSize(blas_desc);
+
+        rtas_buffer = setup.allocator.CreateBuffer(result, as_size.result_size + blas_size.result_size, wis::BufferUsage::AccelerationStructureBuffer);
+        rtas_scratch_buffer = setup.allocator.CreateBuffer(result, as_size.scratch_size + blas_size.scratch_size, wis::BufferUsage::StorageBuffer);
+        rtas_update_buffer = setup.allocator.CreateBuffer(result, as_size.update_size, wis::BufferUsage::StorageBuffer);
 
         top_rtas = raytracing_extension.CreateAccelerationStructure(result, rtas_buffer, 0, as_size.result_size, wis::ASLevel::Top);
+        bottom_rtas = raytracing_extension.CreateAccelerationStructure(result, rtas_buffer, as_size.result_size, blas_size.result_size, wis::ASLevel::Bottom);
+
+        // Fill instance buffer
+        rtas_instance_buffer.Map<wis::AccelerationInstance>()[0] = {
+            .transform = {
+                    { 1.0f, 0.0f, 0.0f, 0.0f },
+                    { 0.0f, 1.0f, 0.0f, 0.0f },
+                    { 0.0f, 0.0f, 1.0f, 0.0f },
+            },
+            .instance_id = 0,
+            .mask = 0xFF,
+            .instance_offset = 0,
+            .flags = +wis::ASInstanceFlags::TriangleCullDisable,
+            .acceleration_structure_handle = raytracing_extension.GetAccelerationStructureDeviceAddress(bottom_rtas),
+        };
+        rtas_instance_buffer.Unmap();
+
+        // Build acceleration structures
+        auto& cmd = cmd_list[0];
+        raytracing_extension.BuildTopLevelAS(cmd, build_desc, top_rtas, rtas_scratch_buffer.GetGPUAddress());
+        raytracing_extension.BuildBottomLevelAS(cmd, blas_desc, bottom_rtas, rtas_scratch_buffer.GetGPUAddress() + as_size.scratch_size);
+        cmd.Close();
+
+        wis::CommandListView lists[] = { cmd };
+        setup.queue.ExecuteCommandLists(lists, std::size(lists));
+        setup.WaitForGPU();
     }
 };
 
