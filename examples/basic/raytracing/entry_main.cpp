@@ -22,6 +22,7 @@ class App
     ex::ExampleSetup setup;
     ex::Swapchain swap;
     ex::FramedCommandList cmd_list;
+    ex::FramedCommandList copy_cmd_list;
 
     // Resources
     wis::Raytracing raytracing_extension;
@@ -38,6 +39,9 @@ class App
     wis::Buffer rtas_instance_buffer;
     wis::AccelerationStructure top_rtas;
     wis::AccelerationStructure bottom_rtas;
+
+    wis::RootSignature rt_root_signature;
+    wis::DescriptorStorage rt_descriptor_storage;
 
 public:
     App()
@@ -60,6 +64,7 @@ public:
         // Create ...
         CreatePrimitives();
         CreateAccelerationStructures();
+        CreatePipeline();
         MakeTransitions();
     }
 
@@ -166,7 +171,8 @@ private:
 
     void MakeTransitions()
     {
-        auto& cmd = cmd_list[swap.CurrentFrame()];
+        auto& cmd = cmd_list[0];
+        std::ignore = cmd.Reset();
         // Transition UAV texture to UAV state
         cmd.TextureBarrier({ .sync_before = wis::BarrierSync::None,
                              .sync_after = wis::BarrierSync::None,
@@ -243,6 +249,7 @@ private:
 
         // Build acceleration structures
         auto& cmd = cmd_list[0];
+        std::ignore = cmd.Reset();
         raytracing_extension.BuildTopLevelAS(cmd, build_desc, top_rtas, rtas_scratch_buffer.GetGPUAddress());
         raytracing_extension.BuildBottomLevelAS(cmd, blas_desc, bottom_rtas, rtas_scratch_buffer.GetGPUAddress() + as_size.scratch_size);
         cmd.Close();
@@ -250,6 +257,23 @@ private:
         wis::CommandListView lists[] = { cmd };
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         setup.WaitForGPU();
+    }
+
+    void CreatePipeline()
+    {
+        wis::Result result = wis::success;
+        wis::DescriptorBindingDesc bindings[] = {
+            { .binding_type = wis::DescriptorType::RWTexture, .binding_space = 0, .binding_count = ex::flight_frames },
+            { .binding_type = wis::DescriptorType::AccelerationStructure, .binding_space = 1, .binding_count = 1 },
+        };
+        rt_descriptor_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
+        rt_root_signature = setup.device.CreateRootSignature(result, nullptr, 0, nullptr, 0, bindings, std::size(bindings));
+    }
+
+private:
+    void CopyTextureToSwapchain()
+    {
+
     }
 };
 

@@ -49,11 +49,10 @@ struct ComponentMapping;
 struct ShaderResourceDesc;
 struct FactoryExtQuery;
 struct DeviceExtQuery;
-struct DescriptorStorageDesc;
-struct DescriptorSpacing;
 struct TopLevelASBuildDesc;
 struct AcceleratedGeometryInput;
 struct ASAllocationInfo;
+struct DescriptorBindingDesc;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -157,6 +156,7 @@ enum class DescriptorType : uint32_t {
      * May be bigger than constant buffers, but slower.
      * */
     Buffer = 5,
+    AccelerationStructure = 6, ///< Descriptor is an acceleration structure.
 };
 
 /**
@@ -1033,7 +1033,8 @@ enum class BindingIndex : uint32_t {
      * Can't be merged with Texture because of Vulkan.
      * */
     Buffer = 6,
-    Count = 6, ///< Number of binding indices. Used for array sizes.
+    AccelerationStructure = 7, ///< Binding index for acceleration structure descriptors. Results in [[vk::binding(0,7)]] and register(t0, space7).
+    Count = 7, ///< Number of binding indices. Used for array sizes.
 };
 
 /**
@@ -1889,33 +1890,6 @@ struct DeviceExtQuery {
 };
 
 /**
- * @brief Descriptor storage description for wis::DescriptorStorage creation.
- * */
-struct DescriptorStorageDesc {
-    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
-    wis::DescriptorMemory memory; ///< Descriptor memory to use.
-};
-
-/**
- * @brief Describes how many types can descriptors be reinterpreted as.
- * Minimal amount of spaces for each type is 1, 0 is treated as 1.
- * Used for RootSignature.
- * */
-struct DescriptorSpacing {
-    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
-};
-
-/**
  * @brief Top level acceleration structure build description.
  * */
 struct TopLevelASBuildDesc {
@@ -1953,6 +1927,27 @@ struct ASAllocationInfo {
     uint64_t scratch_size; ///< Size of the scratch buffer.
     uint64_t result_size; ///< Size of the result buffer.
     uint64_t update_size; ///< Size of the update buffer.
+};
+
+/**
+ * @brief Descriptor binding description for RootSignature and Descriptor Storage creation.
+ * Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
+ * All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.
+ * */
+struct DescriptorBindingDesc {
+    wis::DescriptorType binding_type; ///< Binding type. Must be unique in array.
+    uint32_t binding_space; ///< Binding space number in HLSL.
+    /**
+     * @brief Number of consecutive spaces this binding occupies.
+     * e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
+     * This is useful for binding multiple resource types to the same register array in HLSL.
+     * */
+    uint32_t space_overlap_count;
+    /**
+     * @brief How many bindings should be allocated.
+     * Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers.
+     * */
+    uint32_t binding_count;
 };
 
 //=================================DELEGATES=================================

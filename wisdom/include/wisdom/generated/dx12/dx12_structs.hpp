@@ -139,6 +139,8 @@ inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) no
         return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     case DescriptorType::Buffer:
         return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case DescriptorType::AccelerationStructure:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     }
 }
 inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept

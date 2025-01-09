@@ -153,6 +153,8 @@ inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
         return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     case DescriptorType::Buffer:
         return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    case DescriptorType::AccelerationStructure:
+        return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 }
 inline constexpr VkFormat convert_vk(DataFormat value) noexcept

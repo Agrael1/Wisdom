@@ -26,121 +26,6 @@ struct Internal<VKDevice> {
     wis::shared_handle<VmaAllocator> allocator;
     detail::QueueResidency queues;
 
-    struct DefaultLayout {
-        constexpr static std::array<VkDescriptorType, Internal<VKDescriptorStorage>::max_sets> desc_types{
-            VK_DESCRIPTOR_TYPE_SAMPLER,
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-            VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-            VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-        };
-
-        std::array<VkDescriptorSetLayout, Internal<VKDescriptorStorage>::max_sets> desc_sets{};
-
-    public:
-        bool operator==(const DefaultLayout& o) const noexcept
-        {
-            return std::memcmp(desc_sets.data(), o.desc_sets.data(), sizeof(desc_sets)) == 0;
-        }
-        bool Valid() const noexcept
-        {
-            return *this != DefaultLayout{};
-        }
-        void Destroy(PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout, VkDevice device) noexcept
-        {
-            if (Valid()) {
-                for (auto& set : desc_sets) {
-                    vkDestroyDescriptorSetLayout(device, set, nullptr);
-                }
-            }
-        }
-        wis::Result Init(PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout, VkDevice device)
-        {
-            constexpr static size_t num_sets = Internal<VKDescriptorStorage>::max_sets;
-            constexpr static VkDescriptorSetLayoutBinding bindings[num_sets]{
-                { .binding = 0,
-                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
-                  .descriptorCount = 2048,
-                  .stageFlags = VK_SHADER_STAGE_ALL },
-                { .binding = 0,
-                  .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                  .descriptorCount = 4096,
-                  .stageFlags = VK_SHADER_STAGE_ALL },
-                { .binding = 0,
-                  .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                  .descriptorCount = 4096,
-                  .stageFlags = VK_SHADER_STAGE_ALL },
-                { .binding = 0,
-                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-                  .descriptorCount = 4096,
-                  .stageFlags = VK_SHADER_STAGE_ALL },
-                { .binding = 0,
-                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                  .descriptorCount = 4096,
-                  .stageFlags = VK_SHADER_STAGE_ALL },
-                { .binding = 0,
-                  .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                  .descriptorCount = 4096,
-                  .stageFlags = VK_SHADER_STAGE_ALL },
-            };
-
-            constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
-            constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
-                .pNext = nullptr,
-                .bindingCount = 1,
-                .pBindingFlags = &flags,
-            };
-
-            std::array<VkDescriptorSetLayoutCreateInfo, num_sets> desc_info{};
-            for (size_t i = 0; i < num_sets; i++) {
-                desc_info[i] = {
-                    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-                    .pNext = &binding_flags_info,
-                    .flags = 0,
-                    .bindingCount = 1,
-                    .pBindings = &bindings[i],
-                };
-            }
-            for (size_t i = 0; i < num_sets; i++) {
-                auto res = vkCreateDescriptorSetLayout(device, &desc_info[i], nullptr, &desc_sets[i]);
-                if (!succeeded(res)) {
-                    return wis::make_result<FUNC, "Failed to create a descriptor set layout">(res);
-                }
-            }
-            return wis::success;
-        }
-    } default_layout;
-
-public:
-    Internal() noexcept = default;
-    Internal(Internal&&) noexcept = default;
-    Internal& operator=(Internal&& o) noexcept
-    {
-        if (this == &o) {
-            return *this;
-        }
-        if (device.get()) {
-            default_layout.Destroy(device.table().vkDestroyDescriptorSetLayout, device.get());
-        }
-
-        adapter = std::move(o.adapter);
-        device = std::move(o.device);
-        ext1 = std::move(o.ext1);
-        allocator = std::move(o.allocator);
-        queues = std::move(o.queues);
-        std::memcpy(&default_layout, &o.default_layout, sizeof(default_layout));
-        std::memset(&o.default_layout, 0, sizeof(default_layout));
-        return *this;
-    }
-    ~Internal() noexcept
-    {
-        if (device.get() && default_layout.Valid()) {
-            default_layout.Destroy(device.table().vkDestroyDescriptorSetLayout, device.get());
-        }
-    }
-
 public:
     auto& GetInstanceTable() const noexcept
     {
@@ -160,11 +45,6 @@ public:
     [[nodiscard]] PFN GetDeviceProcAddr(const char* name) const noexcept
     {
         return device.GetDeviceProcAddr<PFN>(name);
-    }
-
-    wis::Result InitDefaultLayout() noexcept
-    {
-        return default_layout.Init(device.table().vkCreateDescriptorSetLayout, device.get());
     }
 };
 
@@ -229,21 +109,18 @@ public:
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKDescriptorStorage
-    CreateDescriptorStorage(wis::Result& result, const wis::DescriptorStorageDesc& desc) const noexcept;
+    CreateDescriptorStorage(wis::Result& result,
+                            const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
+                            uint32_t descriptor_bindings_count = 0,
+                            wis::DescriptorMemory = wis::DescriptorMemory::ShaderVisible) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKRootSignature
-    CreateRootSignature(wis::Result& result, const PushConstant* constants = nullptr,
-                        uint32_t constants_size = 0,
-                        const PushDescriptor* push_descriptors = nullptr,
-                        uint32_t push_descriptors_size = 0,
-                        [[maybe_unused]] uint32_t space_overlap_count = 1) const noexcept;
-
-    [[nodiscard]] WIS_INLINE wis::VKRootSignature
-    CreateRootSignature2(wis::Result& result, const wis::PushConstant* push_constants = nullptr,
-                         uint32_t constants_count = 0,
-                         const wis::PushDescriptor* push_descriptors = nullptr,
-                         uint32_t push_descriptors_count = 0,
-                         const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept;
+    CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants = nullptr,
+                        uint32_t constants_count = 0,
+                        const wis::PushDescriptor* push_descriptors = nullptr,
+                        uint32_t push_descriptors_count = 0,
+                        const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
+                        uint32_t descriptor_bindings_count = 0) const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
@@ -359,73 +236,51 @@ public:
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
+     * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+     * Push constants and push descriptors are used for fast changing data.
+     * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+     * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+     * even though it is supposed to be binding 0. This is done for consistency.
+     * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+     * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+     * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
      * @param push_constants The root constants to create the root signature with.
-     * @param constants_count The number of push constants. Max is 5.
+     * @param push_constant_count The number of push constants. Max is 5.
      * @param push_descriptors The root descriptors to create the root signature with.
      * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
-     * @param descriptors_count The number of push descriptors. Max is 8.
-     * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
-     * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
-     * Example: If wis::VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
-     *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
-     *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
-     *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
+     * @param push_descriptor_count The number of push descriptors. Max is 8.
+     * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+     * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+     * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::VKRootSignature CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
+    [[nodiscard]] inline wis::VKRootSignature CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants = nullptr, uint32_t push_constant_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptor_count = 0, const wis::DescriptorBindingDesc* bindings = nullptr, uint32_t binding_count = 0) const noexcept
     {
-        return wis::ImplVKDevice::CreateRootSignature(result, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count);
+        return wis::ImplVKDevice::CreateRootSignature(result, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count);
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
+     * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+     * Push constants and push descriptors are used for fast changing data.
+     * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+     * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+     * even though it is supposed to be binding 0. This is done for consistency.
+     * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+     * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+     * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
      * @param push_constants The root constants to create the root signature with.
-     * @param constants_count The number of push constants. Max is 5.
+     * @param push_constant_count The number of push constants. Max is 5.
      * @param push_descriptors The root descriptors to create the root signature with.
      * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
-     * @param descriptors_count The number of push descriptors. Max is 8.
-     * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
-     * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
-     * Example: If wis::VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
-     *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
-     *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
-     *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
+     * @param push_descriptor_count The number of push descriptors. Max is 8.
+     * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+     * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+     * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
      * @return wis::VKRootSignature on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t descriptors_count = 0, uint32_t space_overlap_count = 1) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t push_constant_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptor_count = 0, const wis::DescriptorBindingDesc* bindings = nullptr, uint32_t binding_count = 0) const noexcept
     {
-        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDevice::CreateRootSignature, this, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count };
-    }
-    /**
-     * @brief Creates a root signature object for use with DescriptorStorage.
-     * Supplies number of types for each descriptor type separately.
-     * @param push_constants The root constants to create the root signature with.
-     * @param constants_count The number of push constants. Max is 5.
-     * @param push_descriptors The root descriptors to create the root signature with.
-     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
-     * @param push_descriptors_count The number of push descriptors. Max is 8.
-     * @param descriptor_spacing Descriptor spacing allocation.
-     * nullptr means allocate 1 space for each.
-     * @return wis::VKRootSignature on success (wis::Status::Ok).
-     * */
-    [[nodiscard]] inline wis::VKRootSignature CreateRootSignature2(wis::Result& result, const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
-    {
-        return wis::ImplVKDevice::CreateRootSignature2(result, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing);
-    }
-    /**
-     * @brief Creates a root signature object for use with DescriptorStorage.
-     * Supplies number of types for each descriptor type separately.
-     * @param push_constants The root constants to create the root signature with.
-     * @param constants_count The number of push constants. Max is 5.
-     * @param push_descriptors The root descriptors to create the root signature with.
-     * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
-     * @param push_descriptors_count The number of push descriptors. Max is 8.
-     * @param descriptor_spacing Descriptor spacing allocation.
-     * nullptr means allocate 1 space for each.
-     * @return wis::VKRootSignature on success (wis::Status::Ok).
-     * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature2(const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorSpacing* descriptor_spacing = nullptr) const noexcept
-    {
-        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDevice::CreateRootSignature2, this, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing };
+        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDevice::CreateRootSignature, this, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count };
     }
     /**
      * @brief Creates a shader object.
@@ -553,22 +408,26 @@ public:
     /**
      * @brief Creates a descriptor storage object with specified number of bindings to allocate.
      * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
-     * @param desc The description of the descriptor storage to create.
+     * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+     * @param bindings_count The number of bindings to allocate.
+     * @param memory The memory to allocate the descriptors in.
      * @return wis::VKDescriptorStorage on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::VKDescriptorStorage CreateDescriptorStorage(wis::Result& result, const wis::DescriptorStorageDesc& desc) const noexcept
+    [[nodiscard]] inline wis::VKDescriptorStorage CreateDescriptorStorage(wis::Result& result, const wis::DescriptorBindingDesc* bindings, uint32_t bindings_count, wis::DescriptorMemory memory = wis::DescriptorMemory::ShaderVisible) const noexcept
     {
-        return wis::ImplVKDevice::CreateDescriptorStorage(result, desc);
+        return wis::ImplVKDevice::CreateDescriptorStorage(result, bindings, bindings_count, memory);
     }
     /**
      * @brief Creates a descriptor storage object with specified number of bindings to allocate.
      * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
-     * @param desc The description of the descriptor storage to create.
+     * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+     * @param bindings_count The number of bindings to allocate.
+     * @param memory The memory to allocate the descriptors in.
      * @return wis::VKDescriptorStorage on success (wis::Status::Ok).
      * */
-    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorStorage> CreateDescriptorStorage(const wis::DescriptorStorageDesc& desc) const noexcept
+    [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorStorage> CreateDescriptorStorage(const wis::DescriptorBindingDesc* bindings, uint32_t bindings_count, wis::DescriptorMemory memory = wis::DescriptorMemory::ShaderVisible) const noexcept
     {
-        return wis::ResultValue<wis::VKDescriptorStorage>{ &wis::ImplVKDevice::CreateDescriptorStorage, this, desc };
+        return wis::ResultValue<wis::VKDescriptorStorage>{ &wis::ImplVKDevice::CreateDescriptorStorage, this, bindings, bindings_count, memory };
     }
     /**
      * @brief Queries if the device supports the feature.

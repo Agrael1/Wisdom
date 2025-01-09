@@ -58,6 +58,9 @@ struct XInternalFeatures {
     bool dynamic_vsync : 1 = false; // Shall remain false until the perf is not fixed
     bool dynamic_render_unused_attachments : 1 = false;
     bool multiview : 1 = false;
+
+    // Dynamically enabled features from the extensions
+    bool raytracing : 1 = false;
 };
 
 struct XBaseProperties {
@@ -170,6 +173,8 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
 
         auto& vk_11_features = *reinterpret_cast<VkPhysicalDeviceVulkan11Features*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES));
         features.multiview = vk_11_features.multiview;
+
+        features.raytracing = structure_map.contains(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR);
         return {};
     }
 

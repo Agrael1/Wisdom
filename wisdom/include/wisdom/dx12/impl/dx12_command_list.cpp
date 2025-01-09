@@ -391,44 +391,14 @@ void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageVi
 {
     auto& storage = std::get<0>(desc_storage)->GetInternal();
 
-    std::array<ID3D12DescriptorHeap*, 2> heaps{};
-    uint32_t increment = 0;
-    if (storage.heap_sampler) {
-        heaps[increment++] = storage.heap_sampler.get();
-    }
-    if (storage.heap_resource) {
-        heaps[increment++] = storage.heap_resource.get();
-    }
+    uint32_t table_count = bool(storage.heaps[0]) + bool(storage.heaps[1]);
+    uint32_t table_offset = !bool(storage.heaps[0]);
+    list->SetDescriptorHeaps(table_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(storage.heaps + table_offset));
 
-    list->SetDescriptorHeaps(increment, heaps.data());
-
-    if (storage.heap_sampler) {
-        list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count, storage.heap_gpu_starts[1]); // 0 is reserved for push constants and push descriptors
-    }
-    if (storage.heap_resource) {
-        CD3DX12_GPU_DESCRIPTOR_HANDLE handles[+wis::BindingIndex::Count - 1]{
-            // 0 is reserved for sampler heap
-            storage.heap_gpu_starts[0],
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[2].ptr - storage.heap_starts[1].ptr)),
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[3].ptr - storage.heap_starts[1].ptr)),
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[4].ptr - storage.heap_starts[1].ptr)),
-            CD3DX12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[0], uint32_t(storage.heap_starts[5].ptr - storage.heap_starts[1].ptr)),
-        };
-        if (storage.heap_starts[uint32_t(wis::BindingIndex::ConstantBuffer) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::ConstantBuffer) - 1, handles[0]);
-        }
-        if (storage.heap_starts[uint32_t(wis::BindingIndex::Texture) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::Texture) - 1, handles[1]);
-        }
-        if (storage.heap_starts[uint32_t(wis::BindingIndex::RWTexture) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::RWTexture) - 1, handles[2]);
-        }
-        if (storage.heap_starts[uint32_t(wis::BindingIndex::RWBuffer) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::RWBuffer) - 1, handles[3]);
-        }
-        if (storage.heap_starts[uint32_t(wis::BindingIndex::Buffer) - 1].ptr != 0) {
-            list->SetGraphicsRootDescriptorTable(push_constant_count + push_descriptor_count + uint32_t(wis::BindingIndex::Buffer) - 1, handles[4]);
-        }
+    for (size_t i = 0; i < storage.heap_count; i++) {
+        auto& offset = storage.heap_offsets[i];
+        auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
+        list->SetGraphicsRootDescriptorTable(i + push_constant_count + push_descriptor_count, handle);
     }
 }
 

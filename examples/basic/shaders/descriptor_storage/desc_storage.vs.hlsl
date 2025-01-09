@@ -15,13 +15,8 @@ struct OffsetY {
     float offset;
 };
 
-// binding 0, space 1 is used for samplers
-// binding 0, space 2 is used for constant buffers
-[[vk::binding(0, 2)]] ConstantBuffer<OffsetX> offsetsx[] : register(b0, space3);
-[[vk::binding(0, 2)]] ConstantBuffer<OffsetY> offsetsy[] : register(b0, space4); //overlap with space3
-// Note: different register, for DX this has to be different register
-// for Vulkan it can be the same register without offset.
-// That means we have to subtract the descriptor offset in the shader for DX compilation.
+[[vk::binding(0, 1)]] ConstantBuffer<OffsetX> offsetsx[] : register(b0, space1);
+[[vk::binding(0, 1)]] ConstantBuffer<OffsetY> offsetsy[] : register(b0, space2); //overlap with space1
 
 PSInput main(float3 position : POSITION)
 {

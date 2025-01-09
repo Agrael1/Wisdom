@@ -119,6 +119,7 @@ enum WisDescriptorType {
      * May be bigger than constant buffers, but slower.
      * */
     DescriptorTypeBuffer = 5,
+    DescriptorTypeAccelerationStructure = 6, ///< Descriptor is an acceleration structure.
 };
 
 /**
@@ -995,7 +996,8 @@ enum WisBindingIndex {
      * Can't be merged with Texture because of Vulkan.
      * */
     BindingIndexBuffer = 6,
-    BindingIndexCount = 6, ///< Number of binding indices. Used for array sizes.
+    BindingIndexAccelerationStructure = 7, ///< Binding index for acceleration structure descriptors. Results in [[vk::binding(0,7)]] and register(t0, space7).
+    BindingIndexCount = 7, ///< Number of binding indices. Used for array sizes.
 };
 
 /**
@@ -1484,11 +1486,10 @@ typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
 typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef struct WisDeviceExtQuery WisDeviceExtQuery;
-typedef struct WisDescriptorStorageDesc WisDescriptorStorageDesc;
-typedef struct WisDescriptorSpacing WisDescriptorSpacing;
 typedef struct WisTopLevelASBuildDesc WisTopLevelASBuildDesc;
 typedef struct WisAcceleratedGeometryInput WisAcceleratedGeometryInput;
 typedef struct WisASAllocationInfo WisASAllocationInfo;
+typedef struct WisDescriptorBindingDesc WisDescriptorBindingDesc;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisMutiWaitFlags WisMutiWaitFlags;
@@ -1965,33 +1966,6 @@ struct WisDeviceExtQuery {
 };
 
 /**
- * @brief Descriptor storage description for DescriptorStorage creation.
- * */
-struct WisDescriptorStorageDesc {
-    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
-    WisDescriptorMemory memory; ///< Descriptor memory to use.
-};
-
-/**
- * @brief Describes how many types can descriptors be reinterpreted as.
- * Minimal amount of spaces for each type is 1, 0 is treated as 1.
- * Used for RootSignature.
- * */
-struct WisDescriptorSpacing {
-    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
-};
-
-/**
  * @brief Top level acceleration structure build description.
  * */
 struct WisTopLevelASBuildDesc {
@@ -2029,6 +2003,27 @@ struct WisASAllocationInfo {
     uint64_t scratch_size; ///< Size of the scratch buffer.
     uint64_t result_size; ///< Size of the result buffer.
     uint64_t update_size; ///< Size of the update buffer.
+};
+
+/**
+ * @brief Descriptor binding description for RootSignature and Descriptor Storage creation.
+ * Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
+ * All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.
+ * */
+struct WisDescriptorBindingDesc {
+    WisDescriptorType binding_type; ///< Binding type. Must be unique in array.
+    uint32_t binding_space; ///< Binding space number in HLSL.
+    /**
+     * @brief Number of consecutive spaces this binding occupies.
+     * e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
+     * This is useful for binding multiple resource types to the same register array in HLSL.
+     * */
+    uint32_t space_overlap_count;
+    /**
+     * @brief How many bindings should be allocated.
+     * Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers.
+     * */
+    uint32_t binding_count;
 };
 
 //-------------------------------------------------------------------------
@@ -2095,17 +2090,6 @@ struct VKShaderView {
 
 struct VKRootSignatureView {
     void* value;
-};
-
-/**
- * @brief Bottom level acceleration structure build description.
- * */
-struct VKBottomLevelASBuildDesc {
-    WisAccelerationStructureFlags flags; ///< Build flags.
-    uint32_t geometry_count; ///< Geometry count.
-    const VKAcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
-    const VKAcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
-    bool update; ///< true If the acceleration structure is being updated.
 };
 
 /**
@@ -2374,40 +2358,28 @@ WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
  * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature VKRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature);
-
-/**
- * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
- * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
- * @param signature VKRootSignature on success (StatusOk).
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
- * */
-WISDOM_API WisResult VKDeviceCreateRootSignature2(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, VKRootSignature* signature);
+WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, VKRootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -2479,12 +2451,14 @@ WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture textu
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage VKDescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateDescriptorStorage(VKDevice self, const WisDescriptorStorageDesc* desc, VKDescriptorStorage* storage);
+WISDOM_API WisResult VKDeviceCreateDescriptorStorage(VKDevice self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, VKDescriptorStorage* storage);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -3001,29 +2975,32 @@ WISDOM_API void VKDescriptorStorageDestroy(VKDescriptorStorage self);
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-WISDOM_API void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32_t index, VKSampler sampler);
+WISDOM_API void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKSampler sampler);
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-WISDOM_API void VKDescriptorStorageWriteConstantBuffer(VKDescriptorStorage self, uint32_t index, VKBuffer buffer, uint32_t size, uint32_t offset);
+WISDOM_API void VKDescriptorStorageWriteConstantBuffer(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKBuffer buffer, uint32_t size, uint32_t offset);
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-WISDOM_API void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32_t index, VKShaderResource resource);
+WISDOM_API void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKShaderResource resource);
 
 // VKRootSignature methods --
 /**
@@ -3154,17 +3131,6 @@ struct DX12ShaderView {
 
 struct DX12RootSignatureView {
     void* value;
-};
-
-/**
- * @brief Bottom level acceleration structure build description.
- * */
-struct DX12BottomLevelASBuildDesc {
-    WisAccelerationStructureFlags flags; ///< Build flags.
-    uint32_t geometry_count; ///< Geometry count.
-    const DX12AcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
-    const DX12AcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
-    bool update; ///< true If the acceleration structure is being updated.
 };
 
 /**
@@ -3433,40 +3399,28 @@ WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
  * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If DX12Device is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature DX12RootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature);
-
-/**
- * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
- * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
- * @param signature DX12RootSignature on success (StatusOk).
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
- * */
-WISDOM_API WisResult DX12DeviceCreateRootSignature2(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, DX12RootSignature* signature);
+WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, DX12RootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -3538,12 +3492,14 @@ WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage DX12DescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateDescriptorStorage(DX12Device self, const WisDescriptorStorageDesc* desc, DX12DescriptorStorage* storage);
+WISDOM_API WisResult DX12DeviceCreateDescriptorStorage(DX12Device self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, DX12DescriptorStorage* storage);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -4060,29 +4016,32 @@ WISDOM_API void DX12DescriptorStorageDestroy(DX12DescriptorStorage self);
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-WISDOM_API void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, uint32_t index, DX12Sampler sampler);
+WISDOM_API void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Sampler sampler);
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-WISDOM_API void DX12DescriptorStorageWriteConstantBuffer(DX12DescriptorStorage self, uint32_t index, DX12Buffer buffer, uint32_t size, uint32_t offset);
+WISDOM_API void DX12DescriptorStorageWriteConstantBuffer(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Buffer buffer, uint32_t size, uint32_t offset);
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-WISDOM_API void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, uint32_t index, DX12ShaderResource resource);
+WISDOM_API void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12ShaderResource resource);
 
 // DX12RootSignature methods --
 /**
@@ -4201,7 +4160,6 @@ typedef DX12RenderTargetView WisRenderTargetView;
 typedef DX12CommandListView WisCommandListView;
 typedef DX12ShaderView WisShaderView;
 typedef DX12RootSignatureView WisRootSignatureView;
-typedef DX12BottomLevelASBuildDesc WisBottomLevelASBuildDesc;
 typedef DX12BufferBarrier2 WisBufferBarrier2;
 typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
@@ -4400,45 +4358,30 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
  * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, WisRootSignature* signature)
 {
-    return DX12DeviceCreateRootSignature(self, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count, signature);
-}
-
-/**
- * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
- * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
- * @param signature WisRootSignature on success (StatusOk).
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
- * */
-inline WisResult WisDeviceCreateRootSignature2(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, WisRootSignature* signature)
-{
-    return DX12DeviceCreateRootSignature2(self, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing, signature);
+    return DX12DeviceCreateRootSignature(self, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count, signature);
 }
 
 /**
@@ -4529,14 +4472,16 @@ inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture textur
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage WisDescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorStorageDesc* desc, WisDescriptorStorage* storage)
+inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, WisDescriptorStorage* storage)
 {
-    return DX12DeviceCreateDescriptorStorage(self, desc, storage);
+    return DX12DeviceCreateDescriptorStorage(self, bindings, bindings_count, memory, storage);
 }
 
 /**
@@ -5231,37 +5176,40 @@ inline void WisDescriptorStorageDestroy(WisDescriptorStorage self)
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t index, WisSampler sampler)
+inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisSampler sampler)
 {
-    DX12DescriptorStorageWriteSampler(self, index, sampler);
+    DX12DescriptorStorageWriteSampler(self, set_index, binding, sampler);
 }
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t index, WisBuffer buffer, uint32_t size, uint32_t offset)
+inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t size, uint32_t offset)
 {
-    DX12DescriptorStorageWriteConstantBuffer(self, index, buffer, size, offset);
+    DX12DescriptorStorageWriteConstantBuffer(self, set_index, binding, buffer, size, offset);
 }
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t index, WisShaderResource resource)
+inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisShaderResource resource)
 {
-    DX12DescriptorStorageWriteTexture(self, index, resource);
+    DX12DescriptorStorageWriteTexture(self, set_index, binding, resource);
 }
 
 // WisRootSignature methods --
@@ -5390,7 +5338,6 @@ typedef VKRenderTargetView WisRenderTargetView;
 typedef VKCommandListView WisCommandListView;
 typedef VKShaderView WisShaderView;
 typedef VKRootSignatureView WisRootSignatureView;
-typedef VKBottomLevelASBuildDesc WisBottomLevelASBuildDesc;
 typedef VKBufferBarrier2 WisBufferBarrier2;
 typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;
@@ -5589,45 +5536,30 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
  * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, WisRootSignature* signature)
 {
-    return VKDeviceCreateRootSignature(self, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count, signature);
-}
-
-/**
- * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
- * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
- * @param signature WisRootSignature on success (StatusOk).
- * @return Result with StatusOk on success.
- * Error in WisResult::error otherwise.
- * */
-inline WisResult WisDeviceCreateRootSignature2(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, WisRootSignature* signature)
-{
-    return VKDeviceCreateRootSignature2(self, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing, signature);
+    return VKDeviceCreateRootSignature(self, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count, signature);
 }
 
 /**
@@ -5718,14 +5650,16 @@ inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture textur
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage WisDescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorStorageDesc* desc, WisDescriptorStorage* storage)
+inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, WisDescriptorStorage* storage)
 {
-    return VKDeviceCreateDescriptorStorage(self, desc, storage);
+    return VKDeviceCreateDescriptorStorage(self, bindings, bindings_count, memory, storage);
 }
 
 /**
@@ -6420,37 +6354,40 @@ inline void WisDescriptorStorageDestroy(WisDescriptorStorage self)
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t index, WisSampler sampler)
+inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisSampler sampler)
 {
-    VKDescriptorStorageWriteSampler(self, index, sampler);
+    VKDescriptorStorageWriteSampler(self, set_index, binding, sampler);
 }
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t index, WisBuffer buffer, uint32_t size, uint32_t offset)
+inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t size, uint32_t offset)
 {
-    VKDescriptorStorageWriteConstantBuffer(self, index, buffer, size, offset);
+    VKDescriptorStorageWriteConstantBuffer(self, set_index, binding, buffer, size, offset);
 }
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t index, WisShaderResource resource)
+inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisShaderResource resource)
 {
-    VKDescriptorStorageWriteTexture(self, index, resource);
+    VKDescriptorStorageWriteTexture(self, set_index, binding, resource);
 }
 
 // WisRootSignature methods --

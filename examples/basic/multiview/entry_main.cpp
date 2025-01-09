@@ -57,9 +57,11 @@ public:
         cmd_list = setup.CreateLists();
         cmd_list2 = setup.CreateLists();
 
-        desc_storage = ex::Unwrap(setup.device.CreateDescriptorStorage({ .sampler_count = 1,
-                                                                         .texture_count = ex::flight_frames,
-                                                                         .memory = wis::DescriptorMemory::ShaderVisible }));
+        wis::DescriptorBindingDesc bindings[] = {
+            { .binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames },
+            { .binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1 },
+        };
+        desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
     }
 
 public:
@@ -287,10 +289,15 @@ public:
 
         // Create root signature with
         {
+            wis::Result result = wis::success;
             wis::PushConstant root_constants[]{
                 { .stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t) }
             };
-            root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, 1, nullptr, 0, 2));
+            wis::DescriptorBindingDesc bindings[] = {
+                { .binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames }, // space 0 is for root constants
+                { .binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1 },
+            };
+            root = setup.device.CreateRootSignature(result, root_constants, 1, nullptr, 0, bindings, std::size(bindings));
         }
 
         // Create pipeline
@@ -376,13 +383,13 @@ public:
                 .comparison_op = wis::Compare::None,
             };
             sampler = ex::Unwrap(setup.device.CreateSampler(sample_desc));
-            desc_storage.WriteSampler(0, sampler);
+            desc_storage.WriteSampler(1, 0, sampler);
         }
 
         // fill desc buffer
         {
             for (uint32_t i = 0; i < ex::flight_frames; i++) {
-                desc_storage.WriteTexture(i, srvs[i]);
+                desc_storage.WriteTexture(0, i, srvs[i]);
             }
         }
     }

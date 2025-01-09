@@ -13,7 +13,7 @@ class VKAdapter;
 template<>
 struct Internal<VKAdapter> {
     wis::SharedInstance instance;
-    VkPhysicalDevice adapter;
+    VkPhysicalDevice adapter = VK_NULL_HANDLE;
 };
 
 class ImplVKAdapter : public QueryInternal<VKAdapter>
