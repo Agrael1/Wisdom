@@ -40,6 +40,8 @@ class App
     wis::AccelerationStructure top_rtas;
     wis::AccelerationStructure bottom_rtas;
 
+    wis::UnorderedAccessTexture uav_output;
+
     wis::RootSignature rt_root_signature;
     wis::DescriptorStorage rt_descriptor_storage;
 
@@ -54,17 +56,17 @@ public:
         std::construct_at(&swap, setup.device, window.CreateSwapchain(result, setup, ex::swapchain_format), w, h);
         cmd_list = setup.CreateLists();
 
-        // Create resources
-        CreateSizeDependentResources(w, h);
-
         // Load shaders
         auto buf = ex::LoadShader("shaders/raytracing.lib");
         raygen_shader = setup.device.CreateShader(result, buf.data(), uint32_t(buf.size()));
 
+        // Create resources
+        CreatePipeline();
+        CreateSizeDependentResources(w, h);
+
         // Create ...
         CreatePrimitives();
         CreateAccelerationStructures();
-        CreatePipeline();
         MakeTransitions();
     }
 
@@ -144,6 +146,17 @@ private:
             .usage = wis::TextureUsage::CopySrc | wis::TextureUsage::UnorderedAccess,
         };
         uav_texture = setup.allocator.CreateTexture(result, desc);
+
+        // Create UAV output
+        wis::UnorderedAccessDesc uav_desc{
+            .format = ex::swapchain_format,
+            .view_type = wis::TextureViewType::Texture2D,
+            .subresource_range = { 0, 1, 0, 1 },
+        };
+        uav_output = setup.device.CreateUnorderedAccessTexture(result, uav_texture, uav_desc);
+
+        // Write to descriptor storage
+        rt_descriptor_storage.WriteRWTexture(0, 0, uav_output);
     }
     void CreatePrimitives()
     {
@@ -257,6 +270,9 @@ private:
         wis::CommandListView lists[] = { cmd };
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         setup.WaitForGPU();
+
+        // Write acceleration structure to descriptor storage
+        raytracing_extension.WriteAccelerationStructure(rt_descriptor_storage, 1, 0, top_rtas);
     }
 
     void CreatePipeline()
@@ -268,12 +284,13 @@ private:
         };
         rt_descriptor_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
         rt_root_signature = setup.device.CreateRootSignature(result, nullptr, 0, nullptr, 0, bindings, std::size(bindings));
+
+        // Create pipeline
     }
 
 private:
     void CopyTextureToSwapchain()
     {
-
     }
 };
 

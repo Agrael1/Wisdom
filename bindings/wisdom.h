@@ -1484,6 +1484,7 @@ typedef struct WisDescriptorTable WisDescriptorTable;
 typedef struct WisSamplerDesc WisSamplerDesc;
 typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
+typedef struct WisUnorderedAccessDesc WisUnorderedAccessDesc;
 typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef struct WisDeviceExtQuery WisDeviceExtQuery;
 typedef struct WisTopLevelASBuildDesc WisTopLevelASBuildDesc;
@@ -1934,6 +1935,15 @@ struct WisShaderResourceDesc {
 };
 
 /**
+ * @brief Unordered access description for RW Texture creation.
+ * */
+struct WisUnorderedAccessDesc {
+    WisDataFormat format; ///< Resource format.
+    WisTextureViewType view_type; ///< Resource view type.
+    WisSubresourceRange subresource_range; ///< Subresource range of the resource.
+};
+
+/**
  * @brief Struct used to query the extensions for C code.
  * Queried results should not be freed, their lifetime ends with the Factory they were created with.
  * If WisFactoryExtQuery::extension_id is 0, WisFactoryExtQuery::result must be populated with already created extension.
@@ -2213,6 +2223,7 @@ typedef struct VKDebugMessenger_t* VKDebugMessenger;
 typedef struct VKRenderTarget_t* VKRenderTarget;
 typedef struct VKSampler_t* VKSampler;
 typedef struct VKShaderResource_t* VKShaderResource;
+typedef struct VKUnorderedAccessTexture_t* VKUnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -3254,6 +3265,7 @@ typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
 typedef struct DX12Sampler_t* DX12Sampler;
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
+typedef struct DX12UnorderedAccessTexture_t* DX12UnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -4153,6 +4165,7 @@ typedef DX12DebugMessenger WisDebugMessenger;
 typedef DX12RenderTarget WisRenderTarget;
 typedef DX12Sampler WisSampler;
 typedef DX12ShaderResource WisShaderResource;
+typedef DX12UnorderedAccessTexture WisUnorderedAccessTexture;
 typedef DX12FenceView WisFenceView;
 typedef DX12BufferView WisBufferView;
 typedef DX12TextureView WisTextureView;
@@ -5331,6 +5344,7 @@ typedef VKDebugMessenger WisDebugMessenger;
 typedef VKRenderTarget WisRenderTarget;
 typedef VKSampler WisSampler;
 typedef VKShaderResource WisShaderResource;
+typedef VKUnorderedAccessTexture WisUnorderedAccessTexture;
 typedef VKFenceView WisFenceView;
 typedef VKBufferView WisBufferView;
 typedef VKTextureView WisTextureView;

@@ -1324,7 +1324,7 @@ wis::ImplVKDevice::CreateSampler(wis::Result& result, const wis::SamplerDesc& de
 }
 
 wis::VKShaderResource
-wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept
+wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept
 {
     VKShaderResource out_resource;
     auto& internal = out_resource.GetMutableInternal();

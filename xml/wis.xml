@@ -83,6 +83,7 @@ Used for bindless and non-uniform bindings. Don't combine with Descriptor buffer
     <handle name="RenderTarget"/>
     <handle name="Sampler"/>
     <handle name="ShaderResource"/>
+    <handle name="UnorderedAccessTexture"/>
     <handle name="FactoryExtension"/>
     <handle name="DeviceExtension"/>
   </handles>

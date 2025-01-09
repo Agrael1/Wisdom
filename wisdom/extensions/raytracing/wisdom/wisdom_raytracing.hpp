@@ -147,6 +147,19 @@ public:
 
         cmd_list_i->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
     }
+
+    void WriteAccelerationStructure(wis::DX12DescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::DX12AccelerationStructureView as) noexcept
+    {
+        auto& internal = std::get<0>(storage)->GetInternal();
+        D3D12_SHADER_RESOURCE_VIEW_DESC desc{
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
+            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .RaytracingAccelerationStructure = { std::get<0>(as) }
+        };
+        auto handle = D3D12_CPU_DESCRIPTOR_HANDLE(internal.heap_cpu_starts[0].ptr + internal.heap_offsets[binding_set].offset_in_bytes);
+        shared_device->CreateShaderResourceView(nullptr, &desc, handle);
+    }
 };
 
 [[nodiscard]] inline constexpr wis::DX12AcceleratedGeometryDesc
@@ -415,6 +428,25 @@ public:
         };
         VkAccelerationStructureBuildRangeInfoKHR* p_range_info = &range_info;
         vkCmdBuildAccelerationStructuresKHR(std::get<0>(cmd_buffer), 1, &build_info, &p_range_info);
+    }
+
+    void WriteAccelerationStructure(wis::VKDescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::VKAccelerationStructureView as) noexcept
+    {
+        VkWriteDescriptorSetAccelerationStructureKHR as_info{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+            .accelerationStructureCount = 1,
+            .pAccelerationStructures = &std::get<0>(as),
+        };
+        VkWriteDescriptorSet write{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = &as_info,
+            .dstSet = std::get<0>(storage)[binding_set],
+            .dstBinding = 0,
+            .dstArrayElement = index,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
+        };
+        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
 };
 

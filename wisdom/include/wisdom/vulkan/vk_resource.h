@@ -197,6 +197,8 @@ public:
     }
 };
 
+using VKUnorderedAccessTexture = VKShaderResource;
+
 #pragma region VKBuffer
 /**
  * @brief Represents buffer object for storing linear data.

@@ -67,6 +67,13 @@ public:
         auto& srv_handle = std::get<0>(srv);
         device->CopyDescriptorsSimple(1, handle, srv_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
+    void WriteRWTexture(uint32_t binding, uint32_t index, wis::DX12UnorderedAccessTextureView uav) noexcept
+    {
+        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[0].Offset(heap_offsets[binding].offset_in_bytes), index, heap_resource_increment);
+        auto& uav_handle = std::get<0>(uav);
+
+        device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
 };
 
 #pragma region DX12DescriptorStorage

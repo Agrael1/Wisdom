@@ -541,7 +541,7 @@ wis::ImplDX12Device::CreateSampler(wis::Result& result, const wis::SamplerDesc& 
 }
 
 wis::DX12ShaderResource
-wis::ImplDX12Device::CreateShaderResource(wis::Result& result, DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept
+wis::ImplDX12Device::CreateShaderResource(wis::Result& result, DX12TextureView texture, const wis::ShaderResourceDesc& desc) const noexcept
 {
     DX12ShaderResource out_resource;
     auto& internal = out_resource.GetMutableInternal();
@@ -635,6 +635,77 @@ wis::ImplDX12Device::CreateShaderResource(wis::Result& result, DX12TextureView t
     auto x = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     device->CreateDescriptorHeap(&heap_desc, internal.heap.iid(), internal.heap.put_void());
     device->CreateShaderResourceView(std::get<0>(texture), &srv_desc, internal.heap->GetCPUDescriptorHandleForHeapStart());
+    return out_resource;
+}
+
+wis::DX12UnorderedAccessTexture
+wis::ImplDX12Device::CreateUnorderedAccessTexture(wis::Result& result, DX12TextureView texture, const wis::UnorderedAccessDesc& desc) const noexcept
+{
+    DX12ShaderResource out_resource;
+    auto& internal = out_resource.GetMutableInternal();
+
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
+        .Format = convert_dx(desc.format),
+        .ViewDimension = D3D12_UAV_DIMENSION(convert_dx(desc.view_type)),
+    };
+
+    switch (desc.view_type) {
+    case wis::TextureViewType::Texture1D:
+        uav_desc.Texture1D = {
+            .MipSlice = desc.subresource_range.base_mip_level,
+        };
+        break;
+    case wis::TextureViewType::Texture1DArray:
+        uav_desc.Texture1DArray = {
+            .MipSlice = desc.subresource_range.base_mip_level,
+            .FirstArraySlice = desc.subresource_range.base_array_layer,
+            .ArraySize = desc.subresource_range.layer_count,
+        };
+        break;
+    default:
+    case wis::TextureViewType::Texture2D:
+        uav_desc.Texture2D = {
+            .MipSlice = desc.subresource_range.base_mip_level,
+            .PlaneSlice = 0,
+        };
+        break;
+    case wis::TextureViewType::TextureCube:
+    case wis::TextureViewType::TextureCubeArray:
+    case wis::TextureViewType::Texture2DArray:
+        uav_desc.Texture2DArray = {
+            .MipSlice = desc.subresource_range.base_mip_level,
+            .FirstArraySlice = desc.subresource_range.base_array_layer,
+            .ArraySize = desc.subresource_range.layer_count,
+            .PlaneSlice = 0,
+        };
+        break;
+    case wis::TextureViewType::Texture2DMS:
+        uav_desc.Texture2DMS = {};
+        break;
+    case wis::TextureViewType::Texture2DMSArray:
+        uav_desc.Texture2DMSArray = {
+            .FirstArraySlice = desc.subresource_range.base_array_layer,
+            .ArraySize = desc.subresource_range.layer_count,
+        };
+        break;
+    case wis::TextureViewType::Texture3D:
+        uav_desc.Texture3D = {
+            .MipSlice = desc.subresource_range.base_mip_level,
+            .FirstWSlice = desc.subresource_range.base_array_layer,
+            .WSize = desc.subresource_range.layer_count,
+        };
+        break;
+    }
+
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+        .NumDescriptors = 1,
+        .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
+    };
+
+    auto x = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    device->CreateDescriptorHeap(&heap_desc, internal.heap.iid(), internal.heap.put_void());
+    device->CreateUnorderedAccessView(std::get<0>(texture), nullptr, &uav_desc, internal.heap->GetCPUDescriptorHandleForHeapStart());
     return out_resource;
 }
 

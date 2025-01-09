@@ -122,6 +122,8 @@ public:
     }
 };
 
+using DX12UnorderedAccessTexture = DX12ShaderResource;
+
 #pragma region DX12Buffer
 /**
  * @brief Represents buffer object for storing linear data.

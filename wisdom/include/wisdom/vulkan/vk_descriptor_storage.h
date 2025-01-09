@@ -116,6 +116,24 @@ public:
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
+    void WriteRWTexture(uint32_t binding, uint32_t index, wis::VKUnorderedAccessTextureView srv) noexcept
+    {
+        VkDescriptorImageInfo info{
+            .sampler = VK_NULL_HANDLE,
+            .imageView = std::get<0>(srv),
+            .imageLayout = VK_IMAGE_LAYOUT_GENERAL
+        };
+        VkWriteDescriptorSet write{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = descriptor_sets[binding],
+            .dstBinding = 0,
+            .dstArrayElement = index,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+            .pImageInfo = &info
+        };
+        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
+    }
 };
 
 #pragma region VKDescriptorStorage

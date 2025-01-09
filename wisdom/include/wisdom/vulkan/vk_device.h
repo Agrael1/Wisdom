@@ -99,11 +99,22 @@ public:
         return CreateRenderTarget(result, texture, desc);
     }
 
-    [[nodiscard]] WIS_INLINE VKSampler
+    [[nodiscard]] WIS_INLINE wis::VKSampler
     CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept;
 
-    [[nodiscard]] WIS_INLINE VKShaderResource
-    CreateShaderResource(wis::Result& result, VKTextureView texture, wis::ShaderResourceDesc desc) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::VKShaderResource
+    CreateShaderResource(wis::Result& result, wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::VKUnorderedAccessTexture
+    CreateUnorderedAccessTexture(wis::Result& result, wis::VKTextureView texture, const wis::UnorderedAccessDesc& desc) const noexcept
+    {
+        wis::ShaderResourceDesc re_desc{
+            .format = desc.format,
+            .view_type = desc.view_type,
+            .subresource_range = desc.subresource_range,
+        };
+        return CreateShaderResource(result, texture, re_desc);
+    }
 
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;

@@ -28,6 +28,7 @@ using DX12DescriptorBufferView = std::tuple<ID3D12DescriptorHeap*>;
 using DX12DescriptorBufferGPUView = std::tuple<D3D12_GPU_DESCRIPTOR_HANDLE, uint32_t>;
 using DX12SamplerView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12ShaderResourceView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
+using DX12UnorderedAccessTextureView = std::tuple<D3D12_CPU_DESCRIPTOR_HANDLE>;
 using DX12MemoryView = std::tuple<D3D12MA::Allocator*, D3D12MA::Allocation*>;
 using DX12PipelineView = std::tuple<ID3D12PipelineState*>;
 using DX12DescriptorStorageView = std::tuple<DX12DescriptorStorage*>;

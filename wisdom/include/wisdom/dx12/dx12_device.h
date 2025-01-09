@@ -70,7 +70,10 @@ public:
     CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12ShaderResource
-    CreateShaderResource(wis::Result& result, DX12TextureView texture, wis::ShaderResourceDesc desc) const noexcept;
+    CreateShaderResource(wis::Result& result, DX12TextureView texture, const wis::ShaderResourceDesc& desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::DX12UnorderedAccessTexture
+    CreateUnorderedAccessTexture(wis::Result& result, DX12TextureView buffer, const wis::UnorderedAccessDesc& desc) const noexcept;
 
     // returns true only for now
     [[nodiscard]] WIS_INLINE bool

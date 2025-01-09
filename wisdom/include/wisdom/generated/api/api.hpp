@@ -47,6 +47,7 @@ struct DescriptorTable;
 struct SamplerDesc;
 struct ComponentMapping;
 struct ShaderResourceDesc;
+struct UnorderedAccessDesc;
 struct FactoryExtQuery;
 struct DeviceExtQuery;
 struct TopLevelASBuildDesc;
@@ -1854,6 +1855,15 @@ struct ShaderResourceDesc {
     wis::DataFormat format; ///< Resource format.
     wis::TextureViewType view_type; ///< Resource view type.
     wis::ComponentMapping component_mapping; ///< Component mapping.
+    wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
+};
+
+/**
+ * @brief Unordered access description for RW Texture creation.
+ * */
+struct UnorderedAccessDesc {
+    wis::DataFormat format; ///< Resource format.
+    wis::TextureViewType view_type; ///< Resource view type.
     wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
 

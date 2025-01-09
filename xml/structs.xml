@@ -337,6 +337,12 @@ Zero initialized range means all subresources are selected."/>
       <member type="ComponentMapping" name="component_mapping" doc="Component mapping."/>
       <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the resource."/>
     </type>
+    
+    <type name="UnorderedAccessDesc" category="struct" doc="Unordered access description for RW Texture creation.">
+      <member type="DataFormat" name="format" doc="Resource format."/>
+      <member type="TextureViewType" name="view_type" doc="Resource view type."/>
+      <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the resource."/>
+    </type>
 
     <type name="FactoryExtQuery" category="struct" doc="Struct used to query the extensions for C code.
 Queried results should not be freed, their lifetime ends with the Factory they were created with.

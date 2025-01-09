@@ -49,6 +49,7 @@ using DebugMessenger = DX12DebugMessenger;
 using RenderTarget = DX12RenderTarget;
 using Sampler = DX12Sampler;
 using ShaderResource = DX12ShaderResource;
+using UnorderedAccessTexture = DX12UnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -159,6 +160,7 @@ using DebugMessenger = VKDebugMessenger;
 using RenderTarget = VKRenderTarget;
 using Sampler = VKSampler;
 using ShaderResource = VKShaderResource;
+using UnorderedAccessTexture = VKUnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
