@@ -91,6 +91,41 @@ Stages have no granularity, either all or one can be selected.">
       <value name="Count" value="8" doc="Number of stages."/>
     </type>
 
+    <type name="RaytracingShaderType" category="enum" type="u32" doc="Shader stages that can be used in the raytracing pipeline.">
+      <impl_type for="vk" name="VkShaderStageFlagBits"/>
+      <value name="Raygen" value="0" doc="Ray generation shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_RAYGEN_BIT_KHR"/>
+      </value>
+      <value name="Miss" value="1" doc="Miss shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_MISS_BIT_KHR"/>
+      </value>
+      <value name="ClosestHit" value="2" doc="Closest hit shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR"/>
+      </value>
+      <value name="AnyHit" value="3" doc="Any hit shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_ANY_HIT_BIT_KHR"/>
+      </value>
+      <value name="Intersection" value="4" doc="Intersection shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_INTERSECTION_BIT_KHR"/>
+      </value>
+      <value name="Callable" value="5" doc="Callable shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_CALLABLE_BIT_KHR"/>
+      </value>
+    </type>
+
+    <type name="HitGroupType" category="enum" type="u32" doc="Type of the hit group in the raytracing pipeline.">
+      <impl_type for="vk" name="VkRayTracingShaderGroupTypeKHR"/>
+      <impl_type for="dx" name="D3D12_HIT_GROUP_TYPE"/>
+      <value name="Triangles" value="0" doc="Hit group for triangles.">
+        <impl name="vk" value="VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR"/>
+        <impl name="dx" value="D3D12_HIT_GROUP_TYPE_TRIANGLES"/>
+      </value>
+      <value name="Procedural" value="1" doc="Hit group for procedural geometry.">
+        <impl name="vk" value="VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR"/>
+        <impl name="dx" value="D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE"/>
+      </value>
+    </type>
+
     <type name="DescriptorType" category="enum" type="u32" doc="Type of the descriptor in the descriptor table.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
       <impl_type for="vk" name="VkDescriptorType"/>
@@ -1214,7 +1249,7 @@ Can't be merged with Texture because of Vulkan."/>
       <value name="Bottom" value="0" doc="Bottom level Acceleration Structure. Contains geometry data."/>
       <value name="Top" value="1" doc="Top level Acceleration Structure. Contains instance data."/>
     </type>
-    
+
     <type name="ASGeometryType" category="enum" type="u32" doc="Type of the geometry in the Acceleration Structure.">
       <impl_type for="vk" name="VkGeometryTypeKHR"/>
       <impl_type for="dx" name="D3D12_RAYTRACING_GEOMETRY_TYPE"/>
@@ -1456,11 +1491,11 @@ Subresource data must be available for any layout-compatible access after a barr
         <impl name="dx" value="D3D12_BARRIER_ACCESS_PREDICATION"/>
         <impl name="vk" value="VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT"/>
       </value>
-      <value name="AccelerationStrucureRead" bit="13" doc="Acceleration structure read access.">
+      <value name="AccelerationStructureRead" bit="13" doc="Acceleration structure read access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ"/>
         <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR"/>
       </value>
-      <value name="AccelerationStrucureWrite" bit="14"  doc="Acceleration structure write access.">
+      <value name="AccelerationStructureWrite" bit="14"  doc="Acceleration structure write access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR"/>
       </value>
@@ -1600,7 +1635,7 @@ Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.">
         <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR"/>
       </value>
     </type>
-    
+
     <type name="ASInstanceFlags" category="bitmask" doc="Instance flags for additional instance features">
       <impl_type for="dx" name="D3D12_RAYTRACING_INSTANCE_FLAGS"/>
       <impl_type for="vk" name="VkGeometryInstanceFlagsKHR"/>
@@ -1622,7 +1657,7 @@ Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.">
         <impl name="vk" value="VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR"/>
       </value>
     </type>
-    
+
 
   </types>
 </registry>

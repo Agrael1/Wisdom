@@ -40,6 +40,9 @@ public:
     {
         if (pool) {
             device.table().vkDestroyDescriptorPool(device.get(), pool, nullptr);
+            for (uint32_t i = 0; i < descriptor_count; ++i) {
+                device.table().vkDestroyDescriptorSetLayout(device.get(), reinterpret_cast<VkDescriptorSetLayout>(descriptor_sets[i + descriptor_count]), nullptr);
+            }
         }
     }
 };

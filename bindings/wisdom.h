@@ -80,12 +80,14 @@ enum WisStatus {
 };
 
 /**
- * @brief Determines the behavior when wait for multiple fences is issued.
+ * @brief Type of the queue to create.
  *
  * */
-enum WisMutiWaitFlags {
-    MutiWaitFlagsAll = 0, ///< All the fences in the batch are triggered.
-    MutiWaitFlagsAny = 1, ///< At least one of the fences from the batch is triggered.
+enum WisQueueType {
+    QueueTypeGraphics = 0, ///< Queue is used for graphics operations.
+    QueueTypeCompute = 2, ///< Queue is used for compute operations.
+    QueueTypeCopy = 3, ///< Queue is used for copy operations.
+    QueueTypeVideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
 /**
@@ -123,14 +125,12 @@ enum WisDescriptorType {
 };
 
 /**
- * @brief Type of the queue to create.
+ * @brief Determines the behavior when wait for multiple fences is issued.
  *
  * */
-enum WisQueueType {
-    QueueTypeGraphics = 0, ///< Queue is used for graphics operations.
-    QueueTypeCompute = 2, ///< Queue is used for compute operations.
-    QueueTypeCopy = 3, ///< Queue is used for copy operations.
-    QueueTypeVideoDecode = 4, ///< Queue is used for video decoding operations.
+enum WisMutiWaitFlags {
+    MutiWaitFlagsAll = 0, ///< All the fences in the batch are triggered.
+    MutiWaitFlagsAny = 1, ///< At least one of the fences from the batch is triggered.
 };
 
 /**
@@ -165,6 +165,20 @@ enum WisAdapterPreference {
 };
 
 /**
+ * @brief Shader stages that can be used in the raytracing pipeline.
+ *
+ * Translates to VkShaderStageFlagBits for vk implementation.
+ * */
+enum WisRaytracingShaderType {
+    RaytracingShaderTypeRaygen = 0, ///< Ray generation shader stage.
+    RaytracingShaderTypeMiss = 1, ///< Miss shader stage.
+    RaytracingShaderTypeClosestHit = 2, ///< Closest hit shader stage.
+    RaytracingShaderTypeAnyHit = 3, ///< Any hit shader stage.
+    RaytracingShaderTypeIntersection = 4, ///< Intersection shader stage.
+    RaytracingShaderTypeCallable = 5, ///< Callable shader stage.
+};
+
+/**
  * @brief Log message severity.
  * Used with DebugCallback and internal library logging.
  *
@@ -188,6 +202,26 @@ enum WisSeverity {
      * The application must be shut down, no further execution.
      * */
     SeverityCritical = 5,
+};
+
+/**
+ * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
+ *
+ * */
+enum WisASLevel {
+    ASLevelBottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
+    ASLevelTop = 1, ///< Top level Acceleration Structure. Contains instance data.
+};
+
+/**
+ * @brief Type of the hit group in the raytracing pipeline.
+ *
+ * Translates to VkRayTracingShaderGroupTypeKHR for vk implementation.
+ * Translates to D3D12_HIT_GROUP_TYPE for dx implementation.
+ * */
+enum WisHitGroupType {
+    HitGroupTypeTriangles = 0, ///< Hit group for triangles.
+    HitGroupTypeProcedural = 1, ///< Hit group for procedural geometry.
 };
 
 /**
@@ -1188,15 +1222,6 @@ enum WisDeviceExtID {
     DeviceExtIDExtendedAllocation = 2,
 };
 
-/**
- * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
- *
- * */
-enum WisASLevel {
-    ASLevelBottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
-    ASLevelTop = 1, ///< Top level Acceleration Structure. Contains instance data.
-};
-
 //-------------------------------------------------------------------------
 
 /**
@@ -1355,8 +1380,8 @@ enum WisResourceAccessBits {
     ResourceAccessCopyDest = 1 << 10, ///< Copy destination access.
     ResourceAccessCopySource = 1 << 11, ///< Copy source access.
     ResourceAccessConditionalRendering = 1 << 12, ///< Conditional rendering access.
-    ResourceAccessAccelerationStrucureRead = 1 << 13, ///< Acceleration structure read access.
-    ResourceAccessAccelerationStrucureWrite = 1 << 14, ///< Acceleration structure write access.
+    ResourceAccessAccelerationStructureRead = 1 << 13, ///< Acceleration structure read access.
+    ResourceAccessAccelerationStructureWrite = 1 << 14, ///< Acceleration structure write access.
     ResourceAccessShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
     ResourceAccessVideoDecodeRead = 1 << 16, ///< Video decode read access.
     ResourceAccessVideoDecodeWrite = 1 << 17, ///< Video decode write access.
@@ -1491,14 +1516,19 @@ typedef struct WisTopLevelASBuildDesc WisTopLevelASBuildDesc;
 typedef struct WisAcceleratedGeometryInput WisAcceleratedGeometryInput;
 typedef struct WisASAllocationInfo WisASAllocationInfo;
 typedef struct WisDescriptorBindingDesc WisDescriptorBindingDesc;
+typedef struct WisShaderExport WisShaderExport;
+typedef struct WisHitGroupDesc WisHitGroupDesc;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
-typedef enum WisMutiWaitFlags WisMutiWaitFlags;
-typedef enum WisDescriptorType WisDescriptorType;
 typedef enum WisQueueType WisQueueType;
+typedef enum WisDescriptorType WisDescriptorType;
+typedef enum WisMutiWaitFlags WisMutiWaitFlags;
 typedef enum WisASGeometryType WisASGeometryType;
 typedef enum WisAdapterPreference WisAdapterPreference;
+typedef enum WisRaytracingShaderType WisRaytracingShaderType;
 typedef enum WisSeverity WisSeverity;
+typedef enum WisASLevel WisASLevel;
+typedef enum WisHitGroupType WisHitGroupType;
 typedef enum WisInputClass WisInputClass;
 typedef enum WisCullMode WisCullMode;
 typedef enum WisDataFormat WisDataFormat;
@@ -1529,7 +1559,6 @@ typedef enum WisComponentSwizzle WisComponentSwizzle;
 typedef enum WisIndexType WisIndexType;
 typedef enum WisFactoryExtID WisFactoryExtID;
 typedef enum WisDeviceExtID WisDeviceExtID;
-typedef enum WisASLevel WisASLevel;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisDSSelectBits WisDSSelectBits;
@@ -2036,6 +2065,30 @@ struct WisDescriptorBindingDesc {
     uint32_t binding_count;
 };
 
+/**
+ * @brief Defines export shader functions from a library shader.
+ * */
+struct WisShaderExport {
+    const char* entry_point; ///< Entry point of the shader.
+    WisRaytracingShaderType shader_type; ///< Type of the shader.
+    uint32_t shader_array_index; ///< Index of the shader in the shader array.
+};
+
+/**
+ * @brief Hit group description for Raytracing pipeline.
+ * */
+struct WisHitGroupDesc {
+    /**
+     * @brief Type of the hit group.
+     * HitGroupTypeTriangles - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
+     * HitGroupTypeProcedural - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency.
+     * */
+    WisHitGroupType type;
+    uint32_t closest_hit_export_index; ///< Closest hit shader from WisShaderExport.
+    uint32_t any_hit_export_index; ///< Any hit shader.
+    uint32_t intersection_export_index; ///< Intersection shader.
+};
+
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
@@ -2063,6 +2116,7 @@ typedef struct VKShaderView VKShaderView;
 typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKRaytracingPipeineDesc VKRaytracingPipeineDesc;
 typedef struct VKBottomLevelASBuildDesc VKBottomLevelASBuildDesc;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
@@ -2127,6 +2181,27 @@ struct VKGraphicsShaderStages {
     VKShaderView domain; ///< Domain shader.
     VKShaderView geometry; ///< Geometry shader.
     VKShaderView pixel; ///< Pixel shader.
+};
+
+/**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct VKRaytracingPipeineDesc {
+    VKRootSignatureView root_signature; ///< Root signature.
+    const VKShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const WisShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const WisHitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size; ///< Max attribute size. Default is 0.
 };
 
 /**
@@ -3106,6 +3181,7 @@ typedef struct DX12ShaderView DX12ShaderView;
 typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12RaytracingPipeineDesc DX12RaytracingPipeineDesc;
 typedef struct DX12BottomLevelASBuildDesc DX12BottomLevelASBuildDesc;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
@@ -3169,6 +3245,27 @@ struct DX12GraphicsShaderStages {
     DX12ShaderView domain; ///< Domain shader.
     DX12ShaderView geometry; ///< Geometry shader.
     DX12ShaderView pixel; ///< Pixel shader.
+};
+
+/**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct DX12RaytracingPipeineDesc {
+    DX12RootSignatureView root_signature; ///< Root signature.
+    const DX12ShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const WisShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const WisHitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size; ///< Max attribute size. Default is 0.
 };
 
 /**
@@ -4176,6 +4273,7 @@ typedef DX12RootSignatureView WisRootSignatureView;
 typedef DX12BufferBarrier2 WisBufferBarrier2;
 typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
+typedef DX12RaytracingPipeineDesc WisRaytracingPipeineDesc;
 typedef DX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
 typedef DX12RenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
 typedef DX12RenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
@@ -5355,6 +5453,7 @@ typedef VKRootSignatureView WisRootSignatureView;
 typedef VKBufferBarrier2 WisBufferBarrier2;
 typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;
+typedef VKRaytracingPipeineDesc WisRaytracingPipeineDesc;
 typedef VKGraphicsPipelineDesc WisGraphicsPipelineDesc;
 typedef VKRenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
 typedef VKRenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;

@@ -54,6 +54,8 @@ struct TopLevelASBuildDesc;
 struct AcceleratedGeometryInput;
 struct ASAllocationInfo;
 struct DescriptorBindingDesc;
+struct ShaderExport;
+struct HitGroupDesc;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -118,12 +120,14 @@ enum class Status : int32_t {
 };
 
 /**
- * @brief Determines the behavior when wait for multiple fences is issued.
+ * @brief Type of the queue to create.
  *
  * */
-enum class MutiWaitFlags : uint32_t {
-    All = 0, ///< All the fences in the batch are triggered.
-    Any = 1, ///< At least one of the fences from the batch is triggered.
+enum class QueueType : uint32_t {
+    Graphics = 0, ///< Queue is used for graphics operations.
+    Compute = 2, ///< Queue is used for compute operations.
+    Copy = 3, ///< Queue is used for copy operations.
+    VideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
 /**
@@ -161,14 +165,12 @@ enum class DescriptorType : uint32_t {
 };
 
 /**
- * @brief Type of the queue to create.
+ * @brief Determines the behavior when wait for multiple fences is issued.
  *
  * */
-enum class QueueType : uint32_t {
-    Graphics = 0, ///< Queue is used for graphics operations.
-    Compute = 2, ///< Queue is used for compute operations.
-    Copy = 3, ///< Queue is used for copy operations.
-    VideoDecode = 4, ///< Queue is used for video decoding operations.
+enum class MutiWaitFlags : uint32_t {
+    All = 0, ///< All the fences in the batch are triggered.
+    Any = 1, ///< At least one of the fences from the batch is triggered.
 };
 
 /**
@@ -203,6 +205,20 @@ enum class AdapterPreference {
 };
 
 /**
+ * @brief Shader stages that can be used in the raytracing pipeline.
+ *
+ * Translates to VkShaderStageFlagBits for vk implementation.
+ * */
+enum class RaytracingShaderType : uint32_t {
+    Raygen = 0, ///< Ray generation shader stage.
+    Miss = 1, ///< Miss shader stage.
+    ClosestHit = 2, ///< Closest hit shader stage.
+    AnyHit = 3, ///< Any hit shader stage.
+    Intersection = 4, ///< Intersection shader stage.
+    Callable = 5, ///< Callable shader stage.
+};
+
+/**
  * @brief Log message severity.
  * Used with wis::DebugCallback and internal library logging.
  *
@@ -226,6 +242,26 @@ enum class Severity {
      * The application must be shut down, no further execution.
      * */
     Critical = 5,
+};
+
+/**
+ * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
+ *
+ * */
+enum class ASLevel : uint32_t {
+    Bottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
+    Top = 1, ///< Top level Acceleration Structure. Contains instance data.
+};
+
+/**
+ * @brief Type of the hit group in the raytracing pipeline.
+ *
+ * Translates to VkRayTracingShaderGroupTypeKHR for vk implementation.
+ * Translates to D3D12_HIT_GROUP_TYPE for dx implementation.
+ * */
+enum class HitGroupType : uint32_t {
+    Triangles = 0, ///< Hit group for triangles.
+    Procedural = 1, ///< Hit group for procedural geometry.
 };
 
 /**
@@ -1227,15 +1263,6 @@ enum class DeviceExtID : uint32_t {
 };
 
 /**
- * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
- *
- * */
-enum class ASLevel : uint32_t {
-    Bottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
-    Top = 1, ///< Top level Acceleration Structure. Contains instance data.
-};
-
-/**
  * @brief Flags that describe adapter.
  *
  * */
@@ -1391,8 +1418,8 @@ enum class ResourceAccess {
     CopyDest = 1 << 10, ///< Copy destination access.
     CopySource = 1 << 11, ///< Copy source access.
     ConditionalRendering = 1 << 12, ///< Conditional rendering access.
-    AccelerationStrucureRead = 1 << 13, ///< Acceleration structure read access.
-    AccelerationStrucureWrite = 1 << 14, ///< Acceleration structure write access.
+    AccelerationStructureRead = 1 << 13, ///< Acceleration structure read access.
+    AccelerationStructureWrite = 1 << 14, ///< Acceleration structure write access.
     ShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
     VideoDecodeRead = 1 << 16, ///< Video decode read access.
     VideoDecodeWrite = 1 << 17, ///< Video decode write access.
@@ -1958,6 +1985,30 @@ struct DescriptorBindingDesc {
      * Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers.
      * */
     uint32_t binding_count;
+};
+
+/**
+ * @brief Defines export shader functions from a library shader.
+ * */
+struct ShaderExport {
+    const char* entry_point; ///< Entry point of the shader.
+    wis::RaytracingShaderType shader_type; ///< Type of the shader.
+    uint32_t shader_array_index; ///< Index of the shader in the shader array.
+};
+
+/**
+ * @brief Hit group description for Raytracing pipeline.
+ * */
+struct HitGroupDesc {
+    /**
+     * @brief Type of the hit group.
+     * wis::HitGroupType::Triangles - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
+     * wis::HitGroupType::Procedural - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency.
+     * */
+    wis::HitGroupType type;
+    uint32_t closest_hit_export_index = UINT32_MAX; ///< Closest hit shader from wis::ShaderExport.
+    uint32_t any_hit_export_index = UINT32_MAX; ///< Any hit shader.
+    uint32_t intersection_export_index = UINT32_MAX; ///< Intersection shader.
 };
 
 //=================================DELEGATES=================================

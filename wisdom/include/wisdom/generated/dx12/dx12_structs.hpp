@@ -44,6 +44,27 @@ struct DX12GraphicsShaderStages {
 };
 
 /**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct DX12RaytracingPipeineDesc {
+    wis::DX12RootSignatureView root_signature; ///< Root signature.
+    const wis::DX12ShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const wis::ShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const wis::HitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth = 1; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size = 0; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size = 0; ///< Max attribute size. Default is 0.
+};
+
+/**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct DX12GraphicsPipelineDesc {
@@ -121,6 +142,17 @@ inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcep
 inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStages value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
+}
+inline constexpr D3D12_HIT_GROUP_TYPE convert_dx(HitGroupType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case HitGroupType::Triangles:
+        return D3D12_HIT_GROUP_TYPE_TRIANGLES;
+    case HitGroupType::Procedural:
+        return D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE;
+    }
 }
 inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) noexcept
 {
@@ -514,10 +546,10 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
     if (value & ResourceAccess::ConditionalRendering) {
         output |= D3D12_BARRIER_ACCESS_PREDICATION;
     }
-    if (value & ResourceAccess::AccelerationStrucureRead) {
+    if (value & ResourceAccess::AccelerationStructureRead) {
         output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
     }
-    if (value & ResourceAccess::AccelerationStrucureWrite) {
+    if (value & ResourceAccess::AccelerationStructureWrite) {
         output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
     }
     if (value & ResourceAccess::ShadingRate) {

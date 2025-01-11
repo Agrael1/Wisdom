@@ -72,6 +72,9 @@ public:
     [[nodiscard]] WIS_INLINE DX12Buffer
     DX12CreateResource(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::DX12Buffer
+    DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
+
     WIS_INLINE static void
     DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept;
 

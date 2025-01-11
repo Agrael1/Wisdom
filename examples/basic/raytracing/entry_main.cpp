@@ -202,6 +202,7 @@ private:
     }
     void CreateAccelerationStructures()
     {
+        using namespace wis; // for flag operators
         wis::Result result = wis::success;
 
         rtas_instance_buffer = setup.allocator.CreateBuffer(result, sizeof(wis::AccelerationInstance), wis::BufferUsage::AccelerationStructureInput, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
@@ -255,7 +256,7 @@ private:
             .instance_id = 0,
             .mask = 0xFF,
             .instance_offset = 0,
-            .flags = +wis::ASInstanceFlags::TriangleCullDisable,
+            .flags = uint32_t(wis::ASInstanceFlags::TriangleCullDisable),
             .acceleration_structure_handle = raytracing_extension.GetAccelerationStructureDeviceAddress(bottom_rtas),
         };
         rtas_instance_buffer.Unmap();
@@ -263,8 +264,15 @@ private:
         // Build acceleration structures
         auto& cmd = cmd_list[0];
         std::ignore = cmd.Reset();
-        raytracing_extension.BuildTopLevelAS(cmd, build_desc, top_rtas, rtas_scratch_buffer.GetGPUAddress());
         raytracing_extension.BuildBottomLevelAS(cmd, blas_desc, bottom_rtas, rtas_scratch_buffer.GetGPUAddress() + as_size.scratch_size);
+        // Add a barrier to make sure the BLAS is built before the TLAS build
+        cmd.BufferBarrier({ .sync_before = wis::BarrierSync::BuildRTAS,
+                            .sync_after = wis::BarrierSync::BuildRTAS,
+                            .access_before = wis::ResourceAccess::AccelerationStructureWrite,
+                            .access_after = wis::ResourceAccess::AccelerationStructureRead | wis::ResourceAccess::AccelerationStructureWrite },
+                          rtas_buffer);
+
+        raytracing_extension.BuildTopLevelAS(cmd, build_desc, top_rtas, rtas_scratch_buffer.GetGPUAddress());
         cmd.Close();
 
         wis::CommandListView lists[] = { cmd };
@@ -286,6 +294,30 @@ private:
         rt_root_signature = setup.device.CreateRootSignature(result, nullptr, 0, nullptr, 0, bindings, std::size(bindings));
 
         // Create pipeline
+        wis::ShaderView shaders[]{
+            raygen_shader, raygen_shader
+        };
+        wis::ShaderExport exports[]{
+            { .entry_point = "RayGeneration", .shader_type = wis::RaytracingShaderType::Raygen, .shader_array_index = 1 },
+            { .entry_point = "Miss", .shader_type = wis::RaytracingShaderType::Miss, .shader_array_index = 0 },
+            { .entry_point = "ClosestHit", .shader_type = wis::RaytracingShaderType::ClosestHit, .shader_array_index = 1 },
+        };
+        wis::HitGroupDesc hit_groups[]{
+            { .type = wis::HitGroupType::Triangles, .closest_hit_export_index = 2, .any_hit_export_index = UINT32_MAX, .intersection_export_index = UINT32_MAX },
+        };
+        wis::RaytracingPipelineDesc rt_pipeline_desc{
+            .root_signature = rt_root_signature,
+            .shaders = shaders,
+            .shader_count = std::size(shaders),
+            .exports = exports,
+            .export_count = std::size(exports),
+            .hit_groups = hit_groups,
+            .hit_group_count = std::size(hit_groups),
+            .max_recursion_depth = 1,
+            .max_payload_size = 24,
+            .max_attribute_size = 8,
+        };
+        raytracing_extension.CreateRaytracingPipeline(result, rt_pipeline_desc);
     }
 
 private:

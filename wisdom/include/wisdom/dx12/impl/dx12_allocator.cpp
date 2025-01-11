@@ -19,8 +19,10 @@ wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size,
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
     };
-    D3D12_RESOURCE_STATES state = usage & wis::BufferUsage::AccelerationStructureBuffer ? D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE : D3D12_RESOURCE_STATE_COMMON;
-    return DX12CreateResource(result, all_desc, buffer_desc, state);
+    if (usage & wis::BufferUsage::AccelerationStructureBuffer) {
+        return DX12CreateResource2(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
+    }
+    return DX12CreateResource(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON);
 }
 wis::DX12Texture
 wis::ImplDX12ResourceAllocator::CreateTexture(wis::Result& result, const wis::TextureDesc& desc, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
@@ -196,6 +198,26 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3
 
     HRESULT hr = allocator->CreateResource2(&all_desc, &res_desc,
                                             state, nullptr,
+                                            memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
+
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+    }
+
+    memory_internal.allocator = allocator; // Copy allocator to memory
+
+    return buffer;
+}
+
+wis::DX12Buffer
+wis::ImplDX12ResourceAllocator::DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
+{
+    wis::DX12Buffer buffer;
+    auto& internal = buffer.GetMutableInternal();
+    auto& memory_internal = internal.memory.GetMutableInternal();
+
+    HRESULT hr = allocator->CreateResource3(&all_desc, &res_desc,
+                                            D3D12_BARRIER_LAYOUT_UNDEFINED, nullptr, 0, nullptr,
                                             memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {

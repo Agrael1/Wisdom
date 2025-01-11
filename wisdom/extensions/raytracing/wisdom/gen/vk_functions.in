@@ -1,0 +1,9 @@
+[VKRaytracingExt]
+
+# Device table
+vkGetAccelerationStructureBuildSizesKHR
+vkCreateAccelerationStructureKHR
+vkDestroyAccelerationStructureKHR
+vkCmdBuildAccelerationStructuresKHR
+vkGetAccelerationStructureDeviceAddressKHR
+vkCreateRayTracingPipelinesKHR

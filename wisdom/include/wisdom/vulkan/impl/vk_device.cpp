@@ -1415,17 +1415,19 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
 
     std::unique_ptr<uint8_t[]> memory = wis::detail::make_unique_for_overwrite<uint8_t[]>(
             descriptor_bindings_count * sizeof(VkDescriptorPoolSize) +
-            descriptor_bindings_count * sizeof(VkDescriptorSetLayout) +
             descriptor_bindings_count * sizeof(uint32_t));
 
     if (!memory) {
         result = wis::make_result<FUNC, "Failed to allocate memory for intermediate storage">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_storage;
     }
+    // Allocate descriptor sets
+    internal.descriptor_sets = wis::detail::make_unique_for_overwrite<VkDescriptorSet[]>(descriptor_bindings_count + descriptor_bindings_count);
+
 
     std::span<VkDescriptorPoolSize> pool_sizes{ reinterpret_cast<VkDescriptorPoolSize*>(memory.get()), descriptor_bindings_count };
-    std::span<VkDescriptorSetLayout> desc_layouts{ reinterpret_cast<VkDescriptorSetLayout*>(memory.get() + offset_pool_size), descriptor_bindings_count };
-    std::span<uint32_t> pool_size_data{ reinterpret_cast<uint32_t*>(memory.get() + offset_desc_layout), descriptor_bindings_count }; // For variable descriptor count
+    std::span<VkDescriptorSetLayout> desc_layouts{ reinterpret_cast<VkDescriptorSetLayout*>(internal.descriptor_sets.get() + descriptor_bindings_count), descriptor_bindings_count };
+    std::span<uint32_t> pool_size_data{ reinterpret_cast<uint32_t*>(pool_sizes.data() + descriptor_bindings_count), descriptor_bindings_count }; // For variable descriptor count
 
     for (size_t i = 0; i < descriptor_bindings_count; i++) {
         pool_sizes[i].type = convert_vk(descriptor_bindings[i].binding_type);
@@ -1485,8 +1487,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
         }
     }
 
-    // Allocate descriptor sets
-    internal.descriptor_sets = wis::detail::make_unique_for_overwrite<VkDescriptorSet[]>(descriptor_bindings_count);
+
     if (!internal.descriptor_sets) {
         result = wis::make_result<FUNC, "Failed to allocate descriptor set array">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_storage;
@@ -1507,9 +1508,6 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
     res = device.table().vkAllocateDescriptorSets(device.get(), &desc_alloc_info, internal.descriptor_sets.get());
 
     // Destroy descriptor set layouts
-    for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        device.table().vkDestroyDescriptorSetLayout(device.get(), desc_layouts[i], nullptr);
-    }
     if (!succeeded(res)) {
         result = wis::make_result<FUNC, "Failed to allocate descriptor sets">(res);
         return out_storage;

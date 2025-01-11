@@ -18,7 +18,7 @@ if(WISDOM_BUILD_BINARIES)
     "wisdom/wisdom_raytracing.hpp"
     "wisdom/impl/impl.vk.cpp"
    
-   "wisdom/vk_rtas.h")
+   "wisdom/vk_rtas.h" "wisdom/impl.dx12.h" "wisdom/impl.vk.h" "wisdom/impl.h" "wisdom/dx12_raytracing_pipeline.h" "wisdom/impl/impl.dx12.cpp")
   add_library(wis::raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
@@ -48,3 +48,40 @@ install(
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+
+
+if(WISDOM_GENERATE_FUNCTIONS)
+  if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+    # Generate a shell script for Linux
+    set(LAUNCHER_SCRIPT
+        "#!/bin/sh\nexec \"\$<TARGET_FILE:WisVk_generator>\" -l -i ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/gen/vk_functions.in -o ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/generated/vk_functions.hpp \"$@\"\n"
+    )
+    file(
+      GENERATE
+      OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/wisdom/gen/generate_functions.sh"
+      CONTENT "${LAUNCHER_SCRIPT}")
+    execute_process(
+      COMMAND chmod +x
+              ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/gen/generate_functions.sh)
+  elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    # Generate a batch file for Windows
+    set(LAUNCHER_SCRIPT
+        "@echo off\nstart /B \"\" \"\$<TARGET_FILE:WisVk_generator>\" -l -i ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/gen/vk_functions.in -o ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/generated/vk_functions.hpp %*\n"
+    )
+    file(
+      GENERATE
+      OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/wisdom/gen/generate_functions.bat"
+      CONTENT "${LAUNCHER_SCRIPT}")
+  endif()
+
+  if(WISDOM_GENERATE_API)
+    add_custom_target(
+      GenerateFunctions_${PROJECT_NAME}
+      COMMAND
+        $<TARGET_FILE:WisVk_generator> -l -i
+        ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/gen/vk_functions.in -o
+        ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/generated/vk_functions.hpp)
+    add_dependencies(wisdom-descriptor-buffer-headers
+                     GenerateFunctions_${PROJECT_NAME})
+  endif()
+endif()

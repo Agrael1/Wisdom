@@ -43,6 +43,27 @@ struct VKGraphicsShaderStages {
 };
 
 /**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct VKRaytracingPipeineDesc {
+    wis::VKRootSignatureView root_signature; ///< Root signature.
+    const wis::VKShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const wis::ShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const wis::HitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth = 1; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size = 0; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size = 0; ///< Max attribute size. Default is 0.
+};
+
+/**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct VKGraphicsPipelineDesc {
@@ -134,6 +155,36 @@ inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept
         return VK_SHADER_STAGE_TASK_BIT_NV;
     case ShaderStages::Mesh:
         return VK_SHADER_STAGE_MESH_BIT_NV;
+    }
+}
+inline constexpr VkShaderStageFlagBits convert_vk(RaytracingShaderType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case RaytracingShaderType::Raygen:
+        return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    case RaytracingShaderType::Miss:
+        return VK_SHADER_STAGE_MISS_BIT_KHR;
+    case RaytracingShaderType::ClosestHit:
+        return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    case RaytracingShaderType::AnyHit:
+        return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+    case RaytracingShaderType::Intersection:
+        return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+    case RaytracingShaderType::Callable:
+        return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+    }
+}
+inline constexpr VkRayTracingShaderGroupTypeKHR convert_vk(HitGroupType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case HitGroupType::Triangles:
+        return VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    case HitGroupType::Procedural:
+        return VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
     }
 }
 inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
@@ -854,10 +905,10 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
     if (value & ResourceAccess::ConditionalRendering) {
         output |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
     }
-    if (value & ResourceAccess::AccelerationStrucureRead) {
+    if (value & ResourceAccess::AccelerationStructureRead) {
         output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
     }
-    if (value & ResourceAccess::AccelerationStrucureWrite) {
+    if (value & ResourceAccess::AccelerationStructureWrite) {
         output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
     }
     if (value & ResourceAccess::ShadingRate) {

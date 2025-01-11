@@ -337,7 +337,7 @@ Zero initialized range means all subresources are selected."/>
       <member type="ComponentMapping" name="component_mapping" doc="Component mapping."/>
       <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the resource."/>
     </type>
-    
+
     <type name="UnorderedAccessDesc" category="struct" doc="Unordered access description for RW Texture creation.">
       <member type="DataFormat" name="format" doc="Resource format."/>
       <member type="TextureViewType" name="view_type" doc="Resource view type."/>
@@ -391,7 +391,7 @@ flags must have contained {AccelerationStructureFlags::AllowUpdate} to perfom up
       <member type="u64" name="result_size" doc="Size of the result buffer."/>
       <member type="u64" name="update_size" doc="Size of the update buffer."/>
     </type>
-    
+
     <type name="DescriptorBindingDesc" category="struct" doc="Descriptor binding description for RootSignature and Descriptor Storage creation.
 Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
 All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.">
@@ -404,6 +404,21 @@ This is useful for binding multiple resource types to the same register array in
 Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers."/>
     </type>
 
+    <type name="ShaderExport" category="struct" doc="Defines export shader functions from a library shader.">
+      <member type="u8string" name="entry_point" mod="ptr" doc="Entry point of the shader."/>
+      <member type="RaytracingShaderType" name="shader_type" doc="Type of the shader."/>
+      <member type="u32" name="shader_array_index" doc="Index of the shader in the shader array."/>
+    </type>
+    
+    <type name="HitGroupDesc" category="struct" doc="Hit group description for Raytracing pipeline.">
+      <member type="HitGroupType" name="type" doc="Type of the hit group.
+{HitGroupType::Triangles} - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
+{HitGroupType::Procedural} - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency."/>
+      <member type="u32" name="closest_hit_export_index" default="UINT32_MAX" doc="Closest hit shader from {ShaderExport::}."/>
+      <member type="u32" name="any_hit_export_index" default="UINT32_MAX" doc="Any hit shader."/>
+      <member type="u32" name="intersection_export_index" default="UINT32_MAX" doc="Intersection shader."/>
+    </type>
+
     <!--Variants-->
     <type name="BottomLevelASBuildDesc" category="variant" doc="Bottom level acceleration structure build description." mod="cpp-only">
       <impl name="both">
@@ -414,6 +429,7 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
         <member type="bool" name="update" doc="true If the acceleration structure is being updated."/>
       </impl>
     </type>
+
 
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">
       <impl name="both">
@@ -436,6 +452,23 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
         <member type="ShaderView" name="domain" doc="Domain shader."/>
         <member type="ShaderView" name="geometry" doc="Geometry shader."/>
         <member type="ShaderView" name="pixel" doc="Pixel shader."/>
+      </impl>
+    </type>
+
+    <type name="RaytracingPipeineDesc" category="variant" doc="Raytracing pipeline descriptor for pipeline creation.">
+      <impl name="both">
+        <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
+        <member type="ShaderView" name="shaders" mod="const ptr" doc="Shader libraries."/>
+        <member type="u32" name="shader_count" doc="Shader library count."/>
+        <member type="ShaderExport" name="exports" mod="const ptr" doc="Shader library exports (entry points)."/>
+        <member type="u32" name="export_count" doc="Shader export count."/>
+        <member type="HitGroupDesc" name="hit_groups" mod="const ptr" doc="Hit group descriptions.
+Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in {RaytracingPipeineDesc::exports}.
+And groups for SBTs are exported as raygen:miss:hit."/>
+        <member type="u32" name="hit_group_count" doc="Hit group count."/>
+        <member type="u32" name="max_recursion_depth" default="1" doc="Max recursion depth. Default is 1."/>
+        <member type="u32" name="max_payload_size" default="0" doc="Max payload size. Default is 0."/>
+        <member type="u32" name="max_attribute_size" default="0" doc="Max attribute size. Default is 0."/>
       </impl>
     </type>
 

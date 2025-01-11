@@ -5,9 +5,9 @@ struct Payload
     bool missed;
 };
 
-RaytracingAccelerationStructure scene : register(t0);
+[[vk::binding(0,1)]] RWTexture2D<float4> uav : register(u0);
+[[vk::binding(0,2)]] RaytracingAccelerationStructure scene : register(t0, space1);
 
-RWTexture2D<float4> uav : register(u0);
 
 static const float3 camera = float3(0, 1.5, -7);
 static const float3 light = float3(0, 200, 0);
