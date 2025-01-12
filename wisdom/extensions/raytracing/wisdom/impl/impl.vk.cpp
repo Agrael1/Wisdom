@@ -42,6 +42,10 @@ wis::Result wis::ImplVKRaytracing::Init(const wis::VKDevice& instance,
     device = instance.GetInternal().device;
     table.Init(device.get(), instance.GetInternal().device.gtable().vkGetDeviceProcAddr);
 
+    auto props = reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR));
+
+    compressed_handle_size = props->shaderGroupHandleSize;
+    sbt_info = { wis::detail::aligned_size(compressed_handle_size, props->shaderGroupHandleAlignment), props->shaderGroupBaseAlignment };
     return wis::success;
 }
 
@@ -71,10 +75,10 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLev
 
     uint32_t max_instance_count = tlas_desc.instance_count;
     table.vkGetAccelerationStructureBuildSizesKHR(device.get(),
-                                            VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-                                            &build_info,
-                                            &max_instance_count,
-                                            &build_sizes_info);
+                                                  VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+                                                  &build_info,
+                                                  &max_instance_count,
+                                                  &build_sizes_info);
     return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
 }
 
@@ -116,10 +120,10 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKB
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR,
     };
     table.vkGetAccelerationStructureBuildSizesKHR(device.get(),
-                                            VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-                                            &build_info,
-                                            max_primitive_count,
-                                            &build_sizes_info);
+                                                  VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+                                                  &build_info,
+                                                  max_primitive_count,
+                                                  &build_sizes_info);
     return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
 }
 
@@ -127,6 +131,9 @@ wis::VKRaytracingPipeline
 wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::VKRaytracingPipeineDesc& rt_pipeline_desc) const noexcept
 {
     wis::VKRaytracingPipeline pipeline;
+    auto& pipe_i = pipeline.GetMutableInternal();
+
+
     uint32_t raygen_count = 0;
     uint32_t miss_count = 0;
     uint32_t callable_count = 0;
@@ -147,6 +154,13 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
         result = wis::make_result<FUNC, "Failed to allocate memory for shader stages">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return pipeline;
     }
+
+    // create memory for shader group handles
+    uint32_t handle_count = raygen_count + miss_count + rt_pipeline_desc.hit_group_count + callable_count;
+    uint32_t handle_size = handle_count * sbt_info.entry_size;
+    pipe_i.shader_identifiers = wis::detail::make_unique_for_overwrite<uint8_t[]>(handle_size); // expanded size for all shader groups
+    auto* handles = pipe_i.shader_identifiers.get();
+    std::memset(handles, 0, handle_size);
 
     // initialize shader stages + raygen + miss shader groups
     std::span<VkPipelineShaderStageCreateInfo> stages_span{ reinterpret_cast<VkPipelineShaderStageCreateInfo*>(stages.get()), rt_pipeline_desc.export_count };
@@ -229,10 +243,28 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
         .maxPipelineRayRecursionDepth = rt_pipeline_desc.max_recursion_depth, // user defined
         .layout = std::get<0>(rt_pipeline_desc.root_signature),
     };
-    auto vr = table.vkCreateRayTracingPipelinesKHR(device.get(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, pipeline.GetMutableInternal().pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
+
+    auto vr = table.vkCreateRayTracingPipelinesKHR(device.get(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, pipe_i.state_object.put(device, device.table().vkDestroyPipeline));
     if (!wis::succeeded(vr)) {
         result = wis::make_result<FUNC, "Failed to create raytracing pipeline">(vr);
     }
+
+    // retrieve and uncompress shader group handles
+    table.vkGetRayTracingShaderGroupHandlesKHR(device.get(), pipe_i.state_object.get(), 0, handle_count, handle_size, handles);
+    if (sbt_info.entry_size == compressed_handle_size) {
+        return pipeline;
+    }
+
+    // uncompress shader group handles in-place
+    uint8_t* uncompressed_handles = handles + handle_size;
+    uint8_t* compressed_handles = handles + handle_count * compressed_handle_size;
+    while (compressed_handles != handles) {
+        compressed_handles -= compressed_handle_size;
+        uncompressed_handles -= sbt_info.entry_size;
+        std::memmove(uncompressed_handles, compressed_handles, sbt_info.entry_size);
+        std::memset(compressed_handles, 0, size_t(uncompressed_handles - compressed_handles));
+    }
+
     return pipeline;
 }
 

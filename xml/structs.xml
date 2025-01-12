@@ -419,6 +419,12 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
       <member type="u32" name="intersection_export_index" default="UINT32_MAX" doc="Intersection shader."/>
     </type>
 
+    <type name="ShaderBindingTableInfo" category="struct" doc="Shader binding table description for Raytracing pipeline.">
+      <member type="u32" name="entry_size" doc="Size/stride of the entry in bytes."/>
+      <member type="u32" name="table_start_alignment" doc="Alignment of the table start in bytes."/>
+    </type>
+      
+
     <!--Variants-->
     <type name="BottomLevelASBuildDesc" category="variant" doc="Bottom level acceleration structure build description." mod="cpp-only">
       <impl name="both">

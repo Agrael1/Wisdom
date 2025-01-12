@@ -2,7 +2,6 @@
 #define WIS_VK_COMMAND_LIST_H
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/vulkan/vk_views.h>
-#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>

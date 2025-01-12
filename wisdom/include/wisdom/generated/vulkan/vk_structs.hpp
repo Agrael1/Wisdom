@@ -551,7 +551,7 @@ inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
     switch (value) {
     default:
         return {};
-    case MemoryType::Default:
+    case MemoryType::DeviceLocal:
         return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     case MemoryType::Upload:
         return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -787,6 +787,9 @@ inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
     }
     if (value & BufferUsage::AccelerationStructureInput) {
         output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    }
+    if (value & BufferUsage::ShaderBindingTable) {
+        output |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
     }
     return output;
 }

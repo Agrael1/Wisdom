@@ -10,6 +10,7 @@ using Raytracing = ImplDX12Raytracing;
 using AccelerationStructure = DX12AccelerationStructure;
 using AcceleratedGeometryDesc = DX12AcceleratedGeometryDesc;
 using RaytracingPipelineDesc = DX12RaytracingPipeineDesc;
+using RaytracingPipeline = DX12RaytracingPipeline;
 
 [[nodiscard]] inline constexpr wis::AcceleratedGeometryDesc
 CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
@@ -22,6 +23,7 @@ using Raytracing = ImplVKRaytracing;
 using AccelerationStructure = VKAccelerationStructure;
 using AcceleratedGeometryDesc = VKAcceleratedGeometryDesc;
 using RaytracingPipelineDesc = VKRaytracingPipeineDesc;
+using RaytracingPipeline = VKRaytracingPipeline;
 
 [[nodiscard]] inline constexpr wis::VKAcceleratedGeometryDesc
 CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept

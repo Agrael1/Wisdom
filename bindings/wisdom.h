@@ -924,11 +924,12 @@ enum WisLogicOp {
  * Translates to VkMemoryPropertyFlags for vk implementation.
  * */
 enum WisMemoryType {
+    MemoryTypeDefault = 0, ///< Default memory type. Alias for MemoryTypeDeviceLocal
     /**
      * @brief Default memory type.
      * Local device memory, most efficient for rendering.
      * */
-    MemoryTypeDefault = 0,
+    MemoryTypeDeviceLocal = 0,
     /**
      * @brief Upload memory type.
      * Used for data that is uploaded to the GPU Local memory using copy operations.
@@ -1278,6 +1279,7 @@ enum WisBufferUsageBits {
     BufferUsageStorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
     BufferUsageAccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
     BufferUsageAccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
+    BufferUsageShaderBindingTable = 1 << 9, ///< Buffer is used as a shader binding table buffer.
 };
 
 /**
@@ -1518,6 +1520,7 @@ typedef struct WisASAllocationInfo WisASAllocationInfo;
 typedef struct WisDescriptorBindingDesc WisDescriptorBindingDesc;
 typedef struct WisShaderExport WisShaderExport;
 typedef struct WisHitGroupDesc WisHitGroupDesc;
+typedef struct WisShaderBindingTableInfo WisShaderBindingTableInfo;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisQueueType WisQueueType;
@@ -2087,6 +2090,14 @@ struct WisHitGroupDesc {
     uint32_t closest_hit_export_index; ///< Closest hit shader from WisShaderExport.
     uint32_t any_hit_export_index; ///< Any hit shader.
     uint32_t intersection_export_index; ///< Intersection shader.
+};
+
+/**
+ * @brief Shader binding table description for Raytracing pipeline.
+ * */
+struct WisShaderBindingTableInfo {
+    uint32_t entry_size; ///< Size/stride of the entry in bytes.
+    uint32_t table_start_alignment; ///< Alignment of the table start in bytes.
 };
 
 //-------------------------------------------------------------------------

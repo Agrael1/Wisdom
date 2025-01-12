@@ -56,6 +56,7 @@ struct ASAllocationInfo;
 struct DescriptorBindingDesc;
 struct ShaderExport;
 struct HitGroupDesc;
+struct ShaderBindingTableInfo;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -964,11 +965,12 @@ enum class LogicOp : uint32_t {
  * Translates to VkMemoryPropertyFlags for vk implementation.
  * */
 enum class MemoryType : uint32_t {
+    Default = 0, ///< Default memory type. Alias for wis::MemoryType::DeviceLocal
     /**
      * @brief Default memory type.
      * Local device memory, most efficient for rendering.
      * */
-    Default = 0,
+    DeviceLocal = 0,
     /**
      * @brief Upload memory type.
      * Used for data that is uploaded to the GPU Local memory using copy operations.
@@ -1316,6 +1318,7 @@ enum class BufferUsage {
     StorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
     AccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
     AccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
+    ShaderBindingTable = 1 << 9, ///< Buffer is used as a shader binding table buffer.
 };
 
 /**
@@ -2009,6 +2012,14 @@ struct HitGroupDesc {
     uint32_t closest_hit_export_index = UINT32_MAX; ///< Closest hit shader from wis::ShaderExport.
     uint32_t any_hit_export_index = UINT32_MAX; ///< Any hit shader.
     uint32_t intersection_export_index = UINT32_MAX; ///< Intersection shader.
+};
+
+/**
+ * @brief Shader binding table description for Raytracing pipeline.
+ * */
+struct ShaderBindingTableInfo {
+    uint32_t entry_size; ///< Size/stride of the entry in bytes.
+    uint32_t table_start_alignment; ///< Alignment of the table start in bytes.
 };
 
 //=================================DELEGATES=================================

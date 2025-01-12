@@ -3,9 +3,15 @@
 #include <wisdom/impl.dx12.h>
 
 #if defined(WISDOM_DX12)
-wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis::DX12RaytracingPipeineDesc& desc) const noexcept
+wis::DX12RaytracingPipeline
+wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis::DX12RaytracingPipeineDesc& desc) const noexcept
 {
     wis::DX12RaytracingPipeline out_pipeline;
+    auto& pipe_i = out_pipeline.GetMutableInternal();
+
+    uint32_t num_raygen = 0;
+    uint32_t num_miss = 0;
+    uint32_t num_callable = 0;
 
     constexpr static std::wstring_view hit_group_exa = L"H|A|C|I|00000000";
     static auto precalc_wchspace = [](const char* data) {
@@ -63,25 +69,33 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(wi
         wchspace += sz;
     }
 
+    for (uint32_t i = 0; i < desc.export_count; ++i) {
+        num_raygen += desc.exports[i].shader_type == wis::RaytracingShaderType::Raygen;
+        num_miss += desc.exports[i].shader_type == wis::RaytracingShaderType::Miss;
+        num_callable += desc.exports[i].shader_type == wis::RaytracingShaderType::Callable;
+    }
+
     uint32_t num_subobjects = desc.shader_count + desc.hit_group_count + 3; // root signature and max recursion depth
-    std::unique_ptr<uint8_t[]> subobjects = wis::detail::make_unique_for_overwrite<uint8_t[]>(
-            num_subobjects * sizeof(D3D12_STATE_SUBOBJECT) +
+    size_t string_offset = num_subobjects * sizeof(D3D12_STATE_SUBOBJECT) +
             desc.shader_count * sizeof(D3D12_DXIL_LIBRARY_DESC) +
             desc.export_count * sizeof(D3D12_EXPORT_DESC) +
             desc.hit_group_count * sizeof(D3D12_HIT_GROUP_DESC) +
+            (num_callable + num_miss + num_raygen) * sizeof(wchar_t*);
 
-            // string names
+    size_t allocation_size = string_offset + // callable, miss, raygen
+                                             // string names
             wchspace * sizeof(wchar_t) * 2u + // entry points
             desc.export_count * sizeof(wchar_t) * 9u + // unique names + entry points
             desc.hit_group_count * sizeof(wchar_t) * (hit_group_exa.size() + 1u) // hit group names format: H|A|C|I|00000000
-    );
+            ;
+    std::unique_ptr<uint8_t[]> subobjects = wis::detail::make_unique_for_overwrite<uint8_t[]>(allocation_size);
 
     // burn shader bytecodes
     std::span<D3D12_STATE_SUBOBJECT> subobjects_span(reinterpret_cast<D3D12_STATE_SUBOBJECT*>(subobjects.get()), num_subobjects);
     std::span<D3D12_DXIL_LIBRARY_DESC> dxil_library_span(reinterpret_cast<D3D12_DXIL_LIBRARY_DESC*>(subobjects_span.data() + num_subobjects), desc.shader_count);
     std::span<D3D12_EXPORT_DESC> export_span(reinterpret_cast<D3D12_EXPORT_DESC*>(dxil_library_span.data() + desc.shader_count), desc.export_count);
     std::span<D3D12_HIT_GROUP_DESC> hit_group_span(reinterpret_cast<D3D12_HIT_GROUP_DESC*>(export_span.data() + desc.export_count), desc.hit_group_count);
-    std::span<wchar_t> wch_span(reinterpret_cast<wchar_t*>(hit_group_span.data() + desc.hit_group_count), wchspace);
+    std::span<wchar_t> wch_span(reinterpret_cast<wchar_t*>(subobjects.get() + string_offset), wchspace);
 
     for (uint32_t i = 0; i < desc.shader_count; ++i) {
         dxil_library_span[i] = {
@@ -102,6 +116,10 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(wi
     wchar_t* names = wch_span.data(); // pointer is incremented in convert_to_wch
     wchar_t* renames = names + wchspace;
 
+    wchar_t** callable_span = reinterpret_cast<wchar_t**>(subobjects.get() + string_offset); // callable pointers in reverse order
+    wchar_t** miss_span = callable_span - num_callable;
+    wchar_t** raygen_span = miss_span - num_miss;
+
     dxil_library_span[0].pExports = export_span.data() + dxil_library_span[0].NumExports;
     for (uint32_t i = 1; i < desc.shader_count; ++i) {
         dxil_library_span[i].pExports = dxil_library_span[i - 1].pExports + dxil_library_span[i].NumExports;
@@ -113,6 +131,23 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(wi
 
         auto* name = convert_to_wch(desc.exports[i].entry_point, &names);
         auto* rename = rename_export(name, &renames, i);
+
+        switch (desc.exports[i].shader_type) {
+        case wis::RaytracingShaderType::Raygen:
+            --raygen_span;
+            *(raygen_span) = rename;
+            break;
+        case wis::RaytracingShaderType::Miss:
+            --miss_span;
+            *(miss_span) = rename;
+            break;
+        case wis::RaytracingShaderType::Callable:
+            --callable_span;
+            *(callable_span) = rename;
+            break;
+        default:
+            break;
+        }
 
         _export = {
             .Name = rename,
@@ -174,11 +209,56 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(wi
         .pSubobjects = subobjects_span.data()
     };
 
-    auto& pipe_i = out_pipeline.GetMutableInternal();
+    // get shader identifiers
+    pipe_i.shader_identifiers = wis::detail::make_unique_for_overwrite<uint8_t[]>(
+            (num_raygen +
+             num_miss +
+             num_callable +
+             desc.hit_group_count) *
+            D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+
+    if (!pipe_i.shader_identifiers) {
+        result = wis::make_result<FUNC, "Failed to allocate shader identifiers">(E_OUTOFMEMORY);
+        return out_pipeline;
+    }
+
     auto hr = shared_device->CreateStateObject(&pipeline_desc, pipe_i.state_object.iid(), pipe_i.state_object.put_void());
     if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Failed to create raytracing pipeline">(hr);
         return out_pipeline;
+    }
+
+    // get shader handles raygen, miss, hit, callable
+    wis::com_ptr<ID3D12StateObjectProperties> state_object_props;
+    std::ignore = pipe_i.state_object.as<ID3D12StateObjectProperties>(&state_object_props);
+
+    uint8_t* raygen_ids = pipe_i.shader_identifiers.get();
+    uint8_t* miss_ids = raygen_ids + num_raygen * D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+    uint8_t* hit_ids = miss_ids + num_miss * D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+    uint8_t* callable_ids = hit_ids + desc.hit_group_count * D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+
+    for (uint32_t i = 0; i < num_raygen; ++i) {
+        auto id = state_object_props->GetShaderIdentifier(raygen_span[i]);
+        memcpy(raygen_ids, id, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+        raygen_ids += D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+    }
+
+    for (uint32_t i = 0; i < num_miss; ++i) {
+        auto id = state_object_props->GetShaderIdentifier(miss_span[i]);
+        memcpy(miss_ids, id, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+        miss_ids += D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+    }
+
+    for (uint32_t i = 0; i < desc.hit_group_count; ++i) {
+        auto id = state_object_props->GetShaderIdentifier(hit_group_span[i].HitGroupExport);
+        memcpy(hit_ids, id, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+        hit_ids += D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+    }
+
+    for (uint32_t i = 0; i < num_callable; ++i) {
+        auto id = state_object_props->GetShaderIdentifier(callable_span[i]);
+        memcpy(callable_ids, id, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+        callable_ids += D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
     }
 
     return out_pipeline;

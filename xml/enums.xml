@@ -865,7 +865,8 @@ Triangle culling depends on {WindingOrder::} option.">
     <type name="MemoryType" category="enum" type="u32" doc="Memory type for resource allocation.">
       <impl_type for="dx" name="D3D12_HEAP_TYPE"/>
       <impl_type for="vk" name="VkMemoryPropertyFlags"/>
-      <value name="Default" value="0" doc="Default memory type.
+      <value name="Default" value="0" doc="Default memory type. Alias for {::DeviceLocal}"/>
+      <value name="DeviceLocal" value="0" doc="Default memory type.
 Local device memory, most efficient for rendering.">
         <impl name="dx" value="D3D12_HEAP_TYPE_DEFAULT"/>
         <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT"/>
@@ -1321,6 +1322,9 @@ Determine how the buffer can be used throughout its lifetime.">
       </value>
       <value name="AccelerationStructureInput" bit="8" doc="Buffer is used as a read only acceleration instance input buffer.">
         <impl name="vk" value="VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR"/>
+      </value>
+      <value name="ShaderBindingTable" bit="9" doc="Buffer is used as a shader binding table buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR"/>
       </value>
     </type>
 

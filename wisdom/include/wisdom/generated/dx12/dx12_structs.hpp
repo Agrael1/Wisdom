@@ -220,7 +220,7 @@ inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
     switch (value) {
     default:
         return {};
-    case MemoryType::Default:
+    case MemoryType::DeviceLocal:
         return D3D12_HEAP_TYPE_DEFAULT;
     case MemoryType::Upload:
         return D3D12_HEAP_TYPE_UPLOAD;

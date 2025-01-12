@@ -7,3 +7,4 @@ vkDestroyAccelerationStructureKHR
 vkCmdBuildAccelerationStructuresKHR
 vkGetAccelerationStructureDeviceAddressKHR
 vkCreateRayTracingPipelinesKHR
+vkGetRayTracingShaderGroupHandlesKHR

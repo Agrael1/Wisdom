@@ -4,23 +4,18 @@
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vk_rtas.h>
 #include "generated/vk_functions.hpp"
+#include "vk_raytracing_pipeline.h"
 
 namespace wis {
-/// @brief Raytracing extension for Vulkan
-class VKRaytracingPipeline : public VKPipelineState // doesn't differ from VKPipelineState
-{
-    using VKPipelineState::VKPipelineState;
-};
-
-
-class VKRaytracingShaderTable;
-
 class VKRaytracing;
 
 template<>
 struct Internal<VKRaytracing> {
     wis::SharedDevice device;
     wis::VKRaytracingExtDevice table;
+
+    wis::ShaderBindingTableInfo sbt_info;
+    uint32_t compressed_handle_size = 0;
 };
 
 class ImplVKRaytracing : public QueryInternalExtension<VKRaytracing, wis::VKDeviceExtension>
@@ -84,6 +79,11 @@ public:
 
     [[nodiscard]] WIS_INLINE wis::VKRaytracingPipeline
     CreateRaytracingPipeline(wis::Result& result, const wis::VKRaytracingPipeineDesc& rt_pipeline_desc) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::ShaderBindingTableInfo GetShaderBindingTableInfo() const noexcept
+    {
+        return sbt_info;
+    }
 
 public:
     void

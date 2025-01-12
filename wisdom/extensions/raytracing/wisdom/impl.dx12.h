@@ -54,6 +54,7 @@ public:
                  wis::detail::aligned_size(uint32_t(prebuild_info.ResultDataMaxSizeInBytes), uint32_t(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT)),
                  wis::detail::aligned_size(uint32_t(prebuild_info.UpdateScratchDataSizeInBytes), uint32_t(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT)) };
     }
+
     [[nodiscard]] wis::ASAllocationInfo
     GetBottomLevelASSize(const wis::DX12BottomLevelASBuildDesc& tlas_desc) const noexcept
     {
@@ -90,7 +91,11 @@ public:
     [[nodiscard]] WIS_INLINE wis::DX12RaytracingPipeline
     CreateRaytracingPipeline(wis::Result& result, const wis::DX12RaytracingPipeineDesc& desc) const noexcept;
 
-public:
+    [[nodiscard]] static constexpr wis::ShaderBindingTableInfo GetShaderBindingTableInfo() noexcept
+    {
+        return wis::ShaderBindingTableInfo{ D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT };
+    }
+public :
     void BuildBottomLevelAS(wis::DX12CommandListView cmd_list,
                             const wis::DX12BottomLevelASBuildDesc& blas_desc,
                             wis::DX12AccelerationStructureView dst_acceleration_structure,
@@ -191,8 +196,8 @@ DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 #pragma endregion DX12Raytracing
 } // namespace wis
 
-#ifndef WISDOM_BUILD_BINARIES
-#include "impl/impl.dx12.cpp"
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
+//#ifndef WISDOM_BUILD_BINARIES
+//#include "impl/impl.dx12.cpp"
+//#endif // !WISDOM_PLATFORM_HEADER_ONLY
 #endif // WISDOM_DX12
 #endif // !WISDOM_RAYTRACING_DX12_HPP

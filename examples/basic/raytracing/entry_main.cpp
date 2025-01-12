@@ -44,6 +44,7 @@ class App
 
     wis::RootSignature rt_root_signature;
     wis::DescriptorStorage rt_descriptor_storage;
+    wis::RaytracingPipeline rt_pipeline;
 
 public:
     App()
@@ -303,7 +304,7 @@ private:
             { .entry_point = "ClosestHit", .shader_type = wis::RaytracingShaderType::ClosestHit, .shader_array_index = 1 },
         };
         wis::HitGroupDesc hit_groups[]{
-            { .type = wis::HitGroupType::Triangles, .closest_hit_export_index = 2, .any_hit_export_index = UINT32_MAX, .intersection_export_index = UINT32_MAX },
+            { .type = wis::HitGroupType::Triangles, .closest_hit_export_index = 2 },
         };
         wis::RaytracingPipelineDesc rt_pipeline_desc{
             .root_signature = rt_root_signature,
@@ -317,7 +318,29 @@ private:
             .max_payload_size = 24,
             .max_attribute_size = 8,
         };
-        raytracing_extension.CreateRaytracingPipeline(result, rt_pipeline_desc);
+        rt_pipeline = raytracing_extension.CreateRaytracingPipeline(result, rt_pipeline_desc);
+
+        // Create shader binding table
+        wis::ShaderBindingTableInfo sbt_info = raytracing_extension.GetShaderBindingTableInfo();
+
+        const uint8_t* shader_ident = rt_pipeline.GetShaderIdentifiers();
+
+        // 1 raygen, 1 miss, 1 hit group
+        wis::Buffer sbt_buffer = setup.allocator.CreateBuffer(result, wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment) * 3, wis::BufferUsage::ShaderBindingTable, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
+        auto memory = sbt_buffer.Map<uint8_t>();
+
+        // raygen
+        std::memcpy(memory, shader_ident, sbt_info.entry_size);
+        memory += wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment);
+
+        // miss
+        std::memcpy(memory, shader_ident + sbt_info.entry_size, sbt_info.entry_size);
+        memory += wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment);
+
+        // hit group
+        std::memcpy(memory, shader_ident + sbt_info.entry_size * 2, sbt_info.entry_size);
+        memory += wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment);
+        sbt_buffer.Unmap();
     }
 
 private:

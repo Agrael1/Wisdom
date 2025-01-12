@@ -18,7 +18,7 @@ if(WISDOM_BUILD_BINARIES)
     "wisdom/wisdom_raytracing.hpp"
     "wisdom/impl/impl.vk.cpp"
    
-   "wisdom/vk_rtas.h" "wisdom/impl.dx12.h" "wisdom/impl.vk.h" "wisdom/impl.h" "wisdom/dx12_raytracing_pipeline.h" "wisdom/impl/impl.dx12.cpp")
+   "wisdom/vk_rtas.h" "wisdom/impl.dx12.h" "wisdom/impl.vk.h" "wisdom/impl.h" "wisdom/dx12_raytracing_pipeline.h" "wisdom/impl/impl.dx12.cpp" "wisdom/vk_raytracing_pipeline.h")
   add_library(wis::raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
