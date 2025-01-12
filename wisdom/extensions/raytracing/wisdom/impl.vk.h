@@ -106,7 +106,7 @@ public:
     void SetDescriptorStorage(const wis::VKCommandList& cmd_list, wis::VKDescriptorStorageView desc_storage) const noexcept
     {
         auto& set_span = std::get<0>(desc_storage);
-        device.table().vkCmdBindDescriptorSets(cmd_list.GetInternal().command_list, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, cmd_list.GetInternal().pipeline_layout, 0, set_span.size(), set_span.data(), 0, nullptr);
+        device.table().vkCmdBindDescriptorSets(cmd_list.GetInternal().command_list, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, cmd_list.GetInternal().pipeline_layout, 1, set_span.size(), set_span.data(), 0, nullptr);
     }
     void SetRootSignature(wis::VKCommandList& cmd_list, wis::VKRootSignatureView root_signature) const noexcept
     {
