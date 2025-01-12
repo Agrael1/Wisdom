@@ -46,6 +46,8 @@ public:
 
     WIS_INLINE void CopyTextureToBuffer(DX12TextureView src_texture, DX12BufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
+    WIS_INLINE void CopyTexture(DX12TextureView source, DX12TextureView destination, const wis::CopyTextureRegion* regions, uint32_t region_count) const noexcept;
+
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
     WIS_INLINE void BufferBarriers(const wis::DX12BufferBarrier2* barriers, uint32_t barrier_count) noexcept;

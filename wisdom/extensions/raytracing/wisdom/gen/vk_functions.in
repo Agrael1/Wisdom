@@ -8,3 +8,4 @@ vkCmdBuildAccelerationStructuresKHR
 vkGetAccelerationStructureDeviceAddressKHR
 vkCreateRayTracingPipelinesKHR
 vkGetRayTracingShaderGroupHandlesKHR
+vkCmdTraceRaysKHR

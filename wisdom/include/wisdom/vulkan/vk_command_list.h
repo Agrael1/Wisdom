@@ -76,6 +76,8 @@ public:
 
     WIS_INLINE void CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
+    WIS_INLINE void CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::CopyTextureRegion* regions, uint32_t region_count) const noexcept;
+
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
     WIS_INLINE void BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept;

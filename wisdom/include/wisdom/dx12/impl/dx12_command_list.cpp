@@ -56,6 +56,44 @@ void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX
     }
 }
 
+void wis::ImplDX12CommandList::CopyTexture(DX12TextureView source, DX12TextureView destination, const wis::CopyTextureRegion* regions, uint32_t region_count) const noexcept
+{
+    auto src_texture = std::get<0>(source);
+    auto dst_texture = std::get<0>(destination);
+    auto src_desc = src_texture->GetDesc();
+    auto dst_desc = dst_texture->GetDesc();
+
+    wis::com_ptr<ID3D12Device> device;
+    auto hr = src_texture->GetDevice(__uuidof(*device), device.put_void());
+    for (uint32_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        uint32_t num_rows = 0;
+        uint64_t row_size = 0;
+        uint64_t required_size = 0;
+        uint32_t src_subresource = D3D12CalcSubresource(region.src.mip, region.src.array_layer, 0u, src_desc.MipLevels, src_desc.DepthOrArraySize);
+        D3D12_TEXTURE_COPY_LOCATION src{
+            .pResource = src_texture,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = src_subresource
+        };
+        uint32_t dst_subresource = D3D12CalcSubresource(region.dst.mip, region.dst.array_layer, 0u, dst_desc.MipLevels, dst_desc.DepthOrArraySize);
+        D3D12_TEXTURE_COPY_LOCATION dst{
+            .pResource = dst_texture,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = dst_subresource
+        };
+        D3D12_BOX box{
+            .left = region.src.offset.width,
+            .top = region.src.offset.height,
+            .front = region.src.offset.depth_or_layers,
+            .right = region.src.offset.width + region.src.size.width,
+            .bottom = region.src.offset.height + region.src.size.height,
+            .back = region.src.offset.depth_or_layers + region.src.size.depth_or_layers
+        };
+        list->CopyTextureRegion(&dst, region.dst.offset.width, region.dst.offset.depth_or_layers, region.dst.offset.depth_or_layers, &src, &box);
+    }
+}
+
 void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, DX12BufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     auto texture = std::get<0>(src_texture);
@@ -274,8 +312,9 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc* pa
 
     list->BeginRenderPass(pass_desc->target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, convert_dx(pass_desc->flags));
 
-    if (pass_desc->view_mask)
+    if (pass_desc->view_mask) {
         list->SetViewInstanceMask(pass_desc->view_mask);
+    }
 }
 
 void wis::ImplDX12CommandList::EndRenderPass() noexcept

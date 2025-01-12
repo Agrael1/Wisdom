@@ -8,6 +8,8 @@
 namespace wis {
 class DX12RaytracingPipeline;
 
+using DX12RaytracingPipelineView = std::tuple<ID3D12StateObject*>;
+
 template<>
 struct Internal<DX12RaytracingPipeline> {
     wis::com_ptr<ID3D12StateObject> state_object;
@@ -18,7 +20,10 @@ class DX12RaytracingPipeline : public QueryInternal<DX12RaytracingPipeline>
 {
 public:
     DX12RaytracingPipeline() noexcept = default;
-    // view operator
+    operator DX12RaytracingPipelineView() noexcept
+    {
+        return { state_object.get() };
+    }
     const uint8_t* GetShaderIdentifiers() const noexcept
     {
         return shader_identifiers.get();

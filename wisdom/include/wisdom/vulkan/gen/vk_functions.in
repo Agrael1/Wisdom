@@ -48,6 +48,7 @@ vkBeginCommandBuffer
 vkCmdCopyBuffer
 vkCmdCopyBufferToImage2
 vkCmdCopyImageToBuffer2
+vkCmdCopyImage2
 vkResetCommandBuffer
 vkCmdBindPipeline
 vkEndCommandBuffer

@@ -84,6 +84,11 @@ using PFN_vkGetBufferDeviceAddress = PFN_vkGetBufferDeviceAddressEXT;
 #endif
 #if !(defined(VK_VERSION_1_3))
 #if defined(VK_KHR_copy_commands2)
+using PFN_vkCmdCopyImage2 = PFN_vkCmdCopyImage2KHR;
+#endif
+#endif
+#if !(defined(VK_VERSION_1_3))
+#if defined(VK_KHR_copy_commands2)
 using PFN_vkCmdCopyBufferToImage2 = PFN_vkCmdCopyBufferToImage2KHR;
 #endif
 #endif
@@ -129,20 +134,25 @@ public:
     bool Init(LibTokenView token) noexcept
     {
         vkGetInstanceProcAddr = token.GetProcAddress<decltype(vkGetInstanceProcAddr)>("vkGetInstanceProcAddr");
-        if (vkGetInstanceProcAddr == nullptr)
+        if (vkGetInstanceProcAddr == nullptr) {
             return false;
+        }
         vkGetDeviceProcAddr = token.GetProcAddress<decltype(vkGetDeviceProcAddr)>("vkGetDeviceProcAddr");
-        if (vkGetDeviceProcAddr == nullptr)
+        if (vkGetDeviceProcAddr == nullptr) {
             return false;
+        }
         vkEnumerateInstanceLayerProperties = token.GetProcAddress<decltype(vkEnumerateInstanceLayerProperties)>("vkEnumerateInstanceLayerProperties");
-        if (vkEnumerateInstanceLayerProperties == nullptr)
+        if (vkEnumerateInstanceLayerProperties == nullptr) {
             return false;
+        }
         vkEnumerateInstanceExtensionProperties = token.GetProcAddress<decltype(vkEnumerateInstanceExtensionProperties)>("vkEnumerateInstanceExtensionProperties");
-        if (vkEnumerateInstanceExtensionProperties == nullptr)
+        if (vkEnumerateInstanceExtensionProperties == nullptr) {
             return false;
+        }
         vkCreateInstance = token.GetProcAddress<decltype(vkCreateInstance)>("vkCreateInstance");
-        if (vkCreateInstance == nullptr)
+        if (vkCreateInstance == nullptr) {
             return false;
+        }
         vkEnumerateInstanceVersion = token.GetProcAddress<decltype(vkEnumerateInstanceVersion)>("vkEnumerateInstanceVersion");
         return true;
     }
@@ -178,26 +188,33 @@ public:
     bool Init(VkInstance instance, PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr) noexcept
     {
         vkGetPhysicalDeviceMemoryProperties = (PFN_vkGetPhysicalDeviceMemoryProperties)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties");
-        if (vkGetPhysicalDeviceMemoryProperties == nullptr)
+        if (vkGetPhysicalDeviceMemoryProperties == nullptr) {
             return false;
+        }
         vkDestroyInstance = (PFN_vkDestroyInstance)vkGetInstanceProcAddr(instance, "vkDestroyInstance");
-        if (vkDestroyInstance == nullptr)
+        if (vkDestroyInstance == nullptr) {
             return false;
+        }
         vkCreateDevice = (PFN_vkCreateDevice)vkGetInstanceProcAddr(instance, "vkCreateDevice");
-        if (vkCreateDevice == nullptr)
+        if (vkCreateDevice == nullptr) {
             return false;
+        }
         vkGetPhysicalDeviceProperties = (PFN_vkGetPhysicalDeviceProperties)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties");
-        if (vkGetPhysicalDeviceProperties == nullptr)
+        if (vkGetPhysicalDeviceProperties == nullptr) {
             return false;
+        }
         vkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices)vkGetInstanceProcAddr(instance, "vkEnumeratePhysicalDevices");
-        if (vkEnumeratePhysicalDevices == nullptr)
+        if (vkEnumeratePhysicalDevices == nullptr) {
             return false;
+        }
         vkGetPhysicalDeviceQueueFamilyProperties = (PFN_vkGetPhysicalDeviceQueueFamilyProperties)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceQueueFamilyProperties");
-        if (vkGetPhysicalDeviceQueueFamilyProperties == nullptr)
+        if (vkGetPhysicalDeviceQueueFamilyProperties == nullptr) {
             return false;
+        }
         vkEnumerateDeviceExtensionProperties = (PFN_vkEnumerateDeviceExtensionProperties)vkGetInstanceProcAddr(instance, "vkEnumerateDeviceExtensionProperties");
-        if (vkEnumerateDeviceExtensionProperties == nullptr)
+        if (vkEnumerateDeviceExtensionProperties == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetPhysicalDeviceFeatures2_strings{
 #if defined(VK_VERSION_1_1)
             "vkGetPhysicalDeviceFeatures2",
@@ -206,11 +223,14 @@ public:
             "vkGetPhysicalDeviceFeatures2KHR",
 #endif
         };
-        for (auto vkGetPhysicalDeviceFeatures2_it : vkGetPhysicalDeviceFeatures2_strings)
-            if ((vkGetPhysicalDeviceFeatures2 = (PFN_vkGetPhysicalDeviceFeatures2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceFeatures2_it)))
+        for (auto vkGetPhysicalDeviceFeatures2_it : vkGetPhysicalDeviceFeatures2_strings) {
+            if ((vkGetPhysicalDeviceFeatures2 = (PFN_vkGetPhysicalDeviceFeatures2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceFeatures2_it))) {
                 break;
-        if (vkGetPhysicalDeviceFeatures2 == nullptr)
+            }
+        }
+        if (vkGetPhysicalDeviceFeatures2 == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetPhysicalDeviceProperties2_strings{
 #if defined(VK_VERSION_1_1)
             "vkGetPhysicalDeviceProperties2",
@@ -219,11 +239,14 @@ public:
             "vkGetPhysicalDeviceProperties2KHR",
 #endif
         };
-        for (auto vkGetPhysicalDeviceProperties2_it : vkGetPhysicalDeviceProperties2_strings)
-            if ((vkGetPhysicalDeviceProperties2 = (PFN_vkGetPhysicalDeviceProperties2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceProperties2_it)))
+        for (auto vkGetPhysicalDeviceProperties2_it : vkGetPhysicalDeviceProperties2_strings) {
+            if ((vkGetPhysicalDeviceProperties2 = (PFN_vkGetPhysicalDeviceProperties2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceProperties2_it))) {
                 break;
-        if (vkGetPhysicalDeviceProperties2 == nullptr)
+            }
+        }
+        if (vkGetPhysicalDeviceProperties2 == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetPhysicalDeviceMemoryProperties2_strings{
 #if defined(VK_VERSION_1_1)
             "vkGetPhysicalDeviceMemoryProperties2",
@@ -232,30 +255,38 @@ public:
             "vkGetPhysicalDeviceMemoryProperties2KHR",
 #endif
         };
-        for (auto vkGetPhysicalDeviceMemoryProperties2_it : vkGetPhysicalDeviceMemoryProperties2_strings)
-            if ((vkGetPhysicalDeviceMemoryProperties2 = (PFN_vkGetPhysicalDeviceMemoryProperties2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceMemoryProperties2_it)))
+        for (auto vkGetPhysicalDeviceMemoryProperties2_it : vkGetPhysicalDeviceMemoryProperties2_strings) {
+            if ((vkGetPhysicalDeviceMemoryProperties2 = (PFN_vkGetPhysicalDeviceMemoryProperties2)vkGetInstanceProcAddr(instance, vkGetPhysicalDeviceMemoryProperties2_it))) {
                 break;
+            }
+        }
         vkGetPhysicalDeviceSurfaceCapabilities2KHR = (PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilities2KHR");
         vkDestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR");
-        if (vkDestroySurfaceKHR == nullptr)
+        if (vkDestroySurfaceKHR == nullptr) {
             return false;
+        }
         vkGetPhysicalDeviceSurfaceSupportKHR = (PFN_vkGetPhysicalDeviceSurfaceSupportKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceSupportKHR");
-        if (vkGetPhysicalDeviceSurfaceSupportKHR == nullptr)
+        if (vkGetPhysicalDeviceSurfaceSupportKHR == nullptr) {
             return false;
+        }
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR = (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
-        if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR == nullptr)
+        if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR == nullptr) {
             return false;
+        }
         vkGetPhysicalDeviceSurfaceFormatsKHR = (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
-        if (vkGetPhysicalDeviceSurfaceFormatsKHR == nullptr)
+        if (vkGetPhysicalDeviceSurfaceFormatsKHR == nullptr) {
             return false;
+        }
         vkGetPhysicalDeviceSurfacePresentModesKHR = (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
-        if (vkGetPhysicalDeviceSurfacePresentModesKHR == nullptr)
+        if (vkGetPhysicalDeviceSurfacePresentModesKHR == nullptr) {
             return false;
+        }
         return true;
     }
 };
 
 struct VKMainDevice {
+    PFN_vkCmdCopyImage2 vkCmdCopyImage2;
     PFN_vkCmdCopyBufferToImage2 vkCmdCopyBufferToImage2;
     PFN_vkCmdCopyImageToBuffer2 vkCmdCopyImageToBuffer2;
     PFN_vkUnmapMemory vkUnmapMemory;
@@ -369,6 +400,22 @@ struct VKMainDevice {
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
+        static constexpr std::array vkCmdCopyImage2_strings{
+#if defined(VK_VERSION_1_3)
+            "vkCmdCopyImage2",
+#endif
+#if defined(VK_KHR_copy_commands2)
+            "vkCmdCopyImage2KHR",
+#endif
+        };
+        for (auto vkCmdCopyImage2_it : vkCmdCopyImage2_strings) {
+            if ((vkCmdCopyImage2 = (PFN_vkCmdCopyImage2)vkGetDeviceProcAddr(device, vkCmdCopyImage2_it))) {
+                break;
+            }
+        }
+        if (vkCmdCopyImage2 == nullptr) {
+            return false;
+        }
         static constexpr std::array vkCmdCopyBufferToImage2_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdCopyBufferToImage2",
@@ -377,11 +424,14 @@ public:
             "vkCmdCopyBufferToImage2KHR",
 #endif
         };
-        for (auto vkCmdCopyBufferToImage2_it : vkCmdCopyBufferToImage2_strings)
-            if ((vkCmdCopyBufferToImage2 = (PFN_vkCmdCopyBufferToImage2)vkGetDeviceProcAddr(device, vkCmdCopyBufferToImage2_it)))
+        for (auto vkCmdCopyBufferToImage2_it : vkCmdCopyBufferToImage2_strings) {
+            if ((vkCmdCopyBufferToImage2 = (PFN_vkCmdCopyBufferToImage2)vkGetDeviceProcAddr(device, vkCmdCopyBufferToImage2_it))) {
                 break;
-        if (vkCmdCopyBufferToImage2 == nullptr)
+            }
+        }
+        if (vkCmdCopyBufferToImage2 == nullptr) {
             return false;
+        }
         static constexpr std::array vkCmdCopyImageToBuffer2_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdCopyImageToBuffer2",
@@ -390,173 +440,230 @@ public:
             "vkCmdCopyImageToBuffer2KHR",
 #endif
         };
-        for (auto vkCmdCopyImageToBuffer2_it : vkCmdCopyImageToBuffer2_strings)
-            if ((vkCmdCopyImageToBuffer2 = (PFN_vkCmdCopyImageToBuffer2)vkGetDeviceProcAddr(device, vkCmdCopyImageToBuffer2_it)))
+        for (auto vkCmdCopyImageToBuffer2_it : vkCmdCopyImageToBuffer2_strings) {
+            if ((vkCmdCopyImageToBuffer2 = (PFN_vkCmdCopyImageToBuffer2)vkGetDeviceProcAddr(device, vkCmdCopyImageToBuffer2_it))) {
                 break;
-        if (vkCmdCopyImageToBuffer2 == nullptr)
+            }
+        }
+        if (vkCmdCopyImageToBuffer2 == nullptr) {
             return false;
+        }
         vkUnmapMemory = (PFN_vkUnmapMemory)vkGetDeviceProcAddr(device, "vkUnmapMemory");
-        if (vkUnmapMemory == nullptr)
+        if (vkUnmapMemory == nullptr) {
             return false;
+        }
         vkDestroyDevice = (PFN_vkDestroyDevice)vkGetDeviceProcAddr(device, "vkDestroyDevice");
-        if (vkDestroyDevice == nullptr)
+        if (vkDestroyDevice == nullptr) {
             return false;
+        }
         vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer)vkGetDeviceProcAddr(device, "vkBeginCommandBuffer");
-        if (vkBeginCommandBuffer == nullptr)
+        if (vkBeginCommandBuffer == nullptr) {
             return false;
+        }
         vkQueueSubmit = (PFN_vkQueueSubmit)vkGetDeviceProcAddr(device, "vkQueueSubmit");
-        if (vkQueueSubmit == nullptr)
+        if (vkQueueSubmit == nullptr) {
             return false;
+        }
         vkCreateSampler = (PFN_vkCreateSampler)vkGetDeviceProcAddr(device, "vkCreateSampler");
-        if (vkCreateSampler == nullptr)
+        if (vkCreateSampler == nullptr) {
             return false;
+        }
         vkFlushMappedMemoryRanges = (PFN_vkFlushMappedMemoryRanges)vkGetDeviceProcAddr(device, "vkFlushMappedMemoryRanges");
-        if (vkFlushMappedMemoryRanges == nullptr)
+        if (vkFlushMappedMemoryRanges == nullptr) {
             return false;
+        }
         vkAllocateMemory = (PFN_vkAllocateMemory)vkGetDeviceProcAddr(device, "vkAllocateMemory");
-        if (vkAllocateMemory == nullptr)
+        if (vkAllocateMemory == nullptr) {
             return false;
+        }
         vkDestroyPipeline = (PFN_vkDestroyPipeline)vkGetDeviceProcAddr(device, "vkDestroyPipeline");
-        if (vkDestroyPipeline == nullptr)
+        if (vkDestroyPipeline == nullptr) {
             return false;
+        }
         vkQueueWaitIdle = (PFN_vkQueueWaitIdle)vkGetDeviceProcAddr(device, "vkQueueWaitIdle");
-        if (vkQueueWaitIdle == nullptr)
+        if (vkQueueWaitIdle == nullptr) {
             return false;
+        }
         vkCreateImage = (PFN_vkCreateImage)vkGetDeviceProcAddr(device, "vkCreateImage");
-        if (vkCreateImage == nullptr)
+        if (vkCreateImage == nullptr) {
             return false;
+        }
         vkCreateDescriptorSetLayout = (PFN_vkCreateDescriptorSetLayout)vkGetDeviceProcAddr(device, "vkCreateDescriptorSetLayout");
-        if (vkCreateDescriptorSetLayout == nullptr)
+        if (vkCreateDescriptorSetLayout == nullptr) {
             return false;
+        }
         vkFreeMemory = (PFN_vkFreeMemory)vkGetDeviceProcAddr(device, "vkFreeMemory");
-        if (vkFreeMemory == nullptr)
+        if (vkFreeMemory == nullptr) {
             return false;
+        }
         vkMapMemory = (PFN_vkMapMemory)vkGetDeviceProcAddr(device, "vkMapMemory");
-        if (vkMapMemory == nullptr)
+        if (vkMapMemory == nullptr) {
             return false;
+        }
         vkDestroyDescriptorSetLayout = (PFN_vkDestroyDescriptorSetLayout)vkGetDeviceProcAddr(device, "vkDestroyDescriptorSetLayout");
-        if (vkDestroyDescriptorSetLayout == nullptr)
+        if (vkDestroyDescriptorSetLayout == nullptr) {
             return false;
+        }
         vkInvalidateMappedMemoryRanges = (PFN_vkInvalidateMappedMemoryRanges)vkGetDeviceProcAddr(device, "vkInvalidateMappedMemoryRanges");
-        if (vkInvalidateMappedMemoryRanges == nullptr)
+        if (vkInvalidateMappedMemoryRanges == nullptr) {
             return false;
+        }
         vkCmdSetScissor = (PFN_vkCmdSetScissor)vkGetDeviceProcAddr(device, "vkCmdSetScissor");
-        if (vkCmdSetScissor == nullptr)
+        if (vkCmdSetScissor == nullptr) {
             return false;
+        }
         vkBindBufferMemory = (PFN_vkBindBufferMemory)vkGetDeviceProcAddr(device, "vkBindBufferMemory");
-        if (vkBindBufferMemory == nullptr)
+        if (vkBindBufferMemory == nullptr) {
             return false;
+        }
         vkBindImageMemory = (PFN_vkBindImageMemory)vkGetDeviceProcAddr(device, "vkBindImageMemory");
-        if (vkBindImageMemory == nullptr)
+        if (vkBindImageMemory == nullptr) {
             return false;
+        }
         vkGetBufferMemoryRequirements = (PFN_vkGetBufferMemoryRequirements)vkGetDeviceProcAddr(device, "vkGetBufferMemoryRequirements");
-        if (vkGetBufferMemoryRequirements == nullptr)
+        if (vkGetBufferMemoryRequirements == nullptr) {
             return false;
+        }
         vkCmdSetViewport = (PFN_vkCmdSetViewport)vkGetDeviceProcAddr(device, "vkCmdSetViewport");
-        if (vkCmdSetViewport == nullptr)
+        if (vkCmdSetViewport == nullptr) {
             return false;
+        }
         vkDestroySampler = (PFN_vkDestroySampler)vkGetDeviceProcAddr(device, "vkDestroySampler");
-        if (vkDestroySampler == nullptr)
+        if (vkDestroySampler == nullptr) {
             return false;
+        }
         vkDestroyImageView = (PFN_vkDestroyImageView)vkGetDeviceProcAddr(device, "vkDestroyImageView");
-        if (vkDestroyImageView == nullptr)
+        if (vkDestroyImageView == nullptr) {
             return false;
+        }
         vkGetImageMemoryRequirements = (PFN_vkGetImageMemoryRequirements)vkGetDeviceProcAddr(device, "vkGetImageMemoryRequirements");
-        if (vkGetImageMemoryRequirements == nullptr)
+        if (vkGetImageMemoryRequirements == nullptr) {
             return false;
+        }
         vkCreateFence = (PFN_vkCreateFence)vkGetDeviceProcAddr(device, "vkCreateFence");
-        if (vkCreateFence == nullptr)
+        if (vkCreateFence == nullptr) {
             return false;
+        }
         vkDestroyFence = (PFN_vkDestroyFence)vkGetDeviceProcAddr(device, "vkDestroyFence");
-        if (vkDestroyFence == nullptr)
+        if (vkDestroyFence == nullptr) {
             return false;
+        }
         vkCreateCommandPool = (PFN_vkCreateCommandPool)vkGetDeviceProcAddr(device, "vkCreateCommandPool");
-        if (vkCreateCommandPool == nullptr)
+        if (vkCreateCommandPool == nullptr) {
             return false;
+        }
         vkCmdBindPipeline = (PFN_vkCmdBindPipeline)vkGetDeviceProcAddr(device, "vkCmdBindPipeline");
-        if (vkCmdBindPipeline == nullptr)
+        if (vkCmdBindPipeline == nullptr) {
             return false;
+        }
         vkResetFences = (PFN_vkResetFences)vkGetDeviceProcAddr(device, "vkResetFences");
-        if (vkResetFences == nullptr)
+        if (vkResetFences == nullptr) {
             return false;
+        }
         vkWaitForFences = (PFN_vkWaitForFences)vkGetDeviceProcAddr(device, "vkWaitForFences");
-        if (vkWaitForFences == nullptr)
+        if (vkWaitForFences == nullptr) {
             return false;
+        }
         vkCreateSemaphore = (PFN_vkCreateSemaphore)vkGetDeviceProcAddr(device, "vkCreateSemaphore");
-        if (vkCreateSemaphore == nullptr)
+        if (vkCreateSemaphore == nullptr) {
             return false;
+        }
         vkDestroyBuffer = (PFN_vkDestroyBuffer)vkGetDeviceProcAddr(device, "vkDestroyBuffer");
-        if (vkDestroyBuffer == nullptr)
+        if (vkDestroyBuffer == nullptr) {
             return false;
+        }
         vkDestroySemaphore = (PFN_vkDestroySemaphore)vkGetDeviceProcAddr(device, "vkDestroySemaphore");
-        if (vkDestroySemaphore == nullptr)
+        if (vkDestroySemaphore == nullptr) {
             return false;
+        }
         vkCreateBuffer = (PFN_vkCreateBuffer)vkGetDeviceProcAddr(device, "vkCreateBuffer");
-        if (vkCreateBuffer == nullptr)
+        if (vkCreateBuffer == nullptr) {
             return false;
+        }
         vkDestroyImage = (PFN_vkDestroyImage)vkGetDeviceProcAddr(device, "vkDestroyImage");
-        if (vkDestroyImage == nullptr)
+        if (vkDestroyImage == nullptr) {
             return false;
+        }
         vkCreatePipelineLayout = (PFN_vkCreatePipelineLayout)vkGetDeviceProcAddr(device, "vkCreatePipelineLayout");
-        if (vkCreatePipelineLayout == nullptr)
+        if (vkCreatePipelineLayout == nullptr) {
             return false;
+        }
         vkCreateImageView = (PFN_vkCreateImageView)vkGetDeviceProcAddr(device, "vkCreateImageView");
-        if (vkCreateImageView == nullptr)
+        if (vkCreateImageView == nullptr) {
             return false;
+        }
         vkCreateShaderModule = (PFN_vkCreateShaderModule)vkGetDeviceProcAddr(device, "vkCreateShaderModule");
-        if (vkCreateShaderModule == nullptr)
+        if (vkCreateShaderModule == nullptr) {
             return false;
+        }
         vkDestroyShaderModule = (PFN_vkDestroyShaderModule)vkGetDeviceProcAddr(device, "vkDestroyShaderModule");
-        if (vkDestroyShaderModule == nullptr)
+        if (vkDestroyShaderModule == nullptr) {
             return false;
+        }
         vkCmdBindIndexBuffer = (PFN_vkCmdBindIndexBuffer)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer");
-        if (vkCmdBindIndexBuffer == nullptr)
+        if (vkCmdBindIndexBuffer == nullptr) {
             return false;
+        }
         vkCreateGraphicsPipelines = (PFN_vkCreateGraphicsPipelines)vkGetDeviceProcAddr(device, "vkCreateGraphicsPipelines");
-        if (vkCreateGraphicsPipelines == nullptr)
+        if (vkCreateGraphicsPipelines == nullptr) {
             return false;
+        }
         vkResetCommandBuffer = (PFN_vkResetCommandBuffer)vkGetDeviceProcAddr(device, "vkResetCommandBuffer");
-        if (vkResetCommandBuffer == nullptr)
+        if (vkResetCommandBuffer == nullptr) {
             return false;
+        }
         vkDestroyPipelineLayout = (PFN_vkDestroyPipelineLayout)vkGetDeviceProcAddr(device, "vkDestroyPipelineLayout");
-        if (vkDestroyPipelineLayout == nullptr)
+        if (vkDestroyPipelineLayout == nullptr) {
             return false;
+        }
         vkAllocateCommandBuffers = (PFN_vkAllocateCommandBuffers)vkGetDeviceProcAddr(device, "vkAllocateCommandBuffers");
-        if (vkAllocateCommandBuffers == nullptr)
+        if (vkAllocateCommandBuffers == nullptr) {
             return false;
+        }
         vkCreateDescriptorPool = (PFN_vkCreateDescriptorPool)vkGetDeviceProcAddr(device, "vkCreateDescriptorPool");
-        if (vkCreateDescriptorPool == nullptr)
+        if (vkCreateDescriptorPool == nullptr) {
             return false;
+        }
         vkCmdPushConstants = (PFN_vkCmdPushConstants)vkGetDeviceProcAddr(device, "vkCmdPushConstants");
-        if (vkCmdPushConstants == nullptr)
+        if (vkCmdPushConstants == nullptr) {
             return false;
+        }
         vkDestroyDescriptorPool = (PFN_vkDestroyDescriptorPool)vkGetDeviceProcAddr(device, "vkDestroyDescriptorPool");
-        if (vkDestroyDescriptorPool == nullptr)
+        if (vkDestroyDescriptorPool == nullptr) {
             return false;
+        }
         vkAllocateDescriptorSets = (PFN_vkAllocateDescriptorSets)vkGetDeviceProcAddr(device, "vkAllocateDescriptorSets");
-        if (vkAllocateDescriptorSets == nullptr)
+        if (vkAllocateDescriptorSets == nullptr) {
             return false;
+        }
         vkUpdateDescriptorSets = (PFN_vkUpdateDescriptorSets)vkGetDeviceProcAddr(device, "vkUpdateDescriptorSets");
-        if (vkUpdateDescriptorSets == nullptr)
+        if (vkUpdateDescriptorSets == nullptr) {
             return false;
+        }
         vkDestroyCommandPool = (PFN_vkDestroyCommandPool)vkGetDeviceProcAddr(device, "vkDestroyCommandPool");
-        if (vkDestroyCommandPool == nullptr)
+        if (vkDestroyCommandPool == nullptr) {
             return false;
+        }
         vkEndCommandBuffer = (PFN_vkEndCommandBuffer)vkGetDeviceProcAddr(device, "vkEndCommandBuffer");
-        if (vkEndCommandBuffer == nullptr)
+        if (vkEndCommandBuffer == nullptr) {
             return false;
+        }
         vkCmdBindDescriptorSets = (PFN_vkCmdBindDescriptorSets)vkGetDeviceProcAddr(device, "vkCmdBindDescriptorSets");
-        if (vkCmdBindDescriptorSets == nullptr)
+        if (vkCmdBindDescriptorSets == nullptr) {
             return false;
+        }
         vkCmdDraw = (PFN_vkCmdDraw)vkGetDeviceProcAddr(device, "vkCmdDraw");
-        if (vkCmdDraw == nullptr)
+        if (vkCmdDraw == nullptr) {
             return false;
+        }
         vkCmdDrawIndexed = (PFN_vkCmdDrawIndexed)vkGetDeviceProcAddr(device, "vkCmdDrawIndexed");
-        if (vkCmdDrawIndexed == nullptr)
+        if (vkCmdDrawIndexed == nullptr) {
             return false;
+        }
         vkCmdCopyBuffer = (PFN_vkCmdCopyBuffer)vkGetDeviceProcAddr(device, "vkCmdCopyBuffer");
-        if (vkCmdCopyBuffer == nullptr)
+        if (vkCmdCopyBuffer == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetDeviceBufferMemoryRequirements_strings{
 #if defined(VK_VERSION_1_3)
             "vkGetDeviceBufferMemoryRequirements",
@@ -565,11 +672,14 @@ public:
             "vkGetDeviceBufferMemoryRequirementsKHR",
 #endif
         };
-        for (auto vkGetDeviceBufferMemoryRequirements_it : vkGetDeviceBufferMemoryRequirements_strings)
-            if ((vkGetDeviceBufferMemoryRequirements = (PFN_vkGetDeviceBufferMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceBufferMemoryRequirements_it)))
+        for (auto vkGetDeviceBufferMemoryRequirements_it : vkGetDeviceBufferMemoryRequirements_strings) {
+            if ((vkGetDeviceBufferMemoryRequirements = (PFN_vkGetDeviceBufferMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceBufferMemoryRequirements_it))) {
                 break;
-        if (vkGetDeviceBufferMemoryRequirements == nullptr)
+            }
+        }
+        if (vkGetDeviceBufferMemoryRequirements == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetDeviceImageMemoryRequirements_strings{
 #if defined(VK_VERSION_1_3)
             "vkGetDeviceImageMemoryRequirements",
@@ -578,14 +688,18 @@ public:
             "vkGetDeviceImageMemoryRequirementsKHR",
 #endif
         };
-        for (auto vkGetDeviceImageMemoryRequirements_it : vkGetDeviceImageMemoryRequirements_strings)
-            if ((vkGetDeviceImageMemoryRequirements = (PFN_vkGetDeviceImageMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceImageMemoryRequirements_it)))
+        for (auto vkGetDeviceImageMemoryRequirements_it : vkGetDeviceImageMemoryRequirements_strings) {
+            if ((vkGetDeviceImageMemoryRequirements = (PFN_vkGetDeviceImageMemoryRequirements)vkGetDeviceProcAddr(device, vkGetDeviceImageMemoryRequirements_it))) {
                 break;
-        if (vkGetDeviceImageMemoryRequirements == nullptr)
+            }
+        }
+        if (vkGetDeviceImageMemoryRequirements == nullptr) {
             return false;
+        }
         vkGetDeviceQueue2 = (PFN_vkGetDeviceQueue2)vkGetDeviceProcAddr(device, "vkGetDeviceQueue2");
-        if (vkGetDeviceQueue2 == nullptr)
+        if (vkGetDeviceQueue2 == nullptr) {
             return false;
+        }
         vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer2KHR");
         static constexpr std::array vkGetImageMemoryRequirements2_strings{
 #if defined(VK_VERSION_1_1)
@@ -595,9 +709,11 @@ public:
             "vkGetImageMemoryRequirements2KHR",
 #endif
         };
-        for (auto vkGetImageMemoryRequirements2_it : vkGetImageMemoryRequirements2_strings)
-            if ((vkGetImageMemoryRequirements2 = (PFN_vkGetImageMemoryRequirements2)vkGetDeviceProcAddr(device, vkGetImageMemoryRequirements2_it)))
+        for (auto vkGetImageMemoryRequirements2_it : vkGetImageMemoryRequirements2_strings) {
+            if ((vkGetImageMemoryRequirements2 = (PFN_vkGetImageMemoryRequirements2)vkGetDeviceProcAddr(device, vkGetImageMemoryRequirements2_it))) {
                 break;
+            }
+        }
         static constexpr std::array vkGetBufferMemoryRequirements2_strings{
 #if defined(VK_VERSION_1_1)
             "vkGetBufferMemoryRequirements2",
@@ -606,9 +722,11 @@ public:
             "vkGetBufferMemoryRequirements2KHR",
 #endif
         };
-        for (auto vkGetBufferMemoryRequirements2_it : vkGetBufferMemoryRequirements2_strings)
-            if ((vkGetBufferMemoryRequirements2 = (PFN_vkGetBufferMemoryRequirements2)vkGetDeviceProcAddr(device, vkGetBufferMemoryRequirements2_it)))
+        for (auto vkGetBufferMemoryRequirements2_it : vkGetBufferMemoryRequirements2_strings) {
+            if ((vkGetBufferMemoryRequirements2 = (PFN_vkGetBufferMemoryRequirements2)vkGetDeviceProcAddr(device, vkGetBufferMemoryRequirements2_it))) {
                 break;
+            }
+        }
         static constexpr std::array vkBindBufferMemory2_strings{
 #if defined(VK_VERSION_1_1)
             "vkBindBufferMemory2",
@@ -617,9 +735,11 @@ public:
             "vkBindBufferMemory2KHR",
 #endif
         };
-        for (auto vkBindBufferMemory2_it : vkBindBufferMemory2_strings)
-            if ((vkBindBufferMemory2 = (PFN_vkBindBufferMemory2)vkGetDeviceProcAddr(device, vkBindBufferMemory2_it)))
+        for (auto vkBindBufferMemory2_it : vkBindBufferMemory2_strings) {
+            if ((vkBindBufferMemory2 = (PFN_vkBindBufferMemory2)vkGetDeviceProcAddr(device, vkBindBufferMemory2_it))) {
                 break;
+            }
+        }
         static constexpr std::array vkBindImageMemory2_strings{
 #if defined(VK_VERSION_1_1)
             "vkBindImageMemory2",
@@ -628,9 +748,11 @@ public:
             "vkBindImageMemory2KHR",
 #endif
         };
-        for (auto vkBindImageMemory2_it : vkBindImageMemory2_strings)
-            if ((vkBindImageMemory2 = (PFN_vkBindImageMemory2)vkGetDeviceProcAddr(device, vkBindImageMemory2_it)))
+        for (auto vkBindImageMemory2_it : vkBindImageMemory2_strings) {
+            if ((vkBindImageMemory2 = (PFN_vkBindImageMemory2)vkGetDeviceProcAddr(device, vkBindImageMemory2_it))) {
                 break;
+            }
+        }
         static constexpr std::array vkWaitSemaphores_strings{
 #if defined(VK_VERSION_1_2)
             "vkWaitSemaphores",
@@ -639,11 +761,14 @@ public:
             "vkWaitSemaphoresKHR",
 #endif
         };
-        for (auto vkWaitSemaphores_it : vkWaitSemaphores_strings)
-            if ((vkWaitSemaphores = (PFN_vkWaitSemaphores)vkGetDeviceProcAddr(device, vkWaitSemaphores_it)))
+        for (auto vkWaitSemaphores_it : vkWaitSemaphores_strings) {
+            if ((vkWaitSemaphores = (PFN_vkWaitSemaphores)vkGetDeviceProcAddr(device, vkWaitSemaphores_it))) {
                 break;
-        if (vkWaitSemaphores == nullptr)
+            }
+        }
+        if (vkWaitSemaphores == nullptr) {
             return false;
+        }
         static constexpr std::array vkSignalSemaphore_strings{
 #if defined(VK_VERSION_1_2)
             "vkSignalSemaphore",
@@ -652,11 +777,14 @@ public:
             "vkSignalSemaphoreKHR",
 #endif
         };
-        for (auto vkSignalSemaphore_it : vkSignalSemaphore_strings)
-            if ((vkSignalSemaphore = (PFN_vkSignalSemaphore)vkGetDeviceProcAddr(device, vkSignalSemaphore_it)))
+        for (auto vkSignalSemaphore_it : vkSignalSemaphore_strings) {
+            if ((vkSignalSemaphore = (PFN_vkSignalSemaphore)vkGetDeviceProcAddr(device, vkSignalSemaphore_it))) {
                 break;
-        if (vkSignalSemaphore == nullptr)
+            }
+        }
+        if (vkSignalSemaphore == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetSemaphoreCounterValue_strings{
 #if defined(VK_VERSION_1_2)
             "vkGetSemaphoreCounterValue",
@@ -665,11 +793,14 @@ public:
             "vkGetSemaphoreCounterValueKHR",
 #endif
         };
-        for (auto vkGetSemaphoreCounterValue_it : vkGetSemaphoreCounterValue_strings)
-            if ((vkGetSemaphoreCounterValue = (PFN_vkGetSemaphoreCounterValue)vkGetDeviceProcAddr(device, vkGetSemaphoreCounterValue_it)))
+        for (auto vkGetSemaphoreCounterValue_it : vkGetSemaphoreCounterValue_strings) {
+            if ((vkGetSemaphoreCounterValue = (PFN_vkGetSemaphoreCounterValue)vkGetDeviceProcAddr(device, vkGetSemaphoreCounterValue_it))) {
                 break;
-        if (vkGetSemaphoreCounterValue == nullptr)
+            }
+        }
+        if (vkGetSemaphoreCounterValue == nullptr) {
             return false;
+        }
         static constexpr std::array vkCmdPipelineBarrier2_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdPipelineBarrier2",
@@ -678,11 +809,14 @@ public:
             "vkCmdPipelineBarrier2KHR",
 #endif
         };
-        for (auto vkCmdPipelineBarrier2_it : vkCmdPipelineBarrier2_strings)
-            if ((vkCmdPipelineBarrier2 = (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(device, vkCmdPipelineBarrier2_it)))
+        for (auto vkCmdPipelineBarrier2_it : vkCmdPipelineBarrier2_strings) {
+            if ((vkCmdPipelineBarrier2 = (PFN_vkCmdPipelineBarrier2)vkGetDeviceProcAddr(device, vkCmdPipelineBarrier2_it))) {
                 break;
-        if (vkCmdPipelineBarrier2 == nullptr)
+            }
+        }
+        if (vkCmdPipelineBarrier2 == nullptr) {
             return false;
+        }
         static constexpr std::array vkQueueSubmit2_strings{
 #if defined(VK_VERSION_1_3)
             "vkQueueSubmit2",
@@ -691,11 +825,14 @@ public:
             "vkQueueSubmit2KHR",
 #endif
         };
-        for (auto vkQueueSubmit2_it : vkQueueSubmit2_strings)
-            if ((vkQueueSubmit2 = (PFN_vkQueueSubmit2)vkGetDeviceProcAddr(device, vkQueueSubmit2_it)))
+        for (auto vkQueueSubmit2_it : vkQueueSubmit2_strings) {
+            if ((vkQueueSubmit2 = (PFN_vkQueueSubmit2)vkGetDeviceProcAddr(device, vkQueueSubmit2_it))) {
                 break;
-        if (vkQueueSubmit2 == nullptr)
+            }
+        }
+        if (vkQueueSubmit2 == nullptr) {
             return false;
+        }
         static constexpr std::array vkGetBufferDeviceAddress_strings{
 #if defined(VK_VERSION_1_2)
             "vkGetBufferDeviceAddress",
@@ -707,11 +844,14 @@ public:
             "vkGetBufferDeviceAddressEXT",
 #endif
         };
-        for (auto vkGetBufferDeviceAddress_it : vkGetBufferDeviceAddress_strings)
-            if ((vkGetBufferDeviceAddress = (PFN_vkGetBufferDeviceAddress)vkGetDeviceProcAddr(device, vkGetBufferDeviceAddress_it)))
+        for (auto vkGetBufferDeviceAddress_it : vkGetBufferDeviceAddress_strings) {
+            if ((vkGetBufferDeviceAddress = (PFN_vkGetBufferDeviceAddress)vkGetDeviceProcAddr(device, vkGetBufferDeviceAddress_it))) {
                 break;
-        if (vkGetBufferDeviceAddress == nullptr)
+            }
+        }
+        if (vkGetBufferDeviceAddress == nullptr) {
             return false;
+        }
         static constexpr std::array vkCmdBeginRendering_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdBeginRendering",
@@ -720,11 +860,14 @@ public:
             "vkCmdBeginRenderingKHR",
 #endif
         };
-        for (auto vkCmdBeginRendering_it : vkCmdBeginRendering_strings)
-            if ((vkCmdBeginRendering = (PFN_vkCmdBeginRendering)vkGetDeviceProcAddr(device, vkCmdBeginRendering_it)))
+        for (auto vkCmdBeginRendering_it : vkCmdBeginRendering_strings) {
+            if ((vkCmdBeginRendering = (PFN_vkCmdBeginRendering)vkGetDeviceProcAddr(device, vkCmdBeginRendering_it))) {
                 break;
-        if (vkCmdBeginRendering == nullptr)
+            }
+        }
+        if (vkCmdBeginRendering == nullptr) {
             return false;
+        }
         static constexpr std::array vkCmdEndRendering_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdEndRendering",
@@ -733,11 +876,14 @@ public:
             "vkCmdEndRenderingKHR",
 #endif
         };
-        for (auto vkCmdEndRendering_it : vkCmdEndRendering_strings)
-            if ((vkCmdEndRendering = (PFN_vkCmdEndRendering)vkGetDeviceProcAddr(device, vkCmdEndRendering_it)))
+        for (auto vkCmdEndRendering_it : vkCmdEndRendering_strings) {
+            if ((vkCmdEndRendering = (PFN_vkCmdEndRendering)vkGetDeviceProcAddr(device, vkCmdEndRendering_it))) {
                 break;
-        if (vkCmdEndRendering == nullptr)
+            }
+        }
+        if (vkCmdEndRendering == nullptr) {
             return false;
+        }
         static constexpr std::array vkCmdSetPrimitiveTopology_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdSetPrimitiveTopology",
@@ -746,11 +892,14 @@ public:
             "vkCmdSetPrimitiveTopologyEXT",
 #endif
         };
-        for (auto vkCmdSetPrimitiveTopology_it : vkCmdSetPrimitiveTopology_strings)
-            if ((vkCmdSetPrimitiveTopology = (PFN_vkCmdSetPrimitiveTopology)vkGetDeviceProcAddr(device, vkCmdSetPrimitiveTopology_it)))
+        for (auto vkCmdSetPrimitiveTopology_it : vkCmdSetPrimitiveTopology_strings) {
+            if ((vkCmdSetPrimitiveTopology = (PFN_vkCmdSetPrimitiveTopology)vkGetDeviceProcAddr(device, vkCmdSetPrimitiveTopology_it))) {
                 break;
-        if (vkCmdSetPrimitiveTopology == nullptr)
+            }
+        }
+        if (vkCmdSetPrimitiveTopology == nullptr) {
             return false;
+        }
         static constexpr std::array vkCmdBindVertexBuffers2_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdBindVertexBuffers2",
@@ -759,26 +908,34 @@ public:
             "vkCmdBindVertexBuffers2EXT",
 #endif
         };
-        for (auto vkCmdBindVertexBuffers2_it : vkCmdBindVertexBuffers2_strings)
-            if ((vkCmdBindVertexBuffers2 = (PFN_vkCmdBindVertexBuffers2)vkGetDeviceProcAddr(device, vkCmdBindVertexBuffers2_it)))
+        for (auto vkCmdBindVertexBuffers2_it : vkCmdBindVertexBuffers2_strings) {
+            if ((vkCmdBindVertexBuffers2 = (PFN_vkCmdBindVertexBuffers2)vkGetDeviceProcAddr(device, vkCmdBindVertexBuffers2_it))) {
                 break;
-        if (vkCmdBindVertexBuffers2 == nullptr)
+            }
+        }
+        if (vkCmdBindVertexBuffers2 == nullptr) {
             return false;
+        }
         vkCreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)vkGetDeviceProcAddr(device, "vkCreateSwapchainKHR");
-        if (vkCreateSwapchainKHR == nullptr)
+        if (vkCreateSwapchainKHR == nullptr) {
             return false;
+        }
         vkDestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)vkGetDeviceProcAddr(device, "vkDestroySwapchainKHR");
-        if (vkDestroySwapchainKHR == nullptr)
+        if (vkDestroySwapchainKHR == nullptr) {
             return false;
+        }
         vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)vkGetDeviceProcAddr(device, "vkGetSwapchainImagesKHR");
-        if (vkGetSwapchainImagesKHR == nullptr)
+        if (vkGetSwapchainImagesKHR == nullptr) {
             return false;
+        }
         vkAcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)vkGetDeviceProcAddr(device, "vkAcquireNextImageKHR");
-        if (vkAcquireNextImageKHR == nullptr)
+        if (vkAcquireNextImageKHR == nullptr) {
             return false;
+        }
         vkQueuePresentKHR = (PFN_vkQueuePresentKHR)vkGetDeviceProcAddr(device, "vkQueuePresentKHR");
-        if (vkQueuePresentKHR == nullptr)
+        if (vkQueuePresentKHR == nullptr) {
             return false;
+        }
         vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(device, "vkCmdPushDescriptorSetKHR");
         vkWaitForPresentKHR = (PFN_vkWaitForPresentKHR)vkGetDeviceProcAddr(device, "vkWaitForPresentKHR");
         return true;

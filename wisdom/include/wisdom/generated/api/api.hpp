@@ -57,6 +57,8 @@ struct DescriptorBindingDesc;
 struct ShaderExport;
 struct HitGroupDesc;
 struct ShaderBindingTableInfo;
+struct RaytracingDispatchDesc;
+struct CopyTextureRegion;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -2020,6 +2022,34 @@ struct HitGroupDesc {
 struct ShaderBindingTableInfo {
     uint32_t entry_size; ///< Size/stride of the entry in bytes.
     uint32_t table_start_alignment; ///< Alignment of the table start in bytes.
+};
+
+/**
+ * @brief Raytracing dispatch description for wis::CommandList.
+ * */
+struct RaytracingDispatchDesc {
+    uint64_t ray_gen_shader_table_address; ///< Address of the ray generation shader table.
+    uint64_t miss_shader_table_address; ///< Address of the miss shader table.
+    uint64_t hit_group_table_address; ///< Address of the hit group shader table.
+    uint64_t callable_shader_table_address; ///< Address of the callable shader table.
+    uint32_t ray_gen_shader_table_size; ///< Size of the ray generation shader table in bytes.
+    uint32_t miss_shader_table_size; ///< Size of the miss shader table in bytes.
+    uint32_t hit_group_table_size; ///< Size of the hit group shader table in bytes.
+    uint32_t callable_shader_table_size; ///< Size of the callable shader table in bytes.
+    uint32_t miss_shader_table_stride; ///< Stride of the miss shader table in bytes.
+    uint32_t hit_group_table_stride; ///< Stride of the hit group shader table in bytes.
+    uint32_t callable_shader_table_stride; ///< Stride of the callable shader table in bytes.
+    uint32_t width; ///< Width of the dispatch in number of rays.
+    uint32_t height; ///< Height of the dispatch in number of rays.
+    uint32_t depth; ///< Depth of the dispatch in number of rays.
+};
+
+/**
+ * @brief Texture to texture copy region.
+ * */
+struct CopyTextureRegion {
+    wis::TextureRegion src; ///< Source texture region.
+    wis::TextureRegion dst; ///< Destination texture region.
 };
 
 //=================================DELEGATES=================================

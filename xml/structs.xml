@@ -423,6 +423,31 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
       <member type="u32" name="entry_size" doc="Size/stride of the entry in bytes."/>
       <member type="u32" name="table_start_alignment" doc="Alignment of the table start in bytes."/>
     </type>
+    
+    <type name="RaytracingDispatchDesc" category="struct" doc="Raytracing dispatch description for {CommandList::}.">
+      <member type="u64" name="ray_gen_shader_table_address" doc="Address of the ray generation shader table."/>
+      <member type="u64" name="miss_shader_table_address" doc="Address of the miss shader table."/>
+      <member type="u64" name="hit_group_table_address" doc="Address of the hit group shader table."/>
+      <member type="u64" name="callable_shader_table_address" doc="Address of the callable shader table."/>
+      
+      <member type="u32" name="ray_gen_shader_table_size" doc="Size of the ray generation shader table in bytes."/>
+      <member type="u32" name="miss_shader_table_size" doc="Size of the miss shader table in bytes."/>
+      <member type="u32" name="hit_group_table_size" doc="Size of the hit group shader table in bytes."/>
+      <member type="u32" name="callable_shader_table_size" doc="Size of the callable shader table in bytes."/>
+
+      <member type="u32" name="miss_shader_table_stride" doc="Stride of the miss shader table in bytes."/>
+      <member type="u32" name="hit_group_table_stride" doc="Stride of the hit group shader table in bytes."/>
+      <member type="u32" name="callable_shader_table_stride" doc="Stride of the callable shader table in bytes."/>
+      
+      <member type="u32" name="width" doc="Width of the dispatch in number of rays."/>
+      <member type="u32" name="height" doc="Height of the dispatch in number of rays."/>
+      <member type="u32" name="depth" doc="Depth of the dispatch in number of rays."/>
+    </type>
+    
+    <type name="CopyTextureRegion" category="struct" doc="Texture to texture copy region.">
+      <member type="TextureRegion" name="src" doc="Source texture region."/>
+      <member type="TextureRegion" name="dst" doc="Destination texture region."/>
+    </type>
       
 
     <!--Variants-->

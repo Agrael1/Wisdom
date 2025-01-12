@@ -86,6 +86,44 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
     device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
 }
 
+void wis::ImplVKCommandList::CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::CopyTextureRegion* regions, uint32_t region_count) const noexcept
+{
+    wis::detail::limited_allocator<VkImageCopy2, 8> allocator(region_count, true);
+    auto* copies = allocator.data();
+    for (size_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        copies[i] = VkImageCopy2{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
+            .srcSubresource = {
+                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                    .mipLevel = region.src.mip,
+                    .baseArrayLayer = region.src.array_layer,
+                    .layerCount = 1u,
+            },
+            .srcOffset = { int(region.src.offset.width), int(region.src.offset.height), int(region.src.offset.depth_or_layers) },
+            .dstSubresource = {
+                    .aspectMask = aspect_flags(std::get<1>(dst_texture)),
+                    .mipLevel = region.dst.mip,
+                    .baseArrayLayer = region.dst.array_layer,
+                    .layerCount = 1u,
+            },
+            .dstOffset = { int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
+            .extent = { region.src.size.width, region.src.size.height, region.src.size.depth_or_layers },
+        };
+    }
+    VkCopyImageInfo2 copy{
+        .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2,
+        .pNext = nullptr,
+        .srcImage = std::get<0>(src_texture),
+        .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .dstImage = std::get<0>(dst_texture),
+        .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .regionCount = region_count,
+        .pRegions = copies,
+    };
+    device.table().vkCmdCopyImage2(command_list, &copy);
+}
+
 wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noexcept
 {
     Close();

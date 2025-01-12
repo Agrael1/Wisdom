@@ -99,6 +99,46 @@ public:
                          uint64_t scratch_buffer_gpu_address,
                          wis::VKAccelerationStructureView src_acceleration_structure = {}) const noexcept;
 
+    void SetPipelineState(wis::VKCommandListView cmd_list, wis::VKRaytracingPipelineView pipeline) const noexcept
+    {
+        device.table().vkCmdBindPipeline(std::get<0>(cmd_list), VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, std::get<0>(pipeline));
+    }
+    void SetDescriptorStorage(const wis::VKCommandList& cmd_list, wis::VKDescriptorStorageView desc_storage) const noexcept
+    {
+        auto& set_span = std::get<0>(desc_storage);
+        device.table().vkCmdBindDescriptorSets(cmd_list.GetInternal().command_list, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, cmd_list.GetInternal().pipeline_layout, 0, set_span.size(), set_span.data(), 0, nullptr);
+    }
+    void SetRootSignature(wis::VKCommandList& cmd_list, wis::VKRootSignatureView root_signature) const noexcept
+    {
+        cmd_list.GetMutableInternal().pipeline_layout = std::get<0>(root_signature);
+    }
+
+    void DispatchRays(wis::VKCommandListView cmd_list, const wis::RaytracingDispatchDesc& desc) const noexcept
+    {
+        auto* cmd_list_i = std::get<0>(cmd_list);
+        VkStridedDeviceAddressRegionKHR raygen{
+            .deviceAddress = desc.ray_gen_shader_table_address,
+            .stride = desc.ray_gen_shader_table_size,
+            .size = desc.ray_gen_shader_table_size,
+        };
+        VkStridedDeviceAddressRegionKHR miss{
+            .deviceAddress = desc.miss_shader_table_address,
+            .stride = desc.miss_shader_table_stride,
+            .size = desc.miss_shader_table_size
+        };
+        VkStridedDeviceAddressRegionKHR hit{
+            .deviceAddress = desc.hit_group_table_address,
+            .stride = desc.hit_group_table_stride,
+            .size = desc.hit_group_table_size
+        };
+        VkStridedDeviceAddressRegionKHR callable{
+            .deviceAddress = desc.callable_shader_table_address,
+            .stride = desc.callable_shader_table_stride,
+            .size = desc.callable_shader_table_size
+        };
+        table.vkCmdTraceRaysKHR(cmd_list_i, &raygen, &miss, &hit, &callable, desc.width, desc.height, desc.depth);
+    }
+
     void WriteAccelerationStructure(wis::VKDescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::VKAccelerationStructureView as) noexcept
     {
         VkWriteDescriptorSetAccelerationStructureKHR as_info{

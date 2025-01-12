@@ -6,6 +6,8 @@
 namespace wis {
 class VKRaytracingPipeline;
 
+using VKRaytracingPipelineView = std::tuple<VkPipeline>;
+
 template<>
 struct Internal<VKRaytracingPipeline> {
     wis::managed_handle_ex<VkPipeline> state_object;
@@ -16,7 +18,10 @@ class VKRaytracingPipeline : public QueryInternal<VKRaytracingPipeline>
 {
 public:
     VKRaytracingPipeline() noexcept = default;
-    // view operator
+    operator VKRaytracingPipelineView() noexcept
+    {
+        return { state_object.get() };
+    }
     const uint8_t* GetShaderIdentifiers() const noexcept
     {
         return shader_identifiers.get();

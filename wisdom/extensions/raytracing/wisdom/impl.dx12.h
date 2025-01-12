@@ -95,12 +95,13 @@ public:
     {
         return wis::ShaderBindingTableInfo{ D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT };
     }
-public :
+
+public:
     void BuildBottomLevelAS(wis::DX12CommandListView cmd_list,
                             const wis::DX12BottomLevelASBuildDesc& blas_desc,
                             wis::DX12AccelerationStructureView dst_acceleration_structure,
                             uint64_t scratch_buffer_gpu_address,
-                            wis::DX12AccelerationStructureView src_acceleration_structure = {})
+                            wis::DX12AccelerationStructureView src_acceleration_structure = {}) const noexcept
     {
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc{
@@ -122,13 +123,13 @@ public :
         cmd_list_i->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
     }
 
-    void BuildTopLevelAS(const wis::DX12CommandList& cmd_list,
+    void BuildTopLevelAS(wis::DX12CommandListView cmd_list,
                          const wis::TopLevelASBuildDesc& tlas_desc,
                          wis::DX12AccelerationStructureView dst_acceleration_structure,
                          uint64_t scratch_buffer_gpu_address,
-                         wis::DX12AccelerationStructureView src_acceleration_structure = {})
+                         wis::DX12AccelerationStructureView src_acceleration_structure = {}) const noexcept
     {
-        auto& cmd_list_i = cmd_list.GetInternal().list;
+        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc{
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
@@ -143,6 +144,54 @@ public :
         };
 
         cmd_list_i->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
+    }
+
+    void SetPipelineState(wis::DX12CommandListView cmd_list, wis::DX12RaytracingPipelineView pipeline) const noexcept
+    {
+        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
+        auto* pipeline_i = std::get<0>(pipeline);
+        cmd_list_i->SetPipelineState1(pipeline_i);
+    }
+
+    void SetDescriptorStorage(const wis::DX12CommandList& cmd_list, wis::DX12DescriptorStorageView desc_storage) const noexcept
+    {
+        auto& ii = cmd_list.GetInternal();
+        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(cmd_list.GetInternal().list.get());
+
+        auto& storage = std::get<0>(desc_storage)->GetInternal();
+
+        uint32_t table_count = bool(storage.heaps[0]) + bool(storage.heaps[1]);
+        uint32_t table_offset = !bool(storage.heaps[0]);
+        cmd_list_i->SetDescriptorHeaps(table_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(storage.heaps + table_offset));
+
+        for (size_t i = 0; i < storage.heap_count; i++) {
+            auto& offset = storage.heap_offsets[i];
+            auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
+            cmd_list_i->SetComputeRootDescriptorTable(i + ii.push_constant_count + ii.push_descriptor_count, handle);
+        }
+    }
+
+    void SetRootSignature(wis::DX12CommandListView cmd_list, wis::DX12RootSignatureView root_signature) const noexcept
+    {
+        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
+        auto* root_signature_i = std::get<0>(root_signature);
+        cmd_list_i->SetComputeRootSignature(root_signature_i);
+    }
+
+    void DispatchRays(wis::DX12CommandListView cmd_list, const wis::RaytracingDispatchDesc& desc) const noexcept
+    {
+        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
+
+        D3D12_DISPATCH_RAYS_DESC dispatch_desc{
+            .RayGenerationShaderRecord = { desc.ray_gen_shader_table_address, desc.ray_gen_shader_table_size },
+            .MissShaderTable = { desc.miss_shader_table_address, desc.miss_shader_table_size, desc.miss_shader_table_stride },
+            .HitGroupTable = { desc.hit_group_table_address, desc.hit_group_table_size, desc.hit_group_table_stride },
+            .CallableShaderTable = { desc.callable_shader_table_address, desc.callable_shader_table_size, desc.callable_shader_table_stride },
+            .Width = desc.width,
+            .Height = desc.height,
+            .Depth = desc.depth,
+        };
+        cmd_list_i->DispatchRays(&dispatch_desc);
     }
 
     void WriteAccelerationStructure(wis::DX12DescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::DX12AccelerationStructureView as) noexcept
@@ -196,8 +245,8 @@ DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 #pragma endregion DX12Raytracing
 } // namespace wis
 
-//#ifndef WISDOM_BUILD_BINARIES
-//#include "impl/impl.dx12.cpp"
-//#endif // !WISDOM_PLATFORM_HEADER_ONLY
+// #ifndef WISDOM_BUILD_BINARIES
+// #include "impl/impl.dx12.cpp"
+// #endif // !WISDOM_PLATFORM_HEADER_ONLY
 #endif // WISDOM_DX12
 #endif // !WISDOM_RAYTRACING_DX12_HPP

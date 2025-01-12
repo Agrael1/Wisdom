@@ -37,6 +37,8 @@ class App
     wis::Buffer rtas_scratch_buffer;
     wis::Buffer rtas_update_buffer;
     wis::Buffer rtas_instance_buffer;
+    wis::Buffer sbt_buffer;
+
     wis::AccelerationStructure top_rtas;
     wis::AccelerationStructure bottom_rtas;
 
@@ -45,6 +47,8 @@ class App
     wis::RootSignature rt_root_signature;
     wis::DescriptorStorage rt_descriptor_storage;
     wis::RaytracingPipeline rt_pipeline;
+
+    wis::RaytracingDispatchDesc rt_dispatch_desc; // just for convenience
 
 public:
     App()
@@ -92,6 +96,7 @@ public:
             case SDL_EVENT_WINDOW_RESIZED: {
                 auto [w, h] = window.PixelSize();
                 swap.Resize(setup.device, w, h);
+                CreateSizeDependentResources(w, h);
                 break;
             }
             case SDL_EVENT_QUIT:
@@ -129,8 +134,72 @@ public:
     void Frame()
     {
         uint32_t frame_index = swap.CurrentFrame();
-        auto& cmd = cmd_list[frame_index];
+        auto& swap_texture = swap.GetTexture(frame_index);
 
+        auto& cmd = cmd_list[frame_index];
+        std::ignore = cmd.Reset();
+
+        raytracing_extension.SetRootSignature(cmd, rt_root_signature);
+        raytracing_extension.SetDescriptorStorage(cmd, rt_descriptor_storage);
+        raytracing_extension.SetPipelineState(cmd, rt_pipeline);
+        raytracing_extension.DispatchRays(cmd, rt_dispatch_desc);
+        // barrier for UAV texture
+
+        wis::TextureBarrier2 before[] = {
+            { .barrier = { .sync_before = wis::BarrierSync::Compute,
+                           .sync_after = wis::BarrierSync::Copy,
+                           .access_before = wis::ResourceAccess::UnorderedAccess,
+                           .access_after = wis::ResourceAccess::CopySource,
+                           .state_before = wis::TextureState::UnorderedAccess,
+                           .state_after = wis::TextureState::CopySource },
+              .texture = uav_texture },
+            // swapchain
+            { .barrier = { .sync_before = wis::BarrierSync::None,
+                           .sync_after = wis::BarrierSync::Copy,
+                           .access_before = wis::ResourceAccess::NoAccess,
+                           .access_after = wis::ResourceAccess::CopyDest,
+                           .state_before = wis::TextureState::Present,
+                           .state_after = wis::TextureState::CopyDest },
+              .texture = swap_texture },
+        };
+
+        cmd.TextureBarriers(before, std::size(before));
+
+        wis::CopyTextureRegion region{
+            .src = {
+                    .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
+                    .format = ex::swapchain_format,
+            },
+            .dst = {
+                    .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
+                    .format = ex::swapchain_format,
+            },
+        };
+        cmd.CopyTexture(uav_texture, swap_texture, &region, 1);
+
+        wis::TextureBarrier2 after[] = {
+            { .barrier = { .sync_before = wis::BarrierSync::Copy,
+                           .sync_after = wis::BarrierSync::Compute,
+                           .access_before = wis::ResourceAccess::CopySource,
+                           .access_after = wis::ResourceAccess::UnorderedAccess,
+                           .state_before = wis::TextureState::CopySource,
+                           .state_after = wis::TextureState::UnorderedAccess },
+              .texture = uav_texture },
+            // swapchain
+            { .barrier = { .sync_before = wis::BarrierSync::Copy,
+                           .sync_after = wis::BarrierSync::None,
+                           .access_before = wis::ResourceAccess::CopyDest,
+                           .access_after = wis::ResourceAccess::NoAccess,
+                           .state_before = wis::TextureState::CopyDest,
+                           .state_after = wis::TextureState::Present },
+              .texture = swap_texture },
+        };
+        cmd.TextureBarriers(after, std::size(after));
+
+        std::ignore = cmd.Close();
+
+        wis::CommandListView lists[] = { cmd };
+        setup.queue.ExecuteCommandLists(lists, std::size(lists));
         swap.Present(setup.queue);
     }
 
@@ -158,6 +227,11 @@ private:
 
         // Write to descriptor storage
         rt_descriptor_storage.WriteRWTexture(0, 0, uav_output);
+
+        // Update dispatch desc
+        rt_dispatch_desc.width = width;
+        rt_dispatch_desc.height = height;
+        rt_dispatch_desc.depth = 1;
     }
     void CreatePrimitives()
     {
@@ -193,7 +267,7 @@ private:
                              .access_before = wis::ResourceAccess::NoAccess,
                              .access_after = wis::ResourceAccess::NoAccess,
                              .state_before = wis::TextureState::Undefined,
-                             .state_after = wis::TextureState::Common },
+                             .state_after = wis::TextureState::UnorderedAccess },
                            uav_texture);
         cmd.Close();
 
@@ -326,21 +400,38 @@ private:
         const uint8_t* shader_ident = rt_pipeline.GetShaderIdentifiers();
 
         // 1 raygen, 1 miss, 1 hit group
-        wis::Buffer sbt_buffer = setup.allocator.CreateBuffer(result, wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment) * 3, wis::BufferUsage::ShaderBindingTable, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
+        sbt_buffer = setup.allocator.CreateBuffer(result, 1024, wis::BufferUsage::ShaderBindingTable, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);
         auto memory = sbt_buffer.Map<uint8_t>();
 
         // raygen
+        uint32_t table_increment = wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment); // not real, just for demonstration
+
+        // copies should have size of entry_size, only the last one should have the size aligned to table_start_alignment
         std::memcpy(memory, shader_ident, sbt_info.entry_size);
-        memory += wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment);
+        memory += table_increment;
 
         // miss
         std::memcpy(memory, shader_ident + sbt_info.entry_size, sbt_info.entry_size);
-        memory += wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment);
+        memory += table_increment;
 
         // hit group
         std::memcpy(memory, shader_ident + sbt_info.entry_size * 2, sbt_info.entry_size);
-        memory += wis::detail::aligned_size(sbt_info.entry_size, sbt_info.table_start_alignment);
+        memory += table_increment;
         sbt_buffer.Unmap();
+
+        auto gpu_address = sbt_buffer.GetGPUAddress();
+
+        rt_dispatch_desc.ray_gen_shader_table_address = gpu_address;
+        rt_dispatch_desc.miss_shader_table_address = gpu_address + table_increment;
+        rt_dispatch_desc.hit_group_table_address = gpu_address + table_increment * 2;
+        rt_dispatch_desc.callable_shader_table_address = 0;
+        rt_dispatch_desc.ray_gen_shader_table_size = sbt_info.entry_size;
+        rt_dispatch_desc.miss_shader_table_size = sbt_info.entry_size;
+        rt_dispatch_desc.hit_group_table_size = sbt_info.entry_size;
+        rt_dispatch_desc.callable_shader_table_size = 0;
+        rt_dispatch_desc.miss_shader_table_stride = sbt_info.entry_size;
+        rt_dispatch_desc.hit_group_table_stride = sbt_info.entry_size;
+        rt_dispatch_desc.callable_shader_table_stride = 0;
     }
 
 private:
