@@ -72,7 +72,6 @@ public:
         // Create ...
         CreatePrimitives();
         CreateAccelerationStructures();
-        MakeTransitions();
     }
 
 public:
@@ -232,14 +231,16 @@ private:
         rt_dispatch_desc.width = width;
         rt_dispatch_desc.height = height;
         rt_dispatch_desc.depth = 1;
+
+        MakeTransitions();
     }
     void CreatePrimitives()
     {
         // clang-format off
         constexpr static float vertices[] = {
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
         };
         // clang-format on
         constexpr static uint16_t indices[] = { 0, 1, 2 };
@@ -250,10 +251,12 @@ private:
 
         auto memory = vertex_buffer.Map<float>();
         std::copy_n(vertices, std::size(vertices), memory);
+        std::span<float> vertices_span(memory, std::size(vertices));
+
         vertex_buffer.Unmap();
 
         auto memory2 = index_buffer.Map<uint16_t>();
-        std::copy_n(indices, std::size(indices), memory);
+        std::copy_n(indices, std::size(indices), memory2);
         index_buffer.Unmap();
     }
 
