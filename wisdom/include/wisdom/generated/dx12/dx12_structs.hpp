@@ -86,6 +86,14 @@ struct DX12GraphicsPipelineDesc {
 };
 
 /**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct DX12ComputePipelineDesc {
+    wis::DX12RootSignatureView root_signature; ///< Root signature.
+    wis::DX12ShaderView shader; ///< Compute shader.
+};
+
+/**
  * @brief Variant of RenderPassDesc for render target.
  * */
 struct DX12RenderPassRenderTargetDesc {

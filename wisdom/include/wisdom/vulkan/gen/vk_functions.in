@@ -38,6 +38,7 @@ vkCreateCommandPool
 vkDestroyCommandPool
 vkAllocateCommandBuffers
 vkCreateGraphicsPipelines
+vkCreateComputePipelines
 vkDestroyPipeline
 vkCreatePipelineLayout
 vkDestroyPipelineLayout
@@ -62,6 +63,7 @@ vkCmdBindVertexBuffers2
 vkCmdBindIndexBuffer
 vkCmdDrawIndexed
 vkCmdDraw
+vkCmdDispatch
 vkCmdPushConstants
 vkCreateFence
 vkDestroyFence

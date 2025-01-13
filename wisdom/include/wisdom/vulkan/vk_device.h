@@ -84,6 +84,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::VKPipelineState
     CreateGraphicsPipeline(wis::Result& result, const wis::VKGraphicsPipelineDesc& desc) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::VKPipelineState
+    CreateComputePipeline(wis::Result& result, const wis::VKComputePipelineDesc& desc) const noexcept;
+
     [[nodiscard]] WIS_INLINE wis::VKShader
     CreateShader(wis::Result& result, void* bytecode, uint32_t size) const noexcept;
 
@@ -244,6 +247,24 @@ public:
     [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc) const noexcept
     {
         return wis::ResultValue<wis::VKPipelineState>{ &wis::ImplVKDevice::CreateGraphicsPipeline, this, desc };
+    }
+    /**
+     * @brief Creates a compute pipeline state object.
+     * @param desc The description of the compute pipeline to create.
+     * @return wis::VKPipelineState on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::VKPipelineState CreateComputePipeline(wis::Result& result, const wis::VKComputePipelineDesc& desc) const noexcept
+    {
+        return wis::ImplVKDevice::CreateComputePipeline(result, desc);
+    }
+    /**
+     * @brief Creates a compute pipeline state object.
+     * @param desc The description of the compute pipeline to create.
+     * @return wis::VKPipelineState on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateComputePipeline(const wis::VKComputePipelineDesc& desc) const noexcept
+    {
+        return wis::ResultValue<wis::VKPipelineState>{ &wis::ImplVKDevice::CreateComputePipeline, this, desc };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.

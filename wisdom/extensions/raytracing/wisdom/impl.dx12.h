@@ -171,13 +171,6 @@ public:
         }
     }
 
-    void SetRootSignature(wis::DX12CommandListView cmd_list, wis::DX12RootSignatureView root_signature) const noexcept
-    {
-        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
-        auto* root_signature_i = std::get<0>(root_signature);
-        cmd_list_i->SetComputeRootSignature(root_signature_i);
-    }
-
     void DispatchRays(wis::DX12CommandListView cmd_list, const wis::RaytracingDispatchDesc& desc) const noexcept
     {
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));

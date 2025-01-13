@@ -119,11 +119,11 @@ public:
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
-    void WriteRWTexture(uint32_t binding, uint32_t index, wis::VKUnorderedAccessTextureView srv) noexcept
+    void WriteRWTexture(uint32_t binding, uint32_t index, wis::VKUnorderedAccessTextureView uav) noexcept
     {
         VkDescriptorImageInfo info{
             .sampler = VK_NULL_HANDLE,
-            .imageView = std::get<0>(srv),
+            .imageView = std::get<0>(uav),
             .imageLayout = VK_IMAGE_LAYOUT_GENERAL
         };
         VkWriteDescriptorSet write{
@@ -134,6 +134,24 @@ public:
             .descriptorCount = 1,
             .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
             .pImageInfo = &info
+        };
+        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
+    }
+    void WriteRWBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t size, uint32_t offset4b = 0) noexcept
+    {
+        VkDescriptorBufferInfo info{
+            .buffer = std::get<0>(buffer),
+            .offset = offset4b * 4u,
+            .range = size
+        };
+        VkWriteDescriptorSet write{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = descriptor_sets[binding],
+            .dstBinding = 0,
+            .dstArrayElement = index,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .pBufferInfo = &info
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }

@@ -148,6 +148,11 @@ Default is {MutiWaitFlags::All}"/>
       <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
       <arg type="GraphicsPipelineDesc" name="desc" mod="const ref" doc="The description of the graphics pipeline to create."/>
     </func>
+    
+    <func for="Device" name="CreateComputePipeline" mod="const" doc="Creates a compute pipeline state object.">
+      <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
+      <arg type="ComputePipelineDesc" name="desc" mod="const ref" doc="The description of the compute pipeline to create."/>
+    </func>
 
     <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.
 DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
@@ -365,6 +370,17 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <arg type="u32" name="region_count" doc="The number of regions to copy."/>
     </func>
 
+    <func for="CommandList" name="CopyTexture" doc="Copies data from one texture to another.">
+      <arg type="Texture" name="source" doc="The source texture to copy from.">
+        <replace with="TextureView" for="cpp" doc="The source texture to copy from."/>
+      </arg>
+      <arg type="Texture" name="destination" doc="The destination texture to copy to.">
+        <replace with="TextureView" for="cpp" doc="The destination texture to copy to."/>
+      </arg>
+      <arg type="TextureCopyRegion" name="regions" mod="const ptr" doc="The regions to copy."/>
+      <arg type="u32" name="region_count" doc="The number of regions to copy."/>
+    </func>
+
     <func for="CommandList" name="BufferBarrier" doc="Sets the barrier on the buffer.">
       <arg type="BufferBarrier" name="barrier" mod="const ref" doc="The barrier to set."/>
       <arg type="Buffer" name="buffer" doc="The buffer to set the barrier on.">
@@ -396,6 +412,13 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     <func for="CommandList" name="EndRenderPass" doc="Ends the render pass."/>
 
     <func for="CommandList" name="SetRootSignature" doc="Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.">
+      <arg type="RootSignature" name="root_signature" doc="The root signature to set.">
+        <replace with="RootSignatureView" for="cpp" doc="The root signature to set."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="SetComputeRootSignature" doc="Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+May only work with compute pipelines.">
       <arg type="RootSignature" name="root_signature" doc="The root signature to set.">
         <replace with="RootSignatureView" for="cpp" doc="The root signature to set."/>
       </arg>
@@ -465,6 +488,12 @@ Otherwise the first is chosen.">
       <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
     </func>
 
+    <func for="CommandList" name="Dispatch" doc="Dispatches compute shader.">
+      <arg type="u32" name="group_count_x" doc="The number of groups to dispatch in X dimension."/>
+      <arg type="u32" name="group_count_y" default="1" doc="The number of groups to dispatch in Y dimension. Default is 1."/>
+      <arg type="u32" name="group_count_z" default="1" doc="The number of groups to dispatch in Z dimension. Default is 1."/>
+    </func>
+
     <func for="CommandList" name="SetPushConstants" doc="Sets the root constants for the shader.">
       <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
       <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
@@ -483,7 +512,19 @@ Buffer is always bound with full size.">
       <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
 
-    <!-- CommandQueue -->
+    <func for="CommandList" name="SetDescriptorStorage" doc="Sets the descriptor storage object for graphics pipeline.">
+      <arg type="DescriptorStorage" name="storage" doc="The descriptor storage to set.">
+        <replace with="DescriptorStorageView" for="cpp" doc="The descriptor storage to set."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="SetComputeDescriptorStorage" doc="Sets the descriptor storage object for compute pipeline.">
+      <arg type="DescriptorStorage" name="storage" doc="The descriptor storage to set.">
+        <replace with="DescriptorStorageView" for="cpp" doc="The descriptor storage to set."/>
+      </arg>
+    </func>
+
+    "<!-- CommandQueue -->
     <func for="CommandQueue" name="Destroy" doc="Destroys the {CommandQueue::}."/>
 
     <func for="CommandQueue" name="ExecuteCommandLists" mod="const" doc="Executes the command lists.">

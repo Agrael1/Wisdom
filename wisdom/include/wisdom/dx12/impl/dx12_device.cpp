@@ -149,7 +149,6 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
             convert_dx(desc.topology_type);
 
     //--Root signature
-
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() =
             std::get<0>(desc.root_signature);
 
@@ -310,6 +309,33 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
 
     HRESULT hr = device->CreatePipelineState(&psstream_desc, internal.pipeline.iid(), internal.pipeline.put_void());
 
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Failed to create pipeline state">(hr);
+    }
+    return out_state;
+}
+
+wis::DX12PipelineState
+wis::ImplDX12Device::CreateComputePipeline(wis::Result& result, const wis::DX12ComputePipelineDesc& desc) const noexcept
+{
+    DX12PipelineState out_state;
+    auto& internal = out_state.GetMutableInternal();
+
+    //--Shader stages
+    wis::detail::memory_pool pipeline_stream;
+    wis::detail::DX12FillShaderStage<CD3DX12_PIPELINE_STATE_STREAM_CS>(pipeline_stream,
+                                                                       desc.shader);
+
+    //--Root signature
+    pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() =
+            std::get<0>(desc.root_signature);
+
+    D3D12_PIPELINE_STATE_STREAM_DESC psstream_desc{
+        .SizeInBytes = pipeline_stream.size_bytes(),
+        .pPipelineStateSubobjectStream = pipeline_stream.data<void>(),
+    };
+
+    HRESULT hr = device->CreatePipelineState(&psstream_desc, internal.pipeline.iid(), internal.pipeline.put_void());
     if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Failed to create pipeline state">(hr);
     }

@@ -328,6 +328,7 @@ struct VKMainDevice {
     PFN_vkCreateShaderModule vkCreateShaderModule;
     PFN_vkDestroyShaderModule vkDestroyShaderModule;
     PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
+    PFN_vkCreateComputePipelines vkCreateComputePipelines;
     PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
     PFN_vkResetCommandBuffer vkResetCommandBuffer;
     PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
@@ -342,6 +343,7 @@ struct VKMainDevice {
     PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
     PFN_vkCmdDraw vkCmdDraw;
     PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
+    PFN_vkCmdDispatch vkCmdDispatch;
     PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
     PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
     PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
@@ -374,9 +376,9 @@ struct VKMainDevice {
     PFN_vkWaitSemaphores vkWaitSemaphores;
     PFN_vkSignalSemaphore vkSignalSemaphore;
     PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue;
+    PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
     PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2;
     PFN_vkQueueSubmit2 vkQueueSubmit2;
-    PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
     PFN_vkCmdBeginRendering vkCmdBeginRendering;
     PFN_vkCmdEndRendering vkCmdEndRendering;
     PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
@@ -604,6 +606,10 @@ public:
         if (vkCmdBindIndexBuffer == nullptr) {
             return false;
         }
+        vkCreateComputePipelines = (PFN_vkCreateComputePipelines)vkGetDeviceProcAddr(device, "vkCreateComputePipelines");
+        if (vkCreateComputePipelines == nullptr) {
+            return false;
+        }
         vkCreateGraphicsPipelines = (PFN_vkCreateGraphicsPipelines)vkGetDeviceProcAddr(device, "vkCreateGraphicsPipelines");
         if (vkCreateGraphicsPipelines == nullptr) {
             return false;
@@ -658,6 +664,10 @@ public:
         }
         vkCmdDrawIndexed = (PFN_vkCmdDrawIndexed)vkGetDeviceProcAddr(device, "vkCmdDrawIndexed");
         if (vkCmdDrawIndexed == nullptr) {
+            return false;
+        }
+        vkCmdDispatch = (PFN_vkCmdDispatch)vkGetDeviceProcAddr(device, "vkCmdDispatch");
+        if (vkCmdDispatch == nullptr) {
             return false;
         }
         vkCmdCopyBuffer = (PFN_vkCmdCopyBuffer)vkGetDeviceProcAddr(device, "vkCmdCopyBuffer");
@@ -801,6 +811,25 @@ public:
         if (vkGetSemaphoreCounterValue == nullptr) {
             return false;
         }
+        static constexpr std::array vkGetBufferDeviceAddress_strings{
+#if defined(VK_VERSION_1_2)
+            "vkGetBufferDeviceAddress",
+#endif
+#if defined(VK_KHR_buffer_device_address)
+            "vkGetBufferDeviceAddressKHR",
+#endif
+#if defined(VK_EXT_buffer_device_address)
+            "vkGetBufferDeviceAddressEXT",
+#endif
+        };
+        for (auto vkGetBufferDeviceAddress_it : vkGetBufferDeviceAddress_strings) {
+            if ((vkGetBufferDeviceAddress = (PFN_vkGetBufferDeviceAddress)vkGetDeviceProcAddr(device, vkGetBufferDeviceAddress_it))) {
+                break;
+            }
+        }
+        if (vkGetBufferDeviceAddress == nullptr) {
+            return false;
+        }
         static constexpr std::array vkCmdPipelineBarrier2_strings{
 #if defined(VK_VERSION_1_3)
             "vkCmdPipelineBarrier2",
@@ -831,25 +860,6 @@ public:
             }
         }
         if (vkQueueSubmit2 == nullptr) {
-            return false;
-        }
-        static constexpr std::array vkGetBufferDeviceAddress_strings{
-#if defined(VK_VERSION_1_2)
-            "vkGetBufferDeviceAddress",
-#endif
-#if defined(VK_KHR_buffer_device_address)
-            "vkGetBufferDeviceAddressKHR",
-#endif
-#if defined(VK_EXT_buffer_device_address)
-            "vkGetBufferDeviceAddressEXT",
-#endif
-        };
-        for (auto vkGetBufferDeviceAddress_it : vkGetBufferDeviceAddress_strings) {
-            if ((vkGetBufferDeviceAddress = (PFN_vkGetBufferDeviceAddress)vkGetDeviceProcAddr(device, vkGetBufferDeviceAddress_it))) {
-                break;
-            }
-        }
-        if (vkGetBufferDeviceAddress == nullptr) {
             return false;
         }
         static constexpr std::array vkCmdBeginRendering_strings{

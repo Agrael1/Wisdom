@@ -1009,33 +1009,6 @@ enum WisTextureLayout {
 };
 
 /**
- * @brief Binding index for resources.
- * Used in DescriptorStorage to determine which descriptor type goes where when binding.
- * Same values are used for HLSL side to pick descriptors up.
- * Space 0 and set 0 are reserved for push descriptors and push constants.
- *
- * */
-enum WisBindingIndex {
-    /**
-     * @brief No binding index set.Results in [[vk::binding(*,0)]] and register(*).
-     * This space is reserved for push constants and push descriptors.
-     * */
-    BindingIndexNone = 0,
-    BindingIndexSampler = 1, ///< Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1).
-    BindingIndexConstantBuffer = 2, ///< Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2).
-    BindingIndexTexture = 3, ///< Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3).
-    BindingIndexRWTexture = 4, ///< Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4).
-    BindingIndexRWBuffer = 5, ///< Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5).
-    /**
-     * @brief Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
-     * Can't be merged with Texture because of Vulkan.
-     * */
-    BindingIndexBuffer = 6,
-    BindingIndexAccelerationStructure = 7, ///< Binding index for acceleration structure descriptors. Results in [[vk::binding(0,7)]] and register(t0, space7).
-    BindingIndexCount = 7, ///< Number of binding indices. Used for array sizes.
-};
-
-/**
  * @brief Descriptor heap type.
  *
  * Translates to D3D12_DESCRIPTOR_HEAP_TYPE for dx implementation.
@@ -1522,7 +1495,7 @@ typedef struct WisShaderExport WisShaderExport;
 typedef struct WisHitGroupDesc WisHitGroupDesc;
 typedef struct WisShaderBindingTableInfo WisShaderBindingTableInfo;
 typedef struct WisRaytracingDispatchDesc WisRaytracingDispatchDesc;
-typedef struct WisCopyTextureRegion WisCopyTextureRegion;
+typedef struct WisTextureCopyRegion WisTextureCopyRegion;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisQueueType WisQueueType;
@@ -1551,7 +1524,6 @@ typedef enum WisShaderIntermediate WisShaderIntermediate;
 typedef enum WisTextureState WisTextureState;
 typedef enum WisLoadOperation WisLoadOperation;
 typedef enum WisTextureLayout WisTextureLayout;
-typedef enum WisBindingIndex WisBindingIndex;
 typedef enum WisDescriptorHeapType WisDescriptorHeapType;
 typedef enum WisStoreOperation WisStoreOperation;
 typedef enum WisPrimitiveTopology WisPrimitiveTopology;
@@ -2125,7 +2097,7 @@ struct WisRaytracingDispatchDesc {
 /**
  * @brief Texture to texture copy region.
  * */
-struct WisCopyTextureRegion {
+struct WisTextureCopyRegion {
     WisTextureRegion src; ///< Source texture region.
     WisTextureRegion dst; ///< Destination texture region.
 };
@@ -2161,6 +2133,7 @@ typedef struct VKRaytracingPipeineDesc VKRaytracingPipeineDesc;
 typedef struct VKBottomLevelASBuildDesc VKBottomLevelASBuildDesc;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
+typedef struct VKComputePipelineDesc VKComputePipelineDesc;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
 typedef struct VKRenderPassDesc VKRenderPassDesc;
 typedef struct VKVertexBufferBinding VKVertexBufferBinding;
@@ -2264,6 +2237,14 @@ struct VKGraphicsPipelineDesc {
      * */
     uint32_t view_mask;
     WisPipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
+};
+
+/**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct VKComputePipelineDesc {
+    VKRootSignatureView root_signature; ///< Root signature.
+    VKShaderView shader; ///< Compute shader.
 };
 
 /**
@@ -2482,6 +2463,16 @@ WISDOM_API WisResult VKDeviceCreateCommandList(VKDevice self, WisQueueType type,
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraphicsPipelineDesc* desc, VKPipelineState* pipeline);
+
+/**
+ * @brief Creates a compute pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline VKPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult VKDeviceCreateComputePipeline(VKDevice self, const VKComputePipelineDesc* desc, VKPipelineState* pipeline);
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
@@ -2832,6 +2823,16 @@ WISDOM_API void VKCommandListCopyBufferToTexture(VKCommandList self, VKBuffer so
 WISDOM_API void VKCommandListCopyTextureToBuffer(VKCommandList self, VKTexture source, VKBuffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void VKCommandListCopyTexture(VKCommandList self, VKTexture source, VKTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count);
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -2882,6 +2883,14 @@ WISDOM_API void VKCommandListEndRenderPass(VKCommandList self);
  * @param root_signature The root signature to set.
  * */
 WISDOM_API void VKCommandListSetRootSignature(VKCommandList self, VKRootSignature root_signature);
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+WISDOM_API void VKCommandListSetComputeRootSignature(VKCommandList self, VKRootSignature root_signature);
 
 /**
  * @brief Sets the primitive topology. Detemines how vertices shall be processed.
@@ -2974,6 +2983,15 @@ WISDOM_API void VKCommandListDrawIndexedInstanced(VKCommandList self, uint32_t v
 WISDOM_API void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance);
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+WISDOM_API void VKCommandListDispatch(VKCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z);
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -2994,6 +3012,20 @@ WISDOM_API void VKCommandListSetPushConstants(VKCommandList self, void* data, ui
  * @param offset The offset in the descriptor table to set the descriptor to.
  * */
 WISDOM_API void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset);
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void VKCommandListSetDescriptorStorage(VKCommandList self, VKDescriptorStorage storage);
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void VKCommandListSetComputeDescriptorStorage(VKCommandList self, VKDescriptorStorage storage);
 
 // VKSwapChain methods --
 /**
@@ -3226,6 +3258,7 @@ typedef struct DX12RaytracingPipeineDesc DX12RaytracingPipeineDesc;
 typedef struct DX12BottomLevelASBuildDesc DX12BottomLevelASBuildDesc;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
+typedef struct DX12ComputePipelineDesc DX12ComputePipelineDesc;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
 typedef struct DX12RenderPassDesc DX12RenderPassDesc;
 typedef struct DX12VertexBufferBinding DX12VertexBufferBinding;
@@ -3328,6 +3361,14 @@ struct DX12GraphicsPipelineDesc {
      * */
     uint32_t view_mask;
     WisPipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
+};
+
+/**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct DX12ComputePipelineDesc {
+    DX12RootSignatureView root_signature; ///< Root signature.
+    DX12ShaderView shader; ///< Compute shader.
 };
 
 /**
@@ -3546,6 +3587,16 @@ WISDOM_API WisResult DX12DeviceCreateCommandList(DX12Device self, WisQueueType t
  * Error in WisResult::error otherwise.
  * */
 WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX12GraphicsPipelineDesc* desc, DX12PipelineState* pipeline);
+
+/**
+ * @brief Creates a compute pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline DX12PipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+WISDOM_API WisResult DX12DeviceCreateComputePipeline(DX12Device self, const DX12ComputePipelineDesc* desc, DX12PipelineState* pipeline);
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
@@ -3896,6 +3947,16 @@ WISDOM_API void DX12CommandListCopyBufferToTexture(DX12CommandList self, DX12Buf
 WISDOM_API void DX12CommandListCopyTextureToBuffer(DX12CommandList self, DX12Texture source, DX12Buffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void DX12CommandListCopyTexture(DX12CommandList self, DX12Texture source, DX12Texture destination, const WisTextureCopyRegion* regions, uint32_t region_count);
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -3946,6 +4007,14 @@ WISDOM_API void DX12CommandListEndRenderPass(DX12CommandList self);
  * @param root_signature The root signature to set.
  * */
 WISDOM_API void DX12CommandListSetRootSignature(DX12CommandList self, DX12RootSignature root_signature);
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+WISDOM_API void DX12CommandListSetComputeRootSignature(DX12CommandList self, DX12RootSignature root_signature);
 
 /**
  * @brief Sets the primitive topology. Detemines how vertices shall be processed.
@@ -4038,6 +4107,15 @@ WISDOM_API void DX12CommandListDrawIndexedInstanced(DX12CommandList self, uint32
 WISDOM_API void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance);
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+WISDOM_API void DX12CommandListDispatch(DX12CommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z);
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -4058,6 +4136,20 @@ WISDOM_API void DX12CommandListSetPushConstants(DX12CommandList self, void* data
  * @param offset The offset in the descriptor table to set the descriptor to.
  * */
 WISDOM_API void DX12CommandListPushDescriptor(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset);
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void DX12CommandListSetDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage);
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void DX12CommandListSetComputeDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage);
 
 // DX12SwapChain methods --
 /**
@@ -4316,6 +4408,7 @@ typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
 typedef DX12RaytracingPipeineDesc WisRaytracingPipeineDesc;
 typedef DX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef DX12ComputePipelineDesc WisComputePipelineDesc;
 typedef DX12RenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
 typedef DX12RenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
 typedef DX12RenderPassDesc WisRenderPassDesc;
@@ -4506,6 +4599,19 @@ inline WisResult WisDeviceCreateCommandList(WisDevice self, WisQueueType type, W
 inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphicsPipelineDesc* desc, WisPipelineState* pipeline)
 {
     return DX12DeviceCreateGraphicsPipeline(self, desc, pipeline);
+}
+
+/**
+ * @brief Creates a compute pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateComputePipeline(WisDevice self, const WisComputePipelineDesc* desc, WisPipelineState* pipeline)
+{
+    return DX12DeviceCreateComputePipeline(self, desc, pipeline);
 }
 
 /**
@@ -4959,6 +5065,19 @@ inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture so
 }
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyTexture(WisCommandList self, WisTexture source, WisTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count)
+{
+    DX12CommandListCopyTexture(self, source, destination, regions, region_count);
+}
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -5029,6 +5148,17 @@ inline void WisCommandListEndRenderPass(WisCommandList self)
 inline void WisCommandListSetRootSignature(WisCommandList self, WisRootSignature root_signature)
 {
     DX12CommandListSetRootSignature(self, root_signature);
+}
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+inline void WisCommandListSetComputeRootSignature(WisCommandList self, WisRootSignature root_signature)
+{
+    DX12CommandListSetComputeRootSignature(self, root_signature);
 }
 
 /**
@@ -5152,6 +5282,18 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
 }
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+inline void WisCommandListDispatch(WisCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+{
+    DX12CommandListDispatch(self, group_count_x, group_count_y, group_count_z);
+}
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -5177,6 +5319,26 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
 {
     DX12CommandListPushDescriptor(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    DX12CommandListSetDescriptorStorage(self, storage);
+}
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetComputeDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    DX12CommandListSetComputeDescriptorStorage(self, storage);
 }
 
 // WisSwapChain methods --
@@ -5496,6 +5658,7 @@ typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;
 typedef VKRaytracingPipeineDesc WisRaytracingPipeineDesc;
 typedef VKGraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef VKComputePipelineDesc WisComputePipelineDesc;
 typedef VKRenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
 typedef VKRenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
 typedef VKRenderPassDesc WisRenderPassDesc;
@@ -5686,6 +5849,19 @@ inline WisResult WisDeviceCreateCommandList(WisDevice self, WisQueueType type, W
 inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphicsPipelineDesc* desc, WisPipelineState* pipeline)
 {
     return VKDeviceCreateGraphicsPipeline(self, desc, pipeline);
+}
+
+/**
+ * @brief Creates a compute pipeline state object.
+ * @param self valid handle to the Device
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
+ * @return Result with StatusOk on success.
+ * Error in WisResult::error otherwise.
+ * */
+inline WisResult WisDeviceCreateComputePipeline(WisDevice self, const WisComputePipelineDesc* desc, WisPipelineState* pipeline)
+{
+    return VKDeviceCreateComputePipeline(self, desc, pipeline);
 }
 
 /**
@@ -6139,6 +6315,19 @@ inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture so
 }
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyTexture(WisCommandList self, WisTexture source, WisTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count)
+{
+    VKCommandListCopyTexture(self, source, destination, regions, region_count);
+}
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -6209,6 +6398,17 @@ inline void WisCommandListEndRenderPass(WisCommandList self)
 inline void WisCommandListSetRootSignature(WisCommandList self, WisRootSignature root_signature)
 {
     VKCommandListSetRootSignature(self, root_signature);
+}
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+inline void WisCommandListSetComputeRootSignature(WisCommandList self, WisRootSignature root_signature)
+{
+    VKCommandListSetComputeRootSignature(self, root_signature);
 }
 
 /**
@@ -6332,6 +6532,18 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
 }
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+inline void WisCommandListDispatch(WisCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+{
+    VKCommandListDispatch(self, group_count_x, group_count_y, group_count_z);
+}
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -6357,6 +6569,26 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
 {
     VKCommandListPushDescriptor(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    VKCommandListSetDescriptorStorage(self, storage);
+}
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetComputeDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    VKCommandListSetComputeDescriptorStorage(self, storage);
 }
 
 // WisSwapChain methods --

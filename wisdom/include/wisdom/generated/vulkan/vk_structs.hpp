@@ -85,6 +85,14 @@ struct VKGraphicsPipelineDesc {
 };
 
 /**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct VKComputePipelineDesc {
+    wis::VKRootSignatureView root_signature; ///< Root signature.
+    wis::VKShaderView shader; ///< Compute shader.
+};
+
+/**
  * @brief Variant of RenderPassDesc for render target.
  * */
 struct VKRenderPassRenderTargetDesc {

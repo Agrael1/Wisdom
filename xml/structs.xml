@@ -58,6 +58,7 @@
     <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
     <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
     <type name="AcceleratedGeometryDesc" category="variant" for="ShaderResource" mod="cpp-only"/>
+    <type name="DescriptorStorageView" category="variant" for="DescriptorStorage" mod="cpp-only"/>
     <!--TODO: make C equivalent-->
 
 
@@ -409,7 +410,7 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
       <member type="RaytracingShaderType" name="shader_type" doc="Type of the shader."/>
       <member type="u32" name="shader_array_index" doc="Index of the shader in the shader array."/>
     </type>
-    
+
     <type name="HitGroupDesc" category="struct" doc="Hit group description for Raytracing pipeline.">
       <member type="HitGroupType" name="type" doc="Type of the hit group.
 {HitGroupType::Triangles} - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
@@ -423,13 +424,13 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
       <member type="u32" name="entry_size" doc="Size/stride of the entry in bytes."/>
       <member type="u32" name="table_start_alignment" doc="Alignment of the table start in bytes."/>
     </type>
-    
+
     <type name="RaytracingDispatchDesc" category="struct" doc="Raytracing dispatch description for {CommandList::}.">
       <member type="u64" name="ray_gen_shader_table_address" doc="Address of the ray generation shader table."/>
       <member type="u64" name="miss_shader_table_address" doc="Address of the miss shader table."/>
       <member type="u64" name="hit_group_table_address" doc="Address of the hit group shader table."/>
       <member type="u64" name="callable_shader_table_address" doc="Address of the callable shader table."/>
-      
+
       <member type="u32" name="ray_gen_shader_table_size" doc="Size of the ray generation shader table in bytes."/>
       <member type="u32" name="miss_shader_table_size" doc="Size of the miss shader table in bytes."/>
       <member type="u32" name="hit_group_table_size" doc="Size of the hit group shader table in bytes."/>
@@ -438,17 +439,17 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
       <member type="u32" name="miss_shader_table_stride" doc="Stride of the miss shader table in bytes."/>
       <member type="u32" name="hit_group_table_stride" doc="Stride of the hit group shader table in bytes."/>
       <member type="u32" name="callable_shader_table_stride" doc="Stride of the callable shader table in bytes."/>
-      
+
       <member type="u32" name="width" doc="Width of the dispatch in number of rays."/>
       <member type="u32" name="height" doc="Height of the dispatch in number of rays."/>
       <member type="u32" name="depth" doc="Depth of the dispatch in number of rays."/>
     </type>
-    
-    <type name="CopyTextureRegion" category="struct" doc="Texture to texture copy region.">
+
+    <type name="TextureCopyRegion" category="struct" doc="Texture to texture copy region.">
       <member type="TextureRegion" name="src" doc="Source texture region."/>
       <member type="TextureRegion" name="dst" doc="Destination texture region."/>
     </type>
-      
+
 
     <!--Variants-->
     <type name="BottomLevelASBuildDesc" category="variant" doc="Bottom level acceleration structure build description." mod="cpp-only">
@@ -519,6 +520,14 @@ Default is 0. 0 means regular rendering."/>
         <member type="PipelineFlags" name="flags" doc="Pipeline flags to add options to pipeline creation."/>
       </impl>
     </type>
+
+    <type name="ComputePipelineDesc" category="variant" doc="Variant of PipelineStateDesc for compute pipeline.">
+      <impl name="both">
+        <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
+        <member type="ShaderView" name="shader" doc="Compute shader."/>
+      </impl>
+    </type>
+
 
     <type name="RenderPassRenderTargetDesc" category="variant" doc="Variant of RenderPassDesc for render target.">
       <impl name="both">

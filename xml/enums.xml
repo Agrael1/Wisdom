@@ -1229,23 +1229,6 @@ Platform extension values start from 2049
       <value name="Custom" value="0" doc="Custom provided extension. Default initialization of the extension is done by user."/>
     </type>
 
-    <type name="BindingIndex" category="enum" type="u32" doc="Binding index for resources.
-Used in {DescriptorStorage::} to determine which descriptor type goes where when binding.
-Same values are used for HLSL side to pick descriptors up.
-Space 0 and set 0 are reserved for push descriptors and push constants.">
-      <value name="None" value="0" doc="No binding index set.Results in [[vk::binding(*,0)]] and register(*).
-This space is reserved for push constants and push descriptors."/>
-      <value name="Sampler" value="1" doc="Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1)."/>
-      <value name="ConstantBuffer" value="2" doc="Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2)."/>
-      <value name="Texture" value="3" doc="Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3)."/>
-      <value name="RWTexture" value="4" doc="Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4)."/>
-      <value name="RWBuffer" value="5" doc="Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5)."/>
-      <value name="Buffer" value="6" doc="Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
-Can't be merged with Texture because of Vulkan."/>
-      <value name="AccelerationStructure" value="7" doc="Binding index for acceleration structure descriptors. Results in [[vk::binding(0,7)]] and register(t0, space7)."/>
-      <value name="Count" value="7" doc="Number of binding indices. Used for array sizes."/>
-    </type>
-
     <type name="ASLevel" category="enum" type="u32" doc="Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.">
       <value name="Bottom" value="0" doc="Bottom level Acceleration Structure. Contains geometry data."/>
       <value name="Top" value="1" doc="Top level Acceleration Structure. Contains instance data."/>

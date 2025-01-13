@@ -58,7 +58,7 @@ struct ShaderExport;
 struct HitGroupDesc;
 struct ShaderBindingTableInfo;
 struct RaytracingDispatchDesc;
-struct CopyTextureRegion;
+struct TextureCopyRegion;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1052,33 +1052,6 @@ enum class TextureLayout : uint32_t {
 };
 
 /**
- * @brief Binding index for resources.
- * Used in wis::DescriptorStorage to determine which descriptor type goes where when binding.
- * Same values are used for HLSL side to pick descriptors up.
- * Space 0 and set 0 are reserved for push descriptors and push constants.
- *
- * */
-enum class BindingIndex : uint32_t {
-    /**
-     * @brief No binding index set.Results in [[vk::binding(*,0)]] and register(*).
-     * This space is reserved for push constants and push descriptors.
-     * */
-    None = 0,
-    Sampler = 1, ///< Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1).
-    ConstantBuffer = 2, ///< Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2).
-    Texture = 3, ///< Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3).
-    RWTexture = 4, ///< Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4).
-    RWBuffer = 5, ///< Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5).
-    /**
-     * @brief Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
-     * Can't be merged with Texture because of Vulkan.
-     * */
-    Buffer = 6,
-    AccelerationStructure = 7, ///< Binding index for acceleration structure descriptors. Results in [[vk::binding(0,7)]] and register(t0, space7).
-    Count = 7, ///< Number of binding indices. Used for array sizes.
-};
-
-/**
  * @brief Descriptor heap type.
  *
  * Translates to D3D12_DESCRIPTOR_HEAP_TYPE for dx implementation.
@@ -2047,7 +2020,7 @@ struct RaytracingDispatchDesc {
 /**
  * @brief Texture to texture copy region.
  * */
-struct CopyTextureRegion {
+struct TextureCopyRegion {
     wis::TextureRegion src; ///< Source texture region.
     wis::TextureRegion dst; ///< Destination texture region.
 };

@@ -138,7 +138,8 @@ public:
         auto& cmd = cmd_list[frame_index];
         std::ignore = cmd.Reset();
 
-        raytracing_extension.SetRootSignature(cmd, rt_root_signature);
+        // Root signature is set as if it was a compute pipeline
+        cmd.SetComputeRootSignature(rt_root_signature);
         raytracing_extension.SetDescriptorStorage(cmd, rt_descriptor_storage);
         raytracing_extension.SetPipelineState(cmd, rt_pipeline);
         raytracing_extension.DispatchRays(cmd, rt_dispatch_desc);
@@ -164,7 +165,7 @@ public:
 
         cmd.TextureBarriers(before, std::size(before));
 
-        wis::CopyTextureRegion region{
+        wis::TextureCopyRegion region{
             .src = {
                     .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
                     .format = ex::swapchain_format,

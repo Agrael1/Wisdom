@@ -86,7 +86,7 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
     device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
 }
 
-void wis::ImplVKCommandList::CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::CopyTextureRegion* regions, uint32_t region_count) const noexcept
+void wis::ImplVKCommandList::CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkImageCopy2, 8> allocator(region_count, true);
     auto* copies = allocator.data();
@@ -421,6 +421,11 @@ void wis::ImplVKCommandList::SetRootSignature(wis::VKRootSignatureView root_sign
     pipeline_layout = std::get<0>(root_signature);
 }
 
+void wis::ImplVKCommandList::SetComputeRootSignature(wis::VKRootSignatureView root_signature) noexcept
+{
+    pipeline_layout = std::get<0>(root_signature);
+}
+
 void wis::ImplVKCommandList::IASetVertexBuffers(const wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
 {
     wis::detail::limited_allocator<VkBuffer, 8> allocator(count, true);
@@ -470,12 +475,27 @@ void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
+void wis::ImplVKCommandList::Dispatch(uint32_t x, uint32_t y, uint32_t z) noexcept
+{
+    device.table().vkCmdDispatch(command_list, x, y, z);
+}
+
 void wis::ImplVKCommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
 
 void wis::ImplVKCommandList::SetDescriptorStorage(wis::VKDescriptorStorageView desc_storage) noexcept
+{
+    auto& set_span = std::get<0>(desc_storage);
+    device.table().vkCmdBindDescriptorSets(command_list,
+                                           VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                           pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
+                                           set_span.size(), set_span.data(),
+                                           0, nullptr);
+}
+
+void wis::ImplVKCommandList::SetComputeDescriptorStorage(wis::VKDescriptorStorageView desc_storage) noexcept
 {
     auto& set_span = std::get<0>(desc_storage);
     device.table().vkCmdBindDescriptorSets(command_list,

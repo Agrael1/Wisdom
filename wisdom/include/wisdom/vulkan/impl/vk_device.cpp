@@ -737,6 +737,31 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     return out_pipeline;
 }
 
+wis::VKPipelineState
+wis::ImplVKDevice::CreateComputePipeline(wis::Result& result, const wis::VKComputePipelineDesc& desc) const noexcept
+{
+    wis::VKPipelineState out_pipeline;
+    auto& internal = out_pipeline.GetMutableInternal();
+
+    VkComputePipelineCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        .stage = {
+                .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+                .stage = VK_SHADER_STAGE_COMPUTE_BIT,
+                .module = std::get<0>(desc.shader),
+                .pName = "main",
+        },
+        .layout = std::get<0>(desc.root_signature),
+        .basePipelineHandle = VK_NULL_HANDLE,
+        .basePipelineIndex = -1,
+    };
+    auto vr = device.table().vkCreateComputePipelines(device.get(), nullptr, 1u, &info, nullptr, internal.pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
+    if (!succeeded(vr)) {
+        result = wis::make_result<FUNC, "Failed to create a compute pipeline">(vr);
+    }
+    return out_pipeline;
+}
+
 wis::VKCommandList
 wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) const noexcept
 {
@@ -1424,7 +1449,6 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
     // Allocate descriptor sets
     internal.descriptor_sets = wis::detail::make_unique_for_overwrite<VkDescriptorSet[]>(descriptor_bindings_count + descriptor_bindings_count);
 
-
     std::span<VkDescriptorPoolSize> pool_sizes{ reinterpret_cast<VkDescriptorPoolSize*>(memory.get()), descriptor_bindings_count };
     std::span<VkDescriptorSetLayout> desc_layouts{ reinterpret_cast<VkDescriptorSetLayout*>(internal.descriptor_sets.get() + descriptor_bindings_count), descriptor_bindings_count };
     std::span<uint32_t> pool_size_data{ reinterpret_cast<uint32_t*>(pool_sizes.data() + descriptor_bindings_count), descriptor_bindings_count }; // For variable descriptor count
@@ -1486,7 +1510,6 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
             return out_storage;
         }
     }
-
 
     if (!internal.descriptor_sets) {
         result = wis::make_result<FUNC, "Failed to allocate descriptor set array">(VK_ERROR_OUT_OF_HOST_MEMORY);

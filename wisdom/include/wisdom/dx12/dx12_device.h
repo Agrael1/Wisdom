@@ -54,6 +54,9 @@ public:
     [[nodiscard]] WIS_INLINE wis::DX12PipelineState
     CreateGraphicsPipeline(wis::Result& result, const wis::DX12GraphicsPipelineDesc& desc) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::DX12PipelineState
+    CreateComputePipeline(wis::Result& result, const wis::DX12ComputePipelineDesc& desc) const noexcept;
+
     [[nodiscard]] WIS_INLINE wis::DX12Shader
     CreateShader(wis::Result& result, void* data, size_t size) const noexcept;
 
@@ -197,6 +200,24 @@ public:
     [[nodiscard]] inline wis::ResultValue<wis::DX12PipelineState> CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc& desc) const noexcept
     {
         return wis::ResultValue<wis::DX12PipelineState>{ &wis::ImplDX12Device::CreateGraphicsPipeline, this, desc };
+    }
+    /**
+     * @brief Creates a compute pipeline state object.
+     * @param desc The description of the compute pipeline to create.
+     * @return wis::DX12PipelineState on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::DX12PipelineState CreateComputePipeline(wis::Result& result, const wis::DX12ComputePipelineDesc& desc) const noexcept
+    {
+        return wis::ImplDX12Device::CreateComputePipeline(result, desc);
+    }
+    /**
+     * @brief Creates a compute pipeline state object.
+     * @param desc The description of the compute pipeline to create.
+     * @return wis::DX12PipelineState on success (wis::Status::Ok).
+     * */
+    [[nodiscard]] inline wis::ResultValue<wis::DX12PipelineState> CreateComputePipeline(const wis::DX12ComputePipelineDesc& desc) const noexcept
+    {
+        return wis::ResultValue<wis::DX12PipelineState>{ &wis::ImplDX12Device::CreateComputePipeline, this, desc };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.

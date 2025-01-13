@@ -135,6 +135,21 @@ extern "C" WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX1
     }
     return reinterpret_cast<WisResult&>(res);
 }
+extern "C" WisResult DX12DeviceCreateComputePipeline(DX12Device self, const DX12ComputePipelineDesc* desc, DX12PipelineState* pipeline)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto&& [res, value] = xself->CreateComputePipeline(*reinterpret_cast<const wis::DX12ComputePipelineDesc*>(desc));
+
+    if (res.status != wis::Status::Ok) {
+        return reinterpret_cast<WisResult&>(res);
+    }
+
+    *pipeline = reinterpret_cast<DX12PipelineState>(new (std::nothrow) wis::DX12PipelineState(std::move(value)));
+    if (!*pipeline) {
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::DX12PipelineState." };
+    }
+    return reinterpret_cast<WisResult&>(res);
+}
 extern "C" WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, DX12RootSignature* signature)
 {
     auto* xself = reinterpret_cast<wis::DX12Device*>(self);
@@ -493,6 +508,11 @@ extern "C" void DX12CommandListCopyTextureToBuffer(DX12CommandList self, DX12Tex
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->CopyTextureToBuffer(*reinterpret_cast<wis::DX12Texture*>(source), *reinterpret_cast<wis::DX12Buffer*>(destination), reinterpret_cast<const wis::BufferTextureCopyRegion*&>(regions), region_count);
 }
+extern "C" void DX12CommandListCopyTexture(DX12CommandList self, DX12Texture source, DX12Texture destination, const WisTextureCopyRegion* regions, uint32_t region_count)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->CopyTexture(*reinterpret_cast<wis::DX12Texture*>(source), *reinterpret_cast<wis::DX12Texture*>(destination), reinterpret_cast<const wis::TextureCopyRegion*&>(regions), region_count);
+}
 extern "C" void DX12CommandListBufferBarrier(DX12CommandList self, const WisBufferBarrier* barrier, DX12Buffer buffer)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
@@ -527,6 +547,11 @@ extern "C" void DX12CommandListSetRootSignature(DX12CommandList self, DX12RootSi
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->SetRootSignature(*reinterpret_cast<wis::DX12RootSignature*>(root_signature));
+}
+extern "C" void DX12CommandListSetComputeRootSignature(DX12CommandList self, DX12RootSignature root_signature)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->SetComputeRootSignature(*reinterpret_cast<wis::DX12RootSignature*>(root_signature));
 }
 extern "C" void DX12CommandListIASetPrimitiveTopology(DX12CommandList self, WisPrimitiveTopology topology)
 {
@@ -578,6 +603,11 @@ extern "C" void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vert
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
 }
+extern "C" void DX12CommandListDispatch(DX12CommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->Dispatch(group_count_x, group_count_y, group_count_z);
+}
 extern "C" void DX12CommandListSetPushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
@@ -587,6 +617,16 @@ extern "C" void DX12CommandListPushDescriptor(DX12CommandList self, WisDescripto
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->PushDescriptor(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::DX12Buffer*>(buffer), offset);
+}
+extern "C" void DX12CommandListSetDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->SetDescriptorStorage(*reinterpret_cast<wis::DX12DescriptorStorage*>(storage));
+}
+extern "C" void DX12CommandListSetComputeDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->SetComputeDescriptorStorage(*reinterpret_cast<wis::DX12DescriptorStorage*>(storage));
 }
 
 // DX12SwapChain methods --
@@ -896,6 +936,21 @@ extern "C" WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraph
 {
     auto* xself = reinterpret_cast<wis::VKDevice*>(self);
     auto&& [res, value] = xself->CreateGraphicsPipeline(*reinterpret_cast<const wis::VKGraphicsPipelineDesc*>(desc));
+
+    if (res.status != wis::Status::Ok) {
+        return reinterpret_cast<WisResult&>(res);
+    }
+
+    *pipeline = reinterpret_cast<VKPipelineState>(new (std::nothrow) wis::VKPipelineState(std::move(value)));
+    if (!*pipeline) {
+        return WisResult{ StatusOutOfMemory, "Failed to allocate memory for  wis::VKPipelineState." };
+    }
+    return reinterpret_cast<WisResult&>(res);
+}
+extern "C" WisResult VKDeviceCreateComputePipeline(VKDevice self, const VKComputePipelineDesc* desc, VKPipelineState* pipeline)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto&& [res, value] = xself->CreateComputePipeline(*reinterpret_cast<const wis::VKComputePipelineDesc*>(desc));
 
     if (res.status != wis::Status::Ok) {
         return reinterpret_cast<WisResult&>(res);
@@ -1265,6 +1320,11 @@ extern "C" void VKCommandListCopyTextureToBuffer(VKCommandList self, VKTexture s
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->CopyTextureToBuffer(*reinterpret_cast<wis::VKTexture*>(source), *reinterpret_cast<wis::VKBuffer*>(destination), reinterpret_cast<const wis::BufferTextureCopyRegion*&>(regions), region_count);
 }
+extern "C" void VKCommandListCopyTexture(VKCommandList self, VKTexture source, VKTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->CopyTexture(*reinterpret_cast<wis::VKTexture*>(source), *reinterpret_cast<wis::VKTexture*>(destination), reinterpret_cast<const wis::TextureCopyRegion*&>(regions), region_count);
+}
 extern "C" void VKCommandListBufferBarrier(VKCommandList self, const WisBufferBarrier* barrier, VKBuffer buffer)
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
@@ -1299,6 +1359,11 @@ extern "C" void VKCommandListSetRootSignature(VKCommandList self, VKRootSignatur
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->SetRootSignature(*reinterpret_cast<wis::VKRootSignature*>(root_signature));
+}
+extern "C" void VKCommandListSetComputeRootSignature(VKCommandList self, VKRootSignature root_signature)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->SetComputeRootSignature(*reinterpret_cast<wis::VKRootSignature*>(root_signature));
 }
 extern "C" void VKCommandListIASetPrimitiveTopology(VKCommandList self, WisPrimitiveTopology topology)
 {
@@ -1350,6 +1415,11 @@ extern "C" void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_c
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
 }
+extern "C" void VKCommandListDispatch(VKCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->Dispatch(group_count_x, group_count_y, group_count_z);
+}
 extern "C" void VKCommandListSetPushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
@@ -1359,6 +1429,16 @@ extern "C" void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorTyp
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->PushDescriptor(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::VKBuffer*>(buffer), offset);
+}
+extern "C" void VKCommandListSetDescriptorStorage(VKCommandList self, VKDescriptorStorage storage)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->SetDescriptorStorage(*reinterpret_cast<wis::VKDescriptorStorage*>(storage));
+}
+extern "C" void VKCommandListSetComputeDescriptorStorage(VKCommandList self, VKDescriptorStorage storage)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->SetComputeDescriptorStorage(*reinterpret_cast<wis::VKDescriptorStorage*>(storage));
 }
 
 // VKSwapChain methods --

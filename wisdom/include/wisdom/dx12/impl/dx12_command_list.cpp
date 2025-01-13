@@ -56,7 +56,7 @@ void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX
     }
 }
 
-void wis::ImplDX12CommandList::CopyTexture(DX12TextureView source, DX12TextureView destination, const wis::CopyTextureRegion* regions, uint32_t region_count) const noexcept
+void wis::ImplDX12CommandList::CopyTexture(DX12TextureView source, DX12TextureView destination, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     auto src_texture = std::get<0>(source);
     auto dst_texture = std::get<0>(destination);
@@ -404,6 +404,14 @@ void wis::ImplDX12CommandList::SetRootSignature(wis::DX12RootSignatureView root_
     push_descriptor_count = std::get<3>(root_signature);
 }
 
+void wis::ImplDX12CommandList::SetComputeRootSignature(wis::DX12RootSignatureView root_signature) noexcept
+{
+    list->SetComputeRootSignature(std::get<0>(root_signature));
+    root_stage_map = std::get<1>(root_signature);
+    push_constant_count = std::get<2>(root_signature);
+    push_descriptor_count = std::get<3>(root_signature);
+}
+
 void wis::ImplDX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
                                                     uint32_t instance_count,
                                                     uint32_t start_index,
@@ -419,6 +427,11 @@ void wis::ImplDX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
                                              uint32_t start_instance) noexcept
 {
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
+}
+
+void wis::ImplDX12CommandList::Dispatch(uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z) noexcept
+{
+    list->Dispatch(group_count_x, group_count_y, group_count_z);
 }
 
 void wis::ImplDX12CommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
@@ -438,6 +451,21 @@ void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageVi
         auto& offset = storage.heap_offsets[i];
         auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
         list->SetGraphicsRootDescriptorTable(i + push_constant_count + push_descriptor_count, handle);
+    }
+}
+
+void wis::ImplDX12CommandList::SetComputeDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept
+{
+    auto& storage = std::get<0>(desc_storage)->GetInternal();
+
+    uint32_t table_count = bool(storage.heaps[0]) + bool(storage.heaps[1]);
+    uint32_t table_offset = !bool(storage.heaps[0]);
+    list->SetDescriptorHeaps(table_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(storage.heaps + table_offset));
+
+    for (size_t i = 0; i < storage.heap_count; i++) {
+        auto& offset = storage.heap_offsets[i];
+        auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
+        list->SetComputeRootDescriptorTable(i + push_constant_count + push_descriptor_count, handle);
     }
 }
 
