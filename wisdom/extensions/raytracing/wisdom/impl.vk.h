@@ -107,7 +107,7 @@ public:
     {
         cmd_list.VKSetDescriptorStorage(desc_storage, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
     }
-    void PushDescriptors(wis::VKCommandList& cmd_list, wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset) const noexcept
+    void PushDescriptor(wis::VKCommandList& cmd_list, wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset) const noexcept
     {
         cmd_list.VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
     }
