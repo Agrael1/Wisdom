@@ -137,12 +137,30 @@ public:
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
-    void WriteRWBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t size, uint32_t offset4b = 0) noexcept
+    void WriteRWBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t size4b, uint32_t offset4b = 0) noexcept
     {
         VkDescriptorBufferInfo info{
             .buffer = std::get<0>(buffer),
             .offset = offset4b * 4u,
-            .range = size
+            .range = size4b * 4u
+        };
+        VkWriteDescriptorSet write{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = descriptor_sets[binding],
+            .dstBinding = 0,
+            .dstArrayElement = index,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .pBufferInfo = &info
+        };
+        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
+    }
+    void WriteBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t size4b, uint32_t offset4b = 0) noexcept
+    {
+        VkDescriptorBufferInfo info{
+            .buffer = std::get<0>(buffer),
+            .offset = offset4b * 4u,
+            .range = size4b * 4u
         };
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
