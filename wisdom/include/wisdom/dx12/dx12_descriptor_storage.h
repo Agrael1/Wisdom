@@ -87,7 +87,7 @@ public:
                     .NumElements = size4b, // size is in bytes, we need to convert it to elements
                     .StructureByteStride = 0,
                     .CounterOffsetInBytes = 0,
-                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
+                    .Flags = D3D12_BUFFER_UAV_FLAG_RAW },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateUnorderedAccessView(std::get<0>(buffer), nullptr, &uav_desc, handle);
@@ -103,7 +103,7 @@ public:
                     .FirstElement = offset4b,
                     .NumElements = size4b, // size is in bytes, we need to convert it to elements
                     .StructureByteStride = 0,
-                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
+                    .Flags = D3D12_BUFFER_SRV_FLAG_RAW },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateShaderResourceView(std::get<0>(buffer), &srv_desc, handle);
