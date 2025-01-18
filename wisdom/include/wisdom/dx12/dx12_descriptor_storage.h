@@ -46,7 +46,7 @@ public:
 public:
     void WriteSampler(uint32_t binding, uint32_t index, wis::DX12SamplerView sampler) noexcept
     {
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[1].Offset(heap_offsets[binding].offset_in_bytes), index, heap_sampler_increment);
+        auto handle = DX12GetSamplerCPUDescriptorHandle(binding, index);
         auto& sampler_handle = std::get<0>(sampler);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
     }
@@ -58,18 +58,18 @@ public:
             .SizeInBytes = wis::detail::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)) // is this correct?
         };
 
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[0].Offset(heap_offsets[binding].offset_in_bytes), index, heap_resource_increment);
+        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateConstantBufferView(&desc, handle);
     }
     void WriteTexture(uint32_t binding, uint32_t index, wis::DX12ShaderResourceView srv) noexcept
     {
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[0].Offset(heap_offsets[binding].offset_in_bytes), index, heap_resource_increment);
+        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         auto& srv_handle = std::get<0>(srv);
         device->CopyDescriptorsSimple(1, handle, srv_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
     void WriteRWTexture(uint32_t binding, uint32_t index, wis::DX12UnorderedAccessTextureView uav) noexcept
     {
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[0].Offset(heap_offsets[binding].offset_in_bytes), index, heap_resource_increment);
+        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         auto& uav_handle = std::get<0>(uav);
 
         device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -89,8 +89,18 @@ public:
                     .CounterOffsetInBytes = 0,
                     .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
         };
-        auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[0].Offset(heap_offsets[binding].offset_in_bytes), index, heap_resource_increment);
+        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateUnorderedAccessView(std::get<0>(buffer), nullptr, &uav_desc, handle);
+    }
+
+public:
+    D3D12_CPU_DESCRIPTOR_HANDLE DX12GetResourceCPUDescriptorHandle(uint32_t binding, uint32_t index) const noexcept
+    {
+        return D3D12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[0].ptr + heap_offsets[binding].offset_in_bytes + index * heap_resource_increment);
+    }
+    D3D12_CPU_DESCRIPTOR_HANDLE DX12GetSamplerCPUDescriptorHandle(uint32_t binding, uint32_t index) const noexcept
+    {
+        return D3D12_CPU_DESCRIPTOR_HANDLE(heap_cpu_starts[1].ptr + heap_offsets[binding].offset_in_bytes + index * heap_sampler_increment);
     }
 };
 
