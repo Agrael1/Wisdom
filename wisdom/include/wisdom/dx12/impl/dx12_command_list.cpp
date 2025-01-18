@@ -439,6 +439,11 @@ void wis::ImplDX12CommandList::SetPushConstants(const void* data, uint32_t size_
     list->SetGraphicsRoot32BitConstants(uint32_t(root_stage_map[uint32_t(stage)]), size_4bytes, data, offset_4bytes);
 }
 
+void wis::ImplDX12CommandList::SetComputePushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+{
+    list->SetComputeRoot32BitConstants(uint32_t(root_stage_map[0]), size_4bytes, data, offset_4bytes);
+}
+
 void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept
 {
     auto& storage = std::get<0>(desc_storage)->GetInternal();
@@ -484,6 +489,25 @@ void wis::ImplDX12CommandList::PushDescriptor(wis::DescriptorType type, uint32_t
         break;
     case wis::DescriptorType::RWBuffer:
         list->SetGraphicsRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
+    }
+}
+
+void wis::ImplDX12CommandList::PushDescriptorCompute(wis::DescriptorType type, uint32_t binding, wis::DX12BufferView view, uint32_t offset) noexcept
+{
+    auto handle = std::get<0>(view)->GetGPUVirtualAddress();
+    switch (type) {
+    case wis::DescriptorType::Buffer:
+        list->SetComputeRootShaderResourceView(push_constant_count + binding, handle + offset);
+        break;
+    case wis::DescriptorType::Texture:
+    case wis::DescriptorType::RWTexture:
+        return;
+    case wis::DescriptorType::ConstantBuffer:
+        list->SetComputeRootConstantBufferView(push_constant_count + binding, handle + offset);
+        break;
+    case wis::DescriptorType::RWBuffer:
+        list->SetComputeRootUnorderedAccessView(push_constant_count + binding, handle + offset);
         break;
     }
 }

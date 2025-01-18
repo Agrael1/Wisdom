@@ -103,10 +103,13 @@ public:
     {
         device.table().vkCmdBindPipeline(std::get<0>(cmd_list), VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, std::get<0>(pipeline));
     }
-    void SetDescriptorStorage(const wis::VKCommandList& cmd_list, wis::VKDescriptorStorageView desc_storage) const noexcept
+    void SetDescriptorStorage(wis::VKCommandList& cmd_list, wis::VKDescriptorStorageView desc_storage) const noexcept
     {
-        auto& set_span = std::get<0>(desc_storage);
-        device.table().vkCmdBindDescriptorSets(cmd_list.GetInternal().command_list, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, cmd_list.GetInternal().pipeline_layout, 1, set_span.size(), set_span.data(), 0, nullptr);
+        cmd_list.VKSetDescriptorStorage(desc_storage, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
+    }
+    void PushDescriptors(wis::VKCommandList& cmd_list, wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset) const noexcept
+    {
+        cmd_list.VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
     }
 
     void DispatchRays(wis::VKCommandListView cmd_list, const wis::RaytracingDispatchDesc& desc) const noexcept

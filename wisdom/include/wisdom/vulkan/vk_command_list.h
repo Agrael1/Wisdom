@@ -125,13 +125,32 @@ public:
     WIS_INLINE void Dispatch(uint32_t x, uint32_t y, uint32_t z) noexcept;
 
     WIS_INLINE void SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
+    WIS_INLINE void SetComputePushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+    {
+        SetPushConstants(data, size_4bytes, offset_4bytes, wis::ShaderStages::All);
+    }
 
-    WIS_INLINE void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept;
+    void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept
+    {
+        VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+    void PushDescriptorCompute(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept
+    {
+        VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
 
-    WIS_INLINE void SetDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept;
+    void SetDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept
+    {
+        VKSetDescriptorStorage(desc_storage, VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+    void SetComputeDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept
+    {
+        VKSetDescriptorStorage(desc_storage, VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
 
-    WIS_INLINE void SetComputeDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept;
-
+public:
+    WIS_INLINE void VKPushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset, VkPipelineBindPoint binding_point) noexcept;
+    WIS_INLINE void VKSetDescriptorStorage(VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept;
 protected:
     bool closed = false;
 };
@@ -411,6 +430,16 @@ public:
         wis::ImplVKCommandList::SetPushConstants(data, size_4bytes, offset_4bytes, stage);
     }
     /**
+     * @brief Sets the root constants for the compute or raytracing shader.
+     * @param data The data to set the root constants with.
+     * @param size_4bytes The size of the data in 4-byte units.
+     * @param offset_4bytes The offset in the data in 4-byte units.
+     * */
+    inline void SetComputePushConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+    {
+        wis::ImplVKCommandList::SetComputePushConstants(data, size_4bytes, offset_4bytes);
+    }
+    /**
      * @brief Pushes descriptor directly to the command list, without putting it to the table.
      * Works only with buffer bindings.
      * Buffer is always bound with full size.
@@ -422,6 +451,20 @@ public:
     inline void PushDescriptor(wis::DescriptorType type, uint32_t root_index, wis::VKBufferView buffer, uint32_t offset) noexcept
     {
         wis::ImplVKCommandList::PushDescriptor(type, root_index, std::move(buffer), offset);
+    }
+    /**
+     * @brief Pushes descriptor directly to the command list, without putting it to the table.
+     * Works only with buffer bindings.
+     * Works with compute or raytracing pipelines.
+     * Buffer is always bound with full size.
+     * @param type The type of the descriptor to set.
+     * @param root_index The index of the root descriptor to set.
+     * @param buffer The buffer to set.
+     * @param offset The offset in the descriptor table to set the descriptor to.
+     * */
+    inline void PushDescriptorCompute(wis::DescriptorType type, uint32_t root_index, wis::VKBufferView buffer, uint32_t offset) noexcept
+    {
+        wis::ImplVKCommandList::PushDescriptorCompute(type, root_index, std::move(buffer), offset);
     }
     /**
      * @brief Sets the descriptor storage object for graphics pipeline.

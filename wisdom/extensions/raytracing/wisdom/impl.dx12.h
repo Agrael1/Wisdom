@@ -153,22 +153,14 @@ public:
         cmd_list_i->SetPipelineState1(pipeline_i);
     }
 
-    void SetDescriptorStorage(const wis::DX12CommandList& cmd_list, wis::DX12DescriptorStorageView desc_storage) const noexcept
+    void SetDescriptorStorage(wis::DX12CommandList& cmd_list, wis::DX12DescriptorStorageView desc_storage) const noexcept
     {
-        auto& ii = cmd_list.GetInternal();
-        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(cmd_list.GetInternal().list.get());
+        cmd_list.SetComputeDescriptorStorage(desc_storage);
+    }
 
-        auto& storage = std::get<0>(desc_storage)->GetInternal();
-
-        uint32_t table_count = bool(storage.heaps[0]) + bool(storage.heaps[1]);
-        uint32_t table_offset = !bool(storage.heaps[0]);
-        cmd_list_i->SetDescriptorHeaps(table_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(storage.heaps + table_offset));
-
-        for (size_t i = 0; i < storage.heap_count; i++) {
-            auto& offset = storage.heap_offsets[i];
-            auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
-            cmd_list_i->SetComputeRootDescriptorTable(i + ii.push_constant_count + ii.push_descriptor_count, handle);
-        }
+    void PushDescriptor(wis::DX12CommandList& cmd_list, wis::DescriptorType type, uint32_t root_index, wis::DX12BufferView buffer, uint32_t offset) const noexcept
+    {
+        cmd_list.PushDescriptorCompute(type, root_index, buffer, offset);
     }
 
     void DispatchRays(wis::DX12CommandListView cmd_list, const wis::RaytracingDispatchDesc& desc) const noexcept

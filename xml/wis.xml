@@ -500,6 +500,12 @@ Otherwise the first is chosen.">
       <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
       <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
     </func>
+    
+    <func for="CommandList" name="SetComputePushConstants" doc="Sets the root constants for the compute or raytracing shader.">
+      <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
+      <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
+      <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
+    </func>
 
     <func for="CommandList" name="PushDescriptor" doc="Pushes descriptor directly to the command list, without putting it to the table.
 Works only with buffer bindings.
@@ -511,7 +517,19 @@ Buffer is always bound with full size.">
       </arg>
       <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
-
+    
+    <func for="CommandList" name="PushDescriptorCompute" doc="Pushes descriptor directly to the command list, without putting it to the table.
+Works only with buffer bindings.
+Works with compute or raytracing pipelines.
+Buffer is always bound with full size.">
+      <arg type="DescriptorType" name="type" doc="The type of the descriptor to set."/>
+      <arg type="u32" name="root_index" doc="The index of the root descriptor to set."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to set.">
+        <replace with="BufferView" for="cpp" doc="The buffer to set."/>
+      </arg>
+      <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
+    </func>
+    
     <func for="CommandList" name="SetDescriptorStorage" doc="Sets the descriptor storage object for graphics pipeline.">
       <arg type="DescriptorStorage" name="storage" doc="The descriptor storage to set.">
         <replace with="DescriptorStorageView" for="cpp" doc="The descriptor storage to set."/>

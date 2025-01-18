@@ -613,10 +613,20 @@ extern "C" void DX12CommandListSetPushConstants(DX12CommandList self, void* data
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->SetPushConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
 }
+extern "C" void DX12CommandListSetComputePushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->SetComputePushConstants(data, size_4bytes, offset_4bytes);
+}
 extern "C" void DX12CommandListPushDescriptor(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
     xself->PushDescriptor(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::DX12Buffer*>(buffer), offset);
+}
+extern "C" void DX12CommandListPushDescriptorCompute(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset)
+{
+    auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
+    xself->PushDescriptorCompute(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::DX12Buffer*>(buffer), offset);
 }
 extern "C" void DX12CommandListSetDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage)
 {
@@ -1425,10 +1435,20 @@ extern "C" void VKCommandListSetPushConstants(VKCommandList self, void* data, ui
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->SetPushConstants(data, size_4bytes, offset_4bytes, static_cast<wis::ShaderStages>(stage));
 }
+extern "C" void VKCommandListSetComputePushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->SetComputePushConstants(data, size_4bytes, offset_4bytes);
+}
 extern "C" void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset)
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
     xself->PushDescriptor(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::VKBuffer*>(buffer), offset);
+}
+extern "C" void VKCommandListPushDescriptorCompute(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset)
+{
+    auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
+    xself->PushDescriptorCompute(static_cast<wis::DescriptorType>(type), root_index, *reinterpret_cast<wis::VKBuffer*>(buffer), offset);
 }
 extern "C" void VKCommandListSetDescriptorStorage(VKCommandList self, VKDescriptorStorage storage)
 {

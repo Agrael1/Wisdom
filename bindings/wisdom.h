@@ -3002,6 +3002,15 @@ WISDOM_API void VKCommandListDispatch(VKCommandList self, uint32_t group_count_x
 WISDOM_API void VKCommandListSetPushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
 
 /**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+WISDOM_API void VKCommandListSetComputePushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes);
+
+/**
  * @brief Pushes descriptor directly to the command list, without putting it to the table.
  * Works only with buffer bindings.
  * Buffer is always bound with full size.
@@ -3012,6 +3021,19 @@ WISDOM_API void VKCommandListSetPushConstants(VKCommandList self, void* data, ui
  * @param offset The offset in the descriptor table to set the descriptor to.
  * */
 WISDOM_API void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset);
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+WISDOM_API void VKCommandListPushDescriptorCompute(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset);
 
 /**
  * @brief Sets the descriptor storage object for graphics pipeline.
@@ -4126,6 +4148,15 @@ WISDOM_API void DX12CommandListDispatch(DX12CommandList self, uint32_t group_cou
 WISDOM_API void DX12CommandListSetPushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
 
 /**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+WISDOM_API void DX12CommandListSetComputePushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes);
+
+/**
  * @brief Pushes descriptor directly to the command list, without putting it to the table.
  * Works only with buffer bindings.
  * Buffer is always bound with full size.
@@ -4136,6 +4167,19 @@ WISDOM_API void DX12CommandListSetPushConstants(DX12CommandList self, void* data
  * @param offset The offset in the descriptor table to set the descriptor to.
  * */
 WISDOM_API void DX12CommandListPushDescriptor(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset);
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+WISDOM_API void DX12CommandListPushDescriptorCompute(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset);
 
 /**
  * @brief Sets the descriptor storage object for graphics pipeline.
@@ -5307,6 +5351,18 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 }
 
 /**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+inline void WisCommandListSetComputePushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes)
+{
+    DX12CommandListSetComputePushConstants(self, data, size_4bytes, offset_4bytes);
+}
+
+/**
  * @brief Pushes descriptor directly to the command list, without putting it to the table.
  * Works only with buffer bindings.
  * Buffer is always bound with full size.
@@ -5319,6 +5375,22 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
 {
     DX12CommandListPushDescriptor(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+inline void WisCommandListPushDescriptorCompute(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
+{
+    DX12CommandListPushDescriptorCompute(self, type, root_index, buffer, offset);
 }
 
 /**
@@ -6557,6 +6629,18 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 }
 
 /**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+inline void WisCommandListSetComputePushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes)
+{
+    VKCommandListSetComputePushConstants(self, data, size_4bytes, offset_4bytes);
+}
+
+/**
  * @brief Pushes descriptor directly to the command list, without putting it to the table.
  * Works only with buffer bindings.
  * Buffer is always bound with full size.
@@ -6569,6 +6653,22 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
 {
     VKCommandListPushDescriptor(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+inline void WisCommandListPushDescriptorCompute(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
+{
+    VKCommandListPushDescriptorCompute(self, type, root_index, buffer, offset);
 }
 
 /**
