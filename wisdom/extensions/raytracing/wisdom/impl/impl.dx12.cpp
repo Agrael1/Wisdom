@@ -31,7 +31,7 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
         // append index
         auto* prev = *wch;
         *wch += szc;
-        auto offset = swprintf_s(*wch, 16, L"|%08x", index);
+        auto offset = swprintf_s(*wch, 10, L"|%08x", index);
         *wch += offset + 1;
         return prev;
     };
