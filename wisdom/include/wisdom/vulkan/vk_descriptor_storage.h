@@ -137,12 +137,12 @@ public:
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
-    void WriteRWBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t size4b, uint32_t offset4b = 0) noexcept
+    void WriteRWStructuredBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         VkDescriptorBufferInfo info{
             .buffer = std::get<0>(buffer),
-            .offset = offset4b * 4u,
-            .range = size4b * 4u
+            .offset = offset_elements * stride,
+            .range = element_count * stride
         };
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -155,12 +155,12 @@ public:
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
-    void WriteBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t size4b, uint32_t offset4b = 0) noexcept
+    void WriteStructuredBuffer(uint32_t binding, uint32_t index, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         VkDescriptorBufferInfo info{
             .buffer = std::get<0>(buffer),
-            .offset = offset4b * 4u,
-            .range = size4b * 4u
+            .offset = offset_elements * stride,
+            .range = element_count * stride
         };
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,

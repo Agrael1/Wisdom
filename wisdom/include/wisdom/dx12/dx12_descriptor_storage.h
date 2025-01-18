@@ -75,35 +75,33 @@ public:
         device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 
-    /// TODO: Test this function with structured and unstructured buffers
-    /// offset has to be in elements, not bytes (4 byte chunks)
-    void WriteRWBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t size4b, uint32_t offset4b = 0) noexcept
+    void WriteRWStrcturedBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
             .Format = DXGI_FORMAT_R32_TYPELESS,
             .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
             .Buffer{
-                    .FirstElement = offset4b,
-                    .NumElements = size4b, // size is in bytes, we need to convert it to elements
-                    .StructureByteStride = 0,
+                    .FirstElement = offset_elements,
+                    .NumElements = element_count,
+                    .StructureByteStride = stride,
                     .CounterOffsetInBytes = 0,
-                    .Flags = D3D12_BUFFER_UAV_FLAG_RAW },
+                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateUnorderedAccessView(std::get<0>(buffer), nullptr, &uav_desc, handle);
     }
 
-    void WriteBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t size4b, uint32_t offset4b = 0) noexcept
+    void WriteStructuredBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
-            .Format = DXGI_FORMAT_R32_TYPELESS,
+            .Format = DXGI_FORMAT_UNKNOWN,
             .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Buffer{
-                    .FirstElement = offset4b,
-                    .NumElements = size4b, // size is in bytes, we need to convert it to elements
-                    .StructureByteStride = 0,
-                    .Flags = D3D12_BUFFER_SRV_FLAG_RAW },
+                    .FirstElement = offset_elements,
+                    .NumElements = element_count,
+                    .StructureByteStride = stride,
+                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateShaderResourceView(std::get<0>(buffer), &srv_desc, handle);
