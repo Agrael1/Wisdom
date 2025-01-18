@@ -318,7 +318,6 @@ void wis::ImplVKRaytracing::BuildTopLevelAS(wis::VKCommandListView cmd_buffer, c
                         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
                         .arrayOfPointers = tlas_desc.indirect,
                         .data = { .deviceAddress = tlas_desc.gpu_address } } },
-        .flags = convert_vk(tlas_desc.flags)
     };
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
