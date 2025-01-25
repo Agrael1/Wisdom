@@ -92,7 +92,7 @@ endfunction()
 function(wis_compile_shader)
 	set(options )
     set(oneValueArgs TARGET ENTRY SHADER OUTPUT TYPE SHADER_MODEL)
-    set(multiValueArgs INCLUDE_DIRS DEFINITIONS)
+    set(multiValueArgs INCLUDE_DIRS DEFINITIONS FLAGS)
     cmake_parse_arguments(wis_compile_shader "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
 
@@ -152,6 +152,9 @@ function(wis_compile_shader)
 		list(APPEND DEFINES "-D${DEFINITION} ")
 	endforeach()
 
+	foreach(FLAG ${wis_compile_shader_FLAGS})
+		list(APPEND FLAGS "${FLAG} ")
+	endforeach()
 
 
 	set(SHADER ${wis_compile_shader_SHADER})
@@ -178,7 +181,7 @@ function(wis_compile_shader)
 
     if(WISDOM_WINDOWS)
         add_custom_command(TARGET ${TARGET}
-            COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
+            COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${FLAGS} ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
             MAIN_DEPENDENCY ${SHADER}
             COMMENT "HLSL ${SHADER}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -186,7 +189,7 @@ function(wis_compile_shader)
     endif()
 
     add_custom_command(TARGET ${TARGET}
-        COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
+        COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes ${FLAGS} -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
         MAIN_DEPENDENCY ${SHADER}
         COMMENT "SPV ${SHADER}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

@@ -194,7 +194,7 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
 
     // max recursion depth
     D3D12_RAYTRACING_PIPELINE_CONFIG1 pipeline_config{
-        .MaxTraceRecursionDepth = 1,
+        .MaxTraceRecursionDepth = desc.max_recursion_depth,
         .Flags = D3D12_RAYTRACING_PIPELINE_FLAG_NONE
     };
     subobjects_span[num_subobjects - 1] = {
