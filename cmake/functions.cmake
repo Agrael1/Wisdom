@@ -156,6 +156,10 @@ function(wis_compile_shader)
 		list(APPEND FLAGS "${FLAG} ")
 	endforeach()
 
+	#remove trailing space
+	string(STRIP "${INCLUDES}" INCLUDES)
+	string(STRIP "${DEFINES}" DEFINES)
+	string(STRIP "${FLAGS}" FLAGS)
 
 	set(SHADER ${wis_compile_shader_SHADER})
 	set(TARGET ${wis_compile_shader_TARGET})
