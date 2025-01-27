@@ -27,7 +27,7 @@ protected:
         shared_device = instance.GetInternal().device;
         D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureSupportData = {};
         supports_raytracing = wis::succeeded(shared_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureSupportData, sizeof(featureSupportData))) &&
-                              featureSupportData.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+                featureSupportData.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
         return wis::success;
     }
 
@@ -107,10 +107,10 @@ public:
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc{
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
             .Inputs = {
-                .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
-                .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(blas_desc.flags) | (blas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
-                .NumDescs = blas_desc.geometry_count,
-                .DescsLayout = blas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
+                    .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
+                    .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(blas_desc.flags) | (blas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+                    .NumDescs = blas_desc.geometry_count,
+                    .DescsLayout = blas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
             },
             .SourceAccelerationStructureData = std::get<0>(src_acceleration_structure),
             .ScratchAccelerationStructureData = { scratch_buffer_gpu_address },
@@ -134,12 +134,11 @@ public:
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc{
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
             .Inputs = {
-                .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
-                .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
-                .NumDescs = tlas_desc.instance_count,
-                .DescsLayout = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
-                .InstanceDescs = tlas_desc.gpu_address
-            },
+                    .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
+                    .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+                    .NumDescs = tlas_desc.instance_count,
+                    .DescsLayout = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
+                    .InstanceDescs = tlas_desc.gpu_address },
             .SourceAccelerationStructureData = std::get<0>(src_acceleration_structure),
             .ScratchAccelerationStructureData = { scratch_buffer_gpu_address }
         };
@@ -211,18 +210,16 @@ DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
             .VertexCount = desc.vertex_count,
             .IndexBuffer = desc.index_buffer_address,
             .VertexBuffer = {
-                .StartAddress = desc.vertex_or_aabb_buffer_address,
-                .StrideInBytes = desc.vertex_or_aabb_buffer_stride
-            }
+                    .StartAddress = desc.vertex_or_aabb_buffer_address,
+                    .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
         };
         break;
     case wis::ASGeometryType::AABBs:
         geometry.AABBs = {
             .AABBCount = desc.triangle_or_aabb_count,
             .AABBs = {
-                .StartAddress = desc.vertex_or_aabb_buffer_address,
-                .StrideInBytes = desc.vertex_or_aabb_buffer_stride
-            }
+                    .StartAddress = desc.vertex_or_aabb_buffer_address,
+                    .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
         };
         break;
     default:

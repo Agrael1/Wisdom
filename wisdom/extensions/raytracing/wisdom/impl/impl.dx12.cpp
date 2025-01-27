@@ -77,17 +77,17 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
 
     uint32_t num_subobjects = desc.shader_count + desc.hit_group_count + 3; // root signature and max recursion depth
     size_t string_offset = num_subobjects * sizeof(D3D12_STATE_SUBOBJECT) +
-                           desc.shader_count * sizeof(D3D12_DXIL_LIBRARY_DESC) +
-                           desc.export_count * sizeof(D3D12_EXPORT_DESC) +
-                           desc.hit_group_count * sizeof(D3D12_HIT_GROUP_DESC) +
-                           (num_callable + num_miss + num_raygen) * sizeof(wchar_t*);
+            desc.shader_count * sizeof(D3D12_DXIL_LIBRARY_DESC) +
+            desc.export_count * sizeof(D3D12_EXPORT_DESC) +
+            desc.hit_group_count * sizeof(D3D12_HIT_GROUP_DESC) +
+            (num_callable + num_miss + num_raygen) * sizeof(wchar_t*);
 
     size_t allocation_size = string_offset + // callable, miss, raygen
-                             // string names
-                             wchspace * sizeof(wchar_t) * 2u + // entry points
-                             desc.export_count * sizeof(wchar_t) * 9u + // unique names + entry points
-                             desc.hit_group_count * sizeof(wchar_t) * (hit_group_exa.size() + 1u) // hit group names format: H|A|C|I|00000000
-                             ;
+                                             // string names
+            wchspace * sizeof(wchar_t) * 2u + // entry points
+            desc.export_count * sizeof(wchar_t) * 9u + // unique names + entry points
+            desc.hit_group_count * sizeof(wchar_t) * (hit_group_exa.size() + 1u) // hit group names format: H|A|C|I|00000000
+            ;
     std::unique_ptr<uint8_t[]> subobjects = wis::detail::make_unique_for_overwrite<uint8_t[]>(allocation_size);
 
     // burn shader bytecodes
@@ -211,11 +211,11 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
 
     // get shader identifiers
     pipe_i.shader_identifiers = wis::detail::make_unique_for_overwrite<uint8_t[]>(
-                                    (num_raygen +
-                                     num_miss +
-                                     num_callable +
-                                     desc.hit_group_count) *
-                                    D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+            (num_raygen +
+             num_miss +
+             num_callable +
+             desc.hit_group_count) *
+            D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 
     if (!pipe_i.shader_identifiers) {
         result = wis::make_result<FUNC, "Failed to allocate shader identifiers">(E_OUTOFMEMORY);

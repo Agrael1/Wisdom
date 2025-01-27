@@ -192,7 +192,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKFence> CreateFence(uint64_t initial_value = 0, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKFence> { &wis::ImplVKDevice::CreateFence, this, initial_value, flags };
+        return wis::ResultValue<wis::VKFence>{ &wis::ImplVKDevice::CreateFence, this, initial_value, flags };
     }
     /**
      * @brief Creates a command queue with specified type.
@@ -210,7 +210,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKCommandQueue> CreateCommandQueue(wis::QueueType type) const noexcept
     {
-        return wis::ResultValue<wis::VKCommandQueue> { &wis::ImplVKDevice::CreateCommandQueue, this, type };
+        return wis::ResultValue<wis::VKCommandQueue>{ &wis::ImplVKDevice::CreateCommandQueue, this, type };
     }
     /**
      * @brief Creates a command list for specific queue type.
@@ -228,7 +228,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKCommandList> CreateCommandList(wis::QueueType type) const noexcept
     {
-        return wis::ResultValue<wis::VKCommandList> { &wis::ImplVKDevice::CreateCommandList, this, type };
+        return wis::ResultValue<wis::VKCommandList>{ &wis::ImplVKDevice::CreateCommandList, this, type };
     }
     /**
      * @brief Creates a graphics pipeline state object.
@@ -246,7 +246,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKPipelineState> { &wis::ImplVKDevice::CreateGraphicsPipeline, this, desc };
+        return wis::ResultValue<wis::VKPipelineState>{ &wis::ImplVKDevice::CreateGraphicsPipeline, this, desc };
     }
     /**
      * @brief Creates a compute pipeline state object.
@@ -264,7 +264,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKPipelineState> CreateComputePipeline(const wis::VKComputePipelineDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKPipelineState> { &wis::ImplVKDevice::CreateComputePipeline, this, desc };
+        return wis::ResultValue<wis::VKPipelineState>{ &wis::ImplVKDevice::CreateComputePipeline, this, desc };
     }
     /**
      * @brief Creates a root signature object for use with DescriptorStorage.
@@ -312,7 +312,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* push_constants = nullptr, uint32_t push_constant_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptor_count = 0, const wis::DescriptorBindingDesc* bindings = nullptr, uint32_t binding_count = 0) const noexcept
     {
-        return wis::ResultValue<wis::VKRootSignature> { &wis::ImplVKDevice::CreateRootSignature, this, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count };
+        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDevice::CreateRootSignature, this, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count };
     }
     /**
      * @brief Creates a shader object.
@@ -332,7 +332,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKShader> CreateShader(void* data, uint32_t size) const noexcept
     {
-        return wis::ResultValue<wis::VKShader> { &wis::ImplVKDevice::CreateShader, this, data, size };
+        return wis::ResultValue<wis::VKShader>{ &wis::ImplVKDevice::CreateShader, this, data, size };
     }
     /**
      * @brief Creates a resource allocator object.
@@ -348,7 +348,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKResourceAllocator> CreateAllocator() const noexcept
     {
-        return wis::ResultValue<wis::VKResourceAllocator> {
+        return wis::ResultValue<wis::VKResourceAllocator>{
             &wis::ImplVKDevice::CreateAllocator,
             this,
         };
@@ -371,7 +371,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateRenderTarget(wis::VKTextureView texture, const wis::RenderTargetDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKRenderTarget> { &wis::ImplVKDevice::CreateRenderTarget, this, std::move(texture), desc };
+        return wis::ResultValue<wis::VKRenderTarget>{ &wis::ImplVKDevice::CreateRenderTarget, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a depth stencil target object.
@@ -397,7 +397,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRenderTarget> CreateDepthStencilTarget(wis::VKTextureView texture, const wis::RenderTargetDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKRenderTarget> { &wis::ImplVKDevice::CreateDepthStencilTarget, this, std::move(texture), desc };
+        return wis::ResultValue<wis::VKRenderTarget>{ &wis::ImplVKDevice::CreateDepthStencilTarget, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a sampler object.
@@ -415,7 +415,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKSampler> CreateSampler(const wis::SamplerDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKSampler> { &wis::ImplVKDevice::CreateSampler, this, desc };
+        return wis::ResultValue<wis::VKSampler>{ &wis::ImplVKDevice::CreateSampler, this, desc };
     }
     /**
      * @brief Creates a shader resource object.
@@ -435,7 +435,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKShaderResource> CreateShaderResource(wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKShaderResource> { &wis::ImplVKDevice::CreateShaderResource, this, std::move(texture), desc };
+        return wis::ResultValue<wis::VKShaderResource>{ &wis::ImplVKDevice::CreateShaderResource, this, std::move(texture), desc };
     }
     /**
      * @brief Creates a descriptor storage object with specified number of bindings to allocate.
@@ -459,7 +459,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorStorage> CreateDescriptorStorage(const wis::DescriptorBindingDesc* bindings, uint32_t bindings_count, wis::DescriptorMemory memory = wis::DescriptorMemory::ShaderVisible) const noexcept
     {
-        return wis::ResultValue<wis::VKDescriptorStorage> { &wis::ImplVKDevice::CreateDescriptorStorage, this, bindings, bindings_count, memory };
+        return wis::ResultValue<wis::VKDescriptorStorage>{ &wis::ImplVKDevice::CreateDescriptorStorage, this, bindings, bindings_count, memory };
     }
     /**
      * @brief Queries if the device supports the feature.

@@ -4,9 +4,9 @@
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKRaytracing::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-        std::unordered_set<std::string_view>& ext_name_set,
-        std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-        std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                             std::unordered_set<std::string_view>& ext_name_set,
+                                             std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                                             std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
 {
     if (!available_extensions.contains(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME)) {
         return false;
@@ -55,12 +55,10 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLev
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
         .geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR,
         .geometry = {
-            .instances = {
-                .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
-                .arrayOfPointers = tlas_desc.indirect,
-                .data = { .deviceAddress = tlas_desc.gpu_address }
-            }
-        },
+                .instances = {
+                        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
+                        .arrayOfPointers = tlas_desc.indirect,
+                        .data = { .deviceAddress = tlas_desc.gpu_address } } },
     };
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
@@ -76,10 +74,10 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLev
 
     uint32_t max_instance_count = tlas_desc.instance_count;
     table.vkGetAccelerationStructureBuildSizesKHR(device.get(),
-            VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-            &build_info,
-            &max_instance_count,
-            &build_sizes_info);
+                                                  VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+                                                  &build_info,
+                                                  &max_instance_count,
+                                                  &build_sizes_info);
     return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
 }
 
@@ -114,17 +112,17 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKB
         .mode = blas_desc.update ? VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR : VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
         .geometryCount = blas_desc.geometry_count,
         .ppGeometries = direct
-        ? reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(data)
-        : reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(blas_desc.geometry_indirect),
+                ? reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(data)
+                : reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(blas_desc.geometry_indirect),
     };
     VkAccelerationStructureBuildSizesInfoKHR build_sizes_info{
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR,
     };
     table.vkGetAccelerationStructureBuildSizesKHR(device.get(),
-            VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-            &build_info,
-            max_primitive_count,
-            &build_sizes_info);
+                                                  VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+                                                  &build_info,
+                                                  max_primitive_count,
+                                                  &build_sizes_info);
     return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
 }
 
@@ -133,7 +131,6 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
 {
     wis::VKRaytracingPipeline pipeline;
     auto& pipe_i = pipeline.GetMutableInternal();
-
 
     uint32_t raygen_count = 0;
     uint32_t miss_count = 0;
@@ -146,11 +143,11 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
 
     // initialize shader stages
     std::unique_ptr<uint8_t[]> stages = wis::detail::make_unique_for_overwrite<uint8_t[]>(
-                                            rt_pipeline_desc.export_count * sizeof(VkPipelineShaderStageCreateInfo) +
-                                            raygen_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
-                                            miss_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
-                                            rt_pipeline_desc.hit_group_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
-                                            callable_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR));
+            rt_pipeline_desc.export_count * sizeof(VkPipelineShaderStageCreateInfo) +
+            raygen_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
+            miss_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
+            rt_pipeline_desc.hit_group_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
+            callable_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR));
     if (!stages) {
         result = wis::make_result<FUNC, "Failed to allocate memory for shader stages">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return pipeline;
@@ -303,8 +300,8 @@ void wis::ImplVKRaytracing::BuildBottomLevelAS(wis::VKCommandListView cmd_buffer
         .dstAccelerationStructure = std::get<0>(dst_acceleration_structure),
         .geometryCount = blas_desc.geometry_count,
         .ppGeometries = direct
-        ? reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(data)
-        : reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(blas_desc.geometry_indirect),
+                ? reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(data)
+                : reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(blas_desc.geometry_indirect),
         .scratchData = scratch_buffer_gpu_address
     };
     table.vkCmdBuildAccelerationStructuresKHR(std::get<0>(cmd_buffer), 1, &build_info, pp_ranges);
@@ -316,12 +313,10 @@ void wis::ImplVKRaytracing::BuildTopLevelAS(wis::VKCommandListView cmd_buffer, c
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
         .geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR,
         .geometry = {
-            .instances = {
-                .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
-                .arrayOfPointers = tlas_desc.indirect,
-                .data = { .deviceAddress = tlas_desc.gpu_address }
-            }
-        },
+                .instances = {
+                        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
+                        .arrayOfPointers = tlas_desc.indirect,
+                        .data = { .deviceAddress = tlas_desc.gpu_address } } },
     };
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
