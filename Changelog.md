@@ -1,5 +1,12 @@
 # Version History
 
+- 0.6.0 Raytracing
+  - BREAKING: Revisited root signature and descriptor storage. Now it is possible to create roots with several same types of descriptors, binding tables are ordered accordingly.
+  - BREAKING: Root signature compatibility is now based on the input `DescriptorBindingDesc`. It is possible to create a root signature with different descriptor types, but that may result in incompatibility between root and descriptor storage.
+  - Added Raytracing support for DXR and VK_KHR_ray_tracing
+  - Added compute pipeline and compute functions to the device and command list
+  - Added more bindings to the Descriptor storage 
+	
 - 0.5.0 API stabilization
 
   - Most of the API is now stable and will not change

@@ -8,6 +8,16 @@
 
 https://www.nuget.org/packages/Wisdom/
 
+# Features
+
+- [x] Raytracing support
+- [x] Compute pipeline, Basic rendering and Multiview 
+- [x] Embedded DXC shader compiler and standard HLSL language
+- [x] Inline API with no virtual functions.
+- [x] Extensibility with internal state access
+- [x] Advanced memory allocations
+- [x] DMA copy support and ability to share memory between APIs
+
 # Why?
 
 A lot of old OpenGL solutions are scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
@@ -111,15 +121,4 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 
 Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000.
 
-# Roadmap
 
-The project has Gitub projects enabled, so you can see the progress on the project.
-For the roadmap, the following features are planned:
-
-- [x] SDL3 examples
-- [ ] UWP example
-- [ ] Elaborate documentation
-- [x] C API generation
-- [ ] Debugging tools
-- [ ] Small game engine
-- [x] Lower CMake version requirement to 3.22

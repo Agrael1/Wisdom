@@ -20,7 +20,7 @@
     </ClCompile>
 
     <Link>
-      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-debug$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-windows$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-extended-allocation$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-dx12$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-debug$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-windows$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-extended-allocation$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-dx12$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-raytacing$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\VKAllocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\wisdom-vk$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Agility$(LP).lib;dxguid.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
