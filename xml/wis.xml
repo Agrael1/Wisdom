@@ -148,7 +148,7 @@ Default is {MutiWaitFlags::All}"/>
       <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
       <arg type="GraphicsPipelineDesc" name="desc" mod="const ref" doc="The description of the graphics pipeline to create."/>
     </func>
-    
+
     <func for="Device" name="CreateComputePipeline" mod="const" doc="Creates a compute pipeline state object.">
       <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
       <arg type="ComputePipelineDesc" name="desc" mod="const ref" doc="The description of the compute pipeline to create."/>
@@ -156,7 +156,7 @@ Default is {MutiWaitFlags::All}"/>
 
     <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.
 DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
-Push constants and push descriptors are used for fast changing data. 
+Push constants and push descriptors are used for fast changing data.
 Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
 That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
 even though it is supposed to be binding 0. This is done for consistency.
@@ -500,7 +500,7 @@ Otherwise the first is chosen.">
       <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
       <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
     </func>
-    
+
     <func for="CommandList" name="SetComputePushConstants" doc="Sets the root constants for the compute or raytracing shader.">
       <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
       <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
@@ -517,7 +517,7 @@ Buffer is always bound with full size.">
       </arg>
       <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
-    
+
     <func for="CommandList" name="PushDescriptorCompute" doc="Pushes descriptor directly to the command list, without putting it to the table.
 Works only with buffer bindings.
 Works with compute or raytracing pipelines.
@@ -529,7 +529,7 @@ Buffer is always bound with full size.">
       </arg>
       <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
-    
+
     <func for="CommandList" name="SetDescriptorStorage" doc="Sets the descriptor storage object for graphics pipeline.">
       <arg type="DescriptorStorage" name="storage" doc="The descriptor storage to set.">
         <replace with="DescriptorStorageView" for="cpp" doc="The descriptor storage to set."/>

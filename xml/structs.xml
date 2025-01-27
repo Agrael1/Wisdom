@@ -370,7 +370,7 @@ If the extension is not supported/failed to initialize the result is NULL."/>
       <member type="u32" name="instance_count" doc="Instance count."/>
       <member type="u64" name="gpu_address" doc="Address of instances."/>
       <member type="bool" name="indirect" doc="If true Buffer under address contains pointers to the instances, rather than instances themselves."/>
-      <member type="bool" name="update" doc="true means the acceleration structure is being updated. 
+      <member type="bool" name="update" doc="true means the acceleration structure is being updated.
 flags must have contained {AccelerationStructureFlags::AllowUpdate} to perfom updates."/>
     </type>
 
@@ -398,7 +398,7 @@ Description place in array determines binding index that this lane maps to. e.g.
 All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.">
       <member type="DescriptorType" name="binding_type" doc="Binding type. Must be unique in array."/>
       <member type="u32" name="binding_space" doc="Binding space number in HLSL."/>
-      <member type="u32" name="space_overlap_count" doc="Number of consecutive spaces this binding occupies. 
+      <member type="u32" name="space_overlap_count" doc="Number of consecutive spaces this binding occupies.
 e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
 This is useful for binding multiple resource types to the same register array in HLSL."/>
       <member type="u32" name="binding_count" doc="How many bindings should be allocated.
