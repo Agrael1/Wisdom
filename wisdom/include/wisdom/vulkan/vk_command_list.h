@@ -151,6 +151,7 @@ public:
 public:
     WIS_INLINE void VKPushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset, VkPipelineBindPoint binding_point) noexcept;
     WIS_INLINE void VKSetDescriptorStorage(VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept;
+
 protected:
     bool closed = false;
 };

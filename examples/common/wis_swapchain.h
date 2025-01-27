@@ -23,8 +23,9 @@ public:
     }
     ~Swapchain()
     {
-        if (swap)
+        if (swap) {
             Throttle();
+        }
     }
 
 public:

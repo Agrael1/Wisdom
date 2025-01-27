@@ -22,7 +22,7 @@ void RayGeneration()
 
     float2 uv = idx / size;
     uv = uv * 2 - 1;
-    
+
 
     RayDesc ray;
     ray.Origin = float3(uv.x, uv.y, camera.z);

@@ -132,7 +132,6 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
     wis::VKRaytracingPipeline pipeline;
     auto& pipe_i = pipeline.GetMutableInternal();
 
-
     uint32_t raygen_count = 0;
     uint32_t miss_count = 0;
     uint32_t callable_count = 0;

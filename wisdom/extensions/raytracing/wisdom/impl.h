@@ -11,4 +11,4 @@ struct AccelerationInstance {
     uint64_t acceleration_structure_handle;
 };
 } // namespace wis
-#endif 
+#endif

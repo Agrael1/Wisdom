@@ -146,8 +146,9 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
         return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
     }
     closed = false;
-    if (pipeline)
+    if (pipeline) {
         dtable.vkCmdBindPipeline(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    }
     return wis::success;
 }
 
@@ -212,8 +213,9 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
 void wis::ImplVKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept
 {
     auto hbuffer = std::get<0>(buffer);
-    if (!hbuffer)
+    if (!hbuffer) {
         return;
+    }
 
     VkBufferMemoryBarrier2 desc = detail::to_vk(barrier, hbuffer);
     VkDependencyInfo depinfo{
@@ -247,8 +249,9 @@ void wis::ImplVKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barrier
 void wis::ImplVKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept
 {
     auto htexture = std::get<0>(texture);
-    if (!htexture)
+    if (!htexture) {
         return;
+    }
 
     VkImageMemoryBarrier2 image_memory_barrier = detail::to_vk(barrier, htexture, std::get<1>(texture));
     VkDependencyInfo depinfo{
@@ -299,10 +302,11 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
             .loadOp = convert_vk(target.load_op),
             .storeOp = convert_vk(target.store_op),
         };
-        if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+        if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             data[i].clearValue = {
                 .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
             };
+        }
     }
 
     VkRenderingAttachmentInfo d_info{};
@@ -316,10 +320,11 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
             .loadOp = convert_vk(pass_desc->depth_stencil->load_op_depth),
             .storeOp = convert_vk(pass_desc->depth_stencil->store_op_depth),
         };
-        if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+        if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             d_info.clearValue = {
                 .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
             };
+        }
     }
     if (ds_selector & DSSelect::Stencil) {
         s_info = {
@@ -330,10 +335,11 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
             .loadOp = convert_vk(pass_desc->depth_stencil->load_op_stencil),
             .storeOp = convert_vk(pass_desc->depth_stencil->store_op_stencil),
         };
-        if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+        if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             s_info.clearValue = {
                 .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
             };
+        }
     }
 
     VkRenderingInfo info{

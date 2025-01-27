@@ -209,15 +209,17 @@ DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
             .IndexCount = desc.triangle_or_aabb_count * 3,
             .VertexCount = desc.vertex_count,
             .IndexBuffer = desc.index_buffer_address,
-            .VertexBuffer = { .StartAddress = desc.vertex_or_aabb_buffer_address,
-                              .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
+            .VertexBuffer = {
+                    .StartAddress = desc.vertex_or_aabb_buffer_address,
+                    .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
         };
         break;
     case wis::ASGeometryType::AABBs:
         geometry.AABBs = {
             .AABBCount = desc.triangle_or_aabb_count,
-            .AABBs = { .StartAddress = desc.vertex_or_aabb_buffer_address,
-                       .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
+            .AABBs = {
+                    .StartAddress = desc.vertex_or_aabb_buffer_address,
+                    .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
         };
         break;
     default:
