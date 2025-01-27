@@ -1,11 +1,9 @@
 project(wisdom-raytracing)
 
 add_library(wisdom-raytracing-headers INTERFACE)
-add_library(wis::raytracing-headers ALIAS
-            wisdom-raytracing-headers)
+add_library(wis::raytracing-headers ALIAS wisdom-raytracing-headers)
 
-target_link_libraries(wisdom-raytracing-headers
-                      INTERFACE wisdom-headers)
+target_link_libraries(wisdom-raytracing-headers INTERFACE wisdom-headers)
 
 target_include_directories(
   wisdom-raytracing-headers
@@ -17,19 +15,22 @@ if(WISDOM_BUILD_BINARIES)
     wisdom-raytracing STATIC
     "wisdom/wisdom_raytracing.hpp"
     "wisdom/impl/impl.vk.cpp"
-   
-   "wisdom/vk_rtas.h" "wisdom/impl.dx12.h" "wisdom/impl.vk.h" "wisdom/impl.h" "wisdom/dx12_raytracing_pipeline.h" "wisdom/impl/impl.dx12.cpp" "wisdom/vk_raytracing_pipeline.h")
+    "wisdom/vk_rtas.h"
+    "wisdom/impl.dx12.h"
+    "wisdom/impl.vk.h"
+    "wisdom/impl.h"
+    "wisdom/dx12_raytracing_pipeline.h"
+    "wisdom/impl/impl.dx12.cpp"
+    "wisdom/vk_raytracing_pipeline.h")
   add_library(wis::raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
-    wisdom-raytracing
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    wisdom-raytracing PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 else()
   add_library(wisdom-raytracing INTERFACE)
   add_library(wis::raytracing ALIAS wisdom-raytracing)
-  target_link_libraries(wisdom-raytracing
-                        INTERFACE wisdom-raytracing-headers)
+  target_link_libraries(wisdom-raytracing INTERFACE wisdom-raytracing-headers)
 endif()
 
 # link the debug library to the main wisdom extension library
@@ -48,7 +49,6 @@ install(
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
-
 
 if(WISDOM_GENERATE_FUNCTIONS)
   if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
