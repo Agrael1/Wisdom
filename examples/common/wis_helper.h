@@ -48,9 +48,12 @@ struct FramedCommandList {
     FramedCommandList() = default;
     FramedCommandList(wis::Device& device, wis::QueueType type = wis::QueueType::Graphics)
     {
+        wis::Result result = wis::success;
         for (size_t i = 0; i < flight_frames; i++) {
-            cmd_list[i] = Unwrap(device.CreateCommandList(type));
+            cmd_list[i] = device.CreateCommandList(result, type);
         }
+
+        CheckResult(result);
     }
 
 public:

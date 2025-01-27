@@ -2,7 +2,6 @@
 #define WIS_VK_COMMAND_LIST_H
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/vulkan/vk_views.h>
-#include <wisdom/vulkan/vk_views.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/bridge/format.h>
@@ -77,6 +76,8 @@ public:
 
     WIS_INLINE void CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
+    WIS_INLINE void CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept;
+
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
     WIS_INLINE void BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept;
@@ -90,6 +91,8 @@ public:
     WIS_INLINE void EndRenderPass() noexcept;
 
     WIS_INLINE void SetRootSignature(wis::VKRootSignatureView root_signature) noexcept;
+
+    WIS_INLINE void SetComputeRootSignature(wis::VKRootSignatureView root_signature) noexcept;
 
     WIS_INLINE void SetPipelineState(wis::VKPipelineView pipeline_state) noexcept;
 
@@ -119,11 +122,35 @@ public:
                                   uint32_t start_vertex = 0,
                                   uint32_t start_instance = 0) noexcept;
 
+    WIS_INLINE void Dispatch(uint32_t x, uint32_t y, uint32_t z) noexcept;
+
     WIS_INLINE void SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
+    WIS_INLINE void SetComputePushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+    {
+        SetPushConstants(data, size_4bytes, offset_4bytes, wis::ShaderStages::All);
+    }
 
-    WIS_INLINE void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept;
+    void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept
+    {
+        VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+    void PushDescriptorCompute(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept
+    {
+        VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
 
-    WIS_INLINE void SetDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept;
+    void SetDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept
+    {
+        VKSetDescriptorStorage(desc_storage, VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+    void SetComputeDescriptorStorage(VKDescriptorStorageView desc_storage) noexcept
+    {
+        VKSetDescriptorStorage(desc_storage, VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
+
+public:
+    WIS_INLINE void VKPushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset, VkPipelineBindPoint binding_point) noexcept;
+    WIS_INLINE void VKSetDescriptorStorage(VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept;
 
 protected:
     bool closed = false;
@@ -204,6 +231,17 @@ public:
         wis::ImplVKCommandList::CopyTextureToBuffer(std::move(source), std::move(destination), regions, region_count);
     }
     /**
+     * @brief Copies data from one texture to another.
+     * @param source The source texture to copy from.
+     * @param destination The destination texture to copy to.
+     * @param regions The regions to copy.
+     * @param region_count The number of regions to copy.
+     * */
+    inline void CopyTexture(wis::VKTextureView source, wis::VKTextureView destination, const wis::TextureCopyRegion* regions, uint32_t region_count) noexcept
+    {
+        wis::ImplVKCommandList::CopyTexture(std::move(source), std::move(destination), regions, region_count);
+    }
+    /**
      * @brief Sets the barrier on the buffer.
      * @param barrier The barrier to set.
      * @param buffer The buffer to set the barrier on.
@@ -261,6 +299,15 @@ public:
     inline void SetRootSignature(wis::VKRootSignatureView root_signature) noexcept
     {
         wis::ImplVKCommandList::SetRootSignature(std::move(root_signature));
+    }
+    /**
+     * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+     * May only work with compute pipelines.
+     * @param root_signature The root signature to set.
+     * */
+    inline void SetComputeRootSignature(wis::VKRootSignatureView root_signature) noexcept
+    {
+        wis::ImplVKCommandList::SetComputeRootSignature(std::move(root_signature));
     }
     /**
      * @brief Sets the primitive topology. Detemines how vertices shall be processed.
@@ -363,6 +410,16 @@ public:
         wis::ImplVKCommandList::DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
     }
     /**
+     * @brief Dispatches compute shader.
+     * @param group_count_x The number of groups to dispatch in X dimension.
+     * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+     * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+     * */
+    inline void Dispatch(uint32_t group_count_x, uint32_t group_count_y = 1, uint32_t group_count_z = 1) noexcept
+    {
+        wis::ImplVKCommandList::Dispatch(group_count_x, group_count_y, group_count_z);
+    }
+    /**
      * @brief Sets the root constants for the shader.
      * @param data The data to set the root constants with.
      * @param size_4bytes The size of the data in 4-byte units.
@@ -372,6 +429,16 @@ public:
     inline void SetPushConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
     {
         wis::ImplVKCommandList::SetPushConstants(data, size_4bytes, offset_4bytes, stage);
+    }
+    /**
+     * @brief Sets the root constants for the compute or raytracing shader.
+     * @param data The data to set the root constants with.
+     * @param size_4bytes The size of the data in 4-byte units.
+     * @param offset_4bytes The offset in the data in 4-byte units.
+     * */
+    inline void SetComputePushConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
+    {
+        wis::ImplVKCommandList::SetComputePushConstants(data, size_4bytes, offset_4bytes);
     }
     /**
      * @brief Pushes descriptor directly to the command list, without putting it to the table.
@@ -385,6 +452,36 @@ public:
     inline void PushDescriptor(wis::DescriptorType type, uint32_t root_index, wis::VKBufferView buffer, uint32_t offset) noexcept
     {
         wis::ImplVKCommandList::PushDescriptor(type, root_index, std::move(buffer), offset);
+    }
+    /**
+     * @brief Pushes descriptor directly to the command list, without putting it to the table.
+     * Works only with buffer bindings.
+     * Works with compute or raytracing pipelines.
+     * Buffer is always bound with full size.
+     * @param type The type of the descriptor to set.
+     * @param root_index The index of the root descriptor to set.
+     * @param buffer The buffer to set.
+     * @param offset The offset in the descriptor table to set the descriptor to.
+     * */
+    inline void PushDescriptorCompute(wis::DescriptorType type, uint32_t root_index, wis::VKBufferView buffer, uint32_t offset) noexcept
+    {
+        wis::ImplVKCommandList::PushDescriptorCompute(type, root_index, std::move(buffer), offset);
+    }
+    /**
+     * @brief Sets the descriptor storage object for graphics pipeline.
+     * @param storage The descriptor storage to set.
+     * */
+    inline void SetDescriptorStorage(wis::VKDescriptorStorageView storage) noexcept
+    {
+        wis::ImplVKCommandList::SetDescriptorStorage(std::move(storage));
+    }
+    /**
+     * @brief Sets the descriptor storage object for compute pipeline.
+     * @param storage The descriptor storage to set.
+     * */
+    inline void SetComputeDescriptorStorage(wis::VKDescriptorStorageView storage) noexcept
+    {
+        wis::ImplVKCommandList::SetComputeDescriptorStorage(std::move(storage));
     }
 };
 #pragma endregion VKCommandList

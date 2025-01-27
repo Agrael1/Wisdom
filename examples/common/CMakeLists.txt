@@ -12,8 +12,14 @@ if(POSTFIX STREQUAL "vk")
 endif()
 
 target_link_libraries(
-  ${PROJECT_NAME} PUBLIC wis::debug wis::wisdom wis::descriptor-buffer
-                         wis::platform SDL3::SDL3 glm::glm)
+  ${PROJECT_NAME}
+  PUBLIC wis::debug
+         wis::wisdom
+         wis::descriptor-buffer
+         wis::raytracing
+         wis::platform
+         SDL3::SDL3
+         glm::glm)
 target_include_directories(${PROJECT_NAME} PUBLIC ${fpng_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

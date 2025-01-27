@@ -6,6 +6,17 @@
 
 namespace wis {
 /**
+ * @brief Bottom level acceleration structure build description.
+ * */
+struct DX12BottomLevelASBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< Build flags.
+    uint32_t geometry_count; ///< Geometry count.
+    const wis::DX12AcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    const wis::DX12AcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
+    bool update; ///< true If the acceleration structure is being updated.
+};
+
+/**
  * @brief Variant of BufferBarrier with BufferView.
  * */
 struct DX12BufferBarrier2 {
@@ -33,6 +44,27 @@ struct DX12GraphicsShaderStages {
 };
 
 /**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct DX12RaytracingPipeineDesc {
+    wis::DX12RootSignatureView root_signature; ///< Root signature.
+    const wis::DX12ShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const wis::ShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const wis::HitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth = 1; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size = 0; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size = 0; ///< Max attribute size. Default is 0.
+};
+
+/**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct DX12GraphicsPipelineDesc {
@@ -51,6 +83,14 @@ struct DX12GraphicsPipelineDesc {
      * */
     uint32_t view_mask = 0;
     wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
+};
+
+/**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct DX12ComputePipelineDesc {
+    wis::DX12RootSignatureView root_signature; ///< Root signature.
+    wis::DX12ShaderView shader; ///< Compute shader.
 };
 
 /**
@@ -111,6 +151,17 @@ inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStages value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }
+inline constexpr D3D12_HIT_GROUP_TYPE convert_dx(HitGroupType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case HitGroupType::Triangles:
+        return D3D12_HIT_GROUP_TYPE_TRIANGLES;
+    case HitGroupType::Procedural:
+        return D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE;
+    }
+}
 inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) noexcept
 {
     switch (value) {
@@ -127,6 +178,8 @@ inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) no
     case DescriptorType::RWBuffer:
         return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     case DescriptorType::Buffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case DescriptorType::AccelerationStructure:
         return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     }
 }
@@ -175,7 +228,7 @@ inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
     switch (value) {
     default:
         return {};
-    case MemoryType::Default:
+    case MemoryType::DeviceLocal:
         return D3D12_HEAP_TYPE_DEFAULT;
     case MemoryType::Upload:
         return D3D12_HEAP_TYPE_UPLOAD;
@@ -364,6 +417,28 @@ inline constexpr DXGI_FORMAT convert_dx(IndexType value) noexcept
         return DXGI_FORMAT_R32_UINT;
     }
 }
+inline constexpr D3D12_RAYTRACING_GEOMETRY_TYPE convert_dx(ASGeometryType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ASGeometryType::Triangles:
+        return D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+    case ASGeometryType::AABBs:
+        return D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+    }
+}
+inline constexpr D3D12_RESOURCE_FLAGS convert_dx(BufferUsage value) noexcept
+{
+    D3D12_RESOURCE_FLAGS output = {};
+    if (value & BufferUsage::StorageBuffer) {
+        output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    }
+    if (value & BufferUsage::AccelerationStructureBuffer) {
+        output |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
+    }
+    return output;
+}
 inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS output = {};
@@ -479,10 +554,10 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
     if (value & ResourceAccess::ConditionalRendering) {
         output |= D3D12_BARRIER_ACCESS_PREDICATION;
     }
-    if (value & ResourceAccess::AccelerationStrucureRead) {
+    if (value & ResourceAccess::AccelerationStructureRead) {
         output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
     }
-    if (value & ResourceAccess::AccelerationStrucureWrite) {
+    if (value & ResourceAccess::AccelerationStructureWrite) {
         output |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
     }
     if (value & ResourceAccess::ShadingRate) {
@@ -553,6 +628,54 @@ inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
 inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noexcept
 {
     D3D12_PIPELINE_STATE_FLAGS output = {};
+    return output;
+}
+inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS convert_dx(ASGeometryFlags value) noexcept
+{
+    D3D12_RAYTRACING_GEOMETRY_FLAGS output = {};
+    if (value & ASGeometryFlags::Opaque) {
+        output |= D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+    }
+    if (value & ASGeometryFlags::NoDuplicateAnyHitInvocation) {
+        output |= D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION;
+    }
+    return output;
+}
+inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS convert_dx(AccelerationStructureFlags value) noexcept
+{
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS output = {};
+    if (value & AccelerationStructureFlags::AllowUpdate) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+    }
+    if (value & AccelerationStructureFlags::AllowCompaction) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION;
+    }
+    if (value & AccelerationStructureFlags::PreferFastTrace) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+    }
+    if (value & AccelerationStructureFlags::PreferFastBuild) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+    }
+    if (value & AccelerationStructureFlags::MinimizeMemory) {
+        output |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY;
+    }
+    return output;
+}
+inline constexpr D3D12_RAYTRACING_INSTANCE_FLAGS convert_dx(ASInstanceFlags value) noexcept
+{
+    D3D12_RAYTRACING_INSTANCE_FLAGS output = {};
+    if (value & ASInstanceFlags::TriangleCullDisable) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE;
+    }
+    if (value & ASInstanceFlags::TriangleFrontCounterClockwise) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE;
+    }
+    if (value & ASInstanceFlags::ForceOpaque) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_OPAQUE;
+    }
+    if (value & ASInstanceFlags::ForceNoOpaque) {
+        output |= D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_NON_OPAQUE;
+    }
     return output;
 }
 } // namespace wis

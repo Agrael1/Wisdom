@@ -8,6 +8,7 @@ add_library(wis::extension ALIAS wisdom-extension)
 add_subdirectory(debug_info)
 add_subdirectory(extended_allocation)
 add_subdirectory(descriptor_buffer)
+add_subdirectory(raytracing)
 
 install(
   TARGETS wisdom-extension wisdom-extension-headers

@@ -38,6 +38,7 @@ vkCreateCommandPool
 vkDestroyCommandPool
 vkAllocateCommandBuffers
 vkCreateGraphicsPipelines
+vkCreateComputePipelines
 vkDestroyPipeline
 vkCreatePipelineLayout
 vkDestroyPipelineLayout
@@ -48,6 +49,7 @@ vkBeginCommandBuffer
 vkCmdCopyBuffer
 vkCmdCopyBufferToImage2
 vkCmdCopyImageToBuffer2
+vkCmdCopyImage2
 vkResetCommandBuffer
 vkCmdBindPipeline
 vkEndCommandBuffer
@@ -61,6 +63,7 @@ vkCmdBindVertexBuffers2
 vkCmdBindIndexBuffer
 vkCmdDrawIndexed
 vkCmdDraw
+vkCmdDispatch
 vkCmdPushConstants
 vkCreateFence
 vkDestroyFence

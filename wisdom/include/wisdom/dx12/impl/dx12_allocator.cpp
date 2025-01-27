@@ -19,7 +19,9 @@ wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size,
         .Flags = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
     };
-
+    if (usage & wis::BufferUsage::AccelerationStructureBuffer) {
+        return DX12CreateResource2(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
+    }
     return DX12CreateResource(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON);
 }
 wis::DX12Texture
@@ -207,11 +209,31 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3
     return buffer;
 }
 
+wis::DX12Buffer
+wis::ImplDX12ResourceAllocator::DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
+{
+    wis::DX12Buffer buffer;
+    auto& internal = buffer.GetMutableInternal();
+    auto& memory_internal = internal.memory.GetMutableInternal();
+
+    HRESULT hr = allocator->CreateResource3(&all_desc, &res_desc,
+                                            D3D12_BARRIER_LAYOUT_UNDEFINED, nullptr, 0, nullptr,
+                                            memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
+
+    if (!wis::succeeded(hr)) {
+        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+    }
+
+    memory_internal.allocator = allocator; // Copy allocator to memory
+
+    return buffer;
+}
+
 void wis::ImplDX12ResourceAllocator::DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept
 {
-    uint64_t alignment = flags & BufferUsage::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
+    uint64_t alignment = flags & wis::BufferUsage::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
     size = wis::detail::aligned_size(size, alignment);
-    info = CD3DX12_RESOURCE_DESC1::Buffer(size);
+    info = CD3DX12_RESOURCE_DESC1::Buffer(size, convert_dx(flags));
 }
 void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc, D3D12_RESOURCE_DESC1& info) noexcept
 {

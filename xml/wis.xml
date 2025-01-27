@@ -83,6 +83,7 @@ Used for bindless and non-uniform bindings. Don't combine with Descriptor buffer
     <handle name="RenderTarget"/>
     <handle name="Sampler"/>
     <handle name="ShaderResource"/>
+    <handle name="UnorderedAccessTexture"/>
     <handle name="FactoryExtension"/>
     <handle name="DeviceExtension"/>
   </handles>
@@ -148,31 +149,29 @@ Default is {MutiWaitFlags::All}"/>
       <arg type="GraphicsPipelineDesc" name="desc" mod="const ref" doc="The description of the graphics pipeline to create."/>
     </func>
 
-    <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.">
-      <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
-      <arg type="PushConstant" name="push_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
-      <arg type="u32" name="constants_count" default="0" doc="The number of push constants. Max is 5."/>
-      <arg type="PushDescriptor" name="push_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with.
-In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
-      <arg type="u32" name="descriptors_count" default="0" doc="The number of push descriptors. Max is 8."/>
-      <arg type="u32" name="space_overlap_count" default="1" doc="Count of descriptor spaces to overlap for each of the DescriptorStorage types.
-Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
-Example: If {::space_overlap_count} is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
-    [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
-    [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
-    [[vk::binding(0,1)]] ConstantBuffer &lt;CB0&gt; cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc."/>
+    <func for="Device" name="CreateComputePipeline" mod="const" doc="Creates a compute pipeline state object.">
+      <ret type="PipelineState" name="pipeline" result="true" doc="{PipelineState::} on success ({Status::Ok})."/>
+      <arg type="ComputePipelineDesc" name="desc" mod="const ref" doc="The description of the compute pipeline to create."/>
     </func>
 
-    <func for="Device" name="CreateRootSignature2" mod="const" doc="Creates a root signature object for use with DescriptorStorage.
-Supplies number of types for each descriptor type separately.">
+    <func for="Device" name="CreateRootSignature" mod="const" doc="Creates a root signature object for use with DescriptorStorage.
+DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+Push constants and push descriptors are used for fast changing data.
+Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+even though it is supposed to be binding 0. This is done for consistency.
+Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+For several overlapping types e.g. 2D and 3D textures, use different spaces.
+Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.">
       <ret type="RootSignature" name="signature" result="true" doc="{RootSignature::} on success ({Status::Ok})."/>
       <arg type="PushConstant" name="push_constants" mod="const ptr" default="nullptr" doc="The root constants to create the root signature with."/>
-      <arg type="u32" name="constants_count" default="0" doc="The number of push constants. Max is 5."/>
+      <arg type="u32" name="push_constant_count" default="0" doc="The number of push constants. Max is 5."/>
       <arg type="PushDescriptor" name="push_descriptors" mod="const ptr" default="nullptr" doc="The root descriptors to create the root signature with.
-In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
-      <arg type="u32" name="push_descriptors_count" default="0" doc="The number of push descriptors. Max is 8."/>
-      <arg type="DescriptorSpacing" name="descriptor_spacing" mod="const ptr" default="nullptr" doc="Descriptor spacing allocation.
-nullptr means allocate 1 space for each."/>
+In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)"/>
+      <arg type="u32" name="push_descriptor_count" default="0" doc="The number of push descriptors. Max is 8."/>
+      <arg type="DescriptorBindingDesc" name="bindings" mod="const ptr" default="nullptr" doc="The bindings to allocate. Order matters, binding count is ignored.
+One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048."/>
+      <arg type="u32" name="binding_count" default="0" doc="Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2."/>
     </func>
 
     <func for="Device" name="CreateShader" mod="const" doc="Creates a shader object.">
@@ -220,7 +219,9 @@ Does not work with 3D textures."/>
     <func for="Device" name="CreateDescriptorStorage" mod="const" doc="Creates a descriptor storage object with specified number of bindings to allocate.
 Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.">
       <ret type="DescriptorStorage" name="storage" result="true" doc="{DescriptorStorage::} on success ({Status::Ok})."/>
-      <arg type="DescriptorStorageDesc" name="desc" mod="const ref" doc="The description of the descriptor storage to create."/>
+      <arg type="DescriptorBindingDesc" name="bindings" mod="const ptr" doc="The bindings to allocate. Space and space overlap counts are ignored."/>
+      <arg type="u32" name="bindings_count" doc="The number of bindings to allocate."/>
+      <arg type="DescriptorMemory" name="memory" default="ShaderVisible" doc="The memory to allocate the descriptors in."/>
     </func>
 
     <func for="Device" name="QueryFeatureSupport" mod="const" doc="Queries if the device supports the feature.">
@@ -369,6 +370,17 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
       <arg type="u32" name="region_count" doc="The number of regions to copy."/>
     </func>
 
+    <func for="CommandList" name="CopyTexture" doc="Copies data from one texture to another.">
+      <arg type="Texture" name="source" doc="The source texture to copy from.">
+        <replace with="TextureView" for="cpp" doc="The source texture to copy from."/>
+      </arg>
+      <arg type="Texture" name="destination" doc="The destination texture to copy to.">
+        <replace with="TextureView" for="cpp" doc="The destination texture to copy to."/>
+      </arg>
+      <arg type="TextureCopyRegion" name="regions" mod="const ptr" doc="The regions to copy."/>
+      <arg type="u32" name="region_count" doc="The number of regions to copy."/>
+    </func>
+
     <func for="CommandList" name="BufferBarrier" doc="Sets the barrier on the buffer.">
       <arg type="BufferBarrier" name="barrier" mod="const ref" doc="The barrier to set."/>
       <arg type="Buffer" name="buffer" doc="The buffer to set the barrier on.">
@@ -400,6 +412,13 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     <func for="CommandList" name="EndRenderPass" doc="Ends the render pass."/>
 
     <func for="CommandList" name="SetRootSignature" doc="Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.">
+      <arg type="RootSignature" name="root_signature" doc="The root signature to set.">
+        <replace with="RootSignatureView" for="cpp" doc="The root signature to set."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="SetComputeRootSignature" doc="Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+May only work with compute pipelines.">
       <arg type="RootSignature" name="root_signature" doc="The root signature to set.">
         <replace with="RootSignatureView" for="cpp" doc="The root signature to set."/>
       </arg>
@@ -469,11 +488,23 @@ Otherwise the first is chosen.">
       <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
     </func>
 
+    <func for="CommandList" name="Dispatch" doc="Dispatches compute shader.">
+      <arg type="u32" name="group_count_x" doc="The number of groups to dispatch in X dimension."/>
+      <arg type="u32" name="group_count_y" default="1" doc="The number of groups to dispatch in Y dimension. Default is 1."/>
+      <arg type="u32" name="group_count_z" default="1" doc="The number of groups to dispatch in Z dimension. Default is 1."/>
+    </func>
+
     <func for="CommandList" name="SetPushConstants" doc="Sets the root constants for the shader.">
       <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
       <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
       <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
       <arg type="ShaderStages" name="stage" doc="The shader stages to set the root constants for."/>
+    </func>
+
+    <func for="CommandList" name="SetComputePushConstants" doc="Sets the root constants for the compute or raytracing shader.">
+      <arg type="void" name="data" mod="ptr" doc="The data to set the root constants with."/>
+      <arg type="u32" name="size_4bytes" doc="The size of the data in 4-byte units."/>
+      <arg type="u32" name="offset_4bytes" doc="The offset in the data in 4-byte units."/>
     </func>
 
     <func for="CommandList" name="PushDescriptor" doc="Pushes descriptor directly to the command list, without putting it to the table.
@@ -487,7 +518,31 @@ Buffer is always bound with full size.">
       <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
     </func>
 
-    <!-- CommandQueue -->
+    <func for="CommandList" name="PushDescriptorCompute" doc="Pushes descriptor directly to the command list, without putting it to the table.
+Works only with buffer bindings.
+Works with compute or raytracing pipelines.
+Buffer is always bound with full size.">
+      <arg type="DescriptorType" name="type" doc="The type of the descriptor to set."/>
+      <arg type="u32" name="root_index" doc="The index of the root descriptor to set."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to set.">
+        <replace with="BufferView" for="cpp" doc="The buffer to set."/>
+      </arg>
+      <arg type="u32" name="offset" doc="The offset in the descriptor table to set the descriptor to."/>
+    </func>
+
+    <func for="CommandList" name="SetDescriptorStorage" doc="Sets the descriptor storage object for graphics pipeline.">
+      <arg type="DescriptorStorage" name="storage" doc="The descriptor storage to set.">
+        <replace with="DescriptorStorageView" for="cpp" doc="The descriptor storage to set."/>
+      </arg>
+    </func>
+
+    <func for="CommandList" name="SetComputeDescriptorStorage" doc="Sets the descriptor storage object for compute pipeline.">
+      <arg type="DescriptorStorage" name="storage" doc="The descriptor storage to set.">
+        <replace with="DescriptorStorageView" for="cpp" doc="The descriptor storage to set."/>
+      </arg>
+    </func>
+
+    "<!-- CommandQueue -->
     <func for="CommandQueue" name="Destroy" doc="Destroys the {CommandQueue::}."/>
 
     <func for="CommandQueue" name="ExecuteCommandLists" mod="const" doc="Executes the command lists.">
@@ -545,6 +600,9 @@ Can still be enqueued after the signal.">
       <ret type="void" mod="ptr" name="data" doc="The pointer to the mapped memory."/>
     </func>
     <func for="Buffer" name="Unmap" mod="const" doc="Unmaps the buffer memory from CPU address space."/>
+    <func for="Buffer" name="GetGPUAddress" mod="const" doc="Returns the address of the resource in GPU memory.">
+      <ret type="u64" name="address" doc="The address of the resource in GPU memory."/>
+    </func>
 
     <!-- Texture -->
     <func for="Texture" name="Destroy" doc="Destroys the {Texture::}."/>
@@ -607,14 +665,16 @@ If NULL, returns the amount of images swapchain has."/>
     <func for="DescriptorStorage" name="Destroy" doc="Destroys the {DescriptorStorage::}."/>
 
     <func for="DescriptorStorage" name="WriteSampler" doc="Writes the sampler to the sampler descriptor storage.">
-      <arg type="u32" name="index" doc="Index in array of samplers to fill."/>
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of samplers to fill."/>
       <arg type="Sampler" name="sampler" doc="The sampler to write.">
         <replace with="SamplerView" for="cpp" doc="The sampler to write."/>
       </arg>
     </func>
 
     <func for="DescriptorStorage" name="WriteConstantBuffer" doc="Writes the constant buffer to the constant buffer descriptor storage.">
-      <arg type="u32" name="index" doc="Index in array of constant buffers to fill."/>
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of constant buffers to fill."/>
       <arg type="Buffer" name="buffer" doc="The buffer to write.">
         <replace with="BufferView" for="cpp" doc="The buffer to write."/>
       </arg>
@@ -624,7 +684,8 @@ size + offset must be less or equal the overall size of the bound buffer."/>
     </func>
 
     <func for="DescriptorStorage" name="WriteTexture" doc="Writes the texture to the shader resource descriptor storage.">
-      <arg type="u32" name="index" doc="Index in array of shader resources to fill."/>
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of shader resources to fill."/>
       <arg type="ShaderResource" name="resource" doc="The shader resource to write.">
         <replace with="ShaderResourceView" for="cpp" doc="The shader resource to write."/>
       </arg>

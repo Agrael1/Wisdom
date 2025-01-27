@@ -9,7 +9,7 @@ class DX12Device;
 template<>
 struct Internal<DX12ResourceAllocator> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
-    ID3D12Device10* device; // ownedby allocator, no need to release
+    ID3D12Device10* device = nullptr; // ownedby allocator, no need to release
 };
 
 /// @brief Resource allocator for DX12
@@ -71,6 +71,9 @@ public:
 public:
     [[nodiscard]] WIS_INLINE DX12Buffer
     DX12CreateResource(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
+
+    [[nodiscard]] WIS_INLINE wis::DX12Buffer
+    DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 
     WIS_INLINE static void
     DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept;

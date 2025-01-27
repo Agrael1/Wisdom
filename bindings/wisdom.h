@@ -80,12 +80,14 @@ enum WisStatus {
 };
 
 /**
- * @brief Determines the behavior when wait for multiple fences is issued.
+ * @brief Type of the queue to create.
  *
  * */
-enum WisMutiWaitFlags {
-    MutiWaitFlagsAll = 0, ///< All the fences in the batch are triggered.
-    MutiWaitFlagsAny = 1, ///< At least one of the fences from the batch is triggered.
+enum WisQueueType {
+    QueueTypeGraphics = 0, ///< Queue is used for graphics operations.
+    QueueTypeCompute = 2, ///< Queue is used for compute operations.
+    QueueTypeCopy = 3, ///< Queue is used for copy operations.
+    QueueTypeVideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
 /**
@@ -119,17 +121,27 @@ enum WisDescriptorType {
      * May be bigger than constant buffers, but slower.
      * */
     DescriptorTypeBuffer = 5,
+    DescriptorTypeAccelerationStructure = 6, ///< Descriptor is an acceleration structure.
 };
 
 /**
- * @brief Type of the queue to create.
+ * @brief Determines the behavior when wait for multiple fences is issued.
  *
  * */
-enum WisQueueType {
-    QueueTypeGraphics = 0, ///< Queue is used for graphics operations.
-    QueueTypeCompute = 2, ///< Queue is used for compute operations.
-    QueueTypeCopy = 3, ///< Queue is used for copy operations.
-    QueueTypeVideoDecode = 4, ///< Queue is used for video decoding operations.
+enum WisMutiWaitFlags {
+    MutiWaitFlagsAll = 0, ///< All the fences in the batch are triggered.
+    MutiWaitFlagsAny = 1, ///< At least one of the fences from the batch is triggered.
+};
+
+/**
+ * @brief Type of the geometry in the Acceleration Structure.
+ *
+ * Translates to VkGeometryTypeKHR for vk implementation.
+ * Translates to D3D12_RAYTRACING_GEOMETRY_TYPE for dx implementation.
+ * */
+enum WisASGeometryType {
+    ASGeometryTypeTriangles = 0, ///< Triangles geometry type. Used for triangle meshes.
+    ASGeometryTypeAABBs = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
 };
 
 /**
@@ -150,6 +162,20 @@ enum WisAdapterPreference {
      * Order is as follows: External, Discrete, Integrated, Software.
      * */
     AdapterPreferencePerformance = 2,
+};
+
+/**
+ * @brief Shader stages that can be used in the raytracing pipeline.
+ *
+ * Translates to VkShaderStageFlagBits for vk implementation.
+ * */
+enum WisRaytracingShaderType {
+    RaytracingShaderTypeRaygen = 0, ///< Ray generation shader stage.
+    RaytracingShaderTypeMiss = 1, ///< Miss shader stage.
+    RaytracingShaderTypeClosestHit = 2, ///< Closest hit shader stage.
+    RaytracingShaderTypeAnyHit = 3, ///< Any hit shader stage.
+    RaytracingShaderTypeIntersection = 4, ///< Intersection shader stage.
+    RaytracingShaderTypeCallable = 5, ///< Callable shader stage.
 };
 
 /**
@@ -176,6 +202,26 @@ enum WisSeverity {
      * The application must be shut down, no further execution.
      * */
     SeverityCritical = 5,
+};
+
+/**
+ * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
+ *
+ * */
+enum WisASLevel {
+    ASLevelBottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
+    ASLevelTop = 1, ///< Top level Acceleration Structure. Contains instance data.
+};
+
+/**
+ * @brief Type of the hit group in the raytracing pipeline.
+ *
+ * Translates to VkRayTracingShaderGroupTypeKHR for vk implementation.
+ * Translates to D3D12_HIT_GROUP_TYPE for dx implementation.
+ * */
+enum WisHitGroupType {
+    HitGroupTypeTriangles = 0, ///< Hit group for triangles.
+    HitGroupTypeProcedural = 1, ///< Hit group for procedural geometry.
 };
 
 /**
@@ -878,11 +924,12 @@ enum WisLogicOp {
  * Translates to VkMemoryPropertyFlags for vk implementation.
  * */
 enum WisMemoryType {
+    MemoryTypeDefault = 0, ///< Default memory type. Alias for MemoryTypeDeviceLocal
     /**
      * @brief Default memory type.
      * Local device memory, most efficient for rendering.
      * */
-    MemoryTypeDefault = 0,
+    MemoryTypeDeviceLocal = 0,
     /**
      * @brief Upload memory type.
      * Used for data that is uploaded to the GPU Local memory using copy operations.
@@ -959,32 +1006,6 @@ enum WisTextureLayout {
     TextureLayoutTexture2DMS = 6, ///< Texture is 2D multisampled image.
     TextureLayoutTexture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
     TextureLayoutTexture3D = 8, ///< Texture is 3D volume.
-};
-
-/**
- * @brief Binding index for resources.
- * Used in DescriptorStorage to determine which descriptor type goes where when binding.
- * Same values are used for HLSL side to pick descriptors up.
- * Space 0 and set 0 are reserved for push descriptors and push constants.
- *
- * */
-enum WisBindingIndex {
-    /**
-     * @brief No binding index set.Results in [[vk::binding(*,0)]] and register(*).
-     * This space is reserved for push constants and push descriptors.
-     * */
-    BindingIndexNone = 0,
-    BindingIndexSampler = 1, ///< Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1).
-    BindingIndexConstantBuffer = 2, ///< Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2).
-    BindingIndexTexture = 3, ///< Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3).
-    BindingIndexRWTexture = 4, ///< Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4).
-    BindingIndexRWBuffer = 5, ///< Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5).
-    /**
-     * @brief Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
-     * Can't be merged with Texture because of Vulkan.
-     * */
-    BindingIndexBuffer = 6,
-    BindingIndexCount = 6, ///< Number of binding indices. Used for array sizes.
 };
 
 /**
@@ -1217,14 +1238,21 @@ enum WisColorComponentsBits {
  * @brief Buffer usage flags.
  * Determine how the buffer can be used throughout its lifetime.
  *
+ * Translates to VkBufferUsageFlags for vk implementation.
+ * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
  * */
 enum WisBufferUsageBits {
     BufferUsageNone = 0x0, ///< No flags set. Buffer is not used.
     BufferUsageCopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
     BufferUsageCopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
-    BufferUsageConstantBuffer = 1 << 4, ///< Buffer is used as a constant buffer.
-    BufferUsageIndexBuffer = 1 << 6, ///< Buffer is used as an index buffer.
-    BufferUsageVertexBuffer = 1 << 7, ///< Buffer is used as a vertex buffer or an instance buffer.
+    BufferUsageConstantBuffer = 1 << 2, ///< Buffer is used as a constant buffer.
+    BufferUsageIndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
+    BufferUsageVertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
+    BufferUsageIndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
+    BufferUsageStorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
+    BufferUsageAccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
+    BufferUsageAccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
+    BufferUsageShaderBindingTable = 1 << 9, ///< Buffer is used as a shader binding table buffer.
 };
 
 /**
@@ -1327,8 +1355,8 @@ enum WisResourceAccessBits {
     ResourceAccessCopyDest = 1 << 10, ///< Copy destination access.
     ResourceAccessCopySource = 1 << 11, ///< Copy source access.
     ResourceAccessConditionalRendering = 1 << 12, ///< Conditional rendering access.
-    ResourceAccessAccelerationStrucureRead = 1 << 13, ///< Acceleration structure read access.
-    ResourceAccessAccelerationStrucureWrite = 1 << 14, ///< Acceleration structure write access.
+    ResourceAccessAccelerationStructureRead = 1 << 13, ///< Acceleration structure read access.
+    ResourceAccessAccelerationStructureWrite = 1 << 14, ///< Acceleration structure write access.
     ResourceAccessShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
     ResourceAccessVideoDecodeRead = 1 << 16, ///< Video decode read access.
     ResourceAccessVideoDecodeWrite = 1 << 17, ///< Video decode write access.
@@ -1380,6 +1408,47 @@ enum WisPipelineFlagsBits {
     PipelineFlagsDescriptorBuffer = 1 << 0,
 };
 
+/**
+ * @brief Geometry flags for additional geometry features
+ *
+ * Translates to D3D12_RAYTRACING_GEOMETRY_FLAGS for dx implementation.
+ * Translates to VkGeometryFlagsKHR for vk implementation.
+ * */
+enum WisASGeometryFlagsBits {
+    ASGeometryFlagsNone = 0x0, ///< No flags set. Geometry is regular.
+    ASGeometryFlagsOpaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
+    ASGeometryFlagsNoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
+};
+
+/**
+ * @brief Acceleration structure flags for additional acceleration structure features
+ *
+ * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS for dx implementation.
+ * Translates to VkBuildAccelerationStructureFlagsKHR for vk implementation.
+ * */
+enum WisAccelerationStructureFlagsBits {
+    AccelerationStructureFlagsNone = 0x0, ///< No flags set. Acceleration structure is regular.
+    AccelerationStructureFlagsAllowUpdate = 1 << 0, ///< Acceleration structure is allowed to be updated.
+    AccelerationStructureFlagsAllowCompaction = 1 << 1, ///< Acceleration structure is allowed to be compacted.
+    AccelerationStructureFlagsPreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
+    AccelerationStructureFlagsPreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
+    AccelerationStructureFlagsMinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
+};
+
+/**
+ * @brief Instance flags for additional instance features
+ *
+ * Translates to D3D12_RAYTRACING_INSTANCE_FLAGS for dx implementation.
+ * Translates to VkGeometryInstanceFlagsKHR for vk implementation.
+ * */
+enum WisASInstanceFlagsBits {
+    ASInstanceFlagsNone = 0x0, ///< No flags set. Instance is regular.
+    ASInstanceFlagsTriangleCullDisable = 1 << 0, ///< Triangle cull is disabled.
+    ASInstanceFlagsTriangleFrontCounterClockwise = 1 << 1, ///< Triangle front is counter clockwise.
+    ASInstanceFlagsForceOpaque = 1 << 2, ///< Force opaque.
+    ASInstanceFlagsForceNoOpaque = 1 << 3, ///< Force no opaque.
+};
+
 //-------------------------------------------------------------------------
 
 typedef struct WisResult WisResult;
@@ -1415,17 +1484,29 @@ typedef struct WisDescriptorTable WisDescriptorTable;
 typedef struct WisSamplerDesc WisSamplerDesc;
 typedef struct WisComponentMapping WisComponentMapping;
 typedef struct WisShaderResourceDesc WisShaderResourceDesc;
+typedef struct WisUnorderedAccessDesc WisUnorderedAccessDesc;
 typedef struct WisFactoryExtQuery WisFactoryExtQuery;
 typedef struct WisDeviceExtQuery WisDeviceExtQuery;
-typedef struct WisDescriptorStorageDesc WisDescriptorStorageDesc;
-typedef struct WisDescriptorSpacing WisDescriptorSpacing;
+typedef struct WisTopLevelASBuildDesc WisTopLevelASBuildDesc;
+typedef struct WisAcceleratedGeometryInput WisAcceleratedGeometryInput;
+typedef struct WisASAllocationInfo WisASAllocationInfo;
+typedef struct WisDescriptorBindingDesc WisDescriptorBindingDesc;
+typedef struct WisShaderExport WisShaderExport;
+typedef struct WisHitGroupDesc WisHitGroupDesc;
+typedef struct WisShaderBindingTableInfo WisShaderBindingTableInfo;
+typedef struct WisRaytracingDispatchDesc WisRaytracingDispatchDesc;
+typedef struct WisTextureCopyRegion WisTextureCopyRegion;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
-typedef enum WisMutiWaitFlags WisMutiWaitFlags;
-typedef enum WisDescriptorType WisDescriptorType;
 typedef enum WisQueueType WisQueueType;
+typedef enum WisDescriptorType WisDescriptorType;
+typedef enum WisMutiWaitFlags WisMutiWaitFlags;
+typedef enum WisASGeometryType WisASGeometryType;
 typedef enum WisAdapterPreference WisAdapterPreference;
+typedef enum WisRaytracingShaderType WisRaytracingShaderType;
 typedef enum WisSeverity WisSeverity;
+typedef enum WisASLevel WisASLevel;
+typedef enum WisHitGroupType WisHitGroupType;
 typedef enum WisInputClass WisInputClass;
 typedef enum WisCullMode WisCullMode;
 typedef enum WisDataFormat WisDataFormat;
@@ -1443,7 +1524,6 @@ typedef enum WisShaderIntermediate WisShaderIntermediate;
 typedef enum WisTextureState WisTextureState;
 typedef enum WisLoadOperation WisLoadOperation;
 typedef enum WisTextureLayout WisTextureLayout;
-typedef enum WisBindingIndex WisBindingIndex;
 typedef enum WisDescriptorHeapType WisDescriptorHeapType;
 typedef enum WisStoreOperation WisStoreOperation;
 typedef enum WisPrimitiveTopology WisPrimitiveTopology;
@@ -1478,6 +1558,12 @@ typedef enum WisFenceFlagsBits WisFenceFlagsBits;
 typedef uint32_t WisFenceFlags;
 typedef enum WisPipelineFlagsBits WisPipelineFlagsBits;
 typedef uint32_t WisPipelineFlags;
+typedef enum WisASGeometryFlagsBits WisASGeometryFlagsBits;
+typedef uint32_t WisASGeometryFlags;
+typedef enum WisAccelerationStructureFlagsBits WisAccelerationStructureFlagsBits;
+typedef uint32_t WisAccelerationStructureFlags;
+typedef enum WisASInstanceFlagsBits WisASInstanceFlagsBits;
+typedef uint32_t WisASInstanceFlags;
 
 //-------------------------------------------------------------------------
 
@@ -1855,6 +1941,15 @@ struct WisShaderResourceDesc {
 };
 
 /**
+ * @brief Unordered access description for RW Texture creation.
+ * */
+struct WisUnorderedAccessDesc {
+    WisDataFormat format; ///< Resource format.
+    WisTextureViewType view_type; ///< Resource view type.
+    WisSubresourceRange subresource_range; ///< Subresource range of the resource.
+};
+
+/**
  * @brief Struct used to query the extensions for C code.
  * Queried results should not be freed, their lifetime ends with the Factory they were created with.
  * If WisFactoryExtQuery::extension_id is 0, WisFactoryExtQuery::result must be populated with already created extension.
@@ -1887,30 +1982,124 @@ struct WisDeviceExtQuery {
 };
 
 /**
- * @brief Descriptor storage description for DescriptorStorage creation.
+ * @brief Top level acceleration structure build description.
  * */
-struct WisDescriptorStorageDesc {
-    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
-    WisDescriptorMemory memory; ///< Descriptor memory to use.
+struct WisTopLevelASBuildDesc {
+    WisAccelerationStructureFlags flags; ///< Build flags.
+    uint32_t instance_count; ///< Instance count.
+    uint64_t gpu_address; ///< Address of instances.
+    bool indirect; ///< If true Buffer under address contains pointers to the instances, rather than instances themselves.
+    /**
+     * @brief true means the acceleration structure is being updated.
+     * flags must have contained AccelerationStructureFlagsAllowUpdate to perfom updates.
+     * */
+    bool update;
 };
 
 /**
- * @brief Describes how many types can descriptors be reinterpreted as.
- * Minimal amount of spaces for each type is 1, 0 is treated as 1.
- * Used for RootSignature.
+ * @brief Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.
  * */
-struct WisDescriptorSpacing {
-    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
+struct WisAcceleratedGeometryInput {
+    WisASGeometryType geometry_type; ///< Type of the geometry (Triangles/AABB).
+    WisASGeometryFlags flags; ///< Geometry flags.
+    uint64_t vertex_or_aabb_buffer_address; ///< Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type.
+    uint64_t vertex_or_aabb_buffer_stride; ///< Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes.
+    uint64_t index_buffer_address; ///< Buffer address of the buffer containing index data. Unused for ASGeometryTypeAABBs.
+    uint64_t transform_matrix_address; ///< GPU Buffer address of the containing transform matrix (float [3][4]). Unused for ASGeometryTypeAABBs.
+    uint32_t vertex_count; ///< Vertex count. Unused for ASGeometryTypeAABBs.
+    uint32_t triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
+    WisDataFormat vertex_format; ///< Format of the vertices. Unused for ASGeometryTypeAABBs.
+    WisIndexType index_format; ///< Format of the indices. Unused for ASGeometryTypeAABBs.
+};
+
+/**
+ * @brief Acceleration structure allocation info. Used to query sizes for AS build/update buffers.
+ * */
+struct WisASAllocationInfo {
+    uint64_t scratch_size; ///< Size of the scratch buffer.
+    uint64_t result_size; ///< Size of the result buffer.
+    uint64_t update_size; ///< Size of the update buffer.
+};
+
+/**
+ * @brief Descriptor binding description for RootSignature and Descriptor Storage creation.
+ * Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
+ * All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.
+ * */
+struct WisDescriptorBindingDesc {
+    WisDescriptorType binding_type; ///< Binding type. Must be unique in array.
+    uint32_t binding_space; ///< Binding space number in HLSL.
+    /**
+     * @brief Number of consecutive spaces this binding occupies.
+     * e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
+     * This is useful for binding multiple resource types to the same register array in HLSL.
+     * */
+    uint32_t space_overlap_count;
+    /**
+     * @brief How many bindings should be allocated.
+     * Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers.
+     * */
+    uint32_t binding_count;
+};
+
+/**
+ * @brief Defines export shader functions from a library shader.
+ * */
+struct WisShaderExport {
+    const char* entry_point; ///< Entry point of the shader.
+    WisRaytracingShaderType shader_type; ///< Type of the shader.
+    uint32_t shader_array_index; ///< Index of the shader in the shader array.
+};
+
+/**
+ * @brief Hit group description for Raytracing pipeline.
+ * */
+struct WisHitGroupDesc {
+    /**
+     * @brief Type of the hit group.
+     * HitGroupTypeTriangles - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
+     * HitGroupTypeProcedural - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency.
+     * */
+    WisHitGroupType type;
+    uint32_t closest_hit_export_index; ///< Closest hit shader from WisShaderExport.
+    uint32_t any_hit_export_index; ///< Any hit shader.
+    uint32_t intersection_export_index; ///< Intersection shader.
+};
+
+/**
+ * @brief Shader binding table description for Raytracing pipeline.
+ * */
+struct WisShaderBindingTableInfo {
+    uint32_t entry_size; ///< Size/stride of the entry in bytes.
+    uint32_t table_start_alignment; ///< Alignment of the table start in bytes.
+};
+
+/**
+ * @brief Raytracing dispatch description for CommandList.
+ * */
+struct WisRaytracingDispatchDesc {
+    uint64_t ray_gen_shader_table_address; ///< Address of the ray generation shader table.
+    uint64_t miss_shader_table_address; ///< Address of the miss shader table.
+    uint64_t hit_group_table_address; ///< Address of the hit group shader table.
+    uint64_t callable_shader_table_address; ///< Address of the callable shader table.
+    uint32_t ray_gen_shader_table_size; ///< Size of the ray generation shader table in bytes.
+    uint32_t miss_shader_table_size; ///< Size of the miss shader table in bytes.
+    uint32_t hit_group_table_size; ///< Size of the hit group shader table in bytes.
+    uint32_t callable_shader_table_size; ///< Size of the callable shader table in bytes.
+    uint32_t miss_shader_table_stride; ///< Stride of the miss shader table in bytes.
+    uint32_t hit_group_table_stride; ///< Stride of the hit group shader table in bytes.
+    uint32_t callable_shader_table_stride; ///< Stride of the callable shader table in bytes.
+    uint32_t width; ///< Width of the dispatch in number of rays.
+    uint32_t height; ///< Height of the dispatch in number of rays.
+    uint32_t depth; ///< Depth of the dispatch in number of rays.
+};
+
+/**
+ * @brief Texture to texture copy region.
+ * */
+struct WisTextureCopyRegion {
+    WisTextureRegion src; ///< Source texture region.
+    WisTextureRegion dst; ///< Destination texture region.
 };
 
 //-------------------------------------------------------------------------
@@ -1940,8 +2129,11 @@ typedef struct VKShaderView VKShaderView;
 typedef struct VKRenderTargetView VKRenderTargetView;
 typedef struct VKRootSignatureView VKRootSignatureView;
 typedef struct VKTextureBarrier2 VKTextureBarrier2;
+typedef struct VKRaytracingPipeineDesc VKRaytracingPipeineDesc;
+typedef struct VKBottomLevelASBuildDesc VKBottomLevelASBuildDesc;
 typedef struct VKBufferBarrier2 VKBufferBarrier2;
 typedef struct VKGraphicsShaderStages VKGraphicsShaderStages;
+typedef struct VKComputePipelineDesc VKComputePipelineDesc;
 typedef struct VKRenderPassRenderTargetDesc VKRenderPassRenderTargetDesc;
 typedef struct VKRenderPassDesc VKRenderPassDesc;
 typedef struct VKVertexBufferBinding VKVertexBufferBinding;
@@ -2006,6 +2198,27 @@ struct VKGraphicsShaderStages {
 };
 
 /**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct VKRaytracingPipeineDesc {
+    VKRootSignatureView root_signature; ///< Root signature.
+    const VKShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const WisShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const WisHitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size; ///< Max attribute size. Default is 0.
+};
+
+/**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct VKGraphicsPipelineDesc {
@@ -2024,6 +2237,14 @@ struct VKGraphicsPipelineDesc {
      * */
     uint32_t view_mask;
     WisPipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
+};
+
+/**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct VKComputePipelineDesc {
+    VKRootSignatureView root_signature; ///< Root signature.
+    VKShaderView shader; ///< Compute shader.
 };
 
 /**
@@ -2099,6 +2320,7 @@ typedef struct VKDebugMessenger_t* VKDebugMessenger;
 typedef struct VKRenderTarget_t* VKRenderTarget;
 typedef struct VKSampler_t* VKSampler;
 typedef struct VKShaderResource_t* VKShaderResource;
+typedef struct VKUnorderedAccessTexture_t* VKUnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -2243,41 +2465,39 @@ WISDOM_API WisResult VKDeviceCreateCommandList(VKDevice self, WisQueueType type,
 WISDOM_API WisResult VKDeviceCreateGraphicsPipeline(VKDevice self, const VKGraphicsPipelineDesc* desc, VKPipelineState* pipeline);
 
 /**
- * @brief Creates a root signature object for use with DescriptorStorage.
+ * @brief Creates a compute pipeline state object.
  * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If VKDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
- * @param signature VKRootSignature on success (StatusOk).
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline VKPipelineState on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, VKRootSignature* signature);
+WISDOM_API WisResult VKDeviceCreateComputePipeline(VKDevice self, const VKComputePipelineDesc* desc, VKPipelineState* pipeline);
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature VKRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateRootSignature2(VKDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, VKRootSignature* signature);
+WISDOM_API WisResult VKDeviceCreateRootSignature(VKDevice self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, VKRootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -2349,12 +2569,14 @@ WISDOM_API WisResult VKDeviceCreateShaderResource(VKDevice self, VKTexture textu
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage VKDescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult VKDeviceCreateDescriptorStorage(VKDevice self, const WisDescriptorStorageDesc* desc, VKDescriptorStorage* storage);
+WISDOM_API WisResult VKDeviceCreateDescriptorStorage(VKDevice self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, VKDescriptorStorage* storage);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -2601,6 +2823,16 @@ WISDOM_API void VKCommandListCopyBufferToTexture(VKCommandList self, VKBuffer so
 WISDOM_API void VKCommandListCopyTextureToBuffer(VKCommandList self, VKTexture source, VKBuffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void VKCommandListCopyTexture(VKCommandList self, VKTexture source, VKTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count);
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -2651,6 +2883,14 @@ WISDOM_API void VKCommandListEndRenderPass(VKCommandList self);
  * @param root_signature The root signature to set.
  * */
 WISDOM_API void VKCommandListSetRootSignature(VKCommandList self, VKRootSignature root_signature);
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+WISDOM_API void VKCommandListSetComputeRootSignature(VKCommandList self, VKRootSignature root_signature);
 
 /**
  * @brief Sets the primitive topology. Detemines how vertices shall be processed.
@@ -2743,6 +2983,15 @@ WISDOM_API void VKCommandListDrawIndexedInstanced(VKCommandList self, uint32_t v
 WISDOM_API void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance);
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+WISDOM_API void VKCommandListDispatch(VKCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z);
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -2751,6 +3000,15 @@ WISDOM_API void VKCommandListDrawInstanced(VKCommandList self, uint32_t vertex_c
  * @param stage The shader stages to set the root constants for.
  * */
 WISDOM_API void VKCommandListSetPushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+
+/**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+WISDOM_API void VKCommandListSetComputePushConstants(VKCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes);
 
 /**
  * @brief Pushes descriptor directly to the command list, without putting it to the table.
@@ -2763,6 +3021,33 @@ WISDOM_API void VKCommandListSetPushConstants(VKCommandList self, void* data, ui
  * @param offset The offset in the descriptor table to set the descriptor to.
  * */
 WISDOM_API void VKCommandListPushDescriptor(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset);
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+WISDOM_API void VKCommandListPushDescriptorCompute(VKCommandList self, WisDescriptorType type, uint32_t root_index, VKBuffer buffer, uint32_t offset);
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void VKCommandListSetDescriptorStorage(VKCommandList self, VKDescriptorStorage storage);
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void VKCommandListSetComputeDescriptorStorage(VKCommandList self, VKDescriptorStorage storage);
 
 // VKSwapChain methods --
 /**
@@ -2847,6 +3132,13 @@ WISDOM_API void* VKBufferMapRaw(VKBuffer self);
  * */
 WISDOM_API void VKBufferUnmap(VKBuffer self);
 
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+WISDOM_API uint64_t VKBufferGetGPUAddress(VKBuffer self);
+
 // VKTexture methods --
 /**
  * @brief Destroys the VKTexture.
@@ -2864,29 +3156,32 @@ WISDOM_API void VKDescriptorStorageDestroy(VKDescriptorStorage self);
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-WISDOM_API void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32_t index, VKSampler sampler);
+WISDOM_API void VKDescriptorStorageWriteSampler(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKSampler sampler);
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-WISDOM_API void VKDescriptorStorageWriteConstantBuffer(VKDescriptorStorage self, uint32_t index, VKBuffer buffer, uint32_t size, uint32_t offset);
+WISDOM_API void VKDescriptorStorageWriteConstantBuffer(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKBuffer buffer, uint32_t size, uint32_t offset);
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-WISDOM_API void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32_t index, VKShaderResource resource);
+WISDOM_API void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKShaderResource resource);
 
 // VKRootSignature methods --
 /**
@@ -2981,8 +3276,11 @@ typedef struct DX12ShaderView DX12ShaderView;
 typedef struct DX12RenderTargetView DX12RenderTargetView;
 typedef struct DX12RootSignatureView DX12RootSignatureView;
 typedef struct DX12TextureBarrier2 DX12TextureBarrier2;
+typedef struct DX12RaytracingPipeineDesc DX12RaytracingPipeineDesc;
+typedef struct DX12BottomLevelASBuildDesc DX12BottomLevelASBuildDesc;
 typedef struct DX12BufferBarrier2 DX12BufferBarrier2;
 typedef struct DX12GraphicsShaderStages DX12GraphicsShaderStages;
+typedef struct DX12ComputePipelineDesc DX12ComputePipelineDesc;
 typedef struct DX12RenderPassRenderTargetDesc DX12RenderPassRenderTargetDesc;
 typedef struct DX12RenderPassDesc DX12RenderPassDesc;
 typedef struct DX12VertexBufferBinding DX12VertexBufferBinding;
@@ -3046,6 +3344,27 @@ struct DX12GraphicsShaderStages {
 };
 
 /**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct DX12RaytracingPipeineDesc {
+    DX12RootSignatureView root_signature; ///< Root signature.
+    const DX12ShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const WisShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const WisHitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size; ///< Max attribute size. Default is 0.
+};
+
+/**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct DX12GraphicsPipelineDesc {
@@ -3064,6 +3383,14 @@ struct DX12GraphicsPipelineDesc {
      * */
     uint32_t view_mask;
     WisPipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
+};
+
+/**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct DX12ComputePipelineDesc {
+    DX12RootSignatureView root_signature; ///< Root signature.
+    DX12ShaderView shader; ///< Compute shader.
 };
 
 /**
@@ -3139,6 +3466,7 @@ typedef struct DX12DebugMessenger_t* DX12DebugMessenger;
 typedef struct DX12RenderTarget_t* DX12RenderTarget;
 typedef struct DX12Sampler_t* DX12Sampler;
 typedef struct DX12ShaderResource_t* DX12ShaderResource;
+typedef struct DX12UnorderedAccessTexture_t* DX12UnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -3283,41 +3611,39 @@ WISDOM_API WisResult DX12DeviceCreateCommandList(DX12Device self, WisQueueType t
 WISDOM_API WisResult DX12DeviceCreateGraphicsPipeline(DX12Device self, const DX12GraphicsPipelineDesc* desc, DX12PipelineState* pipeline);
 
 /**
- * @brief Creates a root signature object for use with DescriptorStorage.
+ * @brief Creates a compute pipeline state object.
  * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If DX12Device is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
- * @param signature DX12RootSignature on success (StatusOk).
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline DX12PipelineState on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, DX12RootSignature* signature);
+WISDOM_API WisResult DX12DeviceCreateComputePipeline(DX12Device self, const DX12ComputePipelineDesc* desc, DX12PipelineState* pipeline);
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature DX12RootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateRootSignature2(DX12Device self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, DX12RootSignature* signature);
+WISDOM_API WisResult DX12DeviceCreateRootSignature(DX12Device self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, DX12RootSignature* signature);
 
 /**
  * @brief Creates a shader object.
@@ -3389,12 +3715,14 @@ WISDOM_API WisResult DX12DeviceCreateShaderResource(DX12Device self, DX12Texture
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage DX12DescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-WISDOM_API WisResult DX12DeviceCreateDescriptorStorage(DX12Device self, const WisDescriptorStorageDesc* desc, DX12DescriptorStorage* storage);
+WISDOM_API WisResult DX12DeviceCreateDescriptorStorage(DX12Device self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, DX12DescriptorStorage* storage);
 
 /**
  * @brief Queries if the device supports the feature.
@@ -3641,6 +3969,16 @@ WISDOM_API void DX12CommandListCopyBufferToTexture(DX12CommandList self, DX12Buf
 WISDOM_API void DX12CommandListCopyTextureToBuffer(DX12CommandList self, DX12Texture source, DX12Buffer destination, const WisBufferTextureCopyRegion* regions, uint32_t region_count);
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+WISDOM_API void DX12CommandListCopyTexture(DX12CommandList self, DX12Texture source, DX12Texture destination, const WisTextureCopyRegion* regions, uint32_t region_count);
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -3691,6 +4029,14 @@ WISDOM_API void DX12CommandListEndRenderPass(DX12CommandList self);
  * @param root_signature The root signature to set.
  * */
 WISDOM_API void DX12CommandListSetRootSignature(DX12CommandList self, DX12RootSignature root_signature);
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+WISDOM_API void DX12CommandListSetComputeRootSignature(DX12CommandList self, DX12RootSignature root_signature);
 
 /**
  * @brief Sets the primitive topology. Detemines how vertices shall be processed.
@@ -3783,6 +4129,15 @@ WISDOM_API void DX12CommandListDrawIndexedInstanced(DX12CommandList self, uint32
 WISDOM_API void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vertex_count_per_instance, uint32_t instance_count, uint32_t start_vertex, uint32_t start_instance);
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+WISDOM_API void DX12CommandListDispatch(DX12CommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z);
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -3791,6 +4146,15 @@ WISDOM_API void DX12CommandListDrawInstanced(DX12CommandList self, uint32_t vert
  * @param stage The shader stages to set the root constants for.
  * */
 WISDOM_API void DX12CommandListSetPushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage);
+
+/**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+WISDOM_API void DX12CommandListSetComputePushConstants(DX12CommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes);
 
 /**
  * @brief Pushes descriptor directly to the command list, without putting it to the table.
@@ -3803,6 +4167,33 @@ WISDOM_API void DX12CommandListSetPushConstants(DX12CommandList self, void* data
  * @param offset The offset in the descriptor table to set the descriptor to.
  * */
 WISDOM_API void DX12CommandListPushDescriptor(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset);
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+WISDOM_API void DX12CommandListPushDescriptorCompute(DX12CommandList self, WisDescriptorType type, uint32_t root_index, DX12Buffer buffer, uint32_t offset);
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void DX12CommandListSetDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage);
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+WISDOM_API void DX12CommandListSetComputeDescriptorStorage(DX12CommandList self, DX12DescriptorStorage storage);
 
 // DX12SwapChain methods --
 /**
@@ -3887,6 +4278,13 @@ WISDOM_API void* DX12BufferMapRaw(DX12Buffer self);
  * */
 WISDOM_API void DX12BufferUnmap(DX12Buffer self);
 
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+WISDOM_API uint64_t DX12BufferGetGPUAddress(DX12Buffer self);
+
 // DX12Texture methods --
 /**
  * @brief Destroys the DX12Texture.
@@ -3904,29 +4302,32 @@ WISDOM_API void DX12DescriptorStorageDestroy(DX12DescriptorStorage self);
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-WISDOM_API void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, uint32_t index, DX12Sampler sampler);
+WISDOM_API void DX12DescriptorStorageWriteSampler(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Sampler sampler);
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-WISDOM_API void DX12DescriptorStorageWriteConstantBuffer(DX12DescriptorStorage self, uint32_t index, DX12Buffer buffer, uint32_t size, uint32_t offset);
+WISDOM_API void DX12DescriptorStorageWriteConstantBuffer(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Buffer buffer, uint32_t size, uint32_t offset);
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-WISDOM_API void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, uint32_t index, DX12ShaderResource resource);
+WISDOM_API void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12ShaderResource resource);
 
 // DX12RootSignature methods --
 /**
@@ -4038,6 +4439,7 @@ typedef DX12DebugMessenger WisDebugMessenger;
 typedef DX12RenderTarget WisRenderTarget;
 typedef DX12Sampler WisSampler;
 typedef DX12ShaderResource WisShaderResource;
+typedef DX12UnorderedAccessTexture WisUnorderedAccessTexture;
 typedef DX12FenceView WisFenceView;
 typedef DX12BufferView WisBufferView;
 typedef DX12TextureView WisTextureView;
@@ -4048,7 +4450,9 @@ typedef DX12RootSignatureView WisRootSignatureView;
 typedef DX12BufferBarrier2 WisBufferBarrier2;
 typedef DX12TextureBarrier2 WisTextureBarrier2;
 typedef DX12GraphicsShaderStages WisGraphicsShaderStages;
+typedef DX12RaytracingPipeineDesc WisRaytracingPipeineDesc;
 typedef DX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef DX12ComputePipelineDesc WisComputePipelineDesc;
 typedef DX12RenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
 typedef DX12RenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
 typedef DX12RenderPassDesc WisRenderPassDesc;
@@ -4242,46 +4646,44 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
 }
 
 /**
- * @brief Creates a root signature object for use with DescriptorStorage.
+ * @brief Creates a compute pipeline state object.
  * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
- * @param signature WisRootSignature on success (StatusOk).
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
+inline WisResult WisDeviceCreateComputePipeline(WisDevice self, const WisComputePipelineDesc* desc, WisPipelineState* pipeline)
 {
-    return DX12DeviceCreateRootSignature(self, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count, signature);
+    return DX12DeviceCreateComputePipeline(self, desc, pipeline);
 }
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature2(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, WisRootSignature* signature)
 {
-    return DX12DeviceCreateRootSignature2(self, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing, signature);
+    return DX12DeviceCreateRootSignature(self, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count, signature);
 }
 
 /**
@@ -4372,14 +4774,16 @@ inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture textur
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage WisDescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorStorageDesc* desc, WisDescriptorStorage* storage)
+inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, WisDescriptorStorage* storage)
 {
-    return DX12DeviceCreateDescriptorStorage(self, desc, storage);
+    return DX12DeviceCreateDescriptorStorage(self, bindings, bindings_count, memory, storage);
 }
 
 /**
@@ -4705,6 +5109,19 @@ inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture so
 }
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyTexture(WisCommandList self, WisTexture source, WisTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count)
+{
+    DX12CommandListCopyTexture(self, source, destination, regions, region_count);
+}
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -4775,6 +5192,17 @@ inline void WisCommandListEndRenderPass(WisCommandList self)
 inline void WisCommandListSetRootSignature(WisCommandList self, WisRootSignature root_signature)
 {
     DX12CommandListSetRootSignature(self, root_signature);
+}
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+inline void WisCommandListSetComputeRootSignature(WisCommandList self, WisRootSignature root_signature)
+{
+    DX12CommandListSetComputeRootSignature(self, root_signature);
 }
 
 /**
@@ -4898,6 +5326,18 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
 }
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+inline void WisCommandListDispatch(WisCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+{
+    DX12CommandListDispatch(self, group_count_x, group_count_y, group_count_z);
+}
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -4908,6 +5348,18 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
 inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
     DX12CommandListSetPushConstants(self, data, size_4bytes, offset_4bytes, stage);
+}
+
+/**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+inline void WisCommandListSetComputePushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes)
+{
+    DX12CommandListSetComputePushConstants(self, data, size_4bytes, offset_4bytes);
 }
 
 /**
@@ -4923,6 +5375,42 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
 {
     DX12CommandListPushDescriptor(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+inline void WisCommandListPushDescriptorCompute(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
+{
+    DX12CommandListPushDescriptorCompute(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    DX12CommandListSetDescriptorStorage(self, storage);
+}
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetComputeDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    DX12CommandListSetComputeDescriptorStorage(self, storage);
 }
 
 // WisSwapChain methods --
@@ -5041,6 +5529,16 @@ inline void WisBufferUnmap(WisBuffer self)
     DX12BufferUnmap(self);
 }
 
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+inline uint64_t WisBufferGetGPUAddress(WisBuffer self)
+{
+    return DX12BufferGetGPUAddress(self);
+}
+
 // WisTexture methods --
 /**
  * @brief Destroys the WisTexture.
@@ -5064,37 +5562,40 @@ inline void WisDescriptorStorageDestroy(WisDescriptorStorage self)
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t index, WisSampler sampler)
+inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisSampler sampler)
 {
-    DX12DescriptorStorageWriteSampler(self, index, sampler);
+    DX12DescriptorStorageWriteSampler(self, set_index, binding, sampler);
 }
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t index, WisBuffer buffer, uint32_t size, uint32_t offset)
+inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t size, uint32_t offset)
 {
-    DX12DescriptorStorageWriteConstantBuffer(self, index, buffer, size, offset);
+    DX12DescriptorStorageWriteConstantBuffer(self, set_index, binding, buffer, size, offset);
 }
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t index, WisShaderResource resource)
+inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisShaderResource resource)
 {
-    DX12DescriptorStorageWriteTexture(self, index, resource);
+    DX12DescriptorStorageWriteTexture(self, set_index, binding, resource);
 }
 
 // WisRootSignature methods --
@@ -5216,6 +5717,7 @@ typedef VKDebugMessenger WisDebugMessenger;
 typedef VKRenderTarget WisRenderTarget;
 typedef VKSampler WisSampler;
 typedef VKShaderResource WisShaderResource;
+typedef VKUnorderedAccessTexture WisUnorderedAccessTexture;
 typedef VKFenceView WisFenceView;
 typedef VKBufferView WisBufferView;
 typedef VKTextureView WisTextureView;
@@ -5226,7 +5728,9 @@ typedef VKRootSignatureView WisRootSignatureView;
 typedef VKBufferBarrier2 WisBufferBarrier2;
 typedef VKTextureBarrier2 WisTextureBarrier2;
 typedef VKGraphicsShaderStages WisGraphicsShaderStages;
+typedef VKRaytracingPipeineDesc WisRaytracingPipeineDesc;
 typedef VKGraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef VKComputePipelineDesc WisComputePipelineDesc;
 typedef VKRenderPassRenderTargetDesc WisRenderPassRenderTargetDesc;
 typedef VKRenderPassDepthStencilDesc WisRenderPassDepthStencilDesc;
 typedef VKRenderPassDesc WisRenderPassDesc;
@@ -5420,46 +5924,44 @@ inline WisResult WisDeviceCreateGraphicsPipeline(WisDevice self, const WisGraphi
 }
 
 /**
- * @brief Creates a root signature object for use with DescriptorStorage.
+ * @brief Creates a compute pipeline state object.
  * @param self valid handle to the Device
- * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
- * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param descriptors_count The number of push descriptors. Max is 8.
- * @param space_overlap_count Count of descriptor spaces to overlap for each of the DescriptorStorage types.
- * Default is 1. Max is 16. This is used primarily for descriptor type aliasing.
- * Example: If WisDevice is 2, that means that 2 descriptor spaces will be allocated for each descriptor type.
- *     [[vk::binding(0,0)]] SamplerState samplers: register(s0,space1); // space1 can be used for different type of samplers e.g. SamplerComparisonState
- *     [[vk::binding(0,0)]] SamplerComparisonState shadow_samplers: register(s0,space2); // they use the same binding (works like overloading)
- *     [[vk::binding(0,1)]] ConstantBuffer <CB0> cbuffers: register(b0,space3); // this type also has 2 spaces, next will be on space 4 etc.
- * @param signature WisRootSignature on success (StatusOk).
+ * @param desc The description of the compute pipeline to create.
+ * @param pipeline WisPipelineState on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t descriptors_count, uint32_t space_overlap_count, WisRootSignature* signature)
+inline WisResult WisDeviceCreateComputePipeline(WisDevice self, const WisComputePipelineDesc* desc, WisPipelineState* pipeline)
 {
-    return VKDeviceCreateRootSignature(self, push_constants, constants_count, push_descriptors, descriptors_count, space_overlap_count, signature);
+    return VKDeviceCreateComputePipeline(self, desc, pipeline);
 }
 
 /**
  * @brief Creates a root signature object for use with DescriptorStorage.
- * Supplies number of types for each descriptor type separately.
+ * DescriptorStorage is used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
+ * Push constants and push descriptors are used for fast changing data.
+ * Spaces may not overlap, but can be in any order. Push descriptors always have space0 and [[vk::binding(x,0)]].
+ * That means that all the binding numbers are off by 1. Meaning that if you have Descriptor Storage with 1 binding, it will be [[vk::binding(0,1)]]
+ * even though it is supposed to be binding 0. This is done for consistency.
+ * Set number is the position of binding in bindings array. e.g. bindings[5] is set 5 and on HLSL side it is [[vk::binding(0,5)]].
+ * For several overlapping types e.g. 2D and 3D textures, use different spaces.
+ * Those are specified in the bindings array. Space overlap count means how many consecutive spaces are used by the binding.
  * @param self valid handle to the Device
  * @param push_constants The root constants to create the root signature with.
- * @param constants_count The number of push constants. Max is 5.
+ * @param push_constant_count The number of push constants. Max is 5.
  * @param push_descriptors The root descriptors to create the root signature with.
- * In shader will appear in order of submission. e.g. root_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
- * @param push_descriptors_count The number of push descriptors. Max is 8.
- * @param descriptor_spacing Descriptor spacing allocation.
- * nullptr means allocate 1 space for each.
+ * In shader will appear in order of submission. e.g. push_descriptors[5] is [[vk::binding(5,0)]] ... : register(b5/t5/u5)
+ * @param push_descriptor_count The number of push descriptors. Max is 8.
+ * @param bindings The bindings to allocate. Order matters, binding count is ignored.
+ * One block of bindings can contain up to 4096 descriptors. For Sampler blocks, max amount of samplers across all bindings is 2048.
+ * @param binding_count Count of bindings to allocate. Max is 64 - push_constant_count - push_descriptor_count * 2.
  * @param signature WisRootSignature on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateRootSignature2(WisDevice self, const WisPushConstant* push_constants, uint32_t constants_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptors_count, const WisDescriptorSpacing* descriptor_spacing, WisRootSignature* signature)
+inline WisResult WisDeviceCreateRootSignature(WisDevice self, const WisPushConstant* push_constants, uint32_t push_constant_count, const WisPushDescriptor* push_descriptors, uint32_t push_descriptor_count, const WisDescriptorBindingDesc* bindings, uint32_t binding_count, WisRootSignature* signature)
 {
-    return VKDeviceCreateRootSignature2(self, push_constants, constants_count, push_descriptors, push_descriptors_count, descriptor_spacing, signature);
+    return VKDeviceCreateRootSignature(self, push_constants, push_constant_count, push_descriptors, push_descriptor_count, bindings, binding_count, signature);
 }
 
 /**
@@ -5550,14 +6052,16 @@ inline WisResult WisDeviceCreateShaderResource(WisDevice self, WisTexture textur
  * @brief Creates a descriptor storage object with specified number of bindings to allocate.
  * Switching between several DescriptorStorage is slow, consider allocating one big set and copy descriptors to it.
  * @param self valid handle to the Device
- * @param desc The description of the descriptor storage to create.
+ * @param bindings The bindings to allocate. Space and space overlap counts are ignored.
+ * @param bindings_count The number of bindings to allocate.
+ * @param memory The memory to allocate the descriptors in.
  * @param storage WisDescriptorStorage on success (StatusOk).
  * @return Result with StatusOk on success.
  * Error in WisResult::error otherwise.
  * */
-inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorStorageDesc* desc, WisDescriptorStorage* storage)
+inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescriptorBindingDesc* bindings, uint32_t bindings_count, WisDescriptorMemory memory, WisDescriptorStorage* storage)
 {
-    return VKDeviceCreateDescriptorStorage(self, desc, storage);
+    return VKDeviceCreateDescriptorStorage(self, bindings, bindings_count, memory, storage);
 }
 
 /**
@@ -5883,6 +6387,19 @@ inline void WisCommandListCopyTextureToBuffer(WisCommandList self, WisTexture so
 }
 
 /**
+ * @brief Copies data from one texture to another.
+ * @param self valid handle to the CommandList
+ * @param source The source texture to copy from.
+ * @param destination The destination texture to copy to.
+ * @param regions The regions to copy.
+ * @param region_count The number of regions to copy.
+ * */
+inline void WisCommandListCopyTexture(WisCommandList self, WisTexture source, WisTexture destination, const WisTextureCopyRegion* regions, uint32_t region_count)
+{
+    VKCommandListCopyTexture(self, source, destination, regions, region_count);
+}
+
+/**
  * @brief Sets the barrier on the buffer.
  * @param self valid handle to the CommandList
  * @param barrier The barrier to set.
@@ -5953,6 +6470,17 @@ inline void WisCommandListEndRenderPass(WisCommandList self)
 inline void WisCommandListSetRootSignature(WisCommandList self, WisRootSignature root_signature)
 {
     VKCommandListSetRootSignature(self, root_signature);
+}
+
+/**
+ * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
+ * May only work with compute pipelines.
+ * @param self valid handle to the CommandList
+ * @param root_signature The root signature to set.
+ * */
+inline void WisCommandListSetComputeRootSignature(WisCommandList self, WisRootSignature root_signature)
+{
+    VKCommandListSetComputeRootSignature(self, root_signature);
 }
 
 /**
@@ -6076,6 +6604,18 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
 }
 
 /**
+ * @brief Dispatches compute shader.
+ * @param self valid handle to the CommandList
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ * */
+inline void WisCommandListDispatch(WisCommandList self, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+{
+    VKCommandListDispatch(self, group_count_x, group_count_y, group_count_z);
+}
+
+/**
  * @brief Sets the root constants for the shader.
  * @param self valid handle to the CommandList
  * @param data The data to set the root constants with.
@@ -6086,6 +6626,18 @@ inline void WisCommandListDrawInstanced(WisCommandList self, uint32_t vertex_cou
 inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes, WisShaderStages stage)
 {
     VKCommandListSetPushConstants(self, data, size_4bytes, offset_4bytes, stage);
+}
+
+/**
+ * @brief Sets the root constants for the compute or raytracing shader.
+ * @param self valid handle to the CommandList
+ * @param data The data to set the root constants with.
+ * @param size_4bytes The size of the data in 4-byte units.
+ * @param offset_4bytes The offset in the data in 4-byte units.
+ * */
+inline void WisCommandListSetComputePushConstants(WisCommandList self, void* data, uint32_t size_4bytes, uint32_t offset_4bytes)
+{
+    VKCommandListSetComputePushConstants(self, data, size_4bytes, offset_4bytes);
 }
 
 /**
@@ -6101,6 +6653,42 @@ inline void WisCommandListSetPushConstants(WisCommandList self, void* data, uint
 inline void WisCommandListPushDescriptor(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
 {
     VKCommandListPushDescriptor(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Pushes descriptor directly to the command list, without putting it to the table.
+ * Works only with buffer bindings.
+ * Works with compute or raytracing pipelines.
+ * Buffer is always bound with full size.
+ * @param self valid handle to the CommandList
+ * @param type The type of the descriptor to set.
+ * @param root_index The index of the root descriptor to set.
+ * @param buffer The buffer to set.
+ * @param offset The offset in the descriptor table to set the descriptor to.
+ * */
+inline void WisCommandListPushDescriptorCompute(WisCommandList self, WisDescriptorType type, uint32_t root_index, WisBuffer buffer, uint32_t offset)
+{
+    VKCommandListPushDescriptorCompute(self, type, root_index, buffer, offset);
+}
+
+/**
+ * @brief Sets the descriptor storage object for graphics pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    VKCommandListSetDescriptorStorage(self, storage);
+}
+
+/**
+ * @brief Sets the descriptor storage object for compute pipeline.
+ * @param self valid handle to the CommandList
+ * @param storage The descriptor storage to set.
+ * */
+inline void WisCommandListSetComputeDescriptorStorage(WisCommandList self, WisDescriptorStorage storage)
+{
+    VKCommandListSetComputeDescriptorStorage(self, storage);
 }
 
 // WisSwapChain methods --
@@ -6219,6 +6807,16 @@ inline void WisBufferUnmap(WisBuffer self)
     VKBufferUnmap(self);
 }
 
+/**
+ * @brief Returns the address of the resource in GPU memory.
+ * @param self valid handle to the Buffer
+ * @return The address of the resource in GPU memory.
+ * */
+inline uint64_t WisBufferGetGPUAddress(WisBuffer self)
+{
+    return VKBufferGetGPUAddress(self);
+}
+
 // WisTexture methods --
 /**
  * @brief Destroys the WisTexture.
@@ -6242,37 +6840,40 @@ inline void WisDescriptorStorageDestroy(WisDescriptorStorage self)
 /**
  * @brief Writes the sampler to the sampler descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of samplers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of samplers to fill.
  * @param sampler The sampler to write.
  * */
-inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t index, WisSampler sampler)
+inline void WisDescriptorStorageWriteSampler(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisSampler sampler)
 {
-    VKDescriptorStorageWriteSampler(self, index, sampler);
+    VKDescriptorStorageWriteSampler(self, set_index, binding, sampler);
 }
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of constant buffers to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of constant buffers to fill.
  * @param buffer The buffer to write.
  * @param size The size of the constant buffer in bytes.
  * @param offset The offset in the buffer to write the constant buffer to.
  * size + offset must be less or equal the overall size of the bound buffer.
  * */
-inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t index, WisBuffer buffer, uint32_t size, uint32_t offset)
+inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t size, uint32_t offset)
 {
-    VKDescriptorStorageWriteConstantBuffer(self, index, buffer, size, offset);
+    VKDescriptorStorageWriteConstantBuffer(self, set_index, binding, buffer, size, offset);
 }
 
 /**
  * @brief Writes the texture to the shader resource descriptor storage.
  * @param self valid handle to the DescriptorStorage
- * @param index Index in array of shader resources to fill.
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of shader resources to fill.
  * @param resource The shader resource to write.
  * */
-inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t index, WisShaderResource resource)
+inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisShaderResource resource)
 {
-    VKDescriptorStorageWriteTexture(self, index, resource);
+    VKDescriptorStorageWriteTexture(self, set_index, binding, resource);
 }
 
 // WisRootSignature methods --

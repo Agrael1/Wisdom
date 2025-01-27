@@ -43,6 +43,12 @@ public:
     {
         resource->Unmap(0, nullptr);
     }
+
+    [[nodiscard]]
+    uint64_t GetGPUAddress() const noexcept
+    {
+        return resource->GetGPUVirtualAddress();
+    }
 };
 
 using DX12Texture = DX12Buffer;
@@ -116,6 +122,8 @@ public:
     }
 };
 
+using DX12UnorderedAccessTexture = DX12ShaderResource;
+
 #pragma region DX12Buffer
 /**
  * @brief Represents buffer object for storing linear data.
@@ -140,6 +148,14 @@ public:
     inline void Unmap() const noexcept
     {
         wis::ImplDX12Buffer::Unmap();
+    }
+    /**
+     * @brief Returns the address of the resource in GPU memory.
+     * @return The address of the resource in GPU memory.
+     * */
+    inline uint64_t GetGPUAddress() const noexcept
+    {
+        return wis::ImplDX12Buffer::GetGPUAddress();
     }
 };
 #pragma endregion DX12Buffer

@@ -19,3 +19,19 @@ foreach(FILE ${vs} ${ps} ${ds} ${hs} ${gs})
   wis_compile_shader(TARGET compile_shaders_basic SHADER ${FILE} OUTPUT
                      ${SHADER_DIR}/${FILE_WE})
 endforeach(FILE)
+
+file(GLOB_RECURSE lib "${CMAKE_CURRENT_SOURCE_DIR}/*/*.lib.hlsl")
+foreach(FILE ${lib})
+  get_filename_component(FILE_WE ${FILE} NAME_WLE)
+  wis_compile_shader(
+    TARGET
+    compile_shaders_basic
+    SHADER
+    ${FILE}
+    OUTPUT
+    ${SHADER_DIR}/${FILE_WE}
+    TYPE
+    "lib"
+    SHADER_MODEL
+    "6.3")
+endforeach(FILE)

@@ -22,9 +22,11 @@ using VKBufferView = std::tuple<VkBuffer>;
 using VKRenderTargetView = std::tuple<VkImageView, wis::Size2D>;
 using VKSamplerView = std::tuple<VkSampler>;
 using VKShaderResourceView = std::tuple<VkImageView>;
+using VKUnorderedAccessTextureView = std::tuple<VkImageView>;
 using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
 using VKPipelineView = std::tuple<VkPipeline>;
-using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet, uint32_t(wis::BindingIndex::Count)>>;
+using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet>>;
+using VKAcceleratedGeometryDesc = std::pair<VkAccelerationStructureGeometryKHR, VkAccelerationStructureBuildRangeInfoKHR>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

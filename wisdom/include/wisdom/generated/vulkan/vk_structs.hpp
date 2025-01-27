@@ -5,6 +5,17 @@
 
 namespace wis {
 /**
+ * @brief Bottom level acceleration structure build description.
+ * */
+struct VKBottomLevelASBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< Build flags.
+    uint32_t geometry_count; ///< Geometry count.
+    const wis::VKAcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    const wis::VKAcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
+    bool update; ///< true If the acceleration structure is being updated.
+};
+
+/**
  * @brief Variant of BufferBarrier with BufferView.
  * */
 struct VKBufferBarrier2 {
@@ -32,6 +43,27 @@ struct VKGraphicsShaderStages {
 };
 
 /**
+ * @brief Raytracing pipeline descriptor for pipeline creation.
+ * */
+struct VKRaytracingPipeineDesc {
+    wis::VKRootSignatureView root_signature; ///< Root signature.
+    const wis::VKShaderView* shaders; ///< Shader libraries.
+    uint32_t shader_count; ///< Shader library count.
+    const wis::ShaderExport* exports; ///< Shader library exports (entry points).
+    uint32_t export_count; ///< Shader export count.
+    /**
+     * @brief Hit group descriptions.
+     * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
+     * And groups for SBTs are exported as raygen:miss:hit.
+     * */
+    const wis::HitGroupDesc* hit_groups;
+    uint32_t hit_group_count; ///< Hit group count.
+    uint32_t max_recursion_depth = 1; ///< Max recursion depth. Default is 1.
+    uint32_t max_payload_size = 0; ///< Max payload size. Default is 0.
+    uint32_t max_attribute_size = 0; ///< Max attribute size. Default is 0.
+};
+
+/**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct VKGraphicsPipelineDesc {
@@ -50,6 +82,14 @@ struct VKGraphicsPipelineDesc {
      * */
     uint32_t view_mask = 0;
     wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
+};
+
+/**
+ * @brief Variant of PipelineStateDesc for compute pipeline.
+ * */
+struct VKComputePipelineDesc {
+    wis::VKRootSignatureView root_signature; ///< Root signature.
+    wis::VKShaderView shader; ///< Compute shader.
 };
 
 /**
@@ -125,6 +165,36 @@ inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept
         return VK_SHADER_STAGE_MESH_BIT_NV;
     }
 }
+inline constexpr VkShaderStageFlagBits convert_vk(RaytracingShaderType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case RaytracingShaderType::Raygen:
+        return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    case RaytracingShaderType::Miss:
+        return VK_SHADER_STAGE_MISS_BIT_KHR;
+    case RaytracingShaderType::ClosestHit:
+        return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    case RaytracingShaderType::AnyHit:
+        return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+    case RaytracingShaderType::Intersection:
+        return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+    case RaytracingShaderType::Callable:
+        return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+    }
+}
+inline constexpr VkRayTracingShaderGroupTypeKHR convert_vk(HitGroupType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case HitGroupType::Triangles:
+        return VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    case HitGroupType::Procedural:
+        return VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
+    }
+}
 inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
 {
     switch (value) {
@@ -142,6 +212,8 @@ inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
         return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     case DescriptorType::Buffer:
         return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    case DescriptorType::AccelerationStructure:
+        return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 }
 inline constexpr VkFormat convert_vk(DataFormat value) noexcept
@@ -487,7 +559,7 @@ inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
     switch (value) {
     default:
         return {};
-    case MemoryType::Default:
+    case MemoryType::DeviceLocal:
         return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     case MemoryType::Upload:
         return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -683,6 +755,52 @@ inline constexpr VkIndexType convert_vk(IndexType value) noexcept
         return VK_INDEX_TYPE_UINT32;
     }
 }
+inline constexpr VkGeometryTypeKHR convert_vk(ASGeometryType value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ASGeometryType::Triangles:
+        return VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+    case ASGeometryType::AABBs:
+        return VK_GEOMETRY_TYPE_AABBS_KHR;
+    }
+}
+inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
+{
+    VkBufferUsageFlags output = {};
+    if (value & BufferUsage::CopySrc) {
+        output |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+    if (value & BufferUsage::CopyDst) {
+        output |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    }
+    if (value & BufferUsage::ConstantBuffer) {
+        output |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    }
+    if (value & BufferUsage::IndexBuffer) {
+        output |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    }
+    if (value & BufferUsage::VertexBuffer) {
+        output |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    }
+    if (value & BufferUsage::IndirectBuffer) {
+        output |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+    }
+    if (value & BufferUsage::StorageBuffer) {
+        output |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    }
+    if (value & BufferUsage::AccelerationStructureBuffer) {
+        output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    }
+    if (value & BufferUsage::AccelerationStructureInput) {
+        output |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    }
+    if (value & BufferUsage::ShaderBindingTable) {
+        output |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+    }
+    return output;
+}
 inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags output = {};
@@ -798,10 +916,10 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
     if (value & ResourceAccess::ConditionalRendering) {
         output |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
     }
-    if (value & ResourceAccess::AccelerationStrucureRead) {
+    if (value & ResourceAccess::AccelerationStructureRead) {
         output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
     }
-    if (value & ResourceAccess::AccelerationStrucureWrite) {
+    if (value & ResourceAccess::AccelerationStructureWrite) {
         output |= VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
     }
     if (value & ResourceAccess::ShadingRate) {
@@ -866,6 +984,54 @@ inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
     VkPipelineCreateFlags output = {};
     if (value & PipelineFlags::DescriptorBuffer) {
         output |= VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
+    }
+    return output;
+}
+inline constexpr VkGeometryFlagsKHR convert_vk(ASGeometryFlags value) noexcept
+{
+    VkGeometryFlagsKHR output = {};
+    if (value & ASGeometryFlags::Opaque) {
+        output |= VK_GEOMETRY_OPAQUE_BIT_KHR;
+    }
+    if (value & ASGeometryFlags::NoDuplicateAnyHitInvocation) {
+        output |= VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR;
+    }
+    return output;
+}
+inline constexpr VkBuildAccelerationStructureFlagsKHR convert_vk(AccelerationStructureFlags value) noexcept
+{
+    VkBuildAccelerationStructureFlagsKHR output = {};
+    if (value & AccelerationStructureFlags::AllowUpdate) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::AllowCompaction) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::PreferFastTrace) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::PreferFastBuild) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR;
+    }
+    if (value & AccelerationStructureFlags::MinimizeMemory) {
+        output |= VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR;
+    }
+    return output;
+}
+inline constexpr VkGeometryInstanceFlagsKHR convert_vk(ASInstanceFlags value) noexcept
+{
+    VkGeometryInstanceFlagsKHR output = {};
+    if (value & ASInstanceFlags::TriangleCullDisable) {
+        output |= VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    }
+    if (value & ASInstanceFlags::TriangleFrontCounterClockwise) {
+        output |= VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR;
+    }
+    if (value & ASInstanceFlags::ForceOpaque) {
+        output |= VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
+    }
+    if (value & ASInstanceFlags::ForceNoOpaque) {
+        output |= VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR;
     }
     return output;
 }

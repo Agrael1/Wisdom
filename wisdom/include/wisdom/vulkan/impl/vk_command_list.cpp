@@ -86,6 +86,44 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
     device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
 }
 
+void wis::ImplVKCommandList::CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept
+{
+    wis::detail::limited_allocator<VkImageCopy2, 8> allocator(region_count, true);
+    auto* copies = allocator.data();
+    for (size_t i = 0; i < region_count; i++) {
+        auto& region = regions[i];
+        copies[i] = VkImageCopy2{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
+            .srcSubresource = {
+                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                    .mipLevel = region.src.mip,
+                    .baseArrayLayer = region.src.array_layer,
+                    .layerCount = 1u,
+            },
+            .srcOffset = { int(region.src.offset.width), int(region.src.offset.height), int(region.src.offset.depth_or_layers) },
+            .dstSubresource = {
+                    .aspectMask = aspect_flags(std::get<1>(dst_texture)),
+                    .mipLevel = region.dst.mip,
+                    .baseArrayLayer = region.dst.array_layer,
+                    .layerCount = 1u,
+            },
+            .dstOffset = { int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
+            .extent = { region.src.size.width, region.src.size.height, region.src.size.depth_or_layers },
+        };
+    }
+    VkCopyImageInfo2 copy{
+        .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2,
+        .pNext = nullptr,
+        .srcImage = std::get<0>(src_texture),
+        .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .dstImage = std::get<0>(dst_texture),
+        .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .regionCount = region_count,
+        .pRegions = copies,
+    };
+    device.table().vkCmdCopyImage2(command_list, &copy);
+}
+
 wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noexcept
 {
     Close();
@@ -108,8 +146,9 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
         return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
     }
     closed = false;
-    if (pipeline)
+    if (pipeline) {
         dtable.vkCmdBindPipeline(command_list, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    }
     return wis::success;
 }
 
@@ -174,8 +213,9 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
 void wis::ImplVKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept
 {
     auto hbuffer = std::get<0>(buffer);
-    if (!hbuffer)
+    if (!hbuffer) {
         return;
+    }
 
     VkBufferMemoryBarrier2 desc = detail::to_vk(barrier, hbuffer);
     VkDependencyInfo depinfo{
@@ -209,8 +249,9 @@ void wis::ImplVKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barrier
 void wis::ImplVKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextureView texture) noexcept
 {
     auto htexture = std::get<0>(texture);
-    if (!htexture)
+    if (!htexture) {
         return;
+    }
 
     VkImageMemoryBarrier2 image_memory_barrier = detail::to_vk(barrier, htexture, std::get<1>(texture));
     VkDependencyInfo depinfo{
@@ -261,10 +302,11 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
             .loadOp = convert_vk(target.load_op),
             .storeOp = convert_vk(target.store_op),
         };
-        if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+        if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             data[i].clearValue = {
                 .color = { .float32{ target.clear_value[0], target.clear_value[1], target.clear_value[2], target.clear_value[3] } }
             };
+        }
     }
 
     VkRenderingAttachmentInfo d_info{};
@@ -278,10 +320,11 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
             .loadOp = convert_vk(pass_desc->depth_stencil->load_op_depth),
             .storeOp = convert_vk(pass_desc->depth_stencil->store_op_depth),
         };
-        if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+        if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             d_info.clearValue = {
                 .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
             };
+        }
     }
     if (ds_selector & DSSelect::Stencil) {
         s_info = {
@@ -292,10 +335,11 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
             .loadOp = convert_vk(pass_desc->depth_stencil->load_op_stencil),
             .storeOp = convert_vk(pass_desc->depth_stencil->store_op_stencil),
         };
-        if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+        if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             s_info.clearValue = {
                 .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
             };
+        }
     }
 
     VkRenderingInfo info{
@@ -383,6 +427,11 @@ void wis::ImplVKCommandList::SetRootSignature(wis::VKRootSignatureView root_sign
     pipeline_layout = std::get<0>(root_signature);
 }
 
+void wis::ImplVKCommandList::SetComputeRootSignature(wis::VKRootSignatureView root_signature) noexcept
+{
+    pipeline_layout = std::get<0>(root_signature);
+}
+
 void wis::ImplVKCommandList::IASetVertexBuffers(const wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
 {
     wis::detail::limited_allocator<VkBuffer, 8> allocator(count, true);
@@ -432,22 +481,17 @@ void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
 
+void wis::ImplVKCommandList::Dispatch(uint32_t x, uint32_t y, uint32_t z) noexcept
+{
+    device.table().vkCmdDispatch(command_list, x, y, z);
+}
+
 void wis::ImplVKCommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
     device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
 
-void wis::ImplVKCommandList::SetDescriptorStorage(wis::VKDescriptorStorageView desc_storage) noexcept
-{
-    auto& set_span = std::get<0>(desc_storage);
-    device.table().vkCmdBindDescriptorSets(command_list,
-                                           VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                           pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
-                                           set_span.size(), set_span.data(),
-                                           0, nullptr);
-}
-
-void wis::ImplVKCommandList::PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset) noexcept
+void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset, VkPipelineBindPoint binding_point) noexcept
 {
     VkDescriptorBufferInfo buffer_info{
         .buffer = std::get<0>(view),
@@ -465,11 +509,19 @@ void wis::ImplVKCommandList::PushDescriptor(wis::DescriptorType type, uint32_t b
         .pBufferInfo = &buffer_info
     };
     device.table().vkCmdPushDescriptorSetKHR(command_list,
-                                             VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                             binding_point,
                                              pipeline_layout,
                                              0, // set 0, because set 0 is reserved for push descriptors
                                              1,
                                              &descriptor);
 }
-
+void wis::ImplVKCommandList::VKSetDescriptorStorage(wis::VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept
+{
+    auto& set_span = std::get<0>(desc_storage);
+    device.table().vkCmdBindDescriptorSets(command_list,
+                                           binding_point,
+                                           pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
+                                           set_span.size(), set_span.data(),
+                                           0, nullptr);
+}
 #endif // !

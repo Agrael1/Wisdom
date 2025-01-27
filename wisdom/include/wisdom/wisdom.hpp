@@ -49,6 +49,7 @@ using DebugMessenger = DX12DebugMessenger;
 using RenderTarget = DX12RenderTarget;
 using Sampler = DX12Sampler;
 using ShaderResource = DX12ShaderResource;
+using UnorderedAccessTexture = DX12UnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -119,10 +120,15 @@ using MemoryView = DX12MemoryView;
 using PipelineView = DX12PipelineView;
 using SamplerView = DX12SamplerView;
 using ShaderResourceView = DX12ShaderResourceView;
+using AcceleratedGeometryDesc = DX12AcceleratedGeometryDesc;
+using DescriptorStorageView = DX12DescriptorStorageView;
+using BottomLevelASBuildDesc = DX12BottomLevelASBuildDesc;
 using BufferBarrier2 = DX12BufferBarrier2;
 using TextureBarrier2 = DX12TextureBarrier2;
 using GraphicsShaderStages = DX12GraphicsShaderStages;
+using RaytracingPipeineDesc = DX12RaytracingPipeineDesc;
 using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
+using ComputePipelineDesc = DX12ComputePipelineDesc;
 using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
 using RenderPassDepthStencilDesc = DX12RenderPassDepthStencilDesc;
 using RenderPassDesc = DX12RenderPassDesc;
@@ -157,6 +163,7 @@ using DebugMessenger = VKDebugMessenger;
 using RenderTarget = VKRenderTarget;
 using Sampler = VKSampler;
 using ShaderResource = VKShaderResource;
+using UnorderedAccessTexture = VKUnorderedAccessTexture;
 
 //-------------------------------------------------------------------------
 
@@ -227,10 +234,15 @@ using MemoryView = VKMemoryView;
 using PipelineView = VKPipelineView;
 using SamplerView = VKSamplerView;
 using ShaderResourceView = VKShaderResourceView;
+using AcceleratedGeometryDesc = VKAcceleratedGeometryDesc;
+using DescriptorStorageView = VKDescriptorStorageView;
+using BottomLevelASBuildDesc = VKBottomLevelASBuildDesc;
 using BufferBarrier2 = VKBufferBarrier2;
 using TextureBarrier2 = VKTextureBarrier2;
 using GraphicsShaderStages = VKGraphicsShaderStages;
+using RaytracingPipeineDesc = VKRaytracingPipeineDesc;
 using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
+using ComputePipelineDesc = VKComputePipelineDesc;
 using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
 using RenderPassDepthStencilDesc = VKRenderPassDepthStencilDesc;
 using RenderPassDesc = VKRenderPassDesc;

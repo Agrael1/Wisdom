@@ -57,6 +57,9 @@
     <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
     <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
     <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
+    <type name="AcceleratedGeometryDesc" category="variant" for="ShaderResource" mod="cpp-only"/>
+    <type name="DescriptorStorageView" category="variant" for="DescriptorStorage" mod="cpp-only"/>
+    <!--TODO: make C equivalent-->
 
 
     <!--Structs-->
@@ -336,6 +339,12 @@ Zero initialized range means all subresources are selected."/>
       <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the resource."/>
     </type>
 
+    <type name="UnorderedAccessDesc" category="struct" doc="Unordered access description for RW Texture creation.">
+      <member type="DataFormat" name="format" doc="Resource format."/>
+      <member type="TextureViewType" name="view_type" doc="Resource view type."/>
+      <member type="SubresourceRange" name="subresource_range" doc="Subresource range of the resource."/>
+    </type>
+
     <type name="FactoryExtQuery" category="struct" doc="Struct used to query the extensions for C code.
 Queried results should not be freed, their lifetime ends with the Factory they were created with.
 If {::extension_id} is 0, {::result} must be populated with already created extension.
@@ -356,28 +365,104 @@ Pointer is populated with the extension with queried ID.
 If the extension is not supported/failed to initialize the result is NULL."/>
     </type>
 
-    <type name="DescriptorStorageDesc" category="struct" doc="Descriptor storage description for {DescriptorStorage::} creation.">
-      <member type="u32" name="sampler_count" doc="Count of sampler descriptors to allocate."/>
-      <member type="u32" name="cbuffer_count" doc="Count of constant buffer descriptors to allocate."/>
-      <member type="u32" name="sbuffer_count" doc="Count of storage buffer descriptors to allocate."/>
-      <member type="u32" name="texture_count" doc="Count of texture descriptors to allocate."/>
-      <member type="u32" name="stexture_count" doc="Count of storage texture descriptors to allocate."/>
-      <member type="u32" name="rbuffer_count" doc="Count of read only storage buffer descriptors to allocate."/>
-      <member type="DescriptorMemory" name="memory" doc="Descriptor memory to use."/>
+    <type name="TopLevelASBuildDesc" category="struct" doc="Top level acceleration structure build description.">
+      <member type="AccelerationStructureFlags" name="flags" doc="Build flags."/>
+      <member type="u32" name="instance_count" doc="Instance count."/>
+      <member type="u64" name="gpu_address" doc="Address of instances."/>
+      <member type="bool" name="indirect" doc="If true Buffer under address contains pointers to the instances, rather than instances themselves."/>
+      <member type="bool" name="update" doc="true means the acceleration structure is being updated.
+flags must have contained {AccelerationStructureFlags::AllowUpdate} to perfom updates."/>
     </type>
 
-    <type name="DescriptorSpacing" category="struct" doc="Describes how many types can descriptors be reinterpreted as.
-Minimal amount of spaces for each type is 1, 0 is treated as 1.
-Used for RootSignature.">
-      <member type="u32" name="sampler_count"  doc="Count of spaces of sampler descriptors to allocate."/>
-      <member type="u32" name="cbuffer_count"  doc="Count of spaces of constant buffer descriptors to allocate."/>
-      <member type="u32" name="sbuffer_count"  doc="Count of spaces of storage buffer descriptors to allocate."/>
-      <member type="u32" name="texture_count"  doc="Count of spaces of texture descriptors to allocate."/>
-      <member type="u32" name="stexture_count" doc="Count of spaces of storage texture descriptors to allocate."/>
-      <member type="u32" name="rbuffer_count"  doc="Count of spaces of read only storage buffer descriptors to allocate."/>
+    <type name="AcceleratedGeometryInput" category="struct" doc="Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.">
+      <member type="ASGeometryType" name="geometry_type" doc="Type of the geometry (Triangles/AABB)."/>
+      <member type="ASGeometryFlags" name="flags" doc="Geometry flags."/>
+      <member type="u64" name="vertex_or_aabb_buffer_address" doc="Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type."/>
+      <member type="u64" name="vertex_or_aabb_buffer_stride" doc="Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes."/>
+      <member type="u64" name="index_buffer_address" doc="Buffer address of the buffer containing index data. Unused for {ASGeometryType::AABBs}."/>
+      <member type="u64" name="transform_matrix_address" doc="GPU Buffer address of the containing transform matrix (float [3][4]). Unused for {ASGeometryType::AABBs}."/>
+      <member type="u32" name="vertex_count" doc="Vertex count. Unused for {ASGeometryType::AABBs}."/>
+      <member type="u32" name="triangle_or_aabb_count" doc="For triangles it is equal to (index_count/3) and count for AABBs."/>
+      <member type="DataFormat" name="vertex_format" doc="Format of the vertices. Unused for {ASGeometryType::AABBs}."/>
+      <member type="IndexType" name="index_format" doc="Format of the indices. Unused for {ASGeometryType::AABBs}."/>
     </type>
+
+    <type name="ASAllocationInfo" category="struct" doc="Acceleration structure allocation info. Used to query sizes for AS build/update buffers.">
+      <member type="u64" name="scratch_size" doc="Size of the scratch buffer."/>
+      <member type="u64" name="result_size" doc="Size of the result buffer."/>
+      <member type="u64" name="update_size" doc="Size of the update buffer."/>
+    </type>
+
+    <type name="DescriptorBindingDesc" category="struct" doc="Descriptor binding description for RootSignature and Descriptor Storage creation.
+Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
+All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.">
+      <member type="DescriptorType" name="binding_type" doc="Binding type. Must be unique in array."/>
+      <member type="u32" name="binding_space" doc="Binding space number in HLSL."/>
+      <member type="u32" name="space_overlap_count" doc="Number of consecutive spaces this binding occupies.
+e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
+This is useful for binding multiple resource types to the same register array in HLSL."/>
+      <member type="u32" name="binding_count" doc="How many bindings should be allocated.
+Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers."/>
+    </type>
+
+    <type name="ShaderExport" category="struct" doc="Defines export shader functions from a library shader.">
+      <member type="u8string" name="entry_point" mod="ptr" doc="Entry point of the shader."/>
+      <member type="RaytracingShaderType" name="shader_type" doc="Type of the shader."/>
+      <member type="u32" name="shader_array_index" doc="Index of the shader in the shader array."/>
+    </type>
+
+    <type name="HitGroupDesc" category="struct" doc="Hit group description for Raytracing pipeline.">
+      <member type="HitGroupType" name="type" doc="Type of the hit group.
+{HitGroupType::Triangles} - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
+{HitGroupType::Procedural} - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency."/>
+      <member type="u32" name="closest_hit_export_index" default="UINT32_MAX" doc="Closest hit shader from {ShaderExport::}."/>
+      <member type="u32" name="any_hit_export_index" default="UINT32_MAX" doc="Any hit shader."/>
+      <member type="u32" name="intersection_export_index" default="UINT32_MAX" doc="Intersection shader."/>
+    </type>
+
+    <type name="ShaderBindingTableInfo" category="struct" doc="Shader binding table description for Raytracing pipeline.">
+      <member type="u32" name="entry_size" doc="Size/stride of the entry in bytes."/>
+      <member type="u32" name="table_start_alignment" doc="Alignment of the table start in bytes."/>
+    </type>
+
+    <type name="RaytracingDispatchDesc" category="struct" doc="Raytracing dispatch description for {CommandList::}.">
+      <member type="u64" name="ray_gen_shader_table_address" doc="Address of the ray generation shader table."/>
+      <member type="u64" name="miss_shader_table_address" doc="Address of the miss shader table."/>
+      <member type="u64" name="hit_group_table_address" doc="Address of the hit group shader table."/>
+      <member type="u64" name="callable_shader_table_address" doc="Address of the callable shader table."/>
+
+      <member type="u32" name="ray_gen_shader_table_size" doc="Size of the ray generation shader table in bytes."/>
+      <member type="u32" name="miss_shader_table_size" doc="Size of the miss shader table in bytes."/>
+      <member type="u32" name="hit_group_table_size" doc="Size of the hit group shader table in bytes."/>
+      <member type="u32" name="callable_shader_table_size" doc="Size of the callable shader table in bytes."/>
+
+      <member type="u32" name="miss_shader_table_stride" doc="Stride of the miss shader table in bytes."/>
+      <member type="u32" name="hit_group_table_stride" doc="Stride of the hit group shader table in bytes."/>
+      <member type="u32" name="callable_shader_table_stride" doc="Stride of the callable shader table in bytes."/>
+
+      <member type="u32" name="width" doc="Width of the dispatch in number of rays."/>
+      <member type="u32" name="height" doc="Height of the dispatch in number of rays."/>
+      <member type="u32" name="depth" doc="Depth of the dispatch in number of rays."/>
+    </type>
+
+    <type name="TextureCopyRegion" category="struct" doc="Texture to texture copy region.">
+      <member type="TextureRegion" name="src" doc="Source texture region."/>
+      <member type="TextureRegion" name="dst" doc="Destination texture region."/>
+    </type>
+
 
     <!--Variants-->
+    <type name="BottomLevelASBuildDesc" category="variant" doc="Bottom level acceleration structure build description." mod="cpp-only">
+      <impl name="both">
+        <member type="AccelerationStructureFlags" name="flags" doc="Build flags."/>
+        <member type="u32" name="geometry_count" doc="Geometry count."/>
+        <member type="AcceleratedGeometryDesc" name="geometry_array" mod="const ptr" doc="Buffer of geometries."/>
+        <member type="AcceleratedGeometryDesc" name="geometry_indirect" mod="const pp" doc="Buffer of pointers to geometry. geometry_array must be NULL for this to be used."/>
+        <member type="bool" name="update" doc="true If the acceleration structure is being updated."/>
+      </impl>
+    </type>
+
+
     <type name="BufferBarrier2" category="variant" doc="Variant of BufferBarrier with BufferView.">
       <impl name="both">
         <member type="BufferBarrier" name="barrier" doc="Buffer barrier."/>
@@ -402,6 +487,23 @@ Used for RootSignature.">
       </impl>
     </type>
 
+    <type name="RaytracingPipeineDesc" category="variant" doc="Raytracing pipeline descriptor for pipeline creation.">
+      <impl name="both">
+        <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
+        <member type="ShaderView" name="shaders" mod="const ptr" doc="Shader libraries."/>
+        <member type="u32" name="shader_count" doc="Shader library count."/>
+        <member type="ShaderExport" name="exports" mod="const ptr" doc="Shader library exports (entry points)."/>
+        <member type="u32" name="export_count" doc="Shader export count."/>
+        <member type="HitGroupDesc" name="hit_groups" mod="const ptr" doc="Hit group descriptions.
+Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in {RaytracingPipeineDesc::exports}.
+And groups for SBTs are exported as raygen:miss:hit."/>
+        <member type="u32" name="hit_group_count" doc="Hit group count."/>
+        <member type="u32" name="max_recursion_depth" default="1" doc="Max recursion depth. Default is 1."/>
+        <member type="u32" name="max_payload_size" default="0" doc="Max payload size. Default is 0."/>
+        <member type="u32" name="max_attribute_size" default="0" doc="Max attribute size. Default is 0."/>
+      </impl>
+    </type>
+
     <type name="GraphicsPipelineDesc" category="variant" doc="Variant of PipelineStateDesc for graphics pipeline.">
       <impl name="both">
         <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
@@ -418,6 +520,14 @@ Default is 0. 0 means regular rendering."/>
         <member type="PipelineFlags" name="flags" doc="Pipeline flags to add options to pipeline creation."/>
       </impl>
     </type>
+
+    <type name="ComputePipelineDesc" category="variant" doc="Variant of PipelineStateDesc for compute pipeline.">
+      <impl name="both">
+        <member type="RootSignatureView" name="root_signature" doc="Root signature."/>
+        <member type="ShaderView" name="shader" doc="Compute shader."/>
+      </impl>
+    </type>
+
 
     <type name="RenderPassRenderTargetDesc" category="variant" doc="Variant of RenderPassDesc for render target.">
       <impl name="both">

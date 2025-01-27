@@ -43,12 +43,10 @@ public:
         std::construct_at(&swap, setup.device, std::move(swapx), w, h);
         cmd_list = setup.CreateLists();
 
-        // Only a single descriptor table with 1 descriptor
-        wis::DescriptorStorageDesc desc{
-            .cbuffer_count = ex::flight_frames * 2, // one cbuffer per frame
-            .memory = wis::DescriptorMemory::ShaderVisible, // visible to shaders
+        wis::DescriptorBindingDesc bindings[] = {
+            { .binding_type = wis::DescriptorType::ConstantBuffer, .binding_space = 1, .binding_count = ex::flight_frames * 2 },
         };
-        desc_storage = setup.device.CreateDescriptorStorage(result, desc);
+        desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
     }
 
 public:
@@ -189,8 +187,10 @@ public:
         wis::PushConstant root_constants[]{
             { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
         };
-        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants), nullptr, 0, 2));
-        // Note the 2 in the CreateRootSignature call. This is the space overlap count, which is 2 in this case.
+        wis::DescriptorBindingDesc bindings[] = {
+            { .binding_type = wis::DescriptorType::ConstantBuffer, .binding_space = 1, .space_overlap_count = 2, .binding_count = ex::flight_frames * 2 },
+        };
+        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants), nullptr, 0, bindings, std::size(bindings)));
 
         // Create pipeline
         {
@@ -233,8 +233,8 @@ public:
             for (size_t i = 0; i < ex::flight_frames; i++) {
                 constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
                 constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
-                desc_storage.WriteConstantBuffer(i, constant_buffersx[i], sizeof(float));
-                desc_storage.WriteConstantBuffer(ex::flight_frames + i, constant_buffersy[i], sizeof(float));
+                desc_storage.WriteConstantBuffer(0, i, constant_buffersx[i], sizeof(float));
+                desc_storage.WriteConstantBuffer(0, ex::flight_frames + i, constant_buffersy[i], sizeof(float));
                 constant_datax[i] = static_cast<float*>(constant_buffersx[i].Map());
                 constant_datax[i][0] = 0.0f;
 

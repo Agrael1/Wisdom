@@ -47,10 +47,18 @@ struct DescriptorTable;
 struct SamplerDesc;
 struct ComponentMapping;
 struct ShaderResourceDesc;
+struct UnorderedAccessDesc;
 struct FactoryExtQuery;
 struct DeviceExtQuery;
-struct DescriptorStorageDesc;
-struct DescriptorSpacing;
+struct TopLevelASBuildDesc;
+struct AcceleratedGeometryInput;
+struct ASAllocationInfo;
+struct DescriptorBindingDesc;
+struct ShaderExport;
+struct HitGroupDesc;
+struct ShaderBindingTableInfo;
+struct RaytracingDispatchDesc;
+struct TextureCopyRegion;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -115,12 +123,14 @@ enum class Status : int32_t {
 };
 
 /**
- * @brief Determines the behavior when wait for multiple fences is issued.
+ * @brief Type of the queue to create.
  *
  * */
-enum class MutiWaitFlags : uint32_t {
-    All = 0, ///< All the fences in the batch are triggered.
-    Any = 1, ///< At least one of the fences from the batch is triggered.
+enum class QueueType : uint32_t {
+    Graphics = 0, ///< Queue is used for graphics operations.
+    Compute = 2, ///< Queue is used for compute operations.
+    Copy = 3, ///< Queue is used for copy operations.
+    VideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
 /**
@@ -154,17 +164,27 @@ enum class DescriptorType : uint32_t {
      * May be bigger than constant buffers, but slower.
      * */
     Buffer = 5,
+    AccelerationStructure = 6, ///< Descriptor is an acceleration structure.
 };
 
 /**
- * @brief Type of the queue to create.
+ * @brief Determines the behavior when wait for multiple fences is issued.
  *
  * */
-enum class QueueType : uint32_t {
-    Graphics = 0, ///< Queue is used for graphics operations.
-    Compute = 2, ///< Queue is used for compute operations.
-    Copy = 3, ///< Queue is used for copy operations.
-    VideoDecode = 4, ///< Queue is used for video decoding operations.
+enum class MutiWaitFlags : uint32_t {
+    All = 0, ///< All the fences in the batch are triggered.
+    Any = 1, ///< At least one of the fences from the batch is triggered.
+};
+
+/**
+ * @brief Type of the geometry in the Acceleration Structure.
+ *
+ * Translates to VkGeometryTypeKHR for vk implementation.
+ * Translates to D3D12_RAYTRACING_GEOMETRY_TYPE for dx implementation.
+ * */
+enum class ASGeometryType : uint32_t {
+    Triangles = 0, ///< Triangles geometry type. Used for triangle meshes.
+    AABBs = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
 };
 
 /**
@@ -185,6 +205,20 @@ enum class AdapterPreference {
      * Order is as follows: External, Discrete, Integrated, Software.
      * */
     Performance = 2,
+};
+
+/**
+ * @brief Shader stages that can be used in the raytracing pipeline.
+ *
+ * Translates to VkShaderStageFlagBits for vk implementation.
+ * */
+enum class RaytracingShaderType : uint32_t {
+    Raygen = 0, ///< Ray generation shader stage.
+    Miss = 1, ///< Miss shader stage.
+    ClosestHit = 2, ///< Closest hit shader stage.
+    AnyHit = 3, ///< Any hit shader stage.
+    Intersection = 4, ///< Intersection shader stage.
+    Callable = 5, ///< Callable shader stage.
 };
 
 /**
@@ -211,6 +245,26 @@ enum class Severity {
      * The application must be shut down, no further execution.
      * */
     Critical = 5,
+};
+
+/**
+ * @brief Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.
+ *
+ * */
+enum class ASLevel : uint32_t {
+    Bottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
+    Top = 1, ///< Top level Acceleration Structure. Contains instance data.
+};
+
+/**
+ * @brief Type of the hit group in the raytracing pipeline.
+ *
+ * Translates to VkRayTracingShaderGroupTypeKHR for vk implementation.
+ * Translates to D3D12_HIT_GROUP_TYPE for dx implementation.
+ * */
+enum class HitGroupType : uint32_t {
+    Triangles = 0, ///< Hit group for triangles.
+    Procedural = 1, ///< Hit group for procedural geometry.
 };
 
 /**
@@ -913,11 +967,12 @@ enum class LogicOp : uint32_t {
  * Translates to VkMemoryPropertyFlags for vk implementation.
  * */
 enum class MemoryType : uint32_t {
+    Default = 0, ///< Default memory type. Alias for wis::MemoryType::DeviceLocal
     /**
      * @brief Default memory type.
      * Local device memory, most efficient for rendering.
      * */
-    Default = 0,
+    DeviceLocal = 0,
     /**
      * @brief Upload memory type.
      * Used for data that is uploaded to the GPU Local memory using copy operations.
@@ -994,32 +1049,6 @@ enum class TextureLayout : uint32_t {
     Texture2DMS = 6, ///< Texture is 2D multisampled image.
     Texture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
     Texture3D = 8, ///< Texture is 3D volume.
-};
-
-/**
- * @brief Binding index for resources.
- * Used in wis::DescriptorStorage to determine which descriptor type goes where when binding.
- * Same values are used for HLSL side to pick descriptors up.
- * Space 0 and set 0 are reserved for push descriptors and push constants.
- *
- * */
-enum class BindingIndex : uint32_t {
-    /**
-     * @brief No binding index set.Results in [[vk::binding(*,0)]] and register(*).
-     * This space is reserved for push constants and push descriptors.
-     * */
-    None = 0,
-    Sampler = 1, ///< Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1).
-    ConstantBuffer = 2, ///< Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2).
-    Texture = 3, ///< Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3).
-    RWTexture = 4, ///< Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4).
-    RWBuffer = 5, ///< Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5).
-    /**
-     * @brief Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
-     * Can't be merged with Texture because of Vulkan.
-     * */
-    Buffer = 6,
-    Count = 6, ///< Number of binding indices. Used for array sizes.
 };
 
 /**
@@ -1250,14 +1279,21 @@ enum class ColorComponents {
  * @brief Buffer usage flags.
  * Determine how the buffer can be used throughout its lifetime.
  *
+ * Translates to VkBufferUsageFlags for vk implementation.
+ * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
  * */
 enum class BufferUsage {
     None = 0x0, ///< No flags set. Buffer is not used.
     CopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
     CopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
-    ConstantBuffer = 1 << 4, ///< Buffer is used as a constant buffer.
-    IndexBuffer = 1 << 6, ///< Buffer is used as an index buffer.
-    VertexBuffer = 1 << 7, ///< Buffer is used as a vertex buffer or an instance buffer.
+    ConstantBuffer = 1 << 2, ///< Buffer is used as a constant buffer.
+    IndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
+    VertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
+    IndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
+    StorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
+    AccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
+    AccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
+    ShaderBindingTable = 1 << 9, ///< Buffer is used as a shader binding table buffer.
 };
 
 /**
@@ -1360,8 +1396,8 @@ enum class ResourceAccess {
     CopyDest = 1 << 10, ///< Copy destination access.
     CopySource = 1 << 11, ///< Copy source access.
     ConditionalRendering = 1 << 12, ///< Conditional rendering access.
-    AccelerationStrucureRead = 1 << 13, ///< Acceleration structure read access.
-    AccelerationStrucureWrite = 1 << 14, ///< Acceleration structure write access.
+    AccelerationStructureRead = 1 << 13, ///< Acceleration structure read access.
+    AccelerationStructureWrite = 1 << 14, ///< Acceleration structure write access.
     ShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
     VideoDecodeRead = 1 << 16, ///< Video decode read access.
     VideoDecodeWrite = 1 << 17, ///< Video decode write access.
@@ -1411,6 +1447,47 @@ enum class PipelineFlags {
      * Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.
      * */
     DescriptorBuffer = 1 << 0,
+};
+
+/**
+ * @brief Geometry flags for additional geometry features
+ *
+ * Translates to D3D12_RAYTRACING_GEOMETRY_FLAGS for dx implementation.
+ * Translates to VkGeometryFlagsKHR for vk implementation.
+ * */
+enum class ASGeometryFlags {
+    None = 0x0, ///< No flags set. Geometry is regular.
+    Opaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
+    NoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
+};
+
+/**
+ * @brief Acceleration structure flags for additional acceleration structure features
+ *
+ * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS for dx implementation.
+ * Translates to VkBuildAccelerationStructureFlagsKHR for vk implementation.
+ * */
+enum class AccelerationStructureFlags {
+    None = 0x0, ///< No flags set. Acceleration structure is regular.
+    AllowUpdate = 1 << 0, ///< Acceleration structure is allowed to be updated.
+    AllowCompaction = 1 << 1, ///< Acceleration structure is allowed to be compacted.
+    PreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
+    PreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
+    MinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
+};
+
+/**
+ * @brief Instance flags for additional instance features
+ *
+ * Translates to D3D12_RAYTRACING_INSTANCE_FLAGS for dx implementation.
+ * Translates to VkGeometryInstanceFlagsKHR for vk implementation.
+ * */
+enum class ASInstanceFlags {
+    None = 0x0, ///< No flags set. Instance is regular.
+    TriangleCullDisable = 1 << 0, ///< Triangle cull is disabled.
+    TriangleFrontCounterClockwise = 1 << 1, ///< Triangle front is counter clockwise.
+    ForceOpaque = 1 << 2, ///< Force opaque.
+    ForceNoOpaque = 1 << 3, ///< Force no opaque.
 };
 
 /**
@@ -1787,6 +1864,15 @@ struct ShaderResourceDesc {
 };
 
 /**
+ * @brief Unordered access description for RW Texture creation.
+ * */
+struct UnorderedAccessDesc {
+    wis::DataFormat format; ///< Resource format.
+    wis::TextureViewType view_type; ///< Resource view type.
+    wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
+};
+
+/**
  * @brief Struct used to query the extensions for C code.
  * Queried results should not be freed, their lifetime ends with the Factory they were created with.
  * If wis::FactoryExtQuery::extension_id is 0, wis::FactoryExtQuery::result must be populated with already created extension.
@@ -1819,30 +1905,124 @@ struct DeviceExtQuery {
 };
 
 /**
- * @brief Descriptor storage description for wis::DescriptorStorage creation.
+ * @brief Top level acceleration structure build description.
  * */
-struct DescriptorStorageDesc {
-    uint32_t sampler_count; ///< Count of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of read only storage buffer descriptors to allocate.
-    wis::DescriptorMemory memory; ///< Descriptor memory to use.
+struct TopLevelASBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< Build flags.
+    uint32_t instance_count; ///< Instance count.
+    uint64_t gpu_address; ///< Address of instances.
+    bool indirect; ///< If true Buffer under address contains pointers to the instances, rather than instances themselves.
+    /**
+     * @brief true means the acceleration structure is being updated.
+     * flags must have contained wis::AccelerationStructureFlags::AllowUpdate to perfom updates.
+     * */
+    bool update;
 };
 
 /**
- * @brief Describes how many types can descriptors be reinterpreted as.
- * Minimal amount of spaces for each type is 1, 0 is treated as 1.
- * Used for RootSignature.
+ * @brief Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.
  * */
-struct DescriptorSpacing {
-    uint32_t sampler_count; ///< Count of spaces of sampler descriptors to allocate.
-    uint32_t cbuffer_count; ///< Count of spaces of constant buffer descriptors to allocate.
-    uint32_t sbuffer_count; ///< Count of spaces of storage buffer descriptors to allocate.
-    uint32_t texture_count; ///< Count of spaces of texture descriptors to allocate.
-    uint32_t stexture_count; ///< Count of spaces of storage texture descriptors to allocate.
-    uint32_t rbuffer_count; ///< Count of spaces of read only storage buffer descriptors to allocate.
+struct AcceleratedGeometryInput {
+    wis::ASGeometryType geometry_type; ///< Type of the geometry (Triangles/AABB).
+    wis::ASGeometryFlags flags; ///< Geometry flags.
+    uint64_t vertex_or_aabb_buffer_address; ///< Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type.
+    uint64_t vertex_or_aabb_buffer_stride; ///< Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes.
+    uint64_t index_buffer_address; ///< Buffer address of the buffer containing index data. Unused for wis::ASGeometryType::AABBs.
+    uint64_t transform_matrix_address; ///< GPU Buffer address of the containing transform matrix (float [3][4]). Unused for wis::ASGeometryType::AABBs.
+    uint32_t vertex_count; ///< Vertex count. Unused for wis::ASGeometryType::AABBs.
+    uint32_t triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
+    wis::DataFormat vertex_format; ///< Format of the vertices. Unused for wis::ASGeometryType::AABBs.
+    wis::IndexType index_format; ///< Format of the indices. Unused for wis::ASGeometryType::AABBs.
+};
+
+/**
+ * @brief Acceleration structure allocation info. Used to query sizes for AS build/update buffers.
+ * */
+struct ASAllocationInfo {
+    uint64_t scratch_size; ///< Size of the scratch buffer.
+    uint64_t result_size; ///< Size of the result buffer.
+    uint64_t update_size; ///< Size of the update buffer.
+};
+
+/**
+ * @brief Descriptor binding description for RootSignature and Descriptor Storage creation.
+ * Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
+ * All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.
+ * */
+struct DescriptorBindingDesc {
+    wis::DescriptorType binding_type; ///< Binding type. Must be unique in array.
+    uint32_t binding_space; ///< Binding space number in HLSL.
+    /**
+     * @brief Number of consecutive spaces this binding occupies.
+     * e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
+     * This is useful for binding multiple resource types to the same register array in HLSL.
+     * */
+    uint32_t space_overlap_count;
+    /**
+     * @brief How many bindings should be allocated.
+     * Affects only the count of descriptors allocated in the descriptor heap, Root Signature always receives unbounded array with max amount of 4096 registers.
+     * */
+    uint32_t binding_count;
+};
+
+/**
+ * @brief Defines export shader functions from a library shader.
+ * */
+struct ShaderExport {
+    const char* entry_point; ///< Entry point of the shader.
+    wis::RaytracingShaderType shader_type; ///< Type of the shader.
+    uint32_t shader_array_index; ///< Index of the shader in the shader array.
+};
+
+/**
+ * @brief Hit group description for Raytracing pipeline.
+ * */
+struct HitGroupDesc {
+    /**
+     * @brief Type of the hit group.
+     * wis::HitGroupType::Triangles - hit group for triangles. Uses closest hit shader and optionally any hit shader for transparency.
+     * wis::HitGroupType::Procedural - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency.
+     * */
+    wis::HitGroupType type;
+    uint32_t closest_hit_export_index = UINT32_MAX; ///< Closest hit shader from wis::ShaderExport.
+    uint32_t any_hit_export_index = UINT32_MAX; ///< Any hit shader.
+    uint32_t intersection_export_index = UINT32_MAX; ///< Intersection shader.
+};
+
+/**
+ * @brief Shader binding table description for Raytracing pipeline.
+ * */
+struct ShaderBindingTableInfo {
+    uint32_t entry_size; ///< Size/stride of the entry in bytes.
+    uint32_t table_start_alignment; ///< Alignment of the table start in bytes.
+};
+
+/**
+ * @brief Raytracing dispatch description for wis::CommandList.
+ * */
+struct RaytracingDispatchDesc {
+    uint64_t ray_gen_shader_table_address; ///< Address of the ray generation shader table.
+    uint64_t miss_shader_table_address; ///< Address of the miss shader table.
+    uint64_t hit_group_table_address; ///< Address of the hit group shader table.
+    uint64_t callable_shader_table_address; ///< Address of the callable shader table.
+    uint32_t ray_gen_shader_table_size; ///< Size of the ray generation shader table in bytes.
+    uint32_t miss_shader_table_size; ///< Size of the miss shader table in bytes.
+    uint32_t hit_group_table_size; ///< Size of the hit group shader table in bytes.
+    uint32_t callable_shader_table_size; ///< Size of the callable shader table in bytes.
+    uint32_t miss_shader_table_stride; ///< Stride of the miss shader table in bytes.
+    uint32_t hit_group_table_stride; ///< Stride of the hit group shader table in bytes.
+    uint32_t callable_shader_table_stride; ///< Stride of the callable shader table in bytes.
+    uint32_t width; ///< Width of the dispatch in number of rays.
+    uint32_t height; ///< Height of the dispatch in number of rays.
+    uint32_t depth; ///< Depth of the dispatch in number of rays.
+};
+
+/**
+ * @brief Texture to texture copy region.
+ * */
+struct TextureCopyRegion {
+    wis::TextureRegion src; ///< Source texture region.
+    wis::TextureRegion dst; ///< Destination texture region.
 };
 
 //=================================DELEGATES=================================
@@ -1891,6 +2071,15 @@ struct is_flag_enum<wis::FenceFlags> : public std::true_type {
 };
 template<>
 struct is_flag_enum<wis::PipelineFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ASGeometryFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::AccelerationStructureFlags> : public std::true_type {
+};
+template<>
+struct is_flag_enum<wis::ASInstanceFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 

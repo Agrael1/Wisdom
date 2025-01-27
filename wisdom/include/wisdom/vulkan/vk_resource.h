@@ -66,6 +66,17 @@ public:
     {
         memory.VKUnmap();
     }
+
+    [[nodiscard]]
+    uint64_t GetGPUAddress() const noexcept
+    {
+        auto& device = memory.GetInternal().allocator.header();
+        VkBufferDeviceAddressInfo info{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+            .buffer = buffer
+        };
+        return device.table().vkGetBufferDeviceAddress(device.get(), &info);
+    }
 };
 
 template<>
@@ -186,6 +197,8 @@ public:
     }
 };
 
+using VKUnorderedAccessTexture = VKShaderResource;
+
 #pragma region VKBuffer
 /**
  * @brief Represents buffer object for storing linear data.
@@ -210,6 +223,14 @@ public:
     inline void Unmap() const noexcept
     {
         wis::ImplVKBuffer::Unmap();
+    }
+    /**
+     * @brief Returns the address of the resource in GPU memory.
+     * @return The address of the resource in GPU memory.
+     * */
+    inline uint64_t GetGPUAddress() const noexcept
+    {
+        return wis::ImplVKBuffer::GetGPUAddress();
     }
 };
 #pragma endregion VKBuffer

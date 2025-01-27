@@ -91,6 +91,41 @@ Stages have no granularity, either all or one can be selected.">
       <value name="Count" value="8" doc="Number of stages."/>
     </type>
 
+    <type name="RaytracingShaderType" category="enum" type="u32" doc="Shader stages that can be used in the raytracing pipeline.">
+      <impl_type for="vk" name="VkShaderStageFlagBits"/>
+      <value name="Raygen" value="0" doc="Ray generation shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_RAYGEN_BIT_KHR"/>
+      </value>
+      <value name="Miss" value="1" doc="Miss shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_MISS_BIT_KHR"/>
+      </value>
+      <value name="ClosestHit" value="2" doc="Closest hit shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR"/>
+      </value>
+      <value name="AnyHit" value="3" doc="Any hit shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_ANY_HIT_BIT_KHR"/>
+      </value>
+      <value name="Intersection" value="4" doc="Intersection shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_INTERSECTION_BIT_KHR"/>
+      </value>
+      <value name="Callable" value="5" doc="Callable shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_CALLABLE_BIT_KHR"/>
+      </value>
+    </type>
+
+    <type name="HitGroupType" category="enum" type="u32" doc="Type of the hit group in the raytracing pipeline.">
+      <impl_type for="vk" name="VkRayTracingShaderGroupTypeKHR"/>
+      <impl_type for="dx" name="D3D12_HIT_GROUP_TYPE"/>
+      <value name="Triangles" value="0" doc="Hit group for triangles.">
+        <impl name="vk" value="VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR"/>
+        <impl name="dx" value="D3D12_HIT_GROUP_TYPE_TRIANGLES"/>
+      </value>
+      <value name="Procedural" value="1" doc="Hit group for procedural geometry.">
+        <impl name="vk" value="VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR"/>
+        <impl name="dx" value="D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE"/>
+      </value>
+    </type>
+
     <type name="DescriptorType" category="enum" type="u32" doc="Type of the descriptor in the descriptor table.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
       <impl_type for="vk" name="VkDescriptorType"/>
@@ -122,6 +157,10 @@ Used for read/write operations in compute shaders.">
       <value name="Buffer" value="5" doc="Descriptor is a shader resource buffer.
 May be bigger than constant buffers, but slower.">
         <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      </value>
+      <value name="AccelerationStructure" value="6" doc="Descriptor is an acceleration structure.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"/>
         <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
       </value>
     </type>
@@ -826,7 +865,8 @@ Triangle culling depends on {WindingOrder::} option.">
     <type name="MemoryType" category="enum" type="u32" doc="Memory type for resource allocation.">
       <impl_type for="dx" name="D3D12_HEAP_TYPE"/>
       <impl_type for="vk" name="VkMemoryPropertyFlags"/>
-      <value name="Default" value="0" doc="Default memory type.
+      <value name="Default" value="0" doc="Default memory type. Alias for {::DeviceLocal}"/>
+      <value name="DeviceLocal" value="0" doc="Default memory type.
 Local device memory, most efficient for rendering.">
         <impl name="dx" value="D3D12_HEAP_TYPE_DEFAULT"/>
         <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT"/>
@@ -1189,20 +1229,22 @@ Platform extension values start from 2049
       <value name="Custom" value="0" doc="Custom provided extension. Default initialization of the extension is done by user."/>
     </type>
 
-    <type name="BindingIndex" category="enum" type="u32" doc="Binding index for resources.
-Used in {DescriptorStorage::} to determine which descriptor type goes where when binding.
-Same values are used for HLSL side to pick descriptors up.
-Space 0 and set 0 are reserved for push descriptors and push constants.">
-      <value name="None" value="0" doc="No binding index set.Results in [[vk::binding(*,0)]] and register(*).
-This space is reserved for push constants and push descriptors."/>
-      <value name="Sampler" value="1" doc="Binding index for sampler descriptors. Results in [[vk::binding(0,1)]] and register(s0, space1)."/>
-      <value name="ConstantBuffer" value="2" doc="Binding index for constant buffer descriptors. Results in [[vk::binding(0,2)]] and register(b0, space2)."/>
-      <value name="Texture" value="3" doc="Binding index for texture descriptors. Results in [[vk::binding(0,3)]] and register(t0, space3)."/>
-      <value name="RWTexture" value="4" doc="Binding index for read-write texture descriptors. Results in [[vk::binding(0,4)]] and register(u0, space4)."/>
-      <value name="RWBuffer" value="5" doc="Binding index for read-write buffer descriptors. Results in [[vk::binding(0,5)]] and register(u0, space5)."/>
-      <value name="Buffer" value="6" doc="Binding index for read buffer descriptors. Results in [[vk::binding(0,6)]] and register(t0, space6).
-Can't be merged with Texture because of Vulkan."/>
-      <value name="Count" value="6" doc="Number of binding indices. Used for array sizes."/>
+    <type name="ASLevel" category="enum" type="u32" doc="Level of the Raytracing Acceleration Structure. Used to create Acceleration structures.">
+      <value name="Bottom" value="0" doc="Bottom level Acceleration Structure. Contains geometry data."/>
+      <value name="Top" value="1" doc="Top level Acceleration Structure. Contains instance data."/>
+    </type>
+
+    <type name="ASGeometryType" category="enum" type="u32" doc="Type of the geometry in the Acceleration Structure.">
+      <impl_type for="vk" name="VkGeometryTypeKHR"/>
+      <impl_type for="dx" name="D3D12_RAYTRACING_GEOMETRY_TYPE"/>
+      <value name="Triangles" value="0" doc="Triangles geometry type. Used for triangle meshes.">
+        <impl name="vk" value="VK_GEOMETRY_TYPE_TRIANGLES_KHR"/>
+        <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES"/>
+      </value>
+      <value name="AABBs" value="1" doc="Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.">
+        <impl name="vk" value="VK_GEOMETRY_TYPE_AABBS_KHR"/>
+        <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS"/>
+      </value>
     </type>
 
     <!--Bitmasks-->
@@ -1232,12 +1274,41 @@ Used for color blending operations.">
 
     <type name="BufferUsage" category="bitmask" doc="Buffer usage flags.
 Determine how the buffer can be used throughout its lifetime.">
+      <impl_type for="vk" name="VkBufferUsageFlags"/>
+      <impl_type for="dx" name="D3D12_RESOURCE_FLAGS"/>
       <value name="None" value="0" doc="No flags set. Buffer is not used."/>
-      <value name="CopySrc" bit="0" doc="Buffer is used as a source for copy operations."/>
-      <value name="CopyDst" bit="1" doc="Buffer is used as a destination for copy operations."/>
-      <value name="ConstantBuffer" bit="4" doc="Buffer is used as a constant buffer."/>
-      <value name="IndexBuffer" bit="6" doc="Buffer is used as an index buffer."/>
-      <value name="VertexBuffer" bit="7" doc="Buffer is used as a vertex buffer or an instance buffer."/>
+      <value name="CopySrc" bit="0" doc="Buffer is used as a source for copy operations.">
+        <impl name="vk" value="VK_BUFFER_USAGE_TRANSFER_SRC_BIT"/>
+      </value>
+      <value name="CopyDst" bit="1" doc="Buffer is used as a destination for copy operations.">
+        <impl name="vk" value="VK_BUFFER_USAGE_TRANSFER_DST_BIT"/>
+      </value>
+      <value name="ConstantBuffer" bit="2" doc="Buffer is used as a constant buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT"/>
+      </value>
+      <value name="IndexBuffer" bit="3" doc="Buffer is used as an index buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_INDEX_BUFFER_BIT"/>
+      </value>
+      <value name="VertexBuffer" bit="4" doc="Buffer is used as a vertex buffer or an instance buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_VERTEX_BUFFER_BIT"/>
+      </value>
+      <value name="IndirectBuffer" bit="5" doc="Buffer is used as an indirect buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT"/>
+      </value>
+      <value name="StorageBuffer" bit="6" doc="Buffer is used as a storage unordered access buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_STORAGE_BUFFER_BIT"/>
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS"/>
+      </value>
+      <value name="AccelerationStructureBuffer" bit="7" doc="Buffer is used as an acceleration structure buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT"/>
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE"/>
+      </value>
+      <value name="AccelerationStructureInput" bit="8" doc="Buffer is used as a read only acceleration instance input buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR"/>
+      </value>
+      <value name="ShaderBindingTable" bit="9" doc="Buffer is used as a shader binding table buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR"/>
+      </value>
     </type>
 
     <type name="MemoryFlags" category="bitmask" doc="Memory flags.
@@ -1407,11 +1478,11 @@ Subresource data must be available for any layout-compatible access after a barr
         <impl name="dx" value="D3D12_BARRIER_ACCESS_PREDICATION"/>
         <impl name="vk" value="VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT"/>
       </value>
-      <value name="AccelerationStrucureRead" bit="13" doc="Acceleration structure read access.">
+      <value name="AccelerationStructureRead" bit="13" doc="Acceleration structure read access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ"/>
         <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR"/>
       </value>
-      <value name="AccelerationStrucureWrite" bit="14"  doc="Acceleration structure write access.">
+      <value name="AccelerationStructureWrite" bit="14"  doc="Acceleration structure write access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR"/>
       </value>
@@ -1511,6 +1582,69 @@ Do not mix DescriptorBuffer and non-DescriptorBuffer pipelines.">
         <impl name="vk" value="VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT"/>
       </value>
     </type>
+
+    <type name="ASGeometryFlags" category="bitmask" doc="Geometry flags for additional geometry features">
+      <impl_type for="dx" name="D3D12_RAYTRACING_GEOMETRY_FLAGS"/>
+      <impl_type for="vk" name="VkGeometryFlagsKHR"/>
+      <value name="None" value="0" doc="No flags set. Geometry is regular."/>
+      <value name="Opaque" bit="0" doc="Geometry is opaque. Used for opaque geometry.">
+        <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE"/>
+        <impl name="vk" value="VK_GEOMETRY_OPAQUE_BIT_KHR"/>
+      </value>
+      <value name="NoDuplicateAnyHitInvocation" bit="1" doc="Geometry has no duplicate any hit invocation.">
+        <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION"/>
+        <impl name="vk" value="VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR"/>
+      </value>
+    </type>
+
+    <type name="AccelerationStructureFlags" category="bitmask" doc="Acceleration structure flags for additional acceleration structure features">
+      <impl_type for="dx" name="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS"/>
+      <impl_type for="vk" name="VkBuildAccelerationStructureFlagsKHR"/>
+      <value name="None" value="0" doc="No flags set. Acceleration structure is regular."/>
+      <value name="AllowUpdate" bit="0" doc="Acceleration structure is allowed to be updated.">
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE"/>
+        <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR"/>
+      </value>
+      <value name="AllowCompaction" bit="1" doc="Acceleration structure is allowed to be compacted.">
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION"/>
+        <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR"/>
+      </value>
+      <value name="PreferFastTrace" bit="2" doc="Acceleration structure is preferred to be fast traced.">
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE"/>
+        <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR"/>
+      </value>
+      <value name="PreferFastBuild" bit="3" doc="Acceleration structure is preferred to be fast built.">
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD"/>
+        <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR"/>
+      </value>
+      <value name="MinimizeMemory" bit="4" doc="Acceleration structure is minimized for memory usage.">
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY"/>
+        <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR"/>
+      </value>
+    </type>
+
+    <type name="ASInstanceFlags" category="bitmask" doc="Instance flags for additional instance features">
+      <impl_type for="dx" name="D3D12_RAYTRACING_INSTANCE_FLAGS"/>
+      <impl_type for="vk" name="VkGeometryInstanceFlagsKHR"/>
+      <value name="None" value="0" doc="No flags set. Instance is regular."/>
+      <value name="TriangleCullDisable" bit="0" doc="Triangle cull is disabled.">
+        <impl name="dx" value="D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE"/>
+        <impl name="vk" value="VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR"/>
+      </value>
+      <value name="TriangleFrontCounterClockwise" bit="1" doc="Triangle front is counter clockwise.">
+        <impl name="dx" value="D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE"/>
+        <impl name="vk" value="VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR"/>
+      </value>
+      <value name="ForceOpaque" bit="2" doc="Force opaque.">
+        <impl name="dx" value="D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_OPAQUE"/>
+        <impl name="vk" value="VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR"/>
+      </value>
+      <value name="ForceNoOpaque" bit="3" doc="Force no opaque.">
+        <impl name="dx" value="D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_NON_OPAQUE"/>
+        <impl name="vk" value="VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR"/>
+      </value>
+    </type>
+
 
   </types>
 </registry>
