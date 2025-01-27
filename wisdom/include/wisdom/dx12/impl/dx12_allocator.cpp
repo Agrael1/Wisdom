@@ -69,8 +69,8 @@ wis::ImplDX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsa
 
 wis::DX12Memory
 wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage,
-                                                      wis::MemoryType memory,
-                                                      wis::MemoryFlags mem_flags) const noexcept
+        wis::MemoryType memory,
+        wis::MemoryFlags mem_flags) const noexcept
 
 {
     DX12Memory out_memory;
@@ -114,8 +114,8 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
 
 wis::DX12Memory
 wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage,
-                                                     wis::MemoryType memory,
-                                                     wis::MemoryFlags mem_flags) const noexcept
+        wis::MemoryType memory,
+        wis::MemoryFlags mem_flags) const noexcept
 
 {
     DX12Memory out_memory;
@@ -162,7 +162,7 @@ wis::ImplDX12ResourceAllocator::PlaceBuffer(wis::Result& result, DX12MemoryView 
     DX12FillBufferDesc(size, usage, buffer_desc);
 
     auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &buffer_desc,
-                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
+              D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Buffer Placement failed">(hr);
@@ -181,7 +181,7 @@ wis::ImplDX12ResourceAllocator::PlaceTexture(wis::Result& result, DX12MemoryView
     DX12FillTextureDesc(desc, tex_desc);
 
     auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &tex_desc,
-                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
+              D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<FUNC, "Buffer Placement failed">(hr);
@@ -240,56 +240,56 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
     switch (desc.layout) {
     case wis::TextureLayout::Texture1D:
         info = CD3DX12_RESOURCE_DESC1::Tex1D(
-                convert_dx(desc.format),
-                desc.size.width, uint16_t(1),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width, uint16_t(1),
+                   uint16_t(desc.mip_levels), convert_dx(desc.usage));
         break;
     default:
     case wis::TextureLayout::Texture2D:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(1),
-                uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width,
+                   desc.size.height,
+                   uint16_t(1),
+                   uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture3D:
         info = CD3DX12_RESOURCE_DESC1::Tex3D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width,
+                   desc.size.height,
+                   uint16_t(desc.size.depth_or_layers),
+                   uint16_t(desc.mip_levels), convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture1DArray:
         info = CD3DX12_RESOURCE_DESC1::Tex1D(
-                convert_dx(desc.format),
-                desc.size.width, uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width, uint16_t(desc.size.depth_or_layers),
+                   uint16_t(desc.mip_levels), convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DArray:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width,
+                   desc.size.height,
+                   uint16_t(desc.size.depth_or_layers),
+                   uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMS:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(1),
-                uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width,
+                   desc.size.height,
+                   uint16_t(1),
+                   uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMSArray:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
-                desc.size.width,
-                desc.size.height,
-                uint16_t(desc.size.depth_or_layers),
-                uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
+                   convert_dx(desc.format),
+                   desc.size.width,
+                   desc.size.height,
+                   uint16_t(desc.size.depth_or_layers),
+                   uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
         break;
     }
 }

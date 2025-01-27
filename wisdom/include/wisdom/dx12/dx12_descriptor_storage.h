@@ -20,8 +20,8 @@ struct Internal<DX12DescriptorStorage> {
     wis::com_ptr<ID3D12Device> device;
     wis::com_ptr<ID3D12DescriptorHeap> heaps[2];
 
-    CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_starts[2]{}; // 0 - resource, 1 - sampler. Used for SetDescriptorHeaps
-    CD3DX12_CPU_DESCRIPTOR_HANDLE heap_cpu_starts[2]{}; // 0 - resource, 1 - sampler. Used for CopyDescriptorsSimple
+    CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_starts[2] {}; // 0 - resource, 1 - sampler. Used for SetDescriptorHeaps
+    CD3DX12_CPU_DESCRIPTOR_HANDLE heap_cpu_starts[2] {}; // 0 - resource, 1 - sampler. Used for CopyDescriptorsSimple
 
     std::unique_ptr<OffsetIndicator[]> heap_offsets;
     uint32_t heap_sampler_increment = 0;
@@ -81,11 +81,11 @@ public:
             .Format = DXGI_FORMAT_R32_TYPELESS,
             .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
             .Buffer{
-                    .FirstElement = offset_elements,
-                    .NumElements = element_count,
-                    .StructureByteStride = stride,
-                    .CounterOffsetInBytes = 0,
-                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
+                .FirstElement = offset_elements,
+                .NumElements = element_count,
+                .StructureByteStride = stride,
+                .CounterOffsetInBytes = 0,
+                .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateUnorderedAccessView(std::get<0>(buffer), nullptr, &uav_desc, handle);
@@ -98,10 +98,10 @@ public:
             .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Buffer{
-                    .FirstElement = offset_elements,
-                    .NumElements = element_count,
-                    .StructureByteStride = stride,
-                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
+                .FirstElement = offset_elements,
+                .NumElements = element_count,
+                .StructureByteStride = stride,
+                .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateShaderResourceView(std::get<0>(buffer), &srv_desc, handle);

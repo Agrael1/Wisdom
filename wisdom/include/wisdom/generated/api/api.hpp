@@ -2099,7 +2099,7 @@ struct ResultValue {
     }
 
     template<typename Callable, typename Callee, typename... Args>
-        requires std::is_member_function_pointer_v<Callable>
+    requires std::is_member_function_pointer_v<Callable>
     constexpr ResultValue(Callable&& f, Callee* self, Args&&... args) noexcept
         : value(std::invoke(f, self, status, std::forward<Args>(args)...))
     {

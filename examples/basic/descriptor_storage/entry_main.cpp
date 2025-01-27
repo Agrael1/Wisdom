@@ -107,11 +107,12 @@ public:
         // ------------------------------
         // Second pass
         auto& cmd2 = cmd_list[frame_index];
-        wis::RenderPassRenderTargetDesc targets2[]{
-            { .target = swap.GetRenderTarget(frame_index),
-              .load_op = wis::LoadOperation::Clear,
-              .store_op = wis::StoreOperation::Store,
-              .clear_value = { 0.5f, 0.5f, 0.5f, 1.0f } }
+        wis::RenderPassRenderTargetDesc targets2[] {
+            {   .target = swap.GetRenderTarget(frame_index),
+                              .load_op = wis::LoadOperation::Clear,
+                              .store_op = wis::StoreOperation::Store,
+                .clear_value = { 0.5f, 0.5f, 0.5f, 1.0f }
+            }
         };
         wis::RenderPassDesc rp2{
             .flags = wis::RenderPassFlags::None,
@@ -127,13 +128,13 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::None,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::NoAccess,
-                  .access_after = wis::ResourceAccess::RenderTarget,
-                  .state_before = wis::TextureState::Present,
-                  .state_after = wis::TextureState::RenderTarget },
-                swap.GetTexture(frame_index));
+        {   .sync_before = wis::BarrierSync::None,
+            .sync_after = wis::BarrierSync::Draw,
+            .access_before = wis::ResourceAccess::NoAccess,
+            .access_after = wis::ResourceAccess::RenderTarget,
+            .state_before = wis::TextureState::Present,
+            .state_after = wis::TextureState::RenderTarget },
+        swap.GetTexture(frame_index));
 
         cmd2.BeginRenderPass(&rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
@@ -160,13 +161,13 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::Draw,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::RenderTarget,
-                  .access_after = wis::ResourceAccess::Common,
-                  .state_before = wis::TextureState::RenderTarget,
-                  .state_after = wis::TextureState::Present },
-                swap.GetTexture(frame_index));
+        {   .sync_before = wis::BarrierSync::Draw,
+            .sync_after = wis::BarrierSync::Draw,
+            .access_before = wis::ResourceAccess::RenderTarget,
+            .access_after = wis::ResourceAccess::Common,
+            .state_before = wis::TextureState::RenderTarget,
+            .state_after = wis::TextureState::Present },
+        swap.GetTexture(frame_index));
 
         // End recording
         cmd2.Close();
@@ -184,7 +185,7 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::PushConstant root_constants[]{
+        wis::PushConstant root_constants[] {
             { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
         };
         wis::DescriptorBindingDesc bindings[] = {
@@ -203,15 +204,15 @@ public:
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
                 .input_layout = {
-                        .slots = input_slots,
-                        .slot_count = 1,
-                        .attributes = input_attributes,
-                        .attribute_count = 1,
+                    .slots = input_slots,
+                    .slot_count = 1,
+                    .attributes = input_attributes,
+                    .attribute_count = 1,
                 },
                 .shaders = { .vertex = vs, .pixel = ps },
                 .attachments = {
-                        .attachment_formats = { ex::swapchain_format },
-                        .attachments_count = 1,
+                    .attachment_formats = { ex::swapchain_format },
+                    .attachments_count = 1,
                 },
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -224,7 +225,7 @@ public:
                 { 0.5f, -0.5f, 0.0f },
                 { -0.5f, -0.5f, 0.0f }
             };
-            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3>{ triangle_vertices }, wis::BufferUsage::VertexBuffer);
+            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3> { triangle_vertices }, wis::BufferUsage::VertexBuffer);
         }
 
         // Create constant buffer
