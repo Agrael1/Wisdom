@@ -11,7 +11,7 @@ https://www.nuget.org/packages/Wisdom/
 # Features
 
 - [x] Raytracing support
-- [x] Compute pipeline, Basic rendering and Multiview 
+- [x] Compute pipeline, Basic rendering and Multiview
 - [x] Embedded DXC shader compiler and standard HLSL language
 - [x] Inline API with no virtual functions.
 - [x] Extensibility with internal state access
@@ -120,5 +120,3 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 - Vulkan 1.3.2xx+
 
 Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000.
-
-
