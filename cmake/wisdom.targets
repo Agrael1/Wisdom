@@ -3,7 +3,8 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(AdditionalIncludeDirectoriesVK);$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(VULKAN_SDK)\Include;$(MSBuildThisFileDirectory)..\..\include\wisvk;$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(MSBuildThisFileDirectory)..\..\include\wisvk;$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="Exists('$(WisdomVulkanSDKPath)')">$(WisdomVulkanSDKPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WISDOM_MANUAL_DETECT=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>

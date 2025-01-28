@@ -12,8 +12,8 @@
         <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'error'">4</WisdomLogLevelValue>
         <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'critical'">5</WisdomLogLevelValue>
 
-        <WisdomVulkanEnabled Condition="Exists('$(WisdomVulkanSDKPath)')">true</WisdomVulkanEnabled>
-        <WisdomVulkanEnabled Condition="!Exists('$(WisdomVulkanSDKPath)')">false</WisdomVulkanEnabled>
+        <WisdomVulkanEnabled Condition="Exists('$(WisdomVulkanSDKPath)') Or '$(WisdomForceVulkan)' == 'true'">true</WisdomVulkanEnabled>
+        <WisdomVulkanEnabled Condition="!Exists('$(WisdomVulkanSDKPath)') And '$(WisdomForceVulkan)' != 'true'">false</WisdomVulkanEnabled>
 
         <LibraryPostfix Condition="'$(Configuration)' == 'Debug'">d</LibraryPostfix>
         <LibraryPostfix Condition="'$(Configuration)' != 'Debug'"></LibraryPostfix>
