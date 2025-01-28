@@ -1,9 +1,8 @@
 # Version History
 
-- 0.6.1 Nuget package update
+- 0.6.1 - 0.6.2 Nuget package update
 
   - Fixed Vulkan headers in the Nuget package
-  - Force Vulkan now enables all the dirs by default, even if SDK is not present
 
 - 0.6.0 Raytracing
 

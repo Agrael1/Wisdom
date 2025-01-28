@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <WisdomVulkanEnabled Condition="Exists('$(WisdomVulkanSDKPath)')">true</WisdomVulkanEnabled>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(AdditionalIncludeDirectoriesVK);$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
