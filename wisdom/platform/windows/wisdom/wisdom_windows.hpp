@@ -26,21 +26,21 @@ class DX12WindowsExtension : public QueryInternalExtension<DX12WindowsExtension,
 {
 public:
     [[nodiscard]] WIS_INLINE wis::DX12SwapChain
-    CreateSwapchain(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
+    CreateSwapchain(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept;
 
     [[nodiscard]] inline wis::ResultValue<DX12SwapChain>
-    CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
+    CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
     {
-        auto fptr = static_cast<wis::DX12SwapChain (DX12WindowsExtension::*)(wis::Result&, const DX12Device&, DX12QueueView, const wis::SwapchainDesc*, HWND) const noexcept>(&DX12WindowsExtension::CreateSwapchain);
+        auto fptr = static_cast<wis::DX12SwapChain (DX12WindowsExtension::*)(wis::Result&, const DX12Device&, DX12QueueView, const wis::SwapchainDesc&, HWND) const noexcept>(&DX12WindowsExtension::CreateSwapchain);
         return wis::ResultValue<DX12SwapChain>::from_member_func(fptr, this, device, main_queue, desc, hwnd);
     }
 
     [[nodiscard]] WIS_INLINE wis::DX12SwapChain
-    CreateSwapchainUWP(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept;
+    CreateSwapchainUWP(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, IUnknown* window) const noexcept;
     [[nodiscard]] inline wis::ResultValue<DX12SwapChain>
-    CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc* desc, IUnknown* window) const noexcept
+    CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, IUnknown* window) const noexcept
     {
-        auto fptr = static_cast<wis::DX12SwapChain (DX12WindowsExtension::*)(wis::Result&, const DX12Device&, DX12QueueView, const wis::SwapchainDesc*, IUnknown*) const noexcept>(&DX12WindowsExtension::CreateSwapchainUWP);
+        auto fptr = static_cast<wis::DX12SwapChain (DX12WindowsExtension::*)(wis::Result&, const DX12Device&, DX12QueueView, const wis::SwapchainDesc&, IUnknown*) const noexcept>(&DX12WindowsExtension::CreateSwapchainUWP);
         return wis::ResultValue<DX12SwapChain>::from_member_func(fptr, this, device, main_queue, desc, window);
     }
 };
@@ -139,11 +139,11 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept;
+    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept;
     [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
-    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, HWND hwnd) const noexcept
+    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
     {
-        auto fptr = static_cast<wis::VKSwapChain (VKWindowsExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc*, HWND) const noexcept>(&VKWindowsExtension::CreateSwapchain);
+        auto fptr = static_cast<wis::VKSwapChain (VKWindowsExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc&, HWND) const noexcept>(&VKWindowsExtension::CreateSwapchain);
         return wis::ResultValue<wis::VKSwapChain>::from_member_func(fptr, this, device, main_queue, desc, hwnd);
     }
 };

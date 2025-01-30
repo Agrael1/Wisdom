@@ -5,7 +5,7 @@
 #include <wisdom/vulkan/vk_device.h>
 
 wis::VKSwapChain
-wis::platform::XCBExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc* desc, xcb_connection_t* connection, xcb_window_t window) const noexcept
+wis::platform::XCBExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept
 {
     VkXcbSurfaceCreateInfoKHR surface_desc{
         .sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,

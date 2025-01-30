@@ -45,12 +45,12 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, xcb_connection_t* connection, xcb_window_t window) const noexcept;
+    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept;
 
     [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
-    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, xcb_connection_t* connection, xcb_window_t window) const noexcept
+    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept
     {
-        auto fptr = static_cast<wis::VKSwapChain (platform::XCBExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc*, xcb_connection_t*, xcb_window_t) const noexcept>(&platform::XCBExtension::CreateSwapchain);
+        auto fptr = static_cast<wis::VKSwapChain (platform::XCBExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc&, xcb_connection_t*, xcb_window_t) const noexcept>(&platform::XCBExtension::CreateSwapchain);
         return wis::ResultValue<wis::VKSwapChain>::from_member_func(fptr, this, device, main_queue, desc, connection, window);
     }
 };

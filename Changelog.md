@@ -1,5 +1,10 @@
 # Version History
 
+- 0.6.3 Swapchain extension
+
+  - Added support for VK_EXT_swapchain_maintenance1 extension
+  - Added scaling to the swapchain creation. Default is 1:1
+
 - 0.6.1 - 0.6.2 Nuget package update
 
   - Fixed Vulkan headers in the Nuget package
@@ -11,7 +16,7 @@
   - Added Raytracing support for DXR and VK_KHR_ray_tracing
   - Added compute pipeline and compute functions to the device and command list
   - Added more bindings to the Descriptor storage
-	
+
 - 0.5.0 API stabilization
 
   - Most of the API is now stable and will not change

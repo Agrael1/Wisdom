@@ -48,12 +48,12 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface) const noexcept;
+    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, wl_display* display, wl_surface* surface) const noexcept;
 
     [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
-    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc* desc, wl_display* display, wl_surface* surface) const noexcept
+    CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, wl_display* display, wl_surface* surface) const noexcept
     {
-        auto fptr = static_cast<wis::VKSwapChain (platform::WaylandExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc*, wl_display*, wl_surface*) const noexcept>(&platform::WaylandExtension::CreateSwapchain);
+        auto fptr = static_cast<wis::VKSwapChain (platform::WaylandExtension::*)(wis::Result&, const VKDevice&, VKQueueView, const wis::SwapchainDesc&, wl_display*, wl_surface*) const noexcept>(&platform::WaylandExtension::CreateSwapchain);
         return wis::ResultValue<wis::VKSwapChain>::from_member_func(fptr, this, device, main_queue, desc, display, surface);
     }
 };

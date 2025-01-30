@@ -935,7 +935,7 @@ wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const no
 
 wis::VKSwapChain
 wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface,
-                                     const SwapchainDesc* desc,
+                                     const SwapchainDesc& desc,
                                      VkQueue graphics_queue,
                                      void* pNext) const noexcept
 {
@@ -1002,7 +1002,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     }
 
     auto format = std::ranges::find_if(surface_formats, [=](VkSurfaceFormatKHR fmt) {
-        return fmt.format == convert_vk(desc->format);
+        return fmt.format == convert_vk(desc.format);
     });
 
     if (format == surface_formats.end() || format->format == VkFormat::VK_FORMAT_UNDEFINED) {
@@ -1016,7 +1016,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         result = wis::make_result<FUNC, "Failed to get surface capabilities">(vr);
         return out_swapchain;
     }
-    bool stereo = cap.maxImageArrayLayers > 1 && desc->stereo;
+    bool stereo = cap.maxImageArrayLayers > 1 && desc.stereo;
     if (stereo) {
         lib_info("Stereo mode is ativated");
     }
@@ -1033,9 +1033,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
                                                      modes.data());
 
     auto present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-    bool tearing = desc->tearing;
-    if (!desc->vsync) {
-        if (desc->tearing) {
+    bool tearing = desc.tearing;
+    if (!desc.vsync) {
+        if (desc.tearing) {
             if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0) {
                 present_mode = VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR;
             } else if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0) {
@@ -1051,17 +1051,25 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     uint8_t supported_presentation = 0;
     uint32_t compatible_modes_count = 0;
 
+    VkSwapchainPresentScalingCreateInfoEXT scaling_create_info{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .scalingBehavior = convert_vk(desc.scaling),
+        .presentGravityX = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
+        .presentGravityY = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT
+    };
+
     VkSwapchainCreateInfoKHR swap_info{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .pNext = pNext,
         .flags = 0,
         .surface = surface.get(),
-        .minImageCount = desc->buffer_count,
-        .imageFormat = convert_vk(desc->format),
+        .minImageCount = desc.buffer_count,
+        .imageFormat = convert_vk(desc.format),
         .imageColorSpace = format->colorSpace,
         .imageExtent = {
-                std::clamp(desc->size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
-                std::clamp(desc->size.height, cap.minImageExtent.height, cap.maxImageExtent.height) },
+                std::clamp(desc.size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
+                std::clamp(desc.size.height, cap.minImageExtent.height, cap.maxImageExtent.height) },
         .imageArrayLayers = layers,
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -1073,6 +1081,13 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         .clipped = true,
         .oldSwapchain = nullptr,
     };
+
+    // Check if the swapchain supports dynamic scaling
+    if (ext1.GetFeatures().dynamic_vsync) {
+        std::swap(swap_info.pNext, scaling_create_info.pNext);
+        internal.scaling = scaling_create_info.scalingBehavior;
+        swap_info.pNext = &scaling_create_info;
+    }
 
     wis::scoped_handle<VkSwapchainKHR> swapchain;
     vr = dtable.vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, swapchain.put(device.get(), dtable.vkDestroySwapchainKHR));
@@ -1112,18 +1127,18 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     }
 
     // Create semaphores
-    internal.render_completed_semaphore = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(desc->buffer_count);
+    internal.render_completed_semaphore = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(desc.buffer_count);
     if (!internal.render_completed_semaphore) {
         result = wis::make_result<FUNC, "failed to allocate render_completed_semaphore array">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_swapchain;
     }
-    internal.image_ready_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(desc->buffer_count);
+    internal.image_ready_semaphores = wis::detail::make_unique_for_overwrite<VkSemaphore[]>(desc.buffer_count);
     if (!internal.image_ready_semaphores) {
         result = wis::make_result<FUNC, "failed to allocate image_ready_semaphores array">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_swapchain;
     }
     constexpr VkSemaphoreCreateInfo semaphore_info{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-    for (uint32_t n = 0; n < desc->buffer_count; n++) {
+    for (uint32_t n = 0; n < desc.buffer_count; n++) {
         vr = dtable.vkCreateSemaphore(device.get(), &semaphore_info, nullptr, &internal.render_completed_semaphore[n]);
         if (!wis::succeeded(vr)) {
             for (uint32_t i = 0; i < n; i++) { // Cleanup
@@ -1149,7 +1164,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     for (uint32_t i = 0; i < internal.fences.size(); i++) {
         vr = dtable.vkCreateFence(device.get(), &fence_info, nullptr, &internal.fences[i]);
         if (!wis::succeeded(vr)) {
-            for (uint32_t i = 0; i < desc->buffer_count; i++) { // Cleanup (unless swapchain is set, the cleanup will not begin on internal)
+            for (uint32_t i = 0; i < desc.buffer_count; i++) { // Cleanup (unless swapchain is set, the cleanup will not begin on internal)
                 dtable.vkDestroySemaphore(device.get(), internal.render_completed_semaphore[i], nullptr);
                 dtable.vkDestroySemaphore(device.get(), internal.image_ready_semaphores[i], nullptr);
             }
@@ -1171,7 +1186,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     internal.present_mode = present_mode;
     internal.tearing = tearing;
     internal.stereo = stereo;
-    internal.stereo_requested = desc->stereo;
+    internal.stereo_requested = desc.stereo;
 
     auto rres = internal.InitBackBuffers(swap_info.imageExtent);
     if (rres.status != wis::Status::Ok) {

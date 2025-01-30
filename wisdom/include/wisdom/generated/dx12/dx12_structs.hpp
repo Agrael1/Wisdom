@@ -428,6 +428,19 @@ inline constexpr D3D12_RAYTRACING_GEOMETRY_TYPE convert_dx(ASGeometryType value)
         return D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
     }
 }
+inline constexpr DXGI_SCALING convert_dx(SwapchainScaling value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case SwapchainScaling::None:
+        return DXGI_SCALING_NONE;
+    case SwapchainScaling::Stretch:
+        return DXGI_SCALING_STRETCH;
+    case SwapchainScaling::Aspect:
+        return DXGI_SCALING_ASPECT_RATIO_STRETCH;
+    }
+}
 inline constexpr D3D12_RESOURCE_FLAGS convert_dx(BufferUsage value) noexcept
 {
     D3D12_RESOURCE_FLAGS output = {};

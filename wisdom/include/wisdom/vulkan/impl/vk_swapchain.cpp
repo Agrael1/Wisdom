@@ -264,6 +264,14 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     height = std::clamp(height, caps.minImageExtent.height, caps.maxImageExtent.height);
     stereo = stereo_requested && caps.maxImageArrayLayers > 1;
 
+    VkSwapchainPresentScalingCreateInfoEXT scaling_create_info{
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .scalingBehavior = scaling,
+        .presentGravityX = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
+        .presentGravityY = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT
+    };
+
     VkSwapchainKHR old_swapchain = swapchain;
     VkSwapchainCreateInfoKHR desc{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -285,6 +293,11 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
         .clipped = VK_TRUE,
         .oldSwapchain = old_swapchain,
     };
+
+    if (scaling != 0) {
+        std::swap(desc.pNext, scaling_create_info.pNext);
+        desc.pNext = &scaling_create_info;
+    }
 
     auto result = dtable.vkCreateSwapchainKHR(device.get(), &desc, nullptr, &swapchain);
     if (!succeeded(result)) {

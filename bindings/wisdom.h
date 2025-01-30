@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.5.0</b>
+<b>Version 0.6.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -818,6 +818,18 @@ enum WisSampleRate {
 };
 
 /**
+ * @brief Swapchain scaling mode.
+ *
+ * Translates to VkPresentScalingFlagsEXT for vk implementation.
+ * Translates to DXGI_SCALING for dx implementation.
+ * */
+enum WisSwapchainScaling {
+    SwapchainScalingNone = 0, ///< No scaling. The swapchain size is equal to the window size.
+    SwapchainScalingStretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
+    SwapchainScalingAspect = 2, ///< Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
+};
+
+/**
  * @brief Comparison function for depth and stencil operations.
  *
  * Translates to D3D12_COMPARISON_FUNC for dx implementation.
@@ -1514,6 +1526,7 @@ typedef enum WisFillMode WisFillMode;
 typedef enum WisDescriptorMemory WisDescriptorMemory;
 typedef enum WisWindingOrder WisWindingOrder;
 typedef enum WisSampleRate WisSampleRate;
+typedef enum WisSwapchainScaling WisSwapchainScaling;
 typedef enum WisCompare WisCompare;
 typedef enum WisStencilOp WisStencilOp;
 typedef enum WisBlendFactor WisBlendFactor;
@@ -1754,6 +1767,7 @@ struct WisSwapchainDesc {
     bool stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
     bool vsync; ///< VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with DeviceFeatureDynamicVSync.
     bool tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
+    WisSwapchainScaling scaling; ///< Swapchain scaling mode.
 };
 
 /**

@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.5.0</b>
+<b>Version 0.6.2</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -861,6 +861,18 @@ enum class SampleRate : uint32_t {
 };
 
 /**
+ * @brief Swapchain scaling mode.
+ *
+ * Translates to VkPresentScalingFlagsEXT for vk implementation.
+ * Translates to DXGI_SCALING for dx implementation.
+ * */
+enum class SwapchainScaling : uint32_t {
+    None = 0, ///< No scaling. The swapchain size is equal to the window size.
+    Stretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
+    Aspect = 2, ///< Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
+};
+
+/**
  * @brief Comparison function for depth and stencil operations.
  *
  * Translates to D3D12_COMPARISON_FUNC for dx implementation.
@@ -1677,6 +1689,7 @@ struct SwapchainDesc {
     bool stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
     bool vsync; ///< VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with wis::DeviceFeature::DynamicVSync.
     bool tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
+    wis::SwapchainScaling scaling; ///< Swapchain scaling mode.
 };
 
 /**
