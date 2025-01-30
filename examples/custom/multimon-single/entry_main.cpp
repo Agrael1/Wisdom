@@ -16,8 +16,8 @@ class App
     wis::Texture cover_texture;
     wis::RenderTarget cover_target;
 
-    wis::Size3D size_swap[kMonCount] {};
-    wis::Size3D offset_swap[kMonCount] {};
+    wis::Size3D size_swap[kMonCount]{};
+    wis::Size3D offset_swap[kMonCount]{};
 
     // Swapchains
     wis::SwapChain swap[kMonCount];
@@ -86,13 +86,13 @@ public:
         auto& queue = setup.queue;
 
         cmd.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::None,
-            .sync_after = wis::BarrierSync::None,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::NoAccess,
-            .state_before = wis::TextureState::Undefined,
-            .state_after = wis::TextureState::CopySource },
-        cover_texture);
+                { .sync_before = wis::BarrierSync::None,
+                  .sync_after = wis::BarrierSync::None,
+                  .access_before = wis::ResourceAccess::NoAccess,
+                  .access_after = wis::ResourceAccess::NoAccess,
+                  .state_before = wis::TextureState::Undefined,
+                  .state_after = wis::TextureState::CopySource },
+                cover_texture);
 
         cmd.Close();
 
@@ -162,12 +162,11 @@ public:
 
         // ------------------------------
         // Second pass
-        wis::RenderPassRenderTargetDesc targets2[] {
-            {   .target = cover_target,
-                .load_op = wis::LoadOperation::Clear,
-                .store_op = wis::StoreOperation::Store,
-                .clear_value = { 0.5f, 0.5f, 0.5f, 1.0f }
-            }
+        wis::RenderPassRenderTargetDesc targets2[]{
+            { .target = cover_target,
+              .load_op = wis::LoadOperation::Clear,
+              .store_op = wis::StoreOperation::Store,
+              .clear_value = { 0.5f, 0.5f, 0.5f, 1.0f } }
         };
         wis::RenderPassDesc rp2{
             .target_count = 1,
@@ -182,13 +181,13 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::None,
-            .sync_after = wis::BarrierSync::RenderTarget,
-            .access_before = wis::ResourceAccess::NoAccess,
-            .access_after = wis::ResourceAccess::RenderTarget,
-            .state_before = wis::TextureState::CopySource,
-            .state_after = wis::TextureState::RenderTarget },
-        cover_texture);
+                { .sync_before = wis::BarrierSync::None,
+                  .sync_after = wis::BarrierSync::RenderTarget,
+                  .access_before = wis::ResourceAccess::NoAccess,
+                  .access_after = wis::ResourceAccess::RenderTarget,
+                  .state_before = wis::TextureState::CopySource,
+                  .state_after = wis::TextureState::RenderTarget },
+                cover_texture);
 
         cmd2.BeginRenderPass(&rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
@@ -215,36 +214,36 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-        {   .sync_before = wis::BarrierSync::Draw,
-            .sync_after = wis::BarrierSync::Copy,
-            .access_before = wis::ResourceAccess::RenderTarget,
-            .access_after = wis::ResourceAccess::CopySource,
-            .state_before = wis::TextureState::RenderTarget,
-            .state_after = wis::TextureState::CopySource },
-        cover_texture);
+                { .sync_before = wis::BarrierSync::Draw,
+                  .sync_after = wis::BarrierSync::Copy,
+                  .access_before = wis::ResourceAccess::RenderTarget,
+                  .access_after = wis::ResourceAccess::CopySource,
+                  .state_before = wis::TextureState::RenderTarget,
+                  .state_after = wis::TextureState::CopySource },
+                cover_texture);
 
         for (size_t i = 0; i < kMonCount; i++) {
             cmd2.TextureBarrier(
-            {   .sync_before = wis::BarrierSync::None,
-                .sync_after = wis::BarrierSync::Copy,
-                .access_before = wis::ResourceAccess::NoAccess,
-                .access_after = wis::ResourceAccess::CopyDest,
-                .state_before = wis::TextureState::Present,
-                .state_after = wis::TextureState::CopyDest },
-            textures[i][frame_index[i]]);
+                    { .sync_before = wis::BarrierSync::None,
+                      .sync_after = wis::BarrierSync::Copy,
+                      .access_before = wis::ResourceAccess::NoAccess,
+                      .access_after = wis::ResourceAccess::CopyDest,
+                      .state_before = wis::TextureState::Present,
+                      .state_after = wis::TextureState::CopyDest },
+                    textures[i][frame_index[i]]);
         }
 
         // copy the cover texture to the swapchain render target
         for (size_t i = 0; i < kMonCount; i++) {
             wis::TextureCopyRegion region{
                 .src = {
-                    .offset = offset_swap[i],
-                    .size = size_swap[i],
-                    .format = ex::swapchain_format,
+                        .offset = offset_swap[i],
+                        .size = size_swap[i],
+                        .format = ex::swapchain_format,
                 },
                 .dst = {
-                    .size = size_swap[i],
-                    .format = ex::swapchain_format,
+                        .size = size_swap[i],
+                        .format = ex::swapchain_format,
                 },
             };
             cmd2.CopyTexture(cover_texture, textures[i][frame_index[i]], &region, 1);
@@ -252,13 +251,13 @@ public:
 
         for (size_t i = 0; i < kMonCount; i++) {
             cmd2.TextureBarrier(
-            {   .sync_before = wis::BarrierSync::Copy,
-                .sync_after = wis::BarrierSync::Draw,
-                .access_before = wis::ResourceAccess::CopyDest,
-                .access_after = wis::ResourceAccess::Common,
-                .state_before = wis::TextureState::CopyDest,
-                .state_after = wis::TextureState::Present },
-            textures[i][frame_index[i]]);
+                    { .sync_before = wis::BarrierSync::Copy,
+                      .sync_after = wis::BarrierSync::Draw,
+                      .access_before = wis::ResourceAccess::CopyDest,
+                      .access_after = wis::ResourceAccess::Common,
+                      .state_before = wis::TextureState::CopyDest,
+                      .state_after = wis::TextureState::Present },
+                    textures[i][frame_index[i]]);
         }
 
         // End recording
@@ -285,7 +284,7 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::PushConstant root_constants[] {
+        wis::PushConstant root_constants[]{
             { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
         };
         wis::DescriptorBindingDesc bindings[] = {
@@ -304,15 +303,15 @@ public:
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
                 .input_layout = {
-                    .slots = input_slots,
-                    .slot_count = 1,
-                    .attributes = input_attributes,
-                    .attribute_count = 1,
+                        .slots = input_slots,
+                        .slot_count = 1,
+                        .attributes = input_attributes,
+                        .attribute_count = 1,
                 },
                 .shaders = { .vertex = vs, .pixel = ps },
                 .attachments = {
-                    .attachment_formats = { ex::swapchain_format },
-                    .attachments_count = 1,
+                        .attachment_formats = { ex::swapchain_format },
+                        .attachments_count = 1,
                 },
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -325,7 +324,7 @@ public:
                 { 0.5f, -0.5f, 0.0f },
                 { -0.5f, -0.5f, 0.0f }
             };
-            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3> { triangle_vertices }, wis::BufferUsage::VertexBuffer);
+            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3>{ triangle_vertices }, wis::BufferUsage::VertexBuffer);
         }
 
         // Create constant buffer
