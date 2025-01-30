@@ -16,7 +16,7 @@
   - Added Raytracing support for DXR and VK_KHR_ray_tracing
   - Added compute pipeline and compute functions to the device and command list
   - Added more bindings to the Descriptor storage
-	
+
 - 0.5.0 API stabilization
 
   - Most of the API is now stable and will not change
