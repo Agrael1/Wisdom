@@ -118,9 +118,8 @@ namespace platform {
 class VKWindowsExtension : public QueryInternalExtension<VKWindowsExtension, wis::VKFactoryExtensionImpl<VKWindowsExtension>>
 {
 public:
-    static constexpr std::array<const char* const, 3> required_extensions = {
-        VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-        VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME
+    static constexpr std::array<const char* const, 1> required_extensions = {
+        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
     };
 
     [[nodiscard]] wis::Result
