@@ -206,6 +206,7 @@ Only one set can be created per shader stage.">
       <member type="bool" name="stereo" doc="Stereo mode enable. If there is no stereo in the system will be ignored."/>
       <member type="bool" name="vsync" doc="VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with {DeviceFeature::DynamicVSync}."/>
       <member type="bool" name="tearing" doc="Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored."/>
+      <member type="SwapchainScaling" name="scaling" doc="Swapchain scaling mode."/>
     </type>
 
     <type name="TextureDesc" category="struct" doc="Texture description for {Texture::} creation.">

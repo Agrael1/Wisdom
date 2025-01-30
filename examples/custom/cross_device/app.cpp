@@ -98,7 +98,7 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
         .vsync = false,
         .tearing = false,
     };
-    auto [result, swap] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, &desc, wnd.GetHandle());
+    auto [result, swap] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, desc, wnd.GetHandle());
     if (result.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create swapchain");
     }

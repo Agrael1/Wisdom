@@ -95,13 +95,13 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
         .tearing = false,
     };
 
-    auto [result, swap] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, &desc, wnd.GetHandle());
+    auto [result, swap] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, desc, wnd.GetHandle());
     if (result.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create swapchain");
     }
 
     desc.size = { uint32_t(wnd2.GetWidth()), uint32_t(wnd2.GetHeight()) };
-    auto [result2, swap2] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, &desc, wnd2.GetHandle());
+    auto [result2, swap2] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, desc, wnd2.GetHandle());
     if (result2.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create swapchain");
     }

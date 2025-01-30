@@ -138,7 +138,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface, const SwapchainDesc* desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
+    VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface, const SwapchainDesc& desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
 
 protected:
     [[nodiscard]] WIS_INLINE wis::shared_handle<VmaAllocator>

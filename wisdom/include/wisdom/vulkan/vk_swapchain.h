@@ -28,6 +28,7 @@ struct VKSwapChainCreateInfo {
     uint64_t present_id = 0;
 
     uint32_t back_buffer_count = 0;
+    VkPresentScalingFlagsEXT scaling{}; 
     mutable uint32_t present_index = 0;
     mutable VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 

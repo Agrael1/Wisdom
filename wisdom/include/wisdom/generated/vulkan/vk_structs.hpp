@@ -766,6 +766,19 @@ inline constexpr VkGeometryTypeKHR convert_vk(ASGeometryType value) noexcept
         return VK_GEOMETRY_TYPE_AABBS_KHR;
     }
 }
+inline constexpr VkPresentScalingFlagsEXT convert_vk(SwapchainScaling value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case SwapchainScaling::None:
+        return VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT;
+    case SwapchainScaling::Stretch:
+        return VK_PRESENT_SCALING_STRETCH_BIT_EXT;
+    case SwapchainScaling::Aspect:
+        return VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT;
+    }
+}
 inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
 {
     VkBufferUsageFlags output = {};

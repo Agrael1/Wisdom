@@ -50,6 +50,20 @@ public:
     {
         window = SDL_CreateWindow(title, width, height, SDL_WINDOW_RESIZABLE);
     }
+    Window(const char* title, int x, int y, int width, int height, SDL_WindowFlags flags)
+    {
+        SDL_PropertiesID props = SDL_CreateProperties();
+        if (title && *title) {
+            SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, title);
+        }
+        SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, x);
+        SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, y);
+        SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
+        SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
+        SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+        window = SDL_CreateWindowWithProperties(props);
+        SDL_DestroyProperties(props);
+    }
     ~Window()
     {
         SDL_DestroyWindow(window);
@@ -65,6 +79,7 @@ public:
         return _platform.get();
     }
     wis::SwapChain CreateSwapchain(wis::Result& result, ex::ExampleSetup& setup, wis::DataFormat fmt = ex::swapchain_format, bool stereo = false);
+    wis::SwapChain CreateSwapchain(wis::Result& result, ex::PlatformExtension& external_ext, ex::ExampleSetup& setup, wis::DataFormat fmt = ex::swapchain_format, bool stereo = false);
 
     void PostQuit();
     ex::WindowEvent PollEvents();

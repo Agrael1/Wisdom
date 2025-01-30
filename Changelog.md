@@ -1,5 +1,10 @@
 # Version History
 
+- 0.6.3 Swapchain extension
+
+  - Added support for VK_EXT_swapchain_maintenance1 extension
+  - Added scaling to the swapchain creation. Default is 1:1
+
 - 0.6.1 - 0.6.2 Nuget package update
 
   - Fixed Vulkan headers in the Nuget package

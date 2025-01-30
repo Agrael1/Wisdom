@@ -1247,6 +1247,23 @@ Platform extension values start from 2049
       </value>
     </type>
 
+    <type name="SwapchainScaling" category="enum" type="u32" doc="Swapchain scaling mode.">
+      <impl_type for="vk" name="VkPresentScalingFlagsEXT"/>
+      <impl_type for="dx" name="DXGI_SCALING"/>
+      <value name="None" value="0" doc="No scaling. The swapchain size is equal to the window size.">
+        <impl name="dx" value="DXGI_SCALING_NONE"/>
+        <impl name="vk" value="VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT"/>
+      </value>
+      <value name="Stretch" value="1" doc="Stretch scaling. The swapchain size is stretched to the window size.">
+        <impl name="dx" value="DXGI_SCALING_STRETCH"/>
+        <impl name="vk" value="VK_PRESENT_SCALING_STRETCH_BIT_EXT"/>
+      </value>
+      <value name="Aspect" value="2" doc="Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.">
+        <impl name="dx" value="DXGI_SCALING_ASPECT_RATIO_STRETCH"/>
+        <impl name="vk" value="VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT"/>
+      </value>
+    </type>
+
     <!--Bitmasks-->
     <type name="AdapterFlags" category="bitmask" doc="Flags that describe adapter.">
       <value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
