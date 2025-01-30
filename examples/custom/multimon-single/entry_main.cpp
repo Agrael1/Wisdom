@@ -357,7 +357,9 @@ private:
         std::span<SDL_Rect> bounds_span{ bounds.get(), size_t(num_displays) };
 
         // Sort bounds by x coordinate
-        std::sort(bounds_span.begin(), bounds_span.end(), [](const SDL_Rect& a, const SDL_Rect& b) { return a.x < b.x; });
+        std::sort(bounds_span.begin(), bounds_span.end(), [](const SDL_Rect& a, const SDL_Rect& b) {
+            return a.x < b.x;
+        });
 
         for (size_t i = 0; i < kMonCount; i++) {
             window[i].emplace("multimon", bounds_span[i].x, bounds_span[i].y, bounds_span[i].w, bounds_span[i].h, SDL_WINDOW_FULLSCREEN);

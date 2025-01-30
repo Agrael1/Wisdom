@@ -1083,8 +1083,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     };
 
     // Check if the swapchain supports dynamic scaling
-    if (ext1.GetFeatures().dynamic_vsync)
-    {
+    if (ext1.GetFeatures().dynamic_vsync) {
         std::swap(swap_info.pNext, scaling_create_info.pNext);
         internal.scaling = scaling_create_info.scalingBehavior;
         swap_info.pNext = &scaling_create_info;

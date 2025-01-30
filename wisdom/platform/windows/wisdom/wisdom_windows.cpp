@@ -189,7 +189,6 @@ wis::platform::VKWindowsExtension::CreateSwapchain(wis::Result& result, const VK
         return {};
     }
 
-
     wis::SharedSurface surface_handle{ surface, instance, instance_table.vkDestroySurfaceKHR };
     return device.VKCreateSwapChain(result, surface_handle, desc, std::get<0>(main_queue));
 }

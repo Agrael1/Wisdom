@@ -48,7 +48,6 @@ public:
         window_size = { uint32_t(w), uint32_t(h) };
 
         // Hook resize from HWND
-        
 
         setup.InitDefault(&platform);
 
@@ -86,7 +85,7 @@ public:
     bool ProcessEvents()
     {
         // Window events
-        //while (true) {
+        // while (true) {
         //    //auto event = window.PollEvents();
         //    switch (event) {
         //    case ex::WindowEvent::Resize: {
@@ -266,7 +265,6 @@ public:
         }
     }
 };
-
 
 int main(int argc, char** argv)
 {
