@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Prepare Vulkan SDK
-      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
       with:
          vulkan-query-version: latest
          vulkan-components: Vulkan-Headers, Vulkan-Loader
@@ -73,7 +73,7 @@ jobs:
       uses: egor-tensin/vs-shell@v2
 
     - name: Prepare Vulkan SDK
-      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
       with:
          vulkan-query-version: latest
          vulkan-components: Vulkan-Headers, Vulkan-Loader
@@ -111,7 +111,7 @@ jobs:
          uses: egor-tensin/vs-shell@v2
 
        - name: Prepare Vulkan SDK
-         uses: humbletim/setup-vulkan-sdk@v1.2.0
+         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
          with:
             vulkan-query-version: latest
             vulkan-components: Vulkan-Headers, Vulkan-Loader
