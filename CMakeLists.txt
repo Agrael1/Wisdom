@@ -20,10 +20,15 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-set(WISDOM_VERSION "0.6.3")
+set(WISDOM_VERSION "0.6.4")
 project("Wisdom" VERSION ${WISDOM_VERSION})
 
 set(CMAKE_DEBUG_POSTFIX d)
+
+# set policy CMP0169 to avoid warnings
+if(POLICY CMP0169)
+  cmake_policy(SET CMP0169 OLD)
+endif()
 
 # Additional CMake functions.
 include(cmake/platform.cmake)

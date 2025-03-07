@@ -81,10 +81,12 @@ To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wis
 
 Available targets are:
 
-- `wis::wisdom` - functional library
-- `wis::debug` - debug extension
-- `wis::extended-allocation` - extended allocation extension (direct GPU Upload)
-- `wis::platform` - platform specific extensions (Swapchain and Interop exports)
+- `wis::wisdom | wis::headers | wis::wisdom-headers` - functional library
+- `wis::debug | wis::debug-headers` - debug extension
+- `wis::extended-allocation | wis::extended-allocation-headers` - extended allocation extension (direct GPU Upload)
+- `wis::platform | wis::platform-headers` - platform specific extensions (Swapchain and Interop exports)
+- `wis::raytracing | wis::raytracing-headers` - raytracing
+- `wis::descriptor-buffer | wis::descriptor-buffer-headers` - descriptor buffer support, requires Vulkan 1.3 and GPU support for `VK_(EXT|VALVE)_mutable_descriptor_type` if used with Vulkan
 
 # System Requirements
 

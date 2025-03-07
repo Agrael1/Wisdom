@@ -1,4 +1,8 @@
 # Version History
+- 0.6.4 Cleanup
+
+  - Removed unnecessary defines that collided with other libraries
+  - Target for header only library is now `wis::headers` instead of `wis::header-only`
 
 - 0.6.3 Swapchain extension
 

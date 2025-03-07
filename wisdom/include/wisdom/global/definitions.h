@@ -6,7 +6,12 @@
 #endif // WISDOM_BUILD_BINARIES
 
 namespace wis {
-inline constexpr const bool debug_mode = DEBUG_MODE;
+#if !defined(NDEBUG) || defined(_DEBUG)
+inline constexpr const bool debug_mode = true;
+#else
+inline constexpr const bool debug_mode = false;
+#endif
+
 inline constexpr const bool debug_layer = debug_mode;
 
 inline constexpr const unsigned max_render_targets = 8u;

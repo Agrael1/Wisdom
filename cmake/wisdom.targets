@@ -13,11 +13,6 @@
       <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions>WISDOM_DX12=1;WIS_WINDOWS_PLATFORM=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
-      <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">DEBUG_MODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)'!='Debug'">DEBUG_MODE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-
-      <PreprocessorDefinitions>DEBUG_LAYER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'static'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions>WISDOM_LOG_LEVEL=$(WisdomLogLevelValue);WISVK_NO_DEFAULT_DELETER=1;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>

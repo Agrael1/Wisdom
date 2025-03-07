@@ -28,8 +28,6 @@ target_compile_features(wisdom-shared INTERFACE cxx_std_20)
 target_compile_definitions(
   wisdom-shared
   INTERFACE
-  DEBUG_MODE=$<IF:$<CONFIG:Debug>,1,0>
-  DEBUG_LAYER=$<BOOL:${WISDOM_DEBUG_LAYER}>
   WISDOM_VERSION=${WISDOM_VERSION}
   WISDOM_LOG_LEVEL=${SEV_INDEX}
   NOMINMAX
