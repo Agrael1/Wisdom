@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 namespace wis {
-// Define a FixedString class template
 template<typename Char, std::size_t N>
 struct basic_fixed_string {
 public:
@@ -12,9 +11,9 @@ public:
 
 public:
     constexpr basic_fixed_string() noexcept = default;
-    constexpr basic_fixed_string(const value_type (&str)[N + 1]) noexcept
+    constexpr basic_fixed_string(const value_type (&str)[N]) noexcept
     {
-        char_traits::copy(_data, str, N);
+        char_traits::copy(_data, str, N - 1);
     }
 
 public:
@@ -25,7 +24,7 @@ public:
 
     constexpr std::size_t size() const noexcept
     {
-        return N;
+        return N - 1;
     }
 
     constexpr const value_type* c_str() const noexcept
@@ -40,25 +39,25 @@ public:
 
     constexpr operator std::basic_string_view<value_type>() const noexcept
     {
-        return { _data, N };
+        return { _data };
     }
 
 public:
-    value_type _data[N + 1]{}; // +1 for null terminator
+    value_type _data[N]{}; // +1 for null terminator
 };
 
 // Deduction guide for FixedString
 template<std::size_t N>
-basic_fixed_string(const char (&)[N]) -> basic_fixed_string<char, N - 1>;
+basic_fixed_string(const char (&)[N - 1]) -> basic_fixed_string<char, N>;
 
 template<std::size_t N>
-basic_fixed_string(const wchar_t (&)[N]) -> basic_fixed_string<wchar_t, N - 1>;
+basic_fixed_string(const wchar_t (&)[N - 1]) -> basic_fixed_string<wchar_t, N>;
 
 template<std::size_t N>
-basic_fixed_string(const char16_t (&)[N]) -> basic_fixed_string<char16_t, N - 1>;
+basic_fixed_string(const char16_t (&)[N - 1]) -> basic_fixed_string<char16_t, N>;
 
 template<std::size_t N>
-basic_fixed_string(const char32_t (&)[N]) -> basic_fixed_string<char32_t, N - 1>;
+basic_fixed_string(const char32_t (&)[N - 1]) -> basic_fixed_string<char32_t, N>;
 
 // Define some aliases for common fixed string types
 template<std::size_t N>
@@ -77,9 +76,9 @@ using fixed_u32string = basic_fixed_string<char32_t, N>;
 template<typename Char, std::size_t N1, std::size_t N2>
 constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fixed_string<Char, N2>& rhs)
 {
-    basic_fixed_string<Char, N1 + N2> result;
-    std::char_traits<Char>::copy(result.data(), lhs.c_str(), N1);
-    std::char_traits<Char>::copy(result.data() + N1, rhs.c_str(), N2);
+    basic_fixed_string<Char, N1 + N2 - 1> result;
+    std::char_traits<Char>::copy(result.data(), lhs.c_str(), N1 - 1);
+    std::char_traits<Char>::copy(result.data() + N1 - 1, rhs.c_str(), N2);
     return result;
 }
 
