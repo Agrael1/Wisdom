@@ -1,6 +1,6 @@
 add_library(wisdom-windows-headers INTERFACE)
 add_library(wis::windows-headers ALIAS wisdom-windows-headers)
-target_link_libraries(wisdom-windows-headers INTERFACE wis::headers d3d11)
+target_link_libraries(wisdom-windows-headers INTERFACE wis::wisdom-headers d3d11)
 target_compile_definitions(wisdom-windows-headers
                            INTERFACE WIS_WINDOWS_PLATFORM=1)
 target_include_directories(

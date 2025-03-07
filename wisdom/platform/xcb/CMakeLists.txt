@@ -5,7 +5,7 @@ endif()
 
 add_library(wisdom-xcb-headers INTERFACE)
 add_library(wis::xcb-headers ALIAS wisdom-xcb-headers)
-target_link_libraries(wisdom-xcb-headers INTERFACE wis::header-only)
+target_link_libraries(wisdom-xcb-headers INTERFACE wis::wisdom-headers)
 target_compile_definitions(wisdom-xcb-headers INTERFACE WIS_XCB_PLATFORM=1)
 target_include_directories(wisdom-xcb-headers INTERFACE ${XCB_INCLUDE_DIRS})
 target_include_directories(
