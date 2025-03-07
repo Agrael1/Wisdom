@@ -4,7 +4,7 @@
 #include <wisdom/wisdom_debug.hpp>
 #include <iostream>
 #include <stb_image_write.h>
-
+#include <chrono>
 //--------------------------------------------------------------------------------------------------
 
 struct LogProvider : public wis::LogLayer {
