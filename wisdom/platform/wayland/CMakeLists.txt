@@ -5,7 +5,7 @@ endif()
 
 add_library(wisdom-wayland-headers INTERFACE)
 add_library(wis::wayland-headers ALIAS wisdom-wayland-headers)
-target_link_libraries(wisdom-wayland-headers INTERFACE wis::header-only)
+target_link_libraries(wisdom-wayland-headers INTERFACE wis::wisdom-headers)
 target_compile_definitions(wisdom-wayland-headers
                            INTERFACE WIS_WAYLAND_PLATFORM=1)
 target_include_directories(wisdom-wayland-headers

@@ -31,10 +31,10 @@ inline void check_context() noexcept
     }
 }
 
-template<wis::string_literal func, wis::string_literal message>
-constexpr inline wis::Result make_result(HRESULT hr) noexcept
+template<wis::fixed_string func, wis::fixed_string message>
+WIS_CONSTEXPR23 inline wis::Result make_result(HRESULT hr) noexcept
 {
-    static constinit auto str = wis::make_error_string<func, message>();
+    static WIS_CONSTEXPR23 auto str = wis::make_error_string<func, message>();
     return wis::Result{ convert(hr), str.c_str() };
 }
 

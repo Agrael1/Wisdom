@@ -3,19 +3,14 @@ project(wisdom VERSION ${WISDOM_VERSION})
 
 include(cmake/documentation.cmake)
 
-if(WISDOM_BUILD_BINARIES)
-  set(WISDOM_PUBLIC PUBLIC)
-else()
-  set(WISDOM_PUBLIC INTERFACE)
-endif()
-
 # load dx12 and vulkan
 include(shared.cmake)
 include(dx12.cmake)
 include(vulkan.cmake)
 
 add_library(wisdom-headers INTERFACE)
-add_library(wis::header-only ALIAS wisdom-headers)
+add_library(wis::headers ALIAS wisdom-headers)
+add_library(wis::wisdom-headers ALIAS wisdom-headers)
 
 add_library(wisdom INTERFACE)
 add_library(wis::wisdom ALIAS wisdom)

@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(AdditionalIncludeDirectoriesVK);$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(MSBuildThisFileDirectory)..\..\include\wisvk;$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="Exists('$(WisdomVulkanSDKPath)')">$(WisdomVulkanSDKPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -12,11 +13,6 @@
 
       <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions>WISDOM_DX12=1;WIS_WINDOWS_PLATFORM=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-
-      <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">DEBUG_MODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)'!='Debug'">DEBUG_MODE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-
-      <PreprocessorDefinitions>DEBUG_LAYER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'static'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>

@@ -12,14 +12,14 @@ inline bool succeeded(VkResult hr) noexcept
     return hr >= 0;
 }
 
-template<string_literal func, wis::string_literal message>
+template<wis::fixed_string func, wis::fixed_string message>
 inline wis::Result make_result(VkResult hr) noexcept
 {
     static auto str = wis::make_error_string<func, message>();
     return wis::Result{ convert_vk(hr), str.c_str() };
 }
 
-template<wis::string_literal message>
+template<wis::fixed_string message>
 constexpr inline wis::Result make_result(VkResult hr) noexcept
 {
     return wis::Result{ convert_vk(hr), message.c_str() };
