@@ -3,105 +3,89 @@
 #include <stdexcept>
 
 namespace wis {
-template<class _CharTy, size_t N, class _Traits = std::char_traits<_CharTy>>
-class basic_string_literal
-{
+// Define a FixedString class template
+template<typename Char, std::size_t N>
+struct basic_fixed_string {
 public:
-    static_assert(std::is_same_v<_CharTy, typename _Traits::char_type>,
-                  "Bad char_traits for basic_string_literal");
-
-    using traits_type = _Traits;
-    using value_type = _CharTy;
-    using pointer_type = _CharTy*;
-    using const_pointer = const value_type*;
+    using value_type = std::remove_cv_t<Char>;
+    using char_traits = std::char_traits<value_type>;
 
 public:
-    constexpr basic_string_literal() = default;
-    constexpr basic_string_literal(const value_type (&str)[N])
+    constexpr basic_fixed_string() noexcept = default;
+    constexpr basic_fixed_string(const value_type (&str)[N + 1]) noexcept
     {
-        traits_type::copy(value, str, N);
-    }
-    constexpr operator std::basic_string_view<_CharTy>() const noexcept
-    {
-        return std::basic_string_view<_CharTy>(value, N);
+        char_traits::copy(_data, str, N);
     }
 
 public:
-    constexpr auto size_bytes() const noexcept
+    constexpr operator const value_type*() const noexcept
     {
-        return N * sizeof(_CharTy);
-    }
-    constexpr auto size() const noexcept
-    {
-        return traits_type::length(value);
-    }
-    constexpr auto length() const noexcept
-    {
-        return traits_type::length(value);
-    }
-    constexpr const_pointer c_str() const noexcept
-    {
-        return &value[0];
-    }
-    constexpr pointer_type data() noexcept
-    {
-        return &value[0];
-    }
-    constexpr value_type operator[](size_t i) const noexcept
-    {
-        if constexpr (std::is_constant_evaluated())
-            static_assert(i > N, "Index out of bounds");
-        return value[i];
-    }
-    constexpr value_type& operator[](size_t i) noexcept
-    {
-        return value[i];
-    }
-    constexpr auto& append(const_pointer s)
-    {
-        return append(s, traits_type::length(s));
-    }
-    constexpr auto* end() noexcept
-    {
-        return data() + size();
-    }
-    constexpr auto& append(const_pointer s, size_t count)
-    {
-        const auto curr_size = size();
-        if (count > N - curr_size)
-            throw std::length_error(
-                    "count > max_size() - size()");
-        traits_type::copy(end(), s, count);
-        return *this;
+        return _data;
     }
 
-    value_type value[N]{};
+    constexpr std::size_t size() const noexcept
+    {
+        return N;
+    }
+
+    constexpr const value_type* c_str() const noexcept
+    {
+        return _data;
+    }
+
+    constexpr value_type* data() noexcept
+    {
+        return _data;
+    }
+
+    constexpr operator std::basic_string_view<value_type>() const noexcept
+    {
+        return { _data, N };
+    }
+
+public:
+    value_type _data[N + 1]{}; // +1 for null terminator
 };
 
-template<size_t N>
-using string_literal = basic_string_literal<char, N>;
+// Deduction guide for FixedString
+template<std::size_t N>
+basic_fixed_string(const char (&)[N]) -> basic_fixed_string<char, N - 1>;
 
-template<size_t size>
-inline constexpr string_literal<size> from_string(const char* ptr)
-{
-    string_literal<size> value;
-    basic_string_literal<char, size>::traits_type::copy(value.value, ptr, size);
-    return value;
-}
+template<std::size_t N>
+basic_fixed_string(const wchar_t (&)[N]) -> basic_fixed_string<wchar_t, N - 1>;
 
-template<size_t size1, size_t size2>
-inline constexpr string_literal<size1 + size2 - 1> operator+(const string_literal<size1>& lhs,
-                                                             const string_literal<size2>& rhs)
+template<std::size_t N>
+basic_fixed_string(const char16_t (&)[N]) -> basic_fixed_string<char16_t, N - 1>;
+
+template<std::size_t N>
+basic_fixed_string(const char32_t (&)[N]) -> basic_fixed_string<char32_t, N - 1>;
+
+// Define some aliases for common fixed string types
+template<std::size_t N>
+using fixed_string = basic_fixed_string<char, N>;
+
+template<std::size_t N>
+using fixed_wstring = basic_fixed_string<wchar_t, N>;
+
+template<std::size_t N>
+using fixed_u16string = basic_fixed_string<char16_t, N>;
+
+template<std::size_t N>
+using fixed_u32string = basic_fixed_string<char32_t, N>;
+
+// Addition operator
+template<typename Char, std::size_t N1, std::size_t N2>
+constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fixed_string<Char, N2>& rhs)
 {
-    string_literal<size1 + size2 - 1> value;
-    basic_string_literal<char, size1>::traits_type::copy(value.value, lhs.value, size1 - 1);
-    basic_string_literal<char, size2>::traits_type::copy(value.value + size1 - 1, rhs.value, size2);
-    return value;
+    basic_fixed_string<Char, N1 + N2> result;
+    std::char_traits<Char>::copy(result.data(), lhs.c_str(), N1);
+    std::char_traits<Char>::copy(result.data() + N1, rhs.c_str(), N2);
+    return result;
 }
 
 inline namespace literals {
-template<wis::string_literal lit>
-constexpr auto operator""_sl()
+template<wis::fixed_string lit>
+constexpr auto operator""_fs()
 {
     return lit;
 }

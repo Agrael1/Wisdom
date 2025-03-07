@@ -11,10 +11,10 @@
 
 namespace wis {
 
-template<wis::string_literal func, wis::string_literal message>
+template<wis::fixed_string func, wis::fixed_string message>
 consteval inline auto make_error_string()
 {
     using namespace wis::literals;
-    return "Error in "_sl + func + ": "_sl + message;
+    return "Error in "_fs + func + ": "_fs + message;
 }
 } // namespace wis

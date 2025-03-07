@@ -5,6 +5,13 @@
 #define WIS_INLINE inline
 #endif // WISDOM_BUILD_BINARIES
 
+// C++23 and later
+#if __cplusplus > 202211L
+#define WIS_CONSTEXPR23 constexpr
+#else
+#define WIS_CONSTEXPR23
+#endif
+
 namespace wis {
 #if !defined(NDEBUG) || defined(_DEBUG)
 inline constexpr const bool debug_mode = true;
