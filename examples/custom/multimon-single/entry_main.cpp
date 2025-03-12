@@ -189,7 +189,7 @@ public:
                   .state_after = wis::TextureState::RenderTarget },
                 cover_texture);
 
-        cmd2.BeginRenderPass(&rp2);
+        cmd2.BeginRenderPass(rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
 
         // Bind descriptor storage

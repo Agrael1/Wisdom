@@ -834,7 +834,6 @@ wis::ImplDX12Device::CreateDescriptorStorage(wis::Result& result,
 
     for (uint32_t i = 0; i < descriptor_bindings_count; ++i) {
         auto& desc = descriptor_bindings[i];
-        D3D12_CPU_DESCRIPTOR_HANDLE handle;
         if (desc.binding_type == wis::DescriptorType::Sampler) {
             internal.heap_offsets[i] = sampler_start;
             sampler_start.offset_in_bytes += desc.binding_count * internal.heap_sampler_increment;

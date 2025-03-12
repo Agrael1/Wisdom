@@ -559,7 +559,7 @@ Default is 0. 0 means regular rendering."/>
 Value must be the same as in {GraphicsPipelineDesc::view_mask} upon pipeline creation. Otherwise behavior is undefined.
 Default is 0. 0 means regular rendering."/>
         <member type="u32" name="target_count" doc="Render target count."/>
-        <member type="RenderPassRenderTargetDesc" name="targets" mod="const ptr" default="nullptr" doc="Render target descriptions."/>
+        <member type="RenderPassRenderTargetDesc" name="targets" mod="const ptr" default="nullptr" doc="Render target descriptions. Max is 8 render targets."/>
         <member type="RenderPassDepthStencilDesc" name="depth_stencil" mod="const ptr" default="nullptr" doc="Depth stencil description."/>
       </impl>
     </type>

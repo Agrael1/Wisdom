@@ -461,7 +461,7 @@ void WorkNode::Frame()
         .target_count = 1,
         .targets = &rprtdesc,
     };
-    cmd_list.BeginRenderPass(&rpdesc);
+    cmd_list.BeginRenderPass(rpdesc);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     cmd_list.SetRootSignature(root);
 

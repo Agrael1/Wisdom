@@ -128,7 +128,7 @@ struct VKRenderPassDesc {
      * */
     uint32_t view_mask = 0;
     uint32_t target_count; ///< Render target count.
-    const wis::VKRenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    const wis::VKRenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions. Max is 8 render targets.
     const wis::VKRenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 

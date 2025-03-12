@@ -466,7 +466,7 @@ void TransferNode::Frame()
         .target_count = 1,
         .targets = &rprtdesc,
     };
-    cmd_list.BeginRenderPass(&rpdesc);
+    cmd_list.BeginRenderPass(rpdesc);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     cmd_list.RSSetViewport({ 0, 0, float(frame_size[0].width), float(frame_size[0].height), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, int(frame_size[0].width), int(frame_size[0].height) });
@@ -485,7 +485,7 @@ void TransferNode::Frame()
 
     // Render Pass 2
     rprtdesc.target = render_targets[1][index[1]];
-    cmd_list.BeginRenderPass(&rpdesc);
+    cmd_list.BeginRenderPass(rpdesc);
     cmd_list.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     cmd_list.RSSetViewport({ 0, 0, float(frame_size[1].width), float(frame_size[1].height), 0, 1 });
     cmd_list.RSSetScissor({ 0, 0, int(frame_size[1].width), int(frame_size[1].height) });

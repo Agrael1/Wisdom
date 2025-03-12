@@ -86,18 +86,17 @@ public:
     }
 
 public:
-    void
-    BuildBottomLevelAS(wis::VKCommandListView cmd_buffer,
-                       const wis::VKBottomLevelASBuildDesc& blas_desc,
-                       wis::VKAccelerationStructureView dst_acceleration_structure,
-                       uint64_t scratch_buffer_gpu_address,
-                       wis::VKAccelerationStructureView src_acceleration_structure = {}) const noexcept;
+    void WIS_INLINE BuildBottomLevelAS(wis::VKCommandListView cmd_buffer,
+                                       const wis::VKBottomLevelASBuildDesc& blas_desc,
+                                       wis::VKAccelerationStructureView dst_acceleration_structure,
+                                       uint64_t scratch_buffer_gpu_address,
+                                       wis::VKAccelerationStructureView src_acceleration_structure = {}) const noexcept;
 
-    void BuildTopLevelAS(wis::VKCommandListView cmd_buffer,
-                         const wis::TopLevelASBuildDesc& tlas_desc,
-                         wis::VKAccelerationStructureView dst_acceleration_structure,
-                         uint64_t scratch_buffer_gpu_address,
-                         wis::VKAccelerationStructureView src_acceleration_structure = {}) const noexcept;
+    void WIS_INLINE BuildTopLevelAS(wis::VKCommandListView cmd_buffer,
+                                    const wis::TopLevelASBuildDesc& tlas_desc,
+                                    wis::VKAccelerationStructureView dst_acceleration_structure,
+                                    uint64_t scratch_buffer_gpu_address,
+                                    wis::VKAccelerationStructureView src_acceleration_structure = {}) const noexcept;
 
     void SetPipelineState(wis::VKCommandListView cmd_list, wis::VKRaytracingPipelineView pipeline) const noexcept
     {

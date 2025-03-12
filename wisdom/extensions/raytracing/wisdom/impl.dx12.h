@@ -188,7 +188,7 @@ public:
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .RaytracingAccelerationStructure = { std::get<0>(as) }
         };
-        auto handle = D3D12_CPU_DESCRIPTOR_HANDLE(internal.heap_cpu_starts[0].ptr + internal.heap_offsets[binding_set].offset_in_bytes);
+        auto handle = std::get<0>(storage)->DX12GetResourceCPUDescriptorHandle(binding_set, index);
         shared_device->CreateShaderResourceView(nullptr, &desc, handle);
     }
 };

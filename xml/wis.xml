@@ -406,7 +406,7 @@ Note, the resulting Texture must be destroyed before Memory backing it up.">
     </func>
 
     <func for="CommandList" name="BeginRenderPass" doc="Begins the render pass.">
-      <arg type="RenderPassDesc" name="pass_desc" mod="const ptr" doc="The description of the render pass to begin."/>
+      <arg type="RenderPassDesc" name="pass_desc" mod="const ref" doc="The description of the render pass to begin."/>
     </func>
 
     <func for="CommandList" name="EndRenderPass" doc="Ends the render pass."/>
