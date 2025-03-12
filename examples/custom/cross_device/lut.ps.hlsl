@@ -78,6 +78,6 @@ float4 main(PSQuadIn ps_in) : SV_Target0
     float4 color = tex.Sample(sampler_point, ps_in.texcoord);
     float3 color3 = color.rgb;
 
-    float3 color3_lut = color; // cscApplyLut3DTetra(color3);
+    float3 color3_lut = color.rgb; // cscApplyLut3DTetra(color3);
     return float4(color3_lut.r, color3_lut.g, color3_lut.b, color.a);
 }

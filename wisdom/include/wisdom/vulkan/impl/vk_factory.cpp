@@ -203,7 +203,7 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
                               return less_consumption(phys_adapters[a], phys_adapters[b]);
                           });
 
-        for (size_t i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
             auto& internal = adapter.adapter.GetMutableInternal();
 
@@ -213,7 +213,7 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
             adapter.index_consumption = indices_cons[i];
         }
     } else {
-        for (size_t i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < count; i++) {
             auto& adapter = adapters[i];
             auto& internal = adapter.adapter.GetMutableInternal();
 

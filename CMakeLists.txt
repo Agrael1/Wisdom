@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-set(WISDOM_VERSION "0.6.4")
+set(WISDOM_VERSION "0.6.5")
 project("Wisdom" VERSION ${WISDOM_VERSION})
 
 set(CMAKE_DEBUG_POSTFIX d)

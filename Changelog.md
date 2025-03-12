@@ -1,9 +1,13 @@
 # Version History
 
-- 0.6.4 Cleanup
+- 0.6.4-0.6.5 Cleanup
 
+  - BREAKING: BeginRenderPass now accepts reference instead of pointer to the render pass. This is done to make the API more consistent with other methods.
   - Removed unnecessary defines that collided with other libraries
   - Target for header only library is now `wis::headers` instead of `wis::header-only`
+  - Fixed DX12 Index buffer offset overflow the buffer size
+  - Fixed Linker errors with Vulkan Raytracing
+  - Fixed DX12 RTAS not being written past binding 0
 
 - 0.6.3 Swapchain extension
 

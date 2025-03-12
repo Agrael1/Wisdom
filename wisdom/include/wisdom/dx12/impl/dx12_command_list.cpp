@@ -267,7 +267,7 @@ void wis::ImplDX12CommandList::TextureBarriers(const wis::DX12TextureBarrier2* b
 
 void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc& pass_desc) noexcept
 {
-    wis::detail::limited_allocator<D3D12_RENDER_PASS_RENDER_TARGET_DESC, 8> allocator(8, true);
+    std::array<D3D12_RENDER_PASS_RENDER_TARGET_DESC, 8> allocator{};
     auto* data = allocator.data();
 
     for (size_t i = 0; i < pass_desc.target_count; i++) {
@@ -452,7 +452,7 @@ void wis::ImplDX12CommandList::SetDescriptorStorage(wis::DX12DescriptorStorageVi
     uint32_t table_offset = !bool(storage.heaps[0]);
     list->SetDescriptorHeaps(table_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(storage.heaps + table_offset));
 
-    for (size_t i = 0; i < storage.heap_count; i++) {
+    for (uint32_t i = 0; i < storage.heap_count; i++) {
         auto& offset = storage.heap_offsets[i];
         auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
         list->SetGraphicsRootDescriptorTable(i + push_constant_count + push_descriptor_count, handle);
@@ -467,7 +467,7 @@ void wis::ImplDX12CommandList::SetComputeDescriptorStorage(wis::DX12DescriptorSt
     uint32_t table_offset = !bool(storage.heaps[0]);
     list->SetDescriptorHeaps(table_count, reinterpret_cast<ID3D12DescriptorHeap* const*>(storage.heaps + table_offset));
 
-    for (size_t i = 0; i < storage.heap_count; i++) {
+    for (uint32_t i = 0; i < storage.heap_count; i++) {
         auto& offset = storage.heap_offsets[i];
         auto handle = D3D12_GPU_DESCRIPTOR_HANDLE(storage.heap_gpu_starts[offset.sampler].ptr + offset.offset_in_bytes);
         list->SetComputeRootDescriptorTable(i + push_constant_count + push_descriptor_count, handle);

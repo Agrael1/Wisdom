@@ -520,7 +520,7 @@ void wis::ImplVKCommandList::VKSetDescriptorStorage(wis::VKDescriptorStorageView
     device.table().vkCmdBindDescriptorSets(command_list,
                                            binding_point,
                                            pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
-                                           set_span.size(), set_span.data(),
+                                           uint32_t(set_span.size()), set_span.data(),
                                            0, nullptr);
 }
 #endif // !
