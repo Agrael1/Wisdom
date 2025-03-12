@@ -536,7 +536,7 @@ extern "C" void DX12CommandListTextureBarriers(DX12CommandList self, const DX12T
 extern "C" void DX12CommandListBeginRenderPass(DX12CommandList self, const DX12RenderPassDesc* pass_desc)
 {
     auto* xself = reinterpret_cast<wis::DX12CommandList*>(self);
-    xself->BeginRenderPass(reinterpret_cast<const wis::DX12RenderPassDesc*&>(pass_desc));
+    xself->BeginRenderPass(*reinterpret_cast<const wis::DX12RenderPassDesc*>(pass_desc));
 }
 extern "C" void DX12CommandListEndRenderPass(DX12CommandList self)
 {
@@ -1358,7 +1358,7 @@ extern "C" void VKCommandListTextureBarriers(VKCommandList self, const VKTexture
 extern "C" void VKCommandListBeginRenderPass(VKCommandList self, const VKRenderPassDesc* pass_desc)
 {
     auto* xself = reinterpret_cast<wis::VKCommandList*>(self);
-    xself->BeginRenderPass(reinterpret_cast<const wis::VKRenderPassDesc*&>(pass_desc));
+    xself->BeginRenderPass(*reinterpret_cast<const wis::VKRenderPassDesc*>(pass_desc));
 }
 extern "C" void VKCommandListEndRenderPass(VKCommandList self)
 {

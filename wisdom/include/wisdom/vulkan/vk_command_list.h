@@ -86,7 +86,7 @@ public:
     // 8 textures at once max for efficiency
     WIS_INLINE void TextureBarriers(const wis::VKTextureBarrier2* barrier, uint32_t barrier_count) noexcept;
 
-    WIS_INLINE void BeginRenderPass(const wis::VKRenderPassDesc* render_targets) noexcept;
+    WIS_INLINE void BeginRenderPass(const wis::VKRenderPassDesc& render_targets) noexcept;
 
     WIS_INLINE void EndRenderPass() noexcept;
 
@@ -281,7 +281,7 @@ public:
      * @brief Begins the render pass.
      * @param pass_desc The description of the render pass to begin.
      * */
-    inline void BeginRenderPass(const wis::VKRenderPassDesc* pass_desc) noexcept
+    inline void BeginRenderPass(const wis::VKRenderPassDesc& pass_desc) noexcept
     {
         wis::ImplVKCommandList::BeginRenderPass(pass_desc);
     }

@@ -156,7 +156,7 @@ public:
                   .state_after = wis::TextureState::RenderTarget },
                 swap.GetTexture(frame_index));
 
-        cmd2.BeginRenderPass(&rp2);
+        cmd2.BeginRenderPass(rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
 
         // Bind resources

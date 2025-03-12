@@ -136,7 +136,7 @@ public:
 
         // Record commands for the first pass
         // ...
-        cmd.BeginRenderPass(&rp1);
+        cmd.BeginRenderPass(rp1);
         cmd.SetRootSignature(root); // always set root signature before binding resources
         cmd.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
         cmd.RSSetViewport({ 0, 0, 800, 800, 0, 1 });
@@ -193,7 +193,7 @@ public:
                   .state_after = wis::TextureState::RenderTarget },
                 swap.GetTexture(frame_index));
 
-        cmd2.BeginRenderPass(&rp2);
+        cmd2.BeginRenderPass(rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
 
         cmd2.SetDescriptorStorage(desc_storage);

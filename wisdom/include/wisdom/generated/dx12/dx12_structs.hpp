@@ -129,7 +129,7 @@ struct DX12RenderPassDesc {
      * */
     uint32_t view_mask = 0;
     uint32_t target_count; ///< Render target count.
-    const wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions.
+    const wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions. Max is 8 render targets.
     const wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 

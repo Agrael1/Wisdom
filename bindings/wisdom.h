@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.6.2</b>
+<b>Version 0.6.4</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -2297,7 +2297,7 @@ struct VKRenderPassDesc {
      * */
     uint32_t view_mask;
     uint32_t target_count; ///< Render target count.
-    const VKRenderPassRenderTargetDesc* targets; ///< Render target descriptions.
+    const VKRenderPassRenderTargetDesc* targets; ///< Render target descriptions. Max is 8 render targets.
     const VKRenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
 };
 
@@ -3443,7 +3443,7 @@ struct DX12RenderPassDesc {
      * */
     uint32_t view_mask;
     uint32_t target_count; ///< Render target count.
-    const DX12RenderPassRenderTargetDesc* targets; ///< Render target descriptions.
+    const DX12RenderPassRenderTargetDesc* targets; ///< Render target descriptions. Max is 8 render targets.
     const DX12RenderPassDepthStencilDesc* depth_stencil; ///< Depth stencil description.
 };
 

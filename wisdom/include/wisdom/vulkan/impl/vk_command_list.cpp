@@ -282,18 +282,17 @@ void wis::ImplVKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barri
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
 
-void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_desc) noexcept
+void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_desc) noexcept
 {
-    auto ds_selector = pass_desc->depth_stencil ? pass_desc->depth_stencil->depth_stencil_select : DSSelect::None;
+    auto ds_selector = pass_desc.depth_stencil ? pass_desc.depth_stencil->depth_stencil_select : DSSelect::None;
 
     auto& dtable = device.table();
 
-    uint32_t attachment_count = std::min(pass_desc->target_count, 8u);
-    VkRenderingAttachmentInfo data[8]{};
-    wis::Size2D extent = std::get<1>(pass_desc->targets[0].target);
+    VkRenderingAttachmentInfo data[wis::max_render_targets]{};
+    wis::Size2D extent = std::get<1>(pass_desc.targets[0].target);
 
-    for (size_t i = 0; i < pass_desc->target_count; i++) {
-        auto& target = pass_desc->targets[i];
+    for (size_t i = 0; i < pass_desc.target_count; i++) {
+        auto& target = pass_desc.targets[i];
         data[i] = VkRenderingAttachmentInfo{
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
@@ -315,14 +314,14 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
         d_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = std::get<0>(pass_desc->depth_stencil->target),
+            .imageView = std::get<0>(pass_desc.depth_stencil->target),
             .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-            .loadOp = convert_vk(pass_desc->depth_stencil->load_op_depth),
-            .storeOp = convert_vk(pass_desc->depth_stencil->store_op_depth),
+            .loadOp = convert_vk(pass_desc.depth_stencil->load_op_depth),
+            .storeOp = convert_vk(pass_desc.depth_stencil->store_op_depth),
         };
         if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             d_info.clearValue = {
-                .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
+                .depthStencil = { .depth = pass_desc.depth_stencil->clear_depth, .stencil = pass_desc.depth_stencil->clear_stencil }
             };
         }
     }
@@ -330,14 +329,14 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
         s_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = std::get<0>(pass_desc->depth_stencil->target),
+            .imageView = std::get<0>(pass_desc.depth_stencil->target),
             .imageLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL,
-            .loadOp = convert_vk(pass_desc->depth_stencil->load_op_stencil),
-            .storeOp = convert_vk(pass_desc->depth_stencil->store_op_stencil),
+            .loadOp = convert_vk(pass_desc.depth_stencil->load_op_stencil),
+            .storeOp = convert_vk(pass_desc.depth_stencil->store_op_stencil),
         };
         if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             s_info.clearValue = {
-                .depthStencil = { .depth = pass_desc->depth_stencil->clear_depth, .stencil = pass_desc->depth_stencil->clear_stencil }
+                .depthStencil = { .depth = pass_desc.depth_stencil->clear_depth, .stencil = pass_desc.depth_stencil->clear_stencil }
             };
         }
     }
@@ -345,14 +344,14 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc* pass_d
     VkRenderingInfo info{
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
         .pNext = nullptr,
-        .flags = convert_vk(pass_desc->flags),
+        .flags = convert_vk(pass_desc.flags),
         .renderArea = {
                 .offset = { 0, 0 },
                 .extent = { extent.width, extent.height },
         },
         .layerCount = 1,
-        .viewMask = pass_desc->view_mask,
-        .colorAttachmentCount = pass_desc->target_count,
+        .viewMask = pass_desc.view_mask,
+        .colorAttachmentCount = pass_desc.target_count,
         .pColorAttachments = data,
         .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,
         .pStencilAttachment = ds_selector & DSSelect::Stencil ? &s_info : nullptr,
