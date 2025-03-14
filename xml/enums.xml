@@ -1263,7 +1263,7 @@ Platform extension values start from 2049
         <impl name="vk" value="VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT"/>
       </value>
     </type>
-    
+
     <type name="ASCopyMode" category="enum" type="u32" doc="Acceleration structure copy mode.">
       <impl_type for="vk" name="VkCopyAccelerationStructureModeKHR"/>
       <impl_type for="dx" name="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE"/>

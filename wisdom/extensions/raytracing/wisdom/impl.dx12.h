@@ -41,7 +41,7 @@ public:
     [[nodiscard]] wis::RaytracingConstants
     GetRaytracingConstants() const noexcept
     {
-        return RaytracingConstants {
+        return RaytracingConstants{
             .max_recursion_depth = D3D12_RAYTRACING_MAX_DECLARABLE_TRACE_RECURSION_DEPTH,
         };
     }
@@ -136,8 +136,7 @@ public:
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
         cmd_list_i->CopyRaytracingAccelerationStructure(std::get<0>(dst),
                                                         std::get<0>(src),
-                                                        convert_dx(mode)
-            );
+                                                        convert_dx(mode));
     }
 
     void BuildTopLevelAS(wis::DX12CommandListView cmd_list,
