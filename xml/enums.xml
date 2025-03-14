@@ -1264,6 +1264,27 @@ Platform extension values start from 2049
       </value>
     </type>
 
+    <type name="ASCopyMode" category="enum" type="u32" doc="Acceleration structure copy mode.">
+      <impl_type for="vk" name="VkCopyAccelerationStructureModeKHR"/>
+      <impl_type for="dx" name="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE"/>
+      <value name="Clone" value="0" doc="Clone the acceleration structure.">
+        <impl name="vk" value="VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR"/>
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_CLONE"/>
+      </value>
+      <value name="Compact" value="1" doc="Compact the acceleration structure.">
+        <impl name="vk" value="VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR"/>
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_COMPACT"/>
+      </value>
+      <value name="Serialize" value="2" doc="Serialize the acceleration structure.">
+        <impl name="vk" value="VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR"/>
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_SERIALIZE"/>
+      </value>
+      <value name="Deserialize" value="3" doc="Deserialize the acceleration structure.">
+        <impl name="vk" value="VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR"/>
+        <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_DESERIALIZE"/>
+      </value>
+    </type>
+
     <!--Bitmasks-->
     <type name="AdapterFlags" category="bitmask" doc="Flags that describe adapter.">
       <value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>

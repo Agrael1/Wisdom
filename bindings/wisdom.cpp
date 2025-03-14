@@ -277,6 +277,13 @@ extern "C" bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature 
     ;
     return res;
 }
+extern "C" WisDeviceConstants DX12DeviceQueryDeviceConsts(DX12Device self)
+{
+    auto* xself = reinterpret_cast<wis::DX12Device*>(self);
+    auto res = xself->QueryDeviceConsts();
+    ;
+    return reinterpret_cast<WisDeviceConstants&>(res);
+}
 
 // DX12ResourceAllocator methods --
 extern "C" void DX12ResourceAllocatorDestroy(DX12ResourceAllocator self)
@@ -1098,6 +1105,13 @@ extern "C" bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feat
     auto res = xself->QueryFeatureSupport(static_cast<wis::DeviceFeature>(feature));
     ;
     return res;
+}
+extern "C" WisDeviceConstants VKDeviceQueryDeviceConsts(VKDevice self)
+{
+    auto* xself = reinterpret_cast<wis::VKDevice*>(self);
+    auto res = xself->QueryDeviceConsts();
+    ;
+    return reinterpret_cast<WisDeviceConstants&>(res);
 }
 
 // VKResourceAllocator methods --

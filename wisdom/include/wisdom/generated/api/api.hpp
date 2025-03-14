@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.6.4</b>
+<b>Version 0.6.6</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -59,6 +59,8 @@ struct HitGroupDesc;
 struct ShaderBindingTableInfo;
 struct RaytracingDispatchDesc;
 struct TextureCopyRegion;
+struct DeviceConstants;
+struct RaytracingConstants;
 
 /**
  * @brief Shader stages that can be used in the pipeline.
@@ -1252,6 +1254,19 @@ enum class DeviceExtID : uint32_t {
 };
 
 /**
+ * @brief Acceleration structure copy mode.
+ *
+ * Translates to VkCopyAccelerationStructureModeKHR for vk implementation.
+ * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE for dx implementation.
+ * */
+enum class ASCopyMode : uint32_t {
+    Clone = 0, ///< Clone the acceleration structure.
+    Compact = 1, ///< Compact the acceleration structure.
+    Serialize = 2, ///< Serialize the acceleration structure.
+    Deserialize = 3, ///< Deserialize the acceleration structure.
+};
+
+/**
  * @brief Flags that describe adapter.
  *
  * */
@@ -1553,7 +1568,8 @@ struct AdapterDesc {
     uint64_t dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
     uint64_t dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
     uint64_t shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
-    uint64_t adapter_id; ///< Adapter unique ID. Can be used to find the correct adapter.
+    uint64_t adapter_id; ///< Adapter unique ID (LUID). Can be used to find the correct adapter.
+    std::array<uint8_t, 16> adapter_uuid{}; ///< UUID of the adapter, used only with Vulkan API on systems with no LUID.
     wis::AdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 };
 
@@ -2036,6 +2052,21 @@ struct RaytracingDispatchDesc {
 struct TextureCopyRegion {
     wis::TextureRegion src; ///< Source texture region.
     wis::TextureRegion dst; ///< Destination texture region.
+};
+
+/**
+ * @brief Constants that device provide to work with it.
+ * */
+struct DeviceConstants {
+    uint32_t min_cbuffer_offset_alingnment; ///< Minimal constant buffer offset alignment.
+    uint32_t min_buffer_offset_alingnment; ///< Minimal structured or RW buffer offset alignment.
+};
+
+/**
+ * @brief Constants that device provide to work with raytracing.
+ * */
+struct RaytracingConstants {
+    uint32_t max_recursion_depth; ///< Max recursion depth for raytracing pipeline.
 };
 
 //=================================DELEGATES=================================

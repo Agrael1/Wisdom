@@ -441,6 +441,21 @@ inline constexpr DXGI_SCALING convert_dx(SwapchainScaling value) noexcept
         return DXGI_SCALING_ASPECT_RATIO_STRETCH;
     }
 }
+inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE convert_dx(ASCopyMode value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ASCopyMode::Clone:
+        return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_CLONE;
+    case ASCopyMode::Compact:
+        return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_COMPACT;
+    case ASCopyMode::Serialize:
+        return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_SERIALIZE;
+    case ASCopyMode::Deserialize:
+        return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_DESERIALIZE;
+    }
+}
 inline constexpr D3D12_RESOURCE_FLAGS convert_dx(BufferUsage value) noexcept
 {
     D3D12_RESOURCE_FLAGS output = {};

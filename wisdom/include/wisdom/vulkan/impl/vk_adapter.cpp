@@ -14,16 +14,11 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
     }
 
     auto& out_desc = *pout_desc;
+    memset(pout_desc, 0, sizeof(AdapterDesc));
     auto& instance_table = instance.table();
 
     VkPhysicalDeviceIDProperties id_props{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES,
-        .pNext = nullptr,
-        .deviceUUID = {},
-        .driverUUID = {},
-        .deviceLUID = {},
-        .deviceNodeMask = 0,
-        .deviceLUIDValid = false,
     };
     VkPhysicalDeviceProperties2 properties{
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
@@ -75,7 +70,11 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
     out_desc.dedicated_video_memory = local_mem;
     out_desc.dedicated_system_memory = 0;
     out_desc.shared_system_memory = system_mem;
-    out_desc.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID);
+
+    if (id_props.deviceLUIDValid) {
+        out_desc.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID);
+    }
+    std::memcpy(out_desc.adapter_uuid.data(), id_props.deviceUUID, sizeof(out_desc.adapter_uuid));
     out_desc.flags = wis::AdapterFlags(flag);
     return wis::success;
 }

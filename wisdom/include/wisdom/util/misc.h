@@ -23,10 +23,11 @@ template<class Type, class... Types, std::enable_if_t<!std::is_array_v<Type>, in
     return std::unique_ptr<Type>(new (std::nothrow) Type(std::forward<Types>(Args)...));
 }
 
-template<std::integral I>
-constexpr inline I aligned_size(I size, I alignment) noexcept
+template<std::integral I, std::integral A>
+constexpr inline I aligned_size(I size, A alignment) noexcept
 {
-    return (size + alignment - 1) & ~(alignment - 1);
+    using U = std::make_unsigned_t<I>;
+    return I(size + U(alignment) - 1) & ~U(alignment - 1);
 }
 
 template<typename T>
@@ -91,3 +92,7 @@ template<typename T>
     return { make_unique_for_overwrite<T[]>(size), size };
 }
 } // namespace wis::detail
+
+namespace wis {
+using detail::aligned_size;
+} // namespace wis

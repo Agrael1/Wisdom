@@ -38,6 +38,14 @@ public:
     }
 
 public:
+    [[nodiscard]] wis::RaytracingConstants
+    GetRaytracingConstants() const noexcept
+    {
+        return RaytracingConstants{
+            .max_recursion_depth = D3D12_RAYTRACING_MAX_DECLARABLE_TRACE_RECURSION_DEPTH,
+        };
+    }
+
     [[nodiscard]] wis::ASAllocationInfo
     GetTopLevelASSize(const wis::TopLevelASBuildDesc& tlas_desc) const noexcept
     {
@@ -123,6 +131,14 @@ public:
         cmd_list_i->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
     }
 
+    void CopyAccelerationStructure(wis::DX12CommandListView cmd_list, wis::DX12AccelerationStructureView dst, wis::DX12AccelerationStructureView src, wis::ASCopyMode mode) const noexcept
+    {
+        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
+        cmd_list_i->CopyRaytracingAccelerationStructure(std::get<0>(dst),
+                                                        std::get<0>(src),
+                                                        convert_dx(mode));
+    }
+
     void BuildTopLevelAS(wis::DX12CommandListView cmd_list,
                          const wis::TopLevelASBuildDesc& tlas_desc,
                          wis::DX12AccelerationStructureView dst_acceleration_structure,
@@ -179,7 +195,7 @@ public:
         cmd_list_i->DispatchRays(&dispatch_desc);
     }
 
-    void WriteAccelerationStructure(wis::DX12DescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::DX12AccelerationStructureView as) noexcept
+    void WriteAccelerationStructure(wis::DX12DescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::DX12AccelerationStructureView as) const noexcept
     {
         auto& internal = std::get<0>(storage)->GetInternal();
         D3D12_SHADER_RESOURCE_VIEW_DESC desc{

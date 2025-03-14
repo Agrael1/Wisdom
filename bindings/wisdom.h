@@ -6,7 +6,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.6.4</b>
+<b>Version 0.6.6</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1208,6 +1208,19 @@ enum WisDeviceExtID {
     DeviceExtIDExtendedAllocation = 2,
 };
 
+/**
+ * @brief Acceleration structure copy mode.
+ *
+ * Translates to VkCopyAccelerationStructureModeKHR for vk implementation.
+ * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE for dx implementation.
+ * */
+enum WisASCopyMode {
+    ASCopyModeClone = 0, ///< Clone the acceleration structure.
+    ASCopyModeCompact = 1, ///< Compact the acceleration structure.
+    ASCopyModeSerialize = 2, ///< Serialize the acceleration structure.
+    ASCopyModeDeserialize = 3, ///< Deserialize the acceleration structure.
+};
+
 //-------------------------------------------------------------------------
 
 /**
@@ -1508,6 +1521,8 @@ typedef struct WisHitGroupDesc WisHitGroupDesc;
 typedef struct WisShaderBindingTableInfo WisShaderBindingTableInfo;
 typedef struct WisRaytracingDispatchDesc WisRaytracingDispatchDesc;
 typedef struct WisTextureCopyRegion WisTextureCopyRegion;
+typedef struct WisDeviceConstants WisDeviceConstants;
+typedef struct WisRaytracingConstants WisRaytracingConstants;
 typedef enum WisShaderStages WisShaderStages;
 typedef enum WisStatus WisStatus;
 typedef enum WisQueueType WisQueueType;
@@ -1549,6 +1564,7 @@ typedef enum WisComponentSwizzle WisComponentSwizzle;
 typedef enum WisIndexType WisIndexType;
 typedef enum WisFactoryExtID WisFactoryExtID;
 typedef enum WisDeviceExtID WisDeviceExtID;
+typedef enum WisASCopyMode WisASCopyMode;
 typedef enum WisAdapterFlagsBits WisAdapterFlagsBits;
 typedef uint32_t WisAdapterFlags;
 typedef enum WisDSSelectBits WisDSSelectBits;
@@ -1631,7 +1647,8 @@ struct WisAdapterDesc {
     uint64_t dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
     uint64_t dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
     uint64_t shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
-    uint64_t adapter_id; ///< Adapter unique ID. Can be used to find the correct adapter.
+    uint64_t adapter_id; ///< Adapter unique ID (LUID). Can be used to find the correct adapter.
+    uint8_t adapter_uuid[16]; ///< UUID of the adapter, used only with Vulkan API on systems with no LUID.
     WisAdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 };
 
@@ -2114,6 +2131,21 @@ struct WisRaytracingDispatchDesc {
 struct WisTextureCopyRegion {
     WisTextureRegion src; ///< Source texture region.
     WisTextureRegion dst; ///< Destination texture region.
+};
+
+/**
+ * @brief Constants that device provide to work with it.
+ * */
+struct WisDeviceConstants {
+    uint32_t min_cbuffer_offset_alingnment; ///< Minimal constant buffer offset alignment.
+    uint32_t min_buffer_offset_alingnment; ///< Minimal structured or RW buffer offset alignment.
+};
+
+/**
+ * @brief Constants that device provide to work with raytracing.
+ * */
+struct WisRaytracingConstants {
+    uint32_t max_recursion_depth; ///< Max recursion depth for raytracing pipeline.
 };
 
 //-------------------------------------------------------------------------
@@ -2599,6 +2631,13 @@ WISDOM_API WisResult VKDeviceCreateDescriptorStorage(VKDevice self, const WisDes
  * @return true if feature is supported. false otherwise.
  * */
 WISDOM_API bool VKDeviceQueryFeatureSupport(VKDevice self, WisDeviceFeature feature);
+
+/**
+ * @brief Queries the device constants.
+ * @param self valid handle to the Device
+ * @return The device constants.
+ * */
+WISDOM_API WisDeviceConstants VKDeviceQueryDeviceConsts(VKDevice self);
 
 // VKResourceAllocator methods --
 /**
@@ -3746,6 +3785,13 @@ WISDOM_API WisResult DX12DeviceCreateDescriptorStorage(DX12Device self, const Wi
  * */
 WISDOM_API bool DX12DeviceQueryFeatureSupport(DX12Device self, WisDeviceFeature feature);
 
+/**
+ * @brief Queries the device constants.
+ * @param self valid handle to the Device
+ * @return The device constants.
+ * */
+WISDOM_API WisDeviceConstants DX12DeviceQueryDeviceConsts(DX12Device self);
+
 // DX12ResourceAllocator methods --
 /**
  * @brief Destroys the DX12ResourceAllocator.
@@ -4809,6 +4855,16 @@ inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescr
 inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
 {
     return DX12DeviceQueryFeatureSupport(self, feature);
+}
+
+/**
+ * @brief Queries the device constants.
+ * @param self valid handle to the Device
+ * @return The device constants.
+ * */
+inline WisDeviceConstants WisDeviceQueryDeviceConsts(WisDevice self)
+{
+    return DX12DeviceQueryDeviceConsts(self);
 }
 
 // WisResourceAllocator methods --
@@ -6087,6 +6143,16 @@ inline WisResult WisDeviceCreateDescriptorStorage(WisDevice self, const WisDescr
 inline bool WisDeviceQueryFeatureSupport(WisDevice self, WisDeviceFeature feature)
 {
     return VKDeviceQueryFeatureSupport(self, feature);
+}
+
+/**
+ * @brief Queries the device constants.
+ * @param self valid handle to the Device
+ * @return The device constants.
+ * */
+inline WisDeviceConstants WisDeviceQueryDeviceConsts(WisDevice self)
+{
+    return VKDeviceQueryDeviceConsts(self);
 }
 
 // WisResourceAllocator methods --

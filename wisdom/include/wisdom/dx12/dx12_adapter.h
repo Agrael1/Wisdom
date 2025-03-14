@@ -28,6 +28,7 @@ public:
         }
 
         auto& out_desc = *pout_desc;
+        memset(pout_desc, 0, sizeof(AdapterDesc));
 
         DXGI_ADAPTER_DESC1 desc;
         auto hr = adapter->GetDesc1(&desc);

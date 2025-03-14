@@ -100,7 +100,8 @@ Describes hardware driver identificators as well as memory limits.">
       <member type="u64" name="dedicated_video_memory" doc="Dedicated video memory in bytes. Used for Default Memory type."/>
       <member type="u64" name="dedicated_system_memory" doc="Dedicated system memory in bytes. Used for Upload and Readback Memory types."/>
       <member type="u64" name="shared_system_memory" doc="Shared system memory in bytes. Used for GPUUpload Memory type."/>
-      <member type="u64" name="adapter_id" doc="Adapter unique ID. Can be used to find the correct adapter."/>
+      <member type="u64" name="adapter_id" doc="Adapter unique ID (LUID). Can be used to find the correct adapter."/>
+      <member type="u8" name="adapter_uuid" array="16" doc="UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
       <member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
     </type>
 
@@ -449,6 +450,15 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
     <type name="TextureCopyRegion" category="struct" doc="Texture to texture copy region.">
       <member type="TextureRegion" name="src" doc="Source texture region."/>
       <member type="TextureRegion" name="dst" doc="Destination texture region."/>
+    </type>
+
+    <type name="DeviceConstants" category="struct" doc="Constants that device provide to work with it.">
+      <member type="u32" name="min_cbuffer_offset_alingnment" doc="Minimal constant buffer offset alignment."/>
+      <member type="u32" name="min_buffer_offset_alingnment" doc="Minimal structured or RW buffer offset alignment."/>
+    </type>
+
+    <type name="RaytracingConstants" category="struct" doc="Constants that device provide to work with raytracing.">
+      <member type="u32" name="max_recursion_depth" doc="Max recursion depth for raytracing pipeline."/>
     </type>
 
 

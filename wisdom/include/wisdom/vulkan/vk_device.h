@@ -136,6 +136,9 @@ public:
                         const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
                         uint32_t descriptor_bindings_count = 0) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::DeviceConstants
+    QueryDeviceConsts() const noexcept;
+
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
     VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface, const SwapchainDesc& desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
@@ -469,6 +472,14 @@ public:
     inline bool QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
     {
         return wis::ImplVKDevice::QueryFeatureSupport(feature);
+    }
+    /**
+     * @brief Queries the device constants.
+     * @return The device constants.
+     * */
+    inline wis::DeviceConstants QueryDeviceConsts() const noexcept
+    {
+        return wis::ImplVKDevice::QueryDeviceConsts();
     }
 };
 #pragma endregion VKDevice

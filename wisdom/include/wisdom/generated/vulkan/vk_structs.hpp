@@ -779,6 +779,21 @@ inline constexpr VkPresentScalingFlagsEXT convert_vk(SwapchainScaling value) noe
         return VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT;
     }
 }
+inline constexpr VkCopyAccelerationStructureModeKHR convert_vk(ASCopyMode value) noexcept
+{
+    switch (value) {
+    default:
+        return {};
+    case ASCopyMode::Clone:
+        return VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR;
+    case ASCopyMode::Compact:
+        return VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR;
+    case ASCopyMode::Serialize:
+        return VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR;
+    case ASCopyMode::Deserialize:
+        return VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR;
+    }
+}
 inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
 {
     VkBufferUsageFlags output = {};
