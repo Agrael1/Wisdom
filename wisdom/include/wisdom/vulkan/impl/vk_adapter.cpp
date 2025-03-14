@@ -38,8 +38,8 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 
     for (auto& i : types) {
         if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &&
-                memory_props.memoryHeaps[i.heapIndex].flags &
-                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+            memory_props.memoryHeaps[i.heapIndex].flags &
+                    VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
             local_mem = memory_props.memoryHeaps[i.heapIndex].size;
         }
 
