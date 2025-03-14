@@ -5,6 +5,7 @@
   - #220 Added constants query for Vulkan and DirectX12 devices
   - #215 Added copy instructions for acceleration structures and query for max recursion depth
   - moved wis::detail::aligned_size to wis::aligned_size and made it public, made it deal with other integral types, result is converted to the same type as the first argument
+  - Added UUID export for Vulkan, DX12 uses LUID
 
 - 0.6.4-0.6.5 Cleanup
 

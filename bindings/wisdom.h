@@ -1647,7 +1647,8 @@ struct WisAdapterDesc {
     uint64_t dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
     uint64_t dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
     uint64_t shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
-    uint64_t adapter_id; ///< Adapter unique ID. Can be used to find the correct adapter.
+    uint64_t adapter_id; ///< Adapter unique ID (LUID). Can be used to find the correct adapter.
+    uint8_t adapter_uuid[16]; ///< UUID of the adapter, used only with Vulkan API on systems with no LUID.
     WisAdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 };
 
