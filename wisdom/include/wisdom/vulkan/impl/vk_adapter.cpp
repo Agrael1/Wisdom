@@ -38,8 +38,8 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 
     for (auto& i : types) {
         if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &&
-            memory_props.memoryHeaps[i.heapIndex].flags &
-                    VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+                memory_props.memoryHeaps[i.heapIndex].flags &
+                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
             local_mem = memory_props.memoryHeaps[i.heapIndex].size;
         }
 
@@ -73,7 +73,7 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 
     if (id_props.deviceLUIDValid) {
         out_desc.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID);
-    } 
+    }
     std::memcpy(out_desc.adapter_uuid.data(), id_props.deviceUUID, sizeof(out_desc.adapter_uuid));
     out_desc.flags = wis::AdapterFlags(flag);
     return wis::success;

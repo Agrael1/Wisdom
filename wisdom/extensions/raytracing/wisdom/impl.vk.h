@@ -91,9 +91,9 @@ public:
 
 public:
     void WIS_INLINE CopyAccelerationStructure(wis::VKCommandListView cmd_list,
-                                              wis::VKAccelerationStructureView dst,
-                                              wis::VKAccelerationStructureView src,
-                                              wis::ASCopyMode mode) const noexcept;
+            wis::VKAccelerationStructureView dst,
+            wis::VKAccelerationStructureView src,
+            wis::ASCopyMode mode) const noexcept;
 
     void WIS_INLINE BuildBottomLevelAS(wis::VKCommandListView cmd_buffer,
                                        const wis::VKBottomLevelASBuildDesc& blas_desc,
