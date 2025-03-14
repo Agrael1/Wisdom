@@ -15,6 +15,7 @@ struct Internal<VKRaytracing> {
     wis::VKRaytracingExtDevice table;
 
     wis::ShaderBindingTableInfo sbt_info;
+    uint32_t max_recursion_depth = 0;
     uint32_t compressed_handle_size = 0;
 };
 
@@ -39,8 +40,11 @@ public:
     }
 
 public:
+    [[nodiscard]] WIS_INLINE wis::RaytracingConstants
+    GetRaytracingConstants() const noexcept;
+
     [[nodiscard]] WIS_INLINE wis::ASAllocationInfo
-    GetTopLevelASSize(const wis::TopLevelASBuildDesc& tlas_desc);
+    GetTopLevelASSize(const wis::TopLevelASBuildDesc& tlas_desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::ASAllocationInfo
     GetBottomLevelASSize(const wis::VKBottomLevelASBuildDesc& blas_desc) const noexcept;
@@ -86,6 +90,11 @@ public:
     }
 
 public:
+    void WIS_INLINE CopyAccelerationStructure(wis::VKCommandListView cmd_list,
+                                              wis::VKAccelerationStructureView dst,
+                                              wis::VKAccelerationStructureView src,
+                                              wis::ASCopyMode mode) const noexcept;
+
     void WIS_INLINE BuildBottomLevelAS(wis::VKCommandListView cmd_buffer,
                                        const wis::VKBottomLevelASBuildDesc& blas_desc,
                                        wis::VKAccelerationStructureView dst_acceleration_structure,
@@ -137,7 +146,7 @@ public:
         table.vkCmdTraceRaysKHR(cmd_list_i, &raygen, &miss, &hit, &callable, desc.width, desc.height, desc.depth);
     }
 
-    void WriteAccelerationStructure(wis::VKDescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::VKAccelerationStructureView as) noexcept
+    void WriteAccelerationStructure(wis::VKDescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::VKAccelerationStructureView as) const noexcept
     {
         VkWriteDescriptorSetAccelerationStructureKHR as_info{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,

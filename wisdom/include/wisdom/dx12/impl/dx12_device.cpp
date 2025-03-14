@@ -975,4 +975,12 @@ wis::ImplDX12Device::CreateRootSignature(wis::Result& result,
     internal.push_descriptor_count = push_descriptors_count;
     return out_state;
 }
+
+wis::DeviceConstants
+wis::ImplDX12Device::QueryDeviceConsts() const noexcept {
+    return wis::DeviceConstants{
+        .min_cbuffer_offset_alingnment = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT,
+        .min_buffer_offset_alingnment = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT,
+    };
+}
 #endif // !DX12_DEVICE_CPP

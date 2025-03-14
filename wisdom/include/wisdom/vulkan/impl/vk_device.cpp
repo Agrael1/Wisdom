@@ -1318,6 +1318,23 @@ bool wis::ImplVKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const no
     }
 }
 
+wis::DeviceConstants
+wis::ImplVKDevice::QueryDeviceConsts() const noexcept
+{
+    auto& itable = GetInstanceTable();
+    auto& adapter_i = adapter.GetInternal();
+
+    VkPhysicalDeviceProperties props;
+    itable.vkGetPhysicalDeviceProperties(adapter_i.adapter, &props);
+
+    wis::DeviceConstants constants{
+        .min_cbuffer_offset_alingnment = uint32_t(props.limits.minUniformBufferOffsetAlignment),
+        .min_buffer_offset_alingnment = uint32_t(props.limits.minStorageBufferOffsetAlignment),
+    };
+
+    return constants;
+}
+
 //--------------------------------------------------------------------------------------------------
 
 wis::VKSampler

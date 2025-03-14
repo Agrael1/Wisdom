@@ -451,6 +451,15 @@ Affects only the count of descriptors allocated in the descriptor heap, Root Sig
       <member type="TextureRegion" name="dst" doc="Destination texture region."/>
     </type>
 
+    <type name="DeviceConstants" category="struct" doc="Constants that device provide to work with it.">
+      <member type="u32" name="min_cbuffer_offset_alingnment" doc="Minimal constant buffer offset alignment."/>
+      <member type="u32" name="min_buffer_offset_alingnment" doc="Minimal structured or RW buffer offset alignment."/>
+    </type>
+    
+    <type name="RaytracingConstants" category="struct" doc="Constants that device provide to work with raytracing.">
+      <member type="u32" name="max_recursion_depth" doc="Max recursion depth for raytracing pipeline."/>
+    </type>
+
 
     <!--Variants-->
     <type name="BottomLevelASBuildDesc" category="variant" doc="Bottom level acceleration structure build description." mod="cpp-only">

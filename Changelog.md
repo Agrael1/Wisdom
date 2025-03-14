@@ -1,5 +1,11 @@
 # Version History
 
+- 0.6.6
+
+  - #220 Added constants query for Vulkan and DirectX12 devices
+  - #215 Added copy instructions for acceleration structures and query for max recursion depth
+  - moved wis::detail::aligned_size to wis::aligned_size and made it public, made it deal with other integral types, result is converted to the same type as the first argument
+
 - 0.6.4-0.6.5 Cleanup
 
   - BREAKING: BeginRenderPass now accepts reference instead of pointer to the render pass. This is done to make the API more consistent with other methods.

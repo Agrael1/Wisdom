@@ -46,10 +46,11 @@ wis::Result wis::ImplVKRaytracing::Init(const wis::VKDevice& instance,
 
     compressed_handle_size = props->shaderGroupHandleSize;
     sbt_info = { wis::detail::aligned_size(compressed_handle_size, props->shaderGroupHandleAlignment), props->shaderGroupBaseAlignment };
+    max_recursion_depth = props->maxRayRecursionDepth;
     return wis::success;
 }
 
-wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLevelASBuildDesc& tlas_desc)
+wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLevelASBuildDesc& tlas_desc) const noexcept
 {
     VkAccelerationStructureGeometryKHR geometry{
         .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
@@ -335,5 +336,28 @@ void wis::ImplVKRaytracing::BuildTopLevelAS(wis::VKCommandListView cmd_buffer, c
     VkAccelerationStructureBuildRangeInfoKHR* p_range_info = &range_info;
     table.vkCmdBuildAccelerationStructuresKHR(std::get<0>(cmd_buffer), 1, &build_info, &p_range_info);
 }
+
+wis::RaytracingConstants
+wis::ImplVKRaytracing::GetRaytracingConstants() const noexcept
+{
+    return RaytracingConstants{
+        .max_recursion_depth = max_recursion_depth
+    };
+}
+
+void wis::ImplVKRaytracing::CopyAccelerationStructure(wis::VKCommandListView cmd_list,
+                                                      wis::VKAccelerationStructureView dst,
+                                                      wis::VKAccelerationStructureView src,
+                                                      wis::ASCopyMode mode) const noexcept
+{
+    VkCopyAccelerationStructureInfoKHR copy_info{
+        .sType = VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR,
+        .src = std::get<0>(src),
+        .dst = std::get<0>(dst),
+        .mode = convert_vk(mode),
+    };
+    table.vkCmdCopyAccelerationStructureKHR(std::get<0>(cmd_list), &copy_info);
+}
+
 #endif // WISDOM_VULKAN
 #endif // WISDOM_RAYTRACING_VK_CPP

@@ -82,6 +82,9 @@ public:
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
 
+    [[nodiscard]] WIS_INLINE wis::DeviceConstants
+    QueryDeviceConsts() const noexcept;
+
     [[nodiscard]] WIS_INLINE wis::DX12DescriptorStorage
     CreateDescriptorStorage(wis::Result& result,
                             const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
@@ -422,6 +425,14 @@ public:
     inline bool QueryFeatureSupport(wis::DeviceFeature feature) const noexcept
     {
         return wis::ImplDX12Device::QueryFeatureSupport(feature);
+    }
+    /**
+     * @brief Queries the device constants.
+     * @return The device constants.
+     * */
+    inline wis::DeviceConstants QueryDeviceConsts() const noexcept
+    {
+        return wis::ImplDX12Device::QueryDeviceConsts();
     }
 };
 #pragma endregion DX12Device

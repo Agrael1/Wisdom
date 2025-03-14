@@ -228,6 +228,10 @@ Switching between several DescriptorStorage is slow, consider allocating one big
       <ret type="bool" doc="true if feature is supported. false otherwise."/>
       <arg type="DeviceFeature" name="feature" doc="The feature to query."/>
     </func>
+    
+    <func for="Device" name="QueryDeviceConsts" mod="const" doc="Queries the device constants.">
+      <ret type="DeviceConstants" name="consts" doc="The device constants."/>
+    </func>
 
     <!-- Resource Allocator -->
     <func for="ResourceAllocator" name="Destroy" doc="Destroys the {ResourceAllocator::}.
