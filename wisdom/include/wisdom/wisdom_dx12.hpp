@@ -1,4 +1,4 @@
-// GENERATED
+//GENERATED
 #pragma once
 #include "dx12/dx12_factory.h"
 #include "dx12/dx12_swapchain.h"
@@ -14,10 +14,7 @@ namespace wis {
  * @param extension_count The number of extensions to enable.
  * @return wis::DX12Factory on success (wis::Status::Ok).
  * */
-[[nodiscard]] inline wis::DX12Factory DX12CreateFactory(wis::Result& result, bool debug_layer = false, wis::DX12FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
-{
-    return wis::ImplDX12CreateFactory(result, debug_layer, extensions, extension_count);
-}
+[[nodiscard]] inline wis::DX12Factory DX12CreateFactory(wis::Result& result,  bool debug_layer = false,  wis::DX12FactoryExtension** extensions = nullptr,  uint32_t extension_count = 0){ return wis::ImplDX12CreateFactory(result, debug_layer, extensions, extension_count); }
 /**
  * @brief Creates the wis::DX12Factory with extensions, specified in extension array.
  * @param debug_layer Enable the debug layer for underlying API.
@@ -26,9 +23,8 @@ namespace wis {
  * @param extension_count The number of extensions to enable.
  * @return wis::DX12Factory on success (wis::Status::Ok).
  * */
-[[nodiscard]] inline wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool debug_layer = false, wis::DX12FactoryExtension** extensions = nullptr, uint32_t extension_count = 0) noexcept
-{
-    return wis::ResultValue<wis::DX12Factory>{ &wis::ImplDX12CreateFactory, debug_layer, extensions, extension_count };
+[[nodiscard]] inline wis::ResultValue<wis::DX12Factory> DX12CreateFactory( bool debug_layer = false,  wis::DX12FactoryExtension** extensions = nullptr,  uint32_t extension_count = 0) noexcept{
+    return wis::ResultValue<wis::DX12Factory>{&wis::ImplDX12CreateFactory,debug_layer, extensions, extension_count};
 }
 /**
  * @brief Creates the wis::DX12Device with extensions, specified in extension array.
@@ -40,10 +36,7 @@ namespace wis {
  * The presence of core functionality is checked by the query function.
  * @return wis::DX12Device on success (wis::Status::Ok).
  * */
-[[nodiscard]] inline wis::DX12Device DX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
-{
-    return wis::ImplDX12CreateDevice(result, std::move(adapter), extensions, extension_count, force);
-}
+[[nodiscard]] inline wis::DX12Device DX12CreateDevice(wis::Result& result,  wis::DX12Adapter adapter,  wis::DX12DeviceExtension** extensions = nullptr,  uint32_t extension_count = 0,  bool force = false){ return wis::ImplDX12CreateDevice(result, std::move(adapter), extensions, extension_count, force); }
 /**
  * @brief Creates the wis::DX12Device with extensions, specified in extension array.
  * @param adapter The adapter to create the logical device on. Must not be NULL.
@@ -54,11 +47,11 @@ namespace wis {
  * The presence of core functionality is checked by the query function.
  * @return wis::DX12Device on success (wis::Status::Ok).
  * */
-[[nodiscard]] inline wis::ResultValue<wis::DX12Device> DX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false) noexcept
-{
-    return wis::ResultValue<wis::DX12Device>{ &wis::ImplDX12CreateDevice, std::move(adapter), extensions, extension_count, force };
+[[nodiscard]] inline wis::ResultValue<wis::DX12Device> DX12CreateDevice( wis::DX12Adapter adapter,  wis::DX12DeviceExtension** extensions = nullptr,  uint32_t extension_count = 0,  bool force = false) noexcept{
+    return wis::ResultValue<wis::DX12Device>{&wis::ImplDX12CreateDevice,std::move(adapter), extensions, extension_count, force};
 }
 
 //-------------------------------------------------------------------------
 
-} // namespace wis
+
+}//namespace wis

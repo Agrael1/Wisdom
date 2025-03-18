@@ -73,7 +73,7 @@ inline void lib_log_internal(Severity sev, std::string message, wis::source_loca
 /// @param sl Source location of the message
 inline void lib_debug(std::string message, wis::source_location sl = wis::source_location::current())
 {
-    if constexpr (WISDOM_LOG_LEVEL <= uint32_t(Severity::Debug)) {
+    if constexpr (WISDOM_LOG_LEVEL <= +Severity::Debug) {
         lib_log_internal(Severity::Debug, std::move(message), sl);
     }
 }
@@ -83,7 +83,7 @@ inline void lib_debug(std::string message, wis::source_location sl = wis::source
 /// @param sl Source location of the message
 inline void lib_trace(std::string message, wis::source_location sl = wis::source_location::current())
 {
-    if constexpr (WISDOM_LOG_LEVEL <= uint32_t(Severity::Trace)) {
+    if constexpr (WISDOM_LOG_LEVEL <= +Severity::Trace) {
         lib_log_internal(Severity::Trace, std::move(message), sl);
     }
 }
@@ -93,7 +93,7 @@ inline void lib_trace(std::string message, wis::source_location sl = wis::source
 /// @param sl Source location of the message
 inline void lib_info(std::string message, wis::source_location sl = wis::source_location::current())
 {
-    if constexpr (WISDOM_LOG_LEVEL <= uint32_t(Severity::Info)) {
+    if constexpr (WISDOM_LOG_LEVEL <= +Severity::Info) {
         lib_log_internal(Severity::Info, std::move(message), sl);
     }
 }
@@ -103,7 +103,7 @@ inline void lib_info(std::string message, wis::source_location sl = wis::source_
 /// @param sl Source location of the message
 inline void lib_warn(std::string message, wis::source_location sl = wis::source_location::current())
 {
-    if constexpr (WISDOM_LOG_LEVEL <= uint32_t(Severity::Warning)) {
+    if constexpr (WISDOM_LOG_LEVEL <= +Severity::Warning) {
         lib_log_internal(Severity::Warning, std::move(message), sl);
     }
 }

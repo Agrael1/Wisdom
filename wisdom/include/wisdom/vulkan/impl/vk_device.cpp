@@ -83,7 +83,7 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
     return queues;
 }
 
-inline static std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>
+inline std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>
 GetAvailableExtensions(wis::Result& result, VkPhysicalDevice adapter, const wis::VKMainInstance& itable)
 {
     std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>> ext_map;

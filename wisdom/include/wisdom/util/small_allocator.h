@@ -1,4 +1,5 @@
 #pragma once
+#ifndef WISDOM_SILENCE_API_HEADERS
 #include <cassert>
 #include <array>
 #include <bitset>
@@ -146,8 +147,9 @@ public:
     bool contains(const T& ref) const noexcept
     {
         for (size_t i = 0; i < rsize; i++) {
-            if (C{}(ref, this->data()[i]))
+            if (C{}(ref, this->data()[i])) {
                 return true;
+            }
         }
         return false;
     }
@@ -168,8 +170,9 @@ public:
     limited_allocator(uint32_t limit, bool exact = true) noexcept
         : allocator{}, allocated{ 0 }, is_heap{ false }, limit{ limit }
     {
-        if (!exact)
+        if (!exact) {
             return;
+        }
         if (limit > initial_alloc) {
             is_heap = true;
             ptr = allocate_heap(limit);
@@ -271,3 +274,4 @@ private:
     uint32_t is_heap : 1 = 0;
 };
 } // namespace wis::detail
+#endif // WISDOM_SILENCE_API_HEADERS

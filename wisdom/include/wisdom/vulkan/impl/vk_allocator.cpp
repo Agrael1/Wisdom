@@ -104,7 +104,7 @@ wis::ImplVKResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_
                                 },
                                 req);
 
-    req.memoryRequirements.size = wis::detail::aligned_size(size, req.memoryRequirements.alignment);
+    req.memoryRequirements.size = wis::aligned_size(size, req.memoryRequirements.alignment);
 
     VmaMemoryUsage vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
     switch (memory) {

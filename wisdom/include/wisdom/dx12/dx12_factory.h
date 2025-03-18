@@ -17,8 +17,6 @@ struct Internal<DX12Factory> {
 /// @brief Main Factory class
 class ImplDX12Factory : public QueryInternal<DX12Factory>
 {
-    // friend wis::ResultValue<wis::DX12Factory>
-    // ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
     friend wis::DX12Factory
     ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count, wis::Result& res) noexcept;
 

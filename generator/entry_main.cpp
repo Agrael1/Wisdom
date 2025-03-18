@@ -33,6 +33,7 @@ int main()
     Generator g(doc);
     g.GenerateCAPI();
     g.GenerateCPPAPI();
+    g.GenerateCPPModules();
     FormatFiles(g.GetFiles());
 
     return 0;

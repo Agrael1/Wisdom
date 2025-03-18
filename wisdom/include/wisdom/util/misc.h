@@ -1,4 +1,5 @@
 #pragma once
+#ifndef WISDOM_SILENCE_API_HEADERS
 #include <string>
 #include <memory>
 #include <span>
@@ -96,3 +97,4 @@ template<typename T>
 namespace wis {
 using detail::aligned_size;
 } // namespace wis
+#endif // !WISDOM_SILENCE_API_HEADERS

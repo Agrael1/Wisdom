@@ -1,6 +1,4 @@
 #pragma once
-#include <wisdom/util/string_literal.h>
-
 #if defined(__clang__) || defined(__GNUC__)
 #define FUNC __PRETTY_FUNCTION__
 #elif defined(_MSC_VER)
@@ -9,8 +7,9 @@
 #define FUNC __func__
 #endif
 
-namespace wis {
+#include <wisdom/util/string_literal.h>
 
+namespace wis {
 template<wis::fixed_string func, wis::fixed_string message>
 consteval inline auto make_error_string()
 {

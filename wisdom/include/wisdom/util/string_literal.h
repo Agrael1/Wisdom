@@ -46,19 +46,6 @@ public:
     value_type _data[N]{}; // +1 for null terminator
 };
 
-// Deduction guide for FixedString
-template<std::size_t N>
-basic_fixed_string(const char (&)[N - 1]) -> basic_fixed_string<char, N>;
-
-template<std::size_t N>
-basic_fixed_string(const wchar_t (&)[N - 1]) -> basic_fixed_string<wchar_t, N>;
-
-template<std::size_t N>
-basic_fixed_string(const char16_t (&)[N - 1]) -> basic_fixed_string<char16_t, N>;
-
-template<std::size_t N>
-basic_fixed_string(const char32_t (&)[N - 1]) -> basic_fixed_string<char32_t, N>;
-
 // Define some aliases for common fixed string types
 template<std::size_t N>
 using fixed_string = basic_fixed_string<char, N>;

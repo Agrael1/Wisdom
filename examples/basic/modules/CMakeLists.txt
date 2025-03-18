@@ -1,0 +1,25 @@
+project(modules-${POSTFIX})
+
+set(HEADERS)
+set(SOURCES entry_main.cpp)
+
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
+target_sources(${PROJECT_NAME} PRIVATE
+    PUBLIC FILE_SET CXX_MODULES FILES
+    "wisdom.ixx"
+)
+
+# include the modules in seperate, since we are building dx and vk implementation at the same time
+target_link_libraries(${PROJECT_NAME} PUBLIC 
+    wisdom-${POSTFIX}-module
+)
+add_dependencies(${PROJECT_NAME} compile_shaders_basic)
+set_target_properties(
+  ${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY
+                                             ${EXAMPLE_BIN_OUTPUT} CXX_SCAN_FOR_MODULES ON)
+
+if(POSTFIX STREQUAL "dx12")
+  WIS_INSTALL_DEPS(${PROJECT_NAME}) # install the d3d12 agility sdk, for
+                                       # examples this is enough
+  # for the main project, use wis_installdeps(${PROJECT_NAME}) instead
+endif()

@@ -4,7 +4,6 @@
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/vulkan/vk_views.h>
-#include <wisvk/vk_loader.hpp>
 #include <wisdom/generated/vulkan/vk_functions.hpp>
 
 namespace wis {

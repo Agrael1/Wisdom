@@ -15,14 +15,29 @@ add_library(wis::wisdom-headers ALIAS wisdom-headers)
 add_library(wisdom INTERFACE)
 add_library(wis::wisdom ALIAS wisdom)
 
+if(WISDOM_CPP_MODULES_SUPPORTED)
+    add_library(wisdom-module STATIC)
+    add_library(wis::module ALIAS wisdom-module)
+    target_sources(wisdom-module
+    PUBLIC FILE_SET CXX_MODULES FILES
+      "include/wisdom/wisdom.ixx"
+    )
+endif()
+
 if(WISDOM_VULKAN)
   target_link_libraries(wisdom-headers INTERFACE wis::vulkan-headers)
   target_link_libraries(wisdom INTERFACE wis::vulkan)
+  if(WISDOM_CPP_MODULES_SUPPORTED)
+    target_link_libraries(wisdom-module PUBLIC wis::vk-module)
+  endif()
 endif()
 
 if(WISDOM_DX12)
   target_link_libraries(wisdom-headers INTERFACE wis::dx12-headers)
   target_link_libraries(wisdom INTERFACE wis::dx12)
+  if(WISDOM_CPP_MODULES_SUPPORTED)
+    target_link_libraries(wisdom-module PUBLIC wis::dx12-module)
+  endif()
 endif()
 
 # API generation
@@ -54,6 +69,23 @@ install(
   NAMESPACE wis::
   FILE wisdom-targets.cmake # Not sure if this is still needed
 )
+
+if (WISDOM_CPP_MODULES_SUPPORTED)
+  install(TARGETS wisdom-module
+    EXPORT wisdom-module-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
+  install(
+    EXPORT wisdom-module-targets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+    NAMESPACE wis::
+    FILE wisdom-module-targets.cmake # Not sure if this is still needed
+  )
+endif()
 
 include(CMakePackageConfigHelpers)
 configure_file("../cmake/wisdom-deps.cmake.in"

@@ -55,7 +55,7 @@ public:
         auto* cbv = std::get<0>(buffer);
         D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
             .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
-            .SizeInBytes = wis::detail::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)) // is this correct?
+            .SizeInBytes = wis::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)) // is this correct?
         };
 
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);

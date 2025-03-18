@@ -1,5 +1,5 @@
 #pragma once
-#ifdef WISDOM_BUILD_BINARIES // If we are building the binaries
+#if defined(WISDOM_BUILD_BINARIES) || defined(WISDOM_CPP_MODULE) // If we are building the binaries
 #define WIS_INLINE
 #else
 #define WIS_INLINE inline

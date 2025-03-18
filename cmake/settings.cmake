@@ -4,6 +4,15 @@ if(MSVC)
       "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
 endif()
 
+# Check if cpp modules are supported by cmake
+if (CMAKE_VERSION VERSION_LESS "3.28")
+  set(WISDOM_CPP_MODULES_SUPPORTED OFF)
+  message("[Wisdom] C++ Modules are not supported")
+else()
+  set(WISDOM_CPP_MODULES_SUPPORTED ON)
+  message("[Wisdom] C++ Modules are supported")
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CURR_LEVEL "debug")
   set(WDEBUG ON)

@@ -1,5 +1,6 @@
 // GENERATED
 #pragma once
+#ifndef WISDOM_SILENCE_API_HEADERS
 #include <array>
 #include <cstdint>
 #include <functional>
@@ -2127,7 +2128,7 @@ struct is_flag_enum<wis::ASInstanceFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 
-static inline constexpr Result success{
+inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
 
@@ -2174,3 +2175,4 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 }
 
 } // namespace wis
+#endif // !WISDOM_SILENCE_API_HEADERS

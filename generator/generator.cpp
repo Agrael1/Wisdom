@@ -302,7 +302,7 @@ int Generator::GenerateCPPAPI()
 {
     using namespace std::chrono;
 
-    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n#include <functional>\n\n";
+    std::string output_api = "//GENERATED\n#pragma once\n#ifndef WISDOM_SILENCE_API_HEADERS\n#include <array>\n#include <cstdint>\n#include <functional>\n\n";
 
     output_api += wis::format(documentation_header, WISDOM_VERSION);
     output_api += "\n*/\n\n";
@@ -327,7 +327,7 @@ int Generator::GenerateCPPAPI()
                   "==============================\n\n";
 
     output_api += R"(
-static inline constexpr Result success{
+inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
 
@@ -373,7 +373,7 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 }
 
 )";
-    output_api += "}\n";
+    output_api += "}\n#endif // !WISDOM_SILENCE_API_HEADERS";
 
     std::filesystem::path cpp_output_path = cpp_output_dir;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated/api";
@@ -565,6 +565,165 @@ int Generator::GenerateCPPInlineDoc()
     return 0;
 }
 
+int Generator::GenerateCPPModules()
+{
+    // Generate wisdom.api.ixx
+    std::filesystem::path cpp_output_path = cpp_output_dir;
+    std::filesystem::path cpp_output_path_api = cpp_output_path / "generated/api";
+    std::filesystem::path cpp_output_path_dx12 = cpp_output_path / "generated/dx12";
+    std::filesystem::path cpp_output_path_vulkan = cpp_output_path / "generated/vulkan";
+    std::filesystem::path cpp_output_path_wisdom = std::filesystem::absolute(cpp_output_path / "wisdom.ixx");
+    std::ofstream out_wisdom(cpp_output_path_wisdom);
+    if (!out_wisdom.is_open()) {
+        return 1;
+    }
+    out_wisdom << GenerateCPPExportModule();
+    files.emplace_back(cpp_output_path_wisdom);
+
+    std::string output_api = wis::format(documentation_header, WISDOM_VERSION);
+    output_api += "\n*/\n\n";
+    output_api += R"(module;
+#include <wisdom/generated/api/api.hpp>
+#include <wisdom/global/internal.h>
+#include <wisdom/util/log_layer.h>
+#include <wisdom/util/misc.h>
+export module wisdom.api;
+
+)";
+
+    for (auto& [name, enum_t] : enum_map) {
+        output_api += wis::format("export wis::{};\n", name);
+    }
+    output_api += k_delimiter;
+    for (auto& [name, enum_t] : bitmask_map) {
+        output_api += wis::format("export wis::{};\n", name);
+    }
+    output_api += k_delimiter;
+    for (auto& s : structs) {
+        output_api += wis::format("export wis::{};\n", s->name);
+    }
+    output_api += k_delimiter;
+
+    for (auto& [name, del_t] : delegate_map) {
+        output_api += wis::format("export wis::{};\n", name);
+    }
+
+    output_api += k_delimiter;
+
+    // manual exports for library internals
+    output_api += R"(
+export wis::ResultValue;
+
+export wis::Internal;
+export wis::QueryInternal;
+export wis::QueryInternalExtension;
+
+// internal logging
+export wis::LogLayer;
+export wis::LibLogger;
+
+// misc
+export wis::string_hash;
+
+export namespace wis {
+using wis::success;
+using wis::operator|;
+using wis::operator&;
+using wis::operator+;
+using wis::operator~;
+using wis::aligned_size;
+}
+)";
+
+    auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "wisdom.api.ixx");
+    std::ofstream out_api(output_api_abs);
+    if (!out_api.is_open()) {
+        return 1;
+    }
+    out_api << output_api;
+    files.emplace_back(output_api_abs);
+
+    // Generate wisdom.dx12.ixx
+    std::string output_dx12 = wis::format(documentation_header, WISDOM_VERSION);
+    output_dx12 += "\n*/\n\n";
+    output_dx12 += R"(module;
+#include <wisdom/global/internal.h>
+#define WISDOM_SILENCE_API_HEADERS
+import wisdom.api;
+import wisdom.internal;
+#include <wisdom/wisdom_dx12.hpp>
+export module wisdom.dx12;
+
+)";
+    output_dx12 += GenerateCPPModule("DX12");
+
+    auto output_dx12_abs = std::filesystem::absolute(cpp_output_path_dx12 / "wisdom.dx12.ixx");
+    std::ofstream out_dx12(output_dx12_abs);
+    if (!out_dx12.is_open()) {
+        return 1;
+    }
+    out_dx12 << output_dx12;
+    files.emplace_back(output_dx12_abs);
+
+    // Generate wisdom.vk.ixx
+    std::string output_vk = wis::format(documentation_header, WISDOM_VERSION);
+    output_vk += "\n*/\n\n";
+    output_vk += R"(module;
+#include <wisdom/global/internal.h>
+#define WISDOM_SILENCE_API_HEADERS
+import wisdom.api;
+import wisdom.internal;
+#include <wisdom/wisdom_vk.hpp>
+export module wisdom.vk;
+
+)";
+    output_vk += GenerateCPPModule("VK");
+
+    auto output_vk_abs = std::filesystem::absolute(cpp_output_path_vulkan / "wisdom.vk.ixx");
+    std::ofstream out_vk(output_vk_abs);
+    if (!out_vk.is_open()) {
+        return 1;
+    }
+    out_vk << output_vk;
+    files.emplace_back(output_vk_abs);
+
+    return 0;
+}
+
+std::string Generator::GenerateCPPModule(std::string_view impl)
+{
+    std::string output;
+
+    for (auto& [name, v] : variant_map) {
+        if (!v.ext.empty()) {
+            continue;
+        }
+
+        output += wis::format("export wis::{}{};\n", impl, v.name);
+    }
+
+    output += k_delimiter;
+
+    for (auto& [name, h] : handle_map) {
+        if (!h.ext.empty()) {
+            continue;
+        }
+
+        output += wis::format("export wis::{}{};\n", impl, name);
+    }
+
+    output += k_delimiter;
+
+    output += "export namespace wis {\n";
+    for (auto& f : cpp_funcs) {
+        output += wis::format("using wis::{}{};\n", impl, f->name);
+    }
+    output += "}\n";
+    output += k_delimiter;
+
+    return output;
+}
+
 std::tuple<std::string, std::string, std::string> Generator::GenerateCTypes()
 {
     std::string gen, dx, vk;
@@ -725,6 +884,59 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #include "wisdom_vk.hpp"
 
 )";
+    output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::Vulkan]);
+    output_wisdom += R"(
+#else
+#error "No API selected"
+#endif
+)";
+    return output_wisdom;
+}
+
+std::string Generator::GenerateCPPExportModule()
+{
+    std::string output_wisdom{
+        R"(module;
+// Select default API
+// Override with WISDOM_FORCE_VULKAN in CMake
+#include <wisdom/config.h>
+#include <wisdom/module.h>
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
+#endif // WISDOM_WINDOWS
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX && __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+
+export module wisdom;
+
+
+export import wisdom.api;
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+import wisdom.dx12;
+
+export )"
+    };
+
+    output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::DX12]);
+    output_wisdom += R"(
+#elif defined(WISDOM_VULKAN)
+import wisdom.vk;
+
+export )";
     output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::Vulkan]);
     output_wisdom += R"(
 #else

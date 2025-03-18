@@ -1,4 +1,5 @@
 #pragma once
+#ifndef WISDOM_SILENCE_API_HEADERS
 #include <concepts>
 #include <span>
 
@@ -214,3 +215,4 @@ private:
 };
 
 } // namespace wis
+#endif // WISDOM_SILENCE_API_HEADERS
