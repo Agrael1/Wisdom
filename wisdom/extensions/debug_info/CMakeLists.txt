@@ -30,6 +30,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   target_sources(wisdom-debug-module
     PUBLIC FILE_SET CXX_MODULES FILES
       "wisdom/wisdom_debug.ixx"
+      "wisdom/wisdom_debug.fvk.ixx"
   )
   target_link_libraries(wisdom-debug-module PUBLIC wisdom-module wisdom-debug-headers)
   set_target_properties(wisdom-debug-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)

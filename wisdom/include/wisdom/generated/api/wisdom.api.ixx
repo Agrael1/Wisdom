@@ -15,12 +15,15 @@ export module wisdom.api;
 
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/global/definitions.h>
+#include <wisdom/util/string_literal.h>
+#include <wisdom/global/func.h>
 #include <wisdom/global/internal.h>
+#include <wisdom/util/flags.h>
+#include <wisdom/bridge/source_location.h>
+#include <wisdom/generated/api/api.hpp>
+#include <wisdom/util/log_layer.h>
 #include <wisdom/util/com_ptr.h>
 #include <wisdom/util/error_messages.h>
-#include <wisdom/util/flags.h>
-#include <wisdom/util/log_layer.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/util/shader_compiler.h>
 #include <wisdom/util/small_allocator.h>
-#include <wisdom/util/string_literal.h>

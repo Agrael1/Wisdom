@@ -47,6 +47,7 @@ private:
     std::atomic_size_t ref_count{ 0 };
 };
 
+WISDOM_EXPORT
 struct DX12InfoToken {
     DX12InfoToken() noexcept = default;
     DX12InfoToken(bool) noexcept

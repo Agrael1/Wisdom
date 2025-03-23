@@ -666,13 +666,18 @@ export module wisdom.api;
         cpp_output_path / "util"
     };
 
+    WisHeaderGraph graph_api;
     for (auto& path : cpp_api_includes) {
-        for (auto& file : std::filesystem::directory_iterator(path)) {
+        for (auto& file : std::filesystem::recursive_directory_iterator(path)) {
             std::filesystem::path fpath = std::filesystem::relative(file.path(), cpp_output_path);
-            if (file.is_regular_file() && fpath.extension() == ".h") {
-                output_api += wis::format("#include <wisdom/{}>\n", fpath.generic_string());
+            auto ext = fpath.extension();
+            if (file.is_regular_file() && (ext == ".h" || ext == ".cpp" || ext == ".hpp")) {
+                graph_api.ParseIncludes(file, fpath.generic_string(), "");
             }
         }
+    }
+    for (auto& file : graph_api.GetOrder()) {
+        output_api += wis::format("#include <{}>\n", file);
     }
 
     auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "wisdom.api.ixx");

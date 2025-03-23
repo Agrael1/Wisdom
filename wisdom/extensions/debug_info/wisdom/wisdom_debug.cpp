@@ -13,7 +13,9 @@ wis::ImplDX12DebugExtension::CreateDebugMessenger(wis::Result& result, wis::Debu
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_checks.h>
+#endif // !WISDOM_MODULE_DECL
 
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::ImplVKDebugExtension::DebugCallbackThunk(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

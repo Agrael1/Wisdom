@@ -1,8 +1,4 @@
 //#pragma once
-//#include <wisdom/wisdom.h>
-//
-// #include <dxc/dxcapi.h>
-//
 //
 // namespace wis
 //{

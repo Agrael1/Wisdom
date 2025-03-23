@@ -1,10 +1,12 @@
 #ifndef WISDOM_DEBUG_H
 #define WISDOM_DEBUG_H
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_factory_ext.h>
 #include <wisdom/dx12/dx12_debug.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <d3d12.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class DX12DebugExtension;
@@ -80,8 +82,10 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class VKDebugExtension;
@@ -165,6 +169,7 @@ public:
 } // namespace wis
 #endif // WISDOM_VULKAN
 
+WISDOM_EXPORT
 namespace wis {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using DebugExtension = DX12DebugExtension;
