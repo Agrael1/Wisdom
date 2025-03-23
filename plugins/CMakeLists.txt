@@ -43,9 +43,7 @@ if(Vulkan_FOUND AND NOT WISDOM_WINDOWS_STORE)
 
   # if release build set WISVK_ONLY_HEADERS to true
   if(NOT WISDOM_GENERATE_FUNCTIONS)
-    set(WISVK_ONLY_HEADERS
-        TRUE
-        CACHE BOOL "Only headers" FORCE)
+    set(WISVK_ONLY_HEADERS TRUE)
   endif()
 
   FetchContent_MakeAvailable(wisvk)

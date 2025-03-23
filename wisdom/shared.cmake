@@ -15,7 +15,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   target_sources(wisdom-shared-module
     PUBLIC FILE_SET CXX_MODULES FILES
       "include/wisdom/generated/api/wisdom.api.ixx"
-      "include/wisdom/generated/api/wisdom.internal.ixx"
+      
   )
   target_link_libraries(wisdom-shared-module PRIVATE wisdom-shared)
   set_target_properties(wisdom-shared-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)

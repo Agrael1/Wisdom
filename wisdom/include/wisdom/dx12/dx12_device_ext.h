@@ -1,12 +1,14 @@
 #ifndef WIS_DX12_DEVICE_EXT_H
 #define WIS_DX12_DEVICE_EXT_H
-
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/api/api.hpp>
+#endif
 
 namespace wis {
 class DX12Device;
 }
 
+WISDOM_EXPORT
 namespace wis {
 struct DX12DeviceExtension {
     virtual ~DX12DeviceExtension() = default;

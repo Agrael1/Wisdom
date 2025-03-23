@@ -1,8 +1,10 @@
 #ifndef WIS_DX12_COMMAND_LIST_H
 #define WIS_DX12_COMMAND_LIST_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class DX12CommandList;
@@ -11,6 +13,7 @@ struct DX12TextureBarrier2;
 struct DX12RenderPassDesc;
 struct DX12VertexBufferBinding;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12CommandList> {
     wis::com_ptr<ID3D12CommandAllocator> allocator;
@@ -112,6 +115,7 @@ protected:
 /**
  * @brief Represents command list for recording commands.
  * */
+WISDOM_EXPORT
 class DX12CommandList : public wis::ImplDX12CommandList
 {
 public:

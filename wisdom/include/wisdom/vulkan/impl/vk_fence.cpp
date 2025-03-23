@@ -1,6 +1,8 @@
 #ifndef WIS_VK_FENCE_CPP
 #define WIS_VK_FENCE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_fence.h>
+#endif // !WISDOM_MODULE_DECL
 
 /// @brief Signal the fence from CPU.
 /// @param value Value to signal.

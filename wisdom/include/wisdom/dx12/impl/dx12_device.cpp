@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_DEVICE_CPP
 #define WIS_DX12_DEVICE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_device.h>
 
 #include <d3dx12/d3dx12_check_feature_support.h>
@@ -9,6 +10,7 @@
 #include <wisdom/util/misc.h>
 #include <numeric>
 #include <bit>
+#endif
 
 wis::DX12Device
 wis::ImplDX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept

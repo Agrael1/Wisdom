@@ -1,9 +1,11 @@
 #ifndef WIS_VK_ALLOCATOR_CPP
 #define WIS_VK_ALLOCATOR_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_external.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
 constexpr static VkExternalMemoryBufferCreateInfoKHR external_info_buffer{

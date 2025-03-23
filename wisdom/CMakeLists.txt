@@ -21,6 +21,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     target_sources(wisdom-module
     PUBLIC FILE_SET CXX_MODULES FILES
       "include/wisdom/wisdom.ixx"
+      "include/wisdom/wisdom.fvk.ixx"
     )
 endif()
 

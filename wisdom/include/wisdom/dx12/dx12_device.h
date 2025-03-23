@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_DEVICE_H
 #define WIS_DX12_DEVICE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_command_queue.h>
 #include <wisdom/dx12/dx12_command_list.h>
@@ -11,10 +12,12 @@
 #include <wisdom/dx12/dx12_descriptor_storage.h>
 #include <wisdom/dx12/dx12_device_ext.h>
 #include <wisdom/generated/dx12/dx12_structs.hpp>
+#endif
 
 namespace wis {
 class DX12Device;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Device> {
     wis::com_ptr<ID3D12Device10> device;
@@ -106,6 +109,7 @@ public:
  * @brief Represents logical device.
  * Creates all the resources and commands for rendering.
  * */
+WISDOM_EXPORT
 class DX12Device : public wis::ImplDX12Device
 {
 public:

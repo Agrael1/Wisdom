@@ -1,8 +1,11 @@
 #ifndef WIS_VK_CHECKS_H
 #define WIS_VK_CHECKS_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_convert.h>
 #include <wisdom/util/error_messages.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 /// @brief Check if the given HRESULT a success code, without logging, serves as an assert
 /// @param hr HRESULT to check

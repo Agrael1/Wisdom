@@ -1,7 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULE_DECL
 #include <string>
 #include <stdexcept>
+#include <wisdom/global/definitions.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 template<typename Char, std::size_t N>
 struct basic_fixed_string {

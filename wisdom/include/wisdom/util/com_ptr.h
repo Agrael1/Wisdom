@@ -1,8 +1,11 @@
 #pragma once
-#ifndef WISDOM_SILENCE_API_HEADERS
+#ifndef WISDOM_MODULE_DECL
+#include <wisdom/global/definitions.h>
 #include <concepts>
 #include <span>
+#endif
 
+WISDOM_EXPORT
 namespace wis {
 struct take_ownership_t {
 };
@@ -215,4 +218,3 @@ private:
 };
 
 } // namespace wis
-#endif // WISDOM_SILENCE_API_HEADERS

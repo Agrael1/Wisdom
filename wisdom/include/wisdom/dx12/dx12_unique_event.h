@@ -1,7 +1,9 @@
 #ifndef WIS_DX12_UNIQUE_EVENT_H
 #define WIS_DX12_UNIQUE_EVENT_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/api/api.hpp>
 #include <Windows.h>
+#endif
 
 namespace wis {
 struct unique_event {

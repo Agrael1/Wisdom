@@ -1,9 +1,13 @@
 // GENERATED
 #pragma once
-#ifndef WISDOM_SILENCE_API_HEADERS
+#ifndef WISDOM_MODULE_DECL
 #include <array>
 #include <cstdint>
 #include <functional>
+#define WISDOM_EXPORT
+#else
+#define WISDOM_EXPORT export
+#endif
 
 /** \mainpage Wisdom API Documentation
 
@@ -14,6 +18,7 @@ License: MIT
 See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 */
 
+WISDOM_EXPORT
 namespace wis {
 struct Result;
 struct Size2D;
@@ -2175,4 +2180,3 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
 }
 
 } // namespace wis
-#endif // !WISDOM_SILENCE_API_HEADERS

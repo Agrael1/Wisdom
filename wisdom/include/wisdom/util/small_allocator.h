@@ -1,9 +1,13 @@
 #pragma once
-#ifndef WISDOM_SILENCE_API_HEADERS
+#ifndef WISDOM_MODULE_DECL
+#include <wisdom/global/definitions.h>
 #include <cassert>
 #include <array>
 #include <bitset>
+#endif
 
+
+WISDOM_EXPORT
 namespace wis::detail {
 /// @brief Default size of the stack allocator
 inline constexpr auto allocator_size = 1024u;
@@ -32,7 +36,6 @@ public:
     {
         T* x = new (allocator.data() + byte_size) T(std::forward<Args>(args)...);
         byte_size += sizeof(T);
-        assert(byte_size <= max_size);
         return *x;
     };
 
@@ -88,7 +91,6 @@ public:
     {
         T* x = new (this->data() + rsize) T(std::forward<Args>(args)...);
         rsize++;
-        assert(rsize <= max_size);
         return *x;
     };
 
@@ -274,4 +276,3 @@ private:
     uint32_t is_heap : 1 = 0;
 };
 } // namespace wis::detail
-#endif // WISDOM_SILENCE_API_HEADERS

@@ -19,10 +19,13 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef WISDOM_SILENCE_API_HEADERS
+#ifndef WISDOM_MODULE_DECL
 #include <type_traits>
+#include <wisdom/global/definitions.h>
+#endif
 
 // namespace adapted for wisdom from river::flags to enable ADL
+WISDOM_EXPORT
 namespace wis {
 template<typename T>
 struct is_flag_enum;
@@ -149,4 +152,3 @@ constexpr bool has(T lhs, T flag)
     return (lhs & flag) == flag;
 }
 } // namespace wis
-#endif // !WISDOM_SILENCE_API_HEADERS

@@ -1,5 +1,6 @@
 #ifndef WIS_VK_DEVICE_CPP
 #define WIS_VK_DEVICE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
 
 #include <cassert>
@@ -13,6 +14,7 @@
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_external.h>
+#endif // !WISDOM_MODULE_DECL
 
 inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept

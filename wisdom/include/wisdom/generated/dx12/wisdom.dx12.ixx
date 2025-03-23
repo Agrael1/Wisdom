@@ -8,69 +8,100 @@ See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 */
 
 module;
-#include <wisdom/global/internal.h>
-#define WISDOM_SILENCE_API_HEADERS
-import wisdom.api;
-import wisdom.internal;
-#include <wisdom/wisdom_dx12.hpp>
+#include <wisdom/generated/dx12/dx12.include.h>
+#define WISDOM_MODULE_DECL
+#define WISDOM_BUILD_BINARIES
+#define WISDOM_EXPORT export
 export module wisdom.dx12;
 
-export wis::DX12CommandListView;
-export wis::DX12GraphicsPipelineDesc;
-export wis::DX12FenceView;
-export wis::DX12PipelineView;
-export wis::DX12RootSignatureView2;
-export wis::DX12RenderPassDepthStencilDesc;
-export wis::DX12BufferView;
-export wis::DX12TextureView;
-export wis::DX12ShaderView;
-export wis::DX12RenderTargetView;
-export wis::DX12RootSignatureView;
-export wis::DX12TextureBarrier2;
-export wis::DX12MemoryView;
-export wis::DX12RaytracingPipeineDesc;
-export wis::DX12SamplerView;
-export wis::DX12ShaderResourceView;
-export wis::DX12AcceleratedGeometryDesc;
-export wis::DX12DescriptorStorageView;
-export wis::DX12BottomLevelASBuildDesc;
-export wis::DX12BufferBarrier2;
-export wis::DX12GraphicsShaderStages;
-export wis::DX12ComputePipelineDesc;
-export wis::DX12RenderPassRenderTargetDesc;
-export wis::DX12RenderPassDesc;
-export wis::DX12VertexBufferBinding;
+export import wisdom.api;
 
-//-------------------------------------------------------------------------
-
-export wis::DX12CommandQueue;
-export wis::DX12Factory;
-export wis::DX12DeviceExtension;
-export wis::DX12PipelineState;
-export wis::DX12Adapter;
-export wis::DX12Device;
-export wis::DX12FactoryExtension;
-export wis::DX12ResourceAllocator;
-export wis::DX12Memory;
-export wis::DX12Fence;
-export wis::DX12CommandList;
-export wis::DX12SwapChain;
-export wis::DX12Buffer;
-export wis::DX12Texture;
-export wis::DX12DescriptorStorage;
-export wis::DX12RootSignature;
-export wis::DX12Shader;
-export wis::DX12DebugMessenger;
-export wis::DX12RenderTarget;
-export wis::DX12Sampler;
-export wis::DX12ShaderResource;
-export wis::DX12UnorderedAccessTexture;
+#include <wisdom/dx12/dx12_convert.h>
+#include <wisdom/dx12/dx12_info.h>
+#include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/dx12/dx12_adapter.h>
+#include <wisdom/dx12/dx12_views.h>
+#include <wisdom/dx12/dx12_memory.h>
+#include <wisdom/dx12/dx12_resource.h>
+#include <wisdom/dx12/dx12_allocator.h>
+#include <wisdom/dx12/dx12_command_list.h>
+#include <wisdom/dx12/dx12_descriptor_storage.h>
+#include <wisdom/generated/dx12/dx12_structs.hpp>
+#include <wisdom/dx12/impl/dx12_command_list.cpp>
+#include <wisdom/dx12/dx12_command_queue.h>
+#include <wisdom/dx12/dx12_debug.h>
+#include <wisdom/dx12/dx12_unique_event.h>
+#include <wisdom/dx12/dx12_fence.h>
+#include <wisdom/dx12/dx12_pipeline_state.h>
+#include <wisdom/dx12/dx12_root_signature.h>
+#include <wisdom/dx12/dx12_shader.h>
+#include <wisdom/dx12/dx12_device_ext.h>
+#include <wisdom/dx12/dx12_device.h>
+#include <wisdom/dx12/dx12_factory_ext.h>
+#include <wisdom/dx12/dx12_factory.h>
+#include <wisdom/dx12/impl/dx12_factory.cpp>
+#include <wisdom/dx12/dx12_swapchain.h>
+#include <wisdom/dx12/impl/dx12_allocator.cpp>
+#include <wisdom/dx12/impl/dx12_device.cpp>
+#include <wisdom/dx12/impl/dx12_fence.cpp>
+#include <wisdom/dx12/impl/dx12_info.cpp>
+#include <wisdom/dx12/impl/dx12_swapchain.cpp>
 
 //-------------------------------------------------------------------------
 
 export namespace wis {
-using wis::DX12CreateDevice;
-using wis::DX12CreateFactory;
-} // namespace wis
 
-//-------------------------------------------------------------------------
+/**
+ * @brief Creates the wis::DX12Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @return wis::DX12Factory on success (wis::Status::Ok).
+ * */
+[[nodiscard]] inline wis::DX12Factory DX12CreateFactory(wis::Result& result, bool debug_layer = false, wis::DX12FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+{
+    return wis::ImplDX12CreateFactory(result, debug_layer, extensions, extension_count);
+}
+/**
+ * @brief Creates the wis::DX12Factory with extensions, specified in extension array.
+ * @param debug_layer Enable the debug layer for underlying API.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @return wis::DX12Factory on success (wis::Status::Ok).
+ * */
+[[nodiscard]] inline wis::ResultValue<wis::DX12Factory> DX12CreateFactory(bool debug_layer = false, wis::DX12FactoryExtension** extensions = nullptr, uint32_t extension_count = 0) noexcept
+{
+    return wis::ResultValue<wis::DX12Factory>{ &wis::ImplDX12CreateFactory, debug_layer, extensions, extension_count };
+}
+/**
+ * @brief Creates the wis::DX12Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @return wis::DX12Device on success (wis::Status::Ok).
+ * */
+[[nodiscard]] inline wis::DX12Device DX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
+{
+    return wis::ImplDX12CreateDevice(result, std::move(adapter), extensions, extension_count, force);
+}
+/**
+ * @brief Creates the wis::DX12Device with extensions, specified in extension array.
+ * @param adapter The adapter to create the logical device on. Must not be NULL.
+ * @param extensions The extensions to enable.
+ * The extensions are initialized through this array.
+ * @param extension_count The number of extensions to enable.
+ * @param force Create logical device even if some core functionality is absent.
+ * The presence of core functionality is checked by the query function.
+ * @return wis::DX12Device on success (wis::Status::Ok).
+ * */
+[[nodiscard]] inline wis::ResultValue<wis::DX12Device> DX12CreateDevice(wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false) noexcept
+{
+    return wis::ResultValue<wis::DX12Device>{ &wis::ImplDX12CreateDevice, std::move(adapter), extensions, extension_count, force };
+}
+
+} // namespace wis

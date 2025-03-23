@@ -1,12 +1,15 @@
 #ifndef WIS_DX12_COMMAND_QUEUE_H
 #define WIS_DX12_COMMAND_QUEUE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_views.h>
+#endif
 
 namespace wis {
 class DX12CommandQueue;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12CommandQueue> {
     wis::com_ptr<ID3D12CommandQueue> queue;
@@ -52,6 +55,7 @@ public:
 /**
  * @brief Represents command queue for executing command lists.
  * */
+WISDOM_EXPORT
 class DX12CommandQueue : public wis::ImplDX12CommandQueue
 {
 public:

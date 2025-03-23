@@ -1,8 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/flags.h>
+#endif
 
+WISDOM_EXPORT
 namespace wis {
 /**
  * @brief Bottom level acceleration structure build description.

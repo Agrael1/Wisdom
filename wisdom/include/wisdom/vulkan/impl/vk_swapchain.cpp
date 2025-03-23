@@ -1,11 +1,13 @@
 #ifndef WIS_VK_SWAPCHAIN_CPP
 #define WIS_VK_SWAPCHAIN_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/util/small_allocator.h>
 #include <algorithm>
 #include <limits>
+#endif // !WISDOM_MODULE_DECL
 
 wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image_size) noexcept
 {

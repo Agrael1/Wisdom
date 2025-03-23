@@ -53,6 +53,7 @@ public:
 };
 #pragma region DX12ExtendedAllocation
 
+WISDOM_EXPORT
 class DX12ExtendedAllocation : public wis::ImplDX12ExtendedAllocation
 {
 public:
@@ -172,6 +173,7 @@ public:
 };
 #pragma region VKExtendedAllocation
 
+WISDOM_EXPORT
 class VKExtendedAllocation : public wis::ImplVKExtendedAllocation
 {
 public:

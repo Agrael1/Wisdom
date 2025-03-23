@@ -1,10 +1,10 @@
 #pragma once
-#include <utility>
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/definitions.h>
+#include <utility>
+#endif // !WISDOM_MODULE_DECL
 
-#include <source_location>
-#include <cstdio>
-
+WISDOM_EXPORT
 namespace wis {
 
 /// @brief Template class for internal implementation

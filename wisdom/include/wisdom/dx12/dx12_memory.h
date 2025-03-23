@@ -1,13 +1,16 @@
 #ifndef WIS_DX12_MEMORY_H
 #define WIS_DX12_MEMORY_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
 #include <D3D12MemAlloc.h>
+#endif
 
 namespace wis {
 class DX12Memory;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Memory> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
@@ -52,6 +55,7 @@ public:
 /**
  * @brief Represents memory object for binding resources.
  * */
+WISDOM_EXPORT
 class DX12Memory : public wis::ImplDX12Memory
 {
 public:

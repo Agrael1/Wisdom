@@ -1,15 +1,18 @@
 #ifndef WIS_DX12_DESCRIPTOR_STORAGE_H
 #define WIS_DX12_DESCRIPTOR_STORAGE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <d3dx12/d3dx12_root_signature.h>
 #include <wisdom/util/misc.h>
+#endif
 
 namespace wis {
 
 class DX12DescriptorStorage;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12DescriptorStorage> {
     struct OffsetIndicator {
@@ -123,6 +126,7 @@ public:
  * @brief Represents descriptor storage object for storing descriptors.
  * Used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
  * */
+WISDOM_EXPORT
 class DX12DescriptorStorage : public wis::ImplDX12DescriptorStorage
 {
 public:

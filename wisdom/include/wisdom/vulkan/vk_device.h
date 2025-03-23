@@ -1,5 +1,6 @@
 #ifndef WIS_VK_DEVICE_H
 #define WIS_VK_DEVICE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_queue_residency.h>
@@ -13,10 +14,12 @@
 #include <wisdom/vulkan/vk_descriptor_storage.h>
 #include <wisdom/vulkan/vk_device_ext.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class VKDevice;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKDevice> {
     wis::VKAdapter adapter;
@@ -153,6 +156,7 @@ protected:
  * @brief Represents logical device.
  * Creates all the resources and commands for rendering.
  * */
+WISDOM_EXPORT
 class VKDevice : public wis::ImplVKDevice
 {
 public:

@@ -1,8 +1,14 @@
 #pragma once
+#ifndef WISVK_MODULE_DECL
 #include <array>
 #include <vulkan/vulkan.h>
 #include <wisvk/vk_libinit.hpp>
+#define WISVK_EXPORT
+#else
+#define WISVK_EXPORT export
+#endif // WISVK_MODULE_DECL
 
+WISVK_EXPORT
 namespace wis {
 
 #if !(defined(VK_VERSION_1_1))
@@ -18,6 +24,16 @@ using PFN_vkGetPhysicalDeviceProperties2 = PFN_vkGetPhysicalDeviceProperties2KHR
 #if !(defined(VK_VERSION_1_1))
 #if defined(VK_KHR_get_physical_device_properties2)
 using PFN_vkGetPhysicalDeviceMemoryProperties2 = PFN_vkGetPhysicalDeviceMemoryProperties2KHR;
+#endif
+#endif
+#if !(defined(VK_VERSION_1_4))
+#if defined(VK_KHR_push_descriptor)
+using PFN_vkCmdPushDescriptorSet = PFN_vkCmdPushDescriptorSetKHR;
+#endif
+#endif
+#if !(defined(VK_VERSION_1_4))
+#if defined(VK_KHR_maintenance5)
+using PFN_vkCmdBindIndexBuffer2 = PFN_vkCmdBindIndexBuffer2KHR;
 #endif
 #endif
 #if !(defined(VK_VERSION_1_1))
@@ -348,11 +364,6 @@ struct VKMainDevice {
     PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
     PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
     PFN_vkGetDeviceQueue2 vkGetDeviceQueue2;
-#if defined(VK_KHR_maintenance5)
-    PFN_vkCmdBindIndexBuffer2KHR vkCmdBindIndexBuffer2KHR;
-#else
-    void* vkCmdBindIndexBuffer2KHR;
-#endif
 #if defined(VK_VERSION_1_1) || defined(VK_KHR_get_memory_requirements2)
     PFN_vkGetImageMemoryRequirements2 vkGetImageMemoryRequirements2;
 #else
@@ -383,16 +394,13 @@ struct VKMainDevice {
     PFN_vkCmdEndRendering vkCmdEndRendering;
     PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
     PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2;
+    PFN_vkCmdBindIndexBuffer2 vkCmdBindIndexBuffer2;
+    PFN_vkCmdPushDescriptorSet vkCmdPushDescriptorSet;
     PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
     PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
     PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
     PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
     PFN_vkQueuePresentKHR vkQueuePresentKHR;
-#if defined(VK_KHR_push_descriptor)
-    PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
-#else
-    void* vkCmdPushDescriptorSetKHR;
-#endif
 #if defined(VK_KHR_present_wait)
     PFN_vkWaitForPresentKHR vkWaitForPresentKHR;
 #else
@@ -710,7 +718,6 @@ public:
         if (vkGetDeviceQueue2 == nullptr) {
             return false;
         }
-        vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(device, "vkCmdBindIndexBuffer2KHR");
         static constexpr std::array vkGetImageMemoryRequirements2_strings{
 #if defined(VK_VERSION_1_1)
             "vkGetImageMemoryRequirements2",
@@ -926,6 +933,38 @@ public:
         if (vkCmdBindVertexBuffers2 == nullptr) {
             return false;
         }
+        static constexpr std::array vkCmdBindIndexBuffer2_strings{
+#if defined(VK_VERSION_1_4)
+            "vkCmdBindIndexBuffer2",
+#endif
+#if defined(VK_KHR_maintenance5)
+            "vkCmdBindIndexBuffer2KHR",
+#endif
+        };
+        for (auto vkCmdBindIndexBuffer2_it : vkCmdBindIndexBuffer2_strings) {
+            if ((vkCmdBindIndexBuffer2 = (PFN_vkCmdBindIndexBuffer2)vkGetDeviceProcAddr(device, vkCmdBindIndexBuffer2_it))) {
+                break;
+            }
+        }
+        if (vkCmdBindIndexBuffer2 == nullptr) {
+            return false;
+        }
+        static constexpr std::array vkCmdPushDescriptorSet_strings{
+#if defined(VK_VERSION_1_4)
+            "vkCmdPushDescriptorSet",
+#endif
+#if defined(VK_KHR_push_descriptor)
+            "vkCmdPushDescriptorSetKHR",
+#endif
+        };
+        for (auto vkCmdPushDescriptorSet_it : vkCmdPushDescriptorSet_strings) {
+            if ((vkCmdPushDescriptorSet = (PFN_vkCmdPushDescriptorSet)vkGetDeviceProcAddr(device, vkCmdPushDescriptorSet_it))) {
+                break;
+            }
+        }
+        if (vkCmdPushDescriptorSet == nullptr) {
+            return false;
+        }
         vkCreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)vkGetDeviceProcAddr(device, "vkCreateSwapchainKHR");
         if (vkCreateSwapchainKHR == nullptr) {
             return false;
@@ -946,7 +985,6 @@ public:
         if (vkQueuePresentKHR == nullptr) {
             return false;
         }
-        vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(device, "vkCmdPushDescriptorSetKHR");
         vkWaitForPresentKHR = (PFN_vkWaitForPresentKHR)vkGetDeviceProcAddr(device, "vkWaitForPresentKHR");
         return true;
     }

@@ -1,5 +1,6 @@
 #ifndef WIS_VK_HANDLES_H
 #define WIS_VK_HANDLES_H
+#ifndef WISDOM_MODULE_DECL
 #include <memory>
 #include <span>
 #include <vector>
@@ -7,7 +8,9 @@
 #include <wisdom/generated/vulkan/vk_functions.hpp>
 #include <wisvk/vk_movable.hpp>
 #include <wisvk/vk_managed_handles.hpp>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 struct SharedDeviceHeader {
     deleter_of_t<VkDevice> deleter;

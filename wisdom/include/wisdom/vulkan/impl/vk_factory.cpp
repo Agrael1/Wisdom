@@ -1,5 +1,6 @@
 #ifndef WIS_VK_FACTORY_CPP
 #define WIS_VK_FACTORY_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_checks.h>
 
@@ -10,6 +11,7 @@
 #include <array>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/misc.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
 inline constexpr uint32_t order_performance(VkPhysicalDeviceType t)

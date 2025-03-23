@@ -45,6 +45,7 @@ public:
 
 #pragma region DX12DebugExtension
 
+WISDOM_EXPORT
 class DX12DebugExtension : public wis::ImplDX12DebugExtension
 {
 public:
@@ -132,6 +133,7 @@ public:
 
 #pragma region VKDebugExtension
 
+WISDOM_EXPORT
 class VKDebugExtension : public wis::ImplVKDebugExtension
 {
 public:

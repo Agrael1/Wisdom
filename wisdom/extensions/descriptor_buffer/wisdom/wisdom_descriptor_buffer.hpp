@@ -65,6 +65,7 @@ public: // Command List
 
 #pragma region DX12DescriptorBufferExtension
 
+WISDOM_EXPORT
 class DX12DescriptorBufferExtension : public wis::ImplDX12DescriptorBufferExtension
 {
 public:
@@ -260,6 +261,7 @@ protected:
 
 #pragma region VKDescriptorBufferExtension
 
+WISDOM_EXPORT
 class VKDescriptorBufferExtension : public wis::ImplVKDescriptorBufferExtension
 {
 public:

@@ -1,9 +1,11 @@
 #ifndef WIS_VK_COMMAND_LIST_CPP
 #define WIS_VK_COMMAND_LIST_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_command_list.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/small_allocator.h>
+#endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
 {
@@ -460,7 +462,7 @@ void wis::ImplVKCommandList::IASetIndexBuffer(wis::VKBufferView buffer, wis::Ind
 }
 void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
 {
-    device.table().vkCmdBindIndexBuffer2KHR(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
+    device.table().vkCmdBindIndexBuffer2(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -507,7 +509,7 @@ void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t
         .descriptorType = convert_vk(type),
         .pBufferInfo = &buffer_info
     };
-    device.table().vkCmdPushDescriptorSetKHR(command_list,
+    device.table().vkCmdPushDescriptorSet(command_list,
                                              binding_point,
                                              pipeline_layout,
                                              0, // set 0, because set 0 is reserved for push descriptors

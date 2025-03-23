@@ -1,6 +1,8 @@
 #ifndef WIS_DX12_FENCE_CPP
 #define WIS_DX12_FENCE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_fence.h>
+#endif
 
 wis::Result wis::ImplDX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noexcept
 {

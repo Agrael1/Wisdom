@@ -1,12 +1,14 @@
 #ifndef WIS_VK_VIEWS_H
 #define WIS_VK_VIEWS_H
-
+#ifndef WISDOM_MODULE_DECL
 #include <tuple>
 #include <span>
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisvk/vk_loader.hpp>
 #include <wisdom/generated/api/api.hpp>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 using VKFactoryHandle = std::tuple<wis::SharedInstance>;
 using VKDeviceHandle = std::tuple<wis::SharedDevice>;

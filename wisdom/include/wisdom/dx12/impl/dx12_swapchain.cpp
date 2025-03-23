@@ -1,10 +1,10 @@
-#pragma once
-#ifdef WISDOM_BUILD_BINARIES
+#ifndef WIS_DX12_SWAPCHAIN_CPP
+#define WIS_DX12_SWAPCHAIN_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_swapchain.h>
-#endif // !WISDOM_HEADER_ONLY
-
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/util/misc.h>
+#endif
 
 wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
 {
@@ -61,3 +61,5 @@ wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noex
     }
     return wis::success;
 }
+
+#endif // WIS_DX12_SWAPCHAIN_CPP

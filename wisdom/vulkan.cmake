@@ -17,6 +17,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   target_sources(wisdom-vk-module
     PUBLIC FILE_SET CXX_MODULES FILES
       "include/wisdom/generated/vulkan/wisdom.vk.ixx"
+      
   )
   target_link_libraries(wisdom-vk-module PUBLIC wisdom-vk-headers wisdom-shared-module)
   set_target_properties(wisdom-vk-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)

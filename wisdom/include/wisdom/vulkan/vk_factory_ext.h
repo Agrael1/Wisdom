@@ -1,13 +1,16 @@
 #ifndef WIS_VK_FACTORY_EXT_H
 #define WIS_VK_FACTORY_EXT_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/api/api.hpp>
 #include <memory>
 #include <span>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class VKFactory;
 }
 
+WISDOM_EXPORT
 namespace wis {
 struct VKFactoryExtension {
     virtual ~VKFactoryExtension() = default;

@@ -1,12 +1,15 @@
 #ifndef WIS_DX12_RESOURCE_H
 #define WIS_DX12_RESOURCE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/dx12/dx12_memory.h>
 #include <optional>
+#endif
 
 namespace wis {
 class DX12Buffer;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Buffer> {
     DX12Memory memory;
@@ -51,17 +54,20 @@ public:
     }
 };
 
+WISDOM_EXPORT
 using DX12Texture = DX12Buffer;
 
 // =================================================================================================
 class DX12RenderTarget;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12RenderTarget> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
     D3D12_CPU_DESCRIPTOR_HANDLE handle{};
 };
 
+WISDOM_EXPORT
 class DX12RenderTarget : public QueryInternal<DX12RenderTarget>
 {
 public:
@@ -80,11 +86,13 @@ public:
 
 class DX12Sampler;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Sampler> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
 };
 
+WISDOM_EXPORT
 class DX12Sampler : public QueryInternal<DX12Sampler>
 {
 public:
@@ -103,11 +111,13 @@ public:
 
 class DX12ShaderResource;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12ShaderResource> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
 };
 
+WISDOM_EXPORT
 class DX12ShaderResource : public QueryInternal<DX12ShaderResource>
 {
 public:
@@ -122,12 +132,14 @@ public:
     }
 };
 
+WISDOM_EXPORT
 using DX12UnorderedAccessTexture = DX12ShaderResource;
 
 #pragma region DX12Buffer
 /**
  * @brief Represents buffer object for storing linear data.
  * */
+WISDOM_EXPORT
 class DX12Buffer : public wis::ImplDX12Buffer
 {
 public:

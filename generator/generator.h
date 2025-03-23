@@ -267,6 +267,8 @@ struct WisConversion {
     ImplementedFor impl = ImplementedFor::None;
 };
 
+
+
 class Generator
 {
     static constexpr std::string_view output_dir = OUTPUT_DIR;
@@ -301,6 +303,7 @@ public:
     std::string GenerateCPPPlatformTypedefs(std::string_view impl);
     std::string GenerateCPPExportHeader();
     std::string GenerateCPPExportModule();
+    std::string GenerateCPPExportModuleForceVulkan();
     std::string GenerateCPPPlatformExportHeader(std::string_view impl);
     std::string GenerateCPPModule(std::string_view impl);
 

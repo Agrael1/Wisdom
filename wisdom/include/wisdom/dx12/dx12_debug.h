@@ -1,17 +1,21 @@
 #ifndef WIS_DX12_DEBUG_H
 #define WIS_DX12_DEBUG_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_info.h>
 #include <memory>
+#endif
 
 namespace wis {
 class DX12DebugMessenger;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12DebugMessenger> {
     DX12InfoToken info;
 };
 
+WISDOM_EXPORT
 class DX12DebugMessenger : public QueryInternal<DX12DebugMessenger>
 {
 public:

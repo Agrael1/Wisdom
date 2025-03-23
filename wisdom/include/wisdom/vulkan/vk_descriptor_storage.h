@@ -1,12 +1,14 @@
 #ifndef WIS_VK_DESCRIPTOR_STORAGE_H
 #define WIS_VK_DESCRIPTOR_STORAGE_H
-
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class VKDescriptorStorage;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKDescriptorStorage> {
     wis::SharedDevice device;
@@ -180,6 +182,7 @@ public:
  * @brief Represents descriptor storage object for storing descriptors.
  * Used for bindless and non-uniform bindings. Don't combine with Descriptor buffers, this may reduce performance.
  * */
+WISDOM_EXPORT
 class VKDescriptorStorage : public wis::ImplVKDescriptorStorage
 {
 public:

@@ -1,5 +1,6 @@
 #ifndef WIS_VK_DEVICE_EXT_H
 #define WIS_VK_DEVICE_EXT_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/misc.h>
 #include <wisdom/global/internal.h>
@@ -9,11 +10,13 @@
 #include <unordered_map>
 #include <string_view>
 #include <vulkan/vulkan_core.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class VKDevice;
 }
 
+WISDOM_EXPORT
 namespace wis {
 struct VKDeviceExtension {
     virtual ~VKDeviceExtension() = default;

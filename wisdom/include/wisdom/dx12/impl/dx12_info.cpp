@@ -1,11 +1,13 @@
 #ifndef WIS_DX12_INFO_CPP
 #define WIS_DX12_INFO_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_info.h>
 #include <d3d12sdklayers.h>
 #include <dxgi1_6.h>
 #include <vector>
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
+#endif // WISDOM_MODULE_DECL
 
 namespace wis {
 constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev) noexcept
@@ -119,7 +121,7 @@ void wis::DX12Info::Initialize() noexcept
 
 void wis::DX12Info::PollInternal() noexcept
 {
-    std::vector<byte> message;
+    std::vector<uint8_t> message;
     message.resize(sizeof(DXGI_INFO_QUEUE_MESSAGE));
 
     for (UINT64 i = 0;; i++) {

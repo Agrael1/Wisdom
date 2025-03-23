@@ -1,10 +1,12 @@
 #ifndef WIS_VK_CREATE_FACTORY_CPP
 #define WIS_VK_CREATE_FACTORY_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <unordered_map>
 #include <array>
 #include <ranges>
+#endif
 
 wis::detail::fixed_allocation<const char*>
 wis::ImplVKFactory::FoundExtensions(wis::Result& result, std::span<const char*> in_extensions) noexcept

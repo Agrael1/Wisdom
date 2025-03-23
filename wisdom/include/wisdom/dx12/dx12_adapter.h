@@ -1,11 +1,14 @@
 #ifndef WIS_DX12_ADAPTER_H
 #define WIS_DX12_ADAPTER_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/global/internal.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 class DX12Adapter;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Adapter> {
     wis::com_ptr<IDXGIAdapter1> adapter;
@@ -57,6 +60,7 @@ public:
  * @brief Represents physical device.
  * Can safely be deleted once logical device has been created.
  * */
+WISDOM_EXPORT
 class DX12Adapter : public wis::ImplDX12Adapter
 {
 public:

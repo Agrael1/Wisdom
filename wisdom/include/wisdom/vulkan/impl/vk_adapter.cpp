@@ -1,11 +1,13 @@
 #ifndef WIS_VK_ADAPTER_CPP
 #define WIS_VK_ADAPTER_CPP
 
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_checks.h>
 
 #include <wisdom/util/flags.h>
 #include <cstring>
+#endif // !WISDOM_MODULE_DECL
 
 wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {

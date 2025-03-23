@@ -1,7 +1,9 @@
 #ifndef WIS_DX12_FACTORY_CPP
 #define WIS_DX12_FACTORY_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_factory.h>
 #include <wisdom/dx12/dx12_checks.h>
+#endif
 
 wis::DX12Factory
 wis::ImplDX12CreateFactory(wis::Result& res, bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept

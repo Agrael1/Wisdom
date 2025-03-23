@@ -1,6 +1,7 @@
 #ifndef WIS_DX12_ALLOCATOR_CPP
 #define WIS_DX12_ALLOCATOR_CPP
 
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_allocator.h>
 
 #include <d3dx12/d3dx12_core.h>
@@ -8,6 +9,7 @@
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/util/misc.h>
 #include <wisdom/dx12/dx12_checks.h>
+#endif
 
 wis::DX12Buffer
 wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept

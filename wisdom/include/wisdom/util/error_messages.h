@@ -9,6 +9,7 @@
 
 #include <wisdom/util/string_literal.h>
 
+WISDOM_EXPORT
 namespace wis {
 template<wis::fixed_string func, wis::fixed_string message>
 consteval inline auto make_error_string()

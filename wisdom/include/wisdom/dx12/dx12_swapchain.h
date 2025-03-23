@@ -1,4 +1,6 @@
-#pragma once
+#ifndef WIS_DX12_SWAPCHAIN_H
+#define WIS_DX12_SWAPCHAIN_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/dx12/dx12_views.h>
@@ -6,11 +8,12 @@
 #include <wisdom/dx12/dx12_resource.h>
 #include <wisdom/dx12/dx12_unique_event.h>
 #include <memory>
+#endif
 
 namespace wis {
 class DX12SwapChain;
-class DX12Device;
 
+WISDOM_EXPORT
 namespace detail {
 struct DX12SwapChainCreateInfo {
     wis::com_ptr<IDXGISwapChain4> chain;
@@ -25,6 +28,7 @@ struct DX12SwapChainCreateInfo {
 };
 } // namespace detail
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12SwapChain> : public detail::DX12SwapChainCreateInfo {
 };
@@ -107,6 +111,7 @@ public:
 /**
  * @brief Represents swap chain object for presenting images.
  * */
+WISDOM_EXPORT
 class DX12SwapChain : public wis::ImplDX12SwapChain
 {
 public:
@@ -174,3 +179,4 @@ public:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !WIS_DX12_SWAPCHAIN_H

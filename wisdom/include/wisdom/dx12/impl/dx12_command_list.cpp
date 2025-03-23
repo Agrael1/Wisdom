@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_COMMAND_LIST_CPP
 #define WIS_DX12_COMMAND_LIST_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_command_list.h>
 
 #include <wisdom/dx12/dx12_checks.h>
@@ -8,6 +9,7 @@
 #include <wisdom/util/small_allocator.h>
 #include <d3dx12/d3dx12_resource_helpers.h>
 #include <d3dx12/d3dx12_root_signature.h>
+#endif
 
 void wis::ImplDX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept
 {

@@ -1,15 +1,18 @@
 #ifndef WIS_DX12_FENCE_H
 #define WIS_DX12_FENCE_H
+#ifndef WISDOM_MODULE_DECL
 #include <d3d12.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/dx12/dx12_unique_event.h>
+#endif
 
 namespace wis {
 class DX12Fence;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Fence> {
     wis::com_ptr<ID3D12Fence1> fence;
@@ -54,6 +57,7 @@ public:
 /**
  * @brief Represents fence for synchronization of GPU timeline.
  * */
+WISDOM_EXPORT
 class DX12Fence : public wis::ImplDX12Fence
 {
 public:

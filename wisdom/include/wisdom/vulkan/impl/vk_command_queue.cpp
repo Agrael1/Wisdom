@@ -1,6 +1,8 @@
 #ifndef WIS_VK_COMMAND_QUEUE_CPP
 #define WIS_VK_COMMAND_QUEUE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_command_queue.h>
+#endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
                                                   uint32_t count) const noexcept
