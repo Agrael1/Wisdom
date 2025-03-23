@@ -1,7 +1,7 @@
 #ifndef WISDOM_WAYLAND_H
 #define WISDOM_WAYLAND_H
 #if defined(WISDOM_VULKAN)
-// TODO: Remove this when the implementation is complete
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <wisdom/vulkan/vk_factory.h>
@@ -10,7 +10,9 @@ struct wl_display;
 struct wl_surface;
 
 #include <vulkan/vulkan_wayland.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 namespace platform {
 class WaylandExtension;

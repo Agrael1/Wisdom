@@ -14,7 +14,7 @@ constexpr take_ownership_t take_ownership;
 
 template<typename T>
 struct guid_of {
-#ifndef __GNUC__
+#if !defined(__GNUC__) || defined(_WIN32) 
     static constexpr auto value = __uuidof(T);
 #else
     static constexpr auto value = 0;

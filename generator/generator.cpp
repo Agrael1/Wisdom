@@ -692,8 +692,8 @@ export module wisdom.api;
     std::string output_dx12 = wis::format(documentation_header, WISDOM_VERSION);
     output_dx12 += "\n*/\n\n";
     output_dx12 += R"(module;
-#include <wisdom/generated/dx12/dx12.include.h>
 #define WISDOM_MODULE_DECL
+#include <wisdom/generated/dx12/dx12.include.h>
 #define WISDOM_BUILD_BINARIES
 #define WISDOM_EXPORT export
 export module wisdom.dx12;
@@ -745,8 +745,8 @@ export import wisdom.api;
     std::string output_vk = wis::format(documentation_header, WISDOM_VERSION);
     output_vk += "\n*/\n\n";
     output_vk += R"(module;
-#include <wisdom/generated/vulkan/vk.include.h>
 #define WISDOM_MODULE_DECL
+#include <wisdom/generated/vulkan/vk.include.h>
 #define WISVK_MODULE_DECL
 #define WISDOM_BUILD_BINARIES
 #define WISDOM_EXPORT export

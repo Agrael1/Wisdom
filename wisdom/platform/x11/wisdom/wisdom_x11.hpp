@@ -1,6 +1,7 @@
 #ifndef WISDOM_X11_H
 #define WISDOM_X11_H
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <wisdom/vulkan/vk_factory.h>
@@ -15,7 +16,9 @@
 #undef False
 #undef None
 #undef Always
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 namespace platform {
 class X11Extension;
