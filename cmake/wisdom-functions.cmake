@@ -1,69 +1,68 @@
+# Function for installing DirectX SDK for UWP
+function(wis_export_agility_file)
+	set(options )
+	set(oneValueArgs PATH)
+	set(multiValueArgs )
+
+	cmake_parse_arguments(wis_export_agility_file
+							  "${options}" "${oneValueArgs}" "${multiValueArgs}"
+						  ${ARGN})
+
+	get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
+
+	set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
+						_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
+	)
+	file(WRITE ${wis_export_agility_file_PATH} "${EXPORT_AGILITY}")
+endfunction()
+
 function(wis_make_exports_dx PROJECT)
-  get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
-
-  set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
-  					_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
-  )
-
-  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/exports.c" "${EXPORT_AGILITY}")
+  wis_export_agility_file(PATH ${CMAKE_CURRENT_BINARY_DIR}/exports.c)
 
   target_sources(${PROJECT} PRIVATE
   	${CMAKE_CURRENT_BINARY_DIR}/exports.c
   )
 endfunction()
 
-# Function for installing DirectX SDK for UWP
 function(wis_install_dx_uwp PROJECT)
-    #message("Installing DirectX Agility SDK Dependency")
-
-	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
-
-	set(EXPORT_AGILITY "extern \"C\" { _declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER}; }
-						extern \"C\" { _declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\"; }"
-	)
-
-	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/exports.cpp" "${EXPORT_AGILITY}")
-
-	target_sources(${PROJECT} PRIVATE
-		${CMAKE_CURRENT_BINARY_DIR}/exports.cpp
-	)
-
-	get_target_property(dxadll DX12AgilityCore IMPORTED_LOCATION)
-	message("DX12AgilityCore: ${dxadll}")
-	set_property(SOURCE ${dxadll} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-	set_property(SOURCE ${dxadll} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-	target_sources(${PROJECT} PRIVATE ${dxadll})
-
-	get_target_property(dxalayersdll DX12AgilitySDKLayers IMPORTED_LOCATION)
-	message("DX12AgilitySDKLayers: ${dxalayersdll}")
-	set_property(SOURCE ${dxalayersdll} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-	set_property(SOURCE ${dxalayersdll} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-	target_sources(${PROJECT} PRIVATE ${dxalayersdll})
-endfunction()
-
-# Function for installing DirectX SDK
-function(wis_install_dx_win32 PROJECT)
-	get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
-
-	set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
-						_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
-	)
-
-	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/exports.c" "${EXPORT_AGILITY}")
+    message("Installing DirectX Agility SDK Dependency")
+	wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
 
 	target_sources(${PROJECT} PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}/exports.c
 	)
 
+	message("DX12AgilityCore: ${DXAGILITY_DLL}")
+	set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+	set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
+	target_sources(${PROJECT} PRIVATE ${DXAGILITY_DLL})
+
+	message("DX12AgilitySDKLayers: ${DXAGILITY_DEBUG_DLL}")
+	set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+	set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
+	target_sources(${PROJECT} PRIVATE ${DXAGILITY_DEBUG_DLL})
+endfunction()
+
+# Function for installing DirectX SDK
+function(wis_install_dx_win32 PROJECT)
+	message("Installing DirectX Agility SDK Dependency")
+	wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
+
+	target_sources(${PROJECT} PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}/exports.c
+	)
+
+	get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
 	add_custom_command(TARGET ${PROJECT} POST_BUILD
-	  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:DX12AgilityCore> $<TARGET_FILE_DIR:${PROJECT}>/D3D12/$<TARGET_FILE_NAME:DX12AgilityCore>
+	  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DLL_NAME}
 	  COMMAND_EXPAND_LISTS
 	  COMMENT "Copying DX12 Agility Core..."
 	)
 
 
+	get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
 	add_custom_command(TARGET ${PROJECT} POST_BUILD
-	  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:DX12AgilitySDKLayers> $<TARGET_FILE_DIR:${PROJECT}>/D3D12/$<TARGET_FILE_NAME:DX12AgilitySDKLayers>
+	  COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
 	  COMMAND_EXPAND_LISTS
 	  COMMENT "Copying DX12 Agility SDKLayers..."
 	)
@@ -71,12 +70,13 @@ endfunction()
 
 # Function for installing Wisdom Dependencies
 function(wis_install_deps PROJECT)
-    if(WISDOM_WINDOWS AND NOT WISDOM_WINDOWS_STORE)
+    if(WIN32 AND NOT WINDOWS_STORE)
 		wis_install_dx_win32(${PROJECT})
-	elseif(WISDOM_WINDOWS_STORE)
+	elseif(WINDOWS_STORE)
 		wis_install_dx_uwp(${PROJECT})
-	endif(WISDOM_WINDOWS AND NOT WISDOM_WINDOWS_STORE)
+	endif(WIN32 AND NOT WINDOWS_STORE)
 endfunction()
+
 
 
 # Function for compiling shaders
@@ -91,13 +91,17 @@ endfunction()
 #	DEFINITIONS: List of preprocessor definitions, e.g. "MY_DEFINE=1"
 function(wis_compile_shader)
 	set(options )
-    set(oneValueArgs TARGET ENTRY SHADER OUTPUT TYPE SHADER_MODEL)
+    set(oneValueArgs DXC TARGET ENTRY SHADER OUTPUT TYPE SHADER_MODEL)
     set(multiValueArgs INCLUDE_DIRS DEFINITIONS FLAGS)
     cmake_parse_arguments(wis_compile_shader "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
 
-	if(NOT dxc_EXECUTABLE)
-		message(FATAL_ERROR "wis_compile_shader: dxc not found")
+	if(NOT wis_compile_shader_DXC)
+		if(NOT dxc_EXECUTABLE)
+			find_program(wis_compile_shader_DXC dxc)
+		else()
+			set(wis_compile_shader_DXC ${dxc_EXECUTABLE})
+		endif()
 	endif()
 
 	if(NOT wis_compile_shader_TARGET)
@@ -161,6 +165,7 @@ function(wis_compile_shader)
 	string(STRIP "${DEFINES}" DEFINES)
 	string(STRIP "${FLAGS}" FLAGS)
 
+
 	set(SHADER ${wis_compile_shader_SHADER})
 	set(TARGET ${wis_compile_shader_TARGET})
 	set(TYPE ${wis_compile_shader_TYPE})
@@ -177,15 +182,15 @@ function(wis_compile_shader)
 		set(OUTPUT_PDB ${CMAKE_CURRENT_BINARY_DIR}/${FILE_WE}.pdb)
 	endif()
 
-    if(WISDOM_WINDOWS_STORE)
+    if(WINDOWS_STORE)
         file(TOUCH ${OUTPUT_DXIL})
         target_sources(${TARGET} PRIVATE ${OUTPUT_DXIL})
         set_property(SOURCE ${OUTPUT_DXIL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
     endif()
 
-    if(WISDOM_WINDOWS)
+    if(WIN32)
         add_custom_command(TARGET ${TARGET}
-            COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${FLAGS} ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
+            COMMAND "${wis_compile_shader_DXC}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${FLAGS} ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
             MAIN_DEPENDENCY ${SHADER}
             COMMENT "HLSL ${SHADER}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -193,9 +198,15 @@ function(wis_compile_shader)
     endif()
 
     add_custom_command(TARGET ${TARGET}
-        COMMAND "${dxc_EXECUTABLE}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes ${FLAGS} -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
+        COMMAND "${wis_compile_shader_DXC}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes ${FLAGS} -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
         MAIN_DEPENDENCY ${SHADER}
         COMMENT "SPV ${SHADER}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)
 endfunction()
+
+function(add_alias_target TARGET ALIAS)
+	if(NOT TARGET ${ALIAS})
+		add_library(${ALIAS} ALIAS ${TARGET})
+	endif()
+endfunction(add_alias_target)

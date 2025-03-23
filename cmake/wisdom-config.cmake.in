@@ -36,7 +36,7 @@ else()
 	add_library(wis::wisdom-vk ALIAS wisdom-vk)
 	add_library(wis::wisdom-vk-headers ALIAS wisdom-vk)
 endif()
-include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-deps.cmake" )
+include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-functions.cmake" )
 include( "${CMAKE_CURRENT_LIST_DIR}/wisdom-targets.cmake" )
 
 add_alias_target(wis::headers wis::wisdom-headers)

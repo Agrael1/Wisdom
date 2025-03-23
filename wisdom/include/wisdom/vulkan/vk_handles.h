@@ -6,6 +6,7 @@
 #include <vector>
 #include <vk_mem_alloc.h>
 #include <wisdom/generated/vulkan/vk_functions.hpp>
+#include <wisdom/global/definitions.h>
 #include <wisvk/vk_movable.hpp>
 #include <wisvk/vk_managed_handles.hpp>
 #endif // !WISDOM_MODULE_DECL

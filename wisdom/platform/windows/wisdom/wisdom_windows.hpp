@@ -1,11 +1,13 @@
 #ifndef WISDOM_WINDOWS_H
 #define WISDOM_WINDOWS_H
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_factory_ext.h>
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_device_ext.h>
 #include <wisdom/dx12/dx12_device.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 namespace platform {
@@ -87,13 +89,16 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <vulkan/vulkan_win32.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 namespace platform {
 class VKWindowsExtension;
@@ -209,6 +214,7 @@ public:
 } // namespace wis
 #endif // WISDOM_VULKAN
 
+WISDOM_EXPORT
 namespace wis::platform {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using WindowsExtension = platform::DX12WindowsExtension;

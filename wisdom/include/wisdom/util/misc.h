@@ -46,7 +46,7 @@ struct fixed_allocation {
     }
     constexpr operator bool() const noexcept
     {
-        return data != nullptr;
+        return data.get() != nullptr;
     }
     constexpr auto* get() noexcept
     {

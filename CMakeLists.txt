@@ -33,7 +33,7 @@ endif()
 # Additional CMake functions.
 include(cmake/platform.cmake)
 include(cmake/settings.cmake)
-include(cmake/functions.cmake)
+include(cmake/wisdom-functions.cmake)
 include(cmake/misc.cmake)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)

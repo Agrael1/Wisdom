@@ -89,8 +89,8 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
 endif()
 
 include(CMakePackageConfigHelpers)
-configure_file("../cmake/wisdom-deps.cmake.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake" @ONLY)
+configure_file("../cmake/wisdom-functions.cmake"
+               "${CMAKE_CURRENT_BINARY_DIR}/wisdom-functions.cmake" @ONLY)
 
 configure_package_config_file(
   "../cmake/wisdom-config.cmake.in" "wisdom-config.cmake"

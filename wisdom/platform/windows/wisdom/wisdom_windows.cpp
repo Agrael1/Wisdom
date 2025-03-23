@@ -1,9 +1,11 @@
 #ifndef WISDOM_WINDOWS_CPP
 #define WISDOM_WINDOWS_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/wisdom_windows.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <d3d11.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
 inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc& desc) noexcept
@@ -164,9 +166,10 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, con
 }
 
 #ifdef WISDOM_VULKAN
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
+#endif
 
-// #error error
 
 wis::VKSwapChain
 wis::platform::VKWindowsExtension::CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
