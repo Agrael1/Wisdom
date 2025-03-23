@@ -69,7 +69,7 @@ public:
         };
         auto vr = vkGetSemaphoreFdKHR(device.get(), &handle_info, &handle);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to get semaphore handle">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get semaphore handle">(vr);
         }
         return handle;
     }
@@ -95,7 +95,7 @@ public:
 
         auto vr = vkGetMemoryFdKHR(al_info.device, &handle_info, &handle);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to get memory handle">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get memory handle">(vr);
         }
         return handle;
     }

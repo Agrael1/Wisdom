@@ -18,7 +18,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
     if (new_back_buffer_count > back_buffer_count) {
         back_buffers = wis::detail::make_unique_for_overwrite<VKTexture[]>(new_back_buffer_count);
         if (!back_buffers) {
-            return { wis::make_result<FUNC, "failed to allocate back_buffers array">(result) };
+            return { wis::make_result<wis::Func<wis::FuncD()>(), "failed to allocate back_buffers array">(result) };
         }
 
         back_buffer_count = new_back_buffer_count;
@@ -29,7 +29,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
     result = table.vkGetSwapchainImagesKHR(device.get(), swapchain, &new_back_buffer_count, image_data);
 
     if (!wis::succeeded(result)) {
-        return { wis::make_result<FUNC, "vkGetSwapchainImagesKHR failed">(result) };
+        return { wis::make_result<wis::Func<wis::FuncD()>(), "vkGetSwapchainImagesKHR failed">(result) };
     }
 
     for (uint32_t i = 0; i < back_buffer_count; ++i) {
@@ -41,7 +41,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
 
     result = table.vkResetCommandBuffer(initialization, 0);
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkResetCommandBuffer failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkResetCommandBuffer failed">(result);
     }
 
     VkCommandBufferBeginInfo desc{
@@ -52,7 +52,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
     };
     result = table.vkBeginCommandBuffer(initialization, &desc);
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkBeginCommandBuffer failed">(result);
     }
 
     wis::detail::limited_allocator<VkImageMemoryBarrier2> barrier_allocator{ new_back_buffer_count, true };
@@ -83,7 +83,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
 
     result = table.vkEndCommandBuffer(initialization);
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkEndCommandBuffer failed">(result);
+        return make_result<wis::Func<wis::FuncD()>(), "vkEndCommandBuffer failed">(result);
     }
 
     VkSubmitInfo submit{
@@ -111,7 +111,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndex() const noexcep
     auto& dtable = device.table();
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
     if (!wis::succeeded(result)) {
-        return wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkAcquireNextImageKHR failed">(result);
     }
 
     VkSemaphoreSubmitInfo submit_info{
@@ -127,14 +127,14 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndex() const noexcep
         .pWaitSemaphoreInfos = &submit_info,
     };
     result = dtable.vkQueueSubmit2(graphics_queue, 1, &desc2, nullptr);
-    return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkQueueSubmit failed">(result);
+    return wis::succeeded(result) ? wis::success : wis::make_result<wis::Func<wis::FuncD()>(), "vkQueueSubmit failed">(result);
 }
 wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndexAndWait() const noexcept
 {
     auto& dtable = device.table();
     auto result = dtable.vkAcquireNextImageKHR(device.get(), swapchain, std::numeric_limits<uint64_t>::max(), image_ready_semaphores[acquire_index], nullptr, &present_index);
     if (!wis::succeeded(result)) {
-        return wis::make_result<FUNC, "vkAcquireNextImageKHR failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkAcquireNextImageKHR failed">(result);
     }
 
     VkSemaphoreSubmitInfo submit_info{
@@ -155,7 +155,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::AcquireNextIndexAndWait() const 
     dtable.vkWaitForFences(device.get(), 1, &fence.handle, VK_TRUE, std::numeric_limits<uint64_t>::max());
     dtable.vkResetFences(device.get(), 1, &fence.handle);
 
-    return wis::succeeded(result) ? wis::success : wis::make_result<FUNC, "vkQueueSubmit failed">(result);
+    return wis::succeeded(result) ? wis::success : wis::make_result<wis::Func<wis::FuncD()>(), "vkQueueSubmit failed">(result);
 }
 
 wis::detail::VKSwapChainCreateInfo& wis::detail::VKSwapChainCreateInfo::operator=(VKSwapChainCreateInfo&& o) noexcept
@@ -244,11 +244,11 @@ wis::ImplVKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 {
     auto& dtable = device.table();
     if (!dtable.vkWaitForPresentKHR) {
-        return wis::make_result<FUNC, "vkWaitForPresentKHR not available">(VK_ERROR_UNKNOWN);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkWaitForPresentKHR not available">(VK_ERROR_UNKNOWN);
     }
 
     auto res = dtable.vkWaitForPresentKHR(device.get(), swapchain, present_id, timeout_ns);
-    return wis::succeeded(res) ? wis::success : wis::make_result<FUNC, "vkWaitForPresentKHR failed">(res);
+    return wis::succeeded(res) ? wis::success : wis::make_result<wis::Func<wis::FuncD()>(), "vkWaitForPresentKHR failed">(res);
 }
 
 wis::Result
@@ -303,7 +303,7 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
 
     auto result = dtable.vkCreateSwapchainKHR(device.get(), &desc, nullptr, &swapchain);
     if (!succeeded(result)) {
-        return wis::make_result<FUNC, "vkCreateSwapchainKHR failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkCreateSwapchainKHR failed">(result);
     }
 
     dtable.vkDestroySwapchainKHR(device.get(), old_swapchain, nullptr);
@@ -356,7 +356,7 @@ wis::ImplVKSwapChain::VKPresent(void* pNext) const noexcept
 
     auto result = dtable.vkQueuePresentKHR(present_queue, &present_info);
     if (!wis::succeeded(result)) {
-        return wis::make_result<FUNC, "vkQueuePresentKHR failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkQueuePresentKHR failed">(result);
     }
 
     acquire_index = (acquire_index + 1) % back_buffer_count;

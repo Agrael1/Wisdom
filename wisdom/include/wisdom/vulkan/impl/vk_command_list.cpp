@@ -5,6 +5,7 @@
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/small_allocator.h>
+#include <wisdom/global/constants.h>
 #endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
@@ -133,7 +134,7 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
     auto& dtable = device.table();
     auto result = dtable.vkResetCommandBuffer(command_list, {});
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkResetCommandBuffer failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkResetCommandBuffer failed">(result);
     }
     auto pipeline = std::move(std::get<0>(new_pipeline));
 
@@ -145,7 +146,7 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
     };
     result = dtable.vkBeginCommandBuffer(command_list, &desc);
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkBeginCommandBuffer failed">(result);
     }
     closed = false;
     if (pipeline) {

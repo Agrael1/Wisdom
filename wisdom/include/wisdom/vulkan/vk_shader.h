@@ -6,7 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKShader;
+WISDOM_EXPORT class VKShader;
 
 WISDOM_EXPORT
 template<>

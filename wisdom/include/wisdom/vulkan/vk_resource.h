@@ -7,8 +7,11 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKBuffer;
-class VKTexture;
+WISDOM_EXPORT class VKBuffer;
+WISDOM_EXPORT class VKTexture;
+WISDOM_EXPORT class VKShaderResource;
+WISDOM_EXPORT class VKRenderTarget;
+WISDOM_EXPORT class VKSampler;
 
 WISDOM_EXPORT
 template<>
@@ -136,7 +139,6 @@ public:
 };
 
 // =================================================================================================
-class VKRenderTarget;
 
 WISDOM_EXPORT
 template<>
@@ -160,8 +162,6 @@ public:
     }
 };
 
-class VKSampler;
-
 WISDOM_EXPORT
 template<>
 struct Internal<VKSampler> {
@@ -184,8 +184,6 @@ public:
 };
 
 // =================================================================================================
-
-class VKShaderResource;
 
 WISDOM_EXPORT
 template<>

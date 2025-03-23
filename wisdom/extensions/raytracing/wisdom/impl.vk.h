@@ -64,7 +64,7 @@ public:
 
         auto res = table.vkCreateAccelerationStructureKHR(device.get(), &create_info, nullptr, &as_i.handle);
         if (res != VK_SUCCESS) {
-            result = wis::make_result<FUNC, "Acceleration structure creation failed">(res);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Acceleration structure creation failed">(res);
             return as;
         }
         as_i.device = device;

@@ -127,12 +127,12 @@ struct scoped_header {
 };
 
 template<typename HandleType>
-    requires std::same_as<parent_of_t<HandleType>, nullptr_t>
+    requires std::same_as<parent_of_t<HandleType>, std::nullptr_t>
 struct scoped_header<HandleType> {
     deleter_of_t<HandleType> deleter;
 };
 template<typename HandleType>
-    requires requires { !std::is_same_v<parent_of_t<HandleType>, nullptr_t>; }
+    requires requires { !std::is_same_v<parent_of_t<HandleType>, std::nullptr_t>; }
 struct scoped_header<HandleType> {
     parent_of_t<HandleType> parent;
     deleter_of_t<HandleType> deleter;

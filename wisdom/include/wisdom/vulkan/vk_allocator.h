@@ -6,7 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKResourceAllocator;
+WISDOM_EXPORT class VKResourceAllocator;
 
 WISDOM_EXPORT
 template<>

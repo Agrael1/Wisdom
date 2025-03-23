@@ -16,4 +16,3 @@
 #include <bit>
 #include <cassert>
 #include <wisdom/global/definitions.h>
-#include <wisdom/global/func.h>

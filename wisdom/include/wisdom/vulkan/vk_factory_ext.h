@@ -7,7 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKFactory;
+WISDOM_EXPORT class VKFactory;
 }
 
 WISDOM_EXPORT
@@ -74,7 +74,7 @@ struct VKFactoryExtensionImpl : public VKFactoryExtension {
     }
 
     virtual size_t
-    RequiredLayersSize() const noexcept
+    RequiredLayersSize() const noexcept override
     {
         if constexpr (requires { T::required_layers; }) {
             return T::required_layers.size();

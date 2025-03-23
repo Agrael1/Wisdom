@@ -5,12 +5,14 @@ if(MSVC)
 endif()
 
 # Check if cpp modules are supported by cmake
+set(WISDOM_CPP_MODULES_SUPPORTED OFF)
+if (WISDOM_EXPERIMENTAL_CPP_MODULES)
 if (CMAKE_VERSION VERSION_LESS "3.28")
-  set(WISDOM_CPP_MODULES_SUPPORTED OFF)
   message("[Wisdom] C++ Modules are not supported")
 else()
   set(WISDOM_CPP_MODULES_SUPPORTED ON)
   message("[Wisdom] C++ Modules are supported")
+endif()
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

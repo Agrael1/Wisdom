@@ -7,8 +7,8 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKSwapChain;
-class VKDevice;
+WISDOM_EXPORT class VKSwapChain;
+WISDOM_EXPORT class VKDevice;
 
 WISDOM_EXPORT
 namespace detail {

@@ -2,6 +2,7 @@
 #define WIS_DX12_INFO_CPP
 #ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_info.h>
+#include <wisdom/global/constants.h>
 #include <d3d12sdklayers.h>
 #include <dxgi1_6.h>
 #include <vector>

@@ -6,7 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKPipelineState;
+WISDOM_EXPORT class VKPipelineState;
 
 WISDOM_EXPORT
 template<>

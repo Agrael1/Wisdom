@@ -6,7 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKDescriptorStorage;
+WISDOM_EXPORT class VKDescriptorStorage;
 
 WISDOM_EXPORT
 template<>

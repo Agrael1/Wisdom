@@ -7,7 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKCommandQueue;
+WISDOM_EXPORT class VKCommandQueue;
 
 WISDOM_EXPORT
 template<>

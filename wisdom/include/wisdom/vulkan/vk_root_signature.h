@@ -7,7 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKRootSignature;
+WISDOM_EXPORT class VKRootSignature;
 
 WISDOM_EXPORT
 template<>

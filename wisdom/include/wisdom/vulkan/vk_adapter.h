@@ -9,7 +9,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKAdapter;
+WISDOM_EXPORT class VKAdapter;
 
 WISDOM_EXPORT
 template<>

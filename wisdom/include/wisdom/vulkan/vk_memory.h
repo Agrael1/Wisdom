@@ -7,7 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKMemory;
+WISDOM_EXPORT class VKMemory;
 
 WISDOM_EXPORT
 namespace h {

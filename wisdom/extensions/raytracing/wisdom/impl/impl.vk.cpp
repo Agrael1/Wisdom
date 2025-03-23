@@ -1,6 +1,7 @@
 #ifndef WISDOM_RAYTRACING_VK_CPP
 #define WISDOM_RAYTRACING_VK_CPP
 #include <wisdom/impl.vk.h>
+#include <cstring>
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKRaytracing::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
@@ -150,7 +151,7 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
             rt_pipeline_desc.hit_group_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
             callable_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR));
     if (!stages) {
-        result = wis::make_result<FUNC, "Failed to allocate memory for shader stages">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for shader stages">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return pipeline;
     }
 
@@ -245,7 +246,7 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
 
     auto vr = table.vkCreateRayTracingPipelinesKHR(device.get(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, pipe_i.state_object.put(device, device.table().vkDestroyPipeline));
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create raytracing pipeline">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create raytracing pipeline">(vr);
     }
 
     // retrieve and uncompress shader group handles

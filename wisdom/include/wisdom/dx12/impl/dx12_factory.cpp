@@ -16,7 +16,7 @@ wis::ImplDX12CreateFactory(wis::Result& res, bool enable_debug, DX12FactoryExten
                                  internal.factory.put_void());
 
     if (!wis::succeeded(hr)) {
-        res = wis::make_result<FUNC, "Failed to create DXGI factory">(hr);
+        res = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create DXGI factory">(hr);
         return f;
     }
 
@@ -35,7 +35,7 @@ wis::ImplDX12Factory::GetAdapter(wis::Result& result, uint32_t index, AdapterPre
     auto hr = factory->EnumAdapterByGpuPreference(index, convert_dx(preference), internal.adapter.iid(),
                                                   internal.adapter.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to get adapter">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get adapter">(hr);
     }
     return adapter;
 }

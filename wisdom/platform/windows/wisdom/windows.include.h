@@ -1,7 +1,6 @@
 #pragma once
 #include <array>
 #include <wisdom/global/definitions.h>
-#include <wisdom/global/func.h>
 #include <d3d12.h>
 #include <d3d11.h>
 #include <dxgi1_6.h>

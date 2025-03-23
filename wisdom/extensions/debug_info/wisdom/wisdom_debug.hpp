@@ -31,7 +31,7 @@ public:
         }
 
         if (!debugController) {
-            return wis::make_result<FUNC, "Debug Extension is unsupported">(E_NOTIMPL);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Debug Extension is unsupported">(E_NOTIMPL);
         }
 
         // if (auto dc = debugController.as<ID3D12Debug1>())
@@ -88,7 +88,7 @@ public:
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKDebugExtension;
+WISDOM_EXPORT class VKDebugExtension;
 
 template<>
 struct Internal<VKDebugExtension> {

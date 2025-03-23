@@ -15,8 +15,8 @@ export module wisdom.api;
 
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/global/definitions.h>
+#include <wisdom/global/constants.h>
 #include <wisdom/util/string_literal.h>
-#include <wisdom/global/func.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/flags.h>
 #include <wisdom/bridge/source_location.h>

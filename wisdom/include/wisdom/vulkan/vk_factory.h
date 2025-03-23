@@ -16,7 +16,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKFactory;
+WISDOM_EXPORT class VKFactory;
 
 namespace detail {
 constexpr inline std::array instance_extensions{

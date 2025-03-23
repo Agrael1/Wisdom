@@ -41,14 +41,14 @@ public:
         HRESULT hr;
         return wis::succeeded(hr = queue->Signal(std::get<0>(fence), value))
                 ? wis::success
-                : wis::make_result<FUNC, "Signal failed">(hr);
+                : wis::make_result<wis::Func<wis::FuncD()>(), "Signal failed">(hr);
     }
     wis::Result WaitQueue(DX12FenceView fence, uint64_t value) const noexcept
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Wait(std::get<0>(fence), value))
                 ? wis::success
-                : wis::make_result<FUNC, "Wait failed">(hr);
+                : wis::make_result<wis::Func<wis::FuncD()>(), "Wait failed">(hr);
     }
 };
 #pragma region DX12CommandQueue

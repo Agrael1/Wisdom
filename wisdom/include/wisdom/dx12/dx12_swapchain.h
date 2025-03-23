@@ -71,7 +71,7 @@ public:
     {
         auto hr = chain->Present(vsync, 0);
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Presentation failed">(hr);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Presentation failed">(hr);
         }
         return wis::success;
     }
@@ -80,7 +80,7 @@ public:
     {
         auto hr = chain->Present(in_vsync, 0);
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Presentation failed">(hr);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Presentation failed">(hr);
         }
         return wis::success;
     }
@@ -103,7 +103,7 @@ public:
         auto st = present_event.wait(uint32_t(timeout_ns / 1000));
         return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
                 : st != wis::Status::Error ? wis::success
-                                           : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+                                           : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
     }
 };
 

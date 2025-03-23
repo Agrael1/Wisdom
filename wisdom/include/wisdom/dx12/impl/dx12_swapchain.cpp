@@ -17,7 +17,7 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
     if (frame_count > back_buffer_count) {
         back_buffers = wis::detail::make_unique_for_overwrite<wis::DX12Texture[]>(frame_count);
         if (!back_buffers) {
-            return wis::make_result<FUNC, "Out of memory">(E_OUTOFMEMORY);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Out of memory">(E_OUTOFMEMORY);
         }
     }
 
@@ -35,7 +35,7 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
 wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noexcept
 {
     if (width == 0 || height == 0) {
-        return wis::make_result<FUNC, "Invalid size">(E_INVALIDARG);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Invalid size">(E_INVALIDARG);
     }
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
@@ -49,7 +49,7 @@ wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noex
                                       DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING * uint32_t(tearing));
 
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Failed to resize swap chain">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to resize swap chain">(hr);
     }
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {

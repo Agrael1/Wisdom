@@ -81,7 +81,7 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_DENY_BUFFERS;
     if ((mem_flags & MemoryFlags::Exportable)) {
         if (memory != MemoryType::Default) {
-            result = wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Exportable memory must be Default heap type">(E_INVALIDARG);
             return out_memory;
         }
         flags |= D3D12_HEAP_FLAG_SHARED;
@@ -107,7 +107,7 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
     auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Image memory allocation failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Image memory allocation failed">(hr);
     }
 
     internal.allocator = allocator; // Copy allocator to memory
@@ -126,7 +126,7 @@ wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
     if ((mem_flags & MemoryFlags::Exportable)) {
         if (memory != MemoryType::Default) {
-            result = wis::make_result<FUNC, "Exportable memory must be Default heap type">(E_INVALIDARG);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Exportable memory must be Default heap type">(E_INVALIDARG);
             return out_memory;
         }
         flags |= D3D12_HEAP_FLAG_SHARED;
@@ -146,7 +146,7 @@ wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64
 
     auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Buffer memory allocation failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer memory allocation failed">(hr);
     }
 
     internal.allocator = allocator; // Copy allocator to memory
@@ -167,7 +167,7 @@ wis::ImplDX12ResourceAllocator::PlaceBuffer(wis::Result& result, DX12MemoryView 
                                                  D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Buffer Placement failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Placement failed">(hr);
     }
     return buffer;
 }
@@ -186,7 +186,7 @@ wis::ImplDX12ResourceAllocator::PlaceTexture(wis::Result& result, DX12MemoryView
                                                  D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Buffer Placement failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Placement failed">(hr);
     }
     return texture;
 }
@@ -203,7 +203,7 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3
                                             memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);
     }
 
     memory_internal.allocator = allocator; // Copy allocator to memory
@@ -223,7 +223,7 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource2(wis::Result& result, const D
                                             memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);
     }
 
     memory_internal.allocator = allocator; // Copy allocator to memory

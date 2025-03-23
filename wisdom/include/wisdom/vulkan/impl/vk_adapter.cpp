@@ -5,6 +5,7 @@
 #include <wisdom/vulkan/vk_adapter.h>
 #include <wisdom/vulkan/vk_checks.h>
 
+#include <wisdom/bridge/source_location.h>
 #include <wisdom/util/flags.h>
 #include <cstring>
 #endif // !WISDOM_MODULE_DECL
@@ -12,7 +13,7 @@
 wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 {
     if (!pout_desc) {
-        return wis::make_result<"AdapterDesc was nullptr ">(VK_ERROR_UNKNOWN);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "AdapterDesc was nullptr ">(VK_ERROR_UNKNOWN);
     }
 
     auto& out_desc = *pout_desc;

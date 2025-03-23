@@ -19,6 +19,10 @@ public:
     {
         char_traits::copy(_data, str, N - 1);
     }
+    constexpr explicit basic_fixed_string(std::string_view str) noexcept
+    {
+        char_traits::copy(_data, str.data(), N - 1);
+    }
 
 public:
     constexpr operator const value_type*() const noexcept
@@ -52,7 +56,13 @@ public:
 
 // Define some aliases for common fixed string types
 template<std::size_t N>
-using fixed_string = basic_fixed_string<char, N>;
+struct fixed_string : public basic_fixed_string<char, N> {
+    using basic_fixed_string<char, N>::basic_fixed_string;
+};
+
+// deduction guide
+template<std::size_t N>
+fixed_string(const char (&)[N]) -> fixed_string<N>;
 
 template<std::size_t N>
 using fixed_wstring = basic_fixed_string<wchar_t, N>;

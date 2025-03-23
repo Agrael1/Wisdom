@@ -9,7 +9,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKFence;
+WISDOM_EXPORT class VKFence;
 
 WISDOM_EXPORT
 template<>

@@ -1,10 +1,12 @@
 #pragma once
+#include <cstdlib>
 #include <vulkan/vulkan.h>
 #include <wisvk/vk_libinit.hpp>
 #include <wisvk/vk_managed_handles.hpp>
 #include <wisvk/vk_movable.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/bridge/format.h>
+#include <wisdom/bridge/source_location.h>
 #include <vk_mem_alloc.h>
 #include <array>
 #include <memory>
@@ -14,4 +16,6 @@
 #include <cassert>
 #include <algorithm>
 #include <ranges>
-#include <wisdom/global/func.h>
+#include <vector>
+#include <mutex>
+#include <cstring>

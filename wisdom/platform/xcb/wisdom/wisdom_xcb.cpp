@@ -21,7 +21,7 @@ wis::platform::XCBExtension::CreateSwapchain(wis::Result& result, const wis::VKD
     VkSurfaceKHR surface;
     auto vr = vkCreateXcbSurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create Win32 surface">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create Win32 surface">(vr);
         return {};
     }
     return device.VKCreateSwapChain(result, wis::SharedSurface{ surface, instance, instance_table.vkDestroySurfaceKHR }, desc, std::get<0>(main_queue));

@@ -9,11 +9,11 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKCommandList;
-struct VKBufferBarrier2;
-struct VKTextureBarrier2;
-struct VKRenderPassDesc;
-struct VKVertexBufferBinding;
+WISDOM_EXPORT class VKCommandList;
+WISDOM_EXPORT struct VKBufferBarrier2;
+WISDOM_EXPORT struct VKTextureBarrier2;
+WISDOM_EXPORT struct VKRenderPassDesc;
+WISDOM_EXPORT struct VKVertexBufferBinding;
 
 WISDOM_EXPORT
 template<>

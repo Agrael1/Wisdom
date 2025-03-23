@@ -153,12 +153,12 @@ wis::Result wis::ImplDX12CommandList::Reset(wis::DX12PipelineView pipeline) noex
 
     auto hr = allocator->Reset();
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Reset failed (allocator)">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Reset failed (allocator)">(hr);
     }
 
     hr = list->Reset(allocator.get(), std::get<0>(pipeline));
     closed = false;
-    return wis::succeeded(hr) ? wis::success : wis::make_result<FUNC, "Reset failed (command list)">(hr);
+    return wis::succeeded(hr) ? wis::success : wis::make_result<wis::Func<wis::FuncD()>(), "Reset failed (command list)">(hr);
 }
 
 void wis::ImplDX12CommandList::SetPipelineState(wis::DX12PipelineView pipeline) noexcept

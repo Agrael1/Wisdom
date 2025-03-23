@@ -3,6 +3,7 @@
 #include <wisdom/wisdom_raytracing.hpp>
 #include <window.h>
 #include <iostream>
+#include <cstring>
 
 #include <glm/vec3.hpp>
 

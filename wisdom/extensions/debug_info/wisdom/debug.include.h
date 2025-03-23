@@ -1,7 +1,6 @@
 #pragma once
 #include <array>
 #include <wisdom/global/definitions.h>
-#include <wisdom/global/func.h>
 #include <wisdom/bridge/format.h>
 
 #if defined(WISDOM_DX12)

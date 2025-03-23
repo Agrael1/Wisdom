@@ -5,4 +5,7 @@
 #include <span>
 #include <wisdom/bridge/source_location.h>
 #include <wisdom/bridge/format.h>
-#include <wisdom/global/func.h>
+#include <wisdom/global/definitions.h>
+#include <memory>
+#include <utility>
+#include <functional>

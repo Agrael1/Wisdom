@@ -14,7 +14,7 @@ wis::Result wis::ImplVKFence::Signal(uint64_t value) const noexcept
                                       value };
     VkResult res = device.table().vkSignalSemaphore(device.get(), &signalInfo);
     return succeeded(res) ? wis::success
-                          : wis::make_result<FUNC, "vkSignalSemaphore failed to signal fence.">(res);
+                          : wis::make_result<wis::Func<wis::FuncD()>(), "vkSignalSemaphore failed to signal fence.">(res);
 }
 
 /// @brief Wait for the fence to reach a certain value.
@@ -37,7 +37,7 @@ wis::Result wis::ImplVKFence::Wait(uint64_t value, uint64_t wait_ns) const noexc
 
     return succeeded(result)
             ? wis::success
-            : wis::make_result<FUNC, "vkWaitSemaphores failed to wait for fence.">(result);
+            : wis::make_result<wis::Func<wis::FuncD()>(), "vkWaitSemaphores failed to wait for fence.">(result);
 }
 
 /// @brief Get the current value of the fence.

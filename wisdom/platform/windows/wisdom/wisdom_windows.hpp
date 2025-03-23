@@ -64,7 +64,7 @@ public:
         auto hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
-            result = wis::make_result<FUNC, "Failed to create shared handle for fence">(hr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create shared handle for fence">(hr);
         }
         return handle;
     }
@@ -78,7 +78,7 @@ public:
         auto hr = device->CreateSharedHandle(allocation->GetHeap(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
-            result = wis::make_result<FUNC, "Failed to create shared handle for memory allocation">(hr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create shared handle for memory allocation">(hr);
         }
         return handle;
     }
@@ -187,7 +187,7 @@ public:
         };
         auto vr = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to get semaphore handle">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get semaphore handle">(vr);
         }
         return handle;
     }
@@ -205,7 +205,7 @@ public:
         HANDLE handle;
         auto vr = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to get memory handle">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get memory handle">(vr);
         }
         return handle;
     }

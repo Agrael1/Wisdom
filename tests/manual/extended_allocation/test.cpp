@@ -5,6 +5,7 @@
 #include <wisdom/bridge/format.h>
 #include <iostream>
 #include <chrono>
+#include <cstring>
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {

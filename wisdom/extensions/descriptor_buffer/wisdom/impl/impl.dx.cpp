@@ -35,15 +35,15 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result,
     auto& internal = out_signature.GetMutableInternal();
 
     if (constants_size > wis::max_push_constants) {
-        result = wis::make_result<FUNC, "constants_size exceeds max_push_constants">(E_INVALIDARG);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "constants_size exceeds max_push_constants">(E_INVALIDARG);
         return out_signature;
     }
     if (push_descriptors_size > wis::max_push_descriptors) {
-        result = wis::make_result<FUNC, "push_descriptors_size exceeds max_push_descriptors">(E_INVALIDARG);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "push_descriptors_size exceeds max_push_descriptors">(E_INVALIDARG);
         return out_signature;
     }
     if (tables_count + constants_size + push_descriptors_size > 64) {
-        result = wis::make_result<FUNC, "sum of all parameters exceeds max amount of root parameters">(E_INVALIDARG);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "sum of all parameters exceeds max amount of root parameters">(E_INVALIDARG);
         return out_signature;
     }
 
@@ -88,7 +88,7 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result,
 
     auto memory = wis::detail::make_unique_for_overwrite<D3D12_DESCRIPTOR_RANGE1[]>(memory_size);
     if (!memory) {
-        result = wis::make_result<FUNC, "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
         return out_signature;
     }
 
@@ -128,14 +128,14 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result,
     HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to serialize root signature">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to serialize root signature">(hr);
         return out_signature;
     }
 
     hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
                                      __uuidof(*internal.root), internal.root.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create root signature">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create root signature">(hr);
         return out_signature;
     }
     internal.push_constant_count = constants_size;
@@ -164,7 +164,7 @@ wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::Result& resu
 
     auto hr = device->CreateDescriptorHeap(&desc, internal.heap.iid(), internal.heap.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create descriptor heap">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create descriptor heap">(hr);
         return out_buffer;
     }
     internal.heap_increment = device->GetDescriptorHandleIncrementSize(desc.Type);

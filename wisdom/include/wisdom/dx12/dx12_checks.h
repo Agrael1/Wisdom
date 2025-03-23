@@ -4,6 +4,7 @@
 #include <wisdom/util/error_messages.h>
 #include <wisdom/dx12/dx12_convert.h>
 #include <wisdom/dx12/dx12_info.h>
+#include <wisdom/global/constants.h>
 #endif
 
 WISDOM_EXPORT

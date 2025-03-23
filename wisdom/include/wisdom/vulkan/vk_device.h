@@ -17,7 +17,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKDevice;
+WISDOM_EXPORT class VKDevice;
 
 WISDOM_EXPORT
 template<>

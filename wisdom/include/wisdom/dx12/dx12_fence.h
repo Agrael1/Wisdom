@@ -49,7 +49,7 @@ public:
     Signal(uint64_t value) const noexcept
     {
         HRESULT hr = fence->Signal(value);
-        return !succeeded(hr) ? wis::make_result<FUNC, "Failed to signal fence">(hr) : wis::success;
+        return !succeeded(hr) ? wis::make_result<wis::Func<wis::FuncD()>(), "Failed to signal fence">(hr) : wis::success;
     }
 };
 
