@@ -41,7 +41,7 @@ std::string LoadShader(std::filesystem::path p);
 // constants
 static inline constexpr uint32_t swap_buffer_count = 2;
 static inline constexpr uint32_t flight_frames = 2;
-static inline constexpr wis::DataFormat swapchain_format = wis::DataFormat::RGBA8Unorm; // supported by all APIs
+static inline constexpr wis::DataFormat swapchain_format = wis::DataFormat::BGRA8Unorm; // supported by all APIs
 
 // setup helpers
 struct FramedCommandList {
