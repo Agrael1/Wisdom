@@ -15,7 +15,7 @@ export import wisdom.wayland;
 #endif // WIS_WAYLAND_PLATFORM
 
 #ifdef WIS_WINDOWS_PLATFORM
-export import wisdom.windows;
+export import wisdom.windows.fvk;
 #else
 import wisdom.vk;
 #include <wisdom/linux/interop_device.hpp>

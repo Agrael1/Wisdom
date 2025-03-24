@@ -80,7 +80,9 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLev
                                                   &build_info,
                                                   &max_instance_count,
                                                   &build_sizes_info);
-    return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
+    return { wis::detail::aligned_size(build_sizes_info.buildScratchSize, 256),
+             wis::detail::aligned_size(build_sizes_info.accelerationStructureSize, 256),
+             wis::detail::aligned_size(build_sizes_info.updateScratchSize, 256) };
 }
 
 wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKBottomLevelASBuildDesc& blas_desc) const noexcept
@@ -125,7 +127,11 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKB
                                                   &build_info,
                                                   max_primitive_count,
                                                   &build_sizes_info);
-    return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
+    return {
+        wis::detail::aligned_size(build_sizes_info.buildScratchSize, 256),
+        wis::detail::aligned_size(build_sizes_info.accelerationStructureSize, 256),
+        wis::detail::aligned_size(build_sizes_info.updateScratchSize, 256)
+    };
 }
 
 wis::VKRaytracingPipeline

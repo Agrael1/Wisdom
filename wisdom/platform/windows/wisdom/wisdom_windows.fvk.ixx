@@ -1,7 +1,7 @@
 module;
-#include <wisdom/windows.include.h>
 #define WISDOM_FORCE_VULKAN
 #define WISDOM_MODULE_DECL
+#include <wisdom/windows.include.h>
 #define WISDOM_EXPORT export
 export module wisdom.windows.fvk;
 

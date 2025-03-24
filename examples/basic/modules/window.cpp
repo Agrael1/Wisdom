@@ -36,11 +36,11 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::PlatformExte
     switch (ext.current) {
 #if defined(SDL_PLATFORM_WIN32)
     case Windows: {
-        HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
-        if (hwnd) {
-            return static_cast<wis::platform::WindowsExtension*>(ext.get())
-                    ->CreateSwapchain(result, device, queue, desc, hwnd);
-        }
+        //HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+        //if (hwnd) {
+        //    return static_cast<wis::platform::WindowsExtension*>(ext.get())
+        //            ->CreateSwapchain(result, device, queue, desc, hwnd);
+        //}
     } break;
 #elif defined(SDL_PLATFORM_LINUX)
     case X11: {
@@ -74,6 +74,8 @@ void ex::Window::PostQuit()
 
 ex::PlatformExtension::PlatformExtension()
 {
+    wis::platform::VKWindowsExtension* windows = nullptr;
+
     current = Selector::None;
     platform = {};
     const char* platform_name = SDL_GetCurrentVideoDriver();

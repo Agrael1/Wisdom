@@ -194,12 +194,6 @@ public:
     [[nodiscard]] WIS_INLINE HANDLE
     GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
-        // I know it exists, but platform code is the pain in the ass :(
-        extern VMA_CALL_PRE VkResult VMA_CALL_POST vmaGetMemoryWin32Handle(VmaAllocator VMA_NOT_NULL allocator,
-                                                                           VmaAllocation VMA_NOT_NULL allocation,
-                                                                           HANDLE hTargetProcess,
-                                                                           HANDLE * VMA_NOT_NULL pHandle);
-
         auto allocator = std::get<0>(memory);
         auto allocation = std::get<1>(memory);
         HANDLE handle;
