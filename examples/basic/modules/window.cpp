@@ -3,18 +3,17 @@
 
 #if defined(SDL_PLATFORM_LINUX)
 #include <X11/Xlib.h>
-
 #undef None
-
-import wisdom.x11;
-import wisdom.wayland;
-
 struct wl_display;
 struct wl_surface;
 #elif defined(SDL_PLATFORM_WIN32)
 #include <windows.h>
+#endif
 
-import wisdom.windows;
+#ifdef WISDOM_FORCE_VULKAN
+import wisdom.platform.fvk;
+#else
+import wisdom.platform;
 #endif
 
 wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::PlatformExtension& ext, wis::Device& device, wis::CommandQueue& queue, wis::DataFormat fmt, bool stereo)

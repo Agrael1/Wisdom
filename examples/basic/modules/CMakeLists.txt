@@ -7,7 +7,7 @@ add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 # include the modules in seperate, since we are building dx and vk implementation at the same time
 target_link_libraries(${PROJECT_NAME} PUBLIC 
-    wisdom-module wisdom-debug-module wisdom-x11-module wisdom-wayland-module
+    wisdom-module wisdom-debug-module wisdom-platform-module
     SDL3::SDL3
 )
 add_dependencies(${PROJECT_NAME} compile_shaders_basic)

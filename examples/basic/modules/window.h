@@ -2,7 +2,11 @@
 #include <SDL3/SDL.h>
 #include <memory>
 
+#ifdef WISDOM_FORCE_VULKAN
+import wisdom.fvk;
+#else
 import wisdom;
+#endif
 
 namespace ex {
 static inline constexpr uint32_t swap_buffer_count = 2;

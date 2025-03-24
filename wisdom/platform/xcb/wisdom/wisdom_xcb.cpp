@@ -1,8 +1,10 @@
 #ifndef WISDOM_XCB_CPP
 #define WISDOM_XCB_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/wisdom_xcb.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
+#endif // !WISDOM_MODULE_DECL
 
 wis::VKSwapChain
 wis::platform::XCBExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept

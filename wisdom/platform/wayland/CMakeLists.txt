@@ -41,6 +41,8 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   )
   target_link_libraries(wisdom-wayland-module PUBLIC wisdom-module wisdom-wayland-headers)
   set_target_properties(wisdom-wayland-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+
+  target_link_libraries(wisdom-platform-module PUBLIC wis::wayland-module)
 endif()
 
 install(

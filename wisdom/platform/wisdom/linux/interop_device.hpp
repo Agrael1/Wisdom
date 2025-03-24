@@ -1,9 +1,12 @@
 #ifndef WISDOM_INTEROP_DEVICE_H
 #define WISDOM_INTEROP_DEVICE_H
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_fence.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 namespace platform {
 class VKInteropDeviceExtensionLinux;
@@ -57,7 +60,7 @@ public:
     }
 
 public:
-    [[nodiscard]] WIS_INLINE int
+    [[nodiscard]] int
     GetSemaphoreHandle(wis::Result& result, const wis::VKFence& fence) const noexcept
     {
         int handle;
@@ -73,7 +76,7 @@ public:
         }
         return handle;
     }
-    [[nodiscard]] WIS_INLINE int
+    [[nodiscard]] int
     GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
         int handle;
@@ -104,6 +107,7 @@ public:
 } // namespace wis
 #endif // WISDOM_VULKAN
 
+WISDOM_EXPORT
 namespace wis::platform {
 #if defined(WISDOM_VULKAN)
 using InteropDeviceExtension = platform::VKInteropDeviceExtensionLinux;

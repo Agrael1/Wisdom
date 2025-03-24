@@ -37,6 +37,8 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   )
   target_link_libraries(wisdom-x11-module PUBLIC wisdom-module wisdom-x11-headers)
   set_target_properties(wisdom-x11-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+
+  target_link_libraries(wisdom-platform-module PUBLIC wis::x11-module)
 endif()
 
 install(

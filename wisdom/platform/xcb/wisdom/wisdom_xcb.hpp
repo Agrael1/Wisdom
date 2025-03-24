@@ -1,13 +1,16 @@
 #ifndef WISDOM_XCB_H
 #define WISDOM_XCB_H
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <wisdom/vulkan/vk_factory.h>
 
 #include <xcb/xcb.h>
 #include <vulkan/vulkan_xcb.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 namespace platform {
 class XCBExtension;

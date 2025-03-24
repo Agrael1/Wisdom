@@ -36,6 +36,8 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   )
   target_link_libraries(wisdom-windows-module PUBLIC wisdom-module wisdom-windows-headers)
   set_target_properties(wisdom-windows-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+
+  target_link_libraries(wisdom-platform-module PUBLIC wis::windows-module)
 endif()
 
 
