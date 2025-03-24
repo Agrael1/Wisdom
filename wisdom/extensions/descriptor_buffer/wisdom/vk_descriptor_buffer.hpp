@@ -1,9 +1,12 @@
 #ifndef WIS_VK_DESCRIPTOR_BUFFER_H
 #define WIS_VK_DESCRIPTOR_BUFFER_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_memory.h>
 #include <wisdom/generated/vk_functions.hpp>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 class VKDescriptorBuffer;
 

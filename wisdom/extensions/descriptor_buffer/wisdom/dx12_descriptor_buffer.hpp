@@ -1,11 +1,14 @@
 #ifndef WIS_DX12_DESCRIPTOR_BUFFER_H
 #define WIS_DX12_DESCRIPTOR_BUFFER_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <d3dx12/d3dx12_root_signature.h>
 #include <wisdom/util/misc.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 
 class DX12DescriptorBuffer;

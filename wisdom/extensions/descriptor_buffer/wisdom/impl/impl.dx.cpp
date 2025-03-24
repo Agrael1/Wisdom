@@ -2,8 +2,10 @@
 #define WISDOM_DESCRIPTOR_BUFFER_DX_CPP
 
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/wisdom_descriptor_buffer.hpp>
 #include <wisdom/util/small_allocator.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
 constexpr inline D3D12_ROOT_PARAMETER_TYPE to_dx_ext(wis::DescriptorType type) noexcept

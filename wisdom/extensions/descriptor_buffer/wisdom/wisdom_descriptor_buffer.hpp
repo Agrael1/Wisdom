@@ -1,15 +1,18 @@
 #ifndef WISDOM_DESCRIPTOR_BUFFER_H
 #define WISDOM_DESCRIPTOR_BUFFER_H
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/dx12/dx12_debug.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12_descriptor_buffer.hpp>
 #include <d3d12.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12DescriptorBufferExtension;
+WISDOM_EXPORT class DX12DescriptorBufferExtension;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12DescriptorBufferExtension> {
     wis::com_ptr<ID3D12Device10> device;
@@ -171,14 +174,17 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/vk_descriptor_buffer.hpp>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKDescriptorBufferExtension;
+WISDOM_EXPORT class VKDescriptorBufferExtension;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKDescriptorBufferExtension> {
     wis::SharedDevice device;

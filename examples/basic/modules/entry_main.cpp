@@ -5,9 +5,11 @@
 #ifdef WISDOM_FORCE_VULKAN
 import wisdom.fvk;
 import wisdom.debug.fvk;
+import wisdom.descriptor_buffer.fvk;
 #else
 import wisdom;
 import wisdom.debug;
+import wisdom.descriptor_buffer;
 #endif
 
 class App
