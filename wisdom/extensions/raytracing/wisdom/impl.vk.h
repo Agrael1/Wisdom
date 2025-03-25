@@ -1,11 +1,14 @@
 #ifndef WISDOM_RAYTRACING_VK_HPP
 #define WISDOM_RAYTRACING_VK_HPP
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vk_rtas.h>
 #include "generated/vk_functions.hpp"
 #include "vk_raytracing_pipeline.h"
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 class VKRaytracing;
 
@@ -64,7 +67,7 @@ public:
 
         auto res = table.vkCreateAccelerationStructureKHR(device.get(), &create_info, nullptr, &as_i.handle);
         if (res != VK_SUCCESS) {
-            result = wis::make_result<FUNC, "Acceleration structure creation failed">(res);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Acceleration structure creation failed">(res);
             return as;
         }
         as_i.device = device;

@@ -2,7 +2,9 @@
 #define WIS_VK_DESCRIPTOR_BUFFER_CPP
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vk_descriptor_buffer.hpp>
+#endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKDescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept
 {

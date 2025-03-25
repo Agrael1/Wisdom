@@ -1,5 +1,6 @@
 #ifndef WIS_VK_FACTORY_CPP
 #define WIS_VK_FACTORY_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_checks.h>
 
@@ -10,6 +11,7 @@
 #include <array>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/misc.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
 inline constexpr uint32_t order_performance(VkPhysicalDeviceType t)
@@ -74,7 +76,7 @@ wis::Result VKFactoryGlobals::InitializeFactoryGlobals() noexcept
 wis::Result VKFactoryGlobals::InitializeGlobalTable() noexcept
 {
     if (!global_table.Init(lib_token)) {
-        return wis::make_result<FUNC, "Failed to initialize global table">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to initialize global table">(VK_ERROR_INITIALIZATION_FAILED);
     }
     return {};
 }
@@ -86,12 +88,12 @@ wis::Result VKFactoryGlobals::InitializeInstanceExtensions() noexcept
     gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
     auto extensions = wis::detail::make_fixed_allocation<VkExtensionProperties>(count);
     if (!extensions) {
-        return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     auto vr = gt.vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions.get());
     if (!wis::succeeded(vr)) {
-        return wis::make_result<FUNC, "Failed to enumerate extensions">(vr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to enumerate extensions">(vr);
     }
 
     // may throw
@@ -108,12 +110,12 @@ wis::Result VKFactoryGlobals::InitializeInstanceLayers() noexcept
     gt.vkEnumerateInstanceLayerProperties(&count, nullptr);
     auto layers = wis::detail::make_fixed_allocation<VkLayerProperties>(count);
     if (!layers) {
-        return wis::make_result<FUNC, "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Not enough memory">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     auto vr = gt.vkEnumerateInstanceLayerProperties(&count, layers.get());
     if (!wis::succeeded(vr)) {
-        return wis::make_result<FUNC, "Failed to enumerate layers">(vr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to enumerate layers">(vr);
     }
 
     // may throw
@@ -132,7 +134,7 @@ wis::ImplVKFactory::GetAdapter(wis::Result& result, uint32_t index, AdapterPrefe
     auto& internal = out_adapter.GetMutableInternal();
 
     if (index >= adapters.size()) {
-        result = wis::make_result<FUNC, "Index out of range">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Index out of range">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_adapter;
     }
     auto& adapter = adapters[index];
@@ -166,8 +168,8 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
 
     if (phys_adapters.size() > 1) {
         auto indices = std::views::iota(0u, count);
-        std::vector<uint32_t> indices_cons(indices.begin(), indices.end());
-        std::vector<uint32_t> indices_perf(indices.begin(), indices.end());
+        std::vector<uint32_t> indices_cons{ indices.begin(), indices.end() };
+        std::vector<uint32_t> indices_perf{ indices.begin(), indices.end() };
 
         auto less_consumption = [this](VkPhysicalDevice a, VkPhysicalDevice b) {
             auto& itable = factory.table();

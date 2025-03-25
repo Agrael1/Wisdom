@@ -1,14 +1,17 @@
 #ifndef WISDOM_EXTENDED_ALLOCATION_H
 #define WISDOM_EXTENDED_ALLOCATION_H
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/dx12/dx12_debug.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <d3d12.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12ExtendedAllocation;
+WISDOM_EXPORT class DX12ExtendedAllocation;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12ExtendedAllocation> {
     bool supports_gpu_upload = false;
@@ -53,6 +56,7 @@ public:
 };
 #pragma region DX12ExtendedAllocation
 
+WISDOM_EXPORT
 class DX12ExtendedAllocation : public wis::ImplDX12ExtendedAllocation
 {
 public:
@@ -117,13 +121,16 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_allocator.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKExtendedAllocation;
+WISDOM_EXPORT class VKExtendedAllocation;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKExtendedAllocation> {
     wis::SharedDevice device;
@@ -172,6 +179,7 @@ public:
 };
 #pragma region VKExtendedAllocation
 
+WISDOM_EXPORT
 class VKExtendedAllocation : public wis::ImplVKExtendedAllocation
 {
 public:
@@ -235,6 +243,7 @@ public:
 } // namespace wis
 #endif // WISDOM_VULKAN
 
+WISDOM_EXPORT
 namespace wis {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using ExtendedAllocation = DX12ExtendedAllocation;

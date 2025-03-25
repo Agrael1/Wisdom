@@ -1,13 +1,16 @@
 #ifndef WIS_VK_SWAPCHAIN_H
 #define WIS_VK_SWAPCHAIN_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_command_list.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKSwapChain;
-class VKDevice;
+WISDOM_EXPORT class VKSwapChain;
+WISDOM_EXPORT class VKDevice;
 
+WISDOM_EXPORT
 namespace detail {
 struct VKSwapChainCreateInfo {
     wis::SharedSurface surface;
@@ -57,6 +60,7 @@ public:
 };
 } // namespace detail
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKSwapChain> : detail::VKSwapChainCreateInfo {
 };
@@ -111,6 +115,7 @@ public:
 /**
  * @brief Represents swap chain object for presenting images.
  * */
+WISDOM_EXPORT
 class VKSwapChain : public wis::ImplVKSwapChain
 {
 public:

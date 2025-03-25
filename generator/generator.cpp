@@ -4,6 +4,8 @@
 #include <fstream>
 #include <ranges>
 #include <stdexcept>
+#include <iostream>
+#include <regex>
 
 using namespace tinyxml2;
 
@@ -61,6 +63,62 @@ static ImplementedFor ImplCode(std::string_view impl) noexcept
 }
 
 static constexpr inline std::string_view k_delimiter = "\n//-------------------------------------------------------------------------\n\n";
+
+struct WisHeaderGraphNode {
+    std::string path;
+    std::vector<WisHeaderGraphNode*> includes;
+};
+
+struct WisHeaderGraph {
+    std::unordered_map<std::string, WisHeaderGraphNode> nodes;
+    std::vector<WisHeaderGraphNode*> roots;
+
+    void ParseIncludes(std::filesystem::path path, std::string rpath, std::string_view rel_dir)
+    {
+        auto& node = nodes["wisdom/" + rpath];
+        node.path = "wisdom/" + rpath;
+
+        std::ifstream file(path);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file: " << path << "\n";
+            return;
+        }
+
+        std::string line;
+        std::regex includeRegex(R"(#include\s*["<](wisdom.*)" + std::string(rel_dir) + R"(.*)[">])");
+        std::smatch match;
+
+        while (std::getline(file, line)) {
+            if (line.find("#endif") != line.npos) {
+                break;
+            }
+            if (std::regex_search(line, match, includeRegex)) {
+                node.includes.push_back(&nodes[match[1].str()]);
+                nodes[match[1].str()].path = match[1].str();
+            }
+        }
+    }
+    auto Visit(std::vector<std::string>& order, std::unordered_set<std::string>& visited, WisHeaderGraphNode& node)
+    {
+        if (visited.contains(node.path)) {
+            return;
+        }
+        visited.insert(node.path);
+        for (auto* inc : node.includes) {
+            Visit(order, visited, *inc);
+        }
+        order.push_back(node.path);
+    };
+    std::vector<std::string> GetOrder()
+    {
+        std::vector<std::string> order;
+        std::unordered_set<std::string> visited;
+        for (auto& [_, node] : nodes) {
+            Visit(order, visited, node);
+        }
+        return order;
+    }
+};
 
 //-----------------------------------------------------------------------------
 
@@ -302,12 +360,13 @@ int Generator::GenerateCPPAPI()
 {
     using namespace std::chrono;
 
-    std::string output_api = "//GENERATED\n#pragma once\n#include <array>\n#include <cstdint>\n#include <functional>\n\n";
+    std::string output_api = "//GENERATED\n#pragma once\n#ifndef WISDOM_MODULE_DECL\n#include <array>\n#include <cstdint>\n#include <functional>\n"
+                             "#define WISDOM_EXPORT \n#else\n#define WISDOM_EXPORT export\n#endif\n\n";
 
     output_api += wis::format(documentation_header, WISDOM_VERSION);
     output_api += "\n*/\n\n";
 
-    output_api += "namespace wis {\n";
+    output_api += "WISDOM_EXPORT\nnamespace wis {\n";
     output_api += GenerateCPPTypes();
     output_api += "//"
                   "=================================DELEGATES===================="
@@ -327,7 +386,7 @@ int Generator::GenerateCPPAPI()
                   "==============================\n\n";
 
     output_api += R"(
-static inline constexpr Result success{
+inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
 
@@ -423,9 +482,11 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     }
 
     std::string dxapi =
-            "#pragma once\n#include <wisdom/dx12/dx12_views.h>\n#include "
+            "#pragma once\n"
+            "#ifndef WISDOM_MODULE_DECL\n"
+            "#include <wisdom/dx12/dx12_views.h>\n#include "
             "<wisdom/generated/api/api.hpp>\n#include "
-            "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n\nnamespace wis{\n";
+            "<wisdom/util/flags.h>\n#include <D3D12MemAlloc.h>\n#endif\n\nWISDOM_EXPORT\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->implemented_for == Language::Hidden) {
             continue;
@@ -449,9 +510,11 @@ constexpr decltype(auto) get(ResultValue<RetTy>& rv) noexcept
     }
 
     std::string vkapi =
-            "#pragma once\n#include <wisdom/vulkan/vk_views.h>\n#include "
+            "#pragma once\n"
+            "#ifndef WISDOM_MODULE_DECL\n"
+            "#include <wisdom/vulkan/vk_views.h>\n#include "
             "<wisdom/generated/api/api.hpp>\n#include "
-            "<wisdom/util/flags.h>\n\nnamespace wis{\n";
+            "<wisdom/util/flags.h>\n#endif\n\nWISDOM_EXPORT\nnamespace wis{\n";
     for (auto i : variants) {
         if (i->implemented_for == Language::Hidden) {
             continue;
@@ -563,6 +626,206 @@ int Generator::GenerateCPPInlineDoc()
     }
 
     return 0;
+}
+
+int Generator::GenerateCPPModules()
+{
+    // Generate wisdom.api.ixx
+    std::filesystem::path cpp_output_path = cpp_output_dir;
+    std::filesystem::path cpp_output_path_api = cpp_output_path / "generated/api";
+    std::filesystem::path cpp_output_path_dx12 = cpp_output_path / "generated/dx12";
+    std::filesystem::path cpp_output_path_vulkan = cpp_output_path / "generated/vulkan";
+    std::filesystem::path cpp_output_path_wisdom = std::filesystem::absolute(cpp_output_path / "wisdom.ixx");
+    std::filesystem::path cpp_output_path_wisdom_fvk = std::filesystem::absolute(cpp_output_path / "wisdom.fvk.ixx");
+    std::ofstream out_wisdom(cpp_output_path_wisdom);
+    if (!out_wisdom.is_open()) {
+        return 1;
+    }
+    out_wisdom << GenerateCPPExportModule();
+    files.emplace_back(cpp_output_path_wisdom);
+
+    std::ofstream out_wisdom_fvk(cpp_output_path_wisdom_fvk);
+    if (!out_wisdom_fvk.is_open()) {
+        return 1;
+    }
+    out_wisdom_fvk << GenerateCPPExportModuleForceVulkan();
+    files.emplace_back(cpp_output_path_wisdom_fvk);
+
+    std::string output_api = wis::format(documentation_header, WISDOM_VERSION);
+    output_api += "\n*/\n\n";
+    output_api += R"(module;
+#define WISDOM_MODULE_DECL
+#include <wisdom/generated/api/api.include.h>
+export module wisdom.api;
+
+#include <wisdom/generated/api/api.hpp>
+)";
+    std::filesystem::path cpp_api_includes[] = {
+        cpp_output_path / "global",
+        cpp_output_path / "util"
+    };
+
+    WisHeaderGraph graph_api;
+    for (auto& path : cpp_api_includes) {
+        for (auto& file : std::filesystem::recursive_directory_iterator(path)) {
+            std::filesystem::path fpath = std::filesystem::relative(file.path(), cpp_output_path);
+            auto ext = fpath.extension();
+            if (file.is_regular_file() && (ext == ".h" || ext == ".cpp" || ext == ".hpp")) {
+                graph_api.ParseIncludes(file, fpath.generic_string(), "");
+            }
+        }
+    }
+    for (auto& file : graph_api.GetOrder()) {
+        output_api += wis::format("#include <{}>\n", file);
+    }
+
+    auto output_api_abs = std::filesystem::absolute(cpp_output_path_api / "wisdom.api.ixx");
+    std::ofstream out_api(output_api_abs);
+    if (!out_api.is_open()) {
+        return 1;
+    }
+    out_api << output_api;
+    files.emplace_back(output_api_abs);
+
+    // Generate wisdom.dx12.ixx
+    std::string output_dx12 = wis::format(documentation_header, WISDOM_VERSION);
+    output_dx12 += "\n*/\n\n";
+    output_dx12 += R"(module;
+#define WISDOM_MODULE_DECL
+#define WISDOM_BUILD_BINARIES
+#include <wisdom/generated/dx12/dx12.include.h>
+export module wisdom.dx12;
+
+export import wisdom.api;
+
+)";
+
+    WisHeaderGraph graph;
+    for (auto& file : std::filesystem::recursive_directory_iterator(cpp_output_path / "dx12")) {
+        std::filesystem::path fpath = std::filesystem::relative(file.path(), cpp_output_path);
+        auto ext = fpath.extension();
+        if (file.is_regular_file() && (ext == ".h" || ext == ".cpp" || ext == ".hpp")) {
+            graph.ParseIncludes(file, fpath.generic_string(), "dx12");
+        }
+    }
+    for (auto& file : graph.GetOrder()) {
+        output_dx12 += wis::format("#include <{}>\n", file);
+    }
+
+    auto impl = impls[+ImplementedFor::DX12];
+
+    output_dx12 += k_delimiter;
+    output_dx12 += "\nexport namespace wis {\n\n";
+
+    // Generate platform funcs
+    for (auto& f : functions) {
+        std::string_view prefix = f->return_type.has_result ? "[[nodiscard]] inline" : "inline";
+
+        output_dx12 += wis::format("{}{{ return wis::Impl{}; }}\n", MakeCPPFunctionProto(*f, impl, prefix, true, true, true),
+                                   MakeCPPFunctionCall(*f, impl, true));
+
+        output_dx12 += wis::format("{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(*f, impl, prefix, true, true, false),
+                                   !f->return_type.IsVoid() ? "return" : "", MakeCPPRVFunctionCall(*f, wis::format("wis::Impl{}{}", impl, ""), impl));
+    }
+
+    // Footer
+    output_dx12 += "\n}//namespace wis\n";
+
+    auto output_dx12_abs = std::filesystem::absolute(cpp_output_path_dx12 / "wisdom.dx12.ixx");
+    std::ofstream out_dx12(output_dx12_abs);
+    if (!out_dx12.is_open()) {
+        return 1;
+    }
+    out_dx12 << output_dx12;
+    files.emplace_back(output_dx12_abs);
+
+    // Generate wisdom.vk.ixx
+    std::string output_vk = wis::format(documentation_header, WISDOM_VERSION);
+    output_vk += "\n*/\n\n";
+    output_vk += R"(module;
+#define WISDOM_MODULE_DECL
+#define WISDOM_BUILD_BINARIES
+#include <wisdom/generated/vulkan/vk.include.h>
+export module wisdom.vk;
+
+export import wisdom.api;
+
+)";
+
+    WisHeaderGraph graph_vk;
+    for (auto& file : std::filesystem::recursive_directory_iterator(cpp_output_path / "vulkan")) {
+        std::filesystem::path fpath = std::filesystem::relative(file.path(), cpp_output_path);
+        std::string ext = fpath.extension().string();
+        if (file.is_regular_file() && (ext == ".h" || ext == ".cpp" || ext == ".hpp")) {
+            graph_vk.ParseIncludes(file, fpath.generic_string(), "vulkan");
+        }
+    }
+    for (auto& file : graph_vk.GetOrder()) {
+        output_vk += wis::format("#include <{}>\n", file);
+    }
+
+    impl = impls[+ImplementedFor::Vulkan];
+
+    output_vk += k_delimiter;
+    output_vk += "\nexport namespace wis {\n\n";
+
+    // Generate platform funcs
+    for (auto& f : functions) {
+        std::string_view prefix = f->return_type.has_result ? "[[nodiscard]] inline" : "inline";
+
+        output_vk += wis::format("{}{{ return wis::Impl{}; }}\n", MakeCPPFunctionProto(*f, impl, prefix, true, true, true),
+                                 MakeCPPFunctionCall(*f, impl, true));
+
+        output_vk += wis::format("{} noexcept{{\n    {} {};\n}}\n", MakeCPPFunctionProto(*f, impl, prefix, true, true, false),
+                                 !f->return_type.IsVoid() ? "return" : "", MakeCPPRVFunctionCall(*f, wis::format("wis::Impl{}{}", impl, ""), impl));
+    }
+
+    // Footer
+    output_vk += "\n}//namespace wis\n";
+
+    auto output_vk_abs = std::filesystem::absolute(cpp_output_path_vulkan / "wisdom.vk.ixx");
+    std::ofstream out_vk(output_vk_abs);
+    if (!out_vk.is_open()) {
+        return 1;
+    }
+    out_vk << output_vk;
+    files.emplace_back(output_vk_abs);
+
+    return 0;
+}
+
+std::string Generator::GenerateCPPModule(std::string_view impl)
+{
+    std::string output;
+
+    for (auto& [name, v] : variant_map) {
+        if (!v.ext.empty()) {
+            continue;
+        }
+
+        output += wis::format("export wis::{}{};\n", impl, v.name);
+    }
+
+    output += k_delimiter;
+
+    for (auto& [name, h] : handle_map) {
+        if (!h.ext.empty()) {
+            continue;
+        }
+
+        output += wis::format("export wis::{}{};\n", impl, name);
+    }
+
+    output += k_delimiter;
+
+    output += "export namespace wis {\n";
+    for (auto& f : cpp_funcs) {
+        output += wis::format("using wis::{}{};\n", impl, f->name);
+    }
+    output += "}\n";
+    output += k_delimiter;
+
+    return output;
 }
 
 std::tuple<std::string, std::string, std::string> Generator::GenerateCTypes()
@@ -725,6 +988,97 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #include "wisdom_vk.hpp"
 
 )";
+    output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::Vulkan]);
+    output_wisdom += R"(
+#else
+#error "No API selected"
+#endif
+)";
+    return output_wisdom;
+}
+
+std::string Generator::GenerateCPPExportModule()
+{
+    std::string output_wisdom{
+        R"(module;
+// Select default API
+// Override with WISDOM_FORCE_VULKAN in CMake
+#include <wisdom/config.h>
+#include <wisdom/module.h>
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
+#endif // WISDOM_WINDOWS
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX && __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+
+export module wisdom;
+
+export import wisdom.api;
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+import wisdom.dx12;
+
+export )"
+    };
+
+    output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::DX12]);
+    output_wisdom += R"(
+#elif defined(WISDOM_VULKAN)
+import wisdom.vk;
+
+export )";
+    output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::Vulkan]);
+    output_wisdom += R"(
+#else
+#error "No API selected"
+#endif
+)";
+    return output_wisdom;
+}
+
+std::string Generator::GenerateCPPExportModuleForceVulkan()
+{
+    std::string output_wisdom{
+        R"(module;
+// This module is forced to use Vulkan, regardless of the default API
+#include <wisdom/config.h>
+#include <wisdom/module.h>
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
+#endif // WISDOM_WINDOWS
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX && __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+export module wisdom.fvk;
+
+export import wisdom.api;
+
+#if defined(WISDOM_VULKAN)
+import wisdom.vk;
+
+export )"
+    };
+
     output_wisdom += GenerateCPPPlatformTypedefs(impls[+ImplementedFor::Vulkan]);
     output_wisdom += R"(
 #else
@@ -2433,7 +2787,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
         ReplaceAll(doc, "\n", "\n * ");
     }
 
-    std::string head = wis::format("{}\nclass {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
+    std::string head = wis::format("{}\n WISDOM_EXPORT\nclass {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
     std::string ctor = wis::format("public:\n using wis::Impl{}{}::Impl{}{};", impl, s.name, impl, s.name);
 
     std::string funcs = "public:\n";

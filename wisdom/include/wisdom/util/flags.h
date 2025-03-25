@@ -19,18 +19,24 @@ SOFTWARE.
 */
 
 #pragma once
+#ifndef WISDOM_MODULE_DECL
 #include <type_traits>
+#include <wisdom/global/definitions.h>
+#endif
 
+// namespace adapted for wisdom from river::flags to enable ADL
+WISDOM_EXPORT
 namespace wis {
 template<typename T>
 struct is_flag_enum;
-}
 
-namespace river::flags {
 template<typename T>
-concept unsigned_enum = std::is_enum_v<T> && std::is_unsigned_v<std::underlying_type_t<T>>;
+concept unsigned_enum = std::conjunction_v<std::is_enum<T>, std::negation<std::is_convertible<T, int>>> && std::is_unsigned_v<std::underlying_type_t<T>>;
 
-namespace details {
+template<typename T>
+concept enum_type = std::is_enum_v<T>;
+
+namespace detail {
 template<unsigned_enum T>
 constexpr bool is_flag()
 {
@@ -41,18 +47,18 @@ consteval bool is_flag()
 {
     return wis::is_flag_enum<T>::value;
 }
-} // namespace details
+} // namespace detail
 
 template<typename T>
-concept Flag = details::is_flag<T>();
+concept Flag = detail::is_flag<T>();
 
-template<Flag T>
+template<enum_type T>
 constexpr auto underlying_value(T enum_value)
 {
     return static_cast<std::underlying_type_t<T>>(enum_value);
 }
 
-template<Flag T>
+template<enum_type T>
 constexpr auto operator+(T enum_value)
 {
     return underlying_value(enum_value);
@@ -83,6 +89,13 @@ template<Flag T>
 constexpr auto operator|=(std::underlying_type_t<T>& value, T const flag)
 {
     return value = value | flag;
+}
+
+// Compatibility
+template<enum_type T>
+constexpr auto operator|=(T& value, T flag)
+{
+    return value = T(underlying_value(value) | flag);
 }
 
 template<Flag T>
@@ -137,15 +150,5 @@ template<Flag T>
 constexpr bool has(T lhs, T flag)
 {
     return (lhs & flag) == flag;
-}
-} // namespace river::flags
-
-namespace wis {
-using namespace river::flags;
-
-template<typename T> requires std::is_enum_v<T>
-constexpr auto operator+(T enum_value) noexcept
-{
-    return static_cast<std::underlying_type_t<T>>(enum_value);
 }
 } // namespace wis

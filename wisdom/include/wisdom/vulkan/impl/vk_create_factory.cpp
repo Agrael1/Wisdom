@@ -1,10 +1,13 @@
 #ifndef WIS_VK_CREATE_FACTORY_CPP
 #define WIS_VK_CREATE_FACTORY_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_checks.h>
+#include <wisdom/global/constants.h>
 #include <unordered_map>
 #include <array>
 #include <ranges>
+#endif
 
 wis::detail::fixed_allocation<const char*>
 wis::ImplVKFactory::FoundExtensions(wis::Result& result, std::span<const char*> in_extensions) noexcept
@@ -32,7 +35,7 @@ wis::ImplVKFactory::FoundExtensions(wis::Result& result, std::span<const char*> 
     // allocate a bit more than needed
     wis::detail::fixed_allocation<const char*> found_extension = wis::detail::make_fixed_allocation<const char*>(exts_set.size());
     if (!found_extension) {
-        result = wis::make_result<FUNC, "Not enough memory for extensions">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Not enough memory for extensions">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return found_extension;
     }
 
@@ -86,7 +89,7 @@ wis::ImplVKFactory::FoundLayers(wis::Result& result, std::span<const char*> in_l
     // allocate a bit more than needed
     auto found_layers = wis::detail::make_fixed_allocation<const char*>(layer_set.size());
     if (!found_layers) {
-        result = wis::make_result<FUNC, "Not enough memory for layers">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Not enough memory for layers">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return found_layers;
     }
     size_t index = 0;
@@ -133,7 +136,7 @@ VKCreateFactoryWithExtensions(wis::Result& result, bool debug_layer, const char*
     if (gt.vkEnumerateInstanceVersion) {
         vr = gt.vkEnumerateInstanceVersion(&version);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to enumerate instance version">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to enumerate instance version">(vr);
             return out_factory;
         }
     } else {
@@ -167,7 +170,7 @@ VKCreateFactoryWithExtensions(wis::Result& result, bool debug_layer, const char*
     VkInstance unsafe_instance;
     vr = gt.vkCreateInstance(&create_info, nullptr, &unsafe_instance);
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create instance">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create instance">(vr);
         return out_factory;
     }
     auto destroy_instance = (PFN_vkDestroyInstance)gt.vkGetInstanceProcAddr(unsafe_instance, "vkDestroyInstance");
@@ -175,11 +178,11 @@ VKCreateFactoryWithExtensions(wis::Result& result, bool debug_layer, const char*
 
     auto table = wis::detail::make_unique<wis::VKMainInstance>();
     if (!table) {
-        result = wis::make_result<FUNC, "Failed to create instance table">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create instance table">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_factory;
     }
     if (!table->Init(safe_instance.get(), gt.vkGetInstanceProcAddr)) {
-        result = wis::make_result<FUNC, "Failed to initialize instance table">(VK_ERROR_UNKNOWN);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to initialize instance table">(VK_ERROR_UNKNOWN);
         return out_factory;
     }
 
@@ -189,7 +192,7 @@ VKCreateFactoryWithExtensions(wis::Result& result, bool debug_layer, const char*
 
     vr = out_factory.VKEnumeratePhysicalDevices();
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to enumerate physical devices">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to enumerate physical devices">(vr);
     }
     return out_factory;
 }

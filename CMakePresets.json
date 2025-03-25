@@ -9,7 +9,10 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
       },
       "condition": {
         "type": "equals",
@@ -52,7 +55,8 @@
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe"
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
       },
       "condition": {
         "type": "equals",
@@ -70,7 +74,8 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_GENERATE_FUNCTIONS": true
       }
     },
     {

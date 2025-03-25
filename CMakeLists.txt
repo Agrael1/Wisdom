@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-set(WISDOM_VERSION "0.6.6")
+set(WISDOM_VERSION "0.6.7")
 project("Wisdom" VERSION ${WISDOM_VERSION})
 
 set(CMAKE_DEBUG_POSTFIX d)
@@ -33,7 +33,7 @@ endif()
 # Additional CMake functions.
 include(cmake/platform.cmake)
 include(cmake/settings.cmake)
-include(cmake/functions.cmake)
+include(cmake/wisdom-functions.cmake)
 include(cmake/misc.cmake)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)

@@ -1,6 +1,11 @@
 #ifndef WIS_RAYTRACING_IMPL_H
 #define WIS_RAYTRACING_IMPL_H
+#ifndef WISDOM_MODULE_DECL
 #include <cstdint>
+#include <wisdom/global/definitions.h>
+#endif // !WISDOM_MODULE_DECL
+
+WISDOM_EXPORT
 namespace wis {
 struct AccelerationInstance {
     float transform[3][4];

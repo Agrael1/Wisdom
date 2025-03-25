@@ -1,6 +1,8 @@
 #ifndef WIS_VK_COMMAND_QUEUE_CPP
 #define WIS_VK_COMMAND_QUEUE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_command_queue.h>
+#endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
                                                   uint32_t count) const noexcept
@@ -32,7 +34,7 @@ wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t val
     };
     VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
-                             : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+                             : wis::make_result<wis::Func<wis::FuncD()>(), "vkQueueSubmit failed to signal fence">(result);
 }
 
 wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
@@ -52,7 +54,7 @@ wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value
     };
     VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
-                             : wis::make_result<FUNC, "vkQueueSubmit failed to signal fence">(result);
+                             : wis::make_result<wis::Func<wis::FuncD()>(), "vkQueueSubmit failed to signal fence">(result);
 }
 
 #endif // !VK_COMMAND_QUEUE_CPP

@@ -1,5 +1,6 @@
 #ifndef WIS_VK_FACTORY_H
 #define WIS_VK_FACTORY_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/log_layer.h>
@@ -12,9 +13,10 @@
 #include <mutex>
 #include <vector>
 #include <unordered_set>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKFactory;
+WISDOM_EXPORT class VKFactory;
 
 namespace detail {
 constexpr inline std::array instance_extensions{
@@ -58,6 +60,7 @@ public:
 };
 } // namespace detail
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKFactory> {
     wis::SharedInstance factory;
@@ -120,6 +123,7 @@ private:
  * @brief Class for creating adapters.
  * Can be safely destroyed after adapter has been chosen.
  * */
+WISDOM_EXPORT
 class VKFactory : public wis::ImplVKFactory
 {
 public:

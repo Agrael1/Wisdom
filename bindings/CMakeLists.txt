@@ -55,8 +55,8 @@ install(
   FILE wisdom-bindings-targets.cmake)
 
 include(CMakePackageConfigHelpers)
-configure_file("../cmake/wisdom-deps.cmake.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake" @ONLY)
+configure_file("../cmake/wisdom-functions.cmake"
+               "${CMAKE_CURRENT_BINARY_DIR}/wisdom-functions.cmake" @ONLY)
 
 configure_package_config_file(
   "../cmake/wisdom-bindings-config.cmake.in" "wisdom-bindings-config.cmake"

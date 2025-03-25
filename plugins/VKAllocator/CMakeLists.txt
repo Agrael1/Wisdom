@@ -24,7 +24,8 @@ target_compile_definitions(
   ${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES VMA_STATIC_VULKAN_FUNCTIONS=0
                           VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
 if(WISDOM_WINDOWS)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC VK_USE_PLATFORM_WIN32_KHR
+                                                    VMA_EXTERNAL_MEMORY_WIN32)
 endif(WISDOM_WINDOWS)
 
 target_include_directories(

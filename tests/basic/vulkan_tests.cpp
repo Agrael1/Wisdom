@@ -46,7 +46,7 @@ struct A : public wis::VKDeviceExtension {
         VkPhysicalDeviceCustomBorderColorPropertiesEXT& properties = *reinterpret_cast<VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT));
 
         if (!features.customBorderColors) {
-            return wis::make_result<FUNC, "Custom border colors not supported">(VkResult::VK_ERROR_UNKNOWN);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Custom border colors not supported">(VkResult::VK_ERROR_UNKNOWN);
         }
 
         // enabled -> features.customBorderColors = true;

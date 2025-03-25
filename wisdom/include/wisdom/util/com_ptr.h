@@ -1,15 +1,25 @@
 #pragma once
+#ifndef WISDOM_MODULE_DECL
+#include <wisdom/global/definitions.h>
 #include <concepts>
 #include <span>
+#include <cstdint>
+#endif
 
+WISDOM_EXPORT
 namespace wis {
+
 struct take_ownership_t {
 };
 constexpr take_ownership_t take_ownership;
 
 template<typename T>
 struct guid_of {
-    static constexpr auto value = __uuidof(T);
+#if !defined(__GNUC__) || defined(_WIN32)
+    static constexpr _GUID value = __uuidof(T);
+#else
+    static constexpr auto value = 0;
+#endif // __GNUC__
 };
 
 template<typename T>
@@ -151,8 +161,9 @@ public:
     }
     void attach(pointer value) noexcept
     {
-        if (ptr != value)
+        if (ptr != value) {
             release();
+        }
         ptr = value;
     }
     pointer detach() noexcept
@@ -200,13 +211,15 @@ private:
     }
     void add_ref() const noexcept
     {
-        if (ptr)
+        if (ptr) {
             ptr->AddRef();
+        }
     }
     void release() noexcept
     {
-        if (ptr)
+        if (ptr) {
             std::exchange(ptr, {})->Release();
+        }
     }
 
 private:

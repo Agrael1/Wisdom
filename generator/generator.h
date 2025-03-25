@@ -293,13 +293,17 @@ public:
     int GenerateCAPI();
     int GenerateCPPAPI();
     int GenerateCPPInlineDoc();
+    int GenerateCPPModules();
     std::tuple<std::string, std::string, std::string> GenerateCTypes();
     std::tuple<std::string, std::string, std::string> GenerateCTypedefs();
     std::string GenerateCPPTypes();
     std::string GenerateCPPTypedefs();
     std::string GenerateCPPPlatformTypedefs(std::string_view impl);
     std::string GenerateCPPExportHeader();
+    std::string GenerateCPPExportModule();
+    std::string GenerateCPPExportModuleForceVulkan();
     std::string GenerateCPPPlatformExportHeader(std::string_view impl);
+    std::string GenerateCPPModule(std::string_view impl);
 
     void ParseFile(tinyxml2::XMLDocument& doc);
     void ParseTypes(tinyxml2::XMLElement* types, std::string_view extension = "");

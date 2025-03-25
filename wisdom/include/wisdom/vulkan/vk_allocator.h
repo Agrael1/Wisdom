@@ -1,11 +1,14 @@
 #ifndef WIS_VK_ALLOCATOR_H
 #define WIS_VK_ALLOCATOR_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_resource.h>
 #include <wisdom/vulkan/vk_checks.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKResourceAllocator;
+WISDOM_EXPORT class VKResourceAllocator;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKResourceAllocator> {
     wis::shared_handle<VmaAllocator> allocator;
@@ -99,6 +102,7 @@ public:
  * @brief Main memory and resource allocator.
  * Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with TLSF algorithm.
  * */
+WISDOM_EXPORT
 class VKResourceAllocator : public wis::ImplVKResourceAllocator
 {
 public:

@@ -7,13 +7,15 @@ wis::DX12DebugMessenger
 wis::ImplDX12DebugExtension::CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) const noexcept
 {
     return wis::DX12DebugMessenger{
-        DX12InfoToken{ true }, callback, user_data
+        { true }, callback, user_data
     };
 }
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_checks.h>
+#endif // !WISDOM_MODULE_DECL
 
 VKAPI_ATTR VkBool32 VKAPI_CALL wis::ImplVKDebugExtension::DebugCallbackThunk(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -44,7 +46,7 @@ wis::ImplVKDebugExtension::CreateDebugMessenger(wis::Result& result, wis::DebugC
 
     internal.data = wis::detail::make_unique<detail::DebugCallbackData>(callback, user_data);
     if (!internal.data) {
-        result = wis::make_result<FUNC, "Failed to create debug callback data">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create debug callback data">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_messenger;
     }
 
@@ -62,7 +64,7 @@ wis::ImplVKDebugExtension::CreateDebugMessenger(wis::Result& result, wis::DebugC
     auto vr = vkCreateDebugUtilsMessengerEXT(instance.get(), &create_info, nullptr,
                                              &internal.messenger);
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create debug messenger">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create debug messenger">(vr);
         return out_messenger;
     }
     internal.instance = instance;

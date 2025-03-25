@@ -1,12 +1,15 @@
 #ifndef WIS_VK_ROOT_SIGNATURE_H
 #define WIS_VK_ROOT_SIGNATURE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_handles.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKRootSignature;
+WISDOM_EXPORT class VKRootSignature;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKRootSignature> {
     wis::managed_handle_ex<VkPipelineLayout> root;
@@ -42,7 +45,7 @@ struct Internal<VKRootSignature> {
     }
 };
 
-/// @brief Root signature
+WISDOM_EXPORT
 class VKRootSignature : public QueryInternal<VKRootSignature>
 {
 public:

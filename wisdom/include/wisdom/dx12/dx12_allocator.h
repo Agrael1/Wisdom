@@ -1,11 +1,14 @@
 #ifndef WIS_DX12_ALLOCATOR_H
 #define WIS_DX12_ALLOCATOR_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_resource.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12ResourceAllocator;
-class DX12Device;
+WISDOM_EXPORT class DX12ResourceAllocator;
+WISDOM_EXPORT class DX12Device;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12ResourceAllocator> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
@@ -87,6 +90,7 @@ public:
  * @brief Main memory and resource allocator.
  * Uses DXMA and VMA libraries which can allocate memory with O(1) complexity with TLSF algorithm.
  * */
+WISDOM_EXPORT
 class DX12ResourceAllocator : public wis::ImplDX12ResourceAllocator
 {
 public:

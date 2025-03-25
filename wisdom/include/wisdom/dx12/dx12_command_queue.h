@@ -1,12 +1,15 @@
 #ifndef WIS_DX12_COMMAND_QUEUE_H
 #define WIS_DX12_COMMAND_QUEUE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/dx12/dx12_views.h>
+#endif
 
 namespace wis {
-class DX12CommandQueue;
+WISDOM_EXPORT class DX12CommandQueue;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12CommandQueue> {
     wis::com_ptr<ID3D12CommandQueue> queue;
@@ -38,20 +41,21 @@ public:
         HRESULT hr;
         return wis::succeeded(hr = queue->Signal(std::get<0>(fence), value))
                 ? wis::success
-                : wis::make_result<FUNC, "Signal failed">(hr);
+                : wis::make_result<wis::Func<wis::FuncD()>(), "Signal failed">(hr);
     }
     wis::Result WaitQueue(DX12FenceView fence, uint64_t value) const noexcept
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Wait(std::get<0>(fence), value))
                 ? wis::success
-                : wis::make_result<FUNC, "Wait failed">(hr);
+                : wis::make_result<wis::Func<wis::FuncD()>(), "Wait failed">(hr);
     }
 };
 #pragma region DX12CommandQueue
 /**
  * @brief Represents command queue for executing command lists.
  * */
+WISDOM_EXPORT
 class DX12CommandQueue : public wis::ImplDX12CommandQueue
 {
 public:

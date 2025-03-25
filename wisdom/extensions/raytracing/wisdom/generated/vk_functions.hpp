@@ -1,8 +1,14 @@
 #pragma once
+#ifndef WISVK_MODULE_DECL
 #include <array>
 #include <vulkan/vulkan.h>
 #include <wisvk/vk_libinit.hpp>
+#define WISVK_EXPORT
+#else
+#define WISVK_EXPORT export
+#endif // WISVK_MODULE_DECL
 
+WISVK_EXPORT
 namespace wis {
 
 #if !(defined(VK_KHR_ray_tracing_pipeline))
@@ -12,27 +18,19 @@ using PFN_vkGetRayTracingShaderGroupHandlesKHR = PFN_vkGetRayTracingShaderGroupH
 #endif
 
 struct VKRaytracingExtDevice {
-    PFN_vkCreateRayTracingPipelinesKHR vkCreateRayTracingPipelinesKHR;
-    PFN_vkCmdTraceRaysKHR vkCmdTraceRaysKHR;
     PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR;
     PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR;
     PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
+    PFN_vkCmdCopyAccelerationStructureKHR vkCmdCopyAccelerationStructureKHR;
     PFN_vkCmdBuildAccelerationStructuresKHR vkCmdBuildAccelerationStructuresKHR;
     PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR;
     PFN_vkGetRayTracingShaderGroupHandlesKHR vkGetRayTracingShaderGroupHandlesKHR;
-    PFN_vkCmdCopyAccelerationStructureKHR vkCmdCopyAccelerationStructureKHR;
+    PFN_vkCmdTraceRaysKHR vkCmdTraceRaysKHR;
+    PFN_vkCreateRayTracingPipelinesKHR vkCreateRayTracingPipelinesKHR;
 
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
-        vkCreateRayTracingPipelinesKHR = (PFN_vkCreateRayTracingPipelinesKHR)vkGetDeviceProcAddr(device, "vkCreateRayTracingPipelinesKHR");
-        if (vkCreateRayTracingPipelinesKHR == nullptr) {
-            return false;
-        }
-        vkCmdTraceRaysKHR = (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
-        if (vkCmdTraceRaysKHR == nullptr) {
-            return false;
-        }
         vkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(device, "vkCreateAccelerationStructureKHR");
         if (vkCreateAccelerationStructureKHR == nullptr) {
             return false;
@@ -45,16 +43,16 @@ public:
         if (vkDestroyAccelerationStructureKHR == nullptr) {
             return false;
         }
+        vkCmdCopyAccelerationStructureKHR = (PFN_vkCmdCopyAccelerationStructureKHR)vkGetDeviceProcAddr(device, "vkCmdCopyAccelerationStructureKHR");
+        if (vkCmdCopyAccelerationStructureKHR == nullptr) {
+            return false;
+        }
         vkCmdBuildAccelerationStructuresKHR = (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR");
         if (vkCmdBuildAccelerationStructuresKHR == nullptr) {
             return false;
         }
         vkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device, "vkGetAccelerationStructureDeviceAddressKHR");
         if (vkGetAccelerationStructureDeviceAddressKHR == nullptr) {
-            return false;
-        }
-        vkCmdCopyAccelerationStructureKHR = (PFN_vkCmdCopyAccelerationStructureKHR)vkGetDeviceProcAddr(device, "vkCmdCopyAccelerationStructureKHR");
-        if (vkCmdCopyAccelerationStructureKHR == nullptr) {
             return false;
         }
         static constexpr std::array vkGetRayTracingShaderGroupHandlesKHR_strings{
@@ -71,6 +69,14 @@ public:
             }
         }
         if (vkGetRayTracingShaderGroupHandlesKHR == nullptr) {
+            return false;
+        }
+        vkCmdTraceRaysKHR = (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
+        if (vkCmdTraceRaysKHR == nullptr) {
+            return false;
+        }
+        vkCreateRayTracingPipelinesKHR = (PFN_vkCreateRayTracingPipelinesKHR)vkGetDeviceProcAddr(device, "vkCreateRayTracingPipelinesKHR");
+        if (vkCreateRayTracingPipelinesKHR == nullptr) {
             return false;
         }
         return true;

@@ -1,14 +1,17 @@
 #ifndef WIS_DX12_FACTORY_H
 #define WIS_DX12_FACTORY_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/dx12/dx12_structs.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/dx12/dx12_adapter.h>
 #include <wisdom/dx12/dx12_debug.h>
 #include <wisdom/dx12/dx12_factory_ext.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12Factory;
+WISDOM_EXPORT class DX12Factory;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Factory> {
     wis::com_ptr<IDXGIFactory6> factory;
@@ -17,8 +20,6 @@ struct Internal<DX12Factory> {
 /// @brief Main Factory class
 class ImplDX12Factory : public QueryInternal<DX12Factory>
 {
-    // friend wis::ResultValue<wis::DX12Factory>
-    // ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
     friend wis::DX12Factory
     ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count, wis::Result& res) noexcept;
 
@@ -47,6 +48,7 @@ public:
  * @brief Class for creating adapters.
  * Can be safely destroyed after adapter has been chosen.
  * */
+WISDOM_EXPORT
 class DX12Factory : public wis::ImplDX12Factory
 {
 public:

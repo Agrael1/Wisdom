@@ -1,14 +1,19 @@
 #pragma once
+#ifndef WISDOM_MODULE_DECL
+#include <wisdom/global/definitions.h>
 #include <string>
 #include <memory>
 #include <span>
+#endif
 
+WISDOM_EXPORT
 namespace wis {
 struct string_hash : public std::hash<std::string_view> {
     using is_transparent = void;
 };
 } // namespace wis
 
+WISDOM_EXPORT
 namespace wis::detail {
 template<class Type, std::enable_if_t<std::is_unbounded_array_v<Type>, int> = 0>
 [[nodiscard]] constexpr std::unique_ptr<Type> make_unique_for_overwrite(size_t size) noexcept
@@ -41,7 +46,7 @@ struct fixed_allocation {
     }
     constexpr operator bool() const noexcept
     {
-        return data != nullptr;
+        return data.get() != nullptr;
     }
     constexpr auto* get() noexcept
     {
@@ -93,6 +98,7 @@ template<typename T>
 }
 } // namespace wis::detail
 
+WISDOM_EXPORT
 namespace wis {
 using detail::aligned_size;
 } // namespace wis

@@ -1,9 +1,11 @@
 #ifndef WISDOM_WINDOWS_CPP
 #define WISDOM_WINDOWS_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/wisdom_windows.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/dx12/dx12_device.h>
 #include <d3d11.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
 inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::SwapchainDesc& desc) noexcept
@@ -68,7 +70,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(wis::Result& result, const 
 
     // until microsoft fixes this
     if (desc.stereo && !wis::succeeded(hr = devicei.factory->CreateSwapChainForHwnd(detail::CreateD3D11Device().get(), hwnd, &swap_desc, nullptr, nullptr, swap.put()))) {
-        result = wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create D3D11 device for stereo mode">(hr);
     }
 
     hr = devicei.factory->CreateSwapChainForHwnd(
@@ -80,12 +82,12 @@ wis::platform::DX12WindowsExtension::CreateSwapchain(wis::Result& result, const 
             swap.put());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create swapchain for hwnd">(hr);
         return out_swapchain;
     }
     hr = swap.as<IDXGISwapChain4>(&internal.chain);
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create swapchain for hwnd">(hr);
         return out_swapchain;
     }
 
@@ -131,7 +133,7 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, con
 
     // until microsoft fixes this
     if (desc.stereo && !wis::succeeded(hr = devicei.factory->CreateSwapChainForCoreWindow(detail::CreateD3D11Device().get(), window, &swap_desc, nullptr, swap.put()))) {
-        result = wis::make_result<FUNC, "Failed to create D3D11 device for stereo mode">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create D3D11 device for stereo mode">(hr);
     }
 
     hr = devicei.factory->CreateSwapChainForCoreWindow(
@@ -142,12 +144,12 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, con
             swap.put());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create swapchain for hwnd">(hr);
         return out_swapchain;
     }
     hr = swap.as<IDXGISwapChain4>(&internal.chain);
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create swapchain for hwnd">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create swapchain for hwnd">(hr);
         return out_swapchain;
     }
 
@@ -164,9 +166,9 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, con
 }
 
 #ifdef WISDOM_VULKAN
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
-
-// #error error
+#endif
 
 wis::VKSwapChain
 wis::platform::VKWindowsExtension::CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
@@ -185,7 +187,7 @@ wis::platform::VKWindowsExtension::CreateSwapchain(wis::Result& result, const VK
     VkSurfaceKHR surface;
     auto vr = vkCreateWin32SurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create Win32 surface">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create Win32 surface">(vr);
         return {};
     }
 

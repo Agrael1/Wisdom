@@ -26,6 +26,21 @@ endif()
 target_link_libraries(wisdom-platform INTERFACE wis::windows)
 target_link_libraries(wisdom-platform-headers INTERFACE wis::windows-headers)
 
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  add_library(wisdom-windows-module STATIC "wisdom/windows.include.h")
+  add_library(wis::windows-module ALIAS wisdom-windows-module)
+  target_sources(
+    wisdom-windows-module
+    PUBLIC FILE_SET CXX_MODULES FILES "wisdom/wisdom_windows.ixx"
+           "wisdom/wisdom_windows.fvk.ixx")
+  target_link_libraries(wisdom-windows-module PUBLIC wisdom-module
+                                                     wisdom-windows-headers)
+  set_target_properties(wisdom-windows-module
+                        PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+
+  target_link_libraries(wisdom-platform-module PUBLIC wis::windows-module)
+endif()
+
 install(
   TARGETS wisdom-windows wisdom-windows-headers
   EXPORT wisdom-windows-targets
@@ -40,6 +55,25 @@ install(
   FILE wisdom-windows-targets.cmake
   NAMESPACE wis::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
+
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  install(
+    TARGETS wisdom-windows-module
+    EXPORT wisdom-windows-module-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+  install(
+    EXPORT wisdom-windows-module-targets
+    FILE wisdom-windows-module-targets.cmake
+    NAMESPACE wis::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
+endif()
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(

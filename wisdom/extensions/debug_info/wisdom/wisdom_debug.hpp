@@ -1,19 +1,21 @@
 #ifndef WISDOM_DEBUG_H
 #define WISDOM_DEBUG_H
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_factory_ext.h>
 #include <wisdom/dx12/dx12_debug.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <d3d12.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12DebugExtension;
+WISDOM_EXPORT class DX12DebugExtension;
 
 template<>
 struct Internal<DX12DebugExtension> {
 };
 
-class ImplDX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, DX12FactoryExtension>
+class ImplDX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, wis::DX12FactoryExtension>
 {
 public:
     [[nodiscard]] bool Supported() const noexcept override
@@ -29,7 +31,7 @@ public:
         }
 
         if (!debugController) {
-            return wis::make_result<FUNC, "Debug Extension is unsupported">(E_NOTIMPL);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Debug Extension is unsupported">(E_NOTIMPL);
         }
 
         // if (auto dc = debugController.as<ID3D12Debug1>())
@@ -45,6 +47,7 @@ public:
 
 #pragma region DX12DebugExtension
 
+WISDOM_EXPORT
 class DX12DebugExtension : public wis::ImplDX12DebugExtension
 {
 public:
@@ -79,11 +82,13 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKDebugExtension;
+WISDOM_EXPORT class VKDebugExtension;
 
 template<>
 struct Internal<VKDebugExtension> {
@@ -132,6 +137,7 @@ public:
 
 #pragma region VKDebugExtension
 
+WISDOM_EXPORT
 class VKDebugExtension : public wis::ImplVKDebugExtension
 {
 public:
@@ -163,6 +169,7 @@ public:
 } // namespace wis
 #endif // WISDOM_VULKAN
 
+WISDOM_EXPORT
 namespace wis {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using DebugExtension = DX12DebugExtension;

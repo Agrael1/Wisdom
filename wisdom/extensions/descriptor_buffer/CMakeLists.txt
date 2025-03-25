@@ -34,6 +34,21 @@ else()
                         INTERFACE wisdom-descriptor-buffer-headers)
 endif()
 
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  add_library(wisdom-descriptor-buffer-module STATIC
+              "wisdom/descriptor_buffer.include.h")
+  add_library(wis::descriptor-buffer-module ALIAS
+              wisdom-descriptor-buffer-module)
+  target_sources(
+    wisdom-descriptor-buffer-module
+    PUBLIC FILE_SET CXX_MODULES FILES "wisdom/wisdom_descriptor_buffer.ixx"
+           "wisdom/wisdom_descriptor_buffer.fvk.ixx")
+  target_link_libraries(wisdom-descriptor-buffer-module
+                        PUBLIC wisdom-module wisdom-descriptor-buffer-headers)
+  set_target_properties(wisdom-descriptor-buffer-module
+                        PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+endif()
+
 # link the debug library to the main wisdom extension library
 target_link_libraries(wisdom-extension INTERFACE wisdom-descriptor-buffer)
 target_link_libraries(wisdom-extension-headers
@@ -47,6 +62,19 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  install(
+    TARGETS wisdom-descriptor-buffer-module
+    EXPORT wisdom-module-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)

@@ -3,6 +3,7 @@
 #include <wisdom/wisdom_raytracing.hpp>
 #include <window.h>
 #include <iostream>
+#include <cstring>
 
 #include <glm/vec3.hpp>
 
@@ -446,6 +447,7 @@ private:
 
 int main(int argc, char** argv)
 {
+    ex::Instance instance;
     try {
         App{}.Run();
     } catch (const std::exception& e) {

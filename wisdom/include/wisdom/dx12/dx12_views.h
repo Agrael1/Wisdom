@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_VIEWS_H
 #define WIS_DX12_VIEWS_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/api/api.hpp>
 #include <array>
 #include <d3d12.h>
@@ -11,6 +12,9 @@ class Allocator;
 class Allocation;
 } // namespace D3D12MA
 
+#endif
+
+WISDOM_EXPORT
 namespace wis {
 class DX12DescriptorStorage;
 using DX12FactoryHandle = std::tuple<IDXGIFactory6*>;

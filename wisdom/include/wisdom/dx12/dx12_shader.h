@@ -1,9 +1,12 @@
 #ifndef WIS_DX12_SHADER_H
 #define WIS_DX12_SHADER_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <memory>
+#endif
 
+WISDOM_EXPORT
 namespace wis {
 class DX12Shader;
 

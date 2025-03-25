@@ -3,8 +3,10 @@
 #include <wisdom/wisdom_extended_allocation.hpp>
 
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_property_format_table.h>
+#endif // !WISDOM_MODULE_DECL
 
 wis::DX12Texture
 wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,
@@ -17,7 +19,7 @@ wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, con
     auto& mem_internal = internal.memory.GetMutableInternal();
 
     if (!supports_gpu_upload) {
-        result = wis::make_result<FUNC, "GPU upload heap not supported by device">(E_INVALIDARG);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "GPU upload heap not supported by device">(E_INVALIDARG);
         return out_texture;
     }
 
@@ -34,7 +36,7 @@ wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, con
                                                                     mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Buffer Allocation failed">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);
         return out_texture;
     }
     mem_internal.allocator = allocator.GetInternal().allocator;
@@ -55,12 +57,12 @@ wis::ImplDX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host
     UINT slice_pitch = 0;
     auto hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.format), region.size.width, row_pitch);
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Failed to calculate row pitch">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to calculate row pitch">(hr);
     }
 
     hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(convert_dx(region.format), row_pitch, region.size.height, slice_pitch);
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Failed to calculate slice pitch">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to calculate slice pitch">(hr);
     }
 
     D3D12_BOX box{
@@ -73,7 +75,7 @@ wis::ImplDX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host
     };
     hr = resource->WriteToSubresource(dest_subresource, &box, host_data, row_pitch, slice_pitch);
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Failed to write to subresource">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to write to subresource">(hr);
     }
     return wis::success;
 }

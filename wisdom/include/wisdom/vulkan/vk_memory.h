@@ -1,16 +1,20 @@
 #ifndef WIS_VK_MEMORY_H
 #define WIS_VK_MEMORY_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisdom/vulkan/vk_views.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKMemory;
+WISDOM_EXPORT class VKMemory;
 
+WISDOM_EXPORT
 namespace h {
 using VmaAllocation = wis::movable_handle<::VmaAllocation>;
 }
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKMemory> {
     wis::shared_handle<VmaAllocator> allocator;
@@ -92,6 +96,7 @@ public:
 /**
  * @brief Represents memory object for binding resources.
  * */
+WISDOM_EXPORT
 class VKMemory : public wis::ImplVKMemory
 {
 public:

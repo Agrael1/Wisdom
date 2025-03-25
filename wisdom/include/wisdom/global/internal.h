@@ -1,49 +1,11 @@
 #pragma once
-#include <utility>
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/definitions.h>
+#include <utility>
+#endif // !WISDOM_MODULE_DECL
 
-#include <source_location>
-#include <cstdio>
-
+WISDOM_EXPORT
 namespace wis {
-template<typename T, bool enabled = false>
-class atype
-{
-    static inline void xprint(std::source_location sl = std::source_location::current())
-    {
-        if constexpr (enabled) {
-            std::printf("%s\n", sl.function_name());
-        }
-    }
-
-public:
-    atype()
-    {
-        xprint();
-    }
-    ~atype()
-    {
-        xprint();
-    }
-    atype(const atype&)
-    {
-        xprint();
-    }
-    atype(atype&&) noexcept
-    {
-        xprint();
-    }
-    atype& operator=(atype&&) noexcept
-    {
-        xprint();
-        return *this;
-    }
-    atype& operator=(const atype&) noexcept
-    {
-        xprint();
-        return *this;
-    }
-};
 
 /// @brief Template class for internal implementation
 /// @tparam Impl Implementation class type

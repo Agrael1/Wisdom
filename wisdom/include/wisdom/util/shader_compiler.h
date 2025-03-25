@@ -1,10 +1,6 @@
-//#pragma once
-//#include <wisdom/wisdom.h>
+// #pragma once
 //
-// #include <dxc/dxcapi.h>
-//
-//
-// namespace wis
+//  namespace wis
 //{
 //	//unfinished for linux
 //	class ShaderCompiler
@@ -85,4 +81,4 @@
 //		IDxcUtils* dxcutils = nullptr;
 //		IDxcCompiler3* dxc = nullptr;
 //	};
-//}
+// }

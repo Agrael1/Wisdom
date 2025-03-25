@@ -82,13 +82,13 @@ wis::ImplVKExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const
 
         auto vr = vkTransitionImageLayoutEXT(device.get(), 1, &transition);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to transition image layout">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to transition image layout">(vr);
         }
         return texture;
     };
 
     if (!vkCopyMemoryToImageEXT) {
-        result = wis::make_result<FUNC, "VK_EXT_HOST_IMAGE_COPY not supported by device">(VK_ERROR_UNKNOWN);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "VK_EXT_HOST_IMAGE_COPY not supported by device">(VK_ERROR_UNKNOWN);
         return {};
     } else {
         return synth_1(result, allocator, desc, initial_state, flags);
@@ -131,7 +131,7 @@ wis::ImplVKExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_d
 
     auto vr = vkCopyMemoryToImageEXT(device.get(), &copy_info);
     if (!wis::succeeded(vr)) {
-        return wis::make_result<FUNC, "Failed to copy memory to image">(vr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to copy memory to image">(vr);
     }
     return wis::success;
 }

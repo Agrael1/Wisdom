@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_INFO_H
 #define WIS_DX12_INFO_H
+#ifndef WISDOM_MODULE_DECL
 #include <dxgidebug.h>
 #include <semaphore>
 #include <unordered_map>
@@ -7,6 +8,7 @@
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/util/com_ptr.h>
+#endif
 
 namespace wis {
 /// @brief Information queue for debug and error messages
@@ -45,6 +47,7 @@ private:
     std::atomic_size_t ref_count{ 0 };
 };
 
+WISDOM_EXPORT
 struct DX12InfoToken {
     DX12InfoToken() noexcept = default;
     DX12InfoToken(bool) noexcept

@@ -1,8 +1,12 @@
 #pragma once
+#ifndef WISDOM_MODULE_DECL
+#include <wisdom/global/definitions.h>
 #include <cassert>
 #include <array>
 #include <bitset>
+#endif
 
+WISDOM_EXPORT
 namespace wis::detail {
 /// @brief Default size of the stack allocator
 inline constexpr auto allocator_size = 1024u;
@@ -31,7 +35,6 @@ public:
     {
         T* x = new (allocator.data() + byte_size) T(std::forward<Args>(args)...);
         byte_size += sizeof(T);
-        assert(byte_size <= max_size);
         return *x;
     };
 
@@ -87,7 +90,6 @@ public:
     {
         T* x = new (this->data() + rsize) T(std::forward<Args>(args)...);
         rsize++;
-        assert(rsize <= max_size);
         return *x;
     };
 
@@ -146,8 +148,9 @@ public:
     bool contains(const T& ref) const noexcept
     {
         for (size_t i = 0; i < rsize; i++) {
-            if (C{}(ref, this->data()[i]))
+            if (C{}(ref, this->data()[i])) {
                 return true;
+            }
         }
         return false;
     }
@@ -168,8 +171,9 @@ public:
     limited_allocator(uint32_t limit, bool exact = true) noexcept
         : allocator{}, allocated{ 0 }, is_heap{ false }, limit{ limit }
     {
-        if (!exact)
+        if (!exact) {
             return;
+        }
         if (limit > initial_alloc) {
             is_heap = true;
             ptr = allocate_heap(limit);

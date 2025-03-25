@@ -1,6 +1,8 @@
 #ifndef WISDOM_RAYTRACING_DX12_CPP
 #define WISDOM_RAYTRACING_DX12_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/impl.dx12.h>
+#endif // !WISDOM_MODULE_DECL
 
 #if defined(WISDOM_DX12)
 wis::DX12RaytracingPipeline
@@ -63,7 +65,7 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
     for (uint32_t i = 0; i < desc.export_count; ++i) {
         auto sz = precalc_wchspace(desc.exports[i].entry_point);
         if (sz == 0) {
-            result = wis::make_result<FUNC, "Invalid shader export name">(E_INVALIDARG);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Invalid shader export name">(E_INVALIDARG);
             return out_pipeline;
         }
         wchspace += sz;
@@ -218,13 +220,13 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
             D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 
     if (!pipe_i.shader_identifiers) {
-        result = wis::make_result<FUNC, "Failed to allocate shader identifiers">(E_OUTOFMEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate shader identifiers">(E_OUTOFMEMORY);
         return out_pipeline;
     }
 
     auto hr = shared_device->CreateStateObject(&pipeline_desc, pipe_i.state_object.iid(), pipe_i.state_object.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create raytracing pipeline">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create raytracing pipeline">(hr);
         return out_pipeline;
     }
 

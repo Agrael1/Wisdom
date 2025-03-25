@@ -2,7 +2,9 @@
 #define WIS_DX12_DESCRIPTOR_BUFFER_CPP
 
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12_descriptor_buffer.hpp>
+#endif // !WISDOM_MODULE_DECL
 
 void wis::ImplDX12DescriptorBuffer::WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept
 {

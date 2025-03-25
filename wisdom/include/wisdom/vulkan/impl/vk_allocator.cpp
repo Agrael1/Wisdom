@@ -1,17 +1,19 @@
 #ifndef WIS_VK_ALLOCATOR_CPP
 #define WIS_VK_ALLOCATOR_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_allocator.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/misc.h>
 #include <wisdom/vulkan/vk_external.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis::detail {
-constexpr static VkExternalMemoryBufferCreateInfoKHR external_info_buffer{
+constexpr inline VkExternalMemoryBufferCreateInfoKHR external_info_buffer{
     .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
     .pNext = nullptr,
     .handleTypes = memory_handle_type
 };
-constexpr static VkExternalMemoryImageCreateInfoKHR external_info_image{
+constexpr inline VkExternalMemoryImageCreateInfoKHR external_info_image{
     .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR,
     .pNext = nullptr,
     .handleTypes = memory_handle_type
@@ -104,7 +106,7 @@ wis::ImplVKResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_
                                 },
                                 req);
 
-    req.memoryRequirements.size = wis::detail::aligned_size(size, req.memoryRequirements.alignment);
+    req.memoryRequirements.size = wis::aligned_size(size, req.memoryRequirements.alignment);
 
     VmaMemoryUsage vma_usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
     switch (memory) {
@@ -127,7 +129,7 @@ wis::ImplVKResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_
     auto& alloc_ref = mem_flags & wis::MemoryFlags::Exportable ? export_memory_allocator : allocator;
     auto vr = vmaAllocateMemory(alloc_ref.get(), &req.memoryRequirements, &alloc_desc, &internal.allocation, nullptr);
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Image memory allocation failed">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Image memory allocation failed">(vr);
     }
 
     internal.allocator = alloc_ref;
@@ -168,7 +170,7 @@ wis::ImplVKResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64_t
     auto vr = vmaAllocateMemory(alloc_ref.get(), &req.memoryRequirements, &alloc_desc, &internal.allocation, nullptr);
 
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Buffer memory allocation failed">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer memory allocation failed">(vr);
         return out_mem;
     }
 
@@ -182,7 +184,7 @@ wis::ImplVKResourceAllocator::PlaceBuffer(wis::Result& result, wis::VKMemoryView
     VKBuffer out_buffer;
     auto al1 = std::get<0>(memory);
     if (al1 != allocator.get() && al1 != export_memory_allocator.get()) {
-        result = wis::make_result<FUNC, "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
         return out_buffer;
     }
 
@@ -204,7 +206,7 @@ wis::ImplVKResourceAllocator::PlaceTexture(wis::Result& result, wis::VKMemoryVie
     VKTexture out_buffer;
     auto al1 = std::get<0>(memory);
     if (al1 != allocator.get() && al1 != export_memory_allocator.get()) {
-        result = wis::make_result<FUNC, "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Memory allocator mismatch">(VK_ERROR_UNKNOWN);
         return out_buffer;
     }
 
@@ -230,7 +232,7 @@ wis::ImplVKResourceAllocator::VKCreateTexture(wis::Result& result, VkImageCreate
     auto& memory_internal = internal.memory.GetMutableInternal();
 
     if (interop && !export_memory_allocator) {
-        result = wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Export memory allocator not available">(VK_ERROR_UNKNOWN);
         return out_texture;
     }
 
@@ -245,7 +247,7 @@ wis::ImplVKResourceAllocator::VKCreateTexture(wis::Result& result, VkImageCreate
             nullptr);
 
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Texture allocation failed">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Texture allocation failed">(vr);
         return out_texture;
     }
     memory_internal.allocator = xallocator;
@@ -262,7 +264,7 @@ wis::ImplVKResourceAllocator::VKCreateBuffer(wis::Result& result, VkBufferCreate
     auto& memory_internal = internal.memory.GetMutableInternal();
 
     if (interop && !export_memory_allocator) {
-        result = wis::make_result<FUNC, "Export memory allocator not available">(VK_ERROR_UNKNOWN);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Export memory allocator not available">(VK_ERROR_UNKNOWN);
         return out_buffer;
     }
 
@@ -277,7 +279,7 @@ wis::ImplVKResourceAllocator::VKCreateBuffer(wis::Result& result, VkBufferCreate
             nullptr);
 
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Buffer allocation failed">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer allocation failed">(vr);
         return out_buffer;
     }
     memory_internal.allocator = xallocator;
@@ -294,7 +296,7 @@ wis::ImplVKResourceAllocator::VKCreateAliasingBuffer(wis::Result& result, VkBuff
 
     auto res = vmaCreateAliasingBuffer2(alloc_ref.get(), alloc, offset, &desc, &internal.buffer);
     if (!wis::succeeded(res)) {
-        result = wis::make_result<FUNC, "Aliasing buffer creation failed">(res);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Aliasing buffer creation failed">(res);
         return out_buffer;
     }
 
@@ -313,7 +315,7 @@ wis::ImplVKResourceAllocator::VKCreateAliasingTexture(wis::Result& result, VkIma
 
     auto res = vmaCreateAliasingImage2(alloc_ref.get(), alloc, offset, &desc, &internal.buffer);
     if (!wis::succeeded(res)) {
-        result = wis::make_result<FUNC, "Aliasing buffer creation failed">(res);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Aliasing buffer creation failed">(res);
         return out_texture;
     }
 

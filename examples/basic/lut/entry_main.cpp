@@ -427,6 +427,7 @@ public:
 
 int main(int argc, char** argv)
 {
+    ex::Instance instance;
     try {
         App{}.Run();
     } catch (const std::exception& e) {

@@ -1,6 +1,9 @@
 #ifndef WISDOM_RAYTRACING_VK_CPP
 #define WISDOM_RAYTRACING_VK_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/impl.vk.h>
+#include <cstring>
+#endif // !WISDOM_MODULE_DECL
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKRaytracing::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
@@ -79,7 +82,9 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLev
                                                   &build_info,
                                                   &max_instance_count,
                                                   &build_sizes_info);
-    return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
+    return { wis::detail::aligned_size(build_sizes_info.buildScratchSize, 256),
+             wis::detail::aligned_size(build_sizes_info.accelerationStructureSize, 256),
+             wis::detail::aligned_size(build_sizes_info.updateScratchSize, 256) };
 }
 
 wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKBottomLevelASBuildDesc& blas_desc) const noexcept
@@ -124,7 +129,11 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKB
                                                   &build_info,
                                                   max_primitive_count,
                                                   &build_sizes_info);
-    return { build_sizes_info.buildScratchSize, build_sizes_info.accelerationStructureSize, build_sizes_info.updateScratchSize };
+    return {
+        wis::detail::aligned_size(build_sizes_info.buildScratchSize, 256),
+        wis::detail::aligned_size(build_sizes_info.accelerationStructureSize, 256),
+        wis::detail::aligned_size(build_sizes_info.updateScratchSize, 256)
+    };
 }
 
 wis::VKRaytracingPipeline
@@ -150,7 +159,7 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
             rt_pipeline_desc.hit_group_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
             callable_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR));
     if (!stages) {
-        result = wis::make_result<FUNC, "Failed to allocate memory for shader stages">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for shader stages">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return pipeline;
     }
 
@@ -211,6 +220,8 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
                 .intersectionShader = VK_SHADER_UNUSED_KHR,
             };
             break;
+        default:
+            break;
         }
     }
 
@@ -245,7 +256,7 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
 
     auto vr = table.vkCreateRayTracingPipelinesKHR(device.get(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, pipe_i.state_object.put(device, device.table().vkDestroyPipeline));
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create raytracing pipeline">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create raytracing pipeline">(vr);
     }
 
     // retrieve and uncompress shader group handles
@@ -303,7 +314,7 @@ void wis::ImplVKRaytracing::BuildBottomLevelAS(wis::VKCommandListView cmd_buffer
         .ppGeometries = direct
                 ? reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(data)
                 : reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(blas_desc.geometry_indirect),
-        .scratchData = scratch_buffer_gpu_address
+        .scratchData = { scratch_buffer_gpu_address }
     };
     table.vkCmdBuildAccelerationStructuresKHR(std::get<0>(cmd_buffer), 1, &build_info, pp_ranges);
 }
@@ -328,7 +339,7 @@ void wis::ImplVKRaytracing::BuildTopLevelAS(wis::VKCommandListView cmd_buffer, c
         .dstAccelerationStructure = std::get<0>(dst_acceleration_structure),
         .geometryCount = 1u,
         .pGeometries = &geometry,
-        .scratchData = scratch_buffer_gpu_address,
+        .scratchData = { scratch_buffer_gpu_address },
     };
     VkAccelerationStructureBuildRangeInfoKHR range_info{
         .primitiveCount = tlas_desc.instance_count,

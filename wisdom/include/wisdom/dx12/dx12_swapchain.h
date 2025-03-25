@@ -1,4 +1,6 @@
-#pragma once
+#ifndef WIS_DX12_SWAPCHAIN_H
+#define WIS_DX12_SWAPCHAIN_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/dx12/dx12_views.h>
@@ -6,11 +8,12 @@
 #include <wisdom/dx12/dx12_resource.h>
 #include <wisdom/dx12/dx12_unique_event.h>
 #include <memory>
+#endif
 
 namespace wis {
-class DX12SwapChain;
-class DX12Device;
+WISDOM_EXPORT class DX12SwapChain;
 
+WISDOM_EXPORT
 namespace detail {
 struct DX12SwapChainCreateInfo {
     wis::com_ptr<IDXGISwapChain4> chain;
@@ -25,6 +28,7 @@ struct DX12SwapChainCreateInfo {
 };
 } // namespace detail
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12SwapChain> : public detail::DX12SwapChainCreateInfo {
 };
@@ -67,7 +71,7 @@ public:
     {
         auto hr = chain->Present(vsync, 0);
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Presentation failed">(hr);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Presentation failed">(hr);
         }
         return wis::success;
     }
@@ -76,7 +80,7 @@ public:
     {
         auto hr = chain->Present(in_vsync, 0);
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "Presentation failed">(hr);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "Presentation failed">(hr);
         }
         return wis::success;
     }
@@ -99,7 +103,7 @@ public:
         auto st = present_event.wait(uint32_t(timeout_ns / 1000));
         return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
                 : st != wis::Status::Error ? wis::success
-                                           : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+                                           : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
     }
 };
 
@@ -107,6 +111,7 @@ public:
 /**
  * @brief Represents swap chain object for presenting images.
  * */
+WISDOM_EXPORT
 class DX12SwapChain : public wis::ImplDX12SwapChain
 {
 public:
@@ -174,3 +179,4 @@ public:
 #ifndef WISDOM_BUILD_BINARIES
 #include "impl/dx12_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY
+#endif // !WIS_DX12_SWAPCHAIN_H

@@ -1,5 +1,6 @@
 #ifndef WIS_VK_DEVICE_EXT_H
 #define WIS_VK_DEVICE_EXT_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/util/misc.h>
 #include <wisdom/global/internal.h>
@@ -9,11 +10,13 @@
 #include <unordered_map>
 #include <string_view>
 #include <vulkan/vulkan_core.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKDevice;
+WISDOM_EXPORT class VKDevice;
 }
 
+WISDOM_EXPORT
 namespace wis {
 struct VKDeviceExtension {
     virtual ~VKDeviceExtension() = default;
@@ -165,7 +168,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
     // Not supposed to use device here.
     virtual wis::Result Init(const wis::VKDevice& device,
                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                             const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                             const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
     {
         auto& vk_physical_device_properties = *reinterpret_cast<VkPhysicalDeviceProperties2*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2));
         base_properties.max_ia_attributes = vk_physical_device_properties.properties.limits.maxVertexInputAttributes;

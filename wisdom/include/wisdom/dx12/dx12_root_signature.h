@@ -1,11 +1,15 @@
-#pragma once
+#ifndef WIS_DX12_ROOT_SIGNATURE_H
+#define WIS_DX12_ROOT_SIGNATURE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/dx12/dx12_views.h>
 #include <wisdom/util/com_ptr.h>
+#endif
 
 namespace wis {
-class DX12RootSignature;
+WISDOM_EXPORT class DX12RootSignature;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12RootSignature> {
     wis::com_ptr<ID3D12RootSignature> root;
@@ -14,6 +18,7 @@ struct Internal<DX12RootSignature> {
     uint32_t push_descriptor_count = 0;
 };
 
+WISDOM_EXPORT
 class DX12RootSignature : public QueryInternal<DX12RootSignature>
 {
 public:
@@ -32,3 +37,4 @@ public:
     }
 };
 } // namespace wis
+#endif // WIS_DX12_ROOT_SIGNATURE_H

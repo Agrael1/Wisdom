@@ -1,5 +1,15 @@
 # Version History
 
+- 0.6.7 Modules
+
+  - Added modules for Wisdom and extensions
+  - Modules are buildable by both windows and linux
+  - Wisdom can now be built using Clang, GCC throws an error with the modules
+  - Added clang build to the CI
+  - Removed duplicate cmake files with functions
+  - Replaced FUNC macro with a consteval function
+  - Fixed raytracing buffer sizes not being aligned
+
 - 0.6.6
 
   - #220 Added constants query for Vulkan and DirectX12 devices

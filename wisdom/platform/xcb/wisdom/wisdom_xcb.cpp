@@ -1,8 +1,10 @@
 #ifndef WISDOM_XCB_CPP
 #define WISDOM_XCB_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/wisdom_xcb.hpp>
 #include <wisdom/util/log_layer.h>
 #include <wisdom/vulkan/vk_device.h>
+#endif // !WISDOM_MODULE_DECL
 
 wis::VKSwapChain
 wis::platform::XCBExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept
@@ -21,7 +23,7 @@ wis::platform::XCBExtension::CreateSwapchain(wis::Result& result, const wis::VKD
     VkSurfaceKHR surface;
     auto vr = vkCreateXcbSurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(vr)) {
-        result = wis::make_result<FUNC, "Failed to create Win32 surface">(vr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create Win32 surface">(vr);
         return {};
     }
     return device.VKCreateSwapChain(result, wis::SharedSurface{ surface, instance, instance_table.vkDestroySurfaceKHR }, desc, std::get<0>(main_queue));

@@ -1,11 +1,14 @@
 #ifndef WISDOM_RAYTRACING_DX12_HPP
 #define WISDOM_RAYTRACING_DX12_HPP
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_device.h>
 #include <wisdom/dx12/dx12_checks.h>
 #include <d3d12.h>
 #include <wisdom/dx12_raytracing_pipeline.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 class DX12Raytracing;
 
@@ -121,7 +124,7 @@ public:
                     .DescsLayout = blas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
             },
             .SourceAccelerationStructureData = std::get<0>(src_acceleration_structure),
-            .ScratchAccelerationStructureData = { scratch_buffer_gpu_address },
+            .ScratchAccelerationStructureData = scratch_buffer_gpu_address,
         };
         if (blas_desc.geometry_array) {
             build_desc.Inputs.pGeometryDescs = blas_desc.geometry_array;
@@ -156,7 +159,7 @@ public:
                     .DescsLayout = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
                     .InstanceDescs = tlas_desc.gpu_address },
             .SourceAccelerationStructureData = std::get<0>(src_acceleration_structure),
-            .ScratchAccelerationStructureData = { scratch_buffer_gpu_address }
+            .ScratchAccelerationStructureData = scratch_buffer_gpu_address
         };
 
         cmd_list_i->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);

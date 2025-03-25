@@ -104,7 +104,7 @@ public:
                                                        mapping,
                                                        &props);
         if (res != VK_SUCCESS) {
-            result = wis::make_result<FUNC, "vkGetMemoryHostPointerPropertiesEXT failed: ">(res);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "vkGetMemoryHostPointerPropertiesEXT failed: ">(res);
             return buffer;
         }
 
@@ -145,7 +145,7 @@ public:
         };
         res = shared_device.table().vkAllocateMemory(shared_device.get(), &alloc_info, nullptr, &buffer.memory);
         if (res != VK_SUCCESS) {
-            result = wis::make_result<FUNC, "vkAllocateMemory failed: ">(res);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "vkAllocateMemory failed: ">(res);
             return buffer;
         }
         res = shared_device.table().vkCreateBuffer(shared_device.get(), &buffer_info, nullptr, &buffer.buffer);
@@ -153,7 +153,7 @@ public:
             shared_device.table().vkFreeMemory(shared_device.get(), buffer.memory, nullptr);
             buffer.memory = nullptr;
 
-            result = wis::make_result<FUNC, "vkCreateBuffer failed: ">(res);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "vkCreateBuffer failed: ">(res);
             return buffer;
         }
 
@@ -163,7 +163,7 @@ public:
             shared_device.table().vkFreeMemory(shared_device.get(), buffer.memory, nullptr);
             buffer.buffer = nullptr;
             buffer.memory = nullptr;
-            result = wis::make_result<FUNC, "vkBindBufferMemory failed: ">(res);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "vkBindBufferMemory failed: ">(res);
         }
         return buffer;
     }

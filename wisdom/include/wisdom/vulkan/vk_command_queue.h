@@ -1,12 +1,15 @@
 #ifndef WIS_VK_COMMAND_QUEUE_H
 #define WIS_VK_COMMAND_QUEUE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKCommandQueue;
+WISDOM_EXPORT class VKCommandQueue;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKCommandQueue> {
     wis::SharedDevice device;
@@ -51,6 +54,7 @@ public:
 /**
  * @brief Represents command queue for executing command lists.
  * */
+WISDOM_EXPORT
 class VKCommandQueue : public wis::ImplVKCommandQueue
 {
 public:

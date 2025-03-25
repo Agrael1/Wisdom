@@ -10,6 +10,19 @@ message(STATUS "Vulkan found!")
 
 add_library (wisdom-vk-headers INTERFACE)
 add_library (wis::vulkan-headers ALIAS wisdom-vk-headers)
+
+if (WISDOM_CPP_MODULES_SUPPORTED)
+  add_library(wisdom-vk-module STATIC)
+  add_library(wis::vk-module ALIAS wisdom-vk-module)
+  target_sources(wisdom-vk-module
+    PUBLIC FILE_SET CXX_MODULES FILES
+      "include/wisdom/generated/vulkan/wisdom.vk.ixx"
+
+  )
+  target_link_libraries(wisdom-vk-module PUBLIC wisdom-vk-headers wisdom-shared-module)
+  set_target_properties(wisdom-vk-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+endif()
+
 target_link_libraries(wisdom-vk-headers INTERFACE wisdom-shared VKAllocator Wisdom::WisVk)
 target_compile_definitions(wisdom-vk-headers INTERFACE WISDOM_VULKAN=1 WISVK_NO_DEFAULT_DELETER=1)
 
@@ -100,3 +113,21 @@ install(
   NAMESPACE wis::
   FILE wisdom-vk-targets.cmake
 )
+
+# install wisdom-shared-module if modules are supported
+if (WISDOM_CPP_MODULES_SUPPORTED)
+  install(TARGETS wisdom-vk-module
+    EXPORT wisdom-vk-module-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
+  install(
+    EXPORT wisdom-vk-module-targets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+    NAMESPACE wis::
+    FILE wisdom-vk-module-targets.cmake # Not sure if this is still needed
+  )
+endif()

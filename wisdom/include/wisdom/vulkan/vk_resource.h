@@ -1,13 +1,19 @@
 #ifndef WIS_VK_RESOURCE_H
 #define WIS_VK_RESOURCE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_memory.h>
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/generated/api/api.hpp>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKBuffer;
-class VKTexture;
+WISDOM_EXPORT class VKBuffer;
+WISDOM_EXPORT class VKTexture;
+WISDOM_EXPORT class VKShaderResource;
+WISDOM_EXPORT class VKRenderTarget;
+WISDOM_EXPORT class VKSampler;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKBuffer> {
     wis::VKMemory memory;
@@ -79,6 +85,7 @@ public:
     }
 };
 
+WISDOM_EXPORT
 template<>
 class Internal<VKTexture>
 {
@@ -116,6 +123,7 @@ public:
     }
 };
 
+WISDOM_EXPORT
 class VKTexture : public QueryInternal<VKTexture>
 {
 public:
@@ -131,14 +139,15 @@ public:
 };
 
 // =================================================================================================
-class VKRenderTarget;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKRenderTarget> {
     wis::managed_handle_ex<VkImageView> view;
     wis::Size2D size;
 };
 
+WISDOM_EXPORT
 class VKRenderTarget : public QueryInternal<VKRenderTarget>
 {
 public:
@@ -153,13 +162,13 @@ public:
     }
 };
 
-class VKSampler;
-
+WISDOM_EXPORT
 template<>
 struct Internal<VKSampler> {
     wis::managed_handle_ex<VkSampler> sampler;
 };
 
+WISDOM_EXPORT
 class VKSampler : public QueryInternal<VKSampler>
 {
 public:
@@ -176,13 +185,13 @@ public:
 
 // =================================================================================================
 
-class VKShaderResource;
-
+WISDOM_EXPORT
 template<>
 struct Internal<VKShaderResource> {
     wis::managed_handle_ex<VkImageView> view;
 };
 
+WISDOM_EXPORT
 class VKShaderResource : public QueryInternal<VKShaderResource>
 {
 public:
@@ -197,12 +206,14 @@ public:
     }
 };
 
+WISDOM_EXPORT
 using VKUnorderedAccessTexture = VKShaderResource;
 
 #pragma region VKBuffer
 /**
  * @brief Represents buffer object for storing linear data.
  * */
+WISDOM_EXPORT
 class VKBuffer : public wis::ImplVKBuffer
 {
 public:

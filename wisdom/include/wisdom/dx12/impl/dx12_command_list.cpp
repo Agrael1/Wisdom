@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_COMMAND_LIST_CPP
 #define WIS_DX12_COMMAND_LIST_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_command_list.h>
 
 #include <wisdom/dx12/dx12_checks.h>
@@ -8,6 +9,7 @@
 #include <wisdom/util/small_allocator.h>
 #include <d3dx12/d3dx12_resource_helpers.h>
 #include <d3dx12/d3dx12_root_signature.h>
+#endif
 
 void wis::ImplDX12CommandList::CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept
 {
@@ -151,12 +153,12 @@ wis::Result wis::ImplDX12CommandList::Reset(wis::DX12PipelineView pipeline) noex
 
     auto hr = allocator->Reset();
     if (!wis::succeeded(hr)) {
-        return wis::make_result<FUNC, "Reset failed (allocator)">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "Reset failed (allocator)">(hr);
     }
 
     hr = list->Reset(allocator.get(), std::get<0>(pipeline));
     closed = false;
-    return wis::succeeded(hr) ? wis::success : wis::make_result<FUNC, "Reset failed (command list)">(hr);
+    return wis::succeeded(hr) ? wis::success : wis::make_result<wis::Func<wis::FuncD()>(), "Reset failed (command list)">(hr);
 }
 
 void wis::ImplDX12CommandList::SetPipelineState(wis::DX12PipelineView pipeline) noexcept
@@ -481,14 +483,13 @@ void wis::ImplDX12CommandList::PushDescriptor(wis::DescriptorType type, uint32_t
     case wis::DescriptorType::Buffer:
         list->SetGraphicsRootShaderResourceView(push_constant_count + binding, handle + offset);
         break;
-    case wis::DescriptorType::Texture:
-    case wis::DescriptorType::RWTexture:
-        return;
     case wis::DescriptorType::ConstantBuffer:
         list->SetGraphicsRootConstantBufferView(push_constant_count + binding, handle + offset);
         break;
     case wis::DescriptorType::RWBuffer:
         list->SetGraphicsRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
+    default:
         break;
     }
 }
@@ -500,14 +501,13 @@ void wis::ImplDX12CommandList::PushDescriptorCompute(wis::DescriptorType type, u
     case wis::DescriptorType::Buffer:
         list->SetComputeRootShaderResourceView(push_constant_count + binding, handle + offset);
         break;
-    case wis::DescriptorType::Texture:
-    case wis::DescriptorType::RWTexture:
-        return;
     case wis::DescriptorType::ConstantBuffer:
         list->SetComputeRootConstantBufferView(push_constant_count + binding, handle + offset);
         break;
     case wis::DescriptorType::RWBuffer:
         list->SetComputeRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
+    default:
         break;
     }
 }

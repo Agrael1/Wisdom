@@ -1,9 +1,13 @@
 #ifndef WIS_DX12_CHECKS_H
 #define WIS_DX12_CHECKS_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/util/error_messages.h>
 #include <wisdom/dx12/dx12_convert.h>
 #include <wisdom/dx12/dx12_info.h>
+#include <wisdom/global/constants.h>
+#endif
 
+WISDOM_EXPORT
 namespace wis {
 /// @brief Log any errors in the current context
 /// @return true if there were any errors

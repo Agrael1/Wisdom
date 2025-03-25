@@ -1,7 +1,11 @@
 #pragma once
+#ifndef WISDOM_MODULE_DECL
 #include <string>
 #include <stdexcept>
+#include <wisdom/global/definitions.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 template<typename Char, std::size_t N>
 struct basic_fixed_string {
@@ -14,6 +18,10 @@ public:
     constexpr basic_fixed_string(const value_type (&str)[N]) noexcept
     {
         char_traits::copy(_data, str, N - 1);
+    }
+    constexpr explicit basic_fixed_string(std::string_view str) noexcept
+    {
+        char_traits::copy(_data, str.data(), N - 1);
     }
 
 public:
@@ -46,22 +54,15 @@ public:
     value_type _data[N]{}; // +1 for null terminator
 };
 
-// Deduction guide for FixedString
-template<std::size_t N>
-basic_fixed_string(const char (&)[N - 1]) -> basic_fixed_string<char, N>;
-
-template<std::size_t N>
-basic_fixed_string(const wchar_t (&)[N - 1]) -> basic_fixed_string<wchar_t, N>;
-
-template<std::size_t N>
-basic_fixed_string(const char16_t (&)[N - 1]) -> basic_fixed_string<char16_t, N>;
-
-template<std::size_t N>
-basic_fixed_string(const char32_t (&)[N - 1]) -> basic_fixed_string<char32_t, N>;
-
 // Define some aliases for common fixed string types
 template<std::size_t N>
-using fixed_string = basic_fixed_string<char, N>;
+struct fixed_string : public basic_fixed_string<char, N> {
+    using basic_fixed_string<char, N>::basic_fixed_string;
+};
+
+// deduction guide
+template<std::size_t N>
+fixed_string(const char (&)[N]) -> fixed_string<N>;
 
 template<std::size_t N>
 using fixed_wstring = basic_fixed_string<wchar_t, N>;

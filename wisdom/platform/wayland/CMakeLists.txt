@@ -32,6 +32,19 @@ endif()
 target_link_libraries(wisdom-platform INTERFACE wis::wayland)
 target_link_libraries(wisdom-platform-headers INTERFACE wis::wayland-headers)
 
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  add_library(wisdom-wayland-module STATIC "wisdom/wayland.include.h")
+  add_library(wis::wayland-module ALIAS wisdom-wayland-module)
+  target_sources(wisdom-wayland-module PUBLIC FILE_SET CXX_MODULES FILES
+                                              "wisdom/wisdom_wayland.ixx")
+  target_link_libraries(wisdom-wayland-module PUBLIC wisdom-module
+                                                     wisdom-wayland-headers)
+  set_target_properties(wisdom-wayland-module
+                        PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+
+  target_link_libraries(wisdom-platform-module PUBLIC wis::wayland-module)
+endif()
+
 install(
   TARGETS wisdom-wayland wisdom-wayland-headers
   EXPORT wisdom-wayland-targets
@@ -46,6 +59,25 @@ install(
   FILE wisdom-wayland-targets.cmake
   NAMESPACE wis::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
+
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  install(
+    TARGETS wisdom-wayland-module
+    EXPORT wisdom-wayland-module-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+  install(
+    EXPORT wisdom-wayland-module-targets
+    FILE wisdom-wayland-module-targets.cmake
+    NAMESPACE wis::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
+endif()
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(

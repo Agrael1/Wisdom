@@ -1,5 +1,6 @@
 #ifndef WIS_DX12_DEVICE_CPP
 #define WIS_DX12_DEVICE_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_device.h>
 
 #include <d3dx12/d3dx12_check_feature_support.h>
@@ -9,6 +10,7 @@
 #include <wisdom/util/misc.h>
 #include <numeric>
 #include <bit>
+#endif
 
 wis::DX12Device
 wis::ImplDX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept
@@ -21,11 +23,11 @@ wis::ImplDX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX
                                    __uuidof(ID3D12Device9), internal.device.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "D3D12CreateDevice failed to create device">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "D3D12CreateDevice failed to create device">(hr);
         return out_device;
     }
     if (!out_device.QueryFeatureSupport(wis::DeviceFeature::EnchancedBarriers) && !force) {
-        result = wis::make_result<FUNC, "Device does not support enhanced barriers">(E_FAIL);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Device does not support enhanced barriers">(E_FAIL);
         return out_device;
     }
 
@@ -46,14 +48,14 @@ wis::Result wis::ImplDX12Device::WaitForMultipleFences(const DX12FenceView* fenc
     if (!succeeded(hr = device->SetEventOnMultipleFenceCompletion(
                            reinterpret_cast<ID3D12Fence* const*>(fences), values, count,
                            static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get()))) {
-        return wis::make_result<FUNC, "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set "
-                                      "event on multiple fence completion">(hr);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set "
+                                                           "event on multiple fence completion">(hr);
     }
 
     auto st = e.wait(uint32_t(timeout));
     return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
             : st != wis::Status::Error ? wis::success
-                                       : wis::make_result<FUNC, "Failed to wait for event">(E_FAIL);
+                                       : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
 }
 
 wis::DX12Fence
@@ -66,7 +68,7 @@ wis::ImplDX12Device::CreateFence(wis::Result& result, uint64_t initial_value, wi
                                      internal.fence.iid(), internal.fence.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "ID3D12Device10::CreateFence failed to create fence">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "ID3D12Device10::CreateFence failed to create fence">(hr);
     }
     return out_fence;
 }
@@ -84,7 +86,7 @@ wis::ImplDX12Device::CreateCommandQueue(wis::Result& result, wis::QueueType type
 
     HRESULT hr = device->CreateCommandQueue(&desc, internal.queue.iid(), internal.queue.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "ID3D12Device10::CreateCommandQueue failed to create command queue">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "ID3D12Device10::CreateCommandQueue failed to create command queue">(hr);
     }
 
     return out_queue;
@@ -100,7 +102,7 @@ wis::ImplDX12Device::CreateCommandList(wis::Result& result, wis::QueueType type)
     HRESULT hr = device->CreateCommandAllocator(clty, internal.allocator.iid(), internal.allocator.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create command allocator">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create command allocator">(hr);
         return out_list;
     }
 
@@ -108,7 +110,7 @@ wis::ImplDX12Device::CreateCommandList(wis::Result& result, wis::QueueType type)
                                    internal.list.iid(), internal.list.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create command list">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create command list">(hr);
     }
     return out_list;
 }
@@ -310,7 +312,7 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
     HRESULT hr = device->CreatePipelineState(&psstream_desc, internal.pipeline.iid(), internal.pipeline.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create pipeline state">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create pipeline state">(hr);
     }
     return out_state;
 }
@@ -337,7 +339,7 @@ wis::ImplDX12Device::CreateComputePipeline(wis::Result& result, const wis::DX12C
 
     HRESULT hr = device->CreatePipelineState(&psstream_desc, internal.pipeline.iid(), internal.pipeline.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create pipeline state">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create pipeline state">(hr);
     }
     return out_state;
 }
@@ -352,7 +354,7 @@ wis::ImplDX12Device::CreateShader(wis::Result& result, void* data,
     internal.bytecode = wis::detail::make_unique_for_overwrite<std::byte[]>(size);
 
     if (!internal.bytecode) {
-        result = wis::make_result<FUNC, "Failed to allocate memory for shader bytecode">(E_OUTOFMEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for shader bytecode">(E_OUTOFMEMORY);
         return out_shader;
     }
     internal.size = size;
@@ -375,7 +377,7 @@ wis::ImplDX12Device::CreateAllocator(wis::Result& result) const noexcept
     HRESULT hr = D3D12MA::CreateAllocator(&desc, internal.allocator.put());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create allocator">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create allocator">(hr);
     }
     return out_allocator;
 }
@@ -439,7 +441,7 @@ wis::ImplDX12Device::CreateRenderTarget(wis::Result& result, DX12TextureView tex
 
     auto hr = device->CreateDescriptorHeap(&heap_desc, internal.heap.iid(), internal.heap.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create descriptor heap for render target view">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create descriptor heap for render target view">(hr);
         return out_target;
     }
 
@@ -521,7 +523,7 @@ wis::ImplDX12Device::CreateDepthStencilTarget(wis::Result& result, DX12TextureVi
 
     auto hr = device->CreateDescriptorHeap(&heap_desc, internal.heap.iid(), internal.heap.put_void());
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create descriptor heap for render target view">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create descriptor heap for render target view">(hr);
         return out_target;
     }
 
@@ -798,7 +800,7 @@ wis::ImplDX12Device::CreateDescriptorStorage(wis::Result& result,
         // create resource heap
         auto hr = device->CreateDescriptorHeap(&resource_heap_desc, internal.heaps[0].iid(), internal.heaps[0].put_void());
         if (!wis::succeeded(hr)) {
-            result = wis::make_result<FUNC, "Failed to create descriptor heap for resources">(hr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create descriptor heap for resources">(hr);
             return out_storage;
         }
         internal.heap_resource_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -810,7 +812,7 @@ wis::ImplDX12Device::CreateDescriptorStorage(wis::Result& result,
         // create sampler heap
         auto hr = device->CreateDescriptorHeap(&sampler_heap_desc, internal.heaps[1].iid(), internal.heaps[1].put_void());
         if (!wis::succeeded(hr)) {
-            result = wis::make_result<FUNC, "Failed to create descriptor heap for samplers">(hr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create descriptor heap for samplers">(hr);
             return out_storage;
         }
         internal.heap_sampler_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
@@ -825,7 +827,7 @@ wis::ImplDX12Device::CreateDescriptorStorage(wis::Result& result,
     internal.heap_count = descriptor_bindings_count;
 
     if (!internal.heap_offsets) {
-        result = wis::make_result<FUNC, "Failed to allocate memory for descriptor offsets">(E_OUTOFMEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for descriptor offsets">(E_OUTOFMEMORY);
         return out_storage;
     }
 
@@ -878,7 +880,7 @@ wis::ImplDX12Device::CreateRootSignature(wis::Result& result,
 
     D3D12_ROOT_PARAMETER1 root_params[64]{}; // 64 is the maximum number of root parameters
     if (push_constants_count + push_descriptors_count * 2 + descriptor_bindings_count > 64) {
-        result = wis::make_result<FUNC, "Root signature is only able to use 64 parameters, push descriptors count as 2 parameters">(E_INVALIDARG);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Root signature is only able to use 64 parameters, push descriptors count as 2 parameters">(E_INVALIDARG);
         return out_state;
     }
 
@@ -922,7 +924,7 @@ wis::ImplDX12Device::CreateRootSignature(wis::Result& result,
 
     std::unique_ptr<D3D12_DESCRIPTOR_RANGE1[]> memory = wis::detail::make_unique_for_overwrite<D3D12_DESCRIPTOR_RANGE1[]>(memory_size);
     if (!memory) {
-        result = wis::make_result<FUNC, "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for descriptor ranges">(E_OUTOFMEMORY);
         return out_state;
     }
 
@@ -960,14 +962,14 @@ wis::ImplDX12Device::CreateRootSignature(wis::Result& result,
     HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, signature.put(), error.put());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to serialize root signature">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to serialize root signature">(hr);
         return out_state;
     }
     hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
                                      internal.root.iid(), internal.root.put_void());
 
     if (!wis::succeeded(hr)) {
-        result = wis::make_result<FUNC, "Failed to create root signature">(hr);
+        result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create root signature">(hr);
         return out_state;
     }
     internal.stage_map = stage_map;

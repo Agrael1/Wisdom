@@ -1,11 +1,13 @@
 #ifndef WISDOM_WINDOWS_H
 #define WISDOM_WINDOWS_H
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_swapchain.h>
 #include <wisdom/dx12/dx12_factory_ext.h>
 #include <wisdom/dx12/dx12_fence.h>
 #include <wisdom/dx12/dx12_device_ext.h>
 #include <wisdom/dx12/dx12_device.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
 namespace platform {
@@ -62,7 +64,7 @@ public:
         auto hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
-            result = wis::make_result<FUNC, "Failed to create shared handle for fence">(hr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create shared handle for fence">(hr);
         }
         return handle;
     }
@@ -76,7 +78,7 @@ public:
         auto hr = device->CreateSharedHandle(allocation->GetHeap(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
-            result = wis::make_result<FUNC, "Failed to create shared handle for memory allocation">(hr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create shared handle for memory allocation">(hr);
         }
         return handle;
     }
@@ -87,13 +89,16 @@ public:
 #endif // WISDOM_DX12
 
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_swapchain.h>
 #include <wisdom/vulkan/vk_factory.h>
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vulkan/vk_fence.h>
 #include <wisdom/vulkan/vk_factory_ext.h>
 #include <vulkan/vulkan_win32.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 namespace platform {
 class VKWindowsExtension;
@@ -182,25 +187,19 @@ public:
         };
         auto vr = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to get semaphore handle">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get semaphore handle">(vr);
         }
         return handle;
     }
     [[nodiscard]] WIS_INLINE HANDLE
     GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
-        // I know it exists, but platform code is the pain in the ass :(
-        extern VMA_CALL_PRE VkResult VMA_CALL_POST vmaGetMemoryWin32Handle(VmaAllocator VMA_NOT_NULL allocator,
-                                                                           VmaAllocation VMA_NOT_NULL allocation,
-                                                                           HANDLE hTargetProcess,
-                                                                           HANDLE * VMA_NOT_NULL pHandle);
-
         auto allocator = std::get<0>(memory);
         auto allocation = std::get<1>(memory);
         HANDLE handle;
         auto vr = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
         if (!wis::succeeded(vr)) {
-            result = wis::make_result<FUNC, "Failed to get memory handle">(vr);
+            result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get memory handle">(vr);
         }
         return handle;
     }
@@ -209,6 +208,7 @@ public:
 } // namespace wis
 #endif // WISDOM_VULKAN
 
+WISDOM_EXPORT
 namespace wis::platform {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using WindowsExtension = platform::DX12WindowsExtension;

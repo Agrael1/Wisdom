@@ -4,6 +4,17 @@ if(MSVC)
       "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
 endif()
 
+# Check if cpp modules are supported by cmake
+set(WISDOM_CPP_MODULES_SUPPORTED OFF)
+if (WISDOM_EXPERIMENTAL_CPP_MODULES)
+if (CMAKE_VERSION VERSION_LESS "3.28")
+  message("[Wisdom] C++ Modules are not supported")
+else()
+  set(WISDOM_CPP_MODULES_SUPPORTED ON)
+  message("[Wisdom] C++ Modules are supported")
+endif()
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CURR_LEVEL "debug")
   set(WDEBUG ON)
@@ -48,7 +59,7 @@ option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
 option(WISDOM_BUILD_BINDINGS "Build the C bindings library." ON)
 option(WISDOM_SHARED_LIB "Build shared library for C bindings" ON)
 
-option(WISDOM_GENERATE_FUNCTIONS "Build shared library for C bindings" OFF)
+option(WISDOM_GENERATE_FUNCTIONS "Generate files for generation Vulkan functions" OFF)
 option(WISDOM_GENERATE_API "Generate the API" ${GEN})
 option(WISDOM_USE_SYSTEM_DXC "Use dxc from PATH" OFF)
 

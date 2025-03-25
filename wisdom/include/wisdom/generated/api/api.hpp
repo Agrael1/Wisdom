@@ -1,8 +1,13 @@
 // GENERATED
 #pragma once
+#ifndef WISDOM_MODULE_DECL
 #include <array>
 #include <cstdint>
 #include <functional>
+#define WISDOM_EXPORT
+#else
+#define WISDOM_EXPORT export
+#endif
 
 /** \mainpage Wisdom API Documentation
 
@@ -13,6 +18,7 @@ License: MIT
 See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 */
 
+WISDOM_EXPORT
 namespace wis {
 struct Result;
 struct Size2D;
@@ -2127,7 +2133,7 @@ struct is_flag_enum<wis::ASInstanceFlags> : public std::true_type {
 };
 //============================== CONSTS ==============================
 
-static inline constexpr Result success{
+inline constexpr Result success{
     wis::Status::Ok, "Operation succeeded"
 };
 

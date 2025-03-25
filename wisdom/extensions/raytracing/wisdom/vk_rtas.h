@@ -1,8 +1,11 @@
 #ifndef WIS_VK_RTAS_H
 #define WIS_VK_RTAS_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_handles.h>
 #include <wisdom/global/internal.h>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 class VKAccelerationStructure;
 

@@ -1,11 +1,14 @@
 #ifndef WIS_DX12_INFO_CPP
 #define WIS_DX12_INFO_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_info.h>
+#include <wisdom/global/constants.h>
 #include <d3d12sdklayers.h>
 #include <dxgi1_6.h>
 #include <vector>
 #include <wisdom/bridge/format.h>
 #include <wisdom/global/definitions.h>
+#endif // WISDOM_MODULE_DECL
 
 namespace wis {
 constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev) noexcept
@@ -41,11 +44,13 @@ void DX12Info::Uninitialize() noexcept
 void DX12Info::Poll() noexcept
 {
     auto& inst = instance();
-    if (!inst.info_queue || inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0)
+    if (!inst.info_queue || inst.info_queue->GetNumStoredMessages(DXGI_DEBUG_ALL) == 0) {
         return;
+    }
 
-    if (!inst.semaphore.try_acquire())
+    if (!inst.semaphore.try_acquire()) {
         return;
+    }
 
     if (inst.callbacks.empty()) {
         inst.info_queue->ClearStoredMessages(DXGI_DEBUG_ALL);
@@ -72,8 +77,9 @@ void DX12Info::AddCallback(void* factory, DebugCallback callback, void* user_dat
 void DX12Info::RemoveCallback(void* factrory) noexcept
 {
     auto& inst = instance();
-    if (!inst.callbacks.contains(factrory))
+    if (!inst.callbacks.contains(factrory)) {
         return;
+    }
 
     inst.callback_sem.acquire();
     inst.callbacks.erase(factrory);
@@ -82,8 +88,9 @@ void DX12Info::RemoveCallback(void* factrory) noexcept
 bool DX12Info::RebindCallback(void* factory_from, void* factory_to) noexcept
 {
     auto& inst = instance();
-    if (!inst.callbacks.contains(factory_from))
+    if (!inst.callbacks.contains(factory_from)) {
         return false;
+    }
 
     inst.callback_sem.acquire();
     auto pair = *inst.callbacks.find(factory_from);
@@ -97,8 +104,9 @@ bool DX12Info::RebindCallback(void* factory_from, void* factory_to) noexcept
 
 void wis::DX12Info::Initialize() noexcept
 {
-    if (info_queue)
+    if (info_queue) {
         return;
+    }
 
     auto hr = DXGIGetDebugInterface1(0, __uuidof(IDXGIInfoQueue), info_queue.put_void());
     if constexpr (debug_mode) {
@@ -119,14 +127,15 @@ void wis::DX12Info::Initialize() noexcept
 
 void wis::DX12Info::PollInternal() noexcept
 {
-    std::vector<byte> message;
+    std::vector<uint8_t> message;
     message.resize(sizeof(DXGI_INFO_QUEUE_MESSAGE));
 
     for (UINT64 i = 0;; i++) {
         SIZE_T messageLength = 0;
         HRESULT hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength);
-        if (hr < 0)
+        if (hr < 0) {
             break;
+        }
 
         // allocate memory for message
         message.resize(messageLength);
@@ -134,8 +143,9 @@ void wis::DX12Info::PollInternal() noexcept
 
         // get message and push it into vector
         hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, pMessage, &messageLength);
-        if (hr < 0)
+        if (hr < 0) {
             continue;
+        }
 
         // call callbacks
         callback_sem.acquire();

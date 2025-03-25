@@ -1,15 +1,17 @@
 #ifndef WIS_VK_ADAPTER_H
 #define WIS_VK_ADAPTER_H
+#ifndef WISDOM_MODULE_DECL
 #include <span>
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/vulkan/vk_views.h>
-#include <wisvk/vk_loader.hpp>
 #include <wisdom/generated/vulkan/vk_functions.hpp>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class VKAdapter;
+WISDOM_EXPORT class VKAdapter;
 
+WISDOM_EXPORT
 template<>
 struct Internal<VKAdapter> {
     wis::SharedInstance instance;
@@ -35,6 +37,7 @@ public:
  * @brief Represents physical device.
  * Can safely be deleted once logical device has been created.
  * */
+WISDOM_EXPORT
 class VKAdapter : public wis::ImplVKAdapter
 {
 public:

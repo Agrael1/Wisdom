@@ -1,9 +1,12 @@
 #ifndef WIS_VK_COMMAND_LIST_CPP
 #define WIS_VK_COMMAND_LIST_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_command_list.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/generated/vulkan/vk_structs.hpp>
 #include <wisdom/util/small_allocator.h>
+#include <wisdom/global/constants.h>
+#endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKCommandList::CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept
 {
@@ -131,7 +134,7 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
     auto& dtable = device.table();
     auto result = dtable.vkResetCommandBuffer(command_list, {});
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkResetCommandBuffer failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkResetCommandBuffer failed">(result);
     }
     auto pipeline = std::move(std::get<0>(new_pipeline));
 
@@ -143,7 +146,7 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
     };
     result = dtable.vkBeginCommandBuffer(command_list, &desc);
     if (!succeeded(result)) {
-        return make_result<FUNC, "vkBeginCommandBuffer failed">(result);
+        return wis::make_result<wis::Func<wis::FuncD()>(), "vkBeginCommandBuffer failed">(result);
     }
     closed = false;
     if (pipeline) {
@@ -460,7 +463,7 @@ void wis::ImplVKCommandList::IASetIndexBuffer(wis::VKBufferView buffer, wis::Ind
 }
 void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
 {
-    device.table().vkCmdBindIndexBuffer2KHR(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
+    device.table().vkCmdBindIndexBuffer2(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -507,12 +510,12 @@ void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t
         .descriptorType = convert_vk(type),
         .pBufferInfo = &buffer_info
     };
-    device.table().vkCmdPushDescriptorSetKHR(command_list,
-                                             binding_point,
-                                             pipeline_layout,
-                                             0, // set 0, because set 0 is reserved for push descriptors
-                                             1,
-                                             &descriptor);
+    device.table().vkCmdPushDescriptorSet(command_list,
+                                          binding_point,
+                                          pipeline_layout,
+                                          0, // set 0, because set 0 is reserved for push descriptors
+                                          1,
+                                          &descriptor);
 }
 void wis::ImplVKCommandList::VKSetDescriptorStorage(wis::VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept
 {

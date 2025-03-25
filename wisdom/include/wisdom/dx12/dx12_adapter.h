@@ -1,11 +1,14 @@
 #ifndef WIS_DX12_ADAPTER_H
 #define WIS_DX12_ADAPTER_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/dx12/dx12_checks.h>
 #include <wisdom/global/internal.h>
+#endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12Adapter;
+WISDOM_EXPORT class DX12Adapter;
 
+WISDOM_EXPORT
 template<>
 struct Internal<DX12Adapter> {
     wis::com_ptr<IDXGIAdapter1> adapter;
@@ -24,7 +27,7 @@ public:
     [[nodiscard]] wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept
     {
         if (!pout_desc) {
-            return wis::make_result<FUNC, "AdapterDesc was nullptr">(E_INVALIDARG);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "AdapterDesc was nullptr">(E_INVALIDARG);
         }
 
         auto& out_desc = *pout_desc;
@@ -33,7 +36,7 @@ public:
         DXGI_ADAPTER_DESC1 desc;
         auto hr = adapter->GetDesc1(&desc);
         if (!wis::succeeded(hr)) {
-            return wis::make_result<FUNC, "IDXGIAdapter1::GetDesc1 failed">(hr);
+            return wis::make_result<wis::Func<wis::FuncD()>(), "IDXGIAdapter1::GetDesc1 failed">(hr);
         }
 
         auto description = wis::to_string(desc.Description);
@@ -57,6 +60,7 @@ public:
  * @brief Represents physical device.
  * Can safely be deleted once logical device has been created.
  * */
+WISDOM_EXPORT
 class DX12Adapter : public wis::ImplDX12Adapter
 {
 public:
