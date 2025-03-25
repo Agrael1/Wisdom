@@ -31,10 +31,10 @@ void wis::ImplVKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKText
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
-                    .aspectMask = aspect_flags(std::get<1>(dest_texture)),
-                    .mipLevel = region.texture.mip,
-                    .baseArrayLayer = region.texture.array_layer,
-                    .layerCount = 1u,
+                .aspectMask = aspect_flags(std::get<1>(dest_texture)),
+                .mipLevel = region.texture.mip,
+                .baseArrayLayer = region.texture.array_layer,
+                .layerCount = 1u,
             },
             .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
             .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
@@ -66,10 +66,10 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
             .bufferRowLength = {},
             .bufferImageHeight = {},
             .imageSubresource = {
-                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
-                    .mipLevel = region.texture.mip,
-                    .baseArrayLayer = region.texture.array_layer,
-                    .layerCount = 1u,
+                .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                .mipLevel = region.texture.mip,
+                .baseArrayLayer = region.texture.array_layer,
+                .layerCount = 1u,
             },
             .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
             .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
@@ -98,17 +98,17 @@ void wis::ImplVKCommandList::CopyTexture(VKTextureView src_texture, VKTextureVie
         copies[i] = VkImageCopy2{
             .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
             .srcSubresource = {
-                    .aspectMask = aspect_flags(std::get<1>(src_texture)),
-                    .mipLevel = region.src.mip,
-                    .baseArrayLayer = region.src.array_layer,
-                    .layerCount = 1u,
+                .aspectMask = aspect_flags(std::get<1>(src_texture)),
+                .mipLevel = region.src.mip,
+                .baseArrayLayer = region.src.array_layer,
+                .layerCount = 1u,
             },
             .srcOffset = { int(region.src.offset.width), int(region.src.offset.height), int(region.src.offset.depth_or_layers) },
             .dstSubresource = {
-                    .aspectMask = aspect_flags(std::get<1>(dst_texture)),
-                    .mipLevel = region.dst.mip,
-                    .baseArrayLayer = region.dst.array_layer,
-                    .layerCount = 1u,
+                .aspectMask = aspect_flags(std::get<1>(dst_texture)),
+                .mipLevel = region.dst.mip,
+                .baseArrayLayer = region.dst.array_layer,
+                .layerCount = 1u,
             },
             .dstOffset = { int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
             .extent = { region.src.size.width, region.src.size.height, region.src.size.depth_or_layers },
@@ -203,11 +203,11 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image = texture,
         .subresourceRange = {
-                .aspectMask = aspect_flags(format),
-                .baseMipLevel = subresource.base_mip_level,
-                .levelCount = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
-                .baseArrayLayer = subresource.base_array_layer,
-                .layerCount = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
+            .aspectMask = aspect_flags(format),
+            .baseMipLevel = subresource.base_mip_level,
+            .levelCount = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
+            .baseArrayLayer = subresource.base_array_layer,
+            .layerCount = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
         }
     };
 }
@@ -291,7 +291,7 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
 
     auto& dtable = device.table();
 
-    VkRenderingAttachmentInfo data[wis::max_render_targets]{};
+    VkRenderingAttachmentInfo data[wis::max_render_targets] {};
     wis::Size2D extent = std::get<1>(pass_desc.targets[0].target);
 
     for (size_t i = 0; i < pass_desc.target_count; i++) {
@@ -349,8 +349,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
         .pNext = nullptr,
         .flags = convert_vk(pass_desc.flags),
         .renderArea = {
-                .offset = { 0, 0 },
-                .extent = { extent.width, extent.height },
+            .offset = { 0, 0 },
+            .extent = { extent.width, extent.height },
         },
         .layerCount = 1,
         .viewMask = pass_desc.view_mask,
@@ -467,18 +467,18 @@ void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::In
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-                                                  uint32_t instance_count,
-                                                  uint32_t start_index,
-                                                  uint32_t base_vertex,
-                                                  uint32_t start_instance) noexcept
+        uint32_t instance_count,
+        uint32_t start_index,
+        uint32_t base_vertex,
+        uint32_t start_instance) noexcept
 {
     device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
 void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
-                                           uint32_t instance_count,
-                                           uint32_t base_vertex,
-                                           uint32_t start_instance) noexcept
+        uint32_t instance_count,
+        uint32_t base_vertex,
+        uint32_t start_instance) noexcept
 {
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }

@@ -16,10 +16,11 @@ wis::Result wis::ImplDX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noe
     }
 
     auto st = fence_event.wait(wait_ns == std::numeric_limits<uint64_t>::max()
-                                       ? std::numeric_limits<uint32_t>::max()
-                                       : uint32_t(wait_ns / 1000));
+                               ? std::numeric_limits<uint32_t>::max()
+                               : uint32_t(wait_ns / 1000));
     return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
-            : st != wis::Status::Error ? wis::success
-                                       : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
+           :
+           st != wis::Status::Error ? wis::success
+           : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
 }
 #endif // DX12_FENCE_CPP
