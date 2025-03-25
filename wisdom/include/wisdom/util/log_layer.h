@@ -9,7 +9,7 @@
 
 WISDOM_EXPORT
 namespace wis {
-constexpr const char* severity_strings[]{
+constexpr const char* severity_strings[] {
     "debug",
     "trace",
     "info",

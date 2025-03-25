@@ -7,7 +7,7 @@
 #if defined(WISDOM_VULKAN)
 #include <vulkan/vulkan.h>
 #include <wisvk/vk_movable.hpp>
-#endif 
+#endif
 
 #if defined(WISDOM_DX12)
 #include <d3d12.h>

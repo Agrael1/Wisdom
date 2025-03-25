@@ -51,7 +51,7 @@ public:
     }
 
 public:
-    value_type _data[N]{}; // +1 for null terminator
+    value_type _data[N] {}; // +1 for null terminator
 };
 
 // Define some aliases for common fixed string types

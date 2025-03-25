@@ -11,7 +11,7 @@
 #include <vulkan/vulkan.h>
 #include <wisvk/vk_movable.hpp>
 #include <wisdom/generated/vk_functions.hpp>
-#endif 
+#endif
 
 #if defined(WISDOM_DX12)
 #include <d3d12.h>

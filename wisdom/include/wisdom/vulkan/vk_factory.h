@@ -83,9 +83,9 @@ class ImplVKFactory : public QueryInternal<VKFactory>
         VKAdapter adapter;
     };
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT messageType,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
     ImplVKFactory() noexcept = default;
@@ -150,7 +150,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKAdapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
-        return wis::ResultValue<wis::VKAdapter>{ &wis::ImplVKFactory::GetAdapter, this, index, preference };
+        return wis::ResultValue<wis::VKAdapter> { &wis::ImplVKFactory::GetAdapter, this, index, preference };
     }
 };
 #pragma endregion VKFactory
