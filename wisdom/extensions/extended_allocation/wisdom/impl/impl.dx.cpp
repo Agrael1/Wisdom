@@ -3,8 +3,10 @@
 #include <wisdom/wisdom_extended_allocation.hpp>
 
 #if defined(WISDOM_DX12)
+#ifndef WISDOM_MODULE_DECL
 #include <d3dx12/d3dx12_core.h>
 #include <d3dx12/d3dx12_property_format_table.h>
+#endif // !WISDOM_MODULE_DECL
 
 wis::DX12Texture
 wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,

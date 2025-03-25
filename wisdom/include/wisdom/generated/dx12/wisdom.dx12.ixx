@@ -8,10 +8,9 @@ See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 */
 
 module;
-#include <wisdom/generated/dx12/dx12.include.h>
 #define WISDOM_MODULE_DECL
 #define WISDOM_BUILD_BINARIES
-#define WISDOM_EXPORT export
+#include <wisdom/generated/dx12/dx12.include.h>
 export module wisdom.dx12;
 
 export import wisdom.api;

@@ -1,7 +1,9 @@
 #ifndef WISDOM_RAYTRACING_VK_CPP
 #define WISDOM_RAYTRACING_VK_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/impl.vk.h>
 #include <cstring>
+#endif // !WISDOM_MODULE_DECL
 
 #if defined(WISDOM_VULKAN)
 bool wis::ImplVKRaytracing::GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
@@ -218,6 +220,8 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
                 .intersectionShader = VK_SHADER_UNUSED_KHR,
             };
             break;
+        default:
+            break;
         }
     }
 
@@ -310,7 +314,7 @@ void wis::ImplVKRaytracing::BuildBottomLevelAS(wis::VKCommandListView cmd_buffer
         .ppGeometries = direct
                 ? reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(data)
                 : reinterpret_cast<const VkAccelerationStructureGeometryKHR* const*>(blas_desc.geometry_indirect),
-        .scratchData = scratch_buffer_gpu_address
+        .scratchData = { scratch_buffer_gpu_address }
     };
     table.vkCmdBuildAccelerationStructuresKHR(std::get<0>(cmd_buffer), 1, &build_info, pp_ranges);
 }
@@ -335,7 +339,7 @@ void wis::ImplVKRaytracing::BuildTopLevelAS(wis::VKCommandListView cmd_buffer, c
         .dstAccelerationStructure = std::get<0>(dst_acceleration_structure),
         .geometryCount = 1u,
         .pGeometries = &geometry,
-        .scratchData = scratch_buffer_gpu_address,
+        .scratchData = { scratch_buffer_gpu_address },
     };
     VkAccelerationStructureBuildRangeInfoKHR range_info{
         .primitiveCount = tlas_desc.instance_count,

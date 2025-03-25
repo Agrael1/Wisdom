@@ -8,21 +8,20 @@ See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 */
 
 module;
-#include <wisdom/generated/api/api.include.h>
 #define WISDOM_MODULE_DECL
-#define WISDOM_EXPORT export
+#include <wisdom/generated/api/api.include.h>
 export module wisdom.api;
 
 #include <wisdom/generated/api/api.hpp>
 #include <wisdom/global/definitions.h>
 #include <wisdom/global/constants.h>
 #include <wisdom/util/string_literal.h>
-#include <wisdom/global/internal.h>
-#include <wisdom/util/flags.h>
 #include <wisdom/bridge/source_location.h>
 #include <wisdom/generated/api/api.hpp>
-#include <wisdom/util/log_layer.h>
 #include <wisdom/util/com_ptr.h>
+#include <wisdom/util/flags.h>
+#include <wisdom/util/log_layer.h>
+#include <wisdom/global/internal.h>
 #include <wisdom/util/error_messages.h>
 #include <wisdom/util/misc.h>
 #include <wisdom/util/shader_compiler.h>

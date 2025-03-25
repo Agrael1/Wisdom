@@ -1,9 +1,12 @@
 #ifndef WISDOM_RAYTRACING_HPP
 #define WISDOM_RAYTRACING_HPP
+#ifndef WISDOM_MODULE_DECL
 #include "impl.dx12.h"
 #include "impl.vk.h"
 #include "impl.h"
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using Raytracing = ImplDX12Raytracing;

@@ -7,11 +7,11 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12CommandList;
-struct DX12BufferBarrier2;
-struct DX12TextureBarrier2;
-struct DX12RenderPassDesc;
-struct DX12VertexBufferBinding;
+WISDOM_EXPORT class DX12CommandList;
+WISDOM_EXPORT struct DX12BufferBarrier2;
+WISDOM_EXPORT struct DX12TextureBarrier2;
+WISDOM_EXPORT struct DX12RenderPassDesc;
+WISDOM_EXPORT struct DX12VertexBufferBinding;
 
 WISDOM_EXPORT
 template<>

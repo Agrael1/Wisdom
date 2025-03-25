@@ -1,8 +1,12 @@
 #ifndef WIS_VK_RAYTRACING_PIPELINE_H
 #define WIS_VK_RAYTRACING_PIPELINE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/vulkan/vk_handles.h>
+#endif // !WISDOM_MODULE_DECL
 
+
+WISDOM_EXPORT
 namespace wis {
 class VKRaytracingPipeline;
 

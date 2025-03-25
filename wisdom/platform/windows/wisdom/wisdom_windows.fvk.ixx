@@ -1,8 +1,7 @@
 module;
-#define WISDOM_FORCE_VULKAN
 #define WISDOM_MODULE_DECL
+#define WISDOM_FORCE_VULKAN
 #include <wisdom/windows.include.h>
-#define WISDOM_EXPORT export
 export module wisdom.windows.fvk;
 
 #if defined(WISDOM_DX12)

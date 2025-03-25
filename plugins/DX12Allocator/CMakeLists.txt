@@ -1,22 +1,16 @@
 project(DX12Allocator)
 
-if(NOT PLUGINS_LOADED)
-  message("Setting up DirectX 12 Allocator...")
-  FetchContent_Declare(
-    dxma
-    GIT_REPOSITORY
-      https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
-    GIT_TAG origin/master)
-  set(D3D12MA_AGILITY_SDK_DIRECTORY
-      "${DXA_DIR}"
-      CACHE INTERNAL "" FORCE)
-  if(NOT dxma_POPULATED)
-    FetchContent_Populate(dxma)
-  endif()
-  set(dxma_SOURCES
-      ${dxma_SOURCE_DIR}
-      CACHE INTERNAL "")
+message("Setting up DirectX 12 Allocator...")
+FetchContent_Declare(
+  dxma
+  GIT_REPOSITORY
+    https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
+  GIT_TAG origin/master)
+set(D3D12MA_AGILITY_SDK_DIRECTORY "${DXA_DIR}")
+if(NOT dxma_POPULATED)
+  FetchContent_Populate(dxma)
 endif()
+set(dxma_SOURCES ${dxma_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${dxma_SOURCES}/include/D3D12MemAlloc.h)
 target_sources(${PROJECT_NAME} PRIVATE ${dxma_SOURCES}/src/D3D12MemAlloc.cpp)

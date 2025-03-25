@@ -35,7 +35,7 @@ else()
 endif()
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-descriptor-buffer-module STATIC)
+  add_library(wisdom-descriptor-buffer-module STATIC "wisdom/descriptor_buffer.include.h")
   add_library(wis::descriptor-buffer-module ALIAS wisdom-descriptor-buffer-module)
   target_sources(wisdom-descriptor-buffer-module
                  PUBLIC FILE_SET CXX_MODULES FILES

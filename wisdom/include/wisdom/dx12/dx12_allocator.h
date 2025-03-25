@@ -5,8 +5,8 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12ResourceAllocator;
-class DX12Device;
+WISDOM_EXPORT class DX12ResourceAllocator;
+WISDOM_EXPORT class DX12Device;
 
 WISDOM_EXPORT
 template<>

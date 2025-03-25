@@ -6,7 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12Adapter;
+WISDOM_EXPORT class DX12Adapter;
 
 WISDOM_EXPORT
 template<>

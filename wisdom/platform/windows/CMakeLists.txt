@@ -27,7 +27,7 @@ target_link_libraries(wisdom-platform INTERFACE wis::windows)
 target_link_libraries(wisdom-platform-headers INTERFACE wis::windows-headers)
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-windows-module STATIC)
+  add_library(wisdom-windows-module STATIC "wisdom/windows.include.h")
   add_library(wis::windows-module ALIAS wisdom-windows-module)
   target_sources(wisdom-windows-module
     PUBLIC FILE_SET CXX_MODULES FILES
@@ -63,6 +63,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 

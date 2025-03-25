@@ -7,7 +7,7 @@
 #endif
 
 namespace wis {
-class DX12CommandQueue;
+WISDOM_EXPORT class DX12CommandQueue;
 
 WISDOM_EXPORT
 template<>

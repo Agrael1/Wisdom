@@ -29,7 +29,7 @@ target_link_libraries(wisdom-platform INTERFACE wis::x11)
 target_link_libraries(wisdom-platform-headers INTERFACE wis::x11-headers)
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-x11-module STATIC)
+  add_library(wisdom-x11-module STATIC "wisdom/x11.include.h")
   add_library(wis::x11-module ALIAS wisdom-x11-module)
   target_sources(wisdom-x11-module
     PUBLIC FILE_SET CXX_MODULES FILES
@@ -63,6 +63,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 

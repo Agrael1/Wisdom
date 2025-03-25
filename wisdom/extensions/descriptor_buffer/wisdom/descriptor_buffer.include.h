@@ -5,6 +5,8 @@
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <wisvk/vk_movable.hpp>
+#include <wisdom/generated/vk_functions.hpp>
+#include <wisvk/vk_managed_handles.hpp>
 #endif
 
 #if defined(WISDOM_DX12)

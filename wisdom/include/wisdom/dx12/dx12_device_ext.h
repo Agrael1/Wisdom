@@ -4,12 +4,10 @@
 #include <wisdom/generated/api/api.hpp>
 #endif
 
-namespace wis {
-class DX12Device;
-}
-
 WISDOM_EXPORT
 namespace wis {
+class DX12Device;
+
 struct DX12DeviceExtension {
     virtual ~DX12DeviceExtension() = default;
     virtual wis::Result Init(const wis::DX12Device& instance) noexcept

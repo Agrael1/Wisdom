@@ -1,7 +1,6 @@
 module;
-#include <wisdom/debug.include.h>
 #define WISDOM_MODULE_DECL
-#define WISDOM_EXPORT export
+#include <wisdom/debug.include.h>
 export module wisdom.debug;
 
 #if defined(WISDOM_DX12)

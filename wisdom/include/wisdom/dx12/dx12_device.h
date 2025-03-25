@@ -15,7 +15,7 @@
 #endif
 
 namespace wis {
-class DX12Device;
+WISDOM_EXPORT class DX12Device;
 
 WISDOM_EXPORT
 template<>

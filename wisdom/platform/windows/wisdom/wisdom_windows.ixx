@@ -1,7 +1,6 @@
 module;
-#include <wisdom/windows.include.h>
 #define WISDOM_MODULE_DECL
-#define WISDOM_EXPORT export
+#include <wisdom/windows.include.h>
 export module wisdom.windows;
 
 #if defined(WISDOM_DX12)

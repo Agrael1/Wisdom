@@ -6,12 +6,14 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <tuple>
-#endif
 
 namespace D3D12MA {
 class Allocator;
 class Allocation;
 } // namespace D3D12MA
+
+#endif
+
 
 WISDOM_EXPORT
 namespace wis {

@@ -7,7 +7,7 @@
 struct wl_display;
 struct wl_surface;
 #elif defined(SDL_PLATFORM_WIN32)
-#include <windows.h>
+typedef struct HWND__* HWND;
 #endif
 
 #ifdef WISDOM_FORCE_VULKAN
@@ -36,11 +36,11 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::PlatformExte
     switch (ext.current) {
 #if defined(SDL_PLATFORM_WIN32)
     case Windows: {
-        //HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
-        //if (hwnd) {
-        //    return static_cast<wis::platform::WindowsExtension*>(ext.get())
-        //            ->CreateSwapchain(result, device, queue, desc, hwnd);
-        //}
+        HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+        if (hwnd) {
+            return static_cast<wis::platform::WindowsExtension*>(ext.get())
+                    ->CreateSwapchain(result, device, queue, desc, hwnd);
+        }
     } break;
 #elif defined(SDL_PLATFORM_LINUX)
     case X11: {
@@ -60,6 +60,8 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::PlatformExte
         }
     } break;
 #endif
+    default:
+        break;
     }
 
     return {};

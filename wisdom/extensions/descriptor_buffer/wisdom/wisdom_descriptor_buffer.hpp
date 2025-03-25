@@ -21,7 +21,7 @@ struct Internal<DX12DescriptorBufferExtension> {
 class ImplDX12DescriptorBufferExtension : public QueryInternalExtension<DX12DescriptorBufferExtension, DX12DeviceExtension>
 {
 public:
-    virtual wis::Result Init(const wis::DX12Device& instance) noexcept
+    virtual wis::Result Init(const wis::DX12Device& instance) noexcept override
     {
         device = instance.GetInternal().device;
         return wis::success;

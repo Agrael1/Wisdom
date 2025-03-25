@@ -25,7 +25,7 @@ else()
 endif()
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-debug-module STATIC)
+  add_library(wisdom-debug-module STATIC "wisdom/debug.include.h")
   add_library(wis::debug-module ALIAS wisdom-debug-module)
   target_sources(wisdom-debug-module
     PUBLIC FILE_SET CXX_MODULES FILES

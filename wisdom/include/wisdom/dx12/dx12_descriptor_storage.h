@@ -10,7 +10,7 @@
 
 namespace wis {
 
-class DX12DescriptorStorage;
+WISDOM_EXPORT class DX12DescriptorStorage;
 
 WISDOM_EXPORT
 template<>

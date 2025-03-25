@@ -1,8 +1,7 @@
 module;
 #define WISDOM_MODULE_DECL
-#define WISDOM_FORCE_VULKAN
-#include <wisdom/debug.include.h>
-export module wisdom.debug.fvk;
+#include <wisdom/extended_allocation.include.h>
+export module wisdom.descriptor_buffer;
 
 #if defined(WISDOM_DX12)
 import wisdom.dx12;
@@ -12,4 +11,4 @@ import wisdom.dx12;
 import wisdom.vk;
 #endif
 
-#include <wisdom/wisdom_debug.hpp>
+#include <wisdom/wisdom_extended_allocation.hpp>

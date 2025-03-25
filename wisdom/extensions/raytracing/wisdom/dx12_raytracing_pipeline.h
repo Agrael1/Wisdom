@@ -1,10 +1,13 @@
 #ifndef WIS_DX12_RAYTRACING_PIPELINE_H
 #define WIS_DX12_RAYTRACING_PIPELINE_H
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/global/internal.h>
 #include <wisdom/util/com_ptr.h>
 #include <d3d12.h>
 #include <memory>
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 class DX12RaytracingPipeline;
 
@@ -30,7 +33,7 @@ public:
     }
     operator bool() const noexcept
     {
-        return bool(state_object);
+        return state_object.get() != nullptr;
     }
 };
 } // namespace wis

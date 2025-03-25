@@ -654,9 +654,8 @@ int Generator::GenerateCPPModules()
     std::string output_api = wis::format(documentation_header, WISDOM_VERSION);
     output_api += "\n*/\n\n";
     output_api += R"(module;
-#include <wisdom/generated/api/api.include.h>
 #define WISDOM_MODULE_DECL
-#define WISDOM_EXPORT export
+#include <wisdom/generated/api/api.include.h>
 export module wisdom.api;
 
 #include <wisdom/generated/api/api.hpp>
@@ -693,9 +692,8 @@ export module wisdom.api;
     output_dx12 += "\n*/\n\n";
     output_dx12 += R"(module;
 #define WISDOM_MODULE_DECL
-#include <wisdom/generated/dx12/dx12.include.h>
 #define WISDOM_BUILD_BINARIES
-#define WISDOM_EXPORT export
+#include <wisdom/generated/dx12/dx12.include.h>
 export module wisdom.dx12;
 
 export import wisdom.api;
@@ -746,10 +744,8 @@ export import wisdom.api;
     output_vk += "\n*/\n\n";
     output_vk += R"(module;
 #define WISDOM_MODULE_DECL
-#include <wisdom/generated/vulkan/vk.include.h>
-#define WISVK_MODULE_DECL
 #define WISDOM_BUILD_BINARIES
-#define WISDOM_EXPORT export
+#include <wisdom/generated/vulkan/vk.include.h>
 export module wisdom.vk;
 
 export import wisdom.api;

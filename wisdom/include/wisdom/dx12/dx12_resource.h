@@ -7,7 +7,7 @@
 #endif
 
 namespace wis {
-class DX12Buffer;
+WISDOM_EXPORT class DX12Buffer;
 
 WISDOM_EXPORT
 template<>
@@ -58,7 +58,7 @@ WISDOM_EXPORT
 using DX12Texture = DX12Buffer;
 
 // =================================================================================================
-class DX12RenderTarget;
+WISDOM_EXPORT class DX12RenderTarget;
 
 WISDOM_EXPORT
 template<>
@@ -84,7 +84,7 @@ public:
 
 // =================================================================================================
 
-class DX12Sampler;
+WISDOM_EXPORT class DX12Sampler;
 
 WISDOM_EXPORT
 template<>
@@ -109,7 +109,7 @@ public:
 
 // =================================================================================================
 
-class DX12ShaderResource;
+WISDOM_EXPORT class DX12ShaderResource;
 
 WISDOM_EXPORT
 template<>

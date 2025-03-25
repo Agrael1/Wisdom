@@ -483,14 +483,13 @@ void wis::ImplDX12CommandList::PushDescriptor(wis::DescriptorType type, uint32_t
     case wis::DescriptorType::Buffer:
         list->SetGraphicsRootShaderResourceView(push_constant_count + binding, handle + offset);
         break;
-    case wis::DescriptorType::Texture:
-    case wis::DescriptorType::RWTexture:
-        return;
     case wis::DescriptorType::ConstantBuffer:
         list->SetGraphicsRootConstantBufferView(push_constant_count + binding, handle + offset);
         break;
     case wis::DescriptorType::RWBuffer:
         list->SetGraphicsRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
+    default:
         break;
     }
 }
@@ -502,14 +501,13 @@ void wis::ImplDX12CommandList::PushDescriptorCompute(wis::DescriptorType type, u
     case wis::DescriptorType::Buffer:
         list->SetComputeRootShaderResourceView(push_constant_count + binding, handle + offset);
         break;
-    case wis::DescriptorType::Texture:
-    case wis::DescriptorType::RWTexture:
-        return;
     case wis::DescriptorType::ConstantBuffer:
         list->SetComputeRootConstantBufferView(push_constant_count + binding, handle + offset);
         break;
     case wis::DescriptorType::RWBuffer:
         list->SetComputeRootUnorderedAccessView(push_constant_count + binding, handle + offset);
+        break;
+    default:
         break;
     }
 }

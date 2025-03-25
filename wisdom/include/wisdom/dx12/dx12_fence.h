@@ -10,7 +10,7 @@
 #endif
 
 namespace wis {
-class DX12Fence;
+WISDOM_EXPORT class DX12Fence;
 
 WISDOM_EXPORT
 template<>

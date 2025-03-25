@@ -7,7 +7,7 @@
 #endif
 
 namespace wis {
-class DX12RootSignature;
+WISDOM_EXPORT class DX12RootSignature;
 
 WISDOM_EXPORT
 template<>

@@ -15,7 +15,7 @@ target_include_directories(
                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-platform-module STATIC)
+  add_library(wisdom-platform-module STATIC "wisdom/platform.include.h")
   add_library(wis::platform-module ALIAS wisdom-platform-module)
   target_sources(wisdom-platform-module
     PUBLIC FILE_SET CXX_MODULES FILES "wisdom/wisdom_platform.ixx"
@@ -60,6 +60,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
   install(

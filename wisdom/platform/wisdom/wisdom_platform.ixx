@@ -1,7 +1,6 @@
 module;
 #define WISDOM_MODULE_DECL
 #include <wisdom/platform.include.h>
-#define WISDOM_EXPORT export
 export module wisdom.platform;
 
 #ifdef WIS_XCB_PLATFORM

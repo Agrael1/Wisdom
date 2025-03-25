@@ -31,7 +31,7 @@ CPMAddPackage(
   NAME fpng
   GITHUB_REPOSITORY richgel999/fpng
   GIT_TAG main
-  DOWNLOAD_ONLY
+  DOWNLOAD_ONLY ON
 )
 
 if(WISDOM_WINDOWS)

@@ -26,7 +26,7 @@ else()
 endif()
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-xcb-module STATIC)
+  add_library(wisdom-xcb-module STATIC "wisdom/xcb.include.h")
   add_library(wis::xcb-module ALIAS wisdom-xcb-module)
   target_sources(wisdom-xcb-module
     PUBLIC FILE_SET CXX_MODULES FILES
@@ -63,6 +63,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 

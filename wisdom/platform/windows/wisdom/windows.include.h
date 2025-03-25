@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include <dxgi1_6.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 
 #if defined(WISDOM_VULKAN)

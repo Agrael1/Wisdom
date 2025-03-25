@@ -1040,9 +1040,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     bool tearing = desc.tearing;
     if (!desc.vsync) {
         if (desc.tearing) {
-            if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0) {
+            if ((tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0)) {
                 present_mode = VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR;
-            } else if (tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0) {
+            } else if ((tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)) {
                 present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
         } else if (std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !stereo) {

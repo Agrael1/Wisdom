@@ -11,7 +11,7 @@
 #endif
 
 namespace wis {
-class DX12SwapChain;
+WISDOM_EXPORT class DX12SwapChain;
 
 WISDOM_EXPORT
 namespace detail {

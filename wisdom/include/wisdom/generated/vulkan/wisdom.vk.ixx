@@ -9,10 +9,8 @@ See also: [repository on GitHub](https://github.com/Agrael1/Wisdom)
 
 module;
 #define WISDOM_MODULE_DECL
-#include <wisdom/generated/vulkan/vk.include.h>
-#define WISVK_MODULE_DECL
 #define WISDOM_BUILD_BINARIES
-#define WISDOM_EXPORT export
+#include <wisdom/generated/vulkan/vk.include.h>
 export module wisdom.vk;
 
 export import wisdom.api;

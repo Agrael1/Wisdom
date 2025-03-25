@@ -8,6 +8,7 @@
 
 WISDOM_EXPORT
 namespace wis {
+
 struct take_ownership_t {
 };
 constexpr take_ownership_t take_ownership;
@@ -15,7 +16,7 @@ constexpr take_ownership_t take_ownership;
 template<typename T>
 struct guid_of {
 #if !defined(__GNUC__) || defined(_WIN32) 
-    static constexpr auto value = __uuidof(T);
+    static constexpr _GUID value = __uuidof(T);
 #else
     static constexpr auto value = 0;
 #endif // __GNUC__

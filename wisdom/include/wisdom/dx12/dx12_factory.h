@@ -9,7 +9,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12Factory;
+WISDOM_EXPORT class DX12Factory;
 
 WISDOM_EXPORT
 template<>

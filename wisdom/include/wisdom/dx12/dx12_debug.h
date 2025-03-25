@@ -6,16 +6,15 @@
 #include <memory>
 #endif
 
+WISDOM_EXPORT
 namespace wis {
 class DX12DebugMessenger;
 
-WISDOM_EXPORT
 template<>
 struct Internal<DX12DebugMessenger> {
     DX12InfoToken info;
 };
 
-WISDOM_EXPORT
 class DX12DebugMessenger : public QueryInternal<DX12DebugMessenger>
 {
 public:

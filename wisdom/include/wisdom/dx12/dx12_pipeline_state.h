@@ -6,16 +6,15 @@
 #include <d3d12.h>
 #endif
 
+WISDOM_EXPORT
 namespace wis {
 class DX12PipelineState;
 
-WISDOM_EXPORT
 template<>
 struct Internal<DX12PipelineState> {
     wis::com_ptr<ID3D12PipelineState> pipeline;
 };
 
-WISDOM_EXPORT
 class DX12PipelineState : public QueryInternal<DX12PipelineState>
 {
 public:

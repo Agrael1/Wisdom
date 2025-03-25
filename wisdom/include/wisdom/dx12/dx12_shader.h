@@ -6,17 +6,16 @@
 #include <memory>
 #endif
 
+WISDOM_EXPORT
 namespace wis {
 class DX12Shader;
 
-WISDOM_EXPORT
 template<>
 struct Internal<DX12Shader> {
     std::unique_ptr<std::byte[]> bytecode;
     size_t size = 0;
 };
 
-WISDOM_EXPORT
 class DX12Shader : public QueryInternal<DX12Shader>
 {
 public:

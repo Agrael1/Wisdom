@@ -1,11 +1,14 @@
 #ifndef WISDOM_RAYTRACING_VK_HPP
 #define WISDOM_RAYTRACING_VK_HPP
 #if defined(WISDOM_VULKAN)
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/vulkan/vk_device.h>
 #include <wisdom/vk_rtas.h>
 #include "generated/vk_functions.hpp"
 #include "vk_raytracing_pipeline.h"
+#endif // !WISDOM_MODULE_DECL
 
+WISDOM_EXPORT
 namespace wis {
 class VKRaytracing;
 

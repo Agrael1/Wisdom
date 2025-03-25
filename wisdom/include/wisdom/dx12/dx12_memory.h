@@ -8,7 +8,7 @@
 #endif
 
 namespace wis {
-class DX12Memory;
+WISDOM_EXPORT class DX12Memory;
 
 WISDOM_EXPORT
 template<>

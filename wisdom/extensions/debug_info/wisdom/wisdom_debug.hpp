@@ -9,13 +9,13 @@
 #endif // !WISDOM_MODULE_DECL
 
 namespace wis {
-class DX12DebugExtension;
+WISDOM_EXPORT class DX12DebugExtension;
 
 template<>
 struct Internal<DX12DebugExtension> {
 };
 
-class ImplDX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, DX12FactoryExtension>
+class ImplDX12DebugExtension : public QueryInternalExtension<DX12DebugExtension, wis::DX12FactoryExtension>
 {
 public:
     [[nodiscard]] bool Supported() const noexcept override

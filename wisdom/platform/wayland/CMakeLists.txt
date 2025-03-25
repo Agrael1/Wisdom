@@ -33,7 +33,7 @@ target_link_libraries(wisdom-platform INTERFACE wis::wayland)
 target_link_libraries(wisdom-platform-headers INTERFACE wis::wayland-headers)
 
 if (WISDOM_CPP_MODULES_SUPPORTED)
-  add_library(wisdom-wayland-module STATIC)
+  add_library(wisdom-wayland-module STATIC "wisdom/wayland.include.h")
   add_library(wis::wayland-module ALIAS wisdom-wayland-module)
   target_sources(wisdom-wayland-module
     PUBLIC FILE_SET CXX_MODULES FILES
@@ -67,6 +67,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 

@@ -1,6 +1,8 @@
 #ifndef WISDOM_RAYTRACING_DX12_CPP
 #define WISDOM_RAYTRACING_DX12_CPP
+#ifndef WISDOM_MODULE_DECL
 #include <wisdom/impl.dx12.h>
+#endif // !WISDOM_MODULE_DECL
 
 #if defined(WISDOM_DX12)
 wis::DX12RaytracingPipeline

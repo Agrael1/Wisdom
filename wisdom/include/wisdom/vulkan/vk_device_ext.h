@@ -168,7 +168,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
     // Not supposed to use device here.
     virtual wis::Result Init(const wis::VKDevice& device,
                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                             const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                             const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
     {
         auto& vk_physical_device_properties = *reinterpret_cast<VkPhysicalDeviceProperties2*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2));
         base_properties.max_ia_attributes = vk_physical_device_properties.properties.limits.maxVertexInputAttributes;
