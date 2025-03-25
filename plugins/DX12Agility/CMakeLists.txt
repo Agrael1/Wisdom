@@ -26,16 +26,20 @@ endif()
 set(DXA_HEADERS ${DXA_DIR}/build/native/include)
 set(DXA_SRC ${DXA_DIR}/build/native/src)
 set(DXA_BIN ${DXA_DIR}/build/native/bin/x64)
-set(DXAGILITY_DLL ${DXA_BIN}/D3D12Core.dll CACHE INTERNAL "")
-set(DXAGILITY_DEBUG_DLL ${DXA_BIN}/d3d12SDKLayers.dll CACHE INTERNAL "")
+set(DXAGILITY_DLL
+    ${DXA_BIN}/D3D12Core.dll
+    CACHE INTERNAL "")
+set(DXAGILITY_DEBUG_DLL
+    ${DXA_BIN}/d3d12SDKLayers.dll
+    CACHE INTERNAL "")
 
 add_library(${PROJECT_NAME}Core SHARED IMPORTED GLOBAL)
 set_property(TARGET ${PROJECT_NAME}Core PROPERTY IMPORTED_LOCATION
                                                  ${DXAGILITY_DLL})
 
 add_library(${PROJECT_NAME}SDKLayers SHARED IMPORTED GLOBAL)
-set_property(TARGET ${PROJECT_NAME}SDKLayers
-             PROPERTY IMPORTED_LOCATION ${DXAGILITY_DEBUG_DLL})
+set_property(TARGET ${PROJECT_NAME}SDKLayers PROPERTY IMPORTED_LOCATION
+                                                      ${DXAGILITY_DEBUG_DLL})
 
 # Header interface library
 add_library(${PROJECT_NAME} STATIC)
