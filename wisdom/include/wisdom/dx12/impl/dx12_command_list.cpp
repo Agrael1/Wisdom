@@ -45,15 +45,13 @@ void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX
             .pResource = std::get<0>(src_buffer),
             .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
             .PlacedFootprint = {
-                .Offset = region.buffer_offset,
-                .Footprint = {
-                    .Format = convert_dx(region.texture.format),
-                    .Width = region.texture.size.width,
-                    .Height = region.texture.size.height,
-                    .Depth = region.texture.size.depth_or_layers,
-                    .RowPitch = row_pitch
-                }
-            }
+                    .Offset = region.buffer_offset,
+                    .Footprint = {
+                            .Format = convert_dx(region.texture.format),
+                            .Width = region.texture.size.width,
+                            .Height = region.texture.size.height,
+                            .Depth = region.texture.size.depth_or_layers,
+                            .RowPitch = row_pitch } }
         };
 
         list->CopyTextureRegion(&dst, region.texture.offset.width, region.texture.offset.height, region.texture.offset.depth_or_layers, &src, nullptr);
@@ -127,15 +125,13 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
             .pResource = std::get<0>(dest_buffer),
             .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
             .PlacedFootprint = {
-                .Offset = region.buffer_offset,
-                .Footprint = {
-                    .Format = convert_dx(region.texture.format),
-                    .Width = region.texture.size.width,
-                    .Height = region.texture.size.height,
-                    .Depth = region.texture.size.depth_or_layers,
-                    .RowPitch = row_pitch
-                }
-            }
+                    .Offset = region.buffer_offset,
+                    .Footprint = {
+                            .Format = convert_dx(region.texture.format),
+                            .Width = region.texture.size.width,
+                            .Height = region.texture.size.height,
+                            .Depth = region.texture.size.depth_or_layers,
+                            .RowPitch = row_pitch } }
         };
 
         D3D12_BOX box{
@@ -205,14 +201,13 @@ inline D3D12_TEXTURE_BARRIER to_dx(wis::TextureBarrier barrier, ID3D12Resource* 
         .LayoutAfter = convert_dx(barrier.state_after),
         .pResource = buffer,
         .Subresources = zero_range ? D3D12_BARRIER_SUBRESOURCE_RANGE{ .IndexOrFirstMipLevel = 0xffffffff }
-:
-        D3D12_BARRIER_SUBRESOURCE_RANGE{
-            .IndexOrFirstMipLevel = subresource.base_mip_level,
-            .NumMipLevels = subresource.level_count,
-            .FirstArraySlice = subresource.base_array_layer,
-            .NumArraySlices = subresource.layer_count,
-            .FirstPlane = 0,
-            .NumPlanes = 1 }
+                                   : D3D12_BARRIER_SUBRESOURCE_RANGE{
+                                             .IndexOrFirstMipLevel = subresource.base_mip_level,
+                                             .NumMipLevels = subresource.level_count,
+                                             .FirstArraySlice = subresource.base_array_layer,
+                                             .NumArraySlices = subresource.layer_count,
+                                             .FirstPlane = 0,
+                                             .NumPlanes = 1 }
     };
 }
 } // namespace wis::detail
@@ -282,10 +277,10 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc& pa
         data[i] = {
             .cpuDescriptor = std::get<0>(target.target),
             .BeginningAccess = {
-                .Type = convert_dx(target.load_op),
+                    .Type = convert_dx(target.load_op),
             },
             .EndingAccess = {
-                .Type = convert_dx(target.store_op),
+                    .Type = convert_dx(target.store_op),
             }
         };
         if (data[i].BeginningAccess.Type == D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR) {
@@ -300,20 +295,19 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc& pa
         depth_stencil = {
             .cpuDescriptor = std::get<0>(pass_desc.depth_stencil->target),
             .DepthBeginningAccess = {
-                .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc.depth_stencil->load_op_depth) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS,
-                .Clear = {
-                    .ClearValue{
-                        .DepthStencil{
-                            .Depth = pass_desc.depth_stencil->clear_depth,
-                            .Stencil = pass_desc.depth_stencil->clear_stencil } }
-                },
+                    .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc.depth_stencil->load_op_depth) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS,
+                    .Clear = {
+                            .ClearValue{
+                                    .DepthStencil{
+                                            .Depth = pass_desc.depth_stencil->clear_depth,
+                                            .Stencil = pass_desc.depth_stencil->clear_stencil } } },
             },
             .StencilBeginningAccess = { .Type = ds_selector & DSSelect::Stencil ? convert_dx(pass_desc.depth_stencil->load_op_stencil) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, .Clear = { .ClearValue{ .DepthStencil{ .Depth = pass_desc.depth_stencil->clear_depth, .Stencil = pass_desc.depth_stencil->clear_stencil } } } },
             .DepthEndingAccess = {
-                .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc.depth_stencil->store_op_depth) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
+                    .Type = ds_selector & DSSelect::Depth ? convert_dx(pass_desc.depth_stencil->store_op_depth) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
             },
             .StencilEndingAccess = {
-                .Type = ds_selector & DSSelect::Stencil ? convert_dx(pass_desc.depth_stencil->store_op_stencil) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
+                    .Type = ds_selector & DSSelect::Stencil ? convert_dx(pass_desc.depth_stencil->store_op_stencil) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
             }
         };
     }
@@ -421,18 +415,18 @@ void wis::ImplDX12CommandList::SetComputeRootSignature(wis::DX12RootSignatureVie
 }
 
 void wis::ImplDX12CommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-        uint32_t instance_count,
-        uint32_t start_index,
-        uint32_t base_vertex,
-        uint32_t start_instance) noexcept
+                                                    uint32_t instance_count,
+                                                    uint32_t start_index,
+                                                    uint32_t base_vertex,
+                                                    uint32_t start_instance) noexcept
 {
     list->DrawIndexedInstanced(vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
 void wis::ImplDX12CommandList::DrawInstanced(uint32_t vertex_count_per_instance,
-        uint32_t instance_count,
-        uint32_t base_vertex,
-        uint32_t start_instance) noexcept
+                                             uint32_t instance_count,
+                                             uint32_t base_vertex,
+                                             uint32_t start_instance) noexcept
 {
     list->DrawInstanced(vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }

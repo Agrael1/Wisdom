@@ -56,8 +56,8 @@ public:
     }
 
     template<
-        typename U = T,
-        std::enable_if_t<!std::is_rvalue_reference<U>::value, int> = 0>
+            typename U = T,
+            std::enable_if_t<!std::is_rvalue_reference<U>::value, int> = 0>
     std::suspend_always yield_value(std::remove_reference_t<T>& value) noexcept
     {
         m_value = std::addressof(value);
@@ -255,7 +255,7 @@ template<typename T>
 generator<T> generator_promise<T>::get_return_object() noexcept
 {
     using coroutine_handle = std::coroutine_handle<generator_promise<T>>;
-    return generator<T> { coroutine_handle::from_promise(*this) };
+    return generator<T>{ coroutine_handle::from_promise(*this) };
 }
 } // namespace detail
 

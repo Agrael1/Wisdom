@@ -72,7 +72,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12DebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
-        return wis::ResultValue<wis::DX12DebugMessenger> { &wis::ImplDX12DebugExtension::CreateDebugMessenger, this, callback, user_data };
+        return wis::ResultValue<wis::DX12DebugMessenger>{ &wis::ImplDX12DebugExtension::CreateDebugMessenger, this, callback, user_data };
     }
 };
 #pragma endregion DX12DebugExtension
@@ -100,9 +100,9 @@ struct Internal<VKDebugExtension> {
 class ImplVKDebugExtension : public QueryInternalExtension<VKDebugExtension, wis::VKFactoryExtensionImpl<VKDebugExtension>>
 {
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
 
 public:
     static constexpr std::array required_extensions = {
@@ -162,7 +162,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
-        return wis::ResultValue<wis::VKDebugMessenger> { &wis::ImplVKDebugExtension::CreateDebugMessenger, this, callback, user_data };
+        return wis::ResultValue<wis::VKDebugMessenger>{ &wis::ImplVKDebugExtension::CreateDebugMessenger, this, callback, user_data };
     }
 };
 #pragma endregion VKDebugExtension

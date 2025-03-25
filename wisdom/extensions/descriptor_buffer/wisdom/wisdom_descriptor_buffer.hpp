@@ -60,10 +60,10 @@ public: // Command List
                                          wis::DX12DescriptorBufferView sampler_desc_buffer) const noexcept;
 
     WIS_INLINE void SetDescriptorTableOffset(wis::DX12CommandListView cmd_list,
-            wis::DX12RootSignatureView root_signature,
-            uint32_t root_table_index,
-            wis::DX12DescriptorBufferGPUView buffer,
-            uint32_t table_aligned_byte_offset) const noexcept;
+                                             wis::DX12RootSignatureView root_signature,
+                                             uint32_t root_table_index,
+                                             wis::DX12DescriptorBufferGPUView buffer,
+                                             uint32_t table_aligned_byte_offset) const noexcept;
 };
 
 #pragma region DX12DescriptorBufferExtension
@@ -101,7 +101,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12RootSignature> CreateRootSignature(const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
-        return wis::ResultValue<wis::DX12RootSignature> { &wis::ImplDX12DescriptorBufferExtension::CreateRootSignature, this, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count };
+        return wis::ResultValue<wis::DX12RootSignature>{ &wis::ImplDX12DescriptorBufferExtension::CreateRootSignature, this, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count };
     }
     /**
      * @brief Creates a descriptor buffer object.
@@ -123,7 +123,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12DescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType type, wis::DescriptorMemory memory, uint64_t memory_bytes) const noexcept
     {
-        return wis::ResultValue<wis::DX12DescriptorBuffer> { &wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer, this, type, memory, memory_bytes };
+        return wis::ResultValue<wis::DX12DescriptorBuffer>{ &wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer, this, type, memory, memory_bytes };
     }
     /**
      * @brief Returns the alignment of the descriptor table in bytes.
@@ -233,8 +233,8 @@ public:
     {
         auto& heap_features = descriptor_buffer_props;
         return heap == wis::DescriptorHeapType::Descriptor
-               ? heap_features.mutable_descriptor_size
-               : heap_features.sampler_size;
+                ? heap_features.mutable_descriptor_size
+                : heap_features.sampler_size;
     }
 
     [[nodiscard]] WIS_INLINE VKDescriptorBuffer
@@ -248,18 +248,18 @@ public: // Command List
                                          wis::VKDescriptorBufferView sampler_desc_buffer) const noexcept;
 
     WIS_INLINE void SetDescriptorTableOffset(wis::VKCommandListView cmd_list,
-            wis::VKRootSignatureView root_signature,
-            uint32_t root_table_index,
-            wis::VKDescriptorBufferGPUView buffer,
-            uint32_t table_aligned_byte_offset) const noexcept;
+                                             wis::VKRootSignatureView root_signature,
+                                             uint32_t root_table_index,
+                                             wis::VKDescriptorBufferGPUView buffer,
+                                             uint32_t table_aligned_byte_offset) const noexcept;
 
 protected:
     [[nodiscard]] VkDescriptorSetLayout
     CreateDescriptorSetLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept
     {
         return table->type == wis::DescriptorHeapType::Descriptor
-               ? VKCreateDescriptorSetDescriptorLayout(result, table)
-               : VKCreateDescriptorSetSamplerLayout(result, table);
+                ? VKCreateDescriptorSetDescriptorLayout(result, table)
+                : VKCreateDescriptorSetSamplerLayout(result, table);
     }
     WIS_INLINE VkDescriptorSetLayout VKCreateDescriptorSetDescriptorLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept;
     WIS_INLINE VkDescriptorSetLayout VKCreateDescriptorSetSamplerLayout(wis::Result& result, const wis::DescriptorTable* table) const noexcept;
@@ -300,7 +300,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKRootSignature> CreateRootSignature(const wis::PushConstant* root_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* root_descriptors = nullptr, uint32_t descriptors_count = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept
     {
-        return wis::ResultValue<wis::VKRootSignature> { &wis::ImplVKDescriptorBufferExtension::CreateRootSignature, this, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count };
+        return wis::ResultValue<wis::VKRootSignature>{ &wis::ImplVKDescriptorBufferExtension::CreateRootSignature, this, root_constants, constants_count, root_descriptors, descriptors_count, tables, tables_count };
     }
     /**
      * @brief Creates a descriptor buffer object.
@@ -322,7 +322,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDescriptorBuffer> CreateDescriptorBuffer(wis::DescriptorHeapType type, wis::DescriptorMemory memory, uint64_t memory_bytes) const noexcept
     {
-        return wis::ResultValue<wis::VKDescriptorBuffer> { &wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer, this, type, memory, memory_bytes };
+        return wis::ResultValue<wis::VKDescriptorBuffer>{ &wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer, this, type, memory, memory_bytes };
     }
     /**
      * @brief Returns the alignment of the descriptor table in bytes.

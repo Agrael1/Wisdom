@@ -10,9 +10,9 @@
 
 wis::DX12Texture
 wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,
-        wis::TextureDesc desc,
-        wis::TextureState initial_state,
-        wis::MemoryFlags flags) const noexcept
+                                                        wis::TextureDesc desc,
+                                                        wis::TextureState initial_state,
+                                                        wis::MemoryFlags flags) const noexcept
 {
     DX12Texture out_texture;
     auto& internal = out_texture.GetMutableInternal();
@@ -32,8 +32,8 @@ wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, con
         .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
     };
     HRESULT hr = allocator.GetInternal().allocator->CreateResource3(&all_desc, &tex_desc,
-                 convert_dx(initial_state), nullptr, 0, nullptr,
-                 mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
+                                                                    convert_dx(initial_state), nullptr, 0, nullptr,
+                                                                    mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);
@@ -45,9 +45,9 @@ wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, con
 
 wis::Result
 wis::ImplDX12ExtendedAllocation::WriteMemoryToSubresourceDirect(const void* host_data,
-        wis::DX12TextureView dst_texture,
-        wis::TextureState initial_state,
-        wis::TextureRegion region) const noexcept
+                                                                wis::DX12TextureView dst_texture,
+                                                                wis::TextureState initial_state,
+                                                                wis::TextureRegion region) const noexcept
 {
     auto resource = std::get<0>(dst_texture);
     auto texture_desc = resource->GetDesc();
