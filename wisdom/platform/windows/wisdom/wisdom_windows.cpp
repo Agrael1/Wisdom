@@ -170,7 +170,6 @@ wis::platform::DX12WindowsExtension::CreateSwapchainUWP(wis::Result& result, con
 #include <wisdom/vulkan/vk_device.h>
 #endif
 
-
 wis::VKSwapChain
 wis::platform::VKWindowsExtension::CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
 {

@@ -7,7 +7,6 @@
 #include <wisdom/vulkan/vk_device.h>
 #endif // !WISDOM_MODULE_DECL
 
-
 wis::VKSwapChain
 wis::platform::WaylandExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc& desc, wl_display* display, wl_surface* surface) const noexcept
 {

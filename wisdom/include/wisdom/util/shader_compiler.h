@@ -1,6 +1,6 @@
-//#pragma once
+// #pragma once
 //
-// namespace wis
+//  namespace wis
 //{
 //	//unfinished for linux
 //	class ShaderCompiler
@@ -81,4 +81,4 @@
 //		IDxcUtils* dxcutils = nullptr;
 //		IDxcCompiler3* dxc = nullptr;
 //	};
-//}
+// }

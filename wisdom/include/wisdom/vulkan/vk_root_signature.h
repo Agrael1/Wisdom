@@ -45,7 +45,6 @@ struct Internal<VKRootSignature> {
     }
 };
 
-
 WISDOM_EXPORT
 class VKRootSignature : public QueryInternal<VKRootSignature>
 {
