@@ -7,7 +7,7 @@ wis::DX12DebugMessenger
 wis::ImplDX12DebugExtension::CreateDebugMessenger(wis::Result& result, wis::DebugCallback callback, void* user_data) const noexcept
 {
     return wis::DX12DebugMessenger{
-        DX12InfoToken{ true }, callback, user_data
+        { true }, callback, user_data
     };
 }
 #endif // WISDOM_DX12

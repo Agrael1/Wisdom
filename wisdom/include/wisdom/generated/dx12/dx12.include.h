@@ -1,4 +1,5 @@
 #pragma once
+#include <wisdom/global/definitions.h>
 #include <string>
 #include <array>
 #include <span>
@@ -16,4 +17,5 @@
 #include <dxgidebug.h>
 #include <bit>
 #include <cassert>
-#include <wisdom/global/definitions.h>
+
+#define WISDOM_EXPORT export
