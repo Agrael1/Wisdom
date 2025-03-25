@@ -71,7 +71,7 @@ write_basic_package_version_file(
 
 # Install Config and ConfigVersion files
 install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-deps.cmake"
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-functions.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-bindings-config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/wisdom-bindings-config-version.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
