@@ -76,8 +76,6 @@ void ex::Window::PostQuit()
 
 ex::PlatformExtension::PlatformExtension()
 {
-    wis::platform::VKWindowsExtension* windows = nullptr;
-
     current = Selector::None;
     platform = {};
     const char* platform_name = SDL_GetCurrentVideoDriver();

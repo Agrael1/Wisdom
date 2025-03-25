@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <string>
 #include <memory>
+#include <cstring>
 #include <span>
 #include <wisdom/global/definitions.h>
 
