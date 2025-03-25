@@ -107,6 +107,12 @@ jobs:
       with:
         version: latest
         platform: x64
+     
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@master
+      with:
+        # ninja version to download. Default: 1.10.0
+        version: 1.12.0
 
     - name: Prepare Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735

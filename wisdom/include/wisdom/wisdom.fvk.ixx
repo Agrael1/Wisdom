@@ -132,7 +132,4 @@ using RenderPassDepthStencilDesc = VKRenderPassDepthStencilDesc;
 using RenderPassDesc = VKRenderPassDesc;
 using VertexBufferBinding = VKVertexBufferBinding;
 } // namespace wis
-
-#else
-#error "No API selected"
 #endif
