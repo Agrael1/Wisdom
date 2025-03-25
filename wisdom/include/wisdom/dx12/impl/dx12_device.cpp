@@ -49,7 +49,7 @@ wis::Result wis::ImplDX12Device::WaitForMultipleFences(const DX12FenceView* fenc
                            reinterpret_cast<ID3D12Fence* const*>(fences), values, count,
                            static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_all), e.get()))) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "ID3D12Device10::SetEventOnMultipleFenceCompletion failed to set "
-                                      "event on multiple fence completion">(hr);
+                                                           "event on multiple fence completion">(hr);
     }
 
     auto st = e.wait(uint32_t(timeout));

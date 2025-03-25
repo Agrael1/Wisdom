@@ -25,15 +25,15 @@ else()
   add_library(wis::xcb ALIAS wisdom-xcb-headers)
 endif()
 
-if (WISDOM_CPP_MODULES_SUPPORTED)
+if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-xcb-module STATIC "wisdom/xcb.include.h")
   add_library(wis::xcb-module ALIAS wisdom-xcb-module)
-  target_sources(wisdom-xcb-module
-    PUBLIC FILE_SET CXX_MODULES FILES
-      "wisdom/wisdom_xcb.ixx"
-  )
-  target_link_libraries(wisdom-xcb-module PUBLIC wisdom-module wisdom-xcb-headers)
-  set_target_properties(wisdom-xcb-module PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
+  target_sources(wisdom-xcb-module PUBLIC FILE_SET CXX_MODULES FILES
+                                          "wisdom/wisdom_xcb.ixx")
+  target_link_libraries(wisdom-xcb-module PUBLIC wisdom-module
+                                                 wisdom-xcb-headers)
+  set_target_properties(wisdom-xcb-module PROPERTIES CXX_STANDARD 20
+                                                     CXX_SCAN_FOR_MODULES ON)
 
   target_link_libraries(wisdom-platform-module PUBLIC wis::xcb-module)
 endif()
@@ -56,16 +56,17 @@ install(
   NAMESPACE wis::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
 
-if (WISDOM_CPP_MODULES_SUPPORTED)
+if(WISDOM_CPP_MODULES_SUPPORTED)
   install(
     TARGETS wisdom-xcb-module
     EXPORT wisdom-xcb-module-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
   install(
     EXPORT wisdom-xcb-module-targets

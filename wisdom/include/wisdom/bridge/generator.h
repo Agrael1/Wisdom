@@ -1,6 +1,6 @@
 #pragma once
 #pragma push_macro("wis::Func<wis::FuncD()>()")
-#undef wis::Func<wis::FuncD()>()
+#undef wis::Func < wis::FuncD()>()
 
 // #if __has_include(<generator>)
 // #include <generator>
@@ -260,7 +260,7 @@ generator<T> generator_promise<T>::get_return_object() noexcept
 } // namespace detail
 
 template<typename wis::Func<wis::FuncD()>(), typename T>
-generator<std::invoke_result_t<wis::Func<wis::FuncD()>()&, typename generator<T>::iterator::reference>> fmap(wis::Func<wis::FuncD()>() func, generator<T> source)
+generator<std::invoke_result_t<wis::Func<wis::FuncD()>() &, typename generator<T>::iterator::reference>> fmap(wis::Func<wis::FuncD()>() func, generator<T> source)
 {
     for (auto&& value : source) {
         co_yield std::invoke(func, static_cast<decltype(value)>(value));

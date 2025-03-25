@@ -267,8 +267,6 @@ struct WisConversion {
     ImplementedFor impl = ImplementedFor::None;
 };
 
-
-
 class Generator
 {
     static constexpr std::string_view output_dir = OUTPUT_DIR;

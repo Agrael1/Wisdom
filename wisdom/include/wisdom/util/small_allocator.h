@@ -6,7 +6,6 @@
 #include <bitset>
 #endif
 
-
 WISDOM_EXPORT
 namespace wis::detail {
 /// @brief Default size of the stack allocator

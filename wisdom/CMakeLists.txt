@@ -16,13 +16,11 @@ add_library(wisdom INTERFACE)
 add_library(wis::wisdom ALIAS wisdom)
 
 if(WISDOM_CPP_MODULES_SUPPORTED)
-    add_library(wisdom-module STATIC)
-    add_library(wis::module ALIAS wisdom-module)
-    target_sources(wisdom-module
-    PUBLIC FILE_SET CXX_MODULES FILES
-      "include/wisdom/wisdom.ixx"
-      "include/wisdom/wisdom.fvk.ixx"
-    )
+  add_library(wisdom-module STATIC)
+  add_library(wis::module ALIAS wisdom-module)
+  target_sources(
+    wisdom-module PUBLIC FILE_SET CXX_MODULES FILES "include/wisdom/wisdom.ixx"
+                         "include/wisdom/wisdom.fvk.ixx")
 endif()
 
 if(WISDOM_VULKAN)
@@ -71,15 +69,17 @@ install(
   FILE wisdom-targets.cmake # Not sure if this is still needed
 )
 
-if (WISDOM_CPP_MODULES_SUPPORTED)
-  install(TARGETS wisdom-module
+if(WISDOM_CPP_MODULES_SUPPORTED)
+  install(
+    TARGETS wisdom-module
     EXPORT wisdom-module-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET CXX_MODULES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
   install(
     EXPORT wisdom-module-targets
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}

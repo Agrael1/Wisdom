@@ -168,8 +168,8 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
 
     if (phys_adapters.size() > 1) {
         auto indices = std::views::iota(0u, count);
-        std::vector<uint32_t> indices_cons{indices.begin(), indices.end()};
-        std::vector<uint32_t> indices_perf{indices.begin(), indices.end()};
+        std::vector<uint32_t> indices_cons{ indices.begin(), indices.end() };
+        std::vector<uint32_t> indices_perf{ indices.begin(), indices.end() };
 
         auto less_consumption = [this](VkPhysicalDevice a, VkPhysicalDevice b) {
             auto& itable = factory.table();

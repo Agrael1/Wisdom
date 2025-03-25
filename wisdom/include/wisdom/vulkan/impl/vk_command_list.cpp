@@ -511,11 +511,11 @@ void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t
         .pBufferInfo = &buffer_info
     };
     device.table().vkCmdPushDescriptorSet(command_list,
-                                             binding_point,
-                                             pipeline_layout,
-                                             0, // set 0, because set 0 is reserved for push descriptors
-                                             1,
-                                             &descriptor);
+                                          binding_point,
+                                          pipeline_layout,
+                                          0, // set 0, because set 0 is reserved for push descriptors
+                                          1,
+                                          &descriptor);
 }
 void wis::ImplVKCommandList::VKSetDescriptorStorage(wis::VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept
 {
