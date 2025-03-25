@@ -19,4 +19,3 @@
 #else
 #define WIS_CONSTEXPR23
 #endif
-

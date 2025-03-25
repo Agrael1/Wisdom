@@ -47,7 +47,7 @@ consteval bool is_flag()
 {
     return wis::is_flag_enum<T>::value;
 }
-} // namespace details
+} // namespace detail
 
 template<typename T>
 concept Flag = detail::is_flag<T>();

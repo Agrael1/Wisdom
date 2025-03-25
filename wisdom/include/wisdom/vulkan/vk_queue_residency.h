@@ -15,7 +15,7 @@ enum class QueueTypes : uint8_t { Graphics,
                                   Copy,
                                   VideoDecode,
                                   Count
-                                };
+};
 struct QueueResidency {
     struct QueueInfo {
         uint32_t index;

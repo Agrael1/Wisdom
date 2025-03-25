@@ -14,7 +14,7 @@ constexpr size_t FuncD(std::source_location sl = std::source_location::current()
 template<size_t a>
 constexpr wis::fixed_string<a> Func(std::source_location sl = std::source_location::current()) noexcept
 {
-    return wis::fixed_string<a> { sl.function_name() };
+    return wis::fixed_string<a>{ sl.function_name() };
 }
 
 template<wis::fixed_string func, wis::fixed_string message>

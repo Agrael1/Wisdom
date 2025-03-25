@@ -9,7 +9,7 @@
 
 WISDOM_EXPORT
 namespace wis {
-constexpr const char* severity_strings[] {
+constexpr const char* severity_strings[]{
     "debug",
     "trace",
     "info",
@@ -21,7 +21,7 @@ constexpr const char* severity_strings[] {
 /// @brief Create a custom log layer to receive logging from the library
 struct LogLayer {
     virtual ~LogLayer() = default;
-    virtual void Log(Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) { };
+    virtual void Log(Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) {};
 };
 
 /// @brief Set the log layer for the library

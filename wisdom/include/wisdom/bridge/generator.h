@@ -1,6 +1,6 @@
 #pragma once
 #pragma push_macro("wis::Func<wis::FuncD()>()")
-#undef wis::Func<wis::FuncD()>()
+#undef wis::Func < wis::FuncD()>()
 
 // #if __has_include(<generator>)
 // #include <generator>
@@ -56,8 +56,8 @@ public:
     }
 
     template<
-        typename U = T,
-        std::enable_if_t<!std::is_rvalue_reference<U>::value, int> = 0>
+            typename U = T,
+            std::enable_if_t<!std::is_rvalue_reference<U>::value, int> = 0>
     std::suspend_always yield_value(std::remove_reference_t<T>& value) noexcept
     {
         m_value = std::addressof(value);
@@ -255,12 +255,12 @@ template<typename T>
 generator<T> generator_promise<T>::get_return_object() noexcept
 {
     using coroutine_handle = std::coroutine_handle<generator_promise<T>>;
-    return generator<T> { coroutine_handle::from_promise(*this) };
+    return generator<T>{ coroutine_handle::from_promise(*this) };
 }
 } // namespace detail
 
 template<typename wis::Func<wis::FuncD()>(), typename T>
-generator<std::invoke_result_t<wis::Func<wis::FuncD()>()&, typename generator<T>::iterator::reference>> fmap(wis::Func<wis::FuncD()>() func, generator<T> source)
+generator<std::invoke_result_t<wis::Func<wis::FuncD()>() &, typename generator<T>::iterator::reference>> fmap(wis::Func<wis::FuncD()>() func, generator<T> source)
 {
     for (auto&& value : source) {
         co_yield std::invoke(func, static_cast<decltype(value)>(value));

@@ -14,7 +14,6 @@ class Allocation;
 
 #endif
 
-
 WISDOM_EXPORT
 namespace wis {
 class DX12DescriptorStorage;
