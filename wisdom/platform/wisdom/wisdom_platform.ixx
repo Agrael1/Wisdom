@@ -19,5 +19,3 @@ export import wisdom.windows;
 import wisdom.vk;
 #include <wisdom/linux/interop_device.hpp>
 #endif
-
-
