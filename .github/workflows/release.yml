@@ -1,0 +1,115 @@
+name: CMake
+on:
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/nuget
+
+jobs:      
+  publish:
+     runs-on: windows-latest
+
+     steps:       
+       - uses: actions/checkout@v4
+     
+       - name: Visual Studio shell
+         uses: egor-tensin/vs-shell@v2
+
+       - name: Prepare Vulkan SDK
+         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
+         with:
+            vulkan-query-version: latest
+            vulkan-components: Vulkan-Headers, Vulkan-Loader
+            vulkan-use-cache: true
+
+       - name: Setup cmake
+         uses: jwlawson/actions-setup-cmake@v2
+         with:
+           cmake-version: '3.30.x'
+       
+       - name: Build packages
+         run: cd ${{github.workspace}} && .\nuget.bat
+        
+       - name: Upload NuGet package
+         uses: actions/upload-artifact@v4
+         with:
+          name: wisdom.nupkg
+          path: ${{github.workspace}}/build/*.nupkg
+
+       - name: Upload ZIP package
+         uses: actions/upload-artifact@v4
+         with:
+          name: wisdom.zip
+          path: ${{github.workspace}}/build/*.zip
+
+       - name: Upload Version
+         uses: actions/upload-artifact@v4
+         with:
+          name: version.txt
+          path: ${{github.workspace}}/build/release/version.txt
+
+  release:
+     runs-on: windows-latest
+     needs: publish
+
+     steps:       
+       - uses: actions/checkout@v4
+  
+       - name: Download Nuget
+         uses: actions/download-artifact@v4
+         id: nuget_download
+         with:
+           name: wisdom.nupkg
+           
+       - name: Download Zip
+         uses: actions/download-artifact@v4
+         with:
+           name: wisdom.zip
+
+       - name: Download Version
+         uses: actions/download-artifact@v4
+         with:
+           name: version.txt
+
+
+       - name: Read version
+         id: version
+         uses: juliangruber/read-file-action@v1
+         with:
+           path: ./version.txt
+         
+       - name: Publish NuGet package
+         continue-on-error: true
+         run: |
+            dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+       - name: Tag and Release Versioned
+         id : tag_release_versioned
+         uses : softprops/action-gh-release@v1
+         with :
+          body: Release ${{ steps.version.outputs.content }}
+          tag_name : ${{ steps.version.outputs.content }}
+          files : |
+               **/*.zip
+               **/*.nupkg
+
+       - name: Delete tag
+         run: gh release delete Latest --cleanup-tag
+         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+       - name: Tag and Release Latest
+         id : tag_release_latest
+         uses : softprops/action-gh-release@v1
+         with :
+          body: Release ${{ steps.version.outputs.content }}
+          tag_name : Latest
+          files : |
+               **/*.zip
+               **/*.nupkg
+              
+       
