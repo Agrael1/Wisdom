@@ -13,7 +13,7 @@ target_include_directories(wisdom-wayland-headers
 target_include_directories(
   wisdom-wayland-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/wayland>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-wayland STATIC "wisdom/wisdom_wayland.hpp"
@@ -23,7 +23,7 @@ if(WISDOM_BUILD_BINARIES)
   target_compile_definitions(wisdom-wayland PUBLIC WIS_WAYLAND_PLATFORM=1)
   target_include_directories(
     wisdom-wayland PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/wayland>)
 else()
   add_library(wisdom-wayland ALIAS wisdom-wayland-headers)
   add_library(wis::wayland ALIAS wisdom-wayland-headers)
@@ -70,7 +70,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/wayland)
 
   install(
     EXPORT wisdom-wayland-module-targets
@@ -89,4 +89,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-wayland-config.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/wayland/wisdom)

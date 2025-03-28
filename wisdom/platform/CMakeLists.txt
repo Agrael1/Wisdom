@@ -6,13 +6,13 @@ add_library(wis::platform-headers ALIAS wisdom-platform-headers)
 target_include_directories(
   wisdom-platform-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform>)
 add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.hpp"
             "wisdom/linux/interop_device.hpp")
 add_library(wis::platform ALIAS wisdom-platform)
 target_include_directories(
   wisdom-platform INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform>)
 
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-platform-module STATIC "wisdom/platform.include.h")
@@ -65,7 +65,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform)
   install(
     EXPORT wisdom-platform-module-targets
     FILE wisdom-platform-module-targets.cmake
@@ -82,4 +82,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-platform-config.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/wisdom)

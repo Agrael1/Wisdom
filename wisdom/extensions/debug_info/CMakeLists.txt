@@ -8,7 +8,7 @@ target_link_libraries(wisdom-debug-headers INTERFACE wisdom-headers)
 target_include_directories(
   wisdom-debug-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-debug STATIC "wisdom/wisdom_debug.hpp"
@@ -17,7 +17,7 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-debug PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-debug PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
 else()
   add_library(wisdom-debug INTERFACE)
   add_library(wis::debug ALIAS wisdom-debug)
@@ -51,7 +51,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info/wisdom)
 
 if(WISDOM_CPP_MODULES_SUPPORTED)
   install(
@@ -63,5 +63,5 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info)
 endif()

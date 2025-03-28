@@ -8,7 +8,7 @@ target_link_libraries(wisdom-raytracing-headers INTERFACE wisdom-headers)
 target_include_directories(
   wisdom-raytracing-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
@@ -26,7 +26,7 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-raytracing PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 else()
   add_library(wisdom-raytracing INTERFACE)
   add_library(wis::raytracing ALIAS wisdom-raytracing)
@@ -61,7 +61,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing/wisdom)
 
 if(WISDOM_CPP_MODULES_SUPPORTED)
   install(
@@ -73,7 +73,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing)
 endif()
 
 if(WISDOM_GENERATE_FUNCTIONS)

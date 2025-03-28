@@ -9,7 +9,7 @@ target_link_libraries(wisdom-descriptor-buffer-headers INTERFACE wisdom-headers)
 target_include_directories(
   wisdom-descriptor-buffer-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
@@ -26,7 +26,7 @@ if(WISDOM_BUILD_BINARIES)
   target_include_directories(
     wisdom-descriptor-buffer
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer>)
 else()
   add_library(wisdom-descriptor-buffer INTERFACE)
   add_library(wis::descriptor-buffer ALIAS wisdom-descriptor-buffer)
@@ -73,11 +73,11 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer)
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer/wisdom)
 
 if(WISDOM_GENERATE_FUNCTIONS)
   if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")

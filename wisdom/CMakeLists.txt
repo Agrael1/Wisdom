@@ -22,8 +22,13 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     PUBLIC 
         wisdom-headers)
   target_sources(
-    wisdom-module PUBLIC FILE_SET CXX_MODULES FILES "include/wisdom/wisdom.ixx"
-                         "include/wisdom/wisdom.fvk.ixx")
+    wisdom-module 
+    PUBLIC FILE_SET CXX_MODULES 
+    BASE_DIRS include
+    FILES "include/wisdom/wisdom.ixx"
+                         "include/wisdom/wisdom.fvk.ixx"
+  
+  )
 endif()
 
 if(WISDOM_VULKAN)

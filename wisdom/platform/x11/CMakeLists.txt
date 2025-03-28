@@ -10,7 +10,7 @@ target_compile_definitions(wisdom-x11-headers INTERFACE WIS_X11_PLATFORM=1)
 target_include_directories(wisdom-x11-headers INTERFACE ${X11_INCLUDE_DIR})
 target_include_directories(
   wisdom-x11-headers INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/x11>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-x11 STATIC "wisdom/wisdom_x11.hpp" "wisdom/wisdom_x11.cpp")
@@ -19,7 +19,7 @@ if(WISDOM_BUILD_BINARIES)
   target_compile_definitions(wisdom-x11 PUBLIC WIS_X11_PLATFORM=1)
   target_include_directories(
     wisdom-x11 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/x11>)
 else()
   add_library(wisdom-x11 ALIAS wisdom-x11-headers)
   add_library(wis::x11 ALIAS wisdom-x11-headers)
@@ -66,7 +66,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/x11)
 
   install(
     EXPORT wisdom-x11-module-targets
@@ -84,4 +84,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-x11-config.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/x11/wisdom)

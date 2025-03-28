@@ -10,7 +10,7 @@ target_compile_definitions(wisdom-xcb-headers INTERFACE WIS_XCB_PLATFORM=1)
 target_include_directories(wisdom-xcb-headers INTERFACE ${XCB_INCLUDE_DIRS})
 target_include_directories(
   wisdom-xcb-headers INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-xcb STATIC "wisdom/wisdom_xcb.hpp" "wisdom/wisdom_xcb.cpp")
@@ -19,7 +19,7 @@ if(WISDOM_BUILD_BINARIES)
   target_compile_definitions(wisdom-xcb PUBLIC WIS_XCB_PLATFORM=1)
   target_include_directories(
     wisdom-xcb PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb>)
 else()
   add_library(wisdom-xcb ALIAS wisdom-xcb-headers)
   add_library(wis::xcb ALIAS wisdom-xcb-headers)
@@ -66,7 +66,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb)
 
   install(
     EXPORT wisdom-xcb-module-targets
@@ -84,4 +84,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-xcb-config.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb/wisdom)
