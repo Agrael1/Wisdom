@@ -14,7 +14,9 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-dx12-module STATIC)
   add_library(wis::dx12-module ALIAS wisdom-dx12-module)
   target_sources(wisdom-dx12-module
-    PUBLIC FILE_SET CXX_MODULES FILES
+    PUBLIC FILE_SET CXX_MODULES
+    BASE_DIRS include
+    FILES
       "include/wisdom/generated/dx12/wisdom.dx12.ixx"
   )
   target_link_libraries(wisdom-dx12-module PUBLIC wisdom-dx12-headers wisdom-shared-module)

@@ -2,7 +2,7 @@ module;
 #define WISDOM_MODULE_DECL
 #define WISDOM_FORCE_VULKAN
 #include <wisdom/extended_allocation.include.h>
-export module wisdom.descriptor_buffer.fvk;
+export module wisdom.extended_allocation.fvk;
 
 #if defined(WISDOM_DX12)
 import wisdom.dx12;

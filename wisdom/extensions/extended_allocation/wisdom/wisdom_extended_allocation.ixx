@@ -1,7 +1,7 @@
 module;
 #define WISDOM_MODULE_DECL
 #include <wisdom/extended_allocation.include.h>
-export module wisdom.descriptor_buffer;
+export module wisdom.extended_allocation;
 
 #if defined(WISDOM_DX12)
 import wisdom.dx12;

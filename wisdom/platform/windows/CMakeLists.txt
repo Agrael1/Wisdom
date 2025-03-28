@@ -7,7 +7,7 @@ target_compile_definitions(wisdom-windows-headers
 target_include_directories(
   wisdom-windows-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/windows>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-windows STATIC "wisdom/wisdom_windows.hpp"
@@ -16,8 +16,9 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-windows PUBLIC wis::wisdom d3d11)
   target_compile_definitions(wisdom-windows PUBLIC WIS_WINDOWS_PLATFORM=1)
   target_include_directories(
-    wisdom-windows PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    wisdom-windows
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/windows>)
 else()
   add_library(wisdom-windows ALIAS wisdom-windows-headers)
   add_library(wis::windows ALIAS wisdom-windows-headers)
@@ -66,7 +67,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILE_SET CXX_MODULES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/windows)
 
   install(
     EXPORT wisdom-windows-module-targets
@@ -85,4 +86,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-windows-config.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wisdom")
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/platform/windows/wisdom)

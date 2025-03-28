@@ -13,7 +13,9 @@ add_library(wisdom-shared INTERFACE ${UTIL_HEADERS} ${GLOBAL_HEADERS} ${BRIDGE_H
 if (WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-shared-module STATIC)
   target_sources(wisdom-shared-module
-    PUBLIC FILE_SET CXX_MODULES FILES
+    PUBLIC FILE_SET CXX_MODULES
+    BASE_DIRS include
+    FILES
       "include/wisdom/generated/api/wisdom.api.ixx"
 
   )
