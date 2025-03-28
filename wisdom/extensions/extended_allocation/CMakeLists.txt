@@ -9,8 +9,10 @@ target_link_libraries(wisdom-extended-allocation-headers
 
 target_include_directories(
   wisdom-extended-allocation-headers
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation>)
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation>
+)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
@@ -21,8 +23,10 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-extended-allocation PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-extended-allocation
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation>)
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation>
+  )
 else()
   add_library(wisdom-extended-allocation INTERFACE)
   add_library(wis::extended-allocation ALIAS wisdom-extended-allocation)
@@ -72,5 +76,6 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation)
 endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation/wisdom)
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/extended_allocation/wisdom)

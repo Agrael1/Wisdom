@@ -18,17 +18,16 @@ add_library(wis::wisdom ALIAS wisdom)
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-module STATIC)
   add_library(wis::module ALIAS wisdom-module)
-  target_link_libraries(wisdom-module 
-    PUBLIC 
-        wisdom-headers)
+  target_link_libraries(wisdom-module PUBLIC wisdom-headers)
   target_sources(
-    wisdom-module 
-    PUBLIC FILE_SET CXX_MODULES 
-    BASE_DIRS include
-    FILES "include/wisdom/wisdom.ixx"
-                         "include/wisdom/wisdom.fvk.ixx"
-  
-  )
+    wisdom-module
+    PUBLIC FILE_SET
+           CXX_MODULES
+           BASE_DIRS
+           include
+           FILES
+           "include/wisdom/wisdom.ixx"
+           "include/wisdom/wisdom.fvk.ixx")
 endif()
 
 if(WISDOM_VULKAN)
@@ -55,8 +54,6 @@ if(WISDOM_GENERATE_API)
     DEPENDS generator)
   add_dependencies(wisdom-headers GenerateAPI)
 endif()
-
-
 
 install(
   TARGETS wisdom wisdom-headers
