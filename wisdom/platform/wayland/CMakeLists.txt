@@ -22,9 +22,8 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-wayland PUBLIC wis::wisdom)
   target_compile_definitions(wisdom-wayland PUBLIC WIS_WAYLAND_PLATFORM=1)
   target_include_directories(
-    wisdom-wayland
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/wayland>)
+    wisdom-wayland PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/wayland>)
 else()
   add_library(wisdom-wayland ALIAS wisdom-wayland-headers)
   add_library(wis::wayland ALIAS wisdom-wayland-headers)

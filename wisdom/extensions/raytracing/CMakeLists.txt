@@ -7,9 +7,8 @@ target_link_libraries(wisdom-raytracing-headers INTERFACE wisdom-headers)
 
 target_include_directories(
   wisdom-raytracing-headers
-  INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
+  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
@@ -26,10 +25,8 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
-    wisdom-raytracing
-    PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
+    wisdom-raytracing PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 else()
   add_library(wisdom-raytracing INTERFACE)
   add_library(wis::raytracing ALIAS wisdom-raytracing)

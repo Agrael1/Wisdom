@@ -15,7 +15,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-vk-module STATIC)
   add_library(wis::vk-module ALIAS wisdom-vk-module)
   target_sources(wisdom-vk-module
-    PUBLIC FILE_SET CXX_MODULES
+    PUBLIC FILE_SET CXX_MODULES 
 	BASE_DIRS include
 	FILES
       "include/wisdom/generated/vulkan/wisdom.vk.ixx"

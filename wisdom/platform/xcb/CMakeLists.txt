@@ -9,9 +9,8 @@ target_link_libraries(wisdom-xcb-headers INTERFACE wis::wisdom-headers)
 target_compile_definitions(wisdom-xcb-headers INTERFACE WIS_XCB_PLATFORM=1)
 target_include_directories(wisdom-xcb-headers INTERFACE ${XCB_INCLUDE_DIRS})
 target_include_directories(
-  wisdom-xcb-headers
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb>)
+  wisdom-xcb-headers INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-xcb STATIC "wisdom/wisdom_xcb.hpp" "wisdom/wisdom_xcb.cpp")
@@ -19,9 +18,8 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-xcb PUBLIC wis::wisdom)
   target_compile_definitions(wisdom-xcb PUBLIC WIS_XCB_PLATFORM=1)
   target_include_directories(
-    wisdom-xcb
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb>)
+    wisdom-xcb PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/xcb>)
 else()
   add_library(wisdom-xcb ALIAS wisdom-xcb-headers)
   add_library(wis::xcb ALIAS wisdom-xcb-headers)

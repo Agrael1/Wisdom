@@ -11,9 +11,8 @@ add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.hpp"
             "wisdom/linux/interop_device.hpp")
 add_library(wis::platform ALIAS wisdom-platform)
 target_include_directories(
-  wisdom-platform
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform>)
+  wisdom-platform INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform>)
 
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-platform-module STATIC "wisdom/platform.include.h")
