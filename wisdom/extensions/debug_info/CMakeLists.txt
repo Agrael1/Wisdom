@@ -7,8 +7,9 @@ target_link_libraries(wisdom-debug-headers INTERFACE wisdom-headers)
 
 target_include_directories(
   wisdom-debug-headers
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-debug STATIC "wisdom/wisdom_debug.hpp"
@@ -16,8 +17,10 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::debug ALIAS wisdom-debug)
   target_link_libraries(wisdom-debug PUBLIC wis::wisdom)
   target_include_directories(
-    wisdom-debug PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
+    wisdom-debug
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
 else()
   add_library(wisdom-debug INTERFACE)
   add_library(wis::debug ALIAS wisdom-debug)
