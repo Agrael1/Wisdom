@@ -85,3 +85,16 @@ function(wisdom_sources)
 		)
 	endif()
 endfunction(wisdom_sources)
+
+function(add_dependent_target target_name visibility condition)
+    # Shift the arguments to get the list of libraries
+    set(libraries ${ARGN})
+
+    # Check if the condition is met
+    if(${condition})
+        # Add each library as a dependency with the specified visibility
+        foreach(lib IN LISTS libraries)
+            target_link_libraries(${target_name} ${visibility} ${lib})
+        endforeach()
+    endif()
+endfunction()

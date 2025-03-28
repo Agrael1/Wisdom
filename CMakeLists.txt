@@ -44,6 +44,10 @@ add_subdirectory("generator" EXCLUDE_FROM_ALL)
 
 add_subdirectory("wisdom")
 
+# Extensions
+add_subdirectory("wisdom/platform")
+add_subdirectory("wisdom/extensions")
+
 if(WISDOM_BUILD_BINDINGS)
   add_subdirectory("bindings")
 endif()
