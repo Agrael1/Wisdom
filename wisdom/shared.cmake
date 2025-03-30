@@ -24,6 +24,7 @@ if (WISDOM_CPP_MODULES_SUPPORTED)
   target_compile_definitions(wisdom-shared-module PUBLIC WISDOM_CPP_MODULE)
   target_compile_options(wisdom-shared-module PUBLIC
     $<$<CXX_COMPILER_ID:Clang>:-Wno-include-angled-in-module-purview -Wno-nullability-completeness>
+    $<$<CXX_COMPILER_ID:MSVC>:/wd5244>
   )
 endif()
 

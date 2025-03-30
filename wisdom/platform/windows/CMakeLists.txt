@@ -36,6 +36,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_windows.fvk.ixx")
   target_link_libraries(wisdom-windows-module PUBLIC wisdom-module
                                                      wisdom-windows-headers)
+  add_dependent_target(wisdom-windows-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
+  add_dependent_target(wisdom-windows-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
   set_target_properties(wisdom-windows-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
 

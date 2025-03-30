@@ -50,6 +50,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_extended_allocation.fvk.ixx")
   target_link_libraries(wisdom-extended-allocation-module
                         PUBLIC wisdom-module wisdom-extended-allocation-headers)
+  add_dependent_target(wisdom-extended-allocation-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
+  add_dependent_target(wisdom-extended-allocation-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
   set_target_properties(wisdom-extended-allocation-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
 endif()

@@ -36,6 +36,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_debug.fvk.ixx")
   target_link_libraries(wisdom-debug-module PUBLIC wisdom-module
                                                    wisdom-debug-headers)
+  add_dependent_target(wisdom-debug-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
+  add_dependent_target(wisdom-debug-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
   set_target_properties(wisdom-debug-module PROPERTIES CXX_STANDARD 20
                                                        CXX_SCAN_FOR_MODULES ON)
 endif()
