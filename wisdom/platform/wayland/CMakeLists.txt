@@ -37,7 +37,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wis::wayland-module ALIAS wisdom-wayland-module)
   target_sources(wisdom-wayland-module PUBLIC FILE_SET CXX_MODULES FILES
                                               "wisdom/wisdom_wayland.ixx")
-  target_link_libraries(wisdom-wayland-module PUBLIC wisdom-module
+  target_link_libraries(wisdom-wayland-module PUBLIC wisdom-vk-module
                                                      wisdom-wayland-headers)
   set_target_properties(wisdom-wayland-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)

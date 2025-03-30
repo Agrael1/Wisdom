@@ -17,6 +17,7 @@ https://www.nuget.org/packages/Wisdom/
 - [x] Extensibility with internal state access
 - [x] Advanced memory allocations
 - [x] DMA copy support and ability to share memory between APIs
+- [x] C++20 modules support and header only mode
 
 # Why?
 
@@ -24,9 +25,7 @@ A lot of old OpenGL solutions are scratching the ceiling of OpenGL potential, an
 Wisdom is designed to be a direct translation layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend.
 It is still low level, yet more user friendly. It uses a lot of advanced graphics features, like Descriptor Buffer and Direct GPU Upload.
 
-You can use it even partially, for example initialize device and swapchain, get internals of library objects and use it with your own rendering engine, or use it fully, with all the extensions and features.
-
-Library transparency makes it a good choice for gradual API replacement. This is further enhanced by the interoperability with other APIs through platform extensions.
+Library has transparent API. All classes have their own internal state, that can be accessed and modified. This allows for easy extension of the library, without the need to rewrite the whole API.
 
 # Details
 
@@ -53,9 +52,8 @@ Supported platforms are:
 # Build
 
 This is a CMake project, all the plugins are ensured to download beforehand, so it's enough to just configure the project, everything is going to be downloaded with respect to platform.
-The later reconfigurations are not reloading the plugins for easy expansion of the library, but if the plugin reload is required, the cache deletion should be done, or change `PLUGINS_LOADED` CMakeCache entry to `FALSE`.
 
-The library does not contain any extra dependencies, except for the ones required by the underlying APIs, such as DX12 Agility SDK and memory allocators.
+The library does not contain any extra dependencies.
 
 If you don't have Vulkan SDK installed on Windows the library will still provide you with DX12 implementation, that comes with Windows system. No administrative rights are required to build or use the library.
 
@@ -70,6 +68,7 @@ If you don't have Vulkan SDK installed on Windows the library will still provide
 - `WISDOM_USE_FMT=ON/OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
 - `WISDOM_BUILD_DOCS=ON/OFF` build documentation with Doxygen, default is dependent on wether you are building the library as a top project (ON) or as a part/dep for other (OFF)
 - `WISDOM_BUILD_BINARIES=ON/OFF` build static lib. If turned off, the header only version will be the main target.
+- `WISDOM_EXPERIMENTAL_CPP_MODULES=ON/OFF` enable C++20 modules support.
 
 # Consumption
 
@@ -87,6 +86,10 @@ Available targets are:
 - `wis::platform | wis::platform-headers` - platform specific extensions (Swapchain and Interop exports)
 - `wis::raytracing | wis::raytracing-headers` - raytracing
 - `wis::descriptor-buffer | wis::descriptor-buffer-headers` - descriptor buffer support, requires Vulkan 1.3 and GPU support for `VK_(EXT|VALVE)_mutable_descriptor_type` if used with Vulkan
+
+Since 0.6.7 the library also features C++20 modules support. To use it, you need to enable the `WISDOM_EXPERIMENTAL_CPP_MODULES` option in CMake. The targets are named with postfix `-module` and are not compatible with non-module targets.
+
+Install interface features only full named targets under namespace wis, e.g. `wis::wisdom`, `wis::wisdom-debug`, `wis::wisdom-extended-allocation-module` etc.
 
 # System Requirements
 

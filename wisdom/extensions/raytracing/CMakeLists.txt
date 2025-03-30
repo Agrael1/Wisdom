@@ -47,6 +47,8 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_raytracing.fvk.ixx")
   target_link_libraries(wisdom-raytracing-module
                         PUBLIC wisdom-module wisdom-raytracing-headers)
+  ADD_DEPENDENT_TARGET(wisdom-raytracing-module PUBLIC WISDOM_VULKAN wisdom-vk-module)
+  ADD_DEPENDENT_TARGET(wisdom-raytracing-module PUBLIC WISDOM_DX12 wisdom-dx12-module)
   set_target_properties(wisdom-raytracing-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
 endif()

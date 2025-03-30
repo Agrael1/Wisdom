@@ -45,6 +45,9 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_descriptor_buffer.fvk.ixx")
   target_link_libraries(wisdom-descriptor-buffer-module
                         PUBLIC wisdom-module wisdom-descriptor-buffer-headers)
+  ADD_DEPENDENT_TARGET(wisdom-descriptor-buffer-module PUBLIC WISDOM_VULKAN wisdom-vk-module)
+  ADD_DEPENDENT_TARGET(wisdom-descriptor-buffer-module PUBLIC WISDOM_DX12 wisdom-dx12-module)
+
   set_target_properties(wisdom-descriptor-buffer-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
 endif()

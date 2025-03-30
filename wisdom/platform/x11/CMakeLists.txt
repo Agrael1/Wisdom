@@ -33,7 +33,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wis::x11-module ALIAS wisdom-x11-module)
   target_sources(wisdom-x11-module PUBLIC FILE_SET CXX_MODULES FILES
                                           "wisdom/wisdom_x11.ixx")
-  target_link_libraries(wisdom-x11-module PUBLIC wisdom-module
+  target_link_libraries(wisdom-x11-module PUBLIC wisdom-vk-module
                                                  wisdom-x11-headers)
   set_target_properties(wisdom-x11-module PROPERTIES CXX_STANDARD 20
                                                      CXX_SCAN_FOR_MODULES ON)

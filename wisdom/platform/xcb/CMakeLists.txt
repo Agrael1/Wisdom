@@ -30,7 +30,7 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wis::xcb-module ALIAS wisdom-xcb-module)
   target_sources(wisdom-xcb-module PUBLIC FILE_SET CXX_MODULES FILES
                                           "wisdom/wisdom_xcb.ixx")
-  target_link_libraries(wisdom-xcb-module PUBLIC wisdom-module
+  target_link_libraries(wisdom-xcb-module PUBLIC wisdom-vk-module
                                                  wisdom-xcb-headers)
   set_target_properties(wisdom-xcb-module PROPERTIES CXX_STANDARD 20
                                                      CXX_SCAN_FOR_MODULES ON)
