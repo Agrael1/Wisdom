@@ -8,8 +8,10 @@ target_link_libraries(wisdom-descriptor-buffer-headers INTERFACE wisdom-headers)
 
 target_include_directories(
   wisdom-descriptor-buffer-headers
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer>)
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer>
+)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
@@ -25,8 +27,10 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-descriptor-buffer PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-descriptor-buffer
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer>)
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer>
+  )
 else()
   add_library(wisdom-descriptor-buffer INTERFACE)
   add_library(wis::descriptor-buffer ALIAS wisdom-descriptor-buffer)
@@ -45,8 +49,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_descriptor_buffer.fvk.ixx")
   target_link_libraries(wisdom-descriptor-buffer-module
                         PUBLIC wisdom-module wisdom-descriptor-buffer-headers)
-  ADD_DEPENDENT_TARGET(wisdom-descriptor-buffer-module PUBLIC WISDOM_VULKAN wisdom-vk-module)
-  ADD_DEPENDENT_TARGET(wisdom-descriptor-buffer-module PUBLIC WISDOM_DX12 wisdom-dx12-module)
+  add_dependent_target(wisdom-descriptor-buffer-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
+  add_dependent_target(wisdom-descriptor-buffer-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
 
   set_target_properties(wisdom-descriptor-buffer-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
@@ -79,8 +85,9 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer)
 endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer/wisdom)
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/extensions/descriptor_buffer/wisdom)
 
 if(WISDOM_GENERATE_FUNCTIONS)
   if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")

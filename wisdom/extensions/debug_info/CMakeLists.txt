@@ -7,8 +7,9 @@ target_link_libraries(wisdom-debug-headers INTERFACE wisdom-headers)
 
 target_include_directories(
   wisdom-debug-headers
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-debug STATIC "wisdom/wisdom_debug.hpp"
@@ -16,8 +17,10 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::debug ALIAS wisdom-debug)
   target_link_libraries(wisdom-debug PUBLIC wis::wisdom)
   target_include_directories(
-    wisdom-debug PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
+    wisdom-debug
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/debug_info>)
 else()
   add_library(wisdom-debug INTERFACE)
   add_library(wis::debug ALIAS wisdom-debug)
@@ -33,8 +36,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_debug.fvk.ixx")
   target_link_libraries(wisdom-debug-module PUBLIC wisdom-module
                                                    wisdom-debug-headers)
-  ADD_DEPENDENT_TARGET(wisdom-debug-module PUBLIC WISDOM_VULKAN wisdom-vk-module)
-  ADD_DEPENDENT_TARGET(wisdom-debug-module PUBLIC WISDOM_DX12 wisdom-dx12-module)
+  add_dependent_target(wisdom-debug-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
+  add_dependent_target(wisdom-debug-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
   set_target_properties(wisdom-debug-module PROPERTIES CXX_STANDARD 20
                                                        CXX_SCAN_FOR_MODULES ON)
 endif()
