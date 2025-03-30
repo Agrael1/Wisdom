@@ -7,8 +7,9 @@ target_link_libraries(wisdom-raytracing-headers INTERFACE wisdom-headers)
 
 target_include_directories(
   wisdom-raytracing-headers
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 
 if(WISDOM_BUILD_BINARIES)
   add_library(
@@ -25,8 +26,10 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
-    wisdom-raytracing PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
+    wisdom-raytracing
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 else()
   add_library(wisdom-raytracing INTERFACE)
   add_library(wis::raytracing ALIAS wisdom-raytracing)
@@ -47,8 +50,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_raytracing.fvk.ixx")
   target_link_libraries(wisdom-raytracing-module
                         PUBLIC wisdom-module wisdom-raytracing-headers)
-  ADD_DEPENDENT_TARGET(wisdom-raytracing-module PUBLIC WISDOM_VULKAN wisdom-vk-module)
-  ADD_DEPENDENT_TARGET(wisdom-raytracing-module PUBLIC WISDOM_DX12 wisdom-dx12-module)
+  add_dependent_target(wisdom-raytracing-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
+  add_dependent_target(wisdom-raytracing-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
   set_target_properties(wisdom-raytracing-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
 endif()

@@ -16,8 +16,9 @@ if(WISDOM_BUILD_BINARIES)
   target_link_libraries(wisdom-windows PUBLIC wis::wisdom d3d11)
   target_compile_definitions(wisdom-windows PUBLIC WIS_WINDOWS_PLATFORM=1)
   target_include_directories(
-    wisdom-windows PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/windows>)
+    wisdom-windows
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/platform/windows>)
 else()
   add_library(wisdom-windows ALIAS wisdom-windows-headers)
   add_library(wis::windows ALIAS wisdom-windows-headers)
@@ -35,8 +36,10 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
            "wisdom/wisdom_windows.fvk.ixx")
   target_link_libraries(wisdom-windows-module PUBLIC wisdom-module
                                                      wisdom-windows-headers)
-  ADD_DEPENDENT_TARGET(wisdom-windows-module PUBLIC WISDOM_DX12 wisdom-dx12-module)
-  ADD_DEPENDENT_TARGET(wisdom-windows-module PUBLIC WISDOM_VULKAN wisdom-vk-module)
+  add_dependent_target(wisdom-windows-module PUBLIC WISDOM_DX12
+                       wisdom-dx12-module)
+  add_dependent_target(wisdom-windows-module PUBLIC WISDOM_VULKAN
+                       wisdom-vk-module)
   set_target_properties(wisdom-windows-module
                         PROPERTIES CXX_STANDARD 20 CXX_SCAN_FOR_MODULES ON)
 
