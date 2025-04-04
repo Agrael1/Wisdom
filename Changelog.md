@@ -1,5 +1,9 @@
 # Version History
 
+- 0.6.8
+
+  - Fixed DirectX 
+
 - 0.6.7 Modules
 
   - Added modules for Wisdom and extensions

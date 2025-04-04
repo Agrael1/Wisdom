@@ -375,10 +375,10 @@ wis::ImplDX12Device::CreateAllocator(wis::Result& result) const noexcept
                                   .pAdapter = adapter.get() };
 
     HRESULT hr = D3D12MA::CreateAllocator(&desc, internal.allocator.put());
-
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create allocator">(hr);
     }
+    internal.device = device.get();
     return out_allocator;
 }
 
