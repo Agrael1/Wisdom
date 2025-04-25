@@ -79,6 +79,22 @@
       }
     },
     {
+      "name": "x64-debug-clang",
+      "displayName": "x64 Debug Clang",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang.exe",
+        "CMAKE_CXX_COMPILER": "clang.exe",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_GENERATE_FUNCTIONS": true
+      }
+    },
+    {
       "name": "x64-release",
       "displayName": "x64 Release",
       "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
@@ -99,6 +115,7 @@
       "cacheVariables": {
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
+        "WISDOM_BUILD_BINDINGS": true,
         "WISDOM_GENERATE_FUNCTIONS": false,
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",

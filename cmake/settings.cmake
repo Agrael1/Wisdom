@@ -56,7 +56,7 @@ option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_BINARIES "Build the static lib." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
-option(WISDOM_BUILD_BINDINGS "Build the C bindings library." ON)
+option(WISDOM_BUILD_BINDINGS "Build the C bindings library." OFF)
 option(WISDOM_SHARED_LIB "Build shared library for C bindings" ON)
 
 option(WISDOM_GENERATE_FUNCTIONS "Generate files for generation Vulkan functions" OFF)
