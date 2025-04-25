@@ -2,7 +2,8 @@
 
 - 0.6.8
 
-  - Fixed DirectX 
+  - Fixed DirectX
+  - Removed building bindings by default in debug preset
 
 - 0.6.7 Modules
 

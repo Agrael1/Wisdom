@@ -1,5 +1,7 @@
 if(WISDOM_WINDOWS AND NOT WISDOM_WINDOWS_STORE)
-  add_subdirectory(bindings)
+  if(WISDOM_BUILD_BINDINGS)
+    add_subdirectory(bindings)
+  endif()
 
   if(WISDOM_VULKAN)
     add_subdirectory(cross_device)
