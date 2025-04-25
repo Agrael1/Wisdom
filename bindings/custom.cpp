@@ -124,7 +124,7 @@ static inline ExtLayout<PreType, EnumT> wisdom_alloc_ext_dx12(std::span<ExtT> ex
     uint8_t* memory = wisdom_alloc(overall_size, alignof(PreType));
     *reinterpret_cast<uint32_t*>(memory + wis::detail::aligned_size(sizeof(PreType), alignof(uint32_t))) = all_exts;
 
-    return ExtLayout<PreType, EnumT> {
+    return ExtLayout<PreType, EnumT>{
         .pre_type = reinterpret_cast<PreType*>(memory),
         .exts = { reinterpret_cast<EnumT*>(memory + base_size - array_size), all_exts },
         .ext_memory = all_exts ? memory + overall_size - size : nullptr
@@ -146,7 +146,7 @@ static inline ExtLayout<PreType, EnumT> from_stream_dx12(uint8_t* stream) noexce
     std::size_t align = DX12BridgeSelector<PreType, GetExtAlign>(span[0]);
     uint8_t* ext_ptr = reinterpret_cast<uint8_t*>(wis::detail::aligned_size((std::size_t)span.data() + span.size_bytes(), align));
 
-    return ExtLayout<PreType, EnumT> {
+    return ExtLayout<PreType, EnumT>{
         .pre_type = pre_type,
         .exts = span,
         .ext_memory = ext_ptr
@@ -201,8 +201,9 @@ extern "C" WisResult DX12CreateFactory(bool debug_layer, WisFactoryExtQuery* ext
         for (std::size_t i = 0; i < extension_count; i++) {
             if (extensions[i].extension_id != 0) {
                 bool supported = DX12FactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), data[i]);
-                if (!supported)
+                if (!supported) {
                     extensions[i].result = nullptr;
+                }
             }
         }
     }
@@ -280,8 +281,9 @@ extern "C" WisResult DX12CreateDevice(DX12Adapter adapter, WisDeviceExtQuery* ex
     for (std::size_t i = 0; i < extension_count; i++) {
         if (extensions[i].extension_id != 0) {
             bool supported = DX12DeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), data[i]);
-            if (!supported)
+            if (!supported) {
                 extensions[i].result = nullptr;
+            }
         }
     }
 
@@ -366,7 +368,7 @@ static inline ExtLayout<PreType, EnumT> wisdom_alloc_ext_vk(std::span<ExtT> exts
     uint8_t* memory = wisdom_alloc(overall_size, alignof(PreType));
     *reinterpret_cast<uint32_t*>(memory + wis::detail::aligned_size(sizeof(PreType), alignof(uint32_t))) = all_exts;
 
-    return ExtLayout<PreType, EnumT> {
+    return ExtLayout<PreType, EnumT>{
         .pre_type = reinterpret_cast<PreType*>(memory),
         .exts = { reinterpret_cast<EnumT*>(memory + base_size - array_size), all_exts },
         .ext_memory = all_exts ? memory + overall_size - size : nullptr
@@ -388,7 +390,7 @@ static inline ExtLayout<PreType, EnumT> from_stream_vk(uint8_t* stream) noexcept
     std::size_t align = VKBridgeSelector<PreType, GetExtAlign>(span[0]);
     uint8_t* ext_ptr = reinterpret_cast<uint8_t*>(wis::detail::aligned_size((std::size_t)span.data() + span.size_bytes(), align));
 
-    return ExtLayout<PreType, EnumT> {
+    return ExtLayout<PreType, EnumT>{
         .pre_type = pre_type,
         .exts = span,
         .ext_memory = ext_ptr
@@ -443,8 +445,9 @@ extern "C" WisResult VKCreateFactory(bool debug_layer, WisFactoryExtQuery* exten
         for (std::size_t i = 0; i < extension_count; i++) {
             if (extensions[i].extension_id != 0) {
                 bool supported = VKFactoryExtensionBridge<GetExtSupported>(static_cast<wis::FactoryExtID>(extensions[i].extension_id), data[i]);
-                if (!supported)
+                if (!supported) {
                     extensions[i].result = nullptr;
+                }
             }
         }
     }
@@ -520,8 +523,9 @@ extern "C" WisResult VKCreateDevice(VKAdapter adapter, WisDeviceExtQuery* extens
     for (std::size_t i = 0; i < extension_count; i++) {
         if (extensions[i].extension_id != 0) {
             bool supported = VKDeviceExtensionBridge<GetExtSupported>(static_cast<wis::DeviceExtID>(extensions[i].extension_id), data[i]);
-            if (!supported)
+            if (!supported) {
                 extensions[i].result = nullptr;
+            }
         }
     }
 
