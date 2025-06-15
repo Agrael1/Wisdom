@@ -11,7 +11,7 @@
 
 /** \mainpage Wisdom API Documentation
 
-<b>Version 0.6.6</b>
+<b>Version 0.6.8</b>
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1523,47 +1523,66 @@ enum class ASInstanceFlags {
     ForceNoOpaque = 1 << 3, ///< Force no opaque.
 };
 
+// [Result]
 /**
+ * @struct wis::Result
  * @brief Main source of communication of operation success.
  * To check for success compare wis::Result::status with wis::Status::Ok.
  * If there is any error there is  string which is compile-time.
  * It communicates the source of problems even in Release mode.
  * The string contains function name and error message.
+ * @snippet include/wisdom/generated/api/api.hpp Result
  * */
 struct Result {
     wis::Status status = wis::Status::Ok; ///< Operation status. Compare with wis::Status::Ok
     const char* error = nullptr; ///< Error message. nullptr or 'Operation Succeeded.' if no error.
 };
+// [Result]
 
+// [Size2D]
 /**
+ * @struct wis::Size2D
  * @brief 2D unsigned size.
+ * @snippet include/wisdom/generated/api/api.hpp Size2D
  * */
 struct Size2D {
     uint32_t width;
     uint32_t height;
 };
+// [Size2D]
 
+// [Size3D]
 /**
+ * @struct wis::Size3D
  * @brief 3D unsigned size.
+ * @snippet include/wisdom/generated/api/api.hpp Size3D
  * */
 struct Size3D {
     uint32_t width;
     uint32_t height;
     uint32_t depth_or_layers; ///< Depth for 3D textures, layers for 2D arrays
 };
+// [Size3D]
 
+// [BufferRegion]
 /**
+ * @struct wis::BufferRegion
  * @brief Buffer region for copy operations.
+ * @snippet include/wisdom/generated/api/api.hpp BufferRegion
  * */
 struct BufferRegion {
     uint64_t src_offset = 0; ///< Source offset in bytes. Default is 0.
     uint64_t dst_offset = 0; ///< Destination offset in bytes. Default is 0.
     uint64_t size_bytes; ///< Size of portion of source buffer to take copy from in bytes.
 };
+// [BufferRegion]
 
+// [AdapterDesc]
 /**
+ * @struct wis::AdapterDesc
  * @brief Adapter description.
  * Describes hardware driver identificators as well as memory limits.
+ * @snippet include/wisdom/generated/api/api.hpp AdapterDesc
  * */
 struct AdapterDesc {
     std::array<const char, 256> description{}; ///< Adapter description. Contains name of the graphics adapter.
@@ -1578,18 +1597,26 @@ struct AdapterDesc {
     std::array<uint8_t, 16> adapter_uuid{}; ///< UUID of the adapter, used only with Vulkan API on systems with no LUID.
     wis::AdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 };
+// [AdapterDesc]
 
+// [InputSlotDesc]
 /**
+ * @struct wis::InputSlotDesc
  * @brief Input slot description for wis::InputLayout.
+ * @snippet include/wisdom/generated/api/api.hpp InputSlotDesc
  * */
 struct InputSlotDesc {
     uint32_t slot; ///< Input slot number. Must be unique.
     uint32_t stride_bytes; ///< Stride in bytes. Size of one vertex in the slot.
     wis::InputClass input_class; ///< Input class. Defines how the data is read (Per vertex or Per instance).
 };
+// [InputSlotDesc]
 
+// [InputAttribute]
 /**
+ * @struct wis::InputAttribute
  * @brief Input attribute description for wis::InputLayout.
+ * @snippet include/wisdom/generated/api/api.hpp InputAttribute
  * */
 struct InputAttribute {
     uint32_t input_slot; ///< Input slot number. Must be unique.
@@ -1599,9 +1626,13 @@ struct InputAttribute {
     wis::DataFormat format; ///< Data format of the attribute.
     uint32_t offset_bytes; ///< Offset in bytes from the beginning of the vertex.
 };
+// [InputAttribute]
 
+// [InputLayout]
 /**
+ * @struct wis::InputLayout
  * @brief Input layout description for .
+ * @snippet include/wisdom/generated/api/api.hpp InputLayout
  * */
 struct InputLayout {
     const wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
@@ -1609,9 +1640,13 @@ struct InputLayout {
     const wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
     uint32_t attribute_count; ///< Input attributes count.
 };
+// [InputLayout]
 
+// [RasterizerDesc]
 /**
+ * @struct wis::RasterizerDesc
  * @brief Rasterizer description for .
+ * @snippet include/wisdom/generated/api/api.hpp RasterizerDesc
  * */
 struct RasterizerDesc {
     wis::FillMode fill_mode = wis::FillMode::Solid; ///< Fill mode. Solid or Wireframe. Default is wis::FillMode::Solid.
@@ -1623,18 +1658,26 @@ struct RasterizerDesc {
     float depth_bias_slope_factor = 0.0f; ///< Depth bias slope factor e.g. for shadows. Default is 0.0f.
     bool depth_clip_enable = true; ///< Depth clip enable. Default is true.
 };
+// [RasterizerDesc]
 
+// [SampleDesc]
 /**
+ * @struct wis::SampleDesc
  * @brief Sample description of Multisampling for .
+ * @snippet include/wisdom/generated/api/api.hpp SampleDesc
  * */
 struct SampleDesc {
     wis::SampleRate rate = wis::SampleRate::S1; ///< Sample rate. Default is wis::SampleRate::S1.
     float quality = 0.0f; ///< Sample quality. Default is 0.0f.
     uint32_t sample_mask = 0xffffffff; ///< Sample mask. Default is 0xffffffff.
 };
+// [SampleDesc]
 
+// [StencilDesc]
 /**
+ * @struct wis::StencilDesc
  * @brief Stencil description for wis::DepthStencilDesc.
+ * @snippet include/wisdom/generated/api/api.hpp StencilDesc
  * */
 struct StencilDesc {
     wis::StencilOp fail_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test fails. Default is wis::StencilOp::Keep.
@@ -1644,9 +1687,13 @@ struct StencilDesc {
     uint8_t read_mask = 0xff; ///< Stencil read mask. Default is 0xff.
     uint8_t write_mask = 0xff; ///< Stencil write mask. Default is 0xff.
 };
+// [StencilDesc]
 
+// [DepthStencilDesc]
 /**
+ * @struct wis::DepthStencilDesc
  * @brief Depth stencil description for .
+ * @snippet include/wisdom/generated/api/api.hpp DepthStencilDesc
  * */
 struct DepthStencilDesc {
     bool depth_enable = false; ///< Depth test enable. Default is false.
@@ -1657,9 +1704,13 @@ struct DepthStencilDesc {
     wis::StencilDesc stencil_back = {}; ///< Stencil description for back faces.
     bool depth_bound_test = false; ///< Depth bound test enable. Default is false.
 };
+// [DepthStencilDesc]
 
+// [BlendAttachmentDesc]
 /**
+ * @struct wis::BlendAttachmentDesc
  * @brief Blend attachment description for wis::BlendStateDesc.
+ * @snippet include/wisdom/generated/api/api.hpp BlendAttachmentDesc
  * */
 struct BlendAttachmentDesc {
     bool blend_enable = false; ///< Blend enable. Default is false.
@@ -1671,9 +1722,13 @@ struct BlendAttachmentDesc {
     wis::BlendOp alpha_blend_op = wis::BlendOp::Add; ///< Alpha blend operation. Default is wis::BlendOp::Add.
     wis::ColorComponents color_write_mask = wis::ColorComponents::All; ///< Color write mask. Default is wis::ColorComponents::All.
 };
+// [BlendAttachmentDesc]
 
+// [BlendStateDesc]
 /**
+ * @struct wis::BlendStateDesc
  * @brief Blend state description for .
+ * @snippet include/wisdom/generated/api/api.hpp BlendStateDesc
  * */
 struct BlendStateDesc {
     bool logic_op_enable = false; ///< Logic operation enable. Default is false.
@@ -1681,28 +1736,40 @@ struct BlendStateDesc {
     std::array<wis::BlendAttachmentDesc, 8> attachments{}; ///< Blend attachment descriptions. Max Array size is 8.
     uint32_t attachment_count; ///< Blend attachment count.
 };
+// [BlendStateDesc]
 
+// [RenderAttachmentsDesc]
 /**
+ * @struct wis::RenderAttachmentsDesc
  * @brief Render attachments description for .
+ * @snippet include/wisdom/generated/api/api.hpp RenderAttachmentsDesc
  * */
 struct RenderAttachmentsDesc {
     std::array<wis::DataFormat, 8> attachment_formats{}; ///< Attachment formats array. Describes the format of the render target.
     uint32_t attachments_count; ///< Attachment formats count. Max is 8.
     wis::DataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
 };
+// [RenderAttachmentsDesc]
 
+// [PushConstant]
 /**
+ * @struct wis::PushConstant
  * @brief A set of constants that get pushed directly to the pipeline.
  * Only one set can be created per shader stage.
+ * @snippet include/wisdom/generated/api/api.hpp PushConstant
  * */
 struct PushConstant {
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
     uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
     uint32_t bind_register; ///< Bind register number in HLSL.
 };
+// [PushConstant]
 
+// [SwapchainDesc]
 /**
+ * @struct wis::SwapchainDesc
  * @brief Swapchain description for wis::SwapChain creation.
+ * @snippet include/wisdom/generated/api/api.hpp SwapchainDesc
  * */
 struct SwapchainDesc {
     wis::Size2D size; ///< Swapchain texture size.
@@ -1713,9 +1780,13 @@ struct SwapchainDesc {
     bool tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
     wis::SwapchainScaling scaling; ///< Swapchain scaling mode.
 };
+// [SwapchainDesc]
 
+// [TextureDesc]
 /**
+ * @struct wis::TextureDesc
  * @brief Texture description for wis::Texture creation.
+ * @snippet include/wisdom/generated/api/api.hpp TextureDesc
  * */
 struct TextureDesc {
     wis::DataFormat format; ///< Texture pixel/block format.
@@ -1725,17 +1796,25 @@ struct TextureDesc {
     wis::SampleRate sample_count = wis::SampleRate::S1; ///< Sample count. Default is wis::SampleRate::S1.
     wis::TextureUsage usage = wis::TextureUsage::None; ///< Texture usage flags.
 };
+// [TextureDesc]
 
+// [AllocationInfo]
 /**
+ * @struct wis::AllocationInfo
  * @brief Allocation info for Resource Allocation.
+ * @snippet include/wisdom/generated/api/api.hpp AllocationInfo
  * */
 struct AllocationInfo {
     uint64_t size_bytes; ///< Size of the allocation in bytes.
     uint64_t alignment_bytes; ///< Alignment of the allocation in bytes.
 };
+// [AllocationInfo]
 
+// [TextureRegion]
 /**
+ * @struct wis::TextureRegion
  * @brief Texture region for copy operations.
+ * @snippet include/wisdom/generated/api/api.hpp TextureRegion
  * */
 struct TextureRegion {
     /**
@@ -1749,25 +1828,37 @@ struct TextureRegion {
     uint32_t array_layer; ///< Array layer of the texture.
     wis::DataFormat format; ///< Format of the texture.
 };
+// [TextureRegion]
 
+// [BufferTextureCopyRegion]
 /**
+ * @struct wis::BufferTextureCopyRegion
  * @brief Buffer to texture copy region.
+ * @snippet include/wisdom/generated/api/api.hpp BufferTextureCopyRegion
  * */
 struct BufferTextureCopyRegion {
     uint64_t buffer_offset; ///< Buffer offset in bytes.
     wis::TextureRegion texture; ///< Texture region.
 };
+// [BufferTextureCopyRegion]
 
+// [PushDescriptor]
 /**
+ * @struct wis::PushDescriptor
  * @brief Push descriptor. Used to push data directly to pipeline.
+ * @snippet include/wisdom/generated/api/api.hpp PushDescriptor
  * */
 struct PushDescriptor {
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the descriptor is used.
     wis::DescriptorType type; ///< Descriptor type. Works only with buffer-like bindings.
 };
+// [PushDescriptor]
 
+// [SubresourceRange]
 /**
+ * @struct wis::SubresourceRange
  * @brief Subresource range for wis::TextureBarrier.
+ * @snippet include/wisdom/generated/api/api.hpp SubresourceRange
  * */
 struct SubresourceRange {
     uint32_t base_mip_level; ///< Base mip level.
@@ -1775,9 +1866,13 @@ struct SubresourceRange {
     uint32_t base_array_layer; ///< Base array layer.
     uint32_t layer_count; ///< Array layers count.
 };
+// [SubresourceRange]
 
+// [RenderTargetDesc]
 /**
+ * @struct wis::RenderTargetDesc
  * @brief Render target description for wis::RenderTarget creation.
+ * @snippet include/wisdom/generated/api/api.hpp RenderTargetDesc
  * */
 struct RenderTargetDesc {
     wis::DataFormat format; ///< Render target format.
@@ -1786,10 +1881,14 @@ struct RenderTargetDesc {
     uint32_t base_array_layer = 0; ///< Base array layer of the render target. Default is 0.
     uint32_t layer_count = 1; ///< Array layers count of the render target. Default is 1.
 };
+// [RenderTargetDesc]
 
+// [Viewport]
 /**
+ * @struct wis::Viewport
  * @brief Viewport description for wis::CommandList.
  * Viewport is considered from Top Left corner.
+ * @snippet include/wisdom/generated/api/api.hpp Viewport
  * */
 struct Viewport {
     float top_leftx; ///< Top left corner x coordinate.
@@ -1799,9 +1898,13 @@ struct Viewport {
     float min_depth; ///< Minimum depth of the viewport.
     float max_depth; ///< Maximum depth of the viewport.
 };
+// [Viewport]
 
+// [Scissor]
 /**
+ * @struct wis::Scissor
  * @brief Scissor description for wis::CommandList.
+ * @snippet include/wisdom/generated/api/api.hpp Scissor
  * */
 struct Scissor {
     int32_t left; ///< Left corner x coordinate.
@@ -1809,9 +1912,13 @@ struct Scissor {
     int32_t right; ///< Right corner x coordinate.
     int32_t bottom; ///< Bottom corner y coordinate.
 };
+// [Scissor]
 
+// [BufferBarrier]
 /**
+ * @struct wis::BufferBarrier
  * @brief Buffer barrier for wis::CommandList.
+ * @snippet include/wisdom/generated/api/api.hpp BufferBarrier
  * */
 struct BufferBarrier {
     wis::BarrierSync sync_before; ///< Synchronization before the barrier.
@@ -1821,9 +1928,13 @@ struct BufferBarrier {
     uint64_t offset = 0; ///< Offset in the buffer in bytes. Default is 0.
     uint64_t size = UINT64_MAX; ///< Size of the buffer in bytes. Default is UINT64_MAX, which means entire buffer.
 };
+// [BufferBarrier]
 
+// [TextureBarrier]
 /**
+ * @struct wis::TextureBarrier
  * @brief Texture barrier for wis::CommandList.
+ * @snippet include/wisdom/generated/api/api.hpp TextureBarrier
  * */
 struct TextureBarrier {
     wis::BarrierSync sync_before; ///< Synchronization before the barrier.
@@ -1838,9 +1949,13 @@ struct TextureBarrier {
      * */
     wis::SubresourceRange subresource_range;
 };
+// [TextureBarrier]
 
+// [DescriptorTableEntry]
 /**
+ * @struct wis::DescriptorTableEntry
  * @brief Descriptor table entry for wis::DescriptorTable.
+ * @snippet include/wisdom/generated/api/api.hpp DescriptorTableEntry
  * */
 struct DescriptorTableEntry {
     wis::DescriptorType type; ///< Descriptor type.
@@ -1848,9 +1963,13 @@ struct DescriptorTableEntry {
     uint32_t binding; ///< Binding number in HLSL.
     uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
 };
+// [DescriptorTableEntry]
 
+// [DescriptorTable]
 /**
+ * @struct wis::DescriptorTable
  * @brief Descriptor table for .
+ * @snippet include/wisdom/generated/api/api.hpp DescriptorTable
  * */
 struct DescriptorTable {
     wis::DescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
@@ -1858,9 +1977,13 @@ struct DescriptorTable {
     uint32_t entry_count; ///< Descriptor table entries count.
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the table is used.
 };
+// [DescriptorTable]
 
+// [SamplerDesc]
 /**
+ * @struct wis::SamplerDesc
  * @brief Sampler description for wis::Sampler creation.
+ * @snippet include/wisdom/generated/api/api.hpp SamplerDesc
  * */
 struct SamplerDesc {
     wis::Filter min_filter; ///< Minification filter.
@@ -1877,9 +2000,13 @@ struct SamplerDesc {
     wis::Compare comparison_op; ///< Comparison operation for comparison samplers.
     std::array<float, 4> border_color{}; ///< Border color.
 };
+// [SamplerDesc]
 
+// [ComponentMapping]
 /**
+ * @struct wis::ComponentMapping
  * @brief Component mapping for wis::ShaderResourceDesc.
+ * @snippet include/wisdom/generated/api/api.hpp ComponentMapping
  * */
 struct ComponentMapping {
     wis::ComponentSwizzle r = wis::ComponentSwizzle::Red; ///< Component mapping for Red channel. Default is wis::ComponentSwizzle::Red.
@@ -1887,9 +2014,13 @@ struct ComponentMapping {
     wis::ComponentSwizzle b = wis::ComponentSwizzle::Blue; ///< Component mapping for Blue channel. Default is wis::ComponentSwizzle::Blue.
     wis::ComponentSwizzle a = wis::ComponentSwizzle::Alpha; ///< Component mapping for Alpha channel. Default is wis::ComponentSwizzle::Alpha.
 };
+// [ComponentMapping]
 
+// [ShaderResourceDesc]
 /**
+ * @struct wis::ShaderResourceDesc
  * @brief Shader resource description for .
+ * @snippet include/wisdom/generated/api/api.hpp ShaderResourceDesc
  * */
 struct ShaderResourceDesc {
     wis::DataFormat format; ///< Resource format.
@@ -1897,21 +2028,29 @@ struct ShaderResourceDesc {
     wis::ComponentMapping component_mapping; ///< Component mapping.
     wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
+// [ShaderResourceDesc]
 
+// [UnorderedAccessDesc]
 /**
+ * @struct wis::UnorderedAccessDesc
  * @brief Unordered access description for RW Texture creation.
+ * @snippet include/wisdom/generated/api/api.hpp UnorderedAccessDesc
  * */
 struct UnorderedAccessDesc {
     wis::DataFormat format; ///< Resource format.
     wis::TextureViewType view_type; ///< Resource view type.
     wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
+// [UnorderedAccessDesc]
 
+// [FactoryExtQuery]
 /**
+ * @struct wis::FactoryExtQuery
  * @brief Struct used to query the extensions for C code.
  * Queried results should not be freed, their lifetime ends with the Factory they were created with.
  * If wis::FactoryExtQuery::extension_id is 0, wis::FactoryExtQuery::result must be populated with already created extension.
  * Otherwise extension is ignored.
+ * @snippet include/wisdom/generated/api/api.hpp FactoryExtQuery
  * */
 struct FactoryExtQuery {
     wis::FactoryExtID extension_id; ///< Extension ID.
@@ -1922,12 +2061,16 @@ struct FactoryExtQuery {
      * */
     void* result;
 };
+// [FactoryExtQuery]
 
+// [DeviceExtQuery]
 /**
+ * @struct wis::DeviceExtQuery
  * @brief Struct used to query the extensions for C code.
  * Queried results should not be freed, their lifetime ends with the Factory they were created with.
  * If wis::DeviceExtQuery::extension_id is 0, wis::DeviceExtQuery::result must be populated with already created extension.
  * Otherwise extension is ignored.
+ * @snippet include/wisdom/generated/api/api.hpp DeviceExtQuery
  * */
 struct DeviceExtQuery {
     wis::DeviceExtID extension_id; ///< Extension ID.
@@ -1938,9 +2081,13 @@ struct DeviceExtQuery {
      * */
     void* result;
 };
+// [DeviceExtQuery]
 
+// [TopLevelASBuildDesc]
 /**
+ * @struct wis::TopLevelASBuildDesc
  * @brief Top level acceleration structure build description.
+ * @snippet include/wisdom/generated/api/api.hpp TopLevelASBuildDesc
  * */
 struct TopLevelASBuildDesc {
     wis::AccelerationStructureFlags flags; ///< Build flags.
@@ -1953,9 +2100,13 @@ struct TopLevelASBuildDesc {
      * */
     bool update;
 };
+// [TopLevelASBuildDesc]
 
+// [AcceleratedGeometryInput]
 /**
+ * @struct wis::AcceleratedGeometryInput
  * @brief Geometry description for bottom-level acceleration structure. Mayy contain AABBs or Triangles.
+ * @snippet include/wisdom/generated/api/api.hpp AcceleratedGeometryInput
  * */
 struct AcceleratedGeometryInput {
     wis::ASGeometryType geometry_type; ///< Type of the geometry (Triangles/AABB).
@@ -1969,20 +2120,28 @@ struct AcceleratedGeometryInput {
     wis::DataFormat vertex_format; ///< Format of the vertices. Unused for wis::ASGeometryType::AABBs.
     wis::IndexType index_format; ///< Format of the indices. Unused for wis::ASGeometryType::AABBs.
 };
+// [AcceleratedGeometryInput]
 
+// [ASAllocationInfo]
 /**
+ * @struct wis::ASAllocationInfo
  * @brief Acceleration structure allocation info. Used to query sizes for AS build/update buffers.
+ * @snippet include/wisdom/generated/api/api.hpp ASAllocationInfo
  * */
 struct ASAllocationInfo {
     uint64_t scratch_size; ///< Size of the scratch buffer.
     uint64_t result_size; ///< Size of the result buffer.
     uint64_t update_size; ///< Size of the update buffer.
 };
+// [ASAllocationInfo]
 
+// [DescriptorBindingDesc]
 /**
+ * @struct wis::DescriptorBindingDesc
  * @brief Descriptor binding description for RootSignature and Descriptor Storage creation.
  * Description place in array determines binding index that this lane maps to. e.g. bindings[1] means on HLSL side this results in [[vk::binding(0,1)]].
  * All the bindings in Descriptor Storage are unbounded, array of these structures determine the presence and order of the bindings.
+ * @snippet include/wisdom/generated/api/api.hpp DescriptorBindingDesc
  * */
 struct DescriptorBindingDesc {
     wis::DescriptorType binding_type; ///< Binding type. Must be unique in array.
@@ -1999,18 +2158,26 @@ struct DescriptorBindingDesc {
      * */
     uint32_t binding_count;
 };
+// [DescriptorBindingDesc]
 
+// [ShaderExport]
 /**
+ * @struct wis::ShaderExport
  * @brief Defines export shader functions from a library shader.
+ * @snippet include/wisdom/generated/api/api.hpp ShaderExport
  * */
 struct ShaderExport {
     const char* entry_point; ///< Entry point of the shader.
     wis::RaytracingShaderType shader_type; ///< Type of the shader.
     uint32_t shader_array_index; ///< Index of the shader in the shader array.
 };
+// [ShaderExport]
 
+// [HitGroupDesc]
 /**
+ * @struct wis::HitGroupDesc
  * @brief Hit group description for Raytracing pipeline.
+ * @snippet include/wisdom/generated/api/api.hpp HitGroupDesc
  * */
 struct HitGroupDesc {
     /**
@@ -2023,17 +2190,25 @@ struct HitGroupDesc {
     uint32_t any_hit_export_index = UINT32_MAX; ///< Any hit shader.
     uint32_t intersection_export_index = UINT32_MAX; ///< Intersection shader.
 };
+// [HitGroupDesc]
 
+// [ShaderBindingTableInfo]
 /**
+ * @struct wis::ShaderBindingTableInfo
  * @brief Shader binding table description for Raytracing pipeline.
+ * @snippet include/wisdom/generated/api/api.hpp ShaderBindingTableInfo
  * */
 struct ShaderBindingTableInfo {
     uint32_t entry_size; ///< Size/stride of the entry in bytes.
     uint32_t table_start_alignment; ///< Alignment of the table start in bytes.
 };
+// [ShaderBindingTableInfo]
 
+// [RaytracingDispatchDesc]
 /**
+ * @struct wis::RaytracingDispatchDesc
  * @brief Raytracing dispatch description for wis::CommandList.
+ * @snippet include/wisdom/generated/api/api.hpp RaytracingDispatchDesc
  * */
 struct RaytracingDispatchDesc {
     uint64_t ray_gen_shader_table_address; ///< Address of the ray generation shader table.
@@ -2051,29 +2226,42 @@ struct RaytracingDispatchDesc {
     uint32_t height; ///< Height of the dispatch in number of rays.
     uint32_t depth; ///< Depth of the dispatch in number of rays.
 };
+// [RaytracingDispatchDesc]
 
+// [TextureCopyRegion]
 /**
+ * @struct wis::TextureCopyRegion
  * @brief Texture to texture copy region.
+ * @snippet include/wisdom/generated/api/api.hpp TextureCopyRegion
  * */
 struct TextureCopyRegion {
     wis::TextureRegion src; ///< Source texture region.
     wis::TextureRegion dst; ///< Destination texture region.
 };
+// [TextureCopyRegion]
 
+// [DeviceConstants]
 /**
+ * @struct wis::DeviceConstants
  * @brief Constants that device provide to work with it.
+ * @snippet include/wisdom/generated/api/api.hpp DeviceConstants
  * */
 struct DeviceConstants {
     uint32_t min_cbuffer_offset_alingnment; ///< Minimal constant buffer offset alignment.
     uint32_t min_buffer_offset_alingnment; ///< Minimal structured or RW buffer offset alignment.
 };
+// [DeviceConstants]
 
+// [RaytracingConstants]
 /**
+ * @struct wis::RaytracingConstants
  * @brief Constants that device provide to work with raytracing.
+ * @snippet include/wisdom/generated/api/api.hpp RaytracingConstants
  * */
 struct RaytracingConstants {
     uint32_t max_recursion_depth; ///< Max recursion depth for raytracing pipeline.
 };
+// [RaytracingConstants]
 
 //=================================DELEGATES=================================
 
