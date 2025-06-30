@@ -29,15 +29,16 @@ if(WISDOM_BUILD_DOCS)
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM )
 
-        target_sources(doc_doxygen PRIVATE
+        set(DOC_SOURCES 
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/DoxygenLayout.xml
+            ${CMAKE_CURRENT_SOURCE_DIR}/docs/main_page.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/docs/getting_started.h
         )
 
-        source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
-            ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
-            ${CMAKE_CURRENT_SOURCE_DIR}/docs/DoxygenLayout.xml
-        )
+        target_sources(doc_doxygen PRIVATE ${DOC_SOURCES})
+
+        source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${DOC_SOURCES})
     else()
         message("Doxygen need to be installed to generate the doxygen documentation")
     endif()

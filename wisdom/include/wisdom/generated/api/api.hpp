@@ -9,9 +9,7 @@
 #define WISDOM_EXPORT export
 #endif
 
-/** \mainpage Wisdom API Documentation
-
-<b>Version 0.6.8</b>
+/** Wisdom API Version 0.6.10
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
