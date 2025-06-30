@@ -1,67 +1,5 @@
 {
   "version": 3,
-  "buildPresets": [
-    {
-      "name": "x64-debug",
-      "displayName": "x64 Debug",
-      "configurePreset": "x64-debug",
-      "jobs": 16
-    },
-    {
-      "name": "x64-release",
-      "displayName": "x64 Release",
-      "configurePreset": "x64-release",
-      "jobs": 16
-    },
-    {
-      "name": "linux-debug",
-      "displayName": "Linux Debug",
-      "configurePreset": "linux-debug",
-      "jobs": 16
-    },
-    {
-      "name": "linux-release",
-      "displayName": "Linux Release",
-      "configurePreset": "linux-release",
-      "jobs": 16
-    },
-    {
-      "name": "x64-only-lib",
-      "displayName": "x64 Lib",
-      "configurePreset": "x64-only-lib",
-      "jobs": 16
-    },
-    {
-      "name": "x64-debug-clang",
-      "displayName": "x64 Debug Clang",
-      "configurePreset": "x64-debug-clang",
-      "jobs": 16
-    },
-    {
-      "name": "x64-vs",
-      "displayName": "x64 VS",
-      "configurePreset": "x64-vs",
-      "jobs": 16
-    },
-    {
-      "name": "x64-debug-only-lib",
-      "displayName": "x64 Lib Debug",
-      "configurePreset": "x64-debug-only-lib",
-      "jobs": 16
-    },
-    {
-      "name": "x64-release-only-lib",
-      "displayName": "x64 Lib Release",
-      "configurePreset": "x64-release-only-lib",
-      "jobs": 16
-    },
-    {
-      "name": "macos-debug",
-      "displayName": "macOS Debug",
-      "configurePreset": "macos-debug",
-      "jobs": 16
-    }
-  ],
   "configurePresets": [
     {
       "name": "linux-base",
@@ -257,5 +195,68 @@
         "WISDOM_GENERATE_FUNCTIONS": false
       }
     }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-debug",
+      "displayName": "x64 Debug",
+      "configurePreset": "x64-debug",
+      "jobs": 16
+    },
+    {
+      "name": "x64-release",
+      "displayName": "x64 Release",
+      "configurePreset": "x64-release",
+      "jobs": 16
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug",
+      "configurePreset": "linux-debug",
+      "jobs": 16
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release",
+      "configurePreset": "linux-release",
+      "jobs": 16
+    },
+    {
+      "name": "x64-only-lib",
+      "displayName": "x64 Lib",
+      "configurePreset": "x64-only-lib",
+      "jobs": 16
+    },
+    {
+      "name": "x64-debug-clang",
+      "displayName": "x64 Debug Clang",
+      "configurePreset": "x64-debug-clang",
+      "jobs": 16
+    },
+    {
+      "name": "x64-vs",
+      "displayName": "x64 VS",
+      "configurePreset": "x64-vs",
+      "jobs": 16
+    },
+    {
+      "name": "x64-debug-only-lib",
+      "displayName": "x64 Lib Debug",
+      "configurePreset": "x64-debug-only-lib",
+      "jobs": 16
+    },
+    {
+      "name": "x64-release-only-lib",
+      "displayName": "x64 Lib Release",
+      "configurePreset": "x64-release-only-lib",
+      "jobs": 16
+    },
+    {
+      "name": "macos-debug",
+      "displayName": "macOS Debug",
+      "configurePreset": "macos-debug",
+      "jobs": 16
+    }
   ]
+
 }

@@ -31,7 +31,7 @@ jobs:
       run: ln -s /usr/lib/llvm-18/bin/clang-scan-deps /usr/local/bin/clang-scan-deps
 
     - name: Install KDUtils requirements
-      run: sudo apt install ninja-build
+      run: sudo apt install ninja-build doxygen graphviz
         
     - name: Configure CMake
       run: cmake --preset linux-release
@@ -59,13 +59,10 @@ jobs:
       uses: egor-tensin/vs-shell@v2
         
     - name: Configure CMake for DirectX 12
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build_dx -GNinja  -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}  -DCMAKE_C_COMPILER:STRING="cl.exe" -DCMAKE_CXX_COMPILER:STRING="cl.exe" -DWISDOM_EXPERIMENTAL_CPP_MODULES="ON"
+      run: cmake --preset x64-release
 
-    - name: Build WisdomDX12
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build_dx --config ${{env.BUILD_TYPE}}
+    - name: Build WisdomVK
+      run: cmake --build --preset x64-release
       
   build_vk:
     runs-on: windows-latest
@@ -89,13 +86,10 @@ jobs:
         cmake-version: '3.30.x'
          
     - name: Configure CMake for Vulkan
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build_vk -GNinja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWISDOM_FORCE_VULKAN=ON  -DCMAKE_C_COMPILER:STRING="cl.exe" -DCMAKE_CXX_COMPILER:STRING="cl.exe" -DWISDOM_EXPERIMENTAL_CPP_MODULES="ON"
+      run: cmake --preset x64-release -DWISDOM_FORCE_VULKAN=ON
 
     - name: Build WisdomVK
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build_vk --config ${{env.BUILD_TYPE}}
+      run: cmake --build --preset x64-release
 
   build_vk_clang:
     runs-on: windows-latest
