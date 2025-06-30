@@ -45,7 +45,6 @@
       }
     },
 
-
     {
       "name": "macos-debug",
       "displayName": "macOS Debug",
@@ -259,5 +258,4 @@
       "jobs": 16
     }
   ]
-
 }
