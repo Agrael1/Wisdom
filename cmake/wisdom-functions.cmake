@@ -197,9 +197,9 @@ function(wis_compile_shader)
             VERBATIM)
     endif()
 
-    add_custom_command(TARGET ${TARGET}
+    add_custom_command(TARGET ${TARGET} POST_BUILD
         COMMAND "${wis_compile_shader_DXC}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes ${FLAGS} -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
-        MAIN_DEPENDENCY ${SHADER}
+        DEPENDS ${SHADER}
         COMMENT "SPV ${SHADER}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)

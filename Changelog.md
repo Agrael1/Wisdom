@@ -1,5 +1,10 @@
 # Version History
 
+- 0.6.11 End of manual changelog updates
+
+  - New changelog is generated from git tags and commit messages
+  - Added wip documentation
+
 - 0.6.8
 
   - Fixed DirectX

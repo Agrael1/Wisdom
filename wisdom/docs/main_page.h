@@ -8,6 +8,8 @@
  * modern C++ standards and best practices with a lot of optimizations for best performance. 
  * Wisdom is built with a strong emphasis on extensibility and maintainability, making it suitable for a wide range of applications.
  * 
+ * @note DOCUMENTATION IS IN PROGRESS. Would appreciate any feedback or contributions to improve it.
+ * 
  * @section navigation_sec Navigation
  * 
  * - @ref getting_started_page "Getting Started" - Learn how to integrate Wisdom into your project
