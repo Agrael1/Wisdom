@@ -189,7 +189,7 @@ function(wis_compile_shader)
     endif()
 
     if(WIN32)
-        add_custom_command(TARGET ${TARGET} POST_BUILD 
+        add_custom_command(TARGET ${TARGET} POST_BUILD
             COMMAND "${wis_compile_shader_DXC}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${FLAGS} ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
             DEPENDS ${SHADER}
             COMMENT "HLSL ${SHADER}"

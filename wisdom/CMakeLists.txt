@@ -19,14 +19,8 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-module STATIC)
   add_library(wis::module ALIAS wisdom-module)
   target_link_libraries(wisdom-module PUBLIC wisdom-headers)
-  target_sources(
-    wisdom-module
-    PUBLIC FILE_SET
-           CXX_MODULES
-           BASE_DIRS
-           include
-           FILES
-           "include/wisdom/wisdom.ixx")
+  target_sources(wisdom-module PUBLIC FILE_SET CXX_MODULES BASE_DIRS include
+                                      FILES "include/wisdom/wisdom.ixx")
 endif()
 
 if(WISDOM_VULKAN)
@@ -34,14 +28,8 @@ if(WISDOM_VULKAN)
   target_link_libraries(wisdom INTERFACE wis::vulkan)
   if(WISDOM_CPP_MODULES_SUPPORTED)
     target_link_libraries(wisdom-module PUBLIC wisdom-vk-module)
-      target_sources(
-        wisdom-module
-        PUBLIC FILE_SET
-               CXX_MODULES
-               BASE_DIRS
-               include
-               FILES
-               "include/wisdom/wisdom.fvk.ixx")
+    target_sources(wisdom-module PUBLIC FILE_SET CXX_MODULES BASE_DIRS include
+                                        FILES "include/wisdom/wisdom.fvk.ixx")
   endif()
 endif()
 
