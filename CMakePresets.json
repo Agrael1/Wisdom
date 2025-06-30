@@ -78,7 +78,9 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF"
+        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF",
+        "WISDOM_GENERATE_FUNCTIONS": false,
+        "WISDOM_BUILD_DOCS": false
       },
       "condition": {
         "type": "equals",
@@ -97,7 +99,6 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_GENERATE_FUNCTIONS": true,
         "WISDOM_BUILD_DOCS": true
       }
     },
