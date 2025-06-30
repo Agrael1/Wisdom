@@ -3,7 +3,7 @@ find_package(Doxygen)
 
 if(WISDOM_BUILD_DOCS)
     if (DOXYGEN_FOUND)
-        
+
         FetchContent_Declare(
             doxygen-awesome-css
             URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/heads/main.zip
@@ -29,7 +29,7 @@ if(WISDOM_BUILD_DOCS)
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM )
 
-        set(DOC_SOURCES 
+        set(DOC_SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/DoxygenLayout.xml
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/main_page.h
