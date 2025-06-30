@@ -4,9 +4,11 @@
 
 **Low-level Direct Translation Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
 
-## NuGet Link
+## Quick Links
 
-https://www.nuget.org/packages/Wisdom/
+**NuGet** https://www.nuget.org/packages/Wisdom/
+**GitHub** https://github.com/Agrael1/Wisdom
+**Documentation [WIP]** https://agrael1.github.io/Wisdom/
 
 # Features
 

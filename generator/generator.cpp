@@ -1988,9 +1988,9 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
     auto st_decl = wis::format("struct {}{{\n", full_name);
 
     if (!s.doc.empty()) {
-        std::string documentation = wis::format("/**\n@brief {}\n*/", s.doc);
+        std::string documentation = wis::format("/**\n@struct wis::{}\n@brief {}\n@snippet include/wisdom/generated/api/api.hpp {}\n*/", s.name, s.doc, s.name);
         ReplaceAll(documentation, "\n", "\n * ");
-        st_decl = wis::format("{}\n{}", FinalizeCPPDocumentation(documentation, s.name), st_decl);
+        st_decl = wis::format("// [{}]\n{}\n{}", s.name, FinalizeCPPDocumentation(documentation, s.name), st_decl);
     }
 
     for (auto& m : s.members) {
@@ -2012,7 +2012,7 @@ std::string Generator::MakeCPPStruct(const WisStruct& s)
         st_decl += MakeCPPValueDocumentation(val_str, m.doc, s.name);
     }
 
-    st_decl += "};\n\n";
+    st_decl += "};\n" + wis::format("// [{}]\n\n", s.name);
     return st_decl;
 }
 
