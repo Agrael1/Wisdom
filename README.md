@@ -7,7 +7,9 @@
 ## Quick Links
 
 **NuGet** https://www.nuget.org/packages/Wisdom/
+
 **GitHub** https://github.com/Agrael1/Wisdom
+
 **Documentation [WIP]** https://agrael1.github.io/Wisdom/
 
 # Features
