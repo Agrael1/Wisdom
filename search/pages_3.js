@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wisdom_20documentation_0',['Wisdom Documentation',['../index.html',1,'']]]
+  ['initialization_0',['Initialization',['../df/d1d/examples_page.html',1,'']]]
 ];

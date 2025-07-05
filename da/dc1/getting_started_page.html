@@ -94,50 +94,43 @@ $(document).ready(function(){initNavTree('da/dc1/getting_started_page.html','../
   <div class="headertitle"><div class="title">Getting Started</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="install_sec"></a>
+<div class="textblock"><p>This page provides a quick guide to get started with the Wisdom library. The Wisdom library is designed to be lightweight and efficient, focusing on modern C++ standards and best practices. This guide will help you set up the library, understand its basic usage, and provide resources for further exploration.</p>
+<h1><a class="anchor" id="install_sec"></a>
 Installation</h1>
-<h2><a class="anchor" id="requirements"></a>
+<p>There are several ways to install the Wisdom library. The recommended method is to use CMake, which allows for easy integration into your project. However, you can also clone the repository directly or download a release package. If you are using a Visual Studio project, you can also use a public NuGet package to install Wisdom.</p>
+<dl class="section note"><dt>Note</dt><dd>NuGet package is available at: <a href="https://www.nuget.org/packages/Wisdom/">https://www.nuget.org/packages/Wisdom/</a> The latest version of release for Windows can be downloaded from the GitHub releases page: <a href="https://github.com/Agrael1/Wisdom/releases/tag/Latest">https://github.com/Agrael1/Wisdom/releases/tag/Latest</a></dd></dl>
+<p>One of the easiest ways to install Wisdom is to use CMake FetchContent or CMake Package Manager.</p>
+<div class="fragment"><div class="line">include(FetchContent)</div>
+<div class="line">FetchContent_Declare(</div>
+<div class="line">  Wisdom</div>
+<div class="line">  GIT_REPOSITORY https://github.com/Agrael1/Wisdom.git</div>
+<div class="line">  GIT_TAG        master</div>
+<div class="line">)</div>
+<div class="line">FetchContent_MakeAvailable(Wisdom)</div>
+</div><!-- fragment --><h2><a class="anchor" id="requirements"></a>
 Requirements</h2>
 <ul>
 <li>CMake 3.22 or higher</li>
 <li>C++20 compatible compiler</li>
 <li>Ninja build system (recommended)</li>
 </ul>
+<p>On Windows you are not required to install Vulkan SDK, but it is recommended if you are working with Vulkan. Other requirements are downloaded automatically by CMake.</p>
 <h2><a class="anchor" id="build_steps"></a>
 Build Steps</h2>
+<p>There is a simple way to build the Wisdom library using CMake. Follow these steps to build the library:</p>
 <div class="fragment"><div class="line">mkdir build</div>
 <div class="line">cd build</div>
 <div class="line">cmake -G Ninja ..</div>
 <div class="line">ninja</div>
-</div><!-- fragment --><h1><a class="anchor" id="usage_sec"></a>
-Basic Usage</h1>
-<h2><a class="anchor" id="include_headers"></a>
-Including Headers</h2>
-<h2><a class="anchor" id="first_example"></a>
-First Example</h2>
-<h1><a class="anchor" id="testing_sec"></a>
-Testing</h1>
-<h2><a class="anchor" id="writing_tests"></a>
-Writing Your Own Tests</h2>
-<h1><a class="anchor" id="next_steps"></a>
-Next Steps</h1>
-<ul>
-<li>Explore the API documentation</li>
-<li>Check out the examples directory</li>
-<li>Read the advanced usage guide</li>
-<li>Join our community discussions</li>
-</ul>
-<h1><a class="anchor" id="troubleshooting"></a>
-Troubleshooting</h1>
-<h2><a class="anchor" id="common_issues"></a>
-Common Issues</h2>
-<h1><a class="anchor" id="support"></a>
-Support</h1>
-<p>For additional help:</p><ul>
-<li>Check the documentation</li>
-<li>Browse existing issues</li>
-<li>Create a new issue with detailed information </li>
-</ul>
+</div><!-- fragment --><p>However that will build examples and tests as well. If you want to build only the library, you can use presets.</p>
+<p>The library can be built using the following command:</p>
+<div class="fragment"><div class="line">mkdir build</div>
+<div class="line">cd build</div>
+<div class="line">cmake --preset x64-release-only-lib ..</div>
+<div class="line">cmake --build --preset x64-release-only-lib</div>
+</div><!-- fragment --><p>This will build the library in release mode for windows. You can also use other presets to build the library in different configurations. The shown configuration is used for NuGet package.</p>
+<p>As much as Wisdom would like to be header-only library, it is not possible due to the nature of the dependencies. But it is still possible to use it as a header-only library from CMake. For that you can use cmake targets that have suffix <code>-headers</code>.</p>
+<p><a class="el" href="../../dd/d9d/library_structure.html">Library Structure</a> provides an overview of the library structure and its components. <a class="el" href="../../d7/ddc/setup_page.html">Initialization</a> provides more information on how to use the library in your project. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

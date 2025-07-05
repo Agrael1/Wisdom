@@ -10,5 +10,5 @@ var searchData=
   ['update_7',['update',['../de/dfd/structwis_1_1TopLevelASBuildDesc.html#a855a90bdd910766eedfa4741d56b1fe5',1,'wis::TopLevelASBuildDesc']]],
   ['update_5fsize_8',['update_size',['../de/d1e/structwis_1_1ASAllocationInfo.html#aeafb3b7892dab017e116c252ea73eccb',1,'wis::ASAllocationInfo']]],
   ['upload_9',['Upload',['../d1/d34/namespacewis.html#a1ee1174b64b42ead1043861ff9fd0b7aa91412465ea9169dfd901dd5e7c96dd99',1,'wis']]],
-  ['usage_10',['usage',['../da/dc1/getting_started_page.html#usage_sec',1,'Basic Usage'],['../d1/d9c/structwis_1_1TextureDesc.html#a634bd07f1e86ce3c71c1c4e343c0e7b2',1,'wis::TextureDesc::usage']]]
+  ['usage_10',['usage',['../d7/ddc/setup_page.html#cmake_usage',1,'CMake Usage'],['../d1/d9c/structwis_1_1TextureDesc.html#a634bd07f1e86ce3c71c1c4e343c0e7b2',1,'wis::TextureDesc::usage']]]
 ];

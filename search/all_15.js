@@ -6,6 +6,6 @@ var searchData=
   ['windingorder_3',['WindingOrder',['../d1/d34/namespacewis.html#af547a52cc4797bcc933c093782f1df56',1,'wis']]],
   ['wis_4',['wis',['../d1/d34/namespacewis.html',1,'']]],
   ['wisdom_20documentation_5',['Wisdom Documentation',['../index.html',1,'']]],
-  ['write_5fmask_6',['write_mask',['../df/dea/structwis_1_1StencilDesc.html#aa4d259bf3480d8152f5a9b2bbd8d7c27',1,'wis::StencilDesc']]],
-  ['writing_20your_20own_20tests_7',['Writing Your Own Tests',['../da/dc1/getting_started_page.html#writing_tests',1,'']]]
+  ['works_6',['How It Works',['../dd/d9d/library_structure.html#how_it_works',1,'']]],
+  ['write_5fmask_7',['write_mask',['../df/dea/structwis_1_1StencilDesc.html#aa4d259bf3480d8152f5a9b2bbd8d7c27',1,'wis::StencilDesc']]]
 ];

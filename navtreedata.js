@@ -30,19 +30,29 @@ var NAVTREE =
       [ "Installation", "da/dc1/getting_started_page.html#install_sec", [
         [ "Requirements", "da/dc1/getting_started_page.html#requirements", null ],
         [ "Build Steps", "da/dc1/getting_started_page.html#build_steps", null ]
+      ] ]
+    ] ],
+    [ "Consumption", "d7/ddc/setup_page.html", [
+      [ "CMake Usage", "d7/ddc/setup_page.html#cmake_usage", [
+        [ "Finding the Library", "d7/ddc/setup_page.html#find", null ],
+        [ "Linking the Library", "d7/ddc/setup_page.html#link", null ],
+        [ "Core Library Targets", "d7/ddc/setup_page.html#core_targets", null ],
+        [ "Platform-Specific Targets", "d7/ddc/setup_page.html#platform_targets", null ],
+        [ "CMake Flags", "d7/ddc/setup_page.html#flags", null ]
       ] ],
-      [ "Basic Usage", "da/dc1/getting_started_page.html#usage_sec", [
-        [ "Including Headers", "da/dc1/getting_started_page.html#include_headers", null ],
-        [ "First Example", "da/dc1/getting_started_page.html#first_example", null ]
-      ] ],
-      [ "Testing", "da/dc1/getting_started_page.html#testing_sec", [
-        [ "Writing Your Own Tests", "da/dc1/getting_started_page.html#writing_tests", null ]
-      ] ],
-      [ "Next Steps", "da/dc1/getting_started_page.html#next_steps", null ],
-      [ "Troubleshooting", "da/dc1/getting_started_page.html#troubleshooting", [
-        [ "Common Issues", "da/dc1/getting_started_page.html#common_issues", null ]
-      ] ],
-      [ "Support", "da/dc1/getting_started_page.html#support", null ]
+      [ "NuGet Package", "d7/ddc/setup_page.html#nuget", null ],
+      [ "Addendum", "d7/ddc/setup_page.html#addendum", null ]
+    ] ],
+    [ "Library Structure", "dd/d9d/library_structure.html", [
+      [ "Overview", "dd/d9d/library_structure.html#overview_sec", null ],
+      [ "How It Works", "dd/d9d/library_structure.html#how_it_works", null ],
+      [ "Types", "dd/d9d/library_structure.html#using_types", null ],
+      [ "API", "dd/d9d/library_structure.html#api_api", null ],
+      [ "Extending the Library", "dd/d9d/library_structure.html#extension", null ]
+    ] ],
+    [ "Initialization", "df/d1d/examples_page.html", [
+      [ "Factory Initialization", "df/d1d/examples_page.html#init_sec", null ],
+      [ "Factory Extensions", "df/d1d/examples_page.html#factory_extensions", null ]
     ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -72,8 +82,8 @@ var NAVTREEINDEX =
 "annotated.html",
 "d1/d34/namespacewis.html#a99495f867097c8e894939732e0689898a72b48d523e1388e5cca2a10f16d740c5",
 "d1/d9c/structwis_1_1TextureDesc.html#a052cd24b1218e08ac48cbc8b192711e0",
-"d9/d7c/structwis_1_1PushDescriptor.html#af255621f47b1ed4261738301033a7ffc",
-"df/dea/structwis_1_1StencilDesc.html#a47c441a1c1e5856d3e16adccc5274de4"
+"d9/d3f/structwis_1_1is__flag__enum_3_01wis_1_1ResourceAccess_01_4.html",
+"df/da5/structwis_1_1TextureBarrier.html#a9482ba2c17f912b1127694f2fbff05e9"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

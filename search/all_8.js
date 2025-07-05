@@ -1,17 +1,17 @@
 var searchData=
 [
   ['incclamp_0',['IncClamp',['../d1/d34/namespacewis.html#ac929d2d2d2c28b1dfca9b9e8b789a311aa13ae544ad9721e3974570f63eb495d6',1,'wis']]],
-  ['including_20headers_1',['Including Headers',['../da/dc1/getting_started_page.html#include_headers',1,'']]],
-  ['incwrap_2',['IncWrap',['../d1/d34/namespacewis.html#ac929d2d2d2c28b1dfca9b9e8b789a311a74516c1f7b8e8d9d0a2e12dd8904b30f',1,'wis']]],
-  ['index_5fbuffer_5faddress_3',['index_buffer_address',['../d7/d87/structwis_1_1AcceleratedGeometryInput.html#a88efff8a956fc2e6ac73ab4c89138784',1,'wis::AcceleratedGeometryInput']]],
-  ['index_5fformat_4',['index_format',['../d7/d87/structwis_1_1AcceleratedGeometryInput.html#a9b0e528a05675fb551ef911c66606588',1,'wis::AcceleratedGeometryInput']]],
-  ['indexbuffer_5',['indexbuffer',['../d1/d34/namespacewis.html#a3e4d8ee629b1964ee5b4152bcec3c0c9a7c3895116254ff0417e58b6286de27c0',1,'wis::IndexBuffer'],['../d1/d34/namespacewis.html#ae16dfde67d6e8f135825be724504b79aa7c3895116254ff0417e58b6286de27c0',1,'wis::IndexBuffer']]],
-  ['indexinput_6',['IndexInput',['../d1/d34/namespacewis.html#a63cce5c8017a098cafd8bd744db51e78ad30d077004b72514eece7ad6cb137e9c',1,'wis']]],
-  ['indextype_7',['IndexType',['../d1/d34/namespacewis.html#acf79a3d981c214495903fd1f60f4ba28',1,'wis']]],
-  ['indirect_8',['indirect',['../de/dfd/structwis_1_1TopLevelASBuildDesc.html#a7850ae4fe722b8f2bd29dadd5157b6f6',1,'wis::TopLevelASBuildDesc']]],
-  ['indirectargument_9',['IndirectArgument',['../d1/d34/namespacewis.html#a3e4d8ee629b1964ee5b4152bcec3c0c9a524d085ce6a6a41af0773e42b73aa99d',1,'wis']]],
-  ['indirectbuffer_10',['IndirectBuffer',['../d1/d34/namespacewis.html#ae16dfde67d6e8f135825be724504b79aa7e5abafe55b7f7e20d417fe9c967d69e',1,'wis']]],
-  ['info_11',['Info',['../d1/d34/namespacewis.html#aa3d1e3b90540d6d62a7fdb693b79b834a4059b0251f66a18cb56f544728796875',1,'wis']]],
+  ['incwrap_1',['IncWrap',['../d1/d34/namespacewis.html#ac929d2d2d2c28b1dfca9b9e8b789a311a74516c1f7b8e8d9d0a2e12dd8904b30f',1,'wis']]],
+  ['index_5fbuffer_5faddress_2',['index_buffer_address',['../d7/d87/structwis_1_1AcceleratedGeometryInput.html#a88efff8a956fc2e6ac73ab4c89138784',1,'wis::AcceleratedGeometryInput']]],
+  ['index_5fformat_3',['index_format',['../d7/d87/structwis_1_1AcceleratedGeometryInput.html#a9b0e528a05675fb551ef911c66606588',1,'wis::AcceleratedGeometryInput']]],
+  ['indexbuffer_4',['indexbuffer',['../d1/d34/namespacewis.html#ae16dfde67d6e8f135825be724504b79aa7c3895116254ff0417e58b6286de27c0',1,'wis::IndexBuffer'],['../d1/d34/namespacewis.html#a3e4d8ee629b1964ee5b4152bcec3c0c9a7c3895116254ff0417e58b6286de27c0',1,'wis::IndexBuffer']]],
+  ['indexinput_5',['IndexInput',['../d1/d34/namespacewis.html#a63cce5c8017a098cafd8bd744db51e78ad30d077004b72514eece7ad6cb137e9c',1,'wis']]],
+  ['indextype_6',['IndexType',['../d1/d34/namespacewis.html#acf79a3d981c214495903fd1f60f4ba28',1,'wis']]],
+  ['indirect_7',['indirect',['../de/dfd/structwis_1_1TopLevelASBuildDesc.html#a7850ae4fe722b8f2bd29dadd5157b6f6',1,'wis::TopLevelASBuildDesc']]],
+  ['indirectargument_8',['IndirectArgument',['../d1/d34/namespacewis.html#a3e4d8ee629b1964ee5b4152bcec3c0c9a524d085ce6a6a41af0773e42b73aa99d',1,'wis']]],
+  ['indirectbuffer_9',['IndirectBuffer',['../d1/d34/namespacewis.html#ae16dfde67d6e8f135825be724504b79aa7e5abafe55b7f7e20d417fe9c967d69e',1,'wis']]],
+  ['info_10',['Info',['../d1/d34/namespacewis.html#aa3d1e3b90540d6d62a7fdb693b79b834a4059b0251f66a18cb56f544728796875',1,'wis']]],
+  ['initialization_11',['initialization',['../df/d1d/examples_page.html#init_sec',1,'Factory Initialization'],['../df/d1d/examples_page.html',1,'Initialization']]],
   ['input_5fclass_12',['input_class',['../d3/d8b/structwis_1_1InputSlotDesc.html#a045d35c5310cd4eff399c49307a10452',1,'wis::InputSlotDesc']]],
   ['input_5fslot_13',['input_slot',['../d9/d99/structwis_1_1InputAttribute.html#a14386f6ebaca9e2ece8b42b41d18d012',1,'wis::InputAttribute']]],
   ['inputattribute_14',['InputAttribute',['../d9/d99/structwis_1_1InputAttribute.html',1,'wis']]],
@@ -47,5 +47,5 @@ var searchData=
   ['is_5fflag_5fenum_3c_20wis_3a_3arenderpassflags_20_3e_44',['is_flag_enum&lt; wis::RenderPassFlags &gt;',['../d7/dc3/structwis_1_1is__flag__enum_3_01wis_1_1RenderPassFlags_01_4.html',1,'wis']]],
   ['is_5fflag_5fenum_3c_20wis_3a_3aresourceaccess_20_3e_45',['is_flag_enum&lt; wis::ResourceAccess &gt;',['../d9/d3f/structwis_1_1is__flag__enum_3_01wis_1_1ResourceAccess_01_4.html',1,'wis']]],
   ['is_5fflag_5fenum_3c_20wis_3a_3atextureusage_20_3e_46',['is_flag_enum&lt; wis::TextureUsage &gt;',['../d8/d6c/structwis_1_1is__flag__enum_3_01wis_1_1TextureUsage_01_4.html',1,'wis']]],
-  ['issues_47',['Common Issues',['../da/dc1/getting_started_page.html#common_issues',1,'']]]
+  ['it_20works_47',['How It Works',['../dd/d9d/library_structure.html#how_it_works',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['documentation_0',['Wisdom Documentation',['../index.html',1,'']]]
+  ['consumption_0',['Consumption',['../d7/ddc/setup_page.html',1,'']]]
 ];
