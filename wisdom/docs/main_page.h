@@ -14,7 +14,8 @@
  *
  * - @ref getting_started_page "Getting Started" - Learn how to build the library and integrate it into your project
  * - @ref setup_page "Consumption" - Installation and configuration instructions
- * - @ref examples_page "Examples" - Explore various examples demonstrating the library's capabilities
+ * - @ref library_structure "Library Structure" - Overview of the library structure and components
+ * - @ref examples_page "Initialization" - Basic examples of how to use the Wisdom library
  *
  * @section features_sec Key Features
  *
