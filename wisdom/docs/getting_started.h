@@ -65,7 +65,6 @@
  * @ref setup_page "Initialization" provides more information on how to use the library in your project.
  */
 
-
 /**
  * @page setup_page Consumption
  *
