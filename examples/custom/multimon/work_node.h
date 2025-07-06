@@ -6,9 +6,7 @@
 
 struct WorkNode {
     WorkNode() = default;
-    WorkNode(const WorkNode&) = default;
     WorkNode(WorkNode&&) noexcept = default;
-    WorkNode& operator=(const WorkNode&) = default;
     WorkNode& operator=(WorkNode&&) noexcept = default;
     ~WorkNode() noexcept
     {

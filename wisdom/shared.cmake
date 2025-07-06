@@ -44,6 +44,7 @@ endif()
 set_target_properties(wisdom-shared PROPERTIES CXX_STANDARD 20)
 target_compile_features(wisdom-shared INTERFACE cxx_std_20)
 target_compile_options(wisdom-shared INTERFACE
+  $<$<CXX_COMPILER_ID:Clang>:-Wno-include-angled-in-module-purview -Wno-nullability-completeness>
   $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
 )
 

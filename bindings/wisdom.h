@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/** Wisdom API Version 0.6.10
+/** Wisdom API Version 0.6.11
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1204,6 +1204,7 @@ enum WisDeviceExtID {
     DeviceExtIDCustom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DeviceExtIDDescriptorBufferExtension = 1,
     DeviceExtIDExtendedAllocation = 2,
+    DeviceExtIDRaytracingExtension = 3,
 };
 
 /**
@@ -1918,10 +1919,11 @@ struct WisDescriptorTableEntry {
     uint32_t bind_register; ///< Bind register number in HLSL.
     uint32_t binding; ///< Binding number in HLSL.
     uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
+    uint32_t binding_space; ///< Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0.
 };
 
 /**
- * @brief Descriptor table for .
+ * @brief Descriptor table for DescriptorBuffer.
  * */
 struct WisDescriptorTable {
     WisDescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
@@ -3234,6 +3236,48 @@ WISDOM_API void VKDescriptorStorageWriteConstantBuffer(VKDescriptorStorage self,
  * */
 WISDOM_API void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKShaderResource resource);
 
+/**
+ * @brief Writes the storage texture to the storage texture descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage textures to fill.
+ * @param uav The storage texture to write.
+ * */
+WISDOM_API void VKDescriptorStorageWriteRWTexture(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKUnorderedAccessTexture uav);
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void VKDescriptorStorageWriteRWStructuredBuffer(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of structured buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void VKDescriptorStorageWriteStructuredBuffer(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of acceleration structures to fill.
+ * @param acceleration_structure The acceleration structure to write.
+ * */
+WISDOM_API void VKDescriptorStorageWriteAccelerationStructure(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKAccelerationStructure acceleration_structure);
+
 // VKRootSignature methods --
 /**
  * @brief Destroys the VKRootSignature.
@@ -4386,6 +4430,48 @@ WISDOM_API void DX12DescriptorStorageWriteConstantBuffer(DX12DescriptorStorage s
  * @param resource The shader resource to write.
  * */
 WISDOM_API void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12ShaderResource resource);
+
+/**
+ * @brief Writes the storage texture to the storage texture descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage textures to fill.
+ * @param uav The storage texture to write.
+ * */
+WISDOM_API void DX12DescriptorStorageWriteRWTexture(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12UnorderedAccessTexture uav);
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void DX12DescriptorStorageWriteRWStructuredBuffer(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Buffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of structured buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void DX12DescriptorStorageWriteStructuredBuffer(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Buffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of acceleration structures to fill.
+ * @param acceleration_structure The acceleration structure to write.
+ * */
+WISDOM_API void DX12DescriptorStorageWriteAccelerationStructure(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12AccelerationStructure acceleration_structure);
 
 // DX12RootSignature methods --
 /**
@@ -5664,6 +5750,60 @@ inline void WisDescriptorStorageWriteConstantBuffer(WisDescriptorStorage self, u
 inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisShaderResource resource)
 {
     DX12DescriptorStorageWriteTexture(self, set_index, binding, resource);
+}
+
+/**
+ * @brief Writes the storage texture to the storage texture descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage textures to fill.
+ * @param uav The storage texture to write.
+ * */
+inline void WisDescriptorStorageWriteRWTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisUnorderedAccessTexture uav)
+{
+    DX12DescriptorStorageWriteRWTexture(self, set_index, binding, uav);
+}
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorStorageWriteRWStructuredBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    DX12DescriptorStorageWriteRWStructuredBuffer(self, set_index, binding, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of structured buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorStorageWriteStructuredBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    DX12DescriptorStorageWriteStructuredBuffer(self, set_index, binding, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of acceleration structures to fill.
+ * @param acceleration_structure The acceleration structure to write.
+ * */
+inline void WisDescriptorStorageWriteAccelerationStructure(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisAccelerationStructure acceleration_structure)
+{
+    DX12DescriptorStorageWriteAccelerationStructure(self, set_index, binding, acceleration_structure);
 }
 
 // WisRootSignature methods --
@@ -6954,6 +7094,60 @@ inline void WisDescriptorStorageWriteTexture(WisDescriptorStorage self, uint32_t
     VKDescriptorStorageWriteTexture(self, set_index, binding, resource);
 }
 
+/**
+ * @brief Writes the storage texture to the storage texture descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage textures to fill.
+ * @param uav The storage texture to write.
+ * */
+inline void WisDescriptorStorageWriteRWTexture(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisUnorderedAccessTexture uav)
+{
+    VKDescriptorStorageWriteRWTexture(self, set_index, binding, uav);
+}
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of storage buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorStorageWriteRWStructuredBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    VKDescriptorStorageWriteRWStructuredBuffer(self, set_index, binding, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of structured buffers to fill.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorStorageWriteStructuredBuffer(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    VKDescriptorStorageWriteStructuredBuffer(self, set_index, binding, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor storage.
+ * @param self valid handle to the DescriptorStorage
+ * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+ * @param binding Index in array of acceleration structures to fill.
+ * @param acceleration_structure The acceleration structure to write.
+ * */
+inline void WisDescriptorStorageWriteAccelerationStructure(WisDescriptorStorage self, uint32_t set_index, uint32_t binding, WisAccelerationStructure acceleration_structure)
+{
+    VKDescriptorStorageWriteAccelerationStructure(self, set_index, binding, acceleration_structure);
+}
+
 // WisRootSignature methods --
 /**
  * @brief Destroys the WisRootSignature.
@@ -7229,7 +7423,7 @@ WISDOM_API void VKDescriptorBufferWriteSampler(VKDescriptorBuffer self, uint64_t
  * @param index Binding index in descriptor table.
  * @param resource The shader resource to write.
  * */
-WISDOM_API void VKDescriptorBufferWriteShaderResource(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKShaderResource resource);
+WISDOM_API void VKDescriptorBufferWriteTexture(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKShaderResource resource);
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor buffer.
@@ -7243,6 +7437,56 @@ WISDOM_API void VKDescriptorBufferWriteShaderResource(VKDescriptorBuffer self, u
  * @param offset Offset from buffer beginning. offset + buffer_size must be less or equal buffer overall size.
  * */
 WISDOM_API void VKDescriptorBufferWriteConstantBuffer(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKBuffer buffer, uint32_t buffer_size, uint32_t offset);
+
+/**
+ * @brief Writes the storage texture to the storage texture descriptor buffer.
+ * Must be called with Storage Texture descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param uav The storage texture to write.
+ * */
+WISDOM_API void VKDescriptorBufferWriteRWTexture(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKUnorderedAccessTexture uav);
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor buffer.
+ * Must be called with Storage Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void VKDescriptorBufferWriteRWStructuredBuffer(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void VKDescriptorBufferWriteStructuredBuffer(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, VKBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor buffer.
+ * Must be called with Acceleration Structure descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param acceleration_structure_device_address The device address of the acceleration structure to write. Can be queried with .
+ * */
+WISDOM_API void VKDescriptorBufferWriteAccelerationStructure(VKDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address);
 
 #endif
 
@@ -7342,7 +7586,7 @@ WISDOM_API void DX12DescriptorBufferWriteSampler(DX12DescriptorBuffer self, uint
  * @param index Binding index in descriptor table.
  * @param resource The shader resource to write.
  * */
-WISDOM_API void DX12DescriptorBufferWriteShaderResource(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12ShaderResource resource);
+WISDOM_API void DX12DescriptorBufferWriteTexture(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12ShaderResource resource);
 
 /**
  * @brief Writes the constant buffer to the constant buffer descriptor buffer.
@@ -7356,6 +7600,56 @@ WISDOM_API void DX12DescriptorBufferWriteShaderResource(DX12DescriptorBuffer sel
  * @param offset Offset from buffer beginning. offset + buffer_size must be less or equal buffer overall size.
  * */
 WISDOM_API void DX12DescriptorBufferWriteConstantBuffer(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Buffer buffer, uint32_t buffer_size, uint32_t offset);
+
+/**
+ * @brief Writes the storage texture to the storage texture descriptor buffer.
+ * Must be called with Storage Texture descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param uav The storage texture to write.
+ * */
+WISDOM_API void DX12DescriptorBufferWriteRWTexture(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12UnorderedAccessTexture uav);
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor buffer.
+ * Must be called with Storage Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void DX12DescriptorBufferWriteRWStructuredBuffer(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Buffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+WISDOM_API void DX12DescriptorBufferWriteStructuredBuffer(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, DX12Buffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements);
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor buffer.
+ * Must be called with Acceleration Structure descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param acceleration_structure_device_address The device address of the acceleration structure to write. Can be queried with .
+ * */
+WISDOM_API void DX12DescriptorBufferWriteAccelerationStructure(DX12DescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address);
 
 #endif
 
@@ -7479,9 +7773,9 @@ inline void WisDescriptorBufferWriteSampler(WisDescriptorBuffer self, uint64_t a
  * @param index Binding index in descriptor table.
  * @param resource The shader resource to write.
  * */
-inline void WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisShaderResource resource)
+inline void WisDescriptorBufferWriteTexture(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisShaderResource resource)
 {
-    DX12DescriptorBufferWriteShaderResource(self, aligned_table_offset, index, resource);
+    DX12DescriptorBufferWriteTexture(self, aligned_table_offset, index, resource);
 }
 
 /**
@@ -7498,6 +7792,68 @@ inline void WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uin
 inline void WisDescriptorBufferWriteConstantBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t buffer_size, uint32_t offset)
 {
     DX12DescriptorBufferWriteConstantBuffer(self, aligned_table_offset, index, buffer, buffer_size, offset);
+}
+
+/**
+ * @brief Writes the storage texture to the storage texture descriptor buffer.
+ * Must be called with Storage Texture descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param uav The storage texture to write.
+ * */
+inline void WisDescriptorBufferWriteRWTexture(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisUnorderedAccessTexture uav)
+{
+    DX12DescriptorBufferWriteRWTexture(self, aligned_table_offset, index, uav);
+}
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor buffer.
+ * Must be called with Storage Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorBufferWriteRWStructuredBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    DX12DescriptorBufferWriteRWStructuredBuffer(self, aligned_table_offset, index, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorBufferWriteStructuredBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    DX12DescriptorBufferWriteStructuredBuffer(self, aligned_table_offset, index, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor buffer.
+ * Must be called with Acceleration Structure descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param acceleration_structure_device_address The device address of the acceleration structure to write. Can be queried with .
+ * */
+inline void WisDescriptorBufferWriteAccelerationStructure(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address)
+{
+    DX12DescriptorBufferWriteAccelerationStructure(self, aligned_table_offset, index, acceleration_structure_device_address);
 }
 
 #elif defined(WISDOM_VULKAN)
@@ -7621,9 +7977,9 @@ inline void WisDescriptorBufferWriteSampler(WisDescriptorBuffer self, uint64_t a
  * @param index Binding index in descriptor table.
  * @param resource The shader resource to write.
  * */
-inline void WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisShaderResource resource)
+inline void WisDescriptorBufferWriteTexture(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisShaderResource resource)
 {
-    VKDescriptorBufferWriteShaderResource(self, aligned_table_offset, index, resource);
+    VKDescriptorBufferWriteTexture(self, aligned_table_offset, index, resource);
 }
 
 /**
@@ -7640,6 +7996,68 @@ inline void WisDescriptorBufferWriteShaderResource(WisDescriptorBuffer self, uin
 inline void WisDescriptorBufferWriteConstantBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t buffer_size, uint32_t offset)
 {
     VKDescriptorBufferWriteConstantBuffer(self, aligned_table_offset, index, buffer, buffer_size, offset);
+}
+
+/**
+ * @brief Writes the storage texture to the storage texture descriptor buffer.
+ * Must be called with Storage Texture descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param uav The storage texture to write.
+ * */
+inline void WisDescriptorBufferWriteRWTexture(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisUnorderedAccessTexture uav)
+{
+    VKDescriptorBufferWriteRWTexture(self, aligned_table_offset, index, uav);
+}
+
+/**
+ * @brief Writes the storage structured buffer to the storage buffer descriptor buffer.
+ * Must be called with Storage Buffer descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorBufferWriteRWStructuredBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    VKDescriptorBufferWriteRWStructuredBuffer(self, aligned_table_offset, index, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the structured buffer to the shader resource descriptor buffer.
+ * Must be called with Shader Resource descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param buffer The buffer to write.
+ * @param stride The stride of each element in the structured buffer in bytes.
+ * @param element_count The number of elements in the structured buffer.
+ * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+ * */
+inline void WisDescriptorBufferWriteStructuredBuffer(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, WisBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    VKDescriptorBufferWriteStructuredBuffer(self, aligned_table_offset, index, buffer, stride, element_count, offset_elements);
+}
+
+/**
+ * @brief Writes the acceleration structure to the acceleration structure descriptor buffer.
+ * Must be called with Acceleration Structure descriptor buffer, which was created with DescriptorHeapTypeDescriptor.
+ * @param self valid handle to the DescriptorBuffer
+ * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+ * Alignment may be queried with .
+ * @param index Binding index in descriptor table.
+ * @param acceleration_structure_device_address The device address of the acceleration structure to write. Can be queried with .
+ * */
+inline void WisDescriptorBufferWriteAccelerationStructure(WisDescriptorBuffer self, uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address)
+{
+    VKDescriptorBufferWriteAccelerationStructure(self, aligned_table_offset, index, acceleration_structure_device_address);
 }
 
 #endif
@@ -7824,6 +8242,78 @@ inline WisResult WisExtendedAllocationWriteMemoryToSubresourceDirect(WisExtended
 inline bool WisExtendedAllocationSupportedDirectGPUUpload(WisExtendedAllocation self, WisDataFormat format)
 {
     return VKExtendedAllocationSupportedDirectGPUUpload(self, format);
+}
+
+#endif
+
+//-------------------------------------------------------------------------
+
+// RaytracingExtension--
+#ifndef WIS_RaytracingExtension
+#define WIS_RaytracingExtension 1
+#endif
+
+#ifdef WISDOM_VULKAN
+typedef VKFactoryExtension VKRaytracingExtension;
+typedef struct VKAccelerationStructure_t* VKAccelerationStructure;
+
+// VKRaytracingExtension methods --
+
+// VKAccelerationStructure methods --
+/**
+ * @brief Destroys the VKAccelerationStructure.
+ * @param self valid handle to the AccelerationStructure
+ * */
+WISDOM_API void VKAccelerationStructureDestroy(VKAccelerationStructure self);
+
+#endif
+
+#ifdef WISDOM_DX12
+typedef DX12FactoryExtension DX12RaytracingExtension;
+typedef struct DX12AccelerationStructure_t* DX12AccelerationStructure;
+
+// DX12RaytracingExtension methods --
+
+// DX12AccelerationStructure methods --
+/**
+ * @brief Destroys the DX12AccelerationStructure.
+ * @param self valid handle to the AccelerationStructure
+ * */
+WISDOM_API void DX12AccelerationStructureDestroy(DX12AccelerationStructure self);
+
+#endif
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+typedef DX12RaytracingExtension WisRaytracingExtension;
+typedef DX12AccelerationStructure WisAccelerationStructure;
+
+// WisRaytracingExtension methods --
+
+// WisAccelerationStructure methods --
+/**
+ * @brief Destroys the WisAccelerationStructure.
+ * @param self valid handle to the AccelerationStructure
+ * */
+inline void WisAccelerationStructureDestroy(WisAccelerationStructure self)
+{
+    DX12AccelerationStructureDestroy(self);
+}
+
+#elif defined(WISDOM_VULKAN)
+
+typedef VKRaytracingExtension WisRaytracingExtension;
+typedef VKAccelerationStructure WisAccelerationStructure;
+
+// WisRaytracingExtension methods --
+
+// WisAccelerationStructure methods --
+/**
+ * @brief Destroys the WisAccelerationStructure.
+ * @param self valid handle to the AccelerationStructure
+ * */
+inline void WisAccelerationStructureDestroy(WisAccelerationStructure self)
+{
+    VKAccelerationStructureDestroy(self);
 }
 
 #endif

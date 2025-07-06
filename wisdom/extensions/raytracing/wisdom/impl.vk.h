@@ -148,25 +148,6 @@ public:
         };
         table.vkCmdTraceRaysKHR(cmd_list_i, &raygen, &miss, &hit, &callable, desc.width, desc.height, desc.depth);
     }
-
-    void WriteAccelerationStructure(wis::VKDescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::VKAccelerationStructureView as) const noexcept
-    {
-        VkWriteDescriptorSetAccelerationStructureKHR as_info{
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
-            .accelerationStructureCount = 1,
-            .pAccelerationStructures = &std::get<0>(as),
-        };
-        VkWriteDescriptorSet write{
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .pNext = &as_info,
-            .dstSet = std::get<0>(storage)[binding_set],
-            .dstBinding = 0,
-            .dstArrayElement = index,
-            .descriptorCount = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
-        };
-        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
-    }
 };
 
 [[nodiscard]] inline constexpr wis::VKAcceleratedGeometryDesc

@@ -10,25 +10,28 @@
  *
  * @note DOCUMENTATION IS IN PROGRESS. Would appreciate any feedback or contributions to improve it.
  *
- * @section navigation_sec Navigation
+ * @section navigation_sec Quick Navigation
  *
- * - @ref getting_started_page "Getting Started" - Learn how to integrate Wisdom into your project
- * - @ref setup_page "Setup" - Installation and configuration instructions
+ * - @ref getting_started_page "Getting Started" - Learn how to build the library and integrate it into your project
+ * - @ref setup_page "Consumption" - Installation and configuration instructions
+ * - @ref library_structure "Library Structure" - Overview of the library structure and components
+ * - @ref examples_page "Initialization" - Basic examples of how to use the Wisdom library
  *
  * @section features_sec Key Features
  *
  * - Modern C++ support (C++20/C++23)
  * - CMake integration
- * - Comprehensive test coverage with Catch2
  * - Cross-platform compatibility
+ * - Open-end extensibility
+ * - High performance with minimal overhead
  *
  * @section requirements_sec Requirements
  *
  * - CMake 3.22 or higher
  * - C++20 compatible compiler
- * - Catch2 v3 for testing
+ * - Vulkan SDK <optional for Windows>
  *
  * @section contact_sec Contact & Support
  *
- * For questions, issues, or contributions, please refer to the project repository.
+ * For questions, issues, or contributions, please refer to the project repository at https://github.com/Agrael1/Wisdom
  */

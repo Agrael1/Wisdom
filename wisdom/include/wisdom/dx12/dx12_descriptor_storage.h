@@ -78,7 +78,7 @@ public:
         device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 
-    void WriteRWStrcturedBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    void WriteRWStructuredBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
             .Format = DXGI_FORMAT_R32_TYPELESS,
@@ -108,6 +108,19 @@ public:
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateShaderResourceView(std::get<0>(buffer), &srv_desc, handle);
+    }
+
+    void WriteAccelerationStructure(uint32_t binding, uint32_t index, wis::DX12AccelerationStructureView as) const noexcept
+    {
+        auto& internal = GetInternal();
+        D3D12_SHADER_RESOURCE_VIEW_DESC desc{
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
+            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .RaytracingAccelerationStructure = { std::get<0>(as) }
+        };
+        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
+        device->CreateShaderResourceView(nullptr, &desc, handle);
     }
 
 public:
@@ -165,6 +178,52 @@ public:
     inline void WriteTexture(uint32_t set_index, uint32_t binding, wis::DX12ShaderResourceView resource) noexcept
     {
         wis::ImplDX12DescriptorStorage::WriteTexture(set_index, binding, std::move(resource));
+    }
+    /**
+     * @brief Writes the storage texture to the storage texture descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of storage textures to fill.
+     * @param uav The storage texture to write.
+     * */
+    inline void WriteRWTexture(uint32_t set_index, uint32_t binding, wis::DX12UnorderedAccessTextureView uav) noexcept
+    {
+        wis::ImplDX12DescriptorStorage::WriteRWTexture(set_index, binding, std::move(uav));
+    }
+    /**
+     * @brief Writes the storage structured buffer to the storage buffer descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of storage buffers to fill.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteRWStructuredBuffer(uint32_t set_index, uint32_t binding, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplDX12DescriptorStorage::WriteRWStructuredBuffer(set_index, binding, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the structured buffer to the shader resource descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of structured buffers to fill.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteStructuredBuffer(uint32_t set_index, uint32_t binding, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplDX12DescriptorStorage::WriteStructuredBuffer(set_index, binding, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the acceleration structure to the acceleration structure descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of acceleration structures to fill.
+     * @param acceleration_structure The acceleration structure to write.
+     * */
+    inline void WriteAccelerationStructure(uint32_t set_index, uint32_t binding, wis::DX12AccelerationStructureView acceleration_structure) noexcept
+    {
+        wis::ImplDX12DescriptorStorage::WriteAccelerationStructure(set_index, binding, acceleration_structure);
     }
 };
 #pragma endregion DX12DescriptorStorage

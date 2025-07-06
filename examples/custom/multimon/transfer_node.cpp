@@ -309,7 +309,7 @@ void TransferNode::VKImportFrame(wis::Size2D frame, void* mapping)
     texture_srv = std::move(srv);
 
     // write data to Descriptor Buffer
-    desc_buffer.WriteShaderResource(0, 0, texture_srv);
+    desc_buffer.WriteTexture(0, 0, texture_srv);
     input_size = frame;
 
     std::ignore = cmd_list.Reset();

@@ -34,13 +34,13 @@ struct A : public wis::VKDeviceExtension {
         property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT] = sizeof(VkPhysicalDeviceCustomBorderColorPropertiesEXT);
         return true;
     }
-    virtual bool Supported() const noexcept
+    virtual bool Supported() const noexcept override
     {
         return true;
     }
     virtual wis::Result Init(const wis::VKDevice& instance,
                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                             const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                             const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
     {
         VkPhysicalDeviceCustomBorderColorFeaturesEXT& features = *reinterpret_cast<VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT));
         VkPhysicalDeviceCustomBorderColorPropertiesEXT& properties = *reinterpret_cast<VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT));

@@ -12,11 +12,11 @@ if(WISDOM_USE_SYSTEM_DXC)
   find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE})
   if(DXCOMPILER)
     message("Found DXC...")
-    set(dxc_EXECUTABLE
+    set(DXC_EXECUTABLE
         ${DXCOMPILER}
         CACHE INTERNAL "")
   elseif(WISDOM_USE_SYSTEM_DXC)
-    set(dxc_EXECUTABLE
+    set(DXC_EXECUTABLE
         "dxc"
         CACHE INTERNAL "")
   endif()
@@ -26,11 +26,11 @@ else()
   # Download latest DXC from AppVeyor
   if(WISDOM_WINDOWS)
     set(DXC_FILE
-        https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2403/dxc_2024_03_07.zip
+        https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/dxc_2025_05_24.zip
     )
   else()
     set(DXC_FILE
-        https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2403/linux_dxc_2024_03_07.x86_64.tar.gz
+        https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/linux_dxc_2025_05_24.x86_64.tar.gz
     )
   endif()
 
@@ -43,14 +43,20 @@ else()
   endif()
 
   if(WIN32)
-    set(dxc_EXECUTABLE
+    set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/x64/dxc.exe
         CACHE INTERNAL "")
+    set(DXC_DLLS ${dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll
+                 ${dxc_SOURCE_DIR}/bin/x64/dxil.dll)
+
+    install(FILES ${DXC_DLLS} DESTINATION bin)
   else()
-    set(dxc_EXECUTABLE
+    set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/dxc
         CACHE INTERNAL "")
+    set(DXC_DLLS ${dxc_SOURCE_DIR}/lib/libdxcompiler.so
+                 ${dxc_SOURCE_DIR}/lib/libdxil.so)
+    install(FILES ${DXC_DLLS} DESTINATION lib)
   endif()
+  install(PROGRAMS ${DXC_EXECUTABLE} DESTINATION bin)
 endif()
-
-install(PROGRAMS ${dxc_EXECUTABLE} DESTINATION bin)

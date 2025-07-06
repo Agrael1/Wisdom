@@ -335,8 +335,8 @@ CreateWorkNode(wis::Adapter&& adapter)
         }
 
         // Set Descriptor Buffers
-        hdesc.WriteShaderResource(0, 1, node.srv);
-        hdesc.WriteShaderResource(0, 0, node.srv_lut);
+        hdesc.WriteTexture(0, 1, node.srv);
+        hdesc.WriteTexture(0, 0, node.srv_lut);
 
         hdesc2.WriteSampler(0, 0, node.sampler);
 
@@ -432,7 +432,7 @@ void WorkNode::CreateOutputTexture(wis::Size2D frame)
 void WorkNode::WaitForGPU() noexcept
 {
     const uint64_t vfence = fence_value;
-    queue.SignalQueue(fence, vfence);
+    std::ignore = queue.SignalQueue(fence, vfence);
     fence_value++;
     std::ignore = fence.Wait(vfence);
 }

@@ -104,7 +104,7 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result,
                 .RangeType = convert_dx(entry.type),
                 .NumDescriptors = entry.count,
                 .BaseShaderRegister = entry.bind_register,
-                .RegisterSpace = 0,
+                .RegisterSpace = entry.binding_space,
                 .Flags = entry.count == UINT32_MAX ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE, // always volatile for unbounded arrays
                 .OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
             };

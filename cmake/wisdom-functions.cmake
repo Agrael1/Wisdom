@@ -10,8 +10,8 @@ function(wis_export_agility_file)
 
 	get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
 
-	set(EXPORT_AGILITY "_declspec(dllexport) extern const unsigned D3D12SDKVersion = ${DX12SDKVER};
-						_declspec(dllexport) extern const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
+	set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
+						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
 	)
 	file(WRITE ${wis_export_agility_file_PATH} "${EXPORT_AGILITY}")
 endfunction()
@@ -97,10 +97,10 @@ function(wis_compile_shader)
                           "${multiValueArgs}" ${ARGN} )
 
 	if(NOT wis_compile_shader_DXC)
-		if(NOT dxc_EXECUTABLE)
+		if(NOT DXC_EXECUTABLE)
 			find_program(wis_compile_shader_DXC dxc)
 		else()
-			set(wis_compile_shader_DXC ${dxc_EXECUTABLE})
+			set(wis_compile_shader_DXC ${DXC_EXECUTABLE})
 		endif()
 	endif()
 
@@ -191,7 +191,6 @@ function(wis_compile_shader)
     if(WIN32)
         add_custom_command(TARGET ${TARGET} POST_BUILD
             COMMAND "${wis_compile_shader_DXC}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -Wno-ignored-attributes ${FLAGS} ${INCLUDES} ${DEFINES} -DDXIL=1 -Fo${OUTPUT_DXIL} -Fd${OUTPUT_PDB} ${SHADER}
-            DEPENDS ${SHADER}
             COMMENT "HLSL ${SHADER}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
@@ -199,7 +198,6 @@ function(wis_compile_shader)
 
     add_custom_command(TARGET ${TARGET} POST_BUILD
         COMMAND "${wis_compile_shader_DXC}" -E${ENTRY} -T${TYPE}_${SHADER_MODEL} -Zi $<IF:$<CONFIG:DEBUG>,-Od,-O3> -spirv -Wno-ignored-attributes ${FLAGS} -fspv-target-env=vulkan1.3 ${INCLUDES} ${DEFINES} -DSPIRV=1 -Fo${OUTPUT_SPV} ${SHADER}
-        DEPENDS ${SHADER}
         COMMENT "SPV ${SHADER}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM)

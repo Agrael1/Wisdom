@@ -695,6 +695,44 @@ size + offset must be less or equal the overall size of the bound buffer."/>
       </arg>
     </func>
 
+    <func for="DescriptorStorage" name="WriteRWTexture" doc="Writes the storage texture to the storage texture descriptor storage.">
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of storage textures to fill."/>
+      <arg type="UnorderedAccessTexture" name="uav" doc="The storage texture to write.">
+        <replace with="UnorderedAccessTextureView" for="cpp" doc="The storage texture to write."/>
+      </arg>
+    </func>
+
+    <func for="DescriptorStorage" name="WriteRWStructuredBuffer" doc="Writes the storage structured buffer to the storage buffer descriptor storage.">
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of storage buffers to fill."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to write.">
+        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+      </arg>
+      <arg type="u32" name="stride" doc="The stride of each element in the structured buffer in bytes."/>
+      <arg type="u32" name="element_count" doc="The number of elements in the structured buffer."/>
+      <arg type="u32" name="offset_elements" default="0" doc="The offset in elements from the beginning of the buffer. Default is 0."/>
+    </func>
+
+    <func for="DescriptorStorage" name="WriteStructuredBuffer" doc="Writes the structured buffer to the shader resource descriptor storage.">
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of structured buffers to fill."/>
+      <arg type="Buffer" name="buffer" doc="The buffer to write.">
+        <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+      </arg>
+      <arg type="u32" name="stride" doc="The stride of each element in the structured buffer in bytes."/>
+      <arg type="u32" name="element_count" doc="The number of elements in the structured buffer."/>
+      <arg type="u32" name="offset_elements" default="0" doc="The offset in elements from the beginning of the buffer. Default is 0."/>
+    </func>
+
+    <func for="DescriptorStorage" name="WriteAccelerationStructure" doc="Writes the acceleration structure to the acceleration structure descriptor storage.">
+      <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
+      <arg type="u32" name="binding" doc="Index in array of acceleration structures to fill."/>
+      <arg type="AccelerationStructure" name="acceleration_structure" doc="The acceleration structure to write.">
+        <replace with="AccelerationStructureView" for="cpp" doc="The acceleration structure to write."/>
+      </arg>
+    </func>
+
     <!-- Free Functions -->
     <func name="CreateFactory" mod="custom-impl" doc="Creates the {Factory::} with extensions, specified in extension array.">
       <ret type="Factory" name="factory" result="true" doc="{Factory::} on success ({Status::Ok})."/>
@@ -741,8 +779,8 @@ It is the most flexible implementation of storage for descriptors, as it support
 Descriptor approaches. Works like an aligned table of elements of the same size.
 Alignment and size of descriptors are varying between implementation and heap types.
 Both metrixs are available to retrieval from {DescriptorBufferExtension::}">
-        <file for="vk" include="wisdom/vk_descriptor_buffer.h"/>
-        <file for="dx" include="wisdom/dx12_descriptor_buffer.h"/>
+        <file for="vk" include="wisdom/vk_descriptor_buffer.hpp"/>
+        <file for="dx" include="wisdom/dx12_descriptor_buffer.hpp"/>
       </handle>
 
       <type name="DescriptorBufferView" category="variant" for="DescriptorBuffer" mod="cpp-only"/>
@@ -761,7 +799,7 @@ Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlig
         </arg>
       </func>
 
-      <func for="DescriptorBuffer" name="WriteShaderResource" doc="Writes the shader resource to the shader resource descriptor buffer.
+      <func for="DescriptorBuffer" name="WriteTexture" doc="Writes the shader resource to the shader resource descriptor buffer.
 Must be called with Shader Resource descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
         <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
 Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
@@ -781,6 +819,50 @@ Alignment may be queried with {Device::GetDescriptorTableAlignment}."/>
         </arg>
         <arg type="u32" name="buffer_size" doc="The size of the part of the buffer in bytes."/>
         <arg type="u32" name="offset" default="0" doc="Offset from buffer beginning. offset + buffer_size must be less or equal buffer overall size."/>
+      </func>
+
+      <func for="DescriptorBuffer" name="WriteRWTexture" doc="Writes the storage texture to the storage texture descriptor buffer.
+Must be called with Storage Texture descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="UnorderedAccessTexture" name="uav" doc="The storage texture to write.">
+          <replace with="UnorderedAccessTextureView" for="cpp" doc="The storage texture to write."/>
+        </arg>
+      </func>
+
+      <func for="DescriptorBuffer" name="WriteRWStructuredBuffer" doc="Writes the storage structured buffer to the storage buffer descriptor buffer.
+Must be called with Storage Buffer descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="Buffer" name="buffer" doc="The buffer to write.">
+          <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+        </arg>
+        <arg type="u32" name="stride" doc="The stride of each element in the structured buffer in bytes."/>
+        <arg type="u32" name="element_count" doc="The number of elements in the structured buffer."/>
+        <arg type="u32" name="offset_elements" default="0" doc="The offset in elements from the beginning of the buffer. Default is 0."/>
+      </func>
+
+      <func for="DescriptorBuffer" name="WriteStructuredBuffer" doc="Writes the structured buffer to the shader resource descriptor buffer.
+Must be called with Shader Resource descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="Buffer" name="buffer" doc="The buffer to write.">
+          <replace with="BufferView" for="cpp" doc="The buffer to write."/>
+        </arg>
+        <arg type="u32" name="stride" doc="The stride of each element in the structured buffer in bytes."/>
+        <arg type="u32" name="element_count" doc="The number of elements in the structured buffer."/>
+        <arg type="u32" name="offset_elements" default="0" doc="The offset in elements from the beginning of the buffer. Default is 0."/>
+      </func>
+
+      <func for="DescriptorBuffer" name="WriteAccelerationStructure" doc="Writes the acceleration structure to the acceleration structure descriptor buffer.
+Must be called with Acceleration Structure descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
+        <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
+Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
+        <arg type="u32" name="index" doc="Binding index in descriptor table."/>
+        <arg type="u64" name="acceleration_structure_device_address" doc="The device address of the acceleration structure to write. Can be queried with {RaytracingExtension::GetAccelerationStructureAddress}."/>
       </func>
 
       <func for="DescriptorBufferExtension" name="CreateRootSignature" mod="const" doc="Creates a root signature object.">
@@ -866,6 +948,16 @@ Subresource is array slice or mip level.">
         <ret type="bool" name="supported" doc="true if direct GPU upload is supported."/>
         <arg type="DataFormat" name="format" doc="The format to check."/>
       </func>
+    </ext>
+
+    <ext name="RaytracingExtension" type="Device" id="3" folder="raytracing">
+      <file include="wisdom/wisdom_raytracing.hpp"/>
+      <handle name="AccelerationStructure" doc="Acceleration structure object for raytracing."/>
+      <type name="AccelerationStructureView" category="variant" for="AccelerationStructure" mod="cpp-only"/>
+
+      <!-- AccelerationStructure -->
+      <func for="AccelerationStructure" name="Destroy" doc="Destroys the {AccelerationStructure::}."/>
+
     </ext>
   </extensions>
 </registry>

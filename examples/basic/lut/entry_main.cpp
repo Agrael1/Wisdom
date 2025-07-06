@@ -315,8 +315,8 @@ public:
             srv_lut = ex::Unwrap(device.CreateShaderResource(texture_lut, srv_desc));
 
             // Write LUT SRV to the descriptor buffer
-            // desc_buffer.WriteShaderResource(0, 0, 0, 0, root, srv_lut);
-            desc_buffer.WriteShaderResource(0, 0, srv_lut);
+            // desc_buffer.WriteTexture(0, 0, 0, 0, root, srv_lut);
+            desc_buffer.WriteTexture(0, 0, srv_lut);
 
             // Create sampler for LUT
             wis::SamplerDesc sample_desc{
@@ -395,7 +395,7 @@ public:
             srv = ex::Unwrap(device.CreateShaderResource(texture, srv_desc));
 
             // Write image SRV to the descriptor buffer
-            desc_buffer.WriteShaderResource(0, 1, srv);
+            desc_buffer.WriteTexture(0, 1, srv);
 
             // Create sampler for image
             wis::SamplerDesc sample_desc{

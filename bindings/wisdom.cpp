@@ -749,6 +749,26 @@ extern "C" void DX12DescriptorStorageWriteTexture(DX12DescriptorStorage self, ui
     auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
     xself->WriteTexture(set_index, binding, *reinterpret_cast<wis::DX12ShaderResource*>(resource));
 }
+extern "C" void DX12DescriptorStorageWriteRWTexture(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12UnorderedAccessTexture uav)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteRWTexture(set_index, binding, *reinterpret_cast<wis::DX12UnorderedAccessTexture*>(uav));
+}
+extern "C" void DX12DescriptorStorageWriteRWStructuredBuffer(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Buffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteRWStructuredBuffer(set_index, binding, *reinterpret_cast<wis::DX12Buffer*>(buffer), stride, element_count, offset_elements);
+}
+extern "C" void DX12DescriptorStorageWriteStructuredBuffer(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12Buffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteStructuredBuffer(set_index, binding, *reinterpret_cast<wis::DX12Buffer*>(buffer), stride, element_count, offset_elements);
+}
+extern "C" void DX12DescriptorStorageWriteAccelerationStructure(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12AccelerationStructure acceleration_structure)
+{
+    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
+    xself->WriteAccelerationStructure(set_index, binding, reinterpret_cast<wis::DX12AccelerationStructure&>(acceleration_structure));
+}
 
 // DX12RootSignature methods --
 extern "C" void DX12RootSignatureDestroy(DX12RootSignature self)
@@ -1577,6 +1597,26 @@ extern "C" void VKDescriptorStorageWriteTexture(VKDescriptorStorage self, uint32
 {
     auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
     xself->WriteTexture(set_index, binding, *reinterpret_cast<wis::VKShaderResource*>(resource));
+}
+extern "C" void VKDescriptorStorageWriteRWTexture(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKUnorderedAccessTexture uav)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteRWTexture(set_index, binding, *reinterpret_cast<wis::VKUnorderedAccessTexture*>(uav));
+}
+extern "C" void VKDescriptorStorageWriteRWStructuredBuffer(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteRWStructuredBuffer(set_index, binding, *reinterpret_cast<wis::VKBuffer*>(buffer), stride, element_count, offset_elements);
+}
+extern "C" void VKDescriptorStorageWriteStructuredBuffer(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKBuffer buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteStructuredBuffer(set_index, binding, *reinterpret_cast<wis::VKBuffer*>(buffer), stride, element_count, offset_elements);
+}
+extern "C" void VKDescriptorStorageWriteAccelerationStructure(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKAccelerationStructure acceleration_structure)
+{
+    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
+    xself->WriteAccelerationStructure(set_index, binding, reinterpret_cast<wis::VKAccelerationStructure&>(acceleration_structure));
 }
 
 // VKRootSignature methods --

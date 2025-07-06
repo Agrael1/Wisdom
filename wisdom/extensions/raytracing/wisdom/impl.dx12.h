@@ -13,7 +13,6 @@ namespace wis {
 class DX12Raytracing;
 
 using DX12AccelerationStructure = D3D12_GPU_VIRTUAL_ADDRESS;
-using DX12AccelerationStructureView = std::tuple<DX12AccelerationStructure>;
 
 template<>
 struct Internal<DX12Raytracing> {
@@ -196,19 +195,6 @@ public:
             .Depth = desc.depth,
         };
         cmd_list_i->DispatchRays(&dispatch_desc);
-    }
-
-    void WriteAccelerationStructure(wis::DX12DescriptorStorageView storage, uint32_t binding_set, uint32_t index, wis::DX12AccelerationStructureView as) const noexcept
-    {
-        auto& internal = std::get<0>(storage)->GetInternal();
-        D3D12_SHADER_RESOURCE_VIEW_DESC desc{
-            .Format = DXGI_FORMAT_UNKNOWN,
-            .ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .RaytracingAccelerationStructure = { std::get<0>(as) }
-        };
-        auto handle = std::get<0>(storage)->DX12GetResourceCPUDescriptorHandle(binding_set, index);
-        shared_device->CreateShaderResourceView(nullptr, &desc, handle);
     }
 };
 

@@ -33,6 +33,10 @@ target_include_directories(
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                                  POSITION_INDEPENDENT_CODE ON)
+target_compile_options(
+  ${PROJECT_NAME}
+  PUBLIC $<$<CXX_COMPILER_ID:Clang>:-Wno-nullability-completeness>
+         $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
 
 install(
   TARGETS ${PROJECT_NAME}

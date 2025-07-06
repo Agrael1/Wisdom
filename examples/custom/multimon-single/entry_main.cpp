@@ -98,8 +98,8 @@ public:
 
         wis::CommandListView lists[] = { cmd };
         queue.ExecuteCommandLists(lists, 1);
-        queue.SignalQueue(fence, fence_value);
-        fence.Wait(fence_value++);
+        std::ignore = queue.SignalQueue(fence, fence_value);
+        std::ignore = fence.Wait(fence_value++);
     }
 
 public:
@@ -127,7 +127,7 @@ public:
                 break;*/
             }
             case ex::WindowEvent::Quit:
-                fence.Wait(fence_value - 1);
+                std::ignore = fence.Wait(fence_value - 1);
 
                 for (size_t i = 0; i < ex::flight_frames; i++) {
                     constant_buffersx[i].Unmap();
@@ -266,14 +266,14 @@ public:
         wis::CommandListView lists[] = { cmd2 };
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         for (size_t i = 0; i < kMonCount; i++) {
-            swap[i].Present();
+            std::ignore = swap[i].Present();
         }
         for (size_t i = 0; i < kMonCount; i++) {
-            swap[i].WaitForPresent();
+            std::ignore = swap[i].WaitForPresent();
         }
-        setup.queue.SignalQueue(fence, fence_value);
+        std::ignore = setup.queue.SignalQueue(fence, fence_value);
 
-        fence.Wait(fence_value++);
+        std::ignore = fence.Wait(fence_value++);
     }
     void CreateResources()
     {
