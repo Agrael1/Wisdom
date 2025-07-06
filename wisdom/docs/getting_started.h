@@ -10,7 +10,7 @@
  * However, you can also clone the repository directly or download a release package. If you are using a Visual Studio project, you can also use a public NuGet package to install Wisdom.
  *
  * @note NuGet package is available at: https://www.nuget.org/packages/Wisdom/
- * The latest version of release for Windows can be downloaded from the GitHub releases page: https://github.com/Agrael1/Wisdom/releases/tag/Latest
+ * The latest version of release for Windows can be downloaded from the GitHub releases page: https://github.com/Agrael1/Wisdom/releases/
  *
  * One of the easiest ways to install Wisdom is to use CMake FetchContent or CMake Package Manager.
  *
@@ -23,7 +23,7 @@
  * )
  * FetchContent_MakeAvailable(Wisdom)
  * @endcode
- *
+ * 
  * @subsection requirements Requirements
  *
  * - CMake 3.22 or higher
