@@ -957,7 +957,7 @@ Subresource is array slice or mip level.">
 
       <!-- AccelerationStructure -->
       <func for="AccelerationStructure" name="Destroy" doc="Destroys the {AccelerationStructure::}."/>
-      
+
     </ext>
   </extensions>
 </registry>

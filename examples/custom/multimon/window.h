@@ -25,8 +25,9 @@ constexpr inline auto operator+(Event e)
 struct EventSet {
     void push(Event e)
     {
-        if (map[+e])
+        if (map[+e]) {
             return;
+        }
         horizon[iter++] = e;
         map.set(+e);
     }
