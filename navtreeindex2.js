@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"d1/d9c/structwis_1_1TextureDesc.html#a052cd24b1218e08ac48cbc8b192711e0":[5,0,0,58,3],
 "d1/d9c/structwis_1_1TextureDesc.html#a052cd24b1218e08ac48cbc8b192711e0":[6,0,0,58,3],
 "d1/d9c/structwis_1_1TextureDesc.html#a0bff909b35b2fbcc37972944c8ab009b":[6,0,0,58,2],
 "d1/d9c/structwis_1_1TextureDesc.html#a0bff909b35b2fbcc37972944c8ab009b":[5,0,0,58,2],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "d7/ddc/setup_page.html#link":[2,0,1],
 "d7/ddc/setup_page.html#nuget":[2,1],
 "d7/ddc/setup_page.html#platform_targets":[2,0,3],
-"d8/d6c/structwis_1_1is__flag__enum_3_01wis_1_1TextureUsage_01_4.html":[6,0,0,35],
-"d8/d6c/structwis_1_1is__flag__enum_3_01wis_1_1TextureUsage_01_4.html":[5,0,0,35]
+"d8/d6c/structwis_1_1is__flag__enum_3_01wis_1_1TextureUsage_01_4.html":[6,0,0,35]
 };
