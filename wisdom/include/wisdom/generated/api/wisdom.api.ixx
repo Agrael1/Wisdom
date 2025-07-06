@@ -1,4 +1,4 @@
-/** Wisdom API Version 0.6.10
+/** Wisdom API Version 0.6.11
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT

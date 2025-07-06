@@ -9,7 +9,7 @@
 #define WISDOM_EXPORT export
 #endif
 
-/** Wisdom API Version 0.6.10
+/** Wisdom API Version 0.6.11
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1960,13 +1960,14 @@ struct DescriptorTableEntry {
     uint32_t bind_register; ///< Bind register number in HLSL.
     uint32_t binding; ///< Binding number in HLSL.
     uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
+    uint32_t binding_space; ///< Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0.
 };
 // [DescriptorTableEntry]
 
 // [DescriptorTable]
 /**
  * @struct wis::DescriptorTable
- * @brief Descriptor table for .
+ * @brief Descriptor table for wis::DescriptorBuffer.
  * @snippet include/wisdom/generated/api/api.hpp DescriptorTable
  * */
 struct DescriptorTable {

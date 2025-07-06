@@ -302,9 +302,10 @@ Zero initialized range means all subresources are selected."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
       <member type="u32" name="binding" doc="Binding number in HLSL."/>
       <member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array."/>
+      <member type="u32" name="binding_space" doc="Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0."/>
     </type>
 
-    <type name="DescriptorTable" category="struct" doc="Descriptor table for {RootSignatureDesc::}.">
+    <type name="DescriptorTable" category="struct" doc="Descriptor table for {DescriptorBuffer::}.">
       <member type="DescriptorHeapType" name="type" doc="Descriptor heap type. Either Descriptor or Sampler."/>
       <member type="DescriptorTableEntry" name="entries" mod="const ptr" doc="Descriptor table entries array."/>
       <member type="u32" name="entry_count" doc="Descriptor table entries count."/>

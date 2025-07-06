@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/** Wisdom API Version 0.6.10
+/** Wisdom API Version 0.6.11
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1918,10 +1918,11 @@ struct WisDescriptorTableEntry {
     uint32_t bind_register; ///< Bind register number in HLSL.
     uint32_t binding; ///< Binding number in HLSL.
     uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
+    uint32_t binding_space; ///< Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0.
 };
 
 /**
- * @brief Descriptor table for .
+ * @brief Descriptor table for DescriptorBuffer.
  * */
 struct WisDescriptorTable {
     WisDescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.

@@ -97,10 +97,10 @@ function(wis_compile_shader)
                           "${multiValueArgs}" ${ARGN} )
 
 	if(NOT wis_compile_shader_DXC)
-		if(NOT dxc_EXECUTABLE)
+		if(NOT DXC_EXECUTABLE)
 			find_program(wis_compile_shader_DXC dxc)
 		else()
-			set(wis_compile_shader_DXC ${dxc_EXECUTABLE})
+			set(wis_compile_shader_DXC ${DXC_EXECUTABLE})
 		endif()
 	endif()
 
