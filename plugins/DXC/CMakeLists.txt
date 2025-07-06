@@ -46,20 +46,17 @@ else()
     set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/x64/dxc.exe
         CACHE INTERNAL "")
-    set(DXC_DLLS
-        ${dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll
-        ${dxc_SOURCE_DIR}/bin/x64/dxil.dll)
+    set(DXC_DLLS ${dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll
+                 ${dxc_SOURCE_DIR}/bin/x64/dxil.dll)
 
     install(FILES ${DXC_DLLS} DESTINATION bin)
   else()
     set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/dxc
         CACHE INTERNAL "")
-    set(DXC_DLLS
-        ${dxc_SOURCE_DIR}/lib/libdxcompiler.so
-        ${dxc_SOURCE_DIR}/lib/libdxil.so)
+    set(DXC_DLLS ${dxc_SOURCE_DIR}/lib/libdxcompiler.so
+                 ${dxc_SOURCE_DIR}/lib/libdxil.so)
     install(FILES ${DXC_DLLS} DESTINATION lib)
   endif()
   install(PROGRAMS ${DXC_EXECUTABLE} DESTINATION bin)
 endif()
-
