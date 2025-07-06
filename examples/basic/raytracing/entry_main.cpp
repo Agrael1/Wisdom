@@ -147,53 +147,61 @@ public:
         // barrier for UAV texture
 
         wis::TextureBarrier2 before[] = {
-            { .barrier = { .sync_before = wis::BarrierSync::Compute,
-                           .sync_after = wis::BarrierSync::Copy,
-                           .access_before = wis::ResourceAccess::UnorderedAccess,
-                           .access_after = wis::ResourceAccess::CopySource,
-                           .state_before = wis::TextureState::UnorderedAccess,
-                           .state_after = wis::TextureState::CopySource },
-              .texture = uav_texture },
+            {   .barrier = { .sync_before = wis::BarrierSync::Compute,
+                    .sync_after = wis::BarrierSync::Copy,
+                    .access_before = wis::ResourceAccess::UnorderedAccess,
+                    .access_after = wis::ResourceAccess::CopySource,
+                    .state_before = wis::TextureState::UnorderedAccess,
+                    .state_after = wis::TextureState::CopySource
+                },
+                .texture = uav_texture
+            },
             // swapchain
-            { .barrier = { .sync_before = wis::BarrierSync::None,
-                           .sync_after = wis::BarrierSync::Copy,
-                           .access_before = wis::ResourceAccess::NoAccess,
-                           .access_after = wis::ResourceAccess::CopyDest,
-                           .state_before = wis::TextureState::Present,
-                           .state_after = wis::TextureState::CopyDest },
-              .texture = swap_texture },
+            {   .barrier = { .sync_before = wis::BarrierSync::None,
+                    .sync_after = wis::BarrierSync::Copy,
+                    .access_before = wis::ResourceAccess::NoAccess,
+                    .access_after = wis::ResourceAccess::CopyDest,
+                    .state_before = wis::TextureState::Present,
+                    .state_after = wis::TextureState::CopyDest
+                },
+                .texture = swap_texture
+            },
         };
 
         cmd.TextureBarriers(before, std::size(before));
 
         wis::TextureCopyRegion region{
             .src = {
-                    .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
-                    .format = ex::swapchain_format,
+                .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
+                .format = ex::swapchain_format,
             },
             .dst = {
-                    .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
-                    .format = ex::swapchain_format,
+                .size = { rt_dispatch_desc.width, rt_dispatch_desc.height, 1 },
+                .format = ex::swapchain_format,
             },
         };
         cmd.CopyTexture(uav_texture, swap_texture, &region, 1);
 
         wis::TextureBarrier2 after[] = {
-            { .barrier = { .sync_before = wis::BarrierSync::Copy,
-                           .sync_after = wis::BarrierSync::Compute,
-                           .access_before = wis::ResourceAccess::CopySource,
-                           .access_after = wis::ResourceAccess::UnorderedAccess,
-                           .state_before = wis::TextureState::CopySource,
-                           .state_after = wis::TextureState::UnorderedAccess },
-              .texture = uav_texture },
+            {   .barrier = { .sync_before = wis::BarrierSync::Copy,
+                    .sync_after = wis::BarrierSync::Compute,
+                    .access_before = wis::ResourceAccess::CopySource,
+                    .access_after = wis::ResourceAccess::UnorderedAccess,
+                    .state_before = wis::TextureState::CopySource,
+                    .state_after = wis::TextureState::UnorderedAccess
+                },
+                .texture = uav_texture
+            },
             // swapchain
-            { .barrier = { .sync_before = wis::BarrierSync::Copy,
-                           .sync_after = wis::BarrierSync::None,
-                           .access_before = wis::ResourceAccess::CopyDest,
-                           .access_after = wis::ResourceAccess::NoAccess,
-                           .state_before = wis::TextureState::CopyDest,
-                           .state_after = wis::TextureState::Present },
-              .texture = swap_texture },
+            {   .barrier = { .sync_before = wis::BarrierSync::Copy,
+                    .sync_after = wis::BarrierSync::None,
+                    .access_before = wis::ResourceAccess::CopyDest,
+                    .access_after = wis::ResourceAccess::NoAccess,
+                    .state_before = wis::TextureState::CopyDest,
+                    .state_after = wis::TextureState::Present
+                },
+                .texture = swap_texture
+            },
         };
         cmd.TextureBarriers(after, std::size(after));
 
@@ -329,9 +337,9 @@ private:
         // Fill instance buffer
         rtas_instance_buffer.Map<wis::AccelerationInstance>()[0] = {
             .transform = {
-                    { 1.0f, 0.0f, 0.0f, 0.0f },
-                    { 0.0f, 1.0f, 0.0f, 0.0f },
-                    { 0.0f, 0.0f, 1.0f, 0.0f },
+                { 1.0f, 0.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f, 0.0f },
+                { 0.0f, 0.0f, 1.0f, 0.0f },
             },
             .instance_id = 0,
             .mask = 0xFF,
@@ -374,15 +382,15 @@ private:
         rt_root_signature = setup.device.CreateRootSignature(result, nullptr, 0, nullptr, 0, bindings, std::size(bindings));
 
         // Create pipeline
-        wis::ShaderView shaders[]{
+        wis::ShaderView shaders[] {
             raygen_shader, raygen_shader
         };
-        wis::ShaderExport exports[]{
+        wis::ShaderExport exports[] {
             { .entry_point = "RayGeneration", .shader_type = wis::RaytracingShaderType::Raygen, .shader_array_index = 1 },
             { .entry_point = "Miss", .shader_type = wis::RaytracingShaderType::Miss, .shader_array_index = 0 },
             { .entry_point = "ClosestHit", .shader_type = wis::RaytracingShaderType::ClosestHit, .shader_array_index = 1 },
         };
-        wis::HitGroupDesc hit_groups[]{
+        wis::HitGroupDesc hit_groups[] {
             { .type = wis::HitGroupType::Triangles, .closest_hit_export_index = 2 },
         };
         wis::RaytracingPipelineDesc rt_pipeline_desc{

@@ -34,7 +34,7 @@ struct Test {
                 res = adapter.GetDesc(&desc);
                 std::cout << "Adapter: " << desc.description.data() << "\n";
 
-                wis::DeviceExtension* exts[]{
+                wis::DeviceExtension* exts[] {
                     &global_interop,
                     &global_extended_allocation,
                 };
@@ -105,12 +105,13 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
                            .access_after = wis::ResourceAccess::NoAccess,
                            .state_before = wis::TextureState::Undefined,
                            .state_after = wis::TextureState::CopyDest,
-                           .subresource_range = {
-                                   .base_mip_level = 0,
-                                   .level_count = 1,
-                                   .base_array_layer = 0,
-                                   .layer_count = 1 } },
-                         img);
+    .subresource_range = {
+        .base_mip_level = 0,
+        .level_count = 1,
+        .base_array_layer = 0,
+        .layer_count = 1
+    } },
+    img);
     clist.Close();
     wis::CommandListView clist_view{ clist };
     cqueue.ExecuteCommandLists(&clist_view, 1);
@@ -140,8 +141,8 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
         wis::BufferTextureCopyRegion region{
             .buffer_offset = 0,
             .texture = {
-                    .size = { img_size.width, img_size.height, 1 },
-                    .format = wis::DataFormat::RGBA8Unorm,
+                .size = { img_size.width, img_size.height, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
             }
         };
         clist.CopyBufferToTexture(ubuf, img, &region, 1);

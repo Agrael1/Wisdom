@@ -74,9 +74,9 @@ void TransferNode::VKCreateInputBuffer(wis::Size2D frame)
     using namespace wis;
 
     auto [result, buffer] = allocator.CreateBuffer(wis::detail::aligned_size(uint64_t(frame.width * frame.height * 4), 4096ull),
-                                                   wis::BufferUsage::CopySrc,
-                                                   wis::MemoryType::Readback,
-                                                   wis::MemoryFlags::Mapped);
+                            wis::BufferUsage::CopySrc,
+                            wis::MemoryType::Readback,
+                            wis::MemoryFlags::Mapped);
 
     if (result.status != wis::Status::Ok)
         return;
@@ -133,8 +133,8 @@ void TransferNode::Frame()
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-                .size = { width, height, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
+            .size = { width, height, 1 },
+            .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyBufferToTexture(input_buffer, back_buffers[index], &region, 1);
