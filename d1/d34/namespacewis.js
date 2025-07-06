@@ -298,8 +298,7 @@ var namespacewis =
     [ "DeviceExtID", "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4e", [
       [ "Custom", "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea90589c47f06eb971d548591f23c285af", null ],
       [ "DescriptorBufferExtension", "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea5aaaf11746fb655b63fd951cbad47eb7", null ],
-      [ "ExtendedAllocation", "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea14832ae8268f380ec4fe15fa43080b4b", null ],
-      [ "RaytracingExtension", "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea8fb075fa45c73865ec05ad3173d5a8ed", null ]
+      [ "ExtendedAllocation", "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea14832ae8268f380ec4fe15fa43080b4b", null ]
     ] ],
     [ "DeviceFeature", "d1/d34/namespacewis.html#ac34bd26178d916a3fe8933bcd9b46d2b", [
       [ "EnchancedBarriers", "d1/d34/namespacewis.html#ac34bd26178d916a3fe8933bcd9b46d2ba9c002f289535c388283497c35560d899", null ],

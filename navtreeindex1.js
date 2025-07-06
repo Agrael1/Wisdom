@@ -152,7 +152,6 @@ var NAVTREEINDEX1 =
 "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4e":[5,0,0,85],
 "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea14832ae8268f380ec4fe15fa43080b4b":[5,0,0,85,2],
 "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea5aaaf11746fb655b63fd951cbad47eb7":[5,0,0,85,1],
-"d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea8fb075fa45c73865ec05ad3173d5a8ed":[5,0,0,85,3],
 "d1/d34/namespacewis.html#ae896a968f53817d8ccb96ae7545b7e4ea90589c47f06eb971d548591f23c285af":[5,0,0,85,0],
 "d1/d34/namespacewis.html#ae971c20ca8ca16936cfab108178c3aee":[5,0,0,81],
 "d1/d34/namespacewis.html#ae971c20ca8ca16936cfab108178c3aeea0196fc960d67382af6e023124e960ddf":[5,0,0,81,62],
@@ -249,5 +248,6 @@ var NAVTREEINDEX1 =
 "d1/d74/structwis_1_1ShaderExport.html#ad870244be83343ee91b87abb2c8686cb":[6,0,0,49,0],
 "d1/d74/structwis_1_1ShaderExport.html#ad870244be83343ee91b87abb2c8686cb":[5,0,0,49,0],
 "d1/d9c/structwis_1_1TextureDesc.html":[5,0,0,58],
-"d1/d9c/structwis_1_1TextureDesc.html":[6,0,0,58]
+"d1/d9c/structwis_1_1TextureDesc.html":[6,0,0,58],
+"d1/d9c/structwis_1_1TextureDesc.html#a052cd24b1218e08ac48cbc8b192711e0":[5,0,0,58,3]
 };

@@ -1,6 +1,5 @@
 var NAVTREEINDEX3 =
 {
-"d8/d6c/structwis_1_1is__flag__enum_3_01wis_1_1TextureUsage_01_4.html":[5,0,0,35],
 "d9/d3f/structwis_1_1is__flag__enum_3_01wis_1_1ResourceAccess_01_4.html":[5,0,0,34],
 "d9/d3f/structwis_1_1is__flag__enum_3_01wis_1_1ResourceAccess_01_4.html":[6,0,0,34],
 "d9/d51/structwis_1_1Size2D.html":[5,0,0,51],
@@ -249,5 +248,6 @@ var NAVTREEINDEX3 =
 "df/da5/structwis_1_1TextureBarrier.html#a1ab72297de1d736b91c39b18728e74ac":[5,0,0,56,4],
 "df/da5/structwis_1_1TextureBarrier.html#a1ab72297de1d736b91c39b18728e74ac":[6,0,0,56,4],
 "df/da5/structwis_1_1TextureBarrier.html#a528441c075313d15118a3c177ab6c615":[6,0,0,56,1],
-"df/da5/structwis_1_1TextureBarrier.html#a528441c075313d15118a3c177ab6c615":[5,0,0,56,1]
+"df/da5/structwis_1_1TextureBarrier.html#a528441c075313d15118a3c177ab6c615":[5,0,0,56,1],
+"df/da5/structwis_1_1TextureBarrier.html#a7ba5bb4bb8aaa5de6184e6c6ee48f549":[6,0,0,56,2]
 };
