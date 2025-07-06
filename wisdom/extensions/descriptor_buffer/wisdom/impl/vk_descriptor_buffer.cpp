@@ -95,7 +95,7 @@ void wis::ImplVKDescriptorBuffer::WriteRWStructuredBuffer(uint64_t aligned_table
     VkDescriptorGetInfoEXT info{
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
         .type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-        .data = { .pUniformBuffer = &buffer_info }
+        .data = { .pStorageBuffer = &buffer_info }
     };
     uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
     vkGetDescriptorEXT(device.get(), &info, properties.constant_buffer_size, data + desc_offset);
