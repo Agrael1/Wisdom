@@ -446,7 +446,7 @@ void WorkNode::CreateOutputTexture(wis::Size2D frame)
 void WorkNode::WaitForGPU() noexcept
 {
     const uint64_t vfence = fence_value;
-    queue.SignalQueue(fence, vfence);
+    std::ignore = queue.SignalQueue(fence, vfence);
     fence_value++;
     std::ignore = fence.Wait(vfence);
 }

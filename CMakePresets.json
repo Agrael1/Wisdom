@@ -114,7 +114,8 @@
         "CMAKE_C_COMPILER": "clang.exe",
         "CMAKE_CXX_COMPILER": "clang.exe",
         "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_GENERATE_FUNCTIONS": true
+        "WISDOM_GENERATE_FUNCTIONS": true,
+        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
       }
     },
     {

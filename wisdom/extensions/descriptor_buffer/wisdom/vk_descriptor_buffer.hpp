@@ -6,9 +6,8 @@
 #include <wisdom/generated/vk_functions.hpp>
 #endif // !WISDOM_MODULE_DECL
 
-WISDOM_EXPORT
 namespace wis {
-class VKDescriptorBuffer;
+WISDOM_EXPORT class VKDescriptorBuffer;
 
 using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType>;
 using VKDescriptorBufferGPUView = VKDescriptorBufferView;

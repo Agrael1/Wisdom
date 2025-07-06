@@ -1,7 +1,7 @@
 #pragma once
-#include "Keyboard.h"
-#include "Mouse.h"
-#include "Menu.h"
+#include "keyboard.h"
+#include "mouse.h"
+#include "menu.h"
 #include <optional>
 #include <array>
 #include <type_traits>

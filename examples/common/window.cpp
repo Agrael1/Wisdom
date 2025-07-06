@@ -37,6 +37,9 @@ ex::WindowEvent ex::Window::PollEvents()
         case SDL_EVENT_KEY_UP:
             _keyboard.OnKeyReleased(e.key.key);
             continue;
+        default:
+            // Ignore other events
+            continue;
         }
     }
     return WindowEvent::NoEvent;
@@ -86,6 +89,8 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::ExampleSetup
         }
     } break;
 #endif
+    default:
+        break;
     }
     throw ex::Exception("Failed to create swapchain");
 }
@@ -134,6 +139,8 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::PlatformExte
         }
     } break;
 #endif
+    default:
+        break;
     }
     throw ex::Exception("Failed to create swapchain");
 }

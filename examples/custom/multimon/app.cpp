@@ -132,12 +132,16 @@ int App::Start()
             case Event::Resize:
                 OnResize(wnd.GetWidth(), wnd.GetHeight(), 0);
                 break;
+            default:
+                break;
             }
         }
         for (auto e : wnd2.GetEvents()) {
             switch (e) {
             case Event::Resize:
                 OnResize(wnd2.GetWidth(), wnd2.GetHeight(), 1);
+                break;
+            default:
                 break;
             }
         }

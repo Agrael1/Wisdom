@@ -98,7 +98,7 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
         std::cerr << "Failed to create texture\n";
         return 1;
     }
-    clist.Reset();
+    std::ignore = clist.Reset();
     clist.TextureBarrier({ .sync_before = wis::BarrierSync::None,
                            .sync_after = wis::BarrierSync::None,
                            .access_before = wis::ResourceAccess::NoAccess,
@@ -117,7 +117,7 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
 
     auto wait_gpu = [&]() {
         const uint64_t vfence = fence_value;
-        cqueue.SignalQueue(fence, vfence);
+        std::ignore = cqueue.SignalQueue(fence, vfence);
         fence_value++;
         std::ignore = fence.Wait(vfence);
     };
@@ -136,7 +136,7 @@ int TestStagedCopy(const wis::ResourceAllocator& allocator, wis::Device& device,
 
     for (size_t i = 0; i < 100; i++) {
         std::memcpy(mapped, data, img_size.width * img_size.height * 4);
-        clist.Reset();
+        std::ignore = clist.Reset();
         wis::BufferTextureCopyRegion region{
             .buffer_offset = 0,
             .texture = {
@@ -207,7 +207,7 @@ int TestDirectWrite(const Test& test, const wis::Device& device, const wis::Reso
             .size = { img_size.width, img_size.height, 1 },
             .format = wis::DataFormat::RGBA8Unorm,
         };
-        test.global_extended_allocation.WriteMemoryToSubresourceDirect(data, tex, wis::TextureState::CopyDest, region);
+        std::ignore = test.global_extended_allocation.WriteMemoryToSubresourceDirect(data, tex, wis::TextureState::CopyDest, region);
     }
 
     std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();

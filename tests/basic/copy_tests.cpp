@@ -113,8 +113,8 @@ TEST_CASE("basic_copy_region")
 
     wis::CommandListView cmd_list_view{ cmd_list };
     queue.ExecuteCommandLists(&cmd_list_view, 1);
-    queue.SignalQueue(fence, 1);
-    fence.Wait(1);
+    std::ignore = queue.SignalQueue(fence, 1);
+    std::ignore = fence.Wait(1);
 
     auto* data_ptr = buffer.Map<uint32_t>();
     constexpr uint32_t data_expected[] = { 0, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff };

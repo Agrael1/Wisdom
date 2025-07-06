@@ -8,10 +8,9 @@
 #include <wisdom/util/misc.h>
 #endif // !WISDOM_MODULE_DECL
 
-WISDOM_EXPORT
 namespace wis {
 
-class DX12DescriptorBuffer;
+WISDOM_EXPORT class DX12DescriptorBuffer;
 
 template<>
 struct Internal<DX12DescriptorBuffer> {

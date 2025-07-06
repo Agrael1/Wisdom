@@ -126,6 +126,9 @@ int App::Start()
             switch (e) {
             case Event::Resize:
                 OnResize(wnd.GetWidth(), wnd.GetHeight());
+                break;
+            default:
+                break;
             }
         }
 

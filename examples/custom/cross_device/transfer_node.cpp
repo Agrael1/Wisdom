@@ -87,7 +87,7 @@ void TransferNode::VKCreateInputBuffer(wis::Size2D frame)
 void TransferNode::WaitForGPU() noexcept
 {
     const uint64_t vfence = fence_value;
-    queue.SignalQueue(fence, vfence);
+    std::ignore = queue.SignalQueue(fence, vfence);
     fence_value++;
     std::ignore = fence.Wait(vfence);
 }
