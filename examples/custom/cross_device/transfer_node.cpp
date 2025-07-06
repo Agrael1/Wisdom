@@ -9,8 +9,9 @@ CreateTransferNode(wis::Adapter&& adapter)
     // Create transfer device
     {
         auto [result, device] = wis::CreateDevice(adapter);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
 
         node.transfer_device = std::move(device);
     }
@@ -18,8 +19,9 @@ CreateTransferNode(wis::Adapter&& adapter)
     // Create allocator
     {
         auto [result, allocator] = node.transfer_device.CreateAllocator();
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
 
         node.allocator = std::move(allocator);
     }
@@ -28,8 +30,9 @@ CreateTransferNode(wis::Adapter&& adapter)
     {
         // Has to be graphics queue for copy operations, because present
         auto [result, queue] = node.transfer_device.CreateCommandQueue(wis::QueueType::Graphics);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
 
         node.queue = std::move(queue);
     }
@@ -37,16 +40,18 @@ CreateTransferNode(wis::Adapter&& adapter)
     // Create Fence
     {
         auto [result, fence] = node.transfer_device.CreateFence();
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
         node.fence = std::move(fence);
     }
 
     // Create Command List
     {
         auto [result, cmd_list] = node.transfer_device.CreateCommandList(wis::QueueType::Graphics);
-        if (result.status != wis::Status::Ok)
+        if (result.status != wis::Status::Ok) {
             return std::unexpected(result.error);
+        }
         node.cmd_list = std::move(cmd_list);
     }
     return std::move(node);
@@ -61,8 +66,9 @@ void TransferNode::InitSwapchain(wis::SwapChain&& swap)
 void TransferNode::Resize(uint32_t width, uint32_t height)
 {
     auto result = swap.Resize(width, height);
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok) {
         return;
+    }
 
     back_buffers = swap.GetBufferSpan();
     this->width = width;
@@ -74,12 +80,13 @@ void TransferNode::VKCreateInputBuffer(wis::Size2D frame)
     using namespace wis;
 
     auto [result, buffer] = allocator.CreateBuffer(wis::detail::aligned_size(uint64_t(frame.width * frame.height * 4), 4096ull),
-                            wis::BufferUsage::CopySrc,
-                            wis::MemoryType::Readback,
-                            wis::MemoryFlags::Mapped);
+                                                   wis::BufferUsage::CopySrc,
+                                                   wis::MemoryType::Readback,
+                                                   wis::MemoryFlags::Mapped);
 
-    if (result.status != wis::Status::Ok)
+    if (result.status != wis::Status::Ok) {
         return;
+    }
 
     input_buffer = std::move(buffer);
 }
@@ -133,8 +140,8 @@ void TransferNode::Frame()
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-            .size = { width, height, 1 },
-            .format = wis::DataFormat::RGBA8Unorm,
+                .size = { width, height, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyBufferToTexture(input_buffer, back_buffers[index], &region, 1);

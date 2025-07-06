@@ -68,29 +68,26 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::ExampleSetup
         HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
             return static_cast<wis::platform::WindowsExtension*>(_platform.get())
-                   ->CreateSwapchain(result, setup.device, setup.queue, desc, hwnd);
+                    ->CreateSwapchain(result, setup.device, setup.queue, desc, hwnd);
         }
-    }
-    break;
+    } break;
 #elif defined(SDL_PLATFORM_LINUX)
     case X11: {
         Display* xdisplay = (Display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
         ::Window xwindow = (::Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
             return static_cast<wis::platform::X11Extension*>(_platform.get())
-                   ->CreateSwapchain(result, setup.device, setup.queue, desc, xdisplay, xwindow);
+                    ->CreateSwapchain(result, setup.device, setup.queue, desc, xdisplay, xwindow);
         }
-    }
-    break;
+    } break;
     case Wayland: {
         struct wl_display* display = (struct wl_display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, NULL);
         struct wl_surface* surface = (struct wl_surface*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, NULL);
         if (display && surface) {
             return static_cast<wis::platform::WaylandExtension*>(_platform.get())
-                   ->CreateSwapchain(result, setup.device, setup.queue, desc, display, surface);
+                    ->CreateSwapchain(result, setup.device, setup.queue, desc, display, surface);
         }
-    }
-    break;
+    } break;
 #endif
     default:
         break;
@@ -121,29 +118,26 @@ wis::SwapChain ex::Window::CreateSwapchain(wis::Result& result, ex::PlatformExte
         HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
             return static_cast<wis::platform::WindowsExtension*>(ext.get())
-                   ->CreateSwapchain(result, setup.device, setup.queue, desc, hwnd);
+                    ->CreateSwapchain(result, setup.device, setup.queue, desc, hwnd);
         }
-    }
-    break;
+    } break;
 #elif defined(SDL_PLATFORM_LINUX)
     case X11: {
         Display* xdisplay = (Display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
         ::Window xwindow = (::Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
             return static_cast<wis::platform::X11Extension*>(ext.get())
-                   ->CreateSwapchain(result, setup.device, setup.queue, desc, xdisplay, xwindow);
+                    ->CreateSwapchain(result, setup.device, setup.queue, desc, xdisplay, xwindow);
         }
-    }
-    break;
+    } break;
     case Wayland: {
         struct wl_display* display = (struct wl_display*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, NULL);
         struct wl_surface* surface = (struct wl_surface*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, NULL);
         if (display && surface) {
             return static_cast<wis::platform::WaylandExtension*>(ext.get())
-                   ->CreateSwapchain(result, setup.device, setup.queue, desc, display, surface);
+                    ->CreateSwapchain(result, setup.device, setup.queue, desc, display, surface);
         }
-    }
-    break;
+    } break;
 #endif
     default:
         break;

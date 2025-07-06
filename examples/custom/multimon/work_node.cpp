@@ -17,14 +17,14 @@ LoadShader(std::filesystem::path p) noexcept
     }
 
     if (!std::filesystem::exists(p)) {
-        return std::expected<std::string, std::string_view> {
+        return std::expected<std::string, std::string_view>{
             std::unexpect, "File not found"
         };
     }
 
     std::ifstream t{ p, std::ios::binary };
     if (!t.is_open()) {
-        return std::expected<std::string, std::string_view> {
+        return std::expected<std::string, std::string_view>{
             std::unexpect, "Failed to open file"
         };
     }
@@ -241,37 +241,37 @@ CreateWorkNode(wis::Adapter&& adapter)
         using namespace wis;
         wis::DescriptorTableEntry entries[] = {
             {
-                .type = wis::DescriptorType::Texture,
-                .bind_register = 0,
-                .binding = 0,
-                .count = 1,
+                    .type = wis::DescriptorType::Texture,
+                    .bind_register = 0,
+                    .binding = 0,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::Texture,
-                .bind_register = 1,
-                .binding = 1,
-                .count = 1,
+                    .type = wis::DescriptorType::Texture,
+                    .bind_register = 1,
+                    .binding = 1,
+                    .count = 1,
             },
             {
-                .type = wis::DescriptorType::Sampler,
-                .bind_register = 0,
-                .binding = 0,
-                .count = 1,
+                    .type = wis::DescriptorType::Sampler,
+                    .bind_register = 0,
+                    .binding = 0,
+                    .count = 1,
             },
         };
 
         wis::DescriptorTable tables[] = {
             {
-                .type = wis::DescriptorHeapType::Descriptor,
-                .entries = entries,
-                .entry_count = 2,
-                .stage = wis::ShaderStages::Pixel,
+                    .type = wis::DescriptorHeapType::Descriptor,
+                    .entries = entries,
+                    .entry_count = 2,
+                    .stage = wis::ShaderStages::Pixel,
             },
             {
-                .type = wis::DescriptorHeapType::Sampler,
-                .entries = entries + 2,
-                .entry_count = 1,
-                .stage = wis::ShaderStages::Pixel,
+                    .type = wis::DescriptorHeapType::Sampler,
+                    .entries = entries + 2,
+                    .entry_count = 1,
+                    .stage = wis::ShaderStages::Pixel,
             },
 
         };
@@ -288,8 +288,8 @@ CreateWorkNode(wis::Adapter&& adapter)
             .root_signature = node.root,
             .shaders = { .vertex = node.vertex_shader, .pixel = node.pixel_shader },
             .attachments = {
-                .attachment_formats = { wis::DataFormat::RGBA8Unorm },
-                .attachments_count = 1,
+                    .attachment_formats = { wis::DataFormat::RGBA8Unorm },
+                    .attachments_count = 1,
             },
             .flags = wis::PipelineFlags::DescriptorBuffer,
         };
@@ -349,7 +349,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     node.PrepareResources();
 
-    return std::expected<WorkNode, std::string_view> { std::move(node) };
+    return std::expected<WorkNode, std::string_view>{ std::move(node) };
 }
 
 void WorkNode::PrepareResources()
@@ -358,24 +358,24 @@ void WorkNode::PrepareResources()
 
     wis::TextureBarrier2 barriers[] = {
         {
-            .barrier = {
-                .access_before = wis::ResourceAccess::NoAccess,
-                .access_after = wis::ResourceAccess::NoAccess,
-                .state_before = wis::TextureState::Undefined,
-                .state_after = wis::TextureState::ShaderResource,
-                .subresource_range = { 0, 1, 0, 1 },
-            },
-            .texture = texture,
+                .barrier = {
+                        .access_before = wis::ResourceAccess::NoAccess,
+                        .access_after = wis::ResourceAccess::NoAccess,
+                        .state_before = wis::TextureState::Undefined,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = { 0, 1, 0, 1 },
+                },
+                .texture = texture,
         },
         {
-            .barrier = {
-                .access_before = wis::ResourceAccess::NoAccess,
-                .access_after = wis::ResourceAccess::NoAccess,
-                .state_before = wis::TextureState::Undefined,
-                .state_after = wis::TextureState::ShaderResource,
-                .subresource_range = { 0, 1, 0, 1 },
-            },
-            .texture = lut,
+                .barrier = {
+                        .access_before = wis::ResourceAccess::NoAccess,
+                        .access_after = wis::ResourceAccess::NoAccess,
+                        .state_before = wis::TextureState::Undefined,
+                        .state_after = wis::TextureState::ShaderResource,
+                        .subresource_range = { 0, 1, 0, 1 },
+                },
+                .texture = lut,
         }
     };
     cmd_list.TextureBarriers(barriers, std::size(barriers));
@@ -508,8 +508,8 @@ void WorkNode::Frame()
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-            .size = { width, height, 1 },
-            .format = wis::DataFormat::RGBA8Unorm,
+                .size = { width, height, 1 },
+                .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyTextureToBuffer(out_texture, out_buffer, &region, 1);
