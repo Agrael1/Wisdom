@@ -55,9 +55,82 @@ public:
     }
 
 public:
-    WIS_INLINE void WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept;
-    WIS_INLINE void WriteShaderResource(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept;
-    WIS_INLINE void WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t size, uint32_t offset) noexcept;
+    void WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::DX12SamplerView sampler) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += aligned_table_offset + index * heap_increment;
+        const auto& sampler_handle = std::get<0>(sampler);
+        device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+    }
+    void WriteTexture(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += index * heap_increment;
+        auto& sampler_handle = std::get<0>(resource);
+        device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
+    void WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t size, uint32_t offset) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += aligned_table_offset + index * heap_increment;
+        D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
+            .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
+            .SizeInBytes = wis::detail::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT))
+        };
+        device->CreateConstantBufferView(&desc, handle);
+    }
+    void WriteRWTexture(uint64_t aligned_table_offset, uint32_t index, wis::DX12UnorderedAccessTextureView uav) noexcept
+    {
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += index * heap_increment;
+
+        auto& uav_handle = std::get<0>(uav);
+        device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
+    void WriteRWStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
+            .Buffer{
+                    .FirstElement = offset_elements,
+                    .NumElements = element_count,
+                    .StructureByteStride = stride,
+                    .CounterOffsetInBytes = 0,
+                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
+        };
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += aligned_table_offset + index * heap_increment;
+        device->CreateUnorderedAccessView(std::get<0>(buffer), nullptr, &uav_desc, handle);
+    }
+    void WriteStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .Buffer{
+                    .FirstElement = offset_elements,
+                    .NumElements = element_count,
+                    .StructureByteStride = stride,
+                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
+        };
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += aligned_table_offset + index * heap_increment;
+        device->CreateShaderResourceView(std::get<0>(buffer), &srv_desc, handle);
+    }
+    void WriteAccelerationStructure(uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address) const noexcept
+    {
+        D3D12_SHADER_RESOURCE_VIEW_DESC desc{
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
+            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .RaytracingAccelerationStructure = { acceleration_structure_device_address }
+        };
+        auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+        handle.ptr += aligned_table_offset + index * heap_increment;
+        device->CreateShaderResourceView(nullptr, &desc, handle);
+    }
 };
 
 #pragma region DX12DescriptorBuffer
@@ -68,6 +141,7 @@ public:
  * Alignment and size of descriptors are varying between implementation and heap types.
  * Both metrixs are available to retrieval from
  * */
+WISDOM_EXPORT
 class DX12DescriptorBuffer : public wis::ImplDX12DescriptorBuffer
 {
 public:
@@ -94,9 +168,9 @@ public:
      * @param index Binding index in descriptor table.
      * @param resource The shader resource to write.
      * */
-    inline void WriteShaderResource(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept
+    inline void WriteTexture(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept
     {
-        wis::ImplDX12DescriptorBuffer::WriteShaderResource(aligned_table_offset, index, std::move(resource));
+        wis::ImplDX12DescriptorBuffer::WriteTexture(aligned_table_offset, index, std::move(resource));
     }
     /**
      * @brief Writes the constant buffer to the constant buffer descriptor buffer.
@@ -112,12 +186,63 @@ public:
     {
         wis::ImplDX12DescriptorBuffer::WriteConstantBuffer(aligned_table_offset, index, std::move(buffer), buffer_size, offset);
     }
+    /**
+     * @brief Writes the storage texture to the storage texture descriptor buffer.
+     * Must be called with Storage Texture descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param uav The storage texture to write.
+     * */
+    inline void WriteRWTexture(uint64_t aligned_table_offset, uint32_t index, wis::DX12UnorderedAccessTextureView uav) noexcept
+    {
+        wis::ImplDX12DescriptorBuffer::WriteRWTexture(aligned_table_offset, index, std::move(uav));
+    }
+    /**
+     * @brief Writes the storage structured buffer to the storage buffer descriptor buffer.
+     * Must be called with Storage Buffer descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteRWStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplDX12DescriptorBuffer::WriteRWStructuredBuffer(aligned_table_offset, index, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the structured buffer to the shader resource descriptor buffer.
+     * Must be called with Shader Resource descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplDX12DescriptorBuffer::WriteStructuredBuffer(aligned_table_offset, index, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the acceleration structure to the acceleration structure descriptor buffer.
+     * Must be called with Acceleration Structure descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param acceleration_structure_device_address The device address of the acceleration structure to write. Can be queried with .
+     * */
+    inline void WriteAccelerationStructure(uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address) noexcept
+    {
+        wis::ImplDX12DescriptorBuffer::WriteAccelerationStructure(aligned_table_offset, index, acceleration_structure_device_address);
+    }
 };
 #pragma endregion DX12DescriptorBuffer
 
 } // namespace wis
-#ifndef WISDOM_BUILD_BINARIES
-#include "impl/dx12_descriptor_buffer.cpp"
-#endif // !WISDOM_BUILD_BINARIES
 
 #endif // !DX12_DESCRIPTOR_BUFFER_H

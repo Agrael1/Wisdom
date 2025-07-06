@@ -124,8 +124,26 @@ public:
 
 public:
     WIS_INLINE void WriteSampler(uint64_t aligned_table_offset, uint32_t index, wis::VKSamplerView sampler) noexcept;
-    WIS_INLINE void WriteShaderResource(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept;
+    WIS_INLINE void WriteTexture(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept;
     WIS_INLINE void WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size, uint32_t offset = 0) noexcept;
+    WIS_INLINE void WriteRWTexture(uint64_t aligned_table_offset, uint32_t index, wis::VKUnorderedAccessTextureView uav) noexcept;
+    WIS_INLINE void WriteRWStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept;
+    WIS_INLINE void WriteStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        // For structured buffers, we use the same method as for RWStructuredBuffer,
+        WriteRWStructuredBuffer(aligned_table_offset, index, buffer, stride, element_count, offset_elements);
+    }
+    void WriteAccelerationStructure(uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address) noexcept
+    {
+        auto& device = allocator.header();
+        VkDescriptorGetInfoEXT info{
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
+            .type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
+            .data = { .accelerationStructure = acceleration_structure_device_address }
+        };
+        uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
+        vkGetDescriptorEXT(device.get(), &info, properties.mutable_descriptor_size, data + desc_offset);
+    }
 };
 
 #pragma region VKDescriptorBuffer
@@ -136,6 +154,7 @@ public:
  * Alignment and size of descriptors are varying between implementation and heap types.
  * Both metrixs are available to retrieval from
  * */
+WISDOM_EXPORT
 class VKDescriptorBuffer : public wis::ImplVKDescriptorBuffer
 {
 public:
@@ -162,9 +181,9 @@ public:
      * @param index Binding index in descriptor table.
      * @param resource The shader resource to write.
      * */
-    inline void WriteShaderResource(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept
+    inline void WriteTexture(uint64_t aligned_table_offset, uint32_t index, wis::VKShaderResourceView resource) noexcept
     {
-        wis::ImplVKDescriptorBuffer::WriteShaderResource(aligned_table_offset, index, std::move(resource));
+        wis::ImplVKDescriptorBuffer::WriteTexture(aligned_table_offset, index, std::move(resource));
     }
     /**
      * @brief Writes the constant buffer to the constant buffer descriptor buffer.
@@ -179,6 +198,60 @@ public:
     inline void WriteConstantBuffer(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t buffer_size, uint32_t offset = 0) noexcept
     {
         wis::ImplVKDescriptorBuffer::WriteConstantBuffer(aligned_table_offset, index, std::move(buffer), buffer_size, offset);
+    }
+    /**
+     * @brief Writes the storage texture to the storage texture descriptor buffer.
+     * Must be called with Storage Texture descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param uav The storage texture to write.
+     * */
+    inline void WriteRWTexture(uint64_t aligned_table_offset, uint32_t index, wis::VKUnorderedAccessTextureView uav) noexcept
+    {
+        wis::ImplVKDescriptorBuffer::WriteRWTexture(aligned_table_offset, index, std::move(uav));
+    }
+    /**
+     * @brief Writes the storage structured buffer to the storage buffer descriptor buffer.
+     * Must be called with Storage Buffer descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteRWStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplVKDescriptorBuffer::WriteRWStructuredBuffer(aligned_table_offset, index, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the structured buffer to the shader resource descriptor buffer.
+     * Must be called with Shader Resource descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteStructuredBuffer(uint64_t aligned_table_offset, uint32_t index, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplVKDescriptorBuffer::WriteStructuredBuffer(aligned_table_offset, index, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the acceleration structure to the acceleration structure descriptor buffer.
+     * Must be called with Acceleration Structure descriptor buffer, which was created with wis::DescriptorHeapType::Descriptor.
+     * @param aligned_table_offset Byte offset from the buffer beginning in table alignment sizes.
+     * Alignment may be queried with .
+     * @param index Binding index in descriptor table.
+     * @param acceleration_structure_device_address The device address of the acceleration structure to write. Can be queried with .
+     * */
+    inline void WriteAccelerationStructure(uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address) noexcept
+    {
+        wis::ImplVKDescriptorBuffer::WriteAccelerationStructure(aligned_table_offset, index, acceleration_structure_device_address);
     }
 };
 #pragma endregion VKDescriptorBuffer

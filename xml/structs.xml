@@ -57,6 +57,8 @@
     <type name="PipelineView" category="variant" for="Pipeline" mod="cpp-only"/>
     <type name="SamplerView" category="variant" for="Sampler" mod="cpp-only"/>
     <type name="ShaderResourceView" category="variant" for="ShaderResource" mod="cpp-only"/>
+    <type name="UnorderedAccessTextureView" category="variant" for="UnorderedAccessTexture" mod="cpp-only"/>
+    <type name="AccelerationStructureView" category="variant" for="AccelerationStructure" mod="cpp-only"/>
     <type name="AcceleratedGeometryDesc" category="variant" for="ShaderResource" mod="cpp-only"/>
     <type name="DescriptorStorageView" category="variant" for="DescriptorStorage" mod="cpp-only"/>
     <!--TODO: make C equivalent-->

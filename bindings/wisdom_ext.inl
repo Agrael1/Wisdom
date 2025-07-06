@@ -3,6 +3,7 @@
 #include "wisdom/wisdom_debug.hpp"
 #include "wisdom/wisdom_descriptor_buffer.hpp"
 #include "wisdom/wisdom_extended_allocation.hpp"
+#include "wisdom/wisdom_raytracing.hpp"
 
 #if defined(WISDOM_DX12)
 #include <wisdom/wisdom_dx12.hpp>
@@ -42,6 +43,10 @@ template<>
 struct DX12DeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation> {
     using Type = wis::DX12ExtendedAllocation;
 };
+template<>
+struct DX12DeviceExtensionMap<wis::DeviceExtID::RaytracingExtension> {
+    using Type = wis::DX12RaytracingExtension;
+};
 //-------------------------------------------------------------------------
 
 template<template<typename T> typename Executor, typename... Args>
@@ -52,6 +57,8 @@ constexpr static inline decltype(auto) DX12DeviceExtensionBridge(wis::DeviceExtI
         return Executor<typename DX12DeviceExtensionMap<wis::DeviceExtID::DescriptorBufferExtension>::Type>{}(std::forward<Args>(args)...);
     case wis::DeviceExtID::ExtendedAllocation:
         return Executor<typename DX12DeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation>::Type>{}(std::forward<Args>(args)...);
+    case wis::DeviceExtID::RaytracingExtension:
+        return Executor<typename DX12DeviceExtensionMap<wis::DeviceExtID::RaytracingExtension>::Type>{}(std::forward<Args>(args)...);
     default:
         return Executor<wis::DX12DeviceExtension>{}(std::forward<Args>(args)...);
     }
@@ -157,6 +164,8 @@ extern "C" bool DX12ExtendedAllocationSupportedDirectGPUUpload(DX12ExtendedAlloc
     ;
     return res;
 }
+// DX12RaytracingExtension methods --
+
 #endif
 
 #if defined(WISDOM_VULKAN)
@@ -197,6 +206,10 @@ template<>
 struct VKDeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation> {
     using Type = wis::VKExtendedAllocation;
 };
+template<>
+struct VKDeviceExtensionMap<wis::DeviceExtID::RaytracingExtension> {
+    using Type = wis::VKRaytracingExtension;
+};
 //-------------------------------------------------------------------------
 
 template<template<typename T> typename Executor, typename... Args>
@@ -207,6 +220,8 @@ constexpr static inline decltype(auto) VKDeviceExtensionBridge(wis::DeviceExtID 
         return Executor<typename VKDeviceExtensionMap<wis::DeviceExtID::DescriptorBufferExtension>::Type>{}(std::forward<Args>(args)...);
     case wis::DeviceExtID::ExtendedAllocation:
         return Executor<typename VKDeviceExtensionMap<wis::DeviceExtID::ExtendedAllocation>::Type>{}(std::forward<Args>(args)...);
+    case wis::DeviceExtID::RaytracingExtension:
+        return Executor<typename VKDeviceExtensionMap<wis::DeviceExtID::RaytracingExtension>::Type>{}(std::forward<Args>(args)...);
     default:
         return Executor<wis::VKDeviceExtension>{}(std::forward<Args>(args)...);
     }
@@ -312,4 +327,6 @@ extern "C" bool VKExtendedAllocationSupportedDirectGPUUpload(VKExtendedAllocatio
     ;
     return res;
 }
+// VKRaytracingExtension methods --
+
 #endif

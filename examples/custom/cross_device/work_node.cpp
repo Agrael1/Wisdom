@@ -335,8 +335,8 @@ CreateWorkNode(wis::Adapter&& adapter)
         }
 
         // Set Descriptor Buffers
-        hdesc.WriteShaderResource(0, 1, node.srv);
-        hdesc.WriteShaderResource(0, 0, node.srv_lut);
+        hdesc.WriteTexture(0, 1, node.srv);
+        hdesc.WriteTexture(0, 0, node.srv_lut);
 
         hdesc2.WriteSampler(0, 0, node.sampler);
 

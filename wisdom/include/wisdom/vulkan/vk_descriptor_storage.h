@@ -175,6 +175,24 @@ public:
         };
         device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
     }
+    void WriteAccelerationStructure(uint32_t binding, uint32_t index, wis::VKAccelerationStructureView as) const noexcept
+    {
+        VkWriteDescriptorSetAccelerationStructureKHR as_info{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+            .accelerationStructureCount = 1,
+            .pAccelerationStructures = &std::get<0>(as),
+        };
+        VkWriteDescriptorSet write{
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = &as_info,
+            .dstSet = descriptor_sets[binding],
+            .dstBinding = 0,
+            .dstArrayElement = index,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
+        };
+        device.table().vkUpdateDescriptorSets(device.get(), 1, &write, 0, nullptr);
+    }
 };
 
 #pragma region VKDescriptorStorage
@@ -221,6 +239,52 @@ public:
     inline void WriteTexture(uint32_t set_index, uint32_t binding, wis::VKShaderResourceView resource) noexcept
     {
         wis::ImplVKDescriptorStorage::WriteTexture(set_index, binding, std::move(resource));
+    }
+    /**
+     * @brief Writes the storage texture to the storage texture descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of storage textures to fill.
+     * @param uav The storage texture to write.
+     * */
+    inline void WriteRWTexture(uint32_t set_index, uint32_t binding, wis::VKUnorderedAccessTextureView uav) noexcept
+    {
+        wis::ImplVKDescriptorStorage::WriteRWTexture(set_index, binding, std::move(uav));
+    }
+    /**
+     * @brief Writes the storage structured buffer to the storage buffer descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of storage buffers to fill.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteRWStructuredBuffer(uint32_t set_index, uint32_t binding, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplVKDescriptorStorage::WriteRWStructuredBuffer(set_index, binding, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the structured buffer to the shader resource descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of structured buffers to fill.
+     * @param buffer The buffer to write.
+     * @param stride The stride of each element in the structured buffer in bytes.
+     * @param element_count The number of elements in the structured buffer.
+     * @param offset_elements The offset in elements from the beginning of the buffer. Default is 0.
+     * */
+    inline void WriteStructuredBuffer(uint32_t set_index, uint32_t binding, wis::VKBufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
+    {
+        wis::ImplVKDescriptorStorage::WriteStructuredBuffer(set_index, binding, std::move(buffer), stride, element_count, offset_elements);
+    }
+    /**
+     * @brief Writes the acceleration structure to the acceleration structure descriptor storage.
+     * @param set_index Index in storage sets, defined by the place in the binding array at the creation.
+     * @param binding Index in array of acceleration structures to fill.
+     * @param acceleration_structure The acceleration structure to write.
+     * */
+    inline void WriteAccelerationStructure(uint32_t set_index, uint32_t binding, wis::VKAccelerationStructureView acceleration_structure) noexcept
+    {
+        wis::ImplVKDescriptorStorage::WriteAccelerationStructure(set_index, binding, acceleration_structure);
     }
 };
 #pragma endregion VKDescriptorStorage

@@ -29,6 +29,7 @@ using VKMemoryView = std::tuple<VmaAllocator, VmaAllocation>;
 using VKPipelineView = std::tuple<VkPipeline>;
 using VKDescriptorStorageView = std::tuple<std::span<const VkDescriptorSet>>;
 using VKAcceleratedGeometryDesc = std::pair<VkAccelerationStructureGeometryKHR, VkAccelerationStructureBuildRangeInfoKHR>;
+using VKAccelerationStructureView = std::tuple<VkAccelerationStructureKHR>;
 } // namespace wis
 
 #endif // VK_VIEWS_H

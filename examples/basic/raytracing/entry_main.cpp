@@ -360,7 +360,7 @@ private:
         setup.WaitForGPU();
 
         // Write acceleration structure to descriptor storage
-        raytracing_extension.WriteAccelerationStructure(rt_descriptor_storage, 1, 0, top_rtas);
+        rt_descriptor_storage.WriteAccelerationStructure(1, 0, top_rtas);
     }
 
     void CreatePipeline()

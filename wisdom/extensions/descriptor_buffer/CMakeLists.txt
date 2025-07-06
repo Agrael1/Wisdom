@@ -20,7 +20,7 @@ if(WISDOM_BUILD_BINARIES)
     "wisdom/vk_descriptor_buffer.hpp"
     "wisdom/impl/vk_descriptor_buffer.cpp"
     "wisdom/dx12_descriptor_buffer.hpp"
-    "wisdom/impl/dx12_descriptor_buffer.cpp"
+    
     "wisdom/impl/impl.dx.cpp"
     "wisdom/impl/impl.vk.cpp")
   add_library(wis::descriptor-buffer ALIAS wisdom-descriptor-buffer)
