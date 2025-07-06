@@ -1,5 +1,7 @@
 var NAVTREEINDEX4 =
 {
+"df/da5/structwis_1_1TextureBarrier.html#a7ba5bb4bb8aaa5de6184e6c6ee48f549":[5,0,0,56,2],
+"df/da5/structwis_1_1TextureBarrier.html#a9482ba2c17f912b1127694f2fbff05e9":[5,0,0,56,6],
 "df/da5/structwis_1_1TextureBarrier.html#a9482ba2c17f912b1127694f2fbff05e9":[6,0,0,56,6],
 "df/da5/structwis_1_1TextureBarrier.html#ad0abf423acecf24e77e0dde973bd67da":[6,0,0,56,3],
 "df/da5/structwis_1_1TextureBarrier.html#ad0abf423acecf24e77e0dde973bd67da":[5,0,0,56,3],

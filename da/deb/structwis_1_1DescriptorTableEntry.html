@@ -98,13 +98,14 @@ $(document).ready(function(){initNavTree('da/deb/structwis_1_1DescriptorTableEnt
 </div><!--header-->
 <div class="contents">
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Descriptor table entry for <a class="el" href="../../d4/def/structwis_1_1DescriptorTable.html" title="Descriptor table for .">wis::DescriptorTable</a>. </p>
+<div class="textblock"><p>Descriptor table entry for <a class="el" href="../../d4/def/structwis_1_1DescriptorTable.html" title="Descriptor table for wis::DescriptorBuffer.">wis::DescriptorTable</a>. </p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">struct </span><a class="code hl_struct" href="../../da/deb/structwis_1_1DescriptorTableEntry.html">DescriptorTableEntry</a> {</div>
 <div class="line">    <a class="code hl_enumeration" href="../../d1/d34/namespacewis.html#a533b709d7bd76dadcbc1f432ba1b8218">wis::DescriptorType</a> type; </div>
 <div class="line">    uint32_t bind_register; </div>
 <div class="line">    uint32_t binding; </div>
 <div class="line">    uint32_t count; </div>
+<div class="line">    uint32_t binding_space; </div>
 <div class="line">};</div>
 <div class="ttc" id="anamespacewis_html_a533b709d7bd76dadcbc1f432ba1b8218"><div class="ttname"><a href="../../d1/d34/namespacewis.html#a533b709d7bd76dadcbc1f432ba1b8218">wis::DescriptorType</a></div><div class="ttdeci">DescriptorType</div><div class="ttdoc">Type of the descriptor in the descriptor table.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/df0/api_8hpp_source.html#l00148">api.hpp:148</a></div></div>
 <div class="ttc" id="astructwis_1_1DescriptorTableEntry_html"><div class="ttname"><a href="../../da/deb/structwis_1_1DescriptorTableEntry.html">wis::DescriptorTableEntry</a></div><div class="ttdoc">Descriptor table entry for wis::DescriptorTable.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/df0/api_8hpp_source.html#l01958">api.hpp:1958</a></div></div>
@@ -127,6 +128,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ab23c43e2fef2cfc8c61ac24fb7f99837" id="r_ab23c43e2fef2cfc8c61ac24fb7f99837"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/deb/structwis_1_1DescriptorTableEntry.html#ab23c43e2fef2cfc8c61ac24fb7f99837">count</a></td></tr>
 <tr class="memdesc:ab23c43e2fef2cfc8c61ac24fb7f99837"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descriptor count for Array descriptors. UINT32_MAX means unbounded array.  <br /></td></tr>
 <tr class="separator:ab23c43e2fef2cfc8c61ac24fb7f99837"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ebe1c5fd69ab7e7b9822fb56cca0d2b" id="r_a5ebe1c5fd69ab7e7b9822fb56cca0d2b"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/deb/structwis_1_1DescriptorTableEntry.html#a5ebe1c5fd69ab7e7b9822fb56cca0d2b">binding_space</a></td></tr>
+<tr class="memdesc:a5ebe1c5fd69ab7e7b9822fb56cca0d2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0.  <br /></td></tr>
+<tr class="separator:a5ebe1c5fd69ab7e7b9822fb56cca0d2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Data Members</h2>
 <a id="a0ec9d4f987e0423e14ab97106ccffd17" name="a0ec9d4f987e0423e14ab97106ccffd17"></a>
@@ -162,6 +166,24 @@ Public Attributes</h2></td></tr>
 <p>Binding number in HLSL. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d4/df0/api_8hpp_source.html#l01961">1961</a> of file <a class="el" href="../../d4/df0/api_8hpp_source.html">api.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a5ebe1c5fd69ab7e7b9822fb56cca0d2b" name="a5ebe1c5fd69ab7e7b9822fb56cca0d2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ebe1c5fd69ab7e7b9822fb56cca0d2b">&#9670;&#160;</a></span>binding_space</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t wis::DescriptorTableEntry::binding_space</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df0/api_8hpp_source.html#l01963">1963</a> of file <a class="el" href="../../d4/df0/api_8hpp_source.html">api.hpp</a>.</p>
 
 </div>
 </div>
