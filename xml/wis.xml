@@ -725,7 +725,7 @@ size + offset must be less or equal the overall size of the bound buffer."/>
       <arg type="u32" name="offset_elements" default="0" doc="The offset in elements from the beginning of the buffer. Default is 0."/>
     </func>
 
-    <func for="DescriptorStorage" name="WriteAccelerationStructure" doc="Writes the acceleration structure to the acceleration structure descriptor storage.">
+    <func for="DescriptorStorage" name="WriteAccelerationStructure" mod="cpp-only" doc="Writes the acceleration structure to the acceleration structure descriptor storage.">
       <arg type="u32" name="set_index" doc="Index in storage sets, defined by the place in the binding array at the creation."/>
       <arg type="u32" name="binding" doc="Index in array of acceleration structures to fill."/>
       <arg type="AccelerationStructure" name="acceleration_structure" doc="The acceleration structure to write.">
@@ -857,7 +857,7 @@ Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlig
         <arg type="u32" name="offset_elements" default="0" doc="The offset in elements from the beginning of the buffer. Default is 0."/>
       </func>
 
-      <func for="DescriptorBuffer" name="WriteAccelerationStructure" doc="Writes the acceleration structure to the acceleration structure descriptor buffer.
+      <func for="DescriptorBuffer" name="WriteAccelerationStructure" mod="cpp-only" doc="Writes the acceleration structure to the acceleration structure descriptor buffer.
 Must be called with Acceleration Structure descriptor buffer, which was created with {DescriptorHeapType::Descriptor}.">
         <arg type="u64" name="aligned_table_offset" doc="Byte offset from the buffer beginning in table alignment sizes.
 Alignment may be queried with {DescriptorBufferExtension::GetDescriptorTableAlignment}."/>
@@ -948,16 +948,6 @@ Subresource is array slice or mip level.">
         <ret type="bool" name="supported" doc="true if direct GPU upload is supported."/>
         <arg type="DataFormat" name="format" doc="The format to check."/>
       </func>
-    </ext>
-
-    <ext name="RaytracingExtension" type="Device" id="3" folder="raytracing">
-      <file include="wisdom/wisdom_raytracing.hpp"/>
-      <handle name="AccelerationStructure" doc="Acceleration structure object for raytracing."/>
-      <type name="AccelerationStructureView" category="variant" for="AccelerationStructure" mod="cpp-only"/>
-
-      <!-- AccelerationStructure -->
-      <func for="AccelerationStructure" name="Destroy" doc="Destroys the {AccelerationStructure::}."/>
-
     </ext>
   </extensions>
 </registry>

@@ -2427,6 +2427,9 @@ std::string Generator::MakeCHandleMethods(const WisHandle& s, std::string_view i
 
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];
+        if (func.implemented_for == Language::CPP) {
+            continue; // Skip C++ only functions
+        }
 
         chunk += MakeCFunctionDecl(func, impl, "WISDOM_API") + '\n';
     }
@@ -2438,6 +2441,9 @@ std::string Generator::MakeCHandleMethodsGeneric(const WisHandle& s, std::string
 
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];
+        if (func.implemented_for == Language::CPP) {
+            continue; // Skip C++ only functions
+        }
 
         chunk += MakeCFunctionGenericDecl(func, impl) + '\n';
     }
@@ -2449,6 +2455,9 @@ std::string Generator::MakeCHandleMethodImpls(const WisHandle& s, std::string_vi
     std::string chunk = wis::format("// {} methods --\n", GetCFullTypename(s.name, impl));
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];
+        if (func.implemented_for == Language::CPP) {
+            continue; // Skip C++ only functions
+        }
         chunk += MakeCFunctionImpl(func, "", impl);
     }
     return chunk;

@@ -764,11 +764,6 @@ extern "C" void DX12DescriptorStorageWriteStructuredBuffer(DX12DescriptorStorage
     auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
     xself->WriteStructuredBuffer(set_index, binding, *reinterpret_cast<wis::DX12Buffer*>(buffer), stride, element_count, offset_elements);
 }
-extern "C" void DX12DescriptorStorageWriteAccelerationStructure(DX12DescriptorStorage self, uint32_t set_index, uint32_t binding, DX12AccelerationStructure acceleration_structure)
-{
-    auto* xself = reinterpret_cast<wis::DX12DescriptorStorage*>(self);
-    xself->WriteAccelerationStructure(set_index, binding, reinterpret_cast<wis::DX12AccelerationStructure&>(acceleration_structure));
-}
 
 // DX12RootSignature methods --
 extern "C" void DX12RootSignatureDestroy(DX12RootSignature self)
@@ -1612,11 +1607,6 @@ extern "C" void VKDescriptorStorageWriteStructuredBuffer(VKDescriptorStorage sel
 {
     auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
     xself->WriteStructuredBuffer(set_index, binding, *reinterpret_cast<wis::VKBuffer*>(buffer), stride, element_count, offset_elements);
-}
-extern "C" void VKDescriptorStorageWriteAccelerationStructure(VKDescriptorStorage self, uint32_t set_index, uint32_t binding, VKAccelerationStructure acceleration_structure)
-{
-    auto* xself = reinterpret_cast<wis::VKDescriptorStorage*>(self);
-    xself->WriteAccelerationStructure(set_index, binding, reinterpret_cast<wis::VKAccelerationStructure&>(acceleration_structure));
 }
 
 // VKRootSignature methods --

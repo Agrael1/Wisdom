@@ -119,6 +119,7 @@ using PipelineView = VKPipelineView;
 using SamplerView = VKSamplerView;
 using ShaderResourceView = VKShaderResourceView;
 using UnorderedAccessTextureView = VKUnorderedAccessTextureView;
+using AccelerationStructureView = VKAccelerationStructureView;
 using AcceleratedGeometryDesc = VKAcceleratedGeometryDesc;
 using DescriptorStorageView = VKDescriptorStorageView;
 using BottomLevelASBuildDesc = VKBottomLevelASBuildDesc;

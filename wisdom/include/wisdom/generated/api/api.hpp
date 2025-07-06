@@ -1255,7 +1255,6 @@ enum class DeviceExtID : uint32_t {
     Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DescriptorBufferExtension = 1,
     ExtendedAllocation = 2,
-    RaytracingExtension = 3,
 };
 
 /**
