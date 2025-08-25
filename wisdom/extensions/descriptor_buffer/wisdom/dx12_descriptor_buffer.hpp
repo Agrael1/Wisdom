@@ -92,11 +92,11 @@ public:
             .Format = DXGI_FORMAT_UNKNOWN,
             .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
             .Buffer{
-                    .FirstElement = offset_elements,
-                    .NumElements = element_count,
-                    .StructureByteStride = stride,
-                    .CounterOffsetInBytes = 0,
-                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
+                .FirstElement = offset_elements,
+                .NumElements = element_count,
+                .StructureByteStride = stride,
+                .CounterOffsetInBytes = 0,
+                .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
         };
         auto handle = heap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += aligned_table_offset + index * heap_increment;
@@ -109,10 +109,10 @@ public:
             .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Buffer{
-                    .FirstElement = offset_elements,
-                    .NumElements = element_count,
-                    .StructureByteStride = stride,
-                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
+                .FirstElement = offset_elements,
+                .NumElements = element_count,
+                .StructureByteStride = stride,
+                .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
         };
         auto handle = heap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += aligned_table_offset + index * heap_increment;
