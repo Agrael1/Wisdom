@@ -51,7 +51,7 @@ var searchData=
   ['devicefeature_48',['DeviceFeature',['../d1/d34/namespacewis.html#ac34bd26178d916a3fe8933bcd9b46d2b',1,'wis']]],
   ['devicelocal_49',['DeviceLocal',['../d1/d34/namespacewis.html#a1ee1174b64b42ead1043861ff9fd0b7aab61e4392ba9fbbb214a368e95f1d5582',1,'wis']]],
   ['devicelost_50',['DeviceLost',['../d1/d34/namespacewis.html#a66f94389c1a20f9a7f21cd85001c38c4ae21f64304b84d5a977e1a00f2137428c',1,'wis']]],
-  ['documentation_51',['Wisdom Documentation',['../index.html',1,'']]],
+  ['documentation_51',['documentation',['../index.html#rules_sec',1,'Coding Standards and Documentation'],['../index.html',1,'Wisdom Documentation']]],
   ['domain_52',['Domain',['../d1/d34/namespacewis.html#a1437def1e9e4d96fb028586eb5ea4251aeae639a70006feff484a39363c977e24',1,'wis']]],
   ['dontcare_53',['dontcare',['../d1/d34/namespacewis.html#adb96f494e91c98bbe4834539ced0a1faa60a3629ef6a8f991f45d7a85f2458544',1,'wis::DontCare'],['../d1/d34/namespacewis.html#a3b0f9588c488f871afc2594f193b1320a60a3629ef6a8f991f45d7a85f2458544',1,'wis::DontCare']]],
   ['draw_54',['Draw',['../d1/d34/namespacewis.html#a63cce5c8017a098cafd8bd744db51e78a2d03c2d5a7ec65ef4619e0582c272ec2',1,'wis']]],

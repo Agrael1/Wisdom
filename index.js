@@ -1,6 +1,7 @@
 var index =
 [
     [ "Introduction", "index.html#intro_sec", null ],
+    [ "Coding Standards and Documentation", "index.html#rules_sec", null ],
     [ "Quick Navigation", "index.html#navigation_sec", null ],
     [ "Key Features", "index.html#features_sec", null ],
     [ "Requirements", "index.html#requirements_sec", null ],
