@@ -158,6 +158,10 @@ class VKDescriptorBuffer : public wis::ImplVKDescriptorBuffer
 {
 public:
     using wis::ImplVKDescriptorBuffer::ImplVKDescriptorBuffer;
+    VKDescriptorBuffer(const VKDescriptorBuffer&) = delete;
+    VKDescriptorBuffer(VKDescriptorBuffer&&) noexcept = default;
+    VKDescriptorBuffer& operator=(const VKDescriptorBuffer&) = delete;
+    VKDescriptorBuffer& operator=(VKDescriptorBuffer&&) noexcept = default;
 
 public:
     /**

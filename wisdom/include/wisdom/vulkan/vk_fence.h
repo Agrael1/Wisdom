@@ -57,6 +57,10 @@ class VKFence : public wis::ImplVKFence
 {
 public:
     using wis::ImplVKFence::ImplVKFence;
+    VKFence(const VKFence&) = delete;
+    VKFence(VKFence&&) noexcept = default;
+    VKFence& operator=(const VKFence&) = delete;
+    VKFence& operator=(VKFence&&) noexcept = default;
 
 public:
     /**

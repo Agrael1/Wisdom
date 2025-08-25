@@ -62,6 +62,10 @@ class DX12Fence : public wis::ImplDX12Fence
 {
 public:
     using wis::ImplDX12Fence::ImplDX12Fence;
+    DX12Fence(const DX12Fence&) = delete;
+    DX12Fence(DX12Fence&&) noexcept = default;
+    DX12Fence& operator=(const DX12Fence&) = delete;
+    DX12Fence& operator=(DX12Fence&&) noexcept = default;
 
 public:
     /**

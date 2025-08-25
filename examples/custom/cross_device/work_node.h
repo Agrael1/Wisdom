@@ -91,7 +91,7 @@ public:
         return vkGetMemoryHostPointerPropertiesEXT;
     }
 
-    ExternalBuffer CreateExternalBuffer(wis::Result& result, wis::ResourceAllocator allocator, void* mapping, uint64_t size) const noexcept
+    ExternalBuffer CreateExternalBuffer(wis::Result& result, wis::ResourceAllocator& allocator, void* mapping, uint64_t size) const noexcept
     {
         ExternalBuffer buffer;
 

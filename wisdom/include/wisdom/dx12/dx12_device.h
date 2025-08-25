@@ -114,6 +114,10 @@ class DX12Device : public wis::ImplDX12Device
 {
 public:
     using wis::ImplDX12Device::ImplDX12Device;
+    DX12Device(const DX12Device&) = delete;
+    DX12Device(DX12Device&&) noexcept = default;
+    DX12Device& operator=(const DX12Device&) = delete;
+    DX12Device& operator=(DX12Device&&) noexcept = default;
 
 public:
     /**

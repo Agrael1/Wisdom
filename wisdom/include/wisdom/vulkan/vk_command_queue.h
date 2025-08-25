@@ -59,6 +59,10 @@ class VKCommandQueue : public wis::ImplVKCommandQueue
 {
 public:
     using wis::ImplVKCommandQueue::ImplVKCommandQueue;
+    VKCommandQueue(const VKCommandQueue&) = delete;
+    VKCommandQueue(VKCommandQueue&&) noexcept = default;
+    VKCommandQueue& operator=(const VKCommandQueue&) = delete;
+    VKCommandQueue& operator=(VKCommandQueue&&) noexcept = default;
 
 public:
     /**

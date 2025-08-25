@@ -144,6 +144,10 @@ class DX12DescriptorStorage : public wis::ImplDX12DescriptorStorage
 {
 public:
     using wis::ImplDX12DescriptorStorage::ImplDX12DescriptorStorage;
+    DX12DescriptorStorage(const DX12DescriptorStorage&) = delete;
+    DX12DescriptorStorage(DX12DescriptorStorage&&) noexcept = default;
+    DX12DescriptorStorage& operator=(const DX12DescriptorStorage&) = delete;
+    DX12DescriptorStorage& operator=(DX12DescriptorStorage&&) noexcept = default;
 
 public:
     /**

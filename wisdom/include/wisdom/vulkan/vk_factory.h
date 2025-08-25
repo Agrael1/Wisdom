@@ -128,6 +128,10 @@ class VKFactory : public wis::ImplVKFactory
 {
 public:
     using wis::ImplVKFactory::ImplVKFactory;
+    VKFactory(const VKFactory&) = delete;
+    VKFactory(VKFactory&&) noexcept = default;
+    VKFactory& operator=(const VKFactory&) = delete;
+    VKFactory& operator=(VKFactory&&) noexcept = default;
 
 public:
     /**

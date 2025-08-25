@@ -53,6 +53,10 @@ class DX12Factory : public wis::ImplDX12Factory
 {
 public:
     using wis::ImplDX12Factory::ImplDX12Factory;
+    DX12Factory(const DX12Factory&) = delete;
+    DX12Factory(DX12Factory&&) noexcept = default;
+    DX12Factory& operator=(const DX12Factory&) = delete;
+    DX12Factory& operator=(DX12Factory&&) noexcept = default;
 
 public:
     /**

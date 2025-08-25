@@ -73,6 +73,10 @@ class DX12DescriptorBufferExtension : public wis::ImplDX12DescriptorBufferExtens
 {
 public:
     using wis::ImplDX12DescriptorBufferExtension::ImplDX12DescriptorBufferExtension;
+    DX12DescriptorBufferExtension(const DX12DescriptorBufferExtension&) = delete;
+    DX12DescriptorBufferExtension(DX12DescriptorBufferExtension&&) noexcept = default;
+    DX12DescriptorBufferExtension& operator=(const DX12DescriptorBufferExtension&) = delete;
+    DX12DescriptorBufferExtension& operator=(DX12DescriptorBufferExtension&&) noexcept = default;
 
 public:
     /**
@@ -272,6 +276,10 @@ class VKDescriptorBufferExtension : public wis::ImplVKDescriptorBufferExtension
 {
 public:
     using wis::ImplVKDescriptorBufferExtension::ImplVKDescriptorBufferExtension;
+    VKDescriptorBufferExtension(const VKDescriptorBufferExtension&) = delete;
+    VKDescriptorBufferExtension(VKDescriptorBufferExtension&&) noexcept = default;
+    VKDescriptorBufferExtension& operator=(const VKDescriptorBufferExtension&) = delete;
+    VKDescriptorBufferExtension& operator=(VKDescriptorBufferExtension&&) noexcept = default;
 
 public:
     /**

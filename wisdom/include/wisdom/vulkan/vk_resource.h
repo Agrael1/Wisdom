@@ -218,6 +218,10 @@ class VKBuffer : public wis::ImplVKBuffer
 {
 public:
     using wis::ImplVKBuffer::ImplVKBuffer;
+    VKBuffer(const VKBuffer&) = delete;
+    VKBuffer(VKBuffer&&) noexcept = default;
+    VKBuffer& operator=(const VKBuffer&) = delete;
+    VKBuffer& operator=(VKBuffer&&) noexcept = default;
 
 public:
     /**

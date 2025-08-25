@@ -205,6 +205,10 @@ class VKDescriptorStorage : public wis::ImplVKDescriptorStorage
 {
 public:
     using wis::ImplVKDescriptorStorage::ImplVKDescriptorStorage;
+    VKDescriptorStorage(const VKDescriptorStorage&) = delete;
+    VKDescriptorStorage(VKDescriptorStorage&&) noexcept = default;
+    VKDescriptorStorage& operator=(const VKDescriptorStorage&) = delete;
+    VKDescriptorStorage& operator=(VKDescriptorStorage&&) noexcept = default;
 
 public:
     /**
