@@ -64,8 +64,8 @@ public:
         vmaMapMemory(this->allocator.get(), allocation, reinterpret_cast<void**>(&data));
 
         descriptor_size = type == wis::DescriptorHeapType::Descriptor
-                          ? properties.mutable_descriptor_size
-                          : properties.sampler_size;
+                ? properties.mutable_descriptor_size
+                : properties.sampler_size;
     }
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
