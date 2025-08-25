@@ -15,10 +15,6 @@ struct unique_event {
         : hevent(std::exchange(o.hevent, nullptr)) { }
     unique_event& operator=(unique_event&& o) noexcept
     {
-        if (this == &o) {
-            return *this;
-        }
-
         std::swap(hevent, o.hevent);
         return *this;
     }
