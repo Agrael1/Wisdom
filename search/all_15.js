@@ -7,5 +7,6 @@ var searchData=
   ['wis_4',['wis',['../d1/d34/namespacewis.html',1,'']]],
   ['wisdom_20documentation_5',['Wisdom Documentation',['../index.html',1,'']]],
   ['works_6',['How It Works',['../dd/d9d/library_structure.html#how_it_works',1,'']]],
-  ['write_5fmask_7',['write_mask',['../df/dea/structwis_1_1StencilDesc.html#aa4d259bf3480d8152f5a9b2bbd8d7c27',1,'wis::StencilDesc']]]
+  ['write_5fmask_7',['write_mask',['../df/dea/structwis_1_1StencilDesc.html#aa4d259bf3480d8152f5a9b2bbd8d7c27',1,'wis::StencilDesc']]],
+  ['writing_20tests_8',['Writing Tests',['../d2/dd3/contributing_page.html#writing_tests',1,'']]]
 ];

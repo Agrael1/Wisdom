@@ -11,6 +11,8 @@ var searchData=
   ['executeindirect_8',['ExecuteIndirect',['../d1/d34/namespacewis.html#a63cce5c8017a098cafd8bd744db51e78a41d3bc947bcd387a1deb57d73d68bb6b',1,'wis']]],
   ['exportable_9',['Exportable',['../d1/d34/namespacewis.html#a6b4fb82de932703f456a24677e0b61c5a825a495fcadb185f0f89305218251e6b',1,'wis']]],
   ['extending_20the_20library_10',['Extending the Library',['../dd/d9d/library_structure.html#extension',1,'']]],
-  ['extension_5fid_11',['extension_id',['../d4/d04/structwis_1_1FactoryExtQuery.html#a6361a844637401b023f7febae8bd6fc9',1,'wis::FactoryExtQuery::extension_id'],['../dd/d32/structwis_1_1DeviceExtQuery.html#a24839f0697fe34e5f4937cdc810ce7ca',1,'wis::DeviceExtQuery::extension_id']]],
-  ['extensions_12',['Factory Extensions',['../df/d1d/examples_page.html#factory_extensions',1,'']]]
+  ['extension_20development_11',['Extension Development',['../d2/dd3/contributing_page.html#extension_development_sec',1,'']]],
+  ['extension_20structure_12',['Extension Structure',['../d2/dd3/contributing_page.html#extension_structure',1,'']]],
+  ['extension_5fid_13',['extension_id',['../dd/d32/structwis_1_1DeviceExtQuery.html#a24839f0697fe34e5f4937cdc810ce7ca',1,'wis::DeviceExtQuery::extension_id'],['../d4/d04/structwis_1_1FactoryExtQuery.html#a6361a844637401b023f7febae8bd6fc9',1,'wis::FactoryExtQuery::extension_id']]],
+  ['extensions_14',['extensions',['../d2/dd3/contributing_page.html#creating_extensions',1,'Creating Extensions'],['../df/d1d/examples_page.html#factory_extensions',1,'Factory Extensions']]]
 ];
