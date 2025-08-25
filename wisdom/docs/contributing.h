@@ -129,7 +129,7 @@
  *
  * - All public APIs must be documented with Doxygen comments
  * - Follow RFC 2119 guidelines for requirement levels (MUST, SHOULD, MAY)
- * - Use `@param`, `@return`, `@note`, `@code` appropriately
+ * - Use JavaDoc style and keywords appropriately
  * - Documentation is automatically generated and deployed to GitHub Pages
  *
  * @subsection doc_generation Documentation Generation
