@@ -49,7 +49,7 @@
  * - **Enums and enum values**: PascalCase (e.g., `Status`, `Ok`, `ErrorInvalidArgument`)
  * - **Container Classes**: snake_case (e.g., `unique_event`). These are usually templated containers or wrappers around STL containers.
  * - **Namespaces**: snake_case (e.g., `wis`)
- * 
+ *
  * @note I just prefer this style, it is not strictly enforced.
  *
  * @subsection api_design API Design Principles
