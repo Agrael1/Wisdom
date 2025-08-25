@@ -52,6 +52,10 @@ class DX12DebugExtension : public wis::ImplDX12DebugExtension
 {
 public:
     using wis::ImplDX12DebugExtension::ImplDX12DebugExtension;
+    DX12DebugExtension(const DX12DebugExtension&) = delete;
+    DX12DebugExtension(DX12DebugExtension&&) noexcept = default;
+    DX12DebugExtension& operator=(const DX12DebugExtension&) = delete;
+    DX12DebugExtension& operator=(DX12DebugExtension&&) noexcept = default;
 
 public:
     /**
@@ -142,6 +146,10 @@ class VKDebugExtension : public wis::ImplVKDebugExtension
 {
 public:
     using wis::ImplVKDebugExtension::ImplVKDebugExtension;
+    VKDebugExtension(const VKDebugExtension&) = delete;
+    VKDebugExtension(VKDebugExtension&&) noexcept = default;
+    VKDebugExtension& operator=(const VKDebugExtension&) = delete;
+    VKDebugExtension& operator=(VKDebugExtension&&) noexcept = default;
 
 public:
     /**

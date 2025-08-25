@@ -116,6 +116,10 @@ class DX12SwapChain : public wis::ImplDX12SwapChain
 {
 public:
     using wis::ImplDX12SwapChain::ImplDX12SwapChain;
+    DX12SwapChain(const DX12SwapChain&) = delete;
+    DX12SwapChain(DX12SwapChain&&) noexcept = default;
+    DX12SwapChain& operator=(const DX12SwapChain&) = delete;
+    DX12SwapChain& operator=(DX12SwapChain&&) noexcept = default;
 
 public:
     /**

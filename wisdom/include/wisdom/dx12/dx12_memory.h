@@ -60,6 +60,10 @@ class DX12Memory : public wis::ImplDX12Memory
 {
 public:
     using wis::ImplDX12Memory::ImplDX12Memory;
+    DX12Memory(const DX12Memory&) = delete;
+    DX12Memory(DX12Memory&&) noexcept = default;
+    DX12Memory& operator=(const DX12Memory&) = delete;
+    DX12Memory& operator=(DX12Memory&&) noexcept = default;
 
 public:
     /**

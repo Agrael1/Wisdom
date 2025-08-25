@@ -161,6 +161,10 @@ class VKDevice : public wis::ImplVKDevice
 {
 public:
     using wis::ImplVKDevice::ImplVKDevice;
+    VKDevice(const VKDevice&) = delete;
+    VKDevice(VKDevice&&) noexcept = default;
+    VKDevice& operator=(const VKDevice&) = delete;
+    VKDevice& operator=(VKDevice&&) noexcept = default;
 
 public:
     /**

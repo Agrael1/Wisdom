@@ -120,6 +120,10 @@ class VKSwapChain : public wis::ImplVKSwapChain
 {
 public:
     using wis::ImplVKSwapChain::ImplVKSwapChain;
+    VKSwapChain(const VKSwapChain&) = delete;
+    VKSwapChain(VKSwapChain&&) noexcept = default;
+    VKSwapChain& operator=(const VKSwapChain&) = delete;
+    VKSwapChain& operator=(VKSwapChain&&) noexcept = default;
 
 public:
     /**

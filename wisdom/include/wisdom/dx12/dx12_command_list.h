@@ -120,6 +120,10 @@ class DX12CommandList : public wis::ImplDX12CommandList
 {
 public:
     using wis::ImplDX12CommandList::ImplDX12CommandList;
+    DX12CommandList(const DX12CommandList&) = delete;
+    DX12CommandList(DX12CommandList&&) noexcept = default;
+    DX12CommandList& operator=(const DX12CommandList&) = delete;
+    DX12CommandList& operator=(DX12CommandList&&) noexcept = default;
 
 public:
     /**

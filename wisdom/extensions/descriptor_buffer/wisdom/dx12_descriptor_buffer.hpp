@@ -64,7 +64,7 @@ public:
     void WriteTexture(uint64_t aligned_table_offset, uint32_t index, wis::DX12ShaderResourceView resource) noexcept
     {
         auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-        handle.ptr += index * heap_increment;
+        handle.ptr += aligned_table_offset + index * heap_increment;
         auto& sampler_handle = std::get<0>(resource);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
@@ -81,7 +81,7 @@ public:
     void WriteRWTexture(uint64_t aligned_table_offset, uint32_t index, wis::DX12UnorderedAccessTextureView uav) noexcept
     {
         auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-        handle.ptr += index * heap_increment;
+        handle.ptr += aligned_table_offset + index * heap_increment;
 
         auto& uav_handle = std::get<0>(uav);
         device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -145,6 +145,10 @@ class DX12DescriptorBuffer : public wis::ImplDX12DescriptorBuffer
 {
 public:
     using wis::ImplDX12DescriptorBuffer::ImplDX12DescriptorBuffer;
+    DX12DescriptorBuffer(const DX12DescriptorBuffer&) = delete;
+    DX12DescriptorBuffer(DX12DescriptorBuffer&&) noexcept = default;
+    DX12DescriptorBuffer& operator=(const DX12DescriptorBuffer&) = delete;
+    DX12DescriptorBuffer& operator=(DX12DescriptorBuffer&&) noexcept = default;
 
 public:
     /**

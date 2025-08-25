@@ -61,6 +61,10 @@ class DX12ExtendedAllocation : public wis::ImplDX12ExtendedAllocation
 {
 public:
     using wis::ImplDX12ExtendedAllocation::ImplDX12ExtendedAllocation;
+    DX12ExtendedAllocation(const DX12ExtendedAllocation&) = delete;
+    DX12ExtendedAllocation(DX12ExtendedAllocation&&) noexcept = default;
+    DX12ExtendedAllocation& operator=(const DX12ExtendedAllocation&) = delete;
+    DX12ExtendedAllocation& operator=(DX12ExtendedAllocation&&) noexcept = default;
 
 public:
     /**
@@ -184,6 +188,10 @@ class VKExtendedAllocation : public wis::ImplVKExtendedAllocation
 {
 public:
     using wis::ImplVKExtendedAllocation::ImplVKExtendedAllocation;
+    VKExtendedAllocation(const VKExtendedAllocation&) = delete;
+    VKExtendedAllocation(VKExtendedAllocation&&) noexcept = default;
+    VKExtendedAllocation& operator=(const VKExtendedAllocation&) = delete;
+    VKExtendedAllocation& operator=(VKExtendedAllocation&&) noexcept = default;
 
 public:
     /**

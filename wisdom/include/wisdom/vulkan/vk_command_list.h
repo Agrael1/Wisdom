@@ -168,6 +168,10 @@ class VKCommandList : public wis::ImplVKCommandList
 {
 public:
     using wis::ImplVKCommandList::ImplVKCommandList;
+    VKCommandList(const VKCommandList&) = delete;
+    VKCommandList(VKCommandList&&) noexcept = default;
+    VKCommandList& operator=(const VKCommandList&) = delete;
+    VKCommandList& operator=(VKCommandList&&) noexcept = default;
 
 public:
     /**

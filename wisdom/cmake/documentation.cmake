@@ -33,6 +33,7 @@ if(WISDOM_BUILD_DOCS)
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/DoxygenLayout.xml
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/main_page.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/docs/contributing.h
             ${CMAKE_CURRENT_SOURCE_DIR}/docs/getting_started.h
         )
 

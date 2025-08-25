@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/** Wisdom API Version 0.6.11
+/** Wisdom API Version 0.6.12
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1596,7 +1596,7 @@ typedef uint32_t WisASInstanceFlags;
 
 /**
  * @brief Main source of communication of operation success.
- * To check for success compare WisResult::status with StatusOk.
+ * To check for success WisResult::status *must* be compared with StatusOk.
  * If there is any error there is  string which is compile-time.
  * It communicates the source of problems even in Release mode.
  * The string contains function name and error message.

@@ -107,6 +107,10 @@ class VKResourceAllocator : public wis::ImplVKResourceAllocator
 {
 public:
     using wis::ImplVKResourceAllocator::ImplVKResourceAllocator;
+    VKResourceAllocator(const VKResourceAllocator&) = delete;
+    VKResourceAllocator(VKResourceAllocator&&) noexcept = default;
+    VKResourceAllocator& operator=(const VKResourceAllocator&) = delete;
+    VKResourceAllocator& operator=(VKResourceAllocator&&) noexcept = default;
 
 public:
     /**

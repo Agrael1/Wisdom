@@ -15,6 +15,7 @@ struct unique_event {
         : hevent(std::exchange(o.hevent, nullptr)) { }
     unique_event& operator=(unique_event&& o) noexcept
     {
+        clear();
         std::swap(hevent, o.hevent);
         return *this;
     }
@@ -42,6 +43,13 @@ struct unique_event {
             return wis::Status::Timeout;
         }
         return wis::Status::Error;
+    }
+    void clear() noexcept
+    {
+        if (hevent) {
+            CloseHandle(hevent);
+            hevent = nullptr;
+        }
     }
 
 public:

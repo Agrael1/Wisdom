@@ -2799,6 +2799,15 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl)
     std::string head = wis::format("{}\n WISDOM_EXPORT\nclass {}{} : public wis::Impl{}{}", doc, impl, s.name, impl, s.name);
     std::string ctor = wis::format("public:\n using wis::Impl{}{}::Impl{}{};", impl, s.name, impl, s.name);
 
+    // Only adapter has a copy constructor
+    if (s.name != "Adapter") {
+        // Explicitly prohibit copy but allow move
+        ctor += wis::format("\n{}{}(const {}{}&) = delete;\n", impl, s.name, impl, s.name);
+        ctor += wis::format("{}{}({}{}&&) noexcept = default;\n", impl, s.name, impl, s.name);
+        ctor += wis::format("{}{}& operator=(const {}{}&) = delete;\n", impl, s.name, impl, s.name);
+        ctor += wis::format("{}{}& operator=({}{}&&) noexcept = default;\n", impl, s.name, impl, s.name);
+    }
+
     std::string funcs = "public:\n";
     for (auto& f : s.functions) {
         auto& func = function_map[std::string(f)];

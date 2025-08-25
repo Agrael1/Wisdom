@@ -101,6 +101,10 @@ class VKMemory : public wis::ImplVKMemory
 {
 public:
     using wis::ImplVKMemory::ImplVKMemory;
+    VKMemory(const VKMemory&) = delete;
+    VKMemory(VKMemory&&) noexcept = default;
+    VKMemory& operator=(const VKMemory&) = delete;
+    VKMemory& operator=(VKMemory&&) noexcept = default;
 
 public:
     /**

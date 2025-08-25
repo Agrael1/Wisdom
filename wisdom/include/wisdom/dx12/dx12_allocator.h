@@ -95,6 +95,10 @@ class DX12ResourceAllocator : public wis::ImplDX12ResourceAllocator
 {
 public:
     using wis::ImplDX12ResourceAllocator::ImplDX12ResourceAllocator;
+    DX12ResourceAllocator(const DX12ResourceAllocator&) = delete;
+    DX12ResourceAllocator(DX12ResourceAllocator&&) noexcept = default;
+    DX12ResourceAllocator& operator=(const DX12ResourceAllocator&) = delete;
+    DX12ResourceAllocator& operator=(DX12ResourceAllocator&&) noexcept = default;
 
 public:
     /**

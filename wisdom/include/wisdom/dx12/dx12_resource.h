@@ -65,6 +65,11 @@ template<>
 struct Internal<DX12RenderTarget> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
     D3D12_CPU_DESCRIPTOR_HANDLE handle{};
+
+    // Move only
+    Internal() = default;
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept = default;
 };
 
 WISDOM_EXPORT
@@ -90,6 +95,11 @@ WISDOM_EXPORT
 template<>
 struct Internal<DX12Sampler> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
+
+    // Move only
+    Internal() = default;
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept = default;
 };
 
 WISDOM_EXPORT
@@ -115,6 +125,11 @@ WISDOM_EXPORT
 template<>
 struct Internal<DX12ShaderResource> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
+
+    // Move only
+    Internal() = default;
+    Internal(Internal&&) noexcept = default;
+    Internal& operator=(Internal&& o) noexcept = default;
 };
 
 WISDOM_EXPORT
@@ -144,6 +159,10 @@ class DX12Buffer : public wis::ImplDX12Buffer
 {
 public:
     using wis::ImplDX12Buffer::ImplDX12Buffer;
+    DX12Buffer(const DX12Buffer&) = delete;
+    DX12Buffer(DX12Buffer&&) noexcept = default;
+    DX12Buffer& operator=(const DX12Buffer&) = delete;
+    DX12Buffer& operator=(DX12Buffer&&) noexcept = default;
 
 public:
     /**
