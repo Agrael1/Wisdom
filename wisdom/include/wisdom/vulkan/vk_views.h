@@ -4,7 +4,6 @@
 #include <tuple>
 #include <span>
 #include <wisdom/vulkan/vk_handles.h>
-#include <wisvk/vk_loader.hpp>
 #include <wisdom/generated/api/api.hpp>
 #endif // !WISDOM_MODULE_DECL
 

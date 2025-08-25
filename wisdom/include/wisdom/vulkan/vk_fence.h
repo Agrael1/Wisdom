@@ -4,7 +4,6 @@
 #include <wisdom/vulkan/vk_views.h>
 #include <wisdom/vulkan/vk_checks.h>
 #include <wisdom/global/internal.h>
-#include <wisvk/vk_loader.hpp>
 #include <limits>
 #endif // !WISDOM_MODULE_DECL
 

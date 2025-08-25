@@ -65,7 +65,9 @@ TEST_CASE("move_fence_dx12")
     auto fence2 = std::move(fence);
     REQUIRE(fence2);
 
+#if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
     auto& internal = fence.GetInternal();
     REQUIRE(internal.fence.get() == nullptr);
     REQUIRE(internal.fence_event.get() == 0);
+#endif
 }
