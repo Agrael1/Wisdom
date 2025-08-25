@@ -9,7 +9,7 @@
 #define WISDOM_EXPORT export
 #endif
 
-/** Wisdom API Version 0.6.11
+/** Wisdom API Version 0.6.12
 
 Copyright (c) 2024 Ilya Doroshenko. All rights reserved.
 License: MIT
@@ -1525,7 +1525,7 @@ enum class ASInstanceFlags {
 /**
  * @struct wis::Result
  * @brief Main source of communication of operation success.
- * To check for success compare wis::Result::status with wis::Status::Ok.
+ * To check for success wis::Result::status *must* be compared with wis::Status::Ok.
  * If there is any error there is  string which is compile-time.
  * It communicates the source of problems even in Release mode.
  * The string contains function name and error message.
