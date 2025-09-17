@@ -18,6 +18,7 @@ add_library(wis::wisdom ALIAS wisdom)
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-module STATIC)
   add_library(wis::module ALIAS wisdom-module)
+  add_library(wis::wisdom-module ALIAS wisdom-module)
   target_link_libraries(wisdom-module PUBLIC wisdom-headers)
   target_sources(wisdom-module PUBLIC FILE_SET CXX_MODULES BASE_DIRS include
                                       FILES "include/wisdom/wisdom.ixx")

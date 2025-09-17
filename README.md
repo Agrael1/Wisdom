@@ -84,12 +84,12 @@ To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wis
 
 Available targets are:
 
-- `wis::wisdom | wis::headers | wis::wisdom-headers` - functional library
-- `wis::debug | wis::debug-headers` - debug extension
-- `wis::extended-allocation | wis::extended-allocation-headers` - extended allocation extension (direct GPU Upload)
-- `wis::platform | wis::platform-headers` - platform specific extensions (Swapchain and Interop exports)
-- `wis::raytracing | wis::raytracing-headers` - raytracing
-- `wis::descriptor-buffer | wis::descriptor-buffer-headers` - descriptor buffer support, requires Vulkan 1.3 and GPU support for `VK_(EXT|VALVE)_mutable_descriptor_type` if used with Vulkan
+- `wis::wisdom | wis::wisdom-headers` - functional library
+- `wis::debug | wis::wisdom-debug-headers` - debug extension
+- `wis::extended-allocation | wis::wisdom-extended-allocation-headers` - extended allocation extension (direct GPU Upload)
+- `wis::platform | wis::wisdom-platform-headers` - platform specific extensions (Swapchain and Interop exports)
+- `wis::raytracing | wis::wisdom-raytracing-headers` - raytracing
+- `wis::descriptor-buffer | wis::wisdom-descriptor-buffer-headers` - descriptor buffer support, requires Vulkan 1.3 and GPU support for `VK_(EXT|VALVE)_mutable_descriptor_type` if used with Vulkan
 
 Since 0.6.7 the library also features C++20 modules support. To use it, you need to enable the `WISDOM_EXPERIMENTAL_CPP_MODULES` option in CMake. The targets are named with postfix `-module` and are not compatible with non-module targets.
 
