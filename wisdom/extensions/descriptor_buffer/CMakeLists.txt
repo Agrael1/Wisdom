@@ -3,6 +3,8 @@ project(wisdom-descriptor-buffer)
 add_library(wisdom-descriptor-buffer-headers INTERFACE)
 add_library(wis::descriptor-buffer-headers ALIAS
             wisdom-descriptor-buffer-headers)
+add_library(wis::wisdom-descriptor-buffer-headers ALIAS
+            wisdom-descriptor-buffer-headers)
 
 target_link_libraries(wisdom-descriptor-buffer-headers INTERFACE wisdom-headers)
 
@@ -20,6 +22,7 @@ if(WISDOM_BUILD_BINARIES)
     "wisdom/impl/vk_descriptor_buffer.cpp" "wisdom/dx12_descriptor_buffer.hpp"
     "wisdom/impl/impl.dx.cpp" "wisdom/impl/impl.vk.cpp")
   add_library(wis::descriptor-buffer ALIAS wisdom-descriptor-buffer)
+  add_library(wis::wisdom-descriptor-buffer ALIAS wisdom-descriptor-buffer)
   target_link_libraries(wisdom-descriptor-buffer PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-descriptor-buffer
@@ -30,6 +33,7 @@ if(WISDOM_BUILD_BINARIES)
 else()
   add_library(wisdom-descriptor-buffer INTERFACE)
   add_library(wis::descriptor-buffer ALIAS wisdom-descriptor-buffer)
+  add_library(wis::wisdom-descriptor-buffer ALIAS wisdom-descriptor-buffer)
   target_link_libraries(wisdom-descriptor-buffer
                         INTERFACE wisdom-descriptor-buffer-headers)
 endif()
@@ -38,6 +42,8 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-descriptor-buffer-module STATIC
               "wisdom/descriptor_buffer.include.h")
   add_library(wis::descriptor-buffer-module ALIAS
+              wisdom-descriptor-buffer-module)
+  add_library(wis::wisdom-descriptor-buffer-module ALIAS
               wisdom-descriptor-buffer-module)
   target_sources(
     wisdom-descriptor-buffer-module

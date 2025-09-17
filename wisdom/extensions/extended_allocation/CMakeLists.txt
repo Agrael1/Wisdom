@@ -3,6 +3,8 @@ project(wisdom-extended-allocation)
 add_library(wisdom-extended-allocation-headers INTERFACE)
 add_library(wis::extended-allocation-headers ALIAS
             wisdom-extended-allocation-headers)
+add_library(wis::wisdom-extended-allocation-headers ALIAS
+            wisdom-extended-allocation-headers)
 
 target_link_libraries(wisdom-extended-allocation-headers
                       INTERFACE wisdom-headers)
@@ -20,6 +22,7 @@ if(WISDOM_BUILD_BINARIES)
     "wisdom/wisdom_extended_allocation.hpp" "wisdom/impl/impl.dx.cpp"
     "wisdom/impl/impl.vk.cpp")
   add_library(wis::extended-allocation ALIAS wisdom-extended-allocation)
+  add_library(wis::wisdom-extended-allocation ALIAS wisdom-extended-allocation)
   target_link_libraries(wisdom-extended-allocation PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-extended-allocation
@@ -30,6 +33,7 @@ if(WISDOM_BUILD_BINARIES)
 else()
   add_library(wisdom-extended-allocation INTERFACE)
   add_library(wis::extended-allocation ALIAS wisdom-extended-allocation)
+  add_library(wis::wisdom-extended-allocation ALIAS wisdom-extended-allocation)
   target_link_libraries(wisdom-extended-allocation
                         INTERFACE wisdom-extended-allocation-headers)
 endif()
@@ -43,6 +47,8 @@ if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-extended-allocation-module STATIC
               "wisdom/extended_allocation.include.h")
   add_library(wis::extended-allocation-module ALIAS
+              wisdom-extended-allocation-module)
+  add_library(wis::wisdom-extended-allocation-module ALIAS
               wisdom-extended-allocation-module)
   target_sources(
     wisdom-extended-allocation-module

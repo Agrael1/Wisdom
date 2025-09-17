@@ -3,6 +3,7 @@ set(PLATFORM_CONFIG_DIR "${AUX_CMAKE_DIR}/platform")
 
 add_library(wisdom-platform-headers INTERFACE "wisdom/wisdom_platform.hpp")
 add_library(wis::platform-headers ALIAS wisdom-platform-headers)
+add_library(wis::wisdom-platform-headers ALIAS wisdom-platform-headers)
 target_include_directories(
   wisdom-platform-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -10,6 +11,7 @@ target_include_directories(
 add_library(wisdom-platform INTERFACE "wisdom/wisdom_platform.hpp"
             "wisdom/linux/interop_device.hpp")
 add_library(wis::platform ALIAS wisdom-platform)
+add_library(wis::wisdom-platform ALIAS wisdom-platform)
 target_include_directories(
   wisdom-platform
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -18,6 +20,7 @@ target_include_directories(
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-platform-module STATIC "wisdom/platform.include.h")
   add_library(wis::platform-module ALIAS wisdom-platform-module)
+  add_library(wis::wisdom-platform-module ALIAS wisdom-platform-module)
   target_sources(
     wisdom-platform-module
     PUBLIC FILE_SET CXX_MODULES FILES "wisdom/wisdom_platform.ixx"

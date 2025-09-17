@@ -5,6 +5,7 @@ endif()
 
 add_library(wisdom-xcb-headers INTERFACE)
 add_library(wis::xcb-headers ALIAS wisdom-xcb-headers)
+add_library(wis::wisdom-xcb-headers ALIAS wisdom-xcb-headers)
 target_link_libraries(wisdom-xcb-headers INTERFACE wis::wisdom-headers)
 target_compile_definitions(wisdom-xcb-headers INTERFACE WIS_XCB_PLATFORM=1)
 target_include_directories(wisdom-xcb-headers INTERFACE ${XCB_INCLUDE_DIRS})
@@ -16,6 +17,7 @@ target_include_directories(
 if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-xcb STATIC "wisdom/wisdom_xcb.hpp" "wisdom/wisdom_xcb.cpp")
   add_library(wis::xcb ALIAS wisdom-xcb)
+  add_library(wis::wisdom-xcb ALIAS wisdom-xcb)
   target_link_libraries(wisdom-xcb PUBLIC wis::wisdom)
   target_compile_definitions(wisdom-xcb PUBLIC WIS_XCB_PLATFORM=1)
   target_include_directories(
@@ -25,11 +27,13 @@ if(WISDOM_BUILD_BINARIES)
 else()
   add_library(wisdom-xcb ALIAS wisdom-xcb-headers)
   add_library(wis::xcb ALIAS wisdom-xcb-headers)
+  add_library(wis::wisdom-xcb ALIAS wisdom-xcb-headers)
 endif()
 
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-xcb-module STATIC "wisdom/xcb.include.h")
   add_library(wis::xcb-module ALIAS wisdom-xcb-module)
+  add_library(wis::wisdom-xcb-module ALIAS wisdom-xcb-module)
   target_sources(wisdom-xcb-module PUBLIC FILE_SET CXX_MODULES FILES
                                           "wisdom/wisdom_xcb.ixx")
   target_link_libraries(wisdom-xcb-module PUBLIC wisdom-vk-module

@@ -5,6 +5,7 @@ endif()
 
 add_library(wisdom-wayland-headers INTERFACE)
 add_library(wis::wayland-headers ALIAS wisdom-wayland-headers)
+add_library(wis::wisdom-wayland-headers ALIAS wisdom-wayland-headers)
 target_link_libraries(wisdom-wayland-headers INTERFACE wis::wisdom-headers)
 target_compile_definitions(wisdom-wayland-headers
                            INTERFACE WIS_WAYLAND_PLATFORM=1)
@@ -19,6 +20,7 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-wayland STATIC "wisdom/wisdom_wayland.hpp"
                                     "wisdom/wisdom_wayland.cpp")
   add_library(wis::wayland ALIAS wisdom-wayland)
+  add_library(wis::wisdom-wayland ALIAS wisdom-wayland)
   target_link_libraries(wisdom-wayland PUBLIC wis::wisdom)
   target_compile_definitions(wisdom-wayland PUBLIC WIS_WAYLAND_PLATFORM=1)
   target_include_directories(
@@ -28,6 +30,7 @@ if(WISDOM_BUILD_BINARIES)
 else()
   add_library(wisdom-wayland ALIAS wisdom-wayland-headers)
   add_library(wis::wayland ALIAS wisdom-wayland-headers)
+  add_library(wis::wisdom-wayland ALIAS wisdom-wayland-headers)
 endif()
 
 target_link_libraries(wisdom-platform INTERFACE wis::wayland)

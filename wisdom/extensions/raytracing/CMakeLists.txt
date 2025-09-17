@@ -2,6 +2,7 @@ project(wisdom-raytracing)
 
 add_library(wisdom-raytracing-headers INTERFACE)
 add_library(wis::raytracing-headers ALIAS wisdom-raytracing-headers)
+add_library(wis::wisdom-raytracing-headers ALIAS wisdom-raytracing-headers)
 
 target_link_libraries(wisdom-raytracing-headers INTERFACE wisdom-headers)
 
@@ -24,6 +25,7 @@ if(WISDOM_BUILD_BINARIES)
     "wisdom/impl/impl.dx12.cpp"
     "wisdom/vk_raytracing_pipeline.h")
   add_library(wis::raytracing ALIAS wisdom-raytracing)
+  add_library(wis::wisdom-raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing PUBLIC wis::wisdom)
   target_include_directories(
     wisdom-raytracing
@@ -33,6 +35,7 @@ if(WISDOM_BUILD_BINARIES)
 else()
   add_library(wisdom-raytracing INTERFACE)
   add_library(wis::raytracing ALIAS wisdom-raytracing)
+  add_library(wis::wisdom-raytracing ALIAS wisdom-raytracing)
   target_link_libraries(wisdom-raytracing INTERFACE wisdom-raytracing-headers)
 endif()
 
@@ -44,6 +47,7 @@ target_link_libraries(wisdom-extension-headers
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-raytracing-module STATIC "wisdom/raytracing.include.h")
   add_library(wis::raytracing-module ALIAS wisdom-raytracing-module)
+  add_library(wis::wisdom-raytracing-module ALIAS wisdom-raytracing-module)
   target_sources(
     wisdom-raytracing-module
     PUBLIC FILE_SET CXX_MODULES FILES "wisdom/wisdom_raytracing.ixx"

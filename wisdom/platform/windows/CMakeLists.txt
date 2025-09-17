@@ -1,5 +1,6 @@
 add_library(wisdom-windows-headers INTERFACE)
 add_library(wis::windows-headers ALIAS wisdom-windows-headers)
+add_library(wis::wisdom-windows-headers ALIAS wisdom-windows-headers)
 target_link_libraries(wisdom-windows-headers INTERFACE wis::wisdom-headers
                                                        d3d11)
 target_compile_definitions(wisdom-windows-headers
@@ -13,6 +14,7 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wisdom-windows STATIC "wisdom/wisdom_windows.hpp"
                                     "wisdom/wisdom_windows.cpp")
   add_library(wis::windows ALIAS wisdom-windows)
+  add_library(wis::wisdom-windows ALIAS wisdom-windows)
   target_link_libraries(wisdom-windows PUBLIC wis::wisdom d3d11)
   target_compile_definitions(wisdom-windows PUBLIC WIS_WINDOWS_PLATFORM=1)
   target_include_directories(
@@ -22,6 +24,7 @@ if(WISDOM_BUILD_BINARIES)
 else()
   add_library(wisdom-windows ALIAS wisdom-windows-headers)
   add_library(wis::windows ALIAS wisdom-windows-headers)
+  add_library(wis::wisdom-windows ALIAS wisdom-windows-headers)
 endif()
 
 target_link_libraries(wisdom-platform INTERFACE wis::windows)
@@ -30,6 +33,7 @@ target_link_libraries(wisdom-platform-headers INTERFACE wis::windows-headers)
 if(WISDOM_CPP_MODULES_SUPPORTED)
   add_library(wisdom-windows-module STATIC "wisdom/windows.include.h")
   add_library(wis::windows-module ALIAS wisdom-windows-module)
+  add_library(wis::wisdom-windows-module ALIAS wisdom-windows-module)
   target_sources(
     wisdom-windows-module
     PUBLIC FILE_SET CXX_MODULES FILES "wisdom/wisdom_windows.ixx"
