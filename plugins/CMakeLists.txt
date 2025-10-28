@@ -54,6 +54,9 @@ else()
   set(WISDOM_FORCE_VULKAN
       FALSE
       CACHE BOOL "Force Vulkan" FORCE)
+  set(WISDOM_GENERATE_FUNCTIONS 
+      FALSE
+      CACHE BOOL "Generate Functions" FORCE)
 endif()
 
 add_subdirectory("DXC")

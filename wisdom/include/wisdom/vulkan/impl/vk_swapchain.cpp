@@ -243,6 +243,17 @@ wis::Result
 wis::ImplVKSwapChain::WaitForPresent(uint64_t timeout_ns) const noexcept
 {
     auto& dtable = device.table();
+    if (dtable.vkWaitForPresent2KHR) {
+        VkPresentWait2InfoKHR present_wait2{
+            .sType = VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR,
+            .pNext = nullptr,
+            .presentId = this->present_id,
+            .timeout = timeout_ns,
+        };
+        auto res = dtable.vkWaitForPresent2KHR(device.get(), swapchain, &present_wait2);
+        return wis::succeeded(res) ? wis::success : wis::make_result<wis::Func<wis::FuncD()>(), "vkWaitForPresent2KHR failed">(res);
+    }
+
     if (!dtable.vkWaitForPresentKHR) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkWaitForPresentKHR not available">(VK_ERROR_UNKNOWN);
     }
@@ -336,6 +347,13 @@ wis::ImplVKSwapChain::VKPresent(void* pNext) const noexcept
     };
     dtable.vkQueueSubmit2(graphics_queue, 1, &desc, nullptr);
 
+    VkPresentId2KHR present_id2{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR,
+        .pNext = pNext,
+        .swapchainCount = 1,
+        .pPresentIds = &this->present_id,
+    };
+
     VkPresentIdKHR present_id{
         .sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR,
         .pNext = pNext,
@@ -343,9 +361,16 @@ wis::ImplVKSwapChain::VKPresent(void* pNext) const noexcept
         .pPresentIds = &this->present_id,
     };
 
+    void* pnext = pNext;
+    if (dtable.vkWaitForPresent2KHR) {
+        pnext = &present_id2;
+    } else if (dtable.vkWaitForPresentKHR) {
+        pnext = &present_id;
+    }
+
     VkPresentInfoKHR present_info{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .pNext = dtable.vkWaitForPresentKHR ? &present_id : pNext,
+        .pNext = pnext,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &render_completed_semaphore[present_index],
         .swapchainCount = 1,
