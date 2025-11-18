@@ -1,0 +1,7 @@
+function(wisdom_set_option_value VARIABLE HELP EXPR)
+    if(EXPR)
+        set(${VARIABLE} TRUE CACHE BOOL "${HELP}" FORCE)
+    else()
+        set(${VARIABLE} FALSE CACHE BOOL "${HELP}" FORCE)
+    endif()
+endfunction(wisdom_set_option_value)

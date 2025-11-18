@@ -1,24 +1,18 @@
-project(VKAllocator)
+message("Setting up Vulkan Allocator...")
+CPMAddPackage(
+  NAME vkma
+  GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+  GIT_TAG origin/master
+  DOWNLOAD_ONLY TRUE
+)
 
-if(NOT PLUGINS_LOADED)
-  message("Setting up Vulkan Allocator...")
-  FetchContent_Declare(
-    vkma
-    GIT_REPOSITORY
-      https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-    GIT_TAG origin/master)
-  FetchContent_GetProperties(vkma)
-  if(NOT vkma_POPULATED)
-    FetchContent_Populate(vkma)
-  endif()
-  set(vkma_SOURCES
-      ${vkma_SOURCE_DIR}
-      CACHE INTERNAL "")
+# Generate a cpp file that includes the implementation
+if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp
+       "#define VMA_IMPLEMENTATION\n#include \"vk_mem_alloc.h\"\n")
 endif()
 
-add_library(${PROJECT_NAME} STATIC ${vkma_SOURCES}/include/vk_mem_alloc.h)
-target_sources(${PROJECT_NAME} PRIVATE vma.cpp)
-
+add_library(${PROJECT_NAME} STATIC ${vkma_SOURCE_DIR}/include/vk_mem_alloc.h ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES VMA_STATIC_VULKAN_FUNCTIONS=0
@@ -29,7 +23,7 @@ if(WISDOM_WINDOWS)
 endif(WISDOM_WINDOWS)
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCES}/include>
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                                  POSITION_INDEPENDENT_CODE ON)
@@ -44,5 +38,20 @@ install(
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-install(DIRECTORY ${vkma_SOURCES}/include/
+install(DIRECTORY ${vkma_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vkma)
+
+
+
+# wisvk utils
+message("Loading wisvk utils...")
+
+# if release build set WISVK_ONLY_HEADERS to true
+if(NOT WISDOM_GENERATE_FUNCTIONS)
+  set(WISVK_ONLY_HEADERS TRUE)
+endif()
+
+CPMAddPackage(
+  NAME wisvk
+  GITHUB_REPOSITORY Agrael1/Wisdom-VkUtils
+  GIT_TAG origin/master)

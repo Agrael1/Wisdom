@@ -30,3 +30,11 @@ if(WISDOM_USE_FMT)
       GIT_TAG origin/master)
   endif()
 endif()
+
+# DXCompiler for HLSL compilation
+
+
+# Vulkan dependencies
+if(WISDOM_VULKAN)
+  include(${CMAKE_CURRENT_LIST_DIR}/deps/deps_vulkan.cmake)
+endif()
