@@ -32,7 +32,7 @@ if(WISDOM_USE_FMT)
 endif()
 
 # DXCompiler for HLSL compilation
-
+include(${CMAKE_CURRENT_LIST_DIR}/deps/dxc.cmake)
 
 # Vulkan dependencies
 if(WISDOM_VULKAN)

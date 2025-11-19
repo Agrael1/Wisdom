@@ -51,6 +51,8 @@ if(NOT WISDOM_GENERATE_FUNCTIONS)
   set(WISVK_ONLY_HEADERS TRUE)
 endif()
 
+# disable tinyxml2 tests
+set(tinyxml2_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
 CPMAddPackage(
   NAME wisvk
   GITHUB_REPOSITORY Agrael1/Wisdom-VkUtils

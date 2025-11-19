@@ -1,25 +1,72 @@
-if(WISDOM_USE_SYSTEM_DXC)
-  if(NOT Vulkan_dxc_EXECUTABLE)
-    set(Vulkan_dxc_EXECUTABLE
-        "dxc"
-        CACHE INTERNAL "")
+# DXC Deployment Options
+# Priority: 1. Custom path -> 2. Vulkan SDK -> 3. Auto-download
+
+# Option 1: Custom DXC path (highest priority)
+# Users can specify WISDOM_DXC_PATH to use their own DXC installation
+# Example: cmake -DWISDOM_DXC_PATH="C:/custom/dxc" ..
+if(WISDOM_DXC_PATH)
+  message(STATUS "Using custom DXC path: ${WISDOM_DXC_PATH}")
+  
+  if(WIN32)
+    set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc.exe" CACHE INTERNAL "")
+    set(DXC_DLLS 
+        "${WISDOM_DXC_PATH}/bin/dxcompiler.dll"
+        "${WISDOM_DXC_PATH}/bin/dxil.dll")
+  else()
+    set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc" CACHE INTERNAL "")
+    set(DXC_DLLS 
+        "${WISDOM_DXC_PATH}/lib/libdxcompiler.so"
+        "${WISDOM_DXC_PATH}/lib/libdxil.so")
+  endif()
+  
+  # Verify that the executable exists
+  if(NOT EXISTS ${DXC_EXECUTABLE})
+    message(WARNING "Custom DXC executable not found at: ${DXC_EXECUTABLE}")
+    message(WARNING "Please verify WISDOM_DXC_PATH is correct")
+  else()
+    message(STATUS "Found custom DXC executable: ${DXC_EXECUTABLE}")
   endif()
 
-  find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE})
+# Option 2: Try to use Vulkan SDK's DXC (if WISDOM_VULKAN is enabled and no custom path)
+elseif(WISDOM_VULKAN AND Vulkan_dxc_EXECUTABLE)
+  message(STATUS "Using DXC from Vulkan SDK")
+  
+  # Use Vulkan SDK's DXC
+  find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE} ENV VULKAN_SDK PATH_SUFFIXES bin)
+  
   if(DXCOMPILER)
-    message("Found DXC...")
-    set(DXC_EXECUTABLE
-        ${DXCOMPILER}
-        CACHE INTERNAL "")
-  elseif(WISDOM_USE_SYSTEM_DXC)
-    set(DXC_EXECUTABLE
-        "dxc"
-        CACHE INTERNAL "")
+    message(STATUS "Found Vulkan SDK DXC: ${DXCOMPILER}")
+    set(DXC_EXECUTABLE ${DXCOMPILER} CACHE INTERNAL "")
+    
+    # Try to find DLLs alongside the executable for deployment
+    get_filename_component(DXC_BIN_DIR ${DXCOMPILER} DIRECTORY)
+    
+    if(WIN32)
+      set(DXC_DLLS 
+          "${DXC_BIN_DIR}/dxcompiler.dll"
+          "${DXC_BIN_DIR}/dxil.dll")
+    else()
+      # On Linux, libraries might be in ../lib relative to bin
+      get_filename_component(DXC_SDK_DIR ${DXC_BIN_DIR} DIRECTORY)
+      set(DXC_DLLS 
+          "${DXC_SDK_DIR}/lib/libdxcompiler.so"
+          "${DXC_SDK_DIR}/lib/libdxil.so")
+    endif()
+  else()
+    message(STATUS "Vulkan SDK DXC not found, falling back to download")
+    set(WISDOM_DOWNLOAD_DXC ON)
   endif()
-else()
-  message("Loading DXC...")
 
-  # Download latest DXC from AppVeyor
+# Option 3: Auto-download latest DXC (fallback)
+else()
+  message(STATUS "Auto-downloading DXC...")
+  set(WISDOM_DOWNLOAD_DXC ON)
+endif()
+
+# Download DXC if needed
+if(WISDOM_DOWNLOAD_DXC)
+  message(STATUS "Downloading DXC from GitHub...")
+
   if(WISDOM_WINDOWS)
     set(DXC_FILE
         https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/dxc_2025_05_24.zip
@@ -32,27 +79,40 @@ else()
 
   set(DOWNLOAD_EXTRACT_TIMESTAMP ON)
 
-  FetchContent_Declare(dxc URL ${DXC_FILE})
-  FetchContent_GetProperties(dxc)
-  if(NOT dxc_POPULATED)
-    FetchContent_Populate(dxc)
-  endif()
+  CPMAddPackage(
+    NAME dxc 
+    URL ${DXC_FILE}
+  )
 
   if(WIN32)
     set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/x64/dxc.exe
         CACHE INTERNAL "")
-    set(DXC_DLLS ${dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll
-                 ${dxc_SOURCE_DIR}/bin/x64/dxil.dll)
-
-    install(FILES ${DXC_DLLS} DESTINATION bin)
+    set(DXC_DLLS 
+        ${dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll
+        ${dxc_SOURCE_DIR}/bin/x64/dxil.dll)
   else()
     set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/dxc
         CACHE INTERNAL "")
-    set(DXC_DLLS ${dxc_SOURCE_DIR}/lib/libdxcompiler.so
-                 ${dxc_SOURCE_DIR}/lib/libdxil.so)
-    install(FILES ${DXC_DLLS} DESTINATION lib)
+    set(DXC_DLLS 
+        ${dxc_SOURCE_DIR}/lib/libdxcompiler.so
+        ${dxc_SOURCE_DIR}/lib/libdxil.so)
   endif()
-  install(PROGRAMS ${DXC_EXECUTABLE} DESTINATION bin)
 endif()
+
+# Install DXC for deployment
+if(WIN32)
+  install(PROGRAMS ${DXC_EXECUTABLE} DESTINATION bin COMPONENT dxc)
+  install(FILES ${DXC_DLLS} DESTINATION bin COMPONENT dxc)
+else()
+  install(PROGRAMS ${DXC_EXECUTABLE} DESTINATION bin COMPONENT dxc)
+  install(FILES ${DXC_DLLS} DESTINATION lib COMPONENT dxc)
+endif()
+
+# Verify DLLs exist (warning only)
+foreach(dll ${DXC_DLLS})
+  if(NOT EXISTS ${dll})
+    message(WARNING "DXC library not found: ${dll}")
+  endif()
+endforeach()
