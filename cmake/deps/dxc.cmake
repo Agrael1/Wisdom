@@ -65,24 +65,26 @@ endif()
 
 # Download DXC if needed
 if(WISDOM_DOWNLOAD_DXC)
-  message(STATUS "Downloading DXC from GitHub...")
+  if(NOT dxc_SOURCE_DIR)
+    if(WISDOM_WINDOWS)
+      set(DXC_FILE
+          https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/dxc_2025_05_24.zip
+      )
+    else()
+      set(DXC_FILE
+          https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/linux_dxc_2025_05_24.x86_64.tar.gz
+      )
+    endif()
 
-  if(WISDOM_WINDOWS)
-    set(DXC_FILE
-        https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/dxc_2025_05_24.zip
+    # Download DXC using CPM
+    CPMAddPackage(
+      NAME dxc 
+      URL ${DXC_FILE}
     )
+    set(dxc_SOURCE_DIR ${dxc_SOURCE_DIR} CACHE INTERNAL "")
   else()
-    set(DXC_FILE
-        https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/linux_dxc_2025_05_24.x86_64.tar.gz
-    )
+    message(STATUS "DXC already downloaded, skipping.")
   endif()
-
-  set(DOWNLOAD_EXTRACT_TIMESTAMP ON)
-
-  CPMAddPackage(
-    NAME dxc 
-    URL ${DXC_FILE}
-  )
 
   if(WIN32)
     set(DXC_EXECUTABLE

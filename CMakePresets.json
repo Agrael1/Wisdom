@@ -208,7 +208,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "WISDOM_GENERATE_FUNCTIONS": true,
-        "WISVK_LOAD_SPEC": true
+        "WISDOM_LOAD_SPEC": true
       }
     },
     {

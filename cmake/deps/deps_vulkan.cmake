@@ -1,10 +1,14 @@
-message("Setting up Vulkan Allocator...")
-CPMAddPackage(
-  NAME vkma
-  GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-  GIT_TAG origin/master
-  DOWNLOAD_ONLY TRUE
-)
+if(NOT vkma_SOURCE_DIR)
+  CPMAddPackage(
+    NAME vkma
+    GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+    GIT_TAG origin/master
+    DOWNLOAD_ONLY TRUE
+  )
+  set(vkma_SOURCE_DIR ${vkma_SOURCE_DIR} CACHE INTERNAL "")
+else()
+  message("Vulkan Memory Allocator found, skipping download.")
+endif()
 
 # Generate a cpp file that includes the implementation
 if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp)
@@ -52,7 +56,11 @@ if(NOT WISDOM_GENERATE_FUNCTIONS)
 endif()
 
 # disable tinyxml2 tests
-set(tinyxml2_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
+if(WISDOM_LOAD_SPEC AND NOT WISDOM_WISVK_SPEC_LOADED)
+  set(WISVK_LOAD_SPEC TRUE)
+  set(WISDOM_WISVK_SPEC_LOADED TRUE CACHE INTERNAL "")
+endif()
+
 CPMAddPackage(
   NAME wisvk
   GITHUB_REPOSITORY Agrael1/Wisdom-VkUtils

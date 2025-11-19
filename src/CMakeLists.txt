@@ -1,6 +1,4 @@
 # CMakeList.txt : CMake project for Wisdom
-project(wisdom VERSION ${WISDOM_VERSION})
-
 include(cmake/documentation.cmake)
 
 # load dx12 and vulkan

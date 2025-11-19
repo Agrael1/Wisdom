@@ -77,15 +77,20 @@ set_property(
 
 
 #  DirectX 12 Memory Allocator
-message("Setting up DirectX 12 Allocator...")
-
 set(D3D12MA_AGILITY_SDK_DIRECTORY "${DXA_DIR}")
-CPMAddPackage(
-  NAME dxma
-  GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
-  VERSION 3.0.1
-  DOWNLOAD_ONLY TRUE
-)
+if(NOT dxma_SOURCE_DIR)
+  CPMAddPackage(
+    NAME dxma
+    GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
+    VERSION 3.0.1
+    DOWNLOAD_ONLY TRUE
+  )
+  # Expose source dir
+  set(dxma_SOURCE_DIR ${dxma_SOURCE_DIR} CACHE INTERNAL "")
+else()
+  message( "DirectX 12 Memory Allocator already loaded.")
+endif()
+
 
 add_library(DX12Allocator STATIC ${dxma_SOURCE_DIR}/include/D3D12MemAlloc.h)
 target_sources(DX12Allocator PRIVATE ${dxma_SOURCE_DIR}/src/D3D12MemAlloc.cpp)
