@@ -1,0 +1,79 @@
+/* Vulkan-style documentation sections */
+dl.section.valid-usage {
+    background-color: var(--fragment-background);
+    border-left: 4px solid var(--primary-color);
+    padding: 1em;
+    margin: 1em 0;
+}
+
+dl.section.valid-usage dt {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.1em;
+    margin-bottom: 0.5em;
+}
+
+dl.section.valid-usage dd {
+    margin-left: 0;
+}
+
+/* Valid usage requirement keywords (RFC 2119) */
+.vku-must {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.vku-should {
+    color: #f57c00;
+    font-weight: bold;
+}
+
+.vku-may {
+    color: #388e3c;
+    font-weight: bold;
+}
+
+/* Section headers for structured docs */
+.textblock > .par:first-of-type {
+    margin-top: 0;
+}
+
+.par > strong:first-child {
+    display: block;
+    font-size: 1.05em;
+    color: var(--primary-color);
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--separator-color);
+}
+
+/* Return codes styling */
+.par code {
+    background-color: var(--code-background);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    font-family: var(--font-family-monospace);
+}
+
+/* Thread safety and host sync sections */
+.section.hostsynch,
+.section.threadrestrict {
+    background-color: var(--fragment-background);
+    border-left: 4px solid #9c27b0;
+    padding: 0.8em;
+    margin: 1em 0;
+}
+
+/* Parameter sections */
+.params.valid-usage {
+    background-color: var(--fragment-background);
+    padding: 0.8em;
+    margin: 1em 0;
+}
+
+/* Code examples in documentation */
+.fragment {
+    background-color: var(--code-background);
+    border-left: 3px solid var(--primary-color);
+    margin: 1em 0;
+}

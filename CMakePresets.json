@@ -206,9 +206,7 @@
       "displayName": "Windows Clang Debug",
       "description": "Clang Debug build with C++ modules",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_GENERATE_FUNCTIONS": true,
-        "WISDOM_LOAD_SPEC": true
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {

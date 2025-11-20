@@ -44,24 +44,3 @@ install(
 
 install(DIRECTORY ${vkma_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vkma)
-
-
-
-# wisvk utils
-message("Loading wisvk utils...")
-
-# if release build set WISVK_ONLY_HEADERS to true
-if(NOT WISDOM_GENERATE_FUNCTIONS)
-  set(WISVK_ONLY_HEADERS TRUE)
-endif()
-
-# disable tinyxml2 tests
-if(WISDOM_LOAD_SPEC AND NOT WISDOM_WISVK_SPEC_LOADED)
-  set(WISVK_LOAD_SPEC TRUE)
-  set(WISDOM_WISVK_SPEC_LOADED TRUE CACHE INTERNAL "")
-endif()
-
-CPMAddPackage(
-  NAME wisvk
-  GITHUB_REPOSITORY Agrael1/Wisdom-VkUtils
-  GIT_TAG origin/master)

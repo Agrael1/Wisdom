@@ -88,7 +88,7 @@ if(NOT dxma_SOURCE_DIR)
   # Expose source dir
   set(dxma_SOURCE_DIR ${dxma_SOURCE_DIR} CACHE INTERNAL "")
 else()
-  message( "DirectX 12 Memory Allocator already loaded.")
+  message("DirectX 12 Memory Allocator already loaded.")
 endif()
 
 

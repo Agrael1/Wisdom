@@ -40,7 +40,21 @@ PYTHON_DOCSTRING       = YES
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 4
-ALIASES                =
+ALIASES                = "description=@par Description:" \
+                         "validusage=@par Valid Usage:" \
+                         "validusage_begin=@parblock<dl class=\"section valid-usage\"><dt>Valid Usage</dt><dd>" \
+                         "validusage_end=</dd></dl>@endparblock" \
+                         "vku_must=<span class=\"vku-must\">must</span>" \
+                         "vku_may=<span class=\"vku-may\">may</span>" \
+                         "vku_should=<span class=\"vku-should\">should</span>" \
+                         "vku_mustnot=<span class=\"vku-must\">must not</span>" \
+                         "vku_shouldnot=<span class=\"vku-should\">should not</span>" \
+                         "hostsynch=@par Host Synchronization:" \
+                         "threadrestrict=@par Thread Safety:" \
+                         "returncodes=@par Return Values:" \
+                         "returncode{1}=@li <code>\1</code>" \
+                         "success=@par Success:" \
+                         "error=@par Errors:"
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 OPTIMIZE_FOR_FORTRAN   = NO
@@ -124,11 +138,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/include/wisdom/generated/api \
-                         @CMAKE_CURRENT_SOURCE_DIR@/include/dx12 \
-                         @CMAKE_CURRENT_SOURCE_DIR@/include/util \
-                         @CMAKE_CURRENT_SOURCE_DIR@/include/vulkan \
-                         @CMAKE_CURRENT_SOURCE_DIR@/docs
+INPUT                  =                          @CMAKE_CURRENT_SOURCE_DIR@/docs
 
 
 INPUT_ENCODING         = UTF-8
@@ -220,12 +230,14 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            =
+HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/docs/header.html
 HTML_FOOTER            =
 HTML_STYLESHEET        =
-HTML_EXTRA_STYLESHEET  = @AWESOME_CSS_DIR@/doxygen-awesome.css\
-                         @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only.css
-HTML_EXTRA_FILES       =
+HTML_EXTRA_STYLESHEET  = @AWESOME_CSS_DIR@/doxygen-awesome.css \
+                         @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only.css \
+                         @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only-darkmode-toggle.css \
+                         @CMAKE_CURRENT_BINARY_DIR@/docs/wisdom-custom.css
+HTML_EXTRA_FILES       = @AWESOME_CSS_DIR@/doxygen-awesome-darkmode-toggle.js
 HTML_COLORSTYLE        = LIGHT
 HTML_COLORSTYLE_HUE    = 220
 HTML_COLORSTYLE_SAT    = 100

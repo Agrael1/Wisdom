@@ -31,8 +31,6 @@ endif()
 # Options
 option(WISDOM_USE_FMT "Build Wisdom with fmtlib" ${LOCAL_USE_FMTLIB})
 option(WISDOM_FORCE_VULKAN "Force Vulkan support" OFF)
-option(WISDOM_GENERATE_FUNCTIONS "Generate functions for Vulkan if available" ${GENERATE_FUNCTIONS})
-option(WISDOM_LOAD_SPEC "Load Vulkan spec for generator" ${WISDOM_GENERATE_FUNCTIONS})
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_BINARIES "Build the static lib." ON)
@@ -43,16 +41,16 @@ set(WISDOM_DXC_PATH "" CACHE PATH "Path to custom DXC installation (optional)")
 
 # Load all dependencies
 include(cmake/deps.cmake)
+include(cmake/doc.cmake)
 
 message(STATUS "Wisdom Configuration:
-    WISDOM_GENERATE_FUNCTIONS: ${WISDOM_GENERATE_FUNCTIONS}
     WISDOM_VULKAN: ${WISDOM_VULKAN}
     WISDOM_DX12: ${WISDOM_DX12}
     WISDOM_USE_FMT: ${WISDOM_USE_FMT}
     WISDOM_VERSION: ${WISDOM_VERSION}
     WISDOM_PLATFORM: ${WISDOM_PLATFORM}
 
-    WISVK_LOAD_SPEC: ${WISVK_LOAD_SPEC}
+    WISDOM_BUILD_DOCS: ${WISDOM_BUILD_DOCS}
 
     DXC Configuration:
       Custom Path: ${WISDOM_DXC_PATH}
@@ -60,4 +58,4 @@ message(STATUS "Wisdom Configuration:
 ")
 
 add_subdirectory(generator EXCLUDE_FROM_ALL)
-#add_subdirectory(src)
+add_subdirectory(src) # add main libraries
