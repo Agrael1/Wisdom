@@ -16,28 +16,28 @@ if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp)
        "#define VMA_IMPLEMENTATION\n#include \"vk_mem_alloc.h\"\n")
 endif()
 
-add_library(${PROJECT_NAME} STATIC ${vkma_SOURCE_DIR}/include/vk_mem_alloc.h ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
+add_library(vkma STATIC ${vkma_SOURCE_DIR}/include/vk_mem_alloc.h ${CMAKE_CURRENT_BINARY_DIR}/vma.cpp)
+target_link_libraries(vkma PUBLIC Vulkan::Headers)
 target_compile_definitions(
-  ${PROJECT_NAME} PRIVATE VK_NO_PROTOTYPES VMA_STATIC_VULKAN_FUNCTIONS=0
+  vkma PRIVATE VK_NO_PROTOTYPES VMA_STATIC_VULKAN_FUNCTIONS=0
                           VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
 if(WISDOM_WINDOWS)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC VK_USE_PLATFORM_WIN32_KHR
+  target_compile_definitions(vkma PUBLIC VK_USE_PLATFORM_WIN32_KHR
                                                     VMA_EXTERNAL_MEMORY_WIN32)
 endif(WISDOM_WINDOWS)
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${vkma_SOURCE_DIR}/include>
+  vkma PUBLIC $<BUILD_INTERFACE:${vkma_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
+set_target_properties(vkma PROPERTIES CXX_STANDARD 20
                                                  POSITION_INDEPENDENT_CODE ON)
 target_compile_options(
-  ${PROJECT_NAME}
+  vkma
   PUBLIC $<$<CXX_COMPILER_ID:Clang>:-Wno-nullability-completeness>
          $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
 
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS vkma
   EXPORT wisdom-vk-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -41,7 +41,7 @@
  *
  * - CMake 3.22 or higher
  * - C++20 compatible compiler
- * - Vulkan SDK <optional for Windows>
+ * - Vulkan SDK &lt;optional for Windows&gt;
  *
  * @section contact_sec Contact & Support
  *

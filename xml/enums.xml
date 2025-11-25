@@ -18,8 +18,7 @@ passed to the function were incorrect. Check {Result::error} for more details."/
 Allocation with malloc or similar call has failed."/>
       <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped.
 Most of the time happens on swapchain presentation."/>
-      <value name="Occluded" value="-5" doc="Swapchain presentation was not visible to the user.
-Rendering is too fast."/>
+      <value name="Occluded" value="-5" doc="Swapchain presentation was not visible to the user.Rendering is too fast."/>
     </type>
 
     <type name="MutiWaitFlags" category="enum" type="u32"

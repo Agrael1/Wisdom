@@ -123,7 +123,7 @@
  * - `WISDOM_BUILD_BINARIES=ON/OFF` build static lib. If turned off, the header only version will be the main target.
  * - `WISDOM_EXPERIMENTAL_CPP_MODULES=ON/OFF` enable C++20 modules support.
  *
- * Most important flag is `WISDOM_FORCE_VULKAN`. There is the same #define in the library code. This flag allows you to force the library to use Vulkan types instead of DirectX 12 types.
+ * Most important flag is `WISDOM_FORCE_VULKAN`. There is the same `#define` in the library code. This flag allows you to force the library to use Vulkan types instead of DirectX 12 types.
  * The library picks the best available API for the platform, but you can force it to use Vulkan types if you want to use the library with Vulkan.
  * This is useful for debugging Vulkan extensions or if you want to use the library with Vulkan to further extend it.
  *
@@ -148,7 +148,7 @@
  *
  * This page provides an overview of the Wisdom library structure and its components.
  *
- * @section overview_sec Overview
+ * @section start_overview_sec Overview
  *
  * The Wisdom library is structured into several modules, each providing a specific functionality. The provided classes and functions are designed to be easy to use and overhead free.
  * When using the library as a header-only library, all the functions are inline and do not incur any overhead.

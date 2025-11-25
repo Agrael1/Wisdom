@@ -19,11 +19,6 @@ endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(WTOP ON)
-  if(WISDOM_VULKAN)
-    set(GENERATE_FUNCTIONS ON)
-  else()
-    set(GENERATE_FUNCTIONS OFF)
-  endif()
 else()
   set(WTOP OFF)
 endif()
@@ -57,5 +52,5 @@ message(STATUS "Wisdom Configuration:
       Executable: ${DXC_EXECUTABLE}
 ")
 
-add_subdirectory(generator EXCLUDE_FROM_ALL)
+add_subdirectory(generator)
 add_subdirectory(src) # add main libraries

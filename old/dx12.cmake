@@ -1,11 +1,4 @@
 
-if(NOT WISDOM_WINDOWS)
-	return()
-endif()
-
-message("Platform Library is DirectX 12")
-set(WISDOM_DX12 TRUE CACHE BOOL "Enable DirectX 12 Support" FORCE)
-
 
 add_library (wisdom-dx12-headers INTERFACE)
 add_library (wis::dx12-headers ALIAS wisdom-dx12-headers)

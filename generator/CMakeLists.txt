@@ -4,6 +4,9 @@ include(format.cmake)
 
 find_package(tinyxml2 QUIET)
 if(NOT tinyxml2_FOUND AND NOT TARGET tinyxml2::tinyxml2)
+  set(tinyxml2_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
+
+
   # Load tinyxml2
   message("Loading tinyxml2...")
   CPMAddPackage(
@@ -14,7 +17,7 @@ if(NOT tinyxml2_FOUND AND NOT TARGET tinyxml2::tinyxml2)
 endif()
 
 add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE entry_main.cpp generator.h generator.cpp)
+target_sources(${PROJECT_NAME} PRIVATE "entry_main.cpp" "generator.cpp" "generator.hpp" "enum.cpp")
 target_compile_definitions(
   ${PROJECT_NAME}
   PRIVATE
@@ -22,7 +25,9 @@ target_compile_definitions(
     WISDOM_VERSION="${WISDOM_VERSION}"
     "INPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\""
     "OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../bindings\""
-    "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/include/wisdom\"")
+    "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src/include/wisdom\""
+    "DOC_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../docs\""
+)
 target_include_directories(
   ${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/include")
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_BRIDGE_SOURCE_LOCATION_H
+#define WIS_BRIDGE_SOURCE_LOCATION_H
 #if __has_include(<source_location>)
 #include <source_location>
 namespace wis {
@@ -12,3 +13,4 @@ using std::experimental::source_location;
 #else
 #error "No source_location header found"
 #endif
+#endif // WISDOM_BRIDGE_SOURCE_LOCATION_H

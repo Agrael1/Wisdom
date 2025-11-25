@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+	<includes>
+		<include>enums2.xml</include>
+	</includes>
+
+	<types comment="Type definitions">
+		<type name="Result" category="struct" mod="nodiscard" doc="Main source of communication of operation success.
+To check for success {::status} *must* be compared with {Status::Ok}.
+If there is any error there is {::error} string which is compile-time.
+It communicates the source of problems even in Release mode.
+The string contains function name and error message.">
+			<member type="Status" name="status" default="Ok" doc="Operation status. Compare with {Status::Ok}"/>
+			<member type="u8string" name="error" mod="ptr" default="nullptr" doc="Error message. nullptr or 'Operation Succeeded.' if no error."/>
+		</type>
+	</types>
+
+	<consts comment="Constant definitions">
+		<const name="RESULT_OK" type="Result" doc="Predefined Result for successful operations.">
+			<value>
+				{ Status::Ok, "Operation Succeeded." }
+			</value>
+		</const>
+	</consts>
+</registry>

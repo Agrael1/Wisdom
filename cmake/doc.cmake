@@ -40,14 +40,14 @@ add_custom_target(doc_doxygen ALL
     VERBATIM )
 
 set(DOC_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/DoxygenLayout.xml
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/main_page.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/contributing.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/getting_started.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom-custom.css
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/dx12_factory_creation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/docs/header.html
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/DoxygenLayout.xml"
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom/main_page.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom/contributing.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom/getting_started.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom-custom.css"
+    
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/header.html"
 )
 
 target_sources(doc_doxygen PRIVATE ${DOC_SOURCES})

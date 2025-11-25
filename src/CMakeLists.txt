@@ -1,106 +1,65 @@
-## load dx12 and vulkan
-#include(shared.cmake)
-#include(dx12.cmake)
-#include(vulkan.cmake)
-#
-#add_library(wisdom-headers INTERFACE)
-#add_library(wis::headers ALIAS wisdom-headers)
-#add_library(wis::wisdom-headers ALIAS wisdom-headers)
-#
-#add_library(wisdom INTERFACE)
-#add_library(wis::wisdom ALIAS wisdom)
-#
-#if(WISDOM_CPP_MODULES_SUPPORTED)
-#  add_library(wisdom-module STATIC)
-#  add_library(wis::module ALIAS wisdom-module)
-#  add_library(wis::wisdom-module ALIAS wisdom-module)
-#  target_link_libraries(wisdom-module PUBLIC wisdom-headers)
-#  target_sources(wisdom-module PUBLIC FILE_SET CXX_MODULES BASE_DIRS include
-#                                      FILES "include/wisdom/wisdom.ixx")
-#endif()
-#
-#if(WISDOM_VULKAN)
-#  target_link_libraries(wisdom-headers INTERFACE wis::vulkan-headers)
-#  target_link_libraries(wisdom INTERFACE wis::vulkan)
-#  if(WISDOM_CPP_MODULES_SUPPORTED)
-#    target_link_libraries(wisdom-module PUBLIC wisdom-vk-module)
-#    target_sources(wisdom-module PUBLIC FILE_SET CXX_MODULES BASE_DIRS include
-#                                        FILES "include/wisdom/wisdom.fvk.ixx")
-#  endif()
-#endif()
-#
-#if(WISDOM_DX12)
-#  target_link_libraries(wisdom-headers INTERFACE wis::dx12-headers)
-#  target_link_libraries(wisdom INTERFACE wis::dx12)
-#  if(WISDOM_CPP_MODULES_SUPPORTED)
-#    target_link_libraries(wisdom-module PUBLIC wisdom-dx12-module)
-#  endif()
-#endif()
-#
-## API generation
-#if(WISDOM_GENERATE_API)
-#  add_custom_target(
-#    GenerateAPI
-#    COMMAND $<TARGET_FILE:generator>
-#    DEPENDS generator)
-#  add_dependencies(wisdom-headers GenerateAPI)
-#endif()
-#
-#install(
-#  TARGETS wisdom wisdom-headers
-#  EXPORT wisdom-targets
-#  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#  INCLUDES
-#  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-#
-## Install
-#install(
-#  EXPORT wisdom-targets
-#  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-#  NAMESPACE wis::
-#  FILE wisdom-targets.cmake # Not sure if this is still needed
-#)
-#
-#if(WISDOM_CPP_MODULES_SUPPORTED)
-#  install(
-#    TARGETS wisdom-module
-#    EXPORT wisdom-module-targets
-#    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    INCLUDES
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-#    FILE_SET CXX_MODULES
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-#  install(
-#    EXPORT wisdom-module-targets
-#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-#    NAMESPACE wis::
-#    FILE wisdom-module-targets.cmake # Not sure if this is still needed
-#  )
-#endif()
-#
-#include(CMakePackageConfigHelpers)
-#configure_file("../cmake/wisdom-functions.cmake"
-#               "${CMAKE_CURRENT_BINARY_DIR}/wisdom-functions.cmake" @ONLY)
-#
-#configure_package_config_file(
-#  "../cmake/wisdom-config.cmake.in" "wisdom-config.cmake"
-#  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-#  PATH_VARS CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_BINDIR # For agility dlls
-#)
-#
-#write_basic_package_version_file(
-#  ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
-#  VERSION ${PROJECT_VERSION}
-#  COMPATIBILITY SameMajorVersion)
-#
-## Install Config and ConfigVersion files
-#install(
-#  FILES "${CMAKE_CURRENT_BINARY_DIR}/wisdom-functions.cmake"
-#        "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
-#        "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake"
-#  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-#
+function(wis_make_target_bundle)
+  cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES" ${ARGN})
+  
+  if(NOT BUNDLE_TARGET)
+    message(FATAL_ERROR "TARGET is required for wis_make_target_bundle")
+  endif()
+
+  source_group("Headers" FILES ${BUNDLE_HEADERS})
+  source_group("Sources" FILES ${BUNDLE_SOURCES})
+
+  # Create header-only interface target
+  add_library (wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_HEADERS} ${BUNDLE_SOURCES})
+  add_library (wis::wisdom-${BUNDLE_TARGET}-headers ALIAS wisdom-${BUNDLE_TARGET}-headers)
+
+  # Link dependencies
+  if(BUNDLE_LINK_TARGETS)
+    target_link_libraries(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_LINK_TARGETS})
+  endif()
+  
+  # Include directories
+  if(BUNDLE_INCLUDE_DIRECTORIES)
+    target_include_directories(wisdom-${BUNDLE_TARGET}-headers
+    INTERFACE
+      $<BUILD_INTERFACE:${BUNDLE_INCLUDE_DIRECTORIES}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    )
+  endif()
+
+  set_target_properties(wisdom-${BUNDLE_TARGET}-headers PROPERTIES CXX_STANDARD 20)
+  
+  # Create static target with sources if not header-only
+  if(NOT BUNDLE_HEADER_ONLY AND WISDOM_BUILD_BINARIES AND BUNDLE_SOURCES)
+    add_library(wisdom-${BUNDLE_TARGET} STATIC ${BUNDLE_HEADERS})
+    add_library(wis::wisdom-${BUNDLE_TARGET} ALIAS wisdom-${BUNDLE_TARGET})
+    target_sources(wisdom-${BUNDLE_TARGET}
+      PRIVATE ${BUNDLE_SOURCES}
+    )
+
+    target_link_libraries(wisdom-${BUNDLE_TARGET} PUBLIC wisdom-${BUNDLE_TARGET}-headers)
+    target_compile_definitions(wisdom-${BUNDLE_TARGET} PRIVATE WISDOM_BUILD_BINARIES=1)
+    set_target_properties(wisdom-${BUNDLE_TARGET} PROPERTIES CXX_STANDARD 20)
+  else()
+  	add_library(wisdom-${BUNDLE_TARGET} ALIAS wisdom-${BUNDLE_TARGET}-headers)
+  	add_library(wis::wisdom-${BUNDLE_TARGET} ALIAS wisdom-${BUNDLE_TARGET}-headers)
+  endif()
+endfunction()
+
+wis_make_target_bundle(
+  TARGET shared
+  HEADERS
+    "include/wisdom/global/definitions.h"
+  INCLUDE_DIRECTORIES
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+wis_make_target_bundle(
+  TARGET dx12
+  HEADERS
+    "include/wisdom/dx12/dx12_factory.h"
+  SOURCES
+    "include/wisdom/dx12/impl/dx12_factory.cpp"
+  LINK_TARGETS
+    wisdom-shared
+
+)

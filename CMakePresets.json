@@ -343,7 +343,6 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "WISDOM_GENERATE_FUNCTIONS": false,
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
         "CMAKE_BUILD_TYPE": "Debug"

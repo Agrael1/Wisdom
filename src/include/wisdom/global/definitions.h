@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIS_GLOBAL_DEFINITIONS_H
+#define WIS_GLOBAL_DEFINITIONS_H
 #if defined(WISDOM_BUILD_BINARIES) || defined(WISDOM_MODULE_DECL) // If we are building the binaries
 #define WIS_INLINE
 #else
@@ -14,8 +15,18 @@
 #endif // WISDOM_EXPORT
 
 // C++23 and later
-#if __cplusplus > 202211L
+
+
+#ifdef __cplusplus
+#if __cpp_constexpr >= 202211L
 #define WIS_CONSTEXPR23 constexpr
 #else
 #define WIS_CONSTEXPR23
 #endif
+
+#define WIS_EXTERN_C extern "C"
+#else
+#define WIS_EXTERN_C
+#endif // __cplusplus
+
+#endif // !WIS_GLOBAL_DEFINITIONS_H

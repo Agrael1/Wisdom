@@ -1,7 +1,7 @@
 #pragma once
 #ifndef WISDOM_MODULE_DECL
 #include <wisdom/util/string_literal.h>
-#include <wisdom/bridge/source_location.h>
+#include <wisdom/bridge/source_location.hpp>
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT

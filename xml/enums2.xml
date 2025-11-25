@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+	<types comment="Type definitions">
+		<!--Enums-->
+		<type name="Status" category="enum" version="0.7.0" doc="Defines common return status codes. Compare against {::Ok} for success.">
+			<value name="Ok" value="0" doc="Operation succeded."/>
+			<value name="Timeout" value="1" doc="Operation timed out."/>
+			<value name="Partial" value="2" doc="Operation partially succeeded."/>
+
+			<value name="InvalidArgument" value="-1" doc="One or more arguments, or parts of arguments passed to the function were incorrect."/>
+			<value name="OutOfHostMemory" value="-2" doc="There is no more host memory available."/>
+			<value name="OutOfDeviceMemory" value="-3" doc="There is no more device memory available."/>
+			<value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
+			<value name="Occluded" value="-5" doc="Swapchain presentation was not visible to the user. Rendering is too fast."/>
+			<value name="Error" value="-10000" doc="Operation failed."/>
+		</type>
+	</types>
+</registry>

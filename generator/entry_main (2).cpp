@@ -1,4 +1,4 @@
-#include "generator.hpp"
+#include "generator.h"
 #include <iostream>
 #include "../src/include/wisdom/bridge/format.hpp"
 
@@ -30,15 +30,16 @@ void FormatFiles(std::span<const std::filesystem::path> files)
 
 int main()
 {
-    Generator g;
-    auto result = g.ParseFile(input_file);
-    if (result != tinyxml2::XMLError::XML_SUCCESS) {
-        std::cerr << "Failed to parse XML file: " << static_cast<int>(result) << '\n';
-        return result;
+    tinyxml2::XMLDocument doc;
+    if (doc.LoadFile(input_file.data()) != tinyxml2::XMLError::XML_SUCCESS) {
+        return 1;
     }
 
-    g.WriteMainAPI();
-    g.WriteMainAPIDoc();
+    Generator g(doc);
+    g.GenerateCAPI();
+    g.GenerateCPPAPI();
+    g.GenerateCPPModules();
     FormatFiles(g.GetFiles());
+
     return 0;
 }
