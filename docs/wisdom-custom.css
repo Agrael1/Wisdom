@@ -77,3 +77,12 @@ dl.section.valid-usage dd {
     border-left: 3px solid var(--primary-color);
     margin: 1em 0;
 }
+
+/* Hide "Detailed Description" completely if you don't want it */
+h2.groupheader {
+    display: none;
+}
+
+dl.section.see dt {
+    display: none !important;
+}

@@ -4,12 +4,9 @@
 //-----------------------------------------------------------------------------
 static inline constexpr char template_enum[] =
         R"(/**
- * @defgroup {0} {0}
+ * @struct {0} {0}
  * @ingroup Enumerations
  *
- * @section {0}_name Name
- * <hr>
- * 
  * @section {0}_spec C Specification
  * <hr>
  * 
@@ -26,10 +23,14 @@ static inline constexpr char template_enum[] =
  * 
  * @section {0}_see_also See Also
  * <hr>
+ *
+ * \cond WIS_GEN_REFS
+ * RESERVED
+ * \endcond
  */)";
 
 //-----------------------------------------------------------------------------
-tinyxml2::XMLError Generator::ParseEnum(tinyxml2::XMLElement* type)
+void Generator::ParseEnum(tinyxml2::XMLElement* type)
 {
     std::unordered_map<std::string_view, std::string> cvts;
 
@@ -100,7 +101,6 @@ tinyxml2::XMLError Generator::ParseEnum(tinyxml2::XMLElement* type)
             m.converts[impl_for_code] = value;
         }
     }
-    return tinyxml2::XMLError::XML_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ tinyxml2::XMLError Generator::ParseEnum(tinyxml2::XMLElement* type)
 std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
 {
     auto full_name = GetCFullTypename(s.name, "");
-    std::string st_decl = wis::format("enum {} {{\n", full_name);
+    std::string st_decl = wis::format("typedef enum {} {{\n", full_name);
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
@@ -119,24 +119,18 @@ std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
         st_decl += MakeCValueDocumentation(s, m, wis::format("    Wis{}{} = {},", s.name, m.name, m.value), kind);
     }
 
-    st_decl += "};\n\n";
+    st_decl += wis::format("}} {};\n\n", full_name);
     return st_decl;
 }
 
 //-----------------------------------------------------------------------------
 
-void Generator::MakeEnumDocumentation(std::filesystem::path enum_output_path)
+void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
 {
     for (auto& enum_name : enums_in_order) {
-
         // Make a folder for enums starting with this letter
         std::filesystem::create_directories(enum_output_path);
         std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));
-
-        bool file_exists = std::filesystem::exists(enum_file_path);
-
-        // If file exists, only edit the generated code section, else create new file
-        std::fstream enum_file{ enum_file_path, file_exists ? std::ios::in | std::ios::out : std::ios::out };
         auto& enum_ref = enum_map[enum_name];
 
         std::string enum_template_content = wis::format(" * ```c\n{}```\n", MakeCEnum(enum_ref, DocKind::VersionOnly));
@@ -145,50 +139,14 @@ void Generator::MakeEnumDocumentation(std::filesystem::path enum_output_path)
         ReplaceAll(enum_description, "\n", "\n * ");
         enum_description = FinalizeCDocumentation(enum_description, enum_name);
 
-        if (!file_exists) {
-            std::string xenum = wis::format(template_enum,
-                                            enum_name,
-                                            enum_template_content,
-                                            enum_description);
-
-            enum_file << FinalizeCDocumentation(xenum, enum_name);
-            enum_file.close();
-            continue;
-        }
-
-        // Otherwise, we would need to parse the existing file and replace the generated section
-        // Read entire file content
-        std::string existing_content((std::istreambuf_iterator<char>(enum_file)),
-                                     std::istreambuf_iterator<char>());
-        enum_file.close();
-        // Find the generated section
-        size_t gen_start = existing_content.find(R"(\cond WIS_GEN_CODE)");
-        size_t gen_end = existing_content.find(R"(\endcond)");
-        if (gen_start == std::string::npos || gen_end == std::string::npos || gen_end <= gen_start) {
-            throw std::runtime_error(wis::format("Generated section not found or malformed in {}", enum_file_path.string()));
-        }
-
-        // Find the
-        size_t desc_start = existing_content.find(R"(\cond WIS_GEN_DESC)");
-        size_t desc_end = existing_content.find(R"(\endcond)", desc_start);
-        if (desc_start == std::string::npos || desc_end == std::string::npos || desc_end <= desc_start) {
-            throw std::runtime_error(wis::format("Description section not found or malformed in {}", enum_file_path.string()));
-        }
-
-        // Replace the description section
-        std::string updated_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + enum_description + existing_content.substr(desc_end);
-        existing_content = updated_content;
-
-        // Replace the generated section
-        std::string new_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + enum_template_content + existing_content.substr(gen_end);
-        new_content = FinalizeCDocumentation(new_content, enum_name);
-
-        // Write back to file
-        std::ofstream enum_file_out{ enum_file_path, std::ios::trunc };
-        enum_file_out << new_content;
-        enum_file_out.close();
+        WriteDocumentation(enum_file_path,
+                           template_enum,
+                           GetCFullTypename(enum_name, ""),
+                           enum_template_content,
+                           enum_description);
     }
 }
+
 std::string Generator::MakeEnumDescription(const WisEnum& s)
 {
     std::string description;

@@ -1,20 +1,15 @@
 #include "generator.hpp"
 #include <fstream>
-
-//-----------------------------------------------------------------------------
-#define CHECKED_CALL(call)                                           \
-    if (auto err = (call); err != tinyxml2::XMLError::XML_SUCCESS) { \
-        return err;                                                  \
-    }
+#include <ranges>
 
 //-----------------------------------------------------------------------------
 
-tinyxml2::XMLError Generator::ParseFile(std::filesystem::path file)
+void Generator::ParseFile(std::filesystem::path file)
 {
     // open and parse XML file
     auto absolute = std::filesystem::absolute(file);
     auto& doc = documents[absolute];
-    CHECKED_CALL(doc.LoadFile(absolute.string().c_str()));
+    doc.LoadFile(absolute.string().c_str());
     return ParseFile(doc);
 }
 
@@ -29,20 +24,22 @@ void Generator::WriteMainAPIDoc()
 {
     std::filesystem::path doc_output_path = doc_output_dir;
     std::filesystem::path enum_output_path = doc_output_path / "wisdom/enum";
+    std::filesystem::path struct_output_path = doc_output_path / "wisdom/struct";
 
-    MakeEnumDocumentation(enum_output_path);
+    WriteEnumDocumentation(enum_output_path);
+    WriteStructDocumentation(struct_output_path);
 }
 
 //-----------------------------------------------------------------------------
-tinyxml2::XMLError Generator::ParseFile(tinyxml2::XMLDocument& doc)
+void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 {
     auto* root = doc.FirstChildElement("registry");
     if (!root) {
-        return tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+        throw std::runtime_error("Invalid XML file: missing <registry> root element");
     }
 
     if (auto* include = root->FirstChildElement("includes")) {
-        CHECKED_CALL(ParseIncludes(include));
+        ParseIncludes(include);
     }
 
     if (auto* handles = root->FirstChildElement("handles")) {
@@ -60,10 +57,9 @@ tinyxml2::XMLError Generator::ParseFile(tinyxml2::XMLDocument& doc)
     if (auto* exts = root->FirstChildElement("extensions")) {
         // ParseExtensions(exts);
     }
-    return tinyxml2::XMLError::XML_SUCCESS;
 }
 
-tinyxml2::XMLError Generator::ParseIncludes(tinyxml2::XMLElement* includes)
+void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 {
     for (auto* include = includes->FirstChildElement("include"); include;
          include = include->NextSiblingElement("include")) {
@@ -73,22 +69,21 @@ tinyxml2::XMLError Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 
         if (std::filesystem::exists(absolute) && !documents.contains(absolute)) {
             auto& doc = documents[absolute];
-            CHECKED_CALL(doc.LoadFile(absolute.string().c_str()));
-            CHECKED_CALL(ParseFile(doc));
+            doc.LoadFile(absolute.string().c_str());
+            ParseFile(doc);
         }
     }
-    return tinyxml2::XMLError::XML_SUCCESS;
 }
 
-tinyxml2::XMLError Generator::ParseTypes(tinyxml2::XMLElement* types, std::string_view extension)
+void Generator::ParseTypes(tinyxml2::XMLElement* types, std::string_view extension)
 {
     for (auto* type = types->FirstChildElement("type"); type;
          type = type->NextSiblingElement("type")) {
         auto category = type->FindAttribute("category")->Value();
         if (std::string_view(category) == "struct") {
-            // ParseStruct(*type);
+            ParseStruct(*type);
         } else if (std::string_view(category) == "enum") {
-            CHECKED_CALL(ParseEnum(type));
+            ParseEnum(type);
         } else if (std::string_view(category) == "bitmask") {
             // ParseBitmask(*type);
         } else if (std::string_view(category) == "delegate") {
@@ -97,7 +92,6 @@ tinyxml2::XMLError Generator::ParseTypes(tinyxml2::XMLElement* types, std::strin
             // ParseVariant(*type, extension);
         }
     }
-    return tinyxml2::XMLError::XML_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -123,16 +117,20 @@ extern "C" {
             "// Enums\n"
             "//==============================================================\n\n";
 
-    // Write typedefs
-    for (auto& [enum_name, enum_def] : enum_map) {
-        auto full_name = GetCFullTypename(enum_def.name, "");
-        file << wis::format("typedef enum {} {};\n", full_name, full_name);
-    }
-
     // Write enums
     for (auto& enum_name : enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file << MakeCEnum(enum_def);
+        file << "\n";
+    }
+
+    file << "\n//==============================================================\n"
+            "// Structs\n"
+            "//==============================================================\n\n";
+    // Write structs
+    for (auto& struct_name : structs_in_order) {
+        auto& struct_def = struct_map[struct_name];
+        file << MakeCStruct(struct_def);
         file << "\n";
     }
 
@@ -143,6 +141,56 @@ extern "C" {
 #endif // __cplusplus
 #endif // WISDOM_C_API_H
 )";
+}
+
+void Generator::WriteDocumentation(std::filesystem::path doc_output_path, std::string_view doc_template, std::string_view object_name, std::string_view code, std::string_view desc)
+{
+    // If file exists, only edit the generated code section, else create new file
+    bool file_exists = std::filesystem::exists(doc_output_path);
+    std::fstream enum_file{ doc_output_path, file_exists ? std::ios::in | std::ios::out : std::ios::out };
+
+    if (!file_exists) {
+        std::string xenum = wis::vformat(doc_template, wis::make_format_args(
+                                        object_name,
+                                        code,
+                                        desc));
+
+        enum_file << FinalizeCDocumentation(xenum, object_name);
+        enum_file.close();
+        return;
+    }
+
+    // Otherwise, we would need to parse the existing file and replace the generated section
+    // Read entire file content
+    std::string existing_content((std::istreambuf_iterator<char>(enum_file)),
+                                 std::istreambuf_iterator<char>());
+    enum_file.close();
+    // Find the generated section
+    size_t gen_start = existing_content.find(R"(\cond WIS_GEN_CODE)");
+    size_t gen_end = existing_content.find(R"(\endcond)");
+    if (gen_start == std::string::npos || gen_end == std::string::npos || gen_end <= gen_start) {
+        throw std::runtime_error(wis::format("Generated section not found or malformed in {}", doc_output_path.string()));
+    }
+
+    // Find the
+    size_t desc_start = existing_content.find(R"(\cond WIS_GEN_DESC)");
+    size_t desc_end = existing_content.find(R"(\endcond)", desc_start);
+    if (desc_start == std::string::npos || desc_end == std::string::npos || desc_end <= desc_start) {
+        throw std::runtime_error(wis::format("Description section not found or malformed in {}", doc_output_path.string()));
+    }
+
+    // Replace the description section
+    std::string updated_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
+    existing_content = updated_content;
+
+    // Replace the generated section
+    std::string new_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
+    new_content = FinalizeCDocumentation(new_content, object_name);
+
+    // Write back to file
+    std::ofstream enum_file_out{ doc_output_path, std::ios::trunc };
+    enum_file_out << new_content;
+    enum_file_out.close();
 }
 
 // Helpers
@@ -168,9 +216,9 @@ inline std::string Generator::GetCFullTypename(std::string_view type, std::strin
     //     return std::string(impl) + std::string(type);
     // }
 
-    // if (auto it = struct_map.find(type); it != struct_map.end()) {
-    //     return "Wis" + std::string(type);
-    // }
+    if (auto it = struct_map.find(type); it != struct_map.end()) {
+        return "Wis" + std::string(type);
+    }
 
     // if (auto it = handle_map.find(type); it != handle_map.end()) {
     //     return std::string(impl) + std::string(type);
@@ -220,21 +268,22 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
              auto evalue = y->second.HasValue(value);
              replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
                                   : GetCFullTypename(y->second.name, impl);
-         } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
-             auto member = z->second.HasValue(value);
-             replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name, impl), member->name)
-                                  : GetCFullTypename(z->second.name, impl);
-         } else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
-             auto member = d->second.HasValue(value);
-             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
-                                  : GetCFullTypename(d->second.name, impl);
-         } else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
-             replacement = GetCFullTypename(h->second.name, impl);
-         } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
-             auto member = f->second.HasValue(value);
-             replacement = member ? wis::format("{}({})", GetCFullTypename(f->second.name, impl), member->name)
-                                  : GetCFullTypename(f->second.name, impl);
          }*/
+        else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name, impl), member->name)
+                                 : GetCFullTypename(z->second.name, impl);
+        } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
+            auto member = d->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
+                                 : GetCFullTypename(d->second.name, impl);
+        } else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
+            replacement = GetCFullTypename(h->second.name, impl);
+        } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
+            auto member = f->second.HasValue(value);
+            replacement = member ? wis::format("{}({})", GetCFullTypename(f->second.name, impl), member->name)
+                                 : GetCFullTypename(f->second.name, impl);
+        }*/
 
         pos = last;
         doc.replace(first, last - first + 1, replacement);
@@ -308,4 +357,41 @@ std::string Generator::MakeSnakeCase(std::string_view str)
         }
     }
     return result;
+}
+
+Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
+{
+    // tokenize by comma lazily
+    Modifier mods = Modifier::None;
+    for (auto&& tk : std::views::split(mod_str, std::string_view{ "," })) {
+        // trim
+        std::string_view tk_view{ tk.begin(), tk.end() };
+        switch (tk_view[0]) {
+        case 'p':
+            if (tk_view == "ptr") {
+                mods = Modifier(mods | Modifier::Pointer);
+            } else if (tk_view == "pp") {
+                mods = Modifier(mods | Modifier::PointerToPointer);
+            }
+            break;
+        case 'r':
+            if (tk_view == "ref") {
+                mods = Modifier(mods | Modifier::Reference);
+            }
+            break;
+        case 'c':
+            if (tk_view == "const") {
+                mods = Modifier(mods | Modifier::Const);
+            }
+            break;
+        case 'n':
+            if (tk_view == "nodiscard") {
+                mods = Modifier(mods | Modifier::Nodiscard);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return mods;
 }

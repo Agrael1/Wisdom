@@ -8,74 +8,8 @@
 #include <optional>
 #include <bitset>
 
+#include "types.h"
 #include "../src/include/wisdom/bridge/format.hpp"
-
-namespace tinyxml2 {
-class XMLDocument;
-} // namespace tinyxml2
-
-enum class DocKind {
-    Full,
-    VersionOnly,
-};
-
-enum class TypeKind {
-    Base,
-    Struct,
-    Union,
-    Enum,
-    Bitmask,
-    Handle,
-    FuncPointer,
-    Alias,
-};
-enum ImplementedFor {
-    Both,
-    DX12,
-    Vulkan,
-};
-
-struct InlineTypeInfo {
-    std::string_view type;
-    std::string_view value;
-    std::size_t pos;
-    std::size_t after;
-};
-
-struct Type {
-    std::string_view name;
-    TypeKind kind;
-};
-
-struct WisConvert {
-    std::string_view value;
-    bool direct = false;
-};
-struct WisEnumValue {
-    std::string_view name;
-    std::string_view doc;
-    std::string_view version;
-    std::array<std::string_view, 3> converts;
-    int64_t value = 0;
-};
-struct WisEnum {
-    std::string_view name;
-    std::string_view type;
-    std::string_view doc;
-    std::string_view version;
-    std::string doc_translates;
-    std::vector<WisEnumValue> values;
-    std::array<WisConvert, 3> conversion_type;
-
-public:
-    std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
-    {
-        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
-            return v.name == name;
-        });
-        return enum_value != values.end() ? std::optional<WisEnumValue>{ *enum_value } : std::nullopt;
-    }
-};
 
 class Generator
 {
@@ -91,45 +25,63 @@ public:
     Generator() = default;
 
 public:
-    tinyxml2::XMLError ParseFile(std::filesystem::path file);
+    void ParseFile(std::filesystem::path file);
     void WriteMainAPI();
     void WriteMainAPIDoc();
     std::span<const std::filesystem::path> GetFiles() const { return files; }
 
 public:
-    tinyxml2::XMLError ParseIncludes(tinyxml2::XMLElement* includes);
-    tinyxml2::XMLError ParseFile(tinyxml2::XMLDocument& doc);
-    tinyxml2::XMLError ParseTypes(tinyxml2::XMLElement* types, std::string_view extension = "");
-    tinyxml2::XMLError ParseEnum(tinyxml2::XMLElement* type);
+    void ParseIncludes(tinyxml2::XMLElement* includes);
+    void ParseFile(tinyxml2::XMLDocument& doc);
+    void ParseTypes(tinyxml2::XMLElement* types, std::string_view extension = "");
+    void ParseEnum(tinyxml2::XMLElement* type);
+    void ParseStruct(tinyxml2::XMLElement& type);
+    // tinyxml2::XMLError ParseBitmask(tinyxml2::XMLElement* type);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
+    std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
 
-    void MakeEnumDocumentation(std::filesystem::path enum_output_path);
+
     std::string MakeEnumDescription(const WisEnum& s);
+    std::string MakeStructDescription(const WisStruct& s);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
+    void WriteEnumDocumentation(std::filesystem::path enum_output_path);
+    void WriteStructDocumentation(std::filesystem::path struct_output_path);
+    void WriteDocumentation(std::filesystem::path doc_output_path, std::string_view doc_template, std::string_view object_name, std::string_view code, std::string_view desc);
 
     // Helpers
     std::string GetCFullTypename(std::string_view type, std::string_view impl);
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
+    std::string GetMemberTypeString(const WisStructMember& member);
+    std::string MakeCStructMemberDeclaration(const WisStructMember& member, size_t align_width);
 
     static ImplementedFor ImplCode(std::string_view impl) noexcept;
     static void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
     static InlineTypeInfo FindInlineType(std::string_view str, size_t initial);
     static std::string MakeVersionString(std::string_view version, bool newline = false);
     static std::string MakeSnakeCase(std::string_view str);
+    static Modifier GetModifiers(std::string_view mod_str) noexcept;
 
 public:
     template<typename T, typename V>
     std::string MakeCValueDocumentation(const T& type, const V& value, std::string_view value_decl, DocKind kind)
     {
+        std::string version_info;
+        if constexpr (requires { value.version; }) {
+            version_info = MakeVersionString(value.version);
+        }
+
         if (kind == DocKind::VersionOnly) {
-            if (value.version.empty()) {
-                return wis::format("{}\n", value_decl);
+            if constexpr (requires { value.version; }) {
+                if (value.version.empty()) {
+                    return wis::format("{}\n", value_decl);
+                }
+                return wis::format("// {}{}\n", version_info, value_decl);
             }
-            return wis::format("// {}{}\n", MakeVersionString(value.version, true), value_decl);
+            return wis::format("{}\n", value_decl);
         }
 
         auto doc = value.doc;
@@ -140,10 +92,10 @@ public:
         if (!doc.empty()) {
             if (doc.find('\n') != std::string_view::npos) {
                 pre_doc = true;
-                documentation = wis::format("/**\n@brief {}{}\n*/", MakeVersionString(value.version, true), doc);
+                documentation = wis::format("/**\n@brief {}\n{}\n*/", version_info, doc);
                 ReplaceAll(documentation, "\n", "\n * ");
             } else {
-                documentation = wis::format(" ///< {}{}", MakeVersionString(value.version, false), doc);
+                documentation = wis::format(" ///< {}{}", version_info, doc);
             }
             documentation = FinalizeCDocumentation(documentation, type_name);
         }
@@ -157,7 +109,12 @@ public:
     {
         std::string version_info = MakeVersionString(type.version);
         if (!type.doc.empty() && kind == DocKind::Full) {
-            std::string documentation = wis::format("/**\n@brief {}{}\n\n{}*/", version_info, type.doc, type.doc_translates);
+            std::string documentation = wis::format("/**\n@brief {}{}\n\n", version_info, type.doc);
+            if constexpr (requires { type.doc_translates; }) {
+                documentation += type.doc_translates;
+            }
+            documentation += "\n*/";
+
             ReplaceAll(documentation, "\n", "\n * ");
             return FinalizeCDocumentation(documentation, type.name);
         }
@@ -168,11 +125,13 @@ private:
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
     std::unordered_map<std::string_view, WisEnum> enum_map;
+    std::unordered_map<std::string_view, WisStruct> struct_map;
 
     std::unordered_map<std::string_view, Type> dependency_tree;
 
     // Ordered members
     std::vector<std::string_view> enums_in_order;
+    std::vector<std::string_view> structs_in_order;
     std::vector<std::filesystem::path> files;
 
     // Standard type translations
@@ -191,6 +150,7 @@ private:
         { "f32", "float" },
         { "f64", "double" },
 
+        { "char", "char" },
         { "u8string", "const char" },
         { "u16string", "const char16_t" },
         { "u32string", "const char32_t" },

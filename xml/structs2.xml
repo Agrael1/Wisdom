@@ -5,13 +5,10 @@
 	</includes>
 
 	<types comment="Type definitions">
-		<type name="Result" category="struct" mod="nodiscard" doc="Main source of communication of operation success.
-To check for success {::status} *must* be compared with {Status::Ok}.
-If there is any error there is {::error} string which is compile-time.
-It communicates the source of problems even in Release mode.
-The string contains function name and error message.">
-			<member type="Status" name="status" default="Ok" doc="Operation status. Compare with {Status::Ok}"/>
-			<member type="u8string" name="error" mod="ptr" default="nullptr" doc="Error message. nullptr or 'Operation Succeeded.' if no error."/>
+		<type name="Result" category="struct" mod="nodiscard" version="0.7.0" doc="Main source of communication of operation success.">
+			<member type="Status" name="status" default="Ok" doc="defines operation status. Compare with {Status::Ok}."/>
+			<member type="i32" name="platform_code" default="0" doc="defines platfrom code from underlying implementation. Can be compared with `HRESULT` for DX12 and `VkResult` for Vulkan."/>
+			<member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
 		</type>
 	</types>
 

@@ -31,12 +31,7 @@ void FormatFiles(std::span<const std::filesystem::path> files)
 int main()
 {
     Generator g;
-    auto result = g.ParseFile(input_file);
-    if (result != tinyxml2::XMLError::XML_SUCCESS) {
-        std::cerr << "Failed to parse XML file: " << static_cast<int>(result) << '\n';
-        return result;
-    }
-
+    g.ParseFile(input_file);
     g.WriteMainAPI();
     g.WriteMainAPIDoc();
     FormatFiles(g.GetFiles());

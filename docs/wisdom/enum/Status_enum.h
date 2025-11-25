@@ -1,6 +1,6 @@
 /**
- * @defgroup Status Status
  * @ingroup Enumerations
+ * @struct WisStatus
  * WisStatus - Common return status codes.
  * 
  * @section Status_spec C Specification
@@ -17,7 +17,7 @@
  * \cond WIS_GEN_CODE
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * enum WisStatus {
+ * typedef enum WisStatus {
  *     WisStatusOk = 0,
  *     WisStatusTimeout = 1,
  *     WisStatusPartial = 2,
@@ -27,7 +27,7 @@
  *     WisStatusDeviceLost = -4,
  *     WisStatusOccluded = -5,
  *     WisStatusError = -10000,
- * };
+ * } WisStatus;
  * 
  * ```
  * \endcond

@@ -10,12 +10,12 @@ extern "C" {
 // Enums
 //==============================================================
 
-typedef enum WisStatus WisStatus;
 /**
  * @brief Provided by Wisdom 0.7.0. Defines common return status codes. Compare against WisStatusOk for success.
  *
+ *
  * */
-enum WisStatus {
+typedef enum WisStatus {
     WisStatusOk = 0, ///< Operation succeded.
     WisStatusTimeout = 1, ///< Operation timed out.
     WisStatusPartial = 2, ///< Operation partially succeeded.
@@ -25,7 +25,22 @@ enum WisStatus {
     WisStatusDeviceLost = -4, ///< Device driver was forcefully stopped.
     WisStatusOccluded = -5, ///< Swapchain presentation was not visible to the user. Rendering is too fast.
     WisStatusError = -10000, ///< Operation failed.
-};
+} WisStatus;
+
+//==============================================================
+// Structs
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Main source of communication of operation success.
+ *
+ *
+ * */
+typedef struct WIS_NODISCARD WisResult {
+    WisStatus status; ///< defines operation status. Compare with WisStatusOk.
+    int32_t platform_code; ///< defines platfrom code from underlying implementation. Can be compared with `HRESULT` for DX12 and `VkResult` for Vulkan.
+    const char* error; ///< contains a human readable error message.
+} WisResult;
 
 #ifdef __cplusplus
 }
