@@ -143,17 +143,23 @@ extern "C" {
 )";
 }
 
-void Generator::WriteDocumentation(std::filesystem::path doc_output_path, std::string_view doc_template, std::string_view object_name, std::string_view code, std::string_view desc)
+void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
+                                   std::string_view doc_template,
+                                   std::string_view object_name,
+                                   std::string_view code,
+                                   std::string_view desc,
+                                   std::string_view refs)
 {
+    if (refs.empty()) {
+        refs = " * ";
+    }
+
     // If file exists, only edit the generated code section, else create new file
     bool file_exists = std::filesystem::exists(doc_output_path);
     std::fstream enum_file{ doc_output_path, file_exists ? std::ios::in | std::ios::out : std::ios::out };
 
     if (!file_exists) {
-        std::string xenum = wis::vformat(doc_template, wis::make_format_args(
-                                        object_name,
-                                        code,
-                                        desc));
+        std::string xenum = wis::vformat(doc_template, wis::make_format_args(object_name, code, desc));
 
         enum_file << FinalizeCDocumentation(xenum, object_name);
         enum_file.close();
@@ -172,69 +178,82 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path, std::s
         throw std::runtime_error(wis::format("Generated section not found or malformed in {}", doc_output_path.string()));
     }
 
-    // Find the
+    // Find the description section
     size_t desc_start = existing_content.find(R"(\cond WIS_GEN_DESC)");
     size_t desc_end = existing_content.find(R"(\endcond)", desc_start);
     if (desc_start == std::string::npos || desc_end == std::string::npos || desc_end <= desc_start) {
         throw std::runtime_error(wis::format("Description section not found or malformed in {}", doc_output_path.string()));
     }
 
+    // Find the references section
+    size_t ref_start = existing_content.find(R"(\cond WIS_GEN_REFS)");
+    size_t ref_end = existing_content.find(R"(\endcond)", ref_start);
+    if (ref_start == std::string::npos || ref_end == std::string::npos || ref_end <= ref_start) {
+        throw std::runtime_error(wis::format("References section not found or malformed in {}", doc_output_path.string()));
+    }
+
     // Replace the description section
-    std::string updated_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
-    existing_content = updated_content;
+    existing_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
 
     // Replace the generated section
-    std::string new_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
-    new_content = FinalizeCDocumentation(new_content, object_name);
+    existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
+
+    // Replace the references section
+    existing_content = existing_content.substr(0, ref_start) + "\\cond WIS_GEN_REFS\n" + std::string(refs) + existing_content.substr(ref_end);
 
     // Write back to file
     std::ofstream enum_file_out{ doc_output_path, std::ios::trunc };
-    enum_file_out << new_content;
+    enum_file_out << existing_content;
     enum_file_out.close();
 }
 
 // Helpers
-inline std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
+TypeKind Generator::GetType(std::string_view type_name) const noexcept
 {
-    if (type.empty()) {
+    if (type_name.empty()) {
+        return TypeKind::None;
+    }
+    if (auto it = enum_map.find(type_name); it != enum_map.end()) {
+        return TypeKind::Enum;
+    }
+    if (auto it = struct_map.find(type_name); it != struct_map.end()) {
+        return TypeKind::Struct;
+    }
+    return TypeKind::Base;
+}
+
+void Generator::TryMakeRef(std::string_view type, std::string_view ref)
+{
+    // ref is reverse, meaning ref uses type
+    auto xtype = GetType(type);
+    if (xtype == TypeKind::None || xtype == TypeKind::Base) {
+        return;
+    }
+    dependency_tree[type].dependencies.push_back(ref);
+}
+std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
+{
+    switch (GetType(type)) {
+    case TypeKind::Base:
+        return std::string(standard_types.at(type));
+    default:
+    case TypeKind::None:
         return "";
+    case TypeKind::Struct:
+        return wis::format("Wis{}", type);
+    case TypeKind::Union:
+        break;
+    case TypeKind::Enum:
+        return wis::format("Wis{}", type);
+    case TypeKind::Bitmask:
+        break;
+    case TypeKind::Handle:
+        break;
+    case TypeKind::FuncPointer:
+        break;
+    case TypeKind::Alias:
+        break;
     }
-
-    if (auto it = standard_types.find(type); it != standard_types.end()) {
-        return std::string(it->second);
-    }
-
-    if (auto it = enum_map.find(type); it != enum_map.end()) {
-        return "Wis" + std::string(type);
-    }
-
-    // if (auto it = bitmask_map.find(type); it != bitmask_map.end()) {
-    //     return "Wis" + std::string(type);
-    // }
-
-    // if (auto it = variant_map.find(type); it != variant_map.end()) {
-    //     return std::string(impl) + std::string(type);
-    // }
-
-    if (auto it = struct_map.find(type); it != struct_map.end()) {
-        return "Wis" + std::string(type);
-    }
-
-    // if (auto it = handle_map.find(type); it != handle_map.end()) {
-    //     return std::string(impl) + std::string(type);
-    // }
-    // if (auto it = extension_map.find(type); it != extension_map.end()) {
-    //     return std::string(impl) + std::string(type);
-    // }
-
-    // if (auto it = delegate_map.find(type); it != delegate_map.end()) {
-    //     return std::string(type);
-    // }
-
-    // if (auto it = function_map.find(std::string(type)); it != function_map.end()) {
-    //     return std::string(impl) + std::string(type);
-    // }
-
     return "";
 }
 std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
@@ -394,4 +413,30 @@ Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
         }
     }
     return mods;
+}
+
+std::string Generator::GetRefs(std::string_view for_type)
+{
+    auto it = dependency_tree.find(for_type);
+    if (it == dependency_tree.end()) {
+        return "";
+    }
+    auto& xrefs = it->second.dependencies;
+
+    std::size_t ref_count = 0;
+    static constexpr std::size_t max_ref_count = 10;
+    // Gather references
+    std::string refs;
+    for (auto& ref : xrefs) {
+        if (!ref.empty()) {
+            refs += GetCFullTypename(ref, "");
+            if (++ref_count > max_ref_count) {
+                break;
+            }
+        }
+    }
+    if (!refs.empty()) {
+        refs = wis::format(" * @see {}\n", refs);
+    }
+    return refs;
 }

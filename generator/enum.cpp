@@ -135,15 +135,19 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
 
         std::string enum_template_content = wis::format(" * ```c\n{}```\n", MakeCEnum(enum_ref, DocKind::VersionOnly));
         std::string enum_description = wis::format(" * {}", MakeEnumDescription(enum_ref));
+        std::string enum_refs = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");
         ReplaceAll(enum_description, "\n", "\n * ");
+        ReplaceAll(enum_refs, "\n", "\n * ");
+
         enum_description = FinalizeCDocumentation(enum_description, enum_name);
 
         WriteDocumentation(enum_file_path,
                            template_enum,
                            GetCFullTypename(enum_name, ""),
                            enum_template_content,
-                           enum_description);
+                           enum_description,
+                           enum_refs);
     }
 }
 

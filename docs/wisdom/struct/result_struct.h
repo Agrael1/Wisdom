@@ -8,13 +8,13 @@
  *
  * \cond WIS_GEN_CODE
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WIS_NODISCARD WisResult {
  *     WisStatus   status;
  *     int32_t     platform_code;
  *     const char* error;
  * } WisResult;
- *
+ * 
  * ```
  * \endcond
  *
@@ -32,7 +32,6 @@
  *
  * @section Result_see_also See Also
  * <hr>
- * \see WisStatus
  * \cond WIS_GEN_REFS
  * \endcond
  */

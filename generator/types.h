@@ -9,6 +9,7 @@ enum class DocKind {
 
 //-----------------------------------------------------------------------------
 enum class TypeKind {
+    None,
     Base,
     Struct,
     Union,
@@ -40,9 +41,8 @@ struct InlineTypeInfo {
     std::size_t after;
 };
 
-struct Type {
-    std::string_view name;
-    TypeKind kind;
+struct Dependencies {
+    std::vector<std::string_view> dependencies;
 };
 
 struct WisConvert {

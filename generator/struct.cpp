@@ -62,6 +62,9 @@ void Generator::ParseStruct(tinyxml2::XMLElement& type)
 
         auto* arr = member->FindAttribute("array");
 
+        // Ref the type
+        TryMakeRef(type, ref.name);
+
         m.type = type;
         m.name = name;
         if (auto* arr = member->FindAttribute("array")) {
@@ -170,6 +173,7 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
                            template_struct,
                            GetCFullTypename(struct_name, ""),
                            struct_template_content,
-                           struct_description);
+                           struct_description,
+                           GetRefs(struct_name));
     }
 }

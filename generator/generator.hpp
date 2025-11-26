@@ -42,21 +42,29 @@ public:
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
     std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
 
-
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeStructDescription(const WisStruct& s);
+    std::string MakeCStructMemberDeclaration(const WisStructMember& member, size_t align_width);
+    void TryMakeRef(std::string_view type, std::string_view from);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
-    void WriteDocumentation(std::filesystem::path doc_output_path, std::string_view doc_template, std::string_view object_name, std::string_view code, std::string_view desc);
+    void WriteDocumentation(std::filesystem::path doc_output_path,
+                            std::string_view doc_template,
+                            std::string_view object_name,
+                            std::string_view code,
+                            std::string_view desc,
+                            std::string_view refs);
 
     // Helpers
     std::string GetCFullTypename(std::string_view type, std::string_view impl);
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
     std::string GetMemberTypeString(const WisStructMember& member);
-    std::string MakeCStructMemberDeclaration(const WisStructMember& member, size_t align_width);
+
+    TypeKind GetType(std::string_view type_name) const noexcept;
+    std::string GetRefs(std::string_view for_type);
 
     static ImplementedFor ImplCode(std::string_view impl) noexcept;
     static void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
@@ -127,7 +135,7 @@ private:
     std::unordered_map<std::string_view, WisEnum> enum_map;
     std::unordered_map<std::string_view, WisStruct> struct_map;
 
-    std::unordered_map<std::string_view, Type> dependency_tree;
+    std::unordered_map<std::string_view, Dependencies> dependency_tree;
 
     // Ordered members
     std::vector<std::string_view> enums_in_order;
