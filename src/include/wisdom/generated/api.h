@@ -1,6 +1,7 @@
 // This file is generated. Do not edit directly.
 #ifndef WISDOM_C_API_H
 #define WISDOM_C_API_H
+#include <wisdom/global/definitions.h>
 #include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +39,7 @@ typedef enum WisStatus {
  * */
 typedef struct WIS_NODISCARD WisResult {
     WisStatus status; ///< defines operation status. Compare with WisStatusOk.
-    int32_t platform_code; ///< defines platfrom code from underlying implementation. Can be compared with `HRESULT` for DX12 and `VkResult` for Vulkan.
+    int32_t platform_code; ///< defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
     const char* error; ///< contains a human readable error message.
 } WisResult;
 

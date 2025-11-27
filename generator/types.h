@@ -90,8 +90,10 @@ struct WisStruct {
     std::string_view name;
     std::string_view doc;
     std::string_view version;
-    Modifier modifier;
+    Modifier modifier = Modifier::None;
     std::vector<WisStructMember> members;
+
+public:
     std::optional<WisStructMember> HasValue(std::string_view name) const noexcept
     {
         if (name.empty()) {
@@ -102,5 +104,26 @@ struct WisStruct {
             return v.name == name;
         });
         return *enum_value;
+    }
+};
+
+//-----------------------------------------------------------------------------
+struct WisHandle {
+    std::string_view name;
+    std::string_view doc;
+    std::string_view version;
+    std::array<uint32_t, 2> sizes;
+
+    std::vector<std::string_view> functions;
+public:
+    uint32_t GetSize(ImplementedFor impl) const noexcept
+    {
+        if (impl == ImplementedFor::DX12) {
+            return sizes[0];
+        }
+        if (impl == ImplementedFor::Vulkan) {
+            return sizes[1];
+        }
+        return 0;
     }
 };

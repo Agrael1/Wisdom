@@ -1,16 +1,10 @@
 #ifndef WIS_DX12_FACTORY_H
 #define WIS_DX12_FACTORY_H
-#include <wisdom/global/definitions.h>
+#include <wisdom/generated/api.h>
+#include <wisdom/generated/dx12_handles.h>
 
-struct WisResult {
-    int a;
-};
+WIS_EXTERN_C WisResult WisDX12CreateFactory(const struct WisFactoryCreateInfo* info, WisDX12Instance* out_factory);
 
-struct WisDX12Factory {
-    int a;
-};
-
-WIS_EXTERN_C WisResult WisDX12CreateFactory(const struct WisFactoryCreateInfo* info, struct WisDX12Factory* out_factory);
 
 ///**
 // * @brief Creates a DX12 factory for adapter enumeration

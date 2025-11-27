@@ -29,6 +29,8 @@ static inline constexpr char template_struct[] =
  *
  * @section {0}_see_also See Also
  * <hr>
+ * \cond WIS_GEN_REFS
+ * \endcond
  */)";
 
 //-----------------------------------------------------------------------------
@@ -165,8 +167,10 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
 
         std::string struct_template_content = wis::format(" * ```c\n{}```\n", MakeCStruct(struct_ref, DocKind::VersionOnly));
         std::string struct_description = wis::format(" * {}", MakeStructDescription(struct_ref));
+        std::string struct_refs = GetRefs(struct_name);
         ReplaceAll(struct_template_content, "\n", "\n * ");
         ReplaceAll(struct_description, "\n", "\n * ");
+        ReplaceAll(struct_refs, "\n", "\n * ");
         struct_description = FinalizeCDocumentation(struct_description, struct_name);
 
         WriteDocumentation(struct_file_path,
@@ -174,6 +178,6 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
                            GetCFullTypename(struct_name, ""),
                            struct_template_content,
                            struct_description,
-                           GetRefs(struct_name));
+                           struct_refs);
     }
 }

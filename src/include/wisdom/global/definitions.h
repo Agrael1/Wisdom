@@ -28,7 +28,6 @@
 #define WIS_EXTERN_C
 #endif // __cplusplus
 
-
 #if defined(__GNUC__) || defined(__clang__)
 /* GCC and Clang support __attribute__((warn_unused_result)) */
 #define NODISCARD_ATTRIBUTE __attribute__((warn_unused_result))
@@ -50,7 +49,6 @@
 #define WIS_NODISCARD NODISCARD_ATTRIBUTE
 #endif // __has_cpp_attribute(nodiscard) >= 201603L
 
-
 #elif defined(__has_c_attribute) // Try C23
 // C23 or later
 #if __has_c_attribute(nodiscard)
@@ -63,5 +61,10 @@
 #define WIS_NODISCARD NODISCARD_ATTRIBUTE
 #endif // __has_cpp_attribute
 #endif // WIS_NODISCARD
+
+#define WIS_DEFINE_HANDLE(name, size) \
+    typedef struct name {             \
+        uint64_t opaque[size];        \
+    } name
 
 #endif // !WIS_GLOBAL_DEFINITIONS_H

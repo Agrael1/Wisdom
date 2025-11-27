@@ -16,8 +16,9 @@ void Generator::ParseFile(std::filesystem::path file)
 void Generator::WriteMainAPI()
 {
     std::filesystem::path cpp_output_path = main_output_dir;
-    std::filesystem::path cpp_output_path_api = cpp_output_path / "generated/api";
+    std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
     WriteCAPI(cpp_output_path_api / "api.h");
+    WriteCHandles(cpp_output_path_api);
 }
 
 void Generator::WriteMainAPIDoc()
@@ -25,9 +26,11 @@ void Generator::WriteMainAPIDoc()
     std::filesystem::path doc_output_path = doc_output_dir;
     std::filesystem::path enum_output_path = doc_output_path / "wisdom/enum";
     std::filesystem::path struct_output_path = doc_output_path / "wisdom/struct";
+    std::filesystem::path handle_output_path = doc_output_path / "wisdom/handle";
 
     WriteEnumDocumentation(enum_output_path);
     WriteStructDocumentation(struct_output_path);
+    WriteHandleDocumentation(handle_output_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -43,7 +46,7 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
     }
 
     if (auto* handles = root->FirstChildElement("handles")) {
-        // ParseHandles(handles);
+        ParseHandles(handles);
     }
 
     if (auto* types = root->FirstChildElement("types")) {
@@ -75,7 +78,7 @@ void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
     }
 }
 
-void Generator::ParseTypes(tinyxml2::XMLElement* types, std::string_view extension)
+void Generator::ParseTypes(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("type"); type;
          type = type->NextSiblingElement("type")) {
@@ -107,6 +110,7 @@ void Generator::WriteCAPI(std::filesystem::path path)
     file << R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_C_API_H
 #define WISDOM_C_API_H
+#include <wisdom/global/definitions.h>
 #include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
@@ -143,6 +147,68 @@ extern "C" {
 )";
 }
 
+//-----------------------------------------------------------------------------
+
+void Generator::WriteCHandles(std::filesystem::path dir)
+{
+    std::filesystem::path path_dx = dir / "dx12_handles.h";
+    std::filesystem::path path_vk = dir / "vk_handles.h";
+    files.push_back(path_dx);
+    files.push_back(path_vk);
+
+    std::ofstream file_dx{ path_dx, std::ios::out | std::ios::trunc };
+    if (!file_dx.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_dx.string());
+    }
+    std::ofstream file_vk{ path_vk, std::ios::out | std::ios::trunc };
+    if (!file_vk.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_vk.string());
+    }
+
+    // Write header
+    file_dx << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_C_DX12_HANDLES_H
+#define WISDOM_C_DX12_HANDLES_H
+#include <wisdom/global/definitions.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+)";
+    file_vk << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_C_VK_HANDLES_H
+#define WISDOM_C_VK_HANDLES_H
+#include <wisdom/global/definitions.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+)";
+
+    // Write handles
+    for (auto& handle_name : handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        file_dx << MakeCHandle(handle_def, "dx");
+        file_dx << "\n";
+        file_vk << MakeCHandle(handle_def, "vk");
+        file_vk << "\n";
+    }
+
+    // Write footer
+    file_dx << R"(
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // WISDOM_C_DX12_HANDLES_H
+)";
+    file_vk << R"(
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // WISDOM_C_VK_HANDLES_H
+)";
+}
+
 void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
                                    std::string_view doc_template,
                                    std::string_view object_name,
@@ -174,32 +240,27 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
     // Find the generated section
     size_t gen_start = existing_content.find(R"(\cond WIS_GEN_CODE)");
     size_t gen_end = existing_content.find(R"(\endcond)");
-    if (gen_start == std::string::npos || gen_end == std::string::npos || gen_end <= gen_start) {
-        throw std::runtime_error(wis::format("Generated section not found or malformed in {}", doc_output_path.string()));
-    }
 
     // Find the description section
     size_t desc_start = existing_content.find(R"(\cond WIS_GEN_DESC)");
     size_t desc_end = existing_content.find(R"(\endcond)", desc_start);
-    if (desc_start == std::string::npos || desc_end == std::string::npos || desc_end <= desc_start) {
-        throw std::runtime_error(wis::format("Description section not found or malformed in {}", doc_output_path.string()));
-    }
 
     // Find the references section
     size_t ref_start = existing_content.find(R"(\cond WIS_GEN_REFS)");
     size_t ref_end = existing_content.find(R"(\endcond)", ref_start);
-    if (ref_start == std::string::npos || ref_end == std::string::npos || ref_end <= ref_start) {
-        throw std::runtime_error(wis::format("References section not found or malformed in {}", doc_output_path.string()));
-    }
-
-    // Replace the description section
-    existing_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
-
-    // Replace the generated section
-    existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
 
     // Replace the references section
-    existing_content = existing_content.substr(0, ref_start) + "\\cond WIS_GEN_REFS\n" + std::string(refs) + existing_content.substr(ref_end);
+    if (ref_start != std::string::npos && ref_end != std::string::npos && ref_end > ref_start) {
+        existing_content = existing_content.substr(0, ref_start) + "\\cond WIS_GEN_REFS\n" + std::string(refs) + existing_content.substr(ref_end);
+    }
+    // Replace the generated section
+    if (gen_start != std::string::npos && gen_end != std::string::npos && gen_end > gen_start) {
+        existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
+    }
+    // Replace the description section
+    if (desc_start != std::string::npos && desc_end != std::string::npos && desc_end > desc_start) {
+        existing_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
+    }
 
     // Write back to file
     std::ofstream enum_file_out{ doc_output_path, std::ios::trunc };
@@ -218,6 +279,9 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     }
     if (auto it = struct_map.find(type_name); it != struct_map.end()) {
         return TypeKind::Struct;
+    }
+    if (auto it = handle_map.find(type_name); it != handle_map.end()) {
+        return TypeKind::Handle;
     }
     return TypeKind::Base;
 }
@@ -248,7 +312,7 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::Bitmask:
         break;
     case TypeKind::Handle:
-        break;
+        return wis::format("Wis{}{}", impl, type);
     case TypeKind::FuncPointer:
         break;
     case TypeKind::Alias:
@@ -296,9 +360,10 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
                                  : GetCFullTypename(d->second.name, impl);
-        } else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
+        }*/
+        else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
             replacement = GetCFullTypename(h->second.name, impl);
-        } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
+        } /*else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("{}({})", GetCFullTypename(f->second.name, impl), member->name)
                                  : GetCFullTypename(f->second.name, impl);

@@ -33,14 +33,17 @@ public:
 public:
     void ParseIncludes(tinyxml2::XMLElement* includes);
     void ParseFile(tinyxml2::XMLDocument& doc);
-    void ParseTypes(tinyxml2::XMLElement* types, std::string_view extension = "");
+    void ParseTypes(tinyxml2::XMLElement* types);
     void ParseEnum(tinyxml2::XMLElement* type);
     void ParseStruct(tinyxml2::XMLElement& type);
+    void ParseHandles(tinyxml2::XMLElement* handles);
     // tinyxml2::XMLError ParseBitmask(tinyxml2::XMLElement* type);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
     std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
+    std::string MakeCHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
+
 
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeStructDescription(const WisStruct& s);
@@ -49,8 +52,10 @@ public:
 
     // Write
     void WriteCAPI(std::filesystem::path path);
+    void WriteCHandles(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
+    void WriteHandleDocumentation(std::filesystem::path handle_output_path);
     void WriteDocumentation(std::filesystem::path doc_output_path,
                             std::string_view doc_template,
                             std::string_view object_name,
@@ -128,18 +133,33 @@ public:
         }
         return wis::format("// {}", version_info);
     }
+    static constexpr std::string_view GetImplString(ImplementedFor impl) noexcept
+    {
+        switch (impl) {
+        case ImplementedFor::Both:
+            return "";
+        case ImplementedFor::DX12:
+            return "DX12";
+        case ImplementedFor::Vulkan:
+            return "VK";
+        default:
+            return "";
+        }
+    }
 
 private:
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
     std::unordered_map<std::string_view, WisEnum> enum_map;
     std::unordered_map<std::string_view, WisStruct> struct_map;
+    std::unordered_map<std::string_view, WisHandle> handle_map;
 
     std::unordered_map<std::string_view, Dependencies> dependency_tree;
 
     // Ordered members
     std::vector<std::string_view> enums_in_order;
     std::vector<std::string_view> structs_in_order;
+    std::vector<std::string_view> handles_in_order;
     std::vector<std::filesystem::path> files;
 
     // Standard type translations

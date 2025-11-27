@@ -7,3 +7,8 @@
  * @defgroup Structures Structures
  * @brief All structure types
  */
+
+/**
+ * @defgroup Handles Handles
+ * @brief All handle types
+ */

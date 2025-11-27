@@ -49,6 +49,7 @@ wis_make_target_bundle(
   TARGET shared
   HEADERS
     "include/wisdom/global/definitions.h"
+    "include/wisdom/generated/api.h"
   INCLUDE_DIRECTORIES
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
@@ -57,9 +58,9 @@ wis_make_target_bundle(
   TARGET dx12
   HEADERS
     "include/wisdom/dx12/dx12_factory.h"
+    "include/wisdom/generated/dx12_handles.h"
   SOURCES
     "include/wisdom/dx12/impl/dx12_factory.cpp"
   LINK_TARGETS
     wisdom-shared
-
 )
