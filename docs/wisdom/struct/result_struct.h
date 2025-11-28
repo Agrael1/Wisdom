@@ -29,6 +29,8 @@
  * @section Result_descr Description
  * <hr>
  *
+ * \cond WIS_GEN_WIS_IDS 
+ * \endcond
  *
  * @section Result_see_also See Also
  * <hr>

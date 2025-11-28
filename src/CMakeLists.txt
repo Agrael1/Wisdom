@@ -58,7 +58,7 @@ wis_make_target_bundle(
   TARGET dx12
   HEADERS
     "include/wisdom/dx12/dx12_factory.h"
-    "include/wisdom/generated/dx12_handles.h"
+    "include/wisdom/generated/dx12_api.h"
   SOURCES
     "include/wisdom/dx12/impl/dx12_factory.cpp"
   LINK_TARGETS

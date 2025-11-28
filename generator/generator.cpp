@@ -18,7 +18,7 @@ void Generator::WriteMainAPI()
     std::filesystem::path cpp_output_path = main_output_dir;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
     WriteCAPI(cpp_output_path_api / "api.h");
-    WriteCHandles(cpp_output_path_api);
+    WriteCDependentAPI(cpp_output_path_api);
 }
 
 void Generator::WriteMainAPIDoc()
@@ -30,6 +30,7 @@ void Generator::WriteMainAPIDoc()
 
     WriteEnumDocumentation(enum_output_path);
     WriteStructDocumentation(struct_output_path);
+    WriteVariantDocumentation(struct_output_path);
     WriteHandleDocumentation(handle_output_path);
 }
 
@@ -84,7 +85,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
          type = type->NextSiblingElement("type")) {
         auto category = type->FindAttribute("category")->Value();
         if (std::string_view(category) == "struct") {
-            ParseStruct(*type);
+            ParseStruct(type);
         } else if (std::string_view(category) == "enum") {
             ParseEnum(type);
         } else if (std::string_view(category) == "bitmask") {
@@ -92,7 +93,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         } else if (std::string_view(category) == "delegate") {
             // ParseDelegate(type);
         } else if (std::string_view(category) == "variant") {
-            // ParseVariant(*type, extension);
+            ParseVariant(type);
         }
     }
 }
@@ -149,10 +150,10 @@ extern "C" {
 
 //-----------------------------------------------------------------------------
 
-void Generator::WriteCHandles(std::filesystem::path dir)
+void Generator::WriteCDependentAPI(std::filesystem::path dir)
 {
-    std::filesystem::path path_dx = dir / "dx12_handles.h";
-    std::filesystem::path path_vk = dir / "vk_handles.h";
+    std::filesystem::path path_dx = dir / "dx12_api.h";
+    std::filesystem::path path_vk = dir / "vk_api.h";
     files.push_back(path_dx);
     files.push_back(path_vk);
 
@@ -167,18 +168,18 @@ void Generator::WriteCHandles(std::filesystem::path dir)
 
     // Write header
     file_dx << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_C_DX12_HANDLES_H
-#define WISDOM_C_DX12_HANDLES_H
-#include <wisdom/global/definitions.h>
+#ifndef WISDOM_C_DX12_API_H
+#define WISDOM_C_DX12_API_H
+#include<wisdom/generated/api.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 )";
     file_vk << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_C_VK_HANDLES_H
-#define WISDOM_C_VK_HANDLES_H
-#include <wisdom/global/definitions.h>
+#ifndef WISDOM_C_VK_API_H
+#define WISDOM_C_VK_API_H
+#include <wisdom/generated/api.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,18 +195,27 @@ extern "C" {
         file_vk << "\n";
     }
 
+    // Write variants
+    for (auto& variant_name : variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        file_dx << MakeCVariant(variant_def, "dx");
+        file_dx << "\n";
+        file_vk << MakeCVariant(variant_def, "vk");
+        file_vk << "\n";
+    }
+
     // Write footer
     file_dx << R"(
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // WISDOM_C_DX12_HANDLES_H
+#endif // WISDOM_C_DX12_API_H
 )";
     file_vk << R"(
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // WISDOM_C_VK_HANDLES_H
+#endif // WISDOM_C_VK_API_H
 )";
 }
 
@@ -280,6 +290,9 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     if (auto it = struct_map.find(type_name); it != struct_map.end()) {
         return TypeKind::Struct;
     }
+    if (auto it = variant_map.find(type_name); it != variant_map.end()) {
+        return TypeKind::Variant;
+    }
     if (auto it = handle_map.find(type_name); it != handle_map.end()) {
         return TypeKind::Handle;
     }
@@ -304,7 +317,8 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::None:
         return "";
     case TypeKind::Struct:
-        return wis::format("Wis{}", type);
+    case TypeKind::Variant:
+        return wis::format("Wis{}{}", impl, type);
     case TypeKind::Union:
         break;
     case TypeKind::Enum:
@@ -353,6 +367,10 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
                                   : GetCFullTypename(y->second.name, impl);
          }*/
         else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name, impl), member->name)
+                                 : GetCFullTypename(z->second.name, impl);
+        } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(z->second.name, impl), member->name)
                                  : GetCFullTypename(z->second.name, impl);

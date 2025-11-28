@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-  <includes>
-    <include>structs2.xml</include>
-  </includes>
+	<includes>
+		<include>structs2.xml</include>
+	</includes>
 
 	<handles>
 		<handle name="Instance" version="0.7.0" doc="Class for creating adapters.">
@@ -10,4 +10,15 @@
 			<impl for="dx" include="dx12/dx12_factory.h" size="2"/>
 		</handle>
 	</handles>
+	
+	<functions>
+		<!-- Free Functions -->
+		<func name="CreateInstance" doc="Creates the {Instance::} with extensions, specified in extension array.">
+			<ret type="Instance" name="instance" result="true" doc="{Instance::} on success ({Status::Ok})."/>
+			<arg type="bool" name="debug_layer" default="false" doc="Enable the debug layer for underlying API."/>
+			<arg type="InstanceExtensionHeader" name="extensions" mod="pp,span" default="nullptr" doc="The extensions to enable. The extensions are initialized through this array."/>
+			<arg type="u32" name="extension_count" default="0" doc="The number of extensions to enable."/>
+		</func>
+	</functions>
+
 </registry>

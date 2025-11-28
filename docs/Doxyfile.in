@@ -113,7 +113,7 @@ GENERATE_TODOLIST      = YES
 GENERATE_TESTLIST      = YES
 GENERATE_BUGLIST       = YES
 GENERATE_DEPRECATEDLIST= YES
-ENABLED_SECTIONS       = WIS_GEN_CODE, WIS_GEN_DESC WIS_GEN_REFS
+ENABLED_SECTIONS       = WIS_GEN_CODE WIS_GEN_DESC WIS_GEN_REFS WIS_GEN_WIS_IDS
 MAX_INITIALIZER_LINES  = 30
 SHOW_USED_FILES        = NO
 SHOW_FILES             = YES
@@ -236,7 +236,7 @@ HTML_STYLESHEET        =
 HTML_EXTRA_STYLESHEET  = @AWESOME_CSS_DIR@/doxygen-awesome.css \
                          @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only.css \
                          @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only-darkmode-toggle.css \
-                         @CMAKE_CURRENT_BINARY_DIR@/docs/wisdom-custom.css
+                         @CMAKE_CURRENT_SOURCE_DIR@/docs/wisdom-custom.css
 HTML_EXTRA_FILES       = @AWESOME_CSS_DIR@/doxygen-awesome-darkmode-toggle.js
 HTML_COLORSTYLE        = LIGHT
 HTML_COLORSTYLE_HUE    = 220

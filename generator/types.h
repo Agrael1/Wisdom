@@ -12,6 +12,7 @@ enum class TypeKind {
     None,
     Base,
     Struct,
+    Variant,
     Union,
     Enum,
     Bitmask,

@@ -35,26 +35,30 @@ public:
     void ParseFile(tinyxml2::XMLDocument& doc);
     void ParseTypes(tinyxml2::XMLElement* types);
     void ParseEnum(tinyxml2::XMLElement* type);
-    void ParseStruct(tinyxml2::XMLElement& type);
+    void ParseStruct(tinyxml2::XMLElement* type);
     void ParseHandles(tinyxml2::XMLElement* handles);
+    void ParseVariant(tinyxml2::XMLElement* type);
     // tinyxml2::XMLError ParseBitmask(tinyxml2::XMLElement* type);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
     std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
+    std::string MakeCVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
 
 
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeStructDescription(const WisStruct& s);
-    std::string MakeCStructMemberDeclaration(const WisStructMember& member, size_t align_width);
+    std::string MakeVariantDescription(const WisStruct& s);
+    std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
     void TryMakeRef(std::string_view type, std::string_view from);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
-    void WriteCHandles(std::filesystem::path path);
+    void WriteCDependentAPI(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
+    void WriteVariantDocumentation(std::filesystem::path struct_output_path);
     void WriteHandleDocumentation(std::filesystem::path handle_output_path);
     void WriteDocumentation(std::filesystem::path doc_output_path,
                             std::string_view doc_template,
@@ -64,9 +68,9 @@ public:
                             std::string_view refs);
 
     // Helpers
-    std::string GetCFullTypename(std::string_view type, std::string_view impl);
+    std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
-    std::string GetMemberTypeString(const WisStructMember& member);
+    std::string GetMemberTypeString(const WisStructMember& member, std::string_view impl = "");
 
     TypeKind GetType(std::string_view type_name) const noexcept;
     std::string GetRefs(std::string_view for_type);
@@ -152,6 +156,7 @@ private:
 
     std::unordered_map<std::string_view, WisEnum> enum_map;
     std::unordered_map<std::string_view, WisStruct> struct_map;
+    std::unordered_map<std::string_view, WisStruct> variant_map;
     std::unordered_map<std::string_view, WisHandle> handle_map;
 
     std::unordered_map<std::string_view, Dependencies> dependency_tree;
@@ -159,6 +164,7 @@ private:
     // Ordered members
     std::vector<std::string_view> enums_in_order;
     std::vector<std::string_view> structs_in_order;
+    std::vector<std::string_view> variants_in_order;
     std::vector<std::string_view> handles_in_order;
     std::vector<std::filesystem::path> files;
 
