@@ -12,3 +12,8 @@
  * @defgroup Handles Handles
  * @brief All handle types
  */
+
+/**
+ * @defgroup Functions Functions
+ * @brief All function prototypes
+ */

@@ -18,6 +18,7 @@ enum class TypeKind {
     Bitmask,
     Handle,
     FuncPointer,
+    Function,
     Alias,
 };
 enum ImplementedFor {
@@ -33,6 +34,12 @@ enum Modifier {
     Nodiscard = 1 << 4,
     PointerToPointer = 1 << 5,
     Span = 1 << 6,
+};
+enum ReturnTypeKind {
+    Void,
+    Direct,
+    ResultOnly,
+    ResultAndValue,
 };
 
 struct InlineTypeInfo {
@@ -113,7 +120,7 @@ struct WisHandle {
     std::string_view name;
     std::string_view doc;
     std::string_view version;
-    std::array<uint32_t, 2> sizes;
+    std::array<uint32_t, 2> sizes{};
 
     std::vector<std::string_view> functions;
 public:
@@ -126,5 +133,86 @@ public:
             return sizes[1];
         }
         return 0;
+    }
+};
+
+//-----------------------------------------------------------------------------
+//struct ReplacedParameter {
+//    Language replace_for = Language::None;
+//
+//    TypeInfo type_info = TypeInfo::None;
+//    std::string_view type;
+//    std::string_view name;
+//    std::string_view modifier;
+//    std::string_view default_value;
+//    std::string_view doc;
+//};
+
+struct WisFunctionParameter {
+    //std::optional<ReplacedParameter> replaced;
+    std::string_view type;
+    std::string_view doc;
+    std::string_view name;
+    Modifier modifier = Modifier::None;
+    std::string_view default_value;
+};
+
+struct WisReturnType {
+    bool has_result = false;
+    std::string_view type;
+    std::string_view doc;
+    std::string_view opt_name;
+    Modifier modifier = Modifier::None;
+
+    ReturnTypeKind GetKind() const noexcept
+    {
+        if (IsVoid()) {
+            return ReturnTypeKind::Void;
+        }
+        if (IsDirect()) {
+            return ReturnTypeKind::Direct;
+        }
+        if (IsResultOnly()) {
+            return ReturnTypeKind::ResultOnly;
+        }
+        return ReturnTypeKind::ResultAndValue;
+    }
+
+    bool IsVoid() const noexcept
+    {
+        return type.empty() && !has_result;
+    }
+    bool IsRV() const noexcept
+    {
+        return has_result && !type.empty();
+    }
+    bool IsDirect() const noexcept
+    {
+        return !has_result && !type.empty();
+    }
+    bool IsResultOnly() const noexcept
+    {
+        return has_result && type.empty();
+    }
+};
+struct WisFunction {
+    std::string_view name;
+    std::string_view doc;
+    std::string_view this_type;
+    std::string_view version;
+    Modifier modifier = Modifier::None;
+
+    WisReturnType return_type;
+    std::vector<WisFunctionParameter> parameters;
+
+    std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
+    {
+        if (name.empty()) {
+            return {};
+        }
+        auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return *enum_value;
     }
 };

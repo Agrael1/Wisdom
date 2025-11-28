@@ -17,7 +17,7 @@ if(NOT tinyxml2_FOUND AND NOT TARGET tinyxml2::tinyxml2)
 endif()
 
 add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE "entry_main.cpp" "generator.cpp" "generator.hpp" "enum.cpp" "struct.cpp" "types.h" "handle.cpp" "variant.cpp")
+target_sources(${PROJECT_NAME} PRIVATE "entry_main.cpp" "generator.cpp" "generator.hpp" "enum.cpp" "struct.cpp" "types.h" "handle.cpp" "variant.cpp" "function.cpp")
 target_compile_definitions(
   ${PROJECT_NAME}
   PRIVATE

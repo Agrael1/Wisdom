@@ -27,11 +27,14 @@ void Generator::WriteMainAPIDoc()
     std::filesystem::path enum_output_path = doc_output_path / "wisdom/enum";
     std::filesystem::path struct_output_path = doc_output_path / "wisdom/struct";
     std::filesystem::path handle_output_path = doc_output_path / "wisdom/handle";
+    std::filesystem::path func_output_path = doc_output_path / "wisdom/func";
+
 
     WriteEnumDocumentation(enum_output_path);
     WriteStructDocumentation(struct_output_path);
     WriteVariantDocumentation(struct_output_path);
     WriteHandleDocumentation(handle_output_path);
+    WriteFunctionDocumentation(func_output_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -55,7 +58,7 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
     }
 
     if (auto* funcs = root->FirstChildElement("functions")) {
-        // ParseFunctions(funcs);
+        ParseFunctions(funcs);
     }
 
     if (auto* exts = root->FirstChildElement("extensions")) {
@@ -204,6 +207,15 @@ extern "C" {
         file_vk << "\n";
     }
 
+    // Write functions
+    for (auto& func_name : functions_in_order) {
+        auto& func_def = function_map[func_name];
+        file_dx << MakeCFunctionDecl(func_def, "dx", "WISDOM_API");
+        file_dx << "\n";
+        file_vk << MakeCFunctionDecl(func_def, "vk", "WISDOM_API");
+        file_vk << "\n";
+    }
+
     // Write footer
     file_dx << R"(
 #ifdef __cplusplus
@@ -249,7 +261,7 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
     enum_file.close();
     // Find the generated section
     size_t gen_start = existing_content.find(R"(\cond WIS_GEN_CODE)");
-    size_t gen_end = existing_content.find(R"(\endcond)");
+    size_t gen_end = existing_content.find(R"(\endcond)", gen_start);
 
     // Find the description section
     size_t desc_start = existing_content.find(R"(\cond WIS_GEN_DESC)");
@@ -263,13 +275,13 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
     if (ref_start != std::string::npos && ref_end != std::string::npos && ref_end > ref_start) {
         existing_content = existing_content.substr(0, ref_start) + "\\cond WIS_GEN_REFS\n" + std::string(refs) + existing_content.substr(ref_end);
     }
-    // Replace the generated section
-    if (gen_start != std::string::npos && gen_end != std::string::npos && gen_end > gen_start) {
-        existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
-    }
     // Replace the description section
     if (desc_start != std::string::npos && desc_end != std::string::npos && desc_end > desc_start) {
         existing_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
+    }
+    // Replace the generated section
+    if (gen_start != std::string::npos && gen_end != std::string::npos && gen_end > gen_start) {
+        existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
     }
 
     // Write back to file
@@ -296,6 +308,9 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     if (auto it = handle_map.find(type_name); it != handle_map.end()) {
         return TypeKind::Handle;
     }
+    if (auto it = function_map.find(type_name); it != function_map.end()) {
+        return TypeKind::Function;
+    }
     return TypeKind::Base;
 }
 
@@ -317,6 +332,7 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::None:
         return "";
     case TypeKind::Struct:
+        return wis::format("Wis{}", type);
     case TypeKind::Variant:
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::Union:
@@ -329,6 +345,8 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::FuncPointer:
         break;
+    case TypeKind::Function:
+        return wis::format("wis{}{}", impl, type);
     case TypeKind::Alias:
         break;
     }
@@ -381,11 +399,11 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         }*/
         else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
             replacement = GetCFullTypename(h->second.name, impl);
-        } /*else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
+        } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("{}({})", GetCFullTypename(f->second.name, impl), member->name)
                                  : GetCFullTypename(f->second.name, impl);
-        }*/
+        }
 
         pos = last;
         doc.replace(first, last - first + 1, replacement);

@@ -38,6 +38,7 @@ public:
     void ParseStruct(tinyxml2::XMLElement* type);
     void ParseHandles(tinyxml2::XMLElement* handles);
     void ParseVariant(tinyxml2::XMLElement* type);
+    void ParseFunctions(tinyxml2::XMLElement* functions);
     // tinyxml2::XMLError ParseBitmask(tinyxml2::XMLElement* type);
 
     // Make
@@ -45,11 +46,13 @@ public:
     std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
     std::string MakeCVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-
+    std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
+    std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
 
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeStructDescription(const WisStruct& s);
     std::string MakeVariantDescription(const WisStruct& s);
+    std::string MakeFunctionDescription(const WisFunction& s);
     std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
     void TryMakeRef(std::string_view type, std::string_view from);
 
@@ -60,6 +63,7 @@ public:
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
     void WriteVariantDocumentation(std::filesystem::path struct_output_path);
     void WriteHandleDocumentation(std::filesystem::path handle_output_path);
+    void WriteFunctionDocumentation(std::filesystem::path func_output_path);
     void WriteDocumentation(std::filesystem::path doc_output_path,
                             std::string_view doc_template,
                             std::string_view object_name,
@@ -70,7 +74,7 @@ public:
     // Helpers
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
-    std::string GetMemberTypeString(const WisStructMember& member, std::string_view impl = "");
+    
 
     TypeKind GetType(std::string_view type_name) const noexcept;
     std::string GetRefs(std::string_view for_type);
@@ -81,6 +85,19 @@ public:
     static std::string MakeVersionString(std::string_view version, bool newline = false);
     static std::string MakeSnakeCase(std::string_view str);
     static Modifier GetModifiers(std::string_view mod_str) noexcept;
+    static constexpr std::string_view GetImplString(ImplementedFor impl) noexcept
+    {
+        switch (impl) {
+        case ImplementedFor::Both:
+            return "";
+        case ImplementedFor::DX12:
+            return "DX12";
+        case ImplementedFor::Vulkan:
+            return "VK";
+        default:
+            return "";
+        }
+    }
 
 public:
     template<typename T, typename V>
@@ -126,29 +143,53 @@ public:
     {
         std::string version_info = MakeVersionString(type.version);
         if (!type.doc.empty() && kind == DocKind::Full) {
-            std::string documentation = wis::format("/**\n@brief {}{}\n\n", version_info, type.doc);
+            std::string args;
+            if constexpr (std::same_as<T, WisFunction>) {
+                // Function arguments
+                for (auto& param : type.parameters) {
+                    args += wis::format("@param {} {}\n", param.name, param.doc);
+                }
+
+                if (type.return_type.IsRV()) {
+                    args += wis::format("@param {} {}\n", type.return_type.opt_name, type.return_type.doc);
+                    args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                } else if (type.return_type.IsDirect()) {
+                    args += wis::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
+                } else if (type.return_type.IsResultOnly()) {
+                    args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                }
+            }
+
+            std::string documentation = wis::format("/**\n@brief {}{}\n{}\n", version_info, type.doc, args);
             if constexpr (requires { type.doc_translates; }) {
                 documentation += type.doc_translates;
             }
-            documentation += "\n*/";
+            documentation += "*/";
 
             ReplaceAll(documentation, "\n", "\n * ");
             return FinalizeCDocumentation(documentation, type.name);
         }
         return wis::format("// {}", version_info);
     }
-    static constexpr std::string_view GetImplString(ImplementedFor impl) noexcept
+
+    template<typename T>
+    std::string GetMemberTypeString(const T& member, std::string_view impl = "")
     {
-        switch (impl) {
-        case ImplementedFor::Both:
-            return "";
-        case ImplementedFor::DX12:
-            return "DX12";
-        case ImplementedFor::Vulkan:
-            return "VK";
-        default:
-            return "";
+        std::string attributes_pre;
+        std::string attributes_inter;
+        if (member.modifier & Modifier::Const) {
+            attributes_pre += "const ";
         }
+        if (member.modifier & Modifier::Pointer) {
+            attributes_inter += "*";
+        }
+        if (member.modifier & Modifier::PointerToPointer) {
+            attributes_inter += "**";
+        }
+        if (member.modifier & Modifier::Reference) {
+            attributes_inter += "*";
+        }
+        return attributes_pre + GetCFullTypename(member.type, impl) + attributes_inter;
     }
 
 private:
@@ -158,6 +199,7 @@ private:
     std::unordered_map<std::string_view, WisStruct> struct_map;
     std::unordered_map<std::string_view, WisStruct> variant_map;
     std::unordered_map<std::string_view, WisHandle> handle_map;
+    std::unordered_map<std::string_view, WisFunction> function_map;
 
     std::unordered_map<std::string_view, Dependencies> dependency_tree;
 
@@ -166,6 +208,7 @@ private:
     std::vector<std::string_view> structs_in_order;
     std::vector<std::string_view> variants_in_order;
     std::vector<std::string_view> handles_in_order;
+    std::vector<std::string_view> functions_in_order;
     std::vector<std::filesystem::path> files;
 
     // Standard type translations
@@ -180,6 +223,7 @@ private:
         { "i16", "int16_t" },
         { "i32", "int32_t" },
         { "i64", "int64_t" },
+        { "size", "size_t" },
 
         { "f32", "float" },
         { "f64", "double" },
@@ -190,3 +234,4 @@ private:
         { "u32string", "const char32_t" },
     };
 };
+//

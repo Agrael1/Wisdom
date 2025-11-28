@@ -121,12 +121,11 @@ std::string Generator::MakeVariantDescription(const WisStruct& s)
 //-----------------------------------------------------------------------------
 void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_path)
 {
+    std::filesystem::create_directories(struct_output_path);
     for (const auto& variant_name : variants_in_order) {
         // Make a folder for enums starting with this letter
-        std::filesystem::create_directories(struct_output_path);
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto& variant_ref = variant_map[variant_name];
-
 
         std::string vk_code = MakeCVariant(variant_ref, "vk", DocKind::VersionOnly);
         std::string dx_code = MakeCVariant(variant_ref, "dx", DocKind::VersionOnly);

@@ -14,7 +14,6 @@ extern "C" {
 /**
  * @brief Provided by Wisdom 0.7.0. Defines common return status codes. Compare against WisStatusOk for success.
  *
- *
  * */
 typedef enum WisStatus {
     WisStatusOk = 0, ///< Operation succeded.
@@ -34,7 +33,6 @@ typedef enum WisStatus {
 
 /**
  * @brief Provided by Wisdom 0.7.0. Main source of communication of operation success.
- *
  *
  * */
 typedef struct WIS_NODISCARD WisResult {

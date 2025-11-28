@@ -79,4 +79,8 @@
         uint64_t opaque[size];                       \
     } name
 
+#ifndef WISDOM_API
+#define WISDOM_API
+#endif // WISDOM_API
+
 #endif // !WIS_GLOBAL_DEFINITIONS_H

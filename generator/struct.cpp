@@ -109,26 +109,6 @@ std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::GetMemberTypeString(const WisStructMember& member, std::string_view impl)
-{
-    std::string attributes_pre;
-    std::string attributes_inter;
-    if (member.modifier & Modifier::Const) {
-        attributes_pre += "const ";
-    }
-    if (member.modifier & Modifier::Pointer) {
-        attributes_inter += "*";
-    }
-    if (member.modifier & Modifier::PointerToPointer) {
-        attributes_inter += "**";
-    }
-    if (member.modifier & Modifier::Reference) {
-        attributes_inter += "*";
-    }
-    return attributes_pre + GetCFullTypename(member.type, impl) + attributes_inter;
-}
-
-//-----------------------------------------------------------------------------
 std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl)
 {
     std::string type_string = GetMemberTypeString(member, impl);
@@ -158,9 +138,9 @@ std::string Generator::MakeStructDescription(const WisStruct& s)
 //-----------------------------------------------------------------------------
 void Generator::WriteStructDocumentation(std::filesystem::path struct_output_path)
 {
+    std::filesystem::create_directories(struct_output_path);
     for (const auto& struct_name : structs_in_order) {
         // Make a folder for enums starting with this letter
-        std::filesystem::create_directories(struct_output_path);
         std::filesystem::path struct_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(struct_name));
         auto& struct_ref = struct_map[struct_name];
 

@@ -127,9 +127,9 @@ std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
 
 void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
 {
+    std::filesystem::create_directories(enum_output_path);
     for (auto& enum_name : enums_in_order) {
         // Make a folder for enums starting with this letter
-        std::filesystem::create_directories(enum_output_path);
         std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));
         auto& enum_ref = enum_map[enum_name];
 
