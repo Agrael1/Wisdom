@@ -90,7 +90,8 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
                            template_handle,
                            GetCFullTypename(handle_name, ""),
                            handle_template_content,
-                           " * ",
+                           empty_doc,
+                           empty_doc,
                            handle_refs);
     }
 }

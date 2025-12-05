@@ -41,6 +41,11 @@ enum ReturnTypeKind {
     ResultOnly,
     ResultAndValue,
 };
+enum Severity {
+    Info,
+    Warning,
+    Error,
+};
 
 struct InlineTypeInfo {
     std::string_view type;
@@ -213,6 +218,36 @@ struct WisFunction {
         auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
             return v.name == name;
         });
+        if (enum_value == parameters.end()) {
+            // it can be return value
+            if (return_type.opt_name == name) {
+                return WisFunctionParameter{ return_type.type, return_type.doc, return_type.opt_name, return_type.modifier, "" };
+            }
+            return {};
+        }
         return *enum_value;
     }
 };
+
+static inline constexpr Severity from_chars(std::string_view input) noexcept
+{
+    if (input == "info") {
+        return Severity::Info;
+    }
+    if (input == "warning") {
+        return Severity::Warning;
+    }
+    if (input == "error") {
+        return Severity::Error;
+    }
+    return Severity::Info;
+}
+
+struct Validation {
+    std::string_view type_name;
+    std::string_view id;
+    Severity severity;
+    std::string_view message;
+};
+
+using ValidationList = std::vector<Validation>;

@@ -13,8 +13,9 @@
 
 class Generator
 {
-    static constexpr std::string_view main_output_dir = CPP_OUTPUT_DIR;
-    static constexpr std::string_view doc_output_dir = DOC_OUTPUT_DIR;
+    static constexpr std::string_view                       main_output_dir = CPP_OUTPUT_DIR;
+    static constexpr std::string_view                       doc_output_dir  = DOC_OUTPUT_DIR;
+    static constexpr std::string_view                       empty_doc       = " * ";
     static constexpr inline std::array<std::string_view, 5> impls{
         "",
         "DX12",
@@ -25,9 +26,9 @@ public:
     Generator() = default;
 
 public:
-    void ParseFile(std::filesystem::path file);
-    void WriteMainAPI();
-    void WriteMainAPIDoc();
+    void                                   ParseFile(std::filesystem::path file);
+    void                                   WriteMainAPI();
+    void                                   WriteMainAPIDoc();
     std::span<const std::filesystem::path> GetFiles() const { return files; }
 
 public:
@@ -39,6 +40,7 @@ public:
     void ParseHandles(tinyxml2::XMLElement* handles);
     void ParseVariant(tinyxml2::XMLElement* type);
     void ParseFunctions(tinyxml2::XMLElement* functions);
+    void ParseValidations(tinyxml2::XMLElement* validations);
     // tinyxml2::XMLError ParseBitmask(tinyxml2::XMLElement* type);
 
     // Make
@@ -53,8 +55,10 @@ public:
     std::string MakeStructDescription(const WisStruct& s);
     std::string MakeVariantDescription(const WisStruct& s);
     std::string MakeFunctionDescription(const WisFunction& s);
+    std::string MakeValidationDescription(const Validation& v);
+    std::string MakeValidationForType(std::string_view type_name);
     std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
-    void TryMakeRef(std::string_view type, std::string_view from);
+    void        TryMakeRef(std::string_view type, std::string_view from);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
@@ -65,26 +69,26 @@ public:
     void WriteHandleDocumentation(std::filesystem::path handle_output_path);
     void WriteFunctionDocumentation(std::filesystem::path func_output_path);
     void WriteDocumentation(std::filesystem::path doc_output_path,
-                            std::string_view doc_template,
-                            std::string_view object_name,
-                            std::string_view code,
-                            std::string_view desc,
-                            std::string_view refs);
+                            std::string_view      doc_template,
+                            std::string_view      object_name,
+                            std::string_view      code,
+                            std::string_view      vuids,
+                            std::string_view      desc,
+                            std::string_view      refs);
 
     // Helpers
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
-    
 
-    TypeKind GetType(std::string_view type_name) const noexcept;
+    TypeKind    GetType(std::string_view type_name) const noexcept;
     std::string GetRefs(std::string_view for_type);
 
-    static ImplementedFor ImplCode(std::string_view impl) noexcept;
-    static void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
-    static InlineTypeInfo FindInlineType(std::string_view str, size_t initial);
-    static std::string MakeVersionString(std::string_view version, bool newline = false);
-    static std::string MakeSnakeCase(std::string_view str);
-    static Modifier GetModifiers(std::string_view mod_str) noexcept;
+    static ImplementedFor             ImplCode(std::string_view impl) noexcept;
+    static void                       ReplaceAll(std::string& str, const std::string& from, const std::string& to);
+    static InlineTypeInfo             FindInlineType(std::string_view str);
+    static std::string                MakeVersionString(std::string_view version, bool newline = false);
+    static std::string                MakeSnakeCase(std::string_view str);
+    static Modifier                   GetModifiers(std::string_view mod_str) noexcept;
     static constexpr std::string_view GetImplString(ImplementedFor impl) noexcept
     {
         switch (impl) {
@@ -118,14 +122,14 @@ public:
             return wis::format("{}\n", value_decl);
         }
 
-        auto doc = value.doc;
+        auto doc       = value.doc;
         auto type_name = type.name;
 
         std::string documentation;
-        bool pre_doc = false;
+        bool        pre_doc = false;
         if (!doc.empty()) {
             if (doc.find('\n') != std::string_view::npos) {
-                pre_doc = true;
+                pre_doc       = true;
                 documentation = wis::format("/**\n@brief {}\n{}\n*/", version_info, doc);
                 ReplaceAll(documentation, "\n", "\n * ");
             } else {
@@ -195,41 +199,42 @@ public:
 private:
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
-    std::unordered_map<std::string_view, WisEnum> enum_map;
-    std::unordered_map<std::string_view, WisStruct> struct_map;
-    std::unordered_map<std::string_view, WisStruct> variant_map;
-    std::unordered_map<std::string_view, WisHandle> handle_map;
+    std::unordered_map<std::string_view, WisEnum>     enum_map;
+    std::unordered_map<std::string_view, WisStruct>   struct_map;
+    std::unordered_map<std::string_view, WisStruct>   variant_map;
+    std::unordered_map<std::string_view, WisHandle>   handle_map;
     std::unordered_map<std::string_view, WisFunction> function_map;
 
-    std::unordered_map<std::string_view, Dependencies> dependency_tree;
+    std::unordered_map<std::string_view, Dependencies>   dependency_tree;
+    std::unordered_map<std::string_view, ValidationList> validation_map;
 
     // Ordered members
-    std::vector<std::string_view> enums_in_order;
-    std::vector<std::string_view> structs_in_order;
-    std::vector<std::string_view> variants_in_order;
-    std::vector<std::string_view> handles_in_order;
-    std::vector<std::string_view> functions_in_order;
+    std::vector<std::string_view>      enums_in_order;
+    std::vector<std::string_view>      structs_in_order;
+    std::vector<std::string_view>      variants_in_order;
+    std::vector<std::string_view>      handles_in_order;
+    std::vector<std::string_view>      functions_in_order;
     std::vector<std::filesystem::path> files;
 
     // Standard type translations
     const std::unordered_map<std::string_view, std::string_view> standard_types{
-        { "bool", "bool" },
-        { "void", "void" },
-        { "u8", "uint8_t" },
-        { "u16", "uint16_t" },
-        { "u32", "uint32_t" },
-        { "u64", "uint64_t" },
-        { "i8", "int8_t" },
-        { "i16", "int16_t" },
-        { "i32", "int32_t" },
-        { "i64", "int64_t" },
-        { "size", "size_t" },
+        {      "bool",           "bool" },
+        {      "void",           "void" },
+        {        "u8",        "uint8_t" },
+        {       "u16",       "uint16_t" },
+        {       "u32",       "uint32_t" },
+        {       "u64",       "uint64_t" },
+        {        "i8",         "int8_t" },
+        {       "i16",        "int16_t" },
+        {       "i32",        "int32_t" },
+        {       "i64",        "int64_t" },
+        {      "size",         "size_t" },
 
-        { "f32", "float" },
-        { "f64", "double" },
+        {       "f32",          "float" },
+        {       "f64",         "double" },
 
-        { "char", "char" },
-        { "u8string", "const char" },
+        {      "char",           "char" },
+        {  "u8string",     "const char" },
         { "u16string", "const char16_t" },
         { "u32string", "const char32_t" },
     };

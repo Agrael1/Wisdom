@@ -1,4 +1,4 @@
-/* Vulkan-style documentation sections */
+﻿/* Vulkan-style documentation sections */
 dl.section.valid-usage {
     background-color: var(--fragment-background);
     border-left: 4px solid var(--primary-color);
@@ -6,31 +6,44 @@ dl.section.valid-usage {
     margin: 1em 0;
 }
 
-dl.section.valid-usage dt {
-    font-weight: bold;
-    color: var(--primary-color);
-    font-size: 1.1em;
-    margin-bottom: 0.5em;
-}
+    dl.section.valid-usage dt {
+        font-weight: bold;
+        color: var(--primary-color);
+        font-size: 1.1em;
+        margin-bottom: 0.5em;
+    }
 
-dl.section.valid-usage dd {
-    margin-left: 0;
-}
+    dl.section.valid-usage dd {
+        margin-left: 0;
+    }
 
 /* Valid usage requirement keywords (RFC 2119) */
-.vku-must {
+.wis-must {
     color: #d32f2f;
     font-weight: bold;
 }
 
-.vku-should {
+.wis-should {
     color: #f57c00;
     font-weight: bold;
 }
 
-.vku-may {
+.wis-may {
     color: #388e3c;
     font-weight: bold;
+}
+
+/* Dark theme adjustments for RFC 2119 keywords */
+html.dark-mode .wis-must {
+    color: #ef5350;
+}
+
+html.dark-mode .wis-should {
+    color: #ffa726;
+}
+
+html.dark-mode .wis-may {
+    color: #66bb6a;
 }
 
 /* Section headers for structured docs */
@@ -64,7 +77,12 @@ dl.section.valid-usage dd {
     margin: 1em 0;
 }
 
-/* Parameter sections */
+html.dark-mode .section.hostsynch,
+html.dark-mode .section.threadrestrict {
+    border-left-color: #ba68c8;
+}
+
+/* Parameters sections */
 .params.valid-usage {
     background-color: var(--fragment-background);
     padding: 0.8em;
@@ -85,4 +103,181 @@ h2.groupheader {
 
 dl.section.see dt {
     display: none !important;
+}
+
+/* ============================================
+   Valid Usage Section with VUIDs
+   ============================================ */
+
+/* Valid usage section container */
+.valid-usage-section {
+    background-color: rgba(30, 144, 255, 0.06);
+    border: 1px solid rgba(30, 144, 255, 0.2);
+    border-left: 4px solid #1e90ff;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 16px 0;
+}
+
+html.dark-mode .valid-usage-section {
+    background-color: rgba(66, 165, 245, 0.08);
+    border-color: rgba(66, 165, 245, 0.25);
+    border-left-color: #42a5f5;
+}
+
+/* Valid usage header */
+.valid-usage-header {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: #1e90ff;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(30, 144, 255, 0.2);
+}
+
+html.dark-mode .valid-usage-header {
+    color: #64b5f6;
+    border-bottom-color: rgba(66, 165, 245, 0.25);
+}
+
+/* Valid usage list */
+.valid-usage-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Individual VUID item */
+.vuid-item {
+    position: relative;
+    padding: 10px 0 10px 1.2em;
+    margin: 0;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+/* Bullet marker for list items */
+.vuid-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    color: #1e90ff;
+    font-weight: bold;
+}
+
+html.dark-mode .vuid-item::before {
+    color: #64b5f6;
+}
+
+.vuid-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.vuid-item:first-child {
+    padding-top: 0;
+}
+
+.vuid-item:first-child::before {
+    top: 0;
+}
+
+/* VUID ID - span-based design */
+.vuid-id {
+    display: block;
+    position: relative;
+    font-family: var(--font-family-monospace, 'SF Mono', 'Consolas', 'Liberation Mono', monospace);
+    font-size: 0.82em;
+    color: #6a737d;
+    margin-bottom: 4px;
+    cursor: pointer;
+    user-select: all;
+    transition: color 0.15s ease;
+}
+
+.vuid-id:hover {
+    color: #1e90ff;
+}
+
+/* Click feedback */
+.vuid-id:active,
+.vuid-id.copied {
+    color: #4caf50;
+}
+
+html.dark-mode .vuid-id {
+    color: #8b949e;
+}
+
+html.dark-mode .vuid-id:hover {
+    color: #64b5f6;
+}
+
+html.dark-mode .vuid-id:active,
+html.dark-mode .vuid-id.copied {
+    color: #66bb6a;
+}
+
+/* Tooltip for copy hint */
+.vuid-id::after {
+    content: "Click to copy";
+    position: absolute;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    transform: translateY(-100%);
+    margin-top: -8px;
+    left: 0;
+}
+
+.vuid-id:hover::after {
+    opacity: 1;
+}
+
+.vuid-id.copied::after {
+    content: "Copied!";
+}
+
+/* ============================================
+   Legacy valid-usage div sections (backwards compat)
+   ============================================ */
+
+.valid-usage {
+    background-color: rgba(30, 144, 255, 0.08);
+    border-left: 4px solid #1e90ff;
+    padding: 10px 15px;
+    margin: 10px 0;
+}
+
+html.dark-mode .valid-usage {
+    background-color: rgba(66, 165, 245, 0.12);
+    border-left-color: #42a5f5;
+}
+
+.valid-usage li,
+.valid-usage p {
+    margin: 5px 0;
+}
+
+/* ============================================
+   Return codes sections
+   ============================================ */
+
+.return-codes {
+    background-color: rgba(76, 175, 80, 0.08);
+    border-left: 4px solid #4caf50;
+    padding: 10px 15px;
+    margin: 10px 0;
+}
+
+html.dark-mode .return-codes {
+    background-color: rgba(102, 187, 106, 0.12);
+    border-left-color: #66bb6a;
 }

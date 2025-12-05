@@ -30,6 +30,18 @@
             $('div.title').each(function () {
                 $(this).html($(this).html().replace('Struct Reference', 'Reference'));
             });
+
+            // Click-to-copy for VUID IDs
+            $(document).on('click', '.vuid-id', function () {
+                var $el = $(this);
+                var vuid = $el.data('vuid') || $el.text().replace(/[\[\]]/g, '');
+                navigator.clipboard.writeText(vuid).then(function () {
+                    $el.addClass('copied');
+                    setTimeout(function () {
+                        $el.removeClass('copied');
+                    }, 1500);
+                });
+            });
         });
         DoxygenAwesomeDarkModeToggle.init()
     </script>

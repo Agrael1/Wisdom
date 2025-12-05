@@ -42,13 +42,16 @@ SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 4
 ALIASES                = "description=@par Description:" \
                          "validusage=@par Valid Usage:" \
-                         "validusage_begin=@parblock<dl class=\"section valid-usage\"><dt>Valid Usage</dt><dd>" \
-                         "validusage_end=</dd></dl>@endparblock" \
-                         "vku_must=<span class=\"vku-must\">must</span>" \
-                         "vku_may=<span class=\"vku-may\">may</span>" \
-                         "vku_should=<span class=\"vku-should\">should</span>" \
-                         "vku_mustnot=<span class=\"vku-must\">must not</span>" \
-                         "vku_shouldnot=<span class=\"vku-should\">should not</span>" \
+                         "validusage_begin=@parblock<div class=\"valid-usage-section\"><div class=\"valid-usage-header\">Valid Usage</div><ul class=\"valid-usage-list\">" \
+                         "validusage_end=</ul></div>@endparblock" \
+                         "vuid_begin{1}=<li class=\"vuid-item\"><span class=\"vuid-id\" data-vuid=\"\1\">[\1]</span> "\
+                         "vuid_end=</li>" \
+                         "wis_must=<span class=\"wis-must\">must</span>" \
+                         "wis_may=<span class=\"wis-may\">may</span>" \
+                         "wis_should=<span class=\"wis-should\">should</span>" \
+                         "wis_maynot=<span class=\"wis-may\">may not</span>" \
+                         "wis_mustnot=<span class=\"wis-must\">must not</span>" \
+                         "wis_shouldnot=<span class=\"wis-should\">should not</span>" \
                          "hostsynch=@par Host Synchronization:" \
                          "threadrestrict=@par Thread Safety:" \
                          "returncodes=@par Return Values:" \

@@ -17,7 +17,7 @@ WIS_DEFINE_HANDLE(WisDX12Instance, 2);
  *
  * */
 typedef struct WisDX12DeviceExtensionHeader {
-    const void* opaque; ///< defines opaque member. @vku_must not be changed directly outside extension development.
+    const void* opaque; ///< defines opaque member. In @wis_mustnot be changed directly outside extension development.
 } WisDX12DeviceExtensionHeader;
 
 /**
@@ -25,19 +25,22 @@ typedef struct WisDX12DeviceExtensionHeader {
  *
  * */
 typedef struct WisDX12InstanceExtensionHeader {
-    const void* opaque; ///< defines opaque member. @vku_must not be changed directly outside extension development.
+    const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisDX12InstanceExtensionHeader;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
  * @param debug_layer defines if the instance is to be created with debug mode.
  * @param extensions points to an array of extensions that are to be initialized with Instance.
- * @param extension_count counts the number of extensions in the wisCreateInstance(extensions) array.
- * @param instance points to WisInstance, which will be initialized on success (WisStatusOk).
+ * @param extension_count counts the number of extensions in the `extensions` array.
+ * @param instance points to WisInstance, which will be initialized on success (`WisStatusOk`).
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CreateInstance(bool debug_layer, WisDX12InstanceExtensionHeader** extensions, size_t extension_count, WisDX12Instance* instance);
+WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
+                                           WisDX12InstanceExtensionHeader** extensions,
+                                           size_t                           extension_count,
+                                           WisDX12Instance*                 instance);
 
 #ifdef __cplusplus
 }

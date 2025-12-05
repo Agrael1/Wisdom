@@ -146,6 +146,7 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
                            template_enum,
                            GetCFullTypename(enum_name, ""),
                            enum_template_content,
+                           empty_doc,
                            enum_description,
                            enum_refs);
     }

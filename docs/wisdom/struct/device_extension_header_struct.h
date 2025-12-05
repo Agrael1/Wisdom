@@ -36,13 +36,13 @@
  * @section WisDeviceExtensionHeader_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `opaque` defines opaque member. @vku_must not be changed directly outside extension development.
+ * - `opaque` defines opaque member. In @wis_mustnot be changed directly outside extension development.
  * \endcond
  * 
  * @section Result_descr Description
  * <hr>
  *
- * \cond WIS_GEN_WIS_IDS 
+ * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
  * @section WisDeviceExtensionHeader_see_also See Also

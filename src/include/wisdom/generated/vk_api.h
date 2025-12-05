@@ -17,7 +17,7 @@ WIS_DEFINE_HANDLE(WisVKInstance, 2);
  *
  * */
 typedef struct WisVKDeviceExtensionHeader {
-    const void* opaque; ///< defines opaque member. @vku_must not be changed directly outside extension development.
+    const void* opaque; ///< defines opaque member. In @wis_mustnot be changed directly outside extension development.
 } WisVKDeviceExtensionHeader;
 
 /**
@@ -25,19 +25,22 @@ typedef struct WisVKDeviceExtensionHeader {
  *
  * */
 typedef struct WisVKInstanceExtensionHeader {
-    const void* opaque; ///< defines opaque member. @vku_must not be changed directly outside extension development.
+    const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisVKInstanceExtensionHeader;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
  * @param debug_layer defines if the instance is to be created with debug mode.
  * @param extensions points to an array of extensions that are to be initialized with Instance.
- * @param extension_count counts the number of extensions in the wisCreateInstance(extensions) array.
- * @param instance points to WisInstance, which will be initialized on success (WisStatusOk).
+ * @param extension_count counts the number of extensions in the `extensions` array.
+ * @param instance points to WisInstance, which will be initialized on success (`WisStatusOk`).
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCreateInstance(bool debug_layer, WisVKInstanceExtensionHeader** extensions, size_t extension_count, WisVKInstance* instance);
+WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
+                                         WisVKInstanceExtensionHeader** extensions,
+                                         size_t                         extension_count,
+                                         WisVKInstance*                 instance);
 
 #ifdef __cplusplus
 }

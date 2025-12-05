@@ -12,11 +12,11 @@
 		</type>
 		
 		<type name="DeviceExtensionHeader" category="variant" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
-			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. @vku_must not be changed directly outside extension development."/>
+			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. In must not be changed directly outside extension development."/>
 		</type>
 		
 		<type name="InstanceExtensionHeader" category="variant" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
-			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. @vku_must not be changed directly outside extension development."/>
+			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
 		</type>
 		
 	</types>

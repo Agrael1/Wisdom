@@ -11,7 +11,7 @@
  * 
  * - Positive status codes provide additional information about the success of an operation.
  * - Negative status codes indicate various error conditions.
- * - Special value `WisStatusError` is used for general errors. This means that the operation failed, but no common error code is suit to describe the error. Specific details @vku_may be provided by platform code or by other means (e.g., error callbacks, logs, etc.).
+ * - Special value `WisStatusError` is used for general errors. This means that the operation failed, but no common error code is suit to describe the error. Specific details @wis_may be provided by platform code or by other means (e.g., error callbacks, logs, etc.).
  * 
  * Common return status codes are:
  * \cond WIS_GEN_CODE
@@ -26,6 +26,7 @@
  *     WisStatusOutOfDeviceMemory = -3,
  *     WisStatusDeviceLost = -4,
  *     WisStatusOccluded = -5,
+ *     WisStatusValidationFailed = -6,
  *     WisStatusError = -10000,
  * } WisStatus;
  * 
@@ -35,7 +36,7 @@
  * @section Status_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- * Defines common return status codes. Compare against WisStatusOk for success.
+ * Defines common return status codes. Compare against `WisStatusOk` for success.
  * 
  * Values:
  * - `WisStatusOk = 0`: Operation succeded.
@@ -46,10 +47,11 @@
  * - `WisStatusOutOfDeviceMemory = -3`: There is no more device memory available.
  * - `WisStatusDeviceLost = -4`: Device driver was forcefully stopped.
  * - `WisStatusOccluded = -5`: Swapchain presentation was not visible to the user. Rendering is too fast.
+ * - `WisStatusValidationFailed = -6`: A validation layer found an error.
  * - `WisStatusError = -10000`: Operation failed.
  * \endcond
  * 
- * Performance critical commands @vku_should avoid returning error codes when possible. Instead they @vku_may report errors on command list close.
+ * Performance critical commands @wis_should avoid returning error codes when possible. Instead they @wis_may report errors on command list close.
  * 
  * @section Status_see_also See Also
  * <hr>

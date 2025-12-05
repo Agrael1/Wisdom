@@ -2,6 +2,7 @@
 <registry>
 	<includes>
 		<include>structs2.xml</include>
+		<include>validation.xml</include>
 	</includes>
 
 	<handles>
