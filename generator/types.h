@@ -46,6 +46,10 @@ enum Severity {
     Warning,
     Error,
 };
+enum class Lang {
+    C,
+    CPP,
+};
 
 struct InlineTypeInfo {
     std::string_view type;

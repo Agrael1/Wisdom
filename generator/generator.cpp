@@ -17,7 +17,8 @@ void Generator::WriteMainAPI()
 {
     std::filesystem::path cpp_output_path     = main_output_dir;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
-    WriteCAPI(cpp_output_path_api / "api.h");
+    WriteCAPI(cpp_output_path_api / "c_api.h");
+    WriteCPPAPI(cpp_output_path_api / "cpp_api.hpp");
     WriteCDependentAPI(cpp_output_path_api);
 }
 
@@ -154,6 +155,53 @@ extern "C" {
 )";
 }
 
+void Generator::WriteCPPAPI(std::filesystem::path path)
+{
+    files.push_back(path);
+    std::ofstream file{ path, std::ios::out | std::ios::trunc };
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path.string());
+    }
+    // Write header
+    file << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_CPP_API_H
+#define WISDOM_CPP_API_H
+#ifdef __cplusplus
+#include <wisdom/global/definitions.h>
+#include <wisdom/bridge/span.hpp>
+
+namespace wis {
+)";
+
+    file << "\n//==============================================================\n"
+            "// Enums\n"
+            "//==============================================================\n\n";
+
+    // Write enums
+    for (auto& enum_name : enums_in_order) {
+        auto& enum_def = enum_map[enum_name];
+        file << MakeCPPEnum(enum_def);
+        file << "\n";
+    }
+
+     file << "\n//==============================================================\n"
+             "// Structs\n"
+             "//==============================================================\n\n";
+    // Write structs
+     for (auto& struct_name : structs_in_order) {
+         auto& struct_def = struct_map[struct_name];
+         file << MakeCPPStruct(struct_def);
+         file << "\n";
+     }
+
+    // Write footer
+    file << R"(
+}
+#endif // __cplusplus
+#endif // WISDOM_CPP_API_H
+)";
+}
+
 //-----------------------------------------------------------------------------
 
 void Generator::WriteCDependentAPI(std::filesystem::path dir)
@@ -176,7 +224,7 @@ void Generator::WriteCDependentAPI(std::filesystem::path dir)
     file_dx << R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_C_DX12_API_H
 #define WISDOM_C_DX12_API_H
-#include<wisdom/generated/api.h>
+#include<wisdom/generated/c_api.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -185,7 +233,7 @@ extern "C" {
     file_vk << R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_C_VK_API_H
 #define WISDOM_C_VK_API_H
-#include <wisdom/generated/api.h>
+#include <wisdom/generated/c_api.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -364,6 +412,32 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     }
     return "";
 }
+std::string Generator::GetCPPFullTypename(std::string_view type, std::string_view impl)
+{
+    switch (GetType(type)) {
+    case TypeKind::Base:
+        return std::string(standard_types_cpp.at(type));
+    default:
+    case TypeKind::None:
+        return "";
+    case TypeKind::Struct:
+    case TypeKind::Enum:
+        return wis::format("wis::{}", type);
+    case TypeKind::Variant:
+    case TypeKind::Handle:
+    case TypeKind::Function:
+        return wis::format("wis::{}{}", impl, type);
+    case TypeKind::Union:
+        break;
+    case TypeKind::Bitmask:
+        break;
+    case TypeKind::FuncPointer:
+        break;
+    case TypeKind::Alias:
+        break;
+    }
+    return "";
+}
 std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
 {
     if (doc.empty()) {
@@ -388,7 +462,7 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
             replacement = evalue ? wis::format("`Wis{}{}`", x->second.name, evalue->name)
-                                 : GetCFullTypename(x->second.name, impl);
+                                 : GetCPPFullTypename(x->second.name, impl);
 
         } /* else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
              auto evalue = y->second.HasValue(value);
@@ -414,6 +488,70 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
                                  : GetCFullTypename(f->second.name, impl);
+        }
+        doc.replace(first, last - first + 1, replacement);
+    }
+
+    // replave should, must, may with @wis_should, @wis_must, @wis_may
+    ReplaceAll(doc, " should not", " @wis_shouldnot ");
+    ReplaceAll(doc, " must not", " @wis_mustnot");
+    ReplaceAll(doc, " may not", " @wis_maynot");
+
+    ReplaceAll(doc, " should ", " @wis_should ");
+    ReplaceAll(doc, " must ", " @wis_must ");
+    ReplaceAll(doc, " may ", " @wis_may ");
+    return doc;
+}
+std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
+{
+    if (doc.empty()) {
+        return doc;
+    }
+
+    std::string_view this_type_view = this_type;
+
+    while (true) {
+        auto&& [type, value, first, last] = FindInlineType(doc);
+        if (type.empty() && value.empty()) {
+            break;
+        }
+
+        // Replace with this_type
+        if (!type.empty()) {
+            this_type_view = type;
+        }
+
+        std::string replacement;
+
+        if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
+            auto evalue = x->second.HasValue(value);
+            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x->second.name, impl), evalue->name)
+                                 : GetCPPFullTypename(x->second.name, impl);
+
+        } /* else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
+             auto evalue = y->second.HasValue(value);
+             replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
+                                  : GetCFullTypename(y->second.name, impl);
+         }*/
+        else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
+                                 : GetCPPFullTypename(z->second.name, impl);
+        } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
+            auto member = z->second.HasValue(value);
+            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
+                                 : GetCPPFullTypename(z->second.name, impl);
+        } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
+            auto member = d->second.HasValue(value);
+            replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
+                                 : GetCFullTypename(d->second.name, impl);
+        }*/
+        else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
+            replacement = GetCPPFullTypename(h->second.name, impl);
+        } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
+            auto member = f->second.HasValue(value);
+            replacement = member ? wis::format("`{}`", member->name)
+                                 : GetCPPFullTypename(f->second.name, impl);
         }
         doc.replace(first, last - first + 1, replacement);
     }
@@ -457,13 +595,11 @@ InlineTypeInfo Generator::FindInlineType(std::string_view str)
         return {};
     }
 
-
     // Find caption enclosed in { }
     auto pos = str.rfind('{', end);
     if (pos == std::string_view::npos) {
         return {};
     }
-
 
     std::string_view caption = str.substr(pos + 1, end - pos - 1);
     std::string_view type, value;

@@ -1,7 +1,7 @@
 // This file is generated. Do not edit directly.
 #ifndef WISDOM_C_VK_API_H
 #define WISDOM_C_VK_API_H
-#include <wisdom/generated/api.h>
+#include <wisdom/generated/c_api.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +31,7 @@ typedef struct WisVKInstanceExtensionHeader {
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
  * @param debug_layer defines if the instance is to be created with debug mode.
- * @param extensions points to an array of extensions that are to be initialized with Instance.
+ * @param extensions points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * @param extension_count counts the number of extensions in the `extensions` array.
  * @param instance points to WisInstance, which will be initialized on success (`WisStatusOk`).
  * @return Result denoting the outcome of operation.

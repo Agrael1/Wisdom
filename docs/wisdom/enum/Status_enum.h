@@ -3,7 +3,7 @@
  * @struct WisStatus
  * WisStatus - Common return status codes.
  * 
- * @section Status_spec C Specification
+ * @section Status_spec Specification
  * <hr>
  * 
  * Common return status codes. Used to communicate success or failure of operations from the underlying API.
@@ -15,6 +15,7 @@
  * 
  * Common return status codes are:
  * \cond WIS_GEN_CODE
+ * C version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisStatus {
@@ -29,7 +30,24 @@
  *     WisStatusValidationFailed = -6,
  *     WisStatusError = -10000,
  * } WisStatus;
- * 
+ * ```
+ * C++ version:
+ * ```cpp
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * enum class Status {
+ *     Ok = 0,
+ *     Timeout = 1,
+ *     Partial = 2,
+ *     InvalidArgument = -1,
+ *     OutOfHostMemory = -2,
+ *     OutOfDeviceMemory = -3,
+ *     DeviceLost = -4,
+ *     Occluded = -5,
+ *     ValidationFailed = -6,
+ *     Error = -10000,
+ * };
+ * }
  * ```
  * \endcond
  * 

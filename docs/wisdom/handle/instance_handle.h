@@ -3,7 +3,7 @@
  * @ingroup Handles
  *
  * 
- * @section WisInstance_spec C Specification
+ * @section WisInstance_spec Specification
  * <hr>
  * 
  * \cond WIS_GEN_CODE

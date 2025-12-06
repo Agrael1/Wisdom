@@ -7,7 +7,7 @@ static inline constexpr char template_struct[] =
  * @ingroup Structures
  *
  * 
- * @section {0}_spec C Specification
+ * @section {0}_spec Specification
  * <hr>
  * 
  * \cond WIS_GEN_CODE
@@ -102,7 +102,7 @@ std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, D
     }
 
     for (auto& m : s.members) {
-        st_decl += MakeCValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, impl), kind);
+        st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, impl), kind);
     }
     st_decl += wis::format("}} {};\n\n", full_name);
     return st_decl;

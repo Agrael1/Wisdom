@@ -58,10 +58,16 @@ public:
     std::string MakeValidationDescription(const Validation& v);
     std::string MakeValidationForType(std::string_view type_name);
     std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
+    std::string MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl);
     void        TryMakeRef(std::string_view type, std::string_view from);
+
+    // Make C++
+    std::string MakeCPPEnum(const WisEnum& s, DocKind kind = DocKind::Full);
+    std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
+    void WriteCPPAPI(std::filesystem::path path);
     void WriteCDependentAPI(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
@@ -78,7 +84,9 @@ public:
 
     // Helpers
     std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
+    std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
+    std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
     std::string GetRefs(std::string_view for_type);
@@ -104,8 +112,8 @@ public:
     }
 
 public:
-    template<typename T, typename V>
-    std::string MakeCValueDocumentation(const T& type, const V& value, std::string_view value_decl, DocKind kind)
+    template<Lang lang = Lang::C, typename T, typename V>
+    std::string MakeValueDocumentation(const T& type, const V& value, std::string_view value_decl, DocKind kind)
     {
         std::string version_info;
         if constexpr (requires { value.version; }) {
@@ -135,14 +143,18 @@ public:
             } else {
                 documentation = wis::format(" ///< {}{}", version_info, doc);
             }
-            documentation = FinalizeCDocumentation(documentation, type_name);
+            if constexpr (lang == Lang::CPP) {
+                documentation = FinalizeCPPDocumentation(documentation, type_name);
+            } else {
+                documentation = FinalizeCDocumentation(documentation, type_name);
+            }
         }
         return pre_doc
                 ? wis::format("    {}\n    {}\n", documentation, value_decl)
                 : wis::format("{}{}\n", value_decl, documentation);
     }
 
-    template<typename T>
+    template<Lang lang = Lang::C, typename T>
     std::string MakeTypeDocumentation(const T& type, DocKind kind)
     {
         std::string version_info = MakeVersionString(type.version);
@@ -171,12 +183,17 @@ public:
             documentation += "*/";
 
             ReplaceAll(documentation, "\n", "\n * ");
-            return FinalizeCDocumentation(documentation, type.name);
+
+            if constexpr (lang == Lang::CPP) {
+                return FinalizeCPPDocumentation(documentation, type.name);
+            } else {
+                return FinalizeCDocumentation(documentation, type.name);
+            }
         }
         return wis::format("// {}", version_info);
     }
 
-    template<typename T>
+    template<Lang lang = Lang::C, typename T>
     std::string GetMemberTypeString(const T& member, std::string_view impl = "")
     {
         std::string attributes_pre;
@@ -190,10 +207,17 @@ public:
         if (member.modifier & Modifier::PointerToPointer) {
             attributes_inter += "**";
         }
-        if (member.modifier & Modifier::Reference) {
-            attributes_inter += "*";
+        if constexpr (lang == Lang::CPP) {
+            if (member.modifier & Modifier::Reference) {
+                attributes_inter += "&";
+            }
+            return attributes_pre + GetCPPFullTypename(member.type, impl) + attributes_inter;
+        } else {
+            if (member.modifier & Modifier::Reference) {
+                attributes_inter += "*";
+            }
+            return attributes_pre + GetCFullTypename(member.type, impl) + attributes_inter;
         }
-        return attributes_pre + GetCFullTypename(member.type, impl) + attributes_inter;
     }
 
 private:
@@ -237,6 +261,28 @@ private:
         {  "u8string",     "const char" },
         { "u16string", "const char16_t" },
         { "u32string", "const char32_t" },
+    };
+
+    const std::unordered_map<std::string_view, std::string_view> standard_types_cpp{
+        {      "bool",                "bool" },
+        {      "void",                "void" },
+        {        "u8",        "std::uint8_t" },
+        {       "u16",       "std::uint16_t" },
+        {       "u32",       "std::uint32_t" },
+        {       "u64",       "std::uint64_t" },
+        {        "i8",         "std::int8_t" },
+        {       "i16",        "std::int16_t" },
+        {       "i32",        "std::int32_t" },
+        {       "i64",        "std::int64_t" },
+        {      "size",         "std::size_t" },
+
+        {       "f32",               "float" },
+        {       "f64",              "double" },
+
+        {      "char",                "char" },
+        {  "u8string",          "const char" },
+        { "u16string", "const std::char16_t" },
+        { "u32string", "const std::char32_t" },
     };
 };
 //

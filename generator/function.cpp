@@ -7,7 +7,7 @@ static inline constexpr char function_doc_template[] =
  * @ingroup Functions
  *
  * 
- * @section {0}_spec C Specification
+ * @section {0}_spec Specification
  * <hr>
  * 
  * \cond WIS_GEN_CODE

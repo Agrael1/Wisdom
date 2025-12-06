@@ -7,7 +7,7 @@ static inline constexpr char template_struct[] =
  * @ingroup Structures
  *
  * 
- * @section {0}_spec C Specification
+ * @section {0}_spec Specification
  * <hr>
  * 
  * \cond WIS_GEN_CODE
@@ -101,9 +101,39 @@ std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
     }
 
     for (auto& m : s.members) {
-        st_decl += MakeCValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length), kind);
+        st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length), kind);
     }
     st_decl += wis::format("}} {};\n\n", full_name);
+    return st_decl;
+}
+
+//-----------------------------------------------------------------------------
+std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
+{
+    std::string st_decl = wis::format("struct {} {} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "", s.name);
+    if (!s.doc.empty()) {
+        std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
+        st_decl          = wis::format("{}\n{}", xdoc, st_decl);
+    }
+
+    // Calculate maximum type length for alignment
+    size_t max_type_length = 0;
+    for (auto& m : s.members) {
+        size_t type_length = GetMemberTypeString<Lang::CPP>(m).length();
+        max_type_length    = std::max(max_type_length, type_length);
+    }
+
+    bool prev_span = false;
+    for (auto& m : s.members) {
+        if (prev_span) {
+            prev_span = false;
+            continue;
+        }
+
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, ""), kind);
+        prev_span = m.modifier & Modifier::Span;
+    }
+    st_decl += "};\n";
     return st_decl;
 }
 
@@ -125,6 +155,25 @@ std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, siz
 }
 
 //-----------------------------------------------------------------------------
+std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl)
+{
+    std::string type_string = GetMemberTypeString<Lang::CPP>(member, impl);
+
+    if (!member.array_size.empty()) {
+        type_string = wis::format("std::array<{}, {}>", type_string, member.array_size);
+    }
+    if (member.modifier & Modifier::Span) {
+        type_string = wis::format("wis::span<{}>", type_string);
+    }
+
+    // Pad the type string to align_width
+    size_t      padding     = align_width > type_string.length() ? align_width - type_string.length() : 0;
+    std::string padded_type = type_string + std::string(padding, ' ');
+
+    return std::format("    {} {};", padded_type, member.name);
+}
+
+//-----------------------------------------------------------------------------
 std::string Generator::MakeStructDescription(const WisStruct& s)
 {
     std::string description;
@@ -143,7 +192,11 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
         std::filesystem::path struct_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(struct_name));
         auto&                 struct_ref       = struct_map[struct_name];
 
-        std::string struct_template_content = wis::format(" * ```c\n{}```\n", MakeCStruct(struct_ref, DocKind::VersionOnly));
+        std::string struct_template_content = wis::format(" * C version:\n```c\n{}```\n"
+                                                          "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+                                                          MakeCStruct(struct_ref, DocKind::VersionOnly),
+                                                          MakeCPPStruct(struct_ref, DocKind::VersionOnly));
+
         std::string struct_description      = wis::format(" * {}", MakeStructDescription(struct_ref));
         std::string struct_refs             = GetRefs(struct_name);
         std::string vuids                   = MakeValidationForType(struct_name);

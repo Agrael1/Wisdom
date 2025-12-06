@@ -3,7 +3,7 @@
  * @ingroup Functions
  *
  * 
- * @section CreateInstance_spec C Specification
+ * @section CreateInstance_spec Specification
  * <hr>
  * 
  * \cond WIS_GEN_CODE
@@ -37,7 +37,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `debug_layer` defines if the instance is to be created with debug mode.
- * - `extensions` points to an array of extensions that are to be initialized with Instance.
+ * - `extensions` points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * - `extension_count` counts the number of extensions in the `extensions` array.
  * - `instance` points to WisInstance, which will be initialized on success (`WisStatusOk`).
  * 

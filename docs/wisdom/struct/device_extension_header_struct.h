@@ -3,7 +3,7 @@
  * @ingroup Structures
  *
  * 
- * @section WisDeviceExtensionHeader_spec C Specification
+ * @section WisDeviceExtensionHeader_spec Specification
  * <hr>
  * 
  * \cond WIS_GEN_CODE
