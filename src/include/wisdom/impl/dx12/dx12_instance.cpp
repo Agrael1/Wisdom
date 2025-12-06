@@ -1,17 +1,24 @@
 #ifndef WIS_DX12_INSTANCE_CPP
 #define WIS_DX12_INSTANCE_CPP
-#ifndef WISDOM_MODULE_DECL
-#include <wisdom/impl/dx12/dx12_types.hpp>
-#include <wisdom/generated/cpp_api.hpp>
+#include <wisdom/generated/dx12_cpp_api.hpp>
+#include <wisdom/generated/dx12_api.h>
+#include <wisdom/generated/c_api.h>
 // #include <wisdom/dx12/dx12_checks.h>
-#endif
 
 WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             debug_layer,
                                              WisDX12InstanceExtensionHeader** extensions,
                                              size_t                           extension_count,
                                              WisDX12Instance*                 instance)
 {
+    // Instance can come as partially constructed from C side
+    reinterpret_cast<wis::impl::DX12InstanceImpl*>(instance);
+
     return {};
+}
+
+WIS_EXTERN_C void wisDX12DestroyInstance(WisDX12Instance* self)
+{
+    printf("Destroy DX12 Instance\n");
 }
 
 // wis::DX12Factory

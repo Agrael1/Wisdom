@@ -20,6 +20,7 @@ void Generator::WriteMainAPI()
     WriteCAPI(cpp_output_path_api / "c_api.h");
     WriteCPPAPI(cpp_output_path_api / "cpp_api.hpp");
     WriteCDependentAPI(cpp_output_path_api);
+    WriteCPPDependentAPI(cpp_output_path_api);
 }
 
 void Generator::WriteMainAPIDoc()
@@ -164,8 +165,8 @@ void Generator::WriteCPPAPI(std::filesystem::path path)
     }
     // Write header
     file << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_CPP_API_H
-#define WISDOM_CPP_API_H
+#ifndef WISDOM_CPP_API_HPP
+#define WISDOM_CPP_API_HPP
 #ifdef __cplusplus
 #include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
@@ -184,21 +185,21 @@ namespace wis {
         file << "\n";
     }
 
-     file << "\n//==============================================================\n"
-             "// Structs\n"
-             "//==============================================================\n\n";
+    file << "\n//==============================================================\n"
+            "// Structs\n"
+            "//==============================================================\n\n";
     // Write structs
-     for (auto& struct_name : structs_in_order) {
-         auto& struct_def = struct_map[struct_name];
-         file << MakeCPPStruct(struct_def);
-         file << "\n";
-     }
+    for (auto& struct_name : structs_in_order) {
+        auto& struct_def = struct_map[struct_name];
+        file << MakeCPPStruct(struct_def);
+        file << "\n";
+    }
 
     // Write footer
     file << R"(
 }
 #endif // __cplusplus
-#endif // WISDOM_CPP_API_H
+#endif // WISDOM_CPP_API_HPP
 )";
 }
 
@@ -261,9 +262,9 @@ extern "C" {
     // Write functions
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_dx << MakeCFunctionDecl(func_def, "dx", "WISDOM_API");
+        file_dx << MakeCFunctionDecl(func_def, "dx", "WISDOM_API ");
         file_dx << "\n";
-        file_vk << MakeCFunctionDecl(func_def, "vk", "WISDOM_API");
+        file_vk << MakeCFunctionDecl(func_def, "vk", "WISDOM_API ");
         file_vk << "\n";
     }
 
@@ -279,6 +280,88 @@ extern "C" {
 }
 #endif // __cplusplus
 #endif // WISDOM_C_VK_API_H
+)";
+}
+
+//-----------------------------------------------------------------------------
+void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
+{
+    std::filesystem::path path_dx = dir / "dx12_cpp_api.hpp";
+    std::filesystem::path path_vk = dir / "vk_cpp_api.hpp";
+    files.push_back(path_dx);
+    files.push_back(path_vk);
+
+    std::ofstream file_dx{ path_dx, std::ios::out | std::ios::trunc };
+    if (!file_dx.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_dx.string());
+    }
+    std::ofstream file_vk{ path_vk, std::ios::out | std::ios::trunc };
+    if (!file_vk.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_vk.string());
+    }
+
+    // Write header
+    file_dx << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_CPP_DX12_API_HPP
+#define WISDOM_CPP_DX12_API_HPP
+#ifdef __cplusplus
+#include <wisdom/generated/cpp_api.hpp>
+#include <wisdom/generated/dx12_api.h>
+#include <wisdom/global/internal.hpp>
+#include <wisdom/impl/dx12/dx12_types.hpp>
+
+namespace wis {
+)";
+    file_vk << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_CPP_VK_API_HPP
+#define WISDOM_CPP_VK_API_HPP
+#ifdef __cplusplus
+#include <wisdom/generated/cpp_api.hpp>
+#include <wisdom/generated/vk_api.h>
+#include <wisdom/global/internal.hpp>
+#include <wisdom/impl/vulkan/vk_types.hpp>
+
+namespace wis {
+)";
+
+    // Write variants
+    for (auto& variant_name : variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        file_dx << MakeCPPVariant(variant_def, "dx");
+        file_dx << "\n";
+        file_vk << MakeCPPVariant(variant_def, "vk");
+        file_vk << "\n";
+    }
+
+    // Write handles
+    for (auto& handle_name : handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        file_dx << MakeCPPHandle(handle_def, "dx");
+        file_dx << "\n";
+        file_vk << MakeCPPHandle(handle_def, "vk");
+        file_vk << "\n";
+    }
+    
+    // Write functions
+     for (auto& func_name : free_functions_in_order) {
+         auto& func_def = function_map[func_name];
+         file_dx << MakeCPPFunctionImpl(func_def, "dx", "inline ");
+         file_dx << "\n";
+         file_vk << MakeCPPFunctionImpl(func_def, "vk", "inline ");
+         file_vk << "\n";
+     }
+
+
+    // Write footer
+    file_dx << R"(
+}
+#endif // __cplusplus
+#endif // WISDOM_CPP_DX12_API_HPP
+)";
+    file_vk << R"(
+}
+#endif // __cplusplus
+#endif // WISDOM_CPP_VK_API_HPP
 )";
 }
 
@@ -665,6 +748,16 @@ Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
                 mods = Modifier(mods | Modifier::Nodiscard);
             }
             break;
+        case 's':
+            if (tk_view == "span") {
+                mods = Modifier(mods | Modifier::Span);
+            }
+            break;
+        case 'd':
+            if (tk_view == "destroy") {
+                mods = Modifier(mods | Modifier::Destroy);
+            }
+            break;
         default:
             break;
         }
@@ -690,6 +783,7 @@ std::string Generator::GetRefs(std::string_view for_type)
             if (++ref_count > max_ref_count) {
                 break;
             }
+            refs += ", ";
         }
     }
     if (!refs.empty()) {

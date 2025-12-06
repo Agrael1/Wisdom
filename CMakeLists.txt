@@ -54,3 +54,4 @@ message(STATUS "Wisdom Configuration:
 
 add_subdirectory(generator)
 add_subdirectory(src) # add main libraries
+add_subdirectory(examples)

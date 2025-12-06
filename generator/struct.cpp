@@ -162,9 +162,6 @@ std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, s
     if (!member.array_size.empty()) {
         type_string = wis::format("std::array<{}, {}>", type_string, member.array_size);
     }
-    if (member.modifier & Modifier::Span) {
-        type_string = wis::format("wis::span<{}>", type_string);
-    }
 
     // Pad the type string to align_width
     size_t      padding     = align_width > type_string.length() ? align_width - type_string.length() : 0;

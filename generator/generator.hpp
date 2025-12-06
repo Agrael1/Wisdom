@@ -6,7 +6,6 @@
 #include <span>
 #include <array>
 #include <optional>
-#include <bitset>
 
 #include "types.h"
 #include "../src/include/wisdom/bridge/format.hpp"
@@ -64,11 +63,16 @@ public:
     // Make C++
     std::string MakeCPPEnum(const WisEnum& s, DocKind kind = DocKind::Full);
     std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
+    std::string MakeCPPVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
+    std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
+    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
+    std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
     void WriteCPPAPI(std::filesystem::path path);
     void WriteCDependentAPI(std::filesystem::path path);
+    void WriteCPPDependentAPI(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
     void WriteVariantDocumentation(std::filesystem::path struct_output_path);
@@ -161,18 +165,56 @@ public:
         if (!type.doc.empty() && kind == DocKind::Full) {
             std::string args;
             if constexpr (std::same_as<T, WisFunction>) {
-                // Function arguments
-                for (auto& param : type.parameters) {
-                    args += wis::format("@param {} {}\n", param.name, param.doc);
-                }
+                if constexpr (lang == Lang::C) {
+                    // This arg
+                    if (!type.this_type.empty()) {
+                        args += wis::format("@param self is a pointer to the valid {{{}::}} instance.\n",  type.this_type);
+                    }
 
-                if (type.return_type.IsRV()) {
-                    args += wis::format("@param {} {}\n", type.return_type.opt_name, type.return_type.doc);
-                    args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
-                } else if (type.return_type.IsDirect()) {
-                    args += wis::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
-                } else if (type.return_type.IsResultOnly()) {
-                    args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                    // Function arguments
+                    for (auto& param : type.parameters) {
+                        args += wis::format("@param {} {}\n", param.name, param.doc);
+                    }
+
+                    if (type.return_type.IsRV()) {
+                        args += wis::format("@param {} {}\n", type.return_type.opt_name, type.return_type.doc);
+                        args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                    } else if (type.return_type.IsDirect()) {
+                        args += wis::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
+                    } else if (type.return_type.IsResultOnly()) {
+                        args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                    }
+                } else {
+                    // Function arguments, beware of spans
+                    bool last_was_span = false;
+                    for (auto& param : type.parameters) {
+                        if (last_was_span) {
+                            last_was_span = false;
+                            continue;
+                        }
+                        if (param.modifier & Modifier::Span) {
+                            last_was_span = true;
+                        }
+                        args += wis::format("@param {} {}\n", param.name, param.doc);
+                    }
+
+                    auto kind = type.return_type.GetKind();
+                    switch (kind) {
+                    case ReturnTypeKind::Direct:
+                        args += wis::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
+                        break;
+                    case ReturnTypeKind::ResultOnly:
+                        args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                        break;
+                    case ReturnTypeKind::ResultAndValue:
+                        args += wis::format("@param {} {}\n", "out_result", "denoting the outcome of operation.");
+                        args += wis::format("@return {} {}\n",
+                                            type.return_type.opt_name,
+                                            type.return_type.doc);
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
 
@@ -211,9 +253,12 @@ public:
             if (member.modifier & Modifier::Reference) {
                 attributes_inter += "&";
             }
+            if (member.modifier & Modifier::Span) {
+                return wis::format("wis::span<{}>", attributes_pre + GetCPPFullTypename(member.type, impl) + attributes_inter);
+            }
             return attributes_pre + GetCPPFullTypename(member.type, impl) + attributes_inter;
         } else {
-            if (member.modifier & Modifier::Reference) {
+            if (member.modifier & Modifier::Reference || member.modifier & Modifier::Span) {
                 attributes_inter += "*";
             }
             return attributes_pre + GetCFullTypename(member.type, impl) + attributes_inter;
@@ -238,7 +283,9 @@ private:
     std::vector<std::string_view>      variants_in_order;
     std::vector<std::string_view>      handles_in_order;
     std::vector<std::string_view>      functions_in_order;
+    std::vector<std::string_view>      free_functions_in_order;
     std::vector<std::filesystem::path> files;
+    std::vector<std::string>           destructors;
 
     // Standard type translations
     const std::unordered_map<std::string_view, std::string_view> standard_types{

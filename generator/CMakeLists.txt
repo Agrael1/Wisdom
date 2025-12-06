@@ -39,3 +39,4 @@ if(WISDOM_USE_FMT)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+target_precompile_headers(${PROJECT_NAME} PRIVATE "pch.hpp")

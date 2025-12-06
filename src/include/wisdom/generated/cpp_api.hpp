@@ -1,6 +1,6 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_CPP_API_H
-#define WISDOM_CPP_API_H
+#ifndef WISDOM_CPP_API_HPP
+#define WISDOM_CPP_API_HPP
 #ifdef __cplusplus
 #include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
@@ -44,4 +44,4 @@ struct WIS_NODISCARD Result {
 
 } // namespace wis
 #endif // __cplusplus
-#endif // WISDOM_CPP_API_H
+#endif // WISDOM_CPP_API_HPP

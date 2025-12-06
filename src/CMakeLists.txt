@@ -49,9 +49,11 @@ wis_make_target_bundle(
   TARGET shared
   HEADERS
     "include/wisdom/global/definitions.h"
+    "include/wisdom/global/internal.hpp"
+
     "include/wisdom/generated/c_api.h"
     "include/wisdom/generated/cpp_api.hpp"
-    "include/wisdom/global/internal.hpp"
+
     "include/wisdom/bridge/span.hpp"
     "include/wisdom/bridge/source_location.hpp"
     "include/wisdom/bridge/format.hpp"
@@ -63,6 +65,7 @@ wis_make_target_bundle(
   TARGET dx12
   HEADERS
     "include/wisdom/impl/dx12/dx12_types.hpp"
+    "include/wisdom/generated/dx12_cpp_api.hpp"
     "include/wisdom/generated/dx12_api.h"
   SOURCES
     "include/wisdom/impl/dx12/dx12_instance.cpp"

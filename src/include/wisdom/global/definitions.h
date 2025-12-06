@@ -14,9 +14,20 @@
 #endif
 #endif // WISDOM_EXPORT
 
-// C++23 and later
-
+// C++ feature detection
 #ifdef __cplusplus
+#if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+#define WIS_HAS_CPP17 1
+#else 
+#define WIS_HAS_CPP17 0
+#endif
+
+#if __cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
+#define WIS_HAS_CPP20 1
+#else
+#define WIS_HAS_CPP20 0
+#endif
+
 #if __cpp_constexpr >= 202211L
 #define WIS_CONSTEXPR23 constexpr
 #else
@@ -79,6 +90,7 @@
         uint64_t opaque[size];                       \
     } name
 
+// TODO: CMake definition for WISDOM_API when building shared library
 #ifndef WISDOM_API
 #define WISDOM_API
 #endif // WISDOM_API

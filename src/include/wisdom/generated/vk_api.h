@@ -29,11 +29,18 @@ typedef struct WisVKInstanceExtensionHeader {
 } WisVKInstanceExtensionHeader;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisInstance handle.
+ * @param self is a pointer to the valid WisInstance instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
  * @param debug_layer defines if the instance is to be created with debug mode.
  * @param extensions points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * @param extension_count counts the number of extensions in the `extensions` array.
- * @param instance points to WisInstance, which will be initialized on success (`WisStatusOk`).
+ * @param instance points to WisInstance, which is initialized on success (`WisStatusOk`).
  * @return Result denoting the outcome of operation.
  *
  * */

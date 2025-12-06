@@ -88,7 +88,7 @@ std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, D
 {
     ImplementedFor impl_code = ImplCode(impl);
     auto           full_name = GetCFullTypename(s.name, GetImplString(impl_code));
-    std::string    st_decl   = wis::format("typedef struct {} {} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "", full_name);
+    std::string    st_decl   = wis::format("typedef struct {}{} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "", full_name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
@@ -104,7 +104,34 @@ std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, D
     for (auto& m : s.members) {
         st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, impl), kind);
     }
-    st_decl += wis::format("}} {};\n\n", full_name);
+    st_decl += wis::format("}} {};\n", full_name);
+    return st_decl;
+}
+
+//-----------------------------------------------------------------------------
+std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl, DocKind kind)
+{
+    ImplementedFor impl_code = ImplCode(impl);
+    std::string    st_decl   = wis::format("struct {}{}{} {{\n",
+                                      s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
+                                      GetImplString(impl_code),
+                                      s.name);
+    if (!s.doc.empty()) {
+        std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
+        st_decl          = wis::format("{}\n{}", xdoc, st_decl);
+    }
+
+    // Calculate maximum type length for alignment
+    size_t max_type_length = 0;
+    for (auto& m : s.members) {
+        size_t type_length = GetMemberTypeString<Lang::CPP>(m, impl).length();
+        max_type_length    = std::max(max_type_length, type_length);
+    }
+
+    for (auto& m : s.members) {
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, impl), kind);
+    }
+    st_decl += "};\n";
     return st_decl;
 }
 
@@ -126,14 +153,20 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto&                 variant_ref       = variant_map[variant_name];
 
-        std::string vk_code      = MakeCVariant(variant_ref, "vk", DocKind::VersionOnly);
-        std::string dx_code      = MakeCVariant(variant_ref, "dx", DocKind::VersionOnly);
-        std::string regular_code = MakeCVariant(variant_ref, "", DocKind::VersionOnly);
+        std::string vk_code          = MakeCVariant(variant_ref, "vk", DocKind::VersionOnly);
+        std::string dx_code          = MakeCVariant(variant_ref, "dx", DocKind::VersionOnly);
+        std::string regular_code     = MakeCVariant(variant_ref, "", DocKind::VersionOnly);
+        std::string regular_code_cpp = MakeCPPVariant(variant_ref, "", DocKind::VersionOnly);
 
-        std::string variant_template_content = wis::format(" * General Version:\n```c\n{}```\nVulkan Version:\n```c\n{}```\nDX12 Version:\n```c\n{}```\n", regular_code, vk_code, dx_code);
-        std::string variant_description      = wis::format(" * {}", MakeVariantDescription(variant_ref));
-        std::string variant_refs             = GetRefs(variant_name);
-        std::string vuids                    = MakeValidationForType(variant_name);
+        std::string variant_template_content = wis::format(" * General Version:\n```c\n{}```\nVulkan Version:\n```c\n{}```\nDX12 Version:\n```c\n{}```\nC++ General Version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+                                                           regular_code,
+                                                           vk_code,
+                                                           dx_code,
+                                                           regular_code_cpp);
+
+        std::string variant_description = wis::format(" * {}", MakeVariantDescription(variant_ref));
+        std::string variant_refs        = GetRefs(variant_name);
+        std::string vuids               = MakeValidationForType(variant_name);
 
         ReplaceAll(variant_template_content, "\n", "\n * ");
         ReplaceAll(variant_description, "\n", "\n * ");

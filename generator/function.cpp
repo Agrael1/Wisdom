@@ -55,6 +55,8 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             auto& handle  = handle_map[ref.this_type];
             handle.functions.emplace_back(name);
             TryMakeRef(ref.this_type, ref.name);
+        } else {
+            free_functions_in_order.emplace_back(name);
         }
 
         if (auto* doc = func->FindAttribute("doc")) {
@@ -114,6 +116,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
     }
 }
 
+//-----------------------------------------------------------------------------
 std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
 {
     ImplementedFor impl_code = ImplCode(impl);
@@ -133,7 +136,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
                 : std::string(func.return_type.opt_name);
 
         std::string prefix = "";
-        size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size() + 1;
+        size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size();
 
         if (func.parameters.size() > 0) {
             prefix = ",\n" + std::string(length, ' ');
@@ -149,8 +152,25 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
         full_return_type = GetMemberTypeString(func.return_type, re_impl);
     }
 
-    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size() + 1;
-    size_t max_arg_length = post_return_length;
+    // This type
+    std::string this_arg;
+    std::size_t length_this = 0;
+    if (!func.this_type.empty()) {
+        WisFunctionParameter this_param;
+        this_param.type     = func.this_type;
+        this_param.name     = "self";
+        this_param.modifier = Modifier(Modifier::Pointer | func.modifier & Modifier::Const);
+
+        auto full_this_type = GetMemberTypeString(this_param, re_impl);
+        this_arg            = wis::format("{} {}", full_this_type, this_param.name);
+        if (func.parameters.size() > 0) {
+            this_arg += ",\n";
+        }
+        length_this = full_this_type.size();
+    }
+
+    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size();
+    size_t max_arg_length = std::max(post_return_length, length_this);
 
     for (size_t i = 0; i < func.parameters.size(); ++i) {
         const auto& p        = func.parameters[i];
@@ -164,7 +184,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
     for (size_t i = 0; i < func.parameters.size(); ++i) {
         const auto& p = func.parameters[i];
         std::string prefix_spaces;
-        if (i > 0) {
+        if (i > 0 || !func.this_type.empty()) {
             prefix_spaces = std::string(length, ' ');
         }
 
@@ -180,14 +200,127 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
         max_arg_length = std::max(max_arg_length, type_str.length());
     }
 
-    return wis::format("{} {} {}({}{});\n",
+    return wis::format("{}{} {}({}{}{});\n",
                        pre_decl,
                        full_return_type,
                        function_full_name,
+                       this_arg,
                        params,
                        post_return);
 }
 
+//-----------------------------------------------------------------------------
+std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
+{
+    // Inverted situation for C++
+    // The return type is always direct, and the out parameter is used for result
+    // Expected will be implemented later
+
+    ImplementedFor impl_code = ImplCode(impl);
+    auto           re_impl   = GetImplString(impl_code);
+
+    std::string full_return_type;
+    std::string post_return;
+
+    size_t post_return_length = 0;
+
+    auto ret = func.return_type.GetKind();
+    switch (ret) {
+    case Void:
+        full_return_type = "void";
+        break;
+    case Direct:
+        full_return_type = GetMemberTypeString<Lang::CPP>(func.return_type, re_impl);
+        break;
+    case ResultOnly:
+        full_return_type = "wis::Result";
+        break;
+    case ResultAndValue:
+        full_return_type = GetMemberTypeString<Lang::CPP>(func.return_type, re_impl);
+        // Add out parameter for result
+        {
+            std::string prefix = "";
+            size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + re_impl.size();
+            if (func.parameters.size() > 0) {
+                prefix = ",\n" + std::string(length, ' ');
+            }
+            std::string type_str = "wis::Result&";
+            std::string arg_name = "out_result";
+            post_return          = wis::format("{}{} {{}}{}",
+                                      prefix,
+                                      type_str,
+                                      arg_name);
+            post_return_length   = type_str.size();
+        }
+        break;
+    default:
+        break;
+    }
+
+    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + re_impl.size();
+    size_t max_arg_length = post_return_length;
+
+    // account for spans
+    bool last_was_span = false;
+    for (size_t i = 0; i < func.parameters.size(); ++i) {
+        if (last_was_span) {
+            last_was_span = false;
+            continue;
+        }
+
+        const auto& p = func.parameters[i];
+
+        std::string type_str = GetMemberTypeString<Lang::CPP>(p, re_impl);
+        max_arg_length       = std::max(max_arg_length, type_str.length());
+    }
+    last_was_span = false;
+
+    ReplaceAll(post_return, "{}", std::string(max_arg_length - post_return_length, ' '));
+
+    std::string params;
+    for (size_t i = 0; i < func.parameters.size(); ++i) {
+        if (last_was_span) {
+            last_was_span = false;
+            continue;
+        }
+
+        const auto& p = func.parameters[i];
+        if (p.modifier & Modifier::Span) {
+            last_was_span = true;
+        }
+        std::string prefix_spaces;
+        if (i > 0) {
+            prefix_spaces = std::string(length, ' ');
+        }
+
+        std::string type_str = GetMemberTypeString<Lang::CPP>(p, re_impl);
+        std::string padding;
+        size_t      pad_length = max_arg_length > type_str.length() ? max_arg_length - type_str.length() : 0;
+        padding                = std::string(pad_length, ' ');
+
+        params += wis::format("{}{}{} {}", prefix_spaces, type_str, padding, p.name);
+
+        // edge case for spans - if last argument was a span, skip the next one (the size)
+        // That means we need to check if i<func.parameters.size()-2 for the comma
+        bool span_last = (p.modifier & Modifier::Span) != 0 && (i == func.parameters.size() - 2);
+
+        if (i < func.parameters.size() - 1 && !span_last) {
+            params += ",\n";
+        }
+        max_arg_length = std::max(max_arg_length, type_str.length());
+    }
+
+    return wis::format("{}{} {}{}({}{}){} noexcept;\n",
+                       pre_decl,
+                       full_return_type,
+                       re_impl,
+                       func.name,
+                       params,
+                       post_return,
+                       func.modifier & Modifier::Const ? " const" : "");
+}
+
+//-----------------------------------------------------------------------------
 std::string Generator::MakeCFunctionDecl(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
 {
     std::string func_decl = MakeCFunctionProto(func, impl, pre_decl, kind);
@@ -199,9 +332,181 @@ std::string Generator::MakeCFunctionDecl(const WisFunction& func, std::string_vi
 }
 
 //-----------------------------------------------------------------------------
+std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
+{
+    std::string add_decl;
+    if (func.return_type.IsRV() || func.return_type.IsDirect()) {
+        add_decl = wis::format("{}{} ", pre_decl, "WIS_NODISCARD");
+    }
+
+    std::string func_decl = MakeCPPFunctionProto(func, impl, add_decl.empty() ? pre_decl : add_decl, kind);
+    if (!func.doc.empty()) {
+        std::string xdoc = MakeTypeDocumentation<Lang::CPP>(func, kind);
+        func_decl        = wis::format("{}\n{}", xdoc, func_decl);
+    }
+    if (kind != DocKind::Full) {
+        return func_decl;
+    }
+
+    ImplementedFor impl_code = ImplCode(impl);
+    auto           re_impl   = GetImplString(impl_code);
+
+    // Convert args and call C function
+    std::string body = "{\n";
+
+    switch (func.return_type.GetKind()) {
+    case ReturnTypeKind::ResultAndValue: {
+        auto ret_value_name = func.return_type.opt_name.empty()
+                ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                : std::string(func.return_type.opt_name);
+
+        // Prepare out parameter
+        body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, re_impl), ret_value_name);
+
+        body += wis::format("    out_result = reinterpret_cast<wis::Result&&>(::{}({}",
+                            GetCFullTypename(func.name, re_impl),
+                            func.this_type.empty() ? "" : "&_impl_storage");
+
+        constexpr static std::string_view arg_prefix = ",\n    ";
+        if (func.parameters.size() > 0 && !func.this_type.empty()) {
+            body += arg_prefix;
+        }
+
+        for (size_t i = 0; i < func.parameters.size(); ++i) {
+            auto& p = func.parameters[i];
+
+            if (p.modifier & Modifier::Span) {
+                body += wis::format("reinterpret_cast<{}>({}.data()), {}.size()",
+                                    GetMemberTypeString<Lang::C>(p, re_impl),
+                                    p.name,
+                                    p.name);
+                i++; // skip next parameter (the size)
+                if (i < func.parameters.size() - 1) {
+                    body += arg_prefix;
+                }
+                continue;
+            }
+
+            if (standard_types.contains(p.type)) {
+                body += p.name;
+            } else {
+                body += wis::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, re_impl), p.name);
+            }
+
+            if (i < func.parameters.size() - 1) {
+                body += arg_prefix;
+            }
+        }
+        body += wis::format(", {}.GetStorage()));\n", ret_value_name);
+        body += wis::format("    return {};\n", ret_value_name);
+    } break;
+    case ReturnTypeKind::ResultOnly: {
+        body += wis::format("    return reinterpret_cast<wis::Result&&>(::{}({}",
+                            GetCFullTypename(func.name, re_impl),
+                            func.this_type.empty() ? "" : "&_impl_storage");
+        constexpr static std::string_view arg_prefix = ",\n    ";
+        if (func.parameters.size() > 0 && !func.this_type.empty()) {
+            body += arg_prefix;
+        }
+        for (size_t i = 0; i < func.parameters.size(); ++i) {
+            auto& p = func.parameters[i];
+            if (p.modifier & Modifier::Span) {
+                body += wis::format("reinterpret_cast<{}>({}.data()), {}.size()",
+                                    GetMemberTypeString<Lang::C>(p, re_impl),
+                                    p.name,
+                                    p.name);
+                i++; // skip next parameter (the size)
+                if (i < func.parameters.size() - 1) {
+                    body += arg_prefix;
+                }
+                continue;
+            }
+            body += wis::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, re_impl), p.name);
+            if (i < func.parameters.size() - 1) {
+                body += arg_prefix;
+            }
+        }
+        body += "));\n";
+    } break;
+    case ReturnTypeKind::Direct: {
+        body += wis::format("    return reinterpret_cast<{}>(::{}({}",
+                            GetMemberTypeString<Lang::CPP>(func.return_type, re_impl),
+                            GetCFullTypename(func.name, re_impl),
+                            func.this_type.empty() ? "" : "&_impl_storage");
+        constexpr static std::string_view arg_prefix = ",\n    ";
+        if (func.parameters.size() > 0 && !func.this_type.empty()) {
+            body += arg_prefix;
+        }
+        for (size_t i = 0; i < func.parameters.size(); ++i) {
+            auto& p = func.parameters[i];
+            if (p.modifier & Modifier::Span) {
+                body += wis::format("reinterpret_cast<{}>({}.data()), {}.size()",
+                                    GetMemberTypeString<Lang::C>(p, re_impl),
+                                    p.name,
+                                    p.name);
+                i++; // skip next parameter (the size)
+                if (i < func.parameters.size() - 1) {
+                    body += arg_prefix;
+                }
+                continue;
+            }
+            body += wis::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, re_impl), p.name);
+            if (i < func.parameters.size() - 1) {
+                body += arg_prefix;
+            }
+        }
+        body += "));\n";
+    } break;
+    case ReturnTypeKind::Void: {
+        body += wis::format("    ::{}({}",
+                            GetCFullTypename(func.name, re_impl),
+                            func.this_type.empty() ? "" : "&_impl_storage");
+        constexpr static std::string_view arg_prefix = ",\n    ";
+        if (func.parameters.size() > 0 && !func.this_type.empty()) {
+            body += arg_prefix;
+        }
+        for (size_t i = 0; i < func.parameters.size(); ++i) {
+            auto& p = func.parameters[i];
+            if (p.modifier & Modifier::Span) {
+                body += wis::format("reinterpret_cast<{}>({}.data()), {}.size()",
+                                    GetMemberTypeString<Lang::C>(p, re_impl),
+                                    p.name,
+                                    p.name);
+                i++; // skip next parameter (the size)
+                if (i < func.parameters.size() - 1) {
+                    body += arg_prefix;
+                }
+                continue;
+            }
+            body += wis::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, re_impl), p.name);
+            if (i < func.parameters.size() - 1) {
+                body += arg_prefix;
+            }
+        }
+        body += ");\n";
+    } break;
+    default:
+        break;
+    }
+
+    body += "}\n";
+
+    // Remove the semicolon from declaration and add body
+    func_decl.pop_back();
+    func_decl.pop_back();
+    func_decl += " " + body;
+    return func_decl;
+}
+
+//-----------------------------------------------------------------------------
 std::string Generator::MakeFunctionDescription(const WisFunction& s)
 {
     std::string description = " * ";
+    if (!s.this_type.empty()) {
+        description += wis::format("- **this** `self` self is a pointer to the valid {{{}::}} instance.\n",
+                                   s.this_type);
+    }
+
     for (auto& p : s.parameters) {
         description += wis::format("- `{}` {}\n", p.name, p.doc.empty() ? "No description." : p.doc);
     }
@@ -241,7 +546,25 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
         std::string dx_code      = MakeCFunctionDecl(func_def, "dx", "", DocKind::VersionOnly);
         std::string regular_code = MakeCFunctionDecl(func_def, "", "", DocKind::VersionOnly);
 
-        std::string func_template_content = wis::format(" * General Version:\n```c\n{}```\nVulkan Version:\n```c\n{}```\nDX12 Version:\n```c\n{}```\n", regular_code, vk_code, dx_code);
+        std::string vk_code_cpp      = MakeCPPFunctionImpl(func_def, "vk", "", DocKind::VersionOnly);
+        std::string dx_code_cpp      = MakeCPPFunctionImpl(func_def, "dx", "", DocKind::VersionOnly);
+        std::string regular_code_cpp = MakeCPPFunctionImpl(func_def, "", "", DocKind::VersionOnly);
+
+        std::string func_template_content = wis::format(" * C Version:\n```c\n// General Version\n{}\n\n"
+                                                        "// Vulkan Version:\n{}\n\n"
+                                                        "// DX12 Version:\n{}\n```\n",
+                                                        regular_code,
+                                                        vk_code,
+                                                        dx_code);
+
+        if (!(func_def.modifier & Modifier::Destroy)) {
+            func_template_content += wis::format("C++ Version:\n```cpp\nnamespace wis{{\n// General Version\n{}\n\n"
+                                                 "// Vulkan Version:\n{}\n\n"
+                                                 "// DX12 Version:\n{}\n}}\n```\n",
+                                                 regular_code_cpp,
+                                                 vk_code_cpp,
+                                                 dx_code_cpp);
+        }
 
         std::string func_description = MakeFunctionDescription(func_def);
         std::string func_refs        = GetRefs(func_def.name);

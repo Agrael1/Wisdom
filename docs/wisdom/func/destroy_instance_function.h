@@ -1,0 +1,45 @@
+/**
+ * @struct wisDestroyInstance
+ * @ingroup Functions
+ *
+ * 
+ * @section wisDestroyInstance_spec Specification
+ * <hr>
+ * 
+ * \cond WIS_GEN_CODE
+ * C Version:
+ * ```c
+ * // General Version
+ * // Provided by Wisdom 0.7.0. 
+ * void wisDestroyInstance(WisInstance* self);
+ * 
+ * 
+ * // Vulkan Version:
+ * // Provided by Wisdom 0.7.0. 
+ * void wisVKDestroyInstance(WisVKInstance* self);
+ * 
+ * 
+ * // DX12 Version:
+ * // Provided by Wisdom 0.7.0. 
+ * void wisDX12DestroyInstance(WisDX12Instance* self);
+ * 
+ * ```
+ * \endcond
+ * 
+ * @section wisDestroyInstance_memb Parameters
+ * <hr>
+ * \cond WIS_GEN_DESC
+ * - **this** `self` self is a pointer to the valid WisInstance instance.
+ * \endcond
+ *
+ * @section wisDestroyInstance_descr Description
+ * <hr>
+ * 
+ * \cond WIS_GEN_WIS_IDS
+ * \endcond
+ *
+ * @section wisDestroyInstance_see_also See Also
+ * <hr>
+ * \cond WIS_GEN_REFS
+ * \endcond
+ */
