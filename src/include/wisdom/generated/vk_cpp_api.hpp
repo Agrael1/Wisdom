@@ -37,7 +37,6 @@ struct VKInstanceDeleter {
 class VKInstance : public wis::impl::Implements<wis::impl::VKInstanceImpl, WisVKInstance, wis::VKInstanceDeleter>
 {
 public:
-    VKInstance() noexcept = default;
     using ImplType::ImplType;
 
 public:

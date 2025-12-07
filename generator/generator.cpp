@@ -786,6 +786,8 @@ std::string Generator::GetRefs(std::string_view for_type)
             refs += ", ";
         }
     }
+    refs.pop_back(); // remove last space
+    refs.pop_back(); // remove last comma
     if (!refs.empty()) {
         refs = wis::format(" * @see {}\n", refs);
     }

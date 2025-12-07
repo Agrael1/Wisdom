@@ -1,11 +1,8 @@
-#pragma once
-#ifndef WISDOM_MODULE_DECL
-#include <string>
-#include <stdexcept>
+#ifndef WIS_UTIL_STRING_LITERAL_HPP
+#define WIS_UTIL_STRING_LITERAL_HPP
 #include <wisdom/global/definitions.h>
-#endif // !WISDOM_MODULE_DECL
+#include <string_view>
 
-WISDOM_EXPORT
 namespace wis {
 template<typename Char, std::size_t N>
 struct basic_fixed_string {
@@ -21,7 +18,7 @@ public:
     }
     constexpr explicit basic_fixed_string(std::string_view str) noexcept
     {
-        char_traits::copy(_data, str.data(), N - 1);
+        char_traits::copy(_data, str.data(), min(N - 1, str.size()));
     }
 
 public:
@@ -75,7 +72,7 @@ using fixed_u32string = basic_fixed_string<char32_t, N>;
 
 // Addition operator
 template<typename Char, std::size_t N1, std::size_t N2>
-constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fixed_string<Char, N2>& rhs)
+constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fixed_string<Char, N2>& rhs) noexcept
 {
     basic_fixed_string<Char, N1 + N2 - 1> result;
     std::char_traits<Char>::copy(result.data(), lhs.c_str(), N1 - 1);
@@ -85,9 +82,11 @@ constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fi
 
 inline namespace literals {
 template<wis::fixed_string lit>
-constexpr auto operator""_fs()
+constexpr auto operator""_fs() noexcept
 {
     return lit;
 }
 } // namespace literals
 } // namespace wis
+
+#endif // WIS_UTIL_STRING_LITERAL_HPP

@@ -117,11 +117,6 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
     }
 
-    // Add constructor
-    st_decl += wis::format("    {}{}()noexcept = default;\n",
-                           impl_string,
-                           s.name);
-
     // Use constructor from base
     st_decl += "    using ImplType::ImplType;\n";
     st_decl += "public:\n";

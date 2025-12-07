@@ -37,7 +37,6 @@ struct DX12InstanceDeleter {
 class DX12Instance : public wis::impl::Implements<wis::impl::DX12InstanceImpl, WisDX12Instance, wis::DX12InstanceDeleter>
 {
 public:
-    DX12Instance() noexcept = default;
     using ImplType::ImplType;
 
 public:

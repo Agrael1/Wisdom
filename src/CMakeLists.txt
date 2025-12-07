@@ -57,6 +57,11 @@ wis_make_target_bundle(
     "include/wisdom/bridge/span.hpp"
     "include/wisdom/bridge/source_location.hpp"
     "include/wisdom/bridge/format.hpp"
+
+    "include/wisdom/util/com_ptr.hpp"
+    "include/wisdom/util/string_literal.hpp"
+    "include/wisdom/util/error_messages.hpp"
+    "include/wisdom/util/allocation.hpp"
   INCLUDE_DIRECTORIES
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
@@ -65,10 +70,13 @@ wis_make_target_bundle(
   TARGET dx12
   HEADERS
     "include/wisdom/impl/dx12/dx12_types.hpp"
+    "include/wisdom/impl/dx12/dx12_utils.hpp"
     "include/wisdom/generated/dx12_cpp_api.hpp"
     "include/wisdom/generated/dx12_api.h"
   SOURCES
     "include/wisdom/impl/dx12/dx12_instance.cpp"
   LINK_TARGETS
     wisdom-shared
+    DXGI
+    DXGUID
 )

@@ -3,22 +3,43 @@
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/c_api.h>
-// #include <wisdom/dx12/dx12_checks.h>
+#include <wisdom/util/com_ptr.hpp>
+#include <wisdom/impl/dx12/dx12_utils.hpp>
+
+using namespace wis;
+using namespace wis::impl;
+using namespace wis::detail;
 
 WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             debug_layer,
                                              WisDX12InstanceExtensionHeader** extensions,
                                              size_t                           extension_count,
                                              WisDX12Instance*                 instance)
 {
+    WisResult res = success;
     // Instance can come as partially constructed from C side
-    reinterpret_cast<wis::impl::DX12InstanceImpl*>(instance);
+    auto& impl = *reinterpret_cast<DX12InstanceImpl*>(instance);
 
-    return {};
+    com_ptr<IDXGIFactory6> ref;
+
+    auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
+                                 IID_IDXGIFactory6,
+                                 ref.put_void_unchecked());
+
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create DXGI Factory">(hr);
+    }
+
+    impl.factory = ref.detach();
+    return res;
 }
 
 WIS_EXTERN_C void wisDX12DestroyInstance(WisDX12Instance* self)
 {
-    printf("Destroy DX12 Instance\n");
+    auto& impl = *reinterpret_cast<DX12InstanceImpl*>(self);
+    if (impl.factory) {
+        impl.factory->Release();
+        impl.factory = nullptr;
+    }
 }
 
 // wis::DX12Factory

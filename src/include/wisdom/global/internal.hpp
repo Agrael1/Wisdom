@@ -37,8 +37,6 @@ public:
 
         // zero out other storage
         std::memset(std::addressof(other._impl_storage), 0, sizeof(Storage));
-
-        //printf("move constructed\n");
     }
 
     /// @brief Move assignment
