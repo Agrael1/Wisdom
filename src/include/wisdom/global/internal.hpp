@@ -65,7 +65,6 @@ public:
     /// @return Const reference to the internal implementation
     [[nodiscard]] const Impl& GetInternal() const noexcept
     {
-        // launder the storage to Impl
         return *reinterpret_cast<const Impl*>(std::addressof(_impl_storage));
     }
 

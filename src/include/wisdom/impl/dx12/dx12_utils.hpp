@@ -30,6 +30,8 @@ inline constexpr WisStatus convert(HRESULT hr) noexcept
         return WisStatus::WisStatusError;
     }
 }
+
+//TODO: Evaluate if this can be removed
 inline std::unique_ptr<char[]> to_string(std::wstring_view value) noexcept
 {
     const int size =
@@ -55,6 +57,18 @@ constexpr inline WisResult make_result(HRESULT hr) noexcept
 constexpr inline bool succeeded(HRESULT hr) noexcept
 {
     return hr >= 0;
+}
+
+/// @brief Releases an object via its Release() method if the pointer is non-null, then sets the pointer to nullptr.
+/// @tparam T The type of the pointed-to object. T must provide a Release() member function.
+/// @param ptr A reference to a pointer to the object to release. The function checks for null, calls ptr->Release() if non-null, and then sets the pointer to nullptr.
+template<typename T>
+constexpr inline void safe_release(T*& ptr) noexcept
+{
+    if (ptr) {
+        ptr->Release();
+        ptr = nullptr;
+    }
 }
 } // namespace wis::detail
 

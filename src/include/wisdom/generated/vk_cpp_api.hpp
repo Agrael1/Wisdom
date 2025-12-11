@@ -8,21 +8,6 @@
 #include <wisdom/impl/vulkan/vk_types.hpp>
 
 namespace wis {
-/**
- * @brief Provided by Wisdom 0.7.0. Opaque struct, representing device extension header. Used in extension development.
- *
- * */
-struct VKDeviceExtensionHeader {
-    const void* opaque; ///< defines opaque member. In @wis_mustnot be changed directly outside extension development.
-};
-
-/**
- * @brief Provided by Wisdom 0.7.0. Opaque struct, representing instance extension header. Used in extension development.
- *
- * */
-struct VKInstanceExtensionHeader {
-    const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
-};
 
 struct VKInstanceDeleter {
     void operator()(WisVKInstance* handle) noexcept

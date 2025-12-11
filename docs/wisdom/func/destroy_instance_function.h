@@ -7,23 +7,22 @@
  * <hr>
  * 
  * \cond WIS_GEN_CODE
- * C Version:
+ *  C Version:
  * ```c
- * // General Version
  * // Provided by Wisdom 0.7.0. 
  * void wisDestroyInstance(WisInstance* self);
- * 
- * 
- * // Vulkan Version:
+ * ```
+ * <details>
+ * <summary>C Implementation Specific Version:</summary>
+ * ```c
  * // Provided by Wisdom 0.7.0. 
  * void wisVKDestroyInstance(WisVKInstance* self);
  * 
- * 
- * // DX12 Version:
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12DestroyInstance(WisDX12Instance* self);
- * 
  * ```
+ * </details>
+ * 
  * \endcond
  * 
  * @section wisDestroyInstance_memb Parameters

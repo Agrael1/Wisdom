@@ -111,6 +111,10 @@ std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, D
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl, DocKind kind)
 {
+    if (s.modifier & Modifier::COnly) {
+        return "";
+    }
+
     ImplementedFor impl_code = ImplCode(impl);
     std::string    st_decl   = wis::format("struct {}{}{} {{\n",
                                       s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
@@ -153,22 +157,20 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto&                 variant_ref       = variant_map[variant_name];
 
-        std::string vk_code          = MakeCVariant(variant_ref, "vk", DocKind::VersionOnly);
-        std::string dx_code          = MakeCVariant(variant_ref, "dx", DocKind::VersionOnly);
-        std::string regular_code     = MakeCVariant(variant_ref, "", DocKind::VersionOnly);
-        std::string regular_code_cpp = MakeCPPVariant(variant_ref, "", DocKind::VersionOnly);
+        std::string cimpl_code   = MakeCVariant(variant_ref, "vk", DocKind::VersionOnly) + '\n' + MakeCVariant(variant_ref, "dx", DocKind::VersionOnly);
+        std::string regular_code = MakeCVariant(variant_ref, "", DocKind::VersionOnly);
 
-        std::string variant_template_content = wis::format(" * General Version:\n```c\n{}```\nVulkan Version:\n```c\n{}```\nDX12 Version:\n```c\n{}```\nC++ General Version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                                                           regular_code,
-                                                           vk_code,
-                                                           dx_code,
-                                                           regular_code_cpp);
+        std::string vk_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, "vk", DocKind::VersionOnly);
+        std::string dx_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, "dx", DocKind::VersionOnly);
+        std::string cimpl_code_cpp   = variant_ref.modifier & Modifier::COnly ? "" : vk_cpp + '\n' + dx_cpp;
+        std::string regular_code_cpp = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, "", DocKind::VersionOnly);
+
+        std::string variant_template_content = GetSpecificationCode(regular_code, cimpl_code, regular_code_cpp, cimpl_code_cpp);
 
         std::string variant_description = wis::format(" * {}", MakeVariantDescription(variant_ref));
         std::string variant_refs        = GetRefs(variant_name);
         std::string vuids               = MakeValidationForType(variant_name);
 
-        ReplaceAll(variant_template_content, "\n", "\n * ");
         ReplaceAll(variant_description, "\n", "\n * ");
         ReplaceAll(variant_refs, "\n", "\n * ");
         variant_description = FinalizeCDocumentation(variant_description, variant_name);

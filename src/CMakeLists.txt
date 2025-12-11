@@ -1,5 +1,5 @@
 function(wis_make_target_bundle)
-  cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES" ${ARGN})
+  cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS" ${ARGN})
   
   if(NOT BUNDLE_TARGET)
     message(FATAL_ERROR "TARGET is required for wis_make_target_bundle")
@@ -24,6 +24,11 @@ function(wis_make_target_bundle)
       $<BUILD_INTERFACE:${BUNDLE_INCLUDE_DIRECTORIES}>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
+  endif()
+
+    # Compile definitions
+  if(BUNDLE_COMPILE_DEFINITIONS)
+    target_compile_definitions(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_COMPILE_DEFINITIONS})
   endif()
 
   set_target_properties(wisdom-${BUNDLE_TARGET}-headers PROPERTIES CXX_STANDARD 20)
@@ -66,6 +71,13 @@ wis_make_target_bundle(
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
+if(WISDOM_WINDOWS)
+  target_compile_definitions(wisdom-shared-headers INTERFACE WISDOM_WINDOWS=1)
+endif()
+if(WISDOM_LINUX)
+  target_compile_definitions(wisdom-shared-headers INTERFACE WISDOM_LINUX=1)
+endif()
+
 wis_make_target_bundle(
   TARGET dx12
   HEADERS
@@ -79,4 +91,6 @@ wis_make_target_bundle(
     wisdom-shared
     DXGI
     DXGUID
+  COMPILE_DEFINITIONS
+    WISDOM_DX12=1
 )

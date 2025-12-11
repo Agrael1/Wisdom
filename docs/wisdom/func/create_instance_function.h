@@ -7,57 +7,56 @@
  * <hr>
  * 
  * \cond WIS_GEN_CODE
- * C Version:
+ *  C Version:
  * ```c
- * // General Version
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisCreateInstance(bool                         debug_layer,
  *                             WisInstanceExtensionHeader** extensions,
  *                             size_t                       extension_count,
  *                             WisInstance*                 instance);
- * 
- * 
- * // Vulkan Version:
+ * ```
+ * <details>
+ * <summary>C Implementation Specific Version:</summary>
+ * ```c
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisVKCreateInstance(bool                           debug_layer,
  *                               WisVKInstanceExtensionHeader** extensions,
  *                               size_t                         extension_count,
  *                               WisVKInstance*                 instance);
  * 
- * 
- * // DX12 Version:
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisDX12CreateInstance(bool                             debug_layer,
  *                                 WisDX12InstanceExtensionHeader** extensions,
  *                                 size_t                           extension_count,
  *                                 WisDX12Instance*                 instance);
- * 
  * ```
+ * </details>
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // General Version
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::Instance CreateInstance(bool                                     debug_layer,
  *                                            wis::span<wis::InstanceExtensionHeader*> extensions,
  *                                            wis::Result&                             out_result) noexcept;
- * 
- * 
- * // Vulkan Version:
+ * }
+ * ```
+ * <details>
+ * <summary>C++ Implementation Specific Version:</summary>
+ * ```cpp
+ * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::VKInstance VKCreateInstance(bool                                       debug_layer,
  *                                                wis::span<wis::VKInstanceExtensionHeader*> extensions,
  *                                                wis::Result&                               out_result) noexcept;
  * 
- * 
- * // DX12 Version:
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::DX12Instance DX12CreateInstance(bool                                         debug_layer,
  *                                                    wis::span<wis::DX12InstanceExtensionHeader*> extensions,
  *                                                    wis::Result&                                 out_result) noexcept;
- * 
  * }
  * ```
+ * </details>
  * \endcond
  * 
  * @section CreateInstance_memb Parameters

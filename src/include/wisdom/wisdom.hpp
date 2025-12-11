@@ -1,7 +1,10 @@
-#pragma once
-// Select default API
-// Override with WISDOM_FORCE_VULKAN
-#include <wisdom/config.h>
+// This file is generated. Do not edit directly.
+#ifndef WISDOM_HPP
+#define WISDOM_HPP
+
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
 
 #ifdef WISDOM_UWP
 static_assert(WISDOM_UWP && _WIN32, "Platform error");
@@ -22,237 +25,93 @@ static_assert(WISDOM_LINUX && __linux__, "Platform error");
 #endif // WISDOM_VULKAN_FOUND
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
-#include "wisdom_dx12.hpp"
+#include "generated/dx12_cpp_api.hpp"
 
 namespace wis {
 
-inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
+//==============================================================
+// Handles
+//==============================================================
 
-using CommandQueue = DX12CommandQueue;
-using Factory = DX12Factory;
-using DeviceExtension = DX12DeviceExtension;
-using PipelineState = DX12PipelineState;
-using Adapter = DX12Adapter;
-using Device = DX12Device;
-using FactoryExtension = DX12FactoryExtension;
-using ResourceAllocator = DX12ResourceAllocator;
-using Memory = DX12Memory;
-using Fence = DX12Fence;
-using CommandList = DX12CommandList;
-using SwapChain = DX12SwapChain;
-using Buffer = DX12Buffer;
-using Texture = DX12Texture;
-using DescriptorStorage = DX12DescriptorStorage;
-using RootSignature = DX12RootSignature;
-using Shader = DX12Shader;
-using DebugMessenger = DX12DebugMessenger;
-using RenderTarget = DX12RenderTarget;
-using Sampler = DX12Sampler;
-using ShaderResource = DX12ShaderResource;
-using UnorderedAccessTexture = DX12UnorderedAccessTexture;
+using Instance = wis::DX12Instance;
 
-//-------------------------------------------------------------------------
+//==============================================================
+// Variants
+//==============================================================
+
+using DeviceExtensionHeader   = wis::DX12DeviceExtensionHeader;
+using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
+
+//==============================================================
+// Functions
+//==============================================================
 
 /**
- * @brief Creates the wis::Factory with extensions, specified in extension array.
- * @param debug_layer Enable the debug layer for underlying API.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @return wis::Factory on success (wis::Status::Ok).
+ * @brief Provided by Wisdom 0.7.0. Creates the wis::Instance with extensions, specified in extension array.
+ * @param debug_layer defines if the instance is to be created with debug mode.
+ * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
+ * @param out_result denoting the outcome of operation.
+ * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
+ *
  * */
-inline wis::Factory CreateFactory(wis::Result& result, bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+inline WIS_NODISCARD wis::Instance CreateInstance(bool                                     debug_layer,
+                                                  wis::span<wis::InstanceExtensionHeader*> extensions,
+                                                  wis::Result&                             out_result) noexcept
 {
-    return DX12CreateFactory(result, debug_layer, extensions, extension_count);
-}
-/**
- * @brief Creates the wis::Factory with extensions, specified in extension array.
- * @param debug_layer Enable the debug layer for underlying API.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @return wis::Factory on success (wis::Status::Ok).
- * */
-inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
-{
-    return DX12CreateFactory(debug_layer, extensions, extension_count);
-}
-/**
- * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on. Must not be NULL.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @param force Create logical device even if some core functionality is absent.
- * The presence of core functionality is checked by the query function.
- * @return wis::Device on success (wis::Status::Ok).
- * */
-inline wis::Device CreateDevice(wis::Result& result, wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
-{
-    return DX12CreateDevice(result, std::move(adapter), extensions, extension_count, force);
-}
-/**
- * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on. Must not be NULL.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @param force Create logical device even if some core functionality is absent.
- * The presence of core functionality is checked by the query function.
- * @return wis::Device on success (wis::Status::Ok).
- * */
-inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
-{
-    return DX12CreateDevice(std::move(adapter), extensions, extension_count, force);
+    wis::DX12Instance instance;
+    out_result = reinterpret_cast<wis::Result&&>(::wisDX12CreateInstance(debug_layer,
+                                                                         reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                                                         extensions.size(),
+                                                                         instance.GetStorage()));
+    return instance;
 }
 
-//-------------------------------------------------------------------------
-
-using FenceView = DX12FenceView;
-using BufferView = DX12BufferView;
-using TextureView = DX12TextureView;
-using RenderTargetView = DX12RenderTargetView;
-using CommandListView = DX12CommandListView;
-using ShaderView = DX12ShaderView;
-using RootSignatureView = DX12RootSignatureView;
-using RootSignatureView2 = DX12RootSignatureView2;
-using MemoryView = DX12MemoryView;
-using PipelineView = DX12PipelineView;
-using SamplerView = DX12SamplerView;
-using ShaderResourceView = DX12ShaderResourceView;
-using UnorderedAccessTextureView = DX12UnorderedAccessTextureView;
-using AccelerationStructureView = DX12AccelerationStructureView;
-using AcceleratedGeometryDesc = DX12AcceleratedGeometryDesc;
-using DescriptorStorageView = DX12DescriptorStorageView;
-using BottomLevelASBuildDesc = DX12BottomLevelASBuildDesc;
-using BufferBarrier2 = DX12BufferBarrier2;
-using TextureBarrier2 = DX12TextureBarrier2;
-using GraphicsShaderStages = DX12GraphicsShaderStages;
-using RaytracingPipeineDesc = DX12RaytracingPipeineDesc;
-using GraphicsPipelineDesc = DX12GraphicsPipelineDesc;
-using ComputePipelineDesc = DX12ComputePipelineDesc;
-using RenderPassRenderTargetDesc = DX12RenderPassRenderTargetDesc;
-using RenderPassDepthStencilDesc = DX12RenderPassDepthStencilDesc;
-using RenderPassDesc = DX12RenderPassDesc;
-using VertexBufferBinding = DX12VertexBufferBinding;
 } // namespace wis
 
 #elif defined(WISDOM_VULKAN)
-#include "wisdom_vk.hpp"
+#include "generated/vk_cpp_api.hpp"
 
 namespace wis {
 
-inline constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
+//==============================================================
+// Handles
+//==============================================================
 
-using CommandQueue = VKCommandQueue;
-using Factory = VKFactory;
-using DeviceExtension = VKDeviceExtension;
-using PipelineState = VKPipelineState;
-using Adapter = VKAdapter;
-using Device = VKDevice;
-using FactoryExtension = VKFactoryExtension;
-using ResourceAllocator = VKResourceAllocator;
-using Memory = VKMemory;
-using Fence = VKFence;
-using CommandList = VKCommandList;
-using SwapChain = VKSwapChain;
-using Buffer = VKBuffer;
-using Texture = VKTexture;
-using DescriptorStorage = VKDescriptorStorage;
-using RootSignature = VKRootSignature;
-using Shader = VKShader;
-using DebugMessenger = VKDebugMessenger;
-using RenderTarget = VKRenderTarget;
-using Sampler = VKSampler;
-using ShaderResource = VKShaderResource;
-using UnorderedAccessTexture = VKUnorderedAccessTexture;
+using Instance = wis::DX12Instance;
 
-//-------------------------------------------------------------------------
+//==============================================================
+// Variants
+//==============================================================
+
+using DeviceExtensionHeader   = wis::DX12DeviceExtensionHeader;
+using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
+
+//==============================================================
+// Functions
+//==============================================================
 
 /**
- * @brief Creates the wis::Factory with extensions, specified in extension array.
- * @param debug_layer Enable the debug layer for underlying API.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @return wis::Factory on success (wis::Status::Ok).
+ * @brief Provided by Wisdom 0.7.0. Creates the wis::Instance with extensions, specified in extension array.
+ * @param debug_layer defines if the instance is to be created with debug mode.
+ * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
+ * @param out_result denoting the outcome of operation.
+ * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
+ *
  * */
-inline wis::Factory CreateFactory(wis::Result& result, bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
+inline WIS_NODISCARD wis::Instance CreateInstance(bool                                     debug_layer,
+                                                  wis::span<wis::InstanceExtensionHeader*> extensions,
+                                                  wis::Result&                             out_result) noexcept
 {
-    return VKCreateFactory(result, debug_layer, extensions, extension_count);
-}
-/**
- * @brief Creates the wis::Factory with extensions, specified in extension array.
- * @param debug_layer Enable the debug layer for underlying API.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @return wis::Factory on success (wis::Status::Ok).
- * */
-inline wis::ResultValue<wis::Factory> CreateFactory(bool debug_layer = false, wis::FactoryExtension** extensions = nullptr, uint32_t extension_count = 0)
-{
-    return VKCreateFactory(debug_layer, extensions, extension_count);
-}
-/**
- * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on. Must not be NULL.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @param force Create logical device even if some core functionality is absent.
- * The presence of core functionality is checked by the query function.
- * @return wis::Device on success (wis::Status::Ok).
- * */
-inline wis::Device CreateDevice(wis::Result& result, wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
-{
-    return VKCreateDevice(result, std::move(adapter), extensions, extension_count, force);
-}
-/**
- * @brief Creates the wis::Device with extensions, specified in extension array.
- * @param adapter The adapter to create the logical device on. Must not be NULL.
- * @param extensions The extensions to enable.
- * The extensions are initialized through this array.
- * @param extension_count The number of extensions to enable.
- * @param force Create logical device even if some core functionality is absent.
- * The presence of core functionality is checked by the query function.
- * @return wis::Device on success (wis::Status::Ok).
- * */
-inline wis::ResultValue<wis::Device> CreateDevice(wis::Adapter adapter, wis::DeviceExtension** extensions = nullptr, uint32_t extension_count = 0, bool force = false)
-{
-    return VKCreateDevice(std::move(adapter), extensions, extension_count, force);
+    wis::VKInstance instance;
+    out_result = reinterpret_cast<wis::Result&&>(::wisVKCreateInstance(debug_layer,
+                                                                       reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                                       extensions.size(),
+                                                                       instance.GetStorage()));
+    return instance;
 }
 
-//-------------------------------------------------------------------------
-
-using FenceView = VKFenceView;
-using BufferView = VKBufferView;
-using TextureView = VKTextureView;
-using RenderTargetView = VKRenderTargetView;
-using CommandListView = VKCommandListView;
-using ShaderView = VKShaderView;
-using RootSignatureView = VKRootSignatureView;
-using RootSignatureView2 = VKRootSignatureView2;
-using MemoryView = VKMemoryView;
-using PipelineView = VKPipelineView;
-using SamplerView = VKSamplerView;
-using ShaderResourceView = VKShaderResourceView;
-using UnorderedAccessTextureView = VKUnorderedAccessTextureView;
-using AccelerationStructureView = VKAccelerationStructureView;
-using AcceleratedGeometryDesc = VKAcceleratedGeometryDesc;
-using DescriptorStorageView = VKDescriptorStorageView;
-using BottomLevelASBuildDesc = VKBottomLevelASBuildDesc;
-using BufferBarrier2 = VKBufferBarrier2;
-using TextureBarrier2 = VKTextureBarrier2;
-using GraphicsShaderStages = VKGraphicsShaderStages;
-using RaytracingPipeineDesc = VKRaytracingPipeineDesc;
-using GraphicsPipelineDesc = VKGraphicsPipelineDesc;
-using ComputePipelineDesc = VKComputePipelineDesc;
-using RenderPassRenderTargetDesc = VKRenderPassRenderTargetDesc;
-using RenderPassDepthStencilDesc = VKRenderPassDepthStencilDesc;
-using RenderPassDesc = VKRenderPassDesc;
-using VertexBufferBinding = VKVertexBufferBinding;
 } // namespace wis
-
 #else
-#error "No API selected"
-#endif
+#error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
+#endif // API selection
+#endif // WISDOM_HPP

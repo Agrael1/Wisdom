@@ -35,6 +35,7 @@ enum Modifier {
     PointerToPointer = 1 << 5,
     Span             = 1 << 6,
     Destroy          = 1 << 7,
+    COnly            = 1 << 8,
 };
 enum ReturnTypeKind {
     Void,

@@ -29,6 +29,16 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
         return make_result<Func(), "Failed to create DXGI Factory">(hr);
     }
 
+    for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
+        auto* table = reinterpret_cast<DX12InstanceExtensionHeader*>(ext);
+        if (table) {
+            auto xres = table->CallInit(ext, impl);
+            if (res.status != WisStatusOk) {
+                res.status = WisStatusPartial; // mark as partial success if any extension fails
+            }
+        }
+    }
+
     impl.factory = ref.detach();
     return res;
 }
@@ -36,33 +46,9 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
 WIS_EXTERN_C void wisDX12DestroyInstance(WisDX12Instance* self)
 {
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(self);
-    if (impl.factory) {
-        impl.factory->Release();
-        impl.factory = nullptr;
-    }
+    safe_release(impl.factory);
 }
 
-// wis::DX12Factory
-// wis::ImplDX12CreateFactory(wis::Result& res, bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept
-//{
-//     // Enable RVO
-//     DX12Factory f;
-//     auto& internal = f.GetMutableInternal();
-//
-//     auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, internal.factory.iid(),
-//                                  internal.factory.put_void());
-//
-//     if (!wis::succeeded(hr)) {
-//         res = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create DXGI factory">(hr);
-//         return f;
-//     }
-//
-//     for (auto ext : std::span<DX12FactoryExtension*>{ extensions, extension_count }) {
-//         ext->Init(f);
-//     }
-//     return f;
-// }
-//
 // wis::DX12Adapter
 // wis::ImplDX12Factory::GetAdapter(wis::Result& result, uint32_t index, AdapterPreference preference) const noexcept
 //{

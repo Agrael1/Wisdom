@@ -19,3 +19,4 @@
 #add_subdirectory(custom)
 
 add_subdirectory(test)
+add_subdirectory(test_c)

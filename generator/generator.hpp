@@ -65,14 +65,16 @@ public:
     std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
     std::string MakeCPPVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
-    std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
+    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, bool prefixed = true);
+    std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, bool prefixed = true);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
     void WriteCPPAPI(std::filesystem::path path);
     void WriteCDependentAPI(std::filesystem::path path);
+    void WriteCIndependentAPI(std::filesystem::path path);
     void WriteCPPDependentAPI(std::filesystem::path path);
+    void WriteCPPIndependentAPI(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
     void WriteVariantDocumentation(std::filesystem::path struct_output_path);
@@ -91,6 +93,7 @@ public:
     std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
     std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
+    std::string GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
     std::string GetRefs(std::string_view for_type);

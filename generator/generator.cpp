@@ -21,6 +21,9 @@ void Generator::WriteMainAPI()
     WriteCPPAPI(cpp_output_path_api / "cpp_api.hpp");
     WriteCDependentAPI(cpp_output_path_api);
     WriteCPPDependentAPI(cpp_output_path_api);
+
+    WriteCIndependentAPI(cpp_output_path);
+    WriteCPPIndependentAPI(cpp_output_path);
 }
 
 void Generator::WriteMainAPIDoc()
@@ -60,10 +63,6 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 
     if (auto* funcs = root->FirstChildElement("functions")) {
         ParseFunctions(funcs);
-    }
-
-    if (auto* exts = root->FirstChildElement("extensions")) {
-        // ParseExtensions(exts);
     }
 
     if (auto* va = root->FirstChildElement("validations")) {
@@ -121,6 +120,7 @@ void Generator::WriteCAPI(std::filesystem::path path)
 #define WISDOM_C_API_H
 #include <wisdom/global/definitions.h>
 #include <stdint.h>
+#include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -283,6 +283,122 @@ extern "C" {
 )";
 }
 
+void Generator::WriteCIndependentAPI(std::filesystem::path dir)
+{
+    std::filesystem::path path_w = dir / "wisdom.h";
+    files.push_back(path_w);
+
+    std::ofstream file_w{ path_w, std::ios::out | std::ios::trunc };
+    if (!file_w.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_w.string());
+    }
+
+    // Write header
+    file_w << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_H
+#define WISDOM_H
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
+#endif // WISDOM_WINDOWS
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX && __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+#include "generated/dx12_api.h"
+)";
+    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
+    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
+
+    file_w << "\n\n//==============================================================\n"
+              "// Handles\n"
+              "//==============================================================\n\n";
+
+    // Write handles
+    for (auto& handle_name : handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl_dx), GetCFullTypename(handle_def.name));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Variants\n"
+              "//==============================================================\n\n";
+
+    // Write variants
+    for (auto& variant_name : variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, impl_dx), GetCFullTypename(variant_def.name));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Functions\n"
+              "//==============================================================\n\n";
+
+    // Write functions
+    for (auto& func_name : functions_in_order) {
+        auto& func_def = function_map[func_name];
+        file_w << wis::format("#define {} {}\n",
+                              GetCFullTypename(func_def.name),
+                              GetCFullTypename(func_def.name, impl_dx));
+    }
+
+    file_w << R"(
+#elif defined(WISDOM_VULKAN)
+#include "generated/vk_api.h"
+)";
+
+    file_w << "\n\n//==============================================================\n"
+              "// Handles\n"
+              "//==============================================================\n\n";
+
+    // Write handles
+    for (auto& handle_name : handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl_vk), GetCFullTypename(handle_def.name));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Variants\n"
+              "//==============================================================\n\n";
+
+    // Write variants
+    for (auto& variant_name : variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, impl_vk), GetCFullTypename(variant_def.name));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Functions\n"
+              "//==============================================================\n\n";
+
+    // Write functions
+    for (auto& func_name : functions_in_order) {
+        auto& func_def = function_map[func_name];
+        file_w << wis::format("#define {} {}\n",
+                              GetCFullTypename(func_def.name),
+                              GetCFullTypename(func_def.name, impl_vk));
+    }
+
+    file_w << R"(
+#else
+#error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
+#endif // API selection
+#endif // WISDOM_H
+)";
+}
+
 //-----------------------------------------------------------------------------
 void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
 {
@@ -341,16 +457,15 @@ namespace wis {
         file_vk << MakeCPPHandle(handle_def, "vk");
         file_vk << "\n";
     }
-    
-    // Write functions
-     for (auto& func_name : free_functions_in_order) {
-         auto& func_def = function_map[func_name];
-         file_dx << MakeCPPFunctionImpl(func_def, "dx", "inline ");
-         file_dx << "\n";
-         file_vk << MakeCPPFunctionImpl(func_def, "vk", "inline ");
-         file_vk << "\n";
-     }
 
+    // Write functions
+    for (auto& func_name : free_functions_in_order) {
+        auto& func_def = function_map[func_name];
+        file_dx << MakeCPPFunctionImpl(func_def, "dx", "inline ");
+        file_dx << "\n";
+        file_vk << MakeCPPFunctionImpl(func_def, "vk", "inline ");
+        file_vk << "\n";
+    }
 
     // Write footer
     file_dx << R"(
@@ -362,6 +477,131 @@ namespace wis {
 }
 #endif // __cplusplus
 #endif // WISDOM_CPP_VK_API_HPP
+)";
+}
+
+void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
+{
+    std::filesystem::path path_w = dir / "wisdom.hpp";
+    files.push_back(path_w);
+
+    std::ofstream file_w{ path_w, std::ios::out | std::ios::trunc };
+    if (!file_w.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_w.string());
+    }
+
+    // Write header
+    file_w << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_HPP
+#define WISDOM_HPP
+
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifdef WISDOM_WINDOWS
+static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
+#endif // WISDOM_WINDOWS
+
+#ifdef WISDOM_LINUX
+static_assert(WISDOM_LINUX && __linux__, "Platform error");
+#endif // WISDOM_LINUX
+
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+#include "generated/dx12_cpp_api.hpp"
+
+namespace wis {
+)";
+    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
+    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
+
+    file_w << "\n\n//==============================================================\n"
+              "// Handles\n"
+              "//==============================================================\n\n";
+
+    // Write handles
+    for (auto& handle_name : handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Variants\n"
+              "//==============================================================\n\n";
+
+    // Write variants
+    for (auto& variant_name : variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, impl_dx));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Functions\n"
+              "//==============================================================\n\n";
+
+    // Write functions
+    for (auto& func_name : free_functions_in_order) {
+        auto& func_def = function_map[func_name];
+        file_w << MakeCPPFunctionImpl(func_def, "dx", "inline ", DocKind::Full, false);
+        file_w << '\n';
+    }
+
+    file_w << R"(
+} // namespace wis
+
+#elif defined(WISDOM_VULKAN)
+#include "generated/vk_cpp_api.hpp"
+
+namespace wis {
+)";
+
+    file_w << "\n\n//==============================================================\n"
+              "// Handles\n"
+              "//==============================================================\n\n";
+
+    // Write handles
+    for (auto& handle_name : handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Variants\n"
+              "//==============================================================\n\n";
+
+    // Write variants
+    for (auto& variant_name : variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, impl_dx));
+    }
+
+    file_w << "\n\n//==============================================================\n"
+              "// Functions\n"
+              "//==============================================================\n\n";
+
+    // Write functions
+    for (auto& func_name : free_functions_in_order) {
+        auto& func_def = function_map[func_name];
+        file_w << MakeCPPFunctionImpl(func_def, "vk", "inline ", DocKind::Full, false);
+        file_w << '\n';
+    }
+
+    file_w << R"(
+} // namespace wis
+#else
+#error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
+#endif // API selection
+#endif // WISDOM_HPP
 )";
 }
 
@@ -650,6 +890,33 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
     return doc;
 }
 
+std::string Generator::GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code)
+{
+    std::string template_content_c;
+    if (!c_code.empty()) {
+        template_content_c = wis::format(" C Version:\n```c\n{}```\n", c_code);
+        if (!c_impl_code.empty()) {
+            // append a details section
+            template_content_c += wis::format("<details>\n<summary>C Implementation Specific Version:</summary>\n```c\n{}```\n</details>\n",
+                                              c_impl_code);
+        }
+    }
+
+    std::string template_content_cpp;
+    if (!cpp_code.empty()) {
+        template_content_cpp = wis::format("C++ Version:\n```cpp\nnamespace wis{{\n{}}}\n```\n", cpp_code);
+        if (!cpp_impl_code.empty()) {
+            // append a details section
+            template_content_cpp += wis::format("<details>\n<summary>C++ Implementation Specific Version:</summary>\n```cpp\nnamespace wis{{\n{}}}\n```\n</details>\n",
+                                                cpp_impl_code);
+        }
+    }
+
+    std::string output = wis::format(" * {}\n{}", template_content_c, template_content_cpp);
+    ReplaceAll(output, "\n", "\n * ");
+    return output;
+}
+
 ImplementedFor Generator::ImplCode(std::string_view impl) noexcept
 {
     if (impl == "dx") {
@@ -741,6 +1008,9 @@ Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
         case 'c':
             if (tk_view == "const") {
                 mods = Modifier(mods | Modifier::Const);
+            }
+            if (tk_view == "c-only") {
+                mods = Modifier(mods | Modifier::COnly);
             }
             break;
         case 'n':

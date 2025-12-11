@@ -7,36 +7,28 @@
  * <hr>
  * 
  * \cond WIS_GEN_CODE
- * General Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct WisInstanceExtensionHeader {
  *     const void* opaque;
  * } WisInstanceExtensionHeader;
  * ```
- * Vulkan Version:
+ * <details>
+ * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct WisVKInstanceExtensionHeader {
  *     const void* opaque;
  * } WisVKInstanceExtensionHeader;
- * ```
- * DX12 Version:
- * ```c
+ * 
  * // Provided by Wisdom 0.7.0. 
  * typedef struct WisDX12InstanceExtensionHeader {
  *     const void* opaque;
  * } WisDX12InstanceExtensionHeader;
  * ```
- * C++ General Version:
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
- * struct InstanceExtensionHeader {
- *     const void* opaque;
- * };
- * }
- * ```
+ * </details>
+ * 
  * \endcond
  * 
  * @section WisInstanceExtensionHeader_memb Members

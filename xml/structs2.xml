@@ -11,11 +11,11 @@
 			<member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
 		</type>
 		
-		<type name="DeviceExtensionHeader" category="variant" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
+		<type name="DeviceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
 			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. In must not be changed directly outside extension development."/>
 		</type>
 		
-		<type name="InstanceExtensionHeader" category="variant" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
+		<type name="InstanceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
 			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
 		</type>
 		

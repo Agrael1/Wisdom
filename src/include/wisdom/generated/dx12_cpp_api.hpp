@@ -8,21 +8,6 @@
 #include <wisdom/impl/dx12/dx12_types.hpp>
 
 namespace wis {
-/**
- * @brief Provided by Wisdom 0.7.0. Opaque struct, representing device extension header. Used in extension development.
- *
- * */
-struct DX12DeviceExtensionHeader {
-    const void* opaque; ///< defines opaque member. In @wis_mustnot be changed directly outside extension development.
-};
-
-/**
- * @brief Provided by Wisdom 0.7.0. Opaque struct, representing instance extension header. Used in extension development.
- *
- * */
-struct DX12InstanceExtensionHeader {
-    const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
-};
 
 struct DX12InstanceDeleter {
     void operator()(WisDX12Instance* handle) noexcept

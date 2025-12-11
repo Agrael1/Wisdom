@@ -3,6 +3,7 @@
 #define WISDOM_C_API_H
 #include <wisdom/global/definitions.h>
 #include <stdint.h>
+#include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

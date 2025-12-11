@@ -210,14 +210,14 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
+std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind, bool prefixed)
 {
     // Inverted situation for C++
     // The return type is always direct, and the out parameter is used for result
     // Expected will be implemented later
 
     ImplementedFor impl_code = ImplCode(impl);
-    auto           re_impl   = GetImplString(impl_code);
+    auto           re_impl   = prefixed ? GetImplString(impl_code) : "";
 
     std::string full_return_type;
     std::string post_return;
@@ -332,14 +332,14 @@ std::string Generator::MakeCFunctionDecl(const WisFunction& func, std::string_vi
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
+std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind, bool prefixed)
 {
     std::string add_decl;
     if (func.return_type.IsRV() || func.return_type.IsDirect()) {
         add_decl = wis::format("{}{} ", pre_decl, "WIS_NODISCARD");
     }
 
-    std::string func_decl = MakeCPPFunctionProto(func, impl, add_decl.empty() ? pre_decl : add_decl, kind);
+    std::string func_decl = MakeCPPFunctionProto(func, impl, add_decl.empty() ? pre_decl : add_decl, kind, prefixed);
     if (!func.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(func, kind);
         func_decl        = wis::format("{}\n{}", xdoc, func_decl);
@@ -546,31 +546,16 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
         std::string dx_code      = MakeCFunctionDecl(func_def, "dx", "", DocKind::VersionOnly);
         std::string regular_code = MakeCFunctionDecl(func_def, "", "", DocKind::VersionOnly);
 
-        std::string vk_code_cpp      = MakeCPPFunctionImpl(func_def, "vk", "", DocKind::VersionOnly);
-        std::string dx_code_cpp      = MakeCPPFunctionImpl(func_def, "dx", "", DocKind::VersionOnly);
-        std::string regular_code_cpp = MakeCPPFunctionImpl(func_def, "", "", DocKind::VersionOnly);
+        std::string vk_code_cpp      = func_def.modifier & Modifier::Destroy ? "" : MakeCPPFunctionImpl(func_def, "vk", "", DocKind::VersionOnly);
+        std::string dx_code_cpp      = func_def.modifier & Modifier::Destroy ? "" : MakeCPPFunctionImpl(func_def, "dx", "", DocKind::VersionOnly);
+        std::string regular_code_cpp = func_def.modifier & Modifier::Destroy ? "" : MakeCPPFunctionImpl(func_def, "", "", DocKind::VersionOnly);
 
-        std::string func_template_content = wis::format(" * C Version:\n```c\n// General Version\n{}\n\n"
-                                                        "// Vulkan Version:\n{}\n\n"
-                                                        "// DX12 Version:\n{}\n```\n",
-                                                        regular_code,
-                                                        vk_code,
-                                                        dx_code);
-
-        if (!(func_def.modifier & Modifier::Destroy)) {
-            func_template_content += wis::format("C++ Version:\n```cpp\nnamespace wis{{\n// General Version\n{}\n\n"
-                                                 "// Vulkan Version:\n{}\n\n"
-                                                 "// DX12 Version:\n{}\n}}\n```\n",
-                                                 regular_code_cpp,
-                                                 vk_code_cpp,
-                                                 dx_code_cpp);
-        }
+        std::string func_template_content = GetSpecificationCode(regular_code, vk_code + '\n' + dx_code, regular_code_cpp, vk_code_cpp + '\n' + dx_code_cpp);
 
         std::string func_description = MakeFunctionDescription(func_def);
         std::string func_refs        = GetRefs(func_def.name);
         std::string vuids            = MakeValidationForType(func_def.name);
 
-        ReplaceAll(func_template_content, "\n", "\n * ");
         ReplaceAll(func_description, "\n", "\n * ");
         ReplaceAll(func_refs, "\n", "\n * ");
         func_description = FinalizeCDocumentation(func_description, func_name);
