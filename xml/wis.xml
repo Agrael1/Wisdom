@@ -7,7 +7,7 @@
 
 	<handles>
 		<handle name="Instance" version="0.7.0" doc="Class for creating adapters.">
-			<impl for="vk" include="vulkan/vk_factory.h" size="2"/>
+			<impl for="vk" include="vulkan/vk_factory.h" size="4"/>
 			<impl for="dx" include="dx12/dx12_factory.h" size="2"/>
 		</handle>
 	</handles>

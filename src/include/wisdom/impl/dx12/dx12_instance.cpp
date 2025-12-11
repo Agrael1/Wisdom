@@ -15,7 +15,7 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
                                              size_t                           extension_count,
                                              WisDX12Instance*                 instance)
 {
-    WisResult res = success;
+    WisResult res = dx_success;
     // Instance can come as partially constructed from C side
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(instance);
 
@@ -29,6 +29,7 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
         return make_result<Func(), "Failed to create DXGI Factory">(hr);
     }
 
+    impl.factory = ref.detach();
     for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<DX12InstanceExtensionHeader*>(ext);
         if (table) {
@@ -39,7 +40,6 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
         }
     }
 
-    impl.factory = ref.detach();
     return res;
 }
 

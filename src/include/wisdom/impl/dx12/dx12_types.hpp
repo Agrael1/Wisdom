@@ -1,6 +1,9 @@
 #ifndef WIS_DX12_TYPES_HPP
 #define WIS_DX12_TYPES_HPP
-#ifdef __cplusplus
+#ifndef __cplusplus
+#error "This header requires C++"
+#endif // __cplusplus
+
 #include <dxgi1_6.h>
 #include <cassert>
 
@@ -67,5 +70,4 @@ struct DX12TestExtension : public DX12InstanceExtensionImpl<DX12TestExtension> {
 
 } // namespace wis
 
-#endif // __cplusplus
 #endif // DX12_FACTORY_HPP

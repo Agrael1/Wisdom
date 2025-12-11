@@ -77,14 +77,14 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Instance = wis::DX12Instance;
+using Instance = wis::VKInstance;
 
 //==============================================================
 // Variants
 //==============================================================
 
-using DeviceExtensionHeader   = wis::DX12DeviceExtensionHeader;
-using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
+using DeviceExtensionHeader   = wis::VKDeviceExtensionHeader;
+using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
 
 //==============================================================
 // Functions

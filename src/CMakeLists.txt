@@ -94,3 +94,20 @@ wis_make_target_bundle(
   COMPILE_DEFINITIONS
     WISDOM_DX12=1
 )
+
+wis_make_target_bundle(
+  TARGET vk
+  HEADERS
+    "include/wisdom/impl/vulkan/vk_types.hpp"
+    "include/wisdom/impl/vulkan/vk_utils.hpp"
+    "include/wisdom/impl/vulkan/vk_loader.hpp"
+    "include/wisdom/generated/vk_cpp_api.hpp"
+    "include/wisdom/generated/vk_api.h"
+  SOURCES
+    "include/wisdom/impl/vulkan/vk_instance.cpp"
+  LINK_TARGETS
+    wisdom-shared
+    vkma
+  COMPILE_DEFINITIONS
+    WISDOM_VULKAN=1
+)

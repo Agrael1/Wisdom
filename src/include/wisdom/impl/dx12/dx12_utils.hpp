@@ -1,6 +1,5 @@
 #ifndef WIS_DX12_UTILS_HPP
 #define WIS_DX12_UTILS_HPP
-#include <wisdom/global/definitions.h>
 #include <wisdom/generated/c_api.h>
 #include <wisdom/util/error_messages.hpp>
 #include <wisdom/util/allocation.hpp>
@@ -11,9 +10,10 @@
 #include <Windows.h>
 
 namespace wis::detail {
-static constexpr inline WisResult success{ WisStatusOk, S_OK, "Operation succeeded." };
+static constexpr inline WisResult dx_success{ WisStatusOk, S_OK, "Operation succeeded." };
 
-inline constexpr WisStatus convert(HRESULT hr) noexcept
+//-----------------------------------------------------------------------------
+inline constexpr WisStatus convert_dx(HRESULT hr) noexcept
 {
     switch (hr) {
     case S_OK:
@@ -31,6 +31,7 @@ inline constexpr WisStatus convert(HRESULT hr) noexcept
     }
 }
 
+//-----------------------------------------------------------------------------
 //TODO: Evaluate if this can be removed
 inline std::unique_ptr<char[]> to_string(std::wstring_view value) noexcept
 {
@@ -44,13 +45,15 @@ inline std::unique_ptr<char[]> to_string(std::wstring_view value) noexcept
     return result;
 }
 
+//-----------------------------------------------------------------------------
 template<func_pair func, wis::fixed_string message>
 constexpr inline WisResult make_result(HRESULT hr) noexcept
 {
     static WIS_CONSTEXPR23 const auto str = wis::detail::make_error_string<message, func>();
-    return { convert(hr), hr, str.c_str() };
+    return { convert_dx(hr), hr, str.c_str() };
 }
 
+//-----------------------------------------------------------------------------
 /// @brief Check if the given HRESULT a success code, without logging, serves as an assert
 /// @param hr HRESULT to check
 /// @return True if the HRESULT is a success code
@@ -59,6 +62,7 @@ constexpr inline bool succeeded(HRESULT hr) noexcept
     return hr >= 0;
 }
 
+//-----------------------------------------------------------------------------
 /// @brief Releases an object via its Release() method if the pointer is non-null, then sets the pointer to nullptr.
 /// @tparam T The type of the pointed-to object. T must provide a Release() member function.
 /// @param ptr A reference to a pointer to the object to release. The function checks for null, calls ptr->Release() if non-null, and then sets the pointer to nullptr.

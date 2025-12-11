@@ -572,7 +572,7 @@ namespace wis {
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx));
+        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_vk));
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -582,7 +582,7 @@ namespace wis {
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, impl_dx));
+        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, impl_vk));
     }
 
     file_w << "\n\n//==============================================================\n"

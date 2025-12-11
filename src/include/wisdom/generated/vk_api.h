@@ -10,7 +10,7 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKInstance, 2);
+WIS_DEFINE_HANDLE(WisVKInstance, 4);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Opaque struct, representing device extension header. Used in extension development.

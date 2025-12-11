@@ -20,3 +20,4 @@
 
 add_subdirectory(test)
 add_subdirectory(test_c)
+add_subdirectory(test_vk)
