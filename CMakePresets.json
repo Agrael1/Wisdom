@@ -25,7 +25,6 @@
       }
     },
 
-
     {
       "name": "linux-gcc-base",
       "inherits": "linux-base",
@@ -70,7 +69,6 @@
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
-
 
     {
       "name": "linux-clang-base",
@@ -117,7 +115,6 @@
       }
     },
 
-
     {
       "name": "windows-base",
       "hidden": true,
@@ -131,7 +128,6 @@
         "rhs": "Windows"
       }
     },
-
 
     {
       "name": "win-msvc-base",
@@ -178,11 +174,22 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
-
+    {
+      "name": "win-msvc-debug-lib",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Lib (Debug)",
+      "description": "MSVC library-only debug build",
+      "binaryDir": "${sourceDir}/build/msvc-debug",
+      "installDir": "${sourceDir}/install/msvc-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
 
     {
       "name": "win-clang-base",
@@ -229,11 +236,22 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
-
+    {
+      "name": "win-clang-debug-lib",
+      "inherits": "win-clang-base",
+      "displayName": "Windows Clang Lib (Debug)",
+      "description": "Clang library-only debug build",
+      "binaryDir": "${sourceDir}/build/clang-debug",
+      "installDir": "${sourceDir}/install/clang-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
 
     {
       "name": "win-clangcl-base",
@@ -280,11 +298,9 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
-
 
     {
       "name": "win-mingw-base",
@@ -327,11 +343,9 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
-
 
     {
       "name": "x64-vs",
@@ -353,7 +367,6 @@
         "rhs": "Windows"
       }
     },
-
 
     {
       "name": "macos-base",
@@ -411,7 +424,6 @@
     }
   ],
 
-
   "buildPresets": [
     {
       "name": "linux-gcc-debug",
@@ -432,7 +444,6 @@
       "jobs": 16
     },
 
-
     {
       "name": "linux-clang-debug",
       "displayName": "Linux Clang Debug",
@@ -451,7 +462,6 @@
       "configurePreset": "linux-clang-lib",
       "jobs": 16
     },
-
 
     {
       "name": "win-msvc-debug",
@@ -472,7 +482,6 @@
       "jobs": 16
     },
 
-
     {
       "name": "win-clang-debug",
       "displayName": "Windows Clang Debug",
@@ -491,7 +500,6 @@
       "configurePreset": "win-clang-lib",
       "jobs": 16
     },
-
 
     {
       "name": "win-clangcl-debug",
@@ -512,7 +520,6 @@
       "jobs": 16
     },
 
-
     {
       "name": "win-mingw-debug",
       "displayName": "Windows MinGW Debug",
@@ -531,7 +538,6 @@
       "configurePreset": "win-mingw-lib",
       "jobs": 16
     },
-
 
     {
       "name": "macos-debug",
@@ -552,7 +558,6 @@
       "jobs": 16
     }
   ],
-
 
   "testPresets": [
     {

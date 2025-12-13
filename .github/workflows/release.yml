@@ -1,0 +1,272 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      skip_build:
+        description: 'Skip build verification'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  CMAKE_VERSION: '3.28'
+
+jobs:
+  # Step 1: Run full CI build
+  build:
+    name: Build Verification
+    if: github.event.inputs.skip_build != 'true'
+    uses: ./.github/workflows/ci.yml
+
+  # Step 2: Bump version and create tag
+  version:
+    name: Bump Version
+    needs: [build]
+    if: always() && (needs.build.result == 'success' || github.event.inputs.skip_build == 'true')
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      tag_name: ${{ steps.bump.outputs.tag_name }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read current version
+        id: read_version
+        run: |
+          VERSION=$(cat version/VERSION)
+          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Determine bump type
+        id: determine_bump
+        run: |
+          # Use input if provided, otherwise default to patch
+          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+          if [ -z "$BUMP_TYPE" ]; then
+            # Auto-detect from commit messages (optional enhancement)
+            # For now, default to patch
+            BUMP_TYPE="patch"
+          fi
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "Bump type: $BUMP_TYPE"
+
+      - name: Bump version
+        id: bump
+        run: |
+          VERSION="${{ steps.read_version.outputs.current_version }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          
+          case "${{ steps.determine_bump.outputs.bump_type }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "$NEW_VERSION" > version/VERSION
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=v$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Commit version bump
+        run: |
+          git add version/VERSION
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
+          git push origin ${{ github.ref_name }}
+
+      - name: Create and push tag
+        run: |
+          git tag -a "${{ steps.bump.outputs.tag_name }}" -m "Release ${{ steps.bump.outputs.tag_name }}"
+          git push origin "${{ steps.bump.outputs.tag_name }}"
+
+  # Step 3: Build packages
+  package:
+    name: Build Packages
+    needs: [version]
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          fetch-depth: 0
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{ env.CMAKE_VERSION }}
+      
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+      
+      - name: Build and Package
+        shell: pwsh
+        run: |
+          .\package.ps1 -Format all -Clean -OutputDir './artifacts'
+      
+      - name: Upload NuGet Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/*.nupkg
+          if-no-files-found: error
+      
+      - name: Upload ZIP Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip-package
+          path: artifacts/*.zip
+          if-no-files-found: error
+
+  # Step 4: Create GitHub Release with packages
+  release:
+    name: Create Release
+    needs: [version, package]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts
+      
+      - name: Download ZIP Package
+        uses: actions/download-artifact@v4
+        with:
+          name: zip-package
+          path: ./artifacts
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.version.outputs.tag_name }}
+          name: Release ${{ needs.version.outputs.tag_name }}
+          files: |
+            artifacts/*.nupkg
+            artifacts/*.zip
+          generate_release_notes: true
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Step 5: Publish to NuGet
+  publish-nuget:
+    name: Publish to NuGet.org
+    needs: [release]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts
+      
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+      
+      - name: Publish to NuGet.org
+        run: |
+          for pkg in ./artifacts/*.nupkg; do
+            nuget push "$pkg" -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+          done
+
+  # Step 6: Build and deploy documentation
+  docs:
+    name: Deploy Documentation
+    needs: [version]
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          fetch-depth: 0
+      
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz ninja-build
+      
+      - name: Setup Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{ env.CMAKE_VERSION }}
+      
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DWISDOM_BUILD_DOCS=ON \
+            -DWISDOM_BUILD_EXAMPLES=OFF
+      
+      - name: Build Documentation
+        run: cmake --build build --target doc_doxygen
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/docs/html/
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
