@@ -39,13 +39,13 @@
 param(
     [ValidateSet('nuget', 'zip', 'all')]
     [string]$Format = 'all',
-    
+
     [switch]$Clean,
-    
+
     [switch]$SkipBuild,
-    
+
     [string]$OutputDir = './artifacts',
-    
+
     [ValidateSet('both', 'debug', 'release')]
     [string]$Configuration = 'both'
 )
@@ -63,7 +63,7 @@ $buildRelease = $Configuration -in @('both', 'release')
 
 function Initialize-VSEnvironment {
     Write-Host "Initializing Visual Studio environment..." -ForegroundColor Cyan
-    
+
     $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
     if (-not (Test-Path $vsWhere)) {
         throw "Visual Studio not found. Please install Visual Studio with C++ workload."
@@ -97,7 +97,7 @@ function Initialize-VSEnvironment {
 
 function Invoke-CMake {
     param([string[]]$Arguments)
-    
+
     & cmake @Arguments
     if ($LASTEXITCODE -ne 0) {
         throw "CMake command failed: cmake $($Arguments -join ' ')"
@@ -110,13 +110,13 @@ function Build-Configuration {
         [string]$BuildDir,
         [string]$Config
     )
-    
+
     Write-Host "  Configuring $Config..." -ForegroundColor Gray
     Invoke-CMake @('--preset', $Preset)
-    
+
     Write-Host "  Building $Config..." -ForegroundColor Gray
     Invoke-CMake @('--build', $BuildDir, '--config', $Config)
-    
+
     Write-Host "  Installing $Config..." -ForegroundColor Gray
     Invoke-CMake @('--install', $BuildDir, '--config', $Config)
 }
@@ -126,22 +126,22 @@ function New-Package {
         [string]$Generator,
         [string]$OutputPath
     )
-    
+
     $buildDir = "build/msvc-release"
     $cpackDir = Join-Path $buildDir "_CPack_Packages"
-    
+
     # Clean CPack staging directory to prevent cross-contamination between formats
     if (Test-Path $cpackDir) {
         Write-Host "  Cleaning CPack staging directory..." -ForegroundColor Gray
         Remove-Item -Recurse -Force $cpackDir
     }
-    
+
     # Also clean any existing packages in the build directory
     $existingPackages = Get-ChildItem -Path $buildDir -Include @('*.nupkg', '*.zip') -ErrorAction SilentlyContinue
     foreach ($pkg in $existingPackages) {
         Remove-Item $pkg.FullName -Force
     }
-    
+
     # Select the appropriate config file based on generator
     # NuGet: excludes DXC (users get it from Microsoft.Direct3D.DXC package)
     # ZIP: includes everything for standalone usage
@@ -149,14 +149,14 @@ function New-Package {
         'NuGet' { '../../cmake/install/multi-config-nuget.cmake' }
         'ZIP'   { '../../cmake/install/multi-config.cmake' }
     }
-    
+
     Push-Location $buildDir
     try {
         & cpack -G $Generator --config $configFile
         if ($LASTEXITCODE -ne 0) {
             throw "$Generator package generation failed"
         }
-        
+
         # Move generated packages to output directory
         $pattern = switch ($Generator) {
             'NuGet' { '*.nupkg' }
@@ -179,7 +179,7 @@ function New-Package {
 # =============================================================================
 
 $totalSteps = 0
-if (-not $SkipBuild) { 
+if (-not $SkipBuild) {
     if ($buildDebug) { $totalSteps++ }
     if ($buildRelease) { $totalSteps++ }
 }
@@ -221,7 +221,7 @@ if (-not $SkipBuild) {
         Write-Host "`n[$currentStep/$totalSteps] Building Debug configuration..." -ForegroundColor Yellow
         Build-Configuration -Preset 'win-msvc-debug-lib' -BuildDir 'build/msvc-debug' -Config 'Debug'
     }
-    
+
     if ($buildRelease) {
         $currentStep++
         Write-Host "`n[$currentStep/$totalSteps] Building Release configuration..." -ForegroundColor Yellow
