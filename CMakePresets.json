@@ -25,7 +25,6 @@
       }
     },
 
-
     {
       "name": "linux-gcc-base",
       "inherits": "linux-base",
@@ -70,7 +69,6 @@
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
-
 
     {
       "name": "linux-clang-base",
@@ -117,7 +115,6 @@
       }
     },
 
-
     {
       "name": "windows-base",
       "hidden": true,
@@ -131,7 +128,6 @@
         "rhs": "Windows"
       }
     },
-
 
     {
       "name": "win-msvc-base",
@@ -195,7 +191,6 @@
       }
     },
 
-
     {
       "name": "win-clang-base",
       "inherits": "windows-base",
@@ -258,7 +253,6 @@
       }
     },
 
-
     {
       "name": "win-clangcl-base",
       "inherits": "windows-base",
@@ -308,7 +302,6 @@
       }
     },
 
-
     {
       "name": "win-mingw-base",
       "inherits": "windows-base",
@@ -354,7 +347,6 @@
       }
     },
 
-
     {
       "name": "x64-vs",
       "displayName": "x64 Visual Studio",
@@ -375,7 +367,6 @@
         "rhs": "Windows"
       }
     },
-
 
     {
       "name": "macos-base",
@@ -433,7 +424,6 @@
     }
   ],
 
-
   "buildPresets": [
     {
       "name": "linux-gcc-debug",
@@ -454,7 +444,6 @@
       "jobs": 16
     },
 
-
     {
       "name": "linux-clang-debug",
       "displayName": "Linux Clang Debug",
@@ -473,7 +462,6 @@
       "configurePreset": "linux-clang-lib",
       "jobs": 16
     },
-
 
     {
       "name": "win-msvc-debug",
@@ -494,7 +482,6 @@
       "jobs": 16
     },
 
-
     {
       "name": "win-clang-debug",
       "displayName": "Windows Clang Debug",
@@ -513,7 +500,6 @@
       "configurePreset": "win-clang-lib",
       "jobs": 16
     },
-
 
     {
       "name": "win-clangcl-debug",
@@ -534,7 +520,6 @@
       "jobs": 16
     },
 
-
     {
       "name": "win-mingw-debug",
       "displayName": "Windows MinGW Debug",
@@ -553,7 +538,6 @@
       "configurePreset": "win-mingw-lib",
       "jobs": 16
     },
-
 
     {
       "name": "macos-debug",
@@ -574,7 +558,6 @@
       "jobs": 16
     }
   ],
-
 
   "testPresets": [
     {
