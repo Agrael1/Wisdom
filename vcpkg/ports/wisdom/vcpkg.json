@@ -1,0 +1,32 @@
+{
+  "name": "wisdom",
+  "version": "0.1.0",
+  "description": "Cross-platform graphics abstraction library supporting DirectX 12 and Vulkan",
+  "homepage": "https://github.com/Agrael1/Wisdom",
+  "license": "MIT",
+  "supports": "(windows & x64) | linux",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    {
+      "name": "vulkan-headers",
+      "platform": "linux | (windows & features.vulkan)"
+    },
+    {
+      "name": "vulkan-memory-allocator",
+      "platform": "linux | (windows & features.vulkan)"
+    }
+  ],
+  "default-features": [],
+  "features": {
+    "vulkan": {
+      "description": "Build with Vulkan support on Windows (always enabled on Linux)"
+    }
+  }
+}

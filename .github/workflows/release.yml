@@ -105,9 +105,28 @@ jobs:
           echo "tag_name=v$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
 
+      - name: Update vcpkg port version
+        run: |
+          NEW_VERSION="${{ steps.bump.outputs.new_version }}"
+          
+          # Update vcpkg.json version
+          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" vcpkg/ports/wisdom/vcpkg.json
+          
+          # Update versions/w-/wisdom.json
+          cat > vcpkg/versions/w-/wisdom.json << EOF
+          {
+            "default": {
+              "wisdom": {
+                "baseline": "$NEW_VERSION",
+                "port-version": 0
+              }
+            }
+          }
+          EOF
+
       - name: Commit version bump
         run: |
-          git add version/VERSION
+          git add version/VERSION vcpkg/
           git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
           git push origin ${{ github.ref_name }}
 
