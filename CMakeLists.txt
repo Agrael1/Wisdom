@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 include(cmake/version.cmake)
 project(wisdom VERSION ${WISDOM_VERSION} LANGUAGES C CXX)
 
+include(GNUInstallDirs)
 include(cmake/functions.cmake)
 wisdom_detect_platform()
 
@@ -85,4 +86,4 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
 )
-
+include(cmake/install/nuget.cmake)

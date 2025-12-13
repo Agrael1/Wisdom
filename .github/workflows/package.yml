@@ -1,0 +1,70 @@
+name: Package (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      format:
+        description: 'Package format'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - nuget
+          - zip
+
+env:
+  CMAKE_VERSION: '3.28'
+
+jobs:
+  build-packages:
+    name: Build Packages
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{ env.CMAKE_VERSION }}
+      
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+      
+      - name: Get version
+        id: version
+        shell: pwsh
+        run: |
+          $version = Get-Content version/VERSION -Raw
+          $version = $version.Trim()
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "Package version: $version"
+      
+      - name: Build and Package
+        shell: pwsh
+        run: |
+          $format = '${{ github.event.inputs.format }}'
+          .\package.ps1 -Format $format -Clean -OutputDir './artifacts'
+      
+      - name: Upload NuGet Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/*.nupkg
+          if-no-files-found: ignore
+      
+      - name: Upload ZIP Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip-package
+          path: artifacts/*.zip
+          if-no-files-found: ignore

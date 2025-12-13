@@ -48,7 +48,7 @@ target_sources(DX12Agility
 
 install(
   TARGETS DX12Agility
-  EXPORT wisdom-dx12-targets
+  EXPORT wisdom-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -67,7 +67,10 @@ install(
 
 install(DIRECTORY ${DXA_HEADERS}/ DESTINATION include/d3dx12)
 
-set_target_properties(DX12Agility PROPERTIES DX12SDKVER ${VERSION_MINOR})
+set_target_properties(DX12Agility PROPERTIES 
+  DX12SDKVER ${VERSION_MINOR}
+  DEBUG_POSTFIX d
+)
 
 set_property(
   TARGET DX12Agility
@@ -99,10 +102,13 @@ target_compile_definitions(DX12Allocator PRIVATE D3D12MA_OPTIONS16_SUPPORTED)
 target_include_directories(
   DX12Allocator PUBLIC $<BUILD_INTERFACE:${dxma_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/dxma>)
-set_target_properties(DX12Allocator PROPERTIES CXX_STANDARD 20)
+set_target_properties(DX12Allocator PROPERTIES 
+  CXX_STANDARD 20
+  DEBUG_POSTFIX d
+)
 install(
   TARGETS DX12Allocator
-  EXPORT wisdom-dx12-targets
+  EXPORT wisdom-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

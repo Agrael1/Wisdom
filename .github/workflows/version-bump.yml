@@ -1,4 +1,4 @@
-name: Version Bump
+name: Version Bump (Manual)
 
 on:
   workflow_dispatch:
@@ -11,6 +11,11 @@ on:
           - patch
           - minor
           - major
+      create_tag:
+        description: 'Create git tag'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -18,6 +23,9 @@ permissions:
 jobs:
   bump_version:
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,31 +67,18 @@ jobs:
           esac
           
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "$NEW_VERSION" > VERSION
+          echo "$NEW_VERSION" > version/VERSION
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
 
       - name: Commit version bump
         run: |
-          git add VERSION
-          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }}"
+          git add version/VERSION
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
           git push origin ${{ github.ref_name }}
 
       - name: Create and push tag
+        if: github.event.inputs.create_tag == 'true'
         run: |
           git tag -a "v${{ steps.bump.outputs.new_version }}" -m "Release v${{ steps.bump.outputs.new_version }}"
           git push origin "v${{ steps.bump.outputs.new_version }}"
-
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.bump.outputs.new_version }}
-          release_name: Release v${{ steps.bump.outputs.new_version }}
-          body: |
-            ## Changes in v${{ steps.bump.outputs.new_version }}
-            
-            See [Changelog](https://github.com/${{ github.repository }}/blob/v${{ steps.bump.outputs.new_version }}/Changelog.md) for details.
-          draft: false
-          prerelease: false

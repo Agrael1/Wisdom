@@ -106,7 +106,7 @@ if(WISDOM_BUILD_STATIC)
   target_compile_definitions(wisdom PUBLIC WISDOM_BUILD_BINARIES=1)
   set_target_properties(wisdom PROPERTIES 
     CXX_STANDARD 20
-    POSITION_INDEPENDENT_CODE ON
+    DEBUG_POSTFIX d
   )
 
   install(
@@ -136,6 +136,7 @@ if(WISDOM_BUILD_SHARED)
   set_target_properties(wisdom-shared PROPERTIES 
     CXX_STANDARD 20
     POSITION_INDEPENDENT_CODE ON
+    DEBUG_POSTFIX d
   )
 
   generate_export_header(

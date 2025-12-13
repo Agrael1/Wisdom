@@ -178,8 +178,20 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "win-msvc-debug-lib",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Lib (Debug)",
+      "description": "MSVC library-only debug build",
+      "binaryDir": "${sourceDir}/build/msvc-debug",
+      "installDir": "${sourceDir}/install/msvc-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
       }
     },
 
@@ -229,8 +241,20 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "win-clang-debug-lib",
+      "inherits": "win-clang-base",
+      "displayName": "Windows Clang Lib (Debug)",
+      "description": "Clang library-only debug build",
+      "binaryDir": "${sourceDir}/build/clang-debug",
+      "installDir": "${sourceDir}/install/clang-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
       }
     },
 
@@ -280,7 +304,6 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
@@ -327,7 +350,6 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },

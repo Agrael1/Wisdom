@@ -29,8 +29,11 @@ endif(WISDOM_WINDOWS)
 target_include_directories(
   vkma PUBLIC $<BUILD_INTERFACE:${vkma_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
-set_target_properties(vkma PROPERTIES CXX_STANDARD 20
-                                                 POSITION_INDEPENDENT_CODE ON)
+set_target_properties(vkma PROPERTIES 
+  CXX_STANDARD 20
+  DEBUG_POSTFIX d
+  POSITION_INDEPENDENT_CODE ON)
+
 target_compile_options(
   vkma
   PUBLIC $<$<CXX_COMPILER_ID:Clang>:-Wno-nullability-completeness>)
