@@ -67,7 +67,7 @@ install(
 
 install(DIRECTORY ${DXA_HEADERS}/ DESTINATION include/d3dx12)
 
-set_target_properties(DX12Agility PROPERTIES 
+set_target_properties(DX12Agility PROPERTIES
   DX12SDKVER ${VERSION_MINOR}
   DEBUG_POSTFIX d
 )
@@ -102,7 +102,7 @@ target_compile_definitions(DX12Allocator PRIVATE D3D12MA_OPTIONS16_SUPPORTED)
 target_include_directories(
   DX12Allocator PUBLIC $<BUILD_INTERFACE:${dxma_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/dxma>)
-set_target_properties(DX12Allocator PROPERTIES 
+set_target_properties(DX12Allocator PROPERTIES
   CXX_STANDARD 20
   DEBUG_POSTFIX d
 )

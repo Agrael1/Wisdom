@@ -29,7 +29,7 @@ endif(WISDOM_WINDOWS)
 target_include_directories(
   vkma PUBLIC $<BUILD_INTERFACE:${vkma_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/vkma>)
-set_target_properties(vkma PROPERTIES 
+set_target_properties(vkma PROPERTIES
   CXX_STANDARD 20
   DEBUG_POSTFIX d
   POSITION_INDEPENDENT_CODE ON)
