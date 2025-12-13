@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 include(cmake/version.cmake)
 project(wisdom VERSION ${WISDOM_VERSION} LANGUAGES C CXX)
 
-include(cmake/platform.cmake)
-include(cmake/misc.cmake)
+include(cmake/functions.cmake)
 wisdom_detect_platform()
 
 # Determine which options to use by default
@@ -34,6 +33,7 @@ option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
 
 # DXC deployment options
 set(WISDOM_DXC_PATH "" CACHE PATH "Path to custom DXC installation (optional)")
+set(WISDOM_VULKAN_HEADER_PATH "" CACHE PATH "Path to custom Vulkan Headers (optional)")
 
 # Load all dependencies
 include(cmake/deps.cmake)
@@ -53,11 +53,36 @@ message(STATUS "Wisdom Configuration:
     WISDOM_BUILD_STATIC: ${WISDOM_BUILD_STATIC}
     WISDOM_BUILD_SHARED: ${WISDOM_BUILD_SHARED}
 
+    WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}
+
     DXC Configuration:
       Custom Path: ${WISDOM_DXC_PATH}
       Executable: ${DXC_EXECUTABLE}
 ")
 
-add_subdirectory(generator)
+add_subdirectory(generator EXCLUDE_FROM_ALL)
 add_subdirectory(src) # add main libraries
 add_subdirectory(examples)
+
+install(FILES README.md DESTINATION .)
+install(FILES LICENSE.txt DESTINATION .)
+install(FILES version/VERSION DESTINATION version)
+install(FILES cmake/functions.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
+  VERSION ${WISDOM_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/install/wisdom-config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
+)
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
+)
+

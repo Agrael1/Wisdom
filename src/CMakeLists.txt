@@ -1,7 +1,7 @@
 
 
 wis_make_target_bundle(
-  TARGET shared
+  TARGET internal
   HEADERS
     "include/wisdom/global/definitions.h"
     "include/wisdom/global/internal.hpp"
@@ -22,13 +22,6 @@ wis_make_target_bundle(
   HEADER_ONLY
 )
 
-if(WISDOM_WINDOWS)
-  target_compile_definitions(wisdom-shared-headers INTERFACE WISDOM_WINDOWS=1)
-endif()
-if(WISDOM_LINUX)
-  target_compile_definitions(wisdom-shared-headers INTERFACE WISDOM_LINUX=1)
-endif()
-
 wis_make_target_bundle(
   TARGET dx12
   HEADERS
@@ -39,11 +32,11 @@ wis_make_target_bundle(
   SOURCES
     "include/wisdom/impl/dx12/dx12_instance.cpp"
   LINK_TARGETS
-    wisdom-shared-headers
+    wisdom-internal-headers
     DXGI
     DXGUID
   COMPILE_DEFINITIONS
-    WISDOM_DX12=1
+    $<BUILD_INTERFACE:WISDOM_DX12=1>
 )
 
 wis_make_target_bundle(
@@ -57,17 +50,20 @@ wis_make_target_bundle(
   SOURCES
     "include/wisdom/impl/vulkan/vk_instance.cpp"
   LINK_TARGETS
-    wisdom-shared-headers
+    wisdom-internal-headers
     vkma
   COMPILE_DEFINITIONS
-    WISDOM_VULKAN=1
+    $<BUILD_INTERFACE:WISDOM_VULKAN=1>
 )
+
+
+
 
 # Unified targets
 # Create a convenience target for all headers
 add_library(wisdom-headers INTERFACE)
 add_library(wis::wisdom-headers ALIAS wisdom-headers)
-target_link_libraries(wisdom-headers INTERFACE wisdom-shared-headers)
+target_link_libraries(wisdom-headers INTERFACE wisdom-internal-headers)
 if(WISDOM_DX12)
   target_link_libraries(wisdom-headers INTERFACE wisdom-dx12-headers)
 endif()
@@ -75,16 +71,36 @@ if(WISDOM_VULKAN)
   target_link_libraries(wisdom-headers INTERFACE wisdom-vk-headers)
 endif()
 
+if(WISDOM_WINDOWS)
+  target_compile_definitions(wisdom-headers INTERFACE $<BUILD_INTERFACE:WISDOM_WINDOWS=1>)
+endif()
+if(WISDOM_LINUX)
+  target_compile_definitions(wisdom-headers INTERFACE $<BUILD_INTERFACE:WISDOM_LINUX=1>)
+endif()
+
+# Install everything, including .cpp for header only usage 
+install(TARGETS wisdom-headers
+  EXPORT wisdom-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom
+)
+
 # Create a convenience target for all static libraries
 if(WISDOM_BUILD_STATIC)
   add_library(wisdom STATIC)
   add_library(wis::wisdom ALIAS wisdom)
+  target_link_libraries(wisdom PUBLIC wisdom-headers)
   if(WISDOM_DX12)
-    target_link_libraries(wisdom PUBLIC wisdom-dx12-headers)
     target_sources(wisdom PRIVATE $<TARGET_OBJECTS:wisdom-dx12-objects>)
   endif()
   if(WISDOM_VULKAN)
-    target_link_libraries(wisdom PUBLIC wisdom-vk-headers)
     target_sources(wisdom PRIVATE $<TARGET_OBJECTS:wisdom-vk-objects>)
   endif()
   target_compile_definitions(wisdom PUBLIC WISDOM_BUILD_BINARIES=1)
@@ -92,6 +108,15 @@ if(WISDOM_BUILD_STATIC)
     CXX_STANDARD 20
     POSITION_INDEPENDENT_CODE ON
   )
+
+  install(
+    TARGETS wisdom
+    EXPORT wisdom-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 # Create a convenience target for all dynamic libraries
@@ -100,12 +125,11 @@ if(WISDOM_BUILD_SHARED)
   
   add_library(wisdom-shared SHARED)
   add_library(wis::wisdom-shared ALIAS wisdom-shared)
+  target_link_libraries(wisdom-shared PUBLIC wisdom-headers)
   if(WISDOM_DX12)
-    target_link_libraries(wisdom-shared PUBLIC wisdom-dx12-headers)
     target_sources(wisdom-shared PRIVATE $<TARGET_OBJECTS:wisdom-dx12-objects-shared>)
   endif()
   if(WISDOM_VULKAN)
-    target_link_libraries(wisdom-shared PUBLIC wisdom-vk-headers)
     target_sources(wisdom-shared PRIVATE $<TARGET_OBJECTS:wisdom-vk-objects-shared>)
   endif()
   target_compile_definitions(wisdom-shared PUBLIC WISDOM_BUILD_BINARIES=1 WISDOM_SHARED_LIBRARY=1)
@@ -122,4 +146,21 @@ if(WISDOM_BUILD_SHARED)
     STATIC_DEFINE WISDOM_STATIC
     INCLUDE_GUARD_NAME WISDOM_EXPORTS_H
   )
+
+  install(
+    TARGETS wisdom-shared
+    EXPORT wisdom-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
+
+
+install(
+  EXPORT wisdom-targets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  NAMESPACE wis::
+  FILE wisdom-targets.cmake # Not sure if this is still needed
+)

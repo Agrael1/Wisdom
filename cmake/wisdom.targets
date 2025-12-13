@@ -8,16 +8,17 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(AdditionalIncludeDirectoriesVK);$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\extensions\debug_info\;$(MSBuildThisFileDirectory)..\..\include\extensions\descriptor_buffer\;$(MSBuildThisFileDirectory)..\..\include\extensions\extended_allocation\;$(MSBuildThisFileDirectory)..\..\include\extensions\raytracing\;$(MSBuildThisFileDirectory)..\..\include\platform\;$(MSBuildThisFileDirectory)..\..\include\platform\windows\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(MSBuildThisFileDirectory)..\..\include\wisvk;$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="Exists('$(WisdomVulkanSDKPath)')">$(WisdomVulkanSDKPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WISDOM_MANUAL_DETECT=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions>WISDOM_DX12=1;WIS_WINDOWS_PLATFORM=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WISDOM_DX12=1;WISDOM_WINDOWS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'static'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions>WISDOM_LOG_LEVEL=$(WisdomLogLevelValue);WISVK_NO_DEFAULT_DELETER=1;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'dynamic'">WISDOM_BUILD_BINARIES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
 
     <Link>

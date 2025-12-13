@@ -34,6 +34,16 @@ function(wis_make_target_bundle)
   set_target_properties(wisdom-${BUNDLE_TARGET}-headers PROPERTIES 
     CXX_STANDARD 20
   )
+
+  # install only headers
+  install(
+    TARGETS wisdom-${BUNDLE_TARGET}-headers
+    EXPORT wisdom-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
   
   # Create static target with sources if not header-only
   if(NOT BUNDLE_HEADER_ONLY AND (WISDOM_BUILD_STATIC OR WISDOM_BUILD_SHARED) AND BUNDLE_SOURCES)

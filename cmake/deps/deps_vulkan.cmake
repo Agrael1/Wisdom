@@ -33,12 +33,11 @@ set_target_properties(vkma PROPERTIES CXX_STANDARD 20
                                                  POSITION_INDEPENDENT_CODE ON)
 target_compile_options(
   vkma
-  PUBLIC $<$<CXX_COMPILER_ID:Clang>:-Wno-nullability-completeness>
-         $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
+  PUBLIC $<$<CXX_COMPILER_ID:Clang>:-Wno-nullability-completeness>)
 
 install(
   TARGETS vkma
-  EXPORT wisdom-vk-targets
+  EXPORT wisdom-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

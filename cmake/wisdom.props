@@ -3,14 +3,6 @@
     <WisdomLinkage Condition="'$(WisdomLinkage)' == ''">static</WisdomLinkage>
     <WisdomForceVulkan Condition="'$(WisdomForceVulkan)' == ''">false</WisdomForceVulkan>
     <WisdomVulkanSDKPath Condition="'$(WisdomVulkanSDKPath)' == ''">$(VULKAN_SDK)\Include</WisdomVulkanSDKPath>
-    <WisdomLogLevel Condition="'$(WisdomLogLevel)' == ''">warn</WisdomLogLevel>
-
-    <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'debug'">0</WisdomLogLevelValue>
-    <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'trace'">1</WisdomLogLevelValue>
-    <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'info'">2</WisdomLogLevelValue>
-    <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'warn'">3</WisdomLogLevelValue>
-    <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'error'">4</WisdomLogLevelValue>
-    <WisdomLogLevelValue Condition="'$(WisdomLogLevel)' == 'critical'">5</WisdomLogLevelValue>
 
     <LibraryPostfix Condition="'$(Configuration)' == 'Debug'">d</LibraryPostfix>
     <LibraryPostfix Condition="'$(Configuration)' != 'Debug'"></LibraryPostfix>

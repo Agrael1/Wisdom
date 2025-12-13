@@ -37,7 +37,7 @@
  * - `opaque` defines opaque member. It @wis_mustnot be changed directly outside extension development.
  * \endcond
  * 
- * @section Result_descr Description
+ * @section WisInstanceExtensionHeader_descr Description
  * <hr>
  *
  * \cond WIS_GEN_WIS_IDS
