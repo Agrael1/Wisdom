@@ -3,6 +3,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #include <cstdio>
+#include <cstring>
 
 namespace wis {
 namespace impl {

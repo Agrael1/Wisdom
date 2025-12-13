@@ -18,7 +18,7 @@ public:
     }
     constexpr explicit basic_fixed_string(std::string_view str) noexcept
     {
-        char_traits::copy(_data, str.data(), min(N - 1, str.size()));
+        char_traits::copy(_data, str.data(), std::min(N - 1, str.size()));
     }
 
 public:

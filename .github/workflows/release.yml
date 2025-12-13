@@ -27,7 +27,7 @@ permissions:
   id-token: write
 
 env:
-  CMAKE_VERSION: '3.28'
+  VULKAN_SDK_VERSION: '1.3.290.0'
 
 jobs:
   # Step 1: Run full CI build
@@ -135,9 +135,7 @@ jobs:
           arch: x64
       
       - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{ env.CMAKE_VERSION }}
+        uses: lukka/get-cmake@v3.30.5
       
       - name: Setup NuGet
         uses: nuget/setup-nuget@v2
@@ -181,7 +179,7 @@ jobs:
           path: ./artifacts
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.tag_name }}
           name: Release ${{ needs.version.outputs.tag_name }}
@@ -238,26 +236,21 @@ jobs:
           sudo apt-get install -y doxygen graphviz ninja-build
       
       - name: Setup Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: jakoch/install-vulkan-sdk-action@v1.0.5
         with:
-          vulkan-query-version: latest
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+          optional_components: com.lunarg.vulkan.vma
       
       - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{ env.CMAKE_VERSION }}
+        uses: lukka/get-cmake@v3.30.5
       
       - name: Configure CMake
-        run: |
-          cmake -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DWISDOM_BUILD_DOCS=ON \
-            -DWISDOM_BUILD_EXAMPLES=OFF
+        run: cmake --preset linux-gcc-docs
       
       - name: Build Documentation
-        run: cmake --build build --target doc_doxygen
+        run: cmake --build --preset linux-gcc-docs
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -265,7 +258,7 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/docs/html/
+          path: out/build/linux-gcc-docs/docs/html/
       
       - name: Deploy to GitHub Pages
         id: deployment

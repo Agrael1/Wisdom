@@ -33,8 +33,7 @@
       "description": "GCC compiler configuration",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "/usr/bin/gcc",
-        "CMAKE_CXX_COMPILER": "/usr/bin/g++",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF"
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++"
       }
     },
     {
@@ -52,8 +51,7 @@
       "displayName": "Linux GCC Release",
       "description": "GCC Release build with examples and tests",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "WISDOM_BUILD_DOCS": true
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
@@ -65,8 +63,19 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_DOCS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "linux-gcc-docs",
+      "inherits": "linux-gcc-base",
+      "displayName": "Linux GCC Docs",
+      "description": "GCC build for documentation generation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_DOCS": true,
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
       }
     },
 
@@ -78,15 +87,14 @@
       "description": "Clang compiler configuration",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "/usr/bin/clang",
-        "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
       }
     },
     {
       "name": "linux-clang-debug",
       "inherits": "linux-clang-base",
       "displayName": "Linux Clang Debug",
-      "description": "Clang Debug build with C++ modules",
+      "description": "Clang Debug build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -97,8 +105,7 @@
       "displayName": "Linux Clang Release",
       "description": "Clang Release build with examples and tests",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "WISDOM_BUILD_DOCS": true
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
@@ -110,7 +117,6 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_DOCS": true,
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
       }
     },
@@ -137,8 +143,7 @@
       "description": "MSVC compiler configuration",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF"
+        "CMAKE_CXX_COMPILER": "cl.exe"
       },
       "architecture": {
         "value": "x64",
@@ -190,6 +195,18 @@
         "WISDOM_BUILD_TESTS": false
       }
     },
+    {
+      "name": "win-msvc-docs",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Docs",
+      "description": "MSVC build for documentation generation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_DOCS": true,
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
 
     {
       "name": "win-clang-base",
@@ -199,8 +216,7 @@
       "description": "Clang compiler configuration",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang.exe",
-        "CMAKE_CXX_COMPILER": "clang++.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
+        "CMAKE_CXX_COMPILER": "clang++.exe"
       },
       "architecture": {
         "value": "x64",
@@ -211,7 +227,7 @@
       "name": "win-clang-debug",
       "inherits": "win-clang-base",
       "displayName": "Windows Clang Debug",
-      "description": "Clang Debug build with C++ modules",
+      "description": "Clang Debug build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -261,8 +277,7 @@
       "description": "Clang-CL (Clang with MSVC compatibility) configuration",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl.exe",
-        "CMAKE_CXX_COMPILER": "clang-cl.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF"
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
       },
       "architecture": {
         "value": "x64",
@@ -310,8 +325,7 @@
       "description": "MinGW-w64 GCC compiler configuration",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc.exe",
-        "CMAKE_CXX_COMPILER": "g++.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF"
+        "CMAKE_CXX_COMPILER": "g++.exe"
       }
     },
     {
@@ -393,8 +407,7 @@
       "displayName": "macOS Debug",
       "description": "macOS Debug build with default compiler",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
@@ -403,9 +416,7 @@
       "displayName": "macOS Release",
       "description": "macOS Release build with default compiler",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "WISDOM_BUILD_DOCS": true,
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
@@ -417,9 +428,19 @@
         "CMAKE_BUILD_TYPE": "Release",
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_DOCS": true,
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "macos-docs",
+      "inherits": "macos-base",
+      "displayName": "macOS Docs",
+      "description": "macOS build for documentation generation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_DOCS": true,
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
       }
     }
   ],
@@ -441,6 +462,13 @@
       "name": "linux-gcc-lib",
       "displayName": "Linux GCC Lib",
       "configurePreset": "linux-gcc-lib",
+      "jobs": 16
+    },
+    {
+      "name": "linux-gcc-docs",
+      "displayName": "Linux GCC Docs",
+      "configurePreset": "linux-gcc-docs",
+      "targets": ["doc_doxygen"],
       "jobs": 16
     },
 
@@ -479,6 +507,13 @@
       "name": "win-msvc-lib",
       "displayName": "Windows MSVC Lib",
       "configurePreset": "win-msvc-lib",
+      "jobs": 16
+    },
+    {
+      "name": "win-msvc-docs",
+      "displayName": "Windows MSVC Docs",
+      "configurePreset": "win-msvc-docs",
+      "targets": ["doc_doxygen"],
       "jobs": 16
     },
 
@@ -555,6 +590,13 @@
       "name": "macos-lib",
       "displayName": "macOS Lib",
       "configurePreset": "macos-lib-release",
+      "jobs": 16
+    },
+    {
+      "name": "macos-docs",
+      "displayName": "macOS Docs",
+      "configurePreset": "macos-docs",
+      "targets": ["doc_doxygen"],
       "jobs": 16
     }
   ],

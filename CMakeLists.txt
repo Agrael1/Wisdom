@@ -33,7 +33,7 @@ option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_STATIC "Build the static lib." ON)
 option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
-option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
+option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
 
 # DXC deployment options
 set(WISDOM_DXC_PATH

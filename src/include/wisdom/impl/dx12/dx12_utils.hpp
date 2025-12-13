@@ -47,7 +47,7 @@ inline std::unique_ptr<char[]> to_string(std::wstring_view value) noexcept
 
 //-----------------------------------------------------------------------------
 template<func_pair func, wis::fixed_string message>
-constexpr inline WisResult make_result(HRESULT hr) noexcept
+WIS_CONSTEXPR23 inline WisResult make_result(HRESULT hr) noexcept
 {
     static WIS_CONSTEXPR23 const auto str = wis::detail::make_error_string<message, func>();
     return { convert_dx(hr), hr, str.c_str() };

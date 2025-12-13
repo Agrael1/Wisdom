@@ -15,41 +15,47 @@ wis_make_target_bundle(
   "include/wisdom/util/allocation.hpp"
   INCLUDE_DIRECTORIES
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
-  HEADER_ONLY)
-
-wis_make_target_bundle(
-  TARGET
-  dx12
-  HEADERS
-  "include/wisdom/impl/dx12/dx12_types.hpp"
-  "include/wisdom/impl/dx12/dx12_utils.hpp"
-  "include/wisdom/generated/dx12_cpp_api.hpp"
-  "include/wisdom/generated/dx12_api.h"
-  SOURCES
-  "include/wisdom/impl/dx12/dx12_instance.cpp"
-  LINK_TARGETS
-  wisdom-internal-headers
-  DXGI
-  DXGUID
+  HEADER_ONLY
   COMPILE_DEFINITIONS
-  $<BUILD_INTERFACE:WISDOM_DX12=1>)
+  NOMINMAX)
 
-wis_make_target_bundle(
-  TARGET
-  vk
-  HEADERS
-  "include/wisdom/impl/vulkan/vk_types.hpp"
-  "include/wisdom/impl/vulkan/vk_utils.hpp"
-  "include/wisdom/impl/vulkan/vk_loader.hpp"
-  "include/wisdom/generated/vk_cpp_api.hpp"
-  "include/wisdom/generated/vk_api.h"
-  SOURCES
-  "include/wisdom/impl/vulkan/vk_instance.cpp"
-  LINK_TARGETS
-  wisdom-internal-headers
-  vkma
-  COMPILE_DEFINITIONS
-  $<BUILD_INTERFACE:WISDOM_VULKAN=1>)
+if(WISDOM_DX12)
+  wis_make_target_bundle(
+    TARGET
+    dx12
+    HEADERS
+    "include/wisdom/impl/dx12/dx12_types.hpp"
+    "include/wisdom/impl/dx12/dx12_utils.hpp"
+    "include/wisdom/generated/dx12_cpp_api.hpp"
+    "include/wisdom/generated/dx12_api.h"
+    SOURCES
+    "include/wisdom/impl/dx12/dx12_instance.cpp"
+    LINK_TARGETS
+    wisdom-internal-headers
+    DXGI
+    DXGUID
+    COMPILE_DEFINITIONS
+    $<BUILD_INTERFACE:WISDOM_DX12=1>)
+endif()
+
+if(WISDOM_VULKAN)
+  wis_make_target_bundle(
+    TARGET
+    vk
+    HEADERS
+    "include/wisdom/impl/vulkan/vk_types.hpp"
+    "include/wisdom/impl/vulkan/vk_utils.hpp"
+    "include/wisdom/impl/vulkan/vk_loader.hpp"
+    "include/wisdom/generated/vk_cpp_api.hpp"
+    "include/wisdom/generated/vk_api.h"
+    SOURCES
+    "include/wisdom/impl/vulkan/vk_instance.cpp"
+    LINK_TARGETS
+    wisdom-internal-headers
+    vkma
+    COMPILE_DEFINITIONS
+    $<BUILD_INTERFACE:WISDOM_VULKAN=1>)
+endif()
 
 # Unified targets Create a convenience target for all headers
 add_library(wisdom-headers INTERFACE)

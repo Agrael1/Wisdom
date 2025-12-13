@@ -45,10 +45,10 @@ function(wis_make_target_bundle)
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
   
-  # Create static target with sources if not header-only
+  # Create OBJECT targets for use with $<TARGET_OBJECTS:...>
   if(NOT BUNDLE_HEADER_ONLY AND (WISDOM_BUILD_STATIC OR WISDOM_BUILD_SHARED) AND BUNDLE_SOURCES)
     if(WISDOM_BUILD_STATIC)
-      add_library(wisdom-${BUNDLE_TARGET}-objects STATIC ${BUNDLE_HEADERS})
+      add_library(wisdom-${BUNDLE_TARGET}-objects OBJECT ${BUNDLE_HEADERS})
       add_library(wis::wisdom-${BUNDLE_TARGET}-objects ALIAS wisdom-${BUNDLE_TARGET}-objects)
       target_sources(wisdom-${BUNDLE_TARGET}-objects
         PRIVATE ${BUNDLE_SOURCES}
@@ -62,7 +62,7 @@ function(wis_make_target_bundle)
     endif()
 
     if(WISDOM_BUILD_SHARED)
-      add_library(wisdom-${BUNDLE_TARGET}-objects-shared STATIC ${BUNDLE_HEADERS})
+      add_library(wisdom-${BUNDLE_TARGET}-objects-shared OBJECT ${BUNDLE_HEADERS})
       add_library(wis::wisdom-${BUNDLE_TARGET}-objects-shared ALIAS wisdom-${BUNDLE_TARGET}-objects-shared)
       target_sources(wisdom-${BUNDLE_TARGET}-objects-shared
         PRIVATE ${BUNDLE_SOURCES}

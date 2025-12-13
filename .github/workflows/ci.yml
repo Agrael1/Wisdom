@@ -17,7 +17,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  CMAKE_VERSION: '3.28'
+  VULKAN_SDK_VERSION: '1.3.290.0'
 
 jobs:
   build-windows-dx12:
@@ -34,15 +34,13 @@ jobs:
           arch: x64
       
       - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{ env.CMAKE_VERSION }}
+        uses: lukka/get-cmake@v3.30.5
       
       - name: Configure CMake
-        run: cmake --preset x64-release
+        run: cmake --preset win-msvc-release
       
       - name: Build
-        run: cmake --build --preset x64-release
+        run: cmake --build --preset win-msvc-release
 
   build-windows-vulkan:
     name: Windows (Vulkan)
@@ -58,22 +56,21 @@ jobs:
           arch: x64
       
       - name: Setup Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: jakoch/install-vulkan-sdk-action@v1.0.5
         with:
-          vulkan-query-version: latest
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+          optional_components: com.lunarg.vulkan.vma
       
       - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{ env.CMAKE_VERSION }}
+        uses: lukka/get-cmake@v3.30.5
       
       - name: Configure CMake
-        run: cmake --preset x64-release -DWISDOM_FORCE_VULKAN=ON
+        run: cmake --preset win-msvc-release -DWISDOM_FORCE_VULKAN=ON
       
       - name: Build
-        run: cmake --build --preset x64-release
+        run: cmake --build --preset win-msvc-release
 
   build-windows-clang:
     name: Windows (Clang + Vulkan)
@@ -95,16 +92,15 @@ jobs:
           version: 1.12.0
       
       - name: Setup Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: jakoch/install-vulkan-sdk-action@v1.0.5
         with:
-          vulkan-query-version: latest
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+          optional_components: com.lunarg.vulkan.vma
       
       - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{ env.CMAKE_VERSION }}
+        uses: lukka/get-cmake@v3.30.5
       
       - name: Configure CMake
         run: cmake --preset win-clang-release -DWISDOM_FORCE_VULKAN=ON
@@ -126,19 +122,18 @@ jobs:
           sudo apt-get install -y ninja-build
       
       - name: Setup Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: jakoch/install-vulkan-sdk-action@v1.0.5
         with:
-          vulkan-query-version: latest
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+          optional_components: com.lunarg.vulkan.vma
       
       - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{ env.CMAKE_VERSION }}
+        uses: lukka/get-cmake@v3.30.5
       
       - name: Configure CMake
-        run: cmake --preset linux-release
+        run: cmake --preset linux-gcc-release
       
       - name: Build
-        run: cmake --build --preset linux-release
+        run: cmake --build --preset linux-gcc-release

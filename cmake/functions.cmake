@@ -43,12 +43,28 @@ function(wisdom_detect_platform)
       INTERFACE_INCLUDE_DIRECTORIES "${WISDOM_VULKAN_HEADER_PATH}"
     )
   else()
+    # Help find_package by using VULKAN_SDK environment variable if set
+    if(DEFINED ENV{VULKAN_SDK} AND NOT Vulkan_FOUND)
+      set(VULKAN_SDK_PATH "$ENV{VULKAN_SDK}")
+      message(STATUS "VULKAN_SDK environment variable found: ${VULKAN_SDK_PATH}")
+      
+      # Add hints for find_package
+      list(APPEND CMAKE_PREFIX_PATH "${VULKAN_SDK_PATH}")
+      
+      # On Linux, the SDK structure might be different
+      if(UNIX AND NOT APPLE)
+        list(APPEND CMAKE_PREFIX_PATH "${VULKAN_SDK_PATH}/x86_64")
+      endif()
+    endif()
+    
     # Try to find Vulkan
     find_package(Vulkan QUIET)
     if(Vulkan_FOUND)
       set(WISDOM_VULKAN TRUE CACHE BOOL "Vulkan support detected" FORCE)
+      message(STATUS "Vulkan found: ${Vulkan_INCLUDE_DIRS}")
     else()
       set(WISDOM_VULKAN FALSE CACHE BOOL "Vulkan support detected" FORCE)
+      message(STATUS "Vulkan not found")
     endif()
   endif()
 endfunction()

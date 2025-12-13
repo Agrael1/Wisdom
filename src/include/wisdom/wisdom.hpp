@@ -6,18 +6,6 @@
 #error "This is a C++ only header"
 #endif // __cplusplus
 
-#ifdef WISDOM_UWP
-static_assert(WISDOM_UWP && _WIN32, "Platform error");
-#endif // WISDOM_UWP
-
-#ifdef WISDOM_WINDOWS
-static_assert(WISDOM_WINDOWS && _WIN32, "Platform error");
-#endif // WISDOM_WINDOWS
-
-#ifdef WISDOM_LINUX
-static_assert(WISDOM_LINUX && __linux__, "Platform error");
-#endif // WISDOM_LINUX
-
 #if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
 #define FORCEVK_SWITCH 1
 #else

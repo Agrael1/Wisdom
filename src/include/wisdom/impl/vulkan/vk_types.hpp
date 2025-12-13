@@ -10,6 +10,7 @@
 #include <cstring>
 #include <array>
 #include <atomic>
+#include <wisdom/bridge/span.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -86,7 +87,7 @@ struct InstanceExtensionCollector {
 
     InstanceExtensionCollector() noexcept
     {
-        enabled_extension_names_set.reserve(std::size(instance_extensions) + instance_ext_initial_size);
+        enabled_extension_names_set.reserve(wis::detail::size(instance_extensions) + instance_ext_initial_size);
         enabled_layer_names_set.reserve(instance_layer_initial_size); // typical number of layers is small
         for (const auto& ext : instance_extensions) {
             enabled_extension_names_set.insert(ext);
