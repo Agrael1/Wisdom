@@ -54,15 +54,15 @@ using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
  * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
  *
  * */
-inline WIS_NODISCARD wis::Instance CreateInstance(bool                                     debug_layer,
+WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
                                                   wis::span<wis::InstanceExtensionHeader*> extensions,
                                                   wis::Result&                             out_result) noexcept
 {
     wis::DX12Instance instance;
-    out_result = reinterpret_cast<wis::Result&&>(::wisDX12CreateInstance(debug_layer,
-                                                                         reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                                                         extensions.size(),
-                                                                         instance.GetStorage()));
+    out_result = convert_result(::wisDX12CreateInstance(debug_layer,
+                                                        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                                        extensions.size(),
+                                                        instance.GetStorage()));
     return instance;
 }
 
@@ -98,15 +98,15 @@ using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
  * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
  *
  * */
-inline WIS_NODISCARD wis::Instance CreateInstance(bool                                     debug_layer,
+WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
                                                   wis::span<wis::InstanceExtensionHeader*> extensions,
                                                   wis::Result&                             out_result) noexcept
 {
     wis::VKInstance instance;
-    out_result = reinterpret_cast<wis::Result&&>(::wisVKCreateInstance(debug_layer,
-                                                                       reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                                                       extensions.size(),
-                                                                       instance.GetStorage()));
+    out_result = convert_result(::wisVKCreateInstance(debug_layer,
+                                                      reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                      extensions.size(),
+                                                      instance.GetStorage()));
     return instance;
 }
 

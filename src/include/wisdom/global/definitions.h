@@ -91,8 +91,13 @@
     } name
 
 // TODO: CMake definition for WISDOM_API when building shared library
+#ifdef WISDOM_SHARED_LIBRARY
+#include <wisdom/generated/wisdom_exports.h>
+#endif // WISDOM_SHARED_LIBRARY
+
 #ifndef WISDOM_API
 #define WISDOM_API
 #endif // WISDOM_API
+
 
 #endif // !WIS_GLOBAL_DEFINITIONS_H

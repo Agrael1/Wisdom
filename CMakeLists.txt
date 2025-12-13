@@ -28,7 +28,8 @@ option(WISDOM_USE_FMT "Build Wisdom with fmtlib" ${LOCAL_USE_FMTLIB})
 option(WISDOM_FORCE_VULKAN "Force Vulkan support" OFF)
 option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
-option(WISDOM_BUILD_BINARIES "Build the static lib." ON)
+option(WISDOM_BUILD_STATIC "Build the static lib." ON)
+option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." ${WTOP})
 
 # DXC deployment options
@@ -37,6 +38,7 @@ set(WISDOM_DXC_PATH "" CACHE PATH "Path to custom DXC installation (optional)")
 # Load all dependencies
 include(cmake/deps.cmake)
 include(cmake/doc.cmake)
+include(cmake/targets.cmake)
 
 message(STATUS "Wisdom Configuration:
     WISDOM_VULKAN: ${WISDOM_VULKAN}
@@ -46,6 +48,10 @@ message(STATUS "Wisdom Configuration:
     WISDOM_PLATFORM: ${WISDOM_PLATFORM}
 
     WISDOM_BUILD_DOCS: ${WISDOM_BUILD_DOCS}
+    WISDOM_BUILD_EXAMPLES: ${WISDOM_BUILD_EXAMPLES}
+    WISDOM_BUILD_TESTS: ${WISDOM_BUILD_TESTS}
+    WISDOM_BUILD_STATIC: ${WISDOM_BUILD_STATIC}
+    WISDOM_BUILD_SHARED: ${WISDOM_BUILD_SHARED}
 
     DXC Configuration:
       Custom Path: ${WISDOM_DXC_PATH}

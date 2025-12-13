@@ -8,6 +8,13 @@
 #include <cassert>
 
 namespace wis {
+//-----------------------------------------------------------------------------
+constexpr inline wis::Result convert_result(WisResult result) noexcept
+{
+    return { static_cast<wis::Status>(result.status), result.platform_code, result.error };
+}
+
+//-----------------------------------------------------------------------------
 namespace detail {
 struct DX12InstanceExtensionInfoExtractor;
 } // namespace detail
@@ -70,4 +77,12 @@ struct DX12TestExtension : public DX12InstanceExtensionImpl<DX12TestExtension> {
 
 } // namespace wis
 
+// Include implementation if header only build
+#ifndef WISDOM_BUILD_BINARIES
+#if !WIS_HAS_CPP20 && !defined(WISDOM_LANG_DISABLE_CHECK)
+#error "C++20 is required to build wisdom as header-only library"
+#endif // !WIS_HAS_CPP20
+
+#include "dx12_instance.cpp"
+#endif // WISDOM_BUILD_BINARIES
 #endif // DX12_FACTORY_HPP

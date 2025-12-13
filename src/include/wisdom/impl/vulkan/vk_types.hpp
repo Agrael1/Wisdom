@@ -12,6 +12,13 @@
 #include <atomic>
 
 namespace wis {
+//-----------------------------------------------------------------------------
+constexpr inline wis::Result convert_result(WisResult result) noexcept
+{
+    return { static_cast<wis::Status>(result.status), result.platform_code, result.error };
+}
+
+//-----------------------------------------------------------------------------
 namespace detail {
 struct CStringHash {
     std::size_t operator()(const char* s) const
@@ -229,4 +236,12 @@ struct VKInstanceExtensionHeader {
 };
 } // namespace wis
 
+// Include implementation if header only build
+#ifndef WISDOM_BUILD_BINARIES
+#if !WIS_HAS_CPP20 && !defined(WISDOM_LANG_DISABLE_CHECK)
+#error "C++20 is required to build wisdom as header-only library"
+#endif // !WIS_HAS_CPP20
+
+#include "vk_instance.cpp"
+#endif // WISDOM_BUILD_BINARIES
 #endif // DX12_FACTORY_H

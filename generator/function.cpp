@@ -336,7 +336,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
 {
     std::string add_decl;
     if (func.return_type.IsRV() || func.return_type.IsDirect()) {
-        add_decl = wis::format("{}{} ", pre_decl, "WIS_NODISCARD");
+        add_decl = wis::format("{} {}", "WIS_NODISCARD", pre_decl);
     }
 
     std::string func_decl = MakeCPPFunctionProto(func, impl, add_decl.empty() ? pre_decl : add_decl, kind, prefixed);
@@ -363,7 +363,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, re_impl), ret_value_name);
 
-        body += wis::format("    out_result = reinterpret_cast<wis::Result&&>(::{}({}",
+        body += wis::format("    out_result = convert_result(::{}({}",
                             GetCFullTypename(func.name, re_impl),
                             func.this_type.empty() ? "" : "&_impl_storage");
 

@@ -365,6 +365,8 @@ FodyWeavers.xsd
 /CMakeSettings.json
 *.idb
 .vscode/settings.json
-/**/gen/generate_functions.bat
 #restyler
 *.orig
+
+# Block generated file for exports
+/**/generated/wisdom_exports.h

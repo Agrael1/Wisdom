@@ -35,15 +35,15 @@ public:
  * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
  *
  * */
-inline WIS_NODISCARD wis::VKInstance VKCreateInstance(bool                                       debug_layer,
+WIS_NODISCARD inline wis::VKInstance VKCreateInstance(bool                                       debug_layer,
                                                       wis::span<wis::VKInstanceExtensionHeader*> extensions,
                                                       wis::Result&                               out_result) noexcept
 {
     wis::VKInstance instance;
-    out_result = reinterpret_cast<wis::Result&&>(::wisVKCreateInstance(debug_layer,
-                                                                       reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                                                       extensions.size(),
-                                                                       instance.GetStorage()));
+    out_result = convert_result(::wisVKCreateInstance(debug_layer,
+                                                      reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                      extensions.size(),
+                                                      instance.GetStorage()));
     return instance;
 }
 

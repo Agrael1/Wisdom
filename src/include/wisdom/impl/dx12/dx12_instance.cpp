@@ -10,10 +10,10 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
-WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             debug_layer,
-                                             WisDX12InstanceExtensionHeader** extensions,
-                                             size_t                           extension_count,
-                                             WisDX12Instance*                 instance)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
+                                                        WisDX12InstanceExtensionHeader** extensions,
+                                                        size_t                           extension_count,
+                                                        WisDX12Instance*                 instance)
 {
     WisResult res = dx_success;
     // Instance can come as partially constructed from C side
@@ -43,7 +43,7 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
     return res;
 }
 
-WIS_EXTERN_C void wisDX12DestroyInstance(WisDX12Instance* self)
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 {
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(self);
     safe_release(impl.factory);

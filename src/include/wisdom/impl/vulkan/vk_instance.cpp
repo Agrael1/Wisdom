@@ -5,7 +5,6 @@
 #include <wisdom/impl/vulkan/vk_utils.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <memory>
-#include <span>
 #include <unordered_set>
 
 using namespace wis;
@@ -100,7 +99,7 @@ GetInstanceExtensions(WisResult& result, const VKMainGlobal& table) noexcept
         result = make_result<Func(), "Not enough memory for extensions">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return exts;
     }
-    for (const auto& i : std::span{ ext_props_raw.get(), ext_count }) {
+    for (const auto& i : wis::span{ ext_props_raw.get(), ext_count }) {
         exts.insert(i);
     }
     return exts;
@@ -130,17 +129,17 @@ GetInstanceLayers(WisResult& result, const VKMainGlobal& table) noexcept
         result = make_result<Func(), "Not enough memory for layers">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return layers;
     }
-    for (const auto& i : std::span{ layer_props_raw.get(), layer_count }) {
+    for (const auto& i : wis::span{ layer_props_raw.get(), layer_count }) {
         layers.insert(i);
     }
     return layers;
 }
 } // namespace wis::detail
 
-WIS_EXTERN_C WisResult wisVKCreateInstance(bool                           debug_layer,
-                                           WisVKInstanceExtensionHeader** extensions,
-                                           size_t                         extension_count,
-                                           WisVKInstance*                 instance)
+WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
+                                                      WisVKInstanceExtensionHeader** extensions,
+                                                      size_t                         extension_count,
+                                                      WisVKInstance*                 instance)
 {
     WisResult res = vk_success;
     // Instance can come as partially constructed from C side
@@ -264,7 +263,7 @@ WIS_EXTERN_C WisResult wisVKCreateInstance(bool                           debug_
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<VKInstanceExtensionHeader*>(ext);
         if (table) {
-            auto xres = table->Init(impl, std::span{ enabled_extensions_and_layers_names.get(), enabled_extension_count }, std::span{ enabled_extensions_and_layers_names.get() + enabled_extension_count, enabled_layer_count });
+            auto xres = table->Init(impl, wis::span{ enabled_extensions_and_layers_names.get(), enabled_extension_count }, wis::span{ enabled_extensions_and_layers_names.get() + enabled_extension_count, enabled_layer_count });
             if (xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
@@ -273,7 +272,7 @@ WIS_EXTERN_C WisResult wisVKCreateInstance(bool                           debug_
     return res;
 }
 
-WIS_EXTERN_C void wisVKDestroyInstance(WisVKInstance* self)
+WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
 {
     auto& impl = *reinterpret_cast<VKInstanceImpl*>(self);
     if (!impl.instance) {

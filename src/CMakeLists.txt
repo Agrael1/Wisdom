@@ -1,54 +1,4 @@
-function(wis_make_target_bundle)
-  cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS" ${ARGN})
-  
-  if(NOT BUNDLE_TARGET)
-    message(FATAL_ERROR "TARGET is required for wis_make_target_bundle")
-  endif()
 
-  source_group("Headers" FILES ${BUNDLE_HEADERS})
-  source_group("Sources" FILES ${BUNDLE_SOURCES})
-
-  # Create header-only interface target
-  add_library (wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_HEADERS} ${BUNDLE_SOURCES})
-  add_library (wis::wisdom-${BUNDLE_TARGET}-headers ALIAS wisdom-${BUNDLE_TARGET}-headers)
-
-  # Link dependencies
-  if(BUNDLE_LINK_TARGETS)
-    target_link_libraries(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_LINK_TARGETS})
-  endif()
-  
-  # Include directories
-  if(BUNDLE_INCLUDE_DIRECTORIES)
-    target_include_directories(wisdom-${BUNDLE_TARGET}-headers
-    INTERFACE
-      $<BUILD_INTERFACE:${BUNDLE_INCLUDE_DIRECTORIES}>
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    )
-  endif()
-
-    # Compile definitions
-  if(BUNDLE_COMPILE_DEFINITIONS)
-    target_compile_definitions(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_COMPILE_DEFINITIONS})
-  endif()
-
-  set_target_properties(wisdom-${BUNDLE_TARGET}-headers PROPERTIES CXX_STANDARD 20)
-  
-  # Create static target with sources if not header-only
-  if(NOT BUNDLE_HEADER_ONLY AND WISDOM_BUILD_BINARIES AND BUNDLE_SOURCES)
-    add_library(wisdom-${BUNDLE_TARGET} STATIC ${BUNDLE_HEADERS})
-    add_library(wis::wisdom-${BUNDLE_TARGET} ALIAS wisdom-${BUNDLE_TARGET})
-    target_sources(wisdom-${BUNDLE_TARGET}
-      PRIVATE ${BUNDLE_SOURCES}
-    )
-
-    target_link_libraries(wisdom-${BUNDLE_TARGET} PUBLIC wisdom-${BUNDLE_TARGET}-headers)
-    target_compile_definitions(wisdom-${BUNDLE_TARGET} PRIVATE WISDOM_BUILD_BINARIES=1)
-    set_target_properties(wisdom-${BUNDLE_TARGET} PROPERTIES CXX_STANDARD 20)
-  else()
-  	add_library(wisdom-${BUNDLE_TARGET} ALIAS wisdom-${BUNDLE_TARGET}-headers)
-  	add_library(wis::wisdom-${BUNDLE_TARGET} ALIAS wisdom-${BUNDLE_TARGET}-headers)
-  endif()
-endfunction()
 
 wis_make_target_bundle(
   TARGET shared
@@ -69,6 +19,7 @@ wis_make_target_bundle(
     "include/wisdom/util/allocation.hpp"
   INCLUDE_DIRECTORIES
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  HEADER_ONLY
 )
 
 if(WISDOM_WINDOWS)
@@ -88,7 +39,7 @@ wis_make_target_bundle(
   SOURCES
     "include/wisdom/impl/dx12/dx12_instance.cpp"
   LINK_TARGETS
-    wisdom-shared
+    wisdom-shared-headers
     DXGI
     DXGUID
   COMPILE_DEFINITIONS
@@ -106,8 +57,69 @@ wis_make_target_bundle(
   SOURCES
     "include/wisdom/impl/vulkan/vk_instance.cpp"
   LINK_TARGETS
-    wisdom-shared
+    wisdom-shared-headers
     vkma
   COMPILE_DEFINITIONS
     WISDOM_VULKAN=1
 )
+
+# Unified targets
+# Create a convenience target for all headers
+add_library(wisdom-headers INTERFACE)
+add_library(wis::wisdom-headers ALIAS wisdom-headers)
+target_link_libraries(wisdom-headers INTERFACE wisdom-shared-headers)
+if(WISDOM_DX12)
+  target_link_libraries(wisdom-headers INTERFACE wisdom-dx12-headers)
+endif()
+if(WISDOM_VULKAN)
+  target_link_libraries(wisdom-headers INTERFACE wisdom-vk-headers)
+endif()
+
+# Create a convenience target for all static libraries
+if(WISDOM_BUILD_STATIC)
+  add_library(wisdom STATIC)
+  add_library(wis::wisdom ALIAS wisdom)
+  if(WISDOM_DX12)
+    target_link_libraries(wisdom PUBLIC wisdom-dx12-headers)
+    target_sources(wisdom PRIVATE $<TARGET_OBJECTS:wisdom-dx12-objects>)
+  endif()
+  if(WISDOM_VULKAN)
+    target_link_libraries(wisdom PUBLIC wisdom-vk-headers)
+    target_sources(wisdom PRIVATE $<TARGET_OBJECTS:wisdom-vk-objects>)
+  endif()
+  target_compile_definitions(wisdom PUBLIC WISDOM_BUILD_BINARIES=1)
+  set_target_properties(wisdom PROPERTIES 
+    CXX_STANDARD 20
+    POSITION_INDEPENDENT_CODE ON
+  )
+endif()
+
+# Create a convenience target for all dynamic libraries
+if(WISDOM_BUILD_SHARED)
+  include(GenerateExportHeader)
+  
+  add_library(wisdom-shared SHARED)
+  add_library(wis::wisdom-shared ALIAS wisdom-shared)
+  if(WISDOM_DX12)
+    target_link_libraries(wisdom-shared PUBLIC wisdom-dx12-headers)
+    target_sources(wisdom-shared PRIVATE $<TARGET_OBJECTS:wisdom-dx12-objects-shared>)
+  endif()
+  if(WISDOM_VULKAN)
+    target_link_libraries(wisdom-shared PUBLIC wisdom-vk-headers)
+    target_sources(wisdom-shared PRIVATE $<TARGET_OBJECTS:wisdom-vk-objects-shared>)
+  endif()
+  target_compile_definitions(wisdom-shared PUBLIC WISDOM_BUILD_BINARIES=1 WISDOM_SHARED_LIBRARY=1)
+  set_target_properties(wisdom-shared PROPERTIES 
+    CXX_STANDARD 20
+    POSITION_INDEPENDENT_CODE ON
+  )
+
+  generate_export_header(
+    wisdom-shared
+    BASE_NAME WISDOM
+    EXPORT_MACRO_NAME WISDOM_API
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/wisdom/generated/wisdom_exports.h
+    STATIC_DEFINE WISDOM_STATIC
+    INCLUDE_GUARD_NAME WISDOM_EXPORTS_H
+  )
+endif()
