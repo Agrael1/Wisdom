@@ -75,15 +75,15 @@ struct RaytracingConstants;
  * Translates to VkShaderStageFlagBits for vk implementation.
  * */
 enum class ShaderStages : uint32_t {
-    All = 0, ///< All shader stages.
-    Vertex = 1, ///< Vertex shader stage.
-    Hull = 2, ///< Hull/Tessellation control shader stage.
-    Domain = 3, ///< Domain/Tessellation evaluation shader stage.
-    Geometry = 4, ///< Geometry shader stage.
-    Pixel = 5, ///< Pixel/Fragment shader stage.
+    All           = 0, ///< All shader stages.
+    Vertex        = 1, ///< Vertex shader stage.
+    Hull          = 2, ///< Hull/Tessellation control shader stage.
+    Domain        = 3, ///< Domain/Tessellation evaluation shader stage.
+    Geometry      = 4, ///< Geometry shader stage.
+    Pixel         = 5, ///< Pixel/Fragment shader stage.
     Amplification = 6, ///< Amplification shader stage.
-    Mesh = 7, ///< Mesh shader stage.
-    Count = 8, ///< Number of stages.
+    Mesh          = 7, ///< Mesh shader stage.
+    Count         = 8, ///< Number of stages.
 };
 
 /**
@@ -105,7 +105,7 @@ enum class Status : int32_t {
      * you to check if demanded functionality is in place.
      * */
     Partial = 2,
-    Error = -1, ///< Operation failed. Check wis::Result::error for more details.
+    Error   = -1, ///< Operation failed. Check wis::Result::error for more details.
     /**
      * @brief One or more arguments, or parts of arguments
      * passed to the function were incorrect. Check wis::Result::error for more details.
@@ -133,9 +133,9 @@ enum class Status : int32_t {
  *
  * */
 enum class QueueType : uint32_t {
-    Graphics = 0, ///< Queue is used for graphics operations.
-    Compute = 2, ///< Queue is used for compute operations.
-    Copy = 3, ///< Queue is used for copy operations.
+    Graphics    = 0, ///< Queue is used for graphics operations.
+    Compute     = 2, ///< Queue is used for compute operations.
+    Copy        = 3, ///< Queue is used for copy operations.
     VideoDecode = 4, ///< Queue is used for video decoding operations.
 };
 
@@ -152,9 +152,9 @@ enum class DescriptorType : uint32_t {
      * Stored in separate descriptor table and
      * can't be mixed with other descriptor types.
      * */
-    Sampler = 0,
+    Sampler        = 0,
     ConstantBuffer = 1, ///< Descriptor is a constant buffer.
-    Texture = 2, ///< Descriptor is a texture.
+    Texture        = 2, ///< Descriptor is a texture.
     /**
      * @brief Descriptor is an unordered access read-write texture.
      * Used for read/write operations in compute shaders.
@@ -169,7 +169,7 @@ enum class DescriptorType : uint32_t {
      * @brief Descriptor is a shader resource buffer.
      * May be bigger than constant buffers, but slower.
      * */
-    Buffer = 5,
+    Buffer                = 5,
     AccelerationStructure = 6, ///< Descriptor is an acceleration structure.
 };
 
@@ -190,7 +190,7 @@ enum class MutiWaitFlags : uint32_t {
  * */
 enum class ASGeometryType : uint32_t {
     Triangles = 0, ///< Triangles geometry type. Used for triangle meshes.
-    AABBs = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
+    AABBs     = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
 };
 
 /**
@@ -219,12 +219,12 @@ enum class AdapterPreference {
  * Translates to VkShaderStageFlagBits for vk implementation.
  * */
 enum class RaytracingShaderType : uint32_t {
-    Raygen = 0, ///< Ray generation shader stage.
-    Miss = 1, ///< Miss shader stage.
-    ClosestHit = 2, ///< Closest hit shader stage.
-    AnyHit = 3, ///< Any hit shader stage.
+    Raygen       = 0, ///< Ray generation shader stage.
+    Miss         = 1, ///< Miss shader stage.
+    ClosestHit   = 2, ///< Closest hit shader stage.
+    AnyHit       = 3, ///< Any hit shader stage.
     Intersection = 4, ///< Intersection shader stage.
-    Callable = 5, ///< Callable shader stage.
+    Callable     = 5, ///< Callable shader stage.
 };
 
 /**
@@ -235,7 +235,7 @@ enum class RaytracingShaderType : uint32_t {
 enum class Severity {
     Debug = 0, ///< Message carries debug information.
     Trace = 1, ///< Message contains trace point (function call stack info).
-    Info = 2, ///< Message contains general information.
+    Info  = 2, ///< Message contains general information.
     /**
      * @brief Message contains warning.
      * There is something wrong and it may affect performance or stability of the application.
@@ -259,7 +259,7 @@ enum class Severity {
  * */
 enum class ASLevel : uint32_t {
     Bottom = 0, ///< Bottom level Acceleration Structure. Contains geometry data.
-    Top = 1, ///< Top level Acceleration Structure. Contains instance data.
+    Top    = 1, ///< Top level Acceleration Structure. Contains instance data.
 };
 
 /**
@@ -269,7 +269,7 @@ enum class ASLevel : uint32_t {
  * Translates to D3D12_HIT_GROUP_TYPE for dx implementation.
  * */
 enum class HitGroupType : uint32_t {
-    Triangles = 0, ///< Hit group for triangles.
+    Triangles  = 0, ///< Hit group for triangles.
     Procedural = 1, ///< Hit group for procedural geometry.
 };
 
@@ -278,7 +278,7 @@ enum class HitGroupType : uint32_t {
  *
  * */
 enum class InputClass : uint32_t {
-    PerVertex = 0, ///< Vertex buffer data is vertex data.
+    PerVertex   = 0, ///< Vertex buffer data is vertex data.
     PerInstance = 1, ///< Vertex buffer data is per instance data.
 };
 
@@ -290,9 +290,9 @@ enum class InputClass : uint32_t {
  * Translates to VkCullModeFlags for vk implementation.
  * */
 enum class CullMode : uint32_t {
-    None = 1, ///< No culling.
+    None  = 1, ///< No culling.
     Front = 2, ///< Cull front-facing triangles.
-    Back = 3, ///< Cull back-facing triangles.
+    Back  = 3, ///< Cull back-facing triangles.
 };
 
 /**
@@ -848,7 +848,7 @@ enum class DescriptorMemory : uint32_t {
  * Translates to VkFrontFace for vk implementation.
  * */
 enum class WindingOrder : uint32_t {
-    Clockwise = 0, ///< Front-facing triangles have clockwise winding order.
+    Clockwise        = 0, ///< Front-facing triangles have clockwise winding order.
     CounterClockwise = 1, ///< Front-facing triangles have counter-clockwise winding order.
 };
 
@@ -859,10 +859,10 @@ enum class WindingOrder : uint32_t {
  * Translates to VkSampleCountFlagBits for vk implementation.
  * */
 enum class SampleRate : uint32_t {
-    S1 = 1, ///< 1 sample per pixel.
-    S2 = 2, ///< 2 samples per pixel.
-    S4 = 4, ///< 4 samples per pixel.
-    S8 = 8, ///< 8 samples per pixel.
+    S1  = 1, ///< 1 sample per pixel.
+    S2  = 2, ///< 2 samples per pixel.
+    S4  = 4, ///< 4 samples per pixel.
+    S8  = 8, ///< 8 samples per pixel.
     S16 = 16, ///< 16 samples per pixel.
 };
 
@@ -873,9 +873,9 @@ enum class SampleRate : uint32_t {
  * Translates to DXGI_SCALING for dx implementation.
  * */
 enum class SwapchainScaling : uint32_t {
-    None = 0, ///< No scaling. The swapchain size is equal to the window size.
+    None    = 0, ///< No scaling. The swapchain size is equal to the window size.
     Stretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
-    Aspect = 2, ///< Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
+    Aspect  = 2, ///< Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
 };
 
 /**
@@ -885,15 +885,15 @@ enum class SwapchainScaling : uint32_t {
  * Translates to VkCompareOp for vk implementation.
  * */
 enum class Compare : uint32_t {
-    None = 0, ///< No comparison.
-    Never = 1, ///< Always fail the comparison.
-    Less = 2, ///< Pass the comparison if the source value is less than the destination value.
-    Equal = 3, ///< Pass the comparison if the source value is equal to the destination value.
-    LessEqual = 4, ///< Pass the comparison if the source value is less than or equal to the destination value.
-    Greater = 5, ///< Pass the comparison if the source value is greater than the destination value.
-    NotEqual = 6, ///< Pass the comparison if the source value is not equal to the destination value.
+    None         = 0, ///< No comparison.
+    Never        = 1, ///< Always fail the comparison.
+    Less         = 2, ///< Pass the comparison if the source value is less than the destination value.
+    Equal        = 3, ///< Pass the comparison if the source value is equal to the destination value.
+    LessEqual    = 4, ///< Pass the comparison if the source value is less than or equal to the destination value.
+    Greater      = 5, ///< Pass the comparison if the source value is greater than the destination value.
+    NotEqual     = 6, ///< Pass the comparison if the source value is not equal to the destination value.
     GreaterEqual = 7, ///< Pass the comparison if the source value is greater than or equal to the destination value.
-    Always = 8, ///< Always pass the comparison.
+    Always       = 8, ///< Always pass the comparison.
 };
 
 /**
@@ -903,14 +903,14 @@ enum class Compare : uint32_t {
  * Translates to VkStencilOp for vk implementation.
  * */
 enum class StencilOp : uint32_t {
-    Keep = 1, ///< Keep the current value.
-    Zero = 2, ///< Set the value to zero.
-    Replace = 3, ///< Replace the value with the reference value.
+    Keep     = 1, ///< Keep the current value.
+    Zero     = 2, ///< Set the value to zero.
+    Replace  = 3, ///< Replace the value with the reference value.
     IncClamp = 4, ///< Increment the value and clamp to the maximum value.
     DecClamp = 5, ///< Decrement the value and clamp to the minimum value.
-    Invert = 6, ///< Invert the value.
-    IncWrap = 7, ///< Increment the value and wrap to zero when the maximum value is exceeded.
-    DecWrap = 8, ///< Decrement the value and wrap to the maximum value when the minimum value is exceeded.
+    Invert   = 6, ///< Invert the value.
+    IncWrap  = 7, ///< Increment the value and wrap to zero when the maximum value is exceeded.
+    DecWrap  = 8, ///< Decrement the value and wrap to the maximum value when the minimum value is exceeded.
 };
 
 /**
@@ -920,23 +920,23 @@ enum class StencilOp : uint32_t {
  * Translates to VkBlendFactor for vk implementation.
  * */
 enum class BlendFactor : uint32_t {
-    Zero = 1, ///< Use zero for blending.
-    One = 2, ///< Use one for blending.
-    SrcColor = 3, ///< Use the source color for blending.
-    InvSrcColor = 4, ///< Use the inverse source color for blending.
-    SrcAlpha = 5, ///< Use the source alpha for blending.
-    InvSrcAlpha = 6, ///< Use the inverse source alpha for blending.
-    DestAlpha = 7, ///< Use the destination alpha for blending.
-    InvDestAlpha = 8, ///< Use the inverse destination alpha for blending.
-    DestColor = 9, ///< Use the destination color for blending.
-    InvDestColor = 10, ///< Use the inverse destination color for blending.
-    SrcAlphaSat = 11, ///< Use the source alpha saturated for blending.
-    ConstantColor = 14, ///< Use a constant blend factor for blending.
+    Zero           = 1, ///< Use zero for blending.
+    One            = 2, ///< Use one for blending.
+    SrcColor       = 3, ///< Use the source color for blending.
+    InvSrcColor    = 4, ///< Use the inverse source color for blending.
+    SrcAlpha       = 5, ///< Use the source alpha for blending.
+    InvSrcAlpha    = 6, ///< Use the inverse source alpha for blending.
+    DestAlpha      = 7, ///< Use the destination alpha for blending.
+    InvDestAlpha   = 8, ///< Use the inverse destination alpha for blending.
+    DestColor      = 9, ///< Use the destination color for blending.
+    InvDestColor   = 10, ///< Use the inverse destination color for blending.
+    SrcAlphaSat    = 11, ///< Use the source alpha saturated for blending.
+    ConstantColor  = 14, ///< Use a constant blend factor for blending.
     InvBlendFactor = 15, ///< Use the inverse constant blend factor for blending.
-    Src1Color = 16, ///< Use the source color for blending. Dual source blending mode.
-    InvSrc1Color = 17, ///< Use the inverse source color for blending. Dual source blending mode.
-    Src1Alpha = 18, ///< Use the source alpha for blending. Dual source blending mode.
-    InvSrc1Alpha = 19, ///< Use the inverse source alpha for blending. Dual source blending mode.
+    Src1Color      = 16, ///< Use the source color for blending. Dual source blending mode.
+    InvSrc1Color   = 17, ///< Use the inverse source color for blending. Dual source blending mode.
+    Src1Alpha      = 18, ///< Use the source alpha for blending. Dual source blending mode.
+    InvSrc1Alpha   = 19, ///< Use the inverse source alpha for blending. Dual source blending mode.
 };
 
 /**
@@ -946,11 +946,11 @@ enum class BlendFactor : uint32_t {
  * Translates to VkBlendOp for vk implementation.
  * */
 enum class BlendOp : uint32_t {
-    Add = 1, ///< Add the source and destination colors.
-    Subtract = 2, ///< Subtract the source color from the destination color.
+    Add         = 1, ///< Add the source and destination colors.
+    Subtract    = 2, ///< Subtract the source color from the destination color.
     RevSubtract = 3, ///< Subtract the destination color from the source color.
-    Min = 4, ///< Use the minimum of the source and destination colors.
-    Max = 5, ///< Use the maximum of the source and destination colors.
+    Min         = 4, ///< Use the minimum of the source and destination colors.
+    Max         = 5, ///< Use the maximum of the source and destination colors.
 };
 
 /**
@@ -960,22 +960,22 @@ enum class BlendOp : uint32_t {
  * Translates to VkLogicOp for vk implementation.
  * */
 enum class LogicOp : uint32_t {
-    Clear = 0, ///< Clear the destination value.
-    Set = 1, ///< Set the destination value.
-    Copy = 2, ///< Copy the source value to the destination.
+    Clear        = 0, ///< Clear the destination value.
+    Set          = 1, ///< Set the destination value.
+    Copy         = 2, ///< Copy the source value to the destination.
     CopyInverted = 3, ///< Copy the inverted source value to the destination.
-    Noop = 4, ///< Do not modify the destination value.
-    Invert = 5, ///< Invert the destination value.
-    And = 6, ///< Perform a bitwise AND operation on the source and destination values.
-    Nand = 7, ///< Perform a bitwise NAND operation on the source and destination values.
-    Or = 8, ///< Perform a bitwise OR operation on the source and destination values.
-    Nor = 9, ///< Perform a bitwise NOR operation on the source and destination values.
-    Xor = 10, ///< Perform a bitwise XOR operation on the source and destination values.
-    Equiv = 11, ///< Perform a bitwise equivalent operation on the source and destination values.
-    AndReverse = 12, ///< Perform a bitwise AND operation on the source and inverted destination values.
-    AndInverted = 13, ///< Perform a bitwise AND operation on the inverted source and destination values.
-    OrReverse = 14, ///< Perform a bitwise OR operation on the source and inverted destination values.
-    OrInverted = 15, ///< Perform a bitwise OR operation on the inverted source and destination values.
+    Noop         = 4, ///< Do not modify the destination value.
+    Invert       = 5, ///< Invert the destination value.
+    And          = 6, ///< Perform a bitwise AND operation on the source and destination values.
+    Nand         = 7, ///< Perform a bitwise NAND operation on the source and destination values.
+    Or           = 8, ///< Perform a bitwise OR operation on the source and destination values.
+    Nor          = 9, ///< Perform a bitwise NOR operation on the source and destination values.
+    Xor          = 10, ///< Perform a bitwise XOR operation on the source and destination values.
+    Equiv        = 11, ///< Perform a bitwise equivalent operation on the source and destination values.
+    AndReverse   = 12, ///< Perform a bitwise AND operation on the source and inverted destination values.
+    AndInverted  = 13, ///< Perform a bitwise AND operation on the inverted source and destination values.
+    OrReverse    = 14, ///< Perform a bitwise OR operation on the source and inverted destination values.
+    OrInverted   = 15, ///< Perform a bitwise OR operation on the inverted source and destination values.
 };
 
 /**
@@ -1016,7 +1016,7 @@ enum class MemoryType : uint32_t {
  *
  * */
 enum class ShaderIntermediate : uint32_t {
-    DXIL = 0, ///< DirectX Intermediate Language.
+    DXIL  = 0, ///< DirectX Intermediate Language.
     SPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
 };
 
@@ -1027,20 +1027,20 @@ enum class ShaderIntermediate : uint32_t {
  * Translates to VkImageLayout for vk implementation.
  * */
 enum class TextureState : uint32_t {
-    Undefined = 4294967295, ///< Undefined state.
-    Common = 0, ///< Common state.
-    Read = 1, ///< General Read state.
-    RenderTarget = 2, ///< Render Target state.
-    UnorderedAccess = 3, ///< Unordered Access state.
+    Undefined         = 4294967295, ///< Undefined state.
+    Common            = 0, ///< Common state.
+    Read              = 1, ///< General Read state.
+    RenderTarget      = 2, ///< Render Target state.
+    UnorderedAccess   = 3, ///< Unordered Access state.
     DepthStencilWrite = 4, ///< Depth Stencil Write state.
-    DepthStencilRead = 5, ///< Depth Stencil Read state.
-    ShaderResource = 6, ///< Shader Resource state.
-    CopySource = 7, ///< Copy Source state.
-    CopyDest = 8, ///< Copy Destination state.
-    Present = 9, ///< Present swapchain state.
-    ShadingRate = 10, ///< Shading Rate state. Used for Variable Shading Rate.
-    VideoDecodeRead = 11, ///< Video Decode Read state.
-    VideoDecodeWrite = 12, ///< Video Decode Write state.
+    DepthStencilRead  = 5, ///< Depth Stencil Read state.
+    ShaderResource    = 6, ///< Shader Resource state.
+    CopySource        = 7, ///< Copy Source state.
+    CopyDest          = 8, ///< Copy Destination state.
+    Present           = 9, ///< Present swapchain state.
+    ShadingRate       = 10, ///< Shading Rate state. Used for Variable Shading Rate.
+    VideoDecodeRead   = 11, ///< Video Decode Read state.
+    VideoDecodeWrite  = 12, ///< Video Decode Write state.
 };
 
 /**
@@ -1050,8 +1050,8 @@ enum class TextureState : uint32_t {
  * Translates to D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE for dx implementation.
  * */
 enum class LoadOperation : uint32_t {
-    Load = 0, ///< Load the attachment contents.
-    Clear = 1, ///< Clear the attachment contents.
+    Load     = 0, ///< Load the attachment contents.
+    Clear    = 1, ///< Clear the attachment contents.
     DontCare = 2, ///< Do not care about the attachment contents.
 };
 
@@ -1060,13 +1060,13 @@ enum class LoadOperation : uint32_t {
  *
  * */
 enum class TextureLayout : uint32_t {
-    Texture1D = 2, ///< Texture is 1D array of data. Behaves similarly to Buffer.
-    Texture1DArray = 3, ///< Texture is an array of 1D data.
-    Texture2D = 4, ///< Texture is 2D image, default texture type.
-    Texture2DArray = 5, ///< Texture is an array of 2D images. Can also be used for Cube maps.
-    Texture2DMS = 6, ///< Texture is 2D multisampled image.
+    Texture1D        = 2, ///< Texture is 1D array of data. Behaves similarly to Buffer.
+    Texture1DArray   = 3, ///< Texture is an array of 1D data.
+    Texture2D        = 4, ///< Texture is 2D image, default texture type.
+    Texture2DArray   = 5, ///< Texture is an array of 2D images. Can also be used for Cube maps.
+    Texture2DMS      = 6, ///< Texture is 2D multisampled image.
     Texture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
-    Texture3D = 8, ///< Texture is 3D volume.
+    Texture3D        = 8, ///< Texture is 3D volume.
 };
 
 /**
@@ -1094,9 +1094,9 @@ enum class DescriptorHeapType : uint32_t {
  * Translates to D3D12_RENDER_PASS_ENDING_ACCESS_TYPE for dx implementation.
  * */
 enum class StoreOperation : uint32_t {
-    Store = 0, ///< Store the attachment contents.
+    Store    = 0, ///< Store the attachment contents.
     DontCare = 1, ///< Do not care about the attachment contents.
-    Resolve = 2, ///< Resolve the attachment contents. Used for multisampling attachments.
+    Resolve  = 2, ///< Resolve the attachment contents. Used for multisampling attachments.
 };
 
 /**
@@ -1107,15 +1107,15 @@ enum class StoreOperation : uint32_t {
  * Translates to VkPrimitiveTopology for vk implementation.
  * */
 enum class PrimitiveTopology : uint32_t {
-    PointList = 1, ///< Render points for each vertex.
-    LineList = 2, ///< Render lines between vertices.
-    LineStrip = 3, ///< Render lines between vertices in a strip.
-    TriangleList = 4, ///< Render triangles between vertices.
-    TriangleStrip = 5, ///< Render triangles between vertices in a strip.
-    TriangleFan = 6, ///< Interpret vertex data to form a fan of triangles.
-    LineListAdj = 10, ///< Render lines between vertices with adjacency.
-    LineStripAdj = 11, ///< Render lines between vertices in a strip with adjacency.
-    TriangleListAdj = 12, ///< Render triangles between vertices with adjacency.
+    PointList        = 1, ///< Render points for each vertex.
+    LineList         = 2, ///< Render lines between vertices.
+    LineStrip        = 3, ///< Render lines between vertices in a strip.
+    TriangleList     = 4, ///< Render triangles between vertices.
+    TriangleStrip    = 5, ///< Render triangles between vertices in a strip.
+    TriangleFan      = 6, ///< Interpret vertex data to form a fan of triangles.
+    LineListAdj      = 10, ///< Render lines between vertices with adjacency.
+    LineStripAdj     = 11, ///< Render lines between vertices in a strip with adjacency.
+    TriangleListAdj  = 12, ///< Render triangles between vertices with adjacency.
     TriangleStripAdj = 13, ///< Render triangles between vertices in a strip with adjacency.
 };
 
@@ -1126,10 +1126,10 @@ enum class PrimitiveTopology : uint32_t {
  * Translates to VkPrimitiveTopology for vk implementation.
  * */
 enum class TopologyType : uint32_t {
-    Point = 1, ///< Render points for each vertex.
-    Line = 2, ///< Render lines between vertices.
+    Point    = 1, ///< Render points for each vertex.
+    Line     = 2, ///< Render lines between vertices.
     Triangle = 3, ///< Render triangles between vertices.
-    Patch = 4, ///< Vertices are interpret as patch list. Used in tesselation process.
+    Patch    = 4, ///< Vertices are interpret as patch list. Used in tesselation process.
 };
 
 /**
@@ -1159,9 +1159,9 @@ enum class DeviceFeature : uint32_t {
      * @brief Supports dynamic VSync. Support for VK, always true for DX12.
      * Unlocks Swapchain::Present2 function. Without the extension behavior is the same as Swapchain::Present.
      * */
-    DynamicVSync = 5,
+    DynamicVSync        = 5,
     UnusedRenderTargets = 6, ///< Supports unused render targets. Support for VK, always true for DX12.
-    PushDescriptors = 7, ///< Supports push descriptors. Support for VK, always true for DX12.
+    PushDescriptors     = 7, ///< Supports push descriptors. Support for VK, always true for DX12.
 };
 
 /**
@@ -1171,7 +1171,7 @@ enum class DeviceFeature : uint32_t {
  * Translates to D3D12_FILTER_TYPE for dx implementation.
  * */
 enum class Filter : uint32_t {
-    Point = 0, ///< Nearest neighbor filtering.
+    Point  = 0, ///< Nearest neighbor filtering.
     Linear = 1, ///< Linear filtering.
 };
 
@@ -1182,10 +1182,10 @@ enum class Filter : uint32_t {
  * Translates to D3D12_TEXTURE_ADDRESS_MODE for dx implementation.
  * */
 enum class AddressMode : uint32_t {
-    Repeat = 0, ///< Repeat the texture.
-    MirroredRepeat = 1, ///< Repeat the texture with mirroring.
-    ClampToEdge = 2, ///< Clamp the texture to the edge.
-    ClampToBorder = 3, ///< Clamp the texture to the border.
+    Repeat            = 0, ///< Repeat the texture.
+    MirroredRepeat    = 1, ///< Repeat the texture with mirroring.
+    ClampToEdge       = 2, ///< Clamp the texture to the edge.
+    ClampToBorder     = 3, ///< Clamp the texture to the border.
     MirrorClampToEdge = 4, ///< Mirror and clamp the texture to the edge.
 };
 
@@ -1196,14 +1196,14 @@ enum class AddressMode : uint32_t {
  * Translates to D3D12_SRV_DIMENSION for dx implementation.
  * */
 enum class TextureViewType : uint32_t {
-    Texture1D = 0, ///< Texture is 1D array of data. Behaves similarly to Buffer.
-    Texture1DArray = 1, ///< Texture is an array of 1D data.
-    Texture2D = 2, ///< Texture is 2D image, default texture type.
-    Texture2DArray = 3, ///< Texture is an array of 2D images.
-    Texture2DMS = 4, ///< Texture is 2D multisampled image.
+    Texture1D        = 0, ///< Texture is 1D array of data. Behaves similarly to Buffer.
+    Texture1DArray   = 1, ///< Texture is an array of 1D data.
+    Texture2D        = 2, ///< Texture is 2D image, default texture type.
+    Texture2DArray   = 3, ///< Texture is an array of 2D images.
+    Texture2DMS      = 4, ///< Texture is 2D multisampled image.
     Texture2DMSArray = 5, ///< Texture is an array of 2D multisampled images.
-    Texture3D = 6, ///< Texture is 3D volume.
-    TextureCube = 7, ///< Texture is a cube map.
+    Texture3D        = 6, ///< Texture is 3D volume.
+    TextureCube      = 7, ///< Texture is a cube map.
     TextureCubeArray = 8, ///< Texture is an array of cube maps.
 };
 
@@ -1214,12 +1214,12 @@ enum class TextureViewType : uint32_t {
  * Translates to VkComponentSwizzle for vk implementation.
  * */
 enum class ComponentSwizzle : uint32_t {
-    Red = 0, ///< Use the red component for sampling.
+    Red   = 0, ///< Use the red component for sampling.
     Green = 1, ///< Use the green component for sampling.
-    Blue = 2, ///< Use the blue component for sampling.
+    Blue  = 2, ///< Use the blue component for sampling.
     Alpha = 3, ///< Use the alpha component for sampling.
-    Zero = 4, ///< Use zero for sampling.
-    One = 5, ///< Use one for sampling.
+    Zero  = 4, ///< Use zero for sampling.
+    One   = 5, ///< Use one for sampling.
 };
 
 /**
@@ -1241,7 +1241,7 @@ enum class IndexType : uint32_t {
  *
  * */
 enum class FactoryExtID : uint32_t {
-    Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
+    Custom         = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DebugExtension = 1,
 };
 
@@ -1252,9 +1252,9 @@ enum class FactoryExtID : uint32_t {
  *
  * */
 enum class DeviceExtID : uint32_t {
-    Custom = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
+    Custom                    = 0, ///< Custom provided extension. Default initialization of the extension is done by user.
     DescriptorBufferExtension = 1,
-    ExtendedAllocation = 2,
+    ExtendedAllocation        = 2,
 };
 
 /**
@@ -1264,9 +1264,9 @@ enum class DeviceExtID : uint32_t {
  * Translates to D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE for dx implementation.
  * */
 enum class ASCopyMode : uint32_t {
-    Clone = 0, ///< Clone the acceleration structure.
-    Compact = 1, ///< Compact the acceleration structure.
-    Serialize = 2, ///< Serialize the acceleration structure.
+    Clone       = 0, ///< Clone the acceleration structure.
+    Compact     = 1, ///< Compact the acceleration structure.
+    Serialize   = 2, ///< Serialize the acceleration structure.
     Deserialize = 3, ///< Deserialize the acceleration structure.
 };
 
@@ -1275,8 +1275,8 @@ enum class ASCopyMode : uint32_t {
  *
  * */
 enum class AdapterFlags {
-    None = 0x0, ///< No flags set. Adapter may be descrete or embedded.
-    Remote = 1 << 0, ///< Adapter is remote. Used for remote rendering.
+    None     = 0x0, ///< No flags set. Adapter may be descrete or embedded.
+    Remote   = 1 << 0, ///< Adapter is remote. Used for remote rendering.
     Software = 1 << 1, ///< Adapter is software. Used for software rendering.
 };
 
@@ -1286,9 +1286,9 @@ enum class AdapterFlags {
  *
  * */
 enum class DSSelect {
-    None = 0x0, ///< No flags set. Depth stencil buffer is not used.
-    Depth = 1 << 0, ///< Use depth part of the depth stencil buffer.
-    Stencil = 1 << 1, ///< Use stencil part of the depth stencil buffer.
+    None         = 0x0, ///< No flags set. Depth stencil buffer is not used.
+    Depth        = 1 << 0, ///< Use depth part of the depth stencil buffer.
+    Stencil      = 1 << 1, ///< Use stencil part of the depth stencil buffer.
     DepthStencil = 0x3, ///< Use both depth and stencil parts of the depth stencil buffer.
 };
 
@@ -1299,11 +1299,11 @@ enum class DSSelect {
  * */
 enum class ColorComponents {
     None = 0x0, ///< No flags set. Color blending is not used.
-    R = 1 << 0, ///< Use red component for blending.
-    G = 1 << 1, ///< Use green component for blending.
-    B = 1 << 2, ///< Use blue component for blending.
-    A = 1 << 3, ///< Use alpha component for blending.
-    All = 0xF, ///< Use all color components for blending.
+    R    = 1 << 0, ///< Use red component for blending.
+    G    = 1 << 1, ///< Use green component for blending.
+    B    = 1 << 2, ///< Use blue component for blending.
+    A    = 1 << 3, ///< Use alpha component for blending.
+    All  = 0xF, ///< Use all color components for blending.
 };
 
 /**
@@ -1314,17 +1314,17 @@ enum class ColorComponents {
  * Translates to D3D12_RESOURCE_FLAGS for dx implementation.
  * */
 enum class BufferUsage {
-    None = 0x0, ///< No flags set. Buffer is not used.
-    CopySrc = 1 << 0, ///< Buffer is used as a source for copy operations.
-    CopyDst = 1 << 1, ///< Buffer is used as a destination for copy operations.
-    ConstantBuffer = 1 << 2, ///< Buffer is used as a constant buffer.
-    IndexBuffer = 1 << 3, ///< Buffer is used as an index buffer.
-    VertexBuffer = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
-    IndirectBuffer = 1 << 5, ///< Buffer is used as an indirect buffer.
-    StorageBuffer = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
+    None                        = 0x0, ///< No flags set. Buffer is not used.
+    CopySrc                     = 1 << 0, ///< Buffer is used as a source for copy operations.
+    CopyDst                     = 1 << 1, ///< Buffer is used as a destination for copy operations.
+    ConstantBuffer              = 1 << 2, ///< Buffer is used as a constant buffer.
+    IndexBuffer                 = 1 << 3, ///< Buffer is used as an index buffer.
+    VertexBuffer                = 1 << 4, ///< Buffer is used as a vertex buffer or an instance buffer.
+    IndirectBuffer              = 1 << 5, ///< Buffer is used as an indirect buffer.
+    StorageBuffer               = 1 << 6, ///< Buffer is used as a storage unordered access buffer.
     AccelerationStructureBuffer = 1 << 7, ///< Buffer is used as an acceleration structure buffer.
-    AccelerationStructureInput = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
-    ShaderBindingTable = 1 << 9, ///< Buffer is used as a shader binding table buffer.
+    AccelerationStructureInput  = 1 << 8, ///< Buffer is used as a read only acceleration instance input buffer.
+    ShaderBindingTable          = 1 << 9, ///< Buffer is used as a shader binding table buffer.
 };
 
 /**
@@ -1366,9 +1366,9 @@ enum class MemoryFlags {
  * Translates to D3D12_RENDER_PASS_FLAGS for dx implementation.
  * */
 enum class RenderPassFlags {
-    None = 0x0, ///< No flags set. Render pass is regular.
+    None       = 0x0, ///< No flags set. Render pass is regular.
     Suspending = 1 << 1, ///< Render pass is suspending.
-    Resuming = 1 << 2, ///< Render pass is resuming.
+    Resuming   = 1 << 2, ///< Render pass is resuming.
 };
 
 /**
@@ -1379,26 +1379,26 @@ enum class RenderPassFlags {
  * Translates to VkPipelineStageFlags2 for vk implementation.
  * */
 enum class BarrierSync {
-    None = 0x0, ///< No flags set. No synchronization is performed.
-    All = 1 << 0, ///< Synchronize all commands.
-    Draw = 1 << 1, ///< Synchronize draw commands.
-    IndexInput = 1 << 2, ///< Synchronize index input commands.
-    VertexShading = 1 << 3, ///< Synchronize vertex shading commands.
-    PixelShading = 1 << 4, ///< Synchronize pixel shading commands.
-    DepthStencil = 1 << 5, ///< Synchronize depth stencil commands.
-    RenderTarget = 1 << 6, ///< Synchronize render target commands.
-    Compute = 1 << 7, ///< Synchronize compute commands.
-    Raytracing = 1 << 8, ///< Synchronize raytracing commands.
-    Copy = 1 << 9, ///< Synchronize copy commands.
-    Resolve = 1 << 10, ///< Synchronize resolve commands.
+    None            = 0x0, ///< No flags set. No synchronization is performed.
+    All             = 1 << 0, ///< Synchronize all commands.
+    Draw            = 1 << 1, ///< Synchronize draw commands.
+    IndexInput      = 1 << 2, ///< Synchronize index input commands.
+    VertexShading   = 1 << 3, ///< Synchronize vertex shading commands.
+    PixelShading    = 1 << 4, ///< Synchronize pixel shading commands.
+    DepthStencil    = 1 << 5, ///< Synchronize depth stencil commands.
+    RenderTarget    = 1 << 6, ///< Synchronize render target commands.
+    Compute         = 1 << 7, ///< Synchronize compute commands.
+    Raytracing      = 1 << 8, ///< Synchronize raytracing commands.
+    Copy            = 1 << 9, ///< Synchronize copy commands.
+    Resolve         = 1 << 10, ///< Synchronize resolve commands.
     ExecuteIndirect = 1 << 11, ///< Synchronize execute indirect commands.
-    AllShading = 1 << 12, ///< Synchronize all shading commands.
+    AllShading      = 1 << 12, ///< Synchronize all shading commands.
     NonPixelShading = 1 << 13, ///< Synchronize non-pixel shading commands.
-    ClearUAV = 1 << 14, ///< Synchronize clear UAV commands.
-    VideoDecode = 1 << 15, ///< Synchronize video decode commands.
-    VideoEncode = 1 << 16, ///< Synchronize video encode commands.
-    BuildRTAS = 1 << 17, ///< Synchronize build raytracing acceleration structure commands.
-    CopyRTAS = 1 << 18, ///< Synchronize copy raytracing acceleration structure commands.
+    ClearUAV        = 1 << 14, ///< Synchronize clear UAV commands.
+    VideoDecode     = 1 << 15, ///< Synchronize video decode commands.
+    VideoEncode     = 1 << 16, ///< Synchronize video encode commands.
+    BuildRTAS       = 1 << 17, ///< Synchronize build raytracing acceleration structure commands.
+    CopyRTAS        = 1 << 18, ///< Synchronize copy raytracing acceleration structure commands.
 };
 
 /**
@@ -1413,28 +1413,28 @@ enum class ResourceAccess {
      * @brief Common access.
      * Subresource data must be available for any layout-compatible access after a barrier.
      * */
-    Common = 0x0,
-    VertexBuffer = 1 << 0, ///< Vertex buffer access. Applies only to buffers.
-    ConstantBuffer = 1 << 1, ///< Constant buffer access. Applies only to buffers.
-    IndexBuffer = 1 << 2, ///< Index buffer access. Applies only to buffers.
-    RenderTarget = 1 << 3, ///< Render target access. Applies only to textures.
-    UnorderedAccess = 1 << 4, ///< Unordered access access.
-    DepthWrite = 1 << 5, ///< Depth write access. Applies only to DS textures.
-    DepthRead = 1 << 6, ///< Depth read access. Applies only to DS textures.
-    ShaderResource = 1 << 7, ///< Shader resource access. Applies only to textures.
-    StreamOutput = 1 << 8, ///< Stream output access. Applies only to buffers. Reserved for extension.
-    IndirectArgument = 1 << 9, ///< Indirect argument access.
-    CopyDest = 1 << 10, ///< Copy destination access.
-    CopySource = 1 << 11, ///< Copy source access.
-    ConditionalRendering = 1 << 12, ///< Conditional rendering access.
-    AccelerationStructureRead = 1 << 13, ///< Acceleration structure read access.
+    Common                     = 0x0,
+    VertexBuffer               = 1 << 0, ///< Vertex buffer access. Applies only to buffers.
+    ConstantBuffer             = 1 << 1, ///< Constant buffer access. Applies only to buffers.
+    IndexBuffer                = 1 << 2, ///< Index buffer access. Applies only to buffers.
+    RenderTarget               = 1 << 3, ///< Render target access. Applies only to textures.
+    UnorderedAccess            = 1 << 4, ///< Unordered access access.
+    DepthWrite                 = 1 << 5, ///< Depth write access. Applies only to DS textures.
+    DepthRead                  = 1 << 6, ///< Depth read access. Applies only to DS textures.
+    ShaderResource             = 1 << 7, ///< Shader resource access. Applies only to textures.
+    StreamOutput               = 1 << 8, ///< Stream output access. Applies only to buffers. Reserved for extension.
+    IndirectArgument           = 1 << 9, ///< Indirect argument access.
+    CopyDest                   = 1 << 10, ///< Copy destination access.
+    CopySource                 = 1 << 11, ///< Copy source access.
+    ConditionalRendering       = 1 << 12, ///< Conditional rendering access.
+    AccelerationStructureRead  = 1 << 13, ///< Acceleration structure read access.
     AccelerationStructureWrite = 1 << 14, ///< Acceleration structure write access.
-    ShadingRate = 1 << 15, ///< Shading rate access. Used in variable shading rate.
-    VideoDecodeRead = 1 << 16, ///< Video decode read access.
-    VideoDecodeWrite = 1 << 17, ///< Video decode write access.
-    ResolveDest = 1 << 18, ///< Resolve destination access. Used in multisampling.
-    ResolveSource = 1 << 19, ///< Resolve source access. Used in multisampling.
-    NoAccess = 1 << 31, ///< No access. Used to indicate no access throughout pipeline.
+    ShadingRate                = 1 << 15, ///< Shading rate access. Used in variable shading rate.
+    VideoDecodeRead            = 1 << 16, ///< Video decode read access.
+    VideoDecodeWrite           = 1 << 17, ///< Video decode write access.
+    ResolveDest                = 1 << 18, ///< Resolve destination access. Used in multisampling.
+    ResolveSource              = 1 << 19, ///< Resolve source access. Used in multisampling.
+    NoAccess                   = 1 << 31, ///< No access. Used to indicate no access throughout pipeline.
 };
 
 /**
@@ -1445,14 +1445,14 @@ enum class ResourceAccess {
  * Translates to VkImageUsageFlags for vk implementation.
  * */
 enum class TextureUsage {
-    None = 0x0, ///< No flags set. Texture is not used.
-    RenderTarget = 1 << 0, ///< Texture is used as a render target.
-    DepthStencil = 1 << 1, ///< Texture is used as a depth stencil buffer.
-    CopySrc = 1 << 2, ///< Texture is used as a source for copy operations.
-    CopyDst = 1 << 3, ///< Texture is used as a destination for copy operations.
-    ShaderResource = 1 << 4, ///< Texture is used as a shader resource.
+    None            = 0x0, ///< No flags set. Texture is not used.
+    RenderTarget    = 1 << 0, ///< Texture is used as a render target.
+    DepthStencil    = 1 << 1, ///< Texture is used as a depth stencil buffer.
+    CopySrc         = 1 << 2, ///< Texture is used as a source for copy operations.
+    CopyDst         = 1 << 3, ///< Texture is used as a destination for copy operations.
+    ShaderResource  = 1 << 4, ///< Texture is used as a shader resource.
     UnorderedAccess = 1 << 5, ///< Texture is used as an unordered access resource.
-    HostCopy = 1 << 7, ///< Texture is used for host copy operations. Works with ExtendedAllocation extension.
+    HostCopy        = 1 << 7, ///< Texture is used for host copy operations. Works with ExtendedAllocation extension.
 };
 
 /**
@@ -1461,7 +1461,7 @@ enum class TextureUsage {
  * Translates to D3D12_FENCE_FLAGS for dx implementation.
  * */
 enum class FenceFlags {
-    None = 0x0, ///< No flags set. Fence is regular.
+    None   = 0x0, ///< No flags set. Fence is regular.
     Shared = 1 << 0, ///< Fence is shared. Used for sharing fences for single physical device.
 };
 
@@ -1487,8 +1487,8 @@ enum class PipelineFlags {
  * Translates to VkGeometryFlagsKHR for vk implementation.
  * */
 enum class ASGeometryFlags {
-    None = 0x0, ///< No flags set. Geometry is regular.
-    Opaque = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
+    None                        = 0x0, ///< No flags set. Geometry is regular.
+    Opaque                      = 1 << 0, ///< Geometry is opaque. Used for opaque geometry.
     NoDuplicateAnyHitInvocation = 1 << 1, ///< Geometry has no duplicate any hit invocation.
 };
 
@@ -1499,12 +1499,12 @@ enum class ASGeometryFlags {
  * Translates to VkBuildAccelerationStructureFlagsKHR for vk implementation.
  * */
 enum class AccelerationStructureFlags {
-    None = 0x0, ///< No flags set. Acceleration structure is regular.
-    AllowUpdate = 1 << 0, ///< Acceleration structure is allowed to be updated.
+    None            = 0x0, ///< No flags set. Acceleration structure is regular.
+    AllowUpdate     = 1 << 0, ///< Acceleration structure is allowed to be updated.
     AllowCompaction = 1 << 1, ///< Acceleration structure is allowed to be compacted.
     PreferFastTrace = 1 << 2, ///< Acceleration structure is preferred to be fast traced.
     PreferFastBuild = 1 << 3, ///< Acceleration structure is preferred to be fast built.
-    MinimizeMemory = 1 << 4, ///< Acceleration structure is minimized for memory usage.
+    MinimizeMemory  = 1 << 4, ///< Acceleration structure is minimized for memory usage.
 };
 
 /**
@@ -1514,11 +1514,11 @@ enum class AccelerationStructureFlags {
  * Translates to VkGeometryInstanceFlagsKHR for vk implementation.
  * */
 enum class ASInstanceFlags {
-    None = 0x0, ///< No flags set. Instance is regular.
-    TriangleCullDisable = 1 << 0, ///< Triangle cull is disabled.
+    None                          = 0x0, ///< No flags set. Instance is regular.
+    TriangleCullDisable           = 1 << 0, ///< Triangle cull is disabled.
     TriangleFrontCounterClockwise = 1 << 1, ///< Triangle front is counter clockwise.
-    ForceOpaque = 1 << 2, ///< Force opaque.
-    ForceNoOpaque = 1 << 3, ///< Force no opaque.
+    ForceOpaque                   = 1 << 2, ///< Force opaque.
+    ForceNoOpaque                 = 1 << 3, ///< Force no opaque.
 };
 
 // [Result]
@@ -1533,7 +1533,7 @@ enum class ASInstanceFlags {
  * */
 struct Result {
     wis::Status status = wis::Status::Ok; ///< Operation status. Compare with wis::Status::Ok
-    const char* error = nullptr; ///< Error message. nullptr or 'Operation Succeeded.' if no error.
+    const char* error  = nullptr; ///< Error message. nullptr or 'Operation Succeeded.' if no error.
 };
 // [Result]
 
@@ -1584,16 +1584,16 @@ struct BufferRegion {
  * */
 struct AdapterDesc {
     std::array<const char, 256> description{}; ///< Adapter description. Contains name of the graphics adapter.
-    uint32_t vendor_id; ///< Vendor ID. Can be used to find the correct adapter.
-    uint32_t device_id; ///< Device ID. Together with wis::AdapterDesc::vendor_id uniquely identifies the device.
-    uint32_t subsys_id; ///< Unused
-    uint32_t revision; ///< Driver revision. Unused.
-    uint64_t dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
-    uint64_t dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
-    uint64_t shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
-    uint64_t adapter_id; ///< Adapter unique ID (LUID). Can be used to find the correct adapter.
-    std::array<uint8_t, 16> adapter_uuid{}; ///< UUID of the adapter, used only with Vulkan API on systems with no LUID.
-    wis::AdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
+    uint32_t                    vendor_id; ///< Vendor ID. Can be used to find the correct adapter.
+    uint32_t                    device_id; ///< Device ID. Together with wis::AdapterDesc::vendor_id uniquely identifies the device.
+    uint32_t                    subsys_id; ///< Unused
+    uint32_t                    revision; ///< Driver revision. Unused.
+    uint64_t                    dedicated_video_memory; ///< Dedicated video memory in bytes. Used for Default Memory type.
+    uint64_t                    dedicated_system_memory; ///< Dedicated system memory in bytes. Used for Upload and Readback Memory types.
+    uint64_t                    shared_system_memory; ///< Shared system memory in bytes. Used for GPUUpload Memory type.
+    uint64_t                    adapter_id; ///< Adapter unique ID (LUID). Can be used to find the correct adapter.
+    std::array<uint8_t, 16>     adapter_uuid{}; ///< UUID of the adapter, used only with Vulkan API on systems with no LUID.
+    wis::AdapterFlags           flags; ///< Adapter flags. Describe the adapter kind.
 };
 // [AdapterDesc]
 
@@ -1604,8 +1604,8 @@ struct AdapterDesc {
  * @snippet include/wisdom/generated/api/api.hpp InputSlotDesc
  * */
 struct InputSlotDesc {
-    uint32_t slot; ///< Input slot number. Must be unique.
-    uint32_t stride_bytes; ///< Stride in bytes. Size of one vertex in the slot.
+    uint32_t        slot; ///< Input slot number. Must be unique.
+    uint32_t        stride_bytes; ///< Stride in bytes. Size of one vertex in the slot.
     wis::InputClass input_class; ///< Input class. Defines how the data is read (Per vertex or Per instance).
 };
 // [InputSlotDesc]
@@ -1617,12 +1617,12 @@ struct InputSlotDesc {
  * @snippet include/wisdom/generated/api/api.hpp InputAttribute
  * */
 struct InputAttribute {
-    uint32_t input_slot; ///< Input slot number. Must be unique.
-    const char* semantic_name; ///< Semantic name of the attribute in HLSL. Must be unique.
-    uint32_t semantic_index; ///< Semantic index of the attribute in HLSL. Must be unique.
-    uint32_t location; ///< Location of the attribute in HLSL. Must be unique.
+    uint32_t        input_slot; ///< Input slot number. Must be unique.
+    const char*     semantic_name; ///< Semantic name of the attribute in HLSL. Must be unique.
+    uint32_t        semantic_index; ///< Semantic index of the attribute in HLSL. Must be unique.
+    uint32_t        location; ///< Location of the attribute in HLSL. Must be unique.
     wis::DataFormat format; ///< Data format of the attribute.
-    uint32_t offset_bytes; ///< Offset in bytes from the beginning of the vertex.
+    uint32_t        offset_bytes; ///< Offset in bytes from the beginning of the vertex.
 };
 // [InputAttribute]
 
@@ -1633,10 +1633,10 @@ struct InputAttribute {
  * @snippet include/wisdom/generated/api/api.hpp InputLayout
  * */
 struct InputLayout {
-    const wis::InputSlotDesc* slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
-    uint32_t slot_count; ///< Input slots count. Max number is 16.
+    const wis::InputSlotDesc*  slots; ///< Input slots array. Made to pick up data from several arrays of vertex data.
+    uint32_t                   slot_count; ///< Input slots count. Max number is 16.
     const wis::InputAttribute* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
-    uint32_t attribute_count; ///< Input attributes count.
+    uint32_t                   attribute_count; ///< Input attributes count.
 };
 // [InputLayout]
 
@@ -1647,14 +1647,14 @@ struct InputLayout {
  * @snippet include/wisdom/generated/api/api.hpp RasterizerDesc
  * */
 struct RasterizerDesc {
-    wis::FillMode fill_mode = wis::FillMode::Solid; ///< Fill mode. Solid or Wireframe. Default is wis::FillMode::Solid.
-    wis::CullMode cull_mode = wis::CullMode::Back; ///< Cull mode. None, Front, Back. Default is wis::CullMode::Back.
-    wis::WindingOrder front_face = wis::WindingOrder::Clockwise; ///< Front face winding order. Clockwise or CounterClockwise. Default is wis::WindingOrder::Clockwise.
-    bool depth_bias_enable = false; ///< Depth bias enable. Default is false.
-    float depth_bias = 0.0f; ///< Depth bias. Default is 0.0f.
-    float depth_bias_clamp = 0.0f; ///< Depth bias clamp. Default is 0.0f.
-    float depth_bias_slope_factor = 0.0f; ///< Depth bias slope factor e.g. for shadows. Default is 0.0f.
-    bool depth_clip_enable = true; ///< Depth clip enable. Default is true.
+    wis::FillMode     fill_mode               = wis::FillMode::Solid; ///< Fill mode. Solid or Wireframe. Default is wis::FillMode::Solid.
+    wis::CullMode     cull_mode               = wis::CullMode::Back; ///< Cull mode. None, Front, Back. Default is wis::CullMode::Back.
+    wis::WindingOrder front_face              = wis::WindingOrder::Clockwise; ///< Front face winding order. Clockwise or CounterClockwise. Default is wis::WindingOrder::Clockwise.
+    bool              depth_bias_enable       = false; ///< Depth bias enable. Default is false.
+    float             depth_bias              = 0.0f; ///< Depth bias. Default is 0.0f.
+    float             depth_bias_clamp        = 0.0f; ///< Depth bias clamp. Default is 0.0f.
+    float             depth_bias_slope_factor = 0.0f; ///< Depth bias slope factor e.g. for shadows. Default is 0.0f.
+    bool              depth_clip_enable       = true; ///< Depth clip enable. Default is true.
 };
 // [RasterizerDesc]
 
@@ -1665,9 +1665,9 @@ struct RasterizerDesc {
  * @snippet include/wisdom/generated/api/api.hpp SampleDesc
  * */
 struct SampleDesc {
-    wis::SampleRate rate = wis::SampleRate::S1; ///< Sample rate. Default is wis::SampleRate::S1.
-    float quality = 0.0f; ///< Sample quality. Default is 0.0f.
-    uint32_t sample_mask = 0xffffffff; ///< Sample mask. Default is 0xffffffff.
+    wis::SampleRate rate        = wis::SampleRate::S1; ///< Sample rate. Default is wis::SampleRate::S1.
+    float           quality     = 0.0f; ///< Sample quality. Default is 0.0f.
+    uint32_t        sample_mask = 0xffffffff; ///< Sample mask. Default is 0xffffffff.
 };
 // [SampleDesc]
 
@@ -1678,12 +1678,12 @@ struct SampleDesc {
  * @snippet include/wisdom/generated/api/api.hpp StencilDesc
  * */
 struct StencilDesc {
-    wis::StencilOp fail_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test fails. Default is wis::StencilOp::Keep.
+    wis::StencilOp fail_op       = wis::StencilOp::Keep; ///< Stencil operation if the stencil test fails. Default is wis::StencilOp::Keep.
     wis::StencilOp depth_fail_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test passes and the depth test fails. Default is wis::StencilOp::Keep.
-    wis::StencilOp pass_op = wis::StencilOp::Keep; ///< Stencil operation if the stencil test passes. Default is wis::StencilOp::Keep.
-    wis::Compare comparison = wis::Compare::Always; ///< Stencil comparison function. Default is wis::Compare::Always.
-    uint8_t read_mask = 0xff; ///< Stencil read mask. Default is 0xff.
-    uint8_t write_mask = 0xff; ///< Stencil write mask. Default is 0xff.
+    wis::StencilOp pass_op       = wis::StencilOp::Keep; ///< Stencil operation if the stencil test passes. Default is wis::StencilOp::Keep.
+    wis::Compare   comparison    = wis::Compare::Always; ///< Stencil comparison function. Default is wis::Compare::Always.
+    uint8_t        read_mask     = 0xff; ///< Stencil read mask. Default is 0xff.
+    uint8_t        write_mask    = 0xff; ///< Stencil write mask. Default is 0xff.
 };
 // [StencilDesc]
 
@@ -1694,13 +1694,13 @@ struct StencilDesc {
  * @snippet include/wisdom/generated/api/api.hpp DepthStencilDesc
  * */
 struct DepthStencilDesc {
-    bool depth_enable = false; ///< Depth test enable. Default is false.
-    bool depth_write_enable = false; ///< Depth write enable. Default is false.
-    wis::Compare depth_comp = wis::Compare::Less; ///< Depth comparison function. Default is wis::Compare::Less.
-    bool stencil_enable = false; ///< Stencil test enable. Default is false.
-    wis::StencilDesc stencil_front = {}; ///< Stencil description for front faces.
-    wis::StencilDesc stencil_back = {}; ///< Stencil description for back faces.
-    bool depth_bound_test = false; ///< Depth bound test enable. Default is false.
+    bool             depth_enable       = false; ///< Depth test enable. Default is false.
+    bool             depth_write_enable = false; ///< Depth write enable. Default is false.
+    wis::Compare     depth_comp         = wis::Compare::Less; ///< Depth comparison function. Default is wis::Compare::Less.
+    bool             stencil_enable     = false; ///< Stencil test enable. Default is false.
+    wis::StencilDesc stencil_front      = {}; ///< Stencil description for front faces.
+    wis::StencilDesc stencil_back       = {}; ///< Stencil description for back faces.
+    bool             depth_bound_test   = false; ///< Depth bound test enable. Default is false.
 };
 // [DepthStencilDesc]
 
@@ -1711,13 +1711,13 @@ struct DepthStencilDesc {
  * @snippet include/wisdom/generated/api/api.hpp BlendAttachmentDesc
  * */
 struct BlendAttachmentDesc {
-    bool blend_enable = false; ///< Blend enable. Default is false.
-    wis::BlendFactor src_color_blend = wis::BlendFactor::One; ///< Source color blend factor. Default is wis::BlendFactor::One.
-    wis::BlendFactor dst_color_blend = wis::BlendFactor::Zero; ///< Destination color blend factor. Default is wis::BlendFactor::Zero.
-    wis::BlendOp color_blend_op = wis::BlendOp::Add; ///< Color blend operation. Default is wis::BlendOp::Add.
-    wis::BlendFactor src_alpha_blend = wis::BlendFactor::One; ///< Source alpha blend factor. Default is wis::BlendFactor::One.
-    wis::BlendFactor dst_alpha_blend = wis::BlendFactor::Zero; ///< Destination alpha blend factor. Default is wis::BlendFactor::Zero.
-    wis::BlendOp alpha_blend_op = wis::BlendOp::Add; ///< Alpha blend operation. Default is wis::BlendOp::Add.
+    bool                 blend_enable     = false; ///< Blend enable. Default is false.
+    wis::BlendFactor     src_color_blend  = wis::BlendFactor::One; ///< Source color blend factor. Default is wis::BlendFactor::One.
+    wis::BlendFactor     dst_color_blend  = wis::BlendFactor::Zero; ///< Destination color blend factor. Default is wis::BlendFactor::Zero.
+    wis::BlendOp         color_blend_op   = wis::BlendOp::Add; ///< Color blend operation. Default is wis::BlendOp::Add.
+    wis::BlendFactor     src_alpha_blend  = wis::BlendFactor::One; ///< Source alpha blend factor. Default is wis::BlendFactor::One.
+    wis::BlendFactor     dst_alpha_blend  = wis::BlendFactor::Zero; ///< Destination alpha blend factor. Default is wis::BlendFactor::Zero.
+    wis::BlendOp         alpha_blend_op   = wis::BlendOp::Add; ///< Alpha blend operation. Default is wis::BlendOp::Add.
     wis::ColorComponents color_write_mask = wis::ColorComponents::All; ///< Color write mask. Default is wis::ColorComponents::All.
 };
 // [BlendAttachmentDesc]
@@ -1729,10 +1729,10 @@ struct BlendAttachmentDesc {
  * @snippet include/wisdom/generated/api/api.hpp BlendStateDesc
  * */
 struct BlendStateDesc {
-    bool logic_op_enable = false; ///< Logic operation enable. Default is false.
-    wis::LogicOp logic_op = wis::LogicOp::Noop; ///< Logic operation. Default is wis::LogicOp::Noop.
+    bool                                    logic_op_enable = false; ///< Logic operation enable. Default is false.
+    wis::LogicOp                            logic_op        = wis::LogicOp::Noop; ///< Logic operation. Default is wis::LogicOp::Noop.
     std::array<wis::BlendAttachmentDesc, 8> attachments{}; ///< Blend attachment descriptions. Max Array size is 8.
-    uint32_t attachment_count; ///< Blend attachment count.
+    uint32_t                                attachment_count; ///< Blend attachment count.
 };
 // [BlendStateDesc]
 
@@ -1744,8 +1744,8 @@ struct BlendStateDesc {
  * */
 struct RenderAttachmentsDesc {
     std::array<wis::DataFormat, 8> attachment_formats{}; ///< Attachment formats array. Describes the format of the render target.
-    uint32_t attachments_count; ///< Attachment formats count. Max is 8.
-    wis::DataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
+    uint32_t                       attachments_count; ///< Attachment formats count. Max is 8.
+    wis::DataFormat                depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
 };
 // [RenderAttachmentsDesc]
 
@@ -1758,8 +1758,8 @@ struct RenderAttachmentsDesc {
  * */
 struct PushConstant {
     wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
-    uint32_t size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
-    uint32_t bind_register; ///< Bind register number in HLSL.
+    uint32_t          size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    uint32_t          bind_register; ///< Bind register number in HLSL.
 };
 // [PushConstant]
 
@@ -1770,12 +1770,12 @@ struct PushConstant {
  * @snippet include/wisdom/generated/api/api.hpp SwapchainDesc
  * */
 struct SwapchainDesc {
-    wis::Size2D size; ///< Swapchain texture size.
-    wis::DataFormat format; ///< Swapchain texture format.
-    uint32_t buffer_count; ///< Swapchain buffer count.
-    bool stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
-    bool vsync; ///< VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with wis::DeviceFeature::DynamicVSync.
-    bool tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
+    wis::Size2D           size; ///< Swapchain texture size.
+    wis::DataFormat       format; ///< Swapchain texture format.
+    uint32_t              buffer_count; ///< Swapchain buffer count.
+    bool                  stereo; ///< Stereo mode enable. If there is no stereo in the system will be ignored.
+    bool                  vsync; ///< VSync enable. Specifies Initial VSync. This value may be changed on per-present bases with wis::DeviceFeature::DynamicVSync.
+    bool                  tearing; ///< Tearing enable. If VSync is disabled, Tearing may be enabled. If System does not allow tearing the flag is ignored.
     wis::SwapchainScaling scaling; ///< Swapchain scaling mode.
 };
 // [SwapchainDesc]
@@ -1787,12 +1787,12 @@ struct SwapchainDesc {
  * @snippet include/wisdom/generated/api/api.hpp TextureDesc
  * */
 struct TextureDesc {
-    wis::DataFormat format; ///< Texture pixel/block format.
-    wis::Size3D size; ///< Texture size. Third dimension may be used for array layers or depth layers, depending on wis::TextureDesc::layout.
-    uint32_t mip_levels = 1; ///< Mip levels count. Default is 1.
-    wis::TextureLayout layout = wis::TextureLayout::Texture2D; ///< Texture layout. Default is wis::TextureLayout::Texture2D.
-    wis::SampleRate sample_count = wis::SampleRate::S1; ///< Sample count. Default is wis::SampleRate::S1.
-    wis::TextureUsage usage = wis::TextureUsage::None; ///< Texture usage flags.
+    wis::DataFormat    format; ///< Texture pixel/block format.
+    wis::Size3D        size; ///< Texture size. Third dimension may be used for array layers or depth layers, depending on wis::TextureDesc::layout.
+    uint32_t           mip_levels   = 1; ///< Mip levels count. Default is 1.
+    wis::TextureLayout layout       = wis::TextureLayout::Texture2D; ///< Texture layout. Default is wis::TextureLayout::Texture2D.
+    wis::SampleRate    sample_count = wis::SampleRate::S1; ///< Sample count. Default is wis::SampleRate::S1.
+    wis::TextureUsage  usage        = wis::TextureUsage::None; ///< Texture usage flags.
 };
 // [TextureDesc]
 
@@ -1820,10 +1820,10 @@ struct TextureRegion {
      * In BufferToTexture determines offset of destination texture.
      * In TextureToBuffer - offset of source image.
      * */
-    wis::Size3D offset;
-    wis::Size3D size; ///< Size of the region in pixels.
-    uint32_t mip; ///< Mip level of the texture.
-    uint32_t array_layer; ///< Array layer of the texture.
+    wis::Size3D     offset;
+    wis::Size3D     size; ///< Size of the region in pixels.
+    uint32_t        mip; ///< Mip level of the texture.
+    uint32_t        array_layer; ///< Array layer of the texture.
     wis::DataFormat format; ///< Format of the texture.
 };
 // [TextureRegion]
@@ -1835,7 +1835,7 @@ struct TextureRegion {
  * @snippet include/wisdom/generated/api/api.hpp BufferTextureCopyRegion
  * */
 struct BufferTextureCopyRegion {
-    uint64_t buffer_offset; ///< Buffer offset in bytes.
+    uint64_t           buffer_offset; ///< Buffer offset in bytes.
     wis::TextureRegion texture; ///< Texture region.
 };
 // [BufferTextureCopyRegion]
@@ -1847,7 +1847,7 @@ struct BufferTextureCopyRegion {
  * @snippet include/wisdom/generated/api/api.hpp PushDescriptor
  * */
 struct PushDescriptor {
-    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the descriptor is used.
+    wis::ShaderStages   stage; ///< Shader stage. Defines the stage where the descriptor is used.
     wis::DescriptorType type; ///< Descriptor type. Works only with buffer-like bindings.
 };
 // [PushDescriptor]
@@ -1873,11 +1873,11 @@ struct SubresourceRange {
  * @snippet include/wisdom/generated/api/api.hpp RenderTargetDesc
  * */
 struct RenderTargetDesc {
-    wis::DataFormat format; ///< Render target format.
-    wis::TextureLayout layout = wis::TextureLayout::Texture2D; ///< Render target layout. Default is wis::TextureLayout::Texture2D.
-    uint32_t mip = 0; ///< Mip level of the render target. Default is 0.
-    uint32_t base_array_layer = 0; ///< Base array layer of the render target. Default is 0.
-    uint32_t layer_count = 1; ///< Array layers count of the render target. Default is 1.
+    wis::DataFormat    format; ///< Render target format.
+    wis::TextureLayout layout           = wis::TextureLayout::Texture2D; ///< Render target layout. Default is wis::TextureLayout::Texture2D.
+    uint32_t           mip              = 0; ///< Mip level of the render target. Default is 0.
+    uint32_t           base_array_layer = 0; ///< Base array layer of the render target. Default is 0.
+    uint32_t           layer_count      = 1; ///< Array layers count of the render target. Default is 1.
 };
 // [RenderTargetDesc]
 
@@ -1919,12 +1919,12 @@ struct Scissor {
  * @snippet include/wisdom/generated/api/api.hpp BufferBarrier
  * */
 struct BufferBarrier {
-    wis::BarrierSync sync_before; ///< Synchronization before the barrier.
-    wis::BarrierSync sync_after; ///< Synchronization after the barrier.
+    wis::BarrierSync    sync_before; ///< Synchronization before the barrier.
+    wis::BarrierSync    sync_after; ///< Synchronization after the barrier.
     wis::ResourceAccess access_before; ///< Resource access before the barrier.
     wis::ResourceAccess access_after; ///< Resource access after the barrier.
-    uint64_t offset = 0; ///< Offset in the buffer in bytes. Default is 0.
-    uint64_t size = UINT64_MAX; ///< Size of the buffer in bytes. Default is UINT64_MAX, which means entire buffer.
+    uint64_t            offset = 0; ///< Offset in the buffer in bytes. Default is 0.
+    uint64_t            size   = UINT64_MAX; ///< Size of the buffer in bytes. Default is UINT64_MAX, which means entire buffer.
 };
 // [BufferBarrier]
 
@@ -1935,12 +1935,12 @@ struct BufferBarrier {
  * @snippet include/wisdom/generated/api/api.hpp TextureBarrier
  * */
 struct TextureBarrier {
-    wis::BarrierSync sync_before; ///< Synchronization before the barrier.
-    wis::BarrierSync sync_after; ///< Synchronization after the barrier.
+    wis::BarrierSync    sync_before; ///< Synchronization before the barrier.
+    wis::BarrierSync    sync_after; ///< Synchronization after the barrier.
     wis::ResourceAccess access_before; ///< Resource access before the barrier.
     wis::ResourceAccess access_after; ///< Resource access after the barrier.
-    wis::TextureState state_before; ///< Texture state before the barrier.
-    wis::TextureState state_after; ///< Texture state after the barrier.
+    wis::TextureState   state_before; ///< Texture state before the barrier.
+    wis::TextureState   state_after; ///< Texture state after the barrier.
     /**
      * @brief Subresource range of the texture.
      * Zero initialized range means all subresources are selected.
@@ -1957,10 +1957,10 @@ struct TextureBarrier {
  * */
 struct DescriptorTableEntry {
     wis::DescriptorType type; ///< Descriptor type.
-    uint32_t bind_register; ///< Bind register number in HLSL.
-    uint32_t binding; ///< Binding number in HLSL.
-    uint32_t count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
-    uint32_t binding_space; ///< Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0.
+    uint32_t            bind_register; ///< Bind register number in HLSL.
+    uint32_t            binding; ///< Binding number in HLSL.
+    uint32_t            count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array.
+    uint32_t            binding_space; ///< Explicit binding space in HLSL. Used for DirectX 12 implementation. Default is 0.
 };
 // [DescriptorTableEntry]
 
@@ -1971,10 +1971,10 @@ struct DescriptorTableEntry {
  * @snippet include/wisdom/generated/api/api.hpp DescriptorTable
  * */
 struct DescriptorTable {
-    wis::DescriptorHeapType type; ///< Descriptor heap type. Either Descriptor or Sampler.
+    wis::DescriptorHeapType          type; ///< Descriptor heap type. Either Descriptor or Sampler.
     const wis::DescriptorTableEntry* entries; ///< Descriptor table entries array.
-    uint32_t entry_count; ///< Descriptor table entries count.
-    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the table is used.
+    uint32_t                         entry_count; ///< Descriptor table entries count.
+    wis::ShaderStages                stage; ///< Shader stage. Defines the stage where the table is used.
 };
 // [DescriptorTable]
 
@@ -1985,18 +1985,18 @@ struct DescriptorTable {
  * @snippet include/wisdom/generated/api/api.hpp SamplerDesc
  * */
 struct SamplerDesc {
-    wis::Filter min_filter; ///< Minification filter.
-    wis::Filter mag_filter; ///< Magnification filter.
-    wis::Filter mip_filter; ///< Mip level filter.
-    bool anisotropic; ///< Anisotropic filtering enable.
-    uint32_t max_anisotropy; ///< Max anisotropy level. Max is 16.
-    wis::AddressMode address_u; ///< Address mode for U coordinate.
-    wis::AddressMode address_v; ///< Address mode for V coordinate.
-    wis::AddressMode address_w; ///< Address mode for W coordinate.
-    float min_lod; ///< Min LOD value.
-    float max_lod; ///< Max LOD value.
-    float mip_lod_bias; ///< Mip LOD bias value.
-    wis::Compare comparison_op; ///< Comparison operation for comparison samplers.
+    wis::Filter          min_filter; ///< Minification filter.
+    wis::Filter          mag_filter; ///< Magnification filter.
+    wis::Filter          mip_filter; ///< Mip level filter.
+    bool                 anisotropic; ///< Anisotropic filtering enable.
+    uint32_t             max_anisotropy; ///< Max anisotropy level. Max is 16.
+    wis::AddressMode     address_u; ///< Address mode for U coordinate.
+    wis::AddressMode     address_v; ///< Address mode for V coordinate.
+    wis::AddressMode     address_w; ///< Address mode for W coordinate.
+    float                min_lod; ///< Min LOD value.
+    float                max_lod; ///< Max LOD value.
+    float                mip_lod_bias; ///< Mip LOD bias value.
+    wis::Compare         comparison_op; ///< Comparison operation for comparison samplers.
     std::array<float, 4> border_color{}; ///< Border color.
 };
 // [SamplerDesc]
@@ -2022,8 +2022,8 @@ struct ComponentMapping {
  * @snippet include/wisdom/generated/api/api.hpp ShaderResourceDesc
  * */
 struct ShaderResourceDesc {
-    wis::DataFormat format; ///< Resource format.
-    wis::TextureViewType view_type; ///< Resource view type.
+    wis::DataFormat       format; ///< Resource format.
+    wis::TextureViewType  view_type; ///< Resource view type.
     wis::ComponentMapping component_mapping; ///< Component mapping.
     wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
@@ -2036,8 +2036,8 @@ struct ShaderResourceDesc {
  * @snippet include/wisdom/generated/api/api.hpp UnorderedAccessDesc
  * */
 struct UnorderedAccessDesc {
-    wis::DataFormat format; ///< Resource format.
-    wis::TextureViewType view_type; ///< Resource view type.
+    wis::DataFormat       format; ///< Resource format.
+    wis::TextureViewType  view_type; ///< Resource view type.
     wis::SubresourceRange subresource_range; ///< Subresource range of the resource.
 };
 // [UnorderedAccessDesc]
@@ -2090,9 +2090,9 @@ struct DeviceExtQuery {
  * */
 struct TopLevelASBuildDesc {
     wis::AccelerationStructureFlags flags; ///< Build flags.
-    uint32_t instance_count; ///< Instance count.
-    uint64_t gpu_address; ///< Address of instances.
-    bool indirect; ///< If true Buffer under address contains pointers to the instances, rather than instances themselves.
+    uint32_t                        instance_count; ///< Instance count.
+    uint64_t                        gpu_address; ///< Address of instances.
+    bool                            indirect; ///< If true Buffer under address contains pointers to the instances, rather than instances themselves.
     /**
      * @brief true means the acceleration structure is being updated.
      * flags must have contained wis::AccelerationStructureFlags::AllowUpdate to perfom updates.
@@ -2108,16 +2108,16 @@ struct TopLevelASBuildDesc {
  * @snippet include/wisdom/generated/api/api.hpp AcceleratedGeometryInput
  * */
 struct AcceleratedGeometryInput {
-    wis::ASGeometryType geometry_type; ///< Type of the geometry (Triangles/AABB).
+    wis::ASGeometryType  geometry_type; ///< Type of the geometry (Triangles/AABB).
     wis::ASGeometryFlags flags; ///< Geometry flags.
-    uint64_t vertex_or_aabb_buffer_address; ///< Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type.
-    uint64_t vertex_or_aabb_buffer_stride; ///< Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes.
-    uint64_t index_buffer_address; ///< Buffer address of the buffer containing index data. Unused for wis::ASGeometryType::AABBs.
-    uint64_t transform_matrix_address; ///< GPU Buffer address of the containing transform matrix (float [3][4]). Unused for wis::ASGeometryType::AABBs.
-    uint32_t vertex_count; ///< Vertex count. Unused for wis::ASGeometryType::AABBs.
-    uint32_t triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
-    wis::DataFormat vertex_format; ///< Format of the vertices. Unused for wis::ASGeometryType::AABBs.
-    wis::IndexType index_format; ///< Format of the indices. Unused for wis::ASGeometryType::AABBs.
+    uint64_t             vertex_or_aabb_buffer_address; ///< Buffer address of the buffer containing vertex data or AABB data (float [6]) depending on the geometry type.
+    uint64_t             vertex_or_aabb_buffer_stride; ///< Stride of the vertex buffer in bytes or stride of the AABB buffer in bytes.
+    uint64_t             index_buffer_address; ///< Buffer address of the buffer containing index data. Unused for wis::ASGeometryType::AABBs.
+    uint64_t             transform_matrix_address; ///< GPU Buffer address of the containing transform matrix (float [3][4]). Unused for wis::ASGeometryType::AABBs.
+    uint32_t             vertex_count; ///< Vertex count. Unused for wis::ASGeometryType::AABBs.
+    uint32_t             triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
+    wis::DataFormat      vertex_format; ///< Format of the vertices. Unused for wis::ASGeometryType::AABBs.
+    wis::IndexType       index_format; ///< Format of the indices. Unused for wis::ASGeometryType::AABBs.
 };
 // [AcceleratedGeometryInput]
 
@@ -2144,7 +2144,7 @@ struct ASAllocationInfo {
  * */
 struct DescriptorBindingDesc {
     wis::DescriptorType binding_type; ///< Binding type. Must be unique in array.
-    uint32_t binding_space; ///< Binding space number in HLSL.
+    uint32_t            binding_space; ///< Binding space number in HLSL.
     /**
      * @brief Number of consecutive spaces this binding occupies.
      * e.g. for binding_space = 1 and space_overlap_count = 3, HLSL binding will be :register(x0,space1), register(x0,space2), register(x0,space3)
@@ -2166,9 +2166,9 @@ struct DescriptorBindingDesc {
  * @snippet include/wisdom/generated/api/api.hpp ShaderExport
  * */
 struct ShaderExport {
-    const char* entry_point; ///< Entry point of the shader.
+    const char*               entry_point; ///< Entry point of the shader.
     wis::RaytracingShaderType shader_type; ///< Type of the shader.
-    uint32_t shader_array_index; ///< Index of the shader in the shader array.
+    uint32_t                  shader_array_index; ///< Index of the shader in the shader array.
 };
 // [ShaderExport]
 
@@ -2185,9 +2185,9 @@ struct HitGroupDesc {
      * wis::HitGroupType::Procedural - hit group for procedural geometry. Uses intersection shader and optionally any hit shader for transparency.
      * */
     wis::HitGroupType type;
-    uint32_t closest_hit_export_index = UINT32_MAX; ///< Closest hit shader from wis::ShaderExport.
-    uint32_t any_hit_export_index = UINT32_MAX; ///< Any hit shader.
-    uint32_t intersection_export_index = UINT32_MAX; ///< Intersection shader.
+    uint32_t          closest_hit_export_index  = UINT32_MAX; ///< Closest hit shader from wis::ShaderExport.
+    uint32_t          any_hit_export_index      = UINT32_MAX; ///< Any hit shader.
+    uint32_t          intersection_export_index = UINT32_MAX; ///< Intersection shader.
 };
 // [HitGroupDesc]
 
@@ -2321,13 +2321,14 @@ struct is_flag_enum<wis::ASInstanceFlags> : public std::true_type {
 //============================== CONSTS ==============================
 
 inline constexpr Result success{
-    wis::Status::Ok, "Operation succeeded"
+    wis::Status::Ok,
+    "Operation succeeded"
 };
 
 template<typename RetTy>
 struct ResultValue {
     Result status;
-    RetTy value;
+    RetTy  value;
 
     constexpr ResultValue() noexcept = default;
     constexpr ResultValue(wis::Result status) noexcept
@@ -2336,7 +2337,7 @@ struct ResultValue {
     }
 
     template<typename Callable, typename Callee, typename... Args>
-    requires std::is_member_function_pointer_v<Callable>
+        requires std::is_member_function_pointer_v<Callable>
     constexpr ResultValue(Callable&& f, Callee* self, Args&&... args) noexcept
         : value(std::invoke(f, self, status, std::forward<Args>(args)...))
     {

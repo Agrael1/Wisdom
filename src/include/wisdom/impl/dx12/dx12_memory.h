@@ -13,7 +13,7 @@ WISDOM_EXPORT class DX12Memory;
 WISDOM_EXPORT
 template<>
 struct Internal<DX12Memory> {
-    wis::com_ptr<D3D12MA::Allocator> allocator;
+    wis::com_ptr<D3D12MA::Allocator>  allocator;
     wis::com_ptr<D3D12MA::Allocation> allocation;
 };
 
@@ -60,9 +60,9 @@ class DX12Memory : public wis::ImplDX12Memory
 {
 public:
     using wis::ImplDX12Memory::ImplDX12Memory;
-    DX12Memory(const DX12Memory&) = delete;
-    DX12Memory(DX12Memory&&) noexcept = default;
-    DX12Memory& operator=(const DX12Memory&) = delete;
+    DX12Memory(const DX12Memory&)                = delete;
+    DX12Memory(DX12Memory&&) noexcept            = default;
+    DX12Memory& operator=(const DX12Memory&)     = delete;
     DX12Memory& operator=(DX12Memory&&) noexcept = default;
 
 public:

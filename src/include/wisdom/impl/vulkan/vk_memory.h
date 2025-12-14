@@ -18,9 +18,9 @@ WISDOM_EXPORT
 template<>
 struct Internal<VKMemory> {
     wis::shared_handle<VmaAllocator> allocator;
-    h::VmaAllocation allocation;
+    h::VmaAllocation                 allocation;
 
-    Internal() noexcept = default;
+    Internal() noexcept           = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -28,7 +28,7 @@ struct Internal<VKMemory> {
             return *this;
         }
         Destroy();
-        allocator = std::move(o.allocator);
+        allocator  = std::move(o.allocator);
         allocation = std::move(o.allocation);
         return *this;
     }
@@ -101,9 +101,9 @@ class VKMemory : public wis::ImplVKMemory
 {
 public:
     using wis::ImplVKMemory::ImplVKMemory;
-    VKMemory(const VKMemory&) = delete;
-    VKMemory(VKMemory&&) noexcept = default;
-    VKMemory& operator=(const VKMemory&) = delete;
+    VKMemory(const VKMemory&)                = delete;
+    VKMemory(VKMemory&&) noexcept            = default;
+    VKMemory& operator=(const VKMemory&)     = delete;
     VKMemory& operator=(VKMemory&&) noexcept = default;
 
 public:

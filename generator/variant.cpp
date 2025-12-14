@@ -2,7 +2,7 @@
 
 //-----------------------------------------------------------------------------
 static inline constexpr char template_struct[] =
-    R"(/**
+        R"(/**
  * @struct {0}
  * @ingroup Structures
  *
@@ -55,7 +55,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
     }
 
     for (auto* member = type->FirstChildElement("member"); member;
-            member       = member->NextSiblingElement("member")) {
+         member       = member->NextSiblingElement("member")) {
         auto& m = ref.members.emplace_back();
 
         auto* type = member->FindAttribute("type")->Value();
@@ -117,9 +117,9 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl,
 
     ImplementedFor impl_code = ImplCode(impl);
     std::string    st_decl   = wis::format("struct {}{}{} {{\n",
-                                           s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
-                                           GetImplString(impl_code),
-                                           s.name);
+                                      s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
+                                      GetImplString(impl_code),
+                                      s.name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);

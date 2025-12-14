@@ -28,35 +28,31 @@ public:
 public:
     // Resource creation functions
     [[nodiscard]] WIS_INLINE wis::VKBuffer
-    CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+                             CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKTexture
-    CreateTexture(wis::Result& result, const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+                             CreateTexture(wis::Result& result, const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     // Allocation info functions
     [[nodiscard]] WIS_INLINE wis::AllocationInfo
-    GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
+                             GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::AllocationInfo
-    GetBufferAllocationInfo(uint64_t size, wis::BufferUsage usage) const noexcept;
+                             GetBufferAllocationInfo(uint64_t size, wis::BufferUsage usage) const noexcept;
 
     // Allocation functions
     [[nodiscard]] WIS_INLINE wis::VKMemory
-    AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage,
-                          wis::MemoryType memory = wis::MemoryType::Default,
-                          wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+                             AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKMemory
-    AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage,
-                         wis::MemoryType memory = wis::MemoryType::Default,
-                         wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+                             AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     // Resource placement functions
     [[nodiscard]] WIS_INLINE wis::VKBuffer
-    PlaceBuffer(wis::Result& result, wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept;
+                             PlaceBuffer(wis::Result& result, wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKTexture
-    PlaceTexture(wis::Result& result, wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept;
+                             PlaceTexture(wis::Result& result, wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept;
 
 public:
     // Convenience functions
@@ -73,16 +69,16 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKBuffer
-    VKCreateBuffer(wis::Result& result, VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop = false) const noexcept;
+                             VKCreateBuffer(wis::Result& result, VkBufferCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop = false) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKTexture
-    VKCreateTexture(wis::Result& result, VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop = false) const noexcept;
+                             VKCreateTexture(wis::Result& result, VkImageCreateInfo& desc, const VmaAllocationCreateInfo& alloc_desc, bool interop = false) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKBuffer
-    VKCreateAliasingBuffer(wis::Result& result, VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop = false) const noexcept;
+                             VKCreateAliasingBuffer(wis::Result& result, VkBufferCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop = false) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKTexture
-    VKCreateAliasingTexture(wis::Result& result, VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop = false) const noexcept;
+                             VKCreateAliasingTexture(wis::Result& result, VkImageCreateInfo& desc, VkDeviceSize offset, VmaAllocation alloc, bool interop = false) const noexcept;
 
     WIS_INLINE static void
     VKFillBufferDesc(uint64_t size, BufferUsage flags, VkBufferCreateInfo& info) noexcept;
@@ -107,9 +103,9 @@ class VKResourceAllocator : public wis::ImplVKResourceAllocator
 {
 public:
     using wis::ImplVKResourceAllocator::ImplVKResourceAllocator;
-    VKResourceAllocator(const VKResourceAllocator&) = delete;
-    VKResourceAllocator(VKResourceAllocator&&) noexcept = default;
-    VKResourceAllocator& operator=(const VKResourceAllocator&) = delete;
+    VKResourceAllocator(const VKResourceAllocator&)                = delete;
+    VKResourceAllocator(VKResourceAllocator&&) noexcept            = default;
+    VKResourceAllocator& operator=(const VKResourceAllocator&)     = delete;
     VKResourceAllocator& operator=(VKResourceAllocator&&) noexcept = default;
 
 public:
@@ -137,7 +133,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKBuffer> CreateBuffer(uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKBuffer> { &wis::ImplVKResourceAllocator::CreateBuffer, this, size, usage, memory, mem_flags };
+        return wis::ResultValue<wis::VKBuffer>{ &wis::ImplVKResourceAllocator::CreateBuffer, this, size, usage, memory, mem_flags };
     }
     /**
      * @brief Creates a texture object and allocates memory for it.
@@ -161,7 +157,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKTexture> CreateTexture(const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKTexture> { &wis::ImplVKResourceAllocator::CreateTexture, this, desc, memory, mem_flags };
+        return wis::ResultValue<wis::VKTexture>{ &wis::ImplVKResourceAllocator::CreateTexture, this, desc, memory, mem_flags };
     }
     /**
      * @brief Convenience function for creating a buffer object and allocating memory for it.
@@ -181,7 +177,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKBuffer> CreateUploadBuffer(uint64_t size) const noexcept
     {
-        return wis::ResultValue<wis::VKBuffer> { &wis::ImplVKResourceAllocator::CreateUploadBuffer, this, size };
+        return wis::ResultValue<wis::VKBuffer>{ &wis::ImplVKResourceAllocator::CreateUploadBuffer, this, size };
     }
     /**
      * @brief Convenience function for creating a buffer object and allocating memory for it.
@@ -201,7 +197,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKBuffer> CreateReadbackBuffer(uint64_t size) const noexcept
     {
-        return wis::ResultValue<wis::VKBuffer> { &wis::ImplVKResourceAllocator::CreateReadbackBuffer, this, size };
+        return wis::ResultValue<wis::VKBuffer>{ &wis::ImplVKResourceAllocator::CreateReadbackBuffer, this, size };
     }
     /**
      * @brief Returns the allocation info for the texture.
@@ -244,7 +240,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKMemory> AllocateTextureMemory(uint64_t size, wis::TextureUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKMemory> { &wis::ImplVKResourceAllocator::AllocateTextureMemory, this, size, usage, mem_type, mem_flags };
+        return wis::ResultValue<wis::VKMemory>{ &wis::ImplVKResourceAllocator::AllocateTextureMemory, this, size, usage, mem_type, mem_flags };
     }
     /**
      * @brief Allocates memory for the buffer.
@@ -268,7 +264,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKMemory> AllocateBufferMemory(uint64_t size, wis::BufferUsage usage, wis::MemoryType mem_type = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKMemory> { &wis::ImplVKResourceAllocator::AllocateBufferMemory, this, size, usage, mem_type, mem_flags };
+        return wis::ResultValue<wis::VKMemory>{ &wis::ImplVKResourceAllocator::AllocateBufferMemory, this, size, usage, mem_type, mem_flags };
     }
     /**
      * @brief Creates buffer with provided memory.
@@ -296,7 +292,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKBuffer> PlaceBuffer(wis::VKMemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
     {
-        return wis::ResultValue<wis::VKBuffer> { &wis::ImplVKResourceAllocator::PlaceBuffer, this, std::move(memory), memory_offset, size, usage };
+        return wis::ResultValue<wis::VKBuffer>{ &wis::ImplVKResourceAllocator::PlaceBuffer, this, std::move(memory), memory_offset, size, usage };
     }
     /**
      * @brief Creates texture with provided memory.
@@ -322,7 +318,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKTexture> PlaceTexture(wis::VKMemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
     {
-        return wis::ResultValue<wis::VKTexture> { &wis::ImplVKResourceAllocator::PlaceTexture, this, std::move(memory), memory_offset, desc };
+        return wis::ResultValue<wis::VKTexture>{ &wis::ImplVKResourceAllocator::PlaceTexture, this, std::move(memory), memory_offset, desc };
     }
 };
 #pragma endregion VKResourceAllocator

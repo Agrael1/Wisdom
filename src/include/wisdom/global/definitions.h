@@ -78,16 +78,16 @@
         uint64_t opaque[size];        \
     } name
 
-#define WIS_DEFINE_DEVICE_EXT_HANDLE(name, size)   \
-    typedef struct name {                          \
-        const WisDeviceExtensionHeader ext_header; \
-        uint64_t opaque[size];                     \
+#define WIS_DEFINE_DEVICE_EXT_HANDLE(name, size)     \
+    typedef struct name {                            \
+        const WisDeviceExtensionHeader ext_header;   \
+        uint64_t                       opaque[size]; \
     } name
 
-#define WIS_DEFINE_INSTANCE_EXT_HANDLE(name, size)   \
-    typedef struct name {                            \
-        const WisInstanceExtensionHeader ext_header; \
-        uint64_t opaque[size];                       \
+#define WIS_DEFINE_INSTANCE_EXT_HANDLE(name, size)     \
+    typedef struct name {                              \
+        const WisInstanceExtensionHeader ext_header;   \
+        uint64_t                         opaque[size]; \
     } name
 
 // TODO: CMake definition for WISDOM_API when building shared library
@@ -98,6 +98,5 @@
 #ifndef WISDOM_API
 #define WISDOM_API
 #endif // WISDOM_API
-
 
 #endif // !WIS_GLOBAL_DEFINITIONS_H

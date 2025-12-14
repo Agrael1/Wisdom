@@ -12,19 +12,19 @@ class VKDebugMessenger;
 namespace detail {
 struct DebugCallbackData {
     DebugCallback callback;
-    void* user_data;
+    void*         user_data;
 };
 } // namespace detail
 
 template<>
 struct Internal<VKDebugMessenger> {
-    wis::SharedInstance instance;
-    h::VkDebugUtilsMessengerEXT messenger;
+    wis::SharedInstance                        instance;
+    h::VkDebugUtilsMessengerEXT                messenger;
     std::unique_ptr<detail::DebugCallbackData> data;
-    PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
+    PFN_vkDestroyDebugUtilsMessengerEXT        vkDestroyDebugUtilsMessengerEXT = nullptr;
 
 public:
-    Internal() noexcept = default;
+    Internal() noexcept           = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& other) noexcept
     {
@@ -32,9 +32,9 @@ public:
             return *this;
         }
         Destroy();
-        instance = std::move(other.instance);
-        messenger = std::move(other.messenger);
-        data = std::move(other.data);
+        instance                        = std::move(other.instance);
+        messenger                       = std::move(other.messenger);
+        data                            = std::move(other.data);
         vkDestroyDebugUtilsMessengerEXT = other.vkDestroyDebugUtilsMessengerEXT;
         return *this;
     }

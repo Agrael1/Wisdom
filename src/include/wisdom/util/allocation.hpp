@@ -14,9 +14,9 @@ make_unique(Args&&... args) noexcept(noexcept(T(std::forward<Args>(args)...)))
 
 template<typename T>
 inline typename std::enable_if<std::is_array<T>::value &&
-std::extent<T>::value == 0,
-    std::unique_ptr<T>>::type
-    make_unique(std::size_t size) noexcept
+                                       std::extent<T>::value == 0,
+                               std::unique_ptr<T>>::type
+make_unique(std::size_t size) noexcept
 {
     using U = typename std::remove_extent<T>::type;
     return std::unique_ptr<T>(new (std::nothrow) U[size]());

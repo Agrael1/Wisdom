@@ -4,12 +4,12 @@
 void Generator::ParseValidations(tinyxml2::XMLElement* validations)
 {
     for (auto* validation = validations->FirstChildElement("validation"); validation;
-            validation       = validation->NextSiblingElement("validation")) {
+         validation       = validation->NextSiblingElement("validation")) {
         auto  name = validation->FindAttribute("for")->Value();
         auto& ref  = validation_map[name];
 
         for (auto* check = validation->FirstChildElement("vuid"); check;
-                check       = check->NextSiblingElement("vuid")) {
+             check       = check->NextSiblingElement("vuid")) {
             Validation vcheck;
             vcheck.type_name = name;
 

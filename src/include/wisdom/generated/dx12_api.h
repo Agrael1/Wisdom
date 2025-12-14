@@ -45,9 +45,9 @@ WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
  *
  * */
 WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
-        WisDX12InstanceExtensionHeader** extensions,
-        size_t                           extension_count,
-        WisDX12Instance*                 instance);
+                                           WisDX12InstanceExtensionHeader** extensions,
+                                           size_t                           extension_count,
+                                           WisDX12Instance*                 instance);
 
 #ifdef __cplusplus
 }

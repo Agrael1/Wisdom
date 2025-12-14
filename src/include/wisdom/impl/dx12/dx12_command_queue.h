@@ -40,15 +40,15 @@ public:
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Signal(std::get<0>(fence), value))
-               ? wis::success
-               : wis::make_result<wis::Func<wis::FuncD()>(), "Signal failed">(hr);
+                ? wis::success
+                : wis::make_result<wis::Func<wis::FuncD()>(), "Signal failed">(hr);
     }
     wis::Result WaitQueue(DX12FenceView fence, uint64_t value) const noexcept
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Wait(std::get<0>(fence), value))
-               ? wis::success
-               : wis::make_result<wis::Func<wis::FuncD()>(), "Wait failed">(hr);
+                ? wis::success
+                : wis::make_result<wis::Func<wis::FuncD()>(), "Wait failed">(hr);
     }
 };
 #pragma region DX12CommandQueue
@@ -60,9 +60,9 @@ class DX12CommandQueue : public wis::ImplDX12CommandQueue
 {
 public:
     using wis::ImplDX12CommandQueue::ImplDX12CommandQueue;
-    DX12CommandQueue(const DX12CommandQueue&) = delete;
-    DX12CommandQueue(DX12CommandQueue&&) noexcept = default;
-    DX12CommandQueue& operator=(const DX12CommandQueue&) = delete;
+    DX12CommandQueue(const DX12CommandQueue&)                = delete;
+    DX12CommandQueue(DX12CommandQueue&&) noexcept            = default;
+    DX12CommandQueue& operator=(const DX12CommandQueue&)     = delete;
     DX12CommandQueue& operator=(DX12CommandQueue&&) noexcept = default;
 
 public:

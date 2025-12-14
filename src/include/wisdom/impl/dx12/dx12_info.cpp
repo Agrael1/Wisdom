@@ -71,7 +71,7 @@ void DX12Info::AddCallback(void* factory, DebugCallback callback, void* user_dat
 {
     auto& inst = instance();
     inst.callback_sem.acquire();
-    inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*> { callback, user_data });
+    inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*>{ callback, user_data });
     inst.callback_sem.release();
 }
 void DX12Info::RemoveCallback(void* factrory) noexcept
@@ -111,8 +111,7 @@ void wis::DX12Info::Initialize() noexcept
     auto hr = DXGIGetDebugInterface1(0, __uuidof(IDXGIInfoQueue), info_queue.put_void());
     if constexpr (debug_mode) {
         info_queue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
-        info_queue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
-                                       true);
+        info_queue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
         info_queue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING, true);
 
         if (auto d3dinfoqueue = info_queue.as<ID3D12InfoQueue>()) {
@@ -131,8 +130,8 @@ void wis::DX12Info::PollInternal() noexcept
     message.resize(sizeof(DXGI_INFO_QUEUE_MESSAGE));
 
     for (UINT64 i = 0;; i++) {
-        SIZE_T messageLength = 0;
-        HRESULT hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength);
+        SIZE_T  messageLength = 0;
+        HRESULT hr            = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength);
         if (hr < 0) {
             break;
         }

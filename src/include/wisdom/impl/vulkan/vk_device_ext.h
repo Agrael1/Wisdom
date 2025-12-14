@@ -23,9 +23,9 @@ struct VKDeviceExtension {
 
     // Unfortunate that we have to pass all the maps and sets here, but it's the only way to get the information
     virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                                  std::unordered_set<std::string_view>& ext_name_set,
-                                  std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                  std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
+                                  std::unordered_set<std::string_view>&                                                            ext_name_set,
+                                  std::unordered_map<VkStructureType, uintptr_t>&                                                  structure_map,
+                                  std::unordered_map<VkStructureType, uintptr_t>&                                                  property_map) noexcept
     {
         return true;
     }
@@ -34,7 +34,7 @@ struct VKDeviceExtension {
         return false;
     }
 
-    virtual wis::Result Init(const wis::VKDevice& instance,
+    virtual wis::Result Init(const wis::VKDevice&                                  instance,
                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
                              const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept
     {
@@ -49,19 +49,19 @@ struct XInternalFeatures {
     // Mandatory features
     bool dynamic_rendering : 1 = false;
     bool synchronization_2 : 1 = false;
-    bool swapchain : 1 = false;
+    bool swapchain         : 1 = false;
 
     // Optional features
-    bool push_descriptor : 1 = false;
-    bool present_wait : 1 = false;
-    bool present_wait2 : 1 = false;
-    bool has_custom_border_color : 1 = false;
-    bool extended_dynamic_state : 1 = false;
-    bool interop_device : 1 = false;
-    bool index_buffer_range : 1 = false;
-    bool dynamic_vsync : 1 = false; // Shall remain false until the perf is not fixed
+    bool push_descriptor                   : 1 = false;
+    bool present_wait                      : 1 = false;
+    bool present_wait2                     : 1 = false;
+    bool has_custom_border_color           : 1 = false;
+    bool extended_dynamic_state            : 1 = false;
+    bool interop_device                    : 1 = false;
+    bool index_buffer_range                : 1 = false;
+    bool dynamic_vsync                     : 1 = false; // Shall remain false until the perf is not fixed
     bool dynamic_render_unused_attachments : 1 = false;
-    bool multiview : 1 = false;
+    bool multiview                         : 1 = false;
 
     // Dynamically enabled features from the extensions
     bool raytracing : 1 = false;
@@ -74,33 +74,33 @@ struct XBaseProperties {
 template<>
 struct Internal<VKDeviceExtensionEmbedded1> {
     XInternalFeatures features;
-    XBaseProperties base_properties;
+    XBaseProperties   base_properties;
 };
 
 struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtensionEmbedded1, VKDeviceExtension> {
     virtual bool GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                                  std::unordered_set<std::string_view>& ext_name_set,
-                                  std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                                  std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
+                                  std::unordered_set<std::string_view>&                                                            ext_name_set,
+                                  std::unordered_map<VkStructureType, uintptr_t>&                                                  structure_map,
+                                  std::unordered_map<VkStructureType, uintptr_t>&                                                  property_map) noexcept override
     {
         // Optional extensions
         if (available_extensions.contains(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME)) {
             features.has_custom_border_color = true;
             ext_name_set.insert(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME);
-            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT] = sizeof(VkPhysicalDeviceCustomBorderColorFeaturesEXT);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT]  = sizeof(VkPhysicalDeviceCustomBorderColorFeaturesEXT);
             property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT] = sizeof(VkPhysicalDeviceCustomBorderColorPropertiesEXT);
         }
 
         if (available_extensions.contains(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)) {
             ext_name_set.insert(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
-            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES] = sizeof(VkPhysicalDeviceMaintenance4Features);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES]  = sizeof(VkPhysicalDeviceMaintenance4Features);
             property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES] = sizeof(VkPhysicalDeviceMaintenance4Properties);
         }
 
         if (available_extensions.contains(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)) {
             ext_name_set.insert(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
-            features.index_buffer_range = true;
-            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR] = sizeof(VkPhysicalDeviceMaintenance5FeaturesKHR);
+            features.index_buffer_range                                                  = true;
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR]  = sizeof(VkPhysicalDeviceMaintenance5FeaturesKHR);
             property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR] = sizeof(VkPhysicalDeviceMaintenance5PropertiesKHR);
         }
 
@@ -131,14 +131,14 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
             features.present_wait = true;
             ext_name_set.insert(VK_KHR_PRESENT_ID_EXTENSION_NAME);
             ext_name_set.insert(VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
-            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentIdFeaturesKHR);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR]   = sizeof(VkPhysicalDevicePresentIdFeaturesKHR);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR);
         }
 
         if (available_extensions.contains(VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME) && available_extensions.contains(VK_KHR_PRESENT_ID_2_EXTENSION_NAME)) {
             ext_name_set.insert(VK_KHR_PRESENT_ID_2_EXTENSION_NAME);
             ext_name_set.insert(VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME);
-            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentId2FeaturesKHR);
+            structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR]   = sizeof(VkPhysicalDevicePresentId2FeaturesKHR);
             structure_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR] = sizeof(VkPhysicalDevicePresentWait2FeaturesKHR);
         }
 
@@ -174,15 +174,15 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
     }
 
     // Not supposed to use device here.
-    virtual wis::Result Init(const wis::VKDevice& device,
+    virtual wis::Result Init(const wis::VKDevice&                                  device,
                              const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
                              const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
     {
         auto& vk_physical_device_properties = *reinterpret_cast<VkPhysicalDeviceProperties2*>(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2));
-        base_properties.max_ia_attributes = vk_physical_device_properties.properties.limits.maxVertexInputAttributes;
+        base_properties.max_ia_attributes   = vk_physical_device_properties.properties.limits.maxVertexInputAttributes;
 
         auto& vk_11_features = *reinterpret_cast<VkPhysicalDeviceVulkan11Features*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES));
-        features.multiview = vk_11_features.multiview;
+        features.multiview   = vk_11_features.multiview;
 
         // Check present wait 2 support
         {
@@ -194,7 +194,7 @@ struct VKDeviceExtensionEmbedded1 : public QueryInternalExtension<VKDeviceExtens
         // Check present wait support
         {
             auto& vk_present_wait_features = *reinterpret_cast<VkPhysicalDevicePresentWaitFeaturesKHR*>(structure_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR));
-            features.present_wait = vk_present_wait_features.presentWait == VK_TRUE;
+            features.present_wait          = vk_present_wait_features.presentWait == VK_TRUE;
         }
 
         features.raytracing = structure_map.contains(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR);

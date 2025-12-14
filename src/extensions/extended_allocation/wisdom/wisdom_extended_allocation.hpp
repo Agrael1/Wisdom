@@ -23,8 +23,8 @@ protected:
     virtual wis::Result Init(const wis::DX12Device& instance) noexcept override
     {
         D3D12_FEATURE_DATA_D3D12_OPTIONS16 d3d12_options16{};
-        auto hr = instance.GetInternal().device->CheckFeatureSupport(D3D12_FEATURE::D3D12_FEATURE_D3D12_OPTIONS16, &d3d12_options16, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS16));
-        supports_gpu_upload = wis::succeeded(hr) && d3d12_options16.GPUUploadHeapSupported;
+        auto                               hr = instance.GetInternal().device->CheckFeatureSupport(D3D12_FEATURE::D3D12_FEATURE_D3D12_OPTIONS16, &d3d12_options16, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS16));
+        supports_gpu_upload                   = wis::succeeded(hr) && d3d12_options16.GPUUploadHeapSupported;
         return {};
     }
 
@@ -38,16 +38,13 @@ public:
     // may only transition to copy states
 
     [[nodiscard]] WIS_INLINE DX12Texture
-    CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator,
-                           wis::TextureDesc desc,
-                           wis::TextureState initial_state = wis::TextureState::Common,
-                           wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
+    CreateGPUUploadTexture(wis::Result& result, const wis::DX12ResourceAllocator& allocator, wis::TextureDesc desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
-    WriteMemoryToSubresourceDirect(const void* host_data,
-                                   wis::DX12TextureView dst_texture,
-                                   wis::TextureState initial_state,
-                                   wis::TextureRegion region) const noexcept;
+                             WriteMemoryToSubresourceDirect(const void*          host_data,
+                                                            wis::DX12TextureView dst_texture,
+                                                            wis::TextureState    initial_state,
+                                                            wis::TextureRegion   region) const noexcept;
 
     [[nodiscard]] bool SupportedDirectGPUUpload(wis::DataFormat) const noexcept
     {
@@ -61,9 +58,9 @@ class DX12ExtendedAllocation : public wis::ImplDX12ExtendedAllocation
 {
 public:
     using wis::ImplDX12ExtendedAllocation::ImplDX12ExtendedAllocation;
-    DX12ExtendedAllocation(const DX12ExtendedAllocation&) = delete;
-    DX12ExtendedAllocation(DX12ExtendedAllocation&&) noexcept = default;
-    DX12ExtendedAllocation& operator=(const DX12ExtendedAllocation&) = delete;
+    DX12ExtendedAllocation(const DX12ExtendedAllocation&)                = delete;
+    DX12ExtendedAllocation(DX12ExtendedAllocation&&) noexcept            = default;
+    DX12ExtendedAllocation& operator=(const DX12ExtendedAllocation&)     = delete;
     DX12ExtendedAllocation& operator=(DX12ExtendedAllocation&&) noexcept = default;
 
 public:
@@ -95,7 +92,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Texture> CreateGPUUploadTexture(const wis::DX12ResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::DX12Texture> { &wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
+        return wis::ResultValue<wis::DX12Texture>{ &wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
     }
     /**
      * @brief Writes memory directly to the subresource of the texture.
@@ -137,10 +134,10 @@ WISDOM_EXPORT class VKExtendedAllocation;
 WISDOM_EXPORT
 template<>
 struct Internal<VKExtendedAllocation> {
-    wis::SharedDevice device;
-    h::VkPhysicalDevice adapter;
-    PFN_vkCopyMemoryToImageEXT vkCopyMemoryToImageEXT = nullptr;
-    PFN_vkTransitionImageLayoutEXT vkTransitionImageLayoutEXT = nullptr;
+    wis::SharedDevice                                device;
+    h::VkPhysicalDevice                              adapter;
+    PFN_vkCopyMemoryToImageEXT                       vkCopyMemoryToImageEXT                    = nullptr;
+    PFN_vkTransitionImageLayoutEXT                   vkTransitionImageLayoutEXT                = nullptr;
     PFN_vkGetPhysicalDeviceImageFormatProperties2KHR vkGetPhysicalDeviceImageFormatProperties2 = nullptr;
 };
 
@@ -149,14 +146,14 @@ class ImplVKExtendedAllocation : public QueryInternalExtension<VKExtendedAllocat
 protected:
     virtual WIS_INLINE bool
     GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                     std::unordered_set<std::string_view>& ext_name_set,
-                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+                     std::unordered_set<std::string_view>&                                                            ext_name_set,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  structure_map,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  property_map) noexcept override;
 
     virtual WIS_INLINE wis::Result
-    Init(const wis::VKDevice& instance,
-         const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-         const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+                       Init(const wis::VKDevice&                                  instance,
+                            const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                            const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
 
 public:
     virtual bool Supported() const noexcept override
@@ -167,16 +164,13 @@ public:
 public:
     // may only transition to copy states
     [[nodiscard]] WIS_INLINE wis::VKTexture
-    CreateGPUUploadTexture(wis::Result& result, const wis::VKResourceAllocator& allocator,
-                           wis::TextureDesc desc,
-                           wis::TextureState initial_state = wis::TextureState::Common,
-                           wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
+                             CreateGPUUploadTexture(wis::Result& result, const wis::VKResourceAllocator& allocator, wis::TextureDesc desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::Result
-    WriteMemoryToSubresourceDirect(const void* host_data,
-                                   wis::VKTextureView dst_texture,
-                                   wis::TextureState initial_state,
-                                   wis::TextureRegion region) const noexcept;
+                             WriteMemoryToSubresourceDirect(const void*        host_data,
+                                                            wis::VKTextureView dst_texture,
+                                                            wis::TextureState  initial_state,
+                                                            wis::TextureRegion region) const noexcept;
 
     [[nodiscard]] WIS_INLINE bool
     SupportedDirectGPUUpload(wis::DataFormat format) const noexcept;
@@ -188,9 +182,9 @@ class VKExtendedAllocation : public wis::ImplVKExtendedAllocation
 {
 public:
     using wis::ImplVKExtendedAllocation::ImplVKExtendedAllocation;
-    VKExtendedAllocation(const VKExtendedAllocation&) = delete;
-    VKExtendedAllocation(VKExtendedAllocation&&) noexcept = default;
-    VKExtendedAllocation& operator=(const VKExtendedAllocation&) = delete;
+    VKExtendedAllocation(const VKExtendedAllocation&)                = delete;
+    VKExtendedAllocation(VKExtendedAllocation&&) noexcept            = default;
+    VKExtendedAllocation& operator=(const VKExtendedAllocation&)     = delete;
     VKExtendedAllocation& operator=(VKExtendedAllocation&&) noexcept = default;
 
 public:
@@ -222,7 +216,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKTexture> CreateGPUUploadTexture(const wis::VKResourceAllocator& allocator, const wis::TextureDesc& desc, wis::TextureState initial_state = wis::TextureState::Common, wis::MemoryFlags flags = wis::MemoryFlags::None) const noexcept
     {
-        return wis::ResultValue<wis::VKTexture> { &wis::ImplVKExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
+        return wis::ResultValue<wis::VKTexture>{ &wis::ImplVKExtendedAllocation::CreateGPUUploadTexture, this, allocator, desc, initial_state, flags };
     }
     /**
      * @brief Writes memory directly to the subresource of the texture.

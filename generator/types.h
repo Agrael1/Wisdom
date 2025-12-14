@@ -90,8 +90,7 @@ public:
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
         });
-        return enum_value != values.end() ? std::optional<WisEnumValue> { *enum_value } :
-               std::nullopt;
+        return enum_value != values.end() ? std::optional<WisEnumValue>{ *enum_value } : std::nullopt;
     }
 };
 

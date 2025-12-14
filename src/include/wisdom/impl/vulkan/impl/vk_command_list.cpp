@@ -13,7 +13,7 @@ void wis::ImplVKCommandList::CopyBuffer(VKBufferView source, VKBufferView destin
     VkBufferCopy copy{
         .srcOffset = region.src_offset,
         .dstOffset = region.dst_offset,
-        .size = region.size_bytes,
+        .size      = region.size_bytes,
     };
     device.table().vkCmdCopyBuffer(command_list, std::get<0>(source), std::get<0>(destination), 1, &copy);
 }
@@ -21,34 +21,34 @@ void wis::ImplVKCommandList::CopyBuffer(VKBufferView source, VKBufferView destin
 void wis::ImplVKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
-    auto* copies = allocator.data();
+    auto*                                                 copies = allocator.data();
 
     for (size_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        copies[i] = VkBufferImageCopy2{
-            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
-            .bufferOffset = region.buffer_offset,
-            .bufferRowLength = {},
-            .bufferImageHeight = {},
-            .imageSubresource = {
-                .aspectMask = aspect_flags(std::get<1>(dest_texture)),
-                .mipLevel = region.texture.mip,
-                .baseArrayLayer = region.texture.array_layer,
-                .layerCount = 1u,
-            },
-            .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
-            .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
+        copies[i]    = VkBufferImageCopy2{
+               .sType             = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+               .bufferOffset      = region.buffer_offset,
+               .bufferRowLength   = {},
+               .bufferImageHeight = {},
+               .imageSubresource  = {
+                                     .aspectMask     = aspect_flags(std::get<1>(dest_texture)),
+                                     .mipLevel       = region.texture.mip,
+                                     .baseArrayLayer = region.texture.array_layer,
+                                     .layerCount     = 1u,
+                                     },
+               .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
+               .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
         };
     }
 
     VkCopyBufferToImageInfo2 copy{
-        .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
-        .pNext = nullptr,
-        .srcBuffer = std::get<0>(src_buffer),
-        .dstImage = std::get<0>(dest_texture),
+        .sType          = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
+        .pNext          = nullptr,
+        .srcBuffer      = std::get<0>(src_buffer),
+        .dstImage       = std::get<0>(dest_texture),
         .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        .regionCount = region_count,
-        .pRegions = copies,
+        .regionCount    = region_count,
+        .pRegions       = copies,
     };
     device.table().vkCmdCopyBufferToImage2(command_list, &copy);
 }
@@ -56,34 +56,34 @@ void wis::ImplVKCommandList::CopyBufferToTexture(VKBufferView src_buffer, VKText
 void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dst_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkBufferImageCopy2, 8> allocator(region_count, true);
-    auto* copies = allocator.data();
+    auto*                                                 copies = allocator.data();
 
     for (size_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        copies[i] = VkBufferImageCopy2{
-            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
-            .bufferOffset = region.buffer_offset,
-            .bufferRowLength = {},
-            .bufferImageHeight = {},
-            .imageSubresource = {
-                .aspectMask = aspect_flags(std::get<1>(src_texture)),
-                .mipLevel = region.texture.mip,
-                .baseArrayLayer = region.texture.array_layer,
-                .layerCount = 1u,
-            },
-            .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
-            .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
+        copies[i]    = VkBufferImageCopy2{
+               .sType             = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+               .bufferOffset      = region.buffer_offset,
+               .bufferRowLength   = {},
+               .bufferImageHeight = {},
+               .imageSubresource  = {
+                                     .aspectMask     = aspect_flags(std::get<1>(src_texture)),
+                                     .mipLevel       = region.texture.mip,
+                                     .baseArrayLayer = region.texture.array_layer,
+                                     .layerCount     = 1u,
+                                     },
+               .imageOffset = { int(region.texture.offset.width), int(region.texture.offset.height), int(region.texture.offset.depth_or_layers) },
+               .imageExtent = { region.texture.size.width, region.texture.size.height, region.texture.size.depth_or_layers },
         };
     }
 
     VkCopyImageToBufferInfo2 copy{
-        .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
-        .pNext = nullptr,
-        .srcImage = std::get<0>(src_texture),
+        .sType          = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
+        .pNext          = nullptr,
+        .srcImage       = std::get<0>(src_texture),
         .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        .dstBuffer = std::get<0>(dst_buffer),
-        .regionCount = region_count,
-        .pRegions = copies,
+        .dstBuffer      = std::get<0>(dst_buffer),
+        .regionCount    = region_count,
+        .pRegions       = copies,
     };
 
     device.table().vkCmdCopyImageToBuffer2(command_list, &copy);
@@ -92,37 +92,37 @@ void wis::ImplVKCommandList::CopyTextureToBuffer(VKTextureView src_texture, VKBu
 void wis::ImplVKCommandList::CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept
 {
     wis::detail::limited_allocator<VkImageCopy2, 8> allocator(region_count, true);
-    auto* copies = allocator.data();
+    auto*                                           copies = allocator.data();
     for (size_t i = 0; i < region_count; i++) {
         auto& region = regions[i];
-        copies[i] = VkImageCopy2{
-            .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
-            .srcSubresource = {
-                .aspectMask = aspect_flags(std::get<1>(src_texture)),
-                .mipLevel = region.src.mip,
-                .baseArrayLayer = region.src.array_layer,
-                .layerCount = 1u,
-            },
-            .srcOffset = { int(region.src.offset.width), int(region.src.offset.height), int(region.src.offset.depth_or_layers) },
-            .dstSubresource = {
-                .aspectMask = aspect_flags(std::get<1>(dst_texture)),
-                .mipLevel = region.dst.mip,
-                .baseArrayLayer = region.dst.array_layer,
-                .layerCount = 1u,
-            },
-            .dstOffset = { int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
-            .extent = { region.src.size.width, region.src.size.height, region.src.size.depth_or_layers },
+        copies[i]    = VkImageCopy2{
+               .sType          = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
+               .srcSubresource = {
+                                  .aspectMask     = aspect_flags(std::get<1>(src_texture)),
+                                  .mipLevel       = region.src.mip,
+                                  .baseArrayLayer = region.src.array_layer,
+                                  .layerCount     = 1u,
+                                  },
+               .srcOffset      = {                            int(region.src.offset.width), int(region.src.offset.height), int(region.src.offset.depth_or_layers) },
+               .dstSubresource = {
+                                  .aspectMask     = aspect_flags(std::get<1>(dst_texture)),
+                                  .mipLevel       = region.dst.mip,
+                                  .baseArrayLayer = region.dst.array_layer,
+                                  .layerCount     = 1u,
+                                  },
+               .dstOffset = {                            int(region.dst.offset.width), int(region.dst.offset.height), int(region.dst.offset.depth_or_layers) },
+               .extent    = {                                   region.src.size.width,        region.src.size.height,        region.src.size.depth_or_layers },
         };
     }
     VkCopyImageInfo2 copy{
-        .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2,
-        .pNext = nullptr,
-        .srcImage = std::get<0>(src_texture),
+        .sType          = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2,
+        .pNext          = nullptr,
+        .srcImage       = std::get<0>(src_texture),
         .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        .dstImage = std::get<0>(dst_texture),
+        .dstImage       = std::get<0>(dst_texture),
         .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        .regionCount = region_count,
-        .pRegions = copies,
+        .regionCount    = region_count,
+        .pRegions       = copies,
     };
     device.table().vkCmdCopyImage2(command_list, &copy);
 }
@@ -132,16 +132,16 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
     Close();
 
     auto& dtable = device.table();
-    auto result = dtable.vkResetCommandBuffer(command_list, {});
+    auto  result = dtable.vkResetCommandBuffer(command_list, {});
     if (!succeeded(result)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkResetCommandBuffer failed">(result);
     }
     auto pipeline = std::move(std::get<0>(new_pipeline));
 
     VkCommandBufferBeginInfo desc{
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .pNext = nullptr,
-        .flags = {},
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .pNext            = nullptr,
+        .flags            = {},
         .pInheritanceInfo = nullptr,
     };
     result = dtable.vkBeginCommandBuffer(command_list, &desc);
@@ -172,43 +172,43 @@ namespace wis::detail {
 inline VkBufferMemoryBarrier2 to_vk(wis::BufferBarrier barrier, VkBuffer buffer) noexcept
 {
     return VkBufferMemoryBarrier2{
-        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
-        .pNext = nullptr,
-        .srcStageMask = convert_vk(barrier.sync_before),
-        .srcAccessMask = convert_vk(barrier.access_before),
-        .dstStageMask = convert_vk(barrier.sync_after),
-        .dstAccessMask = convert_vk(barrier.access_after),
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
+        .pNext               = nullptr,
+        .srcStageMask        = convert_vk(barrier.sync_before),
+        .srcAccessMask       = convert_vk(barrier.access_before),
+        .dstStageMask        = convert_vk(barrier.sync_after),
+        .dstAccessMask       = convert_vk(barrier.access_after),
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .buffer = buffer,
-        .offset = barrier.offset,
-        .size = barrier.size,
+        .buffer              = buffer,
+        .offset              = barrier.offset,
+        .size                = barrier.size,
     };
 }
 inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture, VkFormat format) noexcept
 {
     auto& subresource = barrier.subresource_range;
-    bool zero_range = subresource.base_array_layer == 0 && subresource.base_mip_level == 0 && subresource.layer_count == 0 && subresource.level_count == 0;
+    bool  zero_range  = subresource.base_array_layer == 0 && subresource.base_mip_level == 0 && subresource.layer_count == 0 && subresource.level_count == 0;
 
     return VkImageMemoryBarrier2{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-        .pNext = nullptr,
-        .srcStageMask = convert_vk(barrier.sync_before),
-        .srcAccessMask = convert_vk(barrier.access_before),
-        .dstStageMask = convert_vk(barrier.sync_after),
-        .dstAccessMask = convert_vk(barrier.access_after),
-        .oldLayout = convert_vk(barrier.state_before),
-        .newLayout = convert_vk(barrier.state_after),
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+        .pNext               = nullptr,
+        .srcStageMask        = convert_vk(barrier.sync_before),
+        .srcAccessMask       = convert_vk(barrier.access_before),
+        .dstStageMask        = convert_vk(barrier.sync_after),
+        .dstAccessMask       = convert_vk(barrier.access_after),
+        .oldLayout           = convert_vk(barrier.state_before),
+        .newLayout           = convert_vk(barrier.state_after),
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = texture,
-        .subresourceRange = {
-            .aspectMask = aspect_flags(format),
-            .baseMipLevel = subresource.base_mip_level,
-            .levelCount = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
-            .baseArrayLayer = subresource.base_array_layer,
-            .layerCount = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
-        }
+        .image               = texture,
+        .subresourceRange    = {
+                                .aspectMask     = aspect_flags(format),
+                                .baseMipLevel   = subresource.base_mip_level,
+                                .levelCount     = zero_range ? VK_REMAINING_MIP_LEVELS : subresource.level_count,
+                                .baseArrayLayer = subresource.base_array_layer,
+                                .layerCount     = zero_range ? VK_REMAINING_ARRAY_LAYERS : subresource.layer_count,
+                                }
     };
 }
 } // namespace wis::detail
@@ -221,12 +221,12 @@ void wis::ImplVKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferV
     }
 
     VkBufferMemoryBarrier2 desc = detail::to_vk(barrier, hbuffer);
-    VkDependencyInfo depinfo{
-        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-        .pNext = nullptr,
-        .dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT,
-        .bufferMemoryBarrierCount = 1,
-        .pBufferMemoryBarriers = &desc,
+    VkDependencyInfo       depinfo{
+              .sType                    = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+              .pNext                    = nullptr,
+              .dependencyFlags          = VK_DEPENDENCY_BY_REGION_BIT,
+              .bufferMemoryBarrierCount = 1,
+              .pBufferMemoryBarriers    = &desc,
     };
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
@@ -234,17 +234,17 @@ void wis::ImplVKCommandList::BufferBarrier(wis::BufferBarrier barrier, VKBufferV
 void wis::ImplVKCommandList::BufferBarriers(const wis::VKBufferBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<VkBufferMemoryBarrier2, 8> allocator(barrier_count, true);
-    auto* data = allocator.data();
+    auto*                                                     data = allocator.data();
 
     for (size_t i = 0; i < barrier_count; i++) {
         data[i] = detail::to_vk(barriers[i].barrier, std::get<0>(barriers[i].buffer));
     }
     VkDependencyInfo depinfo{
-        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-        .pNext = nullptr,
-        .dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT,
+        .sType                    = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+        .pNext                    = nullptr,
+        .dependencyFlags          = VK_DEPENDENCY_BY_REGION_BIT,
         .bufferMemoryBarrierCount = barrier_count,
-        .pBufferMemoryBarriers = data,
+        .pBufferMemoryBarriers    = data,
     };
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
@@ -257,12 +257,12 @@ void wis::ImplVKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextu
     }
 
     VkImageMemoryBarrier2 image_memory_barrier = detail::to_vk(barrier, htexture, std::get<1>(texture));
-    VkDependencyInfo depinfo{
-        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-        .pNext = nullptr,
-        .dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT,
-        .imageMemoryBarrierCount = 1,
-        .pImageMemoryBarriers = &image_memory_barrier,
+    VkDependencyInfo      depinfo{
+             .sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+             .pNext                   = nullptr,
+             .dependencyFlags         = VK_DEPENDENCY_BY_REGION_BIT,
+             .imageMemoryBarrierCount = 1,
+             .pImageMemoryBarriers    = &image_memory_barrier,
     };
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
@@ -270,17 +270,17 @@ void wis::ImplVKCommandList::TextureBarrier(wis::TextureBarrier barrier, VKTextu
 void wis::ImplVKCommandList::TextureBarriers(const wis::VKTextureBarrier2* barriers, uint32_t barrier_count) noexcept
 {
     wis::detail::limited_allocator<VkImageMemoryBarrier2, 8> allocator(barrier_count, true);
-    auto* data = allocator.data();
+    auto*                                                    data = allocator.data();
 
     for (size_t i = 0; i < barrier_count; i++) {
         data[i] = detail::to_vk(barriers[i].barrier, std::get<0>(barriers[i].texture), std::get<1>(barriers[i].texture));
     }
     VkDependencyInfo depinfo{
-        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-        .pNext = nullptr,
-        .dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT,
+        .sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+        .pNext                   = nullptr,
+        .dependencyFlags         = VK_DEPENDENCY_BY_REGION_BIT,
         .imageMemoryBarrierCount = barrier_count,
-        .pImageMemoryBarriers = data,
+        .pImageMemoryBarriers    = data,
     };
     device.table().vkCmdPipelineBarrier2(command_list, &depinfo);
 }
@@ -291,18 +291,18 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
 
     auto& dtable = device.table();
 
-    VkRenderingAttachmentInfo data[wis::max_render_targets] {};
-    wis::Size2D extent = std::get<1>(pass_desc.targets[0].target);
+    VkRenderingAttachmentInfo data[wis::max_render_targets]{};
+    wis::Size2D               extent = std::get<1>(pass_desc.targets[0].target);
 
     for (size_t i = 0; i < pass_desc.target_count; i++) {
         auto& target = pass_desc.targets[i];
-        data[i] = VkRenderingAttachmentInfo{
-            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-            .pNext = nullptr,
-            .imageView = std::get<0>(target.target),
-            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            .loadOp = convert_vk(target.load_op),
-            .storeOp = convert_vk(target.store_op),
+        data[i]      = VkRenderingAttachmentInfo{
+                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+                 .pNext       = nullptr,
+                 .imageView   = std::get<0>(target.target),
+                 .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                 .loadOp      = convert_vk(target.load_op),
+                 .storeOp     = convert_vk(target.store_op),
         };
         if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             data[i].clearValue = {
@@ -315,12 +315,12 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
     VkRenderingAttachmentInfo s_info{};
     if (ds_selector & DSSelect::Depth) {
         d_info = {
-            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-            .pNext = nullptr,
-            .imageView = std::get<0>(pass_desc.depth_stencil->target),
+            .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext       = nullptr,
+            .imageView   = std::get<0>(pass_desc.depth_stencil->target),
             .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-            .loadOp = convert_vk(pass_desc.depth_stencil->load_op_depth),
-            .storeOp = convert_vk(pass_desc.depth_stencil->store_op_depth),
+            .loadOp      = convert_vk(pass_desc.depth_stencil->load_op_depth),
+            .storeOp     = convert_vk(pass_desc.depth_stencil->store_op_depth),
         };
         if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             d_info.clearValue = {
@@ -330,12 +330,12 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
     }
     if (ds_selector & DSSelect::Stencil) {
         s_info = {
-            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-            .pNext = nullptr,
-            .imageView = std::get<0>(pass_desc.depth_stencil->target),
+            .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext       = nullptr,
+            .imageView   = std::get<0>(pass_desc.depth_stencil->target),
             .imageLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL,
-            .loadOp = convert_vk(pass_desc.depth_stencil->load_op_stencil),
-            .storeOp = convert_vk(pass_desc.depth_stencil->store_op_stencil),
+            .loadOp      = convert_vk(pass_desc.depth_stencil->load_op_stencil),
+            .storeOp     = convert_vk(pass_desc.depth_stencil->store_op_stencil),
         };
         if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             s_info.clearValue = {
@@ -345,19 +345,19 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
     }
 
     VkRenderingInfo info{
-        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
-        .pNext = nullptr,
-        .flags = convert_vk(pass_desc.flags),
+        .sType      = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .pNext      = nullptr,
+        .flags      = convert_vk(pass_desc.flags),
         .renderArea = {
-            .offset = { 0, 0 },
-            .extent = { extent.width, extent.height },
-        },
-        .layerCount = 1,
-        .viewMask = pass_desc.view_mask,
+                       .offset = { 0, 0 },
+                       .extent = { extent.width, extent.height },
+                       },
+        .layerCount           = 1,
+        .viewMask             = pass_desc.view_mask,
         .colorAttachmentCount = pass_desc.target_count,
-        .pColorAttachments = data,
-        .pDepthAttachment = ds_selector & DSSelect::Depth ? &d_info : nullptr,
-        .pStencilAttachment = ds_selector & DSSelect::Stencil ? &s_info : nullptr,
+        .pColorAttachments    = data,
+        .pDepthAttachment     = ds_selector & DSSelect::Depth ? &d_info : nullptr,
+        .pStencilAttachment   = ds_selector & DSSelect::Stencil ? &s_info : nullptr,
     };
 
     dtable.vkCmdBeginRendering(command_list, &info);
@@ -371,10 +371,10 @@ void wis::ImplVKCommandList::EndRenderPass() noexcept
 void wis::ImplVKCommandList::RSSetViewport(wis::Viewport vp) noexcept
 {
     VkViewport vkvp{
-        .x = vp.top_leftx,
-        .y = vp.top_lefty + vp.height,
-        .width = vp.width,
-        .height = -vp.height,
+        .x        = vp.top_leftx,
+        .y        = vp.top_lefty + vp.height,
+        .width    = vp.width,
+        .height   = -vp.height,
         .minDepth = vp.min_depth,
         .maxDepth = vp.max_depth,
     };
@@ -383,14 +383,14 @@ void wis::ImplVKCommandList::RSSetViewport(wis::Viewport vp) noexcept
 void wis::ImplVKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t count) noexcept
 {
     wis::detail::limited_allocator<VkViewport, 8> allocator(count, true);
-    auto* viewports = allocator.data();
+    auto*                                         viewports = allocator.data();
 
     for (size_t i = 0; i < count; i++) {
         viewports[i] = {
-            .x = vp[i].top_leftx,
-            .y = vp[i].top_lefty + vp[i].height,
-            .width = vp[i].width,
-            .height = -vp[i].height,
+            .x        = vp[i].top_leftx,
+            .y        = vp[i].top_lefty + vp[i].height,
+            .width    = vp[i].width,
+            .height   = -vp[i].height,
             .minDepth = vp[i].min_depth,
             .maxDepth = vp[i].max_depth,
         };
@@ -401,7 +401,7 @@ void wis::ImplVKCommandList::RSSetViewports(const wis::Viewport* vp, uint32_t co
 void wis::ImplVKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
 {
     VkRect2D rect{
-        .offset = { scissor.left, scissor.top },
+        .offset = {                           scissor.left,                            scissor.top },
         .extent = { uint32_t(scissor.right - scissor.left), uint32_t(scissor.bottom - scissor.top) },
     };
     device.table().vkCmdSetScissor(command_list, 0, 1, &rect);
@@ -409,10 +409,10 @@ void wis::ImplVKCommandList::RSSetScissor(wis::Scissor scissor) noexcept
 void wis::ImplVKCommandList::RSSetScissors(const wis::Scissor* vp, uint32_t count) noexcept
 {
     wis::detail::limited_allocator<VkRect2D, 8> allocator(count, true);
-    auto* scissors = allocator.data();
+    auto*                                       scissors = allocator.data();
     for (size_t i = 0; i < count; i++) {
         scissors[i] = {
-            .offset = { vp[i].left, vp[i].top },
+            .offset = {                         vp[i].left,                          vp[i].top },
             .extent = { uint32_t(vp[i].right - vp[i].left), uint32_t(vp[i].bottom - vp[i].top) },
         };
     }
@@ -437,20 +437,20 @@ void wis::ImplVKCommandList::SetComputeRootSignature(wis::VKRootSignatureView ro
 void wis::ImplVKCommandList::IASetVertexBuffers(const wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
 {
     wis::detail::limited_allocator<VkBuffer, 8> allocator(count, true);
-    auto* buffers = allocator.data();
+    auto*                                       buffers = allocator.data();
 
     wis::detail::limited_allocator<VkDeviceSize, 8> offset_allocator(count, true);
-    auto* offsets = offset_allocator.data();
+    auto*                                           offsets = offset_allocator.data();
 
     wis::detail::limited_allocator<VkDeviceSize, 8> size_allocator(count, true);
-    auto* sizes = size_allocator.data();
+    auto*                                           sizes = size_allocator.data();
 
     wis::detail::limited_allocator<VkDeviceSize, 8> stride_allocator(count, true);
-    auto* strides = stride_allocator.data();
+    auto*                                           strides = stride_allocator.data();
 
     for (size_t i = 0; i < count; i++) {
         buffers[i] = std::get<0>(resources[i].buffer);
-        sizes[i] = resources[i].size;
+        sizes[i]   = resources[i].size;
         strides[i] = resources[i].stride;
         offsets[i] = resources[i].offset;
     }
@@ -467,18 +467,18 @@ void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::In
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-        uint32_t instance_count,
-        uint32_t start_index,
-        uint32_t base_vertex,
-        uint32_t start_instance) noexcept
+                                                  uint32_t instance_count,
+                                                  uint32_t start_index,
+                                                  uint32_t base_vertex,
+                                                  uint32_t start_instance) noexcept
 {
     device.table().vkCmdDrawIndexed(command_list, vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
 }
 
 void wis::ImplVKCommandList::DrawInstanced(uint32_t vertex_count_per_instance,
-        uint32_t instance_count,
-        uint32_t base_vertex,
-        uint32_t start_instance) noexcept
+                                           uint32_t instance_count,
+                                           uint32_t base_vertex,
+                                           uint32_t start_instance) noexcept
 {
     device.table().vkCmdDraw(command_list, vertex_count_per_instance, instance_count, base_vertex, start_instance);
 }
@@ -498,17 +498,17 @@ void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t
     VkDescriptorBufferInfo buffer_info{
         .buffer = std::get<0>(view),
         .offset = offset,
-        .range = VK_WHOLE_SIZE,
+        .range  = VK_WHOLE_SIZE,
     };
     VkWriteDescriptorSet descriptor{
-        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-        .pNext = nullptr,
-        .dstSet = VK_NULL_HANDLE,
-        .dstBinding = binding,
+        .sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .pNext           = nullptr,
+        .dstSet          = VK_NULL_HANDLE,
+        .dstBinding      = binding,
         .dstArrayElement = 0,
         .descriptorCount = 1,
-        .descriptorType = convert_vk(type),
-        .pBufferInfo = &buffer_info
+        .descriptorType  = convert_vk(type),
+        .pBufferInfo     = &buffer_info
     };
     device.table().vkCmdPushDescriptorSet(command_list,
                                           binding_point,
@@ -522,8 +522,11 @@ void wis::ImplVKCommandList::VKSetDescriptorStorage(wis::VKDescriptorStorageView
     auto& set_span = std::get<0>(desc_storage);
     device.table().vkCmdBindDescriptorSets(command_list,
                                            binding_point,
-                                           pipeline_layout, 1, // set 1, because set 0 is reserved for push descriptors
-                                           uint32_t(set_span.size()), set_span.data(),
-                                           0, nullptr);
+                                           pipeline_layout,
+                                           1, // set 1, because set 0 is reserved for push descriptors
+                                           uint32_t(set_span.size()),
+                                           set_span.data(),
+                                           0,
+                                           nullptr);
 }
 #endif // !

@@ -28,7 +28,8 @@ public:
     void                                   ParseFile(std::filesystem::path file);
     void                                   WriteMainAPI();
     void                                   WriteMainAPIDoc();
-    std::span<const std::filesystem::path> GetFiles() const {
+    std::span<const std::filesystem::path> GetFiles() const
+    {
         return files;
     }
 
@@ -159,8 +160,8 @@ public:
             }
         }
         return pre_doc
-               ? wis::format("    {}\n    {}\n", documentation, value_decl)
-               : wis::format("{}{}\n", value_decl, documentation);
+                ? wis::format("    {}\n    {}\n", documentation, value_decl)
+                : wis::format("{}{}\n", value_decl, documentation);
     }
 
     template<Lang lang = Lang::C, typename T>
@@ -173,7 +174,7 @@ public:
                 if constexpr (lang == Lang::C) {
                     // This arg
                     if (!type.this_type.empty()) {
-                        args += wis::format("@param self is a pointer to the valid {{{}::}} instance.\n",  type.this_type);
+                        args += wis::format("@param self is a pointer to the valid {{{}::}} instance.\n", type.this_type);
                     }
 
                     // Function arguments

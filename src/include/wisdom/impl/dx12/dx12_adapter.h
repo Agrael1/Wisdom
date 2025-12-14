@@ -34,24 +34,23 @@ public:
         memset(pout_desc, 0, sizeof(AdapterDesc));
 
         DXGI_ADAPTER_DESC1 desc;
-        auto hr = adapter->GetDesc1(&desc);
+        auto               hr = adapter->GetDesc1(&desc);
         if (!wis::succeeded(hr)) {
             return wis::make_result<wis::Func<wis::FuncD()>(), "IDXGIAdapter1::GetDesc1 failed">(hr);
         }
 
         auto description = wis::to_string(desc.Description);
-        std::strncpy(const_cast<char*>(out_desc.description.data()), description.c_str(),
-                     sizeof(out_desc.description) - 1);
+        std::strncpy(const_cast<char*>(out_desc.description.data()), description.c_str(), sizeof(out_desc.description) - 1);
         out_desc.vendor_id = desc.VendorId;
         out_desc.device_id = desc.DeviceId;
         out_desc.subsys_id = desc.SubSysId;
-        out_desc.revision = desc.Revision;
+        out_desc.revision  = desc.Revision;
 
-        out_desc.dedicated_video_memory = desc.DedicatedVideoMemory;
+        out_desc.dedicated_video_memory  = desc.DedicatedVideoMemory;
         out_desc.dedicated_system_memory = desc.DedicatedSystemMemory;
-        out_desc.shared_system_memory = desc.SharedSystemMemory;
-        out_desc.adapter_id = reinterpret_cast<uint64_t&>(desc.AdapterLuid);
-        out_desc.flags = wis::AdapterFlags(desc.Flags);
+        out_desc.shared_system_memory    = desc.SharedSystemMemory;
+        out_desc.adapter_id              = reinterpret_cast<uint64_t&>(desc.AdapterLuid);
+        out_desc.flags                   = wis::AdapterFlags(desc.Flags);
         return wis::success;
     }
 };

@@ -17,19 +17,19 @@ template<>
 struct Internal<DX12DescriptorStorage> {
     struct OffsetIndicator {
         uint32_t offset_in_bytes : 31;
-        uint32_t sampler : 1;
+        uint32_t sampler         : 1;
     };
 
-    wis::com_ptr<ID3D12Device> device;
+    wis::com_ptr<ID3D12Device>         device;
     wis::com_ptr<ID3D12DescriptorHeap> heaps[2];
 
-    CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_starts[2] {}; // 0 - resource, 1 - sampler. Used for SetDescriptorHeaps
-    CD3DX12_CPU_DESCRIPTOR_HANDLE heap_cpu_starts[2] {}; // 0 - resource, 1 - sampler. Used for CopyDescriptorsSimple
+    CD3DX12_GPU_DESCRIPTOR_HANDLE heap_gpu_starts[2]{}; // 0 - resource, 1 - sampler. Used for SetDescriptorHeaps
+    CD3DX12_CPU_DESCRIPTOR_HANDLE heap_cpu_starts[2]{}; // 0 - resource, 1 - sampler. Used for CopyDescriptorsSimple
 
     std::unique_ptr<OffsetIndicator[]> heap_offsets;
-    uint32_t heap_sampler_increment = 0;
-    uint32_t heap_resource_increment = 0;
-    uint32_t heap_count = 0;
+    uint32_t                           heap_sampler_increment  = 0;
+    uint32_t                           heap_resource_increment = 0;
+    uint32_t                           heap_count              = 0;
 };
 
 class ImplDX12DescriptorStorage : public QueryInternal<DX12DescriptorStorage>
@@ -49,16 +49,16 @@ public:
 public:
     void WriteSampler(uint32_t binding, uint32_t index, wis::DX12SamplerView sampler) noexcept
     {
-        auto handle = DX12GetSamplerCPUDescriptorHandle(binding, index);
+        auto  handle         = DX12GetSamplerCPUDescriptorHandle(binding, index);
         auto& sampler_handle = std::get<0>(sampler);
         device->CopyDescriptorsSimple(1, handle, sampler_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
     }
     void WriteConstantBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t size, uint32_t offset = 0) noexcept
     {
-        auto* cbv = std::get<0>(buffer);
+        auto*                           cbv = std::get<0>(buffer);
         D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
             .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
-            .SizeInBytes = wis::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)) // is this correct?
+            .SizeInBytes    = wis::aligned_size(size, uint32_t(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)) // is this correct?
         };
 
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
@@ -66,13 +66,13 @@ public:
     }
     void WriteTexture(uint32_t binding, uint32_t index, wis::DX12ShaderResourceView srv) noexcept
     {
-        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
+        auto  handle     = DX12GetResourceCPUDescriptorHandle(binding, index);
         auto& srv_handle = std::get<0>(srv);
         device->CopyDescriptorsSimple(1, handle, srv_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
     void WriteRWTexture(uint32_t binding, uint32_t index, wis::DX12UnorderedAccessTextureView uav) noexcept
     {
-        auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
+        auto  handle     = DX12GetResourceCPUDescriptorHandle(binding, index);
         auto& uav_handle = std::get<0>(uav);
 
         device->CopyDescriptorsSimple(1, handle, uav_handle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -81,14 +81,14 @@ public:
     void WriteRWStructuredBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
-            .Format = DXGI_FORMAT_R32_TYPELESS,
+            .Format        = DXGI_FORMAT_R32_TYPELESS,
             .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
             .Buffer{
-                .FirstElement = offset_elements,
-                .NumElements = element_count,
-                .StructureByteStride = stride,
-                .CounterOffsetInBytes = 0,
-                .Flags = D3D12_BUFFER_UAV_FLAG_NONE },
+                    .FirstElement         = offset_elements,
+                    .NumElements          = element_count,
+                    .StructureByteStride  = stride,
+                    .CounterOffsetInBytes = 0,
+                    .Flags                = D3D12_BUFFER_UAV_FLAG_NONE },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateUnorderedAccessView(std::get<0>(buffer), nullptr, &uav_desc, handle);
@@ -97,14 +97,14 @@ public:
     void WriteStructuredBuffer(uint32_t binding, uint32_t index, wis::DX12BufferView buffer, uint32_t stride, uint32_t element_count, uint32_t offset_elements = 0) noexcept
     {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
-            .Format = DXGI_FORMAT_UNKNOWN,
-            .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+            .Format                  = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension           = D3D12_SRV_DIMENSION_BUFFER,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Buffer{
-                .FirstElement = offset_elements,
-                .NumElements = element_count,
-                .StructureByteStride = stride,
-                .Flags = D3D12_BUFFER_SRV_FLAG_NONE },
+                    .FirstElement        = offset_elements,
+                    .NumElements         = element_count,
+                    .StructureByteStride = stride,
+                    .Flags               = D3D12_BUFFER_SRV_FLAG_NONE },
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
         device->CreateShaderResourceView(std::get<0>(buffer), &srv_desc, handle);
@@ -112,11 +112,11 @@ public:
 
     void WriteAccelerationStructure(uint32_t binding, uint32_t index, wis::DX12AccelerationStructureView as) const noexcept
     {
-        auto& internal = GetInternal();
+        auto&                           internal = GetInternal();
         D3D12_SHADER_RESOURCE_VIEW_DESC desc{
-            .Format = DXGI_FORMAT_UNKNOWN,
-            .ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .Format                          = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension                   = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
+            .Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .RaytracingAccelerationStructure = { std::get<0>(as) }
         };
         auto handle = DX12GetResourceCPUDescriptorHandle(binding, index);
@@ -144,9 +144,9 @@ class DX12DescriptorStorage : public wis::ImplDX12DescriptorStorage
 {
 public:
     using wis::ImplDX12DescriptorStorage::ImplDX12DescriptorStorage;
-    DX12DescriptorStorage(const DX12DescriptorStorage&) = delete;
-    DX12DescriptorStorage(DX12DescriptorStorage&&) noexcept = default;
-    DX12DescriptorStorage& operator=(const DX12DescriptorStorage&) = delete;
+    DX12DescriptorStorage(const DX12DescriptorStorage&)                = delete;
+    DX12DescriptorStorage(DX12DescriptorStorage&&) noexcept            = default;
+    DX12DescriptorStorage& operator=(const DX12DescriptorStorage&)     = delete;
     DX12DescriptorStorage& operator=(DX12DescriptorStorage&&) noexcept = default;
 
 public:

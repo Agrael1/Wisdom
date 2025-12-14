@@ -2,7 +2,7 @@
 
 //-----------------------------------------------------------------------------
 static inline constexpr char template_handle[] =
-    R"(/**
+        R"(/**
  * @struct {0}
  * @ingroup Handles
  *
@@ -27,7 +27,7 @@ static inline constexpr char template_handle[] =
 void Generator::ParseHandles(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("handle"); type;
-            type       = type->NextSiblingElement("handle")) {
+         type       = type->NextSiblingElement("handle")) {
 
         auto  name    = type->FindAttribute("name")->Value();
         auto  version = type->FindAttribute("version")->Value();
@@ -42,12 +42,12 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         }
 
         // Add destroy function
-        std::string destr_name   = "Destroy" + std::string(name);
-        std::string destr_doc    = "Destroys a {" + std::string(name) + "::} handle.";
+        std::string destr_name = "Destroy" + std::string(name);
+        std::string destr_doc  = "Destroys a {" + std::string(name) + "::} handle.";
 
         auto& xdestroy = destructors.emplace_back(destr_name + destr_doc);
 
-        std::string_view xdestroy_name   = std::string_view(xdestroy.c_str(), destr_name.size());
+        std::string_view xdestroy_name = std::string_view(xdestroy.c_str(), destr_name.size());
         std::string_view xdestroy_doc  = std::string_view(xdestroy_name.data() + destr_name.size(), destr_doc.size());
 
         auto& destroy     = function_map[xdestroy_name];
@@ -60,10 +60,9 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         functions_in_order.emplace_back(destroy.name);
         dependency_tree[name].dependencies.emplace_back(destroy.name);
 
-
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;
-                impl       = impl->NextSiblingElement("impl")) {
+             impl       = impl->NextSiblingElement("impl")) {
             auto impl_for      = impl->FindAttribute("for")->Value();
             auto impl_for_code = ImplCode(impl_for);
             auto impl_file     = impl->FindAttribute("include")->Value();

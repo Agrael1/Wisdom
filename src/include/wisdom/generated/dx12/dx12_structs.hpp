@@ -12,18 +12,18 @@ namespace wis {
  * @brief Bottom level acceleration structure build description.
  * */
 struct DX12BottomLevelASBuildDesc {
-    wis::AccelerationStructureFlags flags; ///< Build flags.
-    uint32_t geometry_count; ///< Geometry count.
-    const wis::DX12AcceleratedGeometryDesc* geometry_array; ///< Buffer of geometries.
+    wis::AccelerationStructureFlags          flags; ///< Build flags.
+    uint32_t                                 geometry_count; ///< Geometry count.
+    const wis::DX12AcceleratedGeometryDesc*  geometry_array; ///< Buffer of geometries.
     const wis::DX12AcceleratedGeometryDesc** geometry_indirect; ///< Buffer of pointers to geometry. geometry_array must be NULL for this to be used.
-    bool update; ///< true If the acceleration structure is being updated.
+    bool                                     update; ///< true If the acceleration structure is being updated.
 };
 
 /**
  * @brief Variant of BufferBarrier with BufferView.
  * */
 struct DX12BufferBarrier2 {
-    wis::BufferBarrier barrier; ///< Buffer barrier.
+    wis::BufferBarrier  barrier; ///< Buffer barrier.
     wis::DX12BufferView buffer; ///< Buffer view.
 };
 
@@ -31,7 +31,7 @@ struct DX12BufferBarrier2 {
  * @brief Variant of TextureBarrier with TextureView.
  * */
 struct DX12TextureBarrier2 {
-    wis::TextureBarrier barrier; ///< Texture barrier.
+    wis::TextureBarrier  barrier; ///< Texture barrier.
     wis::DX12TextureView texture; ///< Texture view.
 };
 
@@ -52,39 +52,39 @@ struct DX12GraphicsShaderStages {
 struct DX12RaytracingPipeineDesc {
     wis::DX12RootSignatureView root_signature; ///< Root signature.
     const wis::DX12ShaderView* shaders; ///< Shader libraries.
-    uint32_t shader_count; ///< Shader library count.
-    const wis::ShaderExport* exports; ///< Shader library exports (entry points).
-    uint32_t export_count; ///< Shader export count.
+    uint32_t                   shader_count; ///< Shader library count.
+    const wis::ShaderExport*   exports; ///< Shader library exports (entry points).
+    uint32_t                   export_count; ///< Shader export count.
     /**
      * @brief Hit group descriptions.
      * Note: Raygen and miss shaders don't have their dedicated shader groups, instead groups are defined in order of appearance in .
      * And groups for SBTs are exported as raygen:miss:hit.
      * */
     const wis::HitGroupDesc* hit_groups;
-    uint32_t hit_group_count; ///< Hit group count.
-    uint32_t max_recursion_depth = 1; ///< Max recursion depth. Default is 1.
-    uint32_t max_payload_size = 0; ///< Max payload size. Default is 0.
-    uint32_t max_attribute_size = 0; ///< Max attribute size. Default is 0.
+    uint32_t                 hit_group_count; ///< Hit group count.
+    uint32_t                 max_recursion_depth = 1; ///< Max recursion depth. Default is 1.
+    uint32_t                 max_payload_size    = 0; ///< Max payload size. Default is 0.
+    uint32_t                 max_attribute_size  = 0; ///< Max attribute size. Default is 0.
 };
 
 /**
  * @brief Variant of PipelineStateDesc for graphics pipeline.
  * */
 struct DX12GraphicsPipelineDesc {
-    wis::DX12RootSignatureView root_signature; ///< Root signature.
-    wis::InputLayout input_layout; ///< Input layout.
+    wis::DX12RootSignatureView    root_signature; ///< Root signature.
+    wis::InputLayout              input_layout; ///< Input layout.
     wis::DX12GraphicsShaderStages shaders; ///< Shader stages.
-    wis::RenderAttachmentsDesc attachments; ///< Render attachments.
-    const wis::RasterizerDesc* rasterizer = nullptr; ///< Rasterizer description.
-    const wis::SampleDesc* sample = nullptr; ///< Sample description.
-    const wis::BlendStateDesc* blend = nullptr; ///< Blend state description.
-    const wis::DepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
-    wis::TopologyType topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
+    wis::RenderAttachmentsDesc    attachments; ///< Render attachments.
+    const wis::RasterizerDesc*    rasterizer    = nullptr; ///< Rasterizer description.
+    const wis::SampleDesc*        sample        = nullptr; ///< Sample description.
+    const wis::BlendStateDesc*    blend         = nullptr; ///< Blend state description.
+    const wis::DepthStencilDesc*  depth_stencil = nullptr; ///< Depth stencil description.
+    wis::TopologyType             topology_type = wis::TopologyType::Triangle; ///< Topology type. Default is wis::TopologyType::Triangle.
     /**
      * @brief View mask for Multiview feature. If multiview is not available it is ignored.
      * Default is 0. 0 means regular rendering.
      * */
-    uint32_t view_mask = 0;
+    uint32_t           view_mask = 0;
     wis::PipelineFlags flags; ///< Pipeline flags to add options to pipeline creation.
 };
 
@@ -93,7 +93,7 @@ struct DX12GraphicsPipelineDesc {
  * */
 struct DX12ComputePipelineDesc {
     wis::DX12RootSignatureView root_signature; ///< Root signature.
-    wis::DX12ShaderView shader; ///< Compute shader.
+    wis::DX12ShaderView        shader; ///< Compute shader.
 };
 
 /**
@@ -101,9 +101,9 @@ struct DX12ComputePipelineDesc {
  * */
 struct DX12RenderPassRenderTargetDesc {
     wis::DX12RenderTargetView target; ///< Render target view.
-    wis::LoadOperation load_op = wis::LoadOperation::Load; ///< Load operation on beginning of render pass. Default is wis::LoadOperation::Load.
-    wis::StoreOperation store_op = wis::StoreOperation::Store; ///< Store operation on end of render pass. Default is wis::StoreOperation::Store.
-    std::array<float, 4> clear_value{}; ///< Clear value for wis::LoadOperation::Clear.
+    wis::LoadOperation        load_op  = wis::LoadOperation::Load; ///< Load operation on beginning of render pass. Default is wis::LoadOperation::Load.
+    wis::StoreOperation       store_op = wis::StoreOperation::Store; ///< Store operation on end of render pass. Default is wis::StoreOperation::Store.
+    std::array<float, 4>      clear_value{}; ///< Clear value for wis::LoadOperation::Clear.
 };
 
 /**
@@ -111,13 +111,13 @@ struct DX12RenderPassRenderTargetDesc {
  * */
 struct DX12RenderPassDepthStencilDesc {
     wis::DX12RenderTargetView target; ///< Depth stencil view.
-    wis::LoadOperation load_op_depth = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for depth. Default is wis::LoadOperation::Load.
-    wis::LoadOperation load_op_stencil = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for stencil. Default is wis::LoadOperation::Load.
-    wis::StoreOperation store_op_depth = wis::StoreOperation::Store; ///< Store operation on end of render pass for depth. Default is wis::StoreOperation::Store.
-    wis::StoreOperation store_op_stencil = wis::StoreOperation::Store; ///< Store operation on end of render pass for stencil. Default is wis::StoreOperation::Store.
-    wis::DSSelect depth_stencil_select = wis::DSSelect::None; ///< Depth stencil select. Default is wis::DSSelect::None.
-    float clear_depth = 1.0f; ///< Clear depth value for wis::LoadOperation::Clear. Default is 1.0f.
-    uint8_t clear_stencil = 0; ///< Clear stencil value for wis::LoadOperation::Clear. Default is 0.
+    wis::LoadOperation        load_op_depth        = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for depth. Default is wis::LoadOperation::Load.
+    wis::LoadOperation        load_op_stencil      = wis::LoadOperation::Load; ///< Load operation on beginning of render pass for stencil. Default is wis::LoadOperation::Load.
+    wis::StoreOperation       store_op_depth       = wis::StoreOperation::Store; ///< Store operation on end of render pass for depth. Default is wis::StoreOperation::Store.
+    wis::StoreOperation       store_op_stencil     = wis::StoreOperation::Store; ///< Store operation on end of render pass for stencil. Default is wis::StoreOperation::Store.
+    wis::DSSelect             depth_stencil_select = wis::DSSelect::None; ///< Depth stencil select. Default is wis::DSSelect::None.
+    float                     clear_depth          = 1.0f; ///< Clear depth value for wis::LoadOperation::Clear. Default is 1.0f.
+    uint8_t                   clear_stencil        = 0; ///< Clear stencil value for wis::LoadOperation::Clear. Default is 0.
 };
 
 /**
@@ -130,9 +130,9 @@ struct DX12RenderPassDesc {
      * Value must be the same as in  upon pipeline creation. Otherwise behavior is undefined.
      * Default is 0. 0 means regular rendering.
      * */
-    uint32_t view_mask = 0;
-    uint32_t target_count; ///< Render target count.
-    const wis::DX12RenderPassRenderTargetDesc* targets = nullptr; ///< Render target descriptions. Max is 8 render targets.
+    uint32_t                                   view_mask = 0;
+    uint32_t                                   target_count; ///< Render target count.
+    const wis::DX12RenderPassRenderTargetDesc* targets       = nullptr; ///< Render target descriptions. Max is 8 render targets.
     const wis::DX12RenderPassDepthStencilDesc* depth_stencil = nullptr; ///< Depth stencil description.
 };
 
@@ -141,9 +141,9 @@ struct DX12RenderPassDesc {
  * */
 struct DX12VertexBufferBinding {
     wis::DX12BufferView buffer; ///< Buffer view.
-    uint32_t size; ///< Size of the buffer in bytes.
-    uint32_t stride; ///< Stride of the buffer in bytes.
-    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+    uint32_t            size; ///< Size of the buffer in bytes.
+    uint32_t            stride; ///< Stride of the buffer in bytes.
+    uint32_t            offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept

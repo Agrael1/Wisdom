@@ -9,7 +9,7 @@
 
 WISDOM_EXPORT
 namespace wis {
-constexpr const char* severity_strings[] {
+constexpr const char* severity_strings[]{
     "debug",
     "trace",
     "info",
@@ -27,14 +27,14 @@ struct LogLayer {
 /// @brief Set the log layer for the library
 class LibLogger
 {
-    LibLogger() = default;
+    LibLogger()  = default;
     ~LibLogger() = default;
 
 public:
-    LibLogger(const LibLogger&) = delete;
-    LibLogger(LibLogger&&) = delete;
+    LibLogger(const LibLogger&)            = delete;
+    LibLogger(LibLogger&&)                 = delete;
     LibLogger& operator=(const LibLogger&) = delete;
-    LibLogger& operator=(LibLogger&&) = delete;
+    LibLogger& operator=(LibLogger&&)      = delete;
 
     /// @brief Instance of the library logger
     /// @return Instance of the library logger

@@ -24,8 +24,8 @@ class ImplDX12Factory : public QueryInternal<DX12Factory>
     ImplDX12CreateFactory(bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count, wis::Result& res) noexcept;
 
 public:
-    ImplDX12Factory() noexcept = default;
-    ImplDX12Factory(ImplDX12Factory&& other) noexcept = default;
+    ImplDX12Factory() noexcept                                   = default;
+    ImplDX12Factory(ImplDX12Factory&& other) noexcept            = default;
     ImplDX12Factory& operator=(ImplDX12Factory&& other) noexcept = default;
 
     operator bool() const noexcept
@@ -39,8 +39,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::DX12Adapter
-    GetAdapter(wis::Result& result, uint32_t index,
-               AdapterPreference preference = AdapterPreference::Performance) const noexcept;
+                             GetAdapter(wis::Result& result, uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 };
 
 #pragma region DX12Factory
@@ -53,9 +52,9 @@ class DX12Factory : public wis::ImplDX12Factory
 {
 public:
     using wis::ImplDX12Factory::ImplDX12Factory;
-    DX12Factory(const DX12Factory&) = delete;
-    DX12Factory(DX12Factory&&) noexcept = default;
-    DX12Factory& operator=(const DX12Factory&) = delete;
+    DX12Factory(const DX12Factory&)                = delete;
+    DX12Factory(DX12Factory&&) noexcept            = default;
+    DX12Factory& operator=(const DX12Factory&)     = delete;
     DX12Factory& operator=(DX12Factory&&) noexcept = default;
 
 public:
@@ -79,7 +78,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12Adapter> GetAdapter(uint32_t index, wis::AdapterPreference preference = wis::AdapterPreference::Performance) const noexcept
     {
-        return wis::ResultValue<wis::DX12Adapter> { &wis::ImplDX12Factory::GetAdapter, this, index, preference };
+        return wis::ResultValue<wis::DX12Adapter>{ &wis::ImplDX12Factory::GetAdapter, this, index, preference };
     }
 };
 #pragma endregion DX12Factory
@@ -103,7 +102,7 @@ public:
  * For detailed documentation, see @ref dx12_factory_creation
  */
 [[nodiscard]] WIS_INLINE wis::DX12Factory
-ImplDX12CreateFactory(wis::Result& result, bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
+                         ImplDX12CreateFactory(wis::Result& result, bool enable_debug, DX12FactoryExtension** extensions, size_t extension_count) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

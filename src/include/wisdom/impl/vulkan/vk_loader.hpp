@@ -102,7 +102,7 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
     } while (0)
 #define ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, name, ...)                                         \
     do {                                                                                                 \
-        constexpr static const char* name##_strings[]{ #name, __VA_ARGS__ };                                \
+        constexpr static const char* name##_strings[]{ #name, __VA_ARGS__ };                             \
         for (auto name##_it : name##_strings) {                                                          \
             if ((name = reinterpret_cast<decltype(name)>(vkGetInstanceProcAddr(instance, name##_it)))) { \
                 break;                                                                                   \

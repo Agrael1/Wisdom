@@ -26,10 +26,10 @@ class ImplDX12Raytracing : public QueryInternalExtension<DX12Raytracing, DX12Dev
 protected:
     virtual wis::Result Init(const wis::DX12Device& instance) noexcept override
     {
-        shared_device = instance.GetInternal().device;
+        shared_device                                        = instance.GetInternal().device;
         D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureSupportData = {};
-        supports_raytracing = wis::succeeded(shared_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureSupportData, sizeof(featureSupportData))) &&
-                              featureSupportData.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+        supports_raytracing                                  = wis::succeeded(shared_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureSupportData, sizeof(featureSupportData))) &&
+                featureSupportData.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
         return wis::success;
     }
 
@@ -52,10 +52,10 @@ public:
     GetTopLevelASSize(const wis::TopLevelASBuildDesc& tlas_desc) const noexcept
     {
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{
-            .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
-            .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
-            .NumDescs = tlas_desc.instance_count,
-            .DescsLayout = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
+            .Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
+            .Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+            .NumDescs      = tlas_desc.instance_count,
+            .DescsLayout   = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
             .InstanceDescs = tlas_desc.gpu_address
         };
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info = {};
@@ -69,9 +69,9 @@ public:
     GetBottomLevelASSize(const wis::DX12BottomLevelASBuildDesc& tlas_desc) const noexcept
     {
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{
-            .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
-            .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
-            .NumDescs = tlas_desc.geometry_count,
+            .Type        = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
+            .Flags       = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+            .NumDescs    = tlas_desc.geometry_count,
             .DescsLayout = tlas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
         };
         if (tlas_desc.geometry_array) {
@@ -99,7 +99,7 @@ public:
     }
 
     [[nodiscard]] WIS_INLINE wis::DX12RaytracingPipeline
-    CreateRaytracingPipeline(wis::Result& result, const wis::DX12RaytracingPipeineDesc& desc) const noexcept;
+                             CreateRaytracingPipeline(wis::Result& result, const wis::DX12RaytracingPipeineDesc& desc) const noexcept;
 
     [[nodiscard]] static constexpr wis::ShaderBindingTableInfo GetShaderBindingTableInfo() noexcept
     {
@@ -107,22 +107,22 @@ public:
     }
 
 public:
-    void BuildBottomLevelAS(wis::DX12CommandListView cmd_list,
+    void BuildBottomLevelAS(wis::DX12CommandListView               cmd_list,
                             const wis::DX12BottomLevelASBuildDesc& blas_desc,
-                            wis::DX12AccelerationStructureView dst_acceleration_structure,
-                            uint64_t scratch_buffer_gpu_address,
-                            wis::DX12AccelerationStructureView src_acceleration_structure = {}) const noexcept
+                            wis::DX12AccelerationStructureView     dst_acceleration_structure,
+                            uint64_t                               scratch_buffer_gpu_address,
+                            wis::DX12AccelerationStructureView     src_acceleration_structure = {}) const noexcept
     {
-        auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
+        auto*                                              cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc{
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
-            .Inputs = {
-                .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
-                .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(blas_desc.flags) | (blas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
-                .NumDescs = blas_desc.geometry_count,
-                .DescsLayout = blas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
-            },
-            .SourceAccelerationStructureData = std::get<0>(src_acceleration_structure),
+            .Inputs                        = {
+                                              .Type        = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
+                                              .Flags       = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(blas_desc.flags) | (blas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+                                              .NumDescs    = blas_desc.geometry_count,
+                                              .DescsLayout = blas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
+                                              },
+            .SourceAccelerationStructureData  = std::get<0>(src_acceleration_structure),
             .ScratchAccelerationStructureData = scratch_buffer_gpu_address,
         };
         if (blas_desc.geometry_array) {
@@ -137,28 +137,27 @@ public:
     {
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
         cmd_list_i->CopyRaytracingAccelerationStructure(std::get<0>(dst),
-                std::get<0>(src),
-                convert_dx(mode));
+                                                        std::get<0>(src),
+                                                        convert_dx(mode));
     }
 
-    void BuildTopLevelAS(wis::DX12CommandListView cmd_list,
-                         const wis::TopLevelASBuildDesc& tlas_desc,
+    void BuildTopLevelAS(wis::DX12CommandListView           cmd_list,
+                         const wis::TopLevelASBuildDesc&    tlas_desc,
                          wis::DX12AccelerationStructureView dst_acceleration_structure,
-                         uint64_t scratch_buffer_gpu_address,
+                         uint64_t                           scratch_buffer_gpu_address,
                          wis::DX12AccelerationStructureView src_acceleration_structure = {}) const noexcept
     {
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc{
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
-            .Inputs = {
-                .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
-                .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
-                .NumDescs = tlas_desc.instance_count,
-                .DescsLayout = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
-                .InstanceDescs = tlas_desc.gpu_address
-            },
-            .SourceAccelerationStructureData = std::get<0>(src_acceleration_structure),
+            .Inputs                        = {
+                                              .Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
+                                              .Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+                                              .NumDescs      = tlas_desc.instance_count,
+                                              .DescsLayout   = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
+                                              .InstanceDescs = tlas_desc.gpu_address },
+            .SourceAccelerationStructureData  = std::get<0>(src_acceleration_structure),
             .ScratchAccelerationStructureData = scratch_buffer_gpu_address
         };
 
@@ -188,12 +187,12 @@ public:
 
         D3D12_DISPATCH_RAYS_DESC dispatch_desc{
             .RayGenerationShaderRecord = { desc.ray_gen_shader_table_address, desc.ray_gen_shader_table_size },
-            .MissShaderTable = { desc.miss_shader_table_address, desc.miss_shader_table_size, desc.miss_shader_table_stride },
-            .HitGroupTable = { desc.hit_group_table_address, desc.hit_group_table_size, desc.hit_group_table_stride },
-            .CallableShaderTable = { desc.callable_shader_table_address, desc.callable_shader_table_size, desc.callable_shader_table_stride },
-            .Width = desc.width,
-            .Height = desc.height,
-            .Depth = desc.depth,
+            .MissShaderTable           = { desc.miss_shader_table_address, desc.miss_shader_table_size, desc.miss_shader_table_stride },
+            .HitGroupTable             = { desc.hit_group_table_address, desc.hit_group_table_size, desc.hit_group_table_stride },
+            .CallableShaderTable       = { desc.callable_shader_table_address, desc.callable_shader_table_size, desc.callable_shader_table_stride },
+            .Width                     = desc.width,
+            .Height                    = desc.height,
+            .Depth                     = desc.depth,
         };
         cmd_list_i->DispatchRays(&dispatch_desc);
     }
@@ -203,31 +202,29 @@ public:
 DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 {
     D3D12_RAYTRACING_GEOMETRY_DESC geometry{
-        .Type = convert_dx(desc.geometry_type),
+        .Type  = convert_dx(desc.geometry_type),
         .Flags = convert_dx(desc.flags),
     };
     switch (desc.geometry_type) {
     case wis::ASGeometryType::Triangles:
         geometry.Triangles = {
             .Transform3x4 = desc.transform_matrix_address,
-            .IndexFormat = convert_dx(desc.index_format),
+            .IndexFormat  = convert_dx(desc.index_format),
             .VertexFormat = convert_dx(desc.vertex_format),
-            .IndexCount = desc.triangle_or_aabb_count * 3,
-            .VertexCount = desc.vertex_count,
-            .IndexBuffer = desc.index_buffer_address,
+            .IndexCount   = desc.triangle_or_aabb_count * 3,
+            .VertexCount  = desc.vertex_count,
+            .IndexBuffer  = desc.index_buffer_address,
             .VertexBuffer = {
-                .StartAddress = desc.vertex_or_aabb_buffer_address,
-                .StrideInBytes = desc.vertex_or_aabb_buffer_stride
-            }
+                             .StartAddress  = desc.vertex_or_aabb_buffer_address,
+                             .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
         };
         break;
     case wis::ASGeometryType::AABBs:
         geometry.AABBs = {
             .AABBCount = desc.triangle_or_aabb_count,
-            .AABBs = {
-                .StartAddress = desc.vertex_or_aabb_buffer_address,
-                .StrideInBytes = desc.vertex_or_aabb_buffer_stride
-            }
+            .AABBs     = {
+                          .StartAddress  = desc.vertex_or_aabb_buffer_address,
+                          .StrideInBytes = desc.vertex_or_aabb_buffer_stride }
         };
         break;
     default:

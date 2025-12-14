@@ -52,9 +52,9 @@ class DX12DebugExtension : public wis::ImplDX12DebugExtension
 {
 public:
     using wis::ImplDX12DebugExtension::ImplDX12DebugExtension;
-    DX12DebugExtension(const DX12DebugExtension&) = delete;
-    DX12DebugExtension(DX12DebugExtension&&) noexcept = default;
-    DX12DebugExtension& operator=(const DX12DebugExtension&) = delete;
+    DX12DebugExtension(const DX12DebugExtension&)                = delete;
+    DX12DebugExtension(DX12DebugExtension&&) noexcept            = default;
+    DX12DebugExtension& operator=(const DX12DebugExtension&)     = delete;
     DX12DebugExtension& operator=(DX12DebugExtension&&) noexcept = default;
 
 public:
@@ -76,7 +76,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::DX12DebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
-        return wis::ResultValue<wis::DX12DebugMessenger> { &wis::ImplDX12DebugExtension::CreateDebugMessenger, this, callback, user_data };
+        return wis::ResultValue<wis::DX12DebugMessenger>{ &wis::ImplDX12DebugExtension::CreateDebugMessenger, this, callback, user_data };
     }
 };
 #pragma endregion DX12DebugExtension
@@ -96,17 +96,18 @@ WISDOM_EXPORT class VKDebugExtension;
 
 template<>
 struct Internal<VKDebugExtension> {
-    wis::SharedInstance instance;
-    PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT = nullptr;
+    wis::SharedInstance                 instance;
+    PFN_vkCreateDebugUtilsMessengerEXT  vkCreateDebugUtilsMessengerEXT  = nullptr;
     PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
 };
 
 class ImplVKDebugExtension : public QueryInternalExtension<VKDebugExtension, wis::VKFactoryExtensionImpl<VKDebugExtension>>
 {
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+            VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT             messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+            void*                                       pUserData) noexcept;
 
 public:
     static constexpr std::array required_extensions = {
@@ -123,7 +124,7 @@ public:
     {
         instance = in_instance.GetInternal().factory;
 
-        vkCreateDebugUtilsMessengerEXT = instance.GetInstanceProcAddr<PFN_vkCreateDebugUtilsMessengerEXT>("vkCreateDebugUtilsMessengerEXT");
+        vkCreateDebugUtilsMessengerEXT  = instance.GetInstanceProcAddr<PFN_vkCreateDebugUtilsMessengerEXT>("vkCreateDebugUtilsMessengerEXT");
         vkDestroyDebugUtilsMessengerEXT = instance.GetInstanceProcAddr<PFN_vkDestroyDebugUtilsMessengerEXT>("vkDestroyDebugUtilsMessengerEXT");
         return {};
     }
@@ -146,9 +147,9 @@ class VKDebugExtension : public wis::ImplVKDebugExtension
 {
 public:
     using wis::ImplVKDebugExtension::ImplVKDebugExtension;
-    VKDebugExtension(const VKDebugExtension&) = delete;
-    VKDebugExtension(VKDebugExtension&&) noexcept = default;
-    VKDebugExtension& operator=(const VKDebugExtension&) = delete;
+    VKDebugExtension(const VKDebugExtension&)                = delete;
+    VKDebugExtension(VKDebugExtension&&) noexcept            = default;
+    VKDebugExtension& operator=(const VKDebugExtension&)     = delete;
     VKDebugExtension& operator=(VKDebugExtension&&) noexcept = default;
 
 public:
@@ -170,7 +171,7 @@ public:
      * */
     [[nodiscard]] inline wis::ResultValue<wis::VKDebugMessenger> CreateDebugMessenger(wis::DebugCallback callback, void* user_data) noexcept
     {
-        return wis::ResultValue<wis::VKDebugMessenger> { &wis::ImplVKDebugExtension::CreateDebugMessenger, this, callback, user_data };
+        return wis::ResultValue<wis::VKDebugMessenger>{ &wis::ImplVKDebugExtension::CreateDebugMessenger, this, callback, user_data };
     }
 };
 #pragma endregion VKDebugExtension

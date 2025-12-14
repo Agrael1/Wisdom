@@ -7,7 +7,7 @@ namespace wis {
 template<typename Char, std::size_t N>
 struct basic_fixed_string {
 public:
-    using value_type = std::remove_cv_t<Char>;
+    using value_type  = std::remove_cv_t<Char>;
     using char_traits = std::char_traits<value_type>;
 
 public:
@@ -48,7 +48,7 @@ public:
     }
 
 public:
-    value_type _data[N] {}; // +1 for null terminator
+    value_type _data[N]{}; // +1 for null terminator
 };
 
 // Define some aliases for common fixed string types

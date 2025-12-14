@@ -10,17 +10,16 @@ wis::ImplDX12CreateFactory(wis::Result& res, bool enable_debug, DX12FactoryExten
 {
     // Enable RVO
     DX12Factory f;
-    auto& internal = f.GetMutableInternal();
+    auto&       internal = f.GetMutableInternal();
 
-    auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, internal.factory.iid(),
-                                 internal.factory.put_void());
+    auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, internal.factory.iid(), internal.factory.put_void());
 
     if (!wis::succeeded(hr)) {
         res = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create DXGI factory">(hr);
         return f;
     }
 
-    for (auto ext : std::span<DX12FactoryExtension*> { extensions, extension_count }) {
+    for (auto ext : std::span<DX12FactoryExtension*>{ extensions, extension_count }) {
         ext->Init(f);
     }
     return f;
@@ -30,10 +29,9 @@ wis::DX12Adapter
 wis::ImplDX12Factory::GetAdapter(wis::Result& result, uint32_t index, AdapterPreference preference) const noexcept
 {
     wis::DX12Adapter adapter;
-    auto& internal = adapter.GetMutableInternal();
+    auto&            internal = adapter.GetMutableInternal();
 
-    auto hr = factory->EnumAdapterByGpuPreference(index, convert_dx(preference), internal.adapter.iid(),
-              internal.adapter.put_void());
+    auto hr = factory->EnumAdapterByGpuPreference(index, convert_dx(preference), internal.adapter.iid(), internal.adapter.put_void());
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get adapter">(hr);
     }

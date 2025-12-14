@@ -15,7 +15,7 @@ WISDOM_EXPORT
 template<>
 struct Internal<VKAdapter> {
     wis::SharedInstance instance;
-    VkPhysicalDevice adapter = VK_NULL_HANDLE;
+    VkPhysicalDevice    adapter = VK_NULL_HANDLE;
 };
 
 class ImplVKAdapter : public QueryInternal<VKAdapter>
@@ -29,7 +29,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result
-    GetDesc(AdapterDesc* pout_desc) const noexcept;
+                             GetDesc(AdapterDesc* pout_desc) const noexcept;
 };
 
 #pragma region VKAdapter

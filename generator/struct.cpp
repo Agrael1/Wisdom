@@ -2,7 +2,7 @@
 
 //-----------------------------------------------------------------------------
 static inline constexpr char template_struct[] =
-    R"(/**
+        R"(/**
  * @struct {0}
  * @ingroup Structures
  *
@@ -55,7 +55,7 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     }
 
     for (auto* member = type->FirstChildElement("member"); member;
-            member       = member->NextSiblingElement("member")) {
+         member       = member->NextSiblingElement("member")) {
         auto& m = ref.members.emplace_back();
 
         auto* type = member->FindAttribute("type")->Value();
@@ -190,13 +190,13 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
         auto&                 struct_ref       = struct_map[struct_name];
 
         std::string struct_template_content = wis::format(" * C version:\n```c\n{}```\n"
-                                              "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                                              MakeCStruct(struct_ref, DocKind::VersionOnly),
-                                              MakeCPPStruct(struct_ref, DocKind::VersionOnly));
+                                                          "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+                                                          MakeCStruct(struct_ref, DocKind::VersionOnly),
+                                                          MakeCPPStruct(struct_ref, DocKind::VersionOnly));
 
-        std::string struct_description      = wis::format(" * {}", MakeStructDescription(struct_ref));
-        std::string struct_refs             = GetRefs(struct_name);
-        std::string vuids                   = MakeValidationForType(struct_name);
+        std::string struct_description = wis::format(" * {}", MakeStructDescription(struct_ref));
+        std::string struct_refs        = GetRefs(struct_name);
+        std::string vuids              = MakeValidationForType(struct_name);
 
         ReplaceAll(struct_template_content, "\n", "\n * ");
         ReplaceAll(struct_description, "\n", "\n * ");

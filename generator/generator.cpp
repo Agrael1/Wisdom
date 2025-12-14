@@ -73,7 +73,7 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 {
     for (auto* include = includes->FirstChildElement("include"); include;
-            include       = include->NextSiblingElement("include")) {
+         include       = include->NextSiblingElement("include")) {
         auto file     = include->GetText();
         auto rpath    = std::filesystem::path(INPUT_FILE).parent_path() / file;
         auto absolute = std::filesystem::absolute(rpath);
@@ -89,7 +89,7 @@ void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 void Generator::ParseTypes(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("type"); type;
-            type       = type->NextSiblingElement("type")) {
+         type       = type->NextSiblingElement("type")) {
         auto category = type->FindAttribute("category")->Value();
         if (std::string_view(category) == "struct") {
             ParseStruct(type);
@@ -129,8 +129,8 @@ extern "C" {
 )";
 
     file << "\n//==============================================================\n"
-         "// Enums\n"
-         "//==============================================================\n\n";
+            "// Enums\n"
+            "//==============================================================\n\n";
 
     // Write enums
     for (auto& enum_name : enums_in_order) {
@@ -140,8 +140,8 @@ extern "C" {
     }
 
     file << "\n//==============================================================\n"
-         "// Structs\n"
-         "//==============================================================\n\n";
+            "// Structs\n"
+            "//==============================================================\n\n";
     // Write structs
     for (auto& struct_name : structs_in_order) {
         auto& struct_def = struct_map[struct_name];
@@ -177,8 +177,8 @@ namespace wis {
 )";
 
     file << "\n//==============================================================\n"
-         "// Enums\n"
-         "//==============================================================\n\n";
+            "// Enums\n"
+            "//==============================================================\n\n";
 
     // Write enums
     for (auto& enum_name : enums_in_order) {
@@ -188,8 +188,8 @@ namespace wis {
     }
 
     file << "\n//==============================================================\n"
-         "// Structs\n"
-         "//==============================================================\n\n";
+            "// Structs\n"
+            "//==============================================================\n\n";
     // Write structs
     for (auto& struct_name : structs_in_order) {
         auto& struct_def = struct_map[struct_name];
@@ -317,8 +317,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
 
     file_w << "\n\n//==============================================================\n"
-           "// Handles\n"
-           "//==============================================================\n\n";
+              "// Handles\n"
+              "//==============================================================\n\n";
 
     // Write handles
     for (auto& handle_name : handles_in_order) {
@@ -327,8 +327,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Variants\n"
-           "//==============================================================\n\n";
+              "// Variants\n"
+              "//==============================================================\n\n";
 
     // Write variants
     for (auto& variant_name : variants_in_order) {
@@ -337,8 +337,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Functions\n"
-           "//==============================================================\n\n";
+              "// Functions\n"
+              "//==============================================================\n\n";
 
     // Write functions
     for (auto& func_name : functions_in_order) {
@@ -354,8 +354,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 )";
 
     file_w << "\n\n//==============================================================\n"
-           "// Handles\n"
-           "//==============================================================\n\n";
+              "// Handles\n"
+              "//==============================================================\n\n";
 
     // Write handles
     for (auto& handle_name : handles_in_order) {
@@ -364,8 +364,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Variants\n"
-           "//==============================================================\n\n";
+              "// Variants\n"
+              "//==============================================================\n\n";
 
     // Write variants
     for (auto& variant_name : variants_in_order) {
@@ -374,8 +374,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Functions\n"
-           "//==============================================================\n\n";
+              "// Functions\n"
+              "//==============================================================\n\n";
 
     // Write functions
     for (auto& func_name : functions_in_order) {
@@ -508,8 +508,8 @@ namespace wis {
     constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
 
     file_w << "\n\n//==============================================================\n"
-           "// Handles\n"
-           "//==============================================================\n\n";
+              "// Handles\n"
+              "//==============================================================\n\n";
 
     // Write handles
     for (auto& handle_name : handles_in_order) {
@@ -518,8 +518,8 @@ namespace wis {
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Variants\n"
-           "//==============================================================\n\n";
+              "// Variants\n"
+              "//==============================================================\n\n";
 
     // Write variants
     for (auto& variant_name : variants_in_order) {
@@ -528,8 +528,8 @@ namespace wis {
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Functions\n"
-           "//==============================================================\n\n";
+              "// Functions\n"
+              "//==============================================================\n\n";
 
     // Write functions
     for (auto& func_name : free_functions_in_order) {
@@ -548,8 +548,8 @@ namespace wis {
 )";
 
     file_w << "\n\n//==============================================================\n"
-           "// Handles\n"
-           "//==============================================================\n\n";
+              "// Handles\n"
+              "//==============================================================\n\n";
 
     // Write handles
     for (auto& handle_name : handles_in_order) {
@@ -558,8 +558,8 @@ namespace wis {
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Variants\n"
-           "//==============================================================\n\n";
+              "// Variants\n"
+              "//==============================================================\n\n";
 
     // Write variants
     for (auto& variant_name : variants_in_order) {
@@ -568,8 +568,8 @@ namespace wis {
     }
 
     file_w << "\n\n//==============================================================\n"
-           "// Functions\n"
-           "//==============================================================\n\n";
+              "// Functions\n"
+              "//==============================================================\n\n";
 
     // Write functions
     for (auto& func_name : free_functions_in_order) {
@@ -767,7 +767,7 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
             replacement = evalue ? wis::format("`Wis{}{}`", x->second.name, evalue->name)
-                          : GetCPPFullTypename(x->second.name, impl);
+                                 : GetCPPFullTypename(x->second.name, impl);
 
         } /* else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
              auto evalue = y->second.HasValue(value);
@@ -777,11 +777,11 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, impl), member->name)
-                          : GetCFullTypename(z->second.name, impl);
+                                 : GetCFullTypename(z->second.name, impl);
         } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, impl), member->name)
-                          : GetCFullTypename(z->second.name, impl);
+                                 : GetCFullTypename(z->second.name, impl);
         } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
@@ -792,7 +792,7 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
-                          : GetCFullTypename(f->second.name, impl);
+                                 : GetCFullTypename(f->second.name, impl);
         }
         doc.replace(first, last - first + 1, replacement);
     }
@@ -831,7 +831,7 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
             replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x->second.name, impl), evalue->name)
-                          : GetCPPFullTypename(x->second.name, impl);
+                                 : GetCPPFullTypename(x->second.name, impl);
 
         } /* else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
              auto evalue = y->second.HasValue(value);
@@ -841,11 +841,11 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
         else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
-                          : GetCPPFullTypename(z->second.name, impl);
+                                 : GetCPPFullTypename(z->second.name, impl);
         } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
-                          : GetCPPFullTypename(z->second.name, impl);
+                                 : GetCPPFullTypename(z->second.name, impl);
         } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
@@ -856,7 +856,7 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
         } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
-                          : GetCPPFullTypename(f->second.name, impl);
+                                 : GetCPPFullTypename(f->second.name, impl);
         }
         doc.replace(first, last - first + 1, replacement);
     }

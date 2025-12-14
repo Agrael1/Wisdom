@@ -23,11 +23,11 @@ public:
     Implements() noexcept
         : _impl_storage()
     {
-        //printf("default constructed\n");
+        // printf("default constructed\n");
     }
 
     // Disable copy
-    Implements(const Implements&) = delete;
+    Implements(const Implements&)            = delete;
     Implements& operator=(const Implements&) = delete;
 
     /// @brief Move constructor
@@ -44,8 +44,8 @@ public:
     Implements& operator=(Implements&& other) noexcept
     {
         if (this != &other) {
-            //printf("move assigned\n");
-            // call deleter on current storage
+            // printf("move assigned\n");
+            //  call deleter on current storage
             Deleter{}(GetStorage());
             // simple memcpy of storage
             std::memcpy(std::addressof(_impl_storage), std::addressof(other._impl_storage), sizeof(Storage));

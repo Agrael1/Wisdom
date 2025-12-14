@@ -36,14 +36,14 @@ public:
  *
  * */
 WIS_NODISCARD inline wis::VKInstance VKCreateInstance(bool                                       debug_layer,
-        wis::span<wis::VKInstanceExtensionHeader*> extensions,
-        wis::Result&                               out_result) noexcept
+                                                      wis::span<wis::VKInstanceExtensionHeader*> extensions,
+                                                      wis::Result&                               out_result) noexcept
 {
     wis::VKInstance instance;
     out_result = convert_result(::wisVKCreateInstance(debug_layer,
-                                reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                extensions.size(),
-                                instance.GetStorage()));
+                                                      reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                      extensions.size(),
+                                                      instance.GetStorage()));
     return instance;
 }
 

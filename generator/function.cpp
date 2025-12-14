@@ -2,7 +2,7 @@
 
 //-----------------------------------------------------------------------------
 static inline constexpr char function_doc_template[] =
-    R"(/**
+        R"(/**
  * @struct {0}
  * @ingroup Functions
  *
@@ -36,7 +36,7 @@ static inline constexpr char function_doc_template[] =
 void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 {
     for (auto* func = type->FirstChildElement("func"); func;
-            func       = func->NextSiblingElement("func")) {
+         func       = func->NextSiblingElement("func")) {
 
         auto  name = func->FindAttribute("name")->Value();
         auto& ref  = function_map[name];
@@ -92,7 +92,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 
         // Parse parameters
         for (auto* param = func->FirstChildElement("arg"); param;
-                param       = param->NextSiblingElement("arg")) {
+             param       = param->NextSiblingElement("arg")) {
 
             auto& p = ref.parameters.emplace_back();
             p.type  = param->FindAttribute("type")->Value();
@@ -132,8 +132,8 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
     } else if (func.return_type.has_result) {
         full_return_type     = GetCFullTypename("Result", "");
         std::string arg_name = func.return_type.opt_name.empty()
-                               ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
-                               : std::string(func.return_type.opt_name);
+                ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                : std::string(func.return_type.opt_name);
 
         std::string prefix = "";
         size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size();
@@ -144,9 +144,9 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
         std::string type_str = GetMemberTypeString(func.return_type, re_impl);
         post_return          = wis::format("{}{}*{{}}{}",
-                                           prefix,
-                                           type_str,
-                                           arg_name);
+                                  prefix,
+                                  type_str,
+                                  arg_name);
         post_return_length   = type_str.size();
     } else {
         full_return_type = GetMemberTypeString(func.return_type, re_impl);
@@ -247,9 +247,9 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
             std::string type_str = "wis::Result&";
             std::string arg_name = "out_result";
             post_return          = wis::format("{}{} {{}}{}",
-                                               prefix,
-                                               type_str,
-                                               arg_name);
+                                      prefix,
+                                      type_str,
+                                      arg_name);
             post_return_length   = type_str.size();
         }
         break;
@@ -357,8 +357,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
     switch (func.return_type.GetKind()) {
     case ReturnTypeKind::ResultAndValue: {
         auto ret_value_name = func.return_type.opt_name.empty()
-                              ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
-                              : std::string(func.return_type.opt_name);
+                ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                : std::string(func.return_type.opt_name);
 
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, re_impl), ret_value_name);
@@ -399,8 +399,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         }
         body += wis::format(", {}.GetStorage()));\n", ret_value_name);
         body += wis::format("    return {};\n", ret_value_name);
-    }
-    break;
+    } break;
     case ReturnTypeKind::ResultOnly: {
         body += wis::format("    return reinterpret_cast<wis::Result&&>(::{}({}",
                             GetCFullTypename(func.name, re_impl),
@@ -428,8 +427,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
             }
         }
         body += "));\n";
-    }
-    break;
+    } break;
     case ReturnTypeKind::Direct: {
         body += wis::format("    return reinterpret_cast<{}>(::{}({}",
                             GetMemberTypeString<Lang::CPP>(func.return_type, re_impl),
@@ -458,8 +456,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
             }
         }
         body += "));\n";
-    }
-    break;
+    } break;
     case ReturnTypeKind::Void: {
         body += wis::format("    ::{}({}",
                             GetCFullTypename(func.name, re_impl),
@@ -487,8 +484,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
             }
         }
         body += ");\n";
-    }
-    break;
+    } break;
     default:
         break;
     }
@@ -524,8 +520,8 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
         break;
     case ReturnTypeKind::ResultAndValue: {
         std::string arg_name = s.return_type.opt_name.empty()
-                               ? wis::format("out_{}", MakeSnakeCase(s.return_type.type))
-                               : std::string(s.return_type.opt_name);
+                ? wis::format("out_{}", MakeSnakeCase(s.return_type.type))
+                : std::string(s.return_type.opt_name);
         description += wis::format("- `{}` {}\n",
                                    s.return_type.opt_name.empty() ? "value" : s.return_type.opt_name,
                                    s.return_type.doc.empty() ? "No description." : s.return_type.doc);

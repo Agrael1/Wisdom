@@ -38,13 +38,13 @@ public:
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
     [[nodiscard]] WIS_INLINE wis::Result
-    Wait(uint64_t value,
-         uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+                             Wait(uint64_t value,
+                                  uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.
     [[nodiscard]] WIS_INLINE wis::Result
-    Signal(uint64_t value) const noexcept;
+                             Signal(uint64_t value) const noexcept;
 };
 
 #pragma region VKFence
@@ -56,9 +56,9 @@ class VKFence : public wis::ImplVKFence
 {
 public:
     using wis::ImplVKFence::ImplVKFence;
-    VKFence(const VKFence&) = delete;
-    VKFence(VKFence&&) noexcept = default;
-    VKFence& operator=(const VKFence&) = delete;
+    VKFence(const VKFence&)                = delete;
+    VKFence(VKFence&&) noexcept            = default;
+    VKFence& operator=(const VKFence&)     = delete;
     VKFence& operator=(VKFence&&) noexcept = default;
 
 public:

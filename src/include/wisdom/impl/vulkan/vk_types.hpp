@@ -76,7 +76,7 @@ struct control_block<empty_type> : public control_block_base {
 
 //-----------------------------------------------------------------------------
 struct InstanceExtensionCollector {
-    constexpr static const char* instance_extensions[] {
+    constexpr static const char* instance_extensions[]{
         VK_KHR_SURFACE_EXTENSION_NAME,
         VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME,
         VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME,

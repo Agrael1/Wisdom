@@ -14,9 +14,9 @@ template<>
 struct Internal<VKRootSignature> {
     wis::managed_handle_ex<VkPipelineLayout> root;
     std::unique_ptr<VkDescriptorSetLayout[]> vk_dsls;
-    uint32_t dsl_count = 0;
+    uint32_t                                 dsl_count = 0;
 
-    Internal() noexcept = default;
+    Internal() noexcept           = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -24,8 +24,8 @@ struct Internal<VKRootSignature> {
             return *this;
         }
         Destroy();
-        root = std::move(o.root);
-        vk_dsls = std::move(o.vk_dsls);
+        root      = std::move(o.root);
+        vk_dsls   = std::move(o.vk_dsls);
         dsl_count = o.dsl_count;
         return *this;
     }
