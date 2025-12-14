@@ -4,8 +4,8 @@ Version management script for Wisdom project
 Usage: python version.py [major|minor|patch|set <version>|get]
 """
 
-import sys
 import re
+import sys
 from pathlib import Path
 
 VERSION_FILE = Path(__file__).parent / "VERSION"
