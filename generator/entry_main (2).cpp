@@ -5,7 +5,7 @@
 inline constexpr std::string_view input_file = INPUT_FILE;
 
 constexpr inline std::string_view clang_format_exe = CLANG_FORMAT_EXECUTABLE;
-void FormatFiles(std::span<const std::filesystem::path> files)
+void                              FormatFiles(std::span<const std::filesystem::path> files)
 {
     constexpr uint32_t repeats = 5;
     if (clang_format_exe.empty()) {

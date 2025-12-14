@@ -9,10 +9,9 @@
 
 wis::Result wis::ImplVKFence::Signal(uint64_t value) const noexcept
 {
-    auto& device = fence.header().parent;
-    VkSemaphoreSignalInfo signalInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO, nullptr, fence.get(),
-                                      value };
-    VkResult res = device.table().vkSignalSemaphore(device.get(), &signalInfo);
+    auto&                 device = fence.header().parent;
+    VkSemaphoreSignalInfo signalInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO, nullptr, fence.get(), value };
+    VkResult              res = device.table().vkSignalSemaphore(device.get(), &signalInfo);
     return succeeded(res) ? wis::success
                           : wis::make_result<wis::Func<wis::FuncD()>(), "vkSignalSemaphore failed to signal fence.">(res);
 }
@@ -23,15 +22,15 @@ wis::Result wis::ImplVKFence::Signal(uint64_t value) const noexcept
 
 wis::Result wis::ImplVKFence::Wait(uint64_t value, uint64_t wait_ns) const noexcept // NOLINT
 {
-    auto& device = fence.header().parent;
-    auto xfence = fence.get();
+    auto&               device = fence.header().parent;
+    auto                xfence = fence.get();
     VkSemaphoreWaitInfo wait_info{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
-        .pNext = nullptr,
-        .flags = 0,
+        .sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
+        .pNext          = nullptr,
+        .flags          = 0,
         .semaphoreCount = 1,
-        .pSemaphores = &xfence,
-        .pValues = &value
+        .pSemaphores    = &xfence,
+        .pValues        = &value
     };
     VkResult result = device.table().vkWaitSemaphores(device.get(), &wait_info, wait_ns);
 
@@ -45,9 +44,9 @@ wis::Result wis::ImplVKFence::Wait(uint64_t value, uint64_t wait_ns) const noexc
 
 uint64_t wis::ImplVKFence::GetCompletedValue() const noexcept
 {
-    auto& device = fence.header().parent;
-    uint64_t value = 0;
-    std::ignore = device.table().vkGetSemaphoreCounterValue(device.get(), fence.get(),
+    auto&    device = fence.header().parent;
+    uint64_t value  = 0;
+    std::ignore     = device.table().vkGetSemaphoreCounterValue(device.get(), fence.get(),
                                                             &value); // always succeeds
     return value;
 }

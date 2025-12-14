@@ -16,7 +16,7 @@ WISDOM_EXPORT
 template<>
 struct Internal<DX12Fence> {
     wis::com_ptr<ID3D12Fence1> fence;
-    wis::unique_event fence_event = CreateEventW(nullptr, false, false, nullptr);
+    wis::unique_event          fence_event = CreateEventW(nullptr, false, false, nullptr);
 };
 
 class ImplDX12Fence : public QueryInternal<DX12Fence>
@@ -42,8 +42,8 @@ public:
     }
 
     [[nodiscard]] WIS_INLINE wis::Result
-    Wait(uint64_t value,
-         uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+                             Wait(uint64_t value,
+                                  uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     [[nodiscard]] wis::Result
     Signal(uint64_t value) const noexcept
@@ -62,9 +62,9 @@ class DX12Fence : public wis::ImplDX12Fence
 {
 public:
     using wis::ImplDX12Fence::ImplDX12Fence;
-    DX12Fence(const DX12Fence&) = delete;
-    DX12Fence(DX12Fence&&) noexcept = default;
-    DX12Fence& operator=(const DX12Fence&) = delete;
+    DX12Fence(const DX12Fence&)                = delete;
+    DX12Fence(DX12Fence&&) noexcept            = default;
+    DX12Fence& operator=(const DX12Fence&)     = delete;
     DX12Fence& operator=(DX12Fence&&) noexcept = default;
 
 public:

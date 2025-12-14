@@ -17,7 +17,6 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/n4820.pdf
 #include <cstdint>
 #include <type_traits>
 
-
 #ifndef TCB_SPAN_NO_EXCEPTIONS
 // Attempt to discover whether we're being compiled with exception support
 #if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND))
@@ -458,7 +457,10 @@ public:
     }
 
     // [span.obs], span observers
-    constexpr size_type size() const noexcept { return storage_.size; }
+    constexpr size_type size() const noexcept
+    {
+        return storage_.size;
+    }
 
     constexpr size_type size_bytes() const noexcept
     {
@@ -489,12 +491,21 @@ public:
         return *(data() + (size() - 1));
     }
 
-    constexpr pointer data() const noexcept { return storage_.ptr; }
+    constexpr pointer data() const noexcept
+    {
+        return storage_.ptr;
+    }
 
     // [span.iterators], span iterator support
-    constexpr iterator begin() const noexcept { return data(); }
+    constexpr iterator begin() const noexcept
+    {
+        return data();
+    }
 
-    constexpr iterator end() const noexcept { return data() + size(); }
+    constexpr iterator end() const noexcept
+    {
+        return data() + size();
+    }
 
     TCB_SPAN_ARRAY_CONSTEXPR reverse_iterator rbegin() const noexcept
     {
@@ -524,7 +535,7 @@ span(const std::array<T, N>&) -> span<const T, N>;
 
 template<class Container>
 span(Container&) -> span<typename std::remove_reference<
-        decltype(*detail::data(std::declval<Container&>()))>::type>;
+                         decltype(*detail::data(std::declval<Container&>()))>::type>;
 
 template<class Container>
 span(const Container&) -> span<const typename Container::value_type>;

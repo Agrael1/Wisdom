@@ -12,12 +12,12 @@ class VKAccelerationStructure;
 
 template<>
 struct Internal<VKAccelerationStructure> {
-    wis::SharedDevice device;
-    h::VkAccelerationStructureKHR handle;
+    wis::SharedDevice                     device;
+    h::VkAccelerationStructureKHR         handle;
     PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR = nullptr;
 
 public:
-    Internal() noexcept = default;
+    Internal() noexcept           = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -25,8 +25,8 @@ public:
             return *this;
         }
         Destroy();
-        device = std::move(o.device);
-        handle = std::move(o.handle);
+        device                            = std::move(o.device);
+        handle                            = std::move(o.handle);
         vkDestroyAccelerationStructureKHR = std::move(o.vkDestroyAccelerationStructureKHR);
         return *this;
     }

@@ -28,7 +28,10 @@ public:
     void                                   ParseFile(std::filesystem::path file);
     void                                   WriteMainAPI();
     void                                   WriteMainAPIDoc();
-    std::span<const std::filesystem::path> GetFiles() const { return files; }
+    std::span<const std::filesystem::path> GetFiles() const
+    {
+        return files;
+    }
 
 public:
     void ParseIncludes(tinyxml2::XMLElement* includes);
@@ -171,7 +174,7 @@ public:
                 if constexpr (lang == Lang::C) {
                     // This arg
                     if (!type.this_type.empty()) {
-                        args += wis::format("@param self is a pointer to the valid {{{}::}} instance.\n",  type.this_type);
+                        args += wis::format("@param self is a pointer to the valid {{{}::}} instance.\n", type.this_type);
                     }
 
                     // Function arguments

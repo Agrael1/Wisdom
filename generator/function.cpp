@@ -6,14 +6,14 @@ static inline constexpr char function_doc_template[] =
  * @struct {0}
  * @ingroup Functions
  *
- * 
+ *
  * @section {0}_spec Specification
  * <hr>
- * 
+ *
  * \cond WIS_GEN_CODE
  * {1}
  * \endcond
- * 
+ *
  * @section {0}_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
@@ -22,8 +22,8 @@ static inline constexpr char function_doc_template[] =
  *
  * @section {0}_descr Description
  * <hr>
- * 
- * \cond WIS_GEN_WIS_IDS 
+ *
+ * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
  * @section {0}_see_also See Also

@@ -2,22 +2,22 @@
  * @ingroup Enumerations
  * @struct WisStatus
  * WisStatus - Common return status codes.
- * 
+ *
  * @section Status_spec Specification
  * <hr>
- * 
+ *
  * Common return status codes. Used to communicate success or failure of operations from the underlying API.
  * There are 2 categories of status codes: non-negative values indicate success, and negative values indicate failure.
- * 
+ *
  * - Positive status codes provide additional information about the success of an operation.
  * - Negative status codes indicate various error conditions.
  * - Special value `WisStatusError` is used for general errors. This means that the operation failed, but no common error code is suit to describe the error. Specific details @wis_may be provided by platform code or by other means (e.g., error callbacks, logs, etc.).
- * 
+ *
  * Common return status codes are:
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisStatus {
  *     WisStatusOk = 0,
  *     WisStatusTimeout = 1,
@@ -34,7 +34,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class Status {
  *     Ok = 0,
  *     Timeout = 1,
@@ -50,12 +50,12 @@
  * }
  * ```
  * \endcond
- * 
+ *
  * @section Status_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
  * Defines common return status codes. Compare against `WisStatusOk` for success.
- * 
+ *
  * Values:
  * - `WisStatusOk = 0`: Operation succeded.
  * - `WisStatusTimeout = 1`: Operation timed out.
@@ -68,9 +68,9 @@
  * - `WisStatusValidationFailed = -6`: A validation layer found an error.
  * - `WisStatusError = -10000`: Operation failed.
  * \endcond
- * 
+ *
  * Performance critical commands @wis_should avoid returning error codes when possible. Instead they @wis_may report errors on command list close.
- * 
+ *
  * @section Status_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS

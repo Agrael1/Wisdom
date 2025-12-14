@@ -5,13 +5,13 @@
 #endif // !WISDOM_MODULE_DECL
 
 void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists,
-                                                  uint32_t count) const noexcept
+                                                  uint32_t                 count) const noexcept
 {
     VkSubmitInfo submit_info{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext = nullptr,
+        .sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext              = nullptr,
         .commandBufferCount = count,
-        .pCommandBuffers = reinterpret_cast<const VkCommandBuffer*>(lists),
+        .pCommandBuffers    = reinterpret_cast<const VkCommandBuffer*>(lists),
     };
 
     std::ignore = device.table().vkQueueSubmit(queue, 1, &submit_info, nullptr);
@@ -19,18 +19,18 @@ void wis::ImplVKCommandQueue::ExecuteCommandLists(const VKCommandListView* lists
 
 wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t value) const noexcept
 {
-    VkSemaphore sem = std::get<0>(fence);
+    VkSemaphore           sem = std::get<0>(fence);
     VkSemaphoreSubmitInfo sem_submit{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .semaphore = sem,
-        .value = value,
+        .value     = value,
         .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
     };
 
     VkSubmitInfo2 info{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
         .signalSemaphoreInfoCount = 1,
-        .pSignalSemaphoreInfos = &sem_submit
+        .pSignalSemaphoreInfos    = &sem_submit
     };
     VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success
@@ -39,18 +39,18 @@ wis::Result wis::ImplVKCommandQueue::SignalQueue(VKFenceView fence, uint64_t val
 
 wis::Result wis::ImplVKCommandQueue::WaitQueue(VKFenceView fence, uint64_t value) const noexcept
 {
-    VkSemaphore sem = std::get<0>(fence);
+    VkSemaphore           sem = std::get<0>(fence);
     VkSemaphoreSubmitInfo sem_submit{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .semaphore = sem,
-        .value = value,
+        .value     = value,
         .stageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
     };
 
     VkSubmitInfo2 info{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
         .waitSemaphoreInfoCount = 1,
-        .pWaitSemaphoreInfos = &sem_submit
+        .pWaitSemaphoreInfos    = &sem_submit
     };
     VkResult result = device.table().vkQueueSubmit2(queue, 1, &info, nullptr);
     return succeeded(result) ? wis::success

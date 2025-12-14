@@ -12,7 +12,7 @@ WISDOM_EXPORT
 template<>
 struct Internal<DX12ResourceAllocator> {
     wis::com_ptr<D3D12MA::Allocator> allocator;
-    ID3D12Device10* device = nullptr; // ownedby allocator, no need to release
+    ID3D12Device10*                  device = nullptr; // ownedby allocator, no need to release
 };
 
 /// @brief Resource allocator for DX12
@@ -28,28 +28,24 @@ public:
 public:
     // Resource creation functions
     [[nodiscard]] WIS_INLINE wis::DX12Buffer
-    CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+                             CreateBuffer(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE DX12Texture
     CreateTexture(wis::Result& result, const wis::TextureDesc& desc, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     // Allocation info functions
     [[nodiscard]] WIS_INLINE wis::AllocationInfo
-    GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
+                             GetTextureAllocationInfo(const wis::TextureDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::AllocationInfo
-    GetBufferAllocationInfo(uint64_t size, BufferUsage flags = BufferUsage::None) const noexcept;
+                             GetBufferAllocationInfo(uint64_t size, BufferUsage flags = BufferUsage::None) const noexcept;
 
     // Allocation functions
     [[nodiscard]] WIS_INLINE DX12Memory
-    AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage,
-                          wis::MemoryType memory = wis::MemoryType::Default,
-                          wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+    AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE DX12Memory
-    AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage,
-                         wis::MemoryType memory = wis::MemoryType::Default,
-                         wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
+    AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory = wis::MemoryType::Default, wis::MemoryFlags mem_flags = wis::MemoryFlags::None) const noexcept;
 
     // Resource placement functions
     [[nodiscard]] WIS_INLINE DX12Buffer
@@ -76,7 +72,7 @@ public:
     DX12CreateResource(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12Buffer
-    DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
+                             DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept;
 
     WIS_INLINE static void
     DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept;
@@ -95,9 +91,9 @@ class DX12ResourceAllocator : public wis::ImplDX12ResourceAllocator
 {
 public:
     using wis::ImplDX12ResourceAllocator::ImplDX12ResourceAllocator;
-    DX12ResourceAllocator(const DX12ResourceAllocator&) = delete;
-    DX12ResourceAllocator(DX12ResourceAllocator&&) noexcept = default;
-    DX12ResourceAllocator& operator=(const DX12ResourceAllocator&) = delete;
+    DX12ResourceAllocator(const DX12ResourceAllocator&)                = delete;
+    DX12ResourceAllocator(DX12ResourceAllocator&&) noexcept            = default;
+    DX12ResourceAllocator& operator=(const DX12ResourceAllocator&)     = delete;
     DX12ResourceAllocator& operator=(DX12ResourceAllocator&&) noexcept = default;
 
 public:

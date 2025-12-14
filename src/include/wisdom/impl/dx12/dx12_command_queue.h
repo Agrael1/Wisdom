@@ -60,9 +60,9 @@ class DX12CommandQueue : public wis::ImplDX12CommandQueue
 {
 public:
     using wis::ImplDX12CommandQueue::ImplDX12CommandQueue;
-    DX12CommandQueue(const DX12CommandQueue&) = delete;
-    DX12CommandQueue(DX12CommandQueue&&) noexcept = default;
-    DX12CommandQueue& operator=(const DX12CommandQueue&) = delete;
+    DX12CommandQueue(const DX12CommandQueue&)                = delete;
+    DX12CommandQueue(DX12CommandQueue&&) noexcept            = default;
+    DX12CommandQueue& operator=(const DX12CommandQueue&)     = delete;
     DX12CommandQueue& operator=(DX12CommandQueue&&) noexcept = default;
 
 public:

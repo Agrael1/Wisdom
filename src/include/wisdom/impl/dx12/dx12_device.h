@@ -21,15 +21,15 @@ WISDOM_EXPORT
 template<>
 struct Internal<DX12Device> {
     wis::com_ptr<ID3D12Device10> device;
-    wis::com_ptr<IDXGIAdapter1> adapter;
-    wis::com_ptr<IDXGIFactory4> factory;
+    wis::com_ptr<IDXGIAdapter1>  adapter;
+    wis::com_ptr<IDXGIFactory4>  factory;
 };
 
 class ImplDX12Device : public QueryInternal<DX12Device>
 {
 public:
-    ImplDX12Device() noexcept = default;
-    ImplDX12Device(ImplDX12Device&&) noexcept = default;
+    ImplDX12Device() noexcept                            = default;
+    ImplDX12Device(ImplDX12Device&&) noexcept            = default;
     ImplDX12Device& operator=(ImplDX12Device&&) noexcept = default;
 
     operator bool() const noexcept
@@ -39,69 +39,69 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result
-    WaitForMultipleFences(const DX12FenceView* fences,
-                          const uint64_t* values,
-                          uint32_t count,
-                          MutiWaitFlags wait_all = MutiWaitFlags::All,
-                          uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
+                             WaitForMultipleFences(const DX12FenceView* fences,
+                                                   const uint64_t*      values,
+                                                   uint32_t             count,
+                                                   MutiWaitFlags        wait_all = MutiWaitFlags::All,
+                                                   uint64_t             timeout  = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12Fence
-    CreateFence(wis::Result& result, uint64_t initial_value = 0ull, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept;
+                             CreateFence(wis::Result& result, uint64_t initial_value = 0ull, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12CommandQueue
-    CreateCommandQueue(wis::Result& result, wis::QueueType type) const noexcept;
+                             CreateCommandQueue(wis::Result& result, wis::QueueType type) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12CommandList
-    CreateCommandList(wis::Result& result, wis::QueueType type) const noexcept;
+                             CreateCommandList(wis::Result& result, wis::QueueType type) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12PipelineState
-    CreateGraphicsPipeline(wis::Result& result, const wis::DX12GraphicsPipelineDesc& desc) const noexcept;
+                             CreateGraphicsPipeline(wis::Result& result, const wis::DX12GraphicsPipelineDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12PipelineState
-    CreateComputePipeline(wis::Result& result, const wis::DX12ComputePipelineDesc& desc) const noexcept;
+                             CreateComputePipeline(wis::Result& result, const wis::DX12ComputePipelineDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12Shader
-    CreateShader(wis::Result& result, void* data, size_t size) const noexcept;
+                             CreateShader(wis::Result& result, void* data, size_t size) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12ResourceAllocator
-    CreateAllocator(wis::Result& result) const noexcept;
+                             CreateAllocator(wis::Result& result) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12RenderTarget
-    CreateRenderTarget(wis::Result& result, DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
+                             CreateRenderTarget(wis::Result& result, DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12RenderTarget
-    CreateDepthStencilTarget(wis::Result& result, DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
+                             CreateDepthStencilTarget(wis::Result& result, DX12TextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12Sampler
-    CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept;
+                             CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12ShaderResource
-    CreateShaderResource(wis::Result& result, DX12TextureView texture, const wis::ShaderResourceDesc& desc) const noexcept;
+                             CreateShaderResource(wis::Result& result, DX12TextureView texture, const wis::ShaderResourceDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12UnorderedAccessTexture
-    CreateUnorderedAccessTexture(wis::Result& result, DX12TextureView buffer, const wis::UnorderedAccessDesc& desc) const noexcept;
+                             CreateUnorderedAccessTexture(wis::Result& result, DX12TextureView buffer, const wis::UnorderedAccessDesc& desc) const noexcept;
 
     // returns true only for now
     [[nodiscard]] WIS_INLINE bool
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DeviceConstants
-    QueryDeviceConsts() const noexcept;
+                             QueryDeviceConsts() const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12DescriptorStorage
-    CreateDescriptorStorage(wis::Result& result,
-                            const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
-                            uint32_t descriptor_bindings_count = 0,
-                            wis::DescriptorMemory = wis::DescriptorMemory::ShaderVisible) const noexcept;
+                             CreateDescriptorStorage(wis::Result&                      result,
+                                                     const wis::DescriptorBindingDesc* descriptor_bindings       = nullptr,
+                                                     uint32_t                          descriptor_bindings_count = 0,
+                                                     wis::DescriptorMemory                                       = wis::DescriptorMemory::ShaderVisible) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DX12RootSignature
-    CreateRootSignature(wis::Result& result,
-                        const wis::PushConstant* push_constants = nullptr,
-                        uint32_t constants_count = 0,
-                        const wis::PushDescriptor* push_descriptors = nullptr,
-                        uint32_t push_descriptors_count = 0,
-                        const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
-                        uint32_t descriptor_bindings_count = 0) const noexcept;
+                             CreateRootSignature(wis::Result&                      result,
+                                                 const wis::PushConstant*          push_constants            = nullptr,
+                                                 uint32_t                          constants_count           = 0,
+                                                 const wis::PushDescriptor*        push_descriptors          = nullptr,
+                                                 uint32_t                          push_descriptors_count    = 0,
+                                                 const wis::DescriptorBindingDesc* descriptor_bindings       = nullptr,
+                                                 uint32_t                          descriptor_bindings_count = 0) const noexcept;
 };
 
 #pragma region DX12Device
@@ -114,9 +114,9 @@ class DX12Device : public wis::ImplDX12Device
 {
 public:
     using wis::ImplDX12Device::ImplDX12Device;
-    DX12Device(const DX12Device&) = delete;
-    DX12Device(DX12Device&&) noexcept = default;
-    DX12Device& operator=(const DX12Device&) = delete;
+    DX12Device(const DX12Device&)                = delete;
+    DX12Device(DX12Device&&) noexcept            = default;
+    DX12Device& operator=(const DX12Device&)     = delete;
     DX12Device& operator=(DX12Device&&) noexcept = default;
 
 public:
@@ -446,7 +446,7 @@ public:
 #pragma endregion DX12Device
 
 [[nodiscard]] WIS_INLINE wis::DX12Device
-ImplDX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept;
+                         ImplDX12CreateDevice(wis::Result& result, wis::DX12Adapter adapter, wis::DX12DeviceExtension** extensions, uint32_t ext_count, bool force) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

@@ -10,18 +10,18 @@ wis::VKSwapChain
 wis::platform::X11Extension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc& desc, Display* display, Window window) const noexcept
 {
     VkXlibSurfaceCreateInfoKHR surface_desc{
-        .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .flags = 0,
-        .dpy = display,
+        .sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
+        .pNext  = nullptr,
+        .flags  = 0,
+        .dpy    = display,
         .window = window
     };
     wis::lib_info("Initializing X11 Surface");
 
-    auto& devicei = device.GetInternal();
-    const auto& instance_table = instance.table();
+    auto&        devicei        = device.GetInternal();
+    const auto&  instance_table = instance.table();
     VkSurfaceKHR surface;
-    auto vr = vkCreateXlibSurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
+    auto         vr = vkCreateXlibSurfaceKHR(instance.get(), &surface_desc, nullptr, &surface);
     if (!wis::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create X11 surface">(vr);
         return {};

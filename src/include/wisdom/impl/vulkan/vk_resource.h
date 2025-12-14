@@ -17,9 +17,9 @@ WISDOM_EXPORT
 template<>
 struct Internal<VKBuffer> {
     wis::VKMemory memory;
-    h::VkBuffer buffer;
+    h::VkBuffer   buffer;
 
-    Internal() noexcept = default;
+    Internal() noexcept           = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -76,9 +76,9 @@ public:
     [[nodiscard]]
     uint64_t GetGPUAddress() const noexcept
     {
-        auto& device = memory.GetInternal().allocator.header();
+        auto&                     device = memory.GetInternal().allocator.header();
         VkBufferDeviceAddressInfo info{
-            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+            .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
             .buffer = buffer
         };
         return device.table().vkGetBufferDeviceAddress(device.get(), &info);
@@ -91,11 +91,11 @@ class Internal<VKTexture>
 {
 public:
     wis::VKMemory memory;
-    h::VkImage buffer;
-    VkFormat format{};
-    wis::Size2D size{};
+    h::VkImage    buffer;
+    VkFormat      format{};
+    wis::Size2D   size{};
 
-    Internal() noexcept = default;
+    Internal() noexcept                 = default;
     Internal(Internal&& other) noexcept = default;
     Internal& operator=(Internal&& other) noexcept
     {
@@ -106,7 +106,7 @@ public:
         memory = std::move(other.memory);
         buffer = std::move(other.buffer);
         format = std::move(other.format);
-        size = std::move(other.size);
+        size   = std::move(other.size);
         return *this;
     }
     ~Internal() noexcept
@@ -144,7 +144,7 @@ WISDOM_EXPORT
 template<>
 struct Internal<VKRenderTarget> {
     wis::managed_handle_ex<VkImageView> view;
-    wis::Size2D size;
+    wis::Size2D                         size;
 };
 
 WISDOM_EXPORT
@@ -218,9 +218,9 @@ class VKBuffer : public wis::ImplVKBuffer
 {
 public:
     using wis::ImplVKBuffer::ImplVKBuffer;
-    VKBuffer(const VKBuffer&) = delete;
-    VKBuffer(VKBuffer&&) noexcept = default;
-    VKBuffer& operator=(const VKBuffer&) = delete;
+    VKBuffer(const VKBuffer&)                = delete;
+    VKBuffer(VKBuffer&&) noexcept            = default;
+    VKBuffer& operator=(const VKBuffer&)     = delete;
     VKBuffer& operator=(VKBuffer&&) noexcept = default;
 
 public:

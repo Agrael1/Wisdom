@@ -11,20 +11,20 @@ WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             de
                                              WisDX12Instance*                 instance)
 {
     // Enable RVO
-    //DX12Factory f;
-    //auto&       internal = f.GetMutableInternal();
+    // DX12Factory f;
+    // auto&       internal = f.GetMutableInternal();
 
-    //auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, internal.factory.iid(), internal.factory.put_void());
+    // auto hr = CreateDXGIFactory2(enable_debug * DXGI_CREATE_FACTORY_DEBUG, internal.factory.iid(), internal.factory.put_void());
 
-    //if (!wis::succeeded(hr)) {
-    //    res = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create DXGI factory">(hr);
-    //    return f;
-    //}
+    // if (!wis::succeeded(hr)) {
+    //     res = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create DXGI factory">(hr);
+    //     return f;
+    // }
 
-    //for (auto ext : std::span<DX12FactoryExtension*>{ extensions, extension_count }) {
-    //    ext->Init(f);
-    //}
-    //return f;
+    // for (auto ext : std::span<DX12FactoryExtension*>{ extensions, extension_count }) {
+    //     ext->Init(f);
+    // }
+    // return f;
 }
 
 // wis::DX12Factory

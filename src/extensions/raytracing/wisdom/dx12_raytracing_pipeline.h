@@ -16,7 +16,7 @@ using DX12RaytracingPipelineView = std::tuple<ID3D12StateObject*>;
 template<>
 struct Internal<DX12RaytracingPipeline> {
     wis::com_ptr<ID3D12StateObject> state_object;
-    std::unique_ptr<uint8_t[]> shader_identifiers;
+    std::unique_ptr<uint8_t[]>      shader_identifiers;
 };
 
 class DX12RaytracingPipeline : public QueryInternal<DX12RaytracingPipeline>

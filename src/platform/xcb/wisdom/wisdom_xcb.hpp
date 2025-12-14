@@ -18,8 +18,8 @@ class XCBExtension;
 
 template<>
 struct Internal<platform::XCBExtension> {
-    wis::SharedInstance instance;
-    PFN_vkCreateXcbSurfaceKHR vkCreateXcbSurfaceKHR = nullptr;
+    wis::SharedInstance                              instance;
+    PFN_vkCreateXcbSurfaceKHR                        vkCreateXcbSurfaceKHR                        = nullptr;
     PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR vkGetPhysicalDeviceXcbPresentationSupportKHR = nullptr;
 };
 
@@ -34,8 +34,8 @@ public:
     [[nodiscard]] wis::Result
     Init(const wis::VKFactory& in_instance) noexcept override
     {
-        instance = in_instance.GetInternal().factory;
-        vkCreateXcbSurfaceKHR = instance.GetInstanceProcAddr<PFN_vkCreateXcbSurfaceKHR>("vkCreateXcbSurfaceKHR");
+        instance                                     = in_instance.GetInternal().factory;
+        vkCreateXcbSurfaceKHR                        = instance.GetInstanceProcAddr<PFN_vkCreateXcbSurfaceKHR>("vkCreateXcbSurfaceKHR");
         vkGetPhysicalDeviceXcbPresentationSupportKHR = instance.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>("vkGetPhysicalDeviceXcbPresentationSupportKHR");
         return {};
     }
@@ -48,7 +48,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept;
+                             CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept;
 
     [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
     CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, xcb_connection_t* connection, xcb_window_t window) const noexcept

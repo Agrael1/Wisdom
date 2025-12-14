@@ -13,11 +13,11 @@ WISDOM_EXPORT
 template<>
 struct Internal<VKCommandQueue> {
     wis::SharedDevice device;
-    h::VkQueue queue;
+    h::VkQueue        queue;
 
 public:
-    Internal() noexcept = default;
-    ~Internal() noexcept = default;
+    Internal() noexcept           = default;
+    ~Internal() noexcept          = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -26,7 +26,7 @@ public:
         }
 
         device = std::move(o.device);
-        queue = std::move(o.queue);
+        queue  = std::move(o.queue);
         return *this;
     }
 };
@@ -59,9 +59,9 @@ class VKCommandQueue : public wis::ImplVKCommandQueue
 {
 public:
     using wis::ImplVKCommandQueue::ImplVKCommandQueue;
-    VKCommandQueue(const VKCommandQueue&) = delete;
-    VKCommandQueue(VKCommandQueue&&) noexcept = default;
-    VKCommandQueue& operator=(const VKCommandQueue&) = delete;
+    VKCommandQueue(const VKCommandQueue&)                = delete;
+    VKCommandQueue(VKCommandQueue&&) noexcept            = default;
+    VKCommandQueue& operator=(const VKCommandQueue&)     = delete;
     VKCommandQueue& operator=(VKCommandQueue&&) noexcept = default;
 
 public:

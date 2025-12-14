@@ -12,7 +12,7 @@ WISDOM_EXPORT class DX12Buffer;
 WISDOM_EXPORT
 template<>
 struct Internal<DX12Buffer> {
-    DX12Memory memory;
+    DX12Memory                   memory;
     wis::com_ptr<ID3D12Resource> resource;
 };
 
@@ -64,11 +64,11 @@ WISDOM_EXPORT
 template<>
 struct Internal<DX12RenderTarget> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
-    D3D12_CPU_DESCRIPTOR_HANDLE handle{};
+    D3D12_CPU_DESCRIPTOR_HANDLE        handle{};
 
     // Move only
-    Internal() = default;
-    Internal(Internal&&) noexcept = default;
+    Internal()                                 = default;
+    Internal(Internal&&) noexcept              = default;
     Internal& operator=(Internal&& o) noexcept = default;
 };
 
@@ -97,8 +97,8 @@ struct Internal<DX12Sampler> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
 
     // Move only
-    Internal() = default;
-    Internal(Internal&&) noexcept = default;
+    Internal()                                 = default;
+    Internal(Internal&&) noexcept              = default;
     Internal& operator=(Internal&& o) noexcept = default;
 };
 
@@ -127,8 +127,8 @@ struct Internal<DX12ShaderResource> {
     wis::com_ptr<ID3D12DescriptorHeap> heap;
 
     // Move only
-    Internal() = default;
-    Internal(Internal&&) noexcept = default;
+    Internal()                                 = default;
+    Internal(Internal&&) noexcept              = default;
     Internal& operator=(Internal&& o) noexcept = default;
 };
 
@@ -159,9 +159,9 @@ class DX12Buffer : public wis::ImplDX12Buffer
 {
 public:
     using wis::ImplDX12Buffer::ImplDX12Buffer;
-    DX12Buffer(const DX12Buffer&) = delete;
-    DX12Buffer(DX12Buffer&&) noexcept = default;
-    DX12Buffer& operator=(const DX12Buffer&) = delete;
+    DX12Buffer(const DX12Buffer&)                = delete;
+    DX12Buffer(DX12Buffer&&) noexcept            = default;
+    DX12Buffer& operator=(const DX12Buffer&)     = delete;
     DX12Buffer& operator=(DX12Buffer&&) noexcept = default;
 
 public:

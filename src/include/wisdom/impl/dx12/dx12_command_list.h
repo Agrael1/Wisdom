@@ -16,11 +16,11 @@ WISDOM_EXPORT struct DX12VertexBufferBinding;
 WISDOM_EXPORT
 template<>
 struct Internal<DX12CommandList> {
-    wis::com_ptr<ID3D12CommandAllocator> allocator;
-    wis::com_ptr<ID3D12GraphicsCommandList9> list;
+    wis::com_ptr<ID3D12CommandAllocator>                 allocator;
+    wis::com_ptr<ID3D12GraphicsCommandList9>             list;
     std::array<int8_t, size_t(wis::ShaderStages::Count)> root_stage_map;
-    uint32_t push_constant_count = 0;
-    uint32_t push_descriptor_count = 0;
+    uint32_t                                             push_constant_count   = 0;
+    uint32_t                                             push_descriptor_count = 0;
 };
 
 class ImplDX12CommandList : public QueryInternal<DX12CommandList>
@@ -41,9 +41,9 @@ public:
     {
         return closed;
     }
-    WIS_INLINE bool Close() noexcept;
+    WIS_INLINE bool          Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(wis::DX12PipelineView pipeline = {}) noexcept;
-    WIS_INLINE void CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
+    WIS_INLINE void                      CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
 
     WIS_INLINE void CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
@@ -86,13 +86,13 @@ public:
 
     WIS_INLINE void DrawIndexedInstanced(uint32_t vertex_count_per_instance,
                                          uint32_t instance_count = 1,
-                                         uint32_t start_index = 0,
-                                         uint32_t base_vertex = 0,
+                                         uint32_t start_index    = 0,
+                                         uint32_t base_vertex    = 0,
                                          uint32_t start_instance = 0) noexcept;
 
     WIS_INLINE void DrawInstanced(uint32_t vertex_count_per_instance,
                                   uint32_t instance_count = 1,
-                                  uint32_t start_vertex = 0,
+                                  uint32_t start_vertex   = 0,
                                   uint32_t start_instance = 0) noexcept;
 
     WIS_INLINE void Dispatch(uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z) noexcept;
@@ -120,9 +120,9 @@ class DX12CommandList : public wis::ImplDX12CommandList
 {
 public:
     using wis::ImplDX12CommandList::ImplDX12CommandList;
-    DX12CommandList(const DX12CommandList&) = delete;
-    DX12CommandList(DX12CommandList&&) noexcept = default;
-    DX12CommandList& operator=(const DX12CommandList&) = delete;
+    DX12CommandList(const DX12CommandList&)                = delete;
+    DX12CommandList(DX12CommandList&&) noexcept            = default;
+    DX12CommandList& operator=(const DX12CommandList&)     = delete;
     DX12CommandList& operator=(DX12CommandList&&) noexcept = default;
 
 public:

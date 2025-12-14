@@ -14,9 +14,9 @@ class VKInteropDeviceExtensionLinux;
 
 template<>
 struct Internal<platform::VKInteropDeviceExtensionLinux> {
-    wis::SharedDevice device;
+    wis::SharedDevice       device;
     PFN_vkGetSemaphoreFdKHR vkGetSemaphoreFdKHR = nullptr;
-    PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR = nullptr;
+    PFN_vkGetMemoryFdKHR    vkGetMemoryFdKHR    = nullptr;
 };
 
 namespace platform {
@@ -26,9 +26,9 @@ class VKInteropDeviceExtensionLinux : public QueryInternalExtension<VKInteropDev
 protected:
     virtual bool
     GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                     std::unordered_set<std::string_view>& ext_name_set,
-                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
+                     std::unordered_set<std::string_view>&                                                            ext_name_set,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  structure_map,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  property_map) noexcept override
     {
         if (available_extensions.contains(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME)) {
             ext_name_set.emplace(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME);
@@ -40,13 +40,13 @@ protected:
     }
 
     virtual wis::Result
-    Init(const wis::VKDevice& instance,
+    Init(const wis::VKDevice&                                  instance,
          const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
          const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
     {
-        device = instance.GetInternal().device;
+        device              = instance.GetInternal().device;
         vkGetSemaphoreFdKHR = device.GetDeviceProcAddr<PFN_vkGetSemaphoreFdKHR>("PFN_vkGetSemaphoreFdKHR");
-        vkGetMemoryFdKHR = device.GetDeviceProcAddr<PFN_vkGetMemoryFdKHR>("PFN_vkGetMemoryFdKHR");
+        vkGetMemoryFdKHR    = device.GetDeviceProcAddr<PFN_vkGetMemoryFdKHR>("PFN_vkGetMemoryFdKHR");
 
         // Tell the device that memory and semaphores should support interop
         const_cast<wis::XInternalFeatures&>(instance.GetInternal().ext1.GetInternal().features).interop_device = Supported();
@@ -63,11 +63,11 @@ public:
     [[nodiscard]] int
     GetSemaphoreHandle(wis::Result& result, const wis::VKFence& fence) const noexcept
     {
-        int handle;
+        int                     handle;
         VkSemaphoreGetFdInfoKHR handle_info{
-            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR,
-            .pNext = nullptr,
-            .semaphore = fence.GetInternal().fence.get(),
+            .sType      = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR,
+            .pNext      = nullptr,
+            .semaphore  = fence.GetInternal().fence.get(),
             .handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT
         };
         auto vr = vkGetSemaphoreFdKHR(device.get(), &handle_info, &handle);
@@ -79,8 +79,8 @@ public:
     [[nodiscard]] int
     GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
-        int handle;
-        auto allocator = std::get<0>(memory);
+        int  handle;
+        auto allocator  = std::get<0>(memory);
         auto allocation = std::get<1>(memory);
 
         VmaAllocatorInfo al_info;
@@ -90,9 +90,9 @@ public:
         vmaGetAllocationInfo(allocator, allocation, &alloc_info);
 
         VkMemoryGetFdInfoKHR handle_info{
-            .sType = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR,
-            .pNext = nullptr,
-            .memory = alloc_info.deviceMemory,
+            .sType      = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR,
+            .pNext      = nullptr,
+            .memory     = alloc_info.deviceMemory,
             .handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT
         };
 

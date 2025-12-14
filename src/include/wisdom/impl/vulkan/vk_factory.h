@@ -48,10 +48,10 @@ protected:
     WIS_INLINE wis::Result InitializeInstanceLayers() noexcept;
 
 private:
-    bool initialized = false;
-    std::once_flag global_flag;
+    bool              initialized = false;
+    std::once_flag    global_flag;
     wis::VKMainGlobal global_table{};
-    wis::LibToken lib_token;
+    wis::LibToken     lib_token;
 
 public:
     // Used for checking if extensions are supported
@@ -64,8 +64,8 @@ WISDOM_EXPORT
 template<>
 struct Internal<VKFactory> {
     wis::SharedInstance factory;
-    uint32_t api_version{};
-    bool debug_layer = false;
+    uint32_t            api_version{};
+    bool                debug_layer = false;
 
 public:
     template<typename PFN>
@@ -78,18 +78,19 @@ public:
 class ImplVKFactory : public QueryInternal<VKFactory>
 {
     struct IndexedAdapter {
-        uint32_t index_consumption = 0;
-        uint32_t index_performance = 0;
+        uint32_t  index_consumption = 0;
+        uint32_t  index_performance = 0;
         VKAdapter adapter;
     };
     static WIS_INLINE VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallbackThunk(
-            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT messageType,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) noexcept;
+            VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT             messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+            void*                                       pUserData) noexcept;
 
 public:
-    ImplVKFactory() noexcept = default;
-    ImplVKFactory(ImplVKFactory&&) noexcept = default;
+    ImplVKFactory() noexcept                           = default;
+    ImplVKFactory(ImplVKFactory&&) noexcept            = default;
     ImplVKFactory& operator=(ImplVKFactory&&) noexcept = default;
 
     operator bool() const noexcept
@@ -103,16 +104,15 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE VKAdapter
-    GetAdapter(wis::Result& resutlt, uint32_t index,
-               AdapterPreference preference = AdapterPreference::Performance) const noexcept;
+    GetAdapter(wis::Result& resutlt, uint32_t index, AdapterPreference preference = AdapterPreference::Performance) const noexcept;
 
 public:
     WIS_INLINE VkResult VKEnumeratePhysicalDevices() noexcept;
 
     [[nodiscard]] static WIS_INLINE wis::detail::fixed_allocation<const char*>
-    FoundExtensions(wis::Result& result, std::span<const char*> in_extensions) noexcept;
+                                    FoundExtensions(wis::Result& result, std::span<const char*> in_extensions) noexcept;
     [[nodiscard]] static WIS_INLINE wis::detail::fixed_allocation<const char*>
-    FoundLayers(wis::Result& result, std::span<const char*> in_layers) noexcept;
+                                    FoundLayers(wis::Result& result, std::span<const char*> in_layers) noexcept;
 
 private:
     mutable std::vector<IndexedAdapter> adapters{};
@@ -128,9 +128,9 @@ class VKFactory : public wis::ImplVKFactory
 {
 public:
     using wis::ImplVKFactory::ImplVKFactory;
-    VKFactory(const VKFactory&) = delete;
-    VKFactory(VKFactory&&) noexcept = default;
-    VKFactory& operator=(const VKFactory&) = delete;
+    VKFactory(const VKFactory&)                = delete;
+    VKFactory(VKFactory&&) noexcept            = default;
+    VKFactory& operator=(const VKFactory&)     = delete;
     VKFactory& operator=(VKFactory&&) noexcept = default;
 
 public:
@@ -160,7 +160,7 @@ public:
 #pragma endregion VKFactory
 
 [[nodiscard]] WIS_INLINE wis::VKFactory
-ImplVKCreateFactory(wis::Result& result, bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;
+                         ImplVKCreateFactory(wis::Result& result, bool debug_layer, VKFactoryExtension** extensions, size_t extension_count) noexcept;
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES

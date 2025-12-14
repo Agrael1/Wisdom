@@ -6,14 +6,14 @@ static inline constexpr char template_struct[] =
  * @struct {0}
  * @ingroup Structures
  *
- * 
+ *
  * @section {0}_spec Specification
  * <hr>
- * 
+ *
  * \cond WIS_GEN_CODE
  * {1}
  * \endcond
- * 
+ *
  * @section {0}_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
@@ -22,8 +22,8 @@ static inline constexpr char template_struct[] =
  *
  * @section {0}_descr Description
  * <hr>
- * 
- * \cond WIS_GEN_WIS_IDS 
+ *
+ * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
  * @section {0}_see_also See Also
@@ -194,9 +194,9 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
                                                           MakeCStruct(struct_ref, DocKind::VersionOnly),
                                                           MakeCPPStruct(struct_ref, DocKind::VersionOnly));
 
-        std::string struct_description      = wis::format(" * {}", MakeStructDescription(struct_ref));
-        std::string struct_refs             = GetRefs(struct_name);
-        std::string vuids                   = MakeValidationForType(struct_name);
+        std::string struct_description = wis::format(" * {}", MakeStructDescription(struct_ref));
+        std::string struct_refs        = GetRefs(struct_name);
+        std::string vuids              = MakeValidationForType(struct_name);
 
         ReplaceAll(struct_template_content, "\n", "\n * ");
         ReplaceAll(struct_description, "\n", "\n * ");

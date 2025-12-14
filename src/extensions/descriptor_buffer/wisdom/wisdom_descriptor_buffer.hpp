@@ -33,12 +33,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::DX12RootSignature
-    CreateRootSignature(wis::Result& result, const PushConstant* root_constants = nullptr,
-                        uint32_t constants_size = 0,
-                        const PushDescriptor* push_descriptors = nullptr,
-                        uint32_t push_descriptors_size = 0,
-                        const wis::DescriptorTable* tables = nullptr,
-                        uint32_t tables_count = 0) const noexcept;
+                             CreateRootSignature(wis::Result& result, const PushConstant* root_constants = nullptr, uint32_t constants_size = 0, const PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept;
 
     [[nodiscard]] uint32_t
     GetDescriptorTableAlignment(wis::DescriptorHeapType heap) const noexcept
@@ -52,18 +47,18 @@ public:
     }
 
     [[nodiscard]] WIS_INLINE wis::DX12DescriptorBuffer
-    CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
+                             CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
 
 public: // Command List
-    WIS_INLINE void SetDescriptorBuffers(wis::DX12CommandListView cmd_list,
+    WIS_INLINE void SetDescriptorBuffers(wis::DX12CommandListView      cmd_list,
                                          wis::DX12DescriptorBufferView resource_desc_buffer,
                                          wis::DX12DescriptorBufferView sampler_desc_buffer) const noexcept;
 
-    WIS_INLINE void SetDescriptorTableOffset(wis::DX12CommandListView cmd_list,
-                                             wis::DX12RootSignatureView root_signature,
-                                             uint32_t root_table_index,
+    WIS_INLINE void SetDescriptorTableOffset(wis::DX12CommandListView         cmd_list,
+                                             wis::DX12RootSignatureView       root_signature,
+                                             uint32_t                         root_table_index,
                                              wis::DX12DescriptorBufferGPUView buffer,
-                                             uint32_t table_aligned_byte_offset) const noexcept;
+                                             uint32_t                         table_aligned_byte_offset) const noexcept;
 };
 
 #pragma region DX12DescriptorBufferExtension
@@ -73,9 +68,9 @@ class DX12DescriptorBufferExtension : public wis::ImplDX12DescriptorBufferExtens
 {
 public:
     using wis::ImplDX12DescriptorBufferExtension::ImplDX12DescriptorBufferExtension;
-    DX12DescriptorBufferExtension(const DX12DescriptorBufferExtension&) = delete;
-    DX12DescriptorBufferExtension(DX12DescriptorBufferExtension&&) noexcept = default;
-    DX12DescriptorBufferExtension& operator=(const DX12DescriptorBufferExtension&) = delete;
+    DX12DescriptorBufferExtension(const DX12DescriptorBufferExtension&)                = delete;
+    DX12DescriptorBufferExtension(DX12DescriptorBufferExtension&&) noexcept            = default;
+    DX12DescriptorBufferExtension& operator=(const DX12DescriptorBufferExtension&)     = delete;
     DX12DescriptorBufferExtension& operator=(DX12DescriptorBufferExtension&&) noexcept = default;
 
 public:
@@ -191,10 +186,10 @@ WISDOM_EXPORT class VKDescriptorBufferExtension;
 WISDOM_EXPORT
 template<>
 struct Internal<VKDescriptorBufferExtension> {
-    wis::SharedDevice device;
+    wis::SharedDevice                device;
     wis::shared_handle<VmaAllocator> allocator;
-    VKDescriptorBufferProperties descriptor_buffer_props;
-    VKDescBufferExtDevice ftable;
+    VKDescriptorBufferProperties     descriptor_buffer_props;
+    VKDescBufferExtDevice            ftable;
 };
 
 class ImplVKDescriptorBufferExtension : public QueryInternalExtension<VKDescriptorBufferExtension, wis::VKDeviceExtension>
@@ -202,14 +197,14 @@ class ImplVKDescriptorBufferExtension : public QueryInternalExtension<VKDescript
 protected:
     virtual WIS_INLINE bool
     GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                     std::unordered_set<std::string_view>& ext_name_set,
-                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+                     std::unordered_set<std::string_view>&                                                            ext_name_set,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  structure_map,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  property_map) noexcept override;
 
     virtual WIS_INLINE wis::Result
-    Init(const wis::VKDevice& instance,
-         const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-         const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+                       Init(const wis::VKDevice&                                  instance,
+                            const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                            const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
 
 public:
     virtual bool Supported() const noexcept override
@@ -219,12 +214,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKRootSignature
-    CreateRootSignature(wis::Result& result, const PushConstant* constants = nullptr,
-                        uint32_t constants_size = 0,
-                        const PushDescriptor* push_descriptors = nullptr,
-                        uint32_t push_descriptors_size = 0,
-                        const wis::DescriptorTable* tables = nullptr,
-                        uint32_t tables_count = 0) const noexcept;
+                             CreateRootSignature(wis::Result& result, const PushConstant* constants = nullptr, uint32_t constants_size = 0, const PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_size = 0, const wis::DescriptorTable* tables = nullptr, uint32_t tables_count = 0) const noexcept;
 
     [[nodiscard]] uint32_t
     GetDescriptorTableAlignment([[maybe_unused]] wis::DescriptorHeapType heap) const noexcept
@@ -242,20 +232,18 @@ public:
     }
 
     [[nodiscard]] WIS_INLINE VKDescriptorBuffer
-    CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type,
-                           wis::DescriptorMemory memory_type,
-                           uint64_t memory_bytes) const noexcept;
+    CreateDescriptorBuffer(wis::Result& result, wis::DescriptorHeapType heap_type, wis::DescriptorMemory memory_type, uint64_t memory_bytes) const noexcept;
 
 public: // Command List
-    WIS_INLINE void SetDescriptorBuffers(wis::VKCommandListView cmd_list,
+    WIS_INLINE void SetDescriptorBuffers(wis::VKCommandListView      cmd_list,
                                          wis::VKDescriptorBufferView resource_desc_buffer,
                                          wis::VKDescriptorBufferView sampler_desc_buffer) const noexcept;
 
-    WIS_INLINE void SetDescriptorTableOffset(wis::VKCommandListView cmd_list,
-                                             wis::VKRootSignatureView root_signature,
-                                             uint32_t root_table_index,
+    WIS_INLINE void SetDescriptorTableOffset(wis::VKCommandListView         cmd_list,
+                                             wis::VKRootSignatureView       root_signature,
+                                             uint32_t                       root_table_index,
                                              wis::VKDescriptorBufferGPUView buffer,
-                                             uint32_t table_aligned_byte_offset) const noexcept;
+                                             uint32_t                       table_aligned_byte_offset) const noexcept;
 
 protected:
     [[nodiscard]] VkDescriptorSetLayout
@@ -276,9 +264,9 @@ class VKDescriptorBufferExtension : public wis::ImplVKDescriptorBufferExtension
 {
 public:
     using wis::ImplVKDescriptorBufferExtension::ImplVKDescriptorBufferExtension;
-    VKDescriptorBufferExtension(const VKDescriptorBufferExtension&) = delete;
-    VKDescriptorBufferExtension(VKDescriptorBufferExtension&&) noexcept = default;
-    VKDescriptorBufferExtension& operator=(const VKDescriptorBufferExtension&) = delete;
+    VKDescriptorBufferExtension(const VKDescriptorBufferExtension&)                = delete;
+    VKDescriptorBufferExtension(VKDescriptorBufferExtension&&) noexcept            = default;
+    VKDescriptorBufferExtension& operator=(const VKDescriptorBufferExtension&)     = delete;
     VKDescriptorBufferExtension& operator=(VKDescriptorBufferExtension&&) noexcept = default;
 
 public:
@@ -382,10 +370,10 @@ WISDOM_EXPORT
 namespace wis {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using DescriptorBufferExtension = DX12DescriptorBufferExtension;
-using DescriptorBuffer = DX12DescriptorBuffer;
+using DescriptorBuffer          = DX12DescriptorBuffer;
 #elif defined(WISDOM_VULKAN)
 using DescriptorBufferExtension = VKDescriptorBufferExtension;
-using DescriptorBuffer = VKDescriptorBuffer;
+using DescriptorBuffer          = VKDescriptorBuffer;
 #endif // WISDOM_DX12
 } // namespace wis
 

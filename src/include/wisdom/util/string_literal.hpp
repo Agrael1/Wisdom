@@ -7,7 +7,7 @@ namespace wis {
 template<typename Char, std::size_t N>
 struct basic_fixed_string {
 public:
-    using value_type = std::remove_cv_t<Char>;
+    using value_type  = std::remove_cv_t<Char>;
     using char_traits = std::char_traits<value_type>;
 
 public:

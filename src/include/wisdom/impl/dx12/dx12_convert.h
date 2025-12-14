@@ -27,15 +27,13 @@ inline constexpr wis::Status convert(HRESULT hr) noexcept
 inline std::string to_string(std::wstring_view value) noexcept
 {
     const int size =
-            WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()),
-                                nullptr, 0, nullptr, nullptr);
+            WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), nullptr, 0, nullptr, nullptr);
     if (size == 0) {
         return {};
     }
 
     std::string result(size, '?');
-    WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()),
-                        result.data(), size, nullptr, nullptr);
+    WideCharToMultiByte(65001 /*CP_UTF8*/, 0, value.data(), static_cast<int32_t>(value.size()), result.data(), size, nullptr, nullptr);
     return result;
 }
 } // namespace wis

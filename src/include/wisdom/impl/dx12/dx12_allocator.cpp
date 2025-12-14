@@ -18,7 +18,7 @@ wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size,
     DX12FillBufferDesc(size, usage, buffer_desc);
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags = convert_dx(mem_flags),
+        .Flags    = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
     };
     if (usage & wis::BufferUsage::AccelerationStructureBuffer) {
@@ -33,7 +33,7 @@ wis::ImplDX12ResourceAllocator::CreateTexture(wis::Result& result, const wis::Te
     DX12FillTextureDesc(desc, tex_desc);
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags = convert_dx(mem_flags),
+        .Flags    = convert_dx(mem_flags),
         .HeapType = convert_dx(memory),
     };
 
@@ -50,7 +50,7 @@ wis::ImplDX12ResourceAllocator::GetTextureAllocationInfo(const wis::TextureDesc&
     device->GetResourceAllocationInfo2(0, 1, &resource_desc, &info);
 
     return AllocationInfo{
-        .size_bytes = info.SizeInBytes,
+        .size_bytes      = info.SizeInBytes,
         .alignment_bytes = info.Alignment
     };
 }
@@ -64,19 +64,17 @@ wis::ImplDX12ResourceAllocator::GetBufferAllocationInfo(uint64_t size, BufferUsa
     device->GetResourceAllocationInfo2(0, 1, &resource_desc, &info);
 
     return AllocationInfo{
-        .size_bytes = info.SizeInBytes,
+        .size_bytes      = info.SizeInBytes,
         .alignment_bytes = info.Alignment
     };
 }
 
 wis::DX12Memory
-wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage,
-                                                      wis::MemoryType memory,
-                                                      wis::MemoryFlags mem_flags) const noexcept
+wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_t size, wis::TextureUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 
 {
     DX12Memory out_memory;
-    auto& internal = out_memory.GetMutableInternal();
+    auto&      internal = out_memory.GetMutableInternal();
 
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_DENY_BUFFERS;
     if ((mem_flags & MemoryFlags::Exportable)) {
@@ -92,17 +90,22 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
         flags |= D3D12_HEAP_FLAG_DENY_NON_RT_DS_TEXTURES;
     }
 
-    auto info = GetTextureAllocationInfo({ .format = wis::DataFormat::RGBA8Unorm, .size = { 1, 1, 1 }, .mip_levels = 1, .usage = usage });
+    auto info = GetTextureAllocationInfo({
+            .format     = wis::DataFormat::RGBA8Unorm,
+            .size       = { 1, 1, 1 },
+            .mip_levels = 1,
+            .usage      = usage
+    });
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags = convert_dx(mem_flags),
-        .HeapType = convert_dx(memory),
+        .Flags          = convert_dx(mem_flags),
+        .HeapType       = convert_dx(memory),
         .ExtraHeapFlags = flags
     };
 
     D3D12_RESOURCE_ALLOCATION_INFO alloc_info{
         .SizeInBytes = size,
-        .Alignment = info.alignment_bytes,
+        .Alignment   = info.alignment_bytes,
     };
     auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
 
@@ -115,13 +118,11 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
 }
 
 wis::DX12Memory
-wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage,
-                                                     wis::MemoryType memory,
-                                                     wis::MemoryFlags mem_flags) const noexcept
+wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64_t size, wis::BufferUsage usage, wis::MemoryType memory, wis::MemoryFlags mem_flags) const noexcept
 
 {
     DX12Memory out_memory;
-    auto& internal = out_memory.GetMutableInternal();
+    auto&      internal = out_memory.GetMutableInternal();
 
     D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
     if ((mem_flags & MemoryFlags::Exportable)) {
@@ -132,16 +133,16 @@ wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64
         flags |= D3D12_HEAP_FLAG_SHARED;
     }
 
-    auto info = GetBufferAllocationInfo(size, usage);
+    auto                     info = GetBufferAllocationInfo(size, usage);
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags = convert_dx(mem_flags),
-        .HeapType = convert_dx(memory),
+        .Flags          = convert_dx(mem_flags),
+        .HeapType       = convert_dx(memory),
         .ExtraHeapFlags = flags
     };
 
     D3D12_RESOURCE_ALLOCATION_INFO alloc_info{
         .SizeInBytes = size,
-        .Alignment = info.alignment_bytes,
+        .Alignment   = info.alignment_bytes,
     };
 
     auto hr = allocator->AllocateMemory(&all_desc, &alloc_info, internal.allocation.put());
@@ -157,14 +158,13 @@ wis::DX12Buffer
 wis::ImplDX12ResourceAllocator::PlaceBuffer(wis::Result& result, DX12MemoryView memory, uint64_t memory_offset, uint64_t size, wis::BufferUsage usage) const noexcept
 {
     wis::DX12Buffer buffer;
-    auto& internal = buffer.GetMutableInternal();
+    auto&           internal = buffer.GetMutableInternal();
 
-    auto* alloc = std::get<1>(memory);
+    auto*                alloc = std::get<1>(memory);
     D3D12_RESOURCE_DESC1 buffer_desc;
     DX12FillBufferDesc(size, usage, buffer_desc);
 
-    auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &buffer_desc,
-                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
+    auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &buffer_desc, D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Placement failed">(hr);
@@ -176,14 +176,13 @@ wis::DX12Texture
 wis::ImplDX12ResourceAllocator::PlaceTexture(wis::Result& result, DX12MemoryView memory, uint64_t memory_offset, const wis::TextureDesc& desc) const noexcept
 {
     wis::DX12Texture texture;
-    auto& internal = texture.GetMutableInternal();
+    auto&            internal = texture.GetMutableInternal();
 
-    auto* alloc = std::get<1>(memory);
+    auto*                alloc = std::get<1>(memory);
     D3D12_RESOURCE_DESC1 tex_desc;
     DX12FillTextureDesc(desc, tex_desc);
 
-    auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &tex_desc,
-                                                 D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
+    auto hr = allocator->CreateAliasingResource1(alloc, memory_offset, &tex_desc, D3D12_RESOURCE_STATE_COMMON, nullptr, internal.resource.iid(), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Placement failed">(hr);
@@ -195,12 +194,10 @@ wis::DX12Buffer
 wis::ImplDX12ResourceAllocator::DX12CreateResource(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
 {
     wis::DX12Buffer buffer;
-    auto& internal = buffer.GetMutableInternal();
-    auto& memory_internal = internal.memory.GetMutableInternal();
+    auto&           internal        = buffer.GetMutableInternal();
+    auto&           memory_internal = internal.memory.GetMutableInternal();
 
-    HRESULT hr = allocator->CreateResource2(&all_desc, &res_desc,
-                                            state, nullptr,
-                                            memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
+    HRESULT hr = allocator->CreateResource2(&all_desc, &res_desc, state, nullptr, memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);
@@ -215,12 +212,10 @@ wis::DX12Buffer
 wis::ImplDX12ResourceAllocator::DX12CreateResource2(wis::Result& result, const D3D12MA::ALLOCATION_DESC& all_desc, const D3D12_RESOURCE_DESC1& res_desc, D3D12_RESOURCE_STATES state) const noexcept
 {
     wis::DX12Buffer buffer;
-    auto& internal = buffer.GetMutableInternal();
-    auto& memory_internal = internal.memory.GetMutableInternal();
+    auto&           internal        = buffer.GetMutableInternal();
+    auto&           memory_internal = internal.memory.GetMutableInternal();
 
-    HRESULT hr = allocator->CreateResource3(&all_desc, &res_desc,
-                                            D3D12_BARRIER_LAYOUT_UNDEFINED, nullptr, 0, nullptr,
-                                            memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
+    HRESULT hr = allocator->CreateResource3(&all_desc, &res_desc, D3D12_BARRIER_LAYOUT_UNDEFINED, nullptr, 0, nullptr, memory_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);
@@ -234,8 +229,8 @@ wis::ImplDX12ResourceAllocator::DX12CreateResource2(wis::Result& result, const D
 void wis::ImplDX12ResourceAllocator::DX12FillBufferDesc(uint64_t size, BufferUsage flags, D3D12_RESOURCE_DESC1& info) noexcept
 {
     uint64_t alignment = flags & wis::BufferUsage::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
-    size = wis::detail::aligned_size(size, alignment);
-    info = CD3DX12_RESOURCE_DESC1::Buffer(size, convert_dx(flags));
+    size               = wis::detail::aligned_size(size, alignment);
+    info               = CD3DX12_RESOURCE_DESC1::Buffer(size, convert_dx(flags));
 }
 void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc, D3D12_RESOURCE_DESC1& info) noexcept
 {
@@ -243,8 +238,10 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
     case wis::TextureLayout::Texture1D:
         info = CD3DX12_RESOURCE_DESC1::Tex1D(
                 convert_dx(desc.format),
-                desc.size.width, uint16_t(1),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                desc.size.width,
+                uint16_t(1),
+                uint16_t(desc.mip_levels),
+                convert_dx(desc.usage));
         break;
     default:
     case wis::TextureLayout::Texture2D:
@@ -253,7 +250,10 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
                 desc.size.width,
                 desc.size.height,
                 uint16_t(1),
-                uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
+                uint16_t(desc.mip_levels),
+                1,
+                0,
+                convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture3D:
         info = CD3DX12_RESOURCE_DESC1::Tex3D(
@@ -261,13 +261,16 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
                 desc.size.width,
                 desc.size.height,
                 uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                uint16_t(desc.mip_levels),
+                convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture1DArray:
         info = CD3DX12_RESOURCE_DESC1::Tex1D(
                 convert_dx(desc.format),
-                desc.size.width, uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), convert_dx(desc.usage));
+                desc.size.width,
+                uint16_t(desc.size.depth_or_layers),
+                uint16_t(desc.mip_levels),
+                convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DArray:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
@@ -275,7 +278,10 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
                 desc.size.width,
                 desc.size.height,
                 uint16_t(desc.size.depth_or_layers),
-                uint16_t(desc.mip_levels), 1, 0, convert_dx(desc.usage));
+                uint16_t(desc.mip_levels),
+                1,
+                0,
+                convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMS:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
@@ -283,7 +289,10 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
                 desc.size.width,
                 desc.size.height,
                 uint16_t(1),
-                uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
+                uint16_t(1),
+                convert_dx(desc.sample_count),
+                4,
+                convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMSArray:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
@@ -291,7 +300,10 @@ void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc
                 desc.size.width,
                 desc.size.height,
                 uint16_t(desc.size.depth_or_layers),
-                uint16_t(1), convert_dx(desc.sample_count), 4, convert_dx(desc.usage));
+                uint16_t(1),
+                convert_dx(desc.sample_count),
+                4,
+                convert_dx(desc.usage));
         break;
     }
 }

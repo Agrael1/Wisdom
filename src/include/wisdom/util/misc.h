@@ -38,7 +38,7 @@ constexpr inline I aligned_size(I size, A alignment) noexcept
 template<typename T>
 struct fixed_allocation {
     std::unique_ptr<T[]> data;
-    size_t size = 0;
+    size_t               size = 0;
 
     constexpr operator std::span<const T>() const noexcept
     {

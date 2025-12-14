@@ -22,12 +22,12 @@ WISDOM_EXPORT class VKDevice;
 WISDOM_EXPORT
 template<>
 struct Internal<VKDevice> {
-    wis::VKAdapter adapter;
-    wis::SharedDevice device;
+    wis::VKAdapter                  adapter;
+    wis::SharedDevice               device;
     wis::VKDeviceExtensionEmbedded1 ext1;
 
     wis::shared_handle<VmaAllocator> allocator;
-    detail::QueueResidency queues;
+    detail::QueueResidency           queues;
 
 public:
     auto& GetInstanceTable() const noexcept
@@ -69,54 +69,54 @@ public:
 
 public:
     WIS_INLINE wis::Result
-    WaitForMultipleFences(const VKFenceView* fences,
-                          const uint64_t* values,
-                          uint32_t count,
-                          MutiWaitFlags wait_all = MutiWaitFlags::All,
-                          uint64_t timeout = std::numeric_limits<uint64_t>::max()) const noexcept;
+               WaitForMultipleFences(const VKFenceView* fences,
+                                     const uint64_t*    values,
+                                     uint32_t           count,
+                                     MutiWaitFlags      wait_all = MutiWaitFlags::All,
+                                     uint64_t           timeout  = std::numeric_limits<uint64_t>::max()) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKFence
-    CreateFence(wis::Result& result, uint64_t initial_value = 0ull, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept;
+                             CreateFence(wis::Result& result, uint64_t initial_value = 0ull, wis::FenceFlags flags = wis::FenceFlags::None) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKCommandQueue
-    CreateCommandQueue(wis::Result& result, wis::QueueType type) const noexcept;
+                             CreateCommandQueue(wis::Result& result, wis::QueueType type) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKCommandList
-    CreateCommandList(wis::Result& result, wis::QueueType type) const noexcept;
+                             CreateCommandList(wis::Result& result, wis::QueueType type) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKPipelineState
-    CreateGraphicsPipeline(wis::Result& result, const wis::VKGraphicsPipelineDesc& desc) const noexcept;
+                             CreateGraphicsPipeline(wis::Result& result, const wis::VKGraphicsPipelineDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKPipelineState
-    CreateComputePipeline(wis::Result& result, const wis::VKComputePipelineDesc& desc) const noexcept;
+                             CreateComputePipeline(wis::Result& result, const wis::VKComputePipelineDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKShader
-    CreateShader(wis::Result& result, void* bytecode, uint32_t size) const noexcept;
+                             CreateShader(wis::Result& result, void* bytecode, uint32_t size) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKResourceAllocator
-    CreateAllocator(wis::Result& result) const noexcept;
+                             CreateAllocator(wis::Result& result) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKRenderTarget
-    CreateRenderTarget(wis::Result& result, VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
+                             CreateRenderTarget(wis::Result& result, VKTextureView texture, wis::RenderTargetDesc desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKRenderTarget
-    CreateDepthStencilTarget(wis::Result& result, VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
+                             CreateDepthStencilTarget(wis::Result& result, VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
     {
         return CreateRenderTarget(result, texture, desc);
     }
 
     [[nodiscard]] WIS_INLINE wis::VKSampler
-    CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept;
+                             CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKShaderResource
-    CreateShaderResource(wis::Result& result, wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept;
+                             CreateShaderResource(wis::Result& result, wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKUnorderedAccessTexture
-    CreateUnorderedAccessTexture(wis::Result& result, wis::VKTextureView texture, const wis::UnorderedAccessDesc& desc) const noexcept
+                             CreateUnorderedAccessTexture(wis::Result& result, wis::VKTextureView texture, const wis::UnorderedAccessDesc& desc) const noexcept
     {
         wis::ShaderResourceDesc re_desc{
-            .format = desc.format,
-            .view_type = desc.view_type,
+            .format            = desc.format,
+            .view_type         = desc.view_type,
             .subresource_range = desc.subresource_range,
         };
         return CreateShaderResource(result, texture, re_desc);
@@ -126,29 +126,24 @@ public:
     QueryFeatureSupport(wis::DeviceFeature feature) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKDescriptorStorage
-    CreateDescriptorStorage(wis::Result& result,
-                            const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
-                            uint32_t descriptor_bindings_count = 0,
-                            wis::DescriptorMemory = wis::DescriptorMemory::ShaderVisible) const noexcept;
+                             CreateDescriptorStorage(wis::Result&                      result,
+                                                     const wis::DescriptorBindingDesc* descriptor_bindings       = nullptr,
+                                                     uint32_t                          descriptor_bindings_count = 0,
+                                                     wis::DescriptorMemory                                       = wis::DescriptorMemory::ShaderVisible) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::VKRootSignature
-    CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants = nullptr,
-                        uint32_t constants_count = 0,
-                        const wis::PushDescriptor* push_descriptors = nullptr,
-                        uint32_t push_descriptors_count = 0,
-                        const wis::DescriptorBindingDesc* descriptor_bindings = nullptr,
-                        uint32_t descriptor_bindings_count = 0) const noexcept;
+                             CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants = nullptr, uint32_t constants_count = 0, const wis::PushDescriptor* push_descriptors = nullptr, uint32_t push_descriptors_count = 0, const wis::DescriptorBindingDesc* descriptor_bindings = nullptr, uint32_t descriptor_bindings_count = 0) const noexcept;
 
     [[nodiscard]] WIS_INLINE wis::DeviceConstants
-    QueryDeviceConsts() const noexcept;
+                             QueryDeviceConsts() const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface, const SwapchainDesc& desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
+                             VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface, const SwapchainDesc& desc, VkQueue graphics_queue, void* pNext = nullptr) const noexcept;
 
 protected:
     [[nodiscard]] WIS_INLINE wis::shared_handle<VmaAllocator>
-    VKCreateAllocator(wis::Result& result, bool interop = false) const noexcept;
+                             VKCreateAllocator(wis::Result& result, bool interop = false) const noexcept;
 };
 
 #pragma region VKDevice
@@ -161,9 +156,9 @@ class VKDevice : public wis::ImplVKDevice
 {
 public:
     using wis::ImplVKDevice::ImplVKDevice;
-    VKDevice(const VKDevice&) = delete;
-    VKDevice(VKDevice&&) noexcept = default;
-    VKDevice& operator=(const VKDevice&) = delete;
+    VKDevice(const VKDevice&)                = delete;
+    VKDevice(VKDevice&&) noexcept            = default;
+    VKDevice& operator=(const VKDevice&)     = delete;
     VKDevice& operator=(VKDevice&&) noexcept = default;
 
 public:
@@ -493,7 +488,7 @@ public:
 #pragma endregion VKDevice
 
 [[nodiscard]] WIS_INLINE wis::VKDevice
-ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
+                         ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept;
 
 } // namespace wis
 

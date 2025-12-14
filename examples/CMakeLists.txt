@@ -1,7 +1,5 @@
-#include(cmake/deps.cmake)
-#add_example(common)
-#add_subdirectory(basic)
-#add_subdirectory(custom)
+# include(cmake/deps.cmake) add_example(common) add_subdirectory(basic)
+# add_subdirectory(custom)
 
 set(EXAMPLE_BIN_OUTPUT ${CMAKE_BINARY_DIR}/bin/examples)
 
@@ -13,7 +11,7 @@ function(add_example_suite NAME)
   endif()
   if(WISDOM_DX12)
     set(POSTFIX "dx12")
-    set(ADD_DEFINITIONS )
+    set(ADD_DEFINITIONS)
     add_subdirectory(${NAME} ${CMAKE_CURRENT_BINARY_DIR}/${NAME}-${POSTFIX})
   endif()
   unset(POSTFIX)
@@ -22,13 +20,12 @@ endfunction()
 
 # Add custom target to copy dlls if needed
 if(WISDOM_BUILD_SHARED)
-  add_custom_target(copy_dll
+  add_custom_target(
+    copy_dll
     COMMAND ${CMAKE_COMMAND} -E echo "Copying DLLs to example binaries..."
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:wisdom-shared>
-        ${EXAMPLE_BIN_OUTPUT}
-    DEPENDS wisdom-shared
-  )
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-shared>
+            ${EXAMPLE_BIN_OUTPUT}
+    DEPENDS wisdom-shared)
 endif()
 
 add_example_suite(test)

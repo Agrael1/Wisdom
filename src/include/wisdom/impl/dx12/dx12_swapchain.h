@@ -16,13 +16,13 @@ WISDOM_EXPORT class DX12SwapChain;
 WISDOM_EXPORT
 namespace detail {
 struct DX12SwapChainCreateInfo {
-    wis::com_ptr<IDXGISwapChain4> chain;
+    wis::com_ptr<IDXGISwapChain4>  chain;
     std::unique_ptr<DX12Texture[]> back_buffers;
-    wis::unique_event present_event = nullptr;
-    uint32_t back_buffer_count = 0;
-    bool stereo = false;
-    bool vsync = true;
-    bool tearing = false;
+    wis::unique_event              present_event     = nullptr;
+    uint32_t                       back_buffer_count = 0;
+    bool                           stereo            = false;
+    bool                           vsync             = true;
+    bool                           tearing           = false;
 
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers() noexcept;
 };
@@ -63,7 +63,7 @@ public:
     /// @param height New height
     /// @return true if succeeded
     [[nodiscard]] WIS_INLINE wis::Result
-    Resize(uint32_t width, uint32_t height) noexcept;
+                             Resize(uint32_t width, uint32_t height) noexcept;
 
     /// @brief Present the swapchain
     /// @return true if succeeded
@@ -116,9 +116,9 @@ class DX12SwapChain : public wis::ImplDX12SwapChain
 {
 public:
     using wis::ImplDX12SwapChain::ImplDX12SwapChain;
-    DX12SwapChain(const DX12SwapChain&) = delete;
-    DX12SwapChain(DX12SwapChain&&) noexcept = default;
-    DX12SwapChain& operator=(const DX12SwapChain&) = delete;
+    DX12SwapChain(const DX12SwapChain&)                = delete;
+    DX12SwapChain(DX12SwapChain&&) noexcept            = default;
+    DX12SwapChain& operator=(const DX12SwapChain&)     = delete;
     DX12SwapChain& operator=(DX12SwapChain&&) noexcept = default;
 
 public:

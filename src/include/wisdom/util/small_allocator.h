@@ -20,9 +20,9 @@ template<size_t max_size = allocator_size>
 class memory_pool
 {
 public:
-    constexpr memory_pool() = default;
+    constexpr memory_pool()         = default;
     memory_pool(const memory_pool&) = delete;
-    memory_pool(memory_pool&&) = delete;
+    memory_pool(memory_pool&&)      = delete;
 
     /// @brief Allocates an object of type T in the allocator and returns a reference to it
     /// @tparam T Type of the object to allocate
@@ -165,23 +165,28 @@ class limited_allocator
 {
 public:
     limited_allocator() noexcept
-        : allocator{}, allocated{ 0 }, is_heap{ false }
+        : allocator{}
+        , allocated{ 0 }
+        , is_heap{ false }
     {
     }
     limited_allocator(uint32_t limit, bool exact = true) noexcept
-        : allocator{}, allocated{ 0 }, is_heap{ false }, limit{ limit }
+        : allocator{}
+        , allocated{ 0 }
+        , is_heap{ false }
+        , limit{ limit }
     {
         if (!exact) {
             return;
         }
         if (limit > initial_alloc) {
-            is_heap = true;
-            ptr = allocate_heap(limit);
+            is_heap  = true;
+            ptr      = allocate_heap(limit);
             capacity = limit;
         }
     }
     limited_allocator(const limited_allocator&) = delete;
-    limited_allocator(limited_allocator&&) = delete;
+    limited_allocator(limited_allocator&&)      = delete;
     ~limited_allocator() noexcept
     {
         if (is_heap) {
@@ -230,17 +235,17 @@ private:
     {
         if (is_heap) {
             uint32_t xcapacity = this->capacity + (this->capacity >> 1);
-            xcapacity = std::min(limit, xcapacity);
-            ptr = reallocate_heap(ptr, xcapacity);
-            capacity = xcapacity;
+            xcapacity          = std::min(limit, xcapacity);
+            ptr                = reallocate_heap(ptr, xcapacity);
+            capacity           = xcapacity;
         } else {
             uint32_t xcapacity = initial_alloc + (initial_alloc >> 1);
-            xcapacity = std::min(limit, xcapacity);
-            auto* xptr = allocate_heap(xcapacity);
+            xcapacity          = std::min(limit, xcapacity);
+            auto* xptr         = allocate_heap(xcapacity);
             std::ranges::copy(allocator, xptr);
-            is_heap = true;
-            count = allocated;
-            ptr = xptr;
+            is_heap  = true;
+            count    = allocated;
+            ptr      = xptr;
             capacity = xcapacity;
         }
     }
@@ -263,15 +268,15 @@ private:
     union {
         struct {
             std::array<Type, initial_alloc> allocator;
-            uint32_t allocated;
+            uint32_t                        allocated;
         };
         struct {
-            Type* ptr;
+            Type*    ptr;
             uint32_t count;
             uint32_t capacity;
         };
     };
     uint32_t limit : sizeof(uint32_t) * CHAR_BIT - 1 = uint32_t(0x7FFFFFFF);
-    uint32_t is_heap : 1 = 0;
+    uint32_t is_heap : 1                             = 0;
 };
 } // namespace wis::detail

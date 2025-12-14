@@ -12,10 +12,10 @@ WISVK_EXPORT
 namespace wis {
 
 struct VKDescBufferExtDevice {
-    PFN_vkCmdBindDescriptorBuffersEXT vkCmdBindDescriptorBuffersEXT;
+    PFN_vkCmdBindDescriptorBuffersEXT            vkCmdBindDescriptorBuffersEXT;
     PFN_vkGetDescriptorSetLayoutBindingOffsetEXT vkGetDescriptorSetLayoutBindingOffsetEXT;
-    PFN_vkCmdSetDescriptorBufferOffsetsEXT vkCmdSetDescriptorBufferOffsetsEXT;
-    PFN_vkGetDescriptorEXT vkGetDescriptorEXT;
+    PFN_vkCmdSetDescriptorBufferOffsetsEXT       vkCmdSetDescriptorBufferOffsetsEXT;
+    PFN_vkGetDescriptorEXT                       vkGetDescriptorEXT;
 
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept

@@ -26,8 +26,8 @@ class X11Extension;
 
 template<>
 struct Internal<platform::X11Extension> {
-    wis::SharedInstance instance;
-    PFN_vkCreateXlibSurfaceKHR vkCreateXlibSurfaceKHR = nullptr;
+    wis::SharedInstance                               instance;
+    PFN_vkCreateXlibSurfaceKHR                        vkCreateXlibSurfaceKHR                        = nullptr;
     PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR vkGetPhysicalDeviceXlibPresentationSupportKHR = nullptr;
 };
 
@@ -42,8 +42,8 @@ public:
     [[nodiscard]] wis::Result
     Init(const wis::VKFactory& in_instance) noexcept override
     {
-        instance = in_instance.GetInternal().factory;
-        vkCreateXlibSurfaceKHR = instance.GetInstanceProcAddr<PFN_vkCreateXlibSurfaceKHR>("vkCreateXlibSurfaceKHR");
+        instance                                      = in_instance.GetInternal().factory;
+        vkCreateXlibSurfaceKHR                        = instance.GetInstanceProcAddr<PFN_vkCreateXlibSurfaceKHR>("vkCreateXlibSurfaceKHR");
         vkGetPhysicalDeviceXlibPresentationSupportKHR = instance.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR>("vkGetPhysicalDeviceXlibPresentationSupportKHR");
         return {};
     }
@@ -56,7 +56,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, Display* display, Window window) const noexcept;
+                             CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, Display* display, Window window) const noexcept;
 
     [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
     CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, Display* display, Window window) const noexcept

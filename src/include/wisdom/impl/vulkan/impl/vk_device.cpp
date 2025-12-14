@@ -25,7 +25,7 @@ GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) no
     using wis::operator+;
 
     VkResult result = VK_SUCCESS;
-    uint32_t count = 0;
+    uint32_t count  = 0;
     itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
     auto family_props = wis::detail::make_fixed_allocation<VkQueueFamilyProperties>(count);
     itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.get_data());
@@ -112,18 +112,18 @@ wis::VKDevice
 wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKDeviceExtension** exts, uint32_t ext_size, bool force) noexcept
 {
     VKDevice out_device;
-    auto& internal = out_device.GetMutableInternal();
+    auto&    internal = out_device.GetMutableInternal();
 
     auto& adapter_i = in_adapter.GetInternal();
-    auto hadapter = adapter_i.adapter;
-    auto& itable = adapter_i.instance.table();
-    auto& gtable = adapter_i.instance.gtable();
+    auto  hadapter  = adapter_i.adapter;
+    auto& itable    = adapter_i.instance.table();
+    auto& gtable    = adapter_i.instance.gtable();
 
-    std::span<wis::VKDeviceExtension*> exts_span{ exts, exts + ext_size };
+    std::span<wis::VKDeviceExtension*>             exts_span{ exts, exts + ext_size };
     std::unordered_map<VkStructureType, uintptr_t> struct_map;
     std::unordered_map<VkStructureType, uintptr_t> property_map;
-    std::unordered_set<std::string_view> ext_name_set;
-    auto available_exts = GetAvailableExtensions(result, hadapter, itable);
+    std::unordered_set<std::string_view>           ext_name_set;
+    auto                                           available_exts = GetAvailableExtensions(result, hadapter, itable);
     if (result.status != wis::Status::Ok) {
         return out_device;
     }
@@ -156,8 +156,8 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
 
     // Initialize features
     VkPhysicalDeviceFeatures2 features{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-        .pNext = nullptr,
+        .sType    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+        .pNext    = nullptr,
         .features = {},
     };
     VkPhysicalDeviceVulkan11Features vulkan11_features{
@@ -186,13 +186,13 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     memset(allocation.get_data(), 0, allocation_size);
 
     VkBaseInStructure* linked_struct = reinterpret_cast<VkBaseInStructure*>(&vulkan12_features);
-    uint8_t* current = allocation.get_data();
+    uint8_t*           current       = allocation.get_data();
     for (auto& [type, size] : struct_map) {
-        auto* ptr = reinterpret_cast<VkBaseInStructure*>(current);
-        ptr->sType = type;
-        ptr->pNext = nullptr;
+        auto* ptr            = reinterpret_cast<VkBaseInStructure*>(current);
+        ptr->sType           = type;
+        ptr->pNext           = nullptr;
         linked_struct->pNext = ptr;
-        linked_struct = ptr;
+        linked_struct        = ptr;
         current += size;
 
         // override to the structure pointer
@@ -202,15 +202,15 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     // Add the structures to the map
     struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES] = reinterpret_cast<uintptr_t>(&vulkan12_features);
     struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES] = reinterpret_cast<uintptr_t>(&vulkan11_features);
-    struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2] = reinterpret_cast<uintptr_t>(&features);
+    struct_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2]          = reinterpret_cast<uintptr_t>(&features);
 
     // Initialize
     itable.vkGetPhysicalDeviceFeatures2(hadapter, &features);
 
     // Get the properties
     VkPhysicalDeviceProperties2 props{
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-        .pNext = nullptr,
+        .sType      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+        .pNext      = nullptr,
         .properties = {},
     };
 
@@ -240,13 +240,13 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     memset(allocation_props.get_data(), 0, allocation_size);
 
     VkBaseInStructure* linked_prop = reinterpret_cast<VkBaseInStructure*>(&vulkan12_props);
-    current = allocation_props.get_data();
+    current                        = allocation_props.get_data();
     for (auto& [type, size] : property_map) {
-        auto* ptr = reinterpret_cast<VkBaseInStructure*>(current);
-        ptr->sType = type;
-        ptr->pNext = nullptr;
+        auto* ptr          = reinterpret_cast<VkBaseInStructure*>(current);
+        ptr->sType         = type;
+        ptr->pNext         = nullptr;
         linked_prop->pNext = ptr;
-        linked_prop = ptr;
+        linked_prop        = ptr;
         current += size;
 
         // override to the structure pointer
@@ -256,13 +256,13 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     // Add the structures to the map
     property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES] = reinterpret_cast<uintptr_t>(&vulkan12_props);
     property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES] = reinterpret_cast<uintptr_t>(&vulkan11_props);
-    property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2] = reinterpret_cast<uintptr_t>(&props);
+    property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2]          = reinterpret_cast<uintptr_t>(&props);
 
     // Get the properties
     itable.vkGetPhysicalDeviceProperties2(hadapter, &props);
 
     // Initialize queue families
-    constexpr static auto max_queue_count = +wis::detail::QueueTypes::Count;
+    constexpr static auto                                                    max_queue_count = +wis::detail::QueueTypes::Count;
     wis::detail::uniform_allocator<VkDeviceQueueCreateInfo, max_queue_count> queue_infos{};
 
     internal.queues = GetQueueFamilies(hadapter, itable);
@@ -289,21 +289,21 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     }
 
     VkDeviceCreateInfo device_info{
-        .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        .pNext = &features,
-        .flags = 0,
-        .queueCreateInfoCount = static_cast<uint32_t>(queue_infos.size()),
-        .pQueueCreateInfos = queue_infos.data(),
-        .enabledLayerCount = 0,
-        .ppEnabledLayerNames = nullptr,
-        .enabledExtensionCount = static_cast<uint32_t>(ext_name_set.size()),
+        .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .pNext                   = &features,
+        .flags                   = 0,
+        .queueCreateInfoCount    = static_cast<uint32_t>(queue_infos.size()),
+        .pQueueCreateInfos       = queue_infos.data(),
+        .enabledLayerCount       = 0,
+        .ppEnabledLayerNames     = nullptr,
+        .enabledExtensionCount   = static_cast<uint32_t>(ext_name_set.size()),
         .ppEnabledExtensionNames = ext_names.get(),
-        .pEnabledFeatures = nullptr,
+        .pEnabledFeatures        = nullptr,
     };
 
     // Creating device
     VkDevice device;
-    auto vres = itable.vkCreateDevice(hadapter, &device_info, nullptr, &device);
+    auto     vres = itable.vkCreateDevice(hadapter, &device_info, nullptr, &device);
     if (!wis::succeeded(vres)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "vkCreateDevice failed to create device">(vres);
         return out_device;
@@ -323,7 +323,7 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
 
     // Create the device
     internal.adapter = std::move(in_adapter);
-    internal.device = wis::SharedDevice{ managed_device.release(), std::move(device_table), &gtable };
+    internal.device  = wis::SharedDevice{ managed_device.release(), std::move(device_table), &gtable };
     internal.ext1.Init(out_device, struct_map, property_map);
     if (!internal.ext1.Supported() && !force) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to initialize embedded extensions">(VkResult::VK_ERROR_UNKNOWN);
@@ -347,17 +347,15 @@ wis::ImplVKCreateDevice(wis::Result& result, wis::VKAdapter in_adapter, wis::VKD
     return out_device;
 }
 
-wis::Result wis::ImplVKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values,
-                                                     uint32_t count, MutiWaitFlags wait_all,
-                                                     uint64_t timeout) const noexcept
+wis::Result wis::ImplVKDevice::WaitForMultipleFences(const VKFenceView* fences, const uint64_t* values, uint32_t count, MutiWaitFlags wait_all, uint64_t timeout) const noexcept
 {
-    VkSemaphoreWaitInfo waitInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
-                                  .pNext = nullptr,
-                                  .flags = VkSemaphoreWaitFlags(wait_all),
+    VkSemaphoreWaitInfo waitInfo{ .sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
+                                  .pNext          = nullptr,
+                                  .flags          = VkSemaphoreWaitFlags(wait_all),
                                   .semaphoreCount = static_cast<uint32_t>(count),
-                                  .pSemaphores = reinterpret_cast<const VkSemaphore*>(fences),
-                                  .pValues = values };
-    VkResult result = device.table().vkWaitSemaphores(device.get(), &waitInfo, timeout);
+                                  .pSemaphores    = reinterpret_cast<const VkSemaphore*>(fences),
+                                  .pValues        = values };
+    VkResult            result = device.table().vkWaitSemaphores(device.get(), &waitInfo, timeout);
 
     return succeeded(result)
             ? wis::success
@@ -368,18 +366,18 @@ wis::VKFence
 wis::ImplVKDevice::CreateFence(wis::Result& result, uint64_t initial_value, wis::FenceFlags flags) const noexcept
 {
     VKFence out_fence;
-    auto& internal = out_fence.GetMutableInternal();
+    auto&   internal = out_fence.GetMutableInternal();
 
     constexpr static VkExportSemaphoreCreateInfo export_info{
-        .sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO,
+        .sType       = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO,
         .handleTypes = detail::semaphore_handle_type
     };
 
     VkSemaphoreTypeCreateInfo timeline_desc{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
-        .pNext = flags & FenceFlags::Shared && ext1.GetFeatures().interop_device ? &export_info : nullptr,
+        .sType         = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
+        .pNext         = flags & FenceFlags::Shared && ext1.GetFeatures().interop_device ? &export_info : nullptr,
         .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
-        .initialValue = initial_value,
+        .initialValue  = initial_value,
     };
 
     VkSemaphoreCreateInfo desc{
@@ -401,18 +399,18 @@ wis::VKCommandQueue
 wis::ImplVKDevice::CreateCommandQueue(wis::Result& result, wis::QueueType type) const noexcept
 {
     VKCommandQueue out_queue;
-    auto& internal = out_queue.GetMutableInternal();
-    const auto* queue = queues.GetOfType(type);
+    auto&          internal = out_queue.GetMutableInternal();
+    const auto*    queue    = queues.GetOfType(type);
     if (queue == nullptr) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "The system does not support the requested queue type">(VkResult::VK_ERROR_UNKNOWN);
         return out_queue;
     }
     VkDeviceQueueInfo2 info{
-        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
-        .pNext = nullptr,
-        .flags = 0,
+        .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+        .pNext            = nullptr,
+        .flags            = 0,
         .queueFamilyIndex = queue->family_index,
-        .queueIndex = queue->GetNextInLine(),
+        .queueIndex       = queue->GetNextInLine(),
     };
     device.table().vkGetDeviceQueue2(device.get(), &info, &internal.queue);
     internal.device = device;
@@ -422,7 +420,8 @@ wis::ImplVKDevice::CreateCommandQueue(wis::Result& result, wis::QueueType type) 
 namespace wis::detail {
 inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo,
                                                              wis::max_shader_stages>& shader_stages,
-                              wis::VKShaderView shader, VkShaderStageFlagBits stage) noexcept
+                              wis::VKShaderView                                       shader,
+                              VkShaderStageFlagBits                                   stage) noexcept
 {
     auto sh = std::get<0>(shader);
     if (sh == nullptr) {
@@ -430,12 +429,12 @@ inline void VKFillShaderStage(wis::detail::uniform_allocator<VkPipelineShaderSta
     }
 
     shader_stages.allocate() = {
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .stage = stage,
-        .module = sh,
-        .pName = "main",
+        .sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .pNext               = nullptr,
+        .flags               = 0,
+        .stage               = stage,
+        .module              = sh,
+        .pName               = "main",
         .pSpecializationInfo = nullptr,
     };
 }
@@ -445,17 +444,14 @@ wis::VKPipelineState
 wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGraphicsPipelineDesc& desc) const noexcept
 {
     VKPipelineState out_pipeline;
-    auto& internal = out_pipeline.GetMutableInternal();
+    auto&           internal = out_pipeline.GetMutableInternal();
 
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, max_shader_stages> shader_stages;
     wis::detail::VKFillShaderStage(shader_stages, desc.shaders.vertex, VK_SHADER_STAGE_VERTEX_BIT);
     wis::detail::VKFillShaderStage(shader_stages, desc.shaders.pixel, VK_SHADER_STAGE_FRAGMENT_BIT);
-    wis::detail::VKFillShaderStage(shader_stages, desc.shaders.geometry,
-                                   VK_SHADER_STAGE_GEOMETRY_BIT);
-    wis::detail::VKFillShaderStage(shader_stages, desc.shaders.hull,
-                                   VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
-    wis::detail::VKFillShaderStage(shader_stages, desc.shaders.domain,
-                                   VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc.shaders.geometry, VK_SHADER_STAGE_GEOMETRY_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc.shaders.hull, VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
+    wis::detail::VKFillShaderStage(shader_stages, desc.shaders.domain, VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
 
     uint32_t ia_count = desc.input_layout.attribute_count;
     if (ia_count > ext1.GetInternal().base_properties.max_ia_attributes) {
@@ -469,77 +465,77 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             attributes{ ia_count };
 
     uint32_t byte_offset = 0;
-    auto* ia_data = attributes.data();
+    auto*    ia_data     = attributes.data();
     for (uint32_t i = 0; i < ia_count; i++) {
-        auto& ia = ia_data[i];
-        auto& a = desc.input_layout.attributes[i];
-        ia.binding = a.input_slot;
-        ia.format = convert_vk(a.format);
+        auto& ia    = ia_data[i];
+        auto& a     = desc.input_layout.attributes[i];
+        ia.binding  = a.input_slot;
+        ia.format   = convert_vk(a.format);
         ia.location = a.location;
-        ia.offset = a.offset_bytes;
+        ia.offset   = a.offset_bytes;
     }
 
     VkPipelineVertexInputStateCreateInfo vertex_input{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .vertexBindingDescriptionCount = desc.input_layout.slot_count,
-        .pVertexBindingDescriptions = desc.input_layout.slot_count ? reinterpret_cast<const VkVertexInputBindingDescription*>(desc.input_layout.slots) : nullptr,
+        .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+        .pNext                           = nullptr,
+        .flags                           = 0,
+        .vertexBindingDescriptionCount   = desc.input_layout.slot_count,
+        .pVertexBindingDescriptions      = desc.input_layout.slot_count ? reinterpret_cast<const VkVertexInputBindingDescription*>(desc.input_layout.slots) : nullptr,
         .vertexAttributeDescriptionCount = ia_count,
-        .pVertexAttributeDescriptions = ia_count ? ia_data : nullptr,
+        .pVertexAttributeDescriptions    = ia_count ? ia_data : nullptr,
     };
 
     VkPipelineViewportStateCreateInfo viewport_state{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
+        .sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+        .pNext         = nullptr,
+        .flags         = 0,
         .viewportCount = 1,
-        .pViewports = nullptr,
-        .scissorCount = 1,
-        .pScissors = nullptr,
+        .pViewports    = nullptr,
+        .scissorCount  = 1,
+        .pScissors     = nullptr,
     };
 
     constexpr static VkPipelineRasterizationStateCreateInfo default_rasterizer{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .depthClampEnable = true,
+        .sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+        .pNext                   = nullptr,
+        .flags                   = 0,
+        .depthClampEnable        = true,
         .rasterizerDiscardEnable = false,
-        .polygonMode = VK_POLYGON_MODE_FILL,
-        .cullMode = VK_CULL_MODE_BACK_BIT,
-        .frontFace = VK_FRONT_FACE_CLOCKWISE,
-        .depthBiasEnable = false,
+        .polygonMode             = VK_POLYGON_MODE_FILL,
+        .cullMode                = VK_CULL_MODE_BACK_BIT,
+        .frontFace               = VK_FRONT_FACE_CLOCKWISE,
+        .depthBiasEnable         = false,
         .depthBiasConstantFactor = 0.0f,
-        .depthBiasClamp = 0.0f,
-        .depthBiasSlopeFactor = 0.0f,
-        .lineWidth = 1.0f,
+        .depthBiasClamp          = 0.0f,
+        .depthBiasSlopeFactor    = 0.0f,
+        .lineWidth               = 1.0f,
     };
 
     VkPipelineRasterizationStateCreateInfo rasterizer;
 
     if (desc.rasterizer) {
         rasterizer = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .depthClampEnable = desc.rasterizer->depth_clip_enable,
+            .sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+            .pNext                   = nullptr,
+            .flags                   = 0,
+            .depthClampEnable        = desc.rasterizer->depth_clip_enable,
             .rasterizerDiscardEnable = false,
-            .polygonMode = convert_vk(desc.rasterizer->fill_mode),
-            .cullMode = convert_vk(desc.rasterizer->cull_mode),
-            .frontFace = convert_vk(desc.rasterizer->front_face),
-            .depthBiasEnable = desc.rasterizer->depth_bias_enable,
+            .polygonMode             = convert_vk(desc.rasterizer->fill_mode),
+            .cullMode                = convert_vk(desc.rasterizer->cull_mode),
+            .frontFace               = convert_vk(desc.rasterizer->front_face),
+            .depthBiasEnable         = desc.rasterizer->depth_bias_enable,
             .depthBiasConstantFactor = desc.rasterizer->depth_bias,
-            .depthBiasClamp = desc.rasterizer->depth_bias_clamp,
-            .depthBiasSlopeFactor = desc.rasterizer->depth_bias_slope_factor,
-            .lineWidth = 1.0f,
+            .depthBiasClamp          = desc.rasterizer->depth_bias_clamp,
+            .depthBiasSlopeFactor    = desc.rasterizer->depth_bias_slope_factor,
+            .lineWidth               = 1.0f,
         };
     }
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .topology = convert_vk(desc.topology_type),
+        .sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+        .pNext                  = nullptr,
+        .flags                  = 0,
+        .topology               = convert_vk(desc.topology_type),
         .primitiveRestartEnable = false,
     };
 
@@ -551,25 +547,25 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     }
 
     VkPipelineRenderingCreateInfo dynamic_rendering{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
-        .pNext = nullptr,
-        .viewMask = ext1.GetFeatures().multiview ? desc.view_mask : 0,
-        .colorAttachmentCount = rt_size,
+        .sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+        .pNext                   = nullptr,
+        .viewMask                = ext1.GetFeatures().multiview ? desc.view_mask : 0,
+        .colorAttachmentCount    = rt_size,
         .pColorAttachmentFormats = rt_formats,
-        .depthAttachmentFormat = convert_vk(desc.attachments.depth_attachment),
+        .depthAttachmentFormat   = convert_vk(desc.attachments.depth_attachment),
         .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
     };
 
     //--Color blending
     constexpr static VkPipelineColorBlendAttachmentState default_color_blend_attachment{
-        .blendEnable = false,
+        .blendEnable         = false,
         .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
         .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
-        .colorBlendOp = VK_BLEND_OP_ADD,
+        .colorBlendOp        = VK_BLEND_OP_ADD,
         .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
         .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
-        .alphaBlendOp = VK_BLEND_OP_ADD,
-        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+        .alphaBlendOp        = VK_BLEND_OP_ADD,
+        .colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
     };
     VkPipelineColorBlendAttachmentState color_blend_attachment[max_render_targets]{};
     VkPipelineColorBlendStateCreateInfo color_blending;
@@ -581,116 +577,116 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         auto& blend = *desc.blend;
         if (!blend.logic_op_enable) {
             for (uint32_t i = 0; i < blend.attachment_count; i++) {
-                auto& a = blend.attachments[i];
-                auto& b = color_blend_attachment[i];
-                b.blendEnable = a.blend_enable;
+                auto& a               = blend.attachments[i];
+                auto& b               = color_blend_attachment[i];
+                b.blendEnable         = a.blend_enable;
                 b.srcColorBlendFactor = convert_vk(a.src_color_blend);
                 b.dstColorBlendFactor = convert_vk(a.dst_color_blend);
-                b.colorBlendOp = convert_vk(a.color_blend_op);
+                b.colorBlendOp        = convert_vk(a.color_blend_op);
                 b.srcAlphaBlendFactor = convert_vk(a.src_alpha_blend);
                 b.dstAlphaBlendFactor = convert_vk(a.dst_alpha_blend);
-                b.alphaBlendOp = convert_vk(a.alpha_blend_op);
-                b.colorWriteMask = VkColorComponentFlags(a.color_write_mask);
+                b.alphaBlendOp        = convert_vk(a.alpha_blend_op);
+                b.colorWriteMask      = VkColorComponentFlags(a.color_write_mask);
             }
         }
 
         color_blending = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .logicOpEnable = blend.logic_op_enable,
-            .logicOp = convert_vk(blend.logic_op),
+            .sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+            .pNext           = nullptr,
+            .flags           = 0,
+            .logicOpEnable   = blend.logic_op_enable,
+            .logicOp         = convert_vk(blend.logic_op),
             .attachmentCount = blend.logic_op_enable ? 0u : blend.attachment_count,
-            .pAttachments = blend.logic_op_enable ? nullptr : color_blend_attachment,
-            .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
+            .pAttachments    = blend.logic_op_enable ? nullptr : color_blend_attachment,
+            .blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f },
         };
     } else {
         color_blending = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .logicOpEnable = false,
-            .logicOp = VK_LOGIC_OP_NO_OP,
+            .sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+            .pNext           = nullptr,
+            .flags           = 0,
+            .logicOpEnable   = false,
+            .logicOp         = VK_LOGIC_OP_NO_OP,
             .attachmentCount = rt_size,
-            .pAttachments = color_blend_attachment,
-            .blendConstants = { 0.0f, 0.0f, 0.0f, 0.0f },
+            .pAttachments    = color_blend_attachment,
+            .blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f },
         };
     }
 
     constexpr static VkPipelineMultisampleStateCreateInfo default_multisampling{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
-        .sampleShadingEnable = false,
-        .minSampleShading = 1.0f,
-        .pSampleMask = nullptr,
+        .sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+        .pNext                 = nullptr,
+        .flags                 = 0,
+        .rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT,
+        .sampleShadingEnable   = false,
+        .minSampleShading      = 1.0f,
+        .pSampleMask           = nullptr,
         .alphaToCoverageEnable = false,
-        .alphaToOneEnable = false,
+        .alphaToOneEnable      = false,
     };
 
     VkPipelineMultisampleStateCreateInfo multisampling;
     if (desc.sample) {
         multisampling = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .rasterizationSamples = convert_vk(desc.sample->rate),
-            .sampleShadingEnable = true,
-            .minSampleShading = desc.sample->quality,
-            .pSampleMask = &desc.sample->sample_mask,
+            .sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+            .pNext                 = nullptr,
+            .flags                 = 0,
+            .rasterizationSamples  = convert_vk(desc.sample->rate),
+            .sampleShadingEnable   = true,
+            .minSampleShading      = desc.sample->quality,
+            .pSampleMask           = &desc.sample->sample_mask,
             .alphaToCoverageEnable = false,
-            .alphaToOneEnable = false,
+            .alphaToOneEnable      = false,
         };
     }
 
     constexpr static VkPipelineDepthStencilStateCreateInfo default_depth_stencil{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .depthTestEnable = false,
+        .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+        .pNext                 = nullptr,
+        .flags                 = 0,
+        .depthTestEnable       = false,
         .depthBoundsTestEnable = false,
-        .stencilTestEnable = false,
+        .stencilTestEnable     = false,
     };
     VkPipelineDepthStencilStateCreateInfo depth_stencil_state;
 
     if (desc.depth_stencil) {
-        auto& ds = *desc.depth_stencil;
+        auto& ds            = *desc.depth_stencil;
         depth_stencil_state = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .depthTestEnable = ds.depth_enable,
-            .depthWriteEnable = ds.depth_write_enable,
-            .depthCompareOp = convert_vk(ds.depth_comp),
+            .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+            .pNext                 = nullptr,
+            .flags                 = 0,
+            .depthTestEnable       = ds.depth_enable,
+            .depthWriteEnable      = ds.depth_write_enable,
+            .depthCompareOp        = convert_vk(ds.depth_comp),
             .depthBoundsTestEnable = ds.depth_bound_test,
-            .stencilTestEnable = ds.stencil_enable,
+            .stencilTestEnable     = ds.stencil_enable,
             .front =
                     VkStencilOpState{
-                            .failOp = convert_vk(ds.stencil_front.fail_op),
-                            .passOp = convert_vk(ds.stencil_front.pass_op),
-                            .depthFailOp = convert_vk(ds.stencil_front.depth_fail_op),
-                            .compareOp = convert_vk(ds.stencil_front.comparison),
-                            .compareMask = ds.stencil_front.read_mask,
-                            .writeMask = ds.stencil_front.write_mask,
-                            .reference = 0,
-                    },
+                                     .failOp      = convert_vk(ds.stencil_front.fail_op),
+                                     .passOp      = convert_vk(ds.stencil_front.pass_op),
+                                     .depthFailOp = convert_vk(ds.stencil_front.depth_fail_op),
+                                     .compareOp   = convert_vk(ds.stencil_front.comparison),
+                                     .compareMask = ds.stencil_front.read_mask,
+                                     .writeMask   = ds.stencil_front.write_mask,
+                                     .reference   = 0,
+                                     },
             .back =
                     VkStencilOpState{
-                            .failOp = convert_vk(ds.stencil_back.fail_op),
-                            .passOp = convert_vk(ds.stencil_back.pass_op),
-                            .depthFailOp = convert_vk(ds.stencil_back.depth_fail_op),
-                            .compareOp = convert_vk(ds.stencil_back.comparison),
-                            .compareMask = ds.stencil_back.read_mask,
-                            .writeMask = ds.stencil_back.write_mask,
-                            .reference = 0,
-                    },
+                                     .failOp      = convert_vk(ds.stencil_back.fail_op),
+                                     .passOp      = convert_vk(ds.stencil_back.pass_op),
+                                     .depthFailOp = convert_vk(ds.stencil_back.depth_fail_op),
+                                     .compareOp   = convert_vk(ds.stencil_back.comparison),
+                                     .compareMask = ds.stencil_back.read_mask,
+                                     .writeMask   = ds.stencil_back.write_mask,
+                                     .reference   = 0,
+                                     },
             .minDepthBounds = 0.0f,
             .maxDepthBounds = 1.0f,
         };
     }
 
-    static constexpr size_t max_dynstates = 6;
+    static constexpr size_t                                       max_dynstates = 6;
     wis::detail::uniform_allocator<VkDynamicState, max_dynstates> dynamic_state_enables;
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_VIEWPORT);
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_SCISSOR);
@@ -707,34 +703,33 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     dynamic_state_enables.allocate(VkDynamicState::VK_DYNAMIC_STATE_BLEND_CONSTANTS);
 
     VkPipelineDynamicStateCreateInfo dynamic_state{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
+        .sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+        .pNext             = nullptr,
+        .flags             = 0,
         .dynamicStateCount = uint32_t(dynamic_state_enables.size()),
-        .pDynamicStates = dynamic_state_enables.data()
+        .pDynamicStates    = dynamic_state_enables.data()
     };
 
     VkPipelineCreateFlags flags = convert_vk(desc.flags);
 
     VkGraphicsPipelineCreateInfo info{
-        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .pNext = &dynamic_rendering,
-        .flags = flags,
-        .stageCount = static_cast<uint32_t>(shader_stages.size()),
-        .pStages = shader_stages.data(),
-        .pVertexInputState = &vertex_input,
+        .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+        .pNext               = &dynamic_rendering,
+        .flags               = flags,
+        .stageCount          = static_cast<uint32_t>(shader_stages.size()),
+        .pStages             = shader_stages.data(),
+        .pVertexInputState   = &vertex_input,
         .pInputAssemblyState = &input_assembly,
-        .pViewportState = &viewport_state,
+        .pViewportState      = &viewport_state,
         .pRasterizationState = desc.rasterizer ? &rasterizer : &default_rasterizer,
-        .pMultisampleState = desc.sample ? &multisampling : &default_multisampling,
-        .pDepthStencilState = desc.depth_stencil ? &depth_stencil_state : &default_depth_stencil,
-        .pColorBlendState = &color_blending,
-        .pDynamicState = &dynamic_state,
-        .layout = std::get<0>(desc.root_signature),
+        .pMultisampleState   = desc.sample ? &multisampling : &default_multisampling,
+        .pDepthStencilState  = desc.depth_stencil ? &depth_stencil_state : &default_depth_stencil,
+        .pColorBlendState    = &color_blending,
+        .pDynamicState       = &dynamic_state,
+        .layout              = std::get<0>(desc.root_signature),
     };
 
-    auto vr = device.table().vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr,
-                                                       internal.pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
+    auto vr = device.table().vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr, internal.pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
     if (!succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a graphics pipeline">(vr);
     }
@@ -745,19 +740,19 @@ wis::VKPipelineState
 wis::ImplVKDevice::CreateComputePipeline(wis::Result& result, const wis::VKComputePipelineDesc& desc) const noexcept
 {
     wis::VKPipelineState out_pipeline;
-    auto& internal = out_pipeline.GetMutableInternal();
+    auto&                internal = out_pipeline.GetMutableInternal();
 
     VkComputePipelineCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
         .stage = {
-                .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-                .stage = VK_SHADER_STAGE_COMPUTE_BIT,
-                .module = std::get<0>(desc.shader),
-                .pName = "main",
-        },
-        .layout = std::get<0>(desc.root_signature),
+                  .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+                  .stage  = VK_SHADER_STAGE_COMPUTE_BIT,
+                  .module = std::get<0>(desc.shader),
+                  .pName  = "main",
+                  },
+        .layout             = std::get<0>(desc.root_signature),
         .basePipelineHandle = VK_NULL_HANDLE,
-        .basePipelineIndex = -1,
+        .basePipelineIndex  = -1,
     };
     auto vr = device.table().vkCreateComputePipelines(device.get(), nullptr, 1u, &info, nullptr, internal.pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
     if (!succeeded(vr)) {
@@ -770,17 +765,17 @@ wis::VKCommandList
 wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) const noexcept
 {
     VKCommandList out_list;
-    auto& internal = out_list.GetMutableInternal();
+    auto&         internal = out_list.GetMutableInternal();
 
-    auto& dtable = device.table();
+    auto&                   dtable = device.table();
     VkCommandPoolCreateInfo cmd_pool_create_info{
-        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .pNext            = nullptr,
+        .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = queues.GetOfType(type)->family_index,
     };
     wis::scoped_handle<VkCommandPool> cmd_pool;
-    auto vr =
+    auto                              vr =
             dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
     if (!succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a command pool">(vr);
@@ -788,10 +783,10 @@ wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) c
     }
 
     VkCommandBufferAllocateInfo cmd_buf_alloc_info{
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .pNext = nullptr,
-        .commandPool = cmd_pool.get(),
-        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext              = nullptr,
+        .commandPool        = cmd_pool.get(),
+        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = 1,
     };
 
@@ -801,13 +796,13 @@ wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) c
         return out_list;
     }
 
-    internal.device = device;
+    internal.device    = device;
     internal.allocator = cmd_pool.release();
 
     VkCommandBufferBeginInfo desc{
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .pNext = nullptr,
-        .flags = {},
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .pNext            = nullptr,
+        .flags            = {},
         .pInheritanceInfo = nullptr,
     };
     vr = dtable.vkBeginCommandBuffer(internal.command_list, &desc);
@@ -818,18 +813,17 @@ wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) c
 }
 
 wis::VKShader
-wis::ImplVKDevice::CreateShader(wis::Result& result, void* bytecode,
-                                uint32_t size) const noexcept
+wis::ImplVKDevice::CreateShader(wis::Result& result, void* bytecode, uint32_t size) const noexcept
 {
     VKShader out_shader;
-    auto& internal = out_shader.GetMutableInternal();
+    auto&    internal = out_shader.GetMutableInternal();
 
     VkShaderModuleCreateInfo desc{
-        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
+        .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .pNext    = nullptr,
+        .flags    = 0,
         .codeSize = size,
-        .pCode = reinterpret_cast<const uint32_t*>(bytecode),
+        .pCode    = reinterpret_cast<const uint32_t*>(bytecode),
     };
     auto vr = device.table().vkCreateShaderModule(device.get(), &desc, nullptr, internal.shader.put(device, device.table().vkDestroyShaderModule));
 
@@ -843,7 +837,7 @@ wis::VKResourceAllocator
 wis::ImplVKDevice::CreateAllocator(wis::Result& result) const noexcept
 {
     VKResourceAllocator allocator;
-    auto& internal = allocator.GetMutableInternal();
+    auto&               internal = allocator.GetMutableInternal();
 
     wis::shared_handle<VmaAllocator> interop;
     if (ext1.GetFeatures().interop_device) {
@@ -859,40 +853,40 @@ wis::ImplVKDevice::CreateAllocator(wis::Result& result) const noexcept
 wis::shared_handle<VmaAllocator>
 wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const noexcept
 {
-    uint32_t version = 0;
-    auto& itable = GetInstanceTable();
-    auto& dtable = device.table();
-    auto& gtable = device.gtable();
-    auto& adapter_i = adapter.GetInternal();
+    uint32_t version   = 0;
+    auto&    itable    = GetInstanceTable();
+    auto&    dtable    = device.table();
+    auto&    gtable    = device.gtable();
+    auto&    adapter_i = adapter.GetInternal();
     gtable.vkEnumerateInstanceVersion(&version);
 
     VmaVulkanFunctions allocator_functions{
-        .vkGetInstanceProcAddr = gtable.vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr = gtable.vkGetDeviceProcAddr,
-        .vkGetPhysicalDeviceProperties = itable.vkGetPhysicalDeviceProperties,
-        .vkGetPhysicalDeviceMemoryProperties = itable.vkGetPhysicalDeviceMemoryProperties,
-        .vkAllocateMemory = dtable.vkAllocateMemory,
-        .vkFreeMemory = dtable.vkFreeMemory,
-        .vkMapMemory = dtable.vkMapMemory,
-        .vkUnmapMemory = dtable.vkUnmapMemory,
-        .vkFlushMappedMemoryRanges = dtable.vkFlushMappedMemoryRanges,
-        .vkInvalidateMappedMemoryRanges = dtable.vkInvalidateMappedMemoryRanges,
-        .vkBindBufferMemory = dtable.vkBindBufferMemory,
-        .vkBindImageMemory = dtable.vkBindImageMemory,
-        .vkGetBufferMemoryRequirements = dtable.vkGetBufferMemoryRequirements,
-        .vkGetImageMemoryRequirements = dtable.vkGetImageMemoryRequirements,
-        .vkCreateBuffer = dtable.vkCreateBuffer,
-        .vkDestroyBuffer = dtable.vkDestroyBuffer,
-        .vkCreateImage = dtable.vkCreateImage,
-        .vkDestroyImage = dtable.vkDestroyImage,
-        .vkCmdCopyBuffer = dtable.vkCmdCopyBuffer,
-        .vkGetBufferMemoryRequirements2KHR = dtable.vkGetBufferMemoryRequirements2,
-        .vkGetImageMemoryRequirements2KHR = dtable.vkGetImageMemoryRequirements2,
-        .vkBindBufferMemory2KHR = dtable.vkBindBufferMemory2,
-        .vkBindImageMemory2KHR = dtable.vkBindImageMemory2,
+        .vkGetInstanceProcAddr                   = gtable.vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr                     = gtable.vkGetDeviceProcAddr,
+        .vkGetPhysicalDeviceProperties           = itable.vkGetPhysicalDeviceProperties,
+        .vkGetPhysicalDeviceMemoryProperties     = itable.vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory                        = dtable.vkAllocateMemory,
+        .vkFreeMemory                            = dtable.vkFreeMemory,
+        .vkMapMemory                             = dtable.vkMapMemory,
+        .vkUnmapMemory                           = dtable.vkUnmapMemory,
+        .vkFlushMappedMemoryRanges               = dtable.vkFlushMappedMemoryRanges,
+        .vkInvalidateMappedMemoryRanges          = dtable.vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory                      = dtable.vkBindBufferMemory,
+        .vkBindImageMemory                       = dtable.vkBindImageMemory,
+        .vkGetBufferMemoryRequirements           = dtable.vkGetBufferMemoryRequirements,
+        .vkGetImageMemoryRequirements            = dtable.vkGetImageMemoryRequirements,
+        .vkCreateBuffer                          = dtable.vkCreateBuffer,
+        .vkDestroyBuffer                         = dtable.vkDestroyBuffer,
+        .vkCreateImage                           = dtable.vkCreateImage,
+        .vkDestroyImage                          = dtable.vkDestroyImage,
+        .vkCmdCopyBuffer                         = dtable.vkCmdCopyBuffer,
+        .vkGetBufferMemoryRequirements2KHR       = dtable.vkGetBufferMemoryRequirements2,
+        .vkGetImageMemoryRequirements2KHR        = dtable.vkGetImageMemoryRequirements2,
+        .vkBindBufferMemory2KHR                  = dtable.vkBindBufferMemory2,
+        .vkBindImageMemory2KHR                   = dtable.vkBindImageMemory2,
         .vkGetPhysicalDeviceMemoryProperties2KHR = itable.vkGetPhysicalDeviceMemoryProperties2,
-        .vkGetDeviceBufferMemoryRequirements = dtable.vkGetDeviceBufferMemoryRequirements,
-        .vkGetDeviceImageMemoryRequirements = dtable.vkGetDeviceImageMemoryRequirements,
+        .vkGetDeviceBufferMemoryRequirements     = dtable.vkGetDeviceBufferMemoryRequirements,
+        .vkGetDeviceImageMemoryRequirements      = dtable.vkGetDeviceImageMemoryRequirements,
     };
 
     VkPhysicalDeviceMemoryProperties2 mem_props{
@@ -907,12 +901,12 @@ wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const no
     }();
 
     VmaAllocatorCreateInfo allocatorInfo{
-        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
-        .physicalDevice = adapter_i.adapter,
-        .device = device.get(),
-        .pVulkanFunctions = &allocator_functions,
-        .instance = adapter_i.instance.get(),
-        .vulkanApiVersion = version,
+        .flags                          = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT | VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT,
+        .physicalDevice                 = adapter_i.adapter,
+        .device                         = device.get(),
+        .pVulkanFunctions               = &allocator_functions,
+        .instance                       = adapter_i.instance.get(),
+        .vulkanApiVersion               = version,
         .pTypeExternalMemoryHandleTypes = ext1.GetFeatures().interop_device && interop ? handle_types.data() : nullptr
     };
 
@@ -929,7 +923,7 @@ wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const no
     }
 
     wis::shared_handle<VmaAllocator> out_allocator;
-    VkResult vr = vmaCreateAllocator(&allocatorInfo, out_allocator.put_unsafe(device));
+    VkResult                         vr = vmaCreateAllocator(&allocatorInfo, out_allocator.put_unsafe(device));
 
     if (!succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create an Allocator">(vr);
@@ -938,22 +932,19 @@ wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const no
 }
 
 wis::VKSwapChain
-wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface,
-                                     const SwapchainDesc& desc,
-                                     VkQueue graphics_queue,
-                                     void* pNext) const noexcept
+wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface surface, const SwapchainDesc& desc, VkQueue graphics_queue, void* pNext) const noexcept
 {
     VKSwapChain out_swapchain;
-    auto& internal = out_swapchain.GetMutableInternal();
+    auto&       internal = out_swapchain.GetMutableInternal();
 
-    auto& itable = GetInstanceTable();
-    auto& dtable = device.table();
-    auto hadapter = adapter.GetInternal().adapter;
+    auto& itable   = GetInstanceTable();
+    auto& dtable   = device.table();
+    auto  hadapter = adapter.GetInternal().adapter;
 
     // Get the surface capabilities and present queue
     {
         int32_t present_queue = -1;
-        auto hadapter = adapter.GetInternal().adapter;
+        auto    hadapter      = adapter.GetInternal().adapter;
         for (uint16_t i = 0; i < size_t(wis::detail::QueueTypes::Count); i++) {
             const auto& x = queues.available_queues[i];
             if (x.Empty()) {
@@ -961,8 +952,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
             }
 
             VkBool32 supported = false;
-            auto vr = itable.vkGetPhysicalDeviceSurfaceSupportKHR(hadapter, x.family_index,
-                                                                  surface.get(), &supported);
+            auto     vr        = itable.vkGetPhysicalDeviceSurfaceSupportKHR(hadapter, x.family_index, surface.get(), &supported);
             if (!succeeded(vr)) {
                 result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to check if the queue supports presentation to the surface">(vr);
                 return out_swapchain;
@@ -977,28 +967,26 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
             result = wis::make_result<wis::Func<wis::FuncD()>(), "None of the queues support presenting to the surface">(VkResult::VK_ERROR_UNKNOWN);
             return out_swapchain;
         }
-        const auto& queue = queues.available_queues[present_queue];
+        const auto&        queue = queues.available_queues[present_queue];
         VkDeviceQueueInfo2 info{
-            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
-            .pNext = nullptr,
-            .flags = 0,
+            .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+            .pNext            = nullptr,
+            .flags            = 0,
             .queueFamilyIndex = queue.family_index,
-            .queueIndex = queue.GetNextInLine(),
+            .queueIndex       = queue.GetNextInLine(),
         };
         dtable.vkGetDeviceQueue2(device.get(), &info, &internal.present_queue);
         internal.graphics_queue = graphics_queue;
     }
 
     uint32_t format_count = 0;
-    itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count,
-                                                nullptr);
+    itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count, nullptr);
     wis::detail::fixed_allocation<VkSurfaceFormatKHR> surface_formats = wis::detail::make_fixed_allocation<VkSurfaceFormatKHR>(format_count);
     if (!surface_formats) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for surface formats">(VkResult::VK_ERROR_OUT_OF_HOST_MEMORY);
         return out_swapchain;
     }
-    auto vr = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(),
-                                                          &format_count, surface_formats.get());
+    auto vr = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count, surface_formats.get());
 
     if (!succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get surface formats">(vr);
@@ -1029,15 +1017,13 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
 
     // Get present modes
     uint32_t presentation_count = 0;
-    itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface.get(), &presentation_count,
-                                                     nullptr);
+    itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface.get(), &presentation_count, nullptr);
     assert(presentation_count <= 16);
     std::array<VkPresentModeKHR, 16> modes{};
-    itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface.get(), &presentation_count,
-                                                     modes.data());
+    itable.vkGetPhysicalDeviceSurfacePresentModesKHR(hadapter, surface.get(), &presentation_count, modes.data());
 
     auto present_mode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-    bool tearing = desc.tearing;
+    bool tearing      = desc.tearing;
     if (!desc.vsync) {
         if (desc.tearing) {
             if ((tearing = std::ranges::count(modes, VkPresentModeKHR::VK_PRESENT_MODE_IMMEDIATE_KHR) > 0)) {
@@ -1050,47 +1036,47 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         }
     }
 
-    constexpr static uint32_t present_modes_count = 8;
+    constexpr static uint32_t                         present_modes_count = 8;
     std::array<VkPresentModeKHR, present_modes_count> compatible_modes{};
-    uint8_t supported_presentation = 0;
-    uint32_t compatible_modes_count = 0;
+    uint8_t                                           supported_presentation = 0;
+    uint32_t                                          compatible_modes_count = 0;
 
     VkSwapchainPresentScalingCreateInfoEXT scaling_create_info{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
-        .pNext = nullptr,
+        .sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
+        .pNext           = nullptr,
         .scalingBehavior = convert_vk(desc.scaling),
         .presentGravityX = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
         .presentGravityY = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT
     };
 
     VkSwapchainCreateInfoKHR swap_info{
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext = pNext,
-        .flags = 0,
-        .surface = surface.get(),
-        .minImageCount = desc.buffer_count,
-        .imageFormat = convert_vk(desc.format),
+        .sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .pNext           = pNext,
+        .flags           = 0,
+        .surface         = surface.get(),
+        .minImageCount   = desc.buffer_count,
+        .imageFormat     = convert_vk(desc.format),
         .imageColorSpace = format->colorSpace,
-        .imageExtent = {
-                std::clamp(desc.size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
-                std::clamp(desc.size.height, cap.minImageExtent.height, cap.maxImageExtent.height) },
-        .imageArrayLayers = layers,
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-        .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .imageExtent     = {
+                            std::clamp(desc.size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
+                            std::clamp(desc.size.height, cap.minImageExtent.height, cap.maxImageExtent.height) },
+        .imageArrayLayers      = layers,
+        .imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
-        .pQueueFamilyIndices = nullptr,
-        .preTransform = cap.currentTransform,
-        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode = present_mode,
-        .clipped = true,
-        .oldSwapchain = nullptr,
+        .pQueueFamilyIndices   = nullptr,
+        .preTransform          = cap.currentTransform,
+        .compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .presentMode           = present_mode,
+        .clipped               = true,
+        .oldSwapchain          = nullptr,
     };
 
     // Check if the swapchain supports dynamic scaling
     if (ext1.GetFeatures().dynamic_vsync) {
         std::swap(swap_info.pNext, scaling_create_info.pNext);
         internal.scaling = scaling_create_info.scalingBehavior;
-        swap_info.pNext = &scaling_create_info;
+        swap_info.pNext  = &scaling_create_info;
     }
 
     wis::scoped_handle<VkSwapchainKHR> swapchain;
@@ -1103,9 +1089,9 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
 
     // Create Command list
     VkCommandPoolCreateInfo cmd_pool_create_info{
-        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .pNext            = nullptr,
+        .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = queues.GetOfType(wis::QueueType::Graphics)->family_index,
     };
     wis::scoped_handle<VkCommandPool> cmd_pool;
@@ -1116,10 +1102,10 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     }
 
     VkCommandBufferAllocateInfo cmd_buf_alloc_info{
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .pNext = nullptr,
-        .commandPool = cmd_pool.get(),
-        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext              = nullptr,
+        .commandPool        = cmd_pool.get(),
+        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = 1,
     };
 
@@ -1180,28 +1166,28 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         }
     }
 
-    internal.surface = std::move(surface);
-    internal.device = device;
-    internal.adapter = adapter.GetInternal().adapter;
-    internal.swapchain = swapchain.release();
-    internal.initialization = cmd_buf;
-    internal.command_pool = cmd_pool.release();
-    internal.format = *format;
-    internal.present_mode = present_mode;
-    internal.tearing = tearing;
-    internal.stereo = stereo;
+    internal.surface          = std::move(surface);
+    internal.device           = device;
+    internal.adapter          = adapter.GetInternal().adapter;
+    internal.swapchain        = swapchain.release();
+    internal.initialization   = cmd_buf;
+    internal.command_pool     = cmd_pool.release();
+    internal.format           = *format;
+    internal.present_mode     = present_mode;
+    internal.tearing          = tearing;
+    internal.stereo           = stereo;
     internal.stereo_requested = desc.stereo;
 
     auto rres = internal.InitBackBuffers(swap_info.imageExtent);
     if (rres.status != wis::Status::Ok) {
-        result = rres;
+        result        = rres;
         out_swapchain = {};
         return out_swapchain;
     }
 
     rres = internal.AcquireNextIndex();
     if (rres.status != wis::Status::Ok) {
-        result = rres;
+        result        = rres;
         out_swapchain = {};
     }
     return out_swapchain;
@@ -1211,13 +1197,13 @@ wis::VKRenderTarget
 wis::ImplVKDevice::CreateRenderTarget(wis::Result& result, wis::VKTextureView texture, wis::RenderTargetDesc desc) const noexcept
 {
     VKRenderTarget out_render_target;
-    auto& internal = out_render_target.GetMutableInternal();
+    auto&          internal = out_render_target.GetMutableInternal();
 
-    auto vk_format = convert_vk(desc.format);
+    auto                  vk_format = convert_vk(desc.format);
     VkImageViewCreateInfo info{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .pNext = nullptr,
-        .image = std::get<0>(texture),
+        .sType  = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext  = nullptr,
+        .image  = std::get<0>(texture),
         .format = vk_format,
     };
     info.subresourceRange.aspectMask = aspect_flags(vk_format);
@@ -1226,64 +1212,64 @@ wis::ImplVKDevice::CreateRenderTarget(wis::Result& result, wis::VKTextureView te
     case wis::TextureLayout::Texture1D:
         info.viewType = VK_IMAGE_VIEW_TYPE_1D;
         {
-            info.subresourceRange.baseMipLevel = desc.mip,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = desc.mip,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = 0,
-            info.subresourceRange.layerCount = 1;
+            info.subresourceRange.layerCount     = 1;
         };
         break;
     case wis::TextureLayout::Texture2D:
         info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         {
-            info.subresourceRange.baseMipLevel = desc.mip,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = desc.mip,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = 0,
-            info.subresourceRange.layerCount = 1;
+            info.subresourceRange.layerCount     = 1;
         };
         break;
     case wis::TextureLayout::Texture3D:
         info.viewType = VK_IMAGE_VIEW_TYPE_3D;
         {
-            info.subresourceRange.baseMipLevel = desc.mip,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = desc.mip,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = desc.base_array_layer,
-            info.subresourceRange.layerCount = desc.layer_count;
+            info.subresourceRange.layerCount     = desc.layer_count;
         };
         break;
     case wis::TextureLayout::Texture1DArray:
         info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
         {
-            info.subresourceRange.baseMipLevel = desc.mip,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = desc.mip,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = desc.base_array_layer,
-            info.subresourceRange.layerCount = desc.layer_count;
+            info.subresourceRange.layerCount     = desc.layer_count;
         };
         break;
     case wis::TextureLayout::Texture2DArray:
         info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
         {
-            info.subresourceRange.baseMipLevel = desc.mip,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = desc.mip,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = desc.base_array_layer,
-            info.subresourceRange.layerCount = desc.layer_count;
+            info.subresourceRange.layerCount     = desc.layer_count;
         };
         break;
     case wis::TextureLayout::Texture2DMS:
         info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         {
-            info.subresourceRange.baseMipLevel = 0,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = 0,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = 0,
-            info.subresourceRange.layerCount = 1;
+            info.subresourceRange.layerCount     = 1;
         };
         break;
     case wis::TextureLayout::Texture2DMSArray:
         info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
         {
-            info.subresourceRange.baseMipLevel = 0,
-            info.subresourceRange.levelCount = 1,
+            info.subresourceRange.baseMipLevel   = 0,
+            info.subresourceRange.levelCount     = 1,
             info.subresourceRange.baseArrayLayer = desc.base_array_layer,
-            info.subresourceRange.layerCount = desc.layer_count;
+            info.subresourceRange.layerCount     = desc.layer_count;
         };
         break;
     default:
@@ -1325,7 +1311,7 @@ bool wis::ImplVKDevice::QueryFeatureSupport(wis::DeviceFeature feature) const no
 wis::DeviceConstants
 wis::ImplVKDevice::QueryDeviceConsts() const noexcept
 {
-    auto& itable = GetInstanceTable();
+    auto& itable    = GetInstanceTable();
     auto& adapter_i = adapter.GetInternal();
 
     VkPhysicalDeviceProperties props;
@@ -1333,7 +1319,7 @@ wis::ImplVKDevice::QueryDeviceConsts() const noexcept
 
     wis::DeviceConstants constants{
         .min_cbuffer_offset_alingnment = uint32_t(props.limits.minUniformBufferOffsetAlignment),
-        .min_buffer_offset_alingnment = uint32_t(props.limits.minStorageBufferOffsetAlignment),
+        .min_buffer_offset_alingnment  = uint32_t(props.limits.minStorageBufferOffsetAlignment),
     };
 
     return constants;
@@ -1345,36 +1331,36 @@ wis::VKSampler
 wis::ImplVKDevice::CreateSampler(wis::Result& result, const wis::SamplerDesc& desc) const noexcept
 {
     VKSampler out_sampler;
-    auto& internal = out_sampler.GetMutableInternal();
+    auto&     internal = out_sampler.GetMutableInternal();
 
     VkSamplerCustomBorderColorCreateInfoEXT custom_border_color{
-        .sType = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
-        .pNext = nullptr,
+        .sType             = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
+        .pNext             = nullptr,
         .customBorderColor = {
-                desc.border_color[0],
-                desc.border_color[1],
-                desc.border_color[2],
-                desc.border_color[3],
-        },
+                              desc.border_color[0],
+                              desc.border_color[1],
+                              desc.border_color[2],
+                              desc.border_color[3],
+                              },
     };
     VkSamplerCreateInfo info{
-        .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-        .pNext = &custom_border_color,
-        .flags = 0,
-        .magFilter = convert_vk(desc.mag_filter),
-        .minFilter = convert_vk(desc.min_filter),
-        .mipmapMode = VkSamplerMipmapMode(desc.mip_filter),
-        .addressModeU = convert_vk(desc.address_u),
-        .addressModeV = convert_vk(desc.address_v),
-        .addressModeW = convert_vk(desc.address_w),
-        .mipLodBias = desc.mip_lod_bias,
+        .sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+        .pNext            = &custom_border_color,
+        .flags            = 0,
+        .magFilter        = convert_vk(desc.mag_filter),
+        .minFilter        = convert_vk(desc.min_filter),
+        .mipmapMode       = VkSamplerMipmapMode(desc.mip_filter),
+        .addressModeU     = convert_vk(desc.address_u),
+        .addressModeV     = convert_vk(desc.address_v),
+        .addressModeW     = convert_vk(desc.address_w),
+        .mipLodBias       = desc.mip_lod_bias,
         .anisotropyEnable = desc.anisotropic,
-        .maxAnisotropy = float(desc.max_anisotropy),
-        .compareEnable = desc.comparison_op != wis::Compare::Never,
-        .compareOp = convert_vk(desc.comparison_op),
-        .minLod = desc.min_lod,
-        .maxLod = desc.max_lod,
-        .borderColor = VkBorderColor::VK_BORDER_COLOR_FLOAT_CUSTOM_EXT
+        .maxAnisotropy    = float(desc.max_anisotropy),
+        .compareEnable    = desc.comparison_op != wis::Compare::Never,
+        .compareOp        = convert_vk(desc.comparison_op),
+        .minLod           = desc.min_lod,
+        .maxLod           = desc.max_lod,
+        .borderColor      = VkBorderColor::VK_BORDER_COLOR_FLOAT_CUSTOM_EXT
     };
 
     auto vr = device.table().vkCreateSampler(device.get(), &info, nullptr, internal.sampler.put(device, device.table().vkDestroySampler));
@@ -1388,70 +1374,70 @@ wis::VKShaderResource
 wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView texture, const wis::ShaderResourceDesc& desc) const noexcept
 {
     VKShaderResource out_resource;
-    auto& internal = out_resource.GetMutableInternal();
+    auto&            internal = out_resource.GetMutableInternal();
 
     VkImageViewCreateInfo info{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .pNext = nullptr,
-        .image = std::get<0>(texture),
-        .viewType = convert_vk(desc.view_type),
-        .format = convert_vk(desc.format),
+        .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext      = nullptr,
+        .image      = std::get<0>(texture),
+        .viewType   = convert_vk(desc.view_type),
+        .format     = convert_vk(desc.format),
         .components = {
-                .r = convert_vk(desc.component_mapping.r),
-                .g = convert_vk(desc.component_mapping.g),
-                .b = convert_vk(desc.component_mapping.b),
-                .a = convert_vk(desc.component_mapping.a),
-        },
+                       .r = convert_vk(desc.component_mapping.r),
+                       .g = convert_vk(desc.component_mapping.g),
+                       .b = convert_vk(desc.component_mapping.b),
+                       .a = convert_vk(desc.component_mapping.a),
+                       },
         .subresourceRange = {
-                .aspectMask = aspect_flags(convert_vk(desc.format)),
-        },
+                       .aspectMask = aspect_flags(convert_vk(desc.format)),
+                       },
     };
 
     switch (desc.view_type) {
     default:
     case wis::TextureViewType::Texture1D:
     case wis::TextureViewType::Texture2D:
-        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
-        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseMipLevel   = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount     = desc.subresource_range.level_count;
         info.subresourceRange.baseArrayLayer = 0;
-        info.subresourceRange.layerCount = 1;
+        info.subresourceRange.layerCount     = 1;
         break;
     case wis::TextureViewType::Texture1DArray:
     case wis::TextureViewType::Texture2DArray:
-        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
-        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseMipLevel   = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount     = desc.subresource_range.level_count;
         info.subresourceRange.baseArrayLayer = desc.subresource_range.base_array_layer;
-        info.subresourceRange.layerCount = desc.subresource_range.layer_count;
+        info.subresourceRange.layerCount     = desc.subresource_range.layer_count;
         break;
     case wis::TextureViewType::Texture2DMS:
-        info.subresourceRange.baseMipLevel = 0;
-        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseMipLevel   = 0;
+        info.subresourceRange.levelCount     = 1;
         info.subresourceRange.baseArrayLayer = 0;
-        info.subresourceRange.layerCount = 1;
+        info.subresourceRange.layerCount     = 1;
         break;
     case wis::TextureViewType::Texture2DMSArray:
-        info.subresourceRange.baseMipLevel = 0;
-        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseMipLevel   = 0;
+        info.subresourceRange.levelCount     = 1;
         info.subresourceRange.baseArrayLayer = desc.subresource_range.base_array_layer;
-        info.subresourceRange.layerCount = desc.subresource_range.layer_count;
+        info.subresourceRange.layerCount     = desc.subresource_range.layer_count;
         break;
     case wis::TextureViewType::Texture3D:
-        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
-        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseMipLevel   = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount     = desc.subresource_range.level_count;
         info.subresourceRange.baseArrayLayer = 0;
-        info.subresourceRange.layerCount = 1;
+        info.subresourceRange.layerCount     = 1;
         break;
     case wis::TextureViewType::TextureCube:
-        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
-        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseMipLevel   = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount     = desc.subresource_range.level_count;
         info.subresourceRange.baseArrayLayer = 0;
-        info.subresourceRange.layerCount = 6;
+        info.subresourceRange.layerCount     = 6;
         break;
     case wis::TextureViewType::TextureCubeArray:
-        info.subresourceRange.baseMipLevel = desc.subresource_range.base_mip_level;
-        info.subresourceRange.levelCount = desc.subresource_range.level_count;
+        info.subresourceRange.baseMipLevel   = desc.subresource_range.base_mip_level;
+        info.subresourceRange.levelCount     = desc.subresource_range.level_count;
         info.subresourceRange.baseArrayLayer = desc.subresource_range.base_array_layer;
-        info.subresourceRange.layerCount = desc.subresource_range.layer_count;
+        info.subresourceRange.layerCount     = desc.subresource_range.layer_count;
         break;
     }
 
@@ -1463,15 +1449,15 @@ wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView 
 }
 
 wis::VKDescriptorStorage
-wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
+wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      result,
                                            const wis::DescriptorBindingDesc* descriptor_bindings,
-                                           uint32_t descriptor_bindings_count,
+                                           uint32_t                          descriptor_bindings_count,
                                            wis::DescriptorMemory) const noexcept
 {
     VKDescriptorStorage out_storage;
-    auto& internal = out_storage.GetMutableInternal();
+    auto&               internal = out_storage.GetMutableInternal();
 
-    uint32_t offset_pool_size = descriptor_bindings_count * sizeof(VkDescriptorPoolSize);
+    uint32_t offset_pool_size   = descriptor_bindings_count * sizeof(VkDescriptorPoolSize);
     uint32_t offset_desc_layout = offset_pool_size + descriptor_bindings_count * sizeof(VkDescriptorSetLayout);
 
     std::unique_ptr<uint8_t[]> memory = wis::detail::make_unique_for_overwrite<uint8_t[]>(
@@ -1485,53 +1471,53 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
     // Allocate descriptor sets
     internal.descriptor_sets = wis::detail::make_unique_for_overwrite<VkDescriptorSet[]>(descriptor_bindings_count + descriptor_bindings_count);
 
-    std::span<VkDescriptorPoolSize> pool_sizes{ reinterpret_cast<VkDescriptorPoolSize*>(memory.get()), descriptor_bindings_count };
+    std::span<VkDescriptorPoolSize>  pool_sizes{ reinterpret_cast<VkDescriptorPoolSize*>(memory.get()), descriptor_bindings_count };
     std::span<VkDescriptorSetLayout> desc_layouts{ reinterpret_cast<VkDescriptorSetLayout*>(internal.descriptor_sets.get() + descriptor_bindings_count), descriptor_bindings_count };
-    std::span<uint32_t> pool_size_data{ reinterpret_cast<uint32_t*>(pool_sizes.data() + descriptor_bindings_count), descriptor_bindings_count }; // For variable descriptor count
+    std::span<uint32_t>              pool_size_data{ reinterpret_cast<uint32_t*>(pool_sizes.data() + descriptor_bindings_count), descriptor_bindings_count }; // For variable descriptor count
 
     for (size_t i = 0; i < descriptor_bindings_count; i++) {
-        pool_sizes[i].type = convert_vk(descriptor_bindings[i].binding_type);
+        pool_sizes[i].type            = convert_vk(descriptor_bindings[i].binding_type);
         pool_sizes[i].descriptorCount = descriptor_bindings[i].binding_count;
-        pool_size_data[i] = descriptor_bindings[i].binding_count;
+        pool_size_data[i]             = descriptor_bindings[i].binding_count;
     }
 
     VkDescriptorPoolCreateInfo pool_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .maxSets = descriptor_bindings_count,
+        .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .pNext         = nullptr,
+        .flags         = 0,
+        .maxSets       = descriptor_bindings_count,
         .poolSizeCount = descriptor_bindings_count,
-        .pPoolSizes = pool_sizes.data()
+        .pPoolSizes    = pool_sizes.data()
     };
     wis::scoped_handle<VkDescriptorPool> pool;
-    auto res = device.table().vkCreateDescriptorPool(device.get(), &pool_info, nullptr, pool.put(device.get(), device.table().vkDestroyDescriptorPool));
+    auto                                 res = device.table().vkCreateDescriptorPool(device.get(), &pool_info, nullptr, pool.put(device.get(), device.table().vkDestroyDescriptorPool));
     if (!succeeded(res)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor pool">(res);
         return out_storage;
     }
 
     // Create descriptor set layouts
-    constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
+    constexpr static VkDescriptorBindingFlags                       flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
     constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
-        .pNext = nullptr,
-        .bindingCount = 1,
+        .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+        .pNext         = nullptr,
+        .bindingCount  = 1,
         .pBindingFlags = &flags,
     };
     VkDescriptorSetLayoutBinding binding_layout{
-        .binding = 0,
+        .binding    = 0,
         .stageFlags = VkShaderStageFlagBits::VK_SHADER_STAGE_ALL,
     };
     VkDescriptorSetLayoutCreateInfo desc_layout_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .pNext = &binding_flags_info,
-        .flags = 0,
+        .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext        = &binding_flags_info,
+        .flags        = 0,
         .bindingCount = 1,
-        .pBindings = &binding_layout,
+        .pBindings    = &binding_layout,
     };
 
     for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        binding_layout.descriptorType = convert_vk(descriptor_bindings[i].binding_type);
+        binding_layout.descriptorType  = convert_vk(descriptor_bindings[i].binding_type);
         binding_layout.descriptorCount = descriptor_bindings[i].binding_type == wis::DescriptorType::Sampler
                 ? wis::max_descriptor_storage_sampler_count
                 : wis::max_descriptor_storage_resource_count; // Max descriptor count
@@ -1552,17 +1538,17 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
         return out_storage;
     }
     VkDescriptorSetVariableDescriptorCountAllocateInfo variable_desc_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
-        .pNext = nullptr,
+        .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
+        .pNext              = nullptr,
         .descriptorSetCount = descriptor_bindings_count,
-        .pDescriptorCounts = pool_size_data.data(),
+        .pDescriptorCounts  = pool_size_data.data(),
     };
     VkDescriptorSetAllocateInfo desc_alloc_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .pNext = &variable_desc_info,
-        .descriptorPool = pool.get(),
+        .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .pNext              = &variable_desc_info,
+        .descriptorPool     = pool.get(),
         .descriptorSetCount = descriptor_bindings_count,
-        .pSetLayouts = desc_layouts.data(),
+        .pSetLayouts        = desc_layouts.data(),
     };
     res = device.table().vkAllocateDescriptorSets(device.get(), &desc_alloc_info, internal.descriptor_sets.get());
 
@@ -1571,23 +1557,18 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result& result,
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate descriptor sets">(res);
         return out_storage;
     }
-    internal.pool = pool.release();
-    internal.device = device;
+    internal.pool             = pool.release();
+    internal.device           = device;
     internal.descriptor_count = descriptor_bindings_count;
 
     return out_storage;
 }
 
 wis::VKRootSignature
-wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants,
-                                       uint32_t constants_count,
-                                       const wis::PushDescriptor* push_descriptors,
-                                       uint32_t push_descriptors_count,
-                                       const wis::DescriptorBindingDesc* descriptor_bindings,
-                                       uint32_t descriptor_bindings_count) const noexcept
+wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConstant* push_constants, uint32_t constants_count, const wis::PushDescriptor* push_descriptors, uint32_t push_descriptors_count, const wis::DescriptorBindingDesc* descriptor_bindings, uint32_t descriptor_bindings_count) const noexcept
 {
     VKRootSignature out_signature;
-    auto& internal = out_signature.GetMutableInternal();
+    auto&           internal = out_signature.GetMutableInternal();
     if (constants_count > wis::max_push_constants) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "constants_size exceeds max_push_constants">(VkResult::VK_ERROR_UNKNOWN);
         return out_signature;
@@ -1606,19 +1587,19 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
     {
         VkDescriptorSetLayoutBinding push_bindings[wis::max_push_descriptors]{};
         for (uint32_t i = 0; i < push_descriptors_count; i++) {
-            auto& r = push_descriptors[i];
-            auto& b = push_bindings[i];
-            b.binding = i;
-            b.descriptorType = convert_vk(r.type);
+            auto& r           = push_descriptors[i];
+            auto& b           = push_bindings[i];
+            b.binding         = i;
+            b.descriptorType  = convert_vk(r.type);
             b.descriptorCount = 1; // Push descriptors are always single
-            b.stageFlags = convert_vk(r.stage);
+            b.stageFlags      = convert_vk(r.stage);
         }
         VkDescriptorSetLayoutCreateInfo push_desc_info{
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+            .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext        = nullptr,
+            .flags        = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
             .bindingCount = push_descriptors_count,
-            .pBindings = push_bindings,
+            .pBindings    = push_bindings,
         };
         auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &internal.vk_dsls[0]);
         if (!succeeded(res)) {
@@ -1628,28 +1609,28 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
     }
 
     // Create descriptor set layouts
-    constexpr static VkDescriptorBindingFlags flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
+    constexpr static VkDescriptorBindingFlags                       flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
     constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
-        .pNext = nullptr,
-        .bindingCount = 1,
+        .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+        .pNext         = nullptr,
+        .bindingCount  = 1,
         .pBindingFlags = &flags,
     };
     VkDescriptorSetLayoutBinding binding_layout{
-        .binding = 0,
+        .binding    = 0,
         .stageFlags = VkShaderStageFlagBits::VK_SHADER_STAGE_ALL,
     };
     VkDescriptorSetLayoutCreateInfo desc_layout_info{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .pNext = &binding_flags_info,
-        .flags = 0,
+        .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext        = &binding_flags_info,
+        .flags        = 0,
         .bindingCount = 1,
-        .pBindings = &binding_layout,
+        .pBindings    = &binding_layout,
     };
 
     auto desc_layouts = internal.vk_dsls.get() + 1;
     for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        binding_layout.descriptorType = convert_vk(descriptor_bindings[i].binding_type);
+        binding_layout.descriptorType  = convert_vk(descriptor_bindings[i].binding_type);
         binding_layout.descriptorCount = descriptor_bindings[i].binding_type == wis::DescriptorType::Sampler
                 ? wis::max_descriptor_storage_sampler_count
                 : wis::max_descriptor_storage_resource_count;
@@ -1667,21 +1648,21 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
 
     VkPushConstantRange xpush_constants[wis::max_push_constants]{};
     for (uint32_t i = 0; i < constants_count; i++) {
-        auto& c = xpush_constants[i];
-        auto& r = push_constants[i];
+        auto& c      = xpush_constants[i];
+        auto& r      = push_constants[i];
         c.stageFlags = convert_vk(r.stage);
-        c.offset = 0;
-        c.size = r.size_bytes;
+        c.offset     = 0;
+        c.size       = r.size_bytes;
     }
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .setLayoutCount = descriptor_bindings_count + 1,
-        .pSetLayouts = internal.vk_dsls.get(),
+        .sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+        .pNext                  = nullptr,
+        .flags                  = 0,
+        .setLayoutCount         = descriptor_bindings_count + 1,
+        .pSetLayouts            = internal.vk_dsls.get(),
         .pushConstantRangeCount = constants_count,
-        .pPushConstantRanges = xpush_constants,
+        .pPushConstantRanges    = xpush_constants,
     };
     auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, internal.root.put(device, device.table().vkDestroyPipelineLayout));
     if (!succeeded(vr)) {

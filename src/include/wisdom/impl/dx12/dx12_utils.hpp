@@ -32,7 +32,7 @@ inline constexpr WisStatus convert_dx(HRESULT hr) noexcept
 }
 
 //-----------------------------------------------------------------------------
-//TODO: Evaluate if this can be removed
+// TODO: Evaluate if this can be removed
 inline std::unique_ptr<char[]> to_string(std::wstring_view value) noexcept
 {
     const int size =

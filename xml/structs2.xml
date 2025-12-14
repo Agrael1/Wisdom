@@ -4,21 +4,21 @@
 		<include>enums2.xml</include>
 	</includes>
 
-	<types comment="Type definitions">		
+	<types comment="Type definitions">
 		<type name="Result" category="struct" mod="nodiscard" version="0.7.0" doc="Main source of communication of operation success.">
 			<member type="Status" name="status" default="Ok" doc="defines operation status. Compare with {Status::Ok}."/>
 			<member type="i32" name="platform_code" default="0" doc="defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
 			<member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
 		</type>
-		
+
 		<type name="DeviceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
 			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. In must not be changed directly outside extension development."/>
 		</type>
-		
+
 		<type name="InstanceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
 			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
 		</type>
-		
+
 	</types>
 
 	<consts comment="Constant definitions">

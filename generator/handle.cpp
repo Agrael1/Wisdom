@@ -6,10 +6,10 @@ static inline constexpr char template_handle[] =
  * @struct {0}
  * @ingroup Handles
  *
- * 
+ *
  * @section {0}_spec Specification
  * <hr>
- * 
+ *
  * \cond WIS_GEN_CODE
  * {1}
  * \endcond
@@ -42,12 +42,12 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         }
 
         // Add destroy function
-        std::string destr_name   = "Destroy" + std::string(name);
-        std::string destr_doc    = "Destroys a {" + std::string(name) + "::} handle.";
+        std::string destr_name = "Destroy" + std::string(name);
+        std::string destr_doc  = "Destroys a {" + std::string(name) + "::} handle.";
 
         auto& xdestroy = destructors.emplace_back(destr_name + destr_doc);
 
-        std::string_view xdestroy_name   = std::string_view(xdestroy.c_str(), destr_name.size());
+        std::string_view xdestroy_name = std::string_view(xdestroy.c_str(), destr_name.size());
         std::string_view xdestroy_doc  = std::string_view(xdestroy_name.data() + destr_name.size(), destr_doc.size());
 
         auto& destroy     = function_map[xdestroy_name];
@@ -59,7 +59,6 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         ref.functions.emplace_back(destroy.name);
         functions_in_order.emplace_back(destroy.name);
         dependency_tree[name].dependencies.emplace_back(destroy.name);
-
 
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;

@@ -9,20 +9,20 @@
 namespace wis {
 WISDOM_EXPORT class VKDescriptorBuffer;
 
-using VKDescriptorBufferView = std::tuple<VkDeviceAddress, wis::DescriptorHeapType>;
+using VKDescriptorBufferView    = std::tuple<VkDeviceAddress, wis::DescriptorHeapType>;
 using VKDescriptorBufferGPUView = VKDescriptorBufferView;
 
 struct VKDescriptorBufferProperties {
     uint16_t mutable_descriptor_size = 0;
-    uint16_t offset_alignment = 0;
+    uint16_t offset_alignment        = 0;
 
-    uint16_t constant_buffer_size = 0;
-    uint16_t storage_buffer_size = 0;
-    uint16_t sampled_image_size = 0;
-    uint16_t storage_image_size = 0;
+    uint16_t constant_buffer_size      = 0;
+    uint16_t storage_buffer_size       = 0;
+    uint16_t sampled_image_size        = 0;
+    uint16_t storage_image_size        = 0;
     uint16_t storage_texel_buffer_size = 0;
     uint16_t uniform_texel_buffer_size = 0;
-    uint16_t sampler_size = 0;
+    uint16_t sampler_size              = 0;
 };
 
 template<>
@@ -30,24 +30,24 @@ struct Internal<VKDescriptorBuffer> {
     PFN_vkGetDescriptorEXT vkGetDescriptorEXT;
 
     wis::shared_handle<VmaAllocator> allocator;
-    h::VmaAllocation allocation;
-    h::VkBuffer buffer;
-    VkDeviceAddress address = 0;
+    h::VmaAllocation                 allocation;
+    h::VkBuffer                      buffer;
+    VkDeviceAddress                  address = 0;
 
-    uint8_t* data = nullptr;
+    uint8_t*                     data = nullptr;
     VKDescriptorBufferProperties properties;
-    uint16_t descriptor_size = 0;
+    uint16_t                     descriptor_size = 0;
 
     wis::DescriptorHeapType type = wis::DescriptorHeapType::Descriptor;
 
 public:
     Internal() noexcept = default;
     Internal(wis::shared_handle<VmaAllocator> allocator,
-             VkBuffer buffer,
-             VmaAllocation allocation,
-             wis::DescriptorHeapType type,
-             VKDescriptorBufferProperties properties,
-             const VKDescBufferExtDevice& ftable) noexcept
+             VkBuffer                         buffer,
+             VmaAllocation                    allocation,
+             wis::DescriptorHeapType          type,
+             VKDescriptorBufferProperties     properties,
+             const VKDescBufferExtDevice&     ftable) noexcept
         : allocator(std::move(allocator))
         , allocation(allocation)
         , buffer(buffer)
@@ -55,9 +55,9 @@ public:
         , properties(properties)
         , vkGetDescriptorEXT(ftable.vkGetDescriptorEXT)
     {
-        auto& device = this->allocator.header();
+        auto&                     device = this->allocator.header();
         VkBufferDeviceAddressInfo info{
-            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+            .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
             .buffer = buffer
         };
         address = device.table().vkGetBufferDeviceAddress(device.get(), &info);
@@ -74,14 +74,14 @@ public:
             return *this;
         }
         Destroy();
-        allocator = std::move(o.allocator);
-        allocation = std::move(o.allocation);
-        buffer = std::move(o.buffer);
-        address = o.address;
-        data = o.data;
-        properties = o.properties;
-        type = o.type;
-        descriptor_size = o.descriptor_size;
+        allocator          = std::move(o.allocator);
+        allocation         = std::move(o.allocation);
+        buffer             = std::move(o.buffer);
+        address            = o.address;
+        data               = o.data;
+        properties         = o.properties;
+        type               = o.type;
+        descriptor_size    = o.descriptor_size;
         vkGetDescriptorEXT = o.vkGetDescriptorEXT;
         return *this;
     }
@@ -110,7 +110,9 @@ class ImplVKDescriptorBuffer : public QueryInternal<VKDescriptorBuffer>
 public:
     ImplVKDescriptorBuffer() noexcept = default;
     explicit ImplVKDescriptorBuffer(Internal<VKDescriptorBuffer>&& internal) noexcept
-        : QueryInternal(std::move(internal)) { }
+        : QueryInternal(std::move(internal))
+    {
+    }
 
     operator bool() const noexcept
     {
@@ -134,11 +136,11 @@ public:
     }
     void WriteAccelerationStructure(uint64_t aligned_table_offset, uint32_t index, uint64_t acceleration_structure_device_address) noexcept
     {
-        auto& device = allocator.header();
+        auto&                  device = allocator.header();
         VkDescriptorGetInfoEXT info{
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
-            .type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
-            .data = { .accelerationStructure = acceleration_structure_device_address }
+            .type  = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
+            .data  = { .accelerationStructure = acceleration_structure_device_address }
         };
         uint64_t desc_offset = aligned_table_offset + index * descriptor_size;
         vkGetDescriptorEXT(device.get(), &info, properties.mutable_descriptor_size, data + desc_offset);
@@ -158,9 +160,9 @@ class VKDescriptorBuffer : public wis::ImplVKDescriptorBuffer
 {
 public:
     using wis::ImplVKDescriptorBuffer::ImplVKDescriptorBuffer;
-    VKDescriptorBuffer(const VKDescriptorBuffer&) = delete;
-    VKDescriptorBuffer(VKDescriptorBuffer&&) noexcept = default;
-    VKDescriptorBuffer& operator=(const VKDescriptorBuffer&) = delete;
+    VKDescriptorBuffer(const VKDescriptorBuffer&)                = delete;
+    VKDescriptorBuffer(VKDescriptorBuffer&&) noexcept            = default;
+    VKDescriptorBuffer& operator=(const VKDescriptorBuffer&)     = delete;
     VKDescriptorBuffer& operator=(VKDescriptorBuffer&&) noexcept = default;
 
 public:

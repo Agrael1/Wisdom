@@ -8,7 +8,6 @@
 namespace wis::detail {
 static constexpr inline WisResult vk_success{ WisStatusOk, VK_SUCCESS, "Operation succeeded." };
 
-
 //-----------------------------------------------------------------------------
 inline constexpr WisStatus convert_vk(VkResult hr) noexcept
 {

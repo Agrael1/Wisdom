@@ -6,14 +6,14 @@ static inline constexpr char template_struct[] =
  * @struct {0}
  * @ingroup Structures
  *
- * 
+ *
  * @section {0}_spec Specification
  * <hr>
- * 
+ *
  * \cond WIS_GEN_CODE
  * {1}
  * \endcond
- * 
+ *
  * @section {0}_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
@@ -22,8 +22,8 @@ static inline constexpr char template_struct[] =
  *
  * @section {0}_descr Description
  * <hr>
- * 
- * \cond WIS_GEN_WIS_IDS 
+ *
+ * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
  * @section {0}_see_also See Also

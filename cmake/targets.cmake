@@ -1,6 +1,6 @@
 function(wis_make_target_bundle)
   cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS" ${ARGN})
-  
+
   if(NOT BUNDLE_TARGET)
     message(FATAL_ERROR "TARGET is required for wis_make_target_bundle")
   endif()
@@ -16,7 +16,7 @@ function(wis_make_target_bundle)
   if(BUNDLE_LINK_TARGETS)
     target_link_libraries(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_LINK_TARGETS})
   endif()
-  
+
   # Include directories
   if(BUNDLE_INCLUDE_DIRECTORIES)
     target_include_directories(wisdom-${BUNDLE_TARGET}-headers
@@ -31,7 +31,7 @@ function(wis_make_target_bundle)
     target_compile_definitions(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_COMPILE_DEFINITIONS})
   endif()
 
-  set_target_properties(wisdom-${BUNDLE_TARGET}-headers PROPERTIES 
+  set_target_properties(wisdom-${BUNDLE_TARGET}-headers PROPERTIES
     CXX_STANDARD 20
   )
 
@@ -44,7 +44,7 @@ function(wis_make_target_bundle)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-  
+
   # Create OBJECT targets for use with $<TARGET_OBJECTS:...>
   if(NOT BUNDLE_HEADER_ONLY AND (WISDOM_BUILD_STATIC OR WISDOM_BUILD_SHARED) AND BUNDLE_SOURCES)
     if(WISDOM_BUILD_STATIC)
@@ -53,10 +53,10 @@ function(wis_make_target_bundle)
       target_sources(wisdom-${BUNDLE_TARGET}-objects
         PRIVATE ${BUNDLE_SOURCES}
       )
-      
+
       target_link_libraries(wisdom-${BUNDLE_TARGET}-objects PUBLIC wisdom-${BUNDLE_TARGET}-headers)
       target_compile_definitions(wisdom-${BUNDLE_TARGET}-objects PUBLIC WISDOM_BUILD_BINARIES=1)
-      set_target_properties(wisdom-${BUNDLE_TARGET}-objects PROPERTIES 
+      set_target_properties(wisdom-${BUNDLE_TARGET}-objects PROPERTIES
         CXX_STANDARD 20
       )
     endif()
@@ -70,13 +70,13 @@ function(wis_make_target_bundle)
       )
 
       target_link_libraries(wisdom-${BUNDLE_TARGET}-objects-shared PUBLIC wisdom-${BUNDLE_TARGET}-headers)
-      target_compile_definitions(wisdom-${BUNDLE_TARGET}-objects-shared PUBLIC 
+      target_compile_definitions(wisdom-${BUNDLE_TARGET}-objects-shared PUBLIC
         WISDOM_BUILD_BINARIES=1
         WISDOM_SHARED_LIBRARY=1
       PRIVATE
         wisdom_shared_EXPORTS=1
       )
-      set_target_properties(wisdom-${BUNDLE_TARGET}-objects-shared PROPERTIES 
+      set_target_properties(wisdom-${BUNDLE_TARGET}-objects-shared PROPERTIES
         CXX_STANDARD 20
         POSITION_INDEPENDENT_CODE ON
       )

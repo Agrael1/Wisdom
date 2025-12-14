@@ -25,15 +25,23 @@ struct QueueResidency {
     public:
         QueueFormat() noexcept = default;
         QueueFormat(uint16_t flags, uint8_t count, uint8_t family_index) noexcept
-            : queue_flags(flags), count(count), family_index(family_index) { }
-        QueueFormat(const QueueFormat&) = delete;
+            : queue_flags(flags)
+            , count(count)
+            , family_index(family_index)
+        {
+        }
+        QueueFormat(const QueueFormat&)            = delete;
         QueueFormat& operator=(const QueueFormat&) = delete;
         QueueFormat(QueueFormat&& o) noexcept
-            : queue_flags(o.queue_flags), count(o.count), family_index(o.family_index) { }
+            : queue_flags(o.queue_flags)
+            , count(o.count)
+            , family_index(o.family_index)
+        {
+        }
         QueueFormat& operator=(QueueFormat&& o) noexcept
         {
-            queue_flags = o.queue_flags;
-            count = o.count;
+            queue_flags  = o.queue_flags;
+            count        = o.count;
             family_index = o.family_index;
             return *this;
         }
@@ -47,9 +55,9 @@ struct QueueResidency {
             return count == 0u;
         }
 
-        uint16_t queue_flags = 0;
-        uint8_t count = 0;
-        uint8_t family_index = 0;
+        uint16_t                     queue_flags  = 0;
+        uint8_t                      count        = 0;
+        uint8_t                      family_index = 0;
         mutable std::atomic<uint8_t> last{ 0 };
     };
     static constexpr size_t QueueIndex(QueueType type)
@@ -81,11 +89,13 @@ struct QueueResidency {
         }
     }
 
-    QueueResidency() noexcept = default;
-    QueueResidency(const QueueResidency&) = delete;
+    QueueResidency() noexcept                        = default;
+    QueueResidency(const QueueResidency&)            = delete;
     QueueResidency& operator=(const QueueResidency&) = delete;
     QueueResidency(QueueResidency&& o) noexcept
-        : available_queues(std::move(o.available_queues)) { }
+        : available_queues(std::move(o.available_queues))
+    {
+    }
     QueueResidency& operator=(QueueResidency&& o) noexcept
     {
         available_queues = std::move(o.available_queues);
@@ -95,8 +105,8 @@ struct QueueResidency {
 public:
     const QueueFormat* GetOfType(QueueType type) const noexcept
     {
-        auto idx = QueueIndex(type);
-        const auto* q = &available_queues[idx];
+        auto        idx = QueueIndex(type);
+        const auto* q   = &available_queues[idx];
 
         if (q->count == 0u) {
             idx = FindResembling(QueueTypes(idx));

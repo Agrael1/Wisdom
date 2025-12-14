@@ -23,7 +23,7 @@
  * )
  * FetchContent_MakeAvailable(Wisdom)
  * @endcode
- * 
+ *
  * @subsection requirements Requirements
  *
  * - CMake 3.22 or higher

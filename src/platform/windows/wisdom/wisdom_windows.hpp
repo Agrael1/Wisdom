@@ -28,7 +28,7 @@ class DX12WindowsExtension : public QueryInternalExtension<DX12WindowsExtension,
 {
 public:
     [[nodiscard]] WIS_INLINE wis::DX12SwapChain
-    CreateSwapchain(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept;
+                             CreateSwapchain(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept;
 
     [[nodiscard]] inline wis::ResultValue<DX12SwapChain>
     CreateSwapchain(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
@@ -38,7 +38,7 @@ public:
     }
 
     [[nodiscard]] WIS_INLINE wis::DX12SwapChain
-    CreateSwapchainUWP(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, IUnknown* window) const noexcept;
+                             CreateSwapchainUWP(wis::Result& result, const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, IUnknown* window) const noexcept;
     [[nodiscard]] inline wis::ResultValue<DX12SwapChain>
     CreateSwapchainUWP(const DX12Device& device, DX12QueueView main_queue, const wis::SwapchainDesc& desc, IUnknown* window) const noexcept
     {
@@ -61,7 +61,7 @@ public:
     GetSemaphoreHandle(wis::Result& result, const wis::DX12Fence& fence) const noexcept
     {
         HANDLE handle;
-        auto hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
+        auto   hr = device->CreateSharedHandle(fence.GetInternal().fence.get(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create shared handle for fence">(hr);
@@ -75,7 +75,7 @@ public:
         auto allocation = std::get<1>(memory);
 
         HANDLE handle;
-        auto hr = device->CreateSharedHandle(allocation->GetHeap(), nullptr, GENERIC_ALL, nullptr, &handle);
+        auto   hr = device->CreateSharedHandle(allocation->GetHeap(), nullptr, GENERIC_ALL, nullptr, &handle);
 
         if (!wis::succeeded(hr)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create shared handle for memory allocation">(hr);
@@ -107,15 +107,15 @@ class VKInteropDeviceExtension;
 
 template<>
 struct Internal<platform::VKWindowsExtension> {
-    wis::SharedInstance instance;
-    PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR = nullptr;
+    wis::SharedInstance                                instance;
+    PFN_vkCreateWin32SurfaceKHR                        vkCreateWin32SurfaceKHR                        = nullptr;
     PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR vkGetPhysicalDeviceWin32PresentationSupportKHR = nullptr;
 };
 template<>
 struct Internal<platform::VKInteropDeviceExtension> {
-    wis::SharedDevice device;
+    wis::SharedDevice                device;
     PFN_vkGetSemaphoreWin32HandleKHR vkGetSemaphoreWin32HandleKHR = nullptr;
-    PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR = nullptr;
+    PFN_vkGetMemoryWin32HandleKHR    vkGetMemoryWin32HandleKHR    = nullptr;
     // PFN_vkImportSemaphoreWin32HandleKHR vkImportSemaphoreWin32HandleKHR = nullptr; //later
 };
 
@@ -130,8 +130,8 @@ public:
     [[nodiscard]] wis::Result
     Init(const wis::VKFactory& in_instance) noexcept override
     {
-        instance = in_instance.GetInternal().factory;
-        vkCreateWin32SurfaceKHR = instance.GetInstanceProcAddr<PFN_vkCreateWin32SurfaceKHR>("vkCreateWin32SurfaceKHR");
+        instance                                       = in_instance.GetInternal().factory;
+        vkCreateWin32SurfaceKHR                        = instance.GetInstanceProcAddr<PFN_vkCreateWin32SurfaceKHR>("vkCreateWin32SurfaceKHR");
         vkGetPhysicalDeviceWin32PresentationSupportKHR = instance.GetInstanceProcAddr<PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR>("vkGetPhysicalDeviceWin32PresentationSupportKHR");
         return {};
     }
@@ -144,7 +144,7 @@ public:
 
 public:
     [[nodiscard]] WIS_INLINE wis::VKSwapChain
-    CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept;
+                             CreateSwapchain(wis::Result& result, const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept;
     [[nodiscard]] inline wis::ResultValue<wis::VKSwapChain>
     CreateSwapchain(const VKDevice& device, VKQueueView main_queue, const wis::SwapchainDesc& desc, HWND hwnd) const noexcept
     {
@@ -159,14 +159,14 @@ class VKInteropDeviceExtension : public QueryInternalExtension<VKInteropDeviceEx
 protected:
     virtual WIS_INLINE bool
     GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                     std::unordered_set<std::string_view>& ext_name_set,
-                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+                     std::unordered_set<std::string_view>&                                                            ext_name_set,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  structure_map,
+                     std::unordered_map<VkStructureType, uintptr_t>&                                                  property_map) noexcept override;
 
     virtual WIS_INLINE wis::Result
-    Init(const wis::VKDevice& instance,
-         const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-         const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
+                       Init(const wis::VKDevice&                                  instance,
+                            const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+                            const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override;
 
 public:
     virtual bool Supported() const noexcept override
@@ -178,11 +178,11 @@ public:
     [[nodiscard]] WIS_INLINE HANDLE
     GetSemaphoreHandle(wis::Result& result, const wis::VKFence& fence) const noexcept
     {
-        HANDLE handle;
+        HANDLE                           handle;
         VkSemaphoreGetWin32HandleInfoKHR handle_info{
-            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR,
-            .pNext = nullptr,
-            .semaphore = fence.GetInternal().fence.get(),
+            .sType      = VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR,
+            .pNext      = nullptr,
+            .semaphore  = fence.GetInternal().fence.get(),
             .handleType = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
         };
         auto vr = vkGetSemaphoreWin32HandleKHR(device.get(), &handle_info, &handle);
@@ -194,10 +194,10 @@ public:
     [[nodiscard]] WIS_INLINE HANDLE
     GetMemoryHandle(wis::Result& result, wis::VKMemoryView memory) const noexcept
     {
-        auto allocator = std::get<0>(memory);
-        auto allocation = std::get<1>(memory);
+        auto   allocator  = std::get<0>(memory);
+        auto   allocation = std::get<1>(memory);
         HANDLE handle;
-        auto vr = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
+        auto   vr = vmaGetMemoryWin32Handle(allocator, allocation, nullptr, &handle);
         if (!wis::succeeded(vr)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get memory handle">(vr);
         }
@@ -211,10 +211,10 @@ public:
 WISDOM_EXPORT
 namespace wis::platform {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
-using WindowsExtension = platform::DX12WindowsExtension;
+using WindowsExtension       = platform::DX12WindowsExtension;
 using InteropDeviceExtension = platform::DX12InteropDeviceExtension;
 #elif defined(WISDOM_VULKAN)
-using WindowsExtension = platform::VKWindowsExtension;
+using WindowsExtension       = platform::VKWindowsExtension;
 using InteropDeviceExtension = platform::VKInteropDeviceExtension;
 #endif // WISDOM_DX12
 } // namespace wis::platform

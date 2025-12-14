@@ -11,18 +11,18 @@ wis::VKSwapChain
 wis::platform::WaylandExtension::CreateSwapchain(wis::Result& result, const wis::VKDevice& device, wis::VKQueueView main_queue, const wis::SwapchainDesc& desc, wl_display* display, wl_surface* surface) const noexcept
 {
     VkWaylandSurfaceCreateInfoKHR surface_desc{
-        .sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .flags = 0,
+        .sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
+        .pNext   = nullptr,
+        .flags   = 0,
         .display = display,
         .surface = surface
     };
     wis::lib_info("Initializing Wayland Surface");
 
-    auto& devicei = device.GetInternal();
-    const auto& instance_table = instance.table();
+    auto&        devicei        = device.GetInternal();
+    const auto&  instance_table = instance.table();
     VkSurfaceKHR out_surface;
-    auto vr = vkCreateWaylandSurfaceKHR(instance.get(), &surface_desc, nullptr, &out_surface);
+    auto         vr = vkCreateWaylandSurfaceKHR(instance.get(), &surface_desc, nullptr, &out_surface);
     if (!wis::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create Win32 surface">(vr);
         return {};

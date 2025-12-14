@@ -18,14 +18,14 @@ WISDOM_EXPORT struct VKVertexBufferBinding;
 WISDOM_EXPORT
 template<>
 struct Internal<VKCommandList> {
-    wis::SharedDevice device;
-    h::VkCommandPool allocator = nullptr;
+    wis::SharedDevice  device;
+    h::VkCommandPool   allocator    = nullptr;
     h::VkCommandBuffer command_list = nullptr;
 
     VkPipelineLayout pipeline_layout = nullptr;
 
 public:
-    Internal() noexcept = default;
+    Internal() noexcept           = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -34,9 +34,9 @@ public:
         }
 
         Destroy();
-        device = std::move(o.device);
-        allocator = std::move(o.allocator);
-        command_list = std::move(o.command_list);
+        device          = std::move(o.device);
+        allocator       = std::move(o.allocator);
+        command_list    = std::move(o.command_list);
         pipeline_layout = std::move(o.pipeline_layout);
         return *this;
     }
@@ -72,10 +72,10 @@ public:
     {
         return closed;
     }
-    WIS_INLINE bool Close() noexcept;
+    WIS_INLINE bool          Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(wis::VKPipelineView initial_state = {}) noexcept;
-    WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
-    WIS_INLINE void CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void                      CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
+    WIS_INLINE void                      CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
     WIS_INLINE void CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
 
@@ -116,13 +116,13 @@ public:
 
     WIS_INLINE void DrawIndexedInstanced(uint32_t vertex_count_per_instance,
                                          uint32_t instance_count = 1,
-                                         uint32_t start_index = 0,
-                                         uint32_t base_vertex = 0,
+                                         uint32_t start_index    = 0,
+                                         uint32_t base_vertex    = 0,
                                          uint32_t start_instance = 0) noexcept;
 
     WIS_INLINE void DrawInstanced(uint32_t vertex_count_per_instance,
                                   uint32_t instance_count = 1,
-                                  uint32_t start_vertex = 0,
+                                  uint32_t start_vertex   = 0,
                                   uint32_t start_instance = 0) noexcept;
 
     WIS_INLINE void Dispatch(uint32_t x, uint32_t y, uint32_t z) noexcept;
@@ -168,9 +168,9 @@ class VKCommandList : public wis::ImplVKCommandList
 {
 public:
     using wis::ImplVKCommandList::ImplVKCommandList;
-    VKCommandList(const VKCommandList&) = delete;
-    VKCommandList(VKCommandList&&) noexcept = default;
-    VKCommandList& operator=(const VKCommandList&) = delete;
+    VKCommandList(const VKCommandList&)                = delete;
+    VKCommandList(VKCommandList&&) noexcept            = default;
+    VKCommandList& operator=(const VKCommandList&)     = delete;
     VKCommandList& operator=(VKCommandList&&) noexcept = default;
 
 public:

@@ -3,8 +3,8 @@ function(_ww_load_nuget)
   # Latest NuGet is at https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
   # Secure download with hash verification
   set(FILE_URL "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe")
-  set(FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe")  
-  file(DOWNLOAD 
+  set(FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe")
+  file(DOWNLOAD
       ${FILE_URL}
       ${FILE_PATH}
       STATUS download_status
@@ -13,7 +13,7 @@ function(_ww_load_nuget)
       TLS_VERIFY ON
       TLS_VERSION 1.2
   )
-  
+
   # Check download status
   list(GET download_status 0 status_code)
   if(NOT status_code EQUAL 0)
@@ -33,7 +33,7 @@ function(_ww_find_nuget)
   find_program(
     NUGET_EXE
     NAMES nuget)
-  
+
   if(NOT NUGET_EXE)
     message ("NUGET.EXE not found. Downloading...")
     find_program(

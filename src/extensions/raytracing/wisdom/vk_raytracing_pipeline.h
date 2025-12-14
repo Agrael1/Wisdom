@@ -14,7 +14,7 @@ using VKRaytracingPipelineView = std::tuple<VkPipeline>;
 template<>
 struct Internal<VKRaytracingPipeline> {
     wis::managed_handle_ex<VkPipeline> state_object;
-    std::unique_ptr<uint8_t[]> shader_identifiers;
+    std::unique_ptr<uint8_t[]>         shader_identifiers;
 };
 
 class VKRaytracingPipeline : public QueryInternal<VKRaytracingPipeline>

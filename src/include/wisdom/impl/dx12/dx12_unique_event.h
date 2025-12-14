@@ -8,11 +8,15 @@
 namespace wis {
 struct unique_event {
     unique_event(HANDLE event = nullptr) noexcept
-        : hevent(event) { }
-    unique_event(unique_event const&) = delete;
+        : hevent(event)
+    {
+    }
+    unique_event(unique_event const&)            = delete;
     unique_event& operator=(unique_event const&) = delete;
     unique_event(unique_event&& o) noexcept
-        : hevent(std::exchange(o.hevent, nullptr)) { }
+        : hevent(std::exchange(o.hevent, nullptr))
+    {
+    }
     unique_event& operator=(unique_event&& o) noexcept
     {
         clear();
