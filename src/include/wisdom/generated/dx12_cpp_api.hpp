@@ -36,14 +36,14 @@ public:
  *
  * */
 WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(bool                                         debug_layer,
-                                                          wis::span<wis::DX12InstanceExtensionHeader*> extensions,
-                                                          wis::Result&                                 out_result) noexcept
+        wis::span<wis::DX12InstanceExtensionHeader*> extensions,
+        wis::Result&                                 out_result) noexcept
 {
     wis::DX12Instance instance;
     out_result = convert_result(::wisDX12CreateInstance(debug_layer,
-                                                        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                                        extensions.size(),
-                                                        instance.GetStorage()));
+                                reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                extensions.size(),
+                                instance.GetStorage()));
     return instance;
 }
 

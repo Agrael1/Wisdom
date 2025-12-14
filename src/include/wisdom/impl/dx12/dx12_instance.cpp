@@ -11,9 +11,9 @@ using namespace wis::impl;
 using namespace wis::detail;
 
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
-                                                        WisDX12InstanceExtensionHeader** extensions,
-                                                        size_t                           extension_count,
-                                                        WisDX12Instance*                 instance)
+        WisDX12InstanceExtensionHeader** extensions,
+        size_t                           extension_count,
+        WisDX12Instance*                 instance)
 {
     WisResult res = dx_success;
     // Instance can come as partially constructed from C side
@@ -30,7 +30,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                    
     }
 
     impl.factory = ref.detach();
-    for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
+    for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*> { extensions, extension_count }) {
         auto* table = reinterpret_cast<DX12InstanceExtensionHeader*>(ext);
         if (table) {
             auto xres = table->CallInit(ext, impl);

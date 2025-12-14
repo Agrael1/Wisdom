@@ -28,7 +28,9 @@ public:
     void                                   ParseFile(std::filesystem::path file);
     void                                   WriteMainAPI();
     void                                   WriteMainAPIDoc();
-    std::span<const std::filesystem::path> GetFiles() const { return files; }
+    std::span<const std::filesystem::path> GetFiles() const {
+        return files;
+    }
 
 public:
     void ParseIncludes(tinyxml2::XMLElement* includes);
@@ -157,8 +159,8 @@ public:
             }
         }
         return pre_doc
-                ? wis::format("    {}\n    {}\n", documentation, value_decl)
-                : wis::format("{}{}\n", value_decl, documentation);
+               ? wis::format("    {}\n    {}\n", documentation, value_decl)
+               : wis::format("{}{}\n", value_decl, documentation);
     }
 
     template<Lang lang = Lang::C, typename T>

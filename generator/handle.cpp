@@ -2,7 +2,7 @@
 
 //-----------------------------------------------------------------------------
 static inline constexpr char template_handle[] =
-        R"(/**
+    R"(/**
  * @struct {0}
  * @ingroup Handles
  *
@@ -27,7 +27,7 @@ static inline constexpr char template_handle[] =
 void Generator::ParseHandles(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("handle"); type;
-         type       = type->NextSiblingElement("handle")) {
+            type       = type->NextSiblingElement("handle")) {
 
         auto  name    = type->FindAttribute("name")->Value();
         auto  version = type->FindAttribute("version")->Value();
@@ -63,7 +63,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;
-             impl       = impl->NextSiblingElement("impl")) {
+                impl       = impl->NextSiblingElement("impl")) {
             auto impl_for      = impl->FindAttribute("for")->Value();
             auto impl_for_code = ImplCode(impl_for);
             auto impl_file     = impl->FindAttribute("include")->Value();

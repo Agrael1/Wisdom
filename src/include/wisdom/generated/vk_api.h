@@ -45,9 +45,9 @@ WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
  *
  * */
 WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
-                                         WisVKInstanceExtensionHeader** extensions,
-                                         size_t                         extension_count,
-                                         WisVKInstance*                 instance);
+        WisVKInstanceExtensionHeader** extensions,
+        size_t                         extension_count,
+        WisVKInstance*                 instance);
 
 #ifdef __cplusplus
 }

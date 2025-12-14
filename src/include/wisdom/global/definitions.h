@@ -18,7 +18,7 @@
 #ifdef __cplusplus
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
 #define WIS_HAS_CPP17 1
-#else 
+#else
 #define WIS_HAS_CPP17 0
 #endif
 

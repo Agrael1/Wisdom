@@ -20,11 +20,11 @@ struct VkExtensionPropertiesHash {
 
     std::size_t operator()(const VkExtensionProperties& ext) const noexcept
     {
-        return std::hash<std::string_view>{}(ext.extensionName);
+        return std::hash<std::string_view> {}(ext.extensionName);
     }
     std::size_t operator()(std::string_view name) const noexcept
     {
-        return std::hash<std::string_view>{}(name);
+        return std::hash<std::string_view> {}(name);
     }
 };
 // equality with VkExtensionProperties and string_view
@@ -50,11 +50,11 @@ struct VkLayerPropertiesHash {
     using is_transparent = void;
     std::size_t operator()(const VkLayerProperties& layer) const noexcept
     {
-        return std::hash<std::string_view>{}(layer.layerName);
+        return std::hash<std::string_view> {}(layer.layerName);
     }
     std::size_t operator()(std::string_view name) const noexcept
     {
-        return std::hash<std::string_view>{}(name);
+        return std::hash<std::string_view> {}(name);
     }
 };
 struct VkLayerPropertiesEqual {
@@ -137,9 +137,9 @@ GetInstanceLayers(WisResult& result, const VKMainGlobal& table) noexcept
 } // namespace wis::detail
 
 WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
-                                                      WisVKInstanceExtensionHeader** extensions,
-                                                      size_t                         extension_count,
-                                                      WisVKInstance*                 instance)
+        WisVKInstanceExtensionHeader** extensions,
+        size_t                         extension_count,
+        WisVKInstance*                 instance)
 {
     WisResult res = vk_success;
     // Instance can come as partially constructed from C side
@@ -260,7 +260,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
     impl.debug_layer   = debug_layer;
 
     // Initialize instance extensions
-    for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
+    for (auto* ext : wis::span<WisVKInstanceExtensionHeader*> { extensions, extension_count }) {
         auto* table = reinterpret_cast<VKInstanceExtensionHeader*>(ext);
         if (table) {
             auto xres = table->Init(impl, wis::span{ enabled_extensions_and_layers_names.get(), enabled_extension_count }, wis::span{ enabled_extensions_and_layers_names.get() + enabled_extension_count, enabled_layer_count });

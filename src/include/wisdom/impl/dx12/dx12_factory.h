@@ -12,15 +12,15 @@ WIS_EXTERN_C WisResult WisDX12CreateFactory(const struct WisFactoryCreateInfo* i
 // * @param extensions Array of factory extensions (may be nullptr)
 // * @param extension_count Number of extensions in array
 // * @return wis::DX12Factory object
-// * 
+// *
 // * @description
 // * Creates the main factory object for DirectX 12 adapter enumeration.
-// * 
+// *
 // * @validusage_begin
 // * @vku result <b>MUST</b> be a valid pointer
 // * @vku If extension_count > 0, extensions <b>MUST</b> be valid
 // * @validusage_end
-// * 
+// *
 // * For detailed documentation, see @ref dx12_factory_creation
 // */
 //[[nodiscard]] WIS_INLINE wis::DX12Factory

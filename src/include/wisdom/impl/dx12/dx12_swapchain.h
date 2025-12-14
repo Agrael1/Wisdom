@@ -102,8 +102,9 @@ public:
     {
         auto st = present_event.wait(uint32_t(timeout_ns / 1000));
         return st == wis::Status::Timeout  ? wis::Result{ st, "Wait timed out" }
-                : st != wis::Status::Error ? wis::success
-                                           : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
+               :
+               st != wis::Status::Error ? wis::success
+               : wis::make_result<wis::Func<wis::FuncD()>(), "Failed to wait for event">(E_FAIL);
     }
 };
 

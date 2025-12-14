@@ -6,9 +6,9 @@
 #endif
 
 WIS_EXTERN_C WisResult wisDX12CreateInstance(bool                             debug_layer,
-                                             WisDX12InstanceExtensionHeader** extensions,
-                                             size_t                           extension_count,
-                                             WisDX12Instance*                 instance)
+        WisDX12InstanceExtensionHeader** extensions,
+        size_t                           extension_count,
+        WisDX12Instance*                 instance)
 {
     // Enable RVO
     //DX12Factory f;

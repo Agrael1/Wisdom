@@ -56,7 +56,9 @@ struct has_uuidof_support_tag {
  */
 template<typename T>
 struct guid_of {
-    static constexpr GUID get() { return __uuidof(T); }
+    static constexpr GUID get() {
+        return __uuidof(T);
+    }
 };
 
 /**
@@ -179,61 +181,61 @@ class com_ptr
     friend class com_ptr;
 
 public:
-   /** @brief Pointer type alias. */
+    /** @brief Pointer type alias. */
     typedef T* pointer;
-   /** @brief Const pointer type alias. */
+    /** @brief Const pointer type alias. */
     typedef const T* const_pointer;
 
 public:
-   // ========================================================================
-   // Constructors and Destructor
-   // ========================================================================
+    // ========================================================================
+    // Constructors and Destructor
+    // ========================================================================
 
-   /**
-     * @brief Default constructor. Initializes to nullptr.
-     */
+    /**
+      * @brief Default constructor. Initializes to nullptr.
+      */
     com_ptr() noexcept
         : ptr(nullptr)
     {
     }
 
-   /**
-     * @brief Nullptr constructor. Initializes to nullptr.
-     * @param Null pointer literal.
-     */
+    /**
+      * @brief Nullptr constructor. Initializes to nullptr.
+      * @param Null pointer literal.
+      */
     com_ptr(std::nullptr_t) noexcept
         : ptr(nullptr)
     {
     }
 
-   /**
-     * @brief Constructs from a raw pointer and increments reference count.
-     * @param p Raw pointer to take ownership of.
-     * @note Calls AddRef() on the pointer if non-null.
-     */
+    /**
+      * @brief Constructs from a raw pointer and increments reference count.
+      * @param p Raw pointer to take ownership of.
+      * @note Calls AddRef() on the pointer if non-null.
+      */
     explicit com_ptr(pointer p) noexcept
         : ptr(p)
     {
         add_ref();
     }
 
-   /**
-     * @brief Constructs from a raw pointer without incrementing reference count.
-     * @param p Raw pointer (as void*) to take ownership of.
-     * @param Tag to indicate ownership transfer.
-     * @note Does NOT call AddRef(). Use when receiving already-incremented pointers.
-     */
+    /**
+      * @brief Constructs from a raw pointer without incrementing reference count.
+      * @param p Raw pointer (as void*) to take ownership of.
+      * @param Tag to indicate ownership transfer.
+      * @note Does NOT call AddRef(). Use when receiving already-incremented pointers.
+      */
     com_ptr(void* p, take_ownership_t) noexcept
         : ptr(static_cast<pointer>(p))
     {
     }
 
-   /**
-     * @brief Converting copy constructor from compatible com_ptr.
-     * @tparam U Source type (must be convertible to T*).
-     * @param other Source com_ptr to copy from.
-     * @note Increments reference count.
-     */
+    /**
+      * @brief Converting copy constructor from compatible com_ptr.
+      * @tparam U Source type (must be convertible to T*).
+      * @param other Source com_ptr to copy from.
+      * @note Increments reference count.
+      */
     template<class U>
     com_ptr(const com_ptr<U>& other) noexcept
         : ptr(other.ptr)
@@ -241,23 +243,23 @@ public:
         add_ref();
     }
 
-   /**
-     * @brief Copy constructor.
-     * @param other Source com_ptr to copy from.
-     * @note Increments reference count.
-     */
+    /**
+      * @brief Copy constructor.
+      * @param other Source com_ptr to copy from.
+      * @note Increments reference count.
+      */
     com_ptr(const com_ptr<T>& other) noexcept
         : ptr(other.ptr)
     {
         add_ref();
     }
 
-   /**
-     * @brief Converting move constructor from compatible com_ptr.
-     * @tparam U Source type (must be convertible to T*).
-     * @param other Source com_ptr to move from (will be nulled).
-     * @note Does NOT increment reference count.
-     */
+    /**
+      * @brief Converting move constructor from compatible com_ptr.
+      * @tparam U Source type (must be convertible to T*).
+      * @param other Source com_ptr to move from (will be nulled).
+      * @note Does NOT increment reference count.
+      */
     template<class U>
     com_ptr(com_ptr<U>&& other) noexcept
         : ptr(other.ptr)
@@ -265,35 +267,35 @@ public:
         other.ptr = nullptr;
     }
 
-   /**
-     * @brief Move constructor.
-     * @param other Source com_ptr to move from (will be nulled).
-     * @note Does NOT increment reference count.
-     */
+    /**
+      * @brief Move constructor.
+      * @param other Source com_ptr to move from (will be nulled).
+      * @note Does NOT increment reference count.
+      */
     com_ptr(com_ptr<T>&& other) noexcept
         : ptr(other.ptr)
     {
         other.ptr = nullptr;
     }
 
-   /**
-     * @brief Destructor. Releases the held pointer.
-     */
+    /**
+      * @brief Destructor. Releases the held pointer.
+      */
     ~com_ptr() noexcept
     {
         release();
     }
 
-   // ========================================================================
-   // Assignment Operators
-   // ========================================================================
+    // ========================================================================
+    // Assignment Operators
+    // ========================================================================
 
-   /**
-     * @brief Converting copy assignment from compatible com_ptr.
-     * @tparam U Source type (must be convertible to T*).
-     * @param other Source com_ptr to copy from.
-     * @return Reference to this.
-     */
+    /**
+      * @brief Converting copy assignment from compatible com_ptr.
+      * @tparam U Source type (must be convertible to T*).
+      * @param other Source com_ptr to copy from.
+      * @return Reference to this.
+      */
     template<class U>
     com_ptr& operator=(const com_ptr<U>& other) noexcept
     {
@@ -301,23 +303,23 @@ public:
         return *this;
     }
 
-   /**
-     * @brief Copy assignment operator.
-     * @param other Source com_ptr to copy from.
-     * @return Reference to this.
-     */
+    /**
+      * @brief Copy assignment operator.
+      * @param other Source com_ptr to copy from.
+      * @return Reference to this.
+      */
     com_ptr& operator=(const com_ptr<T>& other) noexcept
     {
         copy_ref(other.ptr);
         return *this;
     }
 
-   /**
-     * @brief Converting move assignment from compatible com_ptr.
-     * @tparam U Source type (must be convertible to T*).
-     * @param other Source com_ptr to move from (will be nulled).
-     * @return Reference to this.
-     */
+    /**
+      * @brief Converting move assignment from compatible com_ptr.
+      * @tparam U Source type (must be convertible to T*).
+      * @param other Source com_ptr to move from (will be nulled).
+      * @return Reference to this.
+      */
     template<class U>
     com_ptr& operator=(com_ptr<U>&& other) noexcept
     {
@@ -327,11 +329,11 @@ public:
         return *this;
     }
 
-   /**
-     * @brief Move assignment operator.
-     * @param other Source com_ptr to move from (will be nulled).
-     * @return Reference to this.
-     */
+    /**
+      * @brief Move assignment operator.
+      * @param other Source com_ptr to move from (will be nulled).
+      * @return Reference to this.
+      */
     com_ptr& operator=(com_ptr<T>&& other) noexcept
     {
         if (this != &other) {
@@ -342,98 +344,98 @@ public:
         return *this;
     }
 
-   // ========================================================================
-   // Operators
-   // ========================================================================
+    // ========================================================================
+    // Operators
+    // ========================================================================
 
-   /**
-     * @brief Boolean conversion operator.
-     * @return True if pointer is non-null.
-     */
+    /**
+      * @brief Boolean conversion operator.
+      * @return True if pointer is non-null.
+      */
     explicit operator bool() const noexcept
     {
         return ptr != nullptr;
     }
 
-   /**
-     * @brief Member access operator.
-     * @return The raw pointer.
-     */
+    /**
+      * @brief Member access operator.
+      * @return The raw pointer.
+      */
     pointer operator->() const noexcept
     {
         return ptr;
     }
 
-   /**
-     * @brief Dereference operator.
-     * @return Reference to the pointed object.
-     */
+    /**
+      * @brief Dereference operator.
+      * @return Reference to the pointed object.
+      */
     T& operator*() const noexcept
     {
         return *ptr;
     }
 
-   // ========================================================================
-   // Public Methods
-   // ========================================================================
+    // ========================================================================
+    // Public Methods
+    // ========================================================================
 
-   /**
-     * @brief Gets the IID (interface identifier) for type T.
-     * @return The GUID associated with type T.
-     * @note Only available when __uuidof is supported or GUID is specialized.
-     */
+    /**
+      * @brief Gets the IID (interface identifier) for type T.
+      * @return The GUID associated with type T.
+      * @note Only available when __uuidof is supported or GUID is specialized.
+      */
     static constexpr GUID iid() noexcept
     {
         return guid_of_v<T>();
     }
 
-   /**
-     * @brief Gets the raw pointer.
-     * @return The raw pointer (does not transfer ownership).
-     */
+    /**
+      * @brief Gets the raw pointer.
+      * @return The raw pointer (does not transfer ownership).
+      */
     pointer get() const noexcept
     {
         return ptr;
     }
 
-   /**
-     * @brief Releases current pointer and returns address for output parameter.
-     * @return Address of the internal pointer.
-     * @note Releases any currently held pointer before returning.
-     *
-     * @par Example:
-     * @code
-     * com_ptr<IFoo> foo;
-     * factory->CreateFoo(foo.put());
-     * @endcode
-     */
+    /**
+      * @brief Releases current pointer and returns address for output parameter.
+      * @return Address of the internal pointer.
+      * @note Releases any currently held pointer before returning.
+      *
+      * @par Example:
+      * @code
+      * com_ptr<IFoo> foo;
+      * factory->CreateFoo(foo.put());
+      * @endcode
+      */
     pointer* put() noexcept
     {
         release();
         return &ptr;
     }
 
-   /**
-     * @brief Releases current pointer and returns void** for output parameter.
-     * @return Address of the internal pointer as void**.
-     * @note Releases any currently held pointer before returning.
-     *
-     * @par Example:
-     * @code
-     * com_ptr<IFoo> foo;
-     * factory->CreateFoo(foo.iid(), foo.put_void());
-     * @endcode
-     */
+    /**
+      * @brief Releases current pointer and returns void** for output parameter.
+      * @return Address of the internal pointer as void**.
+      * @note Releases any currently held pointer before returning.
+      *
+      * @par Example:
+      * @code
+      * com_ptr<IFoo> foo;
+      * factory->CreateFoo(foo.iid(), foo.put_void());
+      * @endcode
+      */
     void** put_void() noexcept
     {
         return reinterpret_cast<void**>(put());
     }
 
-   /**
-     * @brief Attaches a raw pointer without incrementing reference count.
-     * @param value Raw pointer to attach.
-     * @note Releases any currently held pointer first.
-     */
+    /**
+      * @brief Attaches a raw pointer without incrementing reference count.
+      * @param value Raw pointer to attach.
+      * @note Releases any currently held pointer first.
+      */
     void attach(pointer value) noexcept
     {
         if (ptr != value) {
@@ -442,11 +444,11 @@ public:
         ptr = value;
     }
 
-   /**
-     * @brief Detaches and returns the raw pointer.
-     * @return The raw pointer (ownership transferred to caller).
-     * @note The internal pointer is set to nullptr.
-     */
+    /**
+      * @brief Detaches and returns the raw pointer.
+      * @return The raw pointer (ownership transferred to caller).
+      * @note The internal pointer is set to nullptr.
+      */
     pointer detach() noexcept
     {
         pointer tmp = ptr;
@@ -454,10 +456,10 @@ public:
         return tmp;
     }
 
-   /**
-     * @brief Swaps contents with another com_ptr.
-     * @param other The com_ptr to swap with.
-     */
+    /**
+      * @brief Swaps contents with another com_ptr.
+      * @param other The com_ptr to swap with.
+      */
     void swap(com_ptr& other) noexcept
     {
         pointer tmp = ptr;
@@ -491,50 +493,50 @@ public:
         return ptr->QueryInterface(guid, out->put_void());
     }
 
-   /**
-     * @brief Copies from another raw pointer (increments ref count).
-     * @param other Raw pointer to copy from.
-     */
+    /**
+      * @brief Copies from another raw pointer (increments ref count).
+      * @param other Raw pointer to copy from.
+      */
     void copy_from(T* other) noexcept
     {
         copy_ref(other);
     }
 
-   /**
-     * @brief Copies to another raw pointer location (increments ref count).
-     * @param other Output pointer location.
-     */
+    /**
+      * @brief Copies to another raw pointer location (increments ref count).
+      * @param other Output pointer location.
+      */
     void copy_to(T** other) const noexcept
     {
         add_ref();
         *other = ptr;
     }
 
-   /**
-     * @brief Releases the held pointer and sets to nullptr.
-     */
+    /**
+      * @brief Releases the held pointer and sets to nullptr.
+      */
     void reset() noexcept
     {
         release();
     }
 
-   /**
-     * @brief Returns void** without releasing (unchecked).
-     * @return Address of the internal pointer as void**.
-     * @warning Use only when you know the pointer is already null or
-     *          you're handling ownership manually.
-     */
+    /**
+      * @brief Returns void** without releasing (unchecked).
+      * @return Address of the internal pointer as void**.
+      * @warning Use only when you know the pointer is already null or
+      *          you're handling ownership manually.
+      */
     void** put_void_unchecked() noexcept
     {
         return reinterpret_cast<void**>(&ptr);
     }
 
-   /**
-     * @brief Returns T** without releasing (unchecked).
-     * @return Address of the internal pointer.
-     * @warning Use only when you know the pointer is already null or
-     *          you're handling ownership manually.
-     */
+    /**
+      * @brief Returns T** without releasing (unchecked).
+      * @return Address of the internal pointer.
+      * @warning Use only when you know the pointer is already null or
+      *          you're handling ownership manually.
+      */
     pointer* put_unchecked() noexcept
     {
         return &ptr;
@@ -545,10 +547,10 @@ private:
     // Private Implementation Helpers
     // ========================================================================
 
-   /**
-     * @brief Copies a reference (releases old, acquires new).
-     * @param other Pointer to copy from.
-     */
+    /**
+      * @brief Copies a reference (releases old, acquires new).
+      * @param other Pointer to copy from.
+      */
     void copy_ref(T* other) noexcept
     {
         if (ptr != other) {
@@ -558,9 +560,9 @@ private:
         }
     }
 
-   /**
-     * @brief Increments reference count if pointer is non-null.
-     */
+    /**
+      * @brief Increments reference count if pointer is non-null.
+      */
     void add_ref() const noexcept
     {
         if (ptr) {
@@ -568,9 +570,9 @@ private:
         }
     }
 
-   /**
-     * @brief Releases reference and sets pointer to null.
-     */
+    /**
+      * @brief Releases reference and sets pointer to null.
+      */
     void release() noexcept
     {
         T* tmp = ptr;

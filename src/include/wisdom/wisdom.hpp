@@ -43,14 +43,14 @@ using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
  *
  * */
 WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
-                                                  wis::span<wis::InstanceExtensionHeader*> extensions,
-                                                  wis::Result&                             out_result) noexcept
+        wis::span<wis::InstanceExtensionHeader*> extensions,
+        wis::Result&                             out_result) noexcept
 {
     wis::DX12Instance instance;
     out_result = convert_result(::wisDX12CreateInstance(debug_layer,
-                                                        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                                        extensions.size(),
-                                                        instance.GetStorage()));
+                                reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                extensions.size(),
+                                instance.GetStorage()));
     return instance;
 }
 
@@ -87,14 +87,14 @@ using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
  *
  * */
 WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
-                                                  wis::span<wis::InstanceExtensionHeader*> extensions,
-                                                  wis::Result&                             out_result) noexcept
+        wis::span<wis::InstanceExtensionHeader*> extensions,
+        wis::Result&                             out_result) noexcept
 {
     wis::VKInstance instance;
     out_result = convert_result(::wisVKCreateInstance(debug_layer,
-                                                      reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                                      extensions.size(),
-                                                      instance.GetStorage()));
+                                reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                extensions.size(),
+                                instance.GetStorage()));
     return instance;
 }
 
