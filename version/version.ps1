@@ -21,7 +21,7 @@ param(
     [Parameter(Mandatory=$true, Position=0)]
     [ValidateSet('Get', 'Set', 'Major', 'Minor', 'Patch')]
     [string]$Command,
-    
+
     [Parameter(Mandatory=$false, Position=1)]
     [string]$Version
 )
@@ -61,10 +61,10 @@ function Get-VersionComponents {
 
 function Invoke-VersionBump {
     param([string]$BumpType)
-    
+
     $current = Read-Version
     $components = Get-VersionComponents $current
-    
+
     switch ($BumpType) {
         'Major' {
             $components.Major++
@@ -79,10 +79,10 @@ function Invoke-VersionBump {
             $components.Patch++
         }
     }
-    
+
     $newVersion = "$($components.Major).$($components.Minor).$($components.Patch)"
     Write-Version $newVersion
-    
+
     Write-Host "Version bumped: $current -> $newVersion" -ForegroundColor Green
     return $newVersion
 }

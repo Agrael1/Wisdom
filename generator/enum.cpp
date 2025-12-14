@@ -9,18 +9,18 @@ static inline constexpr char template_enum[] =
  *
  * @section {0}_spec Specification
  * <hr>
- * 
+ *
  * \cond WIS_GEN_CODE
  * {1}
  * \endcond
- * 
+ *
  * @section {0}_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
  * {2}
  * \endcond
- * 
- * 
+ *
+ *
  * @section {0}_see_also See Also
  * <hr>
  *

@@ -46,7 +46,7 @@ set(DOC_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom/contributing.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom/getting_started.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/wisdom-custom.css"
-    
+
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/header.html"
 )
 

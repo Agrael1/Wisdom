@@ -1,7 +1,7 @@
 # Function to detect platform and set relevant variables
 function(wisdom_detect_platform)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/ecm")
-  
+
   # Check the platform
   if(WIN32)
     set(WISDOM_WINDOWS TRUE CACHE INTERNAL "Windows build" FORCE)
@@ -27,7 +27,7 @@ function(wisdom_detect_platform)
     set(WISDOM_LINUX TRUE CACHE INTERNAL "Linux build" FORCE)
     set(WISDOM_PLATFORM "Linux" CACHE STRING "Platform name" FORCE)
   endif()
-  
+
   # Detect underlying graphics system
   if(WISDOM_WINDOWS)
     set(WISDOM_DX12 TRUE CACHE BOOL "Use D3D12 as default graphics API" FORCE)
@@ -47,16 +47,16 @@ function(wisdom_detect_platform)
     if(DEFINED ENV{VULKAN_SDK} AND NOT Vulkan_FOUND)
       set(VULKAN_SDK_PATH "$ENV{VULKAN_SDK}")
       message(STATUS "VULKAN_SDK environment variable found: ${VULKAN_SDK_PATH}")
-      
+
       # Add hints for find_package
       list(APPEND CMAKE_PREFIX_PATH "${VULKAN_SDK_PATH}")
-      
+
       # On Linux, the SDK structure might be different
       if(UNIX AND NOT APPLE)
         list(APPEND CMAKE_PREFIX_PATH "${VULKAN_SDK_PATH}/x86_64")
       endif()
     endif()
-    
+
     # Try to find Vulkan
     find_package(Vulkan QUIET)
     if(Vulkan_FOUND)

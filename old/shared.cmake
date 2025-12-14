@@ -1,9 +1,9 @@
 # Categories of headers
-set(BRIDGE_HEADERS 
+set(BRIDGE_HEADERS
     "include/wisdom/bridge/format.hpp"
     "include/wisdom/bridge/source_location.hpp"
 )
-set(GLOBAL_HEADERS 
+set(GLOBAL_HEADERS
     "include/wisdom/global/definitions.hpp"
 )
 

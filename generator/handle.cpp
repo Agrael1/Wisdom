@@ -6,10 +6,10 @@ static inline constexpr char template_handle[] =
  * @struct {0}
  * @ingroup Handles
  *
- * 
+ *
  * @section {0}_spec Specification
  * <hr>
- * 
+ *
  * \cond WIS_GEN_CODE
  * {1}
  * \endcond

@@ -6,19 +6,19 @@
 # Example: cmake -DWISDOM_DXC_PATH="C:/custom/dxc" ..
 if(WISDOM_DXC_PATH)
   message(STATUS "Using custom DXC path: ${WISDOM_DXC_PATH}")
-  
+
   if(WIN32)
     set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc.exe" CACHE INTERNAL "")
-    set(DXC_DLLS 
+    set(DXC_DLLS
         "${WISDOM_DXC_PATH}/bin/dxcompiler.dll"
         "${WISDOM_DXC_PATH}/bin/dxil.dll")
   else()
     set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc" CACHE INTERNAL "")
-    set(DXC_DLLS 
+    set(DXC_DLLS
         "${WISDOM_DXC_PATH}/lib/libdxcompiler.so"
         "${WISDOM_DXC_PATH}/lib/libdxil.so")
   endif()
-  
+
   # Verify that the executable exists
   if(NOT EXISTS ${DXC_EXECUTABLE})
     message(WARNING "Custom DXC executable not found at: ${DXC_EXECUTABLE}")
@@ -30,25 +30,25 @@ if(WISDOM_DXC_PATH)
 # Option 2: Try to use Vulkan SDK's DXC (if WISDOM_VULKAN is enabled and no custom path)
 elseif(WISDOM_VULKAN AND Vulkan_dxc_EXECUTABLE)
   message(STATUS "Using DXC from Vulkan SDK")
-  
+
   # Use Vulkan SDK's DXC
   find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE} ENV VULKAN_SDK PATH_SUFFIXES bin)
-  
+
   if(DXCOMPILER)
     message(STATUS "Found Vulkan SDK DXC: ${DXCOMPILER}")
     set(DXC_EXECUTABLE ${DXCOMPILER} CACHE INTERNAL "")
-    
+
     # Try to find DLLs alongside the executable for deployment
     get_filename_component(DXC_BIN_DIR ${DXCOMPILER} DIRECTORY)
-    
+
     if(WIN32)
-      set(DXC_DLLS 
+      set(DXC_DLLS
           "${DXC_BIN_DIR}/dxcompiler.dll"
           "${DXC_BIN_DIR}/dxil.dll")
     else()
       # On Linux, libraries might be in ../lib relative to bin
       get_filename_component(DXC_SDK_DIR ${DXC_BIN_DIR} DIRECTORY)
-      set(DXC_DLLS 
+      set(DXC_DLLS
           "${DXC_SDK_DIR}/lib/libdxcompiler.so"
           "${DXC_SDK_DIR}/lib/libdxil.so")
     endif()
@@ -78,7 +78,7 @@ if(WISDOM_DOWNLOAD_DXC)
 
     # Download DXC using CPM
     CPMAddPackage(
-      NAME dxc 
+      NAME dxc
       URL ${DXC_FILE}
     )
     set(dxc_SOURCE_DIR ${dxc_SOURCE_DIR} CACHE INTERNAL "")
@@ -90,14 +90,14 @@ if(WISDOM_DOWNLOAD_DXC)
     set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/x64/dxc.exe
         CACHE INTERNAL "")
-    set(DXC_DLLS 
+    set(DXC_DLLS
         ${dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll
         ${dxc_SOURCE_DIR}/bin/x64/dxil.dll)
   else()
     set(DXC_EXECUTABLE
         ${dxc_SOURCE_DIR}/bin/dxc
         CACHE INTERNAL "")
-    set(DXC_DLLS 
+    set(DXC_DLLS
         ${dxc_SOURCE_DIR}/lib/libdxcompiler.so
         ${dxc_SOURCE_DIR}/lib/libdxil.so)
   endif()
