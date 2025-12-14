@@ -33,6 +33,7 @@ bld/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+/[Ii]nstall/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -365,6 +366,11 @@ FodyWeavers.xsd
 /CMakeSettings.json
 *.idb
 .vscode/settings.json
-/**/gen/generate_functions.bat
 #restyler
 *.orig
+
+# Block generated file for exports
+/**/generated/wisdom_exports.h
+
+# Package artifacts
+/artifacts/

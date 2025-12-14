@@ -1,0 +1,11 @@
+#pragma once
+#include <tinyxml2.h>
+#include <string_view>
+#include <unordered_map>
+#include <filesystem>
+#include <span>
+#include <array>
+#include <optional>
+#include <vector>
+#include <fstream>
+#include "../src/include/wisdom/bridge/format.hpp"

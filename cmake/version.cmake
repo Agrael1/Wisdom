@@ -1,0 +1,9 @@
+# Read version from VERSION file
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version/VERSION" WISDOM_VERSION)
+string(STRIP "${WISDOM_VERSION}" WISDOM_VERSION)
+
+# Parse version components
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${WISDOM_VERSION}")
+set(WISDOM_VERSION_MAJOR ${CMAKE_MATCH_1})
+set(WISDOM_VERSION_MINOR ${CMAKE_MATCH_2})
+set(WISDOM_VERSION_PATCH ${CMAKE_MATCH_3})

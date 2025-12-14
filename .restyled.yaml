@@ -1,0 +1,7 @@
+# Restyled configuration
+# https://github.com/restyled-io/restyled.io/wiki/Configuring-Restyled
+
+# Disable clazy restyler
+restylers:
+  - "*"
+  - "!clazy"
