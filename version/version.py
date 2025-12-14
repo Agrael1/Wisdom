@@ -17,12 +17,20 @@ def read_version():
 
 
 def write_version(version):
-    """Write version to VERSION file"""
+    """Write version to VERSION file
+
+    :param version: 
+
+    """
     VERSION_FILE.write_text(f"{version}\n")
 
 
 def parse_version(version_str):
-    """Parse version string into components"""
+    """Parse version string into components
+
+    :param version_str: 
+
+    """
     match = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str)
     if not match:
         raise ValueError(f"Invalid version format: {version_str}")
@@ -30,7 +38,11 @@ def parse_version(version_str):
 
 
 def bump_version(bump_type):
-    """Bump version according to type (major, minor, patch)"""
+    """Bump version according to type (major, minor, patch)
+
+    :param bump_type: 
+
+    """
     current = read_version()
     major, minor, patch = parse_version(current)
 
@@ -52,6 +64,7 @@ def bump_version(bump_type):
 
 
 def main():
+    """ """
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} [major|minor|patch|set <version>|get]")
         sys.exit(1)
