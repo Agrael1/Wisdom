@@ -5,6 +5,8 @@
  *
  * @section CreateInstance_spec Specification
  * <hr>
+ * 
+ * To create a Wisdom instance, call:
  *
  * \cond WIS_GEN_CODE
  *  C Version:
@@ -72,6 +74,29 @@
  *
  * @section CreateInstance_descr Description
  * <hr>
+ * 
+ * `debug_layer` enables additional validation and debugging features in the underlying graphics API. Works only for DirectX 12 implementation, but reserved for future internal validation layers.
+ * 
+ * `debug_layer` @wis_may have performance implications, and is recommended to be used only during development and debugging phases.
+ * `extensions` allows the user to specify additional functionality or features to be enabled in the created instance. 
+ * Each extension is represented by a `WisInstanceExtensionHeader`, which @wis_must be properly initialized before passing to this function.
+ * The creation procedure varies depending on the underlying graphics API.
+ * Vulkan implementation tries to create a `VkInstance` with requested extensions enabled, passing necessary layers and extensions to the [vkCreateInstance](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateInstance.html).
+ * 
+ * The `extensions` @wis_may have overlapping required layers and extensions, which are deduplicated during instance creation.
+ * After successful instance creation, the extensions are finalized, allowing them to set up any additional state or resources needed for their functionality.
+ * 
+ * Extensions are provided with extensive information during their initialization, and should check for compatibility with the requested instance configuration.
+ * If any extension fails to initialize, the instance is still created, but the return code is set to `WisStatusPartial`, indicating that not all requested features were successfully enabled.
+ * Extensions @wis_should provide information about their initialization state through their own mechanisms, such as success functions.
+ * 
+ * 
+ * \note Vulkan instance is always created with following extensions enabled:
+ *      "VK_KHR_surface",
+ *      "VK_EXT_surface_maintenance1",
+ *      "VK_KHR_get_surface_capabilities2",
+ *      "VK_KHR_get_physical_device_properties2"
+ * 
  * \cond WIS_GEN_WIS_IDS
  * @validusage_begin
  * @vuid_begin{WIS-wisCreateInstance-extensions-null} If `extension_count` is greater than 0, `extensions` @wis_must be a valid pointer to an array of `extension_count` valid WisInstanceExtensionHeader handles. @vuid_end

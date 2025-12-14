@@ -14,9 +14,6 @@ static inline constexpr char template_handle[] =
  * {1}
  * \endcond
  *
- * @section {0}_descr Description
- * <hr>
- *
  * @section {0}_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
