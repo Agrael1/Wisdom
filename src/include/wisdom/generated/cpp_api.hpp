@@ -28,6 +28,16 @@ enum class Status {
     Error             = -10000, ///< Operation failed.
 };
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Orders the adapters according to preference using builtin heuristics of underlying APIs.
+ *
+ * */
+enum class AdapterPreference {
+    None           = 0, ///< No particular preference, list adapters in system divised order.
+    MinConsumption = 1, ///< List the adapters from low power consumption to high. Order is as follows: Integrated, Discrete, External, Software.
+    Performance    = 2, ///< List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software.
+};
+
 //==============================================================
 // Structs
 //==============================================================

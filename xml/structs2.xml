@@ -20,12 +20,4 @@
 		</type>
 
 	</types>
-
-	<consts comment="Constant definitions">
-		<const name="RESULT_OK" type="Result" doc="Predefined Result for successful operations.">
-			<value>
-				{ Status::Ok, "Operation Succeeded." }
-			</value>
-		</const>
-	</consts>
 </registry>

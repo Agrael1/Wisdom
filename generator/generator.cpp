@@ -24,6 +24,8 @@ void Generator::WriteMainAPI()
 
     WriteCIndependentAPI(cpp_output_path);
     WriteCPPIndependentAPI(cpp_output_path);
+
+    WriteConversions(cpp_output_path_api);
 }
 
 void Generator::WriteMainAPIDoc()
@@ -534,7 +536,7 @@ namespace wis {
     // Write functions
     for (auto& func_name : free_functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_w << MakeCPPFunctionImpl(func_def, "dx", "inline ", DocKind::Full, false);
+        file_w << MakeCPPFunctionImpl(func_def, "dx", "inline ", DocKind::Full, ProtoType::Universal);
         file_w << '\n';
     }
 
@@ -574,7 +576,7 @@ namespace wis {
     // Write functions
     for (auto& func_name : free_functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_w << MakeCPPFunctionImpl(func_def, "vk", "inline ", DocKind::Full, false);
+        file_w << MakeCPPFunctionImpl(func_def, "vk", "inline ", DocKind::Full, ProtoType::Universal);
         file_w << '\n';
     }
 
@@ -584,6 +586,69 @@ namespace wis {
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
 #endif // API selection
 #endif // WISDOM_HPP
+)";
+}
+
+void Generator::WriteConversions(std::filesystem::path dir)
+{
+    std::filesystem::path path_dx = dir / "dx12_convert.hpp";
+    std::filesystem::path path_vk = dir / "vk_convert.hpp";
+    files.push_back(path_dx);
+    files.push_back(path_vk);
+
+    std::ofstream file_dx{ path_dx, std::ios::out | std::ios::trunc };
+    if (!file_dx.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_dx.string());
+    }
+    std::ofstream file_vk{ path_vk, std::ios::out | std::ios::trunc };
+    if (!file_vk.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_vk.string());
+    }
+
+    // Write header
+    file_dx << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_CPP_DX12_CONVERT_HPP
+#define WISDOM_CPP_DX12_CONVERT_HPP
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
+#include <wisdom/generated/c_api.h>
+#include <dxgi1_6.h>
+#include <d3d12.h>
+
+namespace wis{ namespace detail {
+)";
+    file_vk << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_CPP_VK_CONVERT_HPP
+#define WISDOM_CPP_VK_CONVERT_HPP
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
+#include <wisdom/generated/c_api.h>
+#include <vulkan/vulkan.h>
+
+namespace wis{ namespace detail {
+)";
+
+    // Write variants
+    for (auto& enum_name : enums_in_order) {
+        auto& enum_def = enum_map[enum_name];
+        file_dx << MakeEnumConverter(enum_def, "dx");
+        file_dx << "\n";
+        file_vk << MakeEnumConverter(enum_def, "vk");
+        file_vk << "\n";
+    }
+
+    // Write footer
+    file_dx << R"(
+}}
+#endif // WISDOM_DX12_CONVERT_HPP
+)";
+    file_vk << R"(
+}}
+#endif // WISDOM_VK_CONVERT_HPP
 )";
 }
 

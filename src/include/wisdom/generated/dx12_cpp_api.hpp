@@ -9,6 +9,24 @@
 
 namespace wis {
 
+struct DX12AdapterQueryDeleter {
+    void operator()(WisDX12AdapterQuery* handle) noexcept
+    {
+        ::wisDX12DestroyAdapterQuery(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
+ *
+ * */
+class DX12AdapterQuery : public wis::impl::Implements<wis::impl::DX12AdapterQueryImpl, WisDX12AdapterQuery, wis::DX12AdapterQueryDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12InstanceDeleter {
     void operator()(WisDX12Instance* handle) noexcept
     {
@@ -25,6 +43,22 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Queries all the system adapters and allows to iterate through them.
+     * @param preference defines the order in which adapters are listed.
+     * @param out_result denoting the outcome of operation.
+     * @return query points to wis::AdapterQuery, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12AdapterQuery QueryAdapters(wis::AdapterPreference preference,
+                                                             wis::Result&           out_result) const noexcept
+    {
+        wis::DX12AdapterQuery query;
+        out_result = convert_result(::wisDX12QueryAdapters(&_impl_storage,
+                                                           static_cast<WisAdapterPreference>(preference),
+                                                           query.GetStorage()));
+        return query;
+    }
 };
 
 /**
@@ -32,7 +66,7 @@ public:
  * @param debug_layer defines if the instance is to be created with debug mode.
  * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.
- * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
+ * @return instance points to wis::Instance, which is initialized on success.
  *
  * */
 WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(bool                                         debug_layer,

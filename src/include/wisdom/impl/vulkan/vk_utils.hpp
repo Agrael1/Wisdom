@@ -5,7 +5,8 @@
 #include <wisdom/impl/vulkan/vk_loader.hpp>
 #include <vulkan/vulkan.h>
 
-namespace wis::detail {
+namespace wis {
+namespace detail {
 static constexpr inline WisResult vk_success{ WisStatusOk, VK_SUCCESS, "Operation succeeded." };
 
 //-----------------------------------------------------------------------------
@@ -49,6 +50,7 @@ constexpr inline bool succeeded(VkResult hr) noexcept
 {
     return hr >= 0;
 }
-} // namespace wis::detail
+} // namespace detail
+} // namespace wis
 
 #endif // WIS_VK_UTILS_HPP

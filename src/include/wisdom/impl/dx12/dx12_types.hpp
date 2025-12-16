@@ -21,7 +21,13 @@ struct DX12InstanceExtensionInfoExtractor;
 
 namespace impl {
 struct DX12InstanceImpl {
-    IDXGIFactory6* factory = nullptr;
+    IDXGIFactory6* factory;
+};
+
+struct DX12AdapterQueryImpl {
+    IDXGIAdapter4** physical_devices;
+    std::size_t     adapter_count;
+    IDXGIFactory6*  factory;
 };
 } // namespace impl
 

@@ -19,7 +19,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
-typedef struct WisDX12Instance WisInstance;
+typedef struct WisDX12AdapterQuery WisAdapterQuery;
+typedef struct WisDX12Instance     WisInstance;
 
 //==============================================================
 // Variants
@@ -32,8 +33,10 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
-#define wisDestroyInstance wisDX12DestroyInstance
-#define wisCreateInstance  wisDX12CreateInstance
+#define wisDestroyAdapterQuery wisDX12DestroyAdapterQuery
+#define wisDestroyInstance     wisDX12DestroyInstance
+#define wisCreateInstance      wisDX12CreateInstance
+#define wisQueryAdapters       wisDX12QueryAdapters
 
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -42,7 +45,8 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Handles
 //==============================================================
 
-typedef struct WisVKInstance WisInstance;
+typedef struct WisVKAdapterQuery WisAdapterQuery;
+typedef struct WisVKInstance     WisInstance;
 
 //==============================================================
 // Variants
@@ -55,8 +59,10 @@ typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
-#define wisDestroyInstance wisVKDestroyInstance
-#define wisCreateInstance  wisVKCreateInstance
+#define wisDestroyAdapterQuery wisVKDestroyAdapterQuery
+#define wisDestroyInstance     wisVKDestroyInstance
+#define wisCreateInstance      wisVKCreateInstance
+#define wisQueryAdapters       wisVKQueryAdapters
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

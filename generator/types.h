@@ -7,6 +7,12 @@ enum class DocKind {
     VersionOnly,
 };
 
+enum class ProtoType {
+    Prefixed,
+    Universal,
+    ClassMember
+};
+
 //-----------------------------------------------------------------------------
 enum class TypeKind {
     None,
@@ -80,7 +86,6 @@ struct WisEnum {
     std::string_view          type;
     std::string_view          doc;
     std::string_view          version;
-    std::string               doc_translates;
     std::vector<WisEnumValue> values;
     std::array<WisConvert, 3> conversion_type;
 

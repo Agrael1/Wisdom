@@ -227,6 +227,13 @@ struct VKInstanceImpl {
     uint32_t                                 api_version;
     bool                                     debug_layer;
 };
+
+struct VKAdapterQueryImpl {
+    VkPhysicalDevice*                        physical_devices;
+    std::size_t                              adapter_count;
+    VkInstance                               instance;
+    detail::control_block<VKInstanceHeader>* shared_header;
+};
 } // namespace impl
 
 struct VKInstanceExtensionHeader {

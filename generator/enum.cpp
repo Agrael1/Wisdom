@@ -63,15 +63,13 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name     = impl_type->FindAttribute("name")->Value();
 
-        ref.doc_translates += wis::format("Translates to {} for {} implementation.\n", impl_name, impl_for);
-
         std::string_view def_value = "{}";
         if (auto xdefault = impl_type->FindAttribute("default")) {
             def_value = xdefault->Value();
         }
 
         if (auto direct = impl_type->FindAttribute("direct")) {
-            ref.conversion_type[impl_for_code].direct = true;
+            ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, true };
             continue;
         }
 
@@ -178,9 +176,66 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
     if (!s.doc.empty()) {
         description += std::string(s.doc) + "\n\n";
     }
+    static constexpr std::array<std::string_view, 3> impl_names{
+        "Common",
+        "DirectX 12",
+        "Vulkan",
+    };
+
+    std::string translates = "\\note Translates to ";
+    bool        has_translate = false;
+    for (size_t i = 1; i < s.conversion_type.size(); ++i) {
+        auto& cvt = s.conversion_type[i];
+        if (cvt.value.empty()) {
+            continue;
+        }
+
+        translates += wis::format("{} `{}` for {} implementation", has_translate ? ", and" : "", cvt.value, impl_names[i]);
+        has_translate = true;
+    }
+    if (has_translate) {
+        description += translates + ".\n\n";
+    }
+
+
+
     description += "Values:\n";
     for (auto& m : s.values) {
         description += wis::format("- `Wis{}{} = {}`: {}\n", s.name, m.name, m.value, m.doc);
     }
     return description;
+}
+
+std::string Generator::MakeEnumConverter(const WisEnum& s, std::string_view impl)
+{
+    std::string converters;
+    auto        impl_code = ImplCode(impl);
+    auto&       cvt       = s.conversion_type[static_cast<size_t>(impl_code)];
+    if (cvt.value.empty()) {
+        return converters;
+    }
+    if (cvt.direct) {
+        converters = wis::format("inline {} convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+                                  cvt.value,
+                                  GetCFullTypename(s.name, impl),
+                                  cvt.value);
+    } else {
+        converters = wis::format("inline {} convert({} value) noexcept {{\n    switch(value) {{\n",
+                                  cvt.value,
+                                  GetCFullTypename(s.name, impl));
+        for (auto& m : s.values) {
+            auto convert_value = m.converts[static_cast<size_t>(impl_code)];
+            if (convert_value.empty()) {
+                continue;
+            }
+            converters += wis::format("    case {}: return {};\n",
+                                      wis::format("{}{}",
+                                                  GetCFullTypename(s.name, impl),
+                                                  m.name),
+                                      convert_value);
+        }
+        converters += wis::format("    default: return static_cast<{}>(value); \n    }}\n}}\n\n",
+                                  cvt.value);
+    }
+    return converters;
 }
