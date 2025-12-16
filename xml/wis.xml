@@ -6,19 +6,28 @@
 	</includes>
 
 	<handles>
+		<handle name="AdapterQuery" version="0.7.0" doc="Class that contains a snapshot of adapters that are present on the system.">
+			<impl for="vk" size="4"/>
+			<impl for="dx" size="3"/>
+		</handle>
 		<handle name="Instance" version="0.7.0" doc="Class for creating adapters.">
-			<impl for="vk" include="vulkan/vk_factory.h" size="4"/>
-			<impl for="dx" include="dx12/dx12_factory.h" size="2"/>
+			<impl for="vk" size="4"/>
+			<impl for="dx" size="2"/>
 		</handle>
 	</handles>
 
 	<functions>
 		<!-- Free Functions -->
 		<func name="CreateInstance" version="0.7.0" doc="Creates the {Instance::} with extensions, specified in extension array.">
-			<ret type="Instance" name="instance" result="true" doc="points to {Instance::}, which is initialized on success ({Status::Ok})."/>
+			<ret type="Instance" name="instance" result="true" doc="points to {Instance::}, which is initialized on success."/>
 			<arg type="bool" name="debug_layer" default="false" doc="defines if the instance is to be created with debug mode."/>
 			<arg type="InstanceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {InstanceExtensionHeader::}."/>
 			<arg type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateInstance::extensions} array."/>
+		</func>
+
+		<func name="QueryAdapters" version="0.7.0" for="Instance" mod="const" doc="Queries all the system adapters and allows to iterate through them.">
+			<ret type="AdapterQuery" name="query" result="true" doc="points to {AdapterQuery::}, which is initialized on success."/>
+			<arg type="AdapterPreference" name="preference" default="Performance" doc="defines the order in which adapters are listed."/>
 		</func>
 	</functions>
 

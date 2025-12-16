@@ -62,7 +62,6 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
              impl       = impl->NextSiblingElement("impl")) {
             auto impl_for      = impl->FindAttribute("for")->Value();
             auto impl_for_code = ImplCode(impl_for);
-            auto impl_file     = impl->FindAttribute("include")->Value();
 
             uint32_t size = impl->UnsignedAttribute("size", 0);
             if (impl_for_code == ImplementedFor::DX12) {
@@ -126,7 +125,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
             continue;
         }
 
-        st_decl += MakeCPPFunctionImpl(func_ref, impl, "inline", kind);
+        st_decl += MakeCPPFunctionImpl(func_ref, impl, "inline ", kind, ProtoType::ClassMember);
     }
     deleter += "    }\n};\n";
 

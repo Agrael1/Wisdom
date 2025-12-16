@@ -201,7 +201,7 @@
       "displayName": "Windows MSVC Docs",
       "description": "MSVC build for documentation generation",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_BUILD_TYPE": "Debug",
         "WISDOM_BUILD_DOCS": true,
         "WISDOM_BUILD_EXAMPLES": false,
         "WISDOM_BUILD_TESTS": false

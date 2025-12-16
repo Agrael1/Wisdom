@@ -31,6 +31,16 @@ typedef enum WisStatus {
     WisStatusError             = -10000, ///< Operation failed.
 } WisStatus;
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Orders the adapters according to preference using builtin heuristics of underlying APIs.
+ *
+ * */
+typedef enum WisAdapterPreference {
+    WisAdapterPreferenceNone           = 0, ///< No particular preference, list adapters in system divised order.
+    WisAdapterPreferenceMinConsumption = 1, ///< List the adapters from low power consumption to high. Order is as follows: Integrated, Discrete, External, Software.
+    WisAdapterPreferencePerformance    = 2, ///< List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software.
+} WisAdapterPreference;
+
 //==============================================================
 // Structs
 //==============================================================

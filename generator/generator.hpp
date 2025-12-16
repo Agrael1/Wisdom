@@ -54,6 +54,7 @@ public:
     std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
 
     std::string MakeEnumDescription(const WisEnum& s);
+    std::string MakeEnumConverter(const WisEnum& s, std::string_view impl);
     std::string MakeStructDescription(const WisStruct& s);
     std::string MakeVariantDescription(const WisStruct& s);
     std::string MakeFunctionDescription(const WisFunction& s);
@@ -68,8 +69,8 @@ public:
     std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
     std::string MakeCPPVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, bool prefixed = true);
-    std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, bool prefixed = true);
+    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
+    std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
@@ -78,6 +79,7 @@ public:
     void WriteCIndependentAPI(std::filesystem::path path);
     void WriteCPPDependentAPI(std::filesystem::path path);
     void WriteCPPIndependentAPI(std::filesystem::path path);
+    void WriteConversions(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
     void WriteVariantDocumentation(std::filesystem::path struct_output_path);

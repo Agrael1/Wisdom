@@ -6,6 +6,7 @@
 #include <wisdom/util/allocation.hpp>
 #include <memory>
 #include <unordered_set>
+#include <algorithm>
 
 using namespace wis;
 using namespace wis::impl;
@@ -133,6 +134,35 @@ GetInstanceLayers(WisResult& result, const VKMainGlobal& table) noexcept
         layers.insert(i);
     }
     return layers;
+}
+
+inline constexpr uint32_t order_performance(VkPhysicalDeviceType t)
+{
+    switch (t) {
+    default:
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+        return 3;
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+        return 4;
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+        return 2;
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU:
+        return 1;
+    }
+}
+inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
+{
+    switch (t) {
+    default:
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+        return 4;
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+        return 3;
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+        return 2;
+    case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU:
+        return 1;
+    }
 }
 } // namespace wis::detail
 
@@ -287,6 +317,150 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
     }
     impl.shared_header = nullptr;
     impl.instance      = VK_NULL_HANDLE;
+}
+
+WIS_EXTERN_C WISDOM_API WisResult wisVKQueryAdapters(const WisVKInstance* self,
+                                                     WisAdapterPreference preference,
+                                                     WisVKAdapterQuery*   query)
+{
+    WisResult res = vk_success;
+    // Query can come as partially constructed from C side
+    auto& impl          = *reinterpret_cast<VKAdapterQueryImpl*>(query);
+    auto& instance_impl = *reinterpret_cast<const VKInstanceImpl*>(self);
+
+    auto&       header = *instance_impl.shared_header;
+    const auto& table  = header.header.instance_table;
+    const auto& atable = header.header.adapter_table;
+
+    std::unique_ptr<VkPhysicalDevice[]> devices_ref;
+
+    std::unique_ptr<std::byte[]> aux_pool;
+
+    // Get number of physical devices
+    uint32_t device_count = 0;
+    VkResult vr           = table.vkEnumeratePhysicalDevices(instance_impl.instance, &device_count, nullptr);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to enumerate Vulkan physical devices">(vr);
+    }
+    if (device_count == 0) {
+        return make_result<Func(), "No Vulkan physical devices found">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    // Get physical devices
+    devices_ref = make_unique<VkPhysicalDevice[]>(device_count);
+    if (!devices_ref) {
+        return make_result<Func(), "Not enough memory for physical devices array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    vr = table.vkEnumeratePhysicalDevices(instance_impl.instance, &device_count, devices_ref.get());
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to enumerate Vulkan physical devices">(vr);
+    }
+
+    if (preference == WisAdapterPreference::WisAdapterPreferenceNone) {
+        // No sorting needed
+        impl.adapter_count    = device_count;
+        impl.physical_devices = devices_ref.release();
+        impl.instance         = instance_impl.instance;
+        impl.shared_header    = instance_impl.shared_header;
+        impl.shared_header->add_ref(); // hold reference to instance header
+        return res;
+    }
+
+    // Sort devices based on preference
+    constexpr static std::size_t max_align      = std::max(alignof(VkPhysicalDeviceProperties), alignof(std::uintptr_t));
+    std::size_t                  total_aux_size = sizeof(VkPhysicalDeviceProperties) * device_count + device_count * sizeof(std::uintptr_t);
+
+    aux_pool = make_unique<std::byte[]>(total_aux_size + max_align - 1);
+    if (!aux_pool) {
+        return make_result<Func(), "Not enough memory for auxiliary sorting buffer">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    // Aligned pointers
+    auto*                                 aux_ptr = aligned_address(aux_pool.get(), max_align);
+    wis::span<VkPhysicalDeviceProperties> properties_span{
+        reinterpret_cast<VkPhysicalDeviceProperties*>(aux_ptr),
+        device_count,
+    };
+    wis::span<std::uintptr_t> index_span{
+        reinterpret_cast<std::uintptr_t*>(aux_ptr + sizeof(VkPhysicalDeviceProperties) * device_count),
+        device_count,
+    };
+
+    // Gather properties
+    for (std::size_t i = 0; i < device_count; ++i) {
+        atable.vkGetPhysicalDeviceProperties(devices_ref[i], &properties_span[i]);
+        index_span[i] = static_cast<std::uintptr_t>(i);
+    }
+
+    // Sort functions (heuristics)
+    auto less_consumption = [&](std::uintptr_t a, std::uintptr_t b) {
+        VkPhysicalDeviceProperties& a_properties = properties_span[a];
+        VkPhysicalDeviceProperties& b_properties = properties_span[b];
+        return wis::detail::order_power(a_properties.deviceType) > wis::detail::order_power(b_properties.deviceType)
+                ? true
+                : a_properties.limits.maxMemoryAllocationCount >
+                        b_properties.limits.maxMemoryAllocationCount;
+    };
+    auto less_performance = [&](std::uintptr_t a, std::uintptr_t b) {
+        VkPhysicalDeviceProperties& a_properties = properties_span[a];
+        VkPhysicalDeviceProperties& b_properties = properties_span[b];
+        return wis::detail::order_performance(a_properties.deviceType) > wis::detail::order_performance(b_properties.deviceType)
+                ? true
+                : a_properties.limits.maxMemoryAllocationCount >
+                        b_properties.limits.maxMemoryAllocationCount;
+    };
+
+    // Sort indices based on preference
+    switch (preference) {
+    case WisAdapterPreference::WisAdapterPreferenceMinConsumption:
+        std::sort(index_span.begin(), index_span.end(), [&](std::uintptr_t a, std::uintptr_t b) {
+            return less_consumption(a, b);
+        });
+        break;
+    case WisAdapterPreference::WisAdapterPreferencePerformance:
+        std::sort(index_span.begin(), index_span.end(), [&](std::uintptr_t a, std::uintptr_t b) {
+            return less_performance(a, b);
+        });
+        break;
+    default:
+        // No sorting
+        break;
+    }
+
+    // Reorder devices_ref based on sorted indices O(n) algorithm with reused space
+    wis::span<VkPhysicalDevice> ptr_span{
+        reinterpret_cast<VkPhysicalDevice*>(index_span.data()),
+        device_count,
+    };
+
+    // Copy original pointers to aux buffer
+    for (std::size_t i = 0; i < device_count; ++i) {
+        ptr_span[i] = devices_ref[index_span[i]];
+    }
+    std::memcpy(devices_ref.get(), ptr_span.data(), sizeof(VkPhysicalDevice) * device_count);
+
+
+    // Fill query impl
+    impl.adapter_count    = device_count;
+    impl.physical_devices = devices_ref.release();
+    impl.instance         = instance_impl.instance;
+    impl.shared_header    = instance_impl.shared_header;
+    impl.shared_header->add_ref(); // hold reference to instance header
+    return res;
+}
+
+WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
+{
+    auto& impl = *reinterpret_cast<VKAdapterQueryImpl*>(self);
+    if (impl.physical_devices) {
+        delete[] impl.physical_devices;
+    }
+    if (impl.shared_header && impl.shared_header->release() == 1) {
+        std::atomic_thread_fence(std::memory_order_acquire);
+        impl.shared_header->header.instance_table.vkDestroyInstance(impl.instance, nullptr);
+        delete impl.shared_header;
+    }
 }
 
 #endif // WIS_VK_INSTANCE_CPP

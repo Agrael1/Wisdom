@@ -15,5 +15,12 @@
 			<value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
 			<value name="Error" value="-10000" doc="Operation failed."/>
 		</type>
+
+		<type name="AdapterPreference" category="enum" version="0.7.0" doc="Orders the adapters according to preference using builtin heuristics of underlying APIs.">
+			<impl_type for="dx" name="DXGI_GPU_PREFERENCE" direct="true"/>
+			<value name="None" value="0" doc="No particular preference, list adapters in system divised order."/>
+			<value name="MinConsumption" value="1" doc="List the adapters from low power consumption to high. Order is as follows: Integrated, Discrete, External, Software."/>
+			<value name="Performance" value="2" doc="List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software."/>
+		</type>
 	</types>
 </registry>

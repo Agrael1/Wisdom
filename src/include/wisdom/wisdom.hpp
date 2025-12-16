@@ -21,7 +21,8 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Instance = wis::DX12Instance;
+using AdapterQuery = wis::DX12AdapterQuery;
+using Instance     = wis::DX12Instance;
 
 //==============================================================
 // Variants
@@ -39,7 +40,7 @@ using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
  * @param debug_layer defines if the instance is to be created with debug mode.
  * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.
- * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
+ * @return instance points to wis::Instance, which is initialized on success.
  *
  * */
 WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
@@ -65,7 +66,8 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Instance = wis::VKInstance;
+using AdapterQuery = wis::VKAdapterQuery;
+using Instance     = wis::VKInstance;
 
 //==============================================================
 // Variants
@@ -83,7 +85,7 @@ using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
  * @param debug_layer defines if the instance is to be created with debug mode.
  * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.
- * @return instance points to wis::Instance, which is initialized on success (`wis::Status::Ok`).
+ * @return instance points to wis::Instance, which is initialized on success.
  *
  * */
 WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,

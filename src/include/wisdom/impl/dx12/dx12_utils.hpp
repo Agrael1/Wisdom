@@ -9,7 +9,9 @@
 #endif
 #include <Windows.h>
 
-namespace wis::detail {
+namespace wis {
+
+namespace detail {
 static constexpr inline WisResult dx_success{ WisStatusOk, S_OK, "Operation succeeded." };
 
 //-----------------------------------------------------------------------------
@@ -74,6 +76,17 @@ constexpr inline void safe_release(T*& ptr) noexcept
         ptr = nullptr;
     }
 }
-} // namespace wis::detail
+template<typename T>
+constexpr inline void safe_release_array(T** ptr, std::size_t size) noexcept
+{
+    for (std::size_t i = 0; i < size; ++i) {
+        if (ptr[i]) {
+            ptr[i]->Release();
+            ptr[i] = nullptr;
+        }
+    }
+}
+} // namespace detail
+} // namespace wis
 
 #endif // WIS_DX12_UTILS_HPP

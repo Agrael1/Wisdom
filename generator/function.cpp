@@ -210,14 +210,16 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind, bool prefixed)
+std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind, ProtoType type)
 {
     // Inverted situation for C++
     // The return type is always direct, and the out parameter is used for result
     // Expected will be implemented later
 
-    ImplementedFor impl_code = ImplCode(impl);
-    auto           re_impl   = prefixed ? GetImplString(impl_code) : "";
+    ImplementedFor impl_code   = ImplCode(impl);
+    auto           re_impl     = GetImplString(impl_code);
+    auto           type_prefix = type != ProtoType::Universal ? re_impl : "";
+    auto           func_prefix = type != ProtoType::Prefixed ? "" : re_impl;
 
     std::string full_return_type;
     std::string post_return;
@@ -230,17 +232,17 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         full_return_type = "void";
         break;
     case Direct:
-        full_return_type = GetMemberTypeString<Lang::CPP>(func.return_type, re_impl);
+        full_return_type = GetMemberTypeString<Lang::CPP>(func.return_type, type_prefix);
         break;
     case ResultOnly:
         full_return_type = "wis::Result";
         break;
     case ResultAndValue:
-        full_return_type = GetMemberTypeString<Lang::CPP>(func.return_type, re_impl);
+        full_return_type = GetMemberTypeString<Lang::CPP>(func.return_type, type_prefix);
         // Add out parameter for result
         {
             std::string prefix = "";
-            size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + re_impl.size();
+            size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size();
             if (func.parameters.size() > 0) {
                 prefix = ",\n" + std::string(length, ' ');
             }
@@ -257,7 +259,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         break;
     }
 
-    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + re_impl.size();
+    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size();
     size_t max_arg_length = post_return_length;
 
     // account for spans
@@ -270,7 +272,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
 
         const auto& p = func.parameters[i];
 
-        std::string type_str = GetMemberTypeString<Lang::CPP>(p, re_impl);
+        std::string type_str = GetMemberTypeString<Lang::CPP>(p, type_prefix);
         max_arg_length       = std::max(max_arg_length, type_str.length());
     }
     last_was_span = false;
@@ -293,7 +295,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
             prefix_spaces = std::string(length, ' ');
         }
 
-        std::string type_str = GetMemberTypeString<Lang::CPP>(p, re_impl);
+        std::string type_str = GetMemberTypeString<Lang::CPP>(p, type_prefix);
         std::string padding;
         size_t      pad_length = max_arg_length > type_str.length() ? max_arg_length - type_str.length() : 0;
         padding                = std::string(pad_length, ' ');
@@ -313,7 +315,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
     return wis::format("{}{} {}{}({}{}){} noexcept;\n",
                        pre_decl,
                        full_return_type,
-                       re_impl,
+                       func_prefix,
                        func.name,
                        params,
                        post_return,
@@ -332,14 +334,14 @@ std::string Generator::MakeCFunctionDecl(const WisFunction& func, std::string_vi
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind, bool prefixed)
+std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind, ProtoType type)
 {
     std::string add_decl;
     if (func.return_type.IsRV() || func.return_type.IsDirect()) {
         add_decl = wis::format("{} {}", "WIS_NODISCARD", pre_decl);
     }
 
-    std::string func_decl = MakeCPPFunctionProto(func, impl, add_decl.empty() ? pre_decl : add_decl, kind, prefixed);
+    std::string func_decl = MakeCPPFunctionProto(func, impl, add_decl.empty() ? pre_decl : add_decl, kind, type);
     if (!func.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(func, kind);
         func_decl        = wis::format("{}\n{}", xdoc, func_decl);
@@ -387,10 +389,20 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
                 continue;
             }
 
-            if (standard_types.contains(p.type)) {
+            switch (GetType(p.type)) {
+            case TypeKind::Enum:
+            case TypeKind::Bitmask:
+                body += wis::format("static_cast<{}>({})",
+                                    GetMemberTypeString<Lang::C>(p, re_impl),
+                                    p.name);
+                break;
+            case TypeKind::None:
+            case TypeKind::Base:
                 body += p.name;
-            } else {
+                break;
+            default:
                 body += wis::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, re_impl), p.name);
+                break;
             }
 
             if (i < func.parameters.size() - 1) {
