@@ -70,9 +70,29 @@ WISDOM_API WisResult wisDX12CreateInstance(bool                             debu
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12QueryAdapters(const WisDX12Instance* self,
-                                          WisAdapterPreference   preference,
-                                          WisDX12AdapterQuery*   query);
+WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Instance* self,
+                                                  WisAdapterPreference   preference,
+                                                  WisDX12AdapterQuery*   query);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @return size is a number of adapters present on the system.
+ *
+ * */
+WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisGetAdapterCount.
+ * @param desc points to WisAdapterDesc, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self,
+                                                       size_t                     index,
+                                                       WisAdapterDesc*            desc);
 
 #ifdef __cplusplus
 }

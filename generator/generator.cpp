@@ -37,6 +37,7 @@ void Generator::WriteMainAPIDoc()
     std::filesystem::path func_output_path   = doc_output_path / "wisdom/func";
 
     WriteEnumDocumentation(enum_output_path);
+    WriteBitmaskDocumentation(enum_output_path);
     WriteStructDocumentation(struct_output_path);
     WriteVariantDocumentation(struct_output_path);
     WriteHandleDocumentation(handle_output_path);
@@ -98,7 +99,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         } else if (std::string_view(category) == "enum") {
             ParseEnum(type);
         } else if (std::string_view(category) == "bitmask") {
-            // ParseBitmask(*type);
+            ParseBitmask(type);
         } else if (std::string_view(category) == "delegate") {
             // ParseDelegate(type);
         } else if (std::string_view(category) == "variant") {
@@ -138,6 +139,13 @@ extern "C" {
     for (auto& enum_name : enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file << MakeCEnum(enum_def);
+        file << "\n";
+    }
+
+    // Write bitmasks
+    for (auto& bitmask_name : bitmasks_in_order) {
+        auto& bitmask_def = bitmask_map[bitmask_name];
+        file << MakeCBitmask(bitmask_def);
         file << "\n";
     }
 
@@ -186,6 +194,13 @@ namespace wis {
     for (auto& enum_name : enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file << MakeCPPEnum(enum_def);
+        file << "\n";
+    }
+
+    // Write bitmasks
+    for (auto& bitmask_name : bitmasks_in_order) {
+        auto& bitmask_def = bitmask_map[bitmask_name];
+        file << MakeCPPBitmask(bitmask_def);
         file << "\n";
     }
 
@@ -346,8 +361,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
         file_w << wis::format("#define {} {}\n",
-                              GetCFullTypename(func_def.name),
-                              GetCFullTypename(func_def.name, impl_dx));
+                              wis::format("wis{}{}", func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name),
+                              wis::format("wis{}{}{}", impl_dx, func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name));
     }
 
     file_w << R"(
@@ -383,8 +398,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
         file_w << wis::format("#define {} {}\n",
-                              GetCFullTypename(func_def.name),
-                              GetCFullTypename(func_def.name, impl_vk));
+                              wis::format("wis{}{}", func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name),
+                              wis::format("wis{}{}{}", impl_vk, func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name));
     }
 
     file_w << R"(
@@ -416,7 +431,10 @@ void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
     file_dx << R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_CPP_DX12_API_HPP
 #define WISDOM_CPP_DX12_API_HPP
-#ifdef __cplusplus
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/global/internal.hpp>
@@ -427,7 +445,10 @@ namespace wis {
     file_vk << R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_CPP_VK_API_HPP
 #define WISDOM_CPP_VK_API_HPP
-#ifdef __cplusplus
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/global/internal.hpp>
@@ -466,12 +487,10 @@ namespace wis {
     // Write footer
     file_dx << R"(
 }
-#endif // __cplusplus
 #endif // WISDOM_CPP_DX12_API_HPP
 )";
     file_vk << R"(
 }
-#endif // __cplusplus
 #endif // WISDOM_CPP_VK_API_HPP
 )";
 }
@@ -632,12 +651,20 @@ namespace wis{ namespace detail {
 namespace wis{ namespace detail {
 )";
 
-    // Write variants
+    // Write enums
     for (auto& enum_name : enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file_dx << MakeEnumConverter(enum_def, "dx");
         file_dx << "\n";
         file_vk << MakeEnumConverter(enum_def, "vk");
+        file_vk << "\n";
+    }
+    // Write bitmasks
+    for (auto& bitmask_name : bitmasks_in_order) {
+        auto& bitmask_def = bitmask_map[bitmask_name];
+        file_dx << MakeBitmaskConverter(bitmask_def, "dx");
+        file_dx << "\n";
+        file_vk << MakeBitmaskConverter(bitmask_def, "vk");
         file_vk << "\n";
     }
 
@@ -729,6 +756,9 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     if (auto it = enum_map.find(type_name); it != enum_map.end()) {
         return TypeKind::Enum;
     }
+    if (auto it = bitmask_map.find(type_name); it != bitmask_map.end()) {
+        return TypeKind::Bitmask;
+    }
     if (auto it = struct_map.find(type_name); it != struct_map.end()) {
         return TypeKind::Struct;
     }
@@ -768,9 +798,8 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::Union:
         break;
     case TypeKind::Enum:
-        return wis::format("Wis{}", type);
     case TypeKind::Bitmask:
-        break;
+        return wis::format("Wis{}", type);
     case TypeKind::Handle:
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::FuncPointer:
@@ -790,6 +819,7 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     default:
     case TypeKind::None:
         return "";
+    case TypeKind::Bitmask:
     case TypeKind::Struct:
     case TypeKind::Enum:
         return wis::format("wis::{}", type);
@@ -798,8 +828,6 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     case TypeKind::Function:
         return wis::format("wis::{}{}", impl, type);
     case TypeKind::Union:
-        break;
-    case TypeKind::Bitmask:
         break;
     case TypeKind::FuncPointer:
         break;

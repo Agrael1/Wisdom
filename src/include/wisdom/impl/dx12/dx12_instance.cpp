@@ -50,7 +50,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
     safe_release(impl.factory);
 }
 
-WIS_EXTERN_C WISDOM_API WisResult wisDX12QueryAdapters(const WisDX12Instance* self,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Instance* self,
                                                        WisAdapterPreference   preference,
                                                        WisDX12AdapterQuery*   query)
 {
@@ -116,6 +116,50 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* sel
     safe_release_array(impl.physical_devices, impl.adapter_count);
     delete[] impl.physical_devices;
     safe_release(impl.factory);
+}
+
+WIS_EXTERN_C WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self)
+{
+    return reinterpret_cast<const DX12AdapterQueryImpl*>(self)->adapter_count;
+}
+
+WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self,
+                                                                    size_t                     index,
+                                                                    WisAdapterDesc*            desc)
+{
+    WisResult res  = dx_success;
+    auto&     impl = *reinterpret_cast<const DX12AdapterQueryImpl*>(self);
+    if (index >= impl.adapter_count) {
+        return make_result<Func(), "Adapter index out of bounds">(E_INVALIDARG);
+    }
+    DXGI_ADAPTER_DESC3 adapter_desc;
+    auto               hr = impl.physical_devices[index]->GetDesc3(&adapter_desc);
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to get adapter description">(hr);
+    }
+
+    *desc = WisAdapterDesc{
+        .vendor_id               = adapter_desc.VendorId,
+        .device_id               = adapter_desc.DeviceId,
+        .dedicated_video_memory  = static_cast<uint64_t>(adapter_desc.DedicatedVideoMemory),
+        .shared_system_memory    = static_cast<uint64_t>(adapter_desc.SharedSystemMemory),
+        .adapter_id              = *reinterpret_cast<uint64_t*>(&adapter_desc.AdapterLuid),
+        .flags                   = WisAdapterFlags(adapter_desc.Flags),
+    };
+
+    // Copy description
+    std::wstring_view desc_wview{ adapter_desc.Description, std::size(adapter_desc.Description) };
+
+    // Convert to UTF-8 (may terminate early)
+    WideCharToMultiByte(CP_UTF8,
+                        0,
+                        desc_wview.data(),
+                        static_cast<int32_t>(desc_wview.size()),
+                        desc->description,
+                        std::size(desc->description),
+                        nullptr,
+                        nullptr);
+    return res;
 }
 
 #endif // !WIS_DX12_INSTANCE_CPP

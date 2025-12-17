@@ -99,6 +99,32 @@ public:
     }
 };
 
+struct WisBitmaskValue {
+    std::string_view                name;
+    std::string_view                doc;
+    std::string_view                version;
+    std::array<std::string_view, 3> converts;
+    int64_t                         value_or_bit = 0;
+    bool                            is_bit       = false;
+};
+struct WisBitmask {
+    std::string_view             name;
+    std::string_view             type;
+    std::string_view             doc;
+    std::string_view             version;
+    std::vector<WisBitmaskValue> values;
+    std::array<WisConvert, 3>    conversion_type;
+
+public:
+    std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
+    {
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
+            return v.name == name;
+        });
+        return enum_value != values.end() ? std::optional<WisBitmaskValue>{ *enum_value } : std::nullopt;
+    }
+};
+
 //-----------------------------------------------------------------------------
 
 struct WisStructMember {

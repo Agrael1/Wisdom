@@ -22,5 +22,13 @@
 			<value name="MinConsumption" value="1" doc="List the adapters from low power consumption to high. Order is as follows: Integrated, Discrete, External, Software."/>
 			<value name="Performance" value="2" doc="List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software."/>
 		</type>
+		
+		<!--Bitmasks-->
+		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
+			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
+			<value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
+			<value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
+		</type>
+		
 	</types>
 </registry>

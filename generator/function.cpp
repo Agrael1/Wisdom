@@ -124,7 +124,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
     std::string full_return_type;
     std::string post_return;
-    std::string function_full_name = GetCFullTypename(func.name, GetImplString(impl_code));
+    std::string function_full_name = wis::format("wis{}{}{}", re_impl, func.name.starts_with("Destroy") ? "" : func.this_type, func.name);
     size_t      post_return_length = 0;
 
     if (func.return_type.IsVoid()) {
@@ -365,9 +365,13 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, re_impl), ret_value_name);
 
-        body += wis::format("    out_result = convert_result(::{}({}",
-                            GetCFullTypename(func.name, re_impl),
-                            func.this_type.empty() ? "" : "&_impl_storage");
+        body += wis::format("    out_result = convert_result(::wis{}{}{}({}",
+                            re_impl,
+                            func.this_type,
+                            func.name,
+                            func.this_type.empty()
+                                    ? ""
+                                    : "&_impl_storage");
 
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -409,12 +413,23 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
                 body += arg_prefix;
             }
         }
-        body += wis::format(", {}.GetStorage()));\n", ret_value_name);
+
+        auto ret_type = GetType(func.return_type.type);
+
+        if (ret_type == TypeKind::Handle) {
+            body += wis::format(", {}.GetStorage()));\n", ret_value_name);
+        } else {
+            body += wis::format(", reinterpret_cast<{}*>(&{})));\n",
+                                GetMemberTypeString<Lang::C>(func.return_type, re_impl),
+                                ret_value_name);
+        }
         body += wis::format("    return {};\n", ret_value_name);
     } break;
     case ReturnTypeKind::ResultOnly: {
-        body += wis::format("    return reinterpret_cast<wis::Result&&>(::{}({}",
-                            GetCFullTypename(func.name, re_impl),
+        body += wis::format("    return reinterpret_cast<wis::Result&&>(::wis{}{}{}({}",
+                            re_impl,
+                            func.this_type,
+                            func.name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -441,9 +456,30 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         body += "));\n";
     } break;
     case ReturnTypeKind::Direct: {
-        body += wis::format("    return reinterpret_cast<{}>(::{}({}",
-                            GetMemberTypeString<Lang::CPP>(func.return_type, re_impl),
-                            GetCFullTypename(func.name, re_impl),
+        auto        ret_type = GetType(func.return_type.type);
+        std::string return_cast;
+        switch (ret_type) {
+        case TypeKind::Base:
+            break;
+        case TypeKind::Enum:
+        case TypeKind::Bitmask:
+            return_cast = wis::format("static_cast<{}>",
+                                      GetMemberTypeString<Lang::CPP>(func.return_type, re_impl));
+            break;
+        case TypeKind::Handle:
+            throw std::runtime_error(wis::format("Function {} return type cannot be a handle in direct return.", func.name));
+            break;
+        default:
+            return_cast = wis::format("reinterpret_cast<{}>",
+                                      GetMemberTypeString<Lang::CPP>(func.return_type, re_impl));
+            break;
+        }
+
+        body += wis::format("    return {}(::wis{}{}{}({}",
+                            return_cast,
+                            re_impl,
+                            func.this_type,
+                            func.name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -470,8 +506,10 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         body += "));\n";
     } break;
     case ReturnTypeKind::Void: {
-        body += wis::format("    ::{}({}",
-                            GetCFullTypename(func.name, re_impl),
+        body += wis::format("    ::wis{}{}{}({}",
+                            re_impl,
+                            func.this_type,
+                            func.name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
