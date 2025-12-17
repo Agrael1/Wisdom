@@ -85,7 +85,7 @@ WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
  * @param self is a pointer to the valid WisAdapterQuery instance.
- * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisGetAdapterCount.
+ * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
  * @param desc points to WisAdapterDesc, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *

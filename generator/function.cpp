@@ -365,10 +365,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, re_impl), ret_value_name);
 
-        body += wis::format("    out_result = convert_result(::wis{}{}{}({}",
-                            re_impl,
-                            func.this_type,
-                            func.name,
+        body += wis::format("    out_result = convert_result(::{}({}",
+                            GetCFullTypename(func.name, re_impl),
                             func.this_type.empty()
                                     ? ""
                                     : "&_impl_storage");
@@ -426,10 +424,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         body += wis::format("    return {};\n", ret_value_name);
     } break;
     case ReturnTypeKind::ResultOnly: {
-        body += wis::format("    return reinterpret_cast<wis::Result&&>(::wis{}{}{}({}",
-                            re_impl,
-                            func.this_type,
-                            func.name,
+        body += wis::format("    return reinterpret_cast<wis::Result&&>(::{}({}",
+                            GetCFullTypename(func.name, re_impl),
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -475,11 +471,9 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
             break;
         }
 
-        body += wis::format("    return {}(::wis{}{}{}({}",
+        body += wis::format("    return {}(::{}({}",
                             return_cast,
-                            re_impl,
-                            func.this_type,
-                            func.name,
+                            GetCFullTypename(func.name, re_impl),
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -589,8 +583,9 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
 void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_path)
 {
     for (auto& func_name : functions_in_order) {
-        auto  func_doc_path = func_output_path / wis::format("{}_function.h", MakeSnakeCase(func_name));
-        auto& func_def      = function_map[func_name];
+        auto  full_func_name = GetCFullTypename(func_name, "");
+        auto  func_doc_path  = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
+        auto& func_def       = function_map[func_name];
 
         std::string vk_code      = MakeCFunctionDecl(func_def, "vk", "", DocKind::VersionOnly);
         std::string dx_code      = MakeCFunctionDecl(func_def, "dx", "", DocKind::VersionOnly);
