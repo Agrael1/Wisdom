@@ -10,22 +10,22 @@
  *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisQueryAdapters(const WisInstance* self,
- *                            WisAdapterPreference preference,
- *                            WisAdapterQuery*     query);
+ * WisResult wisInstanceQueryAdapters(const WisInstance* self,
+ *                                    WisAdapterPreference preference,
+ *                                    WisAdapterQuery*     query);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisVKQueryAdapters(const WisVKInstance* self,
- *                              WisAdapterPreference preference,
- *                              WisVKAdapterQuery*   query);
+ * WisResult wisVKInstanceQueryAdapters(const WisVKInstance* self,
+ *                                      WisAdapterPreference preference,
+ *                                      WisVKAdapterQuery*   query);
  * 
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisDX12QueryAdapters(const WisDX12Instance* self,
- *                                WisAdapterPreference   preference,
- *                                WisDX12AdapterQuery*   query);
+ * WisResult wisDX12InstanceQueryAdapters(const WisDX12Instance* self,
+ *                                        WisAdapterPreference   preference,
+ *                                        WisDX12AdapterQuery*   query);
  * ```
  * </details>
  * 

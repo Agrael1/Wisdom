@@ -19,5 +19,16 @@
 			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
 		</type>
 
+		<type name="AdapterDesc" category="struct" version="0.7.0"  doc="Adapter description. Describes hardware driver identificators as well as memory limits.">
+			<member type="char" name="description" array="256" doc="Adapter description. Contains name of the graphics adapter."/>
+			<member type="u32" name="vendor_id" doc="denotes Vendor ID. Can be used to find the correct adapter."/>
+			<member type="u32" name="device_id" doc="denotes Device ID. Together with {::vendor_id} uniquely identifies the device."/>
+			<member type="u64" name="dedicated_video_memory" doc="measures dedicated video memory in bytes. Used for device local memory type."/>
+			<member type="u64" name="shared_system_memory" doc="measures memory that is shared with CPU in bytes. Used for upload and readback."/>
+			<member type="u64" name="adapter_id" doc="denotes adapter unique ID (LUID). Can be used to find the correct adapter."/>
+			<member type="u8" name="adapter_uuid" array="16" doc="stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
+			<member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
+		</type>
+
 	</types>
 </registry>

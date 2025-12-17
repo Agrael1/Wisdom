@@ -38,6 +38,16 @@ enum class AdapterPreference {
     Performance    = 2, ///< List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software.
 };
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
+ *
+ * */
+enum class AdapterFlags : uint32_t {
+    None     = 0, ///< No flags set. Adapter @wis_may be descrete or embedded.
+    Remote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
+    Software = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
+};
+
 //==============================================================
 // Structs
 //==============================================================
@@ -50,6 +60,21 @@ struct WIS_NODISCARD Result {
     wis::Status  status; ///< defines operation status. Compare with `wis::Status::Ok`.
     std::int32_t platform_code; ///< defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
     const char*  error; ///< contains a human readable error message.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identificators as well as memory limits.
+ *
+ * */
+struct AdapterDesc {
+    std::array<char, 256>        description; ///< Adapter description. Contains name of the graphics adapter.
+    std::uint32_t                vendor_id; ///< denotes Vendor ID. Can be used to find the correct adapter.
+    std::uint32_t                device_id; ///< denotes Device ID. Together with `wis::AdapterDesc::vendor_id` uniquely identifies the device.
+    std::uint64_t                dedicated_video_memory; ///< measures dedicated video memory in bytes. Used for device local memory type.
+    std::uint64_t                shared_system_memory; ///< measures memory that is shared with CPU in bytes. Used for upload and readback.
+    std::uint64_t                adapter_id; ///< denotes adapter unique ID (LUID). Can be used to find the correct adapter.
+    std::array<std::uint8_t, 16> adapter_uuid; ///< stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
+    wis::AdapterFlags            flags; ///< Adapter flags. Describe the adapter kind.
 };
 
 } // namespace wis

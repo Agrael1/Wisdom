@@ -43,10 +43,11 @@ public:
     void ParseVariant(tinyxml2::XMLElement* type);
     void ParseFunctions(tinyxml2::XMLElement* functions);
     void ParseValidations(tinyxml2::XMLElement* validations);
-    // tinyxml2::XMLError ParseBitmask(tinyxml2::XMLElement* type);
+    void ParseBitmask(tinyxml2::XMLElement* type);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
+    std::string MakeCBitmask(const WisBitmask& s, DocKind kind = DocKind::Full);
     std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
     std::string MakeCVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
@@ -54,7 +55,9 @@ public:
     std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
 
     std::string MakeEnumDescription(const WisEnum& s);
+    std::string MakeBitmaskDescription(const WisBitmask& s);
     std::string MakeEnumConverter(const WisEnum& s, std::string_view impl);
+    std::string MakeBitmaskConverter(const WisBitmask& s, std::string_view impl);
     std::string MakeStructDescription(const WisStruct& s);
     std::string MakeVariantDescription(const WisStruct& s);
     std::string MakeFunctionDescription(const WisFunction& s);
@@ -62,10 +65,10 @@ public:
     std::string MakeValidationForType(std::string_view type_name);
     std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
     std::string MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl);
-    void        TryMakeRef(std::string_view type, std::string_view from);
 
     // Make C++
     std::string MakeCPPEnum(const WisEnum& s, DocKind kind = DocKind::Full);
+    std::string MakeCPPBitmask(const WisBitmask& s, DocKind kind = DocKind::Full);
     std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
     std::string MakeCPPVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
@@ -81,6 +84,7 @@ public:
     void WriteCPPIndependentAPI(std::filesystem::path path);
     void WriteConversions(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
+    void WriteBitmaskDocumentation(std::filesystem::path bitmask_output_path);
     void WriteStructDocumentation(std::filesystem::path struct_output_path);
     void WriteVariantDocumentation(std::filesystem::path struct_output_path);
     void WriteHandleDocumentation(std::filesystem::path handle_output_path);
@@ -101,6 +105,7 @@ public:
     std::string GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
+    void        TryMakeRef(std::string_view type, std::string_view from);
     std::string GetRefs(std::string_view for_type);
 
     static ImplementedFor             ImplCode(std::string_view impl) noexcept;
@@ -277,6 +282,7 @@ private:
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
     std::unordered_map<std::string_view, WisEnum>     enum_map;
+    std::unordered_map<std::string_view, WisBitmask>  bitmask_map;
     std::unordered_map<std::string_view, WisStruct>   struct_map;
     std::unordered_map<std::string_view, WisStruct>   variant_map;
     std::unordered_map<std::string_view, WisHandle>   handle_map;
@@ -287,6 +293,7 @@ private:
 
     // Ordered members
     std::vector<std::string_view>      enums_in_order;
+    std::vector<std::string_view>      bitmasks_in_order;
     std::vector<std::string_view>      structs_in_order;
     std::vector<std::string_view>      variants_in_order;
     std::vector<std::string_view>      handles_in_order;

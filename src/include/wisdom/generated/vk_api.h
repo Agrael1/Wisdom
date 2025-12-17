@@ -70,9 +70,29 @@ WISDOM_API WisResult wisVKCreateInstance(bool                           debug_la
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKQueryAdapters(const WisVKInstance* self,
-                                        WisAdapterPreference preference,
-                                        WisVKAdapterQuery*   query);
+WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance* self,
+                                                WisAdapterPreference preference,
+                                                WisVKAdapterQuery*   query);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @return size is a number of adapters present on the system.
+ *
+ * */
+WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisGetAdapterCount.
+ * @param desc points to WisAdapterDesc, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self,
+                                                     size_t                   index,
+                                                     WisAdapterDesc*          desc);
 
 #ifdef __cplusplus
 }

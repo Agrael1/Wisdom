@@ -41,6 +41,16 @@ typedef enum WisAdapterPreference {
     WisAdapterPreferencePerformance    = 2, ///< List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software.
 } WisAdapterPreference;
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
+ *
+ * */
+typedef enum WisAdapterFlags {
+    WisAdapterFlagsNone     = 0, ///< No flags set. Adapter @wis_may be descrete or embedded.
+    WisAdapterFlagsRemote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
+    WisAdapterFlagsSoftware = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
+} WisAdapterFlags;
+
 //==============================================================
 // Structs
 //==============================================================
@@ -54,6 +64,21 @@ typedef struct WIS_NODISCARD WisResult {
     int32_t     platform_code; ///< defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
     const char* error; ///< contains a human readable error message.
 } WisResult;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identificators as well as memory limits.
+ *
+ * */
+typedef struct WisAdapterDesc {
+    char            description[256]; ///< Adapter description. Contains name of the graphics adapter.
+    uint32_t        vendor_id; ///< denotes Vendor ID. Can be used to find the correct adapter.
+    uint32_t        device_id; ///< denotes Device ID. Together with `WisAdapterDesc::vendor_id` uniquely identifies the device.
+    uint64_t        dedicated_video_memory; ///< measures dedicated video memory in bytes. Used for device local memory type.
+    uint64_t        shared_system_memory; ///< measures memory that is shared with CPU in bytes. Used for upload and readback.
+    uint64_t        adapter_id; ///< denotes adapter unique ID (LUID). Can be used to find the correct adapter.
+    uint8_t         adapter_uuid[16]; ///< stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
+    WisAdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
+} WisAdapterDesc;
 
 #ifdef __cplusplus
 }

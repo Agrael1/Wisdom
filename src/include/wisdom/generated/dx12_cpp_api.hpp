@@ -1,7 +1,10 @@
 // This file is generated. Do not edit directly.
 #ifndef WISDOM_CPP_DX12_API_HPP
 #define WISDOM_CPP_DX12_API_HPP
-#ifdef __cplusplus
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/global/internal.hpp>
@@ -25,6 +28,31 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
+     * @return size is a number of adapters present on the system.
+     *
+     * */
+    WIS_NODISCARD inline std::size_t GetAdapterCount() const noexcept
+    {
+        return (::wisDX12AdapterQueryGetAdapterCount(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
+     * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param out_result denoting the outcome of operation.
+     * @return desc points to wis::AdapterDesc, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::AdapterDesc GetAdapterDesc(std::size_t  index,
+                                                         wis::Result& out_result) const noexcept
+    {
+        wis::AdapterDesc desc;
+        out_result = convert_result(::wisDX12AdapterQueryGetAdapterDesc(&_impl_storage,
+                                                                        index,
+                                                                        reinterpret_cast<WisAdapterDesc*>(&desc)));
+        return desc;
+    }
 };
 
 struct DX12InstanceDeleter {
@@ -54,9 +82,9 @@ public:
                                                              wis::Result&           out_result) const noexcept
     {
         wis::DX12AdapterQuery query;
-        out_result = convert_result(::wisDX12QueryAdapters(&_impl_storage,
-                                                           static_cast<WisAdapterPreference>(preference),
-                                                           query.GetStorage()));
+        out_result = convert_result(::wisDX12InstanceQueryAdapters(&_impl_storage,
+                                                                   static_cast<WisAdapterPreference>(preference),
+                                                                   query.GetStorage()));
         return query;
     }
 };
@@ -82,5 +110,4 @@ WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(bool                  
 }
 
 } // namespace wis
-#endif // __cplusplus
 #endif // WISDOM_CPP_DX12_API_HPP

@@ -32,12 +32,6 @@ static inline constexpr char template_enum[] =
 //-----------------------------------------------------------------------------
 void Generator::ParseEnum(tinyxml2::XMLElement* type)
 {
-    std::unordered_map<std::string_view, std::string> cvts;
-
-    // Local documentation
-    std::string documentation;
-    std::string impl_doc;
-
     auto name = type->FindAttribute("name")->Value();
     enums_in_order.push_back(name);
     auto& ref = enum_map[name];
@@ -182,7 +176,7 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
         "Vulkan",
     };
 
-    std::string translates = "\\note Translates to ";
+    std::string translates    = "\\note Translates to ";
     bool        has_translate = false;
     for (size_t i = 1; i < s.conversion_type.size(); ++i) {
         auto& cvt = s.conversion_type[i];
@@ -196,8 +190,6 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
     if (has_translate) {
         description += translates + ".\n\n";
     }
-
-
 
     description += "Values:\n";
     for (auto& m : s.values) {
@@ -216,13 +208,13 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, std::string_view impl
     }
     if (cvt.direct) {
         converters = wis::format("inline {} convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                                  cvt.value,
-                                  GetCFullTypename(s.name, impl),
-                                  cvt.value);
+                                 cvt.value,
+                                 GetCFullTypename(s.name, impl),
+                                 cvt.value);
     } else {
         converters = wis::format("inline {} convert({} value) noexcept {{\n    switch(value) {{\n",
-                                  cvt.value,
-                                  GetCFullTypename(s.name, impl));
+                                 cvt.value,
+                                 GetCFullTypename(s.name, impl));
         for (auto& m : s.values) {
             auto convert_value = m.converts[static_cast<size_t>(impl_code)];
             if (convert_value.empty()) {

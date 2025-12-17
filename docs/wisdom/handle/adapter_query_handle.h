@@ -26,6 +26,6 @@
  * @section WisAdapterQuery_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyAdapterQuery, wisQueryAdapters
+ * @see wisDestroyAdapterQuery, wisQueryAdapters, wisGetAdapterCount, wisGetAdapterDesc
  * \endcond
  */
