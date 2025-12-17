@@ -1,9 +1,9 @@
 /**
- * @struct wisGetAdapterDesc
+ * @struct wisAdapterQueryGetAdapterDesc
  * @ingroup Functions
  *
  *
- * @section wisGetAdapterDesc_spec Specification
+ * @section wisAdapterQueryGetAdapterDesc_spec Specification
  * <hr>
  *
  * \cond WIS_GEN_CODE
@@ -53,23 +53,23 @@
  * </details>
  * \endcond
  *
- * @section wisGetAdapterDesc_memb Parameters
+ * @section wisAdapterQueryGetAdapterDesc_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisAdapterQuery instance.
- * - `index` defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisGetAdapterCount.
+ * - `index` defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
  * - `desc` points to WisAdapterDesc, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond
  *
- * @section wisGetAdapterDesc_descr Description
+ * @section wisAdapterQueryGetAdapterDesc_descr Description
  * <hr>
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
- * @section wisGetAdapterDesc_see_also See Also
+ * @section wisAdapterQueryGetAdapterDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
  * \endcond

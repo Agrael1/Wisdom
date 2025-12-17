@@ -48,6 +48,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see wisQueryAdapters
+ * @see wisInstanceQueryAdapters
  * \endcond
  */

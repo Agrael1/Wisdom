@@ -1,9 +1,9 @@
 /**
- * @struct wisQueryAdapters
+ * @struct wisInstanceQueryAdapters
  * @ingroup Functions
  *
  *
- * @section wisQueryAdapters_spec Specification
+ * @section wisInstanceQueryAdapters_spec Specification
  * <hr>
  *
  * \cond WIS_GEN_CODE
@@ -53,7 +53,7 @@
  * </details>
  * \endcond
  *
- * @section wisQueryAdapters_memb Parameters
+ * @section wisInstanceQueryAdapters_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisInstance instance.
@@ -63,13 +63,13 @@
  * - **return** denoting the outcome of operation.
  * \endcond
  *
- * @section wisQueryAdapters_descr Description
+ * @section wisInstanceQueryAdapters_descr Description
  * <hr>
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
- * @section wisQueryAdapters_see_also See Also
+ * @section wisInstanceQueryAdapters_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
  * \endcond

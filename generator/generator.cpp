@@ -804,8 +804,13 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::FuncPointer:
         break;
-    case TypeKind::Function:
+    case TypeKind::Function: {
+        auto& func = function_map.at(type);
+        if (!func.this_type.empty() && !func.name.starts_with("Destroy")) {
+            return wis::format("wis{}{}{}", impl, func.this_type, type);
+        }
         return wis::format("wis{}{}", impl, type);
+    }
     case TypeKind::Alias:
         break;
     }
@@ -862,12 +867,11 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
             replacement = evalue ? wis::format("`Wis{}{}`", x->second.name, evalue->name)
                                  : GetCPPFullTypename(x->second.name, impl);
 
-        } /* else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
-             auto evalue = y->second.HasValue(value);
-             replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
-                                  : GetCFullTypename(y->second.name, impl);
-         }*/
-        else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+        } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
+            auto evalue = y->second.HasValue(value);
+            replacement = evalue ? wis::format("`{}::{}`", GetCFullTypename(y->second.name, impl), evalue->name)
+                                 : GetCFullTypename(y->second.name, impl);
+        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, impl), member->name)
                                  : GetCFullTypename(z->second.name, impl);
@@ -926,12 +930,11 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x->second.name, impl), evalue->name)
                                  : GetCPPFullTypename(x->second.name, impl);
 
-        } /* else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
-             auto evalue = y->second.HasValue(value);
-             replacement = evalue ? wis::format("{}{}{}", y->second.name, impls[+evalue->impl], evalue->name)
-                                  : GetCFullTypename(y->second.name, impl);
-         }*/
-        else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
+        } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
+            auto evalue = y->second.HasValue(value);
+            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(y->second.name, impl), evalue->name)
+                                 : GetCFullTypename(y->second.name, impl);
+        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
             replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
                                  : GetCPPFullTypename(z->second.name, impl);
@@ -1123,13 +1126,15 @@ std::string Generator::GetRefs(std::string_view for_type)
     // Gather references
     std::string refs;
     for (auto& ref : xrefs) {
-        if (!ref.empty()) {
-            refs += GetCFullTypename(ref, "");
-            if (++ref_count > max_ref_count) {
-                break;
-            }
-            refs += ", ";
+        if (ref.empty()) {
+            continue;
         }
+
+        refs += GetCFullTypename(ref, "");
+        if (++ref_count > max_ref_count) {
+            break;
+        }
+        refs += ", ";
     }
     refs.pop_back(); // remove last space
     refs.pop_back(); // remove last comma

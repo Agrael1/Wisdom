@@ -4,6 +4,8 @@
  *
  * @section WisAdapterFlags_spec Specification
  * <hr>
+ * 
+ * In order to describe adapter features check:
  *
  * \cond WIS_GEN_CODE
  * C version:
@@ -39,6 +41,8 @@
  * - `WisAdapterFlagsSoftware = (1 << 1)`: Adapter is software. Uses CPU for software rendering.
  * \endcond
  *
+ * \note on DirectX 12 implementation, `WisAdapterFlagsRemote` translates to `DXGI_ADAPTER_FLAG_REMOTE` and `WisAdapterFlagsSoftware` translates to `DXGI_ADAPTER_FLAG_SOFTWARE`.
+ * The values are directly mapped, meaning it is possible to get values outside of this enum when querying adapters.
  *
  * @section WisAdapterFlags_see_also See Also
  * <hr>

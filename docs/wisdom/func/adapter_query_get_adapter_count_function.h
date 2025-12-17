@@ -1,9 +1,9 @@
 /**
- * @struct wisGetAdapterCount
+ * @struct wisAdapterQueryGetAdapterCount
  * @ingroup Functions
  *
  *
- * @section wisGetAdapterCount_spec Specification
+ * @section wisAdapterQueryGetAdapterCount_spec Specification
  * <hr>
  *
  * \cond WIS_GEN_CODE
@@ -44,7 +44,7 @@
  * </details>
  * \endcond
  *
- * @section wisGetAdapterCount_memb Parameters
+ * @section wisAdapterQueryGetAdapterCount_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisAdapterQuery instance.
@@ -52,13 +52,13 @@
  * - **return** is a number of adapters present on the system.
  * \endcond
  *
- * @section wisGetAdapterCount_descr Description
+ * @section wisAdapterQueryGetAdapterCount_descr Description
  * <hr>
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond
  *
- * @section wisGetAdapterCount_see_also See Also
+ * @section wisAdapterQueryGetAdapterCount_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
  * \endcond
