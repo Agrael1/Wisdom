@@ -48,6 +48,7 @@ ALIASES                = "description=@par Description:" \
                          "vuid_end=</li>" \
                          "wis_must=<span class=\"wis-must\">must</span>" \
                          "wis_may=<span class=\"wis-may\">may</span>" \
+                         "wis_can=<span class=\"wis-may\">can</span>" \
                          "wis_should=<span class=\"wis-should\">should</span>" \
                          "wis_maynot=<span class=\"wis-may\">may not</span>" \
                          "wis_mustnot=<span class=\"wis-must\">must not</span>" \

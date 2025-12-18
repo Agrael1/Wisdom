@@ -220,6 +220,10 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
     auto           re_impl     = GetImplString(impl_code);
     auto           type_prefix = type != ProtoType::Universal ? re_impl : "";
     auto           func_prefix = type != ProtoType::Prefixed ? "" : re_impl;
+    std::string    xclass_code;
+    if (!func.this_type.empty() && kind != DocKind::Full) {
+        xclass_code = wis::format("{}::", func.this_type);
+    }
 
     std::string full_return_type;
     std::string post_return;
@@ -242,7 +246,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         // Add out parameter for result
         {
             std::string prefix = "";
-            size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size();
+            size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size() + xclass_code.size();
             if (func.parameters.size() > 0) {
                 prefix = ",\n" + std::string(length, ' ');
             }
@@ -259,7 +263,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         break;
     }
 
-    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size();
+    size_t length         = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size() + xclass_code.size();
     size_t max_arg_length = post_return_length;
 
     // account for spans
@@ -312,10 +316,13 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         max_arg_length = std::max(max_arg_length, type_str.length());
     }
 
-    return wis::format("{}{} {}{}({}{}){} noexcept;\n",
+    
+
+    return wis::format("{}{} {}{}{}({}{}){} noexcept;\n",
                        pre_decl,
                        full_return_type,
                        func_prefix,
+                       xclass_code,
                        func.name,
                        params,
                        post_return,

@@ -5,6 +5,8 @@
  *
  * @section wisAdapterQueryGetAdapterCount_spec Specification
  * <hr>
+ * 
+ * To get the number of adapters available from an AdapterQuery, call:
  *
  * \cond WIS_GEN_CODE
  *  C Version:
@@ -27,7 +29,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::size_t GetAdapterCount() const noexcept;
+ * WIS_NODISCARD std::size_t AdapterQuery::GetAdapterCount() const noexcept;
  * }
  * ```
  * <details>
@@ -35,10 +37,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::size_t VKGetAdapterCount() const noexcept;
+ * WIS_NODISCARD std::size_t VKAdapterQuery::GetAdapterCount() const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::size_t DX12GetAdapterCount() const noexcept;
+ * WIS_NODISCARD std::size_t DX12AdapterQuery::GetAdapterCount() const noexcept;
  * }
  * ```
  * </details>
@@ -55,6 +57,9 @@
  * @section wisAdapterQueryGetAdapterCount_descr Description
  * <hr>
  *
+ * Returns the number of adapters that can be queried from the AdapterQuery instance. This number is fixed at the time of AdapterQuery creation and does not change during its lifetime.
+ * If no adapters are found, the function returns zero.
+ * 
  * \cond WIS_GEN_WIS_IDS
  * \endcond
  *

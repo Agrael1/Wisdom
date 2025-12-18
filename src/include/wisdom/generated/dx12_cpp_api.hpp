@@ -72,7 +72,7 @@ public:
 
 public:
     /**
-     * @brief Provided by Wisdom 0.7.0. Queries all the system adapters and allows to iterate through them.
+     * @brief Provided by Wisdom 0.7.0. Queries all the system adapters and allows to iterate through them. The order of adapters depends on `preference`: for MinConsumption - DirectX 12: Integrated, Discrete, External, Software; Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU. For Performance - DirectX 12: External, Discrete, Integrated, Software; Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
      * @param preference defines the order in which adapters are listed.
      * @param out_result denoting the outcome of operation.
      * @return query points to wis::AdapterQuery, which is initialized on success.
