@@ -29,13 +29,13 @@ enum class Status {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Orders the adapters according to preference using builtin heuristics of underlying APIs.
+ * @brief Provided by Wisdom 0.7.0. Orders the adapters according to preference using builtin heuristics of underlying APIs. For DirectX 12, this translates directly to `DXGI_GPU_PREFERENCE`. For Vulkan, sorting is based on `VkPhysicalDeviceType` heuristics.
  *
  * */
 enum class AdapterPreference {
-    None           = 0, ///< No particular preference, list adapters in system divised order.
-    MinConsumption = 1, ///< List the adapters from low power consumption to high. Order is as follows: Integrated, Discrete, External, Software.
-    Performance    = 2, ///< List the adapters from high performance to low. Order is as follows: External, Discrete, Integrated, Software.
+    None           = 0, ///< No particular preference, list adapters in system devised order.
+    MinConsumption = 1, ///< List the adapters from low power consumption to high. DirectX 12: Integrated, Discrete, External, Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU.
+    Performance    = 2, ///< List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
 };
 
 /**

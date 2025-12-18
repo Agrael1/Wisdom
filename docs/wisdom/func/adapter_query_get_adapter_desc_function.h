@@ -5,6 +5,8 @@
  *
  * @section wisAdapterQueryGetAdapterDesc_spec Specification
  * <hr>
+ * 
+ * To get the description of an adapter from an AdapterQuery, call:
  *
  * \cond WIS_GEN_CODE
  *  C Version:
@@ -33,8 +35,8 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::AdapterDesc GetAdapterDesc(std::size_t  index,
- *                                               wis::Result& out_result) const noexcept;
+ * WIS_NODISCARD wis::AdapterDesc AdapterQuery::GetAdapterDesc(std::size_t  index,
+ *                                                             wis::Result& out_result) const noexcept;
  * }
  * ```
  * <details>
@@ -42,12 +44,12 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::AdapterDesc VKGetAdapterDesc(std::size_t  index,
- *                                                 wis::Result& out_result) const noexcept;
+ * WIS_NODISCARD wis::AdapterDesc VKAdapterQuery::GetAdapterDesc(std::size_t  index,
+ *                                                               wis::Result& out_result) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::AdapterDesc DX12GetAdapterDesc(std::size_t  index,
- *                                                   wis::Result& out_result) const noexcept;
+ * WIS_NODISCARD wis::AdapterDesc DX12AdapterQuery::GetAdapterDesc(std::size_t  index,
+ *                                                                 wis::Result& out_result) const noexcept;
  * }
  * ```
  * </details>
@@ -65,6 +67,11 @@
  *
  * @section wisAdapterQueryGetAdapterDesc_descr Description
  * <hr>
+ * 
+ * `index` selects which adapter's description to retrieve from the AdapterQuery. The index is zero-based.
+ * `desc` @wis_must be a valid pointer and it is populated with the description of the specified adapter, including details such as its name, type, and capabilities. 
+ * The information about memory resources @wis_maynot be identical across different implementations, because underlying graphics APIs expose varying levels of detail about adapter memory.
+ * `
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

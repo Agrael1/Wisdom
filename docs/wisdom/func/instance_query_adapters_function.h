@@ -33,8 +33,8 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::AdapterQuery QueryAdapters(wis::AdapterPreference preference,
- *                                               wis::Result&           out_result) const noexcept;
+ * WIS_NODISCARD wis::AdapterQuery Instance::QueryAdapters(wis::AdapterPreference preference,
+ *                                                         wis::Result&           out_result) const noexcept;
  * }
  * ```
  * <details>
@@ -42,12 +42,12 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::VKAdapterQuery VKQueryAdapters(wis::AdapterPreference preference,
- *                                                   wis::Result&           out_result) const noexcept;
+ * WIS_NODISCARD wis::VKAdapterQuery VKInstance::QueryAdapters(wis::AdapterPreference preference,
+ *                                                             wis::Result&           out_result) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::DX12AdapterQuery DX12QueryAdapters(wis::AdapterPreference preference,
- *                                                       wis::Result&           out_result) const noexcept;
+ * WIS_NODISCARD wis::DX12AdapterQuery DX12Instance::QueryAdapters(wis::AdapterPreference preference,
+ *                                                                 wis::Result&           out_result) const noexcept;
  * }
  * ```
  * </details>
@@ -65,6 +65,18 @@
  *
  * @section wisInstanceQueryAdapters_descr Description
  * <hr>
+ * 
+ * This function creates a `WisAdapterQuery` object that can be used to enumerate the available adapters on the system.
+ * `preference` influences the order in which adapters are listed, allowing applications to prioritize certain types of adapters based on their needs.
+ * `preference` does not guarantee the real adapter order, as the underlying graphics APIs @wis_may have their own heuristics for adapter selection.
+ * The created AdapterQuery object @wis_must be destroyed with `wisDestroyAdapterQuery` when no longer needed.
+ * The order of adapters depends on `preference`: 
+ * For MinConsumption 
+ * - DirectX 12: Integrated, Discrete, External, Software; 
+ * - Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU. 
+ * For Performance 
+ * - DirectX 12: External, Discrete, Integrated, Software; 
+ * - Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

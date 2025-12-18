@@ -396,18 +396,22 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     auto less_consumption = [&](std::uintptr_t a, std::uintptr_t b) {
         VkPhysicalDeviceProperties& a_properties = properties_span[a];
         VkPhysicalDeviceProperties& b_properties = properties_span[b];
-        return wis::detail::order_power(a_properties.deviceType) > wis::detail::order_power(b_properties.deviceType)
-                ? true
-                : a_properties.limits.maxMemoryAllocationCount >
-                        b_properties.limits.maxMemoryAllocationCount;
+        auto a_order = wis::detail::order_power(a_properties.deviceType);
+        auto b_order = wis::detail::order_power(b_properties.deviceType);
+        if (a_order != b_order) {
+            return a_order > b_order;
+        }
+        return a_properties.limits.maxMemoryAllocationCount > b_properties.limits.maxMemoryAllocationCount;
     };
     auto less_performance = [&](std::uintptr_t a, std::uintptr_t b) {
         VkPhysicalDeviceProperties& a_properties = properties_span[a];
         VkPhysicalDeviceProperties& b_properties = properties_span[b];
-        return wis::detail::order_performance(a_properties.deviceType) > wis::detail::order_performance(b_properties.deviceType)
-                ? true
-                : a_properties.limits.maxMemoryAllocationCount >
-                        b_properties.limits.maxMemoryAllocationCount;
+        auto a_order = wis::detail::order_performance(a_properties.deviceType);
+        auto b_order = wis::detail::order_performance(b_properties.deviceType);
+        if (a_order != b_order) {
+            return a_order > b_order;
+        }
+        return a_properties.limits.maxMemoryAllocationCount > b_properties.limits.maxMemoryAllocationCount;
     };
 
     // Sort indices based on preference
