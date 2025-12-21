@@ -21,6 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using Device       = wis::DX12Device;
 using AdapterQuery = wis::DX12AdapterQuery;
 using Instance     = wis::DX12Instance;
 
@@ -66,6 +67,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using Device       = wis::VKDevice;
 using AdapterQuery = wis::VKAdapterQuery;
 using Instance     = wis::VKInstance;
 

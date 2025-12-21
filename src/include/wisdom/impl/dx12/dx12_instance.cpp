@@ -11,6 +11,7 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
                                                         WisDX12InstanceExtensionHeader** extensions,
                                                         size_t                           extension_count,
@@ -44,15 +45,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                    
     return res;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 {
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(self);
     safe_release(impl.factory);
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Instance* self,
-                                                       WisAdapterPreference   preference,
-                                                       WisDX12AdapterQuery*   query)
+                                                               WisAdapterPreference   preference,
+                                                               WisDX12AdapterQuery*   query)
 {
     WisResult res = dx_success;
     // Query can come as partially constructed from C side
@@ -110,6 +113,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
     return res;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self)
 {
     auto& impl = *reinterpret_cast<DX12AdapterQueryImpl*>(self);
@@ -118,11 +122,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* sel
     safe_release(impl.factory);
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self)
 {
     return reinterpret_cast<const DX12AdapterQueryImpl*>(self)->adapter_count;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self,
                                                                     size_t                     index,
                                                                     WisAdapterDesc*            desc)
@@ -139,12 +145,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX1
     }
 
     *desc = WisAdapterDesc{
-        .vendor_id               = adapter_desc.VendorId,
-        .device_id               = adapter_desc.DeviceId,
-        .dedicated_video_memory  = static_cast<uint64_t>(adapter_desc.DedicatedVideoMemory),
-        .shared_system_memory    = static_cast<uint64_t>(adapter_desc.SharedSystemMemory),
-        .adapter_id              = *reinterpret_cast<uint64_t*>(&adapter_desc.AdapterLuid),
-        .flags                   = WisAdapterFlags(adapter_desc.Flags),
+        .vendor_id              = adapter_desc.VendorId,
+        .device_id              = adapter_desc.DeviceId,
+        .dedicated_video_memory = static_cast<uint64_t>(adapter_desc.DedicatedVideoMemory),
+        .shared_system_memory   = static_cast<uint64_t>(adapter_desc.SharedSystemMemory),
+        .adapter_id             = *reinterpret_cast<uint64_t*>(&adapter_desc.AdapterLuid),
+        .flags                  = WisAdapterFlags(adapter_desc.Flags),
     };
 
     // Copy description
@@ -160,6 +166,60 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX1
                         nullptr,
                         nullptr);
     return res;
+}
+
+WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery*     self,
+                                                                  size_t                         index,
+                                                                  WisDX12DeviceExtensionHeader** extensions,
+                                                                  size_t                         extension_count,
+                                                                  WisDX12Device*                 device)
+{
+    auto& impl = *reinterpret_cast<const DX12AdapterQueryImpl*>(self);
+    if (index >= impl.adapter_count) {
+        return make_result<Func(), "Adapter index out of bounds">(E_INVALIDARG);
+    }
+    com_ptr<ID3D12Device10> device_ref;
+    auto                    hr = D3D12CreateDevice(impl.physical_devices[index],
+                                D3D_FEATURE_LEVEL_12_0,
+                                IID_ID3D12Device10,
+                                reinterpret_cast<void**>(device_ref.put_void_unchecked()));
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create D3D12 device">(hr);
+    }
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12                 = {};
+    bool                               EnhancedBarriersSupported = false;
+    if (succeeded(device_ref->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)))) {
+        EnhancedBarriersSupported = options12.EnhancedBarriersSupported;
+    }
+    if (!EnhancedBarriersSupported) {
+        return make_result<Func(), "D3D12 device does not support Enhanced Barriers">(E_FAIL);
+    }
+
+    auto& device_impl           = *reinterpret_cast<DX12DeviceImpl*>(device);
+    device_impl.device          = device_ref.detach();
+    device_impl.physical_device = impl.physical_devices[index];
+    device_impl.factory         = impl.factory;
+    device_impl.physical_device->AddRef();
+    device_impl.factory->AddRef();
+
+    for (auto* ext : wis::span<WisDX12DeviceExtensionHeader*>{ extensions, extension_count }) {
+        auto* table = reinterpret_cast<DX12DeviceExtensionHeader*>(ext);
+        if (table) {
+            // TODO: implement device extension initialization
+        }
+    }
+
+    return dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
+{
+    auto& impl = *reinterpret_cast<DX12DeviceImpl*>(self);
+    safe_release(impl.device);
+    safe_release(impl.physical_device);
+    safe_release(impl.factory);
 }
 
 #endif // !WIS_DX12_INSTANCE_CPP

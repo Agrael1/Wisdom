@@ -14,128 +14,6 @@ using namespace wis::detail;
 
 namespace wis::detail {
 //-----------------------------------------------------------------------------
-// hash for VkExtensionProperties
-struct VkExtensionPropertiesHash {
-    // transparent hash with string_view
-    using is_transparent = void;
-
-    std::size_t operator()(const VkExtensionProperties& ext) const noexcept
-    {
-        return std::hash<std::string_view>{}(ext.extensionName);
-    }
-    std::size_t operator()(std::string_view name) const noexcept
-    {
-        return std::hash<std::string_view>{}(name);
-    }
-};
-// equality with VkExtensionProperties and string_view
-struct VkExtensionPropertiesEqual {
-    using is_transparent = void;
-    bool operator()(const VkExtensionProperties& ext, std::string_view name) const noexcept
-    {
-        return std::string_view{ ext.extensionName } == name;
-    }
-    bool operator()(std::string_view name, const VkExtensionProperties& ext) const noexcept
-    {
-        return name == std::string_view{ ext.extensionName };
-    }
-    bool operator()(const VkExtensionProperties& a, const VkExtensionProperties& b) const noexcept
-    {
-        return std::strcmp(a.extensionName, b.extensionName) == 0;
-    }
-};
-
-//-----------------------------------------------------------------------------
-// struct for VkLayerProperties
-struct VkLayerPropertiesHash {
-    using is_transparent = void;
-    std::size_t operator()(const VkLayerProperties& layer) const noexcept
-    {
-        return std::hash<std::string_view>{}(layer.layerName);
-    }
-    std::size_t operator()(std::string_view name) const noexcept
-    {
-        return std::hash<std::string_view>{}(name);
-    }
-};
-struct VkLayerPropertiesEqual {
-    using is_transparent = void;
-    bool operator()(const VkLayerProperties& layer, std::string_view name) const noexcept
-    {
-        return std::string_view{ layer.layerName } == name;
-    }
-    bool operator()(std::string_view name, const VkLayerProperties& layer) const noexcept
-    {
-        return name == std::string_view{ layer.layerName };
-    }
-    bool operator()(const VkLayerProperties& a, const VkLayerProperties& b) const noexcept
-    {
-        return std::strcmp(a.layerName, b.layerName) == 0;
-    }
-};
-
-//-----------------------------------------------------------------------------
-inline std::unordered_set<VkExtensionProperties, VkExtensionPropertiesHash, VkExtensionPropertiesEqual>
-GetInstanceExtensions(WisResult& result, const VKMainGlobal& table) noexcept
-{
-    std::unordered_set<VkExtensionProperties, VkExtensionPropertiesHash, VkExtensionPropertiesEqual> exts;
-    // Get available extensions
-    uint32_t ext_count = 0;
-    VkResult vr        = table.vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
-    if (!succeeded(vr)) {
-        result = make_result<Func(), "Failed to enumerate Vulkan instance extension properties">(vr);
-        return exts;
-    }
-    std::unique_ptr<VkExtensionProperties[]> ext_props_raw = make_unique<VkExtensionProperties[]>(ext_count);
-    if (!ext_props_raw) {
-        result = make_result<Func(), "Not enough memory for extension properties">(VK_ERROR_OUT_OF_HOST_MEMORY);
-        return exts;
-    }
-    vr = table.vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, ext_props_raw.get());
-
-    // Unique set of extensions
-    try {
-        exts.reserve(ext_count);
-    } catch (const std::bad_alloc&) {
-        result = make_result<Func(), "Not enough memory for extensions">(VK_ERROR_OUT_OF_HOST_MEMORY);
-        return exts;
-    }
-    for (const auto& i : wis::span{ ext_props_raw.get(), ext_count }) {
-        exts.insert(i);
-    }
-    return exts;
-}
-
-inline std::unordered_set<VkLayerProperties, VkLayerPropertiesHash, VkLayerPropertiesEqual>
-GetInstanceLayers(WisResult& result, const VKMainGlobal& table) noexcept
-{
-    std::unordered_set<VkLayerProperties, VkLayerPropertiesHash, VkLayerPropertiesEqual> layers;
-    // Get available layers
-    uint32_t layer_count = 0;
-    VkResult vr          = table.vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-    if (!succeeded(vr)) {
-        result = make_result<Func(), "Failed to enumerate Vulkan instance layer properties">(vr);
-        return layers;
-    }
-    std::unique_ptr<VkLayerProperties[]> layer_props_raw = make_unique<VkLayerProperties[]>(layer_count);
-    if (!layer_props_raw) {
-        result = make_result<Func(), "Not enough memory for layer properties">(VK_ERROR_OUT_OF_HOST_MEMORY);
-        return layers;
-    }
-    vr = table.vkEnumerateInstanceLayerProperties(&layer_count, layer_props_raw.get());
-    // Unique set of layers
-    try {
-        layers.reserve(layer_count);
-    } catch (const std::bad_alloc&) {
-        result = make_result<Func(), "Not enough memory for layers">(VK_ERROR_OUT_OF_HOST_MEMORY);
-        return layers;
-    }
-    for (const auto& i : wis::span{ layer_props_raw.get(), layer_count }) {
-        layers.insert(i);
-    }
-    return layers;
-}
-
 inline constexpr uint32_t order_performance(VkPhysicalDeviceType t)
 {
     switch (t) {
@@ -150,6 +28,8 @@ inline constexpr uint32_t order_performance(VkPhysicalDeviceType t)
         return 1;
     }
 }
+
+//-----------------------------------------------------------------------------
 inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
 {
     switch (t) {
@@ -166,6 +46,7 @@ inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
 }
 } // namespace wis::detail
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
                                                       WisVKInstanceExtensionHeader** extensions,
                                                       size_t                         extension_count,
@@ -203,49 +84,21 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
         return make_result<Func(), "Failed to enumerate Vulkan instance version">(vr);
     }
 
-    // Get available extensions and layers
-    auto available_extensions = detail::GetInstanceExtensions(res, gt);
-    if (res.status != WisStatusOk) {
-        return res;
-    }
-
-    auto available_layers = detail::GetInstanceLayers(res, gt);
-    if (res.status != WisStatusOk) {
-        return res;
-    }
-
-    // allocate arrays for enabled extensions and layers (joined allocation)
-    size_t                         enabled_extension_count = 0;
-    size_t                         enabled_layer_count     = 0;
-    std::unique_ptr<const char*[]> enabled_extensions_and_layers_names;
-
     // Gather extensions
-    InstanceExtensionCollector collector{};
+    VKInstanceExtensionCollector collector{ gt, res };
+    if (res.status != WisStatusOk) {
+        return res;
+    }
+
+    // Let extensions collect their info
     for (size_t i = 0; i < extension_count; ++i) {
         reinterpret_cast<wis::VKInstanceExtensionHeader*>(extensions[i])->CollectInfo(collector);
     }
 
     // Prepared enabled extensions and layers arrays
-    size_t total_enabled_count          = collector.GetEnabledExtensionCount() + collector.GetEnabledLayerCount();
-    enabled_extensions_and_layers_names = make_unique<const char*[]>(total_enabled_count);
-    if (!enabled_extensions_and_layers_names) {
-        return make_result<Func(), "Not enough memory for enabled extensions and layers names">(VK_ERROR_OUT_OF_HOST_MEMORY);
-    }
-
-    // Gather enabled extensions
-    const auto& enabled_extension_names_set = collector.GetEnabledExtensionNamesSet();
-    for (const auto& name : enabled_extension_names_set) {
-        if (available_extensions.find(std::string_view(name)) != available_extensions.end()) {
-            enabled_extensions_and_layers_names[enabled_extension_count++] = name;
-        }
-    }
-
-    // Gather enabled layers
-    const auto& enabled_layer_names_set = collector.GetEnabledLayerNamesSet();
-    for (const auto& name : enabled_layer_names_set) {
-        if (available_layers.find(std::string_view(name)) != available_layers.end()) {
-            enabled_extensions_and_layers_names[enabled_extension_count + enabled_layer_count++] = name;
-        }
+    auto&& [ext_layer_array, ext_count, layer_count] = collector.GetExtensionsAndLayers(res);
+    if (res.status != WisStatusOk) {
+        return res;
     }
 
     // Create Vulkan instance
@@ -258,10 +111,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
     VkInstanceCreateInfo create_info{
         .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pApplicationInfo        = &info,
-        .enabledLayerCount       = static_cast<uint32_t>(enabled_layer_count),
-        .ppEnabledLayerNames     = enabled_extensions_and_layers_names.get() + enabled_extension_count,
-        .enabledExtensionCount   = static_cast<uint32_t>(enabled_extension_count),
-        .ppEnabledExtensionNames = enabled_extensions_and_layers_names.get(),
+        .enabledLayerCount       = static_cast<uint32_t>(layer_count),
+        .ppEnabledLayerNames     = layer_count ? ext_layer_array.get() + ext_count : nullptr,
+        .enabledExtensionCount   = static_cast<uint32_t>(ext_count),
+        .ppEnabledExtensionNames = ext_layer_array.get(),
     };
 
     VkInstance instance_handle = VK_NULL_HANDLE;
@@ -293,7 +146,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<VKInstanceExtensionHeader*>(ext);
         if (table) {
-            auto xres = table->Init(impl, wis::span{ enabled_extensions_and_layers_names.get(), enabled_extension_count }, wis::span{ enabled_extensions_and_layers_names.get() + enabled_extension_count, enabled_layer_count });
+            auto xres = table->Init(impl, collector);
             if (xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
@@ -302,6 +155,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
     return res;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
 {
     auto& impl = *reinterpret_cast<VKInstanceImpl*>(self);
@@ -319,6 +173,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
     impl.instance      = VK_NULL_HANDLE;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance* self,
                                                              WisAdapterPreference preference,
                                                              WisVKAdapterQuery*   query)
@@ -396,8 +251,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     auto less_consumption = [&](std::uintptr_t a, std::uintptr_t b) {
         VkPhysicalDeviceProperties& a_properties = properties_span[a];
         VkPhysicalDeviceProperties& b_properties = properties_span[b];
-        auto a_order = wis::detail::order_power(a_properties.deviceType);
-        auto b_order = wis::detail::order_power(b_properties.deviceType);
+        auto                        a_order      = wis::detail::order_power(a_properties.deviceType);
+        auto                        b_order      = wis::detail::order_power(b_properties.deviceType);
         if (a_order != b_order) {
             return a_order > b_order;
         }
@@ -406,8 +261,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     auto less_performance = [&](std::uintptr_t a, std::uintptr_t b) {
         VkPhysicalDeviceProperties& a_properties = properties_span[a];
         VkPhysicalDeviceProperties& b_properties = properties_span[b];
-        auto a_order = wis::detail::order_performance(a_properties.deviceType);
-        auto b_order = wis::detail::order_performance(b_properties.deviceType);
+        auto                        a_order      = wis::detail::order_performance(a_properties.deviceType);
+        auto                        b_order      = wis::detail::order_performance(b_properties.deviceType);
         if (a_order != b_order) {
             return a_order > b_order;
         }
@@ -452,6 +307,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     return vk_success;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
 {
     auto& impl = *reinterpret_cast<VKAdapterQueryImpl*>(self);
@@ -465,11 +321,13 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
     }
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self)
 {
     return reinterpret_cast<const VKAdapterQueryImpl*>(self)->adapter_count;
 }
 
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self,
                                                                   size_t                   index,
                                                                   WisAdapterDesc*          desc)
@@ -537,6 +395,191 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
     std::strncpy(desc->description, got_desc.deviceName, sizeof(desc->description) - 1);
     std::memcpy(desc->adapter_uuid, id_props.deviceUUID, sizeof(desc->adapter_uuid));
     return vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapterQuery*     self,
+                                                                size_t                       index,
+                                                                WisVKDeviceExtensionHeader** extensions,
+                                                                size_t                       extension_count,
+                                                                WisVKDevice*                 device)
+{
+    WisResult res  = vk_success;
+    auto&     impl = *reinterpret_cast<const VKAdapterQueryImpl*>(self);
+    if (index >= impl.adapter_count) {
+        return make_result<Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    auto header = make_unique<control_block<VKDeviceHeader>>();
+    if (!header) {
+        return make_result<Func(), "Failed to allocate memory for Vulkan device header">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    auto& atable  = impl.shared_header->header.adapter_table;
+    auto& adapter = impl.physical_devices[index];
+
+    VKDeviceExtensionCollector collector{ atable, adapter, res };
+    if (res.status != WisStatusOk) {
+        return res;
+    }
+
+    // Let extensions collect their info
+    for (size_t i = 0; i < extension_count; ++i) {
+        auto* header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(extensions[i]);
+        if (header) {
+            header->CollectInfo(collector);
+        }
+    }
+
+    // Prepared enabled extensions array
+    auto&& [ext_buffer, ext_strings, ext_count, feature_structs, property_structs] = collector.GetInitBuffer(res);
+    if (res.status != WisStatusOk) {
+        return res;
+    }
+
+    // Create default enabled features
+    VkPhysicalDeviceVulkan12Features vulkan12_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+        .pNext = feature_structs, // link to extension features
+    };
+    VkPhysicalDeviceVulkan11Features vulkan11_features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
+        .pNext = &vulkan12_features,
+    };
+    VkPhysicalDeviceFeatures2 features{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+        .pNext = &vulkan11_features,
+    };
+    atable.vkGetPhysicalDeviceFeatures2(adapter, &features);
+
+    // Add default features to collector
+    collector.ForceBindFeatureStruct(&features);
+    collector.ForceBindFeatureStruct(&vulkan11_features);
+    collector.ForceBindFeatureStruct(&vulkan12_features);
+
+    // Create properties structures
+    VkPhysicalDeviceVulkan12Properties vulkan12_properties{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES,
+        .pNext = property_structs, // link to extension properties
+    };
+    VkPhysicalDeviceVulkan11Properties vulkan11_properties{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES,
+        .pNext = &vulkan12_properties,
+    };
+    VkPhysicalDeviceProperties2 properties{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+        .pNext = &vulkan11_properties,
+    };
+    atable.vkGetPhysicalDeviceProperties2(adapter, &properties);
+
+    // Add default properties to collector
+    collector.ForceBindPropertyStruct(&properties);
+    collector.ForceBindPropertyStruct(&vulkan11_properties);
+    collector.ForceBindPropertyStruct(&vulkan12_properties);
+
+    // Initialize queues
+    uint32_t count = 0;
+    atable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
+    std::unique_ptr<VkQueueFamilyProperties[]> family_props = make_unique<VkQueueFamilyProperties[]>(count);
+    if (!family_props) {
+        return make_result<Func(), "Not enough memory for queue family properties array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+    atable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.get());
+
+    float                                      priority           = 1.0f;
+    std::unique_ptr<VkDeviceQueueCreateInfo[]> queue_create_infos = make_unique<VkDeviceQueueCreateInfo[]>(count);
+    if (!queue_create_infos) {
+        return make_result<Func(), "Not enough memory for device queue create infos array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+    for (uint32_t i = 0; i < count; ++i) {
+        queue_create_infos[i] = VkDeviceQueueCreateInfo{
+            .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .queueFamilyIndex = i,
+            .queueCount       = 1,
+            .pQueuePriorities = &priority,
+        };
+    }
+
+    // Create device
+    VkDeviceCreateInfo device_create_info{
+        .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .pNext                   = feature_structs, // link to extension features
+        .queueCreateInfoCount    = count,
+        .pQueueCreateInfos       = queue_create_infos.get(),
+        .enabledExtensionCount   = static_cast<uint32_t>(ext_count),
+        .ppEnabledExtensionNames = ext_strings,
+    };
+    VkDevice device_handle = VK_NULL_HANDLE;
+    VkResult vr            = atable.vkCreateDevice(adapter, &device_create_info, nullptr, &device_handle);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan device">(vr);
+    }
+
+    // Initialize device table
+    auto& device_table = header->header.device_table;
+    auto& gtable       = impl.shared_header->header.global_table;
+    if (!device_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Failed to initialize Vulkan device function table">(VK_ERROR_UNKNOWN);
+    }
+
+    // Initialize command queue table
+    if (!header->header.command_queue_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Failed to initialize Vulkan command queue function table">(VK_ERROR_UNKNOWN);
+    }
+
+    // Initialize command list table
+    if (!header->header.command_list_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
+    }
+
+    // Fill device impl
+    auto& device_impl           = *reinterpret_cast<VKDeviceImpl*>(device);
+    device_impl.device_header   = header.release();
+    device_impl.device          = device_handle;
+    device_impl.instance_header = impl.shared_header;
+    device_impl.instance_header->add_ref(); // hold reference to instance header
+    device_impl.physical_device = adapter;
+    device_impl.instance        = impl.instance;
+
+    // Initialize device extensions
+    for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ extensions, extension_count }) {
+        auto* table = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext);
+        if (table) {
+            auto xres = table->Init(device_impl, collector);
+            if (xres.status != WisStatusOk) {
+                res.status = WisStatusPartial; // mark as partial success if any extension fails
+            }
+        }
+    }
+
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
+{
+    auto& impl = *reinterpret_cast<VKDeviceImpl*>(self);
+    if (!impl.device) {
+        return;
+    }
+    if (impl.device_header && impl.device_header->release() == 1) {
+        // Last reference, destroy device
+        std::atomic_thread_fence(std::memory_order_acquire);
+        impl.device_header->header.device_table.vkDestroyDevice(impl.device, nullptr);
+        delete impl.device_header;
+    }
+    impl.device_header = nullptr;
+    impl.device        = VK_NULL_HANDLE;
+    if (impl.instance_header && impl.instance_header->release() == 1) {
+        // Last reference, destroy instance
+        std::atomic_thread_fence(std::memory_order_acquire);
+        impl.instance_header->header.instance_table.vkDestroyInstance(impl.instance, nullptr);
+        delete impl.instance_header;
+    }
+    impl.instance_header = nullptr;
 }
 
 #endif // WIS_VK_INSTANCE_CPP

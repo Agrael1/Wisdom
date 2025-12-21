@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct VKDeviceDeleter {
+    void operator()(WisVKDevice* handle) noexcept
+    {
+        ::wisVKDestroyDevice(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
+ *
+ * */
+class VKDevice : public wis::impl::Implements<wis::impl::VKDeviceImpl, WisVKDevice, wis::VKDeviceDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKAdapterQueryDeleter {
     void operator()(WisVKAdapterQuery* handle) noexcept
     {
@@ -52,6 +70,26 @@ public:
                                                                       index,
                                                                       reinterpret_cast<WisAdapterDesc*>(&desc)));
         return desc;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
+     * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param extensions points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
+     * @param out_result denoting the outcome of operation.
+     * @return device points to wis::Device, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKDevice CreateDevice(std::size_t                              index,
+                                                    wis::span<wis::VKDeviceExtensionHeader*> extensions,
+                                                    wis::Result&                             out_result) const noexcept
+    {
+        wis::VKDevice device;
+        out_result = convert_result(::wisVKAdapterQueryCreateDevice(&_impl_storage,
+                                                                    index,
+                                                                    reinterpret_cast<WisVKDeviceExtensionHeader**>(extensions.data()),
+                                                                    extensions.size(),
+                                                                    device.GetStorage()));
+        return device;
     }
 };
 

@@ -36,9 +36,9 @@ inline constexpr WisStatus convert_vk(VkResult hr) noexcept
 
 //-----------------------------------------------------------------------------
 template<func_pair func, wis::fixed_string message>
-WIS_CONSTEXPR23 inline WisResult make_result(VkResult hr) noexcept
+WIS_CONSTEXPR23 inline WisResult make_result(VkResult hr, std::source_location sl = std::source_location::current()) noexcept
 {
-    static WIS_CONSTEXPR23 const auto str = wis::detail::make_error_string<message, func>();
+    static const auto str = wis::detail::make_error_string<message, func>(sl);
     return { convert_vk(hr), hr, str.c_str() };
 }
 

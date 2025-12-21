@@ -20,6 +20,8 @@ int main()
     size_t adapter_count = adapter_query.GetAdapterCount();
     std::cout << "Adapter count: " << adapter_count << "\n";
 
+
+    wis::Device device;
     for (size_t i = 0; i < adapter_count; ++i) {
         wis::AdapterDesc desc = adapter_query.GetAdapterDesc(i, result);
         if (result.status != wis::Status::Ok) {
@@ -32,6 +34,14 @@ int main()
                   << ", DedicatedVideoMemory: " << desc.dedicated_video_memory
                   << ", SharedSystemMemory: " << desc.shared_system_memory
                   << ", Flags: " << static_cast<uint32_t>(desc.flags) << "\n";
+
+        device = adapter_query.CreateDevice(i, {}, result);
+        if (result.status != wis::Status::Ok) {
+            std::cerr << "Failed to create device for adapter " << i << ": " << result.error << "\n";
+            continue;
+        }
+        std::cout << "Device created successfully for adapter " << i << ".\n";
+        break; // Successfully created a device, exit loop
     }
 
     return 0;

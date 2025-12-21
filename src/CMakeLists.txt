@@ -34,6 +34,7 @@ if(WISDOM_DX12)
     wisdom-internal-headers
     DXGI
     DXGUID
+    d3d12
     COMPILE_DEFINITIONS
     $<BUILD_INTERFACE:WISDOM_DX12=1>)
 endif()
@@ -46,10 +47,12 @@ if(WISDOM_VULKAN)
     "include/wisdom/impl/vulkan/vk_types.hpp"
     "include/wisdom/impl/vulkan/vk_utils.hpp"
     "include/wisdom/impl/vulkan/vk_loader.hpp"
+    "include/wisdom/impl/vulkan/vk_tables.hpp"
     "include/wisdom/generated/vk_cpp_api.hpp"
     "include/wisdom/generated/vk_api.h"
     SOURCES
     "include/wisdom/impl/vulkan/vk_instance.cpp"
+    "include/wisdom/impl/vulkan/vk_types.cpp"
     LINK_TARGETS
     wisdom-internal-headers
     vkma
