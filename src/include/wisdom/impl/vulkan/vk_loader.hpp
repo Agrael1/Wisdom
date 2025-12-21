@@ -93,6 +93,8 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
             return false;                        \
         }                                        \
     } while (0)
+#define ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, name) \
+    name = reinterpret_cast<decltype(name)>(vkGetInstanceProcAddr(instance, #name))
 #define ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, name)                                  \
     do {                                                                                 \
         name = reinterpret_cast<decltype(name)>(vkGetInstanceProcAddr(instance, #name)); \
@@ -111,6 +113,27 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
         if (name == nullptr) {                                                                           \
             return false;                                                                                \
         }                                                                                                \
+    } while (0)
+#define ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, name) \
+    name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, #name))
+#define ASSIGN_DEVICE_PROC_ADDR_CHECK(device, name)                                  \
+    do {                                                                        \
+        name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, #name)); \
+        if (name == nullptr) {                                                  \
+            return false;                                                     \
+        }                                                                     \
+    } while (0)
+#define ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, name, ...)                                        \
+    do {                                                                                             \
+        constexpr static const char* name##_strings[]{ #name, __VA_ARGS__ };                         \
+        for (auto name##_it : name##_strings) {                                                      \
+            if ((name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, name##_it)))) { \
+                break;                                                                               \
+            }                                                                                        \
+        }                                                                                            \
+        if (name == nullptr) {                                                                       \
+            return false;                                                                            \
+        }                                                                                            \
     } while (0)
 
 #endif // WISDOM_IMPL_VULKAN_VK_LOADER_HPP

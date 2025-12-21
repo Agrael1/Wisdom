@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Device, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
  *
  * */
@@ -33,6 +39,13 @@ typedef struct WisDX12DeviceExtensionHeader {
 typedef struct WisDX12InstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisDX12InstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisDevice handle.
+ * @param self is a pointer to the valid WisDevice instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisAdapterQuery handle.
@@ -93,6 +106,22 @@ WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* 
 WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self,
                                                        size_t                     index,
                                                        WisAdapterDesc*            desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
+ * @param extensions points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
+ * @param extension_count counts the number of extensions in the `extensions` array.
+ * @param device points to WisDevice, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery*     self,
+                                                     size_t                         index,
+                                                     WisDX12DeviceExtensionHeader** extensions,
+                                                     size_t                         extension_count,
+                                                     WisDX12Device*                 device);
 
 #ifdef __cplusplus
 }

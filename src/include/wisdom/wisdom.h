@@ -19,6 +19,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12Device       WisDevice;
 typedef struct WisDX12AdapterQuery WisAdapterQuery;
 typedef struct WisDX12Instance     WisInstance;
 
@@ -33,12 +34,14 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
+#define wisDestroyDevice               wisDX12DestroyDevice
 #define wisDestroyAdapterQuery         wisDX12DestroyAdapterQuery
 #define wisDestroyInstance             wisDX12DestroyInstance
 #define wisCreateInstance              wisDX12CreateInstance
 #define wisInstanceQueryAdapters       wisDX12InstanceQueryAdapters
 #define wisAdapterQueryGetAdapterCount wisDX12AdapterQueryGetAdapterCount
 #define wisAdapterQueryGetAdapterDesc  wisDX12AdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice    wisDX12AdapterQueryCreateDevice
 
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -47,6 +50,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Handles
 //==============================================================
 
+typedef struct WisVKDevice       WisDevice;
 typedef struct WisVKAdapterQuery WisAdapterQuery;
 typedef struct WisVKInstance     WisInstance;
 
@@ -61,12 +65,14 @@ typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
+#define wisDestroyDevice               wisVKDestroyDevice
 #define wisDestroyAdapterQuery         wisVKDestroyAdapterQuery
 #define wisDestroyInstance             wisVKDestroyInstance
 #define wisCreateInstance              wisVKCreateInstance
 #define wisInstanceQueryAdapters       wisVKInstanceQueryAdapters
 #define wisAdapterQueryGetAdapterCount wisVKAdapterQueryGetAdapterCount
 #define wisAdapterQueryGetAdapterDesc  wisVKAdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice    wisVKAdapterQueryCreateDevice
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

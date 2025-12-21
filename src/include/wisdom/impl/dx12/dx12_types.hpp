@@ -5,6 +5,7 @@
 #endif // __cplusplus
 
 #include <dxgi1_6.h>
+#include <d3d12.h>
 #include <cassert>
 
 namespace wis {
@@ -27,6 +28,12 @@ struct DX12InstanceImpl {
 struct DX12AdapterQueryImpl {
     IDXGIAdapter4** physical_devices;
     std::size_t     adapter_count;
+    IDXGIFactory6*  factory;
+};
+
+struct DX12DeviceImpl {
+    ID3D12Device10*   device;
+    IDXGIAdapter4*  physical_device;
     IDXGIFactory6*  factory;
 };
 } // namespace impl

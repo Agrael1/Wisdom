@@ -12,6 +12,10 @@ int main()
     result                        = wisInstanceQueryAdapters(&instance, WisAdapterPreferencePerformance, &adapter_query);
     printf("QueryAdapters result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    // Destroy instance as we no longer need it
+    wisDestroyInstance(&instance);
+
+    WisDevice device = { 0 };
     uint32_t adapter_count = wisAdapterQueryGetAdapterCount(&adapter_query);
     printf("Adapter count: %u\n", adapter_count);
 
@@ -22,10 +26,16 @@ int main()
         if (result.status == WisStatusOk) {
             printf("Adapter %u: Name: %s, VendorID: %u, DeviceID: %u, Flags: %u\n", i, desc.description, desc.vendor_id, desc.device_id, desc.flags);
         }
-    }
 
-    wisDestroyInstance(&instance);
+        result = wisAdapterQueryCreateDevice(&adapter_query, i, NULL, 0, &device);
+        printf("CreateDevice result for adapter %u: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
+        if (result.status == WisStatusOk) {
+            printf("Device created successfully for adapter %u.\n", i);
+            break; // Successfully created a device, exit loop
+        }
+    }
     wisDestroyAdapterQuery(&adapter_query);
 
+    wisDestroyDevice(&device);
     return 0;
 }
