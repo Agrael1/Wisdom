@@ -42,6 +42,18 @@ typedef enum WisAdapterPreference {
 } WisAdapterPreference;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Defines severity levels for logging and debugging messages.
+ *
+ * */
+typedef enum WisSeverity {
+    WisSeverityVerbose = 0, ///< Verbose level messages, typically used for detailed debugging information.
+    WisSeverityInfo    = 1, ///< Informational messages that highlight the progress of the application.
+    WisSeverityWarning = 2, ///< Potentially harmful situations that warrant attention but do not prevent normal operation.
+    WisSeverityError   = 3, ///< Error events that might still allow the application to continue running.
+    WisSeverityFatal   = 4, ///< Severe error events that will presumably lead the application to abort.
+} WisSeverity;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -50,6 +62,20 @@ typedef enum WisAdapterFlags {
     WisAdapterFlagsRemote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
     WisAdapterFlagsSoftware = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
 } WisAdapterFlags;
+
+//==============================================================
+// Delegates
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.
+ * @param severity defines message severity level.
+ * @param message contains the debug message string.
+ * @param device handle to the device that generated the message. Can be `0` if message is not device specific.
+ * @param user_data user defined data pointer passed during callback registration.
+ *
+ * */
+typedef void (*WisDebugCallback)(WisSeverity severity, const char* message, uint64_t device, void* user_data);
 
 //==============================================================
 // Structs
@@ -79,6 +105,16 @@ typedef struct WisAdapterDesc {
     uint8_t         adapter_uuid[16]; ///< stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
     WisAdapterFlags flags; ///< Adapter flags. Describe the adapter kind.
 } WisAdapterDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Debugging and logging description. Used to configure debug callback behavior.
+ *
+ * */
+typedef struct WisDebugDesc {
+    bool             debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
+    WisDebugCallback callback; ///< defines the debug callback function.
+    void*            user_data; ///< user defined data pointer passed to the callback.
+} WisDebugDesc;
 
 #ifdef __cplusplus
 }

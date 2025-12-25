@@ -15,7 +15,7 @@
  * Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisVKInstance,4);
+ * WIS_DEFINE_HANDLE(WisVKInstance,3);
  * ```
  * DX12 Version:
  * ```c

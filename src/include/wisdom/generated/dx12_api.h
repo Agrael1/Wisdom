@@ -16,7 +16,7 @@ WIS_DEFINE_HANDLE(WisDX12Device, 3);
  * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12AdapterQuery, 3);
+WIS_DEFINE_HANDLE(WisDX12AdapterQuery, 4);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
@@ -63,14 +63,14 @@ WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
- * @param debug_layer defines if the instance is to be created with debug mode.
+ * @param debug_desc points to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * @param extension_count counts the number of extensions in the `extensions` array.
  * @param instance points to WisInstance, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
+WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*              debug_desc,
                                            WisDX12InstanceExtensionHeader** extensions,
                                            size_t                           extension_count,
                                            WisDX12Instance*                 instance);

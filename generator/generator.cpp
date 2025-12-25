@@ -42,6 +42,7 @@ void Generator::WriteMainAPIDoc()
     WriteVariantDocumentation(struct_output_path);
     WriteHandleDocumentation(handle_output_path);
     WriteFunctionDocumentation(func_output_path);
+    WriteDelegateDocumentation(func_output_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -101,7 +102,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
         } else if (std::string_view(category) == "bitmask") {
             ParseBitmask(type);
         } else if (std::string_view(category) == "delegate") {
-            // ParseDelegate(type);
+            ParseDelegate(type);
         } else if (std::string_view(category) == "variant") {
             ParseVariant(type);
         }
@@ -146,6 +147,16 @@ extern "C" {
     for (auto& bitmask_name : bitmasks_in_order) {
         auto& bitmask_def = bitmask_map[bitmask_name];
         file << MakeCBitmask(bitmask_def);
+        file << "\n";
+    }
+
+    file << "\n//==============================================================\n"
+            "// Delegates\n"
+            "//==============================================================\n\n";
+    // Write delegates (before structs, as structs may reference delegates)
+    for (auto& delegate_name : delegates_in_order) {
+        auto& delegate_def = delegate_map[delegate_name];
+        file << MakeCDelegate(delegate_def);
         file << "\n";
     }
 
@@ -201,6 +212,16 @@ namespace wis {
     for (auto& bitmask_name : bitmasks_in_order) {
         auto& bitmask_def = bitmask_map[bitmask_name];
         file << MakeCPPBitmask(bitmask_def);
+        file << "\n";
+    }
+
+    file << "\n//==============================================================\n"
+            "// Delegates\n"
+            "//==============================================================\n\n";
+    // Write delegates (before structs, as structs may reference delegates)
+    for (auto& delegate_name : delegates_in_order) {
+        auto& delegate_def = delegate_map[delegate_name];
+        file << MakeCPPDelegate(delegate_def);
         file << "\n";
     }
 
@@ -771,6 +792,9 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     if (auto it = function_map.find(type_name); it != function_map.end()) {
         return TypeKind::Function;
     }
+    if (delegate_map.contains(type_name)) {
+        return TypeKind::FuncPointer;
+    }
     return TypeKind::Base;
 }
 
@@ -799,11 +823,10 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
         break;
     case TypeKind::Enum:
     case TypeKind::Bitmask:
+    case TypeKind::FuncPointer:
         return wis::format("Wis{}", type);
     case TypeKind::Handle:
         return wis::format("Wis{}{}", impl, type);
-    case TypeKind::FuncPointer:
-        break;
     case TypeKind::Function: {
         auto& func = function_map.at(type);
         if (!func.this_type.empty() && !func.name.starts_with("Destroy")) {
@@ -824,6 +847,7 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     default:
     case TypeKind::None:
         return "";
+    case TypeKind::FuncPointer:
     case TypeKind::Bitmask:
     case TypeKind::Struct:
     case TypeKind::Enum:
@@ -833,8 +857,6 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     case TypeKind::Function:
         return wis::format("wis::{}{}", impl, type);
     case TypeKind::Union:
-        break;
-    case TypeKind::FuncPointer:
         break;
     case TypeKind::Alias:
         break;

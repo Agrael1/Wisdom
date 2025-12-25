@@ -38,18 +38,18 @@ using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the wis::Instance with extensions, specified in extension array.
- * @param debug_layer defines if the instance is to be created with debug mode.
+ * @param debug_desc points to wis::DebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.
  * @return instance points to wis::Instance, which is initialized on success.
  *
  * */
-WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
+WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*                    debug_desc,
                                                   wis::span<wis::InstanceExtensionHeader*> extensions,
                                                   wis::Result&                             out_result) noexcept
 {
     wis::DX12Instance instance;
-    out_result = convert_result(::wisDX12CreateInstance(debug_layer,
+    out_result = convert_result(::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
                                                         reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
                                                         extensions.size(),
                                                         instance.GetStorage()));
@@ -84,18 +84,18 @@ using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the wis::Instance with extensions, specified in extension array.
- * @param debug_layer defines if the instance is to be created with debug mode.
+ * @param debug_desc points to wis::DebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.
  * @return instance points to wis::Instance, which is initialized on success.
  *
  * */
-WIS_NODISCARD inline wis::Instance CreateInstance(bool                                     debug_layer,
+WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*                    debug_desc,
                                                   wis::span<wis::InstanceExtensionHeader*> extensions,
                                                   wis::Result&                             out_result) noexcept
 {
     wis::VKInstance instance;
-    out_result = convert_result(::wisVKCreateInstance(debug_layer,
+    out_result = convert_result(::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
                                                       reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
                                                       extensions.size(),
                                                       instance.GetStorage()));

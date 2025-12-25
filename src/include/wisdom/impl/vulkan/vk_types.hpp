@@ -141,6 +141,60 @@ struct control_block : public control_block_base {
 template<>
 struct control_block<empty_type> : public control_block_base {
 };
+
+//-----------------------------------------------------------------------------
+struct VKDebugCallbackThunk {
+public:
+    static VkBool32 VKAPI_PTR wisDebugUtilsMessengerCallbackThunk(
+            VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+            void*                                       pUserData)
+    {
+        auto* thunk = reinterpret_cast<const VKDebugCallbackThunk*>(pUserData);
+        thunk->wisDebugUtilsMessengerCallback(messageSeverity, messageTypes, pCallbackData);
+        return false;
+    }
+    void wisDebugUtilsMessengerCallback(
+            VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) const
+    {
+        WisSeverity wis_severity = WisSeverityInfo;
+        switch (messageSeverity) {
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            wis_severity = WisSeverityVerbose;
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            wis_severity = WisSeverityInfo;
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            wis_severity = WisSeverityWarning;
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            wis_severity = WisSeverityError;
+            break;
+        default:
+            wis_severity = WisSeverityInfo;
+            break;
+        }
+
+        // Get device handle if possible
+        uint64_t device = 0;
+        for (auto&& obj : wis::span<const VkDebugUtilsObjectNameInfoEXT>{ pCallbackData->pObjects, pCallbackData->objectCount }) {
+            if (obj.objectType == VK_OBJECT_TYPE_DEVICE) {
+                device = obj.objectHandle;
+                break;
+            }
+        }
+
+        callback(wis_severity, pCallbackData->pMessage, device, user_data);
+    }
+
+public:
+    WisDebugCallback callback  = nullptr;
+    void*            user_data = nullptr;
+};
 } // namespace detail
 
 namespace impl {
@@ -149,7 +203,10 @@ struct VKInstanceHeader {
     VKMainGlobal                global_table;
     VKMainInstance              instance_table;
     VKMainAdapter               adapter_table;
+    VkDebugUtilsMessengerEXT    debug_messenger;
     wis::detail::unique_library library;
+
+    std::unique_ptr<wis::detail::VKDebugCallbackThunk> debug_callback_thunk;
 };
 
 struct VKDeviceHeader {
@@ -157,13 +214,14 @@ struct VKDeviceHeader {
     VKMainCommandQueue                         command_queue_table;
     VKMainCommandList                          command_list_table;
     std::unique_ptr<VkQueueFamilyProperties[]> queue_family_properties;
+    detail::control_block<VKInstanceHeader>*   shared_header;
+    VkInstance                                 instance;
 };
 
 struct VKInstanceImpl {
     VkInstance                               instance;
     detail::control_block<VKInstanceHeader>* shared_header;
     uint32_t                                 api_version;
-    bool                                     debug_layer;
 };
 
 struct VKAdapterQueryImpl {
@@ -173,11 +231,9 @@ struct VKAdapterQueryImpl {
     detail::control_block<VKInstanceHeader>* shared_header;
 };
 struct VKDeviceImpl {
-    VkDevice                                 device;
-    VkPhysicalDevice                         physical_device;
-    VkInstance                               instance;
-    detail::control_block<VKInstanceHeader>* instance_header;
-    detail::control_block<VKDeviceHeader>*   device_header;
+    VkDevice                               device;
+    VkPhysicalDevice                       physical_device;
+    detail::control_block<VKDeviceHeader>* device_header;
 };
 } // namespace impl
 

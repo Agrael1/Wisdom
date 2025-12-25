@@ -11,8 +11,89 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
+namespace wis {
+namespace detail {
+class DX12DebugLayerThunk : public Microsoft::WRL::RuntimeClass<
+                                    Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom | Microsoft::WRL::InhibitRoOriginateError>,
+                                    IUnknown>
+{
+public:
+    DX12DebugLayerThunk(ID3D12InfoQueue1* in_info_queue,
+                        uint64_t          device,
+                        WisDebugCallback  in_callback,
+                        void*             in_user_data) noexcept
+        : info_queue(in_info_queue)
+        , callback(in_callback)
+        , user_data(in_user_data)
+    {
+        if (info_queue) {
+            auto hr = info_queue->RegisterMessageCallback(DX12CallbackThunk,
+                                                          D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+                                                          this,
+                                                          &cookie);
+            // Debug layer creation failure is allowed to silently fail
+            (void)hr;
+        }
+    }
+    ~DX12DebugLayerThunk()
+    {
+        if (info_queue && cookie != 0) {
+            info_queue->UnregisterMessageCallback(cookie);
+        }
+    }
+
+private:
+    static void DX12CallbackThunk(D3D12_MESSAGE_CATEGORY category,
+                                  D3D12_MESSAGE_SEVERITY severity,
+                                  D3D12_MESSAGE_ID       id,
+                                  LPCSTR                 pDescription,
+                                  void*                  pContext)
+    {
+        auto* layer = reinterpret_cast<const DX12DebugLayerThunk*>(pContext);
+        layer->DX12Callback(category, severity, id, pDescription);
+    }
+    void DX12Callback(D3D12_MESSAGE_CATEGORY category,
+                      D3D12_MESSAGE_SEVERITY severity,
+                      D3D12_MESSAGE_ID       id,
+                      LPCSTR                 pDescription) const
+    {
+
+        WisSeverity wis_severity = WisSeverityInfo;
+        switch (severity) {
+        case D3D12_MESSAGE_SEVERITY_CORRUPTION:
+            wis_severity = WisSeverityFatal;
+            break;
+        case D3D12_MESSAGE_SEVERITY_ERROR:
+            wis_severity = WisSeverityError;
+            break;
+        case D3D12_MESSAGE_SEVERITY_WARNING:
+            wis_severity = WisSeverityWarning;
+            break;
+        case D3D12_MESSAGE_SEVERITY_INFO:
+            wis_severity = WisSeverityInfo;
+            break;
+        case D3D12_MESSAGE_SEVERITY_MESSAGE:
+            wis_severity = WisSeverityVerbose;
+            break;
+        default:
+            wis_severity = WisSeverityInfo;
+            break;
+        }
+        callback(wis_severity, pDescription, device, user_data);
+    }
+
+public:
+    ID3D12InfoQueue1* info_queue;
+    DWORD             cookie    = 0;
+    void*             user_data = nullptr;
+    uint64_t          device    = 0;
+    WisDebugCallback  callback;
+};
+} // namespace detail
+} // namespace wis
+
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                             debug_layer,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*              debug_desc,
                                                         WisDX12InstanceExtensionHeader** extensions,
                                                         size_t                           extension_count,
                                                         WisDX12Instance*                 instance)
@@ -22,6 +103,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                    
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(instance);
 
     com_ptr<IDXGIFactory6> ref;
+    uint32_t               debug_layer = debug_desc && debug_desc->debug_layer;
 
     auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                  IID_IDXGIFactory6,
@@ -29,6 +111,23 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(bool                    
 
     if (!succeeded(hr)) {
         return make_result<Func(), "Failed to create DXGI Factory">(hr);
+    }
+
+    // Create and setup debug layer if requested
+    if (debug_layer) {
+        com_ptr<ID3D12Debug> debug_controller;
+        auto hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
+        if (succeeded(hr2)) {
+            debug_controller->EnableDebugLayer();
+            auto debug_layer_impl       = Microsoft::WRL::Make<DX12DebugLayer>();
+            debug_layer_impl->callback  = debug_desc->callback;
+            debug_layer_impl->user_data = debug_desc->user_data;
+            impl.debug_layer            = debug_layer_impl.Detach();
+        } else {
+            impl.debug_layer = nullptr;
+        }
+    } else {
+        impl.debug_layer = nullptr;
     }
 
     impl.factory = ref.detach();
@@ -50,6 +149,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 {
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(self);
     safe_release(impl.factory);
+    safe_release(impl.debug_layer);
 }
 
 //-----------------------------------------------------------------------------
@@ -79,7 +179,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
 
     // Dynamic reallocation loop
     while (true) {
-        auto hr = factory_ref->EnumAdapterByGpuPreference(count,
+        auto hr = factory_ref->EnumAdapterByGpuPreference(uint32_t(count),
                                                           convert(preference),
                                                           IID_IDXGIAdapter4,
                                                           reinterpret_cast<void**>(adapters.get() + count));
@@ -110,6 +210,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
     impl.physical_devices = adapters.release();
     impl.adapter_count    = count;
     impl.factory          = factory_ref.detach(); // transfer ownership
+    impl.debug_layer      = instance_impl.debug_layer;
+    if (impl.debug_layer) {
+        impl.debug_layer->AddRef();
+    }
     return res;
 }
 
@@ -119,6 +223,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* sel
     auto& impl = *reinterpret_cast<DX12AdapterQueryImpl*>(self);
     safe_release_array(impl.physical_devices, impl.adapter_count);
     delete[] impl.physical_devices;
+    safe_release(impl.debug_layer);
     safe_release(impl.factory);
 }
 
@@ -194,6 +299,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
     }
     if (!EnhancedBarriersSupported) {
         return make_result<Func(), "D3D12 device does not support Enhanced Barriers">(E_FAIL);
+    }
+
+    // Bind debug callback if available
+    if (impl.debug_layer && impl.debug_layer->callback) {
+        DWORD                     debug_cookie = 0;
+        com_ptr<ID3D12InfoQueue1> info_queue;
+        auto hr2 = device_ref->QueryInterface(IID_ID3D12InfoQueue1, reinterpret_cast<void**>(info_queue.put_void_unchecked()));
+        if (succeeded(hr2)) {
+            auto thunk = Microsoft::WRL::Make<detail::DX12DebugLayerThunk>(info_queue.get(),
+                                                                           reinterpret_cast<uint64_t>(device_ref.get()),
+                                                                           impl.debug_layer->callback,
+                                                                           impl.debug_layer->user_data);
+
+            // Debug layer creation failure is allowed to silently fail
+            if (thunk) {
+                // set as private data to keep alive
+                hr2 = device_ref->SetPrivateDataInterface(__uuidof(IUnknown), thunk.Get());
+                (void)hr2;
+            }
+        }
     }
 
     auto& device_impl           = *reinterpret_cast<DX12DeviceImpl*>(device);

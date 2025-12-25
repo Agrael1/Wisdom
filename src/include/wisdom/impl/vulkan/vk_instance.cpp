@@ -44,10 +44,45 @@ inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
         return 1;
     }
 }
+
+inline void release_vk_instance(VkInstance instance, detail::control_block<VKInstanceHeader>* header) noexcept
+{
+    if (header && header->release() == 1) {
+        // Destroy debug messenger if exists
+        if (header->header.debug_messenger != VK_NULL_HANDLE &&
+            header->header.instance_table.vkDestroyDebugUtilsMessengerEXT) {
+            header->header.instance_table.vkDestroyDebugUtilsMessengerEXT(
+                    instance,
+                    header->header.debug_messenger,
+                    nullptr);
+        }
+
+        // Last reference, destroy instance
+        std::atomic_thread_fence(std::memory_order_acquire);
+        header->header.instance_table.vkDestroyInstance(instance, nullptr);
+        delete header;
+    }
+}
+
+//-----------------------------------------------------------------------------
+inline void release_vk_device(VkDevice device, detail::control_block<VKDeviceHeader>* header) noexcept
+{
+    if (header && header->release() == 1) {
+        // Last reference, destroy device
+        std::atomic_thread_fence(std::memory_order_acquire);
+        header->header.device_table.vkDestroyDevice(device, nullptr);
+
+        // Destroy instance
+        release_vk_instance(header->header.instance,
+                            header->header.shared_header);
+
+        delete header;
+    }
+}
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
+WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*            debug_layer,
                                                       WisVKInstanceExtensionHeader** extensions,
                                                       size_t                         extension_count,
                                                       WisVKInstance*                 instance)
@@ -95,10 +130,29 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
         reinterpret_cast<wis::VKInstanceExtensionHeader*>(extensions[i])->CollectInfo(collector);
     }
 
+    // Setup debug layer if requested
+    bool debug_layer_enabled = debug_layer && debug_layer->debug_layer;
+    if (debug_layer_enabled) {
+        collector.EnableLayer("VK_LAYER_KHRONOS_validation");
+        collector.EnableExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
     // Prepared enabled extensions and layers arrays
     auto&& [ext_layer_array, ext_count, layer_count] = collector.GetExtensionsAndLayers(res);
     if (res.status != WisStatusOk) {
         return res;
+    }
+
+
+    // Prepare debug callback thunk
+    std::unique_ptr<VKDebugCallbackThunk> debug_layer_thunk;
+    if (debug_layer && debug_layer->callback) {
+        debug_layer_thunk = make_unique<VKDebugCallbackThunk>();
+        if (debug_layer_thunk) {
+            debug_layer_thunk->callback  = debug_layer->callback;
+            debug_layer_thunk->user_data = debug_layer->user_data;
+        }
+        // Non-fatal, allow to silently fail
     }
 
     // Create Vulkan instance
@@ -108,8 +162,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
         .engineVersion      = VK_MAKE_VERSION(1, 0, 0),
         .apiVersion         = version,
     };
+    VkDebugUtilsMessengerCreateInfoEXT debug_create_info{
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+        .messageSeverity =
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        .pfnUserCallback = VKDebugCallbackThunk::wisDebugUtilsMessengerCallbackThunk,
+        .pUserData       = debug_layer_thunk.get(),
+    };
     VkInstanceCreateInfo create_info{
         .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+        .pNext                   = debug_layer_thunk ? &debug_create_info : nullptr,
         .pApplicationInfo        = &info,
         .enabledLayerCount       = static_cast<uint32_t>(layer_count),
         .ppEnabledLayerNames     = layer_count ? ext_layer_array.get() + ext_count : nullptr,
@@ -136,11 +201,24 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(bool                      
         return make_result<Func(), "Failed to initialize Vulkan adapter function table">(VK_ERROR_UNKNOWN);
     }
 
+    // Setup debug messenger if requested
+    if (debug_layer_thunk && instance_table.vkCreateDebugUtilsMessengerEXT) {
+        auto vr2 = instance_table.vkCreateDebugUtilsMessengerEXT(
+                instance_handle,
+                &debug_create_info,
+                nullptr,
+                &header->header.debug_messenger);
+        // Non-fatal, allow to silently fail
+        (void)vr2;
+    }
+
     // Fill instance impl
     impl.instance      = instance_handle;
     impl.shared_header = header.release();
     impl.api_version   = version;
-    impl.debug_layer   = debug_layer;
+
+    // Store debug thunk
+    impl.shared_header->header.debug_callback_thunk = std::move(debug_layer_thunk);
 
     // Initialize instance extensions
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
@@ -162,13 +240,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
     if (!impl.instance) {
         return;
     }
-
-    if (impl.shared_header && impl.shared_header->release() == 1) {
-        // Last reference, destroy instance
-        std::atomic_thread_fence(std::memory_order_acquire);
-        impl.shared_header->header.instance_table.vkDestroyInstance(impl.instance, nullptr);
-        delete impl.shared_header;
-    }
+    detail::release_vk_instance(impl.instance, impl.shared_header);
     impl.shared_header = nullptr;
     impl.instance      = VK_NULL_HANDLE;
 }
@@ -314,11 +386,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
     if (impl.physical_devices) {
         delete[] impl.physical_devices;
     }
-    if (impl.shared_header && impl.shared_header->release() == 1) {
-        std::atomic_thread_fence(std::memory_order_acquire);
-        impl.shared_header->header.instance_table.vkDestroyInstance(impl.instance, nullptr);
-        delete impl.shared_header;
-    }
+
+    detail::release_vk_instance(impl.instance, impl.shared_header);
 }
 
 //-----------------------------------------------------------------------------
@@ -539,10 +608,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     auto& device_impl           = *reinterpret_cast<VKDeviceImpl*>(device);
     device_impl.device_header   = header.release();
     device_impl.device          = device_handle;
-    device_impl.instance_header = impl.shared_header;
-    device_impl.instance_header->add_ref(); // hold reference to instance header
     device_impl.physical_device = adapter;
-    device_impl.instance        = impl.instance;
+
+    device_impl.device_header->header.shared_header = impl.shared_header;
+    device_impl.device_header->header.shared_header->add_ref(); // hold reference to instance header
+    device_impl.device_header->header.instance = impl.instance;
 
     // Initialize device extensions
     for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ extensions, extension_count }) {
@@ -565,21 +635,9 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
     if (!impl.device) {
         return;
     }
-    if (impl.device_header && impl.device_header->release() == 1) {
-        // Last reference, destroy device
-        std::atomic_thread_fence(std::memory_order_acquire);
-        impl.device_header->header.device_table.vkDestroyDevice(impl.device, nullptr);
-        delete impl.device_header;
-    }
+    detail::release_vk_device(impl.device, impl.device_header);
     impl.device_header = nullptr;
     impl.device        = VK_NULL_HANDLE;
-    if (impl.instance_header && impl.instance_header->release() == 1) {
-        // Last reference, destroy instance
-        std::atomic_thread_fence(std::memory_order_acquire);
-        impl.instance_header->header.instance_table.vkDestroyInstance(impl.instance, nullptr);
-        delete impl.instance_header;
-    }
-    impl.instance_header = nullptr;
 }
 
 #endif // WIS_VK_INSTANCE_CPP

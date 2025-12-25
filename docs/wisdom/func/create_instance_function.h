@@ -12,7 +12,7 @@
  *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisCreateInstance(bool                         debug_layer,
+ * WisResult wisCreateInstance(const WisDebugDesc*          debug_desc,
  *                             WisInstanceExtensionHeader** extensions,
  *                             size_t                       extension_count,
  *                             WisInstance*                 instance);
@@ -21,13 +21,13 @@
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisVKCreateInstance(bool                           debug_layer,
+ * WisResult wisVKCreateInstance(const WisDebugDesc*            debug_desc,
  *                               WisVKInstanceExtensionHeader** extensions,
  *                               size_t                         extension_count,
  *                               WisVKInstance*                 instance);
  * 
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisDX12CreateInstance(bool                             debug_layer,
+ * WisResult wisDX12CreateInstance(const WisDebugDesc*              debug_desc,
  *                                 WisDX12InstanceExtensionHeader** extensions,
  *                                 size_t                           extension_count,
  *                                 WisDX12Instance*                 instance);
@@ -38,7 +38,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::Instance CreateInstance(bool                                     debug_layer,
+ * WIS_NODISCARD wis::Instance CreateInstance(const wis::DebugDesc*                    debug_desc,
  *                                            wis::span<wis::InstanceExtensionHeader*> extensions,
  *                                            wis::Result&                             out_result) noexcept;
  * }
@@ -48,12 +48,12 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::VKInstance VKCreateInstance(bool                                       debug_layer,
+ * WIS_NODISCARD wis::VKInstance VKCreateInstance(const wis::DebugDesc*                      debug_desc,
  *                                                wis::span<wis::VKInstanceExtensionHeader*> extensions,
  *                                                wis::Result&                               out_result) noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::DX12Instance DX12CreateInstance(bool                                         debug_layer,
+ * WIS_NODISCARD wis::DX12Instance DX12CreateInstance(const wis::DebugDesc*                        debug_desc,
  *                                                    wis::span<wis::DX12InstanceExtensionHeader*> extensions,
  *                                                    wis::Result&                                 out_result) noexcept;
  * }
@@ -64,7 +64,7 @@
  * @section CreateInstance_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- * - `debug_layer` defines if the instance is to be created with debug mode.
+ * - `debug_desc` points to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * - `extensions` points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * - `extension_count` counts the number of extensions in the `extensions` array.
  * - `instance` points to WisInstance, which is initialized on success.

@@ -19,7 +19,7 @@
  * DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisDX12AdapterQuery,3);
+ * WIS_DEFINE_HANDLE(WisDX12AdapterQuery,4);
  * ```
  * \endcond
  *

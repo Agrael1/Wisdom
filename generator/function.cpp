@@ -117,6 +117,53 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 }
 
 //-----------------------------------------------------------------------------
+void Generator::ParseDelegate(tinyxml2::XMLElement* func)
+{
+    auto  name = func->FindAttribute("name")->Value();
+    auto& ref  = delegate_map[name];
+    delegates_in_order.push_back(name);
+    ref.name = name;
+
+    if (auto* version = func->FindAttribute("version")) {
+        ref.version = version->Value();
+    } else {
+        throw std::runtime_error(wis::format("Delegate {} is missing version attribute.", name));
+    }
+
+    if (auto* doc = func->FindAttribute("doc")) {
+        ref.doc = doc->Value();
+    }
+
+    if (auto* mod = func->FindAttribute("mod")) {
+        ref.modifier = GetModifiers(mod->Value());
+    }
+
+    // Parse parameters
+    for (auto* param = func->FirstChildElement("arg"); param;
+         param       = param->NextSiblingElement("arg")) {
+
+        auto& p = ref.parameters.emplace_back();
+        p.type  = param->FindAttribute("type")->Value();
+
+        if (auto* name_attr = param->FindAttribute("name")) {
+            p.name = name_attr->Value();
+        } else {
+            throw std::runtime_error(wis::format("Function {} has a parameter with no name.", name));
+        }
+        if (auto* def = param->FindAttribute("default")) {
+            p.default_value = def->Value();
+        }
+        if (auto* mod = param->FindAttribute("mod")) {
+            p.modifier = GetModifiers(mod->Value());
+        }
+        if (auto* doc = param->FindAttribute("doc")) {
+            p.doc = doc->Value();
+        }
+        TryMakeRef(p.type, ref.name);
+    }
+}
+
+//-----------------------------------------------------------------------------
 std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_view impl, std::string_view pre_decl, DocKind kind)
 {
     ImplementedFor impl_code = ImplCode(impl);
@@ -316,8 +363,6 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, std::string
         max_arg_length = std::max(max_arg_length, type_str.length());
     }
 
-    
-
     return wis::format("{}{} {}{}{}({}{}){} noexcept;\n",
                        pre_decl,
                        full_return_type,
@@ -338,6 +383,28 @@ std::string Generator::MakeCFunctionDecl(const WisFunction& func, std::string_vi
         func_decl        = wis::format("{}\n{}", xdoc, func_decl);
     }
     return func_decl;
+}
+
+//-----------------------------------------------------------------------------
+std::string Generator::MakeCDelegate(const WisFunction& func, DocKind kind)
+{
+    std::string params;
+    for (size_t i = 0; i < func.parameters.size(); ++i) {
+        const auto& p        = func.parameters[i];
+        std::string type_str = GetMemberTypeString(p, "");
+        params += wis::format("{} {}", type_str, p.name);
+        if (i < func.parameters.size() - 1) {
+            params += ", ";
+        }
+    }
+    std::string delegate_decl = wis::format("typedef void (*Wis{})({});\n",
+                                            func.name,
+                                            params);
+    if (!func.doc.empty()) {
+        std::string xdoc = MakeTypeDocumentation(func, kind);
+        delegate_decl    = wis::format("{}\n{}", xdoc, delegate_decl);
+    }
+    return delegate_decl;
 }
 
 //-----------------------------------------------------------------------------
@@ -550,6 +617,28 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
 }
 
 //-----------------------------------------------------------------------------
+std::string Generator::MakeCPPDelegate(const WisFunction& func, DocKind kind)
+{
+    std::string params;
+    for (size_t i = 0; i < func.parameters.size(); ++i) {
+        const auto& p        = func.parameters[i];
+        std::string type_str = GetMemberTypeString<Lang::CPP>(p, "");
+        params += wis::format("{} {}", type_str, p.name);
+        if (i < func.parameters.size() - 1) {
+            params += ", ";
+        }
+    }
+    std::string delegate_decl = wis::format("using {} = void (*)({});\n",
+                                            func.name,
+                                            params);
+    if (!func.doc.empty()) {
+        std::string xdoc = MakeTypeDocumentation<Lang::CPP>(func, kind);
+        delegate_decl    = wis::format("{}\n{}", xdoc, delegate_decl);
+    }
+    return delegate_decl;
+}
+
+//-----------------------------------------------------------------------------
 std::string Generator::MakeFunctionDescription(const WisFunction& s)
 {
     std::string description = " * ";
@@ -587,6 +676,16 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
 }
 
 //-----------------------------------------------------------------------------
+std::string Generator::MakeDelegateDescription(const WisFunction& s)
+{
+    std::string description = " * ";
+    for (auto& p : s.parameters) {
+        description += wis::format("- `{}` {}\n", p.name, p.doc.empty() ? "No description." : p.doc);
+    }
+    return description;
+}
+
+//-----------------------------------------------------------------------------
 void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_path)
 {
     for (auto& func_name : functions_in_order) {
@@ -619,5 +718,32 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
                            vuids,
                            func_description,
                            func_refs);
+    }
+}
+
+void Generator::WriteDelegateDocumentation(std::filesystem::path func_output_path)
+{
+    for (auto& delegate_pair : delegate_map) {
+        auto  full_delegate_name = GetCFullTypename(delegate_pair.first, "");
+        auto  delegate_doc_path  = func_output_path / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
+        auto& delegate_def       = delegate_pair.second;
+
+        std::string regular_code              = MakeCDelegate(delegate_def, DocKind::VersionOnly);
+        std::string regular_code_cpp          = MakeCPPDelegate(delegate_def, DocKind::VersionOnly);
+        std::string delegate_template_content = GetSpecificationCode(regular_code, "", regular_code_cpp, "");
+
+        std::string delegate_description = MakeDelegateDescription(delegate_def);
+        std::string delegate_refs        = GetRefs(delegate_def.name);
+        std::string vuids                = MakeValidationForType(delegate_def.name);
+        ReplaceAll(delegate_description, "\n", "\n * ");
+        ReplaceAll(delegate_refs, "\n", "\n * ");
+        delegate_description = FinalizeCDocumentation(delegate_description, delegate_pair.first);
+        WriteDocumentation(delegate_doc_path,
+                           function_doc_template,
+                           GetCFullTypename(delegate_pair.first, ""),
+                           delegate_template_content,
+                           vuids,
+                           delegate_description,
+                           delegate_refs);
     }
 }

@@ -29,6 +29,19 @@
 			<member type="u8" name="adapter_uuid" array="16" doc="stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
 			<member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
 		</type>
+		
+		<type name="DebugCallback" category="delegate" version="0.7.0" doc="Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.">
+			<arg type="Severity" name="severity" doc="defines message severity level."/>
+			<arg type="char" name="message" mod="const,ptr" doc="contains the debug message string."/>
+			<arg type="u64" name="device" doc="handle to the device that generated the message. Can be `0` if message is not device specific."/>
+			<arg type="void" name="user_data" mod="ptr" doc="user defined data pointer passed during callback registration."/>
+		</type>
+		
+		<type name="DebugDesc" category="struct" version="0.7.0" doc="Debugging and logging description. Used to configure debug callback behavior.">
+			<member type="bool" name="debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
+			<member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
+			<member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
+		</type>
 
 	</types>
 </registry>
