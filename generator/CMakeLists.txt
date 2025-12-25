@@ -22,7 +22,7 @@ target_sources(
           "generator.hpp"
           "enum.cpp"
           "struct.cpp"
-          "types.h"
+          "types.hpp"
           "handle.cpp"
           "variant.cpp"
           "function.cpp"

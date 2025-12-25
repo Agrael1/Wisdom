@@ -7,7 +7,7 @@
 #include <array>
 #include <optional>
 
-#include "types.h"
+#include "types.hpp"
 #include "../src/include/wisdom/bridge/format.hpp"
 
 class Generator
@@ -44,6 +44,7 @@ public:
     void ParseFunctions(tinyxml2::XMLElement* functions);
     void ParseValidations(tinyxml2::XMLElement* validations);
     void ParseBitmask(tinyxml2::XMLElement* type);
+    void ParseDelegate(tinyxml2::XMLElement* type);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
@@ -53,6 +54,7 @@ public:
     std::string MakeCHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
     std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
+    std::string MakeCDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
 
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeBitmaskDescription(const WisBitmask& s);
@@ -61,6 +63,7 @@ public:
     std::string MakeStructDescription(const WisStruct& s);
     std::string MakeVariantDescription(const WisStruct& s);
     std::string MakeFunctionDescription(const WisFunction& s);
+    std::string MakeDelegateDescription(const WisFunction& s);
     std::string MakeValidationDescription(const Validation& v);
     std::string MakeValidationForType(std::string_view type_name);
     std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
@@ -74,6 +77,7 @@ public:
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
+    std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
@@ -89,6 +93,7 @@ public:
     void WriteVariantDocumentation(std::filesystem::path struct_output_path);
     void WriteHandleDocumentation(std::filesystem::path handle_output_path);
     void WriteFunctionDocumentation(std::filesystem::path func_output_path);
+    void WriteDelegateDocumentation(std::filesystem::path func_output_path);
     void WriteDocumentation(std::filesystem::path doc_output_path,
                             std::string_view      doc_template,
                             std::string_view      object_name,
@@ -287,6 +292,7 @@ private:
     std::unordered_map<std::string_view, WisStruct>   variant_map;
     std::unordered_map<std::string_view, WisHandle>   handle_map;
     std::unordered_map<std::string_view, WisFunction> function_map;
+    std::unordered_map<std::string_view, WisFunction> delegate_map;
 
     std::unordered_map<std::string_view, Dependencies>   dependency_tree;
     std::unordered_map<std::string_view, ValidationList> validation_map;
@@ -298,6 +304,7 @@ private:
     std::vector<std::string_view>      variants_in_order;
     std::vector<std::string_view>      handles_in_order;
     std::vector<std::string_view>      functions_in_order;
+    std::vector<std::string_view>      delegates_in_order;
     std::vector<std::string_view>      free_functions_in_order;
     std::vector<std::filesystem::path> files;
     std::vector<std::string>           destructors;

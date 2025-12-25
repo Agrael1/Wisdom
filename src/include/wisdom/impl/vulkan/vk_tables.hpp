@@ -72,12 +72,20 @@ struct VKMainInstance {
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
     PFN_vkDestroySurfaceKHR        vkDestroySurfaceKHR;
 
+    // Debug utils functions
+    PFN_vkCreateDebugUtilsMessengerEXT  vkCreateDebugUtilsMessengerEXT;
+    PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT;
+    PFN_vkSetDebugUtilsObjectNameEXT    vkSetDebugUtilsObjectNameEXT;
+
 public:
     bool Init(VkInstance instance, PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr) noexcept
     {
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkDestroyInstance);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkEnumeratePhysicalDevices);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkDestroySurfaceKHR);
+        ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, vkCreateDebugUtilsMessengerEXT);
+        ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, vkDestroyDebugUtilsMessengerEXT);
+        ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, vkSetDebugUtilsObjectNameEXT);
         return true;
     }
 };
@@ -280,7 +288,7 @@ public:
         return true;
     }
 };
-}
+} // namespace impl
 } // namespace wis
 
 #endif // !WIS_VK_TABLES_HPP

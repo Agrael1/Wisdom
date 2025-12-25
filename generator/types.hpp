@@ -42,6 +42,7 @@ enum Modifier {
     Span             = 1 << 6,
     Destroy          = 1 << 7,
     COnly            = 1 << 8,
+    Universal        = 1 << 9, // for functions only
 };
 enum ReturnTypeKind {
     Void,

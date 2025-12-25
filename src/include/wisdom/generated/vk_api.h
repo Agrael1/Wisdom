@@ -10,7 +10,7 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKDevice, 5);
+WIS_DEFINE_HANDLE(WisVKDevice, 3);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
@@ -22,7 +22,7 @@ WIS_DEFINE_HANDLE(WisVKAdapterQuery, 4);
  * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKInstance, 4);
+WIS_DEFINE_HANDLE(WisVKInstance, 3);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Opaque struct, representing device extension header. Used in extension development.
@@ -63,14 +63,14 @@ WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
- * @param debug_layer defines if the instance is to be created with debug mode.
+ * @param debug_desc points to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * @param extension_count counts the number of extensions in the `extensions` array.
  * @param instance points to WisInstance, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCreateInstance(bool                           debug_layer,
+WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*            debug_desc,
                                          WisVKInstanceExtensionHeader** extensions,
                                          size_t                         extension_count,
                                          WisVKInstance*                 instance);

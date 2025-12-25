@@ -39,6 +39,18 @@ enum class AdapterPreference {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Defines severity levels for logging and debugging messages.
+ *
+ * */
+enum class Severity {
+    Verbose = 0, ///< Verbose level messages, typically used for detailed debugging information.
+    Info    = 1, ///< Informational messages that highlight the progress of the application.
+    Warning = 2, ///< Potentially harmful situations that warrant attention but do not prevent normal operation.
+    Error   = 3, ///< Error events that might still allow the application to continue running.
+    Fatal   = 4, ///< Severe error events that will presumably lead the application to abort.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -47,6 +59,20 @@ enum class AdapterFlags : uint32_t {
     Remote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
     Software = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
 };
+
+//==============================================================
+// Delegates
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.
+ * @param severity defines message severity level.
+ * @param message contains the debug message string.
+ * @param device handle to the device that generated the message. Can be `0` if message is not device specific.
+ * @param user_data user defined data pointer passed during callback registration.
+ *
+ * */
+using DebugCallback = void (*)(wis::Severity severity, const char* message, std::uint64_t device, void* user_data);
 
 //==============================================================
 // Structs
@@ -75,6 +101,16 @@ struct AdapterDesc {
     std::uint64_t                adapter_id; ///< denotes adapter unique ID (LUID). Can be used to find the correct adapter.
     std::array<std::uint8_t, 16> adapter_uuid; ///< stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
     wis::AdapterFlags            flags; ///< Adapter flags. Describe the adapter kind.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Debugging and logging description. Used to configure debug callback behavior.
+ *
+ * */
+struct DebugDesc {
+    bool               debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
+    wis::DebugCallback callback; ///< defines the debug callback function.
+    void*              user_data; ///< user defined data pointer passed to the callback.
 };
 
 } // namespace wis

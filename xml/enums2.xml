@@ -23,6 +23,14 @@
 			<value name="Performance" value="2" doc="List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU."/>
 		</type>
 		
+		<type name="Severity" category="enum" version="0.7.0" doc="Defines severity levels for logging and debugging messages.">
+			<value name="Verbose" value="0" doc="Verbose level messages, typically used for detailed debugging information."/>
+			<value name="Info" value="1" doc="Informational messages that highlight the progress of the application."/>
+			<value name="Warning" value="2" doc="Potentially harmful situations that warrant attention but do not prevent normal operation."/>
+			<value name="Error" value="3" doc="Error events that might still allow the application to continue running."/>
+			<value name="Fatal" value="4" doc="Severe error events that will presumably lead the application to abort."/>
+		</type>
+		
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
 			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>

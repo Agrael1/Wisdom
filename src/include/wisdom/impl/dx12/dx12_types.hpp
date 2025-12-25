@@ -7,6 +7,7 @@
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <cassert>
+#include <wrl/implements.h>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -17,22 +18,31 @@ constexpr inline wis::Result convert_result(WisResult result) noexcept
 
 //-----------------------------------------------------------------------------
 namespace detail {
-struct DX12InstanceExtensionInfoExtractor;
+class DX12DebugLayer : public Microsoft::WRL::RuntimeClass<
+                               Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom | Microsoft::WRL::InhibitRoOriginateError>,
+                               IUnknown>
+{
+public:
+    WisDebugCallback callback  = nullptr;
+    void*            user_data = nullptr;
+};
 } // namespace detail
 
 namespace impl {
 struct DX12InstanceImpl {
-    IDXGIFactory6* factory;
+    IDXGIFactory6*               factory;
+    wis::detail::DX12DebugLayer* debug_layer;
 };
 
 struct DX12AdapterQueryImpl {
-    IDXGIAdapter4** physical_devices;
-    std::size_t     adapter_count;
-    IDXGIFactory6*  factory;
+    IDXGIAdapter4**              physical_devices;
+    std::size_t                  adapter_count;
+    IDXGIFactory6*               factory;
+    wis::detail::DX12DebugLayer* debug_layer;
 };
 
 struct DX12DeviceImpl {
-    ID3D12Device10*   device;
+    ID3D12Device10* device;
     IDXGIAdapter4*  physical_device;
     IDXGIFactory6*  factory;
 };

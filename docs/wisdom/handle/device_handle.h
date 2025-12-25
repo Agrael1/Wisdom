@@ -10,7 +10,7 @@
  * Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisVKDevice,5);
+ * WIS_DEFINE_HANDLE(WisVKDevice,3);
  * ```
  * DX12 Version:
  * ```c
