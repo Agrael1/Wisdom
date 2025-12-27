@@ -207,13 +207,15 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, std::string_view impl
         return converters;
     }
     if (cvt.direct) {
-        converters = wis::format("inline {} convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+        converters = wis::format("inline {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                                  cvt.value,
+                                 impl,
                                  GetCFullTypename(s.name, impl),
                                  cvt.value);
     } else {
-        converters = wis::format("inline {} convert({} value) noexcept {{\n    switch(value) {{\n",
+        converters = wis::format("inline {} convert_{}({} value) noexcept {{\n    switch(value) {{\n",
                                  cvt.value,
+                                 impl,
                                  GetCFullTypename(s.name, impl));
         for (auto& m : s.values) {
             auto convert_value = m.converts[static_cast<size_t>(impl_code)];

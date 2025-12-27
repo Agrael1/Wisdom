@@ -6,6 +6,10 @@
 	</includes>
 
 	<handles>
+		<handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
+			<impl for="vk" size="4"/>
+			<impl for="dx" size="2"/>
+		</handle>
 		<handle name="CommandQueue" version="0.7.0" doc="Class representing a command queue for submitting command lists to the GPU.">
 			<impl for="vk" size="4"/>
 			<impl for="dx" size="1"/>
@@ -57,6 +61,10 @@
 		<func name="CreateCommandQueue" version="0.7.0" for="Device" doc="Creates a command queue of given type.">
 			<ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
 			<arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
+		</func>
+		<func name="CreateCommandList" version="0.7.0" for="Device" doc="Creates a command list of given type.">
+			<ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
+			<arg type="CommandQueueType" name="type" doc="defines the type of the command list to create."/>
 		</func>
 	</functions>
 

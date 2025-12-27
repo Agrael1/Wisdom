@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct DX12CommandListDeleter {
+    void operator()(WisDX12CommandList* handle) noexcept
+    {
+        ::wisDX12DestroyCommandList(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
+ *
+ * */
+class DX12CommandList : public wis::impl::Implements<wis::impl::DX12CommandListImpl, WisDX12CommandList, wis::DX12CommandListDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12CommandQueueDeleter {
     void operator()(WisDX12CommandQueue* handle) noexcept
     {
@@ -61,6 +79,22 @@ public:
                                                                       static_cast<WisCommandQueueType>(type),
                                                                       queue.GetStorage()));
         return queue;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+     * @param type defines the type of the command list to create.
+     * @param out_result denoting the outcome of operation.
+     * @return list points to wis::CommandList, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12CommandList CreateCommandList(wis::CommandQueueType type,
+                                                                wis::Result&          out_result) noexcept
+    {
+        wis::DX12CommandList list;
+        out_result = convert_result(::wisDX12DeviceCreateCommandList(&_impl_storage,
+                                                                     static_cast<WisCommandQueueType>(type),
+                                                                     list.GetStorage()));
+        return list;
     }
 };
 

@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct VKCommandListDeleter {
+    void operator()(WisVKCommandList* handle) noexcept
+    {
+        ::wisVKDestroyCommandList(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
+ *
+ * */
+class VKCommandList : public wis::impl::Implements<wis::impl::VKCommandListImpl, WisVKCommandList, wis::VKCommandListDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKCommandQueueDeleter {
     void operator()(WisVKCommandQueue* handle) noexcept
     {
@@ -61,6 +79,22 @@ public:
                                                                     static_cast<WisCommandQueueType>(type),
                                                                     queue.GetStorage()));
         return queue;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+     * @param type defines the type of the command list to create.
+     * @param out_result denoting the outcome of operation.
+     * @return list points to wis::CommandList, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKCommandList CreateCommandList(wis::CommandQueueType type,
+                                                              wis::Result&          out_result) noexcept
+    {
+        wis::VKCommandList list;
+        out_result = convert_result(::wisVKDeviceCreateCommandList(&_impl_storage,
+                                                                   static_cast<WisCommandQueueType>(type),
+                                                                   list.GetStorage()));
+        return list;
     }
 };
 

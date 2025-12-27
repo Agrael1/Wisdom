@@ -180,7 +180,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
     // Dynamic reallocation loop
     while (true) {
         auto hr = factory_ref->EnumAdapterByGpuPreference(uint32_t(count),
-                                                          convert(preference),
+                                                          convert_dx(preference),
                                                           IID_IDXGIAdapter4,
                                                           reinterpret_cast<void**>(adapters.get() + count));
 
@@ -357,13 +357,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*
     auto&     internal = *reinterpret_cast<DX12CommandQueueImpl*>(queue);
 
     D3D12_COMMAND_QUEUE_DESC desc{
-        .Type     = D3D12_COMMAND_LIST_TYPE(type),
+        .Type     = convert_dx(type),
         .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
     };
 
     com_ptr<ID3D12CommandQueue> out_queue;
 
-    HRESULT hr = device.device->CreateCommandQueue(&desc, IID_ID3D12CommandQueue, out_queue.put_void());
+    HRESULT hr = device.device->CreateCommandQueue(&desc, IID_ID3D12CommandQueue, out_queue.put_void_unchecked());
     if (!succeeded(hr)) {
         return make_result<Func(), "Failed to create command queue">(hr);
     }
@@ -376,6 +376,36 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* sel
 {
     auto& impl = *reinterpret_cast<DX12CommandQueueImpl*>(self);
     safe_release(impl.queue);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(WisDX12Device*      self,
+                                                                 WisCommandQueueType type,
+                                                                 WisDX12CommandList* list)
+{
+    WisResult result   = dx_success;
+    auto&     device   = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto&     internal = *reinterpret_cast<DX12CommandListImpl*>(list);
+
+    com_ptr<ID3D12GraphicsCommandList7> command_list;
+
+    auto hr = device.device->CreateCommandList1(0,
+                                                convert_dx(type),
+                                                D3D12_COMMAND_LIST_FLAG_NONE,
+                                                IID_ID3D12GraphicsCommandList7,
+                                                command_list.put_void_unchecked());
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create command list">(hr);
+    }
+    internal.list = command_list.detach();
+    return result;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
+{
+    auto& impl = *reinterpret_cast<DX12CommandListImpl*>(self);
+    safe_release(impl.list);
 }
 
 #endif // !WIS_DX12_INSTANCE_CPP

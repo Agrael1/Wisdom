@@ -39,6 +39,8 @@
  * \cond WIS_GEN_DESC
  * Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
  * 
+ * \note Translates to  `D3D12_COMMAND_LIST_TYPE` for DirectX 12 implementation.
+ * 
  * Values:
  * - `WisCommandQueueTypeGraphics = 0`: Command queue for graphics operations, including rendering and compute tasks.
  * - `WisCommandQueueTypeCompute = 1`: Command queue dedicated to compute operations, optimized for parallel processing tasks.
@@ -53,6 +55,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see wisDeviceCreateCommandQueue
+ * @see wisDeviceCreateCommandQueue, wisDeviceCreateCommandList
  * \endcond
  */

@@ -12,9 +12,27 @@
 namespace wis {
 namespace detail {
 
-inline DXGI_GPU_PREFERENCE convert(WisAdapterPreference value) noexcept
+inline DXGI_GPU_PREFERENCE convert_dx(WisAdapterPreference value) noexcept
 {
     return static_cast<DXGI_GPU_PREFERENCE>(value);
+}
+
+inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
+{
+    switch (value) {
+    case WisCommandQueueTypeGraphics:
+        return D3D12_COMMAND_LIST_TYPE_DIRECT;
+    case WisCommandQueueTypeCompute:
+        return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+    case WisCommandQueueTypeTransfer:
+        return D3D12_COMMAND_LIST_TYPE_COPY;
+    case WisCommandQueueTypeVideoDecode:
+        return D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE;
+    case WisCommandQueueTypeVideoEncode:
+        return D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE;
+    default:
+        return static_cast<D3D12_COMMAND_LIST_TYPE>(value);
+    }
 }
 
 } // namespace detail
