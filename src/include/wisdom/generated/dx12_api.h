@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12CommandList, 2);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
  *
  * */
@@ -45,6 +51,13 @@ typedef struct WisDX12DeviceExtensionHeader {
 typedef struct WisDX12InstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisDX12InstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandList handle.
+ * @param self is a pointer to the valid WisCommandList instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
@@ -147,6 +160,18 @@ WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery* 
 WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*       self,
                                                      WisCommandQueueType  type,
                                                      WisDX12CommandQueue* queue);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type defines the type of the command list to create.
+ * @param list points to WisCommandList, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateCommandList(WisDX12Device*      self,
+                                                    WisCommandQueueType type,
+                                                    WisDX12CommandList* list);
 
 #ifdef __cplusplus
 }

@@ -32,11 +32,22 @@
 		</type>
 
 		<type name="CommandQueueType" category="enum" version="0.7.0" doc="Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
-			<value name="Graphics" value="0" doc="Command queue for graphics operations, including rendering and compute tasks."/>
-			<value name="Compute" value="1" doc="Command queue dedicated to compute operations, optimized for parallel processing tasks."/>
-			<value name="Transfer" value="2" doc="Command queue for data transfer operations, such as copying resources between buffers and images."/>
-			<value name="VideoDecode" value="3" doc="Command queue for video decoding operations."/>
-			<value name="VideoEncode" value="4" doc="Command queue for video encoding operations."/>
+			<impl_type for="dx" name="D3D12_COMMAND_LIST_TYPE"/>
+			<value name="Graphics" value="0" doc="Command queue for graphics operations, including rendering and compute tasks.">
+				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
+			</value>
+			<value name="Compute" value="1" doc="Command queue dedicated to compute operations, optimized for parallel processing tasks.">
+				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_COMPUTE"/>
+			</value>
+			<value name="Transfer" value="2" doc="Command queue for data transfer operations, such as copying resources between buffers and images.">
+				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_COPY"/>
+			</value>
+			<value name="VideoDecode" value="3" doc="Command queue for video decoding operations.">
+				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE"/>
+			</value>
+			<value name="VideoEncode" value="4" doc="Command queue for video encoding operations.">
+				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE"/>
+			</value>
 			<value name="Count" value="5" doc="Number of command queue types available."/>
 		</type>
 

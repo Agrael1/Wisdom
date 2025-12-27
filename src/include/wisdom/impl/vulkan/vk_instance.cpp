@@ -77,7 +77,7 @@ inline void release_vk_device(VkDevice device, detail::control_block<VKDeviceHea
         std::destroy_n(sems, header->header.queue_family_count);
 
         // Deallocate semaphores memory manually
-        ::operator delete[](sems, std::align_val_t(alignof(std::binary_semaphore)),std::nothrow);
+        ::operator delete[](sems, std::align_val_t(alignof(std::binary_semaphore)), std::nothrow);
 
         header->header.device_table.vkDestroyDevice(device, nullptr);
 
@@ -648,6 +648,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     auto sems = reinterpret_cast<std::binary_semaphore*>(queue_sems.get());
 
+    // Get optimal queue index mapping
+    auto prop_span = wis::span<const VkQueueFamilyProperties>{ family_props.get(), count };
+    for (uint32_t i = 0; i < WisCommandQueueTypeCount; ++i) {
+
+        int32_t queue_family_index = wis::detail::get_best_queue_family_index(static_cast<WisCommandQueueType>(i),
+                                                                              prop_span);
+
+        header->header.common_queue_family_indices[i] = static_cast<uint16_t>(queue_family_index >= 0 ? queue_family_index : 0xFFFF);
+    }
+
     // Create device
     VkDeviceCreateInfo device_create_info{
         .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -738,12 +748,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(WisVKDevice*    
     auto&     queue_impl = *reinterpret_cast<VKCommandQueueImpl*>(queue);
     VkQueue   vk_queue   = VK_NULL_HANDLE;
 
+    // Sanity check: lower and upper bound
+    using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
+    if (static_cast<QueueTypeUnderlying>(type) < 0 ||
+        static_cast<size_t>(type) >= WisCommandQueueTypeCount) {
+        return make_result<Func(), "Invalid command queue type specified">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
     // Get queue family index based on type
-    int32_t queue_family_index = wis::detail::get_best_queue_family_index(type,
-                                                                          wis::span<const VkQueueFamilyProperties>{
-                                                                                  device.device_header->header.queue_family_properties.get(),
-                                                                                  device.device_header->header.queue_family_count });
-    if (queue_family_index < 0) {
+    uint16_t queue_family_index = device.device_header->header.common_queue_family_indices[static_cast<size_t>(type)];
+    if (queue_family_index == 0xFFFF) {
         return make_result<Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
@@ -778,6 +792,81 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
         impl.device_header = nullptr;
         impl.device        = VK_NULL_HANDLE;
         impl.queue         = VK_NULL_HANDLE;
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(WisVKDevice*        self,
+                                                               WisCommandQueueType type,
+                                                               WisVKCommandList*   list)
+{
+    WisResult res       = vk_success;
+    auto&     device    = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto&     list_impl = *reinterpret_cast<VKCommandListImpl*>(list);
+
+    // Sanity check: lower and upper bound
+    using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
+    if (static_cast<QueueTypeUnderlying>(type) < 0 ||
+        static_cast<size_t>(type) >= WisCommandQueueTypeCount) {
+        return make_result<Func(), "Invalid command queue type specified">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    // Get queue family index based on type
+    uint16_t queue_family_index = device.device_header->header.common_queue_family_indices[static_cast<size_t>(type)];
+    if (queue_family_index == 0xFFFF) {
+        return make_result<Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
+    }
+
+    // Create command pool
+    VkCommandPoolCreateInfo pool_info{
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+        .queueFamilyIndex = static_cast<uint32_t>(queue_family_index),
+    };
+    VkCommandPool command_pool = VK_NULL_HANDLE;
+    auto&         table        = device.device_header->header.device_table;
+    VkResult      vr           = table.vkCreateCommandPool(device.device, &pool_info, nullptr, &command_pool);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan command pool">(vr);
+    }
+    // Create command buffer
+    VkCommandBufferAllocateInfo alloc_info{
+        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool        = command_pool,
+        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
+    };
+
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+    vr = table.vkAllocateCommandBuffers(device.device, &alloc_info, &command_buffer);
+    if (!succeeded(vr)) {
+        table.vkDestroyCommandPool(device.device, command_pool, nullptr); // cleanup
+        return make_result<Func(), "Failed to allocate Vulkan command buffer">(vr);
+    }
+
+    // Fill command list impl
+    list_impl.command_pool   = command_pool;
+    list_impl.command_buffer = command_buffer;
+    list_impl.device_header  = device.device_header;
+    device.device_header->add_ref(); // hold reference to device header
+    list_impl.device = device.device;
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
+{
+    auto& impl = *reinterpret_cast<VKCommandListImpl*>(self);
+    if (impl.command_buffer != VK_NULL_HANDLE) {
+        // Free command buffer
+        auto& table = impl.device_header->header.device_table;
+        table.vkDestroyCommandPool(impl.device, impl.command_pool, nullptr); // this also frees command buffers
+        impl.command_buffer = VK_NULL_HANDLE;
+
+        detail::release_vk_device(impl.device, impl.device_header);
+        impl.device_header  = nullptr;
+        impl.device         = VK_NULL_HANDLE;
     }
 }
 

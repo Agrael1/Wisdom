@@ -73,10 +73,15 @@ int main()
     result = wisDeviceCreateCommandQueue(&device, WisCommandQueueTypeGraphics, &command_queue);
     printf("CreateCommandQueue result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
-    wisDestroyDevice(&device);
+    WisCommandList command_list = { 0 };
+
+    result = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
+    printf("CreateCommandList result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
 
     // Out of order destruction must still work
+    wisDestroyDevice(&device);
     wisDestroyCommandQueue(&command_queue);
-
+    wisDestroyCommandList(&command_list);
     return 0;
 }

@@ -21,6 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using CommandList  = wis::DX12CommandList;
 using CommandQueue = wis::DX12CommandQueue;
 using Device       = wis::DX12Device;
 using AdapterQuery = wis::DX12AdapterQuery;
@@ -68,6 +69,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using CommandList  = wis::VKCommandList;
 using CommandQueue = wis::VKCommandQueue;
 using Device       = wis::VKDevice;
 using AdapterQuery = wis::VKAdapterQuery;

@@ -50,6 +50,10 @@ struct DX12DeviceImpl {
 struct DX12CommandQueueImpl {
     ID3D12CommandQueue* queue;
 };
+
+struct DX12CommandListImpl {
+    ID3D12GraphicsCommandList7* list;
+};
 } // namespace impl
 
 // Manual variants of generated structures with virtual functions

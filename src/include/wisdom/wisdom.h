@@ -19,6 +19,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12CommandList  WisCommandList;
 typedef struct WisDX12CommandQueue WisCommandQueue;
 typedef struct WisDX12Device       WisDevice;
 typedef struct WisDX12AdapterQuery WisAdapterQuery;
@@ -35,6 +36,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
+#define wisDestroyCommandList          wisDX12DestroyCommandList
 #define wisDestroyCommandQueue         wisDX12DestroyCommandQueue
 #define wisDestroyDevice               wisDX12DestroyDevice
 #define wisDestroyAdapterQuery         wisDX12DestroyAdapterQuery
@@ -45,6 +47,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 #define wisAdapterQueryGetAdapterDesc  wisDX12AdapterQueryGetAdapterDesc
 #define wisAdapterQueryCreateDevice    wisDX12AdapterQueryCreateDevice
 #define wisDeviceCreateCommandQueue    wisDX12DeviceCreateCommandQueue
+#define wisDeviceCreateCommandList     wisDX12DeviceCreateCommandList
 
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -53,6 +56,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Handles
 //==============================================================
 
+typedef struct WisVKCommandList  WisCommandList;
 typedef struct WisVKCommandQueue WisCommandQueue;
 typedef struct WisVKDevice       WisDevice;
 typedef struct WisVKAdapterQuery WisAdapterQuery;
@@ -69,6 +73,7 @@ typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
+#define wisDestroyCommandList          wisVKDestroyCommandList
 #define wisDestroyCommandQueue         wisVKDestroyCommandQueue
 #define wisDestroyDevice               wisVKDestroyDevice
 #define wisDestroyAdapterQuery         wisVKDestroyAdapterQuery
@@ -79,6 +84,7 @@ typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 #define wisAdapterQueryGetAdapterDesc  wisVKAdapterQueryGetAdapterDesc
 #define wisAdapterQueryCreateDevice    wisVKAdapterQueryCreateDevice
 #define wisDeviceCreateCommandQueue    wisVKDeviceCreateCommandQueue
+#define wisDeviceCreateCommandList     wisVKDeviceCreateCommandList
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
