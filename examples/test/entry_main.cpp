@@ -74,5 +74,11 @@ int main()
         break; // Successfully created a device, exit loop
     }
 
+    wis::CommandQueue command_queue = device.CreateCommandQueue(wis::CommandQueueType::Graphics, result);
+    if (result.status != wis::Status::Ok) {
+        std::cerr << "Failed to create command queue: " << result.error << "\n";
+        return int(result.status);
+    }
+
     return 0;
 }

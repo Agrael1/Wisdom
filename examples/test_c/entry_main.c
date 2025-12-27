@@ -46,13 +46,13 @@ int main()
     // Destroy instance as we no longer need it
     wisDestroyInstance(&instance);
 
-    WisDevice device = { 0 };
-    size_t adapter_count = wisAdapterQueryGetAdapterCount(&adapter_query);
+    WisDevice device        = { 0 };
+    size_t    adapter_count = wisAdapterQueryGetAdapterCount(&adapter_query);
     printf("Adapter count: %zu\n", adapter_count);
 
     for (size_t i = 0; i < adapter_count; ++i) {
         WisAdapterDesc desc = { 0 };
-        result             = wisAdapterQueryGetAdapterDesc(&adapter_query, i, &desc);
+        result              = wisAdapterQueryGetAdapterDesc(&adapter_query, i, &desc);
         printf("GetAdapterDesc result for adapter %zu: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
         if (result.status == WisStatusOk) {
             printf("Adapter %zu: Name: %s, VendorID: %u, DeviceID: %u, Flags: %u\n", i, desc.description, desc.vendor_id, desc.device_id, desc.flags);
@@ -67,6 +67,16 @@ int main()
     }
     wisDestroyAdapterQuery(&adapter_query);
 
+    // Create CommandQueue
+    WisCommandQueue command_queue = { 0 };
+
+    result = wisDeviceCreateCommandQueue(&device, WisCommandQueueTypeGraphics, &command_queue);
+    printf("CreateCommandQueue result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
     wisDestroyDevice(&device);
+
+    // Out of order destruction must still work
+    wisDestroyCommandQueue(&command_queue);
+
     return 0;
 }

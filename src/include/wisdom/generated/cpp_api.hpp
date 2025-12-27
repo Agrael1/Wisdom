@@ -51,6 +51,19 @@ enum class Severity {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
+ *
+ * */
+enum class CommandQueueType {
+    Graphics    = 0, ///< Command queue for graphics operations, including rendering and compute tasks.
+    Compute     = 1, ///< Command queue dedicated to compute operations, optimized for parallel processing tasks.
+    Transfer    = 2, ///< Command queue for data transfer operations, such as copying resources between buffers and images.
+    VideoDecode = 3, ///< Command queue for video decoding operations.
+    VideoEncode = 4, ///< Command queue for video encoding operations.
+    Count       = 5, ///< Number of command queue types available.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */

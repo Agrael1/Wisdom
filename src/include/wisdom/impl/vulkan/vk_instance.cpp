@@ -7,6 +7,7 @@
 #include <memory>
 #include <unordered_set>
 #include <algorithm>
+#include <semaphore>
 
 using namespace wis;
 using namespace wis::impl;
@@ -70,6 +71,14 @@ inline void release_vk_device(VkDevice device, detail::control_block<VKDeviceHea
     if (header && header->release() == 1) {
         // Last reference, destroy device
         std::atomic_thread_fence(std::memory_order_acquire);
+
+        // Destroy queue semaphores
+        auto* sems = reinterpret_cast<std::binary_semaphore*>(header->header.queue_semaphores);
+        std::destroy_n(sems, header->header.queue_family_count);
+
+        // Deallocate semaphores memory manually
+        ::operator delete[](sems, std::align_val_t(alignof(std::binary_semaphore)),std::nothrow);
+
         header->header.device_table.vkDestroyDevice(device, nullptr);
 
         // Destroy instance
@@ -79,6 +88,59 @@ inline void release_vk_device(VkDevice device, detail::control_block<VKDeviceHea
         delete header;
     }
 }
+
+inline int32_t get_best_queue_family_index(WisCommandQueueType type, wis::span<const VkQueueFamilyProperties> queue_family_properties)
+{
+    int32_t best_index = -1;
+    for (uint32_t i = 0; i < queue_family_properties.size(); ++i) {
+        auto& props = queue_family_properties[i];
+        switch (type) {
+        case WisCommandQueueType::WisCommandQueueTypeGraphics:
+            if (props.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                return i; // prefer graphics
+            }
+            break;
+        case WisCommandQueueType::WisCommandQueueTypeCompute:
+            if (props.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                if (best_index == -1) {
+                    best_index = i; // first compute queue found
+                } else if (!(props.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+                           (queue_family_properties[best_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+                    best_index = i; // prefer compute-only over graphics+compute
+                }
+            }
+            break;
+        case WisCommandQueueType::WisCommandQueueTypeTransfer:
+            if (props.queueFlags & VK_QUEUE_TRANSFER_BIT) {
+                if (best_index == -1) {
+                    best_index = i; // first transfer queue found
+                } else {
+                    bool current_is_dedicated = !(props.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+                            !(props.queueFlags & VK_QUEUE_COMPUTE_BIT);
+                    bool best_is_dedicated = !(queue_family_properties[best_index].queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+                            !(queue_family_properties[best_index].queueFlags & VK_QUEUE_COMPUTE_BIT);
+                    if (current_is_dedicated && !best_is_dedicated) {
+                        best_index = i; // prefer transfer-only
+                    }
+                }
+            }
+            break;
+        case WisCommandQueueType::WisCommandQueueTypeVideoDecode:
+            if (props.queueFlags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) {
+                return i; // prefer video decode
+            }
+            break;
+        case WisCommandQueueType::WisCommandQueueTypeVideoEncode:
+            if (props.queueFlags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR) {
+                return i; // prefer video encode
+            }
+            break;
+        default:
+            return -1;
+        }
+    }
+    return best_index;
+};
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
@@ -142,7 +204,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*       
     if (res.status != WisStatusOk) {
         return res;
     }
-
 
     // Prepare debug callback thunk
     std::unique_ptr<VKDebugCallbackThunk> debug_layer_thunk;
@@ -549,9 +610,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     // Initialize queues
     uint32_t count = 0;
     atable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
+
+    if (count == 0) {
+        return make_result<Func(), "No queue families found on the selected Vulkan adapter">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
     std::unique_ptr<VkQueueFamilyProperties[]> family_props = make_unique<VkQueueFamilyProperties[]>(count);
     if (!family_props) {
-        return make_result<Func(), "Not enough memory for queue family properties array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return make_result<Func(), "Not enough memory for device queue family properties array">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
     atable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, family_props.get());
 
@@ -568,6 +634,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
             .pQueuePriorities = &priority,
         };
     }
+
+    // Allocate queue semaphores
+    std::unique_ptr<uint8_t[]> queue_sems{ new (std::align_val_t(alignof(std::binary_semaphore)), std::nothrow) uint8_t[count * sizeof(std::binary_semaphore)] };
+    if (!queue_sems) {
+        return make_result<Func(), "Not enough memory for device queue binding semaphores">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    // Initialize semaphores
+    for (uint32_t i = 0; i < count; ++i) {
+        new (queue_sems.get() + sizeof(std::binary_semaphore) * i) std::binary_semaphore(1);
+    }
+
+    auto sems = reinterpret_cast<std::binary_semaphore*>(queue_sems.get());
 
     // Create device
     VkDeviceCreateInfo device_create_info{
@@ -589,18 +668,21 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     auto& gtable       = impl.shared_header->header.global_table;
     if (!device_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        std::destroy_n(sems, header->header.queue_family_count);
         return make_result<Func(), "Failed to initialize Vulkan device function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize command queue table
     if (!header->header.command_queue_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        std::destroy_n(sems, header->header.queue_family_count);
         return make_result<Func(), "Failed to initialize Vulkan command queue function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize command list table
     if (!header->header.command_list_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        std::destroy_n(sems, header->header.queue_family_count);
         return make_result<Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
     }
 
@@ -610,9 +692,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     device_impl.device          = device_handle;
     device_impl.physical_device = adapter;
 
-    device_impl.device_header->header.shared_header = impl.shared_header;
-    device_impl.device_header->header.shared_header->add_ref(); // hold reference to instance header
-    device_impl.device_header->header.instance = impl.instance;
+    auto& device_header         = device_impl.device_header->header;
+    device_header.shared_header = impl.shared_header;
+    device_header.shared_header->add_ref(); // hold reference to instance header
+    device_header.instance = impl.instance;
+
+    // Store queue family properties
+    device_header.queue_family_count      = count;
+    device_header.queue_family_properties = std::move(family_props);
+    device_header.queue_semaphores        = queue_sems.release();
 
     // Initialize device extensions
     for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ extensions, extension_count }) {
@@ -638,6 +726,59 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
     detail::release_vk_device(impl.device, impl.device_header);
     impl.device_header = nullptr;
     impl.device        = VK_NULL_HANDLE;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(WisVKDevice*        self,
+                                                                WisCommandQueueType type,
+                                                                WisVKCommandQueue*  queue)
+{
+    WisResult res        = vk_success;
+    auto&     device     = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto&     queue_impl = *reinterpret_cast<VKCommandQueueImpl*>(queue);
+    VkQueue   vk_queue   = VK_NULL_HANDLE;
+
+    // Get queue family index based on type
+    int32_t queue_family_index = wis::detail::get_best_queue_family_index(type,
+                                                                          wis::span<const VkQueueFamilyProperties>{
+                                                                                  device.device_header->header.queue_family_properties.get(),
+                                                                                  device.device_header->header.queue_family_count });
+    if (queue_family_index < 0) {
+        return make_result<Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
+    }
+
+    VkDeviceQueueInfo2 queue_info{
+        .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
+        .queueFamilyIndex = static_cast<uint32_t>(queue_family_index),
+        .queueIndex       = 0,
+    };
+    device.device_header->header.device_table.vkGetDeviceQueue2(device.device, &queue_info, &vk_queue);
+
+    if (vk_queue == VK_NULL_HANDLE) {
+        return make_result<Func(), "Failed to get Vulkan device queue">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+    // Fill command queue impl
+    queue_impl.queue         = vk_queue;
+    queue_impl.device_header = device.device_header;
+    device.device_header->add_ref(); // hold reference to device header
+    queue_impl.device = device.device;
+
+    // Setup semaphore pointer
+    queue_impl.semaphore_ptr = device.device_header->header.queue_semaphores +
+            sizeof(std::binary_semaphore) * queue_family_index;
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
+{
+    auto& impl = *reinterpret_cast<VKCommandQueueImpl*>(self);
+    if (impl.queue) {
+        detail::release_vk_device(impl.device, impl.device_header);
+        impl.device_header = nullptr;
+        impl.device        = VK_NULL_HANDLE;
+        impl.queue         = VK_NULL_HANDLE;
+    }
 }
 
 #endif // WIS_VK_INSTANCE_CPP

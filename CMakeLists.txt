@@ -70,7 +70,9 @@ message(
       Executable: ${DXC_EXECUTABLE}
 ")
 
-add_subdirectory(generator EXCLUDE_FROM_ALL)
+if(WISDOM_BUILD_EXAMPLES AND WISDOM_BUILD_TESTS)
+  add_subdirectory(generator)
+endif()
 add_subdirectory(src) # add main libraries
 add_subdirectory(examples)
 

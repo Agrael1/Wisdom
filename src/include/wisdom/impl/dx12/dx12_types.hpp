@@ -46,6 +46,10 @@ struct DX12DeviceImpl {
     IDXGIAdapter4*  physical_device;
     IDXGIFactory6*  factory;
 };
+
+struct DX12CommandQueueImpl {
+    ID3D12CommandQueue* queue;
+};
 } // namespace impl
 
 // Manual variants of generated structures with virtual functions

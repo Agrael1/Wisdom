@@ -22,7 +22,7 @@
 			<value name="MinConsumption" value="1" doc="List the adapters from low power consumption to high. DirectX 12: Integrated, Discrete, External, Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU."/>
 			<value name="Performance" value="2" doc="List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU."/>
 		</type>
-		
+
 		<type name="Severity" category="enum" version="0.7.0" doc="Defines severity levels for logging and debugging messages.">
 			<value name="Verbose" value="0" doc="Verbose level messages, typically used for detailed debugging information."/>
 			<value name="Info" value="1" doc="Informational messages that highlight the progress of the application."/>
@@ -30,13 +30,22 @@
 			<value name="Error" value="3" doc="Error events that might still allow the application to continue running."/>
 			<value name="Fatal" value="4" doc="Severe error events that will presumably lead the application to abort."/>
 		</type>
-		
+
+		<type name="CommandQueueType" category="enum" version="0.7.0" doc="Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
+			<value name="Graphics" value="0" doc="Command queue for graphics operations, including rendering and compute tasks."/>
+			<value name="Compute" value="1" doc="Command queue dedicated to compute operations, optimized for parallel processing tasks."/>
+			<value name="Transfer" value="2" doc="Command queue for data transfer operations, such as copying resources between buffers and images."/>
+			<value name="VideoDecode" value="3" doc="Command queue for video decoding operations."/>
+			<value name="VideoEncode" value="4" doc="Command queue for video encoding operations."/>
+			<value name="Count" value="5" doc="Number of command queue types available."/>
+		</type>
+
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
 			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
 			<value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
 			<value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
 		</type>
-		
+
 	</types>
 </registry>

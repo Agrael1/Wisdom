@@ -6,6 +6,10 @@
 	</includes>
 
 	<handles>
+		<handle name="CommandQueue" version="0.7.0" doc="Class representing a command queue for submitting command lists to the GPU.">
+			<impl for="vk" size="4"/>
+			<impl for="dx" size="1"/>
+		</handle>
 		<handle name="Device" version="0.7.0" doc="Central class representing logical device.">
 			<impl for="vk" size="3"/>
 			<impl for="dx" size="3"/>
@@ -48,7 +52,12 @@
 			<arg type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
 			<arg type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
 		</func>
-		
+
+		<!-- Device Functions -->
+		<func name="CreateCommandQueue" version="0.7.0" for="Device" doc="Creates a command queue of given type.">
+			<ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
+			<arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
+		</func>
 	</functions>
 
 </registry>
