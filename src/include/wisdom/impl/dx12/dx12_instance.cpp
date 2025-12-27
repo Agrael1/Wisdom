@@ -116,7 +116,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     // Create and setup debug layer if requested
     if (debug_layer) {
         com_ptr<ID3D12Debug> debug_controller;
-        auto hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
+        auto                 hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
         if (succeeded(hr2)) {
             debug_controller->EnableDebugLayer();
             auto debug_layer_impl       = Microsoft::WRL::Make<DX12DebugLayer>();
@@ -305,7 +305,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
     if (impl.debug_layer && impl.debug_layer->callback) {
         DWORD                     debug_cookie = 0;
         com_ptr<ID3D12InfoQueue1> info_queue;
-        auto hr2 = device_ref->QueryInterface(IID_ID3D12InfoQueue1, reinterpret_cast<void**>(info_queue.put_void_unchecked()));
+        auto                      hr2 = device_ref->QueryInterface(IID_ID3D12InfoQueue1, reinterpret_cast<void**>(info_queue.put_void_unchecked()));
         if (succeeded(hr2)) {
             auto thunk = Microsoft::WRL::Make<detail::DX12DebugLayerThunk>(info_queue.get(),
                                                                            reinterpret_cast<uint64_t>(device_ref.get()),
@@ -315,7 +315,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
             // Debug layer creation failure is allowed to silently fail
             if (thunk) {
                 // set as private data to keep alive
-                hr2 = device_ref->SetPrivateDataInterface(__uuidof(IUnknown), thunk.Get());
+                hr2 = device_ref->SetPrivateDataInterface(IID_IUnknown, thunk.Get());
                 (void)hr2;
             }
         }
@@ -345,6 +345,37 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
     safe_release(impl.device);
     safe_release(impl.physical_device);
     safe_release(impl.factory);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*       self,
+                                                                  WisCommandQueueType  type,
+                                                                  WisDX12CommandQueue* queue)
+{
+    WisResult result   = dx_success;
+    auto&     device   = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto&     internal = *reinterpret_cast<DX12CommandQueueImpl*>(queue);
+
+    D3D12_COMMAND_QUEUE_DESC desc{
+        .Type     = D3D12_COMMAND_LIST_TYPE(type),
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+    };
+
+    com_ptr<ID3D12CommandQueue> out_queue;
+
+    HRESULT hr = device.device->CreateCommandQueue(&desc, IID_ID3D12CommandQueue, out_queue.put_void());
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create command queue">(hr);
+    }
+    internal.queue = out_queue.detach();
+    return result;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self)
+{
+    auto& impl = *reinterpret_cast<DX12CommandQueueImpl*>(self);
+    safe_release(impl.queue);
 }
 
 #endif // !WIS_DX12_INSTANCE_CPP

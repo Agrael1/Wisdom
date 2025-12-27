@@ -54,6 +54,19 @@ typedef enum WisSeverity {
 } WisSeverity;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
+ *
+ * */
+typedef enum WisCommandQueueType {
+    WisCommandQueueTypeGraphics    = 0, ///< Command queue for graphics operations, including rendering and compute tasks.
+    WisCommandQueueTypeCompute     = 1, ///< Command queue dedicated to compute operations, optimized for parallel processing tasks.
+    WisCommandQueueTypeTransfer    = 2, ///< Command queue for data transfer operations, such as copying resources between buffers and images.
+    WisCommandQueueTypeVideoDecode = 3, ///< Command queue for video decoding operations.
+    WisCommandQueueTypeVideoEncode = 4, ///< Command queue for video encoding operations.
+    WisCommandQueueTypeCount       = 5, ///< Number of command queue types available.
+} WisCommandQueueType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */

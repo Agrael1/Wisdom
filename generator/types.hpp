@@ -1,6 +1,8 @@
+#pragma once
 #include <string>
 #include <optional>
 #include <vector>
+#include <algorithm>
 
 enum class DocKind {
     Full,

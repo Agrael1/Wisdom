@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct DX12CommandQueueDeleter {
+    void operator()(WisDX12CommandQueue* handle) noexcept
+    {
+        ::wisDX12DestroyCommandQueue(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
+ *
+ * */
+class DX12CommandQueue : public wis::impl::Implements<wis::impl::DX12CommandQueueImpl, WisDX12CommandQueue, wis::DX12CommandQueueDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12DeviceDeleter {
     void operator()(WisDX12Device* handle) noexcept
     {
@@ -28,6 +46,22 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a command queue of given type.
+     * @param type defines the type of the command queue to create.
+     * @param out_result denoting the outcome of operation.
+     * @return queue points to wis::CommandQueue, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12CommandQueue CreateCommandQueue(wis::CommandQueueType type,
+                                                                  wis::Result&          out_result) noexcept
+    {
+        wis::DX12CommandQueue queue;
+        out_result = convert_result(::wisDX12DeviceCreateCommandQueue(&_impl_storage,
+                                                                      static_cast<WisCommandQueueType>(type),
+                                                                      queue.GetStorage()));
+        return queue;
+    }
 };
 
 struct DX12AdapterQueryDeleter {

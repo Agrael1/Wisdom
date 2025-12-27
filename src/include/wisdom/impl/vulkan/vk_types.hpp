@@ -214,6 +214,8 @@ struct VKDeviceHeader {
     VKMainCommandQueue                         command_queue_table;
     VKMainCommandList                          command_list_table;
     std::unique_ptr<VkQueueFamilyProperties[]> queue_family_properties;
+    uint8_t*                                   queue_semaphores;
+    std::size_t                                queue_family_count;
     detail::control_block<VKInstanceHeader>*   shared_header;
     VkInstance                                 instance;
 };
@@ -233,6 +235,12 @@ struct VKAdapterQueryImpl {
 struct VKDeviceImpl {
     VkDevice                               device;
     VkPhysicalDevice                       physical_device;
+    detail::control_block<VKDeviceHeader>* device_header;
+};
+struct VKCommandQueueImpl {
+    VkQueue                                queue;
+    uint8_t*                               semaphore_ptr;
+    VkDevice                               device;
     detail::control_block<VKDeviceHeader>* device_header;
 };
 } // namespace impl
