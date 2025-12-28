@@ -276,10 +276,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*       
     // Fill instance impl
     impl.instance      = instance_handle;
     impl.shared_header = header.release();
-    impl.api_version   = version;
 
     // Store debug thunk
     impl.shared_header->header.debug_callback_thunk = std::move(debug_layer_thunk);
+    impl.shared_header->header.api_version          = version;
 
     // Initialize instance extensions
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
@@ -739,12 +739,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(WisVKDevice*        self,
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevice*  self,
                                                                 WisCommandQueueType type,
                                                                 WisVKCommandQueue*  queue)
 {
     WisResult res        = vk_success;
-    auto&     device     = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto&     device     = *reinterpret_cast<const VKDeviceImpl*>(self);
     auto&     queue_impl = *reinterpret_cast<VKCommandQueueImpl*>(queue);
     VkQueue   vk_queue   = VK_NULL_HANDLE;
 
@@ -796,12 +796,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(WisVKDevice*        self,
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice*  self,
                                                                WisCommandQueueType type,
                                                                WisVKCommandList*   list)
 {
     WisResult res       = vk_success;
-    auto&     device    = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto&     device    = *reinterpret_cast<const VKDeviceImpl*>(self);
     auto&     list_impl = *reinterpret_cast<VKCommandListImpl*>(list);
 
     // Sanity check: lower and upper bound
@@ -870,12 +870,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
     }
 }
 
-WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(WisVKDevice* self,
-                                                         uint64_t     initial_value,
-                                                         WisVKFence*  fence)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self,
+                                                         uint64_t           initial_value,
+                                                         WisVKFence*        fence)
 {
     WisResult res       = vk_success;
-    auto&     device    = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto&     device    = *reinterpret_cast<const VKDeviceImpl*>(self);
     auto&     out_fence = *reinterpret_cast<VKFenceImpl*>(fence);
 
     VkSemaphoreTypeCreateInfo timeline_desc{
@@ -895,8 +895,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(WisVKDevice* self,
         return make_result<Func(), "Failed to create Vulkan timeline semaphore">(vr);
     }
     // Fill fence impl
-    out_fence.fence = semaphore;
-    out_fence.device = device.device;
+    out_fence.fence         = semaphore;
+    out_fence.device        = device.device;
     out_fence.device_header = device.device_header;
     device.device_header->add_ref(); // hold reference to device header
     return res;
@@ -916,4 +916,107 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyFence(WisVKFence* self)
     }
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVKDevice*      self,
+                                                                     WisVKResourceAllocator* allocator)
+{
+    WisResult res             = vk_success;
+    auto&     device          = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto&     device_header   = device.device_header->header;
+    auto&     instance_header = device_header.shared_header->header;
+    auto&     adapter         = device.physical_device;
+
+    uint32_t version = instance_header.api_version;
+    auto&    itable  = instance_header.instance_table;
+    auto&    gtable  = instance_header.global_table;
+    auto&    dtable  = device_header.device_table;
+    auto&    atable  = instance_header.adapter_table;
+    auto&    ctable  = device_header.command_list_table;
+
+    VmaVulkanFunctions allocator_functions{
+        .vkGetInstanceProcAddr                   = gtable.vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr                     = gtable.vkGetDeviceProcAddr,
+        .vkGetPhysicalDeviceProperties           = atable.vkGetPhysicalDeviceProperties,
+        .vkGetPhysicalDeviceMemoryProperties     = atable.vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory                        = dtable.vkAllocateMemory,
+        .vkFreeMemory                            = dtable.vkFreeMemory,
+        .vkMapMemory                             = dtable.vkMapMemory,
+        .vkUnmapMemory                           = dtable.vkUnmapMemory,
+        .vkFlushMappedMemoryRanges               = dtable.vkFlushMappedMemoryRanges,
+        .vkInvalidateMappedMemoryRanges          = dtable.vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory                      = dtable.vkBindBufferMemory,
+        .vkBindImageMemory                       = dtable.vkBindImageMemory,
+        .vkGetBufferMemoryRequirements           = dtable.vkGetBufferMemoryRequirements,
+        .vkGetImageMemoryRequirements            = dtable.vkGetImageMemoryRequirements,
+        .vkCreateBuffer                          = dtable.vkCreateBuffer,
+        .vkDestroyBuffer                         = dtable.vkDestroyBuffer,
+        .vkCreateImage                           = dtable.vkCreateImage,
+        .vkDestroyImage                          = dtable.vkDestroyImage,
+        .vkCmdCopyBuffer                         = ctable.vkCmdCopyBuffer,
+        .vkGetBufferMemoryRequirements2KHR       = dtable.vkGetBufferMemoryRequirements2,
+        .vkGetImageMemoryRequirements2KHR        = dtable.vkGetImageMemoryRequirements2,
+        .vkBindBufferMemory2KHR                  = dtable.vkBindBufferMemory2,
+        .vkBindImageMemory2KHR                   = dtable.vkBindImageMemory2,
+        .vkGetPhysicalDeviceMemoryProperties2KHR = atable.vkGetPhysicalDeviceMemoryProperties2,
+        .vkGetDeviceBufferMemoryRequirements     = dtable.vkGetDeviceBufferMemoryRequirements,
+        .vkGetDeviceImageMemoryRequirements      = dtable.vkGetDeviceImageMemoryRequirements,
+    };
+
+    VkPhysicalDeviceMemoryProperties2 mem_props{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2,
+    };
+    atable.vkGetPhysicalDeviceMemoryProperties2(adapter, &mem_props);
+
+    VmaAllocatorCreateInfo allocatorInfo{
+        .flags            = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .physicalDevice   = adapter,
+        .device           = device.device,
+        .pVulkanFunctions = &allocator_functions,
+        .instance         = device_header.instance,
+        .vulkanApiVersion = version
+    };
+
+    // TODO: Enable maintenance5 if available and maintenance4
+    // if (ext1.GetFeatures().index_buffer_range) {
+    //     allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
+    // }
+
+#ifdef _WIN32
+    // Only if there is an interop extension
+    if (dtable.vkGetMemoryWin32HandleKHR) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
+        allocator_functions.vkGetMemoryWin32HandleKHR = dtable.vkGetMemoryWin32HandleKHR;
+    }
+#endif // _WIN32
+
+    VmaAllocator out_allocator;
+    VkResult     vr = vmaCreateAllocator(&allocatorInfo, &out_allocator);
+
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan memory allocator">(vr);
+    }
+
+    // Fill allocator impl
+    auto& allocator_impl         = *reinterpret_cast<VKResourceAllocatorImpl*>(allocator);
+    allocator_impl.allocator     = out_allocator;
+    allocator_impl.device        = device.device;
+    allocator_impl.device_header = device.device_header;
+    device.device_header->add_ref(); // hold reference to device header
+
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
+{
+    auto& impl = *reinterpret_cast<VKResourceAllocatorImpl*>(self);
+    if (impl.allocator) {
+        vmaDestroyAllocator(impl.allocator);
+        impl.allocator = nullptr;
+
+        detail::release_vk_device(impl.device, impl.device_header);
+        impl.device        = VK_NULL_HANDLE;
+        impl.device_header = nullptr;
+    }
+}
 #endif // WIS_VK_INSTANCE_CPP

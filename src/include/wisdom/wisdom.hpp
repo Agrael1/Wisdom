@@ -21,12 +21,13 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Fence        = wis::DX12Fence;
-using CommandList  = wis::DX12CommandList;
-using CommandQueue = wis::DX12CommandQueue;
-using Device       = wis::DX12Device;
-using AdapterQuery = wis::DX12AdapterQuery;
-using Instance     = wis::DX12Instance;
+using ResourceAllocator = wis::DX12ResourceAllocator;
+using Fence             = wis::DX12Fence;
+using CommandList       = wis::DX12CommandList;
+using CommandQueue      = wis::DX12CommandQueue;
+using Device            = wis::DX12Device;
+using AdapterQuery      = wis::DX12AdapterQuery;
+using Instance          = wis::DX12Instance;
 
 //==============================================================
 // Variants
@@ -70,12 +71,13 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Fence        = wis::VKFence;
-using CommandList  = wis::VKCommandList;
-using CommandQueue = wis::VKCommandQueue;
-using Device       = wis::VKDevice;
-using AdapterQuery = wis::VKAdapterQuery;
-using Instance     = wis::VKInstance;
+using ResourceAllocator = wis::VKResourceAllocator;
+using Fence             = wis::VKFence;
+using CommandList       = wis::VKCommandList;
+using CommandQueue      = wis::VKCommandQueue;
+using Device            = wis::VKDevice;
+using AdapterQuery      = wis::VKAdapterQuery;
+using Instance          = wis::VKInstance;
 
 //==============================================================
 // Variants

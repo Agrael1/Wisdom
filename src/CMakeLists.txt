@@ -36,6 +36,7 @@ if(WISDOM_DX12)
     DXGI
     DXGUID
     d3d12
+    DX12Allocator
     COMPILE_DEFINITIONS
     $<BUILD_INTERFACE:WISDOM_DX12=1>)
 endif()

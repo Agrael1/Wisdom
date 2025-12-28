@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKResourceAllocator, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
  *
  * */
@@ -57,6 +63,13 @@ typedef struct WisVKDeviceExtensionHeader {
 typedef struct WisVKInstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisVKInstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
@@ -170,7 +183,7 @@ WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapterQuery*     
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateCommandQueue(WisVKDevice*        self,
+WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevice*  self,
                                                    WisCommandQueueType type,
                                                    WisVKCommandQueue*  queue);
 
@@ -182,7 +195,7 @@ WISDOM_API WisResult wisVKDeviceCreateCommandQueue(WisVKDevice*        self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateCommandList(WisVKDevice*        self,
+WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice*  self,
                                                   WisCommandQueueType type,
                                                   WisVKCommandList*   list);
 
@@ -194,9 +207,19 @@ WISDOM_API WisResult wisVKDeviceCreateCommandList(WisVKDevice*        self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateFence(WisVKDevice* self,
-                                            uint64_t     initial_value,
-                                            WisVKFence*  fence);
+WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self,
+                                            uint64_t           initial_value,
+                                            WisVKFence*        fence);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param allocator points to WisResourceAllocator, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVKDevice*      self,
+                                                        WisVKResourceAllocator* allocator);
 
 #ifdef __cplusplus
 }

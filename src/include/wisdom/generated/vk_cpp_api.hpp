@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct VKResourceAllocatorDeleter {
+    void operator()(WisVKResourceAllocator* handle) noexcept
+    {
+        ::wisVKDestroyResourceAllocator(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
+ *
+ * */
+class VKResourceAllocator : public wis::impl::Implements<wis::impl::VKResourceAllocatorImpl, WisVKResourceAllocator, wis::VKResourceAllocatorDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKFenceDeleter {
     void operator()(WisVKFence* handle) noexcept
     {
@@ -90,7 +108,7 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKCommandQueue CreateCommandQueue(wis::CommandQueueType type,
-                                                                wis::Result&          out_result) noexcept
+                                                                wis::Result&          out_result) const noexcept
     {
         wis::VKCommandQueue queue;
         out_result = convert_result(::wisVKDeviceCreateCommandQueue(&_impl_storage,
@@ -106,7 +124,7 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKCommandList CreateCommandList(wis::CommandQueueType type,
-                                                              wis::Result&          out_result) noexcept
+                                                              wis::Result&          out_result) const noexcept
     {
         wis::VKCommandList list;
         out_result = convert_result(::wisVKDeviceCreateCommandList(&_impl_storage,
@@ -122,13 +140,25 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKFence CreateFence(std::uint64_t initial_value,
-                                                  wis::Result&  out_result) noexcept
+                                                  wis::Result&  out_result) const noexcept
     {
         wis::VKFence fence;
         out_result = convert_result(::wisVKDeviceCreateFence(&_impl_storage,
                                                              initial_value,
                                                              fence.GetStorage()));
         return fence;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
+     * @param out_result denoting the outcome of operation.
+     * @return allocator points to wis::ResourceAllocator, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKResourceAllocator CreateResourceAllocator(wis::Result& out_result) const noexcept
+    {
+        wis::VKResourceAllocator allocator;
+        out_result = convert_result(::wisVKDeviceCreateResourceAllocator(&_impl_storage, allocator.GetStorage()));
+        return allocator;
     }
 };
 

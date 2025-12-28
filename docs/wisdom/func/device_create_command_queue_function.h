@@ -10,7 +10,7 @@
  *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisDeviceCreateCommandQueue(WisDevice* self,
+ * WisResult wisDeviceCreateCommandQueue(const WisDevice* self,
  *                                       WisCommandQueueType type,
  *                                       WisCommandQueue*    queue);
  * ```
@@ -18,14 +18,14 @@
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisVKDeviceCreateCommandQueue(WisVKDevice* self,
+ * WisResult wisVKDeviceCreateCommandQueue(const WisVKDevice* self,
  *                                         WisCommandQueueType type,
  *                                         WisVKCommandQueue*  queue);
  * 
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device* self,
- *                                           WisCommandQueueType type,
- *                                           WisDX12CommandQueue*queue);
+ * WisResult wisDX12DeviceCreateCommandQueue(const WisDX12Device* self,
+ *                                           WisCommandQueueType  type,
+ *                                           WisDX12CommandQueue* queue);
  * ```
  * </details>
  * 
@@ -34,7 +34,7 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::CommandQueue Device::CreateCommandQueue(wis::CommandQueueType type,
- *                                                            wis::Result&          out_result) noexcept;
+ *                                                            wis::Result&          out_result) const noexcept;
  * }
  * ```
  * <details>
@@ -43,11 +43,11 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::VKCommandQueue VKDevice::CreateCommandQueue(wis::CommandQueueType type,
- *                                                                wis::Result&          out_result) noexcept;
+ *                                                                wis::Result&          out_result) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::DX12CommandQueue DX12Device::CreateCommandQueue(wis::CommandQueueType type,
- *                                                                    wis::Result&          out_result) noexcept;
+ *                                                                    wis::Result&          out_result) const noexcept;
  * }
  * ```
  * </details>

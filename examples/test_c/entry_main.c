@@ -82,10 +82,14 @@ int main()
     result         = wisDeviceCreateFence(&device, 0, &fence);
     printf("CreateFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    WisResourceAllocator allocator = { 0 };
+    result                         = wisDeviceCreateResourceAllocator(&device, &allocator);
+
     // Out of order destruction must still work
     wisDestroyDevice(&device);
     wisDestroyCommandQueue(&command_queue);
     wisDestroyCommandList(&command_list);
     wisDestroyFence(&fence);
+    wisDestroyResourceAllocator(&allocator);
     return 0;
 }

@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12ResourceAllocator, 1);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
  *
  * */
@@ -57,6 +63,13 @@ typedef struct WisDX12DeviceExtensionHeader {
 typedef struct WisDX12InstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisDX12InstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
@@ -170,7 +183,7 @@ WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*       self,
+WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12Device* self,
                                                      WisCommandQueueType  type,
                                                      WisDX12CommandQueue* queue);
 
@@ -182,9 +195,9 @@ WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*       self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateCommandList(WisDX12Device*      self,
-                                                    WisCommandQueueType type,
-                                                    WisDX12CommandList* list);
+WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12Device* self,
+                                                    WisCommandQueueType  type,
+                                                    WisDX12CommandList*  list);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
@@ -194,9 +207,19 @@ WISDOM_API WisResult wisDX12DeviceCreateCommandList(WisDX12Device*      self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateFence(WisDX12Device* self,
-                                              uint64_t       initial_value,
-                                              WisDX12Fence*  fence);
+WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
+                                              uint64_t             initial_value,
+                                              WisDX12Fence*        fence);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param allocator points to WisResourceAllocator, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*      self,
+                                                          WisDX12ResourceAllocator* allocator);
 
 #ifdef __cplusplus
 }

@@ -224,6 +224,10 @@ struct VKMainDevice {
     PFN_vkWaitForPresent2KHR                vkWaitForPresent2KHR;
     PFN_vkWaitForPresentKHR                 vkWaitForPresentKHR;
 
+#ifdef _WIN32
+    PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
+#endif //_WIN32
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -285,6 +289,9 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkAcquireNextImageKHR);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWaitForPresent2KHR);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWaitForPresentKHR);
+#ifdef _WIN32
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);
+#endif //_WIN32
         return true;
     }
 };
