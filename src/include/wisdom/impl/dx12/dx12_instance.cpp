@@ -408,4 +408,40 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
     safe_release(impl.list);
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(WisDX12Device* self,
+                                                           uint64_t       initial_value,
+                                                           WisDX12Fence*  fence)
+{
+    WisResult            result   = dx_success;
+    auto&                device   = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto&                internal = *reinterpret_cast<DX12FenceImpl*>(fence);
+    com_ptr<ID3D12Fence> out_fence;
+    auto                 hr = device.device->CreateFence(initial_value,
+                                         D3D12_FENCE_FLAG_NONE,
+                                         IID_ID3D12Fence,
+                                         out_fence.put_void_unchecked());
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create fence">(hr);
+    }
+
+    // Create event handle
+    auto event_handle = CreateEventW(nullptr, false, false, nullptr);
+    if (!event_handle) {
+        return make_result<Func(), "Failed to create fence event handle">(HRESULT_FROM_WIN32(GetLastError()));
+    }
+
+    internal.fence = out_fence.detach();
+    internal.event = event_handle;
+    return result;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
+{
+    auto& impl = *reinterpret_cast<DX12FenceImpl*>(self);
+    safe_release(impl.fence);
+    CloseHandle(impl.event);
+}
+
 #endif // !WIS_DX12_INSTANCE_CPP

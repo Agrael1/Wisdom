@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Fence, 2);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
@@ -51,6 +57,13 @@ typedef struct WisDX12DeviceExtensionHeader {
 typedef struct WisDX12InstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisDX12InstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
+ * @param self is a pointer to the valid WisFence instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandList handle.
@@ -172,6 +185,18 @@ WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*       self,
 WISDOM_API WisResult wisDX12DeviceCreateCommandList(WisDX12Device*      self,
                                                     WisCommandQueueType type,
                                                     WisDX12CommandList* list);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param initial_value defines the initial value of the fence.
+ * @param fence points to WisFence, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateFence(WisDX12Device* self,
+                                              uint64_t       initial_value,
+                                              WisDX12Fence*  fence);
 
 #ifdef __cplusplus
 }

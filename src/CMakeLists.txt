@@ -27,6 +27,7 @@ if(WISDOM_DX12)
     "include/wisdom/impl/dx12/dx12_types.hpp"
     "include/wisdom/impl/dx12/dx12_utils.hpp"
     "include/wisdom/generated/dx12_cpp_api.hpp"
+    "include/wisdom/generated/dx12_convert.hpp"
     "include/wisdom/generated/dx12_api.h"
     SOURCES
     "include/wisdom/impl/dx12/dx12_instance.cpp"

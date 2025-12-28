@@ -6,6 +6,10 @@
 	</includes>
 
 	<handles>
+		<handle name="Fence" version="0.7.0" doc="Class representing a fence for GPU-CPU and GPU-GPU synchronization.">
+			<impl for="vk" size="3"/>
+			<impl for="dx" size="2"/>
+		</handle>
 		<handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
 			<impl for="vk" size="4"/>
 			<impl for="dx" size="2"/>
@@ -66,6 +70,11 @@
 			<ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
 			<arg type="CommandQueueType" name="type" doc="defines the type of the command list to create."/>
 		</func>
+		<func name="CreateFence" version="0.7.0" for="Device" doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
+			<ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
+			<arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
+		</func>
+			
 	</functions>
 
 </registry>

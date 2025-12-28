@@ -54,6 +54,11 @@ struct DX12CommandQueueImpl {
 struct DX12CommandListImpl {
     ID3D12GraphicsCommandList7* list;
 };
+
+struct DX12FenceImpl {
+    ID3D12Fence* fence;
+    HANDLE       event;
+};
 } // namespace impl
 
 // Manual variants of generated structures with virtual functions

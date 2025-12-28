@@ -661,7 +661,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     // Create device
     VkDeviceCreateInfo device_create_info{
         .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        .pNext                   = feature_structs, // link to extension features
+        .pNext                   = &features, // link to extension features
         .queueCreateInfoCount    = count,
         .pQueueCreateInfos       = queue_create_infos.get(),
         .enabledExtensionCount   = static_cast<uint32_t>(ext_count),
@@ -865,8 +865,54 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
         impl.command_buffer = VK_NULL_HANDLE;
 
         detail::release_vk_device(impl.device, impl.device_header);
-        impl.device_header  = nullptr;
-        impl.device         = VK_NULL_HANDLE;
+        impl.device_header = nullptr;
+        impl.device        = VK_NULL_HANDLE;
+    }
+}
+
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(WisVKDevice* self,
+                                                         uint64_t     initial_value,
+                                                         WisVKFence*  fence)
+{
+    WisResult res       = vk_success;
+    auto&     device    = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto&     out_fence = *reinterpret_cast<VKFenceImpl*>(fence);
+
+    VkSemaphoreTypeCreateInfo timeline_desc{
+        .sType         = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
+        .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
+        .initialValue  = initial_value,
+    };
+
+    VkSemaphoreCreateInfo desc{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+        .pNext = &timeline_desc,
+    };
+    VkSemaphore semaphore = VK_NULL_HANDLE;
+    auto&       table     = device.device_header->header.device_table;
+    VkResult    vr        = table.vkCreateSemaphore(device.device, &desc, nullptr, &semaphore);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan timeline semaphore">(vr);
+    }
+    // Fill fence impl
+    out_fence.fence = semaphore;
+    out_fence.device = device.device;
+    out_fence.device_header = device.device_header;
+    device.device_header->add_ref(); // hold reference to device header
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyFence(WisVKFence* self)
+{
+    auto& impl = *reinterpret_cast<VKFenceImpl*>(self);
+    if (impl.fence != VK_NULL_HANDLE) {
+        auto& table = impl.device_header->header.device_table;
+        table.vkDestroySemaphore(impl.device, impl.fence, nullptr);
+        impl.fence = VK_NULL_HANDLE;
+        detail::release_vk_device(impl.device, impl.device_header);
+        impl.device_header = nullptr;
+        impl.device        = VK_NULL_HANDLE;
     }
 }
 
