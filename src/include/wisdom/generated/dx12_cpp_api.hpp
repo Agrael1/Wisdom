@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct DX12FenceDeleter {
+    void operator()(WisDX12Fence* handle) noexcept
+    {
+        ::wisDX12DestroyFence(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
+ *
+ * */
+class DX12Fence : public wis::impl::Implements<wis::impl::DX12FenceImpl, WisDX12Fence, wis::DX12FenceDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12CommandListDeleter {
     void operator()(WisDX12CommandList* handle) noexcept
     {
@@ -95,6 +113,22 @@ public:
                                                                      static_cast<WisCommandQueueType>(type),
                                                                      list.GetStorage()));
         return list;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
+     * @param initial_value defines the initial value of the fence.
+     * @param out_result denoting the outcome of operation.
+     * @return fence points to wis::Fence, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Fence CreateFence(std::uint64_t initial_value,
+                                                    wis::Result&  out_result) noexcept
+    {
+        wis::DX12Fence fence;
+        out_result = convert_result(::wisDX12DeviceCreateFence(&_impl_storage,
+                                                               initial_value,
+                                                               fence.GetStorage()));
+        return fence;
     }
 };
 

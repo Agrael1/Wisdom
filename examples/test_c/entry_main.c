@@ -78,10 +78,14 @@ int main()
     result = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
     printf("CreateCommandList result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    WisFence fence = { 0 };
+    result         = wisDeviceCreateFence(&device, 0, &fence);
+    printf("CreateFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);
     wisDestroyCommandQueue(&command_queue);
     wisDestroyCommandList(&command_list);
+    wisDestroyFence(&fence);
     return 0;
 }

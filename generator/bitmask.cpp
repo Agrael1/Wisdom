@@ -34,7 +34,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = bitmask_map[name];
     bitmasks_in_order.push_back(name);
-    ref.name   = name;
+    ref.name = name;
 
     // Unused currently, but keep for u64 flags
     if (auto* size = type->FindAttribute("type")) {
@@ -82,8 +82,21 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
             continue;
         }
 
+        if (auto* size = member->FindAttribute("version")) {
+            m.version = size->Value();
+        }
+
         m.value_or_bit = std::stoul(bit->Value());
         m.is_bit       = true;
+
+        for (auto* impl = member->FirstChildElement("impl"); impl;
+             impl       = impl->NextSiblingElement("impl")) {
+            auto impl_name = impl->FindAttribute("name")->Value();
+            auto value     = impl->FindAttribute("value")->Value();
+
+            auto impl_for_code        = ImplCode(impl_name);
+            m.converts[impl_for_code] = value;
+        }
     }
 }
 
@@ -113,7 +126,7 @@ std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCPPBitmask(const WisBitmask& s, DocKind kind)
 {
-    std::string st_decl   = wis::format("enum class {} : uint32_t {{\n", s.name);
+    std::string st_decl = wis::format("enum class {} : uint32_t {{\n", s.name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
@@ -178,13 +191,15 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_vie
         return converters;
     }
     if (cvt.direct) {
-        converters = wis::format("inline {} convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+        converters = wis::format("inline {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                                  cvt.value,
+                                 impl,
                                  GetCFullTypename(s.name, impl),
                                  cvt.value);
     } else {
-        converters = wis::format("inline {} convert({} value) noexcept {{\n",
+        converters = wis::format("inline {} convert_{}({} value) noexcept {{\n",
                                  cvt.value,
+                                 impl,
                                  GetCFullTypename(s.name, impl));
 
         // Start with default value

@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct VKFenceDeleter {
+    void operator()(WisVKFence* handle) noexcept
+    {
+        ::wisVKDestroyFence(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
+ *
+ * */
+class VKFence : public wis::impl::Implements<wis::impl::VKFenceImpl, WisVKFence, wis::VKFenceDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKCommandListDeleter {
     void operator()(WisVKCommandList* handle) noexcept
     {
@@ -95,6 +113,22 @@ public:
                                                                    static_cast<WisCommandQueueType>(type),
                                                                    list.GetStorage()));
         return list;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
+     * @param initial_value defines the initial value of the fence.
+     * @param out_result denoting the outcome of operation.
+     * @return fence points to wis::Fence, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKFence CreateFence(std::uint64_t initial_value,
+                                                  wis::Result&  out_result) noexcept
+    {
+        wis::VKFence fence;
+        out_result = convert_result(::wisVKDeviceCreateFence(&_impl_storage,
+                                                             initial_value,
+                                                             fence.GetStorage()));
+        return fence;
     }
 };
 

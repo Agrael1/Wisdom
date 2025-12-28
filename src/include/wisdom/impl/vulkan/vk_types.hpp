@@ -253,6 +253,12 @@ struct VKCommandListImpl {
     VkDevice                               device;
     detail::control_block<VKDeviceHeader>* device_header;
 };
+
+struct VKFenceImpl {
+    VkSemaphore                            fence;
+    VkDevice                               device;
+    detail::control_block<VKDeviceHeader>* device_header;
+};
 } // namespace impl
 
 //-----------------------------------------------------------------------------
