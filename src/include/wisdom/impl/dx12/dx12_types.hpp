@@ -8,6 +8,7 @@
 #include <d3d12.h>
 #include <cassert>
 #include <wrl/implements.h>
+#include <D3D12MemAlloc.h>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -58,6 +59,10 @@ struct DX12CommandListImpl {
 struct DX12FenceImpl {
     ID3D12Fence* fence;
     HANDLE       event;
+};
+
+struct DX12ResourceAllocatorImpl {
+    D3D12MA::Allocator* allocator;
 };
 } // namespace impl
 

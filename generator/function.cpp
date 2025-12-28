@@ -252,7 +252,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
                        full_return_type,
                        function_full_name,
                        this_arg,
-                       params,
+                       params.empty() && !post_return.empty() ? ",\n" : params.c_str(),
                        post_return);
 }
 

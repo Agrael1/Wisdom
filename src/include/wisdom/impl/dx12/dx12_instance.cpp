@@ -348,12 +348,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(WisDX12Device*       self,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12Device*  self,
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
     WisResult result   = dx_success;
-    auto&     device   = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto&     device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
     auto&     internal = *reinterpret_cast<DX12CommandQueueImpl*>(queue);
 
     D3D12_COMMAND_QUEUE_DESC desc{
@@ -379,12 +379,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* sel
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(WisDX12Device*      self,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12Device* self,
                                                                  WisCommandQueueType type,
                                                                  WisDX12CommandList* list)
 {
     WisResult result   = dx_success;
-    auto&     device   = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto&     device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
     auto&     internal = *reinterpret_cast<DX12CommandListImpl*>(list);
 
     com_ptr<ID3D12GraphicsCommandList7> command_list;
@@ -409,12 +409,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(WisDX12Device* self,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
                                                            uint64_t       initial_value,
                                                            WisDX12Fence*  fence)
 {
     WisResult            result   = dx_success;
-    auto&                device   = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto&                device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
     auto&                internal = *reinterpret_cast<DX12FenceImpl*>(fence);
     com_ptr<ID3D12Fence> out_fence;
     auto                 hr = device.device->CreateFence(initial_value,
@@ -442,6 +442,38 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
     auto& impl = *reinterpret_cast<DX12FenceImpl*>(self);
     safe_release(impl.fence);
     CloseHandle(impl.event);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*       self,
+                                                                       WisDX12ResourceAllocator* allocator)
+{
+    WisResult res            = dx_success;
+    auto&     device         = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    auto&     allocator_impl = *reinterpret_cast<DX12ResourceAllocatorImpl*>(allocator);
+    // Create D3D12MA Allocator
+    D3D12MA::ALLOCATOR_DESC allocator_desc = {};
+    allocator_desc.pDevice                 = device.device;
+    allocator_desc.pAdapter                = device.physical_device;
+    allocator_desc.Flags                   = D3D12MA::ALLOCATOR_FLAG_NONE;
+    D3D12MA::Allocator* out_allocator      = nullptr;
+    auto                hr                 = D3D12MA::CreateAllocator(&allocator_desc, &out_allocator);
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create D3D12 memory allocator">(hr);
+    }
+    // Fill allocator impl
+    allocator_impl.allocator = out_allocator;
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self)
+{
+    auto& impl = *reinterpret_cast<DX12ResourceAllocatorImpl*>(self);
+    if (impl.allocator) {
+        impl.allocator->Release();
+        impl.allocator = nullptr;
+    }
 }
 
 #endif // !WIS_DX12_INSTANCE_CPP

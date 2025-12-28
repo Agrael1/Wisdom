@@ -6,6 +6,10 @@
 	</includes>
 
 	<handles>
+		<handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">
+			<impl for="vk" size="3"/>
+			<impl for="dx" size="1"/>
+		</handle>
 		<handle name="Fence" version="0.7.0" doc="Class representing a fence for GPU-CPU and GPU-GPU synchronization.">
 			<impl for="vk" size="3"/>
 			<impl for="dx" size="2"/>
@@ -62,17 +66,20 @@
 		</func>
 
 		<!-- Device Functions -->
-		<func name="CreateCommandQueue" version="0.7.0" for="Device" doc="Creates a command queue of given type.">
+		<func name="CreateCommandQueue" version="0.7.0" for="Device" mod="const" doc="Creates a command queue of given type.">
 			<ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
 			<arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
 		</func>
-		<func name="CreateCommandList" version="0.7.0" for="Device" doc="Creates a command list of given type.">
+		<func name="CreateCommandList" version="0.7.0" for="Device" mod="const" doc="Creates a command list of given type.">
 			<ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
 			<arg type="CommandQueueType" name="type" doc="defines the type of the command list to create."/>
 		</func>
-		<func name="CreateFence" version="0.7.0" for="Device" doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
+		<func name="CreateFence" version="0.7.0" for="Device" mod="const"  doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
 			<ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
 			<arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
+		</func>
+		<func name="CreateResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
+			<ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
 		</func>
 			
 	</functions>

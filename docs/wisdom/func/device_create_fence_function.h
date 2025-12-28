@@ -10,22 +10,22 @@
  *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisDeviceCreateFence(WisDevice* self,
- *                                uint64_t   initial_value,
- *                                WisFence*  fence);
+ * WisResult wisDeviceCreateFence(const WisDevice* self,
+ *                                uint64_t         initial_value,
+ *                                WisFence*        fence);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisVKDeviceCreateFence(WisVKDevice* self,
- *                                  uint64_t     initial_value,
- *                                  WisVKFence*  fence);
+ * WisResult wisVKDeviceCreateFence(const WisVKDevice* self,
+ *                                  uint64_t           initial_value,
+ *                                  WisVKFence*        fence);
  * 
  * // Provided by Wisdom 0.7.0. 
- * WisResult wisDX12DeviceCreateFence(WisDX12Device* self,
- *                                    uint64_t       initial_value,
- *                                    WisDX12Fence*  fence);
+ * WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
+ *                                    uint64_t             initial_value,
+ *                                    WisDX12Fence*        fence);
  * ```
  * </details>
  * 
@@ -34,7 +34,7 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::Fence Device::CreateFence(std::uint64_t initial_value,
- *                                              wis::Result&  out_result) noexcept;
+ *                                              wis::Result&  out_result) const noexcept;
  * }
  * ```
  * <details>
@@ -43,11 +43,11 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::VKFence VKDevice::CreateFence(std::uint64_t initial_value,
- *                                                  wis::Result&  out_result) noexcept;
+ *                                                  wis::Result&  out_result) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::DX12Fence DX12Device::CreateFence(std::uint64_t initial_value,
- *                                                      wis::Result&  out_result) noexcept;
+ *                                                      wis::Result&  out_result) const noexcept;
  * }
  * ```
  * </details>

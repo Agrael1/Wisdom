@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct DX12ResourceAllocatorDeleter {
+    void operator()(WisDX12ResourceAllocator* handle) noexcept
+    {
+        ::wisDX12DestroyResourceAllocator(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
+ *
+ * */
+class DX12ResourceAllocator : public wis::impl::Implements<wis::impl::DX12ResourceAllocatorImpl, WisDX12ResourceAllocator, wis::DX12ResourceAllocatorDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12FenceDeleter {
     void operator()(WisDX12Fence* handle) noexcept
     {
@@ -90,7 +108,7 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12CommandQueue CreateCommandQueue(wis::CommandQueueType type,
-                                                                  wis::Result&          out_result) noexcept
+                                                                  wis::Result&          out_result) const noexcept
     {
         wis::DX12CommandQueue queue;
         out_result = convert_result(::wisDX12DeviceCreateCommandQueue(&_impl_storage,
@@ -106,7 +124,7 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12CommandList CreateCommandList(wis::CommandQueueType type,
-                                                                wis::Result&          out_result) noexcept
+                                                                wis::Result&          out_result) const noexcept
     {
         wis::DX12CommandList list;
         out_result = convert_result(::wisDX12DeviceCreateCommandList(&_impl_storage,
@@ -122,13 +140,25 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12Fence CreateFence(std::uint64_t initial_value,
-                                                    wis::Result&  out_result) noexcept
+                                                    wis::Result&  out_result) const noexcept
     {
         wis::DX12Fence fence;
         out_result = convert_result(::wisDX12DeviceCreateFence(&_impl_storage,
                                                                initial_value,
                                                                fence.GetStorage()));
         return fence;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
+     * @param out_result denoting the outcome of operation.
+     * @return allocator points to wis::ResourceAllocator, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12ResourceAllocator CreateResourceAllocator(wis::Result& out_result) const noexcept
+    {
+        wis::DX12ResourceAllocator allocator;
+        out_result = convert_result(::wisDX12DeviceCreateResourceAllocator(&_impl_storage, allocator.GetStorage()));
+        return allocator;
     }
 };
 

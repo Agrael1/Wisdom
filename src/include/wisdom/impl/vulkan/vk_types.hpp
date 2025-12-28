@@ -8,6 +8,7 @@
 #include <wisdom/generated/c_api.h>
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/impl/vulkan/vk_tables.hpp>
+#include <vk_mem_alloc.h>
 #include <unordered_set>
 #include <unordered_map>
 #include <cstring>
@@ -205,6 +206,7 @@ struct VKInstanceHeader {
     VKMainAdapter               adapter_table;
     VkDebugUtilsMessengerEXT    debug_messenger;
     wis::detail::unique_library library;
+    uint32_t                    api_version;
 
     std::unique_ptr<wis::detail::VKDebugCallbackThunk> debug_callback_thunk;
 };
@@ -226,7 +228,6 @@ struct VKDeviceHeader {
 struct VKInstanceImpl {
     VkInstance                               instance;
     detail::control_block<VKInstanceHeader>* shared_header;
-    uint32_t                                 api_version;
 };
 
 struct VKAdapterQueryImpl {
@@ -256,6 +257,13 @@ struct VKCommandListImpl {
 
 struct VKFenceImpl {
     VkSemaphore                            fence;
+    VkDevice                               device;
+    detail::control_block<VKDeviceHeader>* device_header;
+};
+
+struct VKResourceAllocatorImpl {
+    // Using Vulkan Memory Allocator (VMA)
+    VmaAllocator                           allocator;
     VkDevice                               device;
     detail::control_block<VKDeviceHeader>* device_header;
 };
