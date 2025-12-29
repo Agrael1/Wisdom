@@ -5,7 +5,6 @@
 #include <wisdom/impl/vulkan/vk_utils.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <memory>
-#include <unordered_set>
 #include <algorithm>
 #include <semaphore>
 
@@ -141,13 +140,136 @@ inline int32_t get_best_queue_family_index(WisCommandQueueType type, wis::span<c
     }
     return best_index;
 };
+
+struct DeviceExtension1 : VKDeviceExtensionImpl<DeviceExtension1> {
+    VKDeviceFeatures features;
+
+public:
+    WisResult CollectInfo(VKDeviceExtensionCollector& collector) noexcept
+    {
+        // Optional extensions
+        if (collector.IsExtensionPresent(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME)) {
+            features.has_custom_border_color = true;
+
+            collector.EnableExtension({
+                    .name                 = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME,
+                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
+                    .feature_struct_size  = sizeof(VkPhysicalDeviceCustomBorderColorFeaturesEXT),
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT,
+                    .property_struct_size = sizeof(VkPhysicalDeviceCustomBorderColorPropertiesEXT),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)) {
+            collector.EnableExtension({
+                    .name                 = VK_KHR_MAINTENANCE_4_EXTENSION_NAME,
+                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES,
+                    .feature_struct_size  = sizeof(VkPhysicalDeviceMaintenance4Features),
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES,
+                    .property_struct_size = sizeof(VkPhysicalDeviceMaintenance4Properties),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)) {
+            features.index_buffer_range = true;
+            collector.EnableExtension({
+                    .name                 = VK_KHR_MAINTENANCE_5_EXTENSION_NAME,
+                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR,
+                    .feature_struct_size  = sizeof(VkPhysicalDeviceMaintenance5FeaturesKHR),
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR,
+                    .property_struct_size = sizeof(VkPhysicalDeviceMaintenance5PropertiesKHR),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME)) {
+            features.dynamic_rendering = true;
+            collector.EnableExtension({
+                    .name                = VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceDynamicRenderingFeatures),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME)) {
+            features.extended_dynamic_state = true;
+            collector.EnableExtension({
+                    .name                = VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceExtendedDynamicState2FeaturesEXT),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME)) {
+            features.synchronization_2 = true;
+            collector.EnableExtension({
+                    .name                = VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceSynchronization2FeaturesKHR),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_PRESENT_WAIT_EXTENSION_NAME) && collector.IsExtensionPresent(VK_KHR_PRESENT_ID_EXTENSION_NAME)) {
+            features.present_wait = true;
+            collector.EnableExtension({
+                    .name                = VK_KHR_PRESENT_ID_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR,
+                    .feature_struct_size = sizeof(VkPhysicalDevicePresentIdFeaturesKHR),
+            });
+            collector.EnableExtension({
+                    .name                = VK_KHR_PRESENT_WAIT_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR,
+                    .feature_struct_size = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME) && collector.IsExtensionPresent(VK_KHR_PRESENT_ID_2_EXTENSION_NAME)) {
+            features.present_wait = true;
+            collector.EnableExtension({
+                    .name                = VK_KHR_PRESENT_ID_2_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR,
+                    .feature_struct_size = sizeof(VkPhysicalDevicePresentId2FeaturesKHR),
+            });
+            collector.EnableExtension({
+                    .name                = VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR,
+                    .feature_struct_size = sizeof(VkPhysicalDevicePresentWait2FeaturesKHR),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME)) {
+            features.dynamic_render_unused_attachments = true;
+            collector.EnableExtension({
+                    .name                = VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME)) {
+            features.push_descriptor = true;
+            collector.EnableExtension({
+                    .name                 = VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES,
+                    .property_struct_size = sizeof(VkPhysicalDevicePushDescriptorPropertiesKHR),
+            });
+        }
+        return vk_success;
+    }
+    WisResult Init(const impl::VKDeviceImpl&         device_impl,
+                   const VKDeviceExtensionCollector& collector) noexcept
+    {
+        // Nothing to initialize for now
+        return vk_success;
+    }
+};
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*            debug_layer,
-                                                      WisVKInstanceExtensionHeader** extensions,
-                                                      size_t                         extension_count,
-                                                      WisVKInstance*                 instance)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKCreateInstance(const WisDebugDesc*            debug_layer,
+                    WisVKInstanceExtensionHeader** extensions,
+                    size_t                         extension_count,
+                    WisVKInstance*                 instance)
 {
     WisResult res = vk_success;
     // Instance can come as partially constructed from C side
@@ -189,7 +311,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*       
 
     // Let extensions collect their info
     for (size_t i = 0; i < extension_count; ++i) {
-        reinterpret_cast<wis::VKInstanceExtensionHeader*>(extensions[i])->CollectInfo(collector);
+        wis::VKInstanceExtensionHeader* ext_header = reinterpret_cast<wis::VKInstanceExtensionHeader*>(extensions[i]);
+        ext_header->init_fptr(ext_header, nullptr, &collector);
     }
 
     // Setup debug layer if requested
@@ -285,7 +408,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(const WisDebugDesc*       
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<VKInstanceExtensionHeader*>(ext);
         if (table) {
-            auto xres = table->Init(impl, collector);
+            auto xres = table->init_fptr(table, &impl, &collector);
             if (xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
@@ -557,9 +680,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     for (size_t i = 0; i < extension_count; ++i) {
         auto* header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(extensions[i]);
         if (header) {
-            header->CollectInfo(collector);
+            header->init_fptr(header, nullptr, &collector);
         }
     }
+
+    detail::DeviceExtension1 device_ext1;
+    auto                     xres = device_ext1.CollectInfo(collector);
 
     // Prepared enabled extensions array
     auto&& [ext_buffer, ext_strings, ext_count, feature_structs, property_structs] = collector.GetInitBuffer(res);
@@ -712,11 +838,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     device_header.queue_family_properties = std::move(family_props);
     device_header.queue_semaphores        = queue_sems.release();
 
+    // Store device extensions info
+    device_header.features = device_ext1.features;
+
     // Initialize device extensions
     for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext);
         if (table) {
-            auto xres = table->Init(device_impl, collector);
+            auto xres = table->init_fptr(table, &device_impl, &collector);
             if (xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
@@ -976,10 +1105,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVK
         .vulkanApiVersion = version
     };
 
-    // TODO: Enable maintenance5 if available and maintenance4
-    // if (ext1.GetFeatures().index_buffer_range) {
-    //     allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
-    // }
+    // Enable maintenance5 if available and maintenance4
+    if (dtable.vkGetDeviceBufferMemoryRequirements) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
+    }
+    if (device_header.features.index_buffer_range) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
+    }
 
 #ifdef _WIN32
     // Only if there is an interop extension
