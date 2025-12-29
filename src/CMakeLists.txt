@@ -50,6 +50,7 @@ if(WISDOM_VULKAN)
     "include/wisdom/impl/vulkan/vk_utils.hpp"
     "include/wisdom/impl/vulkan/vk_loader.hpp"
     "include/wisdom/impl/vulkan/vk_tables.hpp"
+    "include/wisdom/impl/vulkan/vk_extensions.hpp"
     "include/wisdom/generated/vk_cpp_api.hpp"
     "include/wisdom/generated/vk_api.h"
     SOURCES
