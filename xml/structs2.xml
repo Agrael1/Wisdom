@@ -38,9 +38,33 @@
 		</type>
 		
 		<type name="DebugDesc" category="struct" version="0.7.0" doc="Debugging and logging description. Used to configure debug callback behavior.">
-			<member type="bool" name="debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
+			<member type="bool" name="enable_debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
 			<member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
 			<member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
+		</type>
+
+		<type name="SamplerDesc" category="struct" version="0.7.0" doc="Sampler description for {Sampler::} creation.">
+			<member type="Filter" name="min_filter" doc="Minification filter."/>
+			<member type="Filter" name="mag_filter" doc="Magnification filter."/>
+			<member type="Filter" name="mip_filter" doc="Mip level filter."/>
+			<member type="bool" name="is_anisotropic" doc="Anisotropic filtering enable."/>
+			<member type="u32" name="max_anisotropy" doc="Max anisotropy level. Max is 16."/>
+			<member type="AddressMode" name="address_u" doc="Address mode for U coordinate."/>
+			<member type="AddressMode" name="address_v" doc="Address mode for V coordinate."/>
+			<member type="AddressMode" name="address_w" doc="Address mode for W coordinate."/>
+			<member type="f32" name="min_lod" doc="Min LOD value."/>
+			<member type="f32" name="max_lod" doc="Max LOD value."/>
+			<member type="f32" name="mip_lod_bias" doc="Mip LOD bias value."/>
+			<member type="CompareOperation" name="comparison_op" doc="Comparison operation for comparison samplers."/>
+			<member type="StaticBorder" name="static_border_color" doc="Static border color. Used if any address mode is set to {AddressMode::Border}."/>
+			<member type="f32" name="border_color" array="4" doc="Border color. Used if any address mode is set to {AddressMode::Border} and static_border_color is set to {StaticBorder::Custom}."/>
+			<member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
+		</type>
+		
+		<type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {PipelineLayout::} creation.">
+			<member type="SamplerDesc" name="sampler" doc="Sampler description."/>
+			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the sampler is used."/>
+			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
 		</type>
 
 		<type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.">
@@ -53,6 +77,7 @@
 		<type name="PushDescriptor" category="struct" version="0.7.0" doc="Push descriptor. Used to push data directly to pipeline.">
 			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
 			<member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
+			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
 		</type>
 		
 		<type name="PipelineLayoutDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
@@ -60,9 +85,13 @@
 			<member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {PipelineLayoutDesc::push_constants} array."/>
 			<member type="PushDescriptor" name="push_descriptors" mod="const,span" default="nullptr" doc="points to an array of {PushDescriptor::}."/>
 			<member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {PipelineLayoutDesc::push_descriptors} array."/>
+			<member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
+			<member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {PipelineLayoutDesc::static_samplers} array."/>
 			<member type="void" name="reserved" mod="ptr" default="nullptr" doc="reserved for future use. Must be `nullptr`."/>
 			<member type="size" name="reserved_size" default="0" doc="reserved for future use. Must be `0`."/>
 		</type>
+
+
 
 	</types>
 </registry>

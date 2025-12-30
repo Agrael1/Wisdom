@@ -247,11 +247,11 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     }
 
     // Assume alignment of 8 for all structures
-    std::size_t                     total_size = extension_count * sizeof(const char*) + feature_size + property_size;
+    std::size_t total_size = extension_count * sizeof(const char*) + feature_size + property_size;
     if (total_size == 0) {
         return result;
     }
-    
+
     std::unique_ptr<std::uint64_t[]> buffer(new (std::nothrow) std::uint64_t[total_size / sizeof(std::uint64_t) + 1]);
     if (!buffer) {
         out_res = make_result<Func(), "Not enough memory for device init buffer">(VK_ERROR_OUT_OF_HOST_MEMORY);
@@ -262,7 +262,6 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     std::memset(buffer.get(), 0, total_size);
     auto* ptr = reinterpret_cast<std::uint8_t*>(buffer.get());
 
-
     // Fill extension names
     wis::span<const char*> extension_names_span(reinterpret_cast<const char**>(ptr), extension_count);
     ptr += extension_count * sizeof(const char*);
@@ -270,7 +269,6 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     for (const auto& name : enabled_extension_names_set) {
         extension_names_span[index++] = name;
     }
-
 
     // Fill feature structures
     VkBaseOutStructure* feature_struct_head = nullptr;
@@ -306,6 +304,75 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     result.feature_structs  = feature_struct_head;
     result.property_structs = property_struct_head;
     return result;
+}
+
+std::pair<VkDescriptorSet, VkDescriptorPool>
+detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept
+{
+    std::lock_guard<std::mutex> lock(pool_mutex);
+    // Step 1: Try current pool
+    if (current_pool_index < pool_count) {
+        VkDescriptorSetAllocateInfo alloc_info{
+            .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            .descriptorPool     = pools[current_pool_index],
+            .descriptorSetCount = 1,
+            .pSetLayouts        = &dsl,
+        };
+        VkDescriptorSet set = VK_NULL_HANDLE;
+        VkResult        res = table.vkAllocateDescriptorSets(device, &alloc_info, &set);
+        if (res == VK_SUCCESS) {
+            return { set, pools[current_pool_index] };
+        }
+    }
+    // Step 2: Try other pools
+    for (std::uint32_t i = 0; i < pool_count; ++i) {
+        VkDescriptorSetAllocateInfo alloc_info{
+            .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            .descriptorPool     = pools[i],
+            .descriptorSetCount = 1,
+            .pSetLayouts        = &dsl,
+        };
+        VkDescriptorSet set = VK_NULL_HANDLE;
+        VkResult        res = table.vkAllocateDescriptorSets(device, &alloc_info, &set);
+        if (res == VK_SUCCESS) {
+            current_pool_index = i;
+            return { set, pools[current_pool_index] };
+        }
+    }
+    // Step 3: Create new pool
+    if (current_pool_index + 1 < static_sampler_max_pools) {
+        VkDescriptorPoolSize pool_size{
+            .type            = VK_DESCRIPTOR_TYPE_SAMPLER,
+            .descriptorCount = static_sampler_chunk_size,
+        };
+        VkDescriptorPoolCreateInfo pool_info{
+            .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+            .flags         = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+            .maxSets       = static_sampler_chunk_size,
+            .poolSizeCount = 1,
+            .pPoolSizes    = &pool_size,
+        };
+        VkDescriptorPool new_pool = VK_NULL_HANDLE;
+        VkResult         res      = table.vkCreateDescriptorPool(device, &pool_info, nullptr, &new_pool);
+        if (res == VK_SUCCESS) {
+            pools[pool_count++] = new_pool;
+            current_pool_index  = pool_count - 1;
+            // Allocate from new pool
+            VkDescriptorSetAllocateInfo alloc_info{
+                .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+                .descriptorPool     = pools[current_pool_index],
+                .descriptorSetCount = 1,
+                .pSetLayouts        = &dsl,
+            };
+            VkDescriptorSet set = VK_NULL_HANDLE;
+            res                 = table.vkAllocateDescriptorSets(device, &alloc_info, &set);
+            if (res == VK_SUCCESS) {
+                return { set, pools[current_pool_index] };
+            }
+        }
+    }
+    // Failed to allocate
+    return { VK_NULL_HANDLE, VK_NULL_HANDLE };
 }
 
 #endif // WIS_VK_TYPES_CPP

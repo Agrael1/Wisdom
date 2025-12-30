@@ -30,10 +30,10 @@ void log_callback(WisSeverity severity, const char* message, uint64_t device, vo
 // Entry point for testing
 int main()
 {
-    WisDebugDesc debug_desc = { 0 };
-    debug_desc.debug_layer  = true;
-    debug_desc.callback     = log_callback;
-    debug_desc.user_data    = NULL;
+    WisDebugDesc debug_desc       = { 0 };
+    debug_desc.enable_debug_layer = true;
+    debug_desc.callback           = log_callback;
+    debug_desc.user_data          = NULL;
 
     WisInstance instance = { 0 };
     WisResult   result   = wisCreateInstance(&debug_desc, NULL, 0, &instance);
@@ -87,23 +87,47 @@ int main()
 
     // Create pipeline resources
     WisPushConstant push_constants[] = {
-        { WisShaderStagesVertex, 16, 2, 0 },
-        {  WisShaderStagesPixel, 32, 2, 0 },
+        { WisShaderStagesVertex, 16, 0, 0 },
+        {  WisShaderStagesPixel, 32, 0, 0 },
     };
     WisPushDescriptor push_descriptors[] = {
-        { WisShaderStagesVertex, WisDescriptorTypeConstantBuffer },
-        {  WisShaderStagesPixel,         WisDescriptorTypeBuffer },
+        { WisShaderStagesVertex, WisDescriptorTypeConstantBuffer, 1 },
+        {  WisShaderStagesPixel,         WisDescriptorTypeBuffer, 2 },
     };
+    WisStaticSamplerDesc static_samplers[] = {
+        {
+         {
+                        .min_filter          = WisFilterLinear,
+                        .mag_filter          = WisFilterLinear,
+                        .mip_filter          = WisFilterLinear,
+                        .is_anisotropic      = false,
+                        .max_anisotropy      = 1,
+                        .address_u           = WisAddressModeRepeat,
+                        .address_v           = WisAddressModeRepeat,
+                        .address_w           = WisAddressModeRepeat,
+                        .min_lod             = 0.0f,
+                        .max_lod             = 1000.0f,
+                        .mip_lod_bias        = 0.0f,
+                        .comparison_op       = WisCompareOperationNever,
+                        .static_border_color = WisStaticBorderOpaqueBlack,
+                        .border_color        = { 0.0f, 0.0f, 0.0f, 0.0f },
+                        .flags               = WisSamplerFlagsNone,
+                },
+         WisShaderStagesPixel,
+         3,
+         },
+    };
+
     WisPipelineLayoutDesc pipeline_desc = { 0 };
     pipeline_desc.push_constants        = push_constants;
     pipeline_desc.push_constant_count   = sizeof(push_constants) / sizeof(push_constants[0]);
     pipeline_desc.push_descriptors      = push_descriptors;
     pipeline_desc.push_descriptor_count = sizeof(push_descriptors) / sizeof(push_descriptors[0]);
+    pipeline_desc.static_samplers       = static_samplers;
+    pipeline_desc.static_sampler_count  = sizeof(static_samplers) / sizeof(static_samplers[0]);
     WisPipelineLayout pipeline_layout   = { 0 };
     result                              = wisDeviceCreatePipelineLayout(&device, &pipeline_desc, &pipeline_layout);
     printf("CreatePipelineLayout result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-
-
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);

@@ -94,6 +94,54 @@ enum class DescriptorType {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Comparison function for depth and stencil operations.
+ *
+ * */
+enum class CompareOperation {
+    None         = 0, ///< No comparison.
+    Never        = 1, ///< Always fail the comparison.
+    Less         = 2, ///< Pass the comparison if the source value is less than the destination value.
+    Equal        = 3, ///< Pass the comparison if the source value is equal to the destination value.
+    LessEqual    = 4, ///< Pass the comparison if the source value is less than or equal to the destination value.
+    Greater      = 5, ///< Pass the comparison if the source value is greater than the destination value.
+    NotEqual     = 6, ///< Pass the comparison if the source value is not equal to the destination value.
+    GreaterEqual = 7, ///< Pass the comparison if the source value is greater than or equal to the destination value.
+    Always       = 8, ///< Always pass the comparison.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Address mode for texture sampling.
+ *
+ * */
+enum class AddressMode {
+    Repeat            = 0, ///< Repeat the texture.
+    MirroredRepeat    = 1, ///< Repeat the texture with mirroring.
+    ClampToEdge       = 2, ///< Clamp the texture to the edge.
+    ClampToBorder     = 3, ///< Clamp the texture to the border.
+    MirrorClampToEdge = 4, ///< Mirror and clamp the texture to the edge.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Filtering mode for texture sampling.
+ *
+ * */
+enum class Filter {
+    Point  = 0, ///< Nearest neighbor filtering.
+    Linear = 1, ///< Linear filtering.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Predefined static border colors for samplers. Used when address mode is set to Border.
+ *
+ * */
+enum class StaticBorder {
+    TransparentBlack = 0, ///< Transparent black border color.
+    OpaqueBlack      = 1, ///< Opaque black border color.
+    OpaqueWhite      = 2, ///< Opaque white border color.
+    Custom           = 3, ///< Custom border color defined by the user.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -101,6 +149,15 @@ enum class AdapterFlags : uint32_t {
     None     = 0, ///< No flags set. Adapter @wis_may be descrete or embedded.
     Remote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
     Software = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
+ *
+ * */
+enum class SamplerFlags : uint32_t {
+    None                     = 0, ///< No flags set.
+    NonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
 };
 
 //==============================================================
@@ -151,9 +208,41 @@ struct AdapterDesc {
  *
  * */
 struct DebugDesc {
-    bool               debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
+    bool               enable_debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
     wis::DebugCallback callback; ///< defines the debug callback function.
     void*              user_data; ///< user defined data pointer passed to the callback.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.
+ *
+ * */
+struct SamplerDesc {
+    wis::Filter           min_filter; ///< Minification filter.
+    wis::Filter           mag_filter; ///< Magnification filter.
+    wis::Filter           mip_filter; ///< Mip level filter.
+    bool                  is_anisotropic; ///< Anisotropic filtering enable.
+    std::uint32_t         max_anisotropy; ///< Max anisotropy level. Max is 16.
+    wis::AddressMode      address_u; ///< Address mode for U coordinate.
+    wis::AddressMode      address_v; ///< Address mode for V coordinate.
+    wis::AddressMode      address_w; ///< Address mode for W coordinate.
+    float                 min_lod; ///< Min LOD value.
+    float                 max_lod; ///< Max LOD value.
+    float                 mip_lod_bias; ///< Mip LOD bias value.
+    wis::CompareOperation comparison_op; ///< Comparison operation for comparison samplers.
+    wis::StaticBorder     static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
+    std::array<float, 4>  border_color; ///< Border color. Used if any address mode is set to wis::AddressMode and static_border_color is set to `wis::StaticBorder::Custom`.
+    wis::SamplerFlags     flags; ///< Sampler flags. Used to set additional sampler options.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Static sampler description for wis::PipelineLayout creation.
+ *
+ * */
+struct StaticSamplerDesc {
+    wis::SamplerDesc  sampler; ///< Sampler description.
+    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the sampler is used.
+    std::uint32_t     bind_register; ///< Bind register number in HLSL.
 };
 
 /**
@@ -174,6 +263,7 @@ struct PushConstant {
 struct PushDescriptor {
     wis::ShaderStages   stage; ///< Shader stage. Defines the stage where the descriptor is used.
     wis::DescriptorType type; ///< Descriptor type. Works only with buffer bindings.
+    std::uint32_t       bind_register; ///< Bind register number in HLSL.
 };
 
 /**
@@ -181,10 +271,11 @@ struct PushDescriptor {
  *
  * */
 struct PipelineLayoutDesc {
-    wis::span<const wis::PushConstant>   push_constants; ///< points to an array of wis::PushConstant.
-    wis::span<const wis::PushDescriptor> push_descriptors; ///< points to an array of wis::PushDescriptor.
-    void*                                reserved; ///< reserved for future use. Must be `nullptr`.
-    std::size_t                          reserved_size; ///< reserved for future use. Must be `0`.
+    wis::span<const wis::PushConstant>      push_constants; ///< points to an array of wis::PushConstant.
+    wis::span<const wis::PushDescriptor>    push_descriptors; ///< points to an array of wis::PushDescriptor.
+    wis::span<const wis::StaticSamplerDesc> static_samplers; ///< points to an array of wis::StaticSamplerDesc.
+    void*                                   reserved; ///< reserved for future use. Must be `nullptr`.
+    std::size_t                             reserved_size; ///< reserved for future use. Must be `0`.
 };
 
 } // namespace wis

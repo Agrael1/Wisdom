@@ -173,6 +173,7 @@ struct VKMainDevice {
     PFN_vkDestroyPipeline                   vkDestroyPipeline;
     PFN_vkCreateImage                       vkCreateImage;
     PFN_vkCreateDescriptorSetLayout         vkCreateDescriptorSetLayout;
+    PFN_vkFreeDescriptorSets                vkFreeDescriptorSets;
     PFN_vkFreeMemory                        vkFreeMemory;
     PFN_vkMapMemory                         vkMapMemory;
     PFN_vkDestroyDescriptorSetLayout        vkDestroyDescriptorSetLayout;
@@ -233,6 +234,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyPipeline);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateImage);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateDescriptorSetLayout);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkFreeDescriptorSets);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkFreeMemory);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkMapMemory);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyDescriptorSetLayout);

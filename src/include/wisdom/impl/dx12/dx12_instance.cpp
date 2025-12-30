@@ -130,7 +130,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(instance);
 
     com_ptr<IDXGIFactory6> ref;
-    uint32_t               debug_layer = debug_desc && debug_desc->debug_layer;
+    uint32_t               debug_layer = debug_desc && debug_desc->enable_debug_layer;
 
     auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                  IID_IDXGIFactory6,
@@ -519,11 +519,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         return make_result<Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG);
     }
 
-    D3D12_ROOT_PARAMETER1                        root_parameters[max_root_parameters];
-    std::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> static_samplers;
-
-    std::size_t num_root_parameters = desc->push_constant_count + desc->push_descriptor_count;
-    std::size_t offset_parameters   = 0;
+    D3D12_ROOT_PARAMETER1 root_parameters[max_root_parameters];
+    std::size_t           num_root_parameters = desc->push_constant_count + desc->push_descriptor_count;
+    std::size_t           offset_parameters   = 0;
 
     // push constants
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
@@ -538,6 +536,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
     offset_parameters += desc->push_constant_count;
 
     // push descriptors
+    uint32_t descriptor_space = 0;
     for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
         auto& param = root_parameters[offset_parameters + i];
         auto& src   = desc->push_descriptors[i];
@@ -548,22 +547,57 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
 
         param.ParameterType = detail::dx12_root_parameter_type(src.type);
         param.Descriptor    = {
-               .ShaderRegister = static_cast<UINT>(i),
-               .RegisterSpace  = 0u
+               .ShaderRegister = src.bind_register,
+               .RegisterSpace  = descriptor_space
         };
         param.ShaderVisibility = detail::convert_dx(desc->push_descriptors[i].stage);
     }
+    descriptor_space += desc->push_descriptor_count > 0;
 
     // TODO: static samplers
+    std::unique_ptr<D3D12_STATIC_SAMPLER_DESC1[]> static_samplers;
+    if (desc->static_sampler_count > 0) {
+        static_samplers = make_unique<D3D12_STATIC_SAMPLER_DESC1[]>(desc->static_sampler_count);
+        if (!static_samplers) {
+            return make_result<Func(), "Out of memory while creating static samplers">(E_OUTOFMEMORY);
+        }
+        for (std::size_t i = 0; i < desc->static_sampler_count; ++i) {
+            const auto& src  = desc->static_samplers[i];
+            auto&       samp = src.sampler;
+
+            auto min_filter   = !samp.is_anisotropic ? convert_dx(samp.min_filter) : D3D12_FILTER_TYPE_LINEAR;
+            auto mag_filter   = !samp.is_anisotropic ? convert_dx(samp.mag_filter) : D3D12_FILTER_TYPE_LINEAR;
+            auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, convert_dx(samp.mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
+
+            static_samplers[i] = {
+                .Filter           = D3D12_FILTER(samp.is_anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter),
+                .AddressU         = convert_dx(samp.address_u),
+                .AddressV         = convert_dx(samp.address_v),
+                .AddressW         = convert_dx(samp.address_w),
+                .MipLODBias       = samp.mip_lod_bias,
+                .MaxAnisotropy    = samp.max_anisotropy,
+                .ComparisonFunc   = convert_dx(samp.comparison_op),
+                .BorderColor      = convert_dx(samp.static_border_color),
+                .MinLOD           = samp.min_lod,
+                .MaxLOD           = samp.max_lod,
+                .ShaderRegister   = src.bind_register,
+                .RegisterSpace    = descriptor_space,
+                .ShaderVisibility = detail::convert_dx(src.stage),
+                .Flags            = convert_dx(samp.flags)
+            };
+        }
+    }
 
     // TODO: tables
 
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC rsig_desc{
-        .Version  = D3D_ROOT_SIGNATURE_VERSION_1_1,
-        .Desc_1_1 = {
-                     .NumParameters = static_cast<UINT>(num_root_parameters),
-                     .pParameters   = root_parameters,
-                     .Flags         = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
+        .Version  = D3D_ROOT_SIGNATURE_VERSION_1_2,
+        .Desc_1_2 = {
+                     .NumParameters     = static_cast<UINT>(num_root_parameters),
+                     .pParameters       = root_parameters,
+                     .NumStaticSamplers = static_cast<UINT>(desc->static_sampler_count),
+                     .pStaticSamplers   = static_samplers.get(),
+                     .Flags             = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
                      },
     };
 

@@ -11,6 +11,7 @@
 #include <cstring>
 #include <array>
 #include <atomic>
+#include <mutex>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -106,6 +107,34 @@ public:
     WisDebugCallback callback  = nullptr;
     void*            user_data = nullptr;
 };
+
+//-----------------------------------------------------------------------------
+struct VKStaticSamplerPoolAllocator {
+    static constexpr std::uint32_t static_sampler_chunk_size = 1024;
+    static constexpr std::uint32_t static_sampler_max_pools  = 8;
+
+    std::array<VkDescriptorPool, static_sampler_max_pools> pools;
+
+    std::mutex    pool_mutex;
+    std::uint32_t pool_count         = 0;
+    std::uint32_t current_pool_index = 0;
+
+    // Strategy: 3 steps
+    // 1) Try to allocate from current pool
+    // 2) If current pool is full, try to find a pool with free space
+    // 3) If no pool has free space, create a new pool
+    std::pair<VkDescriptorSet, VkDescriptorPool>
+    AllocateSet(VkDevice device, impl::VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept;
+
+    void DestroyPoolsUnchecked(VkDevice device, impl::VKMainDevice& table) noexcept
+    {
+        for (std::uint32_t i = 0; i < pool_count; ++i) {
+            table.vkDestroyDescriptorPool(device, pools[i], nullptr);
+        }
+        pool_count         = 0;
+        current_pool_index = 0;
+    }
+};
 } // namespace detail
 
 namespace impl {
@@ -137,8 +166,12 @@ struct VKDeviceFeatures {
 };
 
 struct VKDescriptorSetLayoutContainer {
-    std::size_t           dsl_count = 0;
+    std::uint32_t         dsl_count            = 0;
+    std::uint32_t         static_sampler_count = 0;
+    VkDescriptorPool      static_sampler_pool;
     VkDescriptorSetLayout vk_dsls[1];
+
+    // VkSampler samplers[];
 };
 
 struct VKDeviceHeader {
@@ -154,6 +187,9 @@ struct VKDeviceHeader {
     std::unique_ptr<VkQueueFamilyProperties[]> queue_family_properties;
     uint16_t                                   common_queue_family_indices[WisCommandQueueTypeCount];
     VKDeviceFeatures                           features;
+
+    // Static sampler pool allocator
+    detail::VKStaticSamplerPoolAllocator static_sampler_pool_allocator;
 };
 
 struct VKInstanceImpl {
@@ -201,6 +237,7 @@ struct VKResourceAllocatorImpl {
 
 struct VKPipelineLayoutImpl {
     VkPipelineLayout                       layout;
+    VkDescriptorSet                        static_samplers;
     VKDescriptorSetLayoutContainer*        dsl_container;
     VkDevice                               device;
     detail::control_block<VKDeviceHeader>* device_header;

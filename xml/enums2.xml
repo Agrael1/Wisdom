@@ -53,7 +53,7 @@
 
 		<type name="ShaderStages" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
 			<impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
-			<impl_type for="vk" name="VkShaderStageFlagBits" default="VK_SHADER_STAGE_ALL"/>
+			<impl_type for="vk" name="VkShaderStageFlags" default="VK_SHADER_STAGE_ALL"/>
 			<value name="All" value="0" doc="All shader stages.">
 				<impl name="vk" value="VK_SHADER_STAGE_ALL"/>
 			</value>
@@ -114,11 +114,108 @@
 			</value>
 		</type>
 
+		<type name="CompareOperation" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
+			<impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
+			<impl_type for="vk" name="VkCompareOp"/>
+			<value name="None" value="0" doc="No comparison.">
+				<impl name="vk" value="VK_COMPARE_OP_NEVER"/>
+			</value>
+			<value name="Never" value="1" doc="Always fail the comparison.">
+				<impl name="vk" value="VK_COMPARE_OP_NEVER"/>
+			</value>
+			<value name="Less" value="2" doc="Pass the comparison if the source value is less than the destination value.">
+				<impl name="vk" value="VK_COMPARE_OP_LESS"/>
+			</value>
+			<value name="Equal" value="3" doc="Pass the comparison if the source value is equal to the destination value.">
+				<impl name="vk" value="VK_COMPARE_OP_EQUAL"/>
+			</value>
+			<value name="LessEqual" value="4" doc="Pass the comparison if the source value is less than or equal to the destination value.">
+				<impl name="vk" value="VK_COMPARE_OP_LESS_OR_EQUAL"/>
+			</value>
+			<value name="Greater" value="5" doc="Pass the comparison if the source value is greater than the destination value.">
+				<impl name="vk" value="VK_COMPARE_OP_GREATER"/>
+			</value>
+			<value name="NotEqual" value="6" doc="Pass the comparison if the source value is not equal to the destination value.">
+				<impl name="vk" value="VK_COMPARE_OP_NOT_EQUAL"/>
+			</value>
+			<value name="GreaterEqual" value="7" doc="Pass the comparison if the source value is greater than or equal to the destination value.">
+				<impl name="vk" value="VK_COMPARE_OP_GREATER_OR_EQUAL"/>
+			</value>
+			<value name="Always" value="8" doc="Always pass the comparison.">
+				<impl name="vk" value="VK_COMPARE_OP_ALWAYS"/>
+			</value>
+		</type>
+
+		<type name="AddressMode" category="enum" version="0.7.0" doc="Address mode for texture sampling.">
+			<impl_type for="vk" name="VkSamplerAddressMode"/>
+			<impl_type for="dx" name="D3D12_TEXTURE_ADDRESS_MODE"/>
+			<value name="Repeat" value="0" doc="Repeat the texture.">
+				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
+				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
+			</value>
+			<value name="MirroredRepeat" value="1" doc="Repeat the texture with mirroring.">
+				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT"/>
+				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR"/>
+			</value>
+			<value name="ClampToEdge" value="2" doc="Clamp the texture to the edge.">
+				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE"/>
+				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_CLAMP"/>
+			</value>
+			<value name="ClampToBorder" value="3" doc="Clamp the texture to the border.">
+				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER"/>
+				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_BORDER"/>
+			</value>
+			<value name="MirrorClampToEdge" value="4" doc="Mirror and clamp the texture to the edge.">
+				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE"/>
+				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE"/>
+			</value>
+		</type>
+
+		<type name="Filter" category="enum" version="0.7.0" doc="Filtering mode for texture sampling.">
+			<impl_type for="vk" name="VkFilter"/>
+			<impl_type for="dx" name="D3D12_FILTER_TYPE"/>
+			<value name="Point" value="0" doc="Nearest neighbor filtering.">
+				<impl name="vk" value="VK_FILTER_NEAREST"/>
+				<impl name="dx" value="D3D12_FILTER_TYPE_POINT"/>
+			</value>
+			<value name="Linear" value="1" doc="Linear filtering.">
+				<impl name="vk" value="VK_FILTER_LINEAR"/>
+				<impl name="dx" value="D3D12_FILTER_TYPE_LINEAR"/>
+			</value>
+		</type>
+		
+		<type name="StaticBorder" category="enum" version="0.7.0" doc="Predefined static border colors for samplers. Used when address mode is set to Border.">
+			<impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR"/>
+			<impl_type for="vk" name="VkBorderColor"/>
+			<value name="TransparentBlack" value="0" doc="Transparent black border color.">
+				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
+				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
+			</value>
+			<value name="OpaqueBlack" value="1" doc="Opaque black border color.">
+				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK"/>
+				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK"/>
+			</value>
+			<value name="OpaqueWhite" value="2" doc="Opaque white border color.">
+				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE"/>
+				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE"/>
+			</value>
+			<value name="Custom" value="3" doc="Custom border color defined by the user."/>
+			</type>
+
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
 			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
 			<value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
 			<value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
+		</type>
+		
+		<type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
+			<impl_type for="dx" name="D3D12_SAMPLER_FLAGS"/>
+			<impl_type for="vk" name="VkSamplerCreateFlags"/>
+			<value name="None" value="0" doc="No flags set."/>
+			<value name="NonNormalizedCoordinates" bit="0" doc="Use non-normalized texture coordinates.">
+				<impl name="dx" value="D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES"/>
+			</value>
 		</type>
 
 	</types>

@@ -13,6 +13,7 @@
  * typedef struct  WisPushDescriptor {
  *     WisShaderStages   stage;
  *     WisDescriptorType type;
+ *     uint32_t          bind_register;
  * } WisPushDescriptor;
  * 
  * ```
@@ -23,6 +24,7 @@
  * struct  PushDescriptor {
  *     wis::ShaderStages   stage;
  *     wis::DescriptorType type;
+ *     std::uint32_t       bind_register;
  * };
  * }
  * ```
@@ -33,6 +35,7 @@
  * \cond WIS_GEN_DESC
  * - `stage` Shader stage. Defines the stage where the descriptor is used.
  * - `type` Descriptor type. Works only with buffer bindings.
+ * - `bind_register` Bind register number in HLSL.
  * \endcond
  *
  * @section WisPushDescriptor_descr Description

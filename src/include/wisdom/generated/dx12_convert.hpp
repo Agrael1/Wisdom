@@ -62,6 +62,64 @@ inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
     }
 }
 
+inline D3D12_COMPARISON_FUNC convert_dx(WisCompareOperation value) noexcept
+{
+    return static_cast<D3D12_COMPARISON_FUNC>(value);
+}
+
+inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noexcept
+{
+    switch (value) {
+    case WisAddressModeRepeat:
+        return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    case WisAddressModeMirroredRepeat:
+        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+    case WisAddressModeClampToEdge:
+        return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    case WisAddressModeClampToBorder:
+        return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    case WisAddressModeMirrorClampToEdge:
+        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+    default:
+        return static_cast<D3D12_TEXTURE_ADDRESS_MODE>(value);
+    }
+}
+
+inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
+{
+    switch (value) {
+    case WisFilterPoint:
+        return D3D12_FILTER_TYPE_POINT;
+    case WisFilterLinear:
+        return D3D12_FILTER_TYPE_LINEAR;
+    default:
+        return static_cast<D3D12_FILTER_TYPE>(value);
+    }
+}
+
+inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
+{
+    switch (value) {
+    case WisStaticBorderTransparentBlack:
+        return D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+    case WisStaticBorderOpaqueBlack:
+        return D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+    case WisStaticBorderOpaqueWhite:
+        return D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+    default:
+        return static_cast<D3D12_STATIC_BORDER_COLOR>(value);
+    }
+}
+
+inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
+{
+    D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);
+    if (value & WisSamplerFlagsNonNormalizedCoordinates) {
+        result |= D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES;
+    }
+    return result;
+}
+
 } // namespace detail
 } // namespace wis
 #endif // WISDOM_DX12_CONVERT_HPP

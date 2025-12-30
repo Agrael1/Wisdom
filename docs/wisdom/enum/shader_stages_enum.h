@@ -45,7 +45,7 @@
  * \cond WIS_GEN_DESC
  * Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
  * 
- * \note Translates to  `D3D12_SHADER_VISIBILITY` for DirectX 12 implementation, and `VkShaderStageFlagBits` for Vulkan implementation.
+ * \note Translates to  `D3D12_SHADER_VISIBILITY` for DirectX 12 implementation, and `VkShaderStageFlags` for Vulkan implementation.
  * 
  * Values:
  * - `WisShaderStagesAll = 0`: All shader stages.
@@ -64,6 +64,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisPushConstant, WisPushDescriptor
+ * @see WisStaticSamplerDesc, WisPushConstant, WisPushDescriptor
  * \endcond
  */
