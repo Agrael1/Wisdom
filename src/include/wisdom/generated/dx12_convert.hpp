@@ -35,6 +35,33 @@ inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
     }
 }
 
+inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderStages value) noexcept
+{
+    return static_cast<D3D12_SHADER_VISIBILITY>(value);
+}
+
+inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
+{
+    switch (value) {
+    case WisDescriptorTypeSampler:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+    case WisDescriptorTypeConstantBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    case WisDescriptorTypeTexture:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case WisDescriptorTypeRWTexture:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case WisDescriptorTypeRWBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    case WisDescriptorTypeBuffer:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    case WisDescriptorTypeAccelerationStructure:
+        return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    default:
+        return static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(value);
+    }
+}
+
 } // namespace detail
 } // namespace wis
 #endif // WISDOM_DX12_CONVERT_HPP

@@ -43,5 +43,26 @@
 			<member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
 		</type>
 
+		<type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.">
+			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
+			<member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
+			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+			<member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
+		</type>
+
+		<type name="PushDescriptor" category="struct" version="0.7.0" doc="Push descriptor. Used to push data directly to pipeline.">
+			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
+			<member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
+		</type>
+		
+		<type name="PipelineLayoutDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
+			<member type="PushConstant" name="push_constants" mod="const,span" default="nullptr" doc="points to an array of {PushConstant::}."/>
+			<member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {PipelineLayoutDesc::push_constants} array."/>
+			<member type="PushDescriptor" name="push_descriptors" mod="const,span" default="nullptr" doc="points to an array of {PushDescriptor::}."/>
+			<member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {PipelineLayoutDesc::push_descriptors} array."/>
+			<member type="void" name="reserved" mod="ptr" default="nullptr" doc="reserved for future use. Must be `nullptr`."/>
+			<member type="size" name="reserved_size" default="0" doc="reserved for future use. Must be `0`."/>
+		</type>
+
 	</types>
 </registry>

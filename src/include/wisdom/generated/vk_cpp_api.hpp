@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct VKPipelineLayoutDeleter {
+    void operator()(WisVKPipelineLayout* handle) noexcept
+    {
+        ::wisVKDestroyPipelineLayout(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ *
+ * */
+class VKPipelineLayout : public wis::impl::Implements<wis::impl::VKPipelineLayoutImpl, WisVKPipelineLayout, wis::VKPipelineLayoutDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKResourceAllocatorDeleter {
     void operator()(WisVKResourceAllocator* handle) noexcept
     {
@@ -159,6 +177,22 @@ public:
         wis::VKResourceAllocator allocator;
         out_result = convert_result(::wisVKDeviceCreateResourceAllocator(&_impl_storage, allocator.GetStorage()));
         return allocator;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
+     * @param desc points to wis::PipelineLayoutDesc, which describes the pipeline layout to create.
+     * @param out_result denoting the outcome of operation.
+     * @return layout points to wis::PipelineLayout, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKPipelineLayout CreatePipelineLayout(const wis::PipelineLayoutDesc& desc,
+                                                                    wis::Result&                   out_result) const noexcept
+    {
+        wis::VKPipelineLayout layout;
+        out_result = convert_result(::wisVKDeviceCreatePipelineLayout(&_impl_storage,
+                                                                      reinterpret_cast<const WisPipelineLayoutDesc*>(&desc),
+                                                                      layout.GetStorage()));
+        return layout;
     }
 };
 

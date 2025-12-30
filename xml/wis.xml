@@ -6,6 +6,10 @@
 	</includes>
 
 	<handles>
+		<handle name="PipelineLayout" version="0.7.0" doc="Class representing a pipeline layout, which defines resource bindings for shaders.">
+			<impl for="vk" size="4"/>
+			<impl for="dx" size="1"/>
+		</handle>
 		<handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">
 			<impl for="vk" size="3"/>
 			<impl for="dx" size="1"/>
@@ -81,6 +85,11 @@
 		<func name="CreateResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
 			<ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
 		</func>
+		<func name="CreatePipelineLayout" version="0.7.0" for="Device" mod="const" doc="Creates a pipeline layout with given descriptor.">
+			<ret type="PipelineLayout" name="layout" result="true" doc="points to {PipelineLayout::}, which is initialized on success."/>
+			<arg type="PipelineLayoutDesc" name="desc" mod="const,ref" doc="points to {PipelineLayoutDesc::}, which describes the pipeline layout to create."/>
+		</func>
+		
 			
 	</functions>
 

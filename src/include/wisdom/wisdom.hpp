@@ -21,6 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using PipelineLayout    = wis::DX12PipelineLayout;
 using ResourceAllocator = wis::DX12ResourceAllocator;
 using Fence             = wis::DX12Fence;
 using CommandList       = wis::DX12CommandList;
@@ -71,6 +72,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using PipelineLayout    = wis::VKPipelineLayout;
 using ResourceAllocator = wis::VKResourceAllocator;
 using Fence             = wis::VKFence;
 using CommandList       = wis::VKCommandList;

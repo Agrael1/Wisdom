@@ -85,11 +85,32 @@ int main()
     WisResourceAllocator allocator = { 0 };
     result                         = wisDeviceCreateResourceAllocator(&device, &allocator);
 
+    // Create pipeline resources
+    WisPushConstant push_constants[] = {
+        { WisShaderStagesVertex, 16, 2, 0 },
+        {  WisShaderStagesPixel, 32, 2, 0 },
+    };
+    WisPushDescriptor push_descriptors[] = {
+        { WisShaderStagesVertex, WisDescriptorTypeConstantBuffer },
+        {  WisShaderStagesPixel,         WisDescriptorTypeBuffer },
+    };
+    WisPipelineLayoutDesc pipeline_desc = { 0 };
+    pipeline_desc.push_constants        = push_constants;
+    pipeline_desc.push_constant_count   = sizeof(push_constants) / sizeof(push_constants[0]);
+    pipeline_desc.push_descriptors      = push_descriptors;
+    pipeline_desc.push_descriptor_count = sizeof(push_descriptors) / sizeof(push_descriptors[0]);
+    WisPipelineLayout pipeline_layout   = { 0 };
+    result                              = wisDeviceCreatePipelineLayout(&device, &pipeline_desc, &pipeline_layout);
+    printf("CreatePipelineLayout result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+
+
     // Out of order destruction must still work
     wisDestroyDevice(&device);
     wisDestroyCommandQueue(&command_queue);
     wisDestroyCommandList(&command_list);
     wisDestroyFence(&fence);
     wisDestroyResourceAllocator(&allocator);
+    wisDestroyPipelineLayout(&pipeline_layout);
     return 0;
 }

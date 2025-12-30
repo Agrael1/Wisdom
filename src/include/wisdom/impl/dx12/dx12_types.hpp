@@ -64,6 +64,10 @@ struct DX12FenceImpl {
 struct DX12ResourceAllocatorImpl {
     D3D12MA::Allocator* allocator;
 };
+
+struct DX12PipelineLayoutImpl {
+    ID3D12RootSignature* root_signature;
+};
 } // namespace impl
 
 // Manual variants of generated structures with virtual functions

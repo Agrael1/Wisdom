@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12PipelineLayout, 1);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
  *
  * */
@@ -63,6 +69,13 @@ typedef struct WisDX12DeviceExtensionHeader {
 typedef struct WisDX12InstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisDX12InstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineLayout handle.
+ * @param self is a pointer to the valid WisPipelineLayout instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyPipelineLayout(WisDX12PipelineLayout* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
@@ -220,6 +233,18 @@ WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
  * */
 WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*      self,
                                                           WisDX12ResourceAllocator* allocator);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc points to WisPipelineLayoutDesc, which describes the pipeline layout to create.
+ * @param layout points to WisPipelineLayout, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX12Device*         self,
+                                                       const WisPipelineLayoutDesc* desc,
+                                                       WisDX12PipelineLayout*       layout);
 
 #ifdef __cplusplus
 }
