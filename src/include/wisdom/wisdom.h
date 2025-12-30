@@ -19,6 +19,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12PipelineLayout    WisPipelineLayout;
 typedef struct WisDX12ResourceAllocator WisResourceAllocator;
 typedef struct WisDX12Fence             WisFence;
 typedef struct WisDX12CommandList       WisCommandList;
@@ -38,6 +39,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
+#define wisDestroyPipelineLayout         wisDX12DestroyPipelineLayout
 #define wisDestroyResourceAllocator      wisDX12DestroyResourceAllocator
 #define wisDestroyFence                  wisDX12DestroyFence
 #define wisDestroyCommandList            wisDX12DestroyCommandList
@@ -54,6 +56,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 #define wisDeviceCreateCommandList       wisDX12DeviceCreateCommandList
 #define wisDeviceCreateFence             wisDX12DeviceCreateFence
 #define wisDeviceCreateResourceAllocator wisDX12DeviceCreateResourceAllocator
+#define wisDeviceCreatePipelineLayout    wisDX12DeviceCreatePipelineLayout
 
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -62,6 +65,7 @@ typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 // Handles
 //==============================================================
 
+typedef struct WisVKPipelineLayout    WisPipelineLayout;
 typedef struct WisVKResourceAllocator WisResourceAllocator;
 typedef struct WisVKFence             WisFence;
 typedef struct WisVKCommandList       WisCommandList;
@@ -81,6 +85,7 @@ typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 // Functions
 //==============================================================
 
+#define wisDestroyPipelineLayout         wisVKDestroyPipelineLayout
 #define wisDestroyResourceAllocator      wisVKDestroyResourceAllocator
 #define wisDestroyFence                  wisVKDestroyFence
 #define wisDestroyCommandList            wisVKDestroyCommandList
@@ -97,6 +102,7 @@ typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 #define wisDeviceCreateCommandList       wisVKDeviceCreateCommandList
 #define wisDeviceCreateFence             wisVKDeviceCreateFence
 #define wisDeviceCreateResourceAllocator wisVKDeviceCreateResourceAllocator
+#define wisDeviceCreatePipelineLayout    wisVKDeviceCreatePipelineLayout
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

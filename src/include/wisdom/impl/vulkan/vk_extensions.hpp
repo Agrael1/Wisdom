@@ -177,11 +177,11 @@ public:
     WIS_INLINE const VkExtensionProperties* GetExtensionProperties(const char* name) const noexcept;
 
     struct InitBuffer {
-        std::unique_ptr<uint8_t[]> buffer;
-        const char**               extension_names  = nullptr;
-        std::size_t                extension_count  = 0;
-        VkBaseOutStructure*        feature_structs  = nullptr;
-        VkBaseOutStructure*        property_structs = nullptr;
+        std::unique_ptr<uint64_t[]> buffer;
+        const char**                extension_names  = nullptr;
+        std::size_t                 extension_count  = 0;
+        VkBaseOutStructure*         feature_structs  = nullptr;
+        VkBaseOutStructure*         property_structs = nullptr;
     };
     WIS_INLINE InitBuffer GetInitBuffer(WisResult& out_res) const noexcept;
 

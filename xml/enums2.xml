@@ -51,6 +51,69 @@
 			<value name="Count" value="5" doc="Number of command queue types available."/>
 		</type>
 
+		<type name="ShaderStages" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
+			<impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
+			<impl_type for="vk" name="VkShaderStageFlagBits" default="VK_SHADER_STAGE_ALL"/>
+			<value name="All" value="0" doc="All shader stages.">
+				<impl name="vk" value="VK_SHADER_STAGE_ALL"/>
+			</value>
+			<value name="Vertex" value="1" doc="Vertex shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_VERTEX_BIT"/>
+			</value>
+			<value name="Hull" value="2" doc="Hull/Tessellation control shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"/>
+			</value>
+			<value name="Domain" value="3" doc="Domain/Tessellation evaluation shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"/>
+			</value>
+			<value name="Geometry" value="4" doc="Geometry shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_GEOMETRY_BIT"/>
+			</value>
+			<value name="Pixel" value="5" doc="Pixel/Fragment shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_FRAGMENT_BIT"/>
+			</value>
+			<value name="Amplification" value="6" doc="Amplification shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_TASK_BIT_EXT"/>
+			</value>
+			<value name="Mesh" value="7" doc="Mesh shader stage.">
+				<impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_EXT"/>
+			</value>
+			<value name="Count" value="8" doc="Number of stages."/>
+		</type>
+
+		<type name="DescriptorType" category="enum" version="0.7.0" doc="Type of the descriptor in the descriptor table.">
+			<impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
+			<impl_type for="vk" name="VkDescriptorType"/>
+			<value name="Sampler" value="0" doc="Descriptor is a sampler.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
+			</value>
+			<value name="ConstantBuffer" value="1" doc="Descriptor is a constant buffer.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_CBV"/>
+			</value>
+			<value name="Texture" value="2" doc="Descriptor is a texture.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+			</value>
+			<value name="RWTexture" value="3" doc="Descriptor is an unordered access read-write texture.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_IMAGE"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
+			</value>
+			<value name="RWBuffer" value="4" doc="Descriptor is an unordered access read-write buffer.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
+			</value>
+			<value name="Buffer" value="5" doc="Descriptor is a shader resource buffer.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+			</value>
+			<value name="AccelerationStructure" value="6" doc="Descriptor is an acceleration structure.">
+				<impl name="vk" value="VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"/>
+				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+			</value>
+		</type>
+
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
 			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>

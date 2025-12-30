@@ -92,5 +92,25 @@ int main()
         return int(result.status);
     }
 
+    // Create pipeline resources
+    wis::PushConstant push_constants[] = {
+        { wis::ShaderStages::Vertex, 16, 0, 0 },
+        {  wis::ShaderStages::Pixel, 32, 0, 0 },
+    };
+    wis::PushDescriptor push_descriptors[] = {
+        { wis::ShaderStages::Vertex, wis::DescriptorType::ConstantBuffer },
+        { wis::ShaderStages::Pixel, wis::DescriptorType::Buffer },
+    };
+
+    wis::PipelineLayoutDesc pipeline_layout_desc;
+    pipeline_layout_desc.push_constants   = { push_constants };
+    pipeline_layout_desc.push_descriptors = { push_descriptors };
+
+    wis::PipelineLayout pipeline_layout = device.CreatePipelineLayout(pipeline_layout_desc, result);
+    if (result.status != wis::Status::Ok) {
+        std::cerr << "Failed to create pipeline layout: " << result.error << "\n";
+        return int(result.status);
+    }
+
     return 0;
 }

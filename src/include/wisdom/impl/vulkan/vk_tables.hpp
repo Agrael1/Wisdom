@@ -217,12 +217,6 @@ struct VKMainDevice {
     PFN_vkSignalSemaphore                   vkSignalSemaphore;
     PFN_vkGetSemaphoreCounterValue          vkGetSemaphoreCounterValue;
     PFN_vkGetBufferDeviceAddress            vkGetBufferDeviceAddress;
-    PFN_vkCreateSwapchainKHR                vkCreateSwapchainKHR;
-    PFN_vkDestroySwapchainKHR               vkDestroySwapchainKHR;
-    PFN_vkGetSwapchainImagesKHR             vkGetSwapchainImagesKHR;
-    PFN_vkAcquireNextImageKHR               vkAcquireNextImageKHR;
-    PFN_vkWaitForPresent2KHR                vkWaitForPresent2KHR;
-    PFN_vkWaitForPresentKHR                 vkWaitForPresentKHR;
 
 #ifdef _WIN32
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
@@ -283,12 +277,6 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkSignalSemaphore, "vkSignalSemaphoreKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetSemaphoreCounterValue, "vkGetSemaphoreCounterValueKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetBufferDeviceAddress, "vkGetBufferDeviceAddressKHR", "vkGetBufferDeviceAddressEXT");
-        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCreateSwapchainKHR);
-        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkDestroySwapchainKHR);
-        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetSwapchainImagesKHR);
-        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkAcquireNextImageKHR);
-        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWaitForPresent2KHR);
-        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWaitForPresentKHR);
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);
 #endif //_WIN32

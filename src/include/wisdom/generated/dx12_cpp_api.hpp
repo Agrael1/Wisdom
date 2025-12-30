@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct DX12PipelineLayoutDeleter {
+    void operator()(WisDX12PipelineLayout* handle) noexcept
+    {
+        ::wisDX12DestroyPipelineLayout(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ *
+ * */
+class DX12PipelineLayout : public wis::impl::Implements<wis::impl::DX12PipelineLayoutImpl, WisDX12PipelineLayout, wis::DX12PipelineLayoutDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12ResourceAllocatorDeleter {
     void operator()(WisDX12ResourceAllocator* handle) noexcept
     {
@@ -159,6 +177,22 @@ public:
         wis::DX12ResourceAllocator allocator;
         out_result = convert_result(::wisDX12DeviceCreateResourceAllocator(&_impl_storage, allocator.GetStorage()));
         return allocator;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
+     * @param desc points to wis::PipelineLayoutDesc, which describes the pipeline layout to create.
+     * @param out_result denoting the outcome of operation.
+     * @return layout points to wis::PipelineLayout, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12PipelineLayout CreatePipelineLayout(const wis::PipelineLayoutDesc& desc,
+                                                                      wis::Result&                   out_result) const noexcept
+    {
+        wis::DX12PipelineLayout layout;
+        out_result = convert_result(::wisDX12DeviceCreatePipelineLayout(&_impl_storage,
+                                                                        reinterpret_cast<const WisPipelineLayoutDesc*>(&desc),
+                                                                        layout.GetStorage()));
+        return layout;
     }
 };
 

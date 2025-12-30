@@ -247,12 +247,12 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     }
 
     // Assume alignment of 8 for all structures
-    std::size_t                     total_size = extension_count * sizeof(const char*) + feature_size + property_size + alignof(void*) - 1;
+    std::size_t                     total_size = extension_count * sizeof(const char*) + feature_size + property_size;
     if (total_size == 0) {
         return result;
     }
     
-    std::unique_ptr<std::uint8_t[]> buffer(new (std::nothrow) std::uint8_t[total_size]);
+    std::unique_ptr<std::uint64_t[]> buffer(new (std::nothrow) std::uint64_t[total_size / sizeof(std::uint64_t) + 1]);
     if (!buffer) {
         out_res = make_result<Func(), "Not enough memory for device init buffer">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return result;
@@ -260,7 +260,8 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
 
     // Zero initialize the buffer
     std::memset(buffer.get(), 0, total_size);
-    std::uint8_t* ptr = aligned_address(buffer.get(), alignof(void*));
+    auto* ptr = reinterpret_cast<std::uint8_t*>(buffer.get());
+
 
     // Fill extension names
     wis::span<const char*> extension_names_span(reinterpret_cast<const char**>(ptr), extension_count);
@@ -272,7 +273,7 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
 
 
     // Fill feature structures
-    VkBaseOutStructure* feature_struct_head = reinterpret_cast<VkBaseOutStructure*>(ptr);
+    VkBaseOutStructure* feature_struct_head = nullptr;
     for (auto& [stype, size] : feature_map) {
         VkBaseOutStructure* struct_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr);
         struct_ptr->sType              = stype;
@@ -280,15 +281,12 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
         feature_struct_head            = struct_ptr;
 
         // Rewrite size to be pointer to this structure
-        size = uintptr_t(struct_ptr);
         ptr += size;
-    }
-    if (feature_map.empty()) {
-        feature_struct_head = nullptr;
+        size = uintptr_t(struct_ptr);
     }
 
     // Fill property structures
-    VkBaseOutStructure* property_struct_head = reinterpret_cast<VkBaseOutStructure*>(ptr);
+    VkBaseOutStructure* property_struct_head = nullptr;
     for (auto& [stype, size] : property_map) {
         VkBaseOutStructure* struct_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr);
         struct_ptr->sType              = stype;
@@ -296,12 +294,11 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
         property_struct_head           = struct_ptr;
 
         // Rewrite size to be pointer to this structure
-        size = uintptr_t(struct_ptr);
         ptr += size;
+        size = uintptr_t(struct_ptr);
     }
-    if (property_map.empty()) {
-        property_struct_head = nullptr;
-    }
+
+    assert(ptr <= reinterpret_cast<std::uint8_t*>(buffer.get()) + total_size);
 
     result.buffer           = std::move(buffer);
     result.extension_names  = extension_names_span.data();

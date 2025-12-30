@@ -2,6 +2,7 @@
 #define WIS_VK_INSTANCE_CPP
 #include <wisdom/generated/vk_cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
+#include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/impl/vulkan/vk_utils.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <memory>
@@ -208,34 +209,6 @@ public:
             });
         }
 
-        if (collector.IsExtensionPresent(VK_KHR_PRESENT_WAIT_EXTENSION_NAME) && collector.IsExtensionPresent(VK_KHR_PRESENT_ID_EXTENSION_NAME)) {
-            features.present_wait = true;
-            collector.EnableExtension({
-                    .name                = VK_KHR_PRESENT_ID_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR,
-                    .feature_struct_size = sizeof(VkPhysicalDevicePresentIdFeaturesKHR),
-            });
-            collector.EnableExtension({
-                    .name                = VK_KHR_PRESENT_WAIT_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR,
-                    .feature_struct_size = sizeof(VkPhysicalDevicePresentWaitFeaturesKHR),
-            });
-        }
-
-        if (collector.IsExtensionPresent(VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME) && collector.IsExtensionPresent(VK_KHR_PRESENT_ID_2_EXTENSION_NAME)) {
-            features.present_wait = true;
-            collector.EnableExtension({
-                    .name                = VK_KHR_PRESENT_ID_2_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR,
-                    .feature_struct_size = sizeof(VkPhysicalDevicePresentId2FeaturesKHR),
-            });
-            collector.EnableExtension({
-                    .name                = VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR,
-                    .feature_struct_size = sizeof(VkPhysicalDevicePresentWait2FeaturesKHR),
-            });
-        }
-
         if (collector.IsExtensionPresent(VK_EXT_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_EXTENSION_NAME)) {
             features.dynamic_render_unused_attachments = true;
             collector.EnableExtension({
@@ -258,6 +231,17 @@ public:
     WisResult Init(const impl::VKDeviceImpl&         device_impl,
                    const VKDeviceExtensionCollector& collector) noexcept
     {
+        {
+            auto& push_desc_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDevicePushDescriptorProperties>(
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES);
+            features.max_push_descriptors = push_desc_properties.maxPushDescriptors;
+        }
+        {
+            auto& base_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceProperties2>(
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2);
+            features.max_push_constant_size = base_properties.properties.limits.maxPushConstantsSize;
+        }
+
         // Nothing to initialize for now
         return vk_success;
     }
@@ -312,7 +296,9 @@ wisVKCreateInstance(const WisDebugDesc*            debug_layer,
     // Let extensions collect their info
     for (size_t i = 0; i < extension_count; ++i) {
         wis::VKInstanceExtensionHeader* ext_header = reinterpret_cast<wis::VKInstanceExtensionHeader*>(extensions[i]);
-        ext_header->init_fptr(ext_header, nullptr, &collector);
+        auto                            res2       = ext_header->init_fptr(ext_header, nullptr, &collector);
+        // Non-fatal, allow to silently fail
+        (void)res2;
     }
 
     // Setup debug layer if requested
@@ -645,7 +631,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
         .flags      = flag,
     };
 
-    std::strncpy(desc->description, got_desc.deviceName, sizeof(desc->description) - 1);
+    std::memcpy(desc->description, got_desc.deviceName, sizeof(desc->description) - 1);
     std::memcpy(desc->adapter_uuid, id_props.deviceUUID, sizeof(desc->adapter_uuid));
     return vk_success;
 }
@@ -680,7 +666,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     for (size_t i = 0; i < extension_count; ++i) {
         auto* header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(extensions[i]);
         if (header) {
-            header->init_fptr(header, nullptr, &collector);
+            auto res2 = header->init_fptr(header, nullptr, &collector);
+            // Non-fatal, allow to silently fail
+            (void)res2;
         }
     }
 
@@ -761,19 +749,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         };
     }
 
-    // Allocate queue semaphores
-    std::unique_ptr<uint8_t[]> queue_sems{ new (std::align_val_t(alignof(std::binary_semaphore)), std::nothrow) uint8_t[count * sizeof(std::binary_semaphore)] };
-    if (!queue_sems) {
-        return make_result<Func(), "Not enough memory for device queue binding semaphores">(VK_ERROR_OUT_OF_HOST_MEMORY);
-    }
-
-    // Initialize semaphores
-    for (uint32_t i = 0; i < count; ++i) {
-        new (queue_sems.get() + sizeof(std::binary_semaphore) * i) std::binary_semaphore(1);
-    }
-
-    auto sems = reinterpret_cast<std::binary_semaphore*>(queue_sems.get());
-
     // Get optimal queue index mapping
     auto prop_span = wis::span<const VkQueueFamilyProperties>{ family_props.get(), count };
     for (uint32_t i = 0; i < WisCommandQueueTypeCount; ++i) {
@@ -804,22 +779,31 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     auto& gtable       = impl.shared_header->header.global_table;
     if (!device_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
-        std::destroy_n(sems, header->header.queue_family_count);
         return make_result<Func(), "Failed to initialize Vulkan device function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize command queue table
     if (!header->header.command_queue_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
-        std::destroy_n(sems, header->header.queue_family_count);
         return make_result<Func(), "Failed to initialize Vulkan command queue function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize command list table
     if (!header->header.command_list_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
-        std::destroy_n(sems, header->header.queue_family_count);
         return make_result<Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
+    }
+
+        // Allocate queue semaphores
+    uint8_t* queue_sems = new (std::align_val_t(alignof(std::binary_semaphore)), std::nothrow) uint8_t[count * sizeof(std::binary_semaphore)];
+    if (!queue_sems) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Not enough memory for device queue binding semaphores">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    // Initialize semaphores
+    for (uint32_t i = 0; i < count; ++i) {
+        new (queue_sems + sizeof(std::binary_semaphore) * i) std::binary_semaphore(1);
     }
 
     // Fill device impl
@@ -836,7 +820,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     // Store queue family properties
     device_header.queue_family_count      = count;
     device_header.queue_family_properties = std::move(family_props);
-    device_header.queue_semaphores        = queue_sems.release();
+    device_header.queue_semaphores        = queue_sems;
+
+
+    auto res2 = device_ext1.Init(device_impl, collector);
+    // Non-fatal, allow to silently fail
+    (void)res2;
 
     // Store device extensions info
     device_header.features = device_ext1.features;
@@ -1149,6 +1138,150 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocato
         detail::release_vk_device(impl.device, impl.device_header);
         impl.device        = VK_NULL_HANDLE;
         impl.device_header = nullptr;
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDevice*           self,
+                                                                  const WisPipelineLayoutDesc* desc,
+                                                                  WisVKPipelineLayout*         layout)
+{
+    WisResult res         = vk_success;
+    auto&     device      = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto&     layout_impl = *reinterpret_cast<VKPipelineLayoutImpl*>(layout);
+    auto&     table       = device.device_header->header.device_table;
+    auto      features    = device.device_header->header.features;
+
+    // Pre checks
+    uint32_t layout_count = 0;
+    if (desc->push_descriptor_count > 0) {
+        layout_count += 1;
+        if (!features.push_descriptor) {
+            return make_result<Func(), "Push descriptors are not supported on this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+        }
+
+        // Check upper limit
+        if (desc->push_descriptor_count > features.max_push_descriptors) {
+            return make_result<Func(), "Exceeded maximum number of Vulkan push descriptors">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+    }
+
+
+    // How many DSLs are needed
+    std::unique_ptr<impl::VKDescriptorSetLayoutContainer> dsl_layouts;
+    if (layout_count > 0) {
+        dsl_layouts = std::unique_ptr<impl::VKDescriptorSetLayoutContainer>(static_cast<VKDescriptorSetLayoutContainer*>(
+                ::operator new(sizeof(VKDescriptorSetLayoutContainer) + (layout_count - 1) * sizeof(VkDescriptorSetLayout))));
+        if (!dsl_layouts) {
+            return make_result<Func(), "Not enough memory for Vulkan descriptor set layouts container">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        }
+
+        dsl_layouts->dsl_count = layout_count;
+    }
+
+    // Prepare push constant ranges
+    VkPushConstantRange push_constant_ranges[std::size_t(ShaderStages::Count)];
+    if (desc->push_constant_count > 0) {
+        // Check upper limit
+        if (desc->push_constant_count > static_cast<size_t>(ShaderStages::Count)) {
+            return make_result<Func(), "Exceeded maximum number of Vulkan push constant ranges">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+
+        for (size_t i = 0; i < desc->push_constant_count; ++i) {
+            auto& src = desc->push_constants[i];
+            auto& dst = push_constant_ranges[i];
+
+            // Check size limit
+            if (src.size_bytes > device.device_header->header.features.max_push_constant_size) {
+                return make_result<Func(), "Exceeded maximum size of Vulkan push constant range">(VK_ERROR_INITIALIZATION_FAILED);
+            }
+
+            dst.stageFlags = detail::convert_vk(src.stage);
+            dst.offset     = 0; // offset is always 0 for each push constant
+            dst.size       = static_cast<uint32_t>(src.size_bytes);
+        }
+    }
+
+    // Push descriptors
+    if (desc->push_descriptor_count > 0) {
+        wis::span<const WisPushDescriptor> push_descriptors{
+            desc->push_descriptors,
+            desc->push_descriptor_count,
+        };
+        wis::span<VkDescriptorSetLayout> out_dsls{
+            dsl_layouts ? dsl_layouts->vk_dsls : nullptr,
+            layout_count,
+        };
+        auto push_bindings = make_unique<VkDescriptorSetLayoutBinding[]>(desc->push_constant_count);
+
+        for (uint32_t i = 0; i < push_descriptors.size(); i++) {
+            auto& r           = push_descriptors[i];
+            auto& b           = push_bindings[i];
+            b.binding         = i;
+            b.descriptorType  = convert_vk(r.type);
+            b.descriptorCount = 1; // Push descriptors are always single
+            b.stageFlags      = convert_vk(r.stage);
+        }
+        VkDescriptorSetLayoutCreateInfo push_desc_info{
+            .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext        = nullptr,
+            .flags        = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+            .bindingCount = static_cast<uint32_t>(desc->push_descriptor_count),
+            .pBindings    = push_bindings.get(),
+        };
+        auto vr = table.vkCreateDescriptorSetLayout(device.device, &push_desc_info, nullptr, &out_dsls[0]);
+        if (!succeeded(vr)) {
+            return make_result<Func(), "Failed to create Vulkan push descriptor set layout">(vr);
+        }
+    }
+
+    // Create pipeline layout
+    VkPipelineLayoutCreateInfo pipeline_layout_info{
+        .sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+        .setLayoutCount         = layout_count,
+        .pSetLayouts            = dsl_layouts ? dsl_layouts->vk_dsls : nullptr,
+        .pushConstantRangeCount = static_cast<uint32_t>(desc->push_constant_count),
+        .pPushConstantRanges    = push_constant_ranges,
+    };
+    VkPipelineLayout pipeline_layout = VK_NULL_HANDLE;
+    auto             vr              = table.vkCreatePipelineLayout(device.device,
+                                           &pipeline_layout_info,
+                                           nullptr,
+                                           &pipeline_layout);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan pipeline layout">(vr);
+    }
+    // Fill pipeline layout impl
+    layout_impl.layout        = pipeline_layout;
+    layout_impl.device        = device.device;
+    layout_impl.device_header = device.device_header;
+    device.device_header->add_ref(); // hold reference to device header
+    layout_impl.dsl_container = dsl_layouts.release();
+
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineLayout(WisVKPipelineLayout* self)
+{
+    auto& impl = *reinterpret_cast<VKPipelineLayoutImpl*>(self);
+    if (impl.layout != VK_NULL_HANDLE) {
+        auto& table = impl.device_header->header.device_table;
+        table.vkDestroyPipelineLayout(impl.device, impl.layout, nullptr);
+        impl.layout = VK_NULL_HANDLE;
+
+        // Release descriptor set layouts
+        if (impl.dsl_container) {
+            for (std::size_t i = 0; i < impl.dsl_container->dsl_count; ++i) {
+                table.vkDestroyDescriptorSetLayout(impl.device, impl.dsl_container->vk_dsls[i], nullptr);
+            }
+            ::operator delete(impl.dsl_container);
+            impl.dsl_container = nullptr;
+        }
+
+        detail::release_vk_device(impl.device, impl.device_header);
+        impl.device_header = nullptr;
+        impl.device        = VK_NULL_HANDLE;
     }
 }
 #endif // WIS_VK_INSTANCE_CPP

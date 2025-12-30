@@ -67,6 +67,36 @@ typedef enum WisCommandQueueType {
 } WisCommandQueueType;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
+ *
+ * */
+typedef enum WisShaderStages {
+    WisShaderStagesAll           = 0, ///< All shader stages.
+    WisShaderStagesVertex        = 1, ///< Vertex shader stage.
+    WisShaderStagesHull          = 2, ///< Hull/Tessellation control shader stage.
+    WisShaderStagesDomain        = 3, ///< Domain/Tessellation evaluation shader stage.
+    WisShaderStagesGeometry      = 4, ///< Geometry shader stage.
+    WisShaderStagesPixel         = 5, ///< Pixel/Fragment shader stage.
+    WisShaderStagesAmplification = 6, ///< Amplification shader stage.
+    WisShaderStagesMesh          = 7, ///< Mesh shader stage.
+    WisShaderStagesCount         = 8, ///< Number of stages.
+} WisShaderStages;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Type of the descriptor in the descriptor table.
+ *
+ * */
+typedef enum WisDescriptorType {
+    WisDescriptorTypeSampler               = 0, ///< Descriptor is a sampler.
+    WisDescriptorTypeConstantBuffer        = 1, ///< Descriptor is a constant buffer.
+    WisDescriptorTypeTexture               = 2, ///< Descriptor is a texture.
+    WisDescriptorTypeRWTexture             = 3, ///< Descriptor is an unordered access read-write texture.
+    WisDescriptorTypeRWBuffer              = 4, ///< Descriptor is an unordered access read-write buffer.
+    WisDescriptorTypeBuffer                = 5, ///< Descriptor is a shader resource buffer.
+    WisDescriptorTypeAccelerationStructure = 6, ///< Descriptor is an acceleration structure.
+} WisDescriptorType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -128,6 +158,39 @@ typedef struct WisDebugDesc {
     WisDebugCallback callback; ///< defines the debug callback function.
     void*            user_data; ///< user defined data pointer passed to the callback.
 } WisDebugDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.
+ *
+ * */
+typedef struct WisPushConstant {
+    WisShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
+    uint32_t        size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    uint32_t        bind_register; ///< Bind register number in HLSL.
+    uint32_t        bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
+} WisPushConstant;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor. Used to push data directly to pipeline.
+ *
+ * */
+typedef struct WisPushDescriptor {
+    WisShaderStages   stage; ///< Shader stage. Defines the stage where the descriptor is used.
+    WisDescriptorType type; ///< Descriptor type. Works only with buffer bindings.
+} WisPushDescriptor;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Pipeline layout description. Defines resource bindings for shaders.
+ *
+ * */
+typedef struct WisPipelineLayoutDesc {
+    const WisPushConstant*   push_constants; ///< points to an array of WisPushConstant.
+    size_t                   push_constant_count; ///< counts the number of push constants in the `WisPipelineLayoutDesc::push_constants` array.
+    const WisPushDescriptor* push_descriptors; ///< points to an array of WisPushDescriptor.
+    size_t                   push_descriptor_count; ///< counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
+    void*                    reserved; ///< reserved for future use. Must be `nullptr`.
+    size_t                   reserved_size; ///< reserved for future use. Must be `0`.
+} WisPipelineLayoutDesc;
 
 #ifdef __cplusplus
 }

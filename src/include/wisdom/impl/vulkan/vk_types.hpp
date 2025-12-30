@@ -130,6 +130,15 @@ struct VKDeviceFeatures {
     bool dynamic_render_unused_attachments : 1;
     bool push_descriptor                   : 1;
     bool index_buffer_range                : 1;
+
+    // Properties
+    uint32_t max_push_descriptors   = 0;
+    uint32_t max_push_constant_size = 0;
+};
+
+struct VKDescriptorSetLayoutContainer {
+    std::size_t           dsl_count = 0;
+    VkDescriptorSetLayout vk_dsls[1];
 };
 
 struct VKDeviceHeader {
@@ -186,6 +195,13 @@ struct VKFenceImpl {
 struct VKResourceAllocatorImpl {
     // Using Vulkan Memory Allocator (VMA)
     VmaAllocator                           allocator;
+    VkDevice                               device;
+    detail::control_block<VKDeviceHeader>* device_header;
+};
+
+struct VKPipelineLayoutImpl {
+    VkPipelineLayout                       layout;
+    VKDescriptorSetLayoutContainer*        dsl_container;
     VkDevice                               device;
     detail::control_block<VKDeviceHeader>* device_header;
 };

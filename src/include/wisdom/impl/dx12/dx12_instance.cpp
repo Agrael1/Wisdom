@@ -89,6 +89,33 @@ public:
     uint64_t          device    = 0;
     WisDebugCallback  callback;
 };
+
+inline D3D12_ROOT_PARAMETER_TYPE dx12_root_parameter_type(WisDescriptorType type) noexcept
+{
+    switch (type) {
+    case WisDescriptorTypeConstantBuffer:
+        return D3D12_ROOT_PARAMETER_TYPE_CBV;
+    default:
+    case WisDescriptorTypeBuffer:
+    case WisDescriptorTypeAccelerationStructure:
+        return D3D12_ROOT_PARAMETER_TYPE_SRV;
+    case WisDescriptorTypeRWBuffer:
+        return D3D12_ROOT_PARAMETER_TYPE_UAV;
+    }
+}
+inline bool dx12_is_pushable(WisDescriptorType type) noexcept
+{
+    switch (type) {
+    case WisDescriptorTypeBuffer:
+    case WisDescriptorTypeConstantBuffer:
+    case WisDescriptorTypeRWBuffer:
+    case WisDescriptorTypeAccelerationStructure:
+        return true;
+    default:
+        return false;
+    }
+}
+
 } // namespace detail
 } // namespace wis
 
@@ -348,7 +375,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12Device*  self,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12Device* self,
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
@@ -380,8 +407,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* sel
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12Device* self,
-                                                                 WisCommandQueueType type,
-                                                                 WisDX12CommandList* list)
+                                                                 WisCommandQueueType  type,
+                                                                 WisDX12CommandList*  list)
 {
     WisResult result   = dx_success;
     auto&     device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
@@ -410,8 +437,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
-                                                           uint64_t       initial_value,
-                                                           WisDX12Fence*  fence)
+                                                           uint64_t             initial_value,
+                                                           WisDX12Fence*        fence)
 {
     WisResult            result   = dx_success;
     auto&                device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
@@ -445,7 +472,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*       self,
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*      self,
                                                                        WisDX12ResourceAllocator* allocator)
 {
     WisResult res            = dx_success;
@@ -474,6 +501,108 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllo
         impl.allocator->Release();
         impl.allocator = nullptr;
     }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX12Device*         self,
+                                                                    const WisPipelineLayoutDesc* desc,
+                                                                    WisDX12PipelineLayout*       layout)
+{
+    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    WisResult res    = dx_success;
+
+    // https://learn.microsoft.com/en-us/windows/win32/direct3d12/root-signature-limits
+    static constexpr std::size_t max_root_parameters = 64;
+
+    // Check limits
+    if (desc->push_constant_count + 2 * desc->push_descriptor_count > max_root_parameters) {
+        return make_result<Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG);
+    }
+
+    D3D12_ROOT_PARAMETER1                        root_parameters[max_root_parameters];
+    std::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> static_samplers;
+
+    std::size_t num_root_parameters = desc->push_constant_count + desc->push_descriptor_count;
+    std::size_t offset_parameters   = 0;
+
+    // push constants
+    for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
+        root_parameters[i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+        root_parameters[i].Constants     = {
+                .ShaderRegister = static_cast<UINT>(desc->push_constants[i].bind_register),
+                .RegisterSpace  = static_cast<UINT>(desc->push_constants[i].bind_space),
+                .Num32BitValues = static_cast<UINT>(desc->push_constants[i].size_bytes / 4),
+        };
+        root_parameters[i].ShaderVisibility = detail::convert_dx(desc->push_constants[i].stage);
+    }
+    offset_parameters += desc->push_constant_count;
+
+    // push descriptors
+    for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
+        auto& param = root_parameters[offset_parameters + i];
+        auto& src   = desc->push_descriptors[i];
+
+        if (!detail::dx12_is_pushable(src.type)) {
+            return make_result<Func(), "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
+        }
+
+        param.ParameterType = detail::dx12_root_parameter_type(src.type);
+        param.Descriptor    = {
+               .ShaderRegister = static_cast<UINT>(i),
+               .RegisterSpace  = 0u
+        };
+        param.ShaderVisibility = detail::convert_dx(desc->push_descriptors[i].stage);
+    }
+
+    // TODO: static samplers
+
+    // TODO: tables
+
+    D3D12_VERSIONED_ROOT_SIGNATURE_DESC rsig_desc{
+        .Version  = D3D_ROOT_SIGNATURE_VERSION_1_1,
+        .Desc_1_1 = {
+                     .NumParameters = static_cast<UINT>(num_root_parameters),
+                     .pParameters   = root_parameters,
+                     .Flags         = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
+                     },
+    };
+
+    wis::com_ptr<ID3DBlob> signature;
+    wis::com_ptr<ID3DBlob> error;
+    HRESULT                hr = D3D12SerializeVersionedRootSignature(&rsig_desc, signature.put(), error.put());
+
+    // Check for serialization errors
+    if (!succeeded(hr)) {
+        // If error blob is available, include its message into debug output
+#ifdef _DEBUG
+        if (error) {
+            OutputDebugStringA(reinterpret_cast<const char*>(error->GetBufferPointer()));
+        }
+#endif
+
+        return make_result<Func(), "Failed to serialize root signature">(hr);
+    }
+
+    wis::com_ptr<ID3D12RootSignature> root_signature;
+    hr = device.device->CreateRootSignature(0,
+                                            signature->GetBufferPointer(),
+                                            signature->GetBufferSize(),
+                                            IID_ID3D12RootSignature,
+                                            root_signature.put_void_unchecked());
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create root signature">(hr);
+    }
+
+    auto& layout_impl          = *reinterpret_cast<DX12PipelineLayoutImpl*>(layout);
+    layout_impl.root_signature = root_signature.detach();
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineLayout(WisDX12PipelineLayout* self)
+{
+    auto& impl = *reinterpret_cast<DX12PipelineLayoutImpl*>(self);
+    safe_release(impl.root_signature);
 }
 
 #endif // !WIS_DX12_INSTANCE_CPP
