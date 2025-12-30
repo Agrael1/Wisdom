@@ -10,7 +10,7 @@
  * Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisVKPipelineLayout,4);
+ * WIS_DEFINE_HANDLE(WisVKPipelineLayout,5);
  * ```
  * DX12 Version:
  * ```c

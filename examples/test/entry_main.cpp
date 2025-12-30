@@ -30,11 +30,11 @@ void log_callback(wis::Severity severity, const char* message, uint64_t device, 
 // Entry point for testing
 int main()
 {
-    wis::Result result;
+    wis::Result    result;
     wis::DebugDesc debug_desc;
-    debug_desc.debug_layer = true;
-    debug_desc.callback    = log_callback;
-    debug_desc.user_data   = nullptr;
+    debug_desc.enable_debug_layer = true;
+    debug_desc.callback           = log_callback;
+    debug_desc.user_data          = nullptr;
 
     wis::Instance instance = wis::CreateInstance(&debug_desc, {}, result);
     if (result.status != wis::Status::Ok) {
@@ -98,8 +98,12 @@ int main()
         {  wis::ShaderStages::Pixel, 32, 0, 0 },
     };
     wis::PushDescriptor push_descriptors[] = {
-        { wis::ShaderStages::Vertex, wis::DescriptorType::ConstantBuffer },
-        { wis::ShaderStages::Pixel, wis::DescriptorType::Buffer },
+        { wis::ShaderStages::Vertex,
+         wis::DescriptorType::ConstantBuffer,
+         1 },
+        {  wis::ShaderStages::Pixel,
+         wis::DescriptorType::Buffer,
+         2 },
     };
 
     wis::PipelineLayoutDesc pipeline_layout_desc;

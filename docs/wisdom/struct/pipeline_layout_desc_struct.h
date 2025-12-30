@@ -11,12 +11,14 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisPipelineLayoutDesc {
- *     const WisPushConstant*   push_constants;
- *     size_t                   push_constant_count;
- *     const WisPushDescriptor* push_descriptors;
- *     size_t                   push_descriptor_count;
- *     void*                    reserved;
- *     size_t                   reserved_size;
+ *     const WisPushConstant*      push_constants;
+ *     size_t                      push_constant_count;
+ *     const WisPushDescriptor*    push_descriptors;
+ *     size_t                      push_descriptor_count;
+ *     const WisStaticSamplerDesc* static_samplers;
+ *     size_t                      static_sampler_count;
+ *     void*                       reserved;
+ *     size_t                      reserved_size;
  * } WisPipelineLayoutDesc;
  * 
  * ```
@@ -25,10 +27,11 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  PipelineLayoutDesc {
- *     wis::span<const wis::PushConstant>   push_constants;
- *     wis::span<const wis::PushDescriptor> push_descriptors;
- *     void*                                reserved;
- *     std::size_t                          reserved_size;
+ *     wis::span<const wis::PushConstant>      push_constants;
+ *     wis::span<const wis::PushDescriptor>    push_descriptors;
+ *     wis::span<const wis::StaticSamplerDesc> static_samplers;
+ *     void*                                   reserved;
+ *     std::size_t                             reserved_size;
  * };
  * }
  * ```
@@ -41,6 +44,8 @@
  * - `push_constant_count` counts the number of push constants in the `WisPipelineLayoutDesc::push_constants` array.
  * - `push_descriptors` points to an array of WisPushDescriptor.
  * - `push_descriptor_count` counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
+ * - `static_samplers` points to an array of WisStaticSamplerDesc.
+ * - `static_sampler_count` counts the number of static samplers in the `WisPipelineLayoutDesc::static_samplers` array.
  * - `reserved` reserved for future use. Must be `nullptr`.
  * - `reserved_size` reserved for future use. Must be `0`.
  * \endcond

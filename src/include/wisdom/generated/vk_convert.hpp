@@ -11,7 +11,7 @@
 namespace wis {
 namespace detail {
 
-inline VkShaderStageFlagBits convert_vk(WisShaderStages value) noexcept
+inline VkShaderStageFlags convert_vk(WisShaderStages value) noexcept
 {
     switch (value) {
     case WisShaderStagesAll:
@@ -31,7 +31,7 @@ inline VkShaderStageFlagBits convert_vk(WisShaderStages value) noexcept
     case WisShaderStagesMesh:
         return VK_SHADER_STAGE_MESH_BIT_EXT;
     default:
-        return static_cast<VkShaderStageFlagBits>(value);
+        return static_cast<VkShaderStageFlags>(value);
     }
 }
 
@@ -55,6 +55,82 @@ inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
     default:
         return static_cast<VkDescriptorType>(value);
     }
+}
+
+inline VkCompareOp convert_vk(WisCompareOperation value) noexcept
+{
+    switch (value) {
+    case WisCompareOperationNone:
+        return VK_COMPARE_OP_NEVER;
+    case WisCompareOperationNever:
+        return VK_COMPARE_OP_NEVER;
+    case WisCompareOperationLess:
+        return VK_COMPARE_OP_LESS;
+    case WisCompareOperationEqual:
+        return VK_COMPARE_OP_EQUAL;
+    case WisCompareOperationLessEqual:
+        return VK_COMPARE_OP_LESS_OR_EQUAL;
+    case WisCompareOperationGreater:
+        return VK_COMPARE_OP_GREATER;
+    case WisCompareOperationNotEqual:
+        return VK_COMPARE_OP_NOT_EQUAL;
+    case WisCompareOperationGreaterEqual:
+        return VK_COMPARE_OP_GREATER_OR_EQUAL;
+    case WisCompareOperationAlways:
+        return VK_COMPARE_OP_ALWAYS;
+    default:
+        return static_cast<VkCompareOp>(value);
+    }
+}
+
+inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
+{
+    switch (value) {
+    case WisAddressModeRepeat:
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case WisAddressModeMirroredRepeat:
+        return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case WisAddressModeClampToEdge:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case WisAddressModeClampToBorder:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    case WisAddressModeMirrorClampToEdge:
+        return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+    default:
+        return static_cast<VkSamplerAddressMode>(value);
+    }
+}
+
+inline VkFilter convert_vk(WisFilter value) noexcept
+{
+    switch (value) {
+    case WisFilterPoint:
+        return VK_FILTER_NEAREST;
+    case WisFilterLinear:
+        return VK_FILTER_LINEAR;
+    default:
+        return static_cast<VkFilter>(value);
+    }
+}
+
+inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
+{
+    switch (value) {
+    case WisStaticBorderTransparentBlack:
+        return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+    case WisStaticBorderOpaqueBlack:
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+    case WisStaticBorderOpaqueWhite:
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    default:
+        return static_cast<VkBorderColor>(value);
+    }
+}
+
+inline VkSamplerCreateFlags convert_vk(WisSamplerFlags value) noexcept
+{
+    VkSamplerCreateFlags result = static_cast<VkSamplerCreateFlags>(0);
+    return result;
 }
 
 } // namespace detail

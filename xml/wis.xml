@@ -7,7 +7,7 @@
 
 	<handles>
 		<handle name="PipelineLayout" version="0.7.0" doc="Class representing a pipeline layout, which defines resource bindings for shaders.">
-			<impl for="vk" size="4"/>
+			<impl for="vk" size="5"/>
 			<impl for="dx" size="1"/>
 		</handle>
 		<handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">

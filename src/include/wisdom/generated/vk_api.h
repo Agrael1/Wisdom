@@ -10,7 +10,7 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKPipelineLayout, 4);
+WIS_DEFINE_HANDLE(WisVKPipelineLayout, 5);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.

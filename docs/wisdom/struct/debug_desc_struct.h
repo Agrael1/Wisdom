@@ -11,7 +11,7 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisDebugDesc {
- *     bool             debug_layer;
+ *     bool             enable_debug_layer;
  *     WisDebugCallback callback;
  *     void*            user_data;
  * } WisDebugDesc;
@@ -22,7 +22,7 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  DebugDesc {
- *     bool               debug_layer;
+ *     bool               enable_debug_layer;
  *     wis::DebugCallback callback;
  *     void*              user_data;
  * };
@@ -33,7 +33,7 @@
  * @section WisDebugDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `debug_layer` enables or disables debug layer on both DX12 and VK backends.
+ * - `enable_debug_layer` enables or disables debug layer on both DX12 and VK backends.
  * - `callback` defines the debug callback function.
  * - `user_data` user defined data pointer passed to the callback.
  * \endcond

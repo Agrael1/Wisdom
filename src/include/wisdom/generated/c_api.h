@@ -97,6 +97,54 @@ typedef enum WisDescriptorType {
 } WisDescriptorType;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Comparison function for depth and stencil operations.
+ *
+ * */
+typedef enum WisCompareOperation {
+    WisCompareOperationNone         = 0, ///< No comparison.
+    WisCompareOperationNever        = 1, ///< Always fail the comparison.
+    WisCompareOperationLess         = 2, ///< Pass the comparison if the source value is less than the destination value.
+    WisCompareOperationEqual        = 3, ///< Pass the comparison if the source value is equal to the destination value.
+    WisCompareOperationLessEqual    = 4, ///< Pass the comparison if the source value is less than or equal to the destination value.
+    WisCompareOperationGreater      = 5, ///< Pass the comparison if the source value is greater than the destination value.
+    WisCompareOperationNotEqual     = 6, ///< Pass the comparison if the source value is not equal to the destination value.
+    WisCompareOperationGreaterEqual = 7, ///< Pass the comparison if the source value is greater than or equal to the destination value.
+    WisCompareOperationAlways       = 8, ///< Always pass the comparison.
+} WisCompareOperation;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Address mode for texture sampling.
+ *
+ * */
+typedef enum WisAddressMode {
+    WisAddressModeRepeat            = 0, ///< Repeat the texture.
+    WisAddressModeMirroredRepeat    = 1, ///< Repeat the texture with mirroring.
+    WisAddressModeClampToEdge       = 2, ///< Clamp the texture to the edge.
+    WisAddressModeClampToBorder     = 3, ///< Clamp the texture to the border.
+    WisAddressModeMirrorClampToEdge = 4, ///< Mirror and clamp the texture to the edge.
+} WisAddressMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Filtering mode for texture sampling.
+ *
+ * */
+typedef enum WisFilter {
+    WisFilterPoint  = 0, ///< Nearest neighbor filtering.
+    WisFilterLinear = 1, ///< Linear filtering.
+} WisFilter;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Predefined static border colors for samplers. Used when address mode is set to Border.
+ *
+ * */
+typedef enum WisStaticBorder {
+    WisStaticBorderTransparentBlack = 0, ///< Transparent black border color.
+    WisStaticBorderOpaqueBlack      = 1, ///< Opaque black border color.
+    WisStaticBorderOpaqueWhite      = 2, ///< Opaque white border color.
+    WisStaticBorderCustom           = 3, ///< Custom border color defined by the user.
+} WisStaticBorder;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -105,6 +153,15 @@ typedef enum WisAdapterFlags {
     WisAdapterFlagsRemote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
     WisAdapterFlagsSoftware = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
 } WisAdapterFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
+ *
+ * */
+typedef enum WisSamplerFlags {
+    WisSamplerFlagsNone                     = 0, ///< No flags set.
+    WisSamplerFlagsNonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
+} WisSamplerFlags;
 
 //==============================================================
 // Delegates
@@ -154,10 +211,42 @@ typedef struct WisAdapterDesc {
  *
  * */
 typedef struct WisDebugDesc {
-    bool             debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
+    bool             enable_debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
     WisDebugCallback callback; ///< defines the debug callback function.
     void*            user_data; ///< user defined data pointer passed to the callback.
 } WisDebugDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.
+ *
+ * */
+typedef struct WisSamplerDesc {
+    WisFilter           min_filter; ///< Minification filter.
+    WisFilter           mag_filter; ///< Magnification filter.
+    WisFilter           mip_filter; ///< Mip level filter.
+    bool                is_anisotropic; ///< Anisotropic filtering enable.
+    uint32_t            max_anisotropy; ///< Max anisotropy level. Max is 16.
+    WisAddressMode      address_u; ///< Address mode for U coordinate.
+    WisAddressMode      address_v; ///< Address mode for V coordinate.
+    WisAddressMode      address_w; ///< Address mode for W coordinate.
+    float               min_lod; ///< Min LOD value.
+    float               max_lod; ///< Max LOD value.
+    float               mip_lod_bias; ///< Mip LOD bias value.
+    WisCompareOperation comparison_op; ///< Comparison operation for comparison samplers.
+    WisStaticBorder     static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
+    float               border_color[4]; ///< Border color. Used if any address mode is set to wis::AddressMode and static_border_color is set to `WisStaticBorderCustom`.
+    WisSamplerFlags     flags; ///< Sampler flags. Used to set additional sampler options.
+} WisSamplerDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Static sampler description for WisPipelineLayout creation.
+ *
+ * */
+typedef struct WisStaticSamplerDesc {
+    WisSamplerDesc  sampler; ///< Sampler description.
+    WisShaderStages stage; ///< Shader stage. Defines the stage where the sampler is used.
+    uint32_t        bind_register; ///< Bind register number in HLSL.
+} WisStaticSamplerDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.
@@ -177,6 +266,7 @@ typedef struct WisPushConstant {
 typedef struct WisPushDescriptor {
     WisShaderStages   stage; ///< Shader stage. Defines the stage where the descriptor is used.
     WisDescriptorType type; ///< Descriptor type. Works only with buffer bindings.
+    uint32_t          bind_register; ///< Bind register number in HLSL.
 } WisPushDescriptor;
 
 /**
@@ -184,12 +274,14 @@ typedef struct WisPushDescriptor {
  *
  * */
 typedef struct WisPipelineLayoutDesc {
-    const WisPushConstant*   push_constants; ///< points to an array of WisPushConstant.
-    size_t                   push_constant_count; ///< counts the number of push constants in the `WisPipelineLayoutDesc::push_constants` array.
-    const WisPushDescriptor* push_descriptors; ///< points to an array of WisPushDescriptor.
-    size_t                   push_descriptor_count; ///< counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
-    void*                    reserved; ///< reserved for future use. Must be `nullptr`.
-    size_t                   reserved_size; ///< reserved for future use. Must be `0`.
+    const WisPushConstant*      push_constants; ///< points to an array of WisPushConstant.
+    size_t                      push_constant_count; ///< counts the number of push constants in the `WisPipelineLayoutDesc::push_constants` array.
+    const WisPushDescriptor*    push_descriptors; ///< points to an array of WisPushDescriptor.
+    size_t                      push_descriptor_count; ///< counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
+    const WisStaticSamplerDesc* static_samplers; ///< points to an array of WisStaticSamplerDesc.
+    size_t                      static_sampler_count; ///< counts the number of static samplers in the `WisPipelineLayoutDesc::static_samplers` array.
+    void*                       reserved; ///< reserved for future use. Must be `nullptr`.
+    size_t                      reserved_size; ///< reserved for future use. Must be `0`.
 } WisPipelineLayoutDesc;
 
 #ifdef __cplusplus
