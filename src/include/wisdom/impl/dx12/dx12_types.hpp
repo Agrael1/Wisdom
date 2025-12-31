@@ -82,6 +82,8 @@ private:
 
     static WisResult Init(void* self, const impl::DX12InstanceImpl& instance) noexcept
     {
+        (void)self;
+        (void)instance;
         return {};
     }
 
@@ -111,15 +113,6 @@ struct DX12InstanceExtensionImpl : public DX12InstanceExtensionHeader, public Im
         return reinterpret_cast<T*>(self)->Init(instance);
     }
 };
-
-struct DX12TestExtension : public DX12InstanceExtensionImpl<DX12TestExtension> {
-    WisResult Init(const impl::DX12InstanceImpl& instance) noexcept
-    {
-        // Test extension initialization logic
-        return WisResult{ WisStatus::WisStatusOk, 0, "DX12TestExtension initialized successfully." };
-    }
-};
-
 } // namespace wis
 
 // Include implementation if header only build

@@ -264,10 +264,13 @@ public:
     WisResult Init(const impl::VKInstanceImpl&         instance_impl,
                    const VKInstanceExtensionCollector& collector) noexcept
     {
+        (void)instance_impl;
+        (void)collector;
         return {};
     }
     WisResult CollectInfo(VKInstanceExtensionCollector& collector) noexcept
     {
+        (void)collector;
         return {};
     }
 };
@@ -297,10 +300,13 @@ public:
     WisResult Init(const impl::VKDeviceImpl&         device_impl,
                    const VKDeviceExtensionCollector& collector) noexcept
     {
+        (void)device_impl;
+        (void)collector;
         return {};
     }
     WisResult CollectInfo(VKDeviceExtensionCollector& collector) noexcept
     {
+        (void)collector;
         return {};
     }
 };

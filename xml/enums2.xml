@@ -211,7 +211,6 @@
 		
 		<type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
 			<impl_type for="dx" name="D3D12_SAMPLER_FLAGS"/>
-			<impl_type for="vk" name="VkSamplerCreateFlags"/>
 			<value name="None" value="0" doc="No flags set."/>
 			<value name="NonNormalizedCoordinates" bit="0" doc="Use non-normalized texture coordinates.">
 				<impl name="dx" value="D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES"/>

@@ -127,12 +127,6 @@ inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
     }
 }
 
-inline VkSamplerCreateFlags convert_vk(WisSamplerFlags value) noexcept
-{
-    VkSamplerCreateFlags result = static_cast<VkSamplerCreateFlags>(0);
-    return result;
-}
-
 } // namespace detail
 } // namespace wis
 #endif // WISDOM_VK_CONVERT_HPP

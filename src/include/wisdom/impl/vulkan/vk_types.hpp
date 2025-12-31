@@ -72,6 +72,7 @@ public:
             VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) const
     {
+        (void)messageTypes; // Unused
         WisSeverity wis_severity = WisSeverityInfo;
         switch (messageSeverity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:

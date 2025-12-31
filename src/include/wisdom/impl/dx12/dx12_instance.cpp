@@ -23,8 +23,9 @@ public:
                         WisDebugCallback  in_callback,
                         void*             in_user_data) noexcept
         : info_queue(in_info_queue)
-        , callback(in_callback)
         , user_data(in_user_data)
+        , device(device)
+        , callback(in_callback)
     {
         if (info_queue) {
             auto hr = info_queue->RegisterMessageCallback(DX12CallbackThunk,
@@ -57,7 +58,8 @@ private:
                       D3D12_MESSAGE_ID       id,
                       LPCSTR                 pDescription) const
     {
-
+        (void)category;
+        (void)id;
         WisSeverity wis_severity = WisSeverityInfo;
         switch (severity) {
         case D3D12_MESSAGE_SEVERITY_CORRUPTION:
@@ -161,7 +163,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<DX12InstanceExtensionHeader*>(ext);
         if (table) {
-            auto xres = table->CallInit(ext, impl);
+            res = table->CallInit(ext, impl);
             if (res.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
@@ -277,11 +279,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX1
     }
 
     *desc = WisAdapterDesc{
+        .description            = {},
         .vendor_id              = adapter_desc.VendorId,
         .device_id              = adapter_desc.DeviceId,
         .dedicated_video_memory = static_cast<uint64_t>(adapter_desc.DedicatedVideoMemory),
         .shared_system_memory   = static_cast<uint64_t>(adapter_desc.SharedSystemMemory),
         .adapter_id             = *reinterpret_cast<uint64_t*>(&adapter_desc.AdapterLuid),
+        .adapter_uuid           = {},
         .flags                  = WisAdapterFlags(adapter_desc.Flags),
     };
 
@@ -330,7 +334,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
 
     // Bind debug callback if available
     if (impl.debug_layer && impl.debug_layer->callback) {
-        DWORD                     debug_cookie = 0;
         com_ptr<ID3D12InfoQueue1> info_queue;
         auto                      hr2 = device_ref->QueryInterface(IID_ID3D12InfoQueue1, reinterpret_cast<void**>(info_queue.put_void_unchecked()));
         if (succeeded(hr2)) {
@@ -386,6 +389,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
     D3D12_COMMAND_QUEUE_DESC desc{
         .Type     = convert_dx(type),
         .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 0,
     };
 
     com_ptr<ID3D12CommandQueue> out_queue;
@@ -548,7 +553,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         param.ParameterType = detail::dx12_root_parameter_type(src.type);
         param.Descriptor    = {
                .ShaderRegister = src.bind_register,
-               .RegisterSpace  = descriptor_space
+               .RegisterSpace  = descriptor_space,
+               .Flags          = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
         };
         param.ShaderVisibility = detail::convert_dx(desc->push_descriptors[i].stage);
     }
