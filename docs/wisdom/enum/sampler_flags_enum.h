@@ -31,7 +31,7 @@
  * \cond WIS_GEN_DESC
  * Flags for sampler creation.
  * 
- * \note Translates to DirectX 12 as D3D12_SAMPLER_FLAGS, Vulkan as VkSamplerCreateFlags.
+ * \note Translates to DirectX 12 as D3D12_SAMPLER_FLAGS.
  * Values:
  * - `WisSamplerFlagsNone = 0`: No flags set.
  * - `WisSamplerFlagsNonNormalizedCoordinates = (1 << 0)`: Use non-normalized texture coordinates.

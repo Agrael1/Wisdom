@@ -314,6 +314,7 @@ detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, VKMainDevice&
     if (current_pool_index < pool_count) {
         VkDescriptorSetAllocateInfo alloc_info{
             .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            .pNext              = nullptr,
             .descriptorPool     = pools[current_pool_index],
             .descriptorSetCount = 1,
             .pSetLayouts        = &dsl,
@@ -328,6 +329,7 @@ detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, VKMainDevice&
     for (std::uint32_t i = 0; i < pool_count; ++i) {
         VkDescriptorSetAllocateInfo alloc_info{
             .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+            .pNext              = nullptr,
             .descriptorPool     = pools[i],
             .descriptorSetCount = 1,
             .pSetLayouts        = &dsl,
@@ -347,6 +349,7 @@ detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, VKMainDevice&
         };
         VkDescriptorPoolCreateInfo pool_info{
             .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+            .pNext         = nullptr,
             .flags         = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
             .maxSets       = static_sampler_chunk_size,
             .poolSizeCount = 1,
@@ -360,6 +363,7 @@ detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, VKMainDevice&
             // Allocate from new pool
             VkDescriptorSetAllocateInfo alloc_info{
                 .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+                .pNext              = nullptr,
                 .descriptorPool     = pools[current_pool_index],
                 .descriptorSetCount = 1,
                 .pSetLayouts        = &dsl,
