@@ -57,10 +57,8 @@ constexpr inline bool succeeded(HRESULT hr) noexcept
 template<typename T>
 constexpr inline void safe_release(T*& ptr) noexcept
 {
-    if (ptr) {
-        ptr->Release();
-        ptr = nullptr;
-    }
+    ptr->Release();
+    ptr = nullptr;
 }
 template<typename T>
 constexpr inline void safe_release_array(T** ptr, std::size_t size) noexcept

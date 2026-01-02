@@ -31,7 +31,7 @@ inline VkShaderStageFlags convert_vk(WisShaderStages value) noexcept
     case WisShaderStagesMesh:
         return VK_SHADER_STAGE_MESH_BIT_EXT;
     default:
-        return static_cast<VkShaderStageFlags>(value);
+        return VK_SHADER_STAGE_ALL;
     }
 }
 
@@ -53,7 +53,7 @@ inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
     case WisDescriptorTypeAccelerationStructure:
         return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     default:
-        return static_cast<VkDescriptorType>(value);
+        return VK_DESCRIPTOR_TYPE_MAX_ENUM;
     }
 }
 
@@ -79,7 +79,7 @@ inline VkCompareOp convert_vk(WisCompareOperation value) noexcept
     case WisCompareOperationAlways:
         return VK_COMPARE_OP_ALWAYS;
     default:
-        return static_cast<VkCompareOp>(value);
+        return VK_COMPARE_OP_NEVER;
     }
 }
 
@@ -97,7 +97,7 @@ inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
     case WisAddressModeMirrorClampToEdge:
         return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
     default:
-        return static_cast<VkSamplerAddressMode>(value);
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
     }
 }
 
@@ -109,7 +109,7 @@ inline VkFilter convert_vk(WisFilter value) noexcept
     case WisFilterLinear:
         return VK_FILTER_LINEAR;
     default:
-        return static_cast<VkFilter>(value);
+        return VK_FILTER_NEAREST;
     }
 }
 
@@ -123,7 +123,7 @@ inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
     case WisStaticBorderOpaqueWhite:
         return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     default:
-        return static_cast<VkBorderColor>(value);
+        return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     }
 }
 

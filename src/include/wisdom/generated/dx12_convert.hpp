@@ -31,7 +31,7 @@ inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
     case WisCommandQueueTypeVideoEncode:
         return D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE;
     default:
-        return static_cast<D3D12_COMMAND_LIST_TYPE>(value);
+        return static_cast<D3D12_COMMAND_LIST_TYPE>(0);
     }
 }
 
@@ -58,7 +58,7 @@ inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
     case WisDescriptorTypeAccelerationStructure:
         return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     default:
-        return static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(value);
+        return static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(0);
     }
 }
 
@@ -81,7 +81,7 @@ inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noexcept
     case WisAddressModeMirrorClampToEdge:
         return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
     default:
-        return static_cast<D3D12_TEXTURE_ADDRESS_MODE>(value);
+        return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
     }
 }
 
@@ -93,7 +93,7 @@ inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
     case WisFilterLinear:
         return D3D12_FILTER_TYPE_LINEAR;
     default:
-        return static_cast<D3D12_FILTER_TYPE>(value);
+        return D3D12_FILTER_TYPE_POINT;
     }
 }
 
@@ -107,7 +107,7 @@ inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
     case WisStaticBorderOpaqueWhite:
         return D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
     default:
-        return static_cast<D3D12_STATIC_BORDER_COLOR>(value);
+        return D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
     }
 }
 

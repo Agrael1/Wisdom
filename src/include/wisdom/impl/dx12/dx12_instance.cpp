@@ -127,10 +127,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
                                                         size_t                           extension_count,
                                                         WisDX12Instance*                 instance)
 {
-    WisResult res = dx_success;
-    // Instance can come as partially constructed from C side
-    auto& impl = *reinterpret_cast<DX12InstanceImpl*>(instance);
-
+    WisResult              res = dx_success;
     com_ptr<IDXGIFactory6> ref;
     uint32_t               debug_layer = debug_desc && debug_desc->enable_debug_layer;
 
@@ -143,6 +140,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     }
 
     // Create and setup debug layer if requested
+    auto& impl = *new (instance) DX12InstanceImpl();
     if (debug_layer) {
         com_ptr<ID3D12Debug> debug_controller;
         auto                 hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
@@ -177,6 +175,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 {
     auto& impl = *reinterpret_cast<DX12InstanceImpl*>(self);
+    if (!impl.factory) {
+        return;
+    }
+
     safe_release(impl.factory);
     safe_release(impl.debug_layer);
 }
@@ -186,12 +188,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
                                                                WisAdapterPreference   preference,
                                                                WisDX12AdapterQuery*   query)
 {
-    WisResult res = dx_success;
-    // Query can come as partially constructed from C side
-    auto& impl            = *reinterpret_cast<DX12AdapterQueryImpl*>(query);
-    impl.physical_devices = nullptr;
-    impl.adapter_count    = 0;
-
+    WisResult              res           = dx_success;
     auto&                  instance_impl = *reinterpret_cast<const DX12InstanceImpl*>(self);
     com_ptr<IDXGIFactory6> factory_ref{ instance_impl.factory }; // hold a reference
 
@@ -236,6 +233,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
             adapters = std::move(new_adapters);
         }
     }
+
+    auto& impl            = *new (query) DX12AdapterQueryImpl();
     impl.physical_devices = adapters.release();
     impl.adapter_count    = count;
     impl.factory          = factory_ref.detach(); // transfer ownership
@@ -250,6 +249,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self)
 {
     auto& impl = *reinterpret_cast<DX12AdapterQueryImpl*>(self);
+    if (!impl.physical_devices) {
+        return;
+    }
+
     safe_release_array(impl.physical_devices, impl.adapter_count);
     delete[] impl.physical_devices;
     safe_release(impl.debug_layer);
@@ -351,7 +354,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
         }
     }
 
-    auto& device_impl           = *reinterpret_cast<DX12DeviceImpl*>(device);
+    auto& device_impl           = *new (device) DX12DeviceImpl();
     device_impl.device          = device_ref.detach();
     device_impl.physical_device = impl.physical_devices[index];
     device_impl.factory         = impl.factory;
@@ -372,6 +375,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 {
     auto& impl = *reinterpret_cast<DX12DeviceImpl*>(self);
+    if (!impl.device) {
+        return;
+    }
+
     safe_release(impl.device);
     safe_release(impl.physical_device);
     safe_release(impl.factory);
@@ -382,9 +389,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
-    WisResult result   = dx_success;
-    auto&     device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    auto&     internal = *reinterpret_cast<DX12CommandQueueImpl*>(queue);
+    WisResult result = dx_success;
+    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
 
     D3D12_COMMAND_QUEUE_DESC desc{
         .Type     = convert_dx(type),
@@ -399,6 +405,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
     if (!succeeded(hr)) {
         return make_result<Func(), "Failed to create command queue">(hr);
     }
+
+    auto& internal = *new (queue) DX12CommandQueueImpl();
     internal.queue = out_queue.detach();
     return result;
 }
@@ -407,6 +415,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self)
 {
     auto& impl = *reinterpret_cast<DX12CommandQueueImpl*>(self);
+    if (!impl.queue) {
+        return;
+    }
     safe_release(impl.queue);
 }
 
@@ -415,9 +426,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12De
                                                                  WisCommandQueueType  type,
                                                                  WisDX12CommandList*  list)
 {
-    WisResult result   = dx_success;
-    auto&     device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    auto&     internal = *reinterpret_cast<DX12CommandListImpl*>(list);
+    WisResult result = dx_success;
+    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
 
     com_ptr<ID3D12GraphicsCommandList7> command_list;
 
@@ -429,7 +439,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12De
     if (!succeeded(hr)) {
         return make_result<Func(), "Failed to create command list">(hr);
     }
-    internal.list = command_list.detach();
+
+    auto& internal = *new (list) DX12CommandListImpl();
+    internal.list  = command_list.detach();
     return result;
 }
 
@@ -437,6 +449,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12De
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 {
     auto& impl = *reinterpret_cast<DX12CommandListImpl*>(self);
+    if (!impl.list) {
+        return;
+    }
+
     safe_release(impl.list);
 }
 
@@ -445,9 +461,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
                                                            uint64_t             initial_value,
                                                            WisDX12Fence*        fence)
 {
-    WisResult            result   = dx_success;
-    auto&                device   = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    auto&                internal = *reinterpret_cast<DX12FenceImpl*>(fence);
+    WisResult            result = dx_success;
+    auto&                device = *reinterpret_cast<const DX12DeviceImpl*>(self);
     com_ptr<ID3D12Fence> out_fence;
     auto                 hr = device.device->CreateFence(initial_value,
                                          D3D12_FENCE_FLAG_NONE,
@@ -463,6 +478,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
         return make_result<Func(), "Failed to create fence event handle">(HRESULT_FROM_WIN32(GetLastError()));
     }
 
+    auto& internal = *new (fence) DX12FenceImpl();
     internal.fence = out_fence.detach();
     internal.event = event_handle;
     return result;
@@ -472,6 +488,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
 {
     auto& impl = *reinterpret_cast<DX12FenceImpl*>(self);
+    if (!impl.fence) {
+        return;
+    }
+
     safe_release(impl.fence);
     CloseHandle(impl.event);
 }
@@ -480,9 +500,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
 WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*      self,
                                                                        WisDX12ResourceAllocator* allocator)
 {
-    WisResult res            = dx_success;
-    auto&     device         = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    auto&     allocator_impl = *reinterpret_cast<DX12ResourceAllocatorImpl*>(allocator);
+    WisResult res    = dx_success;
+    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
     // Create D3D12MA Allocator
     D3D12MA::ALLOCATOR_DESC allocator_desc = {};
     allocator_desc.pDevice                 = device.device;
@@ -493,7 +512,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const Wis
     if (!succeeded(hr)) {
         return make_result<Func(), "Failed to create D3D12 memory allocator">(hr);
     }
+
     // Fill allocator impl
+    auto& allocator_impl     = *new (allocator) DX12ResourceAllocatorImpl();
     allocator_impl.allocator = out_allocator;
     return res;
 }
@@ -502,10 +523,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const Wis
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self)
 {
     auto& impl = *reinterpret_cast<DX12ResourceAllocatorImpl*>(self);
-    if (impl.allocator) {
-        impl.allocator->Release();
-        impl.allocator = nullptr;
+    if (!impl.allocator) {
+        return;
     }
+
+    safe_release(impl.allocator);
 }
 
 //-----------------------------------------------------------------------------
@@ -633,7 +655,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         return make_result<Func(), "Failed to create root signature">(hr);
     }
 
-    auto& layout_impl          = *reinterpret_cast<DX12PipelineLayoutImpl*>(layout);
+    auto& layout_impl          = *new (layout) DX12PipelineLayoutImpl();
     layout_impl.root_signature = root_signature.detach();
     return res;
 }
@@ -642,6 +664,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineLayout(WisDX12PipelineLayout* self)
 {
     auto& impl = *reinterpret_cast<DX12PipelineLayoutImpl*>(self);
+    if (!impl.root_signature) {
+        return;
+    }
+
     safe_release(impl.root_signature);
 }
 

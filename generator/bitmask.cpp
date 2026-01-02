@@ -58,10 +58,10 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
         auto impl_name     = impl_type->FindAttribute("name")->Value();
 
         if (auto direct = impl_type->FindAttribute("direct")) {
-            ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, true };
+            ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, {}, true };
             continue;
         }
-        ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, false };
+        ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, {}, false };
     }
 
     for (auto* member = type->FirstChildElement("value"); member;

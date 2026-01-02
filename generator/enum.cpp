@@ -57,17 +57,17 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
         auto impl_for_code = ImplCode(impl_for);
         auto impl_name     = impl_type->FindAttribute("name")->Value();
 
-        std::string_view def_value = "{}";
+        std::string_view def_value;
         if (auto xdefault = impl_type->FindAttribute("default")) {
             def_value = xdefault->Value();
         }
 
         if (auto direct = impl_type->FindAttribute("direct")) {
-            ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, true };
+            ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, def_value, true };
             continue;
         }
 
-        ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, false };
+        ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, def_value, false };
     }
 
     for (auto* member = type->FirstChildElement("value"); member;
@@ -228,8 +228,13 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, std::string_view impl
                                                   m.name),
                                       convert_value);
         }
-        converters += wis::format("    default: return static_cast<{}>(value); \n    }}\n}}\n\n",
-                                  cvt.value);
+
+        if (!cvt.default_value.empty()) {
+            converters += wis::format("    default: return {};\n    }}\n}}\n\n", cvt.default_value);
+        } else {
+            converters += wis::format("    default: return static_cast<{}>(0);\n    }}\n}}\n\n",
+                                      cvt.value);
+        }
     }
     return converters;
 }

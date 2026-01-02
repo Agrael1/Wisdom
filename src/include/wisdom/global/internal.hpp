@@ -23,7 +23,6 @@ public:
     Implements() noexcept
         : _impl_storage()
     {
-        // printf("default constructed\n");
     }
 
     // Disable copy
@@ -33,11 +32,14 @@ public:
     /// @brief Move constructor
     Implements(Implements&& other) noexcept
     {
-        // simple memcpy of storage
-        std::memcpy(std::addressof(_impl_storage), std::addressof(other._impl_storage), sizeof(Storage));
+        // explicitly start life of Impl in our storage
+        auto* impl = new (std::addressof(_impl_storage)) Impl();
+
+        // simple copy of implementation
+        *impl = std::move(*reinterpret_cast<Impl*>(std::addressof(other._impl_storage)));
 
         // zero out other storage
-        std::memset(std::addressof(other._impl_storage), 0, sizeof(Storage));
+        other._impl_storage = {};
     }
 
     /// @brief Move assignment
@@ -47,10 +49,15 @@ public:
             // printf("move assigned\n");
             //  call deleter on current storage
             Deleter{}(GetStorage());
-            // simple memcpy of storage
-            std::memcpy(std::addressof(_impl_storage), std::addressof(other._impl_storage), sizeof(Storage));
+
+            // explicitly start life of Impl in our storage
+            auto* impl = new (std::addressof(_impl_storage)) Impl();
+
+            // simple copy of implementation
+            *impl = std::move(*reinterpret_cast<Impl*>(std::addressof(other._impl_storage)));
+
             // zero out other storage
-            std::memset(std::addressof(other._impl_storage), 0, sizeof(Storage));
+            other._impl_storage = {};
         }
         return *this;
     }

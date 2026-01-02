@@ -74,10 +74,22 @@ using fixed_u32string = basic_fixed_string<char32_t, N>;
 template<typename Char, std::size_t N1, std::size_t N2>
 constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fixed_string<Char, N2>& rhs) noexcept
 {
+    // SAFETY: We have verified that the buffer is large enough to hold the concatenated string.
+    // This suppression is required because we are implementing the safe primitive
+    // that everyone else should use.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
+#endif
+
     basic_fixed_string<Char, N1 + N2 - 1> result;
     std::char_traits<Char>::copy(result.data(), lhs.c_str(), N1 - 1);
     std::char_traits<Char>::copy(result.data() + N1 - 1, rhs.c_str(), N2);
     return result;
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 }
 
 inline namespace literals {
