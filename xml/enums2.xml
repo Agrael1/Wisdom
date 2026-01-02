@@ -32,7 +32,7 @@
 		</type>
 
 		<type name="CommandQueueType" category="enum" version="0.7.0" doc="Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
-			<impl_type for="dx" name="D3D12_COMMAND_LIST_TYPE"/>
+			<impl_type for="dx" name="D3D12_COMMAND_LIST_TYPE" default="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
 			<value name="Graphics" value="0" doc="Command queue for graphics operations, including rendering and compute tasks.">
 				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
 			</value>
@@ -83,7 +83,7 @@
 
 		<type name="DescriptorType" category="enum" version="0.7.0" doc="Type of the descriptor in the descriptor table.">
 			<impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
-			<impl_type for="vk" name="VkDescriptorType"/>
+			<impl_type for="vk" name="VkDescriptorType" default="VK_DESCRIPTOR_TYPE_MAX_ENUM"/>
 			<value name="Sampler" value="0" doc="Descriptor is a sampler.">
 				<impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
 				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
@@ -116,7 +116,7 @@
 
 		<type name="CompareOperation" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
 			<impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
-			<impl_type for="vk" name="VkCompareOp"/>
+			<impl_type for="vk" name="VkCompareOp" default="VK_COMPARE_OP_NEVER"/>
 			<value name="None" value="0" doc="No comparison.">
 				<impl name="vk" value="VK_COMPARE_OP_NEVER"/>
 			</value>
@@ -147,8 +147,8 @@
 		</type>
 
 		<type name="AddressMode" category="enum" version="0.7.0" doc="Address mode for texture sampling.">
-			<impl_type for="vk" name="VkSamplerAddressMode"/>
-			<impl_type for="dx" name="D3D12_TEXTURE_ADDRESS_MODE"/>
+			<impl_type for="vk" name="VkSamplerAddressMode" default="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
+			<impl_type for="dx" name="D3D12_TEXTURE_ADDRESS_MODE" default="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
 			<value name="Repeat" value="0" doc="Repeat the texture.">
 				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
 				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
@@ -172,8 +172,8 @@
 		</type>
 
 		<type name="Filter" category="enum" version="0.7.0" doc="Filtering mode for texture sampling.">
-			<impl_type for="vk" name="VkFilter"/>
-			<impl_type for="dx" name="D3D12_FILTER_TYPE"/>
+			<impl_type for="vk" name="VkFilter" default="VK_FILTER_NEAREST"/>
+			<impl_type for="dx" name="D3D12_FILTER_TYPE" default="D3D12_FILTER_TYPE_POINT"/>
 			<value name="Point" value="0" doc="Nearest neighbor filtering.">
 				<impl name="vk" value="VK_FILTER_NEAREST"/>
 				<impl name="dx" value="D3D12_FILTER_TYPE_POINT"/>
@@ -185,8 +185,8 @@
 		</type>
 		
 		<type name="StaticBorder" category="enum" version="0.7.0" doc="Predefined static border colors for samplers. Used when address mode is set to Border.">
-			<impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR"/>
-			<impl_type for="vk" name="VkBorderColor"/>
+			<impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR" default="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
+			<impl_type for="vk" name="VkBorderColor" default="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
 			<value name="TransparentBlack" value="0" doc="Transparent black border color.">
 				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
 				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>

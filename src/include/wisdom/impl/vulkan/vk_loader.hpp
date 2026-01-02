@@ -3,26 +3,7 @@
 #include <memory>
 
 #ifdef _WIN32
-typedef const char*         LPCSTR;
-typedef struct HINSTANCE__* HINSTANCE;
-typedef HINSTANCE           HMODULE;
-#if defined(_MINWINDEF_)
-/* minwindef.h defines FARPROC, and attempting to redefine it may conflict with -Wstrict-prototypes */
-#elif defined(_WIN64)
-typedef __int64(__stdcall* FARPROC)(void);
-#else
-typedef int(__stdcall* FARPROC)(void);
-#endif
-#ifdef __cplusplus
-extern "C" {
-#endif
-__declspec(dllimport) HMODULE __stdcall LoadLibraryA(LPCSTR);
-__declspec(dllimport) FARPROC __stdcall GetProcAddress(HMODULE, LPCSTR);
-__declspec(dllimport) int __stdcall FreeLibrary(HMODULE);
-#ifdef __cplusplus
-}
-#endif
-
+#include <Windows.h>
 #else
 #include <dlfcn.h>
 #endif
@@ -33,7 +14,7 @@ namespace detail {
 inline void* InitializeVulkanLibrary() noexcept
 {
 #if defined(_WIN32)
-    return LoadLibraryA("vulkan-1.dll");
+    return LoadLibraryW(L"vulkan-1.dll");
 #elif defined(__APPLE__)
     void* library = dlopen("libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
     if (!library) {
@@ -56,7 +37,7 @@ inline void* InitializeVulkanLibrary() noexcept
 inline void UninitializeVulkanLibrary(void* library) noexcept
 {
 #if defined(_WIN32)
-    FreeLibrary((HMODULE)library);
+    FreeLibrary(static_cast<HMODULE>(library));
 #else
     dlclose(library);
 #endif
@@ -68,7 +49,7 @@ PFN GetProcAddress(void* library, const char* fname) noexcept
 #if defined(__unix__) || defined(__APPLE__) || defined(__QNXNTO__) || defined(__Fuchsia__)
     return reinterpret_cast<PFN>(dlsym(library, fname));
 #elif defined(_WIN32)
-    return reinterpret_cast<PFN>(::GetProcAddress((HMODULE)library, fname));
+    return reinterpret_cast<PFN>(::GetProcAddress(static_cast<HMODULE>(library), fname));
 #else
 #error unsupported platform
 #endif

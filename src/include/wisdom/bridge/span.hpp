@@ -43,6 +43,19 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/n4820.pdf
 #define TCB_SPAN_HAVE_CPP14
 #endif
 
+// Suppress 'unsafe buffer usage' warnings in Clang
+#if defined(__clang__)
+// Clang-specific implementation using _Pragma
+#define WIS_UNSAFE_BUFFERS(...)                                           \
+    _Pragma("clang diagnostic push")                                      \
+            _Pragma("clang diagnostic ignored \"-Wunsafe-buffer-usage\"") \
+                    __VA_ARGS__                                           \
+                            _Pragma("clang diagnostic pop")
+#else
+// Fallback for GCC/MSVC (which don't have this specific warning yet)
+#define WIS_UNSAFE_BUFFERS(...) __VA_ARGS__
+#endif
+
 namespace TCB_SPAN_NAMESPACE_NAME {
 
 // Establish default contract checking behavior
@@ -476,19 +489,19 @@ public:
     TCB_SPAN_CONSTEXPR11 reference operator[](size_type idx) const
     {
         TCB_SPAN_EXPECT(idx < size());
-        return *(data() + idx);
+        return WIS_UNSAFE_BUFFERS(*(data() + idx));
     }
 
     TCB_SPAN_CONSTEXPR11 reference front() const
     {
         TCB_SPAN_EXPECT(!empty());
-        return *data();
+        return WIS_UNSAFE_BUFFERS(*data());
     }
 
     TCB_SPAN_CONSTEXPR11 reference back() const
     {
         TCB_SPAN_EXPECT(!empty());
-        return *(data() + (size() - 1));
+        return WIS_UNSAFE_BUFFERS(*(data() + (size() - 1)));
     }
 
     constexpr pointer data() const noexcept
@@ -504,7 +517,7 @@ public:
 
     constexpr iterator end() const noexcept
     {
-        return data() + size();
+        return WIS_UNSAFE_BUFFERS(data() + size());
     }
 
     TCB_SPAN_ARRAY_CONSTEXPR reverse_iterator rbegin() const noexcept
@@ -535,7 +548,7 @@ span(const std::array<T, N>&) -> span<const T, N>;
 
 template<class Container>
 span(Container&) -> span<typename std::remove_reference<
-                         decltype(*detail::data(std::declval<Container&>()))>::type>;
+        decltype(*detail::data(std::declval<Container&>()))>::type>;
 
 template<class Container>
 span(const Container&) -> span<const typename Container::value_type>;

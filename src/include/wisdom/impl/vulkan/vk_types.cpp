@@ -252,14 +252,14 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
         return result;
     }
 
-    std::unique_ptr<std::uint64_t[]> buffer(new (std::nothrow) std::uint64_t[total_size / sizeof(std::uint64_t) + 1]);
+    std::unique_ptr<std::uint64_t[]> buffer(new (std::nothrow) std::uint64_t[total_size / sizeof(std::uint64_t)]);
     if (!buffer) {
         out_res = make_result<Func(), "Not enough memory for device init buffer">(VK_ERROR_OUT_OF_HOST_MEMORY);
         return result;
     }
 
     // Zero initialize the buffer
-    std::memset(buffer.get(), 0, total_size);
+    std::fill_n(buffer.get(), total_size / sizeof(std::uint64_t), 0);
     auto* ptr = reinterpret_cast<std::uint8_t*>(buffer.get());
 
     // Fill extension names

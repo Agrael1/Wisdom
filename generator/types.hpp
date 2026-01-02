@@ -75,6 +75,7 @@ struct Dependencies {
 
 struct WisConvert {
     std::string_view value;
+    std::string_view default_value;
     bool             direct = false;
 };
 struct WisEnumValue {
@@ -129,7 +130,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-
 struct WisStructMember {
     std::string_view name;
     std::string_view type;
@@ -181,18 +181,6 @@ public:
         return 0;
     }
 };
-
-//-----------------------------------------------------------------------------
-// struct ReplacedParameter {
-//    Language replace_for = Language::None;
-//
-//    TypeInfo type_info = TypeInfo::None;
-//    std::string_view type;
-//    std::string_view name;
-//    std::string_view modifier;
-//    std::string_view default_value;
-//    std::string_view doc;
-//};
 
 struct WisFunctionParameter {
     // std::optional<ReplacedParameter> replaced;

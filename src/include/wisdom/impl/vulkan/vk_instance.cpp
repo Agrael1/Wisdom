@@ -96,8 +96,8 @@ inline void release_vk_device(VkDevice device, detail::control_block<VKDeviceHea
 inline int32_t get_best_queue_family_index(WisCommandQueueType type, wis::span<const VkQueueFamilyProperties> queue_family_properties)
 {
     int32_t best_index = -1;
-    for (uint32_t i = 0; i < queue_family_properties.size(); ++i) {
-        auto& props = queue_family_properties[i];
+    for (int32_t i = 0; i < int32_t(queue_family_properties.size()); ++i) {
+        auto& props = queue_family_properties[size_t(i)];
         switch (type) {
         case WisCommandQueueType::WisCommandQueueTypeGraphics:
             if (props.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
@@ -109,7 +109,7 @@ inline int32_t get_best_queue_family_index(WisCommandQueueType type, wis::span<c
                 if (best_index == -1) {
                     best_index = i; // first compute queue found
                 } else if (!(props.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
-                           (queue_family_properties[best_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+                           (queue_family_properties[size_t(best_index)].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
                     best_index = i; // prefer compute-only over graphics+compute
                 }
             }
@@ -121,8 +121,8 @@ inline int32_t get_best_queue_family_index(WisCommandQueueType type, wis::span<c
                 } else {
                     bool current_is_dedicated = !(props.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
                             !(props.queueFlags & VK_QUEUE_COMPUTE_BIT);
-                    bool best_is_dedicated = !(queue_family_properties[best_index].queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
-                            !(queue_family_properties[best_index].queueFlags & VK_QUEUE_COMPUTE_BIT);
+                    bool best_is_dedicated = !(queue_family_properties[size_t(best_index)].queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+                            !(queue_family_properties[size_t(best_index)].queueFlags & VK_QUEUE_COMPUTE_BIT);
                     if (current_is_dedicated && !best_is_dedicated) {
                         best_index = i; // prefer transfer-only
                     }
@@ -262,7 +262,6 @@ wisVKCreateInstance(const WisDebugDesc*            debug_layer,
 {
     WisResult res = vk_success;
     // Instance can come as partially constructed from C side
-    auto& impl = *reinterpret_cast<VKInstanceImpl*>(instance);
 
     auto header = make_unique<control_block<VKInstanceHeader>>();
     if (!header) {
@@ -394,6 +393,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_layer,
     }
 
     // Fill instance impl
+    auto& impl         = *new (instance) VKInstanceImpl();
     impl.instance      = instance_handle;
     impl.shared_header = header.release();
 
@@ -432,7 +432,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
                                                              WisVKAdapterQuery*   query)
 {
     // Query can come as partially constructed from C side
-    auto& impl          = *reinterpret_cast<VKAdapterQueryImpl*>(query);
     auto& instance_impl = *reinterpret_cast<const VKInstanceImpl*>(self);
 
     auto&       header = *instance_impl.shared_header;
@@ -466,6 +465,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
 
     if (preference == WisAdapterPreference::WisAdapterPreferenceNone) {
         // No sorting needed
+        auto& impl            = *new (query) VKAdapterQueryImpl();
         impl.adapter_count    = device_count;
         impl.physical_devices = devices_ref.release();
         impl.instance         = instance_impl.instance;
@@ -549,9 +549,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     for (std::size_t i = 0; i < device_count; ++i) {
         ptr_span[i] = devices_ref[index_span[i]];
     }
-    std::memcpy(devices_ref.get(), ptr_span.data(), sizeof(VkPhysicalDevice) * device_count);
+    // Copy back in sorted order
+    for (std::size_t i = 0; i < device_count; ++i) {
+        devices_ref[i] = ptr_span[i];
+    }
 
     // Fill query impl
+    auto& impl            = *new (query) VKAdapterQueryImpl();
     impl.adapter_count    = device_count;
     impl.physical_devices = devices_ref.release();
     impl.instance         = instance_impl.instance;
@@ -644,8 +648,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
         .flags        = flag,
     };
 
-    std::memcpy(desc->description, got_desc.deviceName, sizeof(desc->description) - 1);
-    std::memcpy(desc->adapter_uuid, id_props.deviceUUID, sizeof(desc->adapter_uuid));
+    std::copy_n(got_desc.deviceName, sizeof(desc->description) - 1, desc->description);
+    std::copy_n(id_props.deviceUUID, sizeof(desc->adapter_uuid), desc->adapter_uuid);
     return vk_success;
 }
 
@@ -677,9 +681,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     // Let extensions collect their info
     for (size_t i = 0; i < extension_count; ++i) {
-        auto* header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(extensions[i]);
-        if (header) {
-            auto res2 = header->init_fptr(header, nullptr, &collector);
+        auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(extensions[i]);
+        if (ext_header) {
+            auto res2 = ext_header->init_fptr(ext_header, nullptr, &collector);
             // Non-fatal, allow to silently fail
             (void)res2;
         }
@@ -828,7 +832,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Fill device impl
-    auto& device_impl           = *reinterpret_cast<VKDeviceImpl*>(device);
+    auto& device_impl           = *new (device) VKDeviceImpl();
     device_impl.device_header   = header.release();
     device_impl.device          = device_handle;
     device_impl.physical_device = adapter;
@@ -852,10 +856,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     // Initialize device extensions
     for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ extensions, extension_count }) {
-        auto* table = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext);
-        if (table) {
-            auto xres = table->init_fptr(table, &device_impl, &collector);
-            if (xres.status != WisStatusOk) {
+        auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext);
+        if (ext_header) {
+            auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector);
+            if (yres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
         }
@@ -881,10 +885,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
                                                                 WisCommandQueueType type,
                                                                 WisVKCommandQueue*  queue)
 {
-    WisResult res        = vk_success;
-    auto&     device     = *reinterpret_cast<const VKDeviceImpl*>(self);
-    auto&     queue_impl = *reinterpret_cast<VKCommandQueueImpl*>(queue);
-    VkQueue   vk_queue   = VK_NULL_HANDLE;
+    WisResult res      = vk_success;
+    auto&     device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    VkQueue   vk_queue = VK_NULL_HANDLE;
 
     // Sanity check: lower and upper bound
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
@@ -912,6 +915,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
         return make_result<Func(), "Failed to get Vulkan device queue">(VK_ERROR_INITIALIZATION_FAILED);
     }
     // Fill command queue impl
+    auto& queue_impl         = *new (queue) VKCommandQueueImpl();
     queue_impl.queue         = vk_queue;
     queue_impl.device_header = device.device_header;
     device.device_header->add_ref(); // hold reference to device header
@@ -940,9 +944,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice
                                                                WisCommandQueueType type,
                                                                WisVKCommandList*   list)
 {
-    WisResult res       = vk_success;
-    auto&     device    = *reinterpret_cast<const VKDeviceImpl*>(self);
-    auto&     list_impl = *reinterpret_cast<VKCommandListImpl*>(list);
+    WisResult res    = vk_success;
+    auto&     device = *reinterpret_cast<const VKDeviceImpl*>(self);
 
     // Sanity check: lower and upper bound
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
@@ -988,6 +991,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice
     }
 
     // Fill command list impl
+    auto& list_impl          = *new (list) VKCommandListImpl();
     list_impl.command_pool   = command_pool;
     list_impl.command_buffer = command_buffer;
     list_impl.device_header  = device.device_header;
@@ -1016,9 +1020,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
                                                          uint64_t           initial_value,
                                                          WisVKFence*        fence)
 {
-    WisResult res       = vk_success;
-    auto&     device    = *reinterpret_cast<const VKDeviceImpl*>(self);
-    auto&     out_fence = *reinterpret_cast<VKFenceImpl*>(fence);
+    WisResult res    = vk_success;
+    auto&     device = *reinterpret_cast<const VKDeviceImpl*>(self);
 
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType         = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
@@ -1039,6 +1042,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
         return make_result<Func(), "Failed to create Vulkan timeline semaphore">(vr);
     }
     // Fill fence impl
+    auto& out_fence         = *new (fence) VKFenceImpl();
     out_fence.fence         = semaphore;
     out_fence.device        = device.device;
     out_fence.device_header = device.device_header;
@@ -1148,7 +1152,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVK
     }
 
     // Fill allocator impl
-    auto& allocator_impl         = *reinterpret_cast<VKResourceAllocatorImpl*>(allocator);
+    auto& allocator_impl         = *new (allocator) VKResourceAllocatorImpl();
     allocator_impl.allocator     = out_allocator;
     allocator_impl.device        = device.device;
     allocator_impl.device_header = device.device_header;
@@ -1176,11 +1180,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
                                                                   const WisPipelineLayoutDesc* desc,
                                                                   WisVKPipelineLayout*         layout)
 {
-    WisResult res         = vk_success;
-    auto&     device      = *reinterpret_cast<const VKDeviceImpl*>(self);
-    auto&     layout_impl = *reinterpret_cast<VKPipelineLayoutImpl*>(layout);
-    auto&     table       = device.device_header->header.device_table;
-    auto      features    = device.device_header->header.features;
+    WisResult res      = vk_success;
+    auto&     device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto&     table    = device.device_header->header.device_table;
+    auto      features = device.device_header->header.features;
 
     // Pre checks
     uint32_t layout_count  = 0;
@@ -1395,7 +1398,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
             return make_result<Func(), "Failed to allocate static sampler descriptor set">(VK_ERROR_INITIALIZATION_FAILED);
         }
         dsl_layouts->static_sampler_pool  = pool;
-        dsl_layouts->static_sampler_count = desc->static_sampler_count;
+        dsl_layouts->static_sampler_count = uint32_t(desc->static_sampler_count);
         static_sampler_set                = set;
         current_set++;
     }
@@ -1432,7 +1435,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
         destroy_allocated_sets();
         return make_result<Func(), "Failed to create Vulkan pipeline layout">(vr);
     }
+
     // Fill pipeline layout impl
+    auto& layout_impl         = *new (layout) VKPipelineLayoutImpl();
     layout_impl.layout        = pipeline_layout;
     layout_impl.device        = device.device;
     layout_impl.device_header = device.device_header;

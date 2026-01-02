@@ -64,7 +64,7 @@ struct VkLayerPropertiesHash {
 struct CStringEqual {
     bool operator()(const char* a, const char* b) const
     {
-        return std::strcmp(a, b) == 0;
+        return std::strncmp(a, b, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
 };
 
@@ -73,15 +73,15 @@ struct VkExtensionPropertiesEqual {
     using is_transparent = void;
     bool operator()(const VkExtensionProperties& ext, const char* name) const noexcept
     {
-        return std::strcmp(ext.extensionName, name) == 0;
+        return std::strncmp(ext.extensionName, name, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
     bool operator()(const char* name, const VkExtensionProperties& ext) const noexcept
     {
-        return std::strcmp(name, ext.extensionName) == 0;
+        return std::strncmp(name, ext.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
     bool operator()(const VkExtensionProperties& a, const VkExtensionProperties& b) const noexcept
     {
-        return std::strcmp(a.extensionName, b.extensionName) == 0;
+        return std::strncmp(a.extensionName, b.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
 };
 
@@ -90,15 +90,15 @@ struct VkLayerPropertiesEqual {
     using is_transparent = void;
     bool operator()(const VkLayerProperties& layer, const char* name) const noexcept
     {
-        return std::strcmp(layer.layerName, name) == 0;
+        return std::strncmp(layer.layerName, name, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
     bool operator()(const char* name, const VkLayerProperties& layer) const noexcept
     {
-        return std::strcmp(name, layer.layerName) == 0;
+        return std::strncmp(name, layer.layerName, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
     bool operator()(const VkLayerProperties& a, const VkLayerProperties& b) const noexcept
     {
-        return std::strcmp(a.layerName, b.layerName) == 0;
+        return std::strncmp(a.layerName, b.layerName, VK_MAX_EXTENSION_NAME_SIZE) == 0;
     }
 };
 
@@ -242,7 +242,7 @@ struct VKDeviceExtensionHeader {
 template<typename T>
 struct VKInstanceExtensionImpl : public VKInstanceExtensionHeader {
     VKInstanceExtensionImpl() noexcept
-        : VKInstanceExtensionHeader(&VKInstanceExtensionImpl<T>::InitThunk)
+        : VKInstanceExtensionHeader{ &VKInstanceExtensionImpl<T>::InitThunk }
     {
         assert(std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKInstanceExtensionHeader*>(this)) && "VKInstanceExtensionImpl must be the first base class!");
     }
@@ -278,7 +278,7 @@ public:
 template<typename T>
 struct VKDeviceExtensionImpl : public VKDeviceExtensionHeader {
     VKDeviceExtensionImpl() noexcept
-        : VKDeviceExtensionHeader(&VKDeviceExtensionImpl<T>::InitThunk)
+        : VKDeviceExtensionHeader{ &VKDeviceExtensionImpl<T>::InitThunk }
     {
         assert(std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKDeviceExtensionHeader*>(this)) && "VKDeviceExtensionImpl must be the first base class!");
     }
