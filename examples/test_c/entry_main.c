@@ -129,6 +129,29 @@ int main()
     result                              = wisDeviceCreatePipelineLayout(&device, &pipeline_desc, &pipeline_layout);
     printf("CreatePipelineLayout result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    // Create Sampler
+    WisSampler sampler = { 0 };
+    WisSamplerDesc sampler_desc = {
+        .min_filter          = WisFilterLinear,
+        .mag_filter          = WisFilterLinear,
+        .mip_filter          = WisFilterLinear,
+        .is_anisotropic      = false,
+        .max_anisotropy      = 1,
+        .address_u           = WisAddressModeRepeat,
+        .address_v           = WisAddressModeRepeat,
+        .address_w           = WisAddressModeRepeat,
+        .min_lod             = 0.0f,
+        .max_lod             = 1000.0f,
+        .mip_lod_bias        = 0.0f,
+        .comparison_op       = WisCompareOperationNever,
+        .static_border_color = WisStaticBorderOpaqueBlack,
+        .border_color        = { 0.0f, 0.0f, 0.0f, 0.0f },
+        .flags               = WisSamplerFlagsNone,
+    };
+    result = wisDeviceCreateSampler(&device, &sampler_desc, &sampler);
+    printf("CreateSampler result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+
     // Out of order destruction must still work
     wisDestroyDevice(&device);
     wisDestroyCommandQueue(&command_queue);
@@ -136,5 +159,6 @@ int main()
     wisDestroyFence(&fence);
     wisDestroyResourceAllocator(&allocator);
     wisDestroyPipelineLayout(&pipeline_layout);
+    wisDestroySampler(&sampler);
     return 0;
 }

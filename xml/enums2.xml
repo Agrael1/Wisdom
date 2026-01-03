@@ -183,7 +183,7 @@
 				<impl name="dx" value="D3D12_FILTER_TYPE_LINEAR"/>
 			</value>
 		</type>
-		
+
 		<type name="StaticBorder" category="enum" version="0.7.0" doc="Predefined static border colors for samplers. Used when address mode is set to Border.">
 			<impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR" default="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
 			<impl_type for="vk" name="VkBorderColor" default="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
@@ -199,8 +199,10 @@
 				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE"/>
 				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE"/>
 			</value>
-			<value name="Custom" value="3" doc="Custom border color defined by the user."/>
-			</type>
+			<value name="Custom" value="3" doc="Custom border color defined by the user.">
+				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_CUSTOM_EXT"/>
+			</value>
+		</type>
 
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
@@ -208,7 +210,7 @@
 			<value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
 			<value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
 		</type>
-		
+
 		<type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
 			<impl_type for="dx" name="D3D12_SAMPLER_FLAGS"/>
 			<value name="None" value="0" doc="No flags set."/>

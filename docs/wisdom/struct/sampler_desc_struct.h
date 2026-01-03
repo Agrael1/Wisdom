@@ -83,6 +83,6 @@
  * @section WisSamplerDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisStaticSamplerDesc
+ * @see WisStaticSamplerDesc, wisDeviceCreateSampler
  * \endcond
  */

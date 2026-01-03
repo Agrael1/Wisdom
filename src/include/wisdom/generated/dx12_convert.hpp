@@ -31,7 +31,7 @@ inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
     case WisCommandQueueTypeVideoEncode:
         return D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE;
     default:
-        return static_cast<D3D12_COMMAND_LIST_TYPE>(0);
+        return D3D12_COMMAND_LIST_TYPE_DIRECT;
     }
 }
 

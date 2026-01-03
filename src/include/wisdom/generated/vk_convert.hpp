@@ -122,6 +122,8 @@ inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
         return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
     case WisStaticBorderOpaqueWhite:
         return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    case WisStaticBorderCustom:
+        return VK_BORDER_COLOR_FLOAT_CUSTOM_EXT;
     default:
         return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     }

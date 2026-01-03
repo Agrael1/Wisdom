@@ -12,6 +12,24 @@
 
 namespace wis {
 
+struct VKSamplerDeleter {
+    void operator()(WisVKSampler* handle) noexcept
+    {
+        ::wisVKDestroySampler(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a sampler object for texture sampling.
+ *
+ * */
+class VKSampler : public wis::impl::Implements<wis::impl::VKSamplerImpl, WisVKSampler, wis::VKSamplerDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKPipelineLayoutDeleter {
     void operator()(WisVKPipelineLayout* handle) noexcept
     {
@@ -193,6 +211,22 @@ public:
                                                                       reinterpret_cast<const WisPipelineLayoutDesc*>(&desc),
                                                                       layout.GetStorage()));
         return layout;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a sampler with given descriptor.
+     * @param desc points to wis::SamplerDesc, which describes the sampler to create.
+     * @param out_result denoting the outcome of operation.
+     * @return sampler points to wis::Sampler, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSampler CreateSampler(const wis::SamplerDesc& desc,
+                                                      wis::Result&            out_result) const noexcept
+    {
+        wis::VKSampler sampler;
+        out_result = convert_result(::wisVKDeviceCreateSampler(&_impl_storage,
+                                                               reinterpret_cast<const WisSamplerDesc*>(&desc),
+                                                               sampler.GetStorage()));
+        return sampler;
     }
 };
 

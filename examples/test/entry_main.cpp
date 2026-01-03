@@ -116,5 +116,25 @@ int main()
         return int(result.status);
     }
 
+    // Create Sampler
+    wis::SamplerDesc sampler_desc;
+    sampler_desc.min_filter          = wis::Filter::Linear;
+    sampler_desc.mag_filter          = wis::Filter::Linear;
+    sampler_desc.mip_filter          = wis::Filter::Linear;
+    sampler_desc.is_anisotropic      = true;
+    sampler_desc.max_anisotropy      = 16;
+    sampler_desc.address_u           = wis::AddressMode::Repeat;
+    sampler_desc.address_v           = wis::AddressMode::Repeat;
+    sampler_desc.address_w           = wis::AddressMode::Repeat;
+    sampler_desc.min_lod             = 0.0f;
+    sampler_desc.max_lod             = 12.0f;
+    sampler_desc.mip_lod_bias        = 0.0f;
+    sampler_desc.comparison_op       = wis::CompareOperation::None;
+    sampler_desc.static_border_color = wis::StaticBorder::OpaqueBlack;
+    sampler_desc.border_color        = { 0.0f, 0.0f, 0.0f, 0.0f };
+    sampler_desc.flags               = wis::SamplerFlags::None;
+
+    wis::Sampler sampler = device.CreateSampler(sampler_desc, result);
+
     return 0;
 }
