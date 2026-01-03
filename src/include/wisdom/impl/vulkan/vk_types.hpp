@@ -243,6 +243,12 @@ struct VKPipelineLayoutImpl {
     VkDevice                               device;
     detail::control_block<VKDeviceHeader>* device_header;
 };
+
+struct VKSamplerImpl {
+    VkSampler                              sampler;
+    VkDevice                               device;
+    detail::control_block<VKDeviceHeader>* device_header;
+};
 } // namespace impl
 } // namespace wis
 

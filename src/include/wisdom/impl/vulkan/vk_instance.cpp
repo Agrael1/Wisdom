@@ -1331,6 +1331,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
         // Allocate sampler bindings
         for (uint32_t i = 0; i < static_samplers.size(); i++) {
             auto& r = static_samplers[i].sampler;
+            // Custom border color is not supported for static samplers
+            if (r.static_border_color == WisStaticBorderCustom) {
+                destroy_allocated_samplers();
+                destroy_allocated_sets();
+                return make_result<Func(), "Custom border color is not supported for Vulkan static samplers">(VK_ERROR_INITIALIZATION_FAILED);
+            }
+
+
             // Create Vulkan sampler
             VkSamplerCreateInfo sampler_info{
                 .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -1490,4 +1498,80 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineLayout(WisVKPipelineLayout* sel
         impl.device        = VK_NULL_HANDLE;
     }
 }
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSampler(const WisVKDevice*    self,
+                                                           const WisSamplerDesc* desc,
+                                                           WisVKSampler*         sampler)
+{
+    WisResult res    = vk_success;
+    auto&     device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto&     table  = device.device_header->header.device_table;
+
+    VkSamplerCustomBorderColorCreateInfoEXT custom_border_color{
+        .sType             = VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
+        .pNext             = nullptr,
+        .customBorderColor = {
+                              desc->border_color[0],
+                              desc->border_color[1],
+                              desc->border_color[2],
+                              desc->border_color[3],
+                              },
+    };
+
+    // check if custom border color is available
+    if (desc->static_border_color == WisStaticBorderCustom) {
+        if (!device.device_header->header.features.has_custom_border_color) {
+            return make_result<Func(), "Custom border color is not supported on this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+        }
+    }
+
+    VkSamplerCreateInfo sampler_info{
+        .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+        .pNext                   = desc->static_border_color == WisStaticBorderCustom ? &custom_border_color : nullptr,
+        .flags                   = 0,
+        .magFilter               = convert_vk(desc->mag_filter),
+        .minFilter               = convert_vk(desc->min_filter),
+        .mipmapMode              = VkSamplerMipmapMode(desc->mip_filter),
+        .addressModeU            = convert_vk(desc->address_u),
+        .addressModeV            = convert_vk(desc->address_v),
+        .addressModeW            = convert_vk(desc->address_w),
+        .mipLodBias              = desc->mip_lod_bias,
+        .anisotropyEnable        = desc->is_anisotropic,
+        .maxAnisotropy           = std::max(float(desc->max_anisotropy), 1.0f),
+        .compareEnable           = desc->comparison_op != WisCompareOperationNever,
+        .compareOp               = convert_vk(desc->comparison_op),
+        .minLod                  = desc->min_lod,
+        .maxLod                  = desc->max_lod,
+        .borderColor             = convert_vk(desc->static_border_color),
+        .unnormalizedCoordinates = desc->flags & WisSamplerFlagsNonNormalizedCoordinates ? VK_TRUE : VK_FALSE,
+    };
+    VkSampler vk_sampler = VK_NULL_HANDLE;
+    auto      vr         = table.vkCreateSampler(device.device, &sampler_info, nullptr, &vk_sampler);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan sampler">(vr);
+    }
+    // Fill sampler impl
+    auto& sampler_impl         = *new (sampler) VKSamplerImpl();
+    sampler_impl.sampler       = vk_sampler;
+    sampler_impl.device        = device.device;
+    sampler_impl.device_header = device.device_header;
+    device.device_header->add_ref(); // hold reference to device header
+    return res;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroySampler(WisVKSampler* self)
+{
+    auto& impl = *reinterpret_cast<VKSamplerImpl*>(self);
+    if (impl.sampler != VK_NULL_HANDLE) {
+        auto& table = impl.device_header->header.device_table;
+        table.vkDestroySampler(impl.device, impl.sampler, nullptr);
+        impl.sampler = VK_NULL_HANDLE;
+        detail::release_vk_device(impl.device, impl.device_header);
+        impl.device_header = nullptr;
+        impl.device        = VK_NULL_HANDLE;
+    }
+}
+
 #endif // WIS_VK_INSTANCE_CPP

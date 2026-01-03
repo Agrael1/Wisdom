@@ -68,6 +68,11 @@ struct DX12ResourceAllocatorImpl {
 struct DX12PipelineLayoutImpl {
     ID3D12RootSignature* root_signature;
 };
+
+struct DX12SamplerImpl {
+    ID3D12DescriptorHeap*       descriptor_heap;
+    D3D12_CPU_DESCRIPTOR_HANDLE handle;
+};
 } // namespace impl
 
 // Manual variants of generated structures with virtual functions

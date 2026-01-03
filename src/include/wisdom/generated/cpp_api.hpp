@@ -214,7 +214,7 @@ struct DebugDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.
+ * @brief Provided by Wisdom 0.7.0. Sampler description for wis::Sampler creation.
  *
  * */
 struct SamplerDesc {

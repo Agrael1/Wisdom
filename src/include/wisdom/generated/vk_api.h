@@ -7,6 +7,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a sampler object for texture sampling.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKSampler, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
  *
  * */
@@ -69,6 +75,13 @@ typedef struct WisVKDeviceExtensionHeader {
 typedef struct WisVKInstanceExtensionHeader {
     const void* opaque; ///< defines opaque member. It @wis_mustnot be changed directly outside extension development.
 } WisVKInstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSampler handle.
+ * @param self is a pointer to the valid WisSampler instance.
+ *
+ * */
+WISDOM_API void wisVKDestroySampler(WisVKSampler* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineLayout handle.
@@ -245,6 +258,18 @@ WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVKDevice*      
 WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDevice*           self,
                                                      const WisPipelineLayoutDesc* desc,
                                                      WisVKPipelineLayout*         layout);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a sampler with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc points to WisSamplerDesc, which describes the sampler to create.
+ * @param sampler points to WisSampler, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateSampler(const WisVKDevice*    self,
+                                              const WisSamplerDesc* desc,
+                                              WisVKSampler*         sampler);
 
 #ifdef __cplusplus
 }
