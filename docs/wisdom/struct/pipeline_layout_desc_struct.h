@@ -17,8 +17,8 @@
  *     size_t                      push_descriptor_count;
  *     const WisStaticSamplerDesc* static_samplers;
  *     size_t                      static_sampler_count;
- *     void*                       reserved;
- *     size_t                      reserved_size;
+ *     const WisDescriptorTable*   descriptor_tables;
+ *     size_t                      descriptor_table_count;
  * } WisPipelineLayoutDesc;
  * 
  * ```
@@ -30,8 +30,7 @@
  *     wis::span<const wis::PushConstant>      push_constants;
  *     wis::span<const wis::PushDescriptor>    push_descriptors;
  *     wis::span<const wis::StaticSamplerDesc> static_samplers;
- *     void*                                   reserved;
- *     std::size_t                             reserved_size;
+ *     wis::span<const wis::DescriptorTable>   descriptor_tables;
  * };
  * }
  * ```
@@ -46,8 +45,8 @@
  * - `push_descriptor_count` counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
  * - `static_samplers` points to an array of WisStaticSamplerDesc.
  * - `static_sampler_count` counts the number of static samplers in the `WisPipelineLayoutDesc::static_samplers` array.
- * - `reserved` reserved for future use. Must be `nullptr`.
- * - `reserved_size` reserved for future use. Must be `0`.
+ * - `descriptor_tables` points to an array of WisDescriptorTable.
+ * - `descriptor_table_count` counts the number of descriptor tables in the `WisPipelineLayoutDesc::descriptor_tables` array.
  * \endcond
  *
  * @section WisPipelineLayoutDesc_descr Description

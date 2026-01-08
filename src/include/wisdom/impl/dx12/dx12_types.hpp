@@ -9,6 +9,7 @@
 #include <cassert>
 #include <wrl/implements.h>
 #include <D3D12MemAlloc.h>
+#include <wisdom/impl/dx12/dx12_extensions.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -74,50 +75,6 @@ struct DX12SamplerImpl {
     D3D12_CPU_DESCRIPTOR_HANDLE handle;
 };
 } // namespace impl
-
-// Manual variants of generated structures with virtual functions
-struct DX12InstanceExtensionHeader {
-    explicit DX12InstanceExtensionHeader(WisResult (*init_fptr)(void* self, const impl::DX12InstanceImpl& instance) noexcept) noexcept
-        : init_fptr(init_fptr)
-    {
-    }
-
-private:
-    WisResult (*init_fptr)(void* self, const impl::DX12InstanceImpl& instance) noexcept = &DX12InstanceExtensionHeader::Init;
-
-    static WisResult Init(void* self, const impl::DX12InstanceImpl& instance) noexcept
-    {
-        (void)self;
-        (void)instance;
-        return {};
-    }
-
-public:
-    WisResult CallInit(void* self, const impl::DX12InstanceImpl& instance) noexcept
-    {
-        return init_fptr(self, instance);
-    }
-};
-
-// Manual variants of generated structures with virtual functions
-struct DX12DeviceExtensionHeader {
-    // TODO: add Init function pointer and CallInit method when device extensions are supported
-};
-
-// TODO: move to an extension header file
-template<typename T, typename... Impls>
-struct DX12InstanceExtensionImpl : public DX12InstanceExtensionHeader, public Impls... {
-    DX12InstanceExtensionImpl() noexcept
-        : DX12InstanceExtensionHeader(&DX12InstanceExtensionImpl<T>::Init)
-    {
-        assert(std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<DX12InstanceExtensionHeader*>(this)) && "DX12InstanceExtensionImpl must be the first base class!");
-    }
-
-    static WisResult Init(void* self, const impl::DX12InstanceImpl& instance) noexcept
-    {
-        return reinterpret_cast<T*>(self)->Init(instance);
-    }
-};
 } // namespace wis
 
 // Include implementation if header only build

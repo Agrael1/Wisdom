@@ -58,6 +58,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisPushDescriptor
+ * @see WisPushDescriptor, WisDescriptorTableEntry
  * \endcond
  */

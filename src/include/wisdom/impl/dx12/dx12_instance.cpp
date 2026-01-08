@@ -6,6 +6,7 @@
 #include <wisdom/generated/c_api.h>
 #include <wisdom/util/com_ptr.hpp>
 #include <wisdom/impl/dx12/dx12_utils.hpp>
+#include <wisdom/bridge/format.hpp>
 
 using namespace wis;
 using namespace wis::impl;
@@ -117,6 +118,42 @@ inline bool dx12_is_pushable(WisDescriptorType type) noexcept
         return false;
     }
 }
+inline uint32_t dx12_fill_descriptor_range(const WisDescriptorTable&          table,
+                                           uint32_t                           space,
+                                           wis::span<D3D12_DESCRIPTOR_RANGE1> mutable_range) noexcept
+{
+    // Handle overlap case
+    if (table.space_overlap != 0) {
+        auto&                   src = table.entries[0];
+        D3D12_DESCRIPTOR_RANGE1 range{
+            .RangeType                         = convert_dx(src.type),
+            .NumDescriptors                    = static_cast<UINT>(src.count == 0 ? 1 : src.count),
+            .BaseShaderRegister                = static_cast<UINT>(src.bind_register),
+            .RegisterSpace                     = static_cast<UINT>(space),
+            .Flags                             = src.count > 1 ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
+            .OffsetInDescriptorsFromTableStart = 0,
+        };
+
+        for (size_t i = 0; i < table.space_overlap + 1; ++i) {
+            range.RegisterSpace = static_cast<UINT>(space + i);
+            mutable_range[i]    = range;
+        }
+        return table.space_overlap + 1;
+    } else {
+        for (size_t i = 0; i < table.entry_count; ++i) {
+            auto& src        = table.entries[i];
+            mutable_range[i] = {
+                .RangeType                         = convert_dx(src.type),
+                .NumDescriptors                    = static_cast<UINT>(src.count == 0 ? 1 : src.count),
+                .BaseShaderRegister                = static_cast<UINT>(src.bind_register),
+                .RegisterSpace                     = static_cast<UINT>(space),
+                .Flags                             = src.count > 1 ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
+                .OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
+            };
+        }
+        return static_cast<uint32_t>(table.entry_count);
+    }
+}
 
 } // namespace detail
 } // namespace wis
@@ -161,7 +198,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<DX12InstanceExtensionHeader*>(ext);
         if (table) {
-            res = table->CallInit(ext, impl);
+            res = table->init_fptr(table, impl);
             if (res.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
             }
@@ -313,7 +350,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
                                                                   size_t                         extension_count,
                                                                   WisDX12Device*                 device)
 {
-    auto& impl = *reinterpret_cast<const DX12AdapterQueryImpl*>(self);
+    WisResult res  = dx_success;
+    auto&     impl = *reinterpret_cast<const DX12AdapterQueryImpl*>(self);
     if (index >= impl.adapter_count) {
         return make_result<Func(), "Adapter index out of bounds">(E_INVALIDARG);
     }
@@ -364,11 +402,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
     for (auto* ext : wis::span<WisDX12DeviceExtensionHeader*>{ extensions, extension_count }) {
         auto* table = reinterpret_cast<DX12DeviceExtensionHeader*>(ext);
         if (table) {
-            // TODO: implement device extension initialization
+            auto xres = table->init_fptr(table, device_impl);
+            if (xres.status != WisStatusOk) {
+                res.status        = WisStatusPartial; // mark as partial success if any extension fails
+                res.error         = xres.error;
+                res.platform_code = xres.platform_code;
+            }
         }
     }
 
-    return dx_success;
+    return res;
 }
 
 //-----------------------------------------------------------------------------
@@ -542,47 +585,51 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
     static constexpr std::size_t max_root_parameters = 64;
 
     // Check limits
-    if (desc->push_constant_count + 2 * desc->push_descriptor_count > max_root_parameters) {
+    if (desc->push_constant_count + 2 * desc->push_descriptor_count + desc->descriptor_table_count > max_root_parameters) {
         return make_result<Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG);
     }
 
-    D3D12_ROOT_PARAMETER1 root_parameters[max_root_parameters];
-    std::size_t           num_root_parameters = desc->push_constant_count + desc->push_descriptor_count;
-    std::size_t           offset_parameters   = 0;
+    D3D12_ROOT_PARAMETER1            root_parameters[max_root_parameters];
+    std::size_t                      num_root_parameters = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
+    wis::span<D3D12_ROOT_PARAMETER1> root_parameters_span{ root_parameters, num_root_parameters };
 
-    // push constants
+    // Push constants
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
-        root_parameters[i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-        root_parameters[i].Constants     = {
-                .ShaderRegister = static_cast<UINT>(desc->push_constants[i].bind_register),
-                .RegisterSpace  = static_cast<UINT>(desc->push_constants[i].bind_space),
-                .Num32BitValues = static_cast<UINT>(desc->push_constants[i].size_bytes / 4),
+        root_parameters_span[i] = {
+            .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+            .Constants     = {
+                              .ShaderRegister = static_cast<UINT>(desc->push_constants[i].bind_register),
+                              .RegisterSpace  = static_cast<UINT>(desc->push_constants[i].bind_space),
+                              .Num32BitValues = static_cast<UINT>(desc->push_constants[i].size_bytes / 4),
+                              },
+            .ShaderVisibility = detail::convert_dx(desc->push_constants[i].stage),
         };
-        root_parameters[i].ShaderVisibility = detail::convert_dx(desc->push_constants[i].stage);
     }
-    offset_parameters += desc->push_constant_count;
+    root_parameters_span = root_parameters_span.subspan(desc->push_constant_count);
 
-    // push descriptors
+    // Push descriptors
     uint32_t descriptor_space = 0;
     for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
-        auto& param = root_parameters[offset_parameters + i];
-        auto& src   = desc->push_descriptors[i];
+        auto& src = desc->push_descriptors[i];
 
         if (!detail::dx12_is_pushable(src.type)) {
             return make_result<Func(), "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
         }
 
-        param.ParameterType = detail::dx12_root_parameter_type(src.type);
-        param.Descriptor    = {
-               .ShaderRegister = src.bind_register,
-               .RegisterSpace  = descriptor_space,
-               .Flags          = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
+        root_parameters_span[i] = {
+            .ParameterType = detail::dx12_root_parameter_type(src.type),
+            .Descriptor    = {
+                              .ShaderRegister = src.bind_register,
+                              .RegisterSpace  = descriptor_space,
+                              .Flags          = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
+                              },
+            .ShaderVisibility = detail::convert_dx(src.stage),
         };
-        param.ShaderVisibility = detail::convert_dx(desc->push_descriptors[i].stage);
     }
+    root_parameters_span = root_parameters_span.subspan(desc->push_descriptor_count);
     descriptor_space += desc->push_descriptor_count > 0;
 
-    // TODO: static samplers
+    // Static samplers
     std::unique_ptr<D3D12_STATIC_SAMPLER_DESC1[]> static_samplers;
     if (desc->static_sampler_count > 0) {
         static_samplers = make_unique<D3D12_STATIC_SAMPLER_DESC1[]>(desc->static_sampler_count);
@@ -616,7 +663,50 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         }
     }
 
-    // TODO: tables
+    // Tables
+    std::unique_ptr<D3D12_DESCRIPTOR_RANGE1[]> ranges;
+    if (desc->descriptor_table_count > 0) {
+        wis::span<const WisDescriptorTable> tables{ desc->descriptor_tables, desc->descriptor_table_count };
+        uint32_t                            range_count = 0;
+
+        // Precompute range count
+        for (uint32_t i = 0; i < desc->descriptor_table_count; ++i) {
+            const auto& src = tables[i];
+            if (src.space_overlap != 0) {
+                // Check if entry is single range
+                if (src.entry_count > 1) {
+                    return make_result<Func(), "Space overlap is only supported for single range descriptor tables">(E_INVALIDARG);
+                }
+                range_count += src.space_overlap + 1;
+                continue;
+            }
+            range_count += static_cast<uint32_t>(src.entry_count);
+        }
+
+        ranges = make_unique<D3D12_DESCRIPTOR_RANGE1[]>(range_count);
+        if (!ranges) {
+            return make_result<Func(), "Out of memory while creating descriptor ranges">(E_OUTOFMEMORY);
+        }
+
+        wis::span<D3D12_DESCRIPTOR_RANGE1> ranges_span{ ranges.get(), range_count };
+        std::size_t                        current_range = 0;
+        for (std::size_t i = 0; i < desc->descriptor_table_count; ++i) {
+            const auto& src           = tables[i];
+            uint32_t    filled_ranges = detail::dx12_fill_descriptor_range(src,
+                                                                        descriptor_space,
+                                                                        ranges_span.subspan(current_range));
+            descriptor_space += src.space_overlap != 0 ? src.space_overlap : 1;
+            root_parameters_span[i] = {
+                .ParameterType   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+                .DescriptorTable = {
+                                    .NumDescriptorRanges = filled_ranges,
+                                    .pDescriptorRanges   = ranges.get() + current_range,
+                                    },
+                .ShaderVisibility = detail::convert_dx(src.stage),
+            };
+            current_range += filled_ranges;
+        }
+    }
 
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC rsig_desc{
         .Version  = D3D_ROOT_SIGNATURE_VERSION_1_2,
@@ -638,7 +728,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         // If error blob is available, include its message into debug output
 #ifdef _DEBUG
         if (error) {
-            OutputDebugStringA(reinterpret_cast<const char*>(error->GetBufferPointer()));
+            // Query debug info queue
+            wis::com_ptr<ID3D12InfoQueue> info_queue;
+            auto                          hr = device.device->QueryInterface(IID_ID3D12InfoQueue, info_queue.put_void_unchecked());
+            if (succeeded(hr) && info_queue) {
+                info_queue->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_COMPILATION,
+                                       D3D12_MESSAGE_SEVERITY_ERROR,
+                                       D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_CREATE_ROOTSIGNATURE,
+                                       reinterpret_cast<const char*>(error->GetBufferPointer()));
+            } else {
+                // Fallback to OutputDebugString
+                OutputDebugStringA(reinterpret_cast<const char*>(error->GetBufferPointer()));
+            }
         }
 #endif
 

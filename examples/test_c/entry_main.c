@@ -118,6 +118,35 @@ int main()
          },
     };
 
+    WisDescriptorTableEntry descriptor_table_entries[] = {
+        { WisDescriptorTypeBuffer, 0, 0 },
+        { WisDescriptorTypeTexture, 0, UINT32_MAX },
+        { WisDescriptorTypeSampler, 1, 2 },
+    };
+    WisDescriptorTable tables[] = {
+        {
+         WisDescriptorHeapTypeDescriptor,
+         WisShaderStagesVertex,
+         descriptor_table_entries,
+         1,
+         0,
+         },
+        {
+         WisDescriptorHeapTypeSampler,
+         WisShaderStagesPixel,
+         descriptor_table_entries + 2,
+         1,
+         0,
+         },
+        {
+         WisDescriptorHeapTypeDescriptor,
+         WisShaderStagesPixel,
+         descriptor_table_entries + 1,
+         1,
+         2,
+         }
+    };
+
     WisPipelineLayoutDesc pipeline_desc = { 0 };
     pipeline_desc.push_constants        = push_constants;
     pipeline_desc.push_constant_count   = sizeof(push_constants) / sizeof(push_constants[0]);
@@ -125,12 +154,14 @@ int main()
     pipeline_desc.push_descriptor_count = sizeof(push_descriptors) / sizeof(push_descriptors[0]);
     pipeline_desc.static_samplers       = static_samplers;
     pipeline_desc.static_sampler_count  = sizeof(static_samplers) / sizeof(static_samplers[0]);
+    pipeline_desc.descriptor_tables     = tables;
+    pipeline_desc.descriptor_table_count = sizeof(tables) / sizeof(tables[0]);
     WisPipelineLayout pipeline_layout   = { 0 };
     result                              = wisDeviceCreatePipelineLayout(&device, &pipeline_desc, &pipeline_layout);
     printf("CreatePipelineLayout result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     // Create Sampler
-    WisSampler sampler = { 0 };
+    WisSampler     sampler      = { 0 };
     WisSamplerDesc sampler_desc = {
         .min_filter          = WisFilterLinear,
         .mag_filter          = WisFilterLinear,
@@ -150,7 +181,6 @@ int main()
     };
     result = wisDeviceCreateSampler(&device, &sampler_desc, &sampler);
     printf("CreateSampler result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);

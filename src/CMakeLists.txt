@@ -19,6 +19,9 @@ wis_make_target_bundle(
   COMPILE_DEFINITIONS
   NOMINMAX)
 
+target_sources(wisdom-internal-headers PRIVATE
+               "natvis/span.natvis")
+
 if(WISDOM_DX12)
   wis_make_target_bundle(
     TARGET

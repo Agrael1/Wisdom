@@ -111,6 +111,11 @@ inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
     }
 }
 
+inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisDescriptorHeapType value) noexcept
+{
+    return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
+}
+
 inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);

@@ -125,9 +125,9 @@ struct VKStaticSamplerPoolAllocator {
     // 2) If current pool is full, try to find a pool with free space
     // 3) If no pool has free space, create a new pool
     std::pair<VkDescriptorSet, VkDescriptorPool>
-    AllocateSet(VkDevice device, impl::VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept;
+    AllocateSet(VkDevice device, const impl::VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept;
 
-    void DestroyPoolsUnchecked(VkDevice device, impl::VKMainDevice& table) noexcept
+    void DestroyPoolsUnchecked(VkDevice device, const impl::VKMainDevice& table) noexcept
     {
         for (std::uint32_t i = 0; i < pool_count; ++i) {
             table.vkDestroyDescriptorPool(device, pools[i], nullptr);
@@ -164,15 +164,71 @@ struct VKDeviceFeatures {
     // Properties
     uint32_t max_push_descriptors   = 0;
     uint32_t max_push_constant_size = 0;
+    uint32_t max_bound_descriptor_sets = 0;
+    uint32_t max_descriptors_in_set = 0;
+    uint32_t max_samplers_in_set = 0;
 };
 
 struct VKDescriptorSetLayoutContainer {
     std::uint32_t         dsl_count            = 0;
     std::uint32_t         static_sampler_count = 0;
     VkDescriptorPool      static_sampler_pool;
-    VkDescriptorSetLayout vk_dsls[1];
 
-    // VkSampler samplers[];
+    // Followed by VkDescriptorSetLayout[dsl_count]
+    wis::span<VkDescriptorSetLayout> vk_dsls() noexcept
+    {
+        return { reinterpret_cast<VkDescriptorSetLayout*>(this + 1), dsl_count };
+    }
+
+    // Followed by VkSampler[static_sampler_count]
+    wis::span<VkSampler> vk_static_samplers() noexcept
+    {
+        return { reinterpret_cast<VkSampler*>(reinterpret_cast<std::uint8_t*>(this + 1) + dsl_count * sizeof(VkDescriptorSetLayout)),
+                 static_sampler_count };
+    }
+
+    // destroy helpers
+    void destroy_static_samplers(VkDevice device, const impl::VKMainDevice& table) noexcept
+    {
+        wis::span<VkSampler> static_samplers_span = vk_static_samplers();
+        for (std::uint32_t i = 0; i < static_sampler_count; i++) {
+            if (static_samplers_span[i] != VK_NULL_HANDLE) {
+                table.vkDestroySampler(device, static_samplers_span[i], nullptr);
+                static_samplers_span[i] = VK_NULL_HANDLE;
+            }
+        }
+    }
+
+    void destroy_descriptor_set_layouts(VkDevice device, const impl::VKMainDevice& table) noexcept
+    {
+        wis::span<VkDescriptorSetLayout> dsl_span = vk_dsls();
+        VkDescriptorSetLayout            previous_dsl = VK_NULL_HANDLE;
+        for (std::uint32_t i = 0; i < dsl_count; ++i) {
+            if (dsl_span[i] != VK_NULL_HANDLE && dsl_span[i] != previous_dsl) {
+                table.vkDestroyDescriptorSetLayout(device, dsl_span[i], nullptr);
+                previous_dsl = dsl_span[i];
+                dsl_span[i] = VK_NULL_HANDLE;
+            }
+        }
+    }
+
+    void free_static_sampler_set(VkDevice device, const impl::VKMainDevice& table, VkDescriptorSet static_sampler_set) noexcept
+    {
+        if (static_sampler_set != VK_NULL_HANDLE) {
+            table.vkFreeDescriptorSets(
+                    device,
+                    static_sampler_pool,
+                    1,
+                    &static_sampler_set);
+        }
+    }
+
+    void destroy(VkDevice device, const impl::VKMainDevice& table, VkDescriptorSet static_sampler_set) noexcept
+    {
+        free_static_sampler_set(device, table, static_sampler_set);
+        destroy_static_samplers(device, table);
+        destroy_descriptor_set_layouts(device, table);
+    }
 };
 
 struct VKDeviceHeader {

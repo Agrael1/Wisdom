@@ -97,8 +97,8 @@
 			<ret type="Sampler" name="sampler" result="true" doc="points to {Sampler::}, which is initialized on success."/>
 			<arg type="SamplerDesc" name="desc" mod="const,ref" doc="points to {SamplerDesc::}, which describes the sampler to create."/>
 		</func>
-
-
+		
+		
 	</functions>
 
 </registry>

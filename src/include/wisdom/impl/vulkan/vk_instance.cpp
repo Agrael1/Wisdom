@@ -244,13 +244,279 @@ public:
         {
             auto& base_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceProperties2>(
                     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2);
-            features.max_push_constant_size = base_properties.properties.limits.maxPushConstantsSize;
+            features.max_push_constant_size    = base_properties.properties.limits.maxPushConstantsSize;
+            features.max_bound_descriptor_sets = base_properties.properties.limits.maxBoundDescriptorSets;
+
+            // Calculate max descriptors in set
+            features.max_descriptors_in_set = std::min({
+                    base_properties.properties.limits.maxPerStageDescriptorStorageBuffers,
+                    base_properties.properties.limits.maxPerStageDescriptorUniformBuffers,
+                    base_properties.properties.limits.maxPerStageDescriptorSampledImages,
+                    base_properties.properties.limits.maxPerStageDescriptorStorageImages,
+                    base_properties.properties.limits.maxPerStageDescriptorInputAttachments,
+                    base_properties.properties.limits.maxDescriptorSetStorageBuffers,
+                    base_properties.properties.limits.maxDescriptorSetUniformBuffers,
+                    base_properties.properties.limits.maxDescriptorSetSampledImages,
+                    base_properties.properties.limits.maxDescriptorSetStorageImages,
+                    base_properties.properties.limits.maxDescriptorSetInputAttachments,
+            });
+            features.max_samplers_in_set    = base_properties.properties.limits.maxDescriptorSetSamplers;
         }
 
         // Nothing to initialize for now
         return vk_success;
     }
 };
+
+inline WisResult set_push_constant_ranges(wis::span<const WisPushConstant> constants,
+                                          wis::span<VkPushConstantRange>   push_constant_ranges,
+                                          const impl::VKDeviceImpl&        device_impl) noexcept
+{
+    std::size_t count = constants.size();
+    // Check upper limit
+    if (count > static_cast<size_t>(ShaderStages::Count)) {
+        return make_result<Func(), "Exceeded maximum number of Vulkan push constant ranges">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    for (size_t i = 0; i < count; ++i) {
+        auto& src = constants[i];
+        auto& dst = push_constant_ranges[i];
+
+        // Check size limit
+        if (src.size_bytes > device_impl.device_header->header.features.max_push_constant_size) {
+            return make_result<Func(), "Exceeded maximum size of Vulkan push constant range">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+
+        dst.stageFlags = detail::convert_vk(src.stage);
+        dst.offset     = 0; // offset is always 0 for each push constant
+        dst.size       = static_cast<uint32_t>(src.size_bytes);
+    }
+
+    return vk_success;
+}
+
+inline WisResult set_push_descriptors(wis::span<const WisPushDescriptor>      descriptors,
+                                      wis::span<VkDescriptorSetLayout>        out_dsls,
+                                      wis::span<VkDescriptorSetLayoutBinding> bindings,
+                                      const VKMainDevice&                     table,
+                                      VkDevice                                device,
+                                      uint32_t&                               current_set) noexcept
+{
+    std::size_t count = descriptors.size();
+
+    for (uint32_t i = 0; i < count; i++) {
+        auto& r     = descriptors[i];
+        bindings[i] = {
+            .binding            = r.bind_register,
+            .descriptorType     = convert_vk(r.type),
+            .descriptorCount    = 1, // Push descriptors are always single
+            .stageFlags         = convert_vk(r.stage),
+            .pImmutableSamplers = nullptr,
+        };
+    }
+    VkDescriptorSetLayoutCreateInfo push_desc_info{
+        .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext        = nullptr,
+        .flags        = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+        .bindingCount = static_cast<uint32_t>(count),
+        .pBindings    = bindings.data(),
+    };
+    auto vr = table.vkCreateDescriptorSetLayout(device, &push_desc_info, nullptr, &out_dsls[current_set]);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan push descriptor set layout">(vr);
+    }
+    current_set++;
+    return vk_success;
+}
+
+inline WisResult set_static_samplers(wis::span<const WisStaticSamplerDesc>   samplers,
+                                     wis::span<VkDescriptorSetLayout>        out_dsls,
+                                     wis::span<VkDescriptorSetLayoutBinding> bindings,
+                                     const VKMainDevice&                     table,
+                                     VkDevice                                device,
+                                     VKStaticSamplerPoolAllocator&           static_sampler_pool_allocator,
+                                     uint32_t&                               current_set,
+                                     VKDescriptorSetLayoutContainer&         dsl_layouts,
+                                     VkDescriptorSet*                        static_sampler_set) noexcept
+{
+    std::size_t count                = samplers.size();
+    auto        static_samplers_span = dsl_layouts.vk_static_samplers();
+
+    // Allocate sampler bindings
+    for (uint32_t i = 0; i < count; i++) {
+        auto& r            = samplers[i].sampler;
+        auto& sampler_desc = samplers[i];
+        // Custom border color is not supported for static samplers
+        if (r.static_border_color == WisStaticBorderCustom) {
+            return make_result<Func(), "Custom border color is not supported for Vulkan static samplers">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+
+        // Create Vulkan sampler
+        VkSamplerCreateInfo sampler_info{
+            .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .pNext                   = nullptr,
+            .flags                   = 0,
+            .magFilter               = convert_vk(r.mag_filter),
+            .minFilter               = convert_vk(r.min_filter),
+            .mipmapMode              = VkSamplerMipmapMode(r.mip_filter),
+            .addressModeU            = convert_vk(r.address_u),
+            .addressModeV            = convert_vk(r.address_v),
+            .addressModeW            = convert_vk(r.address_w),
+            .mipLodBias              = r.mip_lod_bias,
+            .anisotropyEnable        = r.is_anisotropic,
+            .maxAnisotropy           = std::max(float(r.max_anisotropy), 1.0f),
+            .compareEnable           = r.comparison_op != WisCompareOperationNever,
+            .compareOp               = convert_vk(r.comparison_op),
+            .minLod                  = r.min_lod,
+            .maxLod                  = r.max_lod,
+            .borderColor             = convert_vk(r.static_border_color),
+            .unnormalizedCoordinates = r.flags & WisSamplerFlagsNonNormalizedCoordinates ? VK_TRUE : VK_FALSE,
+        };
+        VkSampler sampler = VK_NULL_HANDLE;
+        VkResult  vr      = table.vkCreateSampler(device, &sampler_info, nullptr, &static_samplers_span[i]);
+        if (!succeeded(vr)) {
+            return make_result<Func(), "Failed to create Vulkan static sampler">(vr);
+        }
+
+        bindings[i] = {
+            .binding            = sampler_desc.bind_register,
+            .descriptorType     = VK_DESCRIPTOR_TYPE_SAMPLER,
+            .descriptorCount    = 1,
+            .stageFlags         = convert_vk(sampler_desc.stage),
+            .pImmutableSamplers = &static_samplers_span[i]
+        };
+    }
+
+    VkDescriptorSetLayoutCreateInfo static_desc_info{
+        .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .pNext        = nullptr,
+        .flags        = 0,
+        .bindingCount = static_cast<uint32_t>(count),
+        .pBindings    = bindings.data(),
+    };
+    auto vr = table.vkCreateDescriptorSetLayout(device, &static_desc_info, nullptr, &out_dsls[current_set]);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan push descriptor set layout">(vr);
+    }
+
+    // Allocate static sampler set
+    auto [set, pool] = static_sampler_pool_allocator.AllocateSet(
+            device,
+            table,
+            out_dsls[current_set]);
+
+    if (set == VK_NULL_HANDLE) {
+        return make_result<Func(), "Failed to allocate static sampler descriptor set">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+    dsl_layouts.static_sampler_pool  = pool;
+    dsl_layouts.static_sampler_count = uint32_t(count);
+    *static_sampler_set              = set;
+    current_set++;
+
+    return vk_success;
+}
+
+inline WisResult set_descriptor_tables(wis::span<const WisDescriptorTable>     descriptor_tables,
+                                       wis::span<VkDescriptorSetLayout>        out_dsls,
+                                       wis::span<VkDescriptorSetLayoutBinding> bindings,
+                                       wis::span<VkDescriptorBindingFlags>     binding_flags,
+                                       const impl::VKDeviceImpl&               device_impl,
+                                       uint32_t&                               current_set) noexcept
+{
+    // If count is unbounded create unbounded descriptor
+    constexpr static VkDescriptorBindingFlags                       flags = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT | VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT;
+    constexpr static VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
+        .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+        .pNext         = nullptr,
+        .bindingCount  = 1,
+        .pBindingFlags = &flags,
+    };
+
+    auto& table           = device_impl.device_header->header.device_table;
+    auto& device          = device_impl.device;
+    auto  max_samplers    = device_impl.device_header->header.features.max_samplers_in_set;
+    auto  max_descriptors = device_impl.device_header->header.features.max_descriptors_in_set;
+
+    static auto stabilize_count = [](uint32_t count, uint32_t max_type) {
+        return count == 0 ? 1 : count == UINT32_MAX ? 0 // TODO: insert something here
+                                                    : count;
+    };
+    auto to_binding = [max_samplers, max_descriptors](const WisDescriptorTableEntry& r, WisShaderStages stages) {
+        return VkDescriptorSetLayoutBinding{
+            .binding            = r.bind_register,
+            .descriptorType     = convert_vk(r.type),
+            .descriptorCount    = stabilize_count(r.count,
+                                               r.type == WisDescriptorType::WisDescriptorTypeSampler ? max_samplers
+                                                                                                        : max_descriptors),
+            .stageFlags         = convert_vk(stages),
+            .pImmutableSamplers = nullptr,
+        };
+    };
+
+    std::size_t count = descriptor_tables.size();
+    // For each table
+    for (uint32_t i = 0; i < descriptor_tables.size(); ++i) {
+        const auto& table_desc = descriptor_tables[i];
+
+        // Check for space overlap
+        if (table_desc.space_overlap > 0) {
+            // Single entry only
+            const auto& r = table_desc.entries[0];
+
+            bindings[0] = to_binding(r, table_desc.stage);
+
+            VkDescriptorSetLayoutCreateInfo table_info{
+                .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                .pNext        = r.count == UINT32_MAX ? &binding_flags_info : nullptr, // honor unbounded
+                .flags        = 0,
+                .bindingCount = 1,
+                .pBindings    = bindings.data(),
+            };
+            // Create multiple duplicated sets
+            VkDescriptorSetLayout out_dsl = VK_NULL_HANDLE;
+            auto                  vr      = table.vkCreateDescriptorSetLayout(device, &table_info, nullptr, &out_dsl);
+            if (!succeeded(vr)) {
+                return make_result<Func(), "Failed to create Vulkan descriptor set layout with space overlap">(vr);
+            }
+
+            // Create duplicated sets
+            for (uint32_t j = 0; j < table_desc.space_overlap + 1; ++j) {
+                out_dsls[current_set] = out_dsl;
+                current_set++;
+            }
+            continue;
+        }
+
+        // Prepare bindings
+        for (uint32_t j = 0; j < table_desc.entry_count; ++j) {
+            const auto& r    = table_desc.entries[j];
+            bindings[j]      = to_binding(r, table_desc.stage);
+            binding_flags[j] = VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT | VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT;
+            if (r.count == UINT32_MAX) {
+                binding_flags[j] |= VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT;
+            }
+        }
+        VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_info{
+            .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+            .pNext         = nullptr,
+            .bindingCount  = static_cast<uint32_t>(table_desc.entry_count),
+            .pBindingFlags = binding_flags.data(),
+        };
+        VkDescriptorSetLayoutCreateInfo table_info{
+            .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pNext        = &binding_flags_info,
+            .flags        = 0,
+            .bindingCount = static_cast<uint32_t>(table_desc.entry_count),
+            .pBindings    = bindings.data(),
+        };
+        auto vr = table.vkCreateDescriptorSetLayout(device, &table_info, nullptr, &out_dsls[current_set]);
+        if (!succeeded(vr)) {
+            return make_result<Func(), "Failed to create Vulkan descriptor set layout">(vr);
+        }
+        current_set++;
+    }
+    return vk_success;
+}
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
@@ -407,7 +673,9 @@ wisVKCreateInstance(const WisDebugDesc*            debug_layer,
         if (table) {
             auto xres = table->init_fptr(table, &impl, &collector);
             if (xres.status != WisStatusOk) {
-                res.status = WisStatusPartial; // mark as partial success if any extension fails
+                res.status        = WisStatusPartial; // mark as partial success if any extension fails
+                res.error         = xres.error;
+                res.platform_code = xres.platform_code;
             }
         }
     }
@@ -860,7 +1128,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         if (ext_header) {
             auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector);
             if (yres.status != WisStatusOk) {
-                res.status = WisStatusPartial; // mark as partial success if any extension fails
+                res.status        = WisStatusPartial; // mark as partial success if any extension fails
+                res.error         = yres.error;
+                res.platform_code = yres.platform_code;
             }
         }
     }
@@ -1188,9 +1458,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
     // Pre checks
     uint32_t layout_count  = 0;
     uint32_t binding_count = 0;
+    uint32_t flag_bindings = 0;
     if (desc->push_descriptor_count > 0) {
         layout_count += 1;
-        binding_count += static_cast<uint32_t>(desc->push_descriptor_count);
+        binding_count = static_cast<uint32_t>(desc->push_descriptor_count);
         if (!features.push_descriptor) {
             return make_result<Func(), "Push descriptors are not supported on this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
         }
@@ -1204,223 +1475,141 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
     // Static samplers
     if (desc->static_sampler_count > 0) {
         layout_count += 1;
-        binding_count += static_cast<uint32_t>(desc->static_sampler_count);
+
+        // Reuse binding count for static samplers
+        binding_count = std::max(binding_count, static_cast<uint32_t>(desc->static_sampler_count));
+    }
+
+    // Tables
+    if (desc->descriptor_table_count > 0) {
+        layout_count += static_cast<uint32_t>(desc->descriptor_table_count);
+        uint32_t table_bindings = 0;
+        for (size_t i = 0; i < desc->descriptor_table_count; ++i) {
+            const auto& table_desc = desc->descriptor_tables[i];
+
+            // NOTE: Space overlap is made by duplicated sets, but it counts towards the limit
+            if (table_desc.space_overlap > 0) {
+                layout_count += table_desc.space_overlap;
+                // Check if there is single entry (artificial, but otherwise it will explode)
+                if (table_desc.entry_count > 1) {
+                    return make_result<Func(), "Space overlap can only be used with single entry descriptor tables">(VK_ERROR_INITIALIZATION_FAILED);
+                }
+                binding_count = std::max(binding_count, 1u);
+                flag_bindings = std::max(flag_bindings, 1u);
+                continue;
+            }
+            binding_count = std::max(binding_count, static_cast<uint32_t>(table_desc.entry_count));
+            flag_bindings = std::max(flag_bindings, static_cast<uint32_t>(table_desc.entry_count));
+        }
+
+        // Check upper limit
+        if (layout_count > features.max_bound_descriptor_sets) {
+            return make_result<Func(), "Exceeded maximum number of Vulkan descriptor sets per pipeline layout">(VK_ERROR_INITIALIZATION_FAILED);
+        }
     }
 
     // How many DSLs are needed
     std::unique_ptr<impl::VKDescriptorSetLayoutContainer> dsl_layouts;
     if (layout_count > 0) {
         dsl_layouts = std::unique_ptr<impl::VKDescriptorSetLayoutContainer>(static_cast<VKDescriptorSetLayoutContainer*>(
-                ::operator new(sizeof(VKDescriptorSetLayoutContainer) + (layout_count - 1) * sizeof(VkDescriptorSetLayout) + desc->static_sampler_count * (sizeof(VkSampler)))));
+                ::operator new(sizeof(VKDescriptorSetLayoutContainer) + layout_count * sizeof(VkDescriptorSetLayout) + desc->static_sampler_count * sizeof(VkSampler))));
         if (!dsl_layouts) {
             return make_result<Func(), "Not enough memory for Vulkan descriptor set layouts container">(VK_ERROR_OUT_OF_HOST_MEMORY);
         }
         dsl_layouts->dsl_count = layout_count;
     }
 
-    auto destroy_allocated_sets = [&]() {
-        if (dsl_layouts) {
-            for (uint32_t i = 0; i < dsl_layouts->dsl_count; ++i) {
-                if (dsl_layouts->vk_dsls[i] != VK_NULL_HANDLE) {
-                    table.vkDestroyDescriptorSetLayout(device.device, dsl_layouts->vk_dsls[i], nullptr);
-                    dsl_layouts->vk_dsls[i] = VK_NULL_HANDLE;
-                }
-            }
-        }
-    };
-    auto destroy_allocated_samplers = [&]() {
-        if (dsl_layouts) {
-            wis::span<VkSampler> static_samplers_span{
-                reinterpret_cast<VkSampler*>(dsl_layouts->vk_dsls + layout_count),
-                desc->static_sampler_count
-            };
-            for (uint32_t i = 0; i < desc->static_sampler_count; i++) {
-                if (static_samplers_span[i] != VK_NULL_HANDLE) {
-                    table.vkDestroySampler(device.device, static_samplers_span[i], nullptr);
-                    static_samplers_span[i] = VK_NULL_HANDLE;
-                }
-            }
-        }
-    };
-
     // Prepare push constant ranges
     VkPushConstantRange push_constant_ranges[std::size_t(ShaderStages::Count)];
     if (desc->push_constant_count > 0) {
-        // Check upper limit
-        if (desc->push_constant_count > static_cast<size_t>(ShaderStages::Count)) {
-            return make_result<Func(), "Exceeded maximum number of Vulkan push constant ranges">(VK_ERROR_INITIALIZATION_FAILED);
-        }
-
-        for (size_t i = 0; i < desc->push_constant_count; ++i) {
-            auto& src = desc->push_constants[i];
-            auto& dst = push_constant_ranges[i];
-
-            // Check size limit
-            if (src.size_bytes > device.device_header->header.features.max_push_constant_size) {
-                return make_result<Func(), "Exceeded maximum size of Vulkan push constant range">(VK_ERROR_INITIALIZATION_FAILED);
-            }
-
-            dst.stageFlags = detail::convert_vk(src.stage);
-            dst.offset     = 0; // offset is always 0 for each push constant
-            dst.size       = static_cast<uint32_t>(src.size_bytes);
+        auto res = set_push_constant_ranges({ desc->push_constants,
+                                              desc->push_constant_count },
+                                            push_constant_ranges,
+                                            device);
+        if (res.status != WisStatusOk) {
+            return res;
         }
     }
 
     // Bindings
-    uint32_t                         current_set = 0;
-    wis::span<VkDescriptorSetLayout> out_dsls{
-        dsl_layouts ? dsl_layouts->vk_dsls : nullptr,
-        layout_count,
-    };
+    uint32_t                         current_set  = 0;
+    wis::span<VkDescriptorSetLayout> out_dsls     = dsl_layouts->vk_dsls();
+    wis::span<VkSampler>             out_samplers = dsl_layouts->vk_static_samplers();
 
+    // Allocate bindings array
     std::unique_ptr<VkDescriptorSetLayoutBinding[]> bindings;
     if (binding_count > 0) {
-        bindings = make_unique<VkDescriptorSetLayoutBinding[]>(binding_count);
+        bindings = std::unique_ptr<VkDescriptorSetLayoutBinding[]>(static_cast<VkDescriptorSetLayoutBinding*>(
+                ::operator new(sizeof(VkDescriptorSetLayoutBinding) * binding_count + sizeof(VkDescriptorBindingFlags) * flag_bindings)));
         if (!bindings) {
             return make_result<Func(), "Not enough memory for Vulkan descriptor set layout bindings">(VK_ERROR_OUT_OF_HOST_MEMORY);
         }
     }
-
-    // Push descriptors
-    if (desc->push_descriptor_count > 0) {
-        wis::span<const WisPushDescriptor> push_descriptors{
-            desc->push_descriptors,
-            desc->push_descriptor_count,
-        };
-        wis::span push_bindings{ bindings.get(), desc->push_descriptor_count };
-        for (uint32_t i = 0; i < push_descriptors.size(); i++) {
-            auto& r          = push_descriptors[i];
-            push_bindings[i] = {
-                .binding            = r.bind_register,
-                .descriptorType     = convert_vk(r.type),
-                .descriptorCount    = 1, // Push descriptors are always single
-                .stageFlags         = convert_vk(r.stage),
-                .pImmutableSamplers = nullptr,
-            };
-        }
-        VkDescriptorSetLayoutCreateInfo push_desc_info{
-            .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .pNext        = nullptr,
-            .flags        = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
-            .bindingCount = static_cast<uint32_t>(desc->push_descriptor_count),
-            .pBindings    = push_bindings.data(),
-        };
-        auto vr = table.vkCreateDescriptorSetLayout(device.device, &push_desc_info, nullptr, &out_dsls[current_set]);
-        if (!succeeded(vr)) {
-            return make_result<Func(), "Failed to create Vulkan push descriptor set layout">(vr);
-        }
-        current_set++;
-    }
-
-    // Static samplers
-    VkDescriptorSet static_sampler_set = VK_NULL_HANDLE;
-    if (desc->static_sampler_count > 0) {
-        wis::span<const WisStaticSamplerDesc> static_samplers{
-            desc->static_samplers,
-            desc->static_sampler_count,
-        };
-        wis::span sampler_bindings{
-            bindings.get() + desc->push_descriptor_count,
-            desc->static_sampler_count
-        };
-        wis::span<VkSampler> static_samplers_span{
-            reinterpret_cast<VkSampler*>(out_dsls.end()),
-            desc->static_sampler_count
-        };
-
-        // Allocate sampler bindings
-        for (uint32_t i = 0; i < static_samplers.size(); i++) {
-            auto& r = static_samplers[i].sampler;
-            // Custom border color is not supported for static samplers
-            if (r.static_border_color == WisStaticBorderCustom) {
-                destroy_allocated_samplers();
-                destroy_allocated_sets();
-                return make_result<Func(), "Custom border color is not supported for Vulkan static samplers">(VK_ERROR_INITIALIZATION_FAILED);
-            }
-
-
-            // Create Vulkan sampler
-            VkSamplerCreateInfo sampler_info{
-                .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                .pNext                   = nullptr,
-                .flags                   = 0,
-                .magFilter               = convert_vk(r.mag_filter),
-                .minFilter               = convert_vk(r.min_filter),
-                .mipmapMode              = VkSamplerMipmapMode(r.mip_filter),
-                .addressModeU            = convert_vk(r.address_u),
-                .addressModeV            = convert_vk(r.address_v),
-                .addressModeW            = convert_vk(r.address_w),
-                .mipLodBias              = r.mip_lod_bias,
-                .anisotropyEnable        = r.is_anisotropic,
-                .maxAnisotropy           = std::max(float(r.max_anisotropy), 1.0f),
-                .compareEnable           = r.comparison_op != WisCompareOperationNever,
-                .compareOp               = convert_vk(r.comparison_op),
-                .minLod                  = r.min_lod,
-                .maxLod                  = r.max_lod,
-                .borderColor             = convert_vk(r.static_border_color),
-                .unnormalizedCoordinates = r.flags & WisSamplerFlagsNonNormalizedCoordinates ? VK_TRUE : VK_FALSE,
-            };
-            VkSampler sampler = VK_NULL_HANDLE;
-            VkResult  vr      = table.vkCreateSampler(device.device, &sampler_info, nullptr, &sampler);
-            if (!succeeded(vr)) {
-                destroy_allocated_samplers();
-                destroy_allocated_sets();
-                return make_result<Func(), "Failed to create Vulkan static sampler">(vr);
-            }
-            static_samplers_span[i] = sampler;
-        }
-
-        for (uint32_t i = 0; i < sampler_bindings.size(); i++) {
-            auto& r             = static_samplers[i];
-            sampler_bindings[i] = {
-                .binding            = r.bind_register,
-                .descriptorType     = VK_DESCRIPTOR_TYPE_SAMPLER,
-                .descriptorCount    = 1,
-                .stageFlags         = convert_vk(r.stage),
-                .pImmutableSamplers = &static_samplers_span[i]
-            };
-        }
-        VkDescriptorSetLayoutCreateInfo static_desc_info{
-            .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .pNext        = nullptr,
-            .flags        = 0,
-            .bindingCount = static_cast<uint32_t>(sampler_bindings.size()),
-            .pBindings    = sampler_bindings.data(),
-        };
-        auto vr = table.vkCreateDescriptorSetLayout(device.device, &static_desc_info, nullptr, &out_dsls[current_set]);
-        if (!succeeded(vr)) {
-            destroy_allocated_samplers();
-            destroy_allocated_sets();
-            return make_result<Func(), "Failed to create Vulkan push descriptor set layout">(vr);
-        }
-
-        // Allocate static sampler set
-        auto [set, pool] = device.device_header->header.static_sampler_pool_allocator.AllocateSet(
-                device.device,
-                table,
-                out_dsls[current_set]);
-
-        if (set == VK_NULL_HANDLE) {
-            destroy_allocated_samplers();
-            destroy_allocated_sets();
-            return make_result<Func(), "Failed to allocate static sampler descriptor set">(VK_ERROR_INITIALIZATION_FAILED);
-        }
-        dsl_layouts->static_sampler_pool  = pool;
-        dsl_layouts->static_sampler_count = uint32_t(desc->static_sampler_count);
-        static_sampler_set                = set;
-        current_set++;
-    }
-
-    auto destroy_static_sampler_set = [&]() {
-        if (static_sampler_set != VK_NULL_HANDLE) {
-            table.vkFreeDescriptorSets(device.device,
-                                       dsl_layouts->static_sampler_pool,
-                                       1,
-                                       &static_sampler_set);
-        }
+    wis::span<VkDescriptorSetLayoutBinding> binding_span{ bindings.get(), binding_count };
+    wis::span<VkDescriptorBindingFlags>     binding_flags_span{
+        reinterpret_cast<VkDescriptorBindingFlags*>(
+                bindings.get() + binding_count),
+        flag_bindings,
     };
 
-    // TODO: Tables
+    // Push descriptors
+    wis::span<const WisPushDescriptor> push_descriptors{
+        desc->push_descriptors,
+        desc->push_descriptor_count,
+    };
+    if (desc->push_descriptor_count > 0) {
+        res = set_push_descriptors(push_descriptors,
+                                   out_dsls,
+                                   binding_span,
+                                   table,
+                                   device.device,
+                                   current_set);
+        if (res.status != WisStatusOk) {
+            return res;
+        }
+    }
+    // End of push descriptors (current_set updated)
+
+    // Static samplers
+    wis::span<const WisStaticSamplerDesc> static_samplers{
+        desc->static_samplers,
+        desc->static_sampler_count,
+    };
+    VkDescriptorSet static_sampler_set = VK_NULL_HANDLE;
+    if (desc->static_sampler_count > 0) {
+        res = set_static_samplers(static_samplers,
+                                  out_dsls,
+                                  binding_span,
+                                  table,
+                                  device.device,
+                                  device.device_header->header.static_sampler_pool_allocator,
+                                  current_set,
+                                  *dsl_layouts,
+                                  &static_sampler_set);
+        if (res.status != WisStatusOk) {
+            dsl_layouts->destroy(device.device, table, static_sampler_set);
+            return res;
+        }
+    }
+    // End of static samplers (current_set updated)
+
+    // Tables
+    wis::span<const WisDescriptorTable> descriptor_tables{
+        desc->descriptor_tables,
+        desc->descriptor_table_count,
+    };
+    if (desc->descriptor_table_count > 0) {
+        res = set_descriptor_tables(descriptor_tables,
+                                    out_dsls,
+                                    binding_span,
+                                    binding_flags_span,
+                                    device,
+                                    current_set);
+        if (res.status != WisStatusOk) {
+            dsl_layouts->destroy(device.device, table, static_sampler_set);
+            return res;
+        }
+    }
 
     // Create pipeline layout
     VkPipelineLayoutCreateInfo pipeline_layout_info{
@@ -1428,7 +1617,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
         .pNext                  = nullptr,
         .flags                  = 0,
         .setLayoutCount         = layout_count,
-        .pSetLayouts            = dsl_layouts ? dsl_layouts->vk_dsls : nullptr,
+        .pSetLayouts            = dsl_layouts ? dsl_layouts->vk_dsls().data() : nullptr,
         .pushConstantRangeCount = static_cast<uint32_t>(desc->push_constant_count),
         .pPushConstantRanges    = push_constant_ranges,
     };
@@ -1438,14 +1627,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
                                            nullptr,
                                            &pipeline_layout);
     if (!succeeded(vr)) {
-        destroy_static_sampler_set();
-        destroy_allocated_samplers();
-        destroy_allocated_sets();
+        dsl_layouts->destroy(device.device, table, static_sampler_set);
         return make_result<Func(), "Failed to create Vulkan pipeline layout">(vr);
     }
 
     // Fill pipeline layout impl
-    auto& layout_impl         = *new (layout) VKPipelineLayoutImpl();
+    auto& layout_impl         = *new (layout) wis::impl::VKPipelineLayoutImpl();
     layout_impl.layout        = pipeline_layout;
     layout_impl.device        = device.device;
     layout_impl.device_header = device.device_header;
@@ -1459,7 +1646,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineLayout(WisVKPipelineLayout* self)
 {
-    auto& impl = *reinterpret_cast<VKPipelineLayoutImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKPipelineLayoutImpl*>(self);
     if (impl.layout != VK_NULL_HANDLE) {
         auto& table = impl.device_header->header.device_table;
         table.vkDestroyPipelineLayout(impl.device, impl.layout, nullptr);
@@ -1467,27 +1654,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineLayout(WisVKPipelineLayout* sel
 
         // Release descriptor set layouts
         if (impl.dsl_container) {
-            for (std::size_t i = 0; i < impl.dsl_container->dsl_count; ++i) {
-                table.vkDestroyDescriptorSetLayout(impl.device, impl.dsl_container->vk_dsls[i], nullptr);
-            }
-
-            // Destroy static sampler set
-            if (impl.static_samplers != VK_NULL_HANDLE) {
-                table.vkFreeDescriptorSets(impl.device,
-                                           impl.dsl_container->static_sampler_pool,
-                                           1,
-                                           &impl.static_samplers);
-                impl.static_samplers = VK_NULL_HANDLE;
-
-                // Destroy samplers
-                wis::span<VkSampler> static_samplers_span{
-                    reinterpret_cast<VkSampler*>(impl.dsl_container->vk_dsls + impl.dsl_container->dsl_count),
-                    impl.dsl_container->static_sampler_count
-                };
-                for (std::size_t i = 0; i < impl.dsl_container->static_sampler_count; i++) {
-                    table.vkDestroySampler(impl.device, static_samplers_span[i], nullptr);
-                }
-            }
+            impl.dsl_container->destroy(impl.device, table, impl.static_samplers);
 
             ::operator delete(impl.dsl_container);
             impl.dsl_container = nullptr;

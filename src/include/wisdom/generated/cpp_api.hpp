@@ -142,6 +142,15 @@ enum class StaticBorder {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Descriptor heap type.
+ *
+ * */
+enum class DescriptorHeapType {
+    Descriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
+    Sampler    = 1, ///< Sampler heap type. Used for sampler descriptors.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -267,6 +276,27 @@ struct PushDescriptor {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Descriptor table entry for wis::DescriptorTable.
+ *
+ * */
+struct DescriptorTableEntry {
+    wis::DescriptorType type; ///< Descriptor type.
+    std::uint32_t       bind_register; ///< Bind register number in HLSL.
+    std::uint32_t       count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor table for wis::PipelineLayout creation.
+ *
+ * */
+struct DescriptorTable {
+    wis::DescriptorHeapType                    type; ///< Descriptor heap type. Either Descriptor or Sampler.
+    wis::ShaderStages                          stage; ///< Shader stage. Defines the stage where the table is used.
+    wis::span<const wis::DescriptorTableEntry> entries; ///< Descriptor table entries array.
+    std::uint32_t                              space_overlap; ///< If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Pipeline layout description. Defines resource bindings for shaders.
  *
  * */
@@ -274,8 +304,7 @@ struct PipelineLayoutDesc {
     wis::span<const wis::PushConstant>      push_constants; ///< points to an array of wis::PushConstant.
     wis::span<const wis::PushDescriptor>    push_descriptors; ///< points to an array of wis::PushDescriptor.
     wis::span<const wis::StaticSamplerDesc> static_samplers; ///< points to an array of wis::StaticSamplerDesc.
-    void*                                   reserved; ///< reserved for future use. Must be `nullptr`.
-    std::size_t                             reserved_size; ///< reserved for future use. Must be `0`.
+    wis::span<const wis::DescriptorTable>   descriptor_tables; ///< points to an array of wis::DescriptorTable.
 };
 
 } // namespace wis

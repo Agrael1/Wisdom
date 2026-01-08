@@ -64,6 +64,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisStaticSamplerDesc, WisPushConstant, WisPushDescriptor
+ * @see WisStaticSamplerDesc, WisPushConstant, WisPushDescriptor, WisDescriptorTable
  * \endcond
  */

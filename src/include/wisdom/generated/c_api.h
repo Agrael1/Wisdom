@@ -145,6 +145,15 @@ typedef enum WisStaticBorder {
 } WisStaticBorder;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Descriptor heap type.
+ *
+ * */
+typedef enum WisDescriptorHeapType {
+    WisDescriptorHeapTypeDescriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
+    WisDescriptorHeapTypeSampler    = 1, ///< Sampler heap type. Used for sampler descriptors.
+} WisDescriptorHeapType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -270,6 +279,28 @@ typedef struct WisPushDescriptor {
 } WisPushDescriptor;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Descriptor table entry for WisDescriptorTable.
+ *
+ * */
+typedef struct WisDescriptorTableEntry {
+    WisDescriptorType type; ///< Descriptor type.
+    uint32_t          bind_register; ///< Bind register number in HLSL.
+    uint32_t          count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
+} WisDescriptorTableEntry;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor table for WisPipelineLayout creation.
+ *
+ * */
+typedef struct WisDescriptorTable {
+    WisDescriptorHeapType          type; ///< Descriptor heap type. Either Descriptor or Sampler.
+    WisShaderStages                stage; ///< Shader stage. Defines the stage where the table is used.
+    const WisDescriptorTableEntry* entries; ///< Descriptor table entries array.
+    size_t                         entry_count; ///< Descriptor table entries count.
+    uint32_t                       space_overlap; ///< If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types.
+} WisDescriptorTable;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Pipeline layout description. Defines resource bindings for shaders.
  *
  * */
@@ -280,8 +311,8 @@ typedef struct WisPipelineLayoutDesc {
     size_t                      push_descriptor_count; ///< counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
     const WisStaticSamplerDesc* static_samplers; ///< points to an array of WisStaticSamplerDesc.
     size_t                      static_sampler_count; ///< counts the number of static samplers in the `WisPipelineLayoutDesc::static_samplers` array.
-    void*                       reserved; ///< reserved for future use. Must be `nullptr`.
-    size_t                      reserved_size; ///< reserved for future use. Must be `0`.
+    const WisDescriptorTable*   descriptor_tables; ///< points to an array of WisDescriptorTable.
+    size_t                      descriptor_table_count; ///< counts the number of descriptor tables in the `WisPipelineLayoutDesc::descriptor_tables` array.
 } WisPipelineLayoutDesc;
 
 #ifdef __cplusplus
