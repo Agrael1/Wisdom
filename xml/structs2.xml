@@ -29,14 +29,14 @@
 			<member type="u8" name="adapter_uuid" array="16" doc="stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
 			<member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
 		</type>
-		
+
 		<type name="DebugCallback" category="delegate" version="0.7.0" doc="Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.">
 			<arg type="Severity" name="severity" doc="defines message severity level."/>
 			<arg type="char" name="message" mod="const,ptr" doc="contains the debug message string."/>
 			<arg type="u64" name="device" doc="handle to the device that generated the message. Can be `0` if message is not device specific."/>
 			<arg type="void" name="user_data" mod="ptr" doc="user defined data pointer passed during callback registration."/>
 		</type>
-		
+
 		<type name="DebugDesc" category="struct" version="0.7.0" doc="Debugging and logging description. Used to configure debug callback behavior.">
 			<member type="bool" name="enable_debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
 			<member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
@@ -60,7 +60,7 @@
 			<member type="f32" name="border_color" array="4" doc="Border color. Used if any address mode is set to {AddressMode::Border} and static_border_color is set to {StaticBorder::Custom}."/>
 			<member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
 		</type>
-		
+
 		<type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {PipelineLayout::} creation.">
 			<member type="SamplerDesc" name="sampler" doc="Sampler description."/>
 			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the sampler is used."/>
@@ -79,7 +79,21 @@
 			<member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
 			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
 		</type>
-		
+
+		<type name="DescriptorTableEntry" category="struct" version="0.7.0" doc="Descriptor table entry for {DescriptorTable::}.">
+			<member type="DescriptorType" name="type" doc="Descriptor type."/>
+			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+			<member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1."/>
+		</type>
+
+		<type name="DescriptorTable" category="struct" version="0.7.0" doc="Descriptor table for {PipelineLayout::} creation.">
+			<member type="DescriptorHeapType" name="type" doc="Descriptor heap type. Either Descriptor or Sampler."/>
+			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the table is used."/>
+			<member type="DescriptorTableEntry" name="entries" mod="const,span" doc="Descriptor table entries array."/>
+			<member type="size" name="entry_count" doc="Descriptor table entries count."/>
+			<member type="u32" name="space_overlap" doc="If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types."/>
+		</type>
+
 		<type name="PipelineLayoutDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
 			<member type="PushConstant" name="push_constants" mod="const,span" default="nullptr" doc="points to an array of {PushConstant::}."/>
 			<member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {PipelineLayoutDesc::push_constants} array."/>
@@ -87,8 +101,8 @@
 			<member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {PipelineLayoutDesc::push_descriptors} array."/>
 			<member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
 			<member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {PipelineLayoutDesc::static_samplers} array."/>
-			<member type="void" name="reserved" mod="ptr" default="nullptr" doc="reserved for future use. Must be `nullptr`."/>
-			<member type="size" name="reserved_size" default="0" doc="reserved for future use. Must be `0`."/>
+			<member type="DescriptorTable" name="descriptor_tables" mod="const,span" default="nullptr" doc="points to an array of {DescriptorTable::}."/>
+			<member type="size" name="descriptor_table_count" default="0" doc="counts the number of descriptor tables in the {PipelineLayoutDesc::descriptor_tables} array."/>
 		</type>
 
 

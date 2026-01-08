@@ -307,7 +307,7 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
 }
 
 std::pair<VkDescriptorSet, VkDescriptorPool>
-detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept
+detail::VKStaticSamplerPoolAllocator::AllocateSet(VkDevice device, const VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept
 {
     std::lock_guard<std::mutex> lock(pool_mutex);
     // Step 1: Try current pool

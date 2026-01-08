@@ -204,6 +204,12 @@
 			</value>
 		</type>
 
+		<type name="DescriptorHeapType" category="enum" version="0.7.0" doc="Descriptor heap type.">
+			<impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE" direct="true"/>
+			<value name="Descriptor" value="0" doc="Descriptor heap type. Used for all descriptor types, except for samplers."/>
+			<value name="Sampler" value="1" doc="Sampler heap type. Used for sampler descriptors."/>
+		</type>
+
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
 			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
