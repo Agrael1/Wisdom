@@ -91,6 +91,7 @@ enum class DescriptorType {
     RWBuffer              = 4, ///< Descriptor is an unordered access read-write buffer.
     Buffer                = 5, ///< Descriptor is a shader resource buffer.
     AccelerationStructure = 6, ///< Descriptor is an acceleration structure.
+    Count                 = 7, ///< Descriptor is a mutable type.
 };
 
 /**
@@ -148,6 +149,26 @@ enum class StaticBorder {
 enum class DescriptorHeapType {
     Descriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
     Sampler    = 1, ///< Sampler heap type. Used for sampler descriptors.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.
+ *
+ * */
+enum class DescriptorMemoryType {
+    CpuOnly       = 0, ///< Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool.
+    ShaderVisible = 1, ///< Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.
+ *
+ * */
+enum class DescriptorStorageTier {
+    Tier1 = 0, ///< Tier 1: VkDescriptorSets and VkDescriptorPools.
+    Tier2 = 1, ///< Tier 2: Descriptor Buffer with no mutable descriptor type.
+    Tier3 = 2, ///< Tier 3: Descriptor Buffer with mutable descriptor type.
+    Tier4 = 3, ///< Tier 4: Descriptor Heap.
 };
 
 /**
@@ -223,7 +244,7 @@ struct DebugDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Sampler description for wis::Sampler creation.
+ * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.
  *
  * */
 struct SamplerDesc {
@@ -305,6 +326,16 @@ struct PipelineLayoutDesc {
     wis::span<const wis::PushDescriptor>    push_descriptors; ///< points to an array of wis::PushDescriptor.
     wis::span<const wis::StaticSamplerDesc> static_samplers; ///< points to an array of wis::StaticSamplerDesc.
     wis::span<const wis::DescriptorTable>   descriptor_tables; ///< points to an array of wis::DescriptorTable.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor heap description for wis::DescriptorHeap creation.
+ *
+ * */
+struct DescriptorHeapDesc {
+    wis::DescriptorHeapType   type; ///< indicates the type of descriptor heap to create (sampler or descriptor).
+    wis::DescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
+    std::size_t               descriptor_count; ///< indicates the amount of descriptors, present in the heap.
 };
 
 } // namespace wis

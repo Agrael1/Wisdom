@@ -6,8 +6,8 @@
 	</includes>
 
 	<handles>
-		<handle name="Sampler" version="0.7.0" doc="Class representing a sampler object for texture sampling.">
-			<impl for="vk" size="3"/>
+		<handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
+			<impl for="vk" size="5"/>
 			<impl for="dx" size="2"/>
 		</handle>
 		<handle name="PipelineLayout" version="0.7.0" doc="Class representing a pipeline layout, which defines resource bindings for shaders.">
@@ -93,9 +93,9 @@
 			<ret type="PipelineLayout" name="layout" result="true" doc="points to {PipelineLayout::}, which is initialized on success."/>
 			<arg type="PipelineLayoutDesc" name="desc" mod="const,ref" doc="points to {PipelineLayoutDesc::}, which describes the pipeline layout to create."/>
 		</func>
-		<func name="CreateSampler" version="0.7.0" for="Device" mod="const" doc="Creates a sampler with given descriptor.">
-			<ret type="Sampler" name="sampler" result="true" doc="points to {Sampler::}, which is initialized on success."/>
-			<arg type="SamplerDesc" name="desc" mod="const,ref" doc="points to {SamplerDesc::}, which describes the sampler to create."/>
+		<func name="CreateDescriptorHeap" version="0.7.0" for="Device" mod="const" doc="Creates a descriptor storage with given descriptor.">
+			<ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
+			<arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
 		</func>
 		
 		

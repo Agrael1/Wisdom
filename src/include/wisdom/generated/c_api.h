@@ -94,6 +94,7 @@ typedef enum WisDescriptorType {
     WisDescriptorTypeRWBuffer              = 4, ///< Descriptor is an unordered access read-write buffer.
     WisDescriptorTypeBuffer                = 5, ///< Descriptor is a shader resource buffer.
     WisDescriptorTypeAccelerationStructure = 6, ///< Descriptor is an acceleration structure.
+    WisDescriptorTypeCount                 = 7, ///< Descriptor is a mutable type.
 } WisDescriptorType;
 
 /**
@@ -152,6 +153,26 @@ typedef enum WisDescriptorHeapType {
     WisDescriptorHeapTypeDescriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
     WisDescriptorHeapTypeSampler    = 1, ///< Sampler heap type. Used for sampler descriptors.
 } WisDescriptorHeapType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.
+ *
+ * */
+typedef enum WisDescriptorMemoryType {
+    WisDescriptorMemoryTypeCpuOnly       = 0, ///< Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool.
+    WisDescriptorMemoryTypeShaderVisible = 1, ///< Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from.
+} WisDescriptorMemoryType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.
+ *
+ * */
+typedef enum WisDescriptorStorageTier {
+    WisDescriptorStorageTierTier1 = 0, ///< Tier 1: VkDescriptorSets and VkDescriptorPools.
+    WisDescriptorStorageTierTier2 = 1, ///< Tier 2: Descriptor Buffer with no mutable descriptor type.
+    WisDescriptorStorageTierTier3 = 2, ///< Tier 3: Descriptor Buffer with mutable descriptor type.
+    WisDescriptorStorageTierTier4 = 3, ///< Tier 4: Descriptor Heap.
+} WisDescriptorStorageTier;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
@@ -226,7 +247,7 @@ typedef struct WisDebugDesc {
 } WisDebugDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Sampler description for WisSampler creation.
+ * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.
  *
  * */
 typedef struct WisSamplerDesc {
@@ -314,6 +335,16 @@ typedef struct WisPipelineLayoutDesc {
     const WisDescriptorTable*   descriptor_tables; ///< points to an array of WisDescriptorTable.
     size_t                      descriptor_table_count; ///< counts the number of descriptor tables in the `WisPipelineLayoutDesc::descriptor_tables` array.
 } WisPipelineLayoutDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor heap description for WisDescriptorHeap creation.
+ *
+ * */
+typedef struct WisDescriptorHeapDesc {
+    WisDescriptorHeapType   type; ///< indicates the type of descriptor heap to create (sampler or descriptor).
+    WisDescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
+    size_t                  descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+} WisDescriptorHeapDesc;
 
 #ifdef __cplusplus
 }

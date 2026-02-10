@@ -4,6 +4,7 @@
 #error "This header requires C++"
 #endif // __cplusplus
 
+#include <Windows.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <cassert>
@@ -74,6 +75,10 @@ struct DX12SamplerImpl {
     ID3D12DescriptorHeap*       descriptor_heap;
     D3D12_CPU_DESCRIPTOR_HANDLE handle;
 };
+struct DX12DescriptorHeapImpl {
+    ID3D12DescriptorHeap* descriptor_heap;
+    uint32_t              descriptor_size;
+};
 } // namespace impl
 } // namespace wis
 
@@ -83,6 +88,7 @@ struct DX12SamplerImpl {
 #error "C++20 is required to build wisdom as header-only library"
 #endif // !WIS_HAS_CPP20
 
+#include "dx12_instance.cpp"
 #include "dx12_instance.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // DX12_FACTORY_HPP

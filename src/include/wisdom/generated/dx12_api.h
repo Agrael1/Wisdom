@@ -7,10 +7,10 @@
 extern "C" {
 #endif // __cplusplus
 /**
- * @brief Provided by Wisdom 0.7.0. Class representing a sampler object for texture sampling.
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12Sampler, 2);
+WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 2);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
@@ -77,11 +77,11 @@ typedef struct WisDX12InstanceExtensionHeader {
 } WisDX12InstanceExtensionHeader;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisSampler handle.
- * @param self is a pointer to the valid WisSampler instance.
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
  *
  * */
-WISDOM_API void wisDX12DestroySampler(WisDX12Sampler* self);
+WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineLayout handle.
@@ -260,16 +260,16 @@ WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX12Device*     
                                                        WisDX12PipelineLayout*       layout);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Creates a sampler with given descriptor.
+ * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given descriptor.
  * @param self is a pointer to the valid WisDevice instance.
- * @param desc points to WisSamplerDesc, which describes the sampler to create.
- * @param sampler points to WisSampler, which is initialized on success.
+ * @param desc points to WisDescriptorHeapDesc, which describes the descriptor heap to create.
+ * @param heap points to WisDescriptorHeap, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateSampler(const WisDX12Device*  self,
-                                                const WisSamplerDesc* desc,
-                                                WisDX12Sampler*       sampler);
+WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX12Device*         self,
+                                                       const WisDescriptorHeapDesc* desc,
+                                                       WisDX12DescriptorHeap*       heap);
 
 #ifdef __cplusplus
 }

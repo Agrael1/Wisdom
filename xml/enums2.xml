@@ -112,6 +112,7 @@
 				<impl name="vk" value="VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"/>
 				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
 			</value>
+			<value name="Count" value="7" doc="Descriptor is a mutable type."/>
 		</type>
 
 		<type name="CompareOperation" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
@@ -208,6 +209,19 @@
 			<impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE" direct="true"/>
 			<value name="Descriptor" value="0" doc="Descriptor heap type. Used for all descriptor types, except for samplers."/>
 			<value name="Sampler" value="1" doc="Sampler heap type. Used for sampler descriptors."/>
+		</type>
+		
+		<type name="DescriptorMemoryType" category="enum" version="0.7.0" doc="Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.">
+			<impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS" direct="true"/>
+			<value name="CpuOnly" value="0" doc="Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool."/>
+			<value name="ShaderVisible" value="1" doc="Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from."/>
+		</type>
+		
+		<type name="DescriptorStorageTier" category="enum" version="0.7.0" doc="Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.">
+			<value name="Tier1" value="0" doc="Tier 1: VkDescriptorSets and VkDescriptorPools."/>
+			<value name="Tier2" value="1" doc="Tier 2: Descriptor Buffer with no mutable descriptor type."/>
+			<value name="Tier3" value="2" doc="Tier 3: Descriptor Buffer with mutable descriptor type."/>
+			<value name="Tier4" value="3" doc="Tier 4: Descriptor Heap."/>
 		</type>
 
 		<!--Bitmasks-->
