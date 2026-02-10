@@ -27,11 +27,11 @@ set(DXAGILITY_DEBUG_DLL
     ${DXA_BIN}/d3d12SDKLayers.dll
     CACHE INTERNAL "")
 
-add_library(DX12AgilityCore SHARED IMPORTED GLOBAL)
+add_library(DX12AgilityCore MODULE IMPORTED GLOBAL)
 set_property(TARGET DX12AgilityCore PROPERTY IMPORTED_LOCATION
                                                  ${DXAGILITY_DLL})
 
-add_library(DX12AgilitySDKLayers SHARED IMPORTED GLOBAL)
+add_library(DX12AgilitySDKLayers MODULE IMPORTED GLOBAL)
 set_property(TARGET DX12AgilitySDKLayers PROPERTY IMPORTED_LOCATION
                                                       ${DXAGILITY_DEBUG_DLL})
 
