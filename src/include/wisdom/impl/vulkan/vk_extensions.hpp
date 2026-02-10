@@ -11,6 +11,8 @@
 #include <unordered_set>
 #include <cstring>
 #include <cassert>
+#include <cstdint>
+
 
 namespace wis {
 namespace impl {

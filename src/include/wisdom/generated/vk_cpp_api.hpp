@@ -12,17 +12,17 @@
 
 namespace wis {
 
-struct VKSamplerDeleter {
-    void operator()(WisVKSampler* handle) noexcept
+struct VKDescriptorHeapDeleter {
+    void operator()(WisVKDescriptorHeap* handle) noexcept
     {
-        ::wisVKDestroySampler(handle);
+        ::wisVKDestroyDescriptorHeap(handle);
     }
 };
 /**
- * @brief Provided by Wisdom 0.7.0. Class representing a sampler object for texture sampling.
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-class VKSampler : public wis::impl::Implements<wis::impl::VKSamplerImpl, WisVKSampler, wis::VKSamplerDeleter>
+class VKDescriptorHeap : public wis::impl::Implements<wis::impl::VKDescriptorHeapImpl, WisVKDescriptorHeap, wis::VKDescriptorHeapDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -213,20 +213,20 @@ public:
         return layout;
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Creates a sampler with given descriptor.
-     * @param desc points to wis::SamplerDesc, which describes the sampler to create.
+     * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given descriptor.
+     * @param desc points to wis::DescriptorHeapDesc, which describes the descriptor heap to create.
      * @param out_result denoting the outcome of operation.
-     * @return sampler points to wis::Sampler, which is initialized on success.
+     * @return heap points to wis::DescriptorHeap, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKSampler CreateSampler(const wis::SamplerDesc& desc,
-                                                      wis::Result&            out_result) const noexcept
+    WIS_NODISCARD inline wis::VKDescriptorHeap CreateDescriptorHeap(const wis::DescriptorHeapDesc& desc,
+                                                                    wis::Result&                   out_result) const noexcept
     {
-        wis::VKSampler sampler;
-        out_result = convert_result(::wisVKDeviceCreateSampler(&_impl_storage,
-                                                               reinterpret_cast<const WisSamplerDesc*>(&desc),
-                                                               sampler.GetStorage()));
-        return sampler;
+        wis::VKDescriptorHeap heap;
+        out_result = convert_result(::wisVKDeviceCreateDescriptorHeap(&_impl_storage,
+                                                                      reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
+                                                                      heap.GetStorage()));
+        return heap;
     }
 };
 

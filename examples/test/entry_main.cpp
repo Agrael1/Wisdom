@@ -134,7 +134,5 @@ int main()
     sampler_desc.border_color        = { 0.0f, 0.0f, 0.0f, 0.0f };
     sampler_desc.flags               = wis::SamplerFlags::None;
 
-    wis::Sampler sampler = device.CreateSampler(sampler_desc, result);
-
     return 0;
 }

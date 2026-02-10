@@ -21,7 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Sampler           = wis::DX12Sampler;
+using DescriptorHeap    = wis::DX12DescriptorHeap;
 using PipelineLayout    = wis::DX12PipelineLayout;
 using ResourceAllocator = wis::DX12ResourceAllocator;
 using Fence             = wis::DX12Fence;
@@ -73,7 +73,7 @@ namespace wis {
 // Handles
 //==============================================================
 
-using Sampler           = wis::VKSampler;
+using DescriptorHeap    = wis::VKDescriptorHeap;
 using PipelineLayout    = wis::VKPipelineLayout;
 using ResourceAllocator = wis::VKResourceAllocator;
 using Fence             = wis::VKFence;

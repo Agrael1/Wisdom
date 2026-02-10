@@ -17,6 +17,7 @@
  *     WisDescriptorTypeRWBuffer = 4,
  *     WisDescriptorTypeBuffer = 5,
  *     WisDescriptorTypeAccelerationStructure = 6,
+ *     WisDescriptorTypeCount = 7,
  * } WisDescriptorType;
  * ```
  * C++ version:
@@ -31,6 +32,7 @@
  *     RWBuffer = 4,
  *     Buffer = 5,
  *     AccelerationStructure = 6,
+ *     Count = 7,
  * };
  * }
  * ```
@@ -51,6 +53,7 @@
  * - `WisDescriptorTypeRWBuffer = 4`: Descriptor is an unordered access read-write buffer.
  * - `WisDescriptorTypeBuffer = 5`: Descriptor is a shader resource buffer.
  * - `WisDescriptorTypeAccelerationStructure = 6`: Descriptor is an acceleration structure.
+ * - `WisDescriptorTypeCount = 7`: Descriptor is a mutable type.
  * \endcond
  *
  *

@@ -43,6 +43,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisDescriptorTable
+ * @see WisDescriptorTable, WisDescriptorHeapDesc
  * \endcond
  */

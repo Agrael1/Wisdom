@@ -161,7 +161,6 @@ int main()
     printf("CreatePipelineLayout result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     // Create Sampler
-    WisSampler     sampler      = { 0 };
     WisSamplerDesc sampler_desc = {
         .min_filter          = WisFilterLinear,
         .mag_filter          = WisFilterLinear,
@@ -179,8 +178,6 @@ int main()
         .border_color        = { 0.0f, 0.0f, 0.0f, 0.0f },
         .flags               = WisSamplerFlagsNone,
     };
-    result = wisDeviceCreateSampler(&device, &sampler_desc, &sampler);
-    printf("CreateSampler result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);
@@ -189,6 +186,5 @@ int main()
     wisDestroyFence(&fence);
     wisDestroyResourceAllocator(&allocator);
     wisDestroyPipelineLayout(&pipeline_layout);
-    wisDestroySampler(&sampler);
     return 0;
 }
