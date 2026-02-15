@@ -5,7 +5,7 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/cpp_api.hpp>
-#include <wisdom/impl/vulkan/vk_tables.hpp>
+#include <wisdom/vulkan/vk_tables.hpp>
 #include <wisdom/bridge/span.hpp>
 #include <atomic>
 #include <mutex>
@@ -15,14 +15,14 @@ namespace detail {
 
 //-----------------------------------------------------------------------------
 template<typename HeaderType>
-struct control_block {
-    size_t add_ref() noexcept
+struct VKControlBlock {
+    size_t AddRef() noexcept
     {
         // Relaxed memory order is sufficient since this does not impose any ordering on other operations
         return m_ref_cnt.fetch_add(1, std::memory_order_relaxed);
     }
 
-    size_t release() noexcept
+    size_t Release() noexcept
     {
         // A release memory order to ensure that all releases are ordered
         return m_ref_cnt.fetch_sub(1, std::memory_order_release);
@@ -127,6 +127,9 @@ struct VKInstanceHeader {
     std::unique_ptr<wis::detail::VKDebugCallbackThunk> debug_callback_thunk;
 };
 
+struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
+};
+
 struct VKDeviceFeatures {
     bool has_custom_border_color           : 1;
     bool dynamic_rendering                 : 1;
@@ -223,11 +226,11 @@ struct VKDescriptorSetLayoutContainer {
 };
 
 struct VKDeviceHeader {
-    impl::VKMainDevice                       device_table;
-    impl::VKMainCommandQueue                 command_queue_table;
-    impl::VKMainCommandList                  command_list_table;
-    detail::control_block<VKInstanceHeader>* shared_header;
-    VkInstance                               instance;
+    impl::VKMainDevice       device_table;
+    impl::VKMainCommandQueue command_queue_table;
+    impl::VKMainCommandList  command_list_table;
+    VKInstanceControlBlock*  shared_header;
+    VkInstance               instance;
 
     // Command queue
     std::size_t                                queue_family_count;
@@ -238,6 +241,9 @@ struct VKDeviceHeader {
 
     // Static sampler pool allocator
     detail::VKStaticSamplerPoolAllocator static_sampler_pool_allocator;
+};
+
+struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
 };
 
 } // namespace detail

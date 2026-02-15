@@ -7,7 +7,7 @@
 	<types comment="Type definitions">
 		<type name="Result" category="struct" mod="nodiscard" version="0.7.0" doc="Main source of communication of operation success.">
 			<member type="Status" name="status" default="Ok" doc="defines operation status. Compare with {Status::Ok}."/>
-			<member type="i32" name="platform_code" default="0" doc="defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
+			<member type="i32" name="platform_code" default="0" doc="defines platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
 			<member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
 		</type>
 
@@ -19,7 +19,7 @@
 			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
 		</type>
 
-		<type name="AdapterDesc" category="struct" version="0.7.0"  doc="Adapter description. Describes hardware driver identificators as well as memory limits.">
+		<type name="AdapterDesc" category="struct" version="0.7.0"  doc="Adapter description. Describes hardware driver identification as well as memory limits.">
 			<member type="char" name="description" array="256" doc="Adapter description. Contains name of the graphics adapter."/>
 			<member type="u32" name="vendor_id" doc="denotes Vendor ID. Can be used to find the correct adapter."/>
 			<member type="u32" name="device_id" doc="denotes Device ID. Together with {::vendor_id} uniquely identifies the device."/>
@@ -41,6 +41,12 @@
 			<member type="bool" name="enable_debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
 			<member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
 			<member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
+		</type>
+
+		<type name="CommandQueueDesc" category="struct" version="0.7.0" doc="Command queue description for {CommandQueue::} creation.">
+			<member type="CommandQueueType" name="type" doc="defines the type of the command queue."/>
+			<member type="CommandQueueFlags" name="flags" doc="defines command queue flags. Used to set additional options for command queue creation."/>
+			<member type="CommandQueuePriority" name="priority" doc="defines the global priority of the command queue."/>
 		</type>
 
 		<type name="SamplerDesc" category="struct" version="0.7.0" doc="Sampler description for {Sampler::} creation.">
@@ -109,6 +115,13 @@
 			<member type="DescriptorHeapType" name="type" doc="indicates the type of descriptor heap to create (sampler or descriptor)."/>
 			<member type="DescriptorMemoryType" name="memory_type" doc="indicates where the descriptor heap will be allocated."/>
 			<member type="size" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
+		</type>
+
+		<type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
+			<member type="CommandQueueDesc" name="queue_descs" mod="ptr,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
+			<member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
+			<member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
+			<member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
 		</type>
 
 

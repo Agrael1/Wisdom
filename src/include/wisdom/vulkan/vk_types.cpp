@@ -1,8 +1,9 @@
 #ifndef WIS_VK_TYPES_CPP
 #define WIS_VK_TYPES_CPP
 
-#include <wisdom/impl/vulkan/vk_types.hpp>
-#include <wisdom/impl/vulkan/vk_utils.hpp>
+#include <wisdom/vulkan/vk_types.hpp>
+#include <wisdom/vulkan/detail/vk_utils.hpp>
+#include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/util/allocation.hpp>
 
 using namespace wis;
@@ -133,9 +134,9 @@ wis::VKInstanceExtensionCollector::VKInstanceExtensionCollector(const VKMainGlob
 wis::VKInstanceExtensionCollector::ExtReturn
 wis::VKInstanceExtensionCollector::GetExtensionsAndLayers(WisResult& out_res) const noexcept
 {
-    ExtReturn   result;
-    std::size_t ext_count   = enabled_extension_names_set.size();
-    std::size_t layer_count = enabled_layer_names_set.size();
+    ExtReturn   result{};
+    const std::size_t ext_count   = enabled_extension_names_set.size();
+    const std::size_t layer_count = enabled_layer_names_set.size();
 
     auto names_array = make_unique<const char*[]>(ext_count + layer_count);
     if (!names_array) {
@@ -273,7 +274,7 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     // Fill feature structures
     VkBaseOutStructure* feature_struct_head = nullptr;
     for (auto& [stype, size] : feature_map) {
-        VkBaseOutStructure* struct_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr);
+        auto* struct_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr);
         struct_ptr->sType              = stype;
         struct_ptr->pNext              = feature_struct_head;
         feature_struct_head            = struct_ptr;
@@ -286,7 +287,7 @@ wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res) const noexcep
     // Fill property structures
     VkBaseOutStructure* property_struct_head = nullptr;
     for (auto& [stype, size] : property_map) {
-        VkBaseOutStructure* struct_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr);
+        auto* struct_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr);
         struct_ptr->sType              = stype;
         struct_ptr->pNext              = property_struct_head;
         property_struct_head           = struct_ptr;

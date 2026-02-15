@@ -77,6 +77,17 @@ typedef struct WisDX12InstanceExtensionHeader {
 } WisDX12InstanceExtensionHeader;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Device requirements. Used to specify required features and properties for device creation.
+ *
+ * */
+typedef struct WisDX12DeviceRequirements {
+    WisCommandQueueDesc**          queue_descs; ///< points to an array of WisCommandQueueDesc for which queues will be created during device creation.
+    size_t                         queue_desc_count; ///< counts the number of queue descriptions in the wisAdapterQueryCreateDevice array.
+    WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
+    size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice array.
+} WisDX12DeviceRequirements;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
  * @param self is a pointer to the valid WisDescriptorHeap instance.
  *
@@ -189,17 +200,15 @@ WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery
  * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
  * @param self is a pointer to the valid WisAdapterQuery instance.
  * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
- * @param extensions points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
- * @param extension_count counts the number of extensions in the `extensions` array.
+ * @param requirements points to WisDeviceRequirements, which defines required features and properties for device creation.
  * @param device points to WisDevice, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery*     self,
-                                                     size_t                         index,
-                                                     WisDX12DeviceExtensionHeader** extensions,
-                                                     size_t                         extension_count,
-                                                     WisDX12Device*                 device);
+WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery*       self,
+                                                     size_t                           index,
+                                                     const WisDX12DeviceRequirements* requirements,
+                                                     WisDX12Device*                   device);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command queue of given type.

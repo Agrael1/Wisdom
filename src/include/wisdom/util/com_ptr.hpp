@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <utility>
+#include <atomic>
 
 // ============================================================================
 // GUID Support Detection and Traits
@@ -17,8 +18,10 @@
 
 #if defined(_WIN32)
 #include <guiddef.h>
+#include <unknwn.h>
 namespace wis {
 using GUID = ::GUID;
+using hresult = HRESULT;
 } // namespace wis
 #else
 namespace wis {
@@ -33,7 +36,17 @@ struct GUID {
     uint8_t  Data4[8];
 };
 } // namespace wis
+
+/**
+ * @brief HRESULT type alias for COM method return values.
+ */
+using hresult = std::int32_t;
 #endif
+
+// Define STDMETHODCALLTYPE macro for non-Windows platforms to avoid compilation errors
+#ifndef STDMETHODCALLTYPE
+#define STDMETHODCALLTYPE
+#endif // STDMETHODCALLTYPE
 
 namespace wis {
 // ============================================================================
@@ -137,11 +150,6 @@ inline constexpr GUID guid_of_v()
 #endif
 
 /**
- * @brief HRESULT type alias for COM method return values.
- */
-using hresult = std::int32_t;
-
-/**
  * @brief Tag type for taking ownership of a raw pointer.
  * @details Used to construct com_ptr without incrementing reference count.
  */
@@ -152,7 +160,7 @@ struct take_ownership_t {
  * @brief Tag instance for take_ownership_t.
  * @see take_ownership_t
  */
-static constexpr take_ownership_t take_ownership = {};
+static constexpr take_ownership_t take_ownership = { };
 
 /**
  * @brief A smart pointer for COM interface reference counting.
@@ -585,6 +593,60 @@ private:
 
 private:
     pointer ptr; ///< The raw COM interface pointer.
+};
+
+/**
+ * @brief A helper base class to implement IUnknown for COM objects.
+ * @tparam T The COM interface type that inherits from IUnknown.
+ *
+ * @details Provides a thread-safe reference counting implementation of IUnknown.
+ *          Classes can inherit from IUnknownImpl<T> to get default QueryInterface,
+ *          AddRef, and Release implementations. The template parameter T is used
+ *          to determine the correct GUID for QueryInterface.
+ */
+template<class T>
+class IUnknownImpl : public T
+{
+protected:
+    ~IUnknownImpl() = default;
+
+private:
+    static_assert(std::is_base_of<IUnknown, T>::value, "T must inherit from IUnknown");
+
+public:
+    using T::T; // Inherit constructors
+
+public:
+    // IUnknown methods
+    hresult STDMETHODCALLTYPE QueryInterface(const GUID& iid, void** ppv) noexcept override
+    {
+        if (ppv == nullptr) {
+            return E_POINTER;
+        }
+        if (iid == guid_of_v<T>()) {
+            *ppv = static_cast<T*>(this);
+            AddRef();
+            return S_OK;
+        }
+        *ppv = nullptr;
+        return E_NOINTERFACE;
+    }
+    unsigned long STDMETHODCALLTYPE AddRef() noexcept override
+    {
+        return ref_count.fetch_add(1, std::memory_order_relaxed);
+    }
+    unsigned long STDMETHODCALLTYPE Release() noexcept override
+    {
+        uint32_t count = ref_count.fetch_sub(1, std::memory_order_release) - 1;
+        if (count == 0) {
+            std::atomic_thread_fence(std::memory_order_acquire);
+            delete this;
+        }
+        return count;
+    }
+
+private:
+    std::atomic<unsigned long> ref_count{ 1 }; ///< Reference count for the COM object.
 };
 } // namespace wis
 

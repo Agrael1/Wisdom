@@ -5,7 +5,7 @@
 #endif // __cplusplus
 
 #include <wisdom/global/definitions.h>
-#include <wisdom/impl/vulkan/vk_tables.hpp>
+#include <wisdom/vulkan/vk_tables.hpp>
 #include <wisdom/generated/c_api.h>
 #include <unordered_map>
 #include <unordered_set>

@@ -8,9 +8,20 @@
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/global/internal.hpp>
-#include <wisdom/impl/vulkan/vk_types.hpp>
+#include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device requirements. Used to specify required features and properties for device creation.
+ *
+ * */
+struct VKDeviceRequirements {
+    wis::span<wis::CommandQueueDesc*>        queue_descs; ///< points to an array of wis::CommandQueueDesc for which queues will be created during device creation.
+    std::size_t                              queue_desc_count; ///< counts the number of queue descriptions in the wis::CreateDevice array.
+    wis::span<wis::VKDeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
+    std::size_t                              extension_count; ///< counts the number of extensions in the wis::CreateDevice array.
+};
 
 struct VKDescriptorHeapDeleter {
     void operator()(WisVKDescriptorHeap* handle) noexcept
@@ -274,20 +285,19 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
      * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wis::GetAdapterCount.
-     * @param extensions points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
+     * @param requirements points to wis::DeviceRequirements, which defines required features and properties for device creation.
      * @param out_result denoting the outcome of operation.
      * @return device points to wis::Device, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKDevice CreateDevice(std::size_t                              index,
-                                                    wis::span<wis::VKDeviceExtensionHeader*> extensions,
-                                                    wis::Result&                             out_result) const noexcept
+    WIS_NODISCARD inline wis::VKDevice CreateDevice(std::size_t                      index,
+                                                    const wis::VKDeviceRequirements& requirements,
+                                                    wis::Result&                     out_result) const noexcept
     {
         wis::VKDevice device;
         out_result = convert_result(::wisVKAdapterQueryCreateDevice(&_impl_storage,
                                                                     index,
-                                                                    reinterpret_cast<WisVKDeviceExtensionHeader**>(extensions.data()),
-                                                                    extensions.size(),
+                                                                    reinterpret_cast<const WisVKDeviceRequirements*>(&requirements),
                                                                     device.GetStorage()));
         return device;
     }

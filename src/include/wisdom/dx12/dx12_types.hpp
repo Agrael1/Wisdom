@@ -4,13 +4,11 @@
 #error "This header requires C++"
 #endif // __cplusplus
 
-#include <Windows.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
-#include <cassert>
-#include <wrl/implements.h>
 #include <D3D12MemAlloc.h>
-#include <wisdom/impl/dx12/dx12_extensions.hpp>
+#include <wisdom/dx12/dx12_extensions.hpp>
+#include <wisdom/util/com_ptr.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -21,14 +19,7 @@ constexpr inline wis::Result convert_result(WisResult result) noexcept
 
 //-----------------------------------------------------------------------------
 namespace detail {
-class DX12DebugLayer : public Microsoft::WRL::RuntimeClass<
-                               Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom | Microsoft::WRL::InhibitRoOriginateError>,
-                               IUnknown>
-{
-public:
-    WisDebugCallback callback  = nullptr;
-    void*            user_data = nullptr;
-};
+struct DX12DebugLayer;
 } // namespace detail
 
 namespace impl {
@@ -71,10 +62,6 @@ struct DX12PipelineLayoutImpl {
     ID3D12RootSignature* root_signature;
 };
 
-struct DX12SamplerImpl {
-    ID3D12DescriptorHeap*       descriptor_heap;
-    D3D12_CPU_DESCRIPTOR_HANDLE handle;
-};
 struct DX12DescriptorHeapImpl {
     ID3D12DescriptorHeap* descriptor_heap;
     uint32_t              descriptor_size;
@@ -88,7 +75,9 @@ struct DX12DescriptorHeapImpl {
 #error "C++20 is required to build wisdom as header-only library"
 #endif // !WIS_HAS_CPP20
 
+#include "dx12_impl.cpp"
 #include "dx12_instance.cpp"
-#include "dx12_instance.cpp"
+#include "dx12_device.cpp"
+#include "dx12_adapter_query.cpp"
 #endif // WISDOM_BUILD_BINARIES
-#endif // DX12_FACTORY_HPP
+#endif // WIS_DX12_TYPES_HPP

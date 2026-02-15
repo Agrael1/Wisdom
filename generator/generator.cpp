@@ -459,7 +459,7 @@ void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/global/internal.hpp>
-#include <wisdom/impl/dx12/dx12_types.hpp>
+#include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
 )";
@@ -473,7 +473,7 @@ namespace wis {
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/global/internal.hpp>
-#include <wisdom/impl/vulkan/vk_types.hpp>
+#include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
 )";

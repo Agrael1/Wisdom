@@ -9,6 +9,6 @@ set(CPACK_COMPONENTS_ALL Unspecified)
 
 # Install from both Debug and Release builds (Unspecified component only)
 set(CPACK_INSTALL_CMAKE_PROJECTS
-    "${CMAKE_CURRENT_LIST_DIR}/../../build/msvc-debug;wisdom;Unspecified;/"
-    "${CMAKE_CURRENT_LIST_DIR}/../../build/msvc-release;wisdom;Unspecified;/"
+        "${CMAKE_CURRENT_LIST_DIR}/../../build/msvc-debug;wisdom;Unspecified;/"
+        "${CMAKE_CURRENT_LIST_DIR}/../../build/msvc-release;wisdom;Unspecified;/"
 )
