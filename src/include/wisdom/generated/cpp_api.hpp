@@ -16,14 +16,14 @@ namespace wis {
  *
  * */
 enum class Status {
-    Ok                = 0, ///< Operation succeded.
+    Ok                = 0, ///< Operation succeeded.
     Timeout           = 1, ///< Operation timed out.
     Partial           = 2, ///< Operation partially succeeded.
     InvalidArgument   = -1, ///< One or more arguments, or parts of arguments passed to the function were incorrect.
     OutOfHostMemory   = -2, ///< There is no more host memory available.
     OutOfDeviceMemory = -3, ///< There is no more device memory available.
     DeviceLost        = -4, ///< Device driver was forcefully stopped.
-    Occluded          = -5, ///< Swapchain presentation was not visible to the user. Rendering is too fast.
+    Occluded          = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     ValidationFailed  = -6, ///< A validation layer found an error.
     Error             = -10000, ///< Operation failed.
 };
@@ -61,6 +61,16 @@ enum class CommandQueueType {
     VideoDecode = 3, ///< Command queue for video decoding operations.
     VideoEncode = 4, ///< Command queue for video encoding operations.
     Count       = 5, ///< Number of command queue types available.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Global queue priority. Higher priority queues get more GPU time, but @wis_may cause performance issues if overused.
+ *
+ * */
+enum class CommandQueuePriority {
+    Normal         = 0, ///< Normal queue priority.
+    High           = 100, ///< High queue priority.
+    GlobalRealtime = 10000, ///< Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
 };
 
 /**
@@ -176,7 +186,7 @@ enum class DescriptorStorageTier {
  *
  * */
 enum class AdapterFlags : uint32_t {
-    None     = 0, ///< No flags set. Adapter @wis_may be descrete or embedded.
+    None     = 0, ///< No flags set. Adapter @wis_may be discrete or embedded.
     Remote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
     Software = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
 };
@@ -188,6 +198,15 @@ enum class AdapterFlags : uint32_t {
 enum class SamplerFlags : uint32_t {
     None                     = 0, ///< No flags set.
     NonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags for command queue creation.
+ *
+ * */
+enum class CommandQueueFlags : uint32_t {
+    None         = 0, ///< No flags set.
+    Synchronized = (1 << 0), ///< Command queue submission is synchronized.
 };
 
 //==============================================================
@@ -214,12 +233,12 @@ using DebugCallback = void (*)(wis::Severity severity, const char* message, std:
  * */
 struct WIS_NODISCARD Result {
     wis::Status  status; ///< defines operation status. Compare with `wis::Status::Ok`.
-    std::int32_t platform_code; ///< defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
+    std::int32_t platform_code; ///< defines platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
     const char*  error; ///< contains a human readable error message.
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identificators as well as memory limits.
+ * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identification as well as memory limits.
  *
  * */
 struct AdapterDesc {
@@ -241,6 +260,16 @@ struct DebugDesc {
     bool               enable_debug_layer; ///< enables or disables debug layer on both DX12 and VK backends.
     wis::DebugCallback callback; ///< defines the debug callback function.
     void*              user_data; ///< user defined data pointer passed to the callback.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Command queue description for wis::CommandQueue creation.
+ *
+ * */
+struct CommandQueueDesc {
+    wis::CommandQueueType     type; ///< defines the type of the command queue.
+    wis::CommandQueueFlags    flags; ///< defines command queue flags. Used to set additional options for command queue creation.
+    wis::CommandQueuePriority priority; ///< defines the global priority of the command queue.
 };
 
 /**

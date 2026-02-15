@@ -87,7 +87,8 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
 std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, DocKind kind)
 {
     ImplementedFor impl_code = ImplCode(impl);
-    auto           full_name = GetCFullTypename(s.name, GetImplString(impl_code));
+    auto           impl_suffix = GetImplString(impl_code);
+    auto           full_name   = GetCFullTypename(s.name, impl_suffix);
     std::string    st_decl   = wis::format("typedef struct {}{} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "", full_name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
@@ -97,12 +98,12 @@ std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, D
     // Calculate maximum type length for alignment
     size_t max_type_length = 0;
     for (auto& m : s.members) {
-        size_t type_length = GetMemberTypeString(m, impl).length();
+        size_t type_length = GetMemberTypeString(m, impl_suffix).length();
         max_type_length    = std::max(max_type_length, type_length);
     }
 
     for (auto& m : s.members) {
-        st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, impl), kind);
+        st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, impl_suffix), kind);
     }
     st_decl += wis::format("}} {};\n", full_name);
     return st_decl;
@@ -116,9 +117,10 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl,
     }
 
     ImplementedFor impl_code = ImplCode(impl);
+    auto           impl_suffix = GetImplString(impl_code);
     std::string    st_decl   = wis::format("struct {}{}{} {{\n",
                                       s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
-                                      GetImplString(impl_code),
+                                      impl_suffix,
                                       s.name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
@@ -128,12 +130,12 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl,
     // Calculate maximum type length for alignment
     size_t max_type_length = 0;
     for (auto& m : s.members) {
-        size_t type_length = GetMemberTypeString<Lang::CPP>(m, impl).length();
+        size_t type_length = GetMemberTypeString<Lang::CPP>(m, impl_suffix).length();
         max_type_length    = std::max(max_type_length, type_length);
     }
 
     for (auto& m : s.members) {
-        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, impl), kind);
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, impl_suffix), kind);
     }
     st_decl += "};\n";
     return st_decl;

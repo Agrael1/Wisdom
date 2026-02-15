@@ -3,7 +3,7 @@
 	<types comment="Type definitions">
 		<!--Enums-->
 		<type name="Status" category="enum" version="0.7.0" doc="Defines common return status codes. Compare against {::Ok} for success.">
-			<value name="Ok" value="0" doc="Operation succeded."/>
+			<value name="Ok" value="0" doc="Operation succeeded."/>
 			<value name="Timeout" value="1" doc="Operation timed out."/>
 			<value name="Partial" value="2" doc="Operation partially succeeded."/>
 
@@ -11,7 +11,7 @@
 			<value name="OutOfHostMemory" value="-2" doc="There is no more host memory available."/>
 			<value name="OutOfDeviceMemory" value="-3" doc="There is no more device memory available."/>
 			<value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
-			<value name="Occluded" value="-5" doc="Swapchain presentation was not visible to the user. Rendering is too fast."/>
+			<value name="Occluded" value="-5" doc="Swap chain presentation was not visible to the user. Rendering is too fast."/>
 			<value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
 			<value name="Error" value="-10000" doc="Operation failed."/>
 		</type>
@@ -50,6 +50,23 @@
 			</value>
 			<value name="Count" value="5" doc="Number of command queue types available."/>
 		</type>
+
+        <type name="CommandQueuePriority" category="enum" version="0.7.0" doc="Global queue priority. Higher priority queues get more GPU time, but may cause performance issues if overused.">
+            <impl_type for="dx" name="D3D12_COMMAND_QUEUE_PRIORITY" default="D3D12_COMMAND_QUEUE_PRIORITY_NORMAL"/>
+            <impl_type for="vk" name="VkQueueGlobalPriorityEXT" default="VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT"/>
+            <value name="Normal" value="0" doc="Normal queue priority.">
+                <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT"/>
+                <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_NORMAL"/>
+            </value>
+            <value name="High" value="100" doc="High queue priority.">
+                <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT"/>
+                <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_HIGH"/>
+            </value>
+            <value name="GlobalRealtime" value="10000" doc="Global realtime queue priority. Requires special GPU support and may cause performance issues if used on unsupported hardware.">
+                <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT"/>
+                <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME"/>
+            </value>
+        </type>
 
 		<type name="ShaderStages" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
 			<impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
@@ -210,13 +227,13 @@
 			<value name="Descriptor" value="0" doc="Descriptor heap type. Used for all descriptor types, except for samplers."/>
 			<value name="Sampler" value="1" doc="Sampler heap type. Used for sampler descriptors."/>
 		</type>
-		
+
 		<type name="DescriptorMemoryType" category="enum" version="0.7.0" doc="Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.">
 			<impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS" direct="true"/>
 			<value name="CpuOnly" value="0" doc="Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool."/>
 			<value name="ShaderVisible" value="1" doc="Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from."/>
 		</type>
-		
+
 		<type name="DescriptorStorageTier" category="enum" version="0.7.0" doc="Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.">
 			<value name="Tier1" value="0" doc="Tier 1: VkDescriptorSets and VkDescriptorPools."/>
 			<value name="Tier2" value="1" doc="Tier 2: Descriptor Buffer with no mutable descriptor type."/>
@@ -224,9 +241,10 @@
 			<value name="Tier4" value="3" doc="Tier 4: Descriptor Heap."/>
 		</type>
 
+
 		<!--Bitmasks-->
 		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
-			<value name="None" value="0" doc="No flags set. Adapter may be descrete or embedded."/>
+			<value name="None" value="0" doc="No flags set. Adapter may be discrete or embedded."/>
 			<value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
 			<value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
 		</type>
@@ -238,6 +256,11 @@
 				<impl name="dx" value="D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES"/>
 			</value>
 		</type>
+
+        <type name="CommandQueueFlags" category="bitmask" version="0.7.0" doc="Flags for command queue creation.">
+            <value name="None" value="0" doc="No flags set."/>
+            <value name="Synchronized" bit="0" doc="Command queue submission is synchronized."/>
+        </type>
 
 	</types>
 </registry>

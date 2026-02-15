@@ -58,7 +58,7 @@ int main()
             printf("Adapter %zu: Name: %s, VendorID: %u, DeviceID: %u, Flags: %u\n", i, desc.description, desc.vendor_id, desc.device_id, desc.flags);
         }
 
-        result = wisAdapterQueryCreateDevice(&adapter_query, i, NULL, 0, &device);
+        result = wisAdapterQueryCreateDevice(&adapter_query, i, NULL, &device);
         printf("CreateDevice result for adapter %zu: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
         if (result.status == WisStatusOk) {
             printf("Device created successfully for adapter %zu.\n", i);

@@ -37,6 +37,7 @@ using Instance          = wis::DX12Instance;
 
 using DeviceExtensionHeader   = wis::DX12DeviceExtensionHeader;
 using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
+using DeviceRequirements      = wis::DX12DeviceRequirements;
 
 //==============================================================
 // Functions
@@ -89,6 +90,7 @@ using Instance          = wis::VKInstance;
 
 using DeviceExtensionHeader   = wis::VKDeviceExtensionHeader;
 using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
+using DeviceRequirements      = wis::VKDeviceRequirements;
 
 //==============================================================
 // Functions

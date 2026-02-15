@@ -3,7 +3,8 @@
 #include <wisdom/generated/vk_cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/generated/vk_convert.hpp>
-#include <wisdom/impl/vulkan/vk_utils.hpp>
+#include <wisdom/vulkan/detail/vk_utils.hpp>
+#include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <memory>
 #include <algorithm>
@@ -46,9 +47,9 @@ inline constexpr uint32_t order_power(VkPhysicalDeviceType t)
     }
 }
 
-inline void release_vk_instance(VkInstance instance, detail::control_block<VKInstanceHeader>* header) noexcept
+inline void release_vk_instance(VkInstance instance, detail::VKControlBlock<VKInstanceHeader>* header) noexcept
 {
-    if (header && header->release() == 1) {
+    if (header && header->Release() == 1) {
         // Destroy debug messenger if exists
         if (header->header.debug_messenger != VK_NULL_HANDLE &&
             header->header.instance_table.vkDestroyDebugUtilsMessengerEXT) {
@@ -66,9 +67,9 @@ inline void release_vk_instance(VkInstance instance, detail::control_block<VKIns
 }
 
 //-----------------------------------------------------------------------------
-inline void release_vk_device(VkDevice device, detail::control_block<VKDeviceHeader>* header) noexcept
+inline void release_vk_device(VkDevice device, detail::VKControlBlock<VKDeviceHeader>* header) noexcept
 {
-    if (header && header->release() == 1) {
+    if (header && header->Release() == 1) {
         // Last reference, destroy device
         std::atomic_thread_fence(std::memory_order_acquire);
 
@@ -417,13 +418,13 @@ inline WisResult set_static_samplers(wis::span<const WisStaticSamplerDesc>   sam
             .flags                   = 0,
             .magFilter               = convert_vk(r.mag_filter),
             .minFilter               = convert_vk(r.min_filter),
-            .mipmapMode              = VkSamplerMipmapMode(r.mip_filter),
+            .mipmapMode              = static_cast<VkSamplerMipmapMode>(r.mip_filter),
             .addressModeU            = convert_vk(r.address_u),
             .addressModeV            = convert_vk(r.address_v),
             .addressModeW            = convert_vk(r.address_w),
             .mipLodBias              = r.mip_lod_bias,
             .anisotropyEnable        = r.is_anisotropic,
-            .maxAnisotropy           = std::max(float(r.max_anisotropy), 1.0f),
+            .maxAnisotropy           = std::max(static_cast<float>(r.max_anisotropy), 1.0f),
             .compareEnable           = r.comparison_op != WisCompareOperationNever,
             .compareOp               = convert_vk(r.comparison_op),
             .minLod                  = r.min_lod,
@@ -468,7 +469,7 @@ inline WisResult set_static_samplers(wis::span<const WisStaticSamplerDesc>   sam
         return make_result<Func(), "Failed to allocate static sampler descriptor set">(VK_ERROR_INITIALIZATION_FAILED);
     }
     dsl_layouts.static_sampler_pool  = pool;
-    dsl_layouts.static_sampler_count = uint32_t(count);
+    dsl_layouts.static_sampler_count = static_cast<uint32_t>(count);
     *static_sampler_set              = set;
     current_set++;
 
@@ -588,7 +589,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_layer,
     WisResult res = vk_success;
     // Instance can come as partially constructed from C side
 
-    auto header = make_unique<control_block<VKInstanceHeader>>();
+    auto header = make_unique<VKInstanceControlBlock>();
     if (!header) {
         return make_result<Func(), "Failed to allocate memory for Vulkan instance header">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
@@ -797,7 +798,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
         impl.physical_devices = devices_ref.release();
         impl.instance         = instance_impl.instance;
         impl.shared_header    = instance_impl.shared_header;
-        impl.shared_header->add_ref(); // hold reference to instance header
+        impl.shared_header->AddRef(); // hold reference to instance header
         return vk_success;
     }
 
@@ -887,7 +888,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     impl.physical_devices = devices_ref.release();
     impl.instance         = instance_impl.instance;
     impl.shared_header    = instance_impl.shared_header;
-    impl.shared_header->add_ref(); // hold reference to instance header
+    impl.shared_header->AddRef(); // hold reference to instance header
     return vk_success;
 }
 
@@ -920,10 +921,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
     auto& atable  = impl.shared_header->header.adapter_table;
     auto  adapter = impl.physical_devices[index];
 
-    VkPhysicalDeviceIDProperties id_props{};
+    VkPhysicalDeviceIDProperties id_props{ };
     id_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES;
 
-    VkPhysicalDeviceProperties2 properties{};
+    VkPhysicalDeviceProperties2 properties{ };
     properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
     properties.pNext = &id_props;
 
@@ -931,11 +932,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
 
     auto& got_desc = properties.properties;
 
-    VkPhysicalDeviceMemoryProperties memory_props{};
+    VkPhysicalDeviceMemoryProperties memory_props{ };
     atable.vkGetPhysicalDeviceMemoryProperties(adapter, &memory_props);
 
     // Get flags
-    WisAdapterFlags flag{};
+    WisAdapterFlags flag{ };
     if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
         flag = WisAdapterFlags(flag | WisAdapterFlags::WisAdapterFlagsRemote);
     }
@@ -963,7 +964,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
     }
 
     *desc = WisAdapterDesc{
-        .description = {},
+        .description = { },
         .vendor_id   = got_desc.vendorID,
         .device_id   = got_desc.deviceID,
 
@@ -971,7 +972,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
         .shared_system_memory   = shared_system_memory, // Vulkan does not expose shared system memory directly
 
         .adapter_id   = id_props.deviceLUIDValid ? *reinterpret_cast<const uint64_t*>(id_props.deviceUUID) : 0,
-        .adapter_uuid = {},
+        .adapter_uuid = { },
         .flags        = flag,
     };
 
@@ -981,11 +982,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapterQuery*     self,
-                                                                size_t                       index,
-                                                                WisVKDeviceExtensionHeader** extensions,
-                                                                size_t                       extension_count,
-                                                                WisVKDevice*                 device)
+WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapterQuery*       self,
+                                                                size_t                         index,
+                                                                const WisVKDeviceRequirements* requirements,
+                                                                WisVKDevice*                   device)
 {
     WisResult res  = vk_success;
     auto&     impl = *reinterpret_cast<const VKAdapterQueryImpl*>(self);
@@ -993,7 +993,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         return make_result<Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
-    auto header = make_unique<control_block<VKDeviceHeader>>();
+    auto header = make_unique<VKDeviceControlBlock>();
     if (!header) {
         return make_result<Func(), "Failed to allocate memory for Vulkan device header">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
@@ -1007,8 +1007,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Let extensions collect their info
-    for (size_t i = 0; i < extension_count; ++i) {
-        auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(extensions[i]);
+    for (size_t i = 0; i < requirements->extension_count; ++i) {
+        auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(requirements->extensions[i]);
         if (ext_header) {
             auto res2 = ext_header->init_fptr(ext_header, nullptr, &collector);
             // Non-fatal, allow to silently fail
@@ -1028,15 +1028,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Create default enabled features
-    VkPhysicalDeviceVulkan12Features vulkan12_features{};
+    VkPhysicalDeviceVulkan12Features vulkan12_features{ };
     vulkan12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
     vulkan12_features.pNext = feature_structs; // link to extension features
 
-    VkPhysicalDeviceVulkan11Features vulkan11_features{};
+    VkPhysicalDeviceVulkan11Features vulkan11_features{ };
     vulkan11_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
     vulkan11_features.pNext = &vulkan12_features;
 
-    VkPhysicalDeviceFeatures2 features{};
+    VkPhysicalDeviceFeatures2 features{ };
     features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     features.pNext = &vulkan11_features;
 
@@ -1048,15 +1048,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     collector.ForceBindFeatureStruct(&vulkan12_features);
 
     // Create properties structures
-    VkPhysicalDeviceVulkan12Properties vulkan12_properties{};
+    VkPhysicalDeviceVulkan12Properties vulkan12_properties{ };
     vulkan12_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES;
     vulkan12_properties.pNext = property_structs; // link to extension properties
 
-    VkPhysicalDeviceVulkan11Properties vulkan11_properties{};
+    VkPhysicalDeviceVulkan11Properties vulkan11_properties{ };
     vulkan11_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES;
     vulkan11_properties.pNext = &vulkan12_properties;
 
-    VkPhysicalDeviceProperties2 properties{};
+    VkPhysicalDeviceProperties2 properties{ };
     properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
     properties.pNext = &vulkan11_properties;
 
@@ -1166,7 +1166,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     auto& device_header         = device_impl.device_header->header;
     device_header.shared_header = impl.shared_header;
-    device_header.shared_header->add_ref(); // hold reference to instance header
+    device_header.shared_header->AddRef(); // hold reference to instance header
     device_header.instance = impl.instance;
 
     // Store queue family properties
@@ -1182,11 +1182,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     device_header.features = device_ext1.features;
 
     // Initialize device extensions
-    for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ extensions, extension_count }) {
-        auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext);
-        if (ext_header) {
-            auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector);
-            if (yres.status != WisStatusOk) {
+    for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ requirements->extensions, requirements->extension_count }) {
+        if (auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext)) {
+            if (auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector); yres.status != WisStatusOk) {
                 res.status        = WisStatusPartial; // mark as partial success if any extension fails
                 res.error         = yres.error;
                 res.platform_code = yres.platform_code;
@@ -1247,7 +1245,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
     auto& queue_impl         = *new (queue) VKCommandQueueImpl();
     queue_impl.queue         = vk_queue;
     queue_impl.device_header = device.device_header;
-    device.device_header->add_ref(); // hold reference to device header
+    device.device_header->AddRef(); // hold reference to device header
     queue_impl.device = device.device;
 
     // Setup semaphore pointer
@@ -1324,7 +1322,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice
     list_impl.command_pool   = command_pool;
     list_impl.command_buffer = command_buffer;
     list_impl.device_header  = device.device_header;
-    device.device_header->add_ref(); // hold reference to device header
+    device.device_header->AddRef(); // hold reference to device header
     list_impl.device = device.device;
     return res;
 }
@@ -1375,7 +1373,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
     out_fence.fence         = semaphore;
     out_fence.device        = device.device;
     out_fence.device_header = device.device_header;
-    device.device_header->add_ref(); // hold reference to device header
+    device.device_header->AddRef(); // hold reference to device header
     return res;
 }
 
@@ -1439,7 +1437,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVK
         .vkGetMemoryWin32HandleKHR               = nullptr, // set later if available
     };
 
-    VkPhysicalDeviceMemoryProperties2 mem_props{};
+    VkPhysicalDeviceMemoryProperties2 mem_props{ };
     mem_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
     atable.vkGetPhysicalDeviceMemoryProperties2(adapter, &mem_props);
 
@@ -1485,7 +1483,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVK
     allocator_impl.allocator     = out_allocator;
     allocator_impl.device        = device.device;
     allocator_impl.device_header = device.device_header;
-    device.device_header->add_ref(); // hold reference to device header
+    device.device_header->AddRef(); // hold reference to device header
 
     return res;
 }
@@ -1695,7 +1693,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDev
     layout_impl.layout        = pipeline_layout;
     layout_impl.device        = device.device;
     layout_impl.device_header = device.device_header;
-    device.device_header->add_ref(); // hold reference to device header
+    device.device_header->AddRef(); // hold reference to device header
     layout_impl.dsl_container   = dsl_layouts.release();
     layout_impl.static_samplers = static_sampler_set;
 

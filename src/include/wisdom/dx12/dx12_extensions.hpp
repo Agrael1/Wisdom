@@ -5,6 +5,7 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/c_api.h>
+#include <cassert>
 
 namespace wis {
 namespace impl {
@@ -27,7 +28,7 @@ struct DX12InstanceExtensionImpl : public DX12InstanceExtensionHeader {
     DX12InstanceExtensionImpl() noexcept
         : DX12InstanceExtensionHeader{ &DX12InstanceExtensionImpl<T>::InitThunk }
     {
-        assert(std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<DX12InstanceExtensionHeader*>(this)) && "DX12InstanceExtensionImpl must be the first base class!");
+        assert(static_cast<std::uintptr_t>(static_cast<T*>(this)) == reinterpret_cast<std::uintptr_t>(static_cast<DX12InstanceExtensionHeader*>(this)) && "DX12InstanceExtensionImpl must be the first base class!");
     }
 
 private:
@@ -50,7 +51,7 @@ struct DX12DeviceExtensionImpl : public DX12DeviceExtensionHeader {
     DX12DeviceExtensionImpl() noexcept
         : DX12DeviceExtensionHeader{ &DX12DeviceExtensionImpl<T>::InitThunk }
     {
-        assert(std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<DX12DeviceExtensionHeader*>(this)) && "DX12DeviceExtensionImpl must be the first base class!");
+        assert(static_cast<std::uintptr_t>(static_cast<T*>(this)) == reinterpret_cast<std::uintptr_t>(static_cast<DX12DeviceExtensionHeader*>(this)) && "DX12DeviceExtensionImpl must be the first base class!");
     }
 
 private:

@@ -35,6 +35,7 @@ typedef struct WisDX12Instance          WisInstance;
 
 typedef struct WisDX12DeviceExtensionHeader   WisDeviceExtensionHeader;
 typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
+typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 
 //==============================================================
 // Functions
@@ -84,6 +85,7 @@ typedef struct WisVKInstance          WisInstance;
 
 typedef struct WisVKDeviceExtensionHeader   WisDeviceExtensionHeader;
 typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
+typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 
 //==============================================================
 // Functions

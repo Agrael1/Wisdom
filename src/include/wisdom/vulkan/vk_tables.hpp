@@ -3,7 +3,7 @@
 #ifndef __cplusplus
 #error "This header requires C++"
 #endif // __cplusplus
-#include <wisdom/impl/vulkan/vk_loader.hpp>
+#include <wisdom/vulkan/vk_loader.hpp>
 #include <vulkan/vulkan.h>
 
 namespace wis {

@@ -56,7 +56,7 @@ jobs:
           arch: x64
       
       - name: Setup Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1.2.8
+        uses: jakoch/install-vulkan-sdk-action@v1.4.0
         with:
           vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
           install_runtime: true
@@ -91,7 +91,7 @@ jobs:
           version: 1.12.0
       
       - name: Setup Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1.2.8
+        uses: jakoch/install-vulkan-sdk-action@v1.4.0
         with:
           vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
           install_runtime: true
@@ -118,19 +118,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
-      
-      - name: Setup Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1.2.8
-        with:
-          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
-          cache: true
-          destination: ${{ github.workspace }}/vulkan-sdk
-      
+
+      - name: Fetch Vulkan Headers
+        run: git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git ${{ github.workspace }}/vulkan-headers
+
       - name: Setup CMake
         uses: lukka/get-cmake@v3.30.5
-      
+
       - name: Configure CMake
-        run: cmake --preset linux-gcc-release
+        run: cmake --preset linux-gcc-release -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
       
       - name: Build
         run: cmake --build --preset linux-gcc-release

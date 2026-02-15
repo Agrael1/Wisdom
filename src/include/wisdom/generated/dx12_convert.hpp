@@ -35,6 +35,20 @@ inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
     }
 }
 
+inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) noexcept
+{
+    switch (value) {
+    case WisCommandQueuePriorityNormal:
+        return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+    case WisCommandQueuePriorityHigh:
+        return D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+    case WisCommandQueuePriorityGlobalRealtime:
+        return D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
+    default:
+        return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+    }
+}
+
 inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderStages value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);

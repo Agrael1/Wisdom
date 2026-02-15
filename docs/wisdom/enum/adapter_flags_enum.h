@@ -36,7 +36,7 @@
  * Flags that describe adapter.
  * 
  * Values:
- * - `WisAdapterFlagsNone = 0`: No flags set. Adapter @wis_may be descrete or embedded.
+ * - `WisAdapterFlagsNone = 0`: No flags set. Adapter @wis_may be discrete or embedded.
  * - `WisAdapterFlagsRemote = (1 << 0)`: Adapter is remote. Used for remote rendering.
  * - `WisAdapterFlagsSoftware = (1 << 1)`: Adapter is software. Uses CPU for software rendering.
  * \endcond

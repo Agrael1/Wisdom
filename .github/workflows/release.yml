@@ -154,7 +154,7 @@ jobs:
           arch: x64
 
       - name: Setup Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1.2.8
+        uses: jakoch/install-vulkan-sdk-action@v1.4.0
         with:
           vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
           install_runtime: true
@@ -261,18 +261,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y doxygen graphviz ninja-build
       
-      - name: Setup Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1.2.8
-        with:
-          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
-          install_runtime: true
-          cache: true
+      - name: Fetch Vulkan Headers
+        run: git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git ${{ github.workspace }}/vulkan-headers
       
       - name: Setup CMake
         uses: lukka/get-cmake@v3.30.5
       
       - name: Configure CMake
-        run: cmake --preset linux-gcc-docs
+        run: cmake --preset linux-gcc-docs -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
       
       - name: Build Documentation
         run: cmake --build --preset linux-gcc-docs

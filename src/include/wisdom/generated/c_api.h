@@ -19,14 +19,14 @@ extern "C" {
  *
  * */
 typedef enum WisStatus {
-    WisStatusOk                = 0, ///< Operation succeded.
+    WisStatusOk                = 0, ///< Operation succeeded.
     WisStatusTimeout           = 1, ///< Operation timed out.
     WisStatusPartial           = 2, ///< Operation partially succeeded.
     WisStatusInvalidArgument   = -1, ///< One or more arguments, or parts of arguments passed to the function were incorrect.
     WisStatusOutOfHostMemory   = -2, ///< There is no more host memory available.
     WisStatusOutOfDeviceMemory = -3, ///< There is no more device memory available.
     WisStatusDeviceLost        = -4, ///< Device driver was forcefully stopped.
-    WisStatusOccluded          = -5, ///< Swapchain presentation was not visible to the user. Rendering is too fast.
+    WisStatusOccluded          = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     WisStatusValidationFailed  = -6, ///< A validation layer found an error.
     WisStatusError             = -10000, ///< Operation failed.
 } WisStatus;
@@ -65,6 +65,16 @@ typedef enum WisCommandQueueType {
     WisCommandQueueTypeVideoEncode = 4, ///< Command queue for video encoding operations.
     WisCommandQueueTypeCount       = 5, ///< Number of command queue types available.
 } WisCommandQueueType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Global queue priority. Higher priority queues get more GPU time, but @wis_may cause performance issues if overused.
+ *
+ * */
+typedef enum WisCommandQueuePriority {
+    WisCommandQueuePriorityNormal         = 0, ///< Normal queue priority.
+    WisCommandQueuePriorityHigh           = 100, ///< High queue priority.
+    WisCommandQueuePriorityGlobalRealtime = 10000, ///< Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
+} WisCommandQueuePriority;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
@@ -179,7 +189,7 @@ typedef enum WisDescriptorStorageTier {
  *
  * */
 typedef enum WisAdapterFlags {
-    WisAdapterFlagsNone     = 0, ///< No flags set. Adapter @wis_may be descrete or embedded.
+    WisAdapterFlagsNone     = 0, ///< No flags set. Adapter @wis_may be discrete or embedded.
     WisAdapterFlagsRemote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
     WisAdapterFlagsSoftware = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
 } WisAdapterFlags;
@@ -192,6 +202,15 @@ typedef enum WisSamplerFlags {
     WisSamplerFlagsNone                     = 0, ///< No flags set.
     WisSamplerFlagsNonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
 } WisSamplerFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags for command queue creation.
+ *
+ * */
+typedef enum WisCommandQueueFlags {
+    WisCommandQueueFlagsNone         = 0, ///< No flags set.
+    WisCommandQueueFlagsSynchronized = (1 << 0), ///< Command queue submission is synchronized.
+} WisCommandQueueFlags;
 
 //==============================================================
 // Delegates
@@ -217,12 +236,12 @@ typedef void (*WisDebugCallback)(WisSeverity severity, const char* message, uint
  * */
 typedef struct WIS_NODISCARD WisResult {
     WisStatus   status; ///< defines operation status. Compare with `WisStatusOk`.
-    int32_t     platform_code; ///< defines platfrom code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
+    int32_t     platform_code; ///< defines platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
     const char* error; ///< contains a human readable error message.
 } WisResult;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identificators as well as memory limits.
+ * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identification as well as memory limits.
  *
  * */
 typedef struct WisAdapterDesc {
@@ -245,6 +264,16 @@ typedef struct WisDebugDesc {
     WisDebugCallback callback; ///< defines the debug callback function.
     void*            user_data; ///< user defined data pointer passed to the callback.
 } WisDebugDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Command queue description for WisCommandQueue creation.
+ *
+ * */
+typedef struct WisCommandQueueDesc {
+    WisCommandQueueType     type; ///< defines the type of the command queue.
+    WisCommandQueueFlags    flags; ///< defines command queue flags. Used to set additional options for command queue creation.
+    WisCommandQueuePriority priority; ///< defines the global priority of the command queue.
+} WisCommandQueueDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.

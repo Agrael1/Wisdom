@@ -69,8 +69,7 @@
 		<func name="CreateDevice" version="0.7.0" for="AdapterQuery" mod="const" doc="Creates the device for the adapter at given index.">
 			<ret type="Device" name="device" result="true" doc="points to {Device::}, which is initialized on success."/>
 			<arg type="size" name="index" doc="defines the index of the adapter to create the device for. It @wis_must be less than the value returned by {GetAdapterCount::}."/>
-			<arg type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
-			<arg type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
+			<arg type="DeviceRequirements" name="requirements" mod="const,ref" default="nullptr" doc="points to {DeviceRequirements::}, which defines required features and properties for device creation."/>
 		</func>
 
 		<!-- Device Functions -->
