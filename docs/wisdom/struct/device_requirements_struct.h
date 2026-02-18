@@ -11,7 +11,7 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct WisDeviceRequirements {
- *     WisCommandQueueDesc**      queue_descs;
+ *     const WisCommandQueueDesc* queue_descs;
  *     size_t                     queue_desc_count;
  *     WisDeviceExtensionHeader** extensions;
  *     size_t                     extension_count;
@@ -22,7 +22,7 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct WisVKDeviceRequirements {
- *     WisCommandQueueDesc**        queue_descs;
+ *     const WisCommandQueueDesc*   queue_descs;
  *     size_t                       queue_desc_count;
  *     WisVKDeviceExtensionHeader** extensions;
  *     size_t                       extension_count;
@@ -30,7 +30,7 @@
  * 
  * // Provided by Wisdom 0.7.0. 
  * typedef struct WisDX12DeviceRequirements {
- *     WisCommandQueueDesc**          queue_descs;
+ *     const WisCommandQueueDesc*     queue_descs;
  *     size_t                         queue_desc_count;
  *     WisDX12DeviceExtensionHeader** extensions;
  *     size_t                         extension_count;
@@ -43,10 +43,8 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct DeviceRequirements {
- *     wis::span<wis::CommandQueueDesc*>      queue_descs;
- *     std::size_t                            queue_desc_count;
+ *     wis::span<const wis::CommandQueueDesc> queue_descs;
  *     wis::span<wis::DeviceExtensionHeader*> extensions;
- *     std::size_t                            extension_count;
  * };
  * }
  * ```
@@ -56,18 +54,14 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct VKDeviceRequirements {
- *     wis::span<wis::CommandQueueDesc*>        queue_descs;
- *     std::size_t                              queue_desc_count;
+ *     wis::span<const wis::CommandQueueDesc>   queue_descs;
  *     wis::span<wis::VKDeviceExtensionHeader*> extensions;
- *     std::size_t                              extension_count;
  * };
  * 
  * // Provided by Wisdom 0.7.0. 
  * struct DX12DeviceRequirements {
- *     wis::span<wis::CommandQueueDesc*>          queue_descs;
- *     std::size_t                                queue_desc_count;
+ *     wis::span<const wis::CommandQueueDesc>     queue_descs;
  *     wis::span<wis::DX12DeviceExtensionHeader*> extensions;
- *     std::size_t                                extension_count;
  * };
  * }
  * ```

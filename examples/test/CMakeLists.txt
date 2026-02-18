@@ -7,7 +7,7 @@ if(WISDOM_BUILD_STATIC)
   add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
   target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES CXX_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
+    ${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY
                                                ${EXAMPLE_BIN_OUTPUT})
 
   target_compile_definitions(${PROJECT_NAME} PUBLIC ${ADD_DEFINITIONS})
@@ -17,7 +17,7 @@ if(WISDOM_BUILD_SHARED)
   add_executable(${PROJECT_NAME}-shared ${HEADERS} ${SOURCES})
   target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared)
   set_target_properties(
-    ${PROJECT_NAME}-shared PROPERTIES CXX_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
+    ${PROJECT_NAME}-shared PROPERTIES CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY
                                                       ${EXAMPLE_BIN_OUTPUT})
 
   target_compile_definitions(${PROJECT_NAME}-shared PUBLIC ${ADD_DEFINITIONS})

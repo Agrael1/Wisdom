@@ -84,12 +84,15 @@ struct VKDescriptorHeapImpl {
 } // namespace wis
 
 // Include implementation if header only build
-#ifndef WISDOM_BUILD_BINARIES
+#if !defined(WISDOM_BUILD_BINARIES)
 #if !WIS_HAS_CPP20 && !defined(WISDOM_LANG_DISABLE_CHECK)
 #error "C++20 is required to build wisdom as header-only library"
 #endif // !WIS_HAS_CPP20
 
 #include "vk_impl.cpp"
 #include "vk_types.cpp"
+#include "vk_device.cpp"
+#include "vk_instance.cpp"
+#include "vk_adapter_query.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_VK_TYPES_HPP

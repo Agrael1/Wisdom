@@ -1,266 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
 <registry>
-	<types comment="Type definitions">
-		<!--Enums-->
-		<type name="Status" category="enum" version="0.7.0" doc="Defines common return status codes. Compare against {::Ok} for success.">
-			<value name="Ok" value="0" doc="Operation succeeded."/>
-			<value name="Timeout" value="1" doc="Operation timed out."/>
-			<value name="Partial" value="2" doc="Operation partially succeeded."/>
+  <types comment="Type definitions">
+    <!--Enums-->
+    <type name="Status" category="enum" version="0.7.0" doc="Defines common return status codes. Compare against {::Ok} for success.">
+      <value name="Ok" value="0" doc="Operation succeeded."/>
+      <value name="Timeout" value="1" doc="Operation timed out."/>
+      <value name="Partial" value="2" doc="Operation partially succeeded."/>
 
-			<value name="InvalidArgument" value="-1" doc="One or more arguments, or parts of arguments passed to the function were incorrect."/>
-			<value name="OutOfHostMemory" value="-2" doc="There is no more host memory available."/>
-			<value name="OutOfDeviceMemory" value="-3" doc="There is no more device memory available."/>
-			<value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
-			<value name="Occluded" value="-5" doc="Swap chain presentation was not visible to the user. Rendering is too fast."/>
-			<value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
-			<value name="Error" value="-10000" doc="Operation failed."/>
-		</type>
+      <value name="InvalidArgument" value="-1" doc="One or more arguments, or parts of arguments passed to the function were incorrect."/>
+      <value name="OutOfHostMemory" value="-2" doc="There is no more host memory available."/>
+      <value name="OutOfDeviceMemory" value="-3" doc="There is no more device memory available."/>
+      <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
+      <value name="Occluded" value="-5" doc="Swap chain presentation was not visible to the user. Rendering is too fast."/>
+      <value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
+      <value name="Error" value="-10000" doc="Operation failed."/>
+    </type>
 
-		<type name="AdapterPreference" category="enum" version="0.7.0" doc="Orders the adapters according to preference using builtin heuristics of underlying APIs. For DirectX 12, this translates directly to `DXGI_GPU_PREFERENCE`. For Vulkan, sorting is based on `VkPhysicalDeviceType` heuristics.">
-			<impl_type for="dx" name="DXGI_GPU_PREFERENCE" direct="true"/>
-			<value name="None" value="0" doc="No particular preference, list adapters in system devised order."/>
-			<value name="MinConsumption" value="1" doc="List the adapters from low power consumption to high. DirectX 12: Integrated, Discrete, External, Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU."/>
-			<value name="Performance" value="2" doc="List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU."/>
-		</type>
+    <type name="AdapterPreference" category="enum" version="0.7.0" doc="Orders the adapters according to preference using builtin heuristics of underlying APIs. For DirectX 12, this translates directly to `DXGI_GPU_PREFERENCE`. For Vulkan, sorting is based on `VkPhysicalDeviceType` heuristics.">
+      <impl_type for="dx" name="DXGI_GPU_PREFERENCE" direct="true"/>
+      <value name="None" value="0" doc="No particular preference, list adapters in system devised order."/>
+      <value name="MinConsumption" value="1" doc="List the adapters from low power consumption to high. DirectX 12: Integrated, Discrete, External, Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU."/>
+      <value name="Performance" value="2" doc="List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU."/>
+    </type>
 
-		<type name="Severity" category="enum" version="0.7.0" doc="Defines severity levels for logging and debugging messages.">
-			<value name="Verbose" value="0" doc="Verbose level messages, typically used for detailed debugging information."/>
-			<value name="Info" value="1" doc="Informational messages that highlight the progress of the application."/>
-			<value name="Warning" value="2" doc="Potentially harmful situations that warrant attention but do not prevent normal operation."/>
-			<value name="Error" value="3" doc="Error events that might still allow the application to continue running."/>
-			<value name="Fatal" value="4" doc="Severe error events that will presumably lead the application to abort."/>
-		</type>
+    <type name="Severity" category="enum" version="0.7.0" doc="Defines severity levels for logging and debugging messages.">
+      <value name="Verbose" value="0" doc="Verbose level messages, typically used for detailed debugging information."/>
+      <value name="Info" value="1" doc="Informational messages that highlight the progress of the application."/>
+      <value name="Warning" value="2" doc="Potentially harmful situations that warrant attention but do not prevent normal operation."/>
+      <value name="Error" value="3" doc="Error events that might still allow the application to continue running."/>
+      <value name="Fatal" value="4" doc="Severe error events that will presumably lead the application to abort."/>
+    </type>
 
-		<type name="CommandQueueType" category="enum" version="0.7.0" doc="Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
-			<impl_type for="dx" name="D3D12_COMMAND_LIST_TYPE" default="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
-			<value name="Graphics" value="0" doc="Command queue for graphics operations, including rendering and compute tasks.">
-				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
-			</value>
-			<value name="Compute" value="1" doc="Command queue dedicated to compute operations, optimized for parallel processing tasks.">
-				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_COMPUTE"/>
-			</value>
-			<value name="Transfer" value="2" doc="Command queue for data transfer operations, such as copying resources between buffers and images.">
-				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_COPY"/>
-			</value>
-			<value name="VideoDecode" value="3" doc="Command queue for video decoding operations.">
-				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE"/>
-			</value>
-			<value name="VideoEncode" value="4" doc="Command queue for video encoding operations.">
-				<impl name="dx" value="D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE"/>
-			</value>
-			<value name="Count" value="5" doc="Number of command queue types available."/>
-		</type>
+    <type name="CommandQueueType" category="enum" version="0.7.0" doc="Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
+      <impl_type for="dx" name="D3D12_COMMAND_LIST_TYPE" default="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
+      <value name="Graphics" value="0" doc="Command queue for graphics operations, including rendering and compute tasks.">
+        <impl name="dx" value="D3D12_COMMAND_LIST_TYPE_DIRECT"/>
+      </value>
+      <value name="Compute" value="1" doc="Command queue dedicated to compute operations, optimized for parallel processing tasks.">
+        <impl name="dx" value="D3D12_COMMAND_LIST_TYPE_COMPUTE"/>
+      </value>
+      <value name="Transfer" value="2" doc="Command queue for data transfer operations, such as copying resources between buffers and images.">
+        <impl name="dx" value="D3D12_COMMAND_LIST_TYPE_COPY"/>
+      </value>
+      <value name="VideoDecode" value="3" doc="Command queue for video decoding operations.">
+        <impl name="dx" value="D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE"/>
+      </value>
+      <value name="VideoEncode" value="4" doc="Command queue for video encoding operations.">
+        <impl name="dx" value="D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE"/>
+      </value>
+      <value name="Count" value="5" doc="Number of command queue types available."/>
+    </type>
 
-        <type name="CommandQueuePriority" category="enum" version="0.7.0" doc="Global queue priority. Higher priority queues get more GPU time, but may cause performance issues if overused.">
-            <impl_type for="dx" name="D3D12_COMMAND_QUEUE_PRIORITY" default="D3D12_COMMAND_QUEUE_PRIORITY_NORMAL"/>
-            <impl_type for="vk" name="VkQueueGlobalPriorityEXT" default="VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT"/>
-            <value name="Normal" value="0" doc="Normal queue priority.">
-                <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT"/>
-                <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_NORMAL"/>
-            </value>
-            <value name="High" value="100" doc="High queue priority.">
-                <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT"/>
-                <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_HIGH"/>
-            </value>
-            <value name="GlobalRealtime" value="10000" doc="Global realtime queue priority. Requires special GPU support and may cause performance issues if used on unsupported hardware.">
-                <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT"/>
-                <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME"/>
-            </value>
-        </type>
+    <type name="CommandQueuePriority" category="enum" version="0.7.0" doc="Global queue priority. Higher priority queues get more GPU time, but may cause performance issues if overused.">
+      <impl_type for="dx" name="D3D12_COMMAND_QUEUE_PRIORITY" default="D3D12_COMMAND_QUEUE_PRIORITY_NORMAL"/>
+      <impl_type for="vk" name="VkQueueGlobalPriorityEXT" default="VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT"/>
+      <value name="Normal" value="0" doc="Normal queue priority.">
+        <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT"/>
+        <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_NORMAL"/>
+      </value>
+      <value name="High" value="1" doc="High queue priority.">
+        <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT"/>
+        <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_HIGH"/>
+      </value>
+      <value name="Realtime" value="2" doc="Global realtime queue priority. Requires special GPU support and may cause performance issues if used on unsupported hardware.">
+        <impl name="vk" value="VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT"/>
+        <impl name="dx" value="D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME"/>
+      </value>
+    </type>
 
-		<type name="ShaderStages" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
-			<impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
-			<impl_type for="vk" name="VkShaderStageFlags" default="VK_SHADER_STAGE_ALL"/>
-			<value name="All" value="0" doc="All shader stages.">
-				<impl name="vk" value="VK_SHADER_STAGE_ALL"/>
-			</value>
-			<value name="Vertex" value="1" doc="Vertex shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_VERTEX_BIT"/>
-			</value>
-			<value name="Hull" value="2" doc="Hull/Tessellation control shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"/>
-			</value>
-			<value name="Domain" value="3" doc="Domain/Tessellation evaluation shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"/>
-			</value>
-			<value name="Geometry" value="4" doc="Geometry shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_GEOMETRY_BIT"/>
-			</value>
-			<value name="Pixel" value="5" doc="Pixel/Fragment shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_FRAGMENT_BIT"/>
-			</value>
-			<value name="Amplification" value="6" doc="Amplification shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_TASK_BIT_EXT"/>
-			</value>
-			<value name="Mesh" value="7" doc="Mesh shader stage.">
-				<impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_EXT"/>
-			</value>
-			<value name="Count" value="8" doc="Number of stages."/>
-		</type>
+    <type name="ShaderStages" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
+      <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
+      <impl_type for="vk" name="VkShaderStageFlags" default="VK_SHADER_STAGE_ALL"/>
+      <value name="All" value="0" doc="All shader stages.">
+        <impl name="vk" value="VK_SHADER_STAGE_ALL"/>
+      </value>
+      <value name="Vertex" value="1" doc="Vertex shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_VERTEX_BIT"/>
+      </value>
+      <value name="Hull" value="2" doc="Hull/Tessellation control shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"/>
+      </value>
+      <value name="Domain" value="3" doc="Domain/Tessellation evaluation shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"/>
+      </value>
+      <value name="Geometry" value="4" doc="Geometry shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_GEOMETRY_BIT"/>
+      </value>
+      <value name="Pixel" value="5" doc="Pixel/Fragment shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_FRAGMENT_BIT"/>
+      </value>
+      <value name="Amplification" value="6" doc="Amplification shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_TASK_BIT_EXT"/>
+      </value>
+      <value name="Mesh" value="7" doc="Mesh shader stage.">
+        <impl name="vk" value="VK_SHADER_STAGE_MESH_BIT_EXT"/>
+      </value>
+      <value name="Count" value="8" doc="Number of stages."/>
+    </type>
 
-		<type name="DescriptorType" category="enum" version="0.7.0" doc="Type of the descriptor in the descriptor table.">
-			<impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
-			<impl_type for="vk" name="VkDescriptorType" default="VK_DESCRIPTOR_TYPE_MAX_ENUM"/>
-			<value name="Sampler" value="0" doc="Descriptor is a sampler.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
-			</value>
-			<value name="ConstantBuffer" value="1" doc="Descriptor is a constant buffer.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_CBV"/>
-			</value>
-			<value name="Texture" value="2" doc="Descriptor is a texture.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
-			</value>
-			<value name="RWTexture" value="3" doc="Descriptor is an unordered access read-write texture.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_IMAGE"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
-			</value>
-			<value name="RWBuffer" value="4" doc="Descriptor is an unordered access read-write buffer.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
-			</value>
-			<value name="Buffer" value="5" doc="Descriptor is a shader resource buffer.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
-			</value>
-			<value name="AccelerationStructure" value="6" doc="Descriptor is an acceleration structure.">
-				<impl name="vk" value="VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"/>
-				<impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
-			</value>
-			<value name="Count" value="7" doc="Descriptor is a mutable type."/>
-		</type>
+    <type name="DescriptorType" category="enum" version="0.7.0" doc="Type of the descriptor in the descriptor table.">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_RANGE_TYPE"/>
+      <impl_type for="vk" name="VkDescriptorType" default="VK_DESCRIPTOR_TYPE_MAX_ENUM"/>
+      <value name="Sampler" value="0" doc="Descriptor is a sampler.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER"/>
+      </value>
+      <value name="ConstantBuffer" value="1" doc="Descriptor is a constant buffer.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_CBV"/>
+      </value>
+      <value name="Texture" value="2" doc="Descriptor is a texture.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      </value>
+      <value name="RWTexture" value="3" doc="Descriptor is an unordered access read-write texture.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_IMAGE"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
+      </value>
+      <value name="RWBuffer" value="4" doc="Descriptor is an unordered access read-write buffer.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_UAV"/>
+      </value>
+      <value name="Buffer" value="5" doc="Descriptor is a shader resource buffer.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      </value>
+      <value name="AccelerationStructure" value="6" doc="Descriptor is an acceleration structure.">
+        <impl name="vk" value="VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"/>
+        <impl name="dx" value="D3D12_DESCRIPTOR_RANGE_TYPE_SRV"/>
+      </value>
+      <value name="Count" value="7" doc="Descriptor is a mutable type."/>
+    </type>
 
-		<type name="CompareOperation" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
-			<impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
-			<impl_type for="vk" name="VkCompareOp" default="VK_COMPARE_OP_NEVER"/>
-			<value name="None" value="0" doc="No comparison.">
-				<impl name="vk" value="VK_COMPARE_OP_NEVER"/>
-			</value>
-			<value name="Never" value="1" doc="Always fail the comparison.">
-				<impl name="vk" value="VK_COMPARE_OP_NEVER"/>
-			</value>
-			<value name="Less" value="2" doc="Pass the comparison if the source value is less than the destination value.">
-				<impl name="vk" value="VK_COMPARE_OP_LESS"/>
-			</value>
-			<value name="Equal" value="3" doc="Pass the comparison if the source value is equal to the destination value.">
-				<impl name="vk" value="VK_COMPARE_OP_EQUAL"/>
-			</value>
-			<value name="LessEqual" value="4" doc="Pass the comparison if the source value is less than or equal to the destination value.">
-				<impl name="vk" value="VK_COMPARE_OP_LESS_OR_EQUAL"/>
-			</value>
-			<value name="Greater" value="5" doc="Pass the comparison if the source value is greater than the destination value.">
-				<impl name="vk" value="VK_COMPARE_OP_GREATER"/>
-			</value>
-			<value name="NotEqual" value="6" doc="Pass the comparison if the source value is not equal to the destination value.">
-				<impl name="vk" value="VK_COMPARE_OP_NOT_EQUAL"/>
-			</value>
-			<value name="GreaterEqual" value="7" doc="Pass the comparison if the source value is greater than or equal to the destination value.">
-				<impl name="vk" value="VK_COMPARE_OP_GREATER_OR_EQUAL"/>
-			</value>
-			<value name="Always" value="8" doc="Always pass the comparison.">
-				<impl name="vk" value="VK_COMPARE_OP_ALWAYS"/>
-			</value>
-		</type>
+    <type name="CompareOperation" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
+      <impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
+      <impl_type for="vk" name="VkCompareOp" default="VK_COMPARE_OP_NEVER"/>
+      <value name="None" value="0" doc="No comparison.">
+        <impl name="vk" value="VK_COMPARE_OP_NEVER"/>
+      </value>
+      <value name="Never" value="1" doc="Always fail the comparison.">
+        <impl name="vk" value="VK_COMPARE_OP_NEVER"/>
+      </value>
+      <value name="Less" value="2" doc="Pass the comparison if the source value is less than the destination value.">
+        <impl name="vk" value="VK_COMPARE_OP_LESS"/>
+      </value>
+      <value name="Equal" value="3" doc="Pass the comparison if the source value is equal to the destination value.">
+        <impl name="vk" value="VK_COMPARE_OP_EQUAL"/>
+      </value>
+      <value name="LessEqual" value="4" doc="Pass the comparison if the source value is less than or equal to the destination value.">
+        <impl name="vk" value="VK_COMPARE_OP_LESS_OR_EQUAL"/>
+      </value>
+      <value name="Greater" value="5" doc="Pass the comparison if the source value is greater than the destination value.">
+        <impl name="vk" value="VK_COMPARE_OP_GREATER"/>
+      </value>
+      <value name="NotEqual" value="6" doc="Pass the comparison if the source value is not equal to the destination value.">
+        <impl name="vk" value="VK_COMPARE_OP_NOT_EQUAL"/>
+      </value>
+      <value name="GreaterEqual" value="7" doc="Pass the comparison if the source value is greater than or equal to the destination value.">
+        <impl name="vk" value="VK_COMPARE_OP_GREATER_OR_EQUAL"/>
+      </value>
+      <value name="Always" value="8" doc="Always pass the comparison.">
+        <impl name="vk" value="VK_COMPARE_OP_ALWAYS"/>
+      </value>
+    </type>
 
-		<type name="AddressMode" category="enum" version="0.7.0" doc="Address mode for texture sampling.">
-			<impl_type for="vk" name="VkSamplerAddressMode" default="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
-			<impl_type for="dx" name="D3D12_TEXTURE_ADDRESS_MODE" default="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
-			<value name="Repeat" value="0" doc="Repeat the texture.">
-				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
-				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
-			</value>
-			<value name="MirroredRepeat" value="1" doc="Repeat the texture with mirroring.">
-				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT"/>
-				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR"/>
-			</value>
-			<value name="ClampToEdge" value="2" doc="Clamp the texture to the edge.">
-				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE"/>
-				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_CLAMP"/>
-			</value>
-			<value name="ClampToBorder" value="3" doc="Clamp the texture to the border.">
-				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER"/>
-				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_BORDER"/>
-			</value>
-			<value name="MirrorClampToEdge" value="4" doc="Mirror and clamp the texture to the edge.">
-				<impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE"/>
-				<impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE"/>
-			</value>
-		</type>
+    <type name="AddressMode" category="enum" version="0.7.0" doc="Address mode for texture sampling.">
+      <impl_type for="vk" name="VkSamplerAddressMode" default="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
+      <impl_type for="dx" name="D3D12_TEXTURE_ADDRESS_MODE" default="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
+      <value name="Repeat" value="0" doc="Repeat the texture.">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_REPEAT"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_WRAP"/>
+      </value>
+      <value name="MirroredRepeat" value="1" doc="Repeat the texture with mirroring.">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR"/>
+      </value>
+      <value name="ClampToEdge" value="2" doc="Clamp the texture to the edge.">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_CLAMP"/>
+      </value>
+      <value name="ClampToBorder" value="3" doc="Clamp the texture to the border.">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_BORDER"/>
+      </value>
+      <value name="MirrorClampToEdge" value="4" doc="Mirror and clamp the texture to the edge.">
+        <impl name="vk" value="VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE"/>
+        <impl name="dx" value="D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE"/>
+      </value>
+    </type>
 
-		<type name="Filter" category="enum" version="0.7.0" doc="Filtering mode for texture sampling.">
-			<impl_type for="vk" name="VkFilter" default="VK_FILTER_NEAREST"/>
-			<impl_type for="dx" name="D3D12_FILTER_TYPE" default="D3D12_FILTER_TYPE_POINT"/>
-			<value name="Point" value="0" doc="Nearest neighbor filtering.">
-				<impl name="vk" value="VK_FILTER_NEAREST"/>
-				<impl name="dx" value="D3D12_FILTER_TYPE_POINT"/>
-			</value>
-			<value name="Linear" value="1" doc="Linear filtering.">
-				<impl name="vk" value="VK_FILTER_LINEAR"/>
-				<impl name="dx" value="D3D12_FILTER_TYPE_LINEAR"/>
-			</value>
-		</type>
+    <type name="Filter" category="enum" version="0.7.0" doc="Filtering mode for texture sampling.">
+      <impl_type for="vk" name="VkFilter" default="VK_FILTER_NEAREST"/>
+      <impl_type for="dx" name="D3D12_FILTER_TYPE" default="D3D12_FILTER_TYPE_POINT"/>
+      <value name="Point" value="0" doc="Nearest neighbor filtering.">
+        <impl name="vk" value="VK_FILTER_NEAREST"/>
+        <impl name="dx" value="D3D12_FILTER_TYPE_POINT"/>
+      </value>
+      <value name="Linear" value="1" doc="Linear filtering.">
+        <impl name="vk" value="VK_FILTER_LINEAR"/>
+        <impl name="dx" value="D3D12_FILTER_TYPE_LINEAR"/>
+      </value>
+    </type>
 
-		<type name="StaticBorder" category="enum" version="0.7.0" doc="Predefined static border colors for samplers. Used when address mode is set to Border.">
-			<impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR" default="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
-			<impl_type for="vk" name="VkBorderColor" default="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
-			<value name="TransparentBlack" value="0" doc="Transparent black border color.">
-				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
-				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
-			</value>
-			<value name="OpaqueBlack" value="1" doc="Opaque black border color.">
-				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK"/>
-				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK"/>
-			</value>
-			<value name="OpaqueWhite" value="2" doc="Opaque white border color.">
-				<impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE"/>
-				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE"/>
-			</value>
-			<value name="Custom" value="3" doc="Custom border color defined by the user.">
-				<impl name="vk" value="VK_BORDER_COLOR_FLOAT_CUSTOM_EXT"/>
-			</value>
-		</type>
+    <type name="StaticBorder" category="enum" version="0.7.0" doc="Predefined static border colors for samplers. Used when address mode is set to Border.">
+      <impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR" default="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
+      <impl_type for="vk" name="VkBorderColor" default="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
+      <value name="TransparentBlack" value="0" doc="Transparent black border color.">
+        <impl name="dx" value="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
+        <impl name="vk" value="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>
+      </value>
+      <value name="OpaqueBlack" value="1" doc="Opaque black border color.">
+        <impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK"/>
+        <impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK"/>
+      </value>
+      <value name="OpaqueWhite" value="2" doc="Opaque white border color.">
+        <impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE"/>
+        <impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE"/>
+      </value>
+      <value name="Custom" value="3" doc="Custom border color defined by the user.">
+        <impl name="vk" value="VK_BORDER_COLOR_FLOAT_CUSTOM_EXT"/>
+      </value>
+    </type>
 
-		<type name="DescriptorHeapType" category="enum" version="0.7.0" doc="Descriptor heap type.">
-			<impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE" direct="true"/>
-			<value name="Descriptor" value="0" doc="Descriptor heap type. Used for all descriptor types, except for samplers."/>
-			<value name="Sampler" value="1" doc="Sampler heap type. Used for sampler descriptors."/>
-		</type>
+    <type name="DescriptorHeapType" category="enum" version="0.7.0" doc="Descriptor heap type.">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE" direct="true"/>
+      <value name="Descriptor" value="0" doc="Descriptor heap type. Used for all descriptor types, except for samplers."/>
+      <value name="Sampler" value="1" doc="Sampler heap type. Used for sampler descriptors."/>
+    </type>
 
-		<type name="DescriptorMemoryType" category="enum" version="0.7.0" doc="Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.">
-			<impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS" direct="true"/>
-			<value name="CpuOnly" value="0" doc="Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool."/>
-			<value name="ShaderVisible" value="1" doc="Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from."/>
-		</type>
+    <type name="DescriptorMemoryType" category="enum" version="0.7.0" doc="Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS" direct="true"/>
+      <value name="CpuOnly" value="0" doc="Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool."/>
+      <value name="ShaderVisible" value="1" doc="Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from."/>
+    </type>
 
-		<type name="DescriptorStorageTier" category="enum" version="0.7.0" doc="Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.">
-			<value name="Tier1" value="0" doc="Tier 1: VkDescriptorSets and VkDescriptorPools."/>
-			<value name="Tier2" value="1" doc="Tier 2: Descriptor Buffer with no mutable descriptor type."/>
-			<value name="Tier3" value="2" doc="Tier 3: Descriptor Buffer with mutable descriptor type."/>
-			<value name="Tier4" value="3" doc="Tier 4: Descriptor Heap."/>
-		</type>
+    <type name="DescriptorStorageTier" category="enum" version="0.7.0" doc="Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.">
+      <value name="Tier1" value="0" doc="Tier 1: VkDescriptorSets and VkDescriptorPools."/>
+      <value name="Tier2" value="1" doc="Tier 2: Descriptor Buffer with no mutable descriptor type."/>
+      <value name="Tier3" value="2" doc="Tier 3: Descriptor Buffer with mutable descriptor type."/>
+      <value name="Tier4" value="3" doc="Tier 4: Descriptor Heap."/>
+    </type>
 
 
-		<!--Bitmasks-->
-		<type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
-			<value name="None" value="0" doc="No flags set. Adapter may be discrete or embedded."/>
-			<value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
-			<value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
-		</type>
+    <!--Bitmasks-->
+    <type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">
+      <value name="None" value="0" doc="No flags set. Adapter may be discrete or embedded."/>
+      <value name="Remote" bit="0" doc="Adapter is remote. Used for remote rendering."/>
+      <value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
+    </type>
 
-		<type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
-			<impl_type for="dx" name="D3D12_SAMPLER_FLAGS"/>
-			<value name="None" value="0" doc="No flags set."/>
-			<value name="NonNormalizedCoordinates" bit="0" doc="Use non-normalized texture coordinates.">
-				<impl name="dx" value="D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES"/>
-			</value>
-		</type>
+    <type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
+      <impl_type for="dx" name="D3D12_SAMPLER_FLAGS"/>
+      <value name="None" value="0" doc="No flags set."/>
+      <value name="NonNormalizedCoordinates" bit="0" doc="Use non-normalized texture coordinates.">
+        <impl name="dx" value="D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES"/>
+      </value>
+    </type>
 
-        <type name="CommandQueueFlags" category="bitmask" version="0.7.0" doc="Flags for command queue creation.">
-            <value name="None" value="0" doc="No flags set."/>
-            <value name="Synchronized" bit="0" doc="Command queue submission is synchronized."/>
-        </type>
-
-	</types>
+  </types>
 </registry>

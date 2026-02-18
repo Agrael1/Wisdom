@@ -1,0 +1,646 @@
+#ifndef WIS_VK_ADAPTER_QUERY_CPP
+#define WIS_VK_ADAPTER_QUERY_CPP
+
+#include <wisdom/vulkan/detail/vk_ext1.hpp>
+#include <wisdom/vulkan/vk_types.hpp>
+#include <wisdom/generated/vk_api.h>
+#include <wisdom/util/allocation.hpp>
+#include <algorithm>
+#include <bitset>
+
+using namespace wis;
+using namespace wis::impl;
+using namespace wis::detail;
+
+namespace wis::detail {
+struct VKQueueResidencyInfo {
+    static constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
+
+    std::array<VkDeviceQueueCreateInfo, WisCommandQueueTypeCount> data;
+    std::array<uint8_t, WisCommandQueueTypeCount>                 residency;
+
+    uint32_t queue_type_count = 0;
+
+public:
+    constexpr VKQueueResidencyInfo()
+    {
+        for (size_t i = 0; i < WisCommandQueueTypeCount; ++i) {
+            data[i] = {
+                .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .pNext            = nullptr,
+                .flags            = 0,
+                .queueFamilyIndex = invalid_index, // Invalid index
+                .queueCount       = 0,
+                .pQueuePriorities = nullptr,
+            };
+            residency[i] = VKQueueFamilyProperties::invalid_family_index;
+        }
+    }
+};
+
+//-----------------------------------------------------------------------------
+// For simplicity, we assign the same global priority to all queues.
+// In a real implementation, you might want to differentiate based on queue type.
+static constexpr VkDeviceQueueGlobalPriorityCreateInfo vk_global_priorities[]{
+    {
+     .sType          = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+     .pNext          = nullptr,
+     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR, // Default priority
+    },
+    {
+     .sType          = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+     .pNext          = nullptr,
+     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR,
+     },
+    {
+     .sType          = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+     .pNext          = nullptr,
+     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR,
+     },
+};
+
+//-----------------------------------------------------------------------------
+constexpr const VkDeviceQueueGlobalPriorityCreateInfo*
+get_global_priority_info(WisCommandQueuePriority type) noexcept
+{
+    switch (type) {
+    default:
+    case WisCommandQueuePriorityNormal:
+        return &vk_global_priorities[0];
+    case WisCommandQueuePriorityHigh:
+        return &vk_global_priorities[1];
+    case WisCommandQueuePriorityRealtime:
+        return &vk_global_priorities[2];
+    }
+}
+
+//-----------------------------------------------------------------------------
+constexpr const VkDeviceQueueGlobalPriorityCreateInfo*
+get_global_priority_info(VkQueueGlobalPriority type) noexcept
+{
+    switch (type) {
+    default:
+    case VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR:
+        return &vk_global_priorities[0];
+    case VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR:
+        return &vk_global_priorities[1];
+    case VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR:
+        return &vk_global_priorities[2];
+    }
+}
+
+//-----------------------------------------------------------------------------
+constexpr WisCommandQueuePriority
+convert_global_priority(VkQueueGlobalPriority vk_priority) noexcept
+{
+    switch (vk_priority) {
+    default:
+    case VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR:
+        return WisCommandQueuePriorityNormal;
+    case VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR:
+        return WisCommandQueuePriorityHigh;
+    case VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR:
+        return WisCommandQueuePriorityRealtime;
+    }
+}
+
+//-----------------------------------------------------------------------------
+inline std::array<uint32_t, WisCommandQueueTypeCount>
+get_sorted_queue_families(wis::span<VkQueueFamilyProperties2> props_span) noexcept
+{
+    static constexpr uint32_t                      invalid_index = VKQueueResidencyInfo::invalid_index;
+    std::array<uint32_t, WisCommandQueueTypeCount> qcom{};
+    std::ranges::fill(qcom, invalid_index); // Initialize all to invalid index
+
+    for (uint32_t i = 0; i < props_span.size(); ++i) {
+        auto&        props = props_span[i];
+        VkQueueFlags flags = props.queueFamilyProperties.queueFlags;
+
+        // --- GRAPHICS SELECTION ---
+        // Simple: Take the first one (usually Family 0).
+        // Optional: Pick the one with the most queues if you want to be fancy.
+        if ((flags & VK_QUEUE_GRAPHICS_BIT) && qcom[WisCommandQueueTypeGraphics] == invalid_index) {
+            qcom[WisCommandQueueTypeGraphics] = i;
+        }
+
+        // --- COMPUTE SELECTION ---
+        // Goal: Prefer a dedicated Compute queue (Async Compute) over the Graphics queue.
+        if (flags & VK_QUEUE_COMPUTE_BIT) {
+            auto current = qcom[WisCommandQueueTypeCompute];
+
+            // Scenario A: We haven't found any compute queue yet. Take this one.
+            if (current == invalid_index) {
+                qcom[WisCommandQueueTypeCompute] = i;
+            }
+
+            // Scenario B: We found a shared G+C queue, but now we found a DISTINCT Compute queue.
+            // Overwrite the previous choice! This is how you get Async Compute.
+            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) && !(flags & VK_QUEUE_GRAPHICS_BIT)) {
+                qcom[WisCommandQueueTypeCompute] = i;
+            }
+
+            // Scenario C: We have found another G+C, but it is different from WisCommandQueueTypeGraphics (probably impossible)
+            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) && qcom[WisCommandQueueTypeGraphics] != i) {
+                qcom[WisCommandQueueTypeCompute] = i;
+            }
+        }
+
+        // --- VIDEO SELECTION ---
+        if ((flags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) && qcom[WisCommandQueueTypeVideoDecode] == invalid_index) {
+            qcom[WisCommandQueueTypeVideoDecode] = i;
+        }
+
+        if ((flags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR) && qcom[WisCommandQueueTypeVideoEncode] == invalid_index) {
+            qcom[WisCommandQueueTypeVideoEncode] = i;
+        }
+
+        constexpr static VkQueueFlags transfer_safe_mask =
+                VK_QUEUE_GRAPHICS_BIT |
+                VK_QUEUE_COMPUTE_BIT |
+                VK_QUEUE_TRANSFER_BIT |
+                VK_QUEUE_SPARSE_BINDING_BIT;
+
+        // --- TRANSFER SELECTION ---
+        // Goal: Dedicated Transfer > Compute (Async) > Graphics (Fallback).
+        // CRITICAL: Avoid Video/Optical queues.
+        if (flags & VK_QUEUE_TRANSFER_BIT) {
+            // calculate "pollution" - bits we don't recognize or explicitly dislike
+            VkQueueFlags pollution = flags & ~transfer_safe_mask;
+
+            // Filter 1: The "Tainted" Check
+            // If 'pollution' is non-zero, this queue has flags (Video, Optical Flow, FutureAI)
+            // that we didn't account for. It is likely a specialized engine.
+            if (pollution != 0) {
+                continue; // HARD REJECT. Better to use the Graphics queue than a weird unknown engine.
+            }
+
+            auto current = qcom[WisCommandQueueTypeTransfer];
+
+            if (current == invalid_index) {
+                qcom[WisCommandQueueTypeTransfer] = i;
+            } else {
+                // Calculate "Distinctness Score"
+                // 0 = Graphics (Worst for overlap)
+                // 1 = Compute (Better)
+                // 2 = Dedicated Transfer (Best)
+
+                auto current_flags = props_span[current].queueFamilyProperties.queueFlags;
+
+                int oldScore = 0;
+                if (!(current_flags & VK_QUEUE_GRAPHICS_BIT) && !(current_flags & VK_QUEUE_COMPUTE_BIT)) {
+                    oldScore = 2;
+                } else if (!(current_flags & VK_QUEUE_GRAPHICS_BIT)) {
+                    oldScore = 1;
+                }
+
+                int newScore = 0;
+                if (!(flags & VK_QUEUE_GRAPHICS_BIT) && !(flags & VK_QUEUE_COMPUTE_BIT)) {
+                    newScore = 2;
+                } else if (!(flags & VK_QUEUE_GRAPHICS_BIT)) {
+                    newScore = 1;
+                }
+
+                // Upgrade if we found a more specialized queue
+                if (newScore > oldScore) {
+                    qcom[WisCommandQueueTypeTransfer] = i;
+                }
+            }
+        }
+    }
+    return qcom;
+}
+
+VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           adapter_table,
+                                              VkPhysicalDevice               adapter,
+                                              const WisVKDeviceRequirements* requirements,
+                                              const VKDeviceFeatures&        device_features,
+                                              WisResult&                     out_result)
+{
+    VKQueueResidencyInfo      info{};
+    constexpr static uint32_t reasonable_queue_family_count = 32;
+    if (!requirements) {
+        // No requirements provided, return empty info
+        return info;
+    }
+
+    wis::span<const WisCommandQueueDesc> queue_descs{ requirements->queue_descs, requirements->queue_desc_count };
+
+    if (queue_descs.size() > WisCommandQueueTypeCount) {
+        out_result = make_result<Func(), "Too many queue types in requirements">(VK_ERROR_INITIALIZATION_FAILED);
+        return info;
+    }
+
+    if (queue_descs.empty()) {
+        // No queues requested, return empty info
+        return info;
+    }
+
+    uint32_t queue_family_count = 0;
+    adapter_table.vkGetPhysicalDeviceQueueFamilyProperties2(adapter, &queue_family_count, nullptr);
+    if (queue_family_count == 0) {
+        // No queues available, return empty info
+        if (!queue_descs.empty()) {
+            out_result = make_result<Func(), "No queue families found for the adapter">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+        return info;
+    }
+
+    // Allocate array for queue family properties, use stack if count is reasonable to avoid heap allocation
+    VkQueueFamilyProperties2              default_props[reasonable_queue_family_count]; // avoid heap allocation for up to 32 queue families
+    VkQueueFamilyGlobalPriorityProperties default_global_props[reasonable_queue_family_count];
+
+    std::unique_ptr<uint8_t[]> family_props;
+
+    wis::span<VkQueueFamilyProperties2>              props_span;
+    wis::span<VkQueueFamilyGlobalPriorityProperties> global_props_span;
+
+    if (queue_family_count <= reasonable_queue_family_count) {
+        props_span        = wis::span{ default_props, queue_family_count };
+        global_props_span = wis::span{ default_global_props, queue_family_count };
+    } else {
+        family_props      = make_unique<uint8_t[]>(sizeof(VkQueueFamilyProperties2) * queue_family_count + sizeof(VkQueueFamilyGlobalPriorityProperties) * queue_family_count);
+        props_span        = wis::span{ reinterpret_cast<VkQueueFamilyProperties2*>(family_props.get()), queue_family_count };
+        global_props_span = wis::span{ reinterpret_cast<VkQueueFamilyGlobalPriorityProperties*>(family_props.get() + sizeof(VkQueueFamilyProperties2) * queue_family_count), queue_family_count };
+    }
+
+    // Initialize the pNext chain for each queue family property to query global priority support
+    for (uint32_t i = 0; i < queue_family_count; ++i) {
+        props_span[i] = {
+            .sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2,
+            .pNext = &global_props_span[i],
+        };
+        global_props_span[i] = {
+            .sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_KHR,
+            .pNext = nullptr,
+        };
+    }
+
+    if (props_span.data() == nullptr) {
+        out_result = make_result<Func(), "Not enough memory for device queue family properties array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+    adapter_table.vkGetPhysicalDeviceQueueFamilyProperties2(adapter, &queue_family_count, props_span.data());
+
+    // Sort all families
+    uint32_t allocated_queue_count = 0;
+    auto     selection             = get_sorted_queue_families(props_span);
+    for (std::size_t i = 0; i < queue_descs.size(); ++i) {
+        auto& desc = queue_descs[i];
+        if (desc.type >= WisCommandQueueTypeCount) {
+            out_result = make_result<Func(), "Invalid command queue type in requirements">(VK_ERROR_INITIALIZATION_FAILED);
+            return info;
+        }
+
+        if (info.residency[desc.type] != VKQueueFamilyProperties::invalid_family_index) {
+            continue;
+        }
+
+        // Get the family properties for the selected queue family index
+        auto& family_props = props_span[selection[desc.type]].queueFamilyProperties;
+        auto& global_props = global_props_span[selection[desc.type]];
+
+        const VkDeviceQueueGlobalPriorityCreateInfo* priority_next = nullptr;
+        if (device_features.global_priority && desc.priority > WisCommandQueuePriorityNormal) {
+            auto* global_priority_info = get_global_priority_info(desc.priority);
+            // Clamp the requested priority to the maximum supported by this family
+            for (uint32_t p = global_props.priorityCount; p > 0; --p) {
+                if (global_props.priorities[p - 1] <= global_priority_info->globalPriority) {
+                    priority_next = get_global_priority_info(global_props.priorities[p - 1]);
+                    break;
+                }
+            }
+        }
+
+        // If the queue count is zero, it means this family has already been allocated for a previous queue type.
+        if (family_props.queueCount == 0) {
+            // Get allocated family index from residency (stored in queueFlags)
+            uint32_t allocated_family = props_span[info.residency[desc.type]].queueFamilyProperties.queueFlags;
+
+            // Check if the global priority of the already allocated family is greater.
+            if (priority_next > info.data[allocated_family].pNext) {
+                info.data[allocated_family].pNext = priority_next; // Upgrade the global priority for the already allocated family
+            }
+
+            info.residency[desc.type] = family_props.queueFlags;
+            continue; // This family has already been allocated
+        }
+
+        info.residency[desc.type] = family_props.queueFlags = allocated_queue_count; // Store where the family is allocated in the residency field (abusing queueFlags for this purpose)
+
+        info.data[allocated_queue_count++] = {
+            .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .pNext            = priority_next,
+            .flags            = 0, // could have added internally synchronized, but we have semaphores for that
+            .queueFamilyIndex = selection[desc.type],
+            .queueCount       = family_props.queueCount,
+        };
+
+        // Mark this family as allocated by setting its queueCount to 0 (since we won't be able to allocate it again)
+        family_props.queueCount = 0;
+    }
+    info.queue_type_count = allocated_queue_count;
+
+    return info;
+}
+} // namespace wis::detail
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
+{
+    auto& impl = *reinterpret_cast<VKAdapterQueryImpl*>(self);
+    if (impl.physical_devices) {
+        delete[] impl.physical_devices;
+        detail::release_vk_instance(impl.instance, impl.shared_header);
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self)
+{
+    return reinterpret_cast<const VKAdapterQueryImpl*>(self)->adapter_count;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self,
+                                                                  size_t                   index,
+                                                                  WisAdapterDesc*          desc)
+{
+    const auto& impl = *reinterpret_cast<const VKAdapterQueryImpl*>(self);
+    if (index >= impl.adapter_count) {
+        return make_result<Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+    const auto& atable  = impl.shared_header->header.adapter_table;
+    auto        adapter = impl.physical_devices[index];
+
+    VkPhysicalDeviceIDProperties id_props{};
+    id_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES;
+
+    VkPhysicalDeviceProperties2 properties{};
+    properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    properties.pNext = &id_props;
+
+    atable.vkGetPhysicalDeviceProperties2(adapter, &properties);
+
+    auto& got_desc = properties.properties;
+
+    VkPhysicalDeviceMemoryProperties memory_props{};
+    atable.vkGetPhysicalDeviceMemoryProperties(adapter, &memory_props);
+
+    // Get flags
+    WisAdapterFlags flag{};
+    if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
+        flag = static_cast<WisAdapterFlags>(flag | WisAdapterFlags::WisAdapterFlagsRemote);
+    }
+    if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU) == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU) {
+        flag = static_cast<WisAdapterFlags>(flag | WisAdapterFlags::WisAdapterFlagsSoftware);
+    }
+
+    uint64_t dedicated_video_memory = 0;
+    uint64_t shared_system_memory   = 0;
+
+    wis::span types{ memory_props.memoryTypes };
+    for (auto& i : types) {
+        if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &&
+            memory_props.memoryHeaps[i.heapIndex].flags &
+                    VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+            dedicated_video_memory = memory_props.memoryHeaps[i.heapIndex].size;
+        }
+
+        if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
+            shared_system_memory = memory_props.memoryHeaps[i.heapIndex].size;
+        }
+        if ((dedicated_video_memory != 0u) && (shared_system_memory != 0u)) {
+            break;
+        }
+    }
+
+    *desc = WisAdapterDesc{
+        .description = {},
+        .vendor_id   = got_desc.vendorID,
+        .device_id   = got_desc.deviceID,
+
+        .dedicated_video_memory = dedicated_video_memory,
+        .shared_system_memory   = shared_system_memory, // Vulkan does not expose shared system memory directly
+
+        .adapter_id   = id_props.deviceLUIDValid ? *reinterpret_cast<const uint64_t*>(id_props.deviceUUID) : 0,
+        .adapter_uuid = {},
+        .flags        = flag,
+    };
+
+    std::copy_n(got_desc.deviceName, sizeof(desc->description) - 1, desc->description);
+    std::copy_n(id_props.deviceUUID, sizeof(desc->adapter_uuid), desc->adapter_uuid);
+    return vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapterQuery*       self,
+                                                                size_t                         index,
+                                                                const WisVKDeviceRequirements* requirements,
+                                                                WisVKDevice*                   device)
+{
+    auto& impl = *reinterpret_cast<const VKAdapterQueryImpl*>(self);
+    if (index >= impl.adapter_count) {
+        return make_result<Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    auto& atable  = impl.shared_header->header.adapter_table;
+    auto& adapter = impl.physical_devices[index];
+
+    WisResult                  res = vk_success;
+    VKDeviceExtensionCollector collector{ atable, adapter, res };
+    if (res.status != WisStatusOk) {
+        return res;
+    }
+
+    // Let extensions collect their info
+    if (requirements) {
+        for (size_t i = 0; i < requirements->extension_count; ++i) {
+            if (auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(requirements->extensions[i])) {
+                auto res2 = ext_header->init_fptr(ext_header, nullptr, &collector);
+                // Non-fatal, allow to silently fail
+                (void)res2;
+            }
+        }
+    }
+
+    detail::DeviceExtension1 device_ext1;
+    auto                     xres = device_ext1.CollectInfo(collector);
+    // Non-fatal, allow to silently fail
+    (void)xres;
+
+    // Prepared enabled extensions array
+    auto&& [ext_buffer, ext_strings, ext_count, feature_structs, property_structs] = collector.GetInitBuffer(res);
+    if (res.status != WisStatusOk) {
+        return res;
+    }
+
+    // Create default enabled features
+    VkPhysicalDeviceVulkan12Features vulkan12_features{};
+    vulkan12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    vulkan12_features.pNext = feature_structs; // link to extension features
+
+    VkPhysicalDeviceVulkan11Features vulkan11_features{};
+    vulkan11_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+    vulkan11_features.pNext = &vulkan12_features;
+
+    VkPhysicalDeviceFeatures2 features{};
+    features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features.pNext = &vulkan11_features;
+
+    atable.vkGetPhysicalDeviceFeatures2(adapter, &features);
+
+    // Add default features to collector
+    collector.ForceBindFeatureStruct(&features);
+    collector.ForceBindFeatureStruct(&vulkan11_features);
+    collector.ForceBindFeatureStruct(&vulkan12_features);
+
+    // Create properties structures
+    VkPhysicalDeviceVulkan12Properties vulkan12_properties{};
+    vulkan12_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES;
+    vulkan12_properties.pNext = property_structs; // link to extension properties
+
+    VkPhysicalDeviceVulkan11Properties vulkan11_properties{};
+    vulkan11_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES;
+    vulkan11_properties.pNext = &vulkan12_properties;
+
+    VkPhysicalDeviceProperties2 properties{};
+    properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    properties.pNext = &vulkan11_properties;
+
+    atable.vkGetPhysicalDeviceProperties2(adapter, &properties);
+
+    // Add default properties to collector
+    collector.ForceBindPropertyStruct(&properties);
+    collector.ForceBindPropertyStruct(&vulkan11_properties);
+    collector.ForceBindPropertyStruct(&vulkan12_properties);
+
+    // Initialize queues
+    auto queue_info = get_queue_residency_info(
+            atable,
+            adapter,
+            requirements,
+            device_ext1.features,
+            res);
+    if (res.status != WisStatusOk) {
+        return res;
+    }
+
+    // Create device
+    VkDeviceCreateInfo device_create_info{
+        .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .pNext                   = &features, // link to extension features
+        .flags                   = 0,
+        .queueCreateInfoCount    = queue_info.queue_type_count,
+        .pQueueCreateInfos       = queue_info.data.data(),
+        .enabledLayerCount       = 0, // deprecated
+        .ppEnabledLayerNames     = nullptr, // deprecated
+        .enabledExtensionCount   = static_cast<uint32_t>(ext_count),
+        .ppEnabledExtensionNames = ext_strings,
+        .pEnabledFeatures        = nullptr, // deprecated
+    };
+    VkDevice device_handle = VK_NULL_HANDLE;
+    VkResult vr            = atable.vkCreateDevice(adapter, &device_create_info, nullptr, &device_handle);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan device">(vr);
+    }
+
+    static_assert(alignof(VKDeviceControlBlock) <= __STDCPP_DEFAULT_NEW_ALIGNMENT__, "VKDeviceControlBlock must be well aligned to safely use operator new for allocation");
+    std::size_t control_block_size = sizeof(VKDeviceControlBlock); // allocate extra space for semaphores
+    std::size_t semaphore_count    = 0;
+    for (size_t i = 0; i < queue_info.queue_type_count; ++i) {
+        semaphore_count += queue_info.data[i].queueCount;
+    }
+    control_block_size += sizeof(std::binary_semaphore) * semaphore_count;
+
+    std::unique_ptr<VKDeviceControlBlock> header{ reinterpret_cast<VKDeviceControlBlock*>(operator new(control_block_size, std::nothrow)) };
+    if (!header) {
+        return make_result<Func(), "Failed to allocate memory for Vulkan device header">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    // Start header lifetime
+    std::construct_at(header.get());
+
+    wis::span<std::binary_semaphore> semaphores{ reinterpret_cast<std::binary_semaphore*>(header.get() + 1), semaphore_count };
+    for (auto& sem : semaphores) {
+        std::construct_at(&sem, 1); // Initialize all semaphores to the non-signaled state
+    }
+
+    // Store queue create info in device header for later use in command queue creation
+    header->header.family_count = queue_info.queue_type_count;
+    uint32_t semaphore_offset   = 0;
+    for (size_t i = 0; i < queue_info.queue_type_count; ++i) {
+        auto& family_info  = header->header.queue_families[i];
+        auto& queue_family = queue_info.data[i];
+
+        family_info.family_index     = static_cast<uint8_t>(queue_family.queueFamilyIndex);
+        family_info.queue_count      = static_cast<uint8_t>(queue_family.queueCount);
+        family_info.semaphore_offset = semaphore_offset;
+
+        if (queue_family.pNext) {
+            // Global priority info is present in the pNext chain, store it in the device header
+            const auto* global_priority_info = reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(queue_family.pNext);
+            family_info.queue_priority       = static_cast<uint8_t>(convert_global_priority(global_priority_info->globalPriority));
+        }
+
+        semaphore_offset += family_info.queue_count;
+    }
+
+    // store mapping of queue type to family index in device header for quick lookup during command queue creation
+    for (size_t j = 0; j < WisCommandQueueTypeCount; ++j) {
+        header->header.queue_residency[j] = queue_info.residency[j];
+    }
+
+    // Initialize device table
+    auto& device_table = header->header.device_table;
+    auto& gtable       = impl.shared_header->header.global_table;
+    if (!device_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Failed to initialize Vulkan device function table">(VK_ERROR_UNKNOWN);
+    }
+
+    // Initialize command queue table
+    if (!header->header.command_queue_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Failed to initialize Vulkan command queue function table">(VK_ERROR_UNKNOWN);
+    }
+
+    // Initialize command list table
+    if (!header->header.command_list_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return make_result<Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
+    }
+
+    // Fill device impl
+    auto& device_impl           = *new (device) VKDeviceImpl();
+    device_impl.device_header   = header.release();
+    device_impl.device          = device_handle;
+    device_impl.physical_device = adapter;
+
+    auto& device_header         = device_impl.device_header->header;
+    device_header.shared_header = impl.shared_header;
+    device_header.shared_header->AddRef(); // hold reference to instance header
+    device_header.instance = impl.instance;
+
+    auto res2 = device_ext1.Init(device_impl, collector);
+    // Non-fatal, allow to silently fail
+    (void)res2;
+
+    // Store device extensions info
+    device_header.features = device_ext1.features;
+
+    // Initialize device extensions
+    if (requirements) {
+        for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ requirements->extensions, requirements->extension_count }) {
+            if (auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext)) {
+                if (auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector); yres.status != WisStatusOk) {
+                    res.status        = WisStatusPartial; // mark as partial success if any extension fails
+                    res.error         = yres.error;
+                    res.platform_code = yres.platform_code;
+                }
+            }
+        }
+    }
+
+    return res;
+}
+
+#endif // WIS_VK_ADAPTER_QUERY_CPP

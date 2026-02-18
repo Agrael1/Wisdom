@@ -35,6 +35,7 @@ struct VKMainAdapter {
     PFN_vkGetPhysicalDeviceMemoryProperties        vkGetPhysicalDeviceMemoryProperties;
     PFN_vkGetPhysicalDeviceProperties              vkGetPhysicalDeviceProperties;
     PFN_vkGetPhysicalDeviceQueueFamilyProperties   vkGetPhysicalDeviceQueueFamilyProperties;
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties2  vkGetPhysicalDeviceQueueFamilyProperties2;
     PFN_vkEnumerateDeviceExtensionProperties       vkEnumerateDeviceExtensionProperties;
     PFN_vkGetPhysicalDeviceFeatures2               vkGetPhysicalDeviceFeatures2;
     PFN_vkGetPhysicalDeviceProperties2             vkGetPhysicalDeviceProperties2;
@@ -52,6 +53,7 @@ public:
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceMemoryProperties);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceProperties);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceQueueFamilyProperties);
+        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceQueueFamilyProperties2, "vkGetPhysicalDeviceQueueFamilyProperties2KHR");
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkEnumerateDeviceExtensionProperties);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceFeatures2, "vkGetPhysicalDeviceFeatures2KHR");
         ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceProperties2, "vkGetPhysicalDeviceProperties2KHR");

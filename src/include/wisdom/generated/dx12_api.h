@@ -46,7 +46,7 @@ WIS_DEFINE_HANDLE(WisDX12CommandQueue, 1);
  * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12Device, 3);
+WIS_DEFINE_HANDLE(WisDX12Device, 5);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
@@ -81,7 +81,7 @@ typedef struct WisDX12InstanceExtensionHeader {
  *
  * */
 typedef struct WisDX12DeviceRequirements {
-    WisCommandQueueDesc**          queue_descs; ///< points to an array of WisCommandQueueDesc for which queues will be created during device creation.
+    const WisCommandQueueDesc*     queue_descs; ///< points to an array of WisCommandQueueDesc for which queues will be created during device creation.
     size_t                         queue_desc_count; ///< counts the number of queue descriptions in the wisAdapterQueryCreateDevice array.
     WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
     size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice array.

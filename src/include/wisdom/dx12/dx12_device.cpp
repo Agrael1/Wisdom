@@ -30,12 +30,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
-    WisResult result = dx_success;
     auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+
+    bool supported = (device.queue_priorities[type] & ~0x7fu) != 0;
+    if (!supported) {
+        return make_result<Func(), "Requested command queue type is not supported or not enabled by the device">(E_INVALIDARG);
+    }
 
     D3D12_COMMAND_QUEUE_DESC desc{
         .Type     = convert_dx(type),
-        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Priority = convert_dx(WisCommandQueuePriority(device.queue_priorities[type] & 0x7f)),
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
     };
@@ -49,7 +53,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
 
     auto& internal = *new (queue) DX12CommandQueueImpl();
     internal.queue = out_queue.detach();
-    return result;
+    return dx_success;
 }
 
 //-----------------------------------------------------------------------------

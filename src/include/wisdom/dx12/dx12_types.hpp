@@ -39,6 +39,8 @@ struct DX12DeviceImpl {
     ID3D12Device10* device;
     IDXGIAdapter4*  physical_device;
     IDXGIFactory6*  factory;
+
+    uint8_t queue_priorities[WisCommandQueueTypeCount]; // store priorities for queues to be created with the device, indexed by WisCommandQueueType
 };
 
 struct DX12CommandQueueImpl {

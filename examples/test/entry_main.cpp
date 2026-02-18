@@ -51,6 +51,15 @@ int main()
     size_t adapter_count = adapter_query.GetAdapterCount();
     std::cout << "Adapter count: " << adapter_count << "\n";
 
+    wis::CommandQueueDesc queue_desc[] = {
+        { wis::CommandQueueType::Graphics,   wis::CommandQueuePriority::High },
+        {  wis::CommandQueueType::Compute, wis::CommandQueuePriority::Normal },
+    };
+
+    wis::DeviceRequirements device_requirements{};
+    device_requirements.queue_descs = queue_desc,
+    device_requirements.extensions  = {};
+
     wis::Device device;
     for (size_t i = 0; i < adapter_count; ++i) {
         wis::AdapterDesc desc = adapter_query.GetAdapterDesc(i, result);
@@ -65,7 +74,7 @@ int main()
                   << ", SharedSystemMemory: " << desc.shared_system_memory
                   << ", Flags: " << static_cast<uint32_t>(desc.flags) << "\n";
 
-        device = adapter_query.CreateDevice(i, {}, result);
+        device = adapter_query.CreateDevice(i, device_requirements, result);
         if (result.status != wis::Status::Ok) {
             std::cerr << "Failed to create device for adapter " << i << ": " << result.error << "\n";
             continue;
@@ -92,47 +101,11 @@ int main()
         return int(result.status);
     }
 
-    // Create pipeline resources
-    wis::PushConstant push_constants[] = {
-        { wis::ShaderStages::Vertex, 16, 0, 0 },
-        {  wis::ShaderStages::Pixel, 32, 0, 0 },
-    };
-    wis::PushDescriptor push_descriptors[] = {
-        { wis::ShaderStages::Vertex,
-         wis::DescriptorType::ConstantBuffer,
-         1 },
-        {  wis::ShaderStages::Pixel,
-         wis::DescriptorType::Buffer,
-         2 },
-    };
-
-    wis::PipelineLayoutDesc pipeline_layout_desc;
-    pipeline_layout_desc.push_constants   = { push_constants };
-    pipeline_layout_desc.push_descriptors = { push_descriptors };
-
-    wis::PipelineLayout pipeline_layout = device.CreatePipelineLayout(pipeline_layout_desc, result);
+    wis::CommandList command_list = device.CreateCommandList(wis::CommandQueueType::Graphics, result);
     if (result.status != wis::Status::Ok) {
-        std::cerr << "Failed to create pipeline layout: " << result.error << "\n";
+        std::cerr << "Failed to create command list: " << result.error << "\n";
         return int(result.status);
     }
-
-    // Create Sampler
-    wis::SamplerDesc sampler_desc;
-    sampler_desc.min_filter          = wis::Filter::Linear;
-    sampler_desc.mag_filter          = wis::Filter::Linear;
-    sampler_desc.mip_filter          = wis::Filter::Linear;
-    sampler_desc.is_anisotropic      = true;
-    sampler_desc.max_anisotropy      = 16;
-    sampler_desc.address_u           = wis::AddressMode::Repeat;
-    sampler_desc.address_v           = wis::AddressMode::Repeat;
-    sampler_desc.address_w           = wis::AddressMode::Repeat;
-    sampler_desc.min_lod             = 0.0f;
-    sampler_desc.max_lod             = 12.0f;
-    sampler_desc.mip_lod_bias        = 0.0f;
-    sampler_desc.comparison_op       = wis::CompareOperation::None;
-    sampler_desc.static_border_color = wis::StaticBorder::OpaqueBlack;
-    sampler_desc.border_color        = { 0.0f, 0.0f, 0.0f, 0.0f };
-    sampler_desc.flags               = wis::SamplerFlags::None;
 
     return 0;
 }

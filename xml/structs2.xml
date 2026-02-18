@@ -45,8 +45,7 @@
 
 		<type name="CommandQueueDesc" category="struct" version="0.7.0" doc="Command queue description for {CommandQueue::} creation.">
 			<member type="CommandQueueType" name="type" doc="defines the type of the command queue."/>
-			<member type="CommandQueueFlags" name="flags" doc="defines command queue flags. Used to set additional options for command queue creation."/>
-			<member type="CommandQueuePriority" name="priority" doc="defines the global priority of the command queue."/>
+			<member type="CommandQueuePriority" name="priority" doc="defines command queue priority. Used to set priority of the command queues of the type."/>
 		</type>
 
 		<type name="SamplerDesc" category="struct" version="0.7.0" doc="Sampler description for {Sampler::} creation.">
@@ -118,7 +117,7 @@
 		</type>
 
 		<type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
-			<member type="CommandQueueDesc" name="queue_descs" mod="ptr,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
+			<member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
 			<member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
 			<member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
 			<member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>

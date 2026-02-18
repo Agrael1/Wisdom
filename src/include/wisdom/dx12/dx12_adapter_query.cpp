@@ -57,13 +57,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX1
     }
 
     *desc = WisAdapterDesc{
-        .description            = { },
+        .description            = {},
         .vendor_id              = adapter_desc.VendorId,
         .device_id              = adapter_desc.DeviceId,
         .dedicated_video_memory = (adapter_desc.DedicatedVideoMemory),
         .shared_system_memory   = (adapter_desc.SharedSystemMemory),
         .adapter_id             = *reinterpret_cast<uint64_t*>(&adapter_desc.AdapterLuid),
-        .adapter_uuid           = { },
+        .adapter_uuid           = {},
         .flags                  = static_cast<WisAdapterFlags>(adapter_desc.Flags),
     };
 
@@ -101,7 +101,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
         return make_result<Func(), "Failed to create D3D12 device">(hr);
     }
 
-    D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12                 = { };
+    D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12                 = {};
     bool                               EnhancedBarriersSupported = false;
     if (succeeded(device_ref->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)))) {
         EnhancedBarriersSupported = options12.EnhancedBarriersSupported;
@@ -134,6 +134,31 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
     device_impl.factory         = impl.factory;
     device_impl.physical_device->AddRef();
     device_impl.factory->AddRef();
+
+    // If no requirements provided, return early with default device impl
+    if (!requirements) {
+        return res;
+    }
+
+    // Scan queue descriptions and store priorities in device impl
+    for (size_t i = 0; i < requirements->queue_desc_count; ++i) {
+        const auto& desc = requirements->queue_descs[i];
+        if (desc.type >= WisCommandQueueTypeCount || desc.type < 0) {
+            return make_result<Func(), "Invalid command queue type specified in requirements">(E_INVALIDARG);
+        }
+
+        if (desc.priority > WisCommandQueuePriorityNormal) {
+            // Check if selected queue type is supported by the device
+            D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY queue_priority = {
+                .CommandListType = convert_dx(desc.type),
+                .Priority        = static_cast<UINT>(convert_dx(desc.priority)),
+            };
+            device_impl.device->CheckFeatureSupport(D3D12_FEATURE_COMMAND_QUEUE_PRIORITY, &queue_priority, sizeof(queue_priority));
+            device_impl.queue_priorities[desc.type] = queue_priority.PriorityForTypeIsSupported ? desc.priority : WisCommandQueuePriorityNormal;
+        }
+
+        device_impl.queue_priorities[desc.type] |= 1 << 7; // set support bit for this queue type
+    }
 
     for (auto* ext : wis::span<WisDX12DeviceExtensionHeader*>{ requirements->extensions, requirements->extension_count }) {
         if (auto* table = reinterpret_cast<DX12DeviceExtensionHeader*>(ext)) {

@@ -32,7 +32,7 @@
 		</handle>
 		<handle name="Device" version="0.7.0" doc="Central class representing logical device.">
 			<impl for="vk" size="3"/>
-			<impl for="dx" size="3"/>
+			<impl for="dx" size="5"/>
 		</handle>
 		<handle name="AdapterQuery" version="0.7.0" doc="Class that contains a snapshot of adapters that are present on the system.">
 			<impl for="vk" size="4"/>
