@@ -1,31 +1,33 @@
-#ifndef WIS_VK_DETAIL_H
-#define WIS_VK_DETAIL_H
+#ifndef WIS_VK_DETAIL_HPP
+#define WIS_VK_DETAIL_HPP
 #ifndef __cplusplus
 #error "This header requires C++"
 #endif // __cplusplus
 
-#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/vulkan/vk_tables.hpp>
+#include <wisdom/generated/c_api.h>
 #include <wisdom/bridge/span.hpp>
 #include <atomic>
-#include <mutex>
+#include <semaphore>
 
-namespace wis {
-namespace detail {
-
+namespace wis::detail {
 //-----------------------------------------------------------------------------
+/**
+ * @brief A control block structure that manages reference counting for Vulkan objects. This template struct is designed to be used as a base for various Vulkan object headers, providing a common mechanism for reference counting and resource management. The AddRef and Release methods allow for thread-safe incrementing and decrementing of the reference count, ensuring proper lifetime management of Vulkan resources.
+ * @tparam HeaderType The type of the header that will be stored in the control block. This allows for flexibility in defining different types of Vulkan object headers while still utilizing the same reference counting mechanism provided by VKControlBlock.
+ */
 template<typename HeaderType>
 struct VKControlBlock {
     size_t AddRef() noexcept
     {
         // Relaxed memory order is sufficient since this does not impose any ordering on other operations
-        return m_ref_cnt.fetch_add(1, std::memory_order_relaxed);
+        return m_ref_cnt.fetch_add(1, std::memory_order::relaxed);
     }
 
     size_t Release() noexcept
     {
         // A release memory order to ensure that all releases are ordered
-        return m_ref_cnt.fetch_sub(1, std::memory_order_release);
+        return m_ref_cnt.fetch_sub(1, std::memory_order::release);
     }
 
 public:
@@ -34,19 +36,29 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+/**
+ * @brief A structure that serves as a thunk for Vulkan debug callbacks. This structure provides a static callback function that can be registered with Vulkan's debug utilities, and it forwards the callback to a user-defined WisDebugCallback. The DebugUtilsMessengerCallbackThunk function is designed to be compatible with Vulkan's expected callback signature, while the DebugUtilsMessengerCallback method allows for processing the debug messages and invoking the user-defined callback with the appropriate severity and message information.
+ */
 struct VKDebugCallbackThunk {
 public:
-    static VkBool32 VKAPI_PTR wisDebugUtilsMessengerCallbackThunk(
+    static VkBool32 VKAPI_PTR DebugUtilsMessengerCallbackThunk(
             VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
             void*                                       pUserData)
     {
-        auto* thunk = reinterpret_cast<const VKDebugCallbackThunk*>(pUserData);
-        thunk->wisDebugUtilsMessengerCallback(messageSeverity, messageTypes, pCallbackData);
+        auto* thunk = static_cast<const VKDebugCallbackThunk*>(pUserData);
+        thunk->DebugUtilsMessengerCallback(messageSeverity, messageTypes, pCallbackData);
         return false;
     }
-    void wisDebugUtilsMessengerCallback(
+
+    /**
+     * @brief A method that processes Vulkan debug messages and invokes the user-defined callback with the appropriate severity and message information. This method translates Vulkan's message severity flags into the corresponding WisSeverity values and extracts the device handle from the callback data if available. The user-defined callback is then called with the translated severity, message, device handle, and user data.
+     * @param messageSeverity The severity of the debug message, represented as a Vulkan flag.
+     * @param messageTypes The type of the debug message, represented as Vulkan flags (unused in this implementation).
+     * @param pCallbackData A pointer to a structure containing details about the debug message, including the message string and associated Vulkan objects.
+     */
+    void DebugUtilsMessengerCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) const
@@ -89,58 +101,32 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-struct VKStaticSamplerPoolAllocator {
-    static constexpr std::uint32_t static_sampler_chunk_size = 1024;
-    static constexpr std::uint32_t static_sampler_max_pools  = 8;
-
-    std::array<VkDescriptorPool, static_sampler_max_pools> pools;
-
-    std::mutex    pool_mutex;
-    std::uint32_t pool_count         = 0;
-    std::uint32_t current_pool_index = 0;
-
-    // Strategy: 3 steps
-    // 1) Try to allocate from current pool
-    // 2) If current pool is full, try to find a pool with free space
-    // 3) If no pool has free space, create a new pool
-    std::pair<VkDescriptorSet, VkDescriptorPool>
-    AllocateSet(VkDevice device, const impl::VKMainDevice& table, VkDescriptorSetLayout dsl) noexcept;
-
-    void DestroyPoolsUnchecked(VkDevice device, const impl::VKMainDevice& table) noexcept
-    {
-        for (std::uint32_t i = 0; i < pool_count; ++i) {
-            table.vkDestroyDescriptorPool(device, pools[i], nullptr);
-        }
-        pool_count         = 0;
-        current_pool_index = 0;
-    }
-};
-
 struct VKInstanceHeader {
-    impl::VKMainGlobal          global_table;
-    impl::VKMainInstance        instance_table;
-    impl::VKMainAdapter         adapter_table;
-    VkDebugUtilsMessengerEXT    debug_messenger;
-    wis::detail::unique_library library;
-    uint32_t                    api_version;
+    impl::VKMainGlobal       global_table;
+    impl::VKMainInstance     instance_table;
+    impl::VKMainAdapter      adapter_table;
+    VkDebugUtilsMessengerEXT debug_messenger;
+    unique_library           library;
+    uint32_t                 api_version;
 
-    std::unique_ptr<wis::detail::VKDebugCallbackThunk> debug_callback_thunk;
+    std::unique_ptr<VKDebugCallbackThunk> debug_callback_thunk;
 };
 
+//-----------------------------------------------------------------------------
 struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
 };
 
+//-----------------------------------------------------------------------------
 struct VKDeviceFeatures {
-    bool has_custom_border_color           : 1;
-    bool dynamic_rendering                 : 1;
-    bool extended_dynamic_state            : 1;
-    bool synchronization_2                 : 1;
-    bool present_wait                      : 1;
-    bool dynamic_render_unused_attachments : 1;
-    bool push_descriptor                   : 1;
-    bool index_buffer_range                : 1;
-    bool descriptor_buffer                 : 1;
-    bool mutable_descriptor_type           : 1;
+    bool has_custom_border_color           : 1 = false;
+    bool dynamic_rendering                 : 1 = false;
+    bool extended_dynamic_state            : 1 = false;
+    bool synchronization_2                 : 1 = false;
+    bool dynamic_render_unused_attachments : 1 = false;
+    bool push_descriptor                   : 1 = false;
+    bool index_buffer_range                : 1 = false;
+    bool descriptor_heap                   : 1 = false;
+    bool global_priority                   : 1 = false;
 
     // Properties
     uint32_t max_push_descriptors      = 0;
@@ -148,83 +134,27 @@ struct VKDeviceFeatures {
     uint32_t max_bound_descriptor_sets = 0;
     uint32_t max_descriptors_in_set    = 0;
     uint32_t max_samplers_in_set       = 0;
-
-    // Descriptor buffer properties
-    uint16_t constant_buffer_descriptor_size        = 0;
-    uint16_t storage_buffer_descriptor_size         = 0;
-    uint16_t sampled_image_descriptor_size          = 0;
-    uint16_t storage_image_descriptor_size          = 0;
-    uint16_t acceleration_structure_descriptor_size = 0;
-
-    uint16_t mutable_descriptor_size    = 0;
-    uint16_t sampler_descriptor_size    = 0;
-    uint16_t descriptor_table_alignment = 0;
-
-    WisDescriptorStorageTier max_descriptor_storage_tier = WisDescriptorStorageTierTier1;
 };
 
-struct VKDescriptorSetLayoutContainer {
-    std::uint32_t    dsl_count            = 0;
-    std::uint32_t    static_sampler_count = 0;
-    VkDescriptorPool static_sampler_pool;
+//-----------------------------------------------------------------------------
+struct VKQueueFamilyProperties {
+    static constexpr uint8_t invalid_family_index = 0xFF;
+    uint8_t                  family_index         = invalid_family_index;
+    uint8_t                  queue_priority       = WisCommandQueuePriorityNormal;
+    uint8_t                  queue_count          = 0;
+    std::atomic<uint8_t>     current_index{ 0 };
+    uint32_t                 semaphore_offset = 0;
 
-    // Followed by VkDescriptorSetLayout[dsl_count]
-    wis::span<VkDescriptorSetLayout> vk_dsls() noexcept
+public:
+    uint8_t GetNextQueueIndex() noexcept
     {
-        return { reinterpret_cast<VkDescriptorSetLayout*>(this + 1), dsl_count };
-    }
-
-    // Followed by VkSampler[static_sampler_count]
-    wis::span<VkSampler> vk_static_samplers() noexcept
-    {
-        return { reinterpret_cast<VkSampler*>(reinterpret_cast<std::uint8_t*>(this + 1) + dsl_count * sizeof(VkDescriptorSetLayout)),
-                 static_sampler_count };
-    }
-
-    // destroy helpers
-    void destroy_static_samplers(VkDevice device, const impl::VKMainDevice& table) noexcept
-    {
-        wis::span<VkSampler> static_samplers_span = vk_static_samplers();
-        for (std::uint32_t i = 0; i < static_sampler_count; i++) {
-            if (static_samplers_span[i] != VK_NULL_HANDLE) {
-                table.vkDestroySampler(device, static_samplers_span[i], nullptr);
-                static_samplers_span[i] = VK_NULL_HANDLE;
-            }
-        }
-    }
-
-    void destroy_descriptor_set_layouts(VkDevice device, const impl::VKMainDevice& table) noexcept
-    {
-        wis::span<VkDescriptorSetLayout> dsl_span     = vk_dsls();
-        VkDescriptorSetLayout            previous_dsl = VK_NULL_HANDLE;
-        for (std::uint32_t i = 0; i < dsl_count; ++i) {
-            if (dsl_span[i] != VK_NULL_HANDLE && dsl_span[i] != previous_dsl) {
-                table.vkDestroyDescriptorSetLayout(device, dsl_span[i], nullptr);
-                previous_dsl = dsl_span[i];
-                dsl_span[i]  = VK_NULL_HANDLE;
-            }
-        }
-    }
-
-    void free_static_sampler_set(VkDevice device, const impl::VKMainDevice& table, VkDescriptorSet static_sampler_set) noexcept
-    {
-        if (static_sampler_set != VK_NULL_HANDLE) {
-            table.vkFreeDescriptorSets(
-                    device,
-                    static_sampler_pool,
-                    1,
-                    &static_sampler_set);
-        }
-    }
-
-    void destroy(VkDevice device, const impl::VKMainDevice& table, VkDescriptorSet static_sampler_set) noexcept
-    {
-        free_static_sampler_set(device, table, static_sampler_set);
-        destroy_static_samplers(device, table);
-        destroy_descriptor_set_layouts(device, table);
+        // Atomically get the next queue index in a round-robin fashion
+        uint8_t index = current_index.fetch_add(1, std::memory_order_relaxed);
+        return index % queue_count;
     }
 };
 
+//-----------------------------------------------------------------------------
 struct VKDeviceHeader {
     impl::VKMainDevice       device_table;
     impl::VKMainCommandQueue command_queue_table;
@@ -232,21 +162,100 @@ struct VKDeviceHeader {
     VKInstanceControlBlock*  shared_header;
     VkInstance               instance;
 
-    // Command queue
-    std::size_t                                queue_family_count;
-    uint8_t*                                   queue_semaphores;
-    std::unique_ptr<VkQueueFamilyProperties[]> queue_family_properties;
-    uint16_t                                   common_queue_family_indices[WisCommandQueueTypeCount];
-    VKDeviceFeatures                           features;
+    // Enabled features
+    VKDeviceFeatures features;
 
-    // Static sampler pool allocator
-    detail::VKStaticSamplerPoolAllocator static_sampler_pool_allocator;
+    // Queue family indices for each command queue type
+    std::array<uint8_t, WisCommandQueueTypeCount>                 queue_residency{};
+    std::array<VKQueueFamilyProperties, WisCommandQueueTypeCount> queue_families{};
+    uint32_t                                                      family_count = 0;
+
+    // store semaphores
+
+public:
+    ~VKDeviceHeader()
+    {
+        if (family_count == 0) {
+            return; // No queues, no semaphores to destroy
+        }
+
+        // Destroy semaphores
+        auto&                  last_family = queue_families[family_count - 1];
+        std::binary_semaphore* begin       = reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this));
+        std::binary_semaphore* end         = last_family.semaphore_offset + last_family.queue_count + begin;
+        for (std::binary_semaphore* sem = begin; sem < end; ++sem) {
+            sem->release();
+            if constexpr (!std::is_trivially_destructible_v<std::binary_semaphore>) {
+                std::destroy_at(sem);
+            }
+        }
+    }
+
+public:
+    std::binary_semaphore* GetSemaphoreForQueueType(WisCommandQueueType type, uint32_t queue_index) noexcept
+    {
+        if (type >= WisCommandQueueTypeCount) {
+            return nullptr; // Invalid queue type
+        }
+        uint8_t family_index = queue_families[type].family_index;
+        if (family_index == VKQueueFamilyProperties::invalid_family_index) {
+            return nullptr; // No valid family index for this queue type
+        }
+        return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this)) + queue_families[type].semaphore_offset + queue_index;
+    }
 };
 
+//-----------------------------------------------------------------------------
 struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
 };
 
-} // namespace detail
-} // namespace wis
+//-----------------------------------------------------------------------------
+/**
+ * @brief Releases a Vulkan instance, destroying it if this is the last reference. Also destroys the debug messenger if it exists.
+ * @param instance The Vulkan instance to release
+ * @param header The control block header associated with the instance, which holds the reference count and
+ * the debug messenger handle
+ */
+inline void release_vk_instance(VkInstance instance, VKInstanceControlBlock* header) noexcept
+{
+    if (header && header->Release() == 1) {
+        // Destroy debug messenger if exists
+        if (header->header.debug_messenger != VK_NULL_HANDLE &&
+            header->header.instance_table.vkDestroyDebugUtilsMessengerEXT) {
+            header->header.instance_table.vkDestroyDebugUtilsMessengerEXT(
+                    instance,
+                    header->header.debug_messenger,
+                    nullptr);
+        }
 
-#endif // WIS_VK_DETAIL_H
+        // Last reference, destroy instance
+        std::atomic_thread_fence(std::memory_order_acquire);
+        header->header.instance_table.vkDestroyInstance(instance, nullptr);
+        delete header;
+    }
+}
+
+//-----------------------------------------------------------------------------
+/**
+ * @brief Releases a Vulkan device, destroying it if this is the last reference. Also releases the associated instance.
+ * @param device The Vulkan device to release
+ * @param header The control block header associated with the device, which holds the reference count and a pointer to the instance control block header
+ */
+inline void release_vk_device(VkDevice device, VKDeviceControlBlock* header) noexcept
+{
+    if (header && header->Release() == 1) {
+        // Last reference, destroy device
+        std::atomic_thread_fence(std::memory_order_acquire);
+
+        header->header.device_table.vkDestroyDevice(device, nullptr);
+
+        // Destroy instance
+        release_vk_instance(header->header.instance,
+                            header->header.shared_header);
+
+        delete header;
+    }
+}
+} // namespace wis::detail
+
+#endif // WIS_VK_DETAIL_HPP

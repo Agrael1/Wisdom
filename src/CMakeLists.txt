@@ -55,14 +55,19 @@ if (WISDOM_VULKAN)
             HEADERS
             "include/wisdom/vulkan/vk_types.hpp"
             "include/wisdom/vulkan/detail/vk_utils.hpp"
+            "include/wisdom/vulkan/detail/vk_detail.hpp"
+            "include/wisdom/vulkan/detail/vk_ext1.hpp"
             "include/wisdom/vulkan/vk_loader.hpp"
             "include/wisdom/vulkan/vk_tables.hpp"
             "include/wisdom/vulkan/vk_extensions.hpp"
             "include/wisdom/generated/vk_cpp_api.hpp"
             "include/wisdom/generated/vk_api.h"
             SOURCES
-            "include/wisdom/vulkan/vk_impl.cpp"
+            "include/wisdom/vulkan/vk_device.cpp"
             "include/wisdom/vulkan/vk_types.cpp"
+            "include/wisdom/vulkan/vk_impl.cpp"
+            "include/wisdom/vulkan/vk_instance.cpp"
+            "include/wisdom/vulkan/vk_adapter_query.cpp"
             LINK_TARGETS
             wisdom-internal-headers
             vkma

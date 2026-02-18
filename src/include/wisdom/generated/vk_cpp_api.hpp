@@ -17,10 +17,8 @@ namespace wis {
  *
  * */
 struct VKDeviceRequirements {
-    wis::span<wis::CommandQueueDesc*>        queue_descs; ///< points to an array of wis::CommandQueueDesc for which queues will be created during device creation.
-    std::size_t                              queue_desc_count; ///< counts the number of queue descriptions in the wis::CreateDevice array.
+    wis::span<const wis::CommandQueueDesc>   queue_descs; ///< points to an array of wis::CommandQueueDesc for which queues will be created during device creation.
     wis::span<wis::VKDeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
-    std::size_t                              extension_count; ///< counts the number of extensions in the wis::CreateDevice array.
 };
 
 struct VKDescriptorHeapDeleter {

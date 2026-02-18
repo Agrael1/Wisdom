@@ -71,9 +71,9 @@ typedef enum WisCommandQueueType {
  *
  * */
 typedef enum WisCommandQueuePriority {
-    WisCommandQueuePriorityNormal         = 0, ///< Normal queue priority.
-    WisCommandQueuePriorityHigh           = 100, ///< High queue priority.
-    WisCommandQueuePriorityGlobalRealtime = 10000, ///< Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
+    WisCommandQueuePriorityNormal   = 0, ///< Normal queue priority.
+    WisCommandQueuePriorityHigh     = 1, ///< High queue priority.
+    WisCommandQueuePriorityRealtime = 2, ///< Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
 } WisCommandQueuePriority;
 
 /**
@@ -203,15 +203,6 @@ typedef enum WisSamplerFlags {
     WisSamplerFlagsNonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
 } WisSamplerFlags;
 
-/**
- * @brief Provided by Wisdom 0.7.0. Flags for command queue creation.
- *
- * */
-typedef enum WisCommandQueueFlags {
-    WisCommandQueueFlagsNone         = 0, ///< No flags set.
-    WisCommandQueueFlagsSynchronized = (1 << 0), ///< Command queue submission is synchronized.
-} WisCommandQueueFlags;
-
 //==============================================================
 // Delegates
 //==============================================================
@@ -271,8 +262,7 @@ typedef struct WisDebugDesc {
  * */
 typedef struct WisCommandQueueDesc {
     WisCommandQueueType     type; ///< defines the type of the command queue.
-    WisCommandQueueFlags    flags; ///< defines command queue flags. Used to set additional options for command queue creation.
-    WisCommandQueuePriority priority; ///< defines the global priority of the command queue.
+    WisCommandQueuePriority priority; ///< defines command queue priority. Used to set priority of the command queues of the type.
 } WisCommandQueueDesc;
 
 /**

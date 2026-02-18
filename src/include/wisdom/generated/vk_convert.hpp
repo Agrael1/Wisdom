@@ -18,7 +18,7 @@ inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority value) noexce
         return VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT;
     case WisCommandQueuePriorityHigh:
         return VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT;
-    case WisCommandQueuePriorityGlobalRealtime:
+    case WisCommandQueuePriorityRealtime:
         return VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT;
     default:
         return VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT;

@@ -134,8 +134,15 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl,
         max_type_length    = std::max(max_type_length, type_length);
     }
 
+    bool prev_span = false;
     for (auto& m : s.members) {
+        if (prev_span) {
+            prev_span = false;
+            continue;
+        }
+
         st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, impl_suffix), kind);
+        prev_span = m.modifier & Modifier::Span;
     }
     st_decl += "};\n";
     return st_decl;

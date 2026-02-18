@@ -68,9 +68,9 @@ enum class CommandQueueType {
  *
  * */
 enum class CommandQueuePriority {
-    Normal         = 0, ///< Normal queue priority.
-    High           = 100, ///< High queue priority.
-    GlobalRealtime = 10000, ///< Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
+    Normal   = 0, ///< Normal queue priority.
+    High     = 1, ///< High queue priority.
+    Realtime = 2, ///< Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
 };
 
 /**
@@ -200,15 +200,6 @@ enum class SamplerFlags : uint32_t {
     NonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
 };
 
-/**
- * @brief Provided by Wisdom 0.7.0. Flags for command queue creation.
- *
- * */
-enum class CommandQueueFlags : uint32_t {
-    None         = 0, ///< No flags set.
-    Synchronized = (1 << 0), ///< Command queue submission is synchronized.
-};
-
 //==============================================================
 // Delegates
 //==============================================================
@@ -268,8 +259,7 @@ struct DebugDesc {
  * */
 struct CommandQueueDesc {
     wis::CommandQueueType     type; ///< defines the type of the command queue.
-    wis::CommandQueueFlags    flags; ///< defines command queue flags. Used to set additional options for command queue creation.
-    wis::CommandQueuePriority priority; ///< defines the global priority of the command queue.
+    wis::CommandQueuePriority priority; ///< defines command queue priority. Used to set priority of the command queues of the type.
 };
 
 /**

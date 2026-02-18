@@ -12,7 +12,6 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisCommandQueueDesc {
  *     WisCommandQueueType     type;
- *     WisCommandQueueFlags    flags;
  *     WisCommandQueuePriority priority;
  * } WisCommandQueueDesc;
  * 
@@ -23,7 +22,6 @@
  * // Provided by Wisdom 0.7.0. 
  * struct  CommandQueueDesc {
  *     wis::CommandQueueType     type;
- *     wis::CommandQueueFlags    flags;
  *     wis::CommandQueuePriority priority;
  * };
  * }
@@ -34,8 +32,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `type` defines the type of the command queue.
- * - `flags` defines command queue flags. Used to set additional options for command queue creation.
- * - `priority` defines the global priority of the command queue.
+ * - `priority` defines command queue priority. Used to set priority of the command queues of the type.
  * \endcond
  *
  * @section WisCommandQueueDesc_descr Description

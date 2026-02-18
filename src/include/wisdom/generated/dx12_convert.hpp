@@ -42,7 +42,7 @@ inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) no
         return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
     case WisCommandQueuePriorityHigh:
         return D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
-    case WisCommandQueuePriorityGlobalRealtime:
+    case WisCommandQueuePriorityRealtime:
         return D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
     default:
         return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;

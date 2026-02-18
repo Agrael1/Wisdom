@@ -73,6 +73,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
     if (debug_layer) {
         debug_layer->Release();
     }
+
+    factory = nullptr;
 }
 
 //-----------------------------------------------------------------------------
