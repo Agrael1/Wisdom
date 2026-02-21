@@ -23,6 +23,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
     impl.device->Release();
     impl.physical_device->Release();
     impl.factory->Release();
+    impl.allocator->Release();
 }
 
 //-----------------------------------------------------------------------------
@@ -30,7 +31,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
-    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
 
     bool supported = (device.queue_priorities[type] & ~0x7fu) != 0;
     if (!supported) {
@@ -109,26 +110,42 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*      self,
-                                                                       WisDX12ResourceAllocator* allocator)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device*      self,
+                                                                    WisDX12ResourceAllocator* allocator)
 {
-    WisResult res    = dx_success;
-    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    // Create D3D12MA Allocator
-    D3D12MA::ALLOCATOR_DESC allocator_desc = { };
-    allocator_desc.pDevice                 = device.device;
-    allocator_desc.pAdapter                = device.physical_device;
-    allocator_desc.Flags                   = D3D12MA::ALLOCATOR_FLAG_NONE;
-    D3D12MA::Allocator* out_allocator      = nullptr;
-    auto                hr                 = D3D12MA::CreateAllocator(&allocator_desc, &out_allocator);
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create D3D12 memory allocator">(hr);
-    }
+    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
 
     // Fill allocator impl
     auto& allocator_impl     = *new (allocator) DX12ResourceAllocatorImpl();
-    allocator_impl.allocator = out_allocator;
-    return res;
+    allocator_impl.allocator = device.allocator;
+    allocator_impl.allocator->AddRef(); // hold reference to allocator
+    return dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX12Device*         self,
+                                                                    const WisDescriptorHeapDesc* desc,
+                                                                    WisDX12DescriptorHeap*       heap)
+{
+    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+
+    // Create descriptor heap container
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type           = convert_dx(desc->type),
+        .NumDescriptors = static_cast<UINT>(desc->descriptor_count),
+        .Flags          = convert_dx(desc->memory_type),
+        .NodeMask       = 0,
+    };
+
+    wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
+    HRESULT                            hr = device.device->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create descriptor heap">(hr);
+    }
+
+    auto& heap_impl           = *new (heap) DX12DescriptorHeapImpl();
+    heap_impl.descriptor_heap = descriptor_heap.detach();
+    return dx_success;
 }
 
 //-----------------------------------------------------------------------------

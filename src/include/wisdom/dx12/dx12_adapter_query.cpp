@@ -128,10 +128,22 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
         }
     }
 
+    // Create D3D12 memory allocator
+    D3D12MA::ALLOCATOR_DESC allocator_desc = {};
+    allocator_desc.pDevice                 = device_ref.get();
+    allocator_desc.pAdapter                = impl.physical_devices[index];
+    allocator_desc.Flags                   = D3D12MA::ALLOCATOR_FLAG_NONE;
+    D3D12MA::Allocator* out_allocator      = nullptr;
+    hr                                     = D3D12MA::CreateAllocator(&allocator_desc, &out_allocator);
+    if (!succeeded(hr)) {
+        return make_result<Func(), "Failed to create D3D12 memory allocator">(hr);
+    }
+
     auto& device_impl           = *new (device) DX12DeviceImpl();
     device_impl.device          = device_ref.detach();
     device_impl.physical_device = impl.physical_devices[index];
     device_impl.factory         = impl.factory;
+    device_impl.allocator       = out_allocator;
     device_impl.physical_device->AddRef();
     device_impl.factory->AddRef();
 

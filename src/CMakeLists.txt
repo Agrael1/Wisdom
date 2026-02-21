@@ -39,6 +39,9 @@ if (WISDOM_DX12)
             "include/wisdom/dx12/dx12_adapter_query.cpp"
             "include/wisdom/dx12/dx12_device.cpp"
             "include/wisdom/dx12/dx12_fence.cpp"
+            "include/wisdom/dx12/dx12_command_queue.cpp"
+            "include/wisdom/dx12/dx12_descriptor_heap.cpp"
+            "include/wisdom/dx12/dx12_resource_allocator.cpp"
             LINK_TARGETS
             wisdom-internal-headers
             DXGI
@@ -70,6 +73,9 @@ if (WISDOM_VULKAN)
             "include/wisdom/vulkan/vk_impl.cpp"
             "include/wisdom/vulkan/vk_instance.cpp"
             "include/wisdom/vulkan/vk_adapter_query.cpp"
+            "include/wisdom/vulkan/vk_command_queue.cpp"
+            "include/wisdom/vulkan/vk_descriptor_heap.cpp"
+            "include/wisdom/vulkan/vk_resource_allocator.cpp"
             LINK_TARGETS
             wisdom-internal-headers
             vkma

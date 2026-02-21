@@ -1,160 +1,117 @@
 #include <catch2/catch_test_macros.hpp>
-#include <wisdom/wisdom_platform.hpp>
-#include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_debug.hpp>
+#include <wisdom/wisdom.h>
 #include <iostream>
 
-struct LogProvider : public wis::LogLayer {
-    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
-    {
-        std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
-    };
-};
-
-static void DebugCallback(wis::Severity severity, const char* message, void* user_data)
+void log_callback(WisSeverity severity, const char* message, uint64_t device, void* user_data)
 {
-    std::cout << message << std::endl;
-    if (severity >= wis::Severity::Error) {
-        auto& error = *static_cast<bool*>(user_data);
-        error = true;
+    const char* severity_str = "";
+    switch (severity) {
+    case WisSeverityVerbose:
+        severity_str = "VERBOSE";
+        break;
+    case WisSeverityInfo:
+        severity_str = "INFO";
+        break;
+    case WisSeverityWarning:
+        severity_str = "WARNING";
+        break;
+    case WisSeverityError:
+        severity_str = "ERROR";
+        break;
+    case WisSeverityFatal:
+        severity_str = "FATAL";
+        break;
+    default:
+        severity_str = "UNKNOWN";
+        break;
     }
+    printf("[%s] %s\n", severity_str, message);
 }
 
-TEST_CASE("basic_factory")
+TEST_CASE("relaxed_destruction_order")
 {
-    bool error = false;
+    WisDebugDesc debug_desc       = { 0 };
+    debug_desc.enable_debug_layer = true;
+    debug_desc.callback           = log_callback;
+    debug_desc.user_data          = NULL;
 
-    wis::DebugExtension ext;
-    std::array<wis::FactoryExtension*, 1> exts = { &ext };
+    WisInstance instance = { 0 };
+    WisResult   result   = wisCreateInstance(&debug_desc, NULL, 0, &instance);
+    REQUIRE(result.status == WisStatusOk);
 
-    auto [res, factory] = wis::CreateFactory(true, exts.data(), 1);
-    auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
+    WisAdapterQuery adapter_query = { 0 };
+    result                        = wisInstanceQueryAdapters(&instance, WisAdapterPreferencePerformance, &adapter_query);
+    REQUIRE(result.status == WisStatusOk);
 
-    factory = {};
-    REQUIRE_FALSE(factory);
-    REQUIRE_FALSE(error);
-}
+    // Destroy instance as we no longer need it
+    wisDestroyInstance(&instance);
+    WisCommandQueueDesc queue_descs[] = {
+        { WisCommandQueueTypeGraphics,   WisCommandQueuePriorityHigh },
+        {  WisCommandQueueTypeCompute, WisCommandQueuePriorityNormal },
+    };
 
-TEST_CASE("basic_device")
-{
-    wis::LibLogger::SetLogLayer(std::make_shared<LogProvider>());
+    WisDeviceRequirements device_requirements = {
+        .queue_descs      = queue_descs,
+        .queue_desc_count = sizeof(queue_descs) / sizeof(queue_descs[0]),
+    };
 
-    bool error = false;
+    WisDevice device        = { 0 };
+    size_t    adapter_count = wisAdapterQueryGetAdapterCount(&adapter_query);
+    REQUIRE(adapter_count > 0);
 
-    wis::DebugExtension ext;
-    std::array<wis::FactoryExtension*, 1> exts = { &ext };
+    bool created = false;
+    for (size_t i = 0; i < adapter_count; ++i) {
+        WisAdapterDesc desc = { 0 };
+        result              = wisAdapterQueryGetAdapterDesc(&adapter_query, i, &desc);
+        if (result.status == WisStatusOk) {
+            printf("Adapter %zu: Name: %s, VendorID: %u, DeviceID: %u, Flags: %u\n", i, desc.description, desc.vendor_id, desc.device_id, desc.flags);
+        }
 
-    auto [res, factory] = wis::CreateFactory(true, exts.data(), 1);
-    auto [res1, info] = ext.CreateDebugMessenger(&DebugCallback, &error);
-
-    wis::Device device;
-
-    for (size_t i = 0;; i++) {
-        auto [res, adapter] = factory.GetAdapter(i);
-        if (res.status == wis::Status::Ok) {
-            wis::AdapterDesc desc;
-            res = adapter.GetDesc(&desc);
-            std::cout << "Adapter: " << desc.description.data() << "\n";
-
-            auto [res, hdevice] = wis::CreateDevice(std::move(adapter));
-            if (res.status == wis::Status::Ok) {
-                device = std::move(hdevice);
-                break;
-            };
-
-        } else {
-            break;
+        result = wisAdapterQueryCreateDevice(&adapter_query, i, &device_requirements, &device);
+        printf("CreateDevice result for adapter %zu: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
+        if (result.status == WisStatusOk) {
+            printf("Device created successfully for adapter %zu.\n", i);
+            created = true;
+            break; // Successfully created a device, exit loop
         }
     }
+    REQUIRE(created);
 
-    auto [res2, queue] = device.CreateCommandQueue(wis::QueueType::Graphics);
-    auto [res3, fence] = device.CreateFence();
-    auto [res4, cmd_list] = device.CreateCommandList(wis::QueueType::Graphics);
-    auto [res5, allocator] = device.CreateAllocator();
+    wisDestroyAdapterQuery(&adapter_query);
 
-    REQUIRE(device);
-    REQUIRE(queue);
-    REQUIRE(fence);
-    REQUIRE(cmd_list);
+    // Create CommandQueue
+    WisCommandQueue command_queue = { 0 };
+    result = wisDeviceCreateCommandQueue(&device, WisCommandQueueTypeGraphics, &command_queue);
+    REQUIRE(result.status == WisStatusOk);
 
-    SECTION("texture replacement")
+    WisFence fence = { 0 };
+    result         = wisDeviceCreateFence(&device, 0, &fence);
+    REQUIRE(result.status == WisStatusOk);
+
+    WisResourceAllocator allocator = { 0 };
+    result                         = wisDeviceGetResourceAllocator(&device, &allocator);
+    REQUIRE(result.status == WisStatusOk);
+
+    WisCommandList command_list = { 0 };
+    result                      = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
+    REQUIRE(result.status == WisStatusOk);
+
+    SECTION("Out of order destruction")
     {
-        wis::Texture a;
-        auto [res6, texture] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
-                                                                         .size = {
-
-                                                                                 .width = 1024,
-                                                                                 .height = 1024,
-                                                                                 .depth_or_layers = 1,
-                                                                         },
-                                                                         .usage = wis::TextureUsage::CopySrc });
-        REQUIRE(texture);
-
-        a = std::move(texture);
-        REQUIRE(a);
-        REQUIRE_FALSE(texture);
-
-        auto [res7, texture2] = allocator.CreateTexture(wis::TextureDesc{ .format = wis::DataFormat::RGBA8Unorm,
-                                                                          .size = {
-
-                                                                                  .width = 1024,
-                                                                                  .height = 1024,
-                                                                                  .depth_or_layers = 1,
-                                                                          },
-                                                                          .usage = wis::TextureUsage::CopySrc });
-
-        REQUIRE(texture2);
-        texture = std::move(texture2);
-        REQUIRE(texture);
-        REQUIRE_FALSE(texture2);
-
-        a = std::move(texture);
-        REQUIRE(a);
-        REQUIRE_FALSE(texture);
+        // Destroy command queue before command list and fence
+        wisDestroyDevice(&device);
+        wisDestroyCommandQueue(&command_queue);
+        wisDestroyFence(&fence);
+        wisDestroyResourceAllocator(&allocator);
+        wisDestroyCommandList(&command_list);
     }
 
-    SECTION("fence destruction")
+    SECTION("In order destruction")
     {
-        fence = {};
-        REQUIRE_FALSE(fence);
-        REQUIRE_FALSE(error);
-    }
-
-    SECTION("reverse order destruction")
-    {
-        auto [res5, fence2] = device.CreateFence();
-
-        factory = {};
-        REQUIRE_FALSE(factory);
-        REQUIRE_FALSE(error);
-
-        device = {};
-        REQUIRE_FALSE(device);
-        REQUIRE_FALSE(error);
-
-        queue = {};
-        REQUIRE_FALSE(queue);
-        REQUIRE_FALSE(error);
-
-        fence2 = {};
-        REQUIRE_FALSE(fence2);
-        REQUIRE_FALSE(error);
-
-        allocator = {};
-        REQUIRE_FALSE(allocator);
-        REQUIRE_FALSE(error);
-    }
-
-    SECTION("command list replacement")
-    {
-        wis::CommandList a;
-        wis::CommandList cmd_list2 = std::move(a);
-        REQUIRE_FALSE(cmd_list2);
-        REQUIRE_FALSE(error);
-
-        REQUIRE_FALSE(a);
-        a = {};
-        REQUIRE_FALSE(error);
-        REQUIRE_FALSE(a);
+        wisDestroyCommandList(&command_list);
+        wisDestroyResourceAllocator(&allocator);
+        wisDestroyFence(&fence);
+        wisDestroyCommandQueue(&command_queue);
+        wisDestroyDevice(&device);
     }
 }

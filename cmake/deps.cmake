@@ -43,3 +43,13 @@ include(${CMAKE_CURRENT_LIST_DIR}/deps/dxc.cmake)
 if (WISDOM_VULKAN)
     include(${CMAKE_CURRENT_LIST_DIR}/deps/deps_vulkan.cmake)
 endif ()
+
+# if tests enabled, add Catch2
+if (WISDOM_BUILD_TESTS)
+    CPMAddPackage(
+            NAME Catch2
+            GITHUB_REPOSITORY catchorg/Catch2
+            GIT_TAG v3.13.0)
+    list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+endif()
+            
