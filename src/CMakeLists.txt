@@ -38,6 +38,7 @@ if (WISDOM_DX12)
             "include/wisdom/dx12/dx12_instance.cpp"
             "include/wisdom/dx12/dx12_adapter_query.cpp"
             "include/wisdom/dx12/dx12_device.cpp"
+            "include/wisdom/dx12/dx12_fence.cpp"
             LINK_TARGETS
             wisdom-internal-headers
             DXGI
@@ -64,6 +65,7 @@ if (WISDOM_VULKAN)
             "include/wisdom/generated/vk_api.h"
             SOURCES
             "include/wisdom/vulkan/vk_device.cpp"
+            "include/wisdom/vulkan/vk_fence.cpp"
             "include/wisdom/vulkan/vk_types.cpp"
             "include/wisdom/vulkan/vk_impl.cpp"
             "include/wisdom/vulkan/vk_instance.cpp"

@@ -94,5 +94,6 @@ struct VKDescriptorHeapImpl {
 #include "vk_device.cpp"
 #include "vk_instance.cpp"
 #include "vk_adapter_query.cpp"
+#include "vk_fence.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_VK_TYPES_HPP

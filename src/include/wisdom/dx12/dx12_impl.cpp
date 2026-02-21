@@ -32,18 +32,6 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
-{
-    auto& [fence, event] = *reinterpret_cast<DX12FenceImpl*>(self);
-    if (!fence) {
-        return;
-    }
-
-    fence->Release();
-    CloseHandle(event);
-}
-
-//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self)
 {
     auto& [allocator] = *reinterpret_cast<DX12ResourceAllocatorImpl*>(self);

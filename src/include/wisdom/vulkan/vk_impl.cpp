@@ -39,20 +39,6 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
  }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisVKDestroyFence(WisVKFence* self)
-{
-    auto& impl = *reinterpret_cast<VKFenceImpl*>(self);
-    if (impl.fence != VK_NULL_HANDLE) {
-        auto& table = impl.device_header->header.device_table;
-        table.vkDestroySemaphore(impl.device, impl.fence, nullptr);
-        impl.fence = VK_NULL_HANDLE;
-        detail::release_vk_device(impl.device, impl.device_header);
-        impl.device_header = nullptr;
-        impl.device        = VK_NULL_HANDLE;
-    }
-}
-
-//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
 {
     auto& impl = *reinterpret_cast<VKResourceAllocatorImpl*>(self);

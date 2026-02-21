@@ -96,6 +96,22 @@
 			<ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
 			<arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
 		</func>
+    
+    <!-- Fence Functions -->
+    <func for="Fence" name="GetCompletedValue" version="0.7.0" mod="const" doc="Get the current value of the fence.">
+      <ret type="u64" name="value" doc="Value of the fence."/>
+    </func>
+
+    <func for="Fence" name="Wait" version="0.7.0" mod="const" doc="Wait on CPU for the fence to reach a certain value.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="u64" name="value" doc="Value to wait for."/>
+      <arg type="u64" name="wait_ns" default="UINT64_MAX" doc="The time to wait for the fence to reach the value in nanoseconds. Default is infinite."/>
+    </func>
+
+    <func for="Fence" name="Signal" version="0.7.0" mod="const" doc="Signal the fence from CPU.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="u64" name="value" doc="Value to signal."/>
+    </func>
 		
 		
 	</functions>

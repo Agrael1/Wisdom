@@ -91,6 +91,40 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
+     * @return u64 Value of the fence.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t GetCompletedValue() const noexcept
+    {
+        return (::wisDX12FenceGetCompletedValue(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Wait on CPU for the fence to reach a certain value.
+     * @param value Value to wait for.
+     * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Wait(std::uint64_t value,
+                            std::uint64_t wait_ns) const noexcept
+    {
+        return convert_result(::wisDX12FenceWait(&_impl_storage,
+                                                 value,
+                                                 wait_ns));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
+     * @param value Value to signal.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Signal(std::uint64_t value) const noexcept
+    {
+        return convert_result(::wisDX12FenceSignal(&_impl_storage,
+                                                   value));
+    }
 };
 
 struct DX12CommandListDeleter {

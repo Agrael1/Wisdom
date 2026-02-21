@@ -22,6 +22,6 @@
  * @section WisFence_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyFence, wisDeviceCreateFence
+ * @see wisDestroyFence, wisDeviceCreateFence, wisFenceGetCompletedValue, wisFenceWait, wisFenceSignal
  * \endcond
  */
