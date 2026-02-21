@@ -74,7 +74,14 @@ if (WISDOM_BUILD_EXAMPLES AND WISDOM_BUILD_TESTS)
     add_subdirectory(generator)
 endif ()
 add_subdirectory(src) # add main libraries
-add_subdirectory(examples)
+
+if (WISDOM_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
+
+if (WISDOM_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 install(FILES README.md DESTINATION .)
 install(FILES LICENSE.txt DESTINATION .)

@@ -7,6 +7,7 @@
 #include <wisdom/vulkan/vk_tables.hpp>
 #include <wisdom/generated/c_api.h>
 #include <wisdom/bridge/span.hpp>
+#include <vk_mem_alloc.h>
 #include <atomic>
 #include <semaphore>
 
@@ -129,11 +130,14 @@ struct VKDeviceFeatures {
     bool global_priority                   : 1 = false;
 
     // Properties
-    uint32_t max_push_descriptors      = 0;
-    uint32_t max_push_constant_size    = 0;
-    uint32_t max_bound_descriptor_sets = 0;
-    uint32_t max_descriptors_in_set    = 0;
-    uint32_t max_samplers_in_set       = 0;
+    uint16_t resource_desc_size        = 0;
+    uint16_t sampler_desc_size         = 0;
+    uint32_t descriptor_heap_alignment = 0;
+    uint32_t sampler_heap_alignment    = 0;
+    uint32_t min_descriptor_heap_size  = 0;
+    uint32_t min_sampler_heap_size     = 0;
+    uint64_t max_descriptor_heap_size  = 0;
+    uint64_t max_sampler_heap_size     = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -161,6 +165,7 @@ struct VKDeviceHeader {
     impl::VKMainCommandList  command_list_table;
     VKInstanceControlBlock*  shared_header;
     VkInstance               instance;
+    VmaAllocator             allocator;
 
     // Enabled features
     VKDeviceFeatures features;
@@ -246,6 +251,9 @@ inline void release_vk_device(VkDevice device, VKDeviceControlBlock* header) noe
     if (header && header->Release() == 1) {
         // Last reference, destroy device
         std::atomic_thread_fence(std::memory_order_acquire);
+
+        // Destroy allocator
+        vmaDestroyAllocator(header->header.allocator);
 
         header->header.device_table.vkDestroyDevice(device, nullptr);
 

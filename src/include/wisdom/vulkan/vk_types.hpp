@@ -66,7 +66,6 @@ struct VKFenceImpl {
 struct VKResourceAllocatorImpl {
     // Using Vulkan Memory Allocator (VMA)
     VmaAllocator                  allocator;
-    VkDevice                      device;
     detail::VKDeviceControlBlock* device_header;
 };
 
@@ -79,6 +78,12 @@ struct VKPipelineLayoutImpl {
 };
 
 struct VKDescriptorHeapImpl {
+    VkBuffer                      buffer;
+    VmaAllocation                 allocation;
+    void*                         mapped_ptr;
+    WisDescriptorMemoryType       memory_type;
+    VkDevice                      device;
+    detail::VKDeviceControlBlock* device_header;
 };
 } // namespace impl
 } // namespace wis
@@ -95,5 +100,8 @@ struct VKDescriptorHeapImpl {
 #include "vk_instance.cpp"
 #include "vk_adapter_query.cpp"
 #include "vk_fence.cpp"
+#include "vk_command_queue.cpp"
+#include "vk_descriptor_heap.cpp"
+#include "vk_resource_allocator.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_VK_TYPES_HPP

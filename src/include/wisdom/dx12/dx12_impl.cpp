@@ -10,15 +10,6 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self)
-{
-    auto& [queue] = *reinterpret_cast<DX12CommandQueueImpl*>(self);
-    if (!queue) {
-        return;
-    }
-    queue->Release();
-}
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
@@ -29,17 +20,6 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
     }
 
     list->Release();
-}
-
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self)
-{
-    auto& [allocator] = *reinterpret_cast<DX12ResourceAllocatorImpl*>(self);
-    if (!allocator) {
-        return;
-    }
-
-    allocator->Release();
 }
 
 //-----------------------------------------------------------------------------

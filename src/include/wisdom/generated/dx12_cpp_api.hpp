@@ -233,10 +233,10 @@ public:
      * @return allocator points to wis::ResourceAllocator, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12ResourceAllocator CreateResourceAllocator(wis::Result& out_result) const noexcept
+    WIS_NODISCARD inline wis::DX12ResourceAllocator GetResourceAllocator(wis::Result& out_result) const noexcept
     {
         wis::DX12ResourceAllocator allocator;
-        out_result = convert_result(::wisDX12DeviceCreateResourceAllocator(&_impl_storage, allocator.GetStorage()));
+        out_result = convert_result(::wisDX12DeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage()));
         return allocator;
     }
     /**

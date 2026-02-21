@@ -95,7 +95,7 @@ int main()
         return int(result.status);
     }
 
-    wis::ResourceAllocator resource_allocator = device.CreateResourceAllocator(result);
+    wis::ResourceAllocator resource_allocator = device.GetResourceAllocator(result);
     if (result.status != wis::Status::Ok) {
         std::cerr << "Failed to create resource allocator: " << result.error << "\n";
         return int(result.status);

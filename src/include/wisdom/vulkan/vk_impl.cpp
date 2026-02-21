@@ -11,18 +11,6 @@ using namespace wis::impl;
 using namespace wis::detail;
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
-{
-    auto& impl = *reinterpret_cast<VKCommandQueueImpl*>(self);
-    if (impl.queue) {
-        detail::release_vk_device(impl.device, impl.device_header);
-        impl.device_header = nullptr;
-        impl.device        = VK_NULL_HANDLE;
-        impl.queue         = VK_NULL_HANDLE;
-    }
-}
-
-//-----------------------------------------------------------------------------
  WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 {
      auto& impl = *reinterpret_cast<VKCommandListImpl*>(self);
@@ -38,19 +26,6 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
      }
  }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
-{
-    auto& impl = *reinterpret_cast<VKResourceAllocatorImpl*>(self);
-    if (impl.allocator) {
-        vmaDestroyAllocator(impl.allocator);
-        impl.allocator = nullptr;
-
-        detail::release_vk_device(impl.device, impl.device_header);
-        impl.device        = VK_NULL_HANDLE;
-        impl.device_header = nullptr;
-    }
-}
 
 ////-----------------------------------------------------------------------------
 // WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDevice*           self,

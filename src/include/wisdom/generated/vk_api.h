@@ -10,7 +10,7 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 5);
+WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 6);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
@@ -253,8 +253,8 @@ WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVKDevice*      self,
-                                                        WisVKResourceAllocator* allocator);
+WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice*      self,
+                                                     WisVKResourceAllocator* allocator);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.

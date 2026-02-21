@@ -37,9 +37,10 @@ struct DX12AdapterQueryImpl {
 };
 
 struct DX12DeviceImpl {
-    ID3D12Device10* device;
-    IDXGIAdapter4*  physical_device;
-    IDXGIFactory6*  factory;
+    ID3D12Device10*     device;
+    IDXGIAdapter4*      physical_device;
+    IDXGIFactory6*      factory;
+    D3D12MA::Allocator* allocator;
 
     uint8_t queue_priorities[WisCommandQueueTypeCount]; // store priorities for queues to be created with the device, indexed by WisCommandQueueType
 };
@@ -67,7 +68,6 @@ struct DX12PipelineLayoutImpl {
 
 struct DX12DescriptorHeapImpl {
     ID3D12DescriptorHeap* descriptor_heap;
-    uint32_t              descriptor_size;
 };
 } // namespace impl
 } // namespace wis
@@ -83,5 +83,8 @@ struct DX12DescriptorHeapImpl {
 #include "dx12_device.cpp"
 #include "dx12_fence.cpp"
 #include "dx12_adapter_query.cpp"
+#include "dx12_command_queue.cpp"
+#include "dx12_descriptor_heap.cpp"
+#include "dx12_resource_allocator.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_DX12_TYPES_HPP

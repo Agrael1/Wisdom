@@ -341,6 +341,89 @@ VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           ada
 
     return info;
 }
+
+inline WisResult init_resource_allocator(VkDevice         device,
+                                         VkPhysicalDevice adapter,
+                                         VKInstanceHeader& instance_header,
+                                         VKDeviceHeader&  device_header)
+{
+    uint32_t version = instance_header.api_version;
+    auto&    gtable  = instance_header.global_table;
+    auto&    dtable  = device_header.device_table;
+    auto&    atable  = instance_header.adapter_table;
+    auto&    ctable  = device_header.command_list_table;
+
+    VmaVulkanFunctions allocator_functions{
+        .vkGetInstanceProcAddr                   = gtable.vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr                     = gtable.vkGetDeviceProcAddr,
+        .vkGetPhysicalDeviceProperties           = atable.vkGetPhysicalDeviceProperties,
+        .vkGetPhysicalDeviceMemoryProperties     = atable.vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory                        = dtable.vkAllocateMemory,
+        .vkFreeMemory                            = dtable.vkFreeMemory,
+        .vkMapMemory                             = dtable.vkMapMemory,
+        .vkUnmapMemory                           = dtable.vkUnmapMemory,
+        .vkFlushMappedMemoryRanges               = dtable.vkFlushMappedMemoryRanges,
+        .vkInvalidateMappedMemoryRanges          = dtable.vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory                      = dtable.vkBindBufferMemory,
+        .vkBindImageMemory                       = dtable.vkBindImageMemory,
+        .vkGetBufferMemoryRequirements           = dtable.vkGetBufferMemoryRequirements,
+        .vkGetImageMemoryRequirements            = dtable.vkGetImageMemoryRequirements,
+        .vkCreateBuffer                          = dtable.vkCreateBuffer,
+        .vkDestroyBuffer                         = dtable.vkDestroyBuffer,
+        .vkCreateImage                           = dtable.vkCreateImage,
+        .vkDestroyImage                          = dtable.vkDestroyImage,
+        .vkCmdCopyBuffer                         = ctable.vkCmdCopyBuffer,
+        .vkGetBufferMemoryRequirements2KHR       = dtable.vkGetBufferMemoryRequirements2,
+        .vkGetImageMemoryRequirements2KHR        = dtable.vkGetImageMemoryRequirements2,
+        .vkBindBufferMemory2KHR                  = dtable.vkBindBufferMemory2,
+        .vkBindImageMemory2KHR                   = dtable.vkBindImageMemory2,
+        .vkGetPhysicalDeviceMemoryProperties2KHR = atable.vkGetPhysicalDeviceMemoryProperties2,
+        .vkGetDeviceBufferMemoryRequirements     = dtable.vkGetDeviceBufferMemoryRequirements,
+        .vkGetDeviceImageMemoryRequirements      = dtable.vkGetDeviceImageMemoryRequirements,
+        .vkGetMemoryWin32HandleKHR               = nullptr, // set later if available
+    };
+
+    VkPhysicalDeviceMemoryProperties2 mem_props{};
+    mem_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    atable.vkGetPhysicalDeviceMemoryProperties2(adapter, &mem_props);
+
+    VmaAllocatorCreateInfo allocatorInfo{
+        .flags                          = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .physicalDevice                 = adapter,
+        .device                         = device,
+        .preferredLargeHeapBlockSize    = 0,
+        .pAllocationCallbacks           = nullptr,
+        .pDeviceMemoryCallbacks         = nullptr,
+        .pHeapSizeLimit                 = nullptr,
+        .pVulkanFunctions               = &allocator_functions,
+        .instance                       = device_header.instance,
+        .vulkanApiVersion               = version,
+        .pTypeExternalMemoryHandleTypes = nullptr,
+    };
+
+    // Enable maintenance5 if available and maintenance4
+    if (dtable.vkGetDeviceBufferMemoryRequirements) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
+    }
+    if (device_header.features.index_buffer_range) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
+    }
+
+#ifdef _WIN32
+    // Only if there is an interop extension
+    if (dtable.vkGetMemoryWin32HandleKHR) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
+        allocator_functions.vkGetMemoryWin32HandleKHR = dtable.vkGetMemoryWin32HandleKHR;
+    }
+#endif // _WIN32
+
+    VkResult vr = vmaCreateAllocator(&allocatorInfo, &device_header.allocator);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create Vulkan memory allocator">(vr);
+    }
+
+    return vk_success;
+}
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
@@ -558,6 +641,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     // Start header lifetime
     std::construct_at(header.get());
+    header->header.instance = impl.instance; // store instance handle in device header for later use in resource allocator
+
 
     wis::span<std::binary_semaphore> semaphores{ reinterpret_cast<std::binary_semaphore*>(header.get() + 1), semaphore_count };
     for (auto& sem : semaphores) {
@@ -609,6 +694,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         return make_result<Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
     }
 
+    // Create resource allocator
+    res = init_resource_allocator(device_handle, adapter, impl.shared_header->header, header->header);
+    if (res.status != WisStatusOk) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return res;
+    }
+
     // Fill device impl
     auto& device_impl           = *new (device) VKDeviceImpl();
     device_impl.device_header   = header.release();
@@ -618,8 +710,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     auto& device_header         = device_impl.device_header->header;
     device_header.shared_header = impl.shared_header;
     device_header.shared_header->AddRef(); // hold reference to instance header
-    device_header.instance = impl.instance;
-
+     
     auto res2 = device_ext1.Init(device_impl, collector);
     // Non-fatal, allow to silently fail
     (void)res2;

@@ -7,7 +7,7 @@
 
 	<handles>
 		<handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
-			<impl for="vk" size="5"/>
+			<impl for="vk" size="6"/>
 			<impl for="dx" size="2"/>
 		</handle>
 		<handle name="PipelineLayout" version="0.7.0" doc="Class representing a pipeline layout, which defines resource bindings for shaders.">
@@ -85,7 +85,7 @@
 			<ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
 			<arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
 		</func>
-		<func name="CreateResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
+		<func name="GetResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
 			<ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
 		</func>
 		<func name="CreatePipelineLayout" version="0.7.0" for="Device" mod="const" doc="Creates a pipeline layout with given descriptor.">
@@ -113,6 +113,28 @@
       <arg type="u64" name="value" doc="Value to signal."/>
     </func>
 		
+    <!-- Command Queue Functions -->
+    <!-- <func for="CommandQueue" name="Submit" version="0.7.0" mod="const" doc="Executes the command lists.">
+      <arg type="CommandListView" name="lists" mod="const,span" doc="The command lists to execute."/>
+      <arg type="size" name="count" doc="The number of command lists to execute."/>
+    </func> 
+
+    <func for="CommandQueue" name="SignalQueue" mod="const" doc="Enqueue the signal to the queue, that gets executed after all the work has been done.">
+      <ret result="true"/>
+      <arg type="Fence" name="fence" doc="The fence to signal.">
+        <replace with="FenceView" for="cpp" doc="The fence to signal."/>
+      </arg>
+      <arg type="u64" name="value" doc="The value to signal the fence with."/>
+    </func>
+
+    <func for="CommandQueue" name="WaitQueue" mod="const" doc="Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+Can still be enqueued after the signal.">
+      <ret result="true"/>
+      <arg type="Fence" name="fence" doc="The fence to wait on.">
+        <replace with="FenceView" for="cpp" doc="The fence to wait on."/>
+      </arg>
+      <arg type="u64" name="value" doc="The value to wait the fence to reach."/>
+    </func>-->
 		
 	</functions>
 

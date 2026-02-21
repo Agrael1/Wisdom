@@ -88,10 +88,19 @@ int main()
     printf("CreateFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     WisResourceAllocator allocator = { 0 };
-    result                         = wisDeviceCreateResourceAllocator(&device, &allocator);
+    result                         = wisDeviceGetResourceAllocator(&device, &allocator);
 
     WisCommandList command_list = { 0 };
     result                      = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
+
+    WisDescriptorHeapDesc descriptor_heap_desc = {
+        .type = WisDescriptorHeapTypeDescriptor,
+        .memory_type = WisDescriptorMemoryTypeShaderVisible,
+        .descriptor_count = 100,
+    };
+    WisDescriptorHeap descriptor_heap = { 0 };
+    result                            = wisDeviceCreateDescriptorHeap(&device, &descriptor_heap_desc, &descriptor_heap);
+
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);
@@ -99,5 +108,6 @@ int main()
     wisDestroyFence(&fence);
     wisDestroyResourceAllocator(&allocator);
     wisDestroyCommandList(&command_list);
+    wisDestroyDescriptorHeap(&descriptor_heap);
     return 0;
 }

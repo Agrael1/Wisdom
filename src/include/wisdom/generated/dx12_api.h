@@ -253,8 +253,8 @@ WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateResourceAllocator(const WisDX12Device*      self,
-                                                          WisDX12ResourceAllocator* allocator);
+WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device*      self,
+                                                       WisDX12ResourceAllocator* allocator);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.

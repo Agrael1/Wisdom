@@ -233,10 +233,10 @@ public:
      * @return allocator points to wis::ResourceAllocator, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKResourceAllocator CreateResourceAllocator(wis::Result& out_result) const noexcept
+    WIS_NODISCARD inline wis::VKResourceAllocator GetResourceAllocator(wis::Result& out_result) const noexcept
     {
         wis::VKResourceAllocator allocator;
-        out_result = convert_result(::wisVKDeviceCreateResourceAllocator(&_impl_storage, allocator.GetStorage()));
+        out_result = convert_result(::wisVKDeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage()));
         return allocator;
     }
     /**

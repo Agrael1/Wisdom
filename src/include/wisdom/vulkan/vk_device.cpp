@@ -58,9 +58,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
     // Fill command queue impl
     auto& queue_impl         = *new (queue) VKCommandQueueImpl();
     queue_impl.queue         = vk_queue;
+    queue_impl.device        = device.device;
     queue_impl.device_header = device.device_header;
-    device.device_header->AddRef(); // hold reference to device header
-    queue_impl.device = device.device;
+    queue_impl.device_header->AddRef(); // hold reference to device header
 
     // Setup semaphore pointer
     queue_impl.semaphore_ptr = reinterpret_cast<uint8_t*>(device.device_header->header.GetSemaphoreForQueueType(type, queue_info.queueIndex));
@@ -123,9 +123,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice
     auto& list_impl          = *new (list) VKCommandListImpl();
     list_impl.command_pool   = command_pool;
     list_impl.command_buffer = command_buffer;
+    list_impl.device         = device.device;
     list_impl.device_header  = device.device_header;
-    device.device_header->AddRef(); // hold reference to device header
-    list_impl.device = device.device;
+    list_impl.device_header->AddRef(); // hold reference to device header
     return res;
 }
 
@@ -159,105 +159,128 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
     out_fence.fence         = semaphore;
     out_fence.device        = device.device;
     out_fence.device_header = device.device_header;
-    device.device_header->AddRef(); // hold reference to device header
+    out_fence.device_header->AddRef(); // hold reference to device header
     return res;
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateResourceAllocator(const WisVKDevice*      self,
-                                                                     WisVKResourceAllocator* allocator)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice*      self,
+                                                                  WisVKResourceAllocator* allocator)
 {
-    WisResult res             = vk_success;
-    auto&     device          = *reinterpret_cast<const VKDeviceImpl*>(self);
-    auto&     device_header   = device.device_header->header;
-    auto&     instance_header = device_header.shared_header->header;
-    auto&     adapter         = device.physical_device;
-
-    uint32_t version = instance_header.api_version;
-    auto&    gtable  = instance_header.global_table;
-    auto&    dtable  = device_header.device_table;
-    auto&    atable  = instance_header.adapter_table;
-    auto&    ctable  = device_header.command_list_table;
-
-    VmaVulkanFunctions allocator_functions{
-        .vkGetInstanceProcAddr                   = gtable.vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr                     = gtable.vkGetDeviceProcAddr,
-        .vkGetPhysicalDeviceProperties           = atable.vkGetPhysicalDeviceProperties,
-        .vkGetPhysicalDeviceMemoryProperties     = atable.vkGetPhysicalDeviceMemoryProperties,
-        .vkAllocateMemory                        = dtable.vkAllocateMemory,
-        .vkFreeMemory                            = dtable.vkFreeMemory,
-        .vkMapMemory                             = dtable.vkMapMemory,
-        .vkUnmapMemory                           = dtable.vkUnmapMemory,
-        .vkFlushMappedMemoryRanges               = dtable.vkFlushMappedMemoryRanges,
-        .vkInvalidateMappedMemoryRanges          = dtable.vkInvalidateMappedMemoryRanges,
-        .vkBindBufferMemory                      = dtable.vkBindBufferMemory,
-        .vkBindImageMemory                       = dtable.vkBindImageMemory,
-        .vkGetBufferMemoryRequirements           = dtable.vkGetBufferMemoryRequirements,
-        .vkGetImageMemoryRequirements            = dtable.vkGetImageMemoryRequirements,
-        .vkCreateBuffer                          = dtable.vkCreateBuffer,
-        .vkDestroyBuffer                         = dtable.vkDestroyBuffer,
-        .vkCreateImage                           = dtable.vkCreateImage,
-        .vkDestroyImage                          = dtable.vkDestroyImage,
-        .vkCmdCopyBuffer                         = ctable.vkCmdCopyBuffer,
-        .vkGetBufferMemoryRequirements2KHR       = dtable.vkGetBufferMemoryRequirements2,
-        .vkGetImageMemoryRequirements2KHR        = dtable.vkGetImageMemoryRequirements2,
-        .vkBindBufferMemory2KHR                  = dtable.vkBindBufferMemory2,
-        .vkBindImageMemory2KHR                   = dtable.vkBindImageMemory2,
-        .vkGetPhysicalDeviceMemoryProperties2KHR = atable.vkGetPhysicalDeviceMemoryProperties2,
-        .vkGetDeviceBufferMemoryRequirements     = dtable.vkGetDeviceBufferMemoryRequirements,
-        .vkGetDeviceImageMemoryRequirements      = dtable.vkGetDeviceImageMemoryRequirements,
-        .vkGetMemoryWin32HandleKHR               = nullptr, // set later if available
-    };
-
-    VkPhysicalDeviceMemoryProperties2 mem_props{};
-    mem_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-    atable.vkGetPhysicalDeviceMemoryProperties2(adapter, &mem_props);
-
-    VmaAllocatorCreateInfo allocatorInfo{
-        .flags                          = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
-        .physicalDevice                 = adapter,
-        .device                         = device.device,
-        .preferredLargeHeapBlockSize    = 0,
-        .pAllocationCallbacks           = nullptr,
-        .pDeviceMemoryCallbacks         = nullptr,
-        .pHeapSizeLimit                 = nullptr,
-        .pVulkanFunctions               = &allocator_functions,
-        .instance                       = device_header.instance,
-        .vulkanApiVersion               = version,
-        .pTypeExternalMemoryHandleTypes = nullptr,
-    };
-
-    // Enable maintenance5 if available and maintenance4
-    if (dtable.vkGetDeviceBufferMemoryRequirements) {
-        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
-    }
-    if (device_header.features.index_buffer_range) {
-        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
-    }
-
-#ifdef _WIN32
-    // Only if there is an interop extension
-    if (dtable.vkGetMemoryWin32HandleKHR) {
-        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT;
-        allocator_functions.vkGetMemoryWin32HandleKHR = dtable.vkGetMemoryWin32HandleKHR;
-    }
-#endif // _WIN32
-
-    VmaAllocator out_allocator;
-    VkResult     vr = vmaCreateAllocator(&allocatorInfo, &out_allocator);
-
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create Vulkan memory allocator">(vr);
-    }
+    auto& device = *reinterpret_cast<const VKDeviceImpl*>(self);
 
     // Fill allocator impl
     auto& allocator_impl         = *new (allocator) VKResourceAllocatorImpl();
-    allocator_impl.allocator     = out_allocator;
-    allocator_impl.device        = device.device;
+    allocator_impl.allocator     = device.device_header->header.allocator;
     allocator_impl.device_header = device.device_header;
-    device.device_header->AddRef(); // hold reference to device header
-
-    return res;
+    allocator_impl.device_header->AddRef(); // hold reference to device header
+    return vk_success;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDevice*           self,
+                                                                  const WisDescriptorHeapDesc* desc,
+                                                                  WisVKDescriptorHeap*         heap)
+{
+    auto& device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& header   = device.device_header->header;
+    auto& features = header.features;
+    auto& table    = header.device_table;
+
+    // 0. If heap is supported
+    if (!features.descriptor_heap) {
+        return make_result<Func(), "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+    }
+
+    // 1. Calculate descriptor memory requirements based on desc
+    bool is_shader_heap  = desc->memory_type == WisDescriptorMemoryTypeShaderVisible;
+    bool is_sampler_heap = desc->type == WisDescriptorHeapTypeSampler;
+
+    std::size_t heap_alignment = is_shader_heap ? is_sampler_heap
+                    ? features.sampler_heap_alignment
+                    : features.descriptor_heap_alignment
+                                                : __STDCPP_DEFAULT_NEW_ALIGNMENT__;
+
+    std::size_t descriptor_size = is_sampler_heap
+            ? features.sampler_desc_size
+            : features.resource_desc_size;
+
+    std::size_t min_heap_size = is_shader_heap ? is_sampler_heap
+                    ? features.min_sampler_heap_size
+                    : features.min_descriptor_heap_size
+                                               : 0;
+
+    std::size_t max_heap_size = is_shader_heap ? is_sampler_heap
+                    ? features.max_sampler_heap_size
+                    : features.max_descriptor_heap_size
+                                               : std::numeric_limits<std::size_t>::max();
+
+    std::size_t required_size = wis::aligned_size(
+            std::max(desc->descriptor_count * descriptor_size, min_heap_size),
+            heap_alignment);
+
+    if (is_shader_heap && required_size > max_heap_size) {
+        return make_result<Func(), "Requested descriptor heap size exceeds the maximum supported by this Vulkan device">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    if (!is_shader_heap) {
+        // 2a. For non-shader visible heaps, we can use a simple host allocation
+        VkBuffer buffer = reinterpret_cast<VkBuffer>(std::malloc(required_size));
+        if (!buffer) {
+            return make_result<Func(), "Failed to allocate memory for non-shader visible descriptor heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        }
+
+        // Fill descriptor heap impl
+        auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
+        heap_impl.buffer          = buffer;
+        heap_impl.allocation      = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
+        heap_impl.memory_type     = desc->memory_type;
+        heap_impl.mapped_ptr      = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
+        heap_impl.device          = device.device;
+        heap_impl.device_header   = device.device_header;
+        heap_impl.device_header->AddRef(); // hold reference to device header
+        return vk_success;
+    }
+
+    // 2. Create buffer
+    VkBufferCreateInfo buffer_info{
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .size  = required_size,
+        .usage = VK_BUFFER_USAGE_DESCRIPTOR_HEAP_BIT_EXT
+    };
+    VmaAllocationCreateInfo alloc_info{
+        .flags          = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+        .usage          = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
+        .requiredFlags  = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        .preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    };
+
+    VkBuffer          buffer     = VK_NULL_HANDLE;
+    VmaAllocation     allocation = VK_NULL_HANDLE;
+    VmaAllocationInfo alloc_info_out{};
+    VkResult          vr = vmaCreateBufferWithAlignment(
+            header.allocator,
+            &buffer_info,
+            &alloc_info,
+            heap_alignment,
+            &buffer,
+            &allocation,
+            &alloc_info_out);
+
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
+    }
+
+    auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
+    heap_impl.buffer          = buffer;
+    heap_impl.allocation      = allocation;
+    heap_impl.mapped_ptr      = alloc_info_out.pMappedData;
+    heap_impl.memory_type     = desc->memory_type;
+    heap_impl.device          = device.device;
+    heap_impl.device_header   = device.device_header;
+    heap_impl.device_header->AddRef(); // hold reference to device header
+    return vk_success;
+}
 #endif // WIS_VK_DEVICE_CPP

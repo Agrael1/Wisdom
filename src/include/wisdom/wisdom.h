@@ -41,29 +41,29 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 // Functions
 //==============================================================
 
-#define wisDestroyDescriptorHeap         wisDX12DestroyDescriptorHeap
-#define wisDestroyPipelineLayout         wisDX12DestroyPipelineLayout
-#define wisDestroyResourceAllocator      wisDX12DestroyResourceAllocator
-#define wisDestroyFence                  wisDX12DestroyFence
-#define wisDestroyCommandList            wisDX12DestroyCommandList
-#define wisDestroyCommandQueue           wisDX12DestroyCommandQueue
-#define wisDestroyDevice                 wisDX12DestroyDevice
-#define wisDestroyAdapterQuery           wisDX12DestroyAdapterQuery
-#define wisDestroyInstance               wisDX12DestroyInstance
-#define wisCreateInstance                wisDX12CreateInstance
-#define wisInstanceQueryAdapters         wisDX12InstanceQueryAdapters
-#define wisAdapterQueryGetAdapterCount   wisDX12AdapterQueryGetAdapterCount
-#define wisAdapterQueryGetAdapterDesc    wisDX12AdapterQueryGetAdapterDesc
-#define wisAdapterQueryCreateDevice      wisDX12AdapterQueryCreateDevice
-#define wisDeviceCreateCommandQueue      wisDX12DeviceCreateCommandQueue
-#define wisDeviceCreateCommandList       wisDX12DeviceCreateCommandList
-#define wisDeviceCreateFence             wisDX12DeviceCreateFence
-#define wisDeviceCreateResourceAllocator wisDX12DeviceCreateResourceAllocator
-#define wisDeviceCreatePipelineLayout    wisDX12DeviceCreatePipelineLayout
-#define wisDeviceCreateDescriptorHeap    wisDX12DeviceCreateDescriptorHeap
-#define wisFenceGetCompletedValue        wisDX12FenceGetCompletedValue
-#define wisFenceWait                     wisDX12FenceWait
-#define wisFenceSignal                   wisDX12FenceSignal
+#define wisDestroyDescriptorHeap       wisDX12DestroyDescriptorHeap
+#define wisDestroyPipelineLayout       wisDX12DestroyPipelineLayout
+#define wisDestroyResourceAllocator    wisDX12DestroyResourceAllocator
+#define wisDestroyFence                wisDX12DestroyFence
+#define wisDestroyCommandList          wisDX12DestroyCommandList
+#define wisDestroyCommandQueue         wisDX12DestroyCommandQueue
+#define wisDestroyDevice               wisDX12DestroyDevice
+#define wisDestroyAdapterQuery         wisDX12DestroyAdapterQuery
+#define wisDestroyInstance             wisDX12DestroyInstance
+#define wisCreateInstance              wisDX12CreateInstance
+#define wisInstanceQueryAdapters       wisDX12InstanceQueryAdapters
+#define wisAdapterQueryGetAdapterCount wisDX12AdapterQueryGetAdapterCount
+#define wisAdapterQueryGetAdapterDesc  wisDX12AdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice    wisDX12AdapterQueryCreateDevice
+#define wisDeviceCreateCommandQueue    wisDX12DeviceCreateCommandQueue
+#define wisDeviceCreateCommandList     wisDX12DeviceCreateCommandList
+#define wisDeviceCreateFence           wisDX12DeviceCreateFence
+#define wisDeviceGetResourceAllocator  wisDX12DeviceGetResourceAllocator
+#define wisDeviceCreatePipelineLayout  wisDX12DeviceCreatePipelineLayout
+#define wisDeviceCreateDescriptorHeap  wisDX12DeviceCreateDescriptorHeap
+#define wisFenceGetCompletedValue      wisDX12FenceGetCompletedValue
+#define wisFenceWait                   wisDX12FenceWait
+#define wisFenceSignal                 wisDX12FenceSignal
 
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -94,29 +94,29 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 // Functions
 //==============================================================
 
-#define wisDestroyDescriptorHeap         wisVKDestroyDescriptorHeap
-#define wisDestroyPipelineLayout         wisVKDestroyPipelineLayout
-#define wisDestroyResourceAllocator      wisVKDestroyResourceAllocator
-#define wisDestroyFence                  wisVKDestroyFence
-#define wisDestroyCommandList            wisVKDestroyCommandList
-#define wisDestroyCommandQueue           wisVKDestroyCommandQueue
-#define wisDestroyDevice                 wisVKDestroyDevice
-#define wisDestroyAdapterQuery           wisVKDestroyAdapterQuery
-#define wisDestroyInstance               wisVKDestroyInstance
-#define wisCreateInstance                wisVKCreateInstance
-#define wisInstanceQueryAdapters         wisVKInstanceQueryAdapters
-#define wisAdapterQueryGetAdapterCount   wisVKAdapterQueryGetAdapterCount
-#define wisAdapterQueryGetAdapterDesc    wisVKAdapterQueryGetAdapterDesc
-#define wisAdapterQueryCreateDevice      wisVKAdapterQueryCreateDevice
-#define wisDeviceCreateCommandQueue      wisVKDeviceCreateCommandQueue
-#define wisDeviceCreateCommandList       wisVKDeviceCreateCommandList
-#define wisDeviceCreateFence             wisVKDeviceCreateFence
-#define wisDeviceCreateResourceAllocator wisVKDeviceCreateResourceAllocator
-#define wisDeviceCreatePipelineLayout    wisVKDeviceCreatePipelineLayout
-#define wisDeviceCreateDescriptorHeap    wisVKDeviceCreateDescriptorHeap
-#define wisFenceGetCompletedValue        wisVKFenceGetCompletedValue
-#define wisFenceWait                     wisVKFenceWait
-#define wisFenceSignal                   wisVKFenceSignal
+#define wisDestroyDescriptorHeap       wisVKDestroyDescriptorHeap
+#define wisDestroyPipelineLayout       wisVKDestroyPipelineLayout
+#define wisDestroyResourceAllocator    wisVKDestroyResourceAllocator
+#define wisDestroyFence                wisVKDestroyFence
+#define wisDestroyCommandList          wisVKDestroyCommandList
+#define wisDestroyCommandQueue         wisVKDestroyCommandQueue
+#define wisDestroyDevice               wisVKDestroyDevice
+#define wisDestroyAdapterQuery         wisVKDestroyAdapterQuery
+#define wisDestroyInstance             wisVKDestroyInstance
+#define wisCreateInstance              wisVKCreateInstance
+#define wisInstanceQueryAdapters       wisVKInstanceQueryAdapters
+#define wisAdapterQueryGetAdapterCount wisVKAdapterQueryGetAdapterCount
+#define wisAdapterQueryGetAdapterDesc  wisVKAdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice    wisVKAdapterQueryCreateDevice
+#define wisDeviceCreateCommandQueue    wisVKDeviceCreateCommandQueue
+#define wisDeviceCreateCommandList     wisVKDeviceCreateCommandList
+#define wisDeviceCreateFence           wisVKDeviceCreateFence
+#define wisDeviceGetResourceAllocator  wisVKDeviceGetResourceAllocator
+#define wisDeviceCreatePipelineLayout  wisVKDeviceCreatePipelineLayout
+#define wisDeviceCreateDescriptorHeap  wisVKDeviceCreateDescriptorHeap
+#define wisFenceGetCompletedValue      wisVKFenceGetCompletedValue
+#define wisFenceWait                   wisVKFenceWait
+#define wisFenceSignal                 wisVKFenceSignal
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

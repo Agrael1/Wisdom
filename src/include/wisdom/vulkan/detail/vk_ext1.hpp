@@ -123,32 +123,23 @@ public:
     ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,
                      const VKDeviceExtensionCollector&          collector) noexcept
     {
-
+        if (features.descriptor_heap)
         {
-            auto& push_desc_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDevicePushDescriptorProperties>(
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES);
-            features.max_push_descriptors = push_desc_properties.maxPushDescriptors;
-        }
-        {
-            auto& base_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceProperties2>(
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2);
-            features.max_push_constant_size    = base_properties.properties.limits.maxPushConstantsSize;
-            features.max_bound_descriptor_sets = base_properties.properties.limits.maxBoundDescriptorSets;
+            // Descriptor heap properties
+            auto& descriptor_heap_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceDescriptorHeapPropertiesEXT>(
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT);
 
-            // Calculate max descriptors in set
-            features.max_descriptors_in_set = std::min({
-                    base_properties.properties.limits.maxPerStageDescriptorStorageBuffers,
-                    base_properties.properties.limits.maxPerStageDescriptorUniformBuffers,
-                    base_properties.properties.limits.maxPerStageDescriptorSampledImages,
-                    base_properties.properties.limits.maxPerStageDescriptorStorageImages,
-                    base_properties.properties.limits.maxPerStageDescriptorInputAttachments,
-                    base_properties.properties.limits.maxDescriptorSetStorageBuffers,
-                    base_properties.properties.limits.maxDescriptorSetUniformBuffers,
-                    base_properties.properties.limits.maxDescriptorSetSampledImages,
-                    base_properties.properties.limits.maxDescriptorSetStorageImages,
-                    base_properties.properties.limits.maxDescriptorSetInputAttachments,
-            });
-            features.max_samplers_in_set    = base_properties.properties.limits.maxDescriptorSetSamplers;
+            // A lot of space is going to be wasted, but the usage will be simpler and more efficient if we use the same size for both resource and sampler descriptors, so we take the max of the two alignments as the descriptor size
+            features.resource_desc_size = static_cast<uint16_t>(
+                    std::max(descriptor_heap_properties.imageDescriptorAlignment,
+                             descriptor_heap_properties.bufferDescriptorAlignment));
+            features.sampler_desc_size         = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
+            features.descriptor_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment);
+            features.sampler_heap_alignment    = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
+            features.min_descriptor_heap_size  = static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange);
+            features.min_sampler_heap_size     = static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded);
+            features.max_descriptor_heap_size  = descriptor_heap_properties.maxResourceHeapSize;
+            features.max_sampler_heap_size     = descriptor_heap_properties.maxSamplerHeapSize;
         }
 
         // Nothing to initialize for now
