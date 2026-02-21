@@ -61,6 +61,9 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDeviceCreateResourceAllocator wisDX12DeviceCreateResourceAllocator
 #define wisDeviceCreatePipelineLayout    wisDX12DeviceCreatePipelineLayout
 #define wisDeviceCreateDescriptorHeap    wisDX12DeviceCreateDescriptorHeap
+#define wisFenceGetCompletedValue        wisDX12FenceGetCompletedValue
+#define wisFenceWait                     wisDX12FenceWait
+#define wisFenceSignal                   wisDX12FenceSignal
 
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -111,6 +114,9 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDeviceCreateResourceAllocator wisVKDeviceCreateResourceAllocator
 #define wisDeviceCreatePipelineLayout    wisVKDeviceCreatePipelineLayout
 #define wisDeviceCreateDescriptorHeap    wisVKDeviceCreateDescriptorHeap
+#define wisFenceGetCompletedValue        wisVKFenceGetCompletedValue
+#define wisFenceWait                     wisVKFenceWait
+#define wisFenceSignal                   wisVKFenceSignal
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

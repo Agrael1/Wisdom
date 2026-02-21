@@ -8,6 +8,7 @@
 #include <d3d12.h>
 #include <D3D12MemAlloc.h>
 #include <wisdom/dx12/dx12_extensions.hpp>
+#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
 namespace wis {
@@ -80,6 +81,7 @@ struct DX12DescriptorHeapImpl {
 #include "dx12_impl.cpp"
 #include "dx12_instance.cpp"
 #include "dx12_device.cpp"
+#include "dx12_fence.cpp"
 #include "dx12_adapter_query.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_DX12_TYPES_HPP

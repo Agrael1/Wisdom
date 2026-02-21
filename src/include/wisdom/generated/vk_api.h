@@ -280,6 +280,36 @@ WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDevice*         
                                                      const WisDescriptorHeapDesc* desc,
                                                      WisVKDescriptorHeap*         heap);
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
+ * @param self is a pointer to the valid WisFence instance.
+ * @return u64 Value of the fence.
+ *
+ * */
+WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Wait on CPU for the fence to reach a certain value.
+ * @param self is a pointer to the valid WisFence instance.
+ * @param value Value to wait for.
+ * @param wait_ns The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self,
+                                    uint64_t          value,
+                                    uint64_t          wait_ns);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
+ * @param self is a pointer to the valid WisFence instance.
+ * @param value Value to signal.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self,
+                                      uint64_t          value);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

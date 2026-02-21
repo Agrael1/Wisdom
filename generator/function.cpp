@@ -71,6 +71,10 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         auto* return_type = func->FirstChildElement("ret");
         if (return_type) {
             ref.return_type.type = return_type->FindAttribute("type")->Value();
+            if (ref.return_type.type == "Result") {
+                ref.return_type.has_result = true;
+                ref.return_type.type       = "";
+            }
 
             if (auto* doc = return_type->FindAttribute("doc")) {
                 ref.return_type.doc = doc->Value();
@@ -176,6 +180,8 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
     if (func.return_type.IsVoid()) {
         full_return_type = "void";
+    } else if (func.return_type.IsResultOnly()) {
+        full_return_type = GetCFullTypename("Result", "");
     } else if (func.return_type.has_result) {
         full_return_type     = GetCFullTypename("Result", "");
         std::string arg_name = func.return_type.opt_name.empty()
@@ -508,7 +514,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         body += wis::format("    return {};\n", ret_value_name);
     } break;
     case ReturnTypeKind::ResultOnly: {
-        body += wis::format("    return reinterpret_cast<wis::Result&&>(::{}({}",
+        body += wis::format("    return convert_result(::{}({}",
                             GetCFullTypename(func.name, re_impl),
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
