@@ -96,6 +96,9 @@
 			<ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
 			<arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
 		</func>
+    <func name="QueryProperties" version="0.7.0" for="Device" mod="const" doc="Queries the properties of the device.">
+      <arg type="void" name="properties" mod="ptr" doc="points to one of the query structs, which is filled with device properties."/>
+    </func>
     
     <!-- Fence Functions -->
     <func for="Fence" name="GetCompletedValue" version="0.7.0" mod="const" doc="Get the current value of the fence.">

@@ -61,6 +61,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDeviceGetResourceAllocator  wisDX12DeviceGetResourceAllocator
 #define wisDeviceCreatePipelineLayout  wisDX12DeviceCreatePipelineLayout
 #define wisDeviceCreateDescriptorHeap  wisDX12DeviceCreateDescriptorHeap
+#define wisDeviceQueryProperties       wisDX12DeviceQueryProperties
 #define wisFenceGetCompletedValue      wisDX12FenceGetCompletedValue
 #define wisFenceWait                   wisDX12FenceWait
 #define wisFenceSignal                 wisDX12FenceSignal
@@ -114,6 +115,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDeviceGetResourceAllocator  wisVKDeviceGetResourceAllocator
 #define wisDeviceCreatePipelineLayout  wisVKDeviceCreatePipelineLayout
 #define wisDeviceCreateDescriptorHeap  wisVKDeviceCreateDescriptorHeap
+#define wisDeviceQueryProperties       wisVKDeviceQueryProperties
 #define wisFenceGetCompletedValue      wisVKFenceGetCompletedValue
 #define wisFenceWait                   wisVKFenceWait
 #define wisFenceSignal                 wisVKFenceSignal

@@ -231,13 +231,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         }
 
         // Fill descriptor heap impl
-        auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
-        heap_impl.buffer          = buffer;
-        heap_impl.allocation      = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
-        heap_impl.memory_type     = desc->memory_type;
-        heap_impl.mapped_ptr      = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
-        heap_impl.device          = device.device;
-        heap_impl.device_header   = device.device_header;
+        auto& heap_impl         = *new (heap) VKDescriptorHeapImpl();
+        heap_impl.buffer        = buffer;
+        heap_impl.allocation    = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
+        heap_impl.memory_type   = desc->memory_type;
+        heap_impl.mapped_ptr    = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
+        heap_impl.device        = device.device;
+        heap_impl.device_header = device.device_header;
         heap_impl.device_header->AddRef(); // hold reference to device header
         return vk_success;
     }
@@ -273,14 +273,60 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         return make_result<Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
     }
 
-    auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
-    heap_impl.buffer          = buffer;
-    heap_impl.allocation      = allocation;
-    heap_impl.mapped_ptr      = alloc_info_out.pMappedData;
-    heap_impl.memory_type     = desc->memory_type;
-    heap_impl.device          = device.device;
-    heap_impl.device_header   = device.device_header;
+    auto& heap_impl         = *new (heap) VKDescriptorHeapImpl();
+    heap_impl.buffer        = buffer;
+    heap_impl.allocation    = allocation;
+    heap_impl.mapped_ptr    = alloc_info_out.pMappedData;
+    heap_impl.memory_type   = desc->memory_type;
+    heap_impl.device        = device.device;
+    heap_impl.device_header = device.device_header;
     heap_impl.device_header->AddRef(); // hold reference to device header
     return vk_success;
 }
+
+WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
+                                                        void*              properties)
+{
+    if (!properties) {
+        return;
+    }
+
+    auto& device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& header = device.device_header->header;
+    void* next   = properties;
+
+    do {
+        WisQueryStructHeader header_local{};
+        std::memcpy(&header_local, next, sizeof(WisQueryStructHeader));
+
+        switch (header_local.property_type) {
+        case WisQueryPropertyTypeDeviceCommandQueueProperties: {
+            auto* props = static_cast<WisDeviceCommandQueuesProperties*>(next);
+            for (size_t i = 0; i < WisCommandQueueTypeCount; ++i) {
+                auto&                   family_index = header.queue_residency[i];
+                bool                    supported    = family_index != VKQueueFamilyProperties::invalid_family_index;
+                WisCommandQueuePriority priority     = WisCommandQueuePriority(supported ? (header.queue_families[family_index].queue_priority) : 0);
+
+                props->supported_queues[i]   = supported;
+                props->max_queue_priority[i] = priority;
+            }
+        } break;
+        case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
+            auto* props                                = static_cast<WisDeviceDescriptorHeapProperties*>(next);
+            if (!header.features.descriptor_heap) {
+                break;
+            }
+            props->max_descriptor_heap_size            = header.features.max_descriptor_heap_size / header.features.resource_desc_size;
+            props->max_sampler_heap_size               = header.features.max_sampler_heap_size / header.features.sampler_desc_size;
+            props->max_sampler_heap_size_with_embedded = header.features.max_sampler_heap_size_with_embedded / header.features.sampler_desc_size;
+            props->descriptor_increment_size           = header.features.resource_desc_size;
+            props->sampler_increment_size              = header.features.sampler_desc_size;
+        } break;
+        default:
+            break;
+        }
+        next = header_local.next_in_chain;
+    } while (next);
+}
+
 #endif // WIS_VK_DEVICE_CPP

@@ -185,6 +185,15 @@ typedef enum WisDescriptorStorageTier {
 } WisDescriptorStorageTier;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
+ *
+ * */
+typedef enum WisQueryPropertyType {
+    WisQueryPropertyTypeDeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a .
+    WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties.
+} WisQueryPropertyType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -364,6 +373,40 @@ typedef struct WisDescriptorHeapDesc {
     WisDescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
     size_t                  descriptor_count; ///< indicates the amount of descriptors, present in the heap.
 } WisDescriptorHeapDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
+ *
+ * */
+typedef struct WisQueryStructHeader {
+    WisQueryPropertyType property_type; ///< Defines the type of the queried property. Used to determine what struct is passed.
+    void*                next_in_chain; ///< Pointer to the next queried data struct.
+} WisQueryStructHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device descriptor heap properties. Used to query descriptor heap support and limits.
+ *
+ * */
+typedef struct WisDeviceDescriptorHeapProperties {
+    WisQueryPropertyType property_type; ///< Defines the type of the queried property. Used to determine what struct is passed. @wis_must be `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
+    void*                next_in_chain; ///< Pointer to the next queried data struct.
+    size_t               max_descriptor_heap_size; ///< Maximum number of descriptors in a single descriptor heap.
+    size_t               max_sampler_heap_size; ///< Maximum number of samplers in a single descriptor heap.
+    size_t               max_sampler_heap_size_with_embedded; ///< Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
+    size_t               descriptor_increment_size; ///< Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
+    size_t               sampler_increment_size; ///< Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+} WisDeviceDescriptorHeapProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
+ *
+ * */
+typedef struct WisDeviceCommandQueuesProperties {
+    WisQueryPropertyType    property_type; ///< Defines the type of the queried property. @wis_must be wis::QueryPropertyType..
+    void*                   next_in_chain; ///< Pointer to the next queried data struct.
+    bool                    supported_queues[5]; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in wis::CommandQueueType enum.
+    WisCommandQueuePriority max_queue_priority[5]; ///< Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in wis::CommandQueueType enum.
+} WisDeviceCommandQueuesProperties;
 
 #ifdef __cplusplus
 }

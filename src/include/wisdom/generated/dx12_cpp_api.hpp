@@ -271,6 +271,16 @@ public:
                                                                         heap.GetStorage()));
         return heap;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
+     * @param properties points to one of the query structs, which is filled with device properties.
+     *
+     * */
+    inline void QueryProperties(void* properties) const noexcept
+    {
+        ::wisDX12DeviceQueryProperties(&_impl_storage,
+                                       reinterpret_cast<void*>(properties));
+    }
 };
 
 struct DX12AdapterQueryDeleter {

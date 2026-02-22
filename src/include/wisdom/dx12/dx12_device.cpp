@@ -336,4 +336,44 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
     return res;
 }
 
+WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* self,
+                                                          void*                properties)
+{
+    if (!properties) {
+        return;
+    }
+
+    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    void* next   = properties;
+
+    do {
+        WisQueryStructHeader header_local{};
+        std::memcpy(&header_local, next, sizeof(WisQueryStructHeader));
+
+        switch (header_local.property_type) {
+        case WisQueryPropertyTypeDeviceCommandQueueProperties: {
+            auto* props = static_cast<WisDeviceCommandQueuesProperties*>(next);
+            for (size_t i = 0; i < WisCommandQueueTypeCount; ++i) {
+                props->supported_queues[i]   = (device.queue_priorities[i] & ~0x7fu) != 0;
+                props->max_queue_priority[i] = WisCommandQueuePriority(device.queue_priorities[i] & 0x7f);
+            }
+        } break;
+        case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
+            auto*                              props     = static_cast<WisDeviceDescriptorHeapProperties*>(next);
+            D3D12_FEATURE_DATA_D3D12_OPTIONS19 options19 = {};
+            if (succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS19, &options19, sizeof(options19)))) {
+                props->max_descriptor_heap_size            = options19.MaxViewDescriptorHeapSize;
+                props->max_sampler_heap_size               = options19.MaxSamplerDescriptorHeapSize;
+                props->max_sampler_heap_size_with_embedded = options19.MaxSamplerDescriptorHeapSizeWithStaticSamplers;
+                props->descriptor_increment_size           = device.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+                props->sampler_increment_size              = device.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+            }
+        } break;
+        default:
+            break;
+        }
+        next = header_local.next_in_chain;
+    } while (next);
+}
+
 #endif // WIS_DX12_DEVICE_CPP

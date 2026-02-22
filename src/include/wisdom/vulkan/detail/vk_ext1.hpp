@@ -123,8 +123,7 @@ public:
     ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,
                      const VKDeviceExtensionCollector&          collector) noexcept
     {
-        if (features.descriptor_heap)
-        {
+        if (features.descriptor_heap) {
             // Descriptor heap properties
             auto& descriptor_heap_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceDescriptorHeapPropertiesEXT>(
                     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT);
@@ -133,13 +132,14 @@ public:
             features.resource_desc_size = static_cast<uint16_t>(
                     std::max(descriptor_heap_properties.imageDescriptorAlignment,
                              descriptor_heap_properties.bufferDescriptorAlignment));
-            features.sampler_desc_size         = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
-            features.descriptor_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment);
-            features.sampler_heap_alignment    = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
-            features.min_descriptor_heap_size  = static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange);
-            features.min_sampler_heap_size     = static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded);
-            features.max_descriptor_heap_size  = descriptor_heap_properties.maxResourceHeapSize;
-            features.max_sampler_heap_size     = descriptor_heap_properties.maxSamplerHeapSize;
+            features.sampler_desc_size                   = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
+            features.descriptor_heap_alignment           = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment);
+            features.sampler_heap_alignment              = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
+            features.min_descriptor_heap_size            = static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange);
+            features.min_sampler_heap_size               = static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded);
+            features.max_descriptor_heap_size            = descriptor_heap_properties.maxResourceHeapSize;
+            features.max_sampler_heap_size               = descriptor_heap_properties.maxSamplerHeapSize;
+            features.max_sampler_heap_size_with_embedded = descriptor_heap_properties.maxSamplerHeapSize - descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded;
         }
 
         // Nothing to initialize for now

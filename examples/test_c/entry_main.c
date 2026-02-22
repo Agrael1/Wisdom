@@ -77,6 +77,29 @@ int main()
     }
     wisDestroyAdapterQuery(&adapter_query);
 
+    // Query important device features
+    WisDeviceCommandQueuesProperties command_queues_properties = {
+        .property_type = WisQueryPropertyTypeDeviceCommandQueueProperties
+    };
+    WisDeviceDescriptorHeapProperties descriptor_heap_properties = {
+        .property_type = WisQueryPropertyTypeDeviceDescriptorHeapProperties,
+        .next_in_chain = &command_queues_properties
+    };
+    wisDeviceQueryProperties(&device, &descriptor_heap_properties);
+    printf("Device supports the following queue types:\n");
+    for (int i = 0; i < 5; ++i) {
+        if (command_queues_properties.supported_queues[i]) {
+            printf("- Queue type %d with max priority %d\n", i, command_queues_properties.max_queue_priority[i]);
+        }
+    }
+
+    printf("Device descriptor heap properties:\n");
+    printf("- Max descriptor heap size: %zu\n", descriptor_heap_properties.max_descriptor_heap_size);
+    printf("- Max sampler heap size: %zu\n", descriptor_heap_properties.max_sampler_heap_size);
+    printf("- Max sampler heap size with embedded samplers: %zu\n", descriptor_heap_properties.max_sampler_heap_size_with_embedded);
+    printf("- Descriptor increment size: %zu\n", descriptor_heap_properties.descriptor_increment_size);
+    printf("- Sampler increment size: %zu\n", descriptor_heap_properties.sampler_increment_size);
+
     // Create CommandQueue
     WisCommandQueue command_queue = { 0 };
 
@@ -94,13 +117,12 @@ int main()
     result                      = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
 
     WisDescriptorHeapDesc descriptor_heap_desc = {
-        .type = WisDescriptorHeapTypeDescriptor,
-        .memory_type = WisDescriptorMemoryTypeShaderVisible,
+        .type             = WisDescriptorHeapTypeDescriptor,
+        .memory_type      = WisDescriptorMemoryTypeShaderVisible,
         .descriptor_count = 100,
     };
     WisDescriptorHeap descriptor_heap = { 0 };
     result                            = wisDeviceCreateDescriptorHeap(&device, &descriptor_heap_desc, &descriptor_heap);
-
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);

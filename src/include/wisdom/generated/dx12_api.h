@@ -281,6 +281,15 @@ WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX12Device*     
                                                        WisDX12DescriptorHeap*       heap);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param properties points to one of the query structs, which is filled with device properties.
+ *
+ * */
+WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* self,
+                                             void*                properties);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
  * @param self is a pointer to the valid WisFence instance.
  * @return u64 Value of the fence.
