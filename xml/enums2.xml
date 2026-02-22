@@ -241,6 +241,11 @@
       <value name="Tier4" value="3" doc="Tier 4: Descriptor Heap."/>
     </type>
 
+    <type name="QueryPropertyType" category="enum" version="0.7.0" doc="Query type for GPU queries.">
+      <value name="DeviceCommandQueueProperties" value="0" doc="Properties of the device command queues. Expects a {DeviceCommandQueueProperties::}."/>
+      <value name="DeviceDescriptorHeapProperties" value="1" doc="Properties of the device descriptor heap. Expects a {DeviceDescriptorHeapProperties::}."/>
+    </type>
+
 
     <!--Bitmasks-->
     <type name="AdapterFlags" category="bitmask" version="0.7.0" doc="Flags that describe adapter.">

@@ -1,128 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <registry>
-	<includes>
-		<include>enums2.xml</include>
-	</includes>
+  <includes>
+    <include>enums2.xml</include>
+  </includes>
 
-	<types comment="Type definitions">
-		<type name="Result" category="struct" mod="nodiscard" version="0.7.0" doc="Main source of communication of operation success.">
-			<member type="Status" name="status" default="Ok" doc="defines operation status. Compare with {Status::Ok}."/>
-			<member type="i32" name="platform_code" default="0" doc="defines platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
-			<member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
-		</type>
+  <types comment="Type definitions">
+    <type name="Result" category="struct" mod="nodiscard" version="0.7.0" doc="Main source of communication of operation success.">
+      <member type="Status" name="status" default="Ok" doc="defines operation status. Compare with {Status::Ok}."/>
+      <member type="i32" name="platform_code" default="0" doc="defines platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
+      <member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
+    </type>
 
-		<type name="DeviceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
-			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. In must not be changed directly outside extension development."/>
-		</type>
+    <type name="DeviceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
+      <member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. In must not be changed directly outside extension development."/>
+    </type>
 
-		<type name="InstanceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
-			<member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
-		</type>
+    <type name="InstanceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
+      <member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
+    </type>
 
-		<type name="AdapterDesc" category="struct" version="0.7.0"  doc="Adapter description. Describes hardware driver identification as well as memory limits.">
-			<member type="char" name="description" array="256" doc="Adapter description. Contains name of the graphics adapter."/>
-			<member type="u32" name="vendor_id" doc="denotes Vendor ID. Can be used to find the correct adapter."/>
-			<member type="u32" name="device_id" doc="denotes Device ID. Together with {::vendor_id} uniquely identifies the device."/>
-			<member type="u64" name="dedicated_video_memory" doc="measures dedicated video memory in bytes. Used for device local memory type."/>
-			<member type="u64" name="shared_system_memory" doc="measures memory that is shared with CPU in bytes. Used for upload and readback."/>
-			<member type="u64" name="adapter_id" doc="denotes adapter unique ID (LUID). Can be used to find the correct adapter."/>
-			<member type="u8" name="adapter_uuid" array="16" doc="stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
-			<member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
-		</type>
+    <type name="AdapterDesc" category="struct" version="0.7.0"  doc="Adapter description. Describes hardware driver identification as well as memory limits.">
+      <member type="char" name="description" array="256" doc="Adapter description. Contains name of the graphics adapter."/>
+      <member type="u32" name="vendor_id" doc="denotes Vendor ID. Can be used to find the correct adapter."/>
+      <member type="u32" name="device_id" doc="denotes Device ID. Together with {::vendor_id} uniquely identifies the device."/>
+      <member type="u64" name="dedicated_video_memory" doc="measures dedicated video memory in bytes. Used for device local memory type."/>
+      <member type="u64" name="shared_system_memory" doc="measures memory that is shared with CPU in bytes. Used for upload and readback."/>
+      <member type="u64" name="adapter_id" doc="denotes adapter unique ID (LUID). Can be used to find the correct adapter."/>
+      <member type="u8" name="adapter_uuid" array="16" doc="stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
+      <member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
+    </type>
 
-		<type name="DebugCallback" category="delegate" version="0.7.0" doc="Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.">
-			<arg type="Severity" name="severity" doc="defines message severity level."/>
-			<arg type="char" name="message" mod="const,ptr" doc="contains the debug message string."/>
-			<arg type="u64" name="device" doc="handle to the device that generated the message. Can be `0` if message is not device specific."/>
-			<arg type="void" name="user_data" mod="ptr" doc="user defined data pointer passed during callback registration."/>
-		</type>
+    <type name="DebugCallback" category="delegate" version="0.7.0" doc="Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.">
+      <arg type="Severity" name="severity" doc="defines message severity level."/>
+      <arg type="char" name="message" mod="const,ptr" doc="contains the debug message string."/>
+      <arg type="u64" name="device" doc="handle to the device that generated the message. Can be `0` if message is not device specific."/>
+      <arg type="void" name="user_data" mod="ptr" doc="user defined data pointer passed during callback registration."/>
+    </type>
 
-		<type name="DebugDesc" category="struct" version="0.7.0" doc="Debugging and logging description. Used to configure debug callback behavior.">
-			<member type="bool" name="enable_debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
-			<member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
-			<member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
-		</type>
+    <type name="DebugDesc" category="struct" version="0.7.0" doc="Debugging and logging description. Used to configure debug callback behavior.">
+      <member type="bool" name="enable_debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
+      <member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
+      <member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
+    </type>
 
-		<type name="CommandQueueDesc" category="struct" version="0.7.0" doc="Command queue description for {CommandQueue::} creation.">
-			<member type="CommandQueueType" name="type" doc="defines the type of the command queue."/>
-			<member type="CommandQueuePriority" name="priority" doc="defines command queue priority. Used to set priority of the command queues of the type."/>
-		</type>
+    <type name="CommandQueueDesc" category="struct" version="0.7.0" doc="Command queue description for {CommandQueue::} creation.">
+      <member type="CommandQueueType" name="type" doc="defines the type of the command queue."/>
+      <member type="CommandQueuePriority" name="priority" doc="defines command queue priority. Used to set priority of the command queues of the type."/>
+    </type>
 
-		<type name="SamplerDesc" category="struct" version="0.7.0" doc="Sampler description for {Sampler::} creation.">
-			<member type="Filter" name="min_filter" doc="Minification filter."/>
-			<member type="Filter" name="mag_filter" doc="Magnification filter."/>
-			<member type="Filter" name="mip_filter" doc="Mip level filter."/>
-			<member type="bool" name="is_anisotropic" doc="Anisotropic filtering enable."/>
-			<member type="u32" name="max_anisotropy" doc="Max anisotropy level. Max is 16."/>
-			<member type="AddressMode" name="address_u" doc="Address mode for U coordinate."/>
-			<member type="AddressMode" name="address_v" doc="Address mode for V coordinate."/>
-			<member type="AddressMode" name="address_w" doc="Address mode for W coordinate."/>
-			<member type="f32" name="min_lod" doc="Min LOD value."/>
-			<member type="f32" name="max_lod" doc="Max LOD value."/>
-			<member type="f32" name="mip_lod_bias" doc="Mip LOD bias value."/>
-			<member type="CompareOperation" name="comparison_op" doc="Comparison operation for comparison samplers."/>
-			<member type="StaticBorder" name="static_border_color" doc="Static border color. Used if any address mode is set to {AddressMode::Border}."/>
-			<member type="f32" name="border_color" array="4" doc="Border color. Used if any address mode is set to {AddressMode::Border} and static_border_color is set to {StaticBorder::Custom}."/>
-			<member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
-		</type>
+    <type name="SamplerDesc" category="struct" version="0.7.0" doc="Sampler description for {Sampler::} creation.">
+      <member type="Filter" name="min_filter" doc="Minification filter."/>
+      <member type="Filter" name="mag_filter" doc="Magnification filter."/>
+      <member type="Filter" name="mip_filter" doc="Mip level filter."/>
+      <member type="bool" name="is_anisotropic" doc="Anisotropic filtering enable."/>
+      <member type="u32" name="max_anisotropy" doc="Max anisotropy level. Max is 16."/>
+      <member type="AddressMode" name="address_u" doc="Address mode for U coordinate."/>
+      <member type="AddressMode" name="address_v" doc="Address mode for V coordinate."/>
+      <member type="AddressMode" name="address_w" doc="Address mode for W coordinate."/>
+      <member type="f32" name="min_lod" doc="Min LOD value."/>
+      <member type="f32" name="max_lod" doc="Max LOD value."/>
+      <member type="f32" name="mip_lod_bias" doc="Mip LOD bias value."/>
+      <member type="CompareOperation" name="comparison_op" doc="Comparison operation for comparison samplers."/>
+      <member type="StaticBorder" name="static_border_color" doc="Static border color. Used if any address mode is set to {AddressMode::Border}."/>
+      <member type="f32" name="border_color" array="4" doc="Border color. Used if any address mode is set to {AddressMode::Border} and static_border_color is set to {StaticBorder::Custom}."/>
+      <member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
+    </type>
 
-		<type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {PipelineLayout::} creation.">
-			<member type="SamplerDesc" name="sampler" doc="Sampler description."/>
-			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the sampler is used."/>
-			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-		</type>
+    <type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {PipelineLayout::} creation.">
+      <member type="SamplerDesc" name="sampler" doc="Sampler description."/>
+      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the sampler is used."/>
+      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+    </type>
 
-		<type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.">
-			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
-			<member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
-			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-			<member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
-		</type>
+    <type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.">
+      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
+      <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
+      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+      <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
+    </type>
 
-		<type name="PushDescriptor" category="struct" version="0.7.0" doc="Push descriptor. Used to push data directly to pipeline.">
-			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
-			<member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
-			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-		</type>
+    <type name="PushDescriptor" category="struct" version="0.7.0" doc="Push descriptor. Used to push data directly to pipeline.">
+      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
+      <member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
+      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+    </type>
 
-		<type name="DescriptorTableEntry" category="struct" version="0.7.0" doc="Descriptor table entry for {DescriptorTable::}.">
-			<member type="DescriptorType" name="type" doc="Descriptor type."/>
-			<member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-			<member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1."/>
-		</type>
+    <type name="DescriptorTableEntry" category="struct" version="0.7.0" doc="Descriptor table entry for {DescriptorTable::}.">
+      <member type="DescriptorType" name="type" doc="Descriptor type."/>
+      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+      <member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1."/>
+    </type>
 
-		<type name="DescriptorTable" category="struct" version="0.7.0" doc="Descriptor table for {PipelineLayout::} creation.">
-			<member type="DescriptorHeapType" name="type" doc="Descriptor heap type. Either Descriptor or Sampler."/>
-			<member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the table is used."/>
-			<member type="DescriptorTableEntry" name="entries" mod="const,span" doc="Descriptor table entries array."/>
-			<member type="size" name="entry_count" doc="Descriptor table entries count."/>
-			<member type="u32" name="space_overlap" doc="If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types."/>
-		</type>
+    <type name="DescriptorTable" category="struct" version="0.7.0" doc="Descriptor table for {PipelineLayout::} creation.">
+      <member type="DescriptorHeapType" name="type" doc="Descriptor heap type. Either Descriptor or Sampler."/>
+      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the table is used."/>
+      <member type="DescriptorTableEntry" name="entries" mod="const,span" doc="Descriptor table entries array."/>
+      <member type="size" name="entry_count" doc="Descriptor table entries count."/>
+      <member type="u32" name="space_overlap" doc="If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types."/>
+    </type>
 
-		<type name="PipelineLayoutDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
-			<member type="PushConstant" name="push_constants" mod="const,span" default="nullptr" doc="points to an array of {PushConstant::}."/>
-			<member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {PipelineLayoutDesc::push_constants} array."/>
-			<member type="PushDescriptor" name="push_descriptors" mod="const,span" default="nullptr" doc="points to an array of {PushDescriptor::}."/>
-			<member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {PipelineLayoutDesc::push_descriptors} array."/>
-			<member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
-			<member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {PipelineLayoutDesc::static_samplers} array."/>
-			<member type="DescriptorTable" name="descriptor_tables" mod="const,span" default="nullptr" doc="points to an array of {DescriptorTable::}."/>
-			<member type="size" name="descriptor_table_count" default="0" doc="counts the number of descriptor tables in the {PipelineLayoutDesc::descriptor_tables} array."/>
-		</type>
+    <type name="PipelineLayoutDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
+      <member type="PushConstant" name="push_constants" mod="const,span" default="nullptr" doc="points to an array of {PushConstant::}."/>
+      <member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {PipelineLayoutDesc::push_constants} array."/>
+      <member type="PushDescriptor" name="push_descriptors" mod="const,span" default="nullptr" doc="points to an array of {PushDescriptor::}."/>
+      <member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {PipelineLayoutDesc::push_descriptors} array."/>
+      <member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
+      <member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {PipelineLayoutDesc::static_samplers} array."/>
+      <member type="DescriptorTable" name="descriptor_tables" mod="const,span" default="nullptr" doc="points to an array of {DescriptorTable::}."/>
+      <member type="size" name="descriptor_table_count" default="0" doc="counts the number of descriptor tables in the {PipelineLayoutDesc::descriptor_tables} array."/>
+    </type>
 
-		<type name="DescriptorHeapDesc" category="struct" version="0.7.0" doc="Descriptor heap description for {DescriptorHeap::} creation.">
-			<member type="DescriptorHeapType" name="type" doc="indicates the type of descriptor heap to create (sampler or descriptor)."/>
-			<member type="DescriptorMemoryType" name="memory_type" doc="indicates where the descriptor heap will be allocated."/>
-			<member type="size" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
-		</type>
+    <type name="DescriptorHeapDesc" category="struct" version="0.7.0" doc="Descriptor heap description for {DescriptorHeap::} creation.">
+      <member type="DescriptorHeapType" name="type" doc="indicates the type of descriptor heap to create (sampler or descriptor)."/>
+      <member type="DescriptorMemoryType" name="memory_type" doc="indicates where the descriptor heap will be allocated."/>
+      <member type="size" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
+    </type>
 
-		<type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
-			<member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
-			<member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
-			<member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
-			<member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
-		</type>
+    <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
+      <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
+      <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
+      <member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
+      <member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
+    </type>
+
+    <!-- Queries -->
+    <type name="QueryStructHeader" category="struct" version="0.7.0" doc="Query struct header. Used as a header for all query structs.">
+      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+    </type>
+    
+    <type name="DeviceDescriptorHeapProperties" category="struct" version="0.7.0" doc="Device descriptor heap properties. Used to query descriptor heap support and limits.">
+      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceDescriptorHeapProperties}."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+
+      <!-- Descriptor Heap -->
+      <member type="size" name="max_descriptor_heap_size" doc="Maximum number of descriptors in a single descriptor heap."/>
+      <member type="size" name="max_sampler_heap_size" doc="Maximum number of samplers in a single descriptor heap."/>
+      <member type="size" name="max_sampler_heap_size_with_embedded" doc="Maximum number of samplers in a single descriptor heap, if embedded samplers are used."/>
+      <member type="size" name="descriptor_increment_size" doc="Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets."/>
+      <member type="size" name="sampler_increment_size" doc="Size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
+    </type>
+
+    <type name="DeviceCommandQueuesProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
+      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. @wis_must be {QueryPropertyType::DeviceCommandQueuesProperties}.."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+
+      <!-- Command Queues -->
+      <member type="bool" name="supported_queues" array="5" doc="Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
+      <member type="CommandQueuePriority" name="max_queue_priority" array="5" doc="Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
+    </type>
 
 
-	</types>
+  </types>
 </registry>

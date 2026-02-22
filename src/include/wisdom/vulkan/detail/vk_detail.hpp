@@ -130,14 +130,15 @@ struct VKDeviceFeatures {
     bool global_priority                   : 1 = false;
 
     // Properties
-    uint16_t resource_desc_size        = 0;
-    uint16_t sampler_desc_size         = 0;
-    uint32_t descriptor_heap_alignment = 0;
-    uint32_t sampler_heap_alignment    = 0;
-    uint32_t min_descriptor_heap_size  = 0;
-    uint32_t min_sampler_heap_size     = 0;
-    uint64_t max_descriptor_heap_size  = 0;
-    uint64_t max_sampler_heap_size     = 0;
+    uint16_t resource_desc_size                  = 0;
+    uint16_t sampler_desc_size                   = 0;
+    uint32_t descriptor_heap_alignment           = 0;
+    uint32_t sampler_heap_alignment              = 0;
+    uint32_t min_descriptor_heap_size            = 0;
+    uint32_t min_sampler_heap_size               = 0;
+    uint64_t max_descriptor_heap_size            = 0;
+    uint64_t max_sampler_heap_size               = 0;
+    uint64_t max_sampler_heap_size_with_embedded = 0;
 };
 
 //-----------------------------------------------------------------------------
