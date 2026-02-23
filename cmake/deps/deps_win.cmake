@@ -84,7 +84,7 @@ if (NOT dxma_SOURCE_DIR)
     CPMAddPackage(
             NAME dxma
             GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
-            VERSION 3.0.1
+            GIT_TAG origin/master
             DOWNLOAD_ONLY TRUE
     )
     # Expose source dir

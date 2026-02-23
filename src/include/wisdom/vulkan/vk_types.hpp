@@ -85,6 +85,13 @@ struct VKDescriptorHeapImpl {
     VkDevice                      device;
     detail::VKDeviceControlBlock* device_header;
 };
+
+struct VKBufferImpl {
+    VkBuffer                      buffer;
+    VmaAllocation                 allocation;
+    void*                         mapped_ptr;
+    detail::VKDeviceControlBlock* device_header;
+};
 } // namespace impl
 } // namespace wis
 

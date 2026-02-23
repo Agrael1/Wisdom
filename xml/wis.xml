@@ -1,107 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-	<includes>
-		<include>structs2.xml</include>
-		<include>validation.xml</include>
-	</includes>
+  <includes>
+    <include>structs2.xml</include>
+    <include>validation.xml</include>
+  </includes>
 
-	<handles>
-		<handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
-			<impl for="vk" size="6"/>
-			<impl for="dx" size="1"/>
-		</handle>
-		<handle name="PipelineLayout" version="0.7.0" doc="Class representing a pipeline layout, which defines resource bindings for shaders.">
-			<impl for="vk" size="5"/>
-			<impl for="dx" size="1"/>
-		</handle>
-		<handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">
-			<impl for="vk" size="3"/>
-			<impl for="dx" size="1"/>
-		</handle>
-		<handle name="Fence" version="0.7.0" doc="Class representing a fence for GPU-CPU and GPU-GPU synchronization.">
-			<impl for="vk" size="3"/>
-			<impl for="dx" size="2"/>
+  <handles>
+    <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
+      <impl for="vk" size="4"/>
+      <impl for="dx" size="3"/>
+    </handle>
+    <handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
+      <impl for="vk" size="6"/>
+      <impl for="dx" size="1"/>
+    </handle>
+    <handle name="PipelineLayout" version="0.7.0" doc="Class representing a pipeline layout, which defines resource bindings for shaders.">
+      <impl for="vk" size="5"/>
+      <impl for="dx" size="1"/>
+    </handle>
+    <handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="1"/>
+    </handle>
+    <handle name="Fence" version="0.7.0" doc="Class representing a fence for GPU-CPU and GPU-GPU synchronization.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="2"/>
       <view size="1"/>
-		</handle>
-		<handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
-			<impl for="vk" size="4"/>
-			<impl for="dx" size="1"/>
+    </handle>
+    <handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
+      <impl for="vk" size="4"/>
+      <impl for="dx" size="1"/>
       <view size="1"/>
-		</handle>
-		<handle name="CommandQueue" version="0.7.0" doc="Class representing a command queue for submitting command lists to the GPU.">
-			<impl for="vk" size="4"/>
-			<impl for="dx" size="1"/>
-		</handle>
-		<handle name="Device" version="0.7.0" doc="Central class representing logical device.">
-			<impl for="vk" size="3"/>
-			<impl for="dx" size="5"/>
-		</handle>
-		<handle name="AdapterQuery" version="0.7.0" doc="Class that contains a snapshot of adapters that are present on the system.">
-			<impl for="vk" size="4"/>
-			<impl for="dx" size="4"/>
-		</handle>
-		<handle name="Instance" version="0.7.0" doc="Class for creating adapters.">
-			<impl for="vk" size="3"/>
-			<impl for="dx" size="2"/>
-		</handle>
-	</handles>
+    </handle>
+    <handle name="CommandQueue" version="0.7.0" doc="Class representing a command queue for submitting command lists to the GPU.">
+      <impl for="vk" size="4"/>
+      <impl for="dx" size="1"/>
+    </handle>
+    <handle name="Device" version="0.7.0" doc="Central class representing logical device.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="5"/>
+    </handle>
+    <handle name="AdapterQuery" version="0.7.0" doc="Class that contains a snapshot of adapters that are present on the system.">
+      <impl for="vk" size="4"/>
+      <impl for="dx" size="4"/>
+    </handle>
+    <handle name="Instance" version="0.7.0" doc="Class for creating adapters.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="2"/>
+    </handle>
+  </handles>
 
-	<functions>
-		<!-- Instance Functions -->
-		<func name="CreateInstance" version="0.7.0" doc="Creates the {Instance::} with extensions, specified in extension array.">
-			<ret type="Instance" name="instance" result="true" doc="points to {Instance::}, which is initialized on success."/>
-			<arg type="DebugDesc" name="debug_desc" mod="const,ptr" default="nullptr" doc="points to {DebugDesc::}, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled."/>
-			<arg type="InstanceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {InstanceExtensionHeader::}."/>
-			<arg type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateInstance::extensions} array."/>
-		</func>
+  <functions>
+    <!-- Instance Functions -->
+    <func name="CreateInstance" version="0.7.0" doc="Creates the {Instance::} with extensions, specified in extension array.">
+      <ret type="Instance" name="instance" result="true" doc="points to {Instance::}, which is initialized on success."/>
+      <arg type="DebugDesc" name="debug_desc" mod="const,ptr" default="nullptr" doc="points to {DebugDesc::}, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled."/>
+      <arg type="InstanceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {InstanceExtensionHeader::}."/>
+      <arg type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateInstance::extensions} array."/>
+    </func>
 
-		<func name="QueryAdapters" version="0.7.0" for="Instance" mod="const" doc="Queries all the system adapters and allows to iterate through them. The order of adapters depends on `preference`: for MinConsumption - DirectX 12: Integrated, Discrete, External, Software; Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU. For Performance - DirectX 12: External, Discrete, Integrated, Software; Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.">
-			<ret type="AdapterQuery" name="query" result="true" doc="points to {AdapterQuery::}, which is initialized on success."/>
-			<arg type="AdapterPreference" name="preference" default="Performance" doc="defines the order in which adapters are listed."/>
-		</func>
+    <func name="QueryAdapters" version="0.7.0" for="Instance" mod="const" doc="Queries all the system adapters and allows to iterate through them. The order of adapters depends on `preference`: for MinConsumption - DirectX 12: Integrated, Discrete, External, Software; Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU. For Performance - DirectX 12: External, Discrete, Integrated, Software; Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.">
+      <ret type="AdapterQuery" name="query" result="true" doc="points to {AdapterQuery::}, which is initialized on success."/>
+      <arg type="AdapterPreference" name="preference" default="Performance" doc="defines the order in which adapters are listed."/>
+    </func>
 
-		<!-- AdapterQuery Functions -->
-		<func name="GetAdapterCount" version="0.7.0" for="AdapterQuery" mod="const" doc="Returns the number of adapters present on the system at the time of the query.">
-			<ret type="size" name="count" doc="is a number of adapters present on the system."/>
-		</func>
-		<func name="GetAdapterDesc" version="0.7.0" for="AdapterQuery" mod="const" doc="Returns the description of the adapter at given index.">
-			<ret type="AdapterDesc" name="desc" result="true" doc="points to {AdapterDesc::}, which is initialized on success."/>
-			<arg type="size" name="index" doc="defines the index of the adapter to get the description for. It @wis_must be less than the value returned by {GetAdapterCount::}."/>
-		</func>
-		<func name="CreateDevice" version="0.7.0" for="AdapterQuery" mod="const" doc="Creates the device for the adapter at given index.">
-			<ret type="Device" name="device" result="true" doc="points to {Device::}, which is initialized on success."/>
-			<arg type="size" name="index" doc="defines the index of the adapter to create the device for. It @wis_must be less than the value returned by {GetAdapterCount::}."/>
-			<arg type="DeviceRequirements" name="requirements" mod="const,ref" default="nullptr" doc="points to {DeviceRequirements::}, which defines required features and properties for device creation."/>
-		</func>
+    <!-- AdapterQuery Functions -->
+    <func name="GetAdapterCount" version="0.7.0" for="AdapterQuery" mod="const" doc="Returns the number of adapters present on the system at the time of the query.">
+      <ret type="size" name="count" doc="is a number of adapters present on the system."/>
+    </func>
+    <func name="GetAdapterDesc" version="0.7.0" for="AdapterQuery" mod="const" doc="Returns the description of the adapter at given index.">
+      <ret type="AdapterDesc" name="desc" result="true" doc="points to {AdapterDesc::}, which is initialized on success."/>
+      <arg type="size" name="index" doc="defines the index of the adapter to get the description for. It @wis_must be less than the value returned by {GetAdapterCount::}."/>
+    </func>
+    <func name="CreateDevice" version="0.7.0" for="AdapterQuery" mod="const" doc="Creates the device for the adapter at given index.">
+      <ret type="Device" name="device" result="true" doc="points to {Device::}, which is initialized on success."/>
+      <arg type="size" name="index" doc="defines the index of the adapter to create the device for. It @wis_must be less than the value returned by {GetAdapterCount::}."/>
+      <arg type="DeviceRequirements" name="requirements" mod="const,ref" default="nullptr" doc="points to {DeviceRequirements::}, which defines required features and properties for device creation."/>
+    </func>
 
-		<!-- Device Functions -->
-		<func name="CreateCommandQueue" version="0.7.0" for="Device" mod="const" doc="Creates a command queue of given type.">
-			<ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
-			<arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
-		</func>
-		<func name="CreateCommandList" version="0.7.0" for="Device" mod="const" doc="Creates a command list of given type.">
-			<ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
-			<arg type="CommandQueueType" name="type" doc="defines the type of the command list to create."/>
-		</func>
-		<func name="CreateFence" version="0.7.0" for="Device" mod="const"  doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
-			<ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
-			<arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
-		</func>
-		<func name="GetResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
-			<ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
-		</func>
-		<func name="CreatePipelineLayout" version="0.7.0" for="Device" mod="const" doc="Creates a pipeline layout with given descriptor.">
-			<ret type="PipelineLayout" name="layout" result="true" doc="points to {PipelineLayout::}, which is initialized on success."/>
-			<arg type="PipelineLayoutDesc" name="desc" mod="const,ref" doc="points to {PipelineLayoutDesc::}, which describes the pipeline layout to create."/>
-		</func>
-		<func name="CreateDescriptorHeap" version="0.7.0" for="Device" mod="const" doc="Creates a descriptor storage with given descriptor.">
-			<ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
-			<arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
-		</func>
+    <!-- Device Functions -->
+    <func name="CreateCommandQueue" version="0.7.0" for="Device" mod="const" doc="Creates a command queue of given type.">
+      <ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
+      <arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
+    </func>
+    <func name="CreateCommandList" version="0.7.0" for="Device" mod="const" doc="Creates a command list of given type.">
+      <ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
+      <arg type="CommandQueueType" name="type" doc="defines the type of the command list to create."/>
+    </func>
+    <func name="CreateFence" version="0.7.0" for="Device" mod="const"  doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
+      <ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
+      <arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
+    </func>
+    <func name="GetResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
+      <ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
+    </func>
+    <func name="CreatePipelineLayout" version="0.7.0" for="Device" mod="const" doc="Creates a pipeline layout with given descriptor.">
+      <ret type="PipelineLayout" name="layout" result="true" doc="points to {PipelineLayout::}, which is initialized on success."/>
+      <arg type="PipelineLayoutDesc" name="desc" mod="const,ref" doc="points to {PipelineLayoutDesc::}, which describes the pipeline layout to create."/>
+    </func>
+    <func name="CreateDescriptorHeap" version="0.7.0" for="Device" mod="const" doc="Creates a descriptor storage with given descriptor.">
+      <ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
+      <arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
+    </func>
     <func name="QueryProperties" version="0.7.0" for="Device" mod="const" doc="Queries the properties of the device.">
       <arg type="void" name="properties" mod="ptr" doc="points to one of the query structs, which is filled with device properties."/>
     </func>
-    
+
     <!-- Fence Functions -->
     <func for="Fence" name="GetCompletedValue" version="0.7.0" mod="const" doc="Get the current value of the fence.">
       <ret type="u64" name="value" doc="Value of the fence."/>
@@ -117,13 +121,13 @@
       <ret type="Result" name="result" doc="Result of operation."/>
       <arg type="u64" name="value" doc="Value to signal."/>
     </func>
-		
+
     <!-- Command Queue Functions -->
     <func for="CommandQueue" name="Submit" version="0.7.0" mod="const" doc="Executes the command lists.">
       <ret type="Result" name="result" doc="Result of operation."/>
       <arg type="CommandListView" name="lists" mod="const,span" doc="The command lists to execute."/>
       <arg type="size" name="count" doc="The number of command lists to execute."/>
-    </func> 
+    </func>
 
     <func for="CommandQueue" name="SignalFence" version="0.7.0" mod="const" doc="Enqueue the signal to the queue, that gets executed after all the work has been done.">
       <ret type="Result" name="result" doc="Result of operation."/>
@@ -137,7 +141,13 @@ Can still be enqueued after the signal.">
       <arg type="FenceView" name="fence" doc="The fence to wait on."/>
       <arg type="u64" name="value" doc="The value to wait the fence to reach."/>
     </func>
-		
-	</functions>
+
+    <!-- Resource Allocator Functions -->
+    <func for="ResourceAllocator" name="CreateBuffer" version="0.7.0" mod="const" doc="Creates a buffer with given descriptor.">
+      <ret type="Buffer" name="buffer" result="true" doc="points to {Buffer::}, which is initialized on success."/>
+      <arg type="BufferDesc" name="desc" mod="const,ref" doc="points to {BufferDesc::}, which describes the buffer to create."/>
+    </func>
+
+  </functions>
 
 </registry>

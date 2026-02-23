@@ -116,6 +116,13 @@
       <member type="size" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
     </type>
 
+    <type name="BufferDesc" category="struct" version="0.7.0" doc="Buffer description for {Buffer::} creation.">
+      <member type="u64" name="size_bytes" doc="Size of the buffer in bytes."/>
+      <member type="BufferUsageFlags" name="usage_flags" doc="Buffer usage flags. Describe how the buffer will be used."/>
+      <member type="MemoryType" name="memory_type" doc="indicates where the buffer will be allocated."/>
+      <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the buffer."/>
+    </type>
+
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
       <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
@@ -128,7 +135,7 @@
       <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed."/>
       <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
     </type>
-    
+
     <type name="DeviceDescriptorHeapProperties" category="struct" version="0.7.0" doc="Device descriptor heap properties. Used to query descriptor heap support and limits.">
       <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceDescriptorHeapProperties}."/>
       <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>

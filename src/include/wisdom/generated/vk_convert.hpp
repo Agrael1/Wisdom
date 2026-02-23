@@ -143,6 +143,70 @@ inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
     }
 }
 
+inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
+{
+    switch (value) {
+    case WisMemoryTypeDeviceLocal:
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    case WisMemoryTypeUpload:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    case WisMemoryTypeReadback:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    case WisMemoryTypeGPUUpload:
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    default:
+        return static_cast<VkMemoryPropertyFlags>(0);
+    }
+}
+
+inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
+{
+    VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
+    if (value & WisBufferUsageFlagsCopySrc) {
+        result |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+    if (value & WisBufferUsageFlagsCopyDst) {
+        result |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    }
+    if (value & WisBufferUsageFlagsConstantBuffer) {
+        result |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    }
+    if (value & WisBufferUsageFlagsIndexBuffer) {
+        result |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    }
+    if (value & WisBufferUsageFlagsVertexBuffer) {
+        result |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    }
+    if (value & WisBufferUsageFlagsIndirectBuffer) {
+        result |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+    }
+    if (value & WisBufferUsageFlagsStorageBuffer) {
+        result |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    }
+    if (value & WisBufferUsageFlagsAccelerationStructureBuffer) {
+        result |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    }
+    if (value & WisBufferUsageFlagsAccelerationStructureInput) {
+        result |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    }
+    if (value & WisBufferUsageFlagsShaderBindingTable) {
+        result |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+    }
+    return result;
+}
+
+inline VmaAllocationCreateFlags convert_vk(WisMemoryFlags value) noexcept
+{
+    VmaAllocationCreateFlags result = static_cast<VmaAllocationCreateFlags>(0);
+    if (value & WisMemoryFlagsDedicatedAllocation) {
+        result |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    }
+    if (value & WisMemoryFlagsMapped) {
+        result |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    }
+    return result;
+}
+
 } // namespace detail
 } // namespace wis
 #endif // WISDOM_VK_CONVERT_HPP

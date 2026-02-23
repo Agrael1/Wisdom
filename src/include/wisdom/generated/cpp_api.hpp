@@ -191,6 +191,39 @@ enum class QueryPropertyType {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Memory type for resource allocation.
+ *
+ * */
+enum class MemoryType {
+    Default = 0, ///< Default memory type. Alias for `wis::MemoryType::DeviceLocal`
+    /**
+     * @brief
+     * Default memory type.
+     * Local device memory, most efficient for rendering.
+     * */
+    DeviceLocal = 0,
+    /**
+     * @brief
+     * Upload memory type.
+     * Used for data that is uploaded to the GPU Local memory using copy operations.
+     * */
+    Upload = 1,
+    /**
+     * @brief
+     * Readback memory type.
+     * Used for data that is read back from the GPU Local memory using copy operations.
+     * */
+    Readback = 2,
+    /**
+     * @brief
+     * GPU upload memory type.
+     * Used for data that is directly uploaded to the GPU Local memory using copy operations.
+     * Support of this memory @wis_must be queried.
+     * */
+    GPUUpload = 3,
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -207,6 +240,56 @@ enum class AdapterFlags : uint32_t {
 enum class SamplerFlags : uint32_t {
     None                     = 0, ///< No flags set.
     NonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer usage flags.
+ * Determine how the buffer can be used throughout its lifetime.
+ *
+ * */
+enum class BufferUsageFlags : uint32_t {
+    None                        = 0, ///< No flags set. Buffer is not used.
+    CopySrc                     = (1 << 0), ///< Buffer is used as a source for copy operations.
+    CopyDst                     = (1 << 1), ///< Buffer is used as a destination for copy operations.
+    ConstantBuffer              = (1 << 2), ///< Buffer is used as a constant buffer.
+    IndexBuffer                 = (1 << 3), ///< Buffer is used as an index buffer.
+    VertexBuffer                = (1 << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
+    IndirectBuffer              = (1 << 5), ///< Buffer is used as an indirect buffer.
+    StorageBuffer               = (1 << 6), ///< Buffer is used as a storage unordered access buffer.
+    AccelerationStructureBuffer = (1 << 7), ///< Buffer is used as an acceleration structure buffer.
+    AccelerationStructureInput  = (1 << 8), ///< Buffer is used as a read only acceleration instance input buffer.
+    ShaderBindingTable          = (1 << 9), ///< Buffer is used as a shader binding table buffer.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Memory flags.
+ * Determine optional properties of the memory allocation.
+ *
+ * */
+enum class MemoryFlags : uint32_t {
+    None = 0, ///< No flags set. Memory is regular.
+    /**
+     * @brief
+     * Memory is dedicated.
+     * Used for resources that require dedicated memory.
+     * Useful for big resources that are not shared with other resources.
+     * E.g. fullscreen textures, big buffers, etc.
+     * */
+    DedicatedAllocation = (1 << 0),
+    /**
+     * @brief
+     * Memory is mapped.
+     * Used in combination with `wis::MemoryType::Upload` or `wis::MemoryType::Readback` to map memory for CPU access.
+     * */
+    Mapped = (1 << 1),
+    /**
+     * @brief
+     * Memory is exportable.
+     * If set, memory can be exported to other processes or APIs.
+     * Works only with Device Local memory (`wis::MemoryType::Default`) and only on AllocateXMemory calls.
+     * Outside of AllocateXMemory the flag is ignored.
+     * */
+    Exportable = (1 << 2),
 };
 
 //==============================================================
@@ -364,6 +447,17 @@ struct DescriptorHeapDesc {
     wis::DescriptorHeapType   type; ///< indicates the type of descriptor heap to create (sampler or descriptor).
     wis::DescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
     std::size_t               descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer description for wis::Buffer creation.
+ *
+ * */
+struct BufferDesc {
+    std::uint64_t         size_bytes; ///< Size of the buffer in bytes.
+    wis::BufferUsageFlags usage_flags; ///< Buffer usage flags. Describe how the buffer will be used.
+    wis::MemoryType       memory_type; ///< indicates where the buffer will be allocated.
+    wis::MemoryFlags      memory_flags; ///< The flags of the memory to allocate for the buffer.
 };
 
 /**

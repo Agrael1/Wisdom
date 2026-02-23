@@ -21,6 +21,24 @@ struct VKDeviceRequirements {
     wis::span<wis::VKDeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
 };
 
+struct VKBufferDeleter {
+    void operator()(WisVKBuffer* handle) noexcept
+    {
+        ::wisVKDestroyBuffer(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+class VKBuffer : public wis::impl::Implements<wis::impl::VKBufferImpl, WisVKBuffer, wis::VKBufferDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKDescriptorHeapDeleter {
     void operator()(WisVKDescriptorHeap* handle) noexcept
     {
@@ -73,6 +91,22 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
+     * @param desc points to wis::BufferDesc, which describes the buffer to create.
+     * @param out_result denoting the outcome of operation.
+     * @return buffer points to wis::Buffer, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKBuffer CreateBuffer(const wis::BufferDesc& desc,
+                                                    wis::Result&           out_result) const noexcept
+    {
+        wis::VKBuffer buffer;
+        out_result = convert_result(::wisVKResourceAllocatorCreateBuffer(&_impl_storage,
+                                                                         reinterpret_cast<const WisBufferDesc*>(&desc),
+                                                                         buffer.GetStorage()));
+        return buffer;
+    }
 };
 
 struct VKFenceDeleter {
