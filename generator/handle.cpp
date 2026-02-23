@@ -70,6 +70,36 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
                 ref.sizes[1] = size;
             }
         }
+
+        // view sizes
+        bool has_view = false;
+        for (auto* impl = type->FirstChildElement("view"); impl;
+             impl       = impl->NextSiblingElement("view")) {
+            has_view      = true;
+            auto impl_for = impl->FindAttribute("for");
+            if (!impl_for) {
+                // if "for" attribute is missing, we can assume it's for both
+                uint32_t size = impl->UnsignedAttribute("size", 0);
+                for (size_t i = 0; i < ref.view_sizes.size(); ++i) {
+                    ref.view_sizes[i] = size;
+                }
+                break;
+            }
+
+            auto impl_for_code = ImplCode(impl_for->Value());
+
+            uint32_t size = impl->UnsignedAttribute("size", 0);
+            if (impl_for_code == ImplementedFor::DX12) {
+                ref.sizes[0] = size;
+            } else if (impl_for_code == ImplementedFor::Vulkan) {
+                ref.sizes[1] = size;
+            }
+        }
+
+        if (has_view) {
+            views_in_order.emplace_back(name);
+            view_set.insert(name);
+        }
     }
 }
 
@@ -77,12 +107,26 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 std::string Generator::MakeCHandle(const WisHandle& s, std::string_view impl, DocKind kind)
 {
     ImplementedFor impl_code = ImplCode(impl);
-    auto           full_name = GetCFullTypename(s.name, GetImplString(impl_code));
+    auto           impl_string = GetImplString(impl_code);
+    auto           full_name   = GetCFullTypename(s.name, impl_string);
     std::string    st_decl   = wis::format("WIS_DEFINE_HANDLE({},{});\n", full_name, s.GetSize(impl_code));
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
     }
+    if (s.GetViewSize(impl_code) > 0) {
+        std::string view_decl = wis::format("WIS_DEFINE_HANDLE_VIEW({},{});\n", full_name, s.GetViewSize(impl_code));
+        st_decl += view_decl;
+    }
+
+    if (kind == DocKind::Full && s.GetViewSize(impl_code) > 0) {
+        // Add view extraction function
+        st_decl += wis::format("\nstatic inline {}View wisGet{}{}View(const {}* handle){{\n", full_name, impl_string, s.name, full_name);
+        st_decl += wis::format("    {}View v;\n", full_name);
+        st_decl += "    memcpy(&v, handle, sizeof(v));\n"
+                   "    return v;\n}\n";
+    }
+
     return st_decl;
 }
 
@@ -107,6 +151,11 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
                                       full_name,
                                       impl_string,
                                       s.name);
+    std::string view_decl;
+    if (s.GetViewSize(impl_code) > 0) {
+        view_decl = wis::format("using {}{}View = {}View;\n", impl_string, s.name, full_name);
+    }
+
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
@@ -115,6 +164,28 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
     // Use constructor from base
     st_decl += "    using ImplType::ImplType;\n";
     st_decl += "public:\n";
+
+    if (s.GetViewSize(impl_code) > 0) {
+        // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
+        st_decl += wis::format(
+                "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
+                "        {}{}View v;\n"
+                "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
+                "        return v;\n"
+                "    }}\n",
+                impl_string,
+                s.name,
+                impl_string,
+                s.name);
+
+        // add conversion operator to view
+        st_decl += wis::format(
+                "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
+                "        return GetView();\n"
+                "    }}\n",
+                impl_string,
+                s.name);
+    }
 
     // Add all the functions
     for (const auto& func_name : s.functions) {
@@ -130,7 +201,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
     deleter += "    }\n};\n";
 
     st_decl += "};\n";
-    return deleter + st_decl;
+    return deleter + view_decl + st_decl;
 }
 
 //-----------------------------------------------------------------------------

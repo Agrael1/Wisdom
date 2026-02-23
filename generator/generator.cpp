@@ -265,7 +265,8 @@ void Generator::WriteCDependentAPI(std::filesystem::path dir)
     file_dx << R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_C_DX12_API_H
 #define WISDOM_C_DX12_API_H
-#include<wisdom/generated/c_api.h>
+#include <wisdom/generated/c_api.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -275,6 +276,7 @@ extern "C" {
 #ifndef WISDOM_C_VK_API_H
 #define WISDOM_C_VK_API_H
 #include <wisdom/generated/c_api.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -364,6 +366,14 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl_dx), GetCFullTypename(handle_def.name));
     }
 
+    // Write Views for handles
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
+            file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, impl_dx), GetCFullTypename(handle_def.name));
+        }
+    }
+
     file_w << "\n\n//==============================================================\n"
               "// Variants\n"
               "//==============================================================\n\n";
@@ -386,6 +396,30 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
                               wis::format("wis{}{}{}", impl_dx, func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name));
     }
 
+    // Write functions that convert handles to views
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
+            file_w << wis::format("#define {} {}\n",
+                                  wis::format("wisGet{}View", handle_def.name),
+                                  wis::format("wisGet{}{}View", impl_dx, handle_def.name));
+        }
+    }
+
+        file_w << R"(
+#define wisGetView(handle) \ 
+    _Generic((handle), \ 
+)";
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
+            file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_dx), impl_dx, handle_def.name);
+            file_w << wis::format("{}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_dx), impl_dx, handle_def.name);
+        }
+    }
+    file_w << "default: (void)0 \\\n)(handle)";
+
+
     file_w << R"(
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -399,6 +433,14 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl_vk), GetCFullTypename(handle_def.name));
+    }
+
+    // Write Views for handles
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
+            file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, impl_vk), GetCFullTypename(handle_def.name));
+        }
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -422,6 +464,30 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
                               wis::format("wis{}{}", func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name),
                               wis::format("wis{}{}{}", impl_vk, func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name));
     }
+
+    // Write functions that convert handles to views
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
+            file_w << wis::format("#define {} {}\n",
+                                  wis::format("wisGet{}View", handle_def.name),
+                                  wis::format("wisGet{}{}View", impl_vk, handle_def.name));
+        }
+    }
+
+        file_w << R"(
+#define wisGetView(handle) \ 
+    _Generic((handle), \ 
+)";
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
+            file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_vk), impl_vk, handle_def.name);
+            file_w << wis::format("{}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_vk), impl_vk, handle_def.name);
+        }
+    }
+    file_w << R"(default: (void)0 \ 
+    )(handle))";
 
     file_w << R"(
 #else
@@ -559,6 +625,14 @@ namespace wis {
         file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx));
     }
 
+    // Write Views for handles
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
+            file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx) + "View");
+        }
+    }
+
     file_w << "\n\n//==============================================================\n"
               "// Variants\n"
               "//==============================================================\n\n";
@@ -597,6 +671,14 @@ namespace wis {
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_vk));
+    }
+
+    // Write Views for handles
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
+            file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_vk) + "View");
+        }
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -795,6 +877,9 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     if (delegate_map.contains(type_name)) {
         return TypeKind::FuncPointer;
     }
+    if (view_set.contains(type_name.substr(0, type_name.size() - 4))) {
+        return TypeKind::View; // A view, but we don't need extra type
+    }
     return TypeKind::Base;
 }
 
@@ -826,6 +911,7 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::FuncPointer:
         return wis::format("Wis{}", type);
     case TypeKind::Handle:
+    case TypeKind::View:
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::Function: {
         auto& func = function_map.at(type);
@@ -854,6 +940,7 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
         return wis::format("wis::{}", type);
     case TypeKind::Variant:
     case TypeKind::Handle:
+    case TypeKind::View:
     case TypeKind::Function:
         return wis::format("wis::{}{}", impl, type);
     case TypeKind::Union:

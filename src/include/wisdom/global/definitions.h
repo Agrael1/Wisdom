@@ -78,6 +78,11 @@
         uint64_t opaque[size];        \
     } name
 
+#define WIS_DEFINE_HANDLE_VIEW(name, size) \
+    typedef struct name##View {            \
+        uint64_t opaque[size];             \
+    } name##View
+
 #define WIS_DEFINE_DEVICE_EXT_HANDLE(name, size)     \
     typedef struct name {                            \
         const WisDeviceExtensionHeader ext_header;   \

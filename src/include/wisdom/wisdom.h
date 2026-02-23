@@ -28,6 +28,8 @@ typedef struct WisDX12CommandQueue      WisCommandQueue;
 typedef struct WisDX12Device            WisDevice;
 typedef struct WisDX12AdapterQuery      WisAdapterQuery;
 typedef struct WisDX12Instance          WisInstance;
+typedef struct WisDX12FenceView         WisFenceView;
+typedef struct WisDX12CommandListView   WisCommandListView;
 
 //==============================================================
 // Variants
@@ -65,7 +67,19 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisFenceGetCompletedValue      wisDX12FenceGetCompletedValue
 #define wisFenceWait                   wisDX12FenceWait
 #define wisFenceSignal                 wisDX12FenceSignal
+#define wisCommandQueueSubmit          wisDX12CommandQueueSubmit
+#define wisCommandQueueSignalFence     wisDX12CommandQueueSignalFence
+#define wisCommandQueueWaitFence       wisDX12CommandQueueWaitFence
+#define wisGetFenceView                wisGetDX12FenceView
+#define wisGetCommandListView          wisGetDX12CommandListView
 
+#define wisGetView(handle)                                        \
+    _Generic((handle),                                            \
+            const WisDX12Fence*: wisGetDX12FenceView,             \
+            WisDX12Fence*: wisGetDX12FenceView,                   \
+            const WisDX12CommandList*: wisGetDX12CommandListView, \
+            WisDX12CommandList*: wisGetDX12CommandListView,       \
+            default: (void)0)(handle)
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
 
@@ -82,6 +96,8 @@ typedef struct WisVKCommandQueue      WisCommandQueue;
 typedef struct WisVKDevice            WisDevice;
 typedef struct WisVKAdapterQuery      WisAdapterQuery;
 typedef struct WisVKInstance          WisInstance;
+typedef struct WisVKFenceView         WisFenceView;
+typedef struct WisVKCommandListView   WisCommandListView;
 
 //==============================================================
 // Variants
@@ -119,7 +135,19 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisFenceGetCompletedValue      wisVKFenceGetCompletedValue
 #define wisFenceWait                   wisVKFenceWait
 #define wisFenceSignal                 wisVKFenceSignal
+#define wisCommandQueueSubmit          wisVKCommandQueueSubmit
+#define wisCommandQueueSignalFence     wisVKCommandQueueSignalFence
+#define wisCommandQueueWaitFence       wisVKCommandQueueWaitFence
+#define wisGetFenceView                wisGetVKFenceView
+#define wisGetCommandListView          wisGetVKCommandListView
 
+#define wisGetView(handle)                                    \
+    _Generic((handle),                                        \
+            const WisVKFence*: wisGetVKFenceView,             \
+            WisVKFence*: wisGetVKFenceView,                   \
+            const WisVKCommandList*: wisGetVKCommandListView, \
+            WisVKCommandList*: wisGetVKCommandListView,       \
+            default: (void)0)(handle)
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
 #endif // API selection

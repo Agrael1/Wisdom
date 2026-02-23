@@ -461,6 +461,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
                                     p.name);
                 break;
             case TypeKind::None:
+            case TypeKind::View:
             case TypeKind::Base:
                 body += p.name;
                 break;

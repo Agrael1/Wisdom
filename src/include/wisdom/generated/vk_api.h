@@ -2,6 +2,7 @@
 #ifndef WISDOM_C_VK_API_H
 #define WISDOM_C_VK_API_H
 #include <wisdom/generated/c_api.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,12 +30,28 @@ WIS_DEFINE_HANDLE(WisVKResourceAllocator, 3);
  *
  * */
 WIS_DEFINE_HANDLE(WisVKFence, 3);
+WIS_DEFINE_HANDLE_VIEW(WisVKFence, 1);
+
+static inline WisVKFenceView wisGetVKFenceView(const WisVKFence* handle)
+{
+    WisVKFenceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
 WIS_DEFINE_HANDLE(WisVKCommandList, 4);
+WIS_DEFINE_HANDLE_VIEW(WisVKCommandList, 1);
+
+static inline WisVKCommandListView wisGetVKCommandListView(const WisVKCommandList* handle)
+{
+    WisVKCommandListView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
@@ -318,6 +335,43 @@ WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self,
  * */
 WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self,
                                       uint64_t          value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Executes the command lists.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param lists The command lists to execute.
+ * @param count The number of command lists to execute.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandQueueSubmit(const WisVKCommandQueue*    self,
+                                             const WisVKCommandListView* lists,
+                                             size_t                      count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been done.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence The fence to signal.
+ * @param value The value to signal the fence with.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKCommandQueue* self,
+                                                  WisVKFenceView           fence,
+                                                  uint64_t                 value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+ * Can still be enqueued after the signal.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence The fence to wait on.
+ * @param value The value to wait the fence to reach.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQueue* self,
+                                                WisVKFenceView           fence,
+                                                uint64_t                 value);
 
 #ifdef __cplusplus
 }

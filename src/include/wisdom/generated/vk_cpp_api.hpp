@@ -81,6 +81,7 @@ struct VKFenceDeleter {
         ::wisVKDestroyFence(handle);
     }
 };
+using VKFenceView = WisVKFenceView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
  *
@@ -91,6 +92,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD VKFenceView GetView() const noexcept
+    {
+        VKFenceView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKFenceView() const noexcept
+    {
+        return GetView();
+    }
     /**
      * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
      * @return u64 Value of the fence.
@@ -133,6 +144,7 @@ struct VKCommandListDeleter {
         ::wisVKDestroyCommandList(handle);
     }
 };
+using VKCommandListView = WisVKCommandListView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
@@ -143,6 +155,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD VKCommandListView GetView() const noexcept
+    {
+        VKCommandListView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKCommandListView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct VKCommandQueueDeleter {
@@ -161,6 +183,47 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Executes the command lists.
+     * @param lists The command lists to execute.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Submit(wis::span<const wis::VKCommandListView> lists) const noexcept
+    {
+        return convert_result(::wisVKCommandQueueSubmit(&_impl_storage,
+                                                        reinterpret_cast<const WisVKCommandListView*>(lists.data()),
+                                                        lists.size()));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been done.
+     * @param fence The fence to signal.
+     * @param value The value to signal the fence with.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result SignalFence(wis::VKFenceView fence,
+                                   std::uint64_t    value) const noexcept
+    {
+        return convert_result(::wisVKCommandQueueSignalFence(&_impl_storage,
+                                                             fence,
+                                                             value));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+     * Can still be enqueued after the signal.
+     * @param fence The fence to wait on.
+     * @param value The value to wait the fence to reach.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WaitFence(wis::VKFenceView fence,
+                                 std::uint64_t    value) const noexcept
+    {
+        return convert_result(::wisVKCommandQueueWaitFence(&_impl_storage,
+                                                           fence,
+                                                           value));
+    }
 };
 
 struct VKDeviceDeleter {

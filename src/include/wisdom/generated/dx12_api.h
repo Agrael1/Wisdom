@@ -2,6 +2,7 @@
 #ifndef WISDOM_C_DX12_API_H
 #define WISDOM_C_DX12_API_H
 #include <wisdom/generated/c_api.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,7 +11,7 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 2);
+WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 1);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
@@ -29,12 +30,28 @@ WIS_DEFINE_HANDLE(WisDX12ResourceAllocator, 1);
  *
  * */
 WIS_DEFINE_HANDLE(WisDX12Fence, 2);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Fence, 1);
+
+static inline WisDX12FenceView wisGetDX12FenceView(const WisDX12Fence* handle)
+{
+    WisDX12FenceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12CommandList, 2);
+WIS_DEFINE_HANDLE(WisDX12CommandList, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList, 1);
+
+static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12CommandList* handle)
+{
+    WisDX12CommandListView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
@@ -318,6 +335,43 @@ WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self,
  * */
 WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self,
                                         uint64_t            value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Executes the command lists.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param lists The command lists to execute.
+ * @param count The number of command lists to execute.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandQueueSubmit(const WisDX12CommandQueue*    self,
+                                               const WisDX12CommandListView* lists,
+                                               size_t                        count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been done.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence The fence to signal.
+ * @param value The value to signal the fence with.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self,
+                                                    WisDX12FenceView           fence,
+                                                    uint64_t                   value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
+ * Can still be enqueued after the signal.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence The fence to wait on.
+ * @param value The value to wait the fence to reach.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self,
+                                                  WisDX12FenceView           fence,
+                                                  uint64_t                   value);
 
 #ifdef __cplusplus
 }

@@ -28,6 +28,7 @@ enum class TypeKind {
     FuncPointer,
     Function,
     Alias,
+    View,
 };
 enum ImplementedFor {
     Both,
@@ -166,6 +167,7 @@ struct WisHandle {
     std::string_view        doc;
     std::string_view        version;
     std::array<uint32_t, 2> sizes{};
+    std::array<uint32_t, 2> view_sizes{};
 
     std::vector<std::string_view> functions;
 
@@ -180,6 +182,17 @@ public:
         }
         return 0;
     }
+    uint32_t GetViewSize(ImplementedFor impl) const noexcept
+    {
+        if (impl == ImplementedFor::DX12) {
+            return view_sizes[0];
+        }
+        if (impl == ImplementedFor::Vulkan) {
+            return view_sizes[1];
+        }
+        return 0;
+    }
+
 };
 
 struct WisFunctionParameter {

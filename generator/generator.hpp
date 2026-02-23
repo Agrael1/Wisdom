@@ -2,6 +2,7 @@
 #include <tinyxml2.h>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <filesystem>
 #include <span>
 #include <array>
@@ -293,6 +294,7 @@ private:
     std::unordered_map<std::string_view, WisHandle>   handle_map;
     std::unordered_map<std::string_view, WisFunction> function_map;
     std::unordered_map<std::string_view, WisFunction> delegate_map;
+    std::unordered_set<std::string_view> view_set;
 
     std::unordered_map<std::string_view, Dependencies>   dependency_tree;
     std::unordered_map<std::string_view, ValidationList> validation_map;
@@ -306,6 +308,7 @@ private:
     std::vector<std::string_view>      functions_in_order;
     std::vector<std::string_view>      delegates_in_order;
     std::vector<std::string_view>      free_functions_in_order;
+    std::vector<std::string_view>      views_in_order;
     std::vector<std::filesystem::path> files;
     std::vector<std::string>           destructors;
 
