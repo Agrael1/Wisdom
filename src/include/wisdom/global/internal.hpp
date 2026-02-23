@@ -94,6 +94,12 @@ public:
     Storage _impl_storage;
 };
 } // namespace impl
+
+template<typename WisClass>
+auto view_of(const WisClass& obj) -> decltype(obj.GetView())
+{
+    return obj.GetView();
+}
 } // namespace wis
 
 #endif // __cplusplus

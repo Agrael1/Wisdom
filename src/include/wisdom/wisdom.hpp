@@ -30,6 +30,8 @@ using CommandQueue      = wis::DX12CommandQueue;
 using Device            = wis::DX12Device;
 using AdapterQuery      = wis::DX12AdapterQuery;
 using Instance          = wis::DX12Instance;
+using FenceView         = wis::DX12FenceView;
+using CommandListView   = wis::DX12CommandListView;
 
 //==============================================================
 // Variants
@@ -83,6 +85,8 @@ using CommandQueue      = wis::VKCommandQueue;
 using Device            = wis::VKDevice;
 using AdapterQuery      = wis::VKAdapterQuery;
 using Instance          = wis::VKInstance;
+using FenceView         = wis::VKFenceView;
+using CommandListView   = wis::VKCommandListView;
 
 //==============================================================
 // Variants

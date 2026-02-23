@@ -116,6 +116,8 @@ int main()
     WisCommandList command_list = { 0 };
     result                      = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
 
+    WisCommandListView command_list_view = wisGetView(&command_list);
+
     WisDescriptorHeapDesc descriptor_heap_desc = {
         .type             = WisDescriptorHeapTypeDescriptor,
         .memory_type      = WisDescriptorMemoryTypeShaderVisible,
@@ -123,6 +125,13 @@ int main()
     };
     WisDescriptorHeap descriptor_heap = { 0 };
     result                            = wisDeviceCreateDescriptorHeap(&device, &descriptor_heap_desc, &descriptor_heap);
+
+    // Enqueue fence signal on command queue
+    result = wisCommandQueueSignalFence(&command_queue, wisGetView(&fence), 1);
+
+
+    wisFenceWait(&fence, 1, UINT64_MAX);
+
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);
