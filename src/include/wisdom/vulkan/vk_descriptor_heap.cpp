@@ -19,6 +19,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
         if (impl.memory_type == WisDescriptorMemoryType::WisDescriptorMemoryTypeCpuOnly) {
             std::free(impl.buffer);
         } else {
+            vmaUnmapMemory(impl.device_header->header.allocator, impl.allocation);
             vmaDestroyBuffer(impl.device_header->header.allocator, impl.buffer, impl.allocation);
         }
 

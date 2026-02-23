@@ -69,6 +69,12 @@ struct DX12PipelineLayoutImpl {
 struct DX12DescriptorHeapImpl {
     ID3D12DescriptorHeap* descriptor_heap;
 };
+
+struct DX12BufferImpl {
+    ID3D12Resource*      resource;
+    D3D12MA::Allocation* allocation; // Pointer to the allocation object that manages the memory for this resource
+    D3D12MA::Allocator*  allocator; // Pretty dumb, but we need this to correctly ensure release order of allocator
+};
 } // namespace impl
 } // namespace wis
 

@@ -8,6 +8,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
@@ -103,6 +109,13 @@ typedef struct WisDX12DeviceRequirements {
     WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
     size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice array.
 } WisDX12DeviceRequirements;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
+ * @param self is a pointer to the valid WisBuffer instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
@@ -372,6 +385,18 @@ WISDOM_API WisResult wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* s
 WISDOM_API WisResult wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self,
                                                   WisDX12FenceView           fence,
                                                   uint64_t                   value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ * @param desc points to WisBufferDesc, which describes the buffer to create.
+ * @param buffer points to WisBuffer, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const WisDX12ResourceAllocator* self,
+                                                          const WisBufferDesc*            desc,
+                                                          WisDX12Buffer*                  buffer);
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,7 @@
 #include <wisdom/generated/c_api.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
+#include <D3D12MemAlloc.h>
 
 namespace wis {
 namespace detail {
@@ -135,11 +136,51 @@ inline D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(WisDescriptorMemoryType value) noe
     return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
 }
 
+inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
+{
+    switch (value) {
+    case WisMemoryTypeDeviceLocal:
+        return D3D12_HEAP_TYPE_DEFAULT;
+    case WisMemoryTypeUpload:
+        return D3D12_HEAP_TYPE_UPLOAD;
+    case WisMemoryTypeReadback:
+        return D3D12_HEAP_TYPE_READBACK;
+    case WisMemoryTypeGPUUpload:
+        return D3D12_HEAP_TYPE_GPU_UPLOAD;
+    default:
+        return static_cast<D3D12_HEAP_TYPE>(0);
+    }
+}
+
 inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);
     if (value & WisSamplerFlagsNonNormalizedCoordinates) {
         result |= D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES;
+    }
+    return result;
+}
+
+inline D3D12_RESOURCE_FLAGS convert_dx(WisBufferUsageFlags value) noexcept
+{
+    D3D12_RESOURCE_FLAGS result = static_cast<D3D12_RESOURCE_FLAGS>(0);
+    if (value & WisBufferUsageFlagsStorageBuffer) {
+        result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    }
+    if (value & WisBufferUsageFlagsAccelerationStructureBuffer) {
+        result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
+    }
+    return result;
+}
+
+inline D3D12MA::ALLOCATION_FLAGS convert_dx(WisMemoryFlags value) noexcept
+{
+    D3D12MA::ALLOCATION_FLAGS result = static_cast<D3D12MA::ALLOCATION_FLAGS>(0);
+    if (value & WisMemoryFlagsDedicatedAllocation) {
+        result |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
+    }
+    if (value & WisMemoryFlagsMapped) {
+        result |= D3D12MA::ALLOCATION_FLAG_NONE;
     }
     return result;
 }

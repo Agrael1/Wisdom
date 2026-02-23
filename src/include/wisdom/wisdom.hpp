@@ -21,6 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using Buffer            = wis::DX12Buffer;
 using DescriptorHeap    = wis::DX12DescriptorHeap;
 using PipelineLayout    = wis::DX12PipelineLayout;
 using ResourceAllocator = wis::DX12ResourceAllocator;
@@ -76,6 +77,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using Buffer            = wis::VKBuffer;
 using DescriptorHeap    = wis::VKDescriptorHeap;
 using PipelineLayout    = wis::VKPipelineLayout;
 using ResourceAllocator = wis::VKResourceAllocator;

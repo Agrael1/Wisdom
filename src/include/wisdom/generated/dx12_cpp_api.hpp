@@ -21,6 +21,24 @@ struct DX12DeviceRequirements {
     wis::span<wis::DX12DeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
 };
 
+struct DX12BufferDeleter {
+    void operator()(WisDX12Buffer* handle) noexcept
+    {
+        ::wisDX12DestroyBuffer(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+class DX12Buffer : public wis::impl::Implements<wis::impl::DX12BufferImpl, WisDX12Buffer, wis::DX12BufferDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12DescriptorHeapDeleter {
     void operator()(WisDX12DescriptorHeap* handle) noexcept
     {
@@ -73,6 +91,22 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
+     * @param desc points to wis::BufferDesc, which describes the buffer to create.
+     * @param out_result denoting the outcome of operation.
+     * @return buffer points to wis::Buffer, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Buffer CreateBuffer(const wis::BufferDesc& desc,
+                                                      wis::Result&           out_result) const noexcept
+    {
+        wis::DX12Buffer buffer;
+        out_result = convert_result(::wisDX12ResourceAllocatorCreateBuffer(&_impl_storage,
+                                                                           reinterpret_cast<const WisBufferDesc*>(&desc),
+                                                                           buffer.GetStorage()));
+        return buffer;
+    }
 };
 
 struct DX12FenceDeleter {

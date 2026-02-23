@@ -126,12 +126,20 @@ int main()
     WisDescriptorHeap descriptor_heap = { 0 };
     result                            = wisDeviceCreateDescriptorHeap(&device, &descriptor_heap_desc, &descriptor_heap);
 
+    WisBufferDesc buffer_desc = {
+        .size_bytes   = 1024,
+        .usage_flags  = WisBufferUsageFlagsCopySrc,
+        .memory_type  = WisMemoryTypeUpload,
+        .memory_flags = WisMemoryFlagsMapped,
+    };
+    WisBuffer buffer = { 0 };
+    result           = wisResourceAllocatorCreateBuffer(&allocator, &buffer_desc, &buffer);
+    printf("CreateBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
     // Enqueue fence signal on command queue
     result = wisCommandQueueSignalFence(&command_queue, wisGetView(&fence), 1);
 
-
     wisFenceWait(&fence, 1, UINT64_MAX);
-
 
     // Out of order destruction must still work
     wisDestroyDevice(&device);
@@ -140,5 +148,6 @@ int main()
     wisDestroyResourceAllocator(&allocator);
     wisDestroyCommandList(&command_list);
     wisDestroyDescriptorHeap(&descriptor_heap);
+    wisDestroyBuffer(&buffer);
     return 0;
 }

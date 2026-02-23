@@ -194,6 +194,39 @@ typedef enum WisQueryPropertyType {
 } WisQueryPropertyType;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Memory type for resource allocation.
+ *
+ * */
+typedef enum WisMemoryType {
+    WisMemoryTypeDefault = 0, ///< Default memory type. Alias for `WisMemoryTypeDeviceLocal`
+    /**
+     * @brief
+     * Default memory type.
+     * Local device memory, most efficient for rendering.
+     * */
+    WisMemoryTypeDeviceLocal = 0,
+    /**
+     * @brief
+     * Upload memory type.
+     * Used for data that is uploaded to the GPU Local memory using copy operations.
+     * */
+    WisMemoryTypeUpload = 1,
+    /**
+     * @brief
+     * Readback memory type.
+     * Used for data that is read back from the GPU Local memory using copy operations.
+     * */
+    WisMemoryTypeReadback = 2,
+    /**
+     * @brief
+     * GPU upload memory type.
+     * Used for data that is directly uploaded to the GPU Local memory using copy operations.
+     * Support of this memory @wis_must be queried.
+     * */
+    WisMemoryTypeGPUUpload = 3,
+} WisMemoryType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -211,6 +244,56 @@ typedef enum WisSamplerFlags {
     WisSamplerFlagsNone                     = 0, ///< No flags set.
     WisSamplerFlagsNonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
 } WisSamplerFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer usage flags.
+ * Determine how the buffer can be used throughout its lifetime.
+ *
+ * */
+typedef enum WisBufferUsageFlags {
+    WisBufferUsageFlagsNone                        = 0, ///< No flags set. Buffer is not used.
+    WisBufferUsageFlagsCopySrc                     = (1 << 0), ///< Buffer is used as a source for copy operations.
+    WisBufferUsageFlagsCopyDst                     = (1 << 1), ///< Buffer is used as a destination for copy operations.
+    WisBufferUsageFlagsConstantBuffer              = (1 << 2), ///< Buffer is used as a constant buffer.
+    WisBufferUsageFlagsIndexBuffer                 = (1 << 3), ///< Buffer is used as an index buffer.
+    WisBufferUsageFlagsVertexBuffer                = (1 << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
+    WisBufferUsageFlagsIndirectBuffer              = (1 << 5), ///< Buffer is used as an indirect buffer.
+    WisBufferUsageFlagsStorageBuffer               = (1 << 6), ///< Buffer is used as a storage unordered access buffer.
+    WisBufferUsageFlagsAccelerationStructureBuffer = (1 << 7), ///< Buffer is used as an acceleration structure buffer.
+    WisBufferUsageFlagsAccelerationStructureInput  = (1 << 8), ///< Buffer is used as a read only acceleration instance input buffer.
+    WisBufferUsageFlagsShaderBindingTable          = (1 << 9), ///< Buffer is used as a shader binding table buffer.
+} WisBufferUsageFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Memory flags.
+ * Determine optional properties of the memory allocation.
+ *
+ * */
+typedef enum WisMemoryFlags {
+    WisMemoryFlagsNone = 0, ///< No flags set. Memory is regular.
+    /**
+     * @brief
+     * Memory is dedicated.
+     * Used for resources that require dedicated memory.
+     * Useful for big resources that are not shared with other resources.
+     * E.g. fullscreen textures, big buffers, etc.
+     * */
+    WisMemoryFlagsDedicatedAllocation = (1 << 0),
+    /**
+     * @brief
+     * Memory is mapped.
+     * Used in combination with `WisMemoryTypeUpload` or `WisMemoryTypeReadback` to map memory for CPU access.
+     * */
+    WisMemoryFlagsMapped = (1 << 1),
+    /**
+     * @brief
+     * Memory is exportable.
+     * If set, memory can be exported to other processes or APIs.
+     * Works only with Device Local memory (`WisMemoryTypeDefault`) and only on AllocateXMemory calls.
+     * Outside of AllocateXMemory the flag is ignored.
+     * */
+    WisMemoryFlagsExportable = (1 << 2),
+} WisMemoryFlags;
 
 //==============================================================
 // Delegates
@@ -373,6 +456,17 @@ typedef struct WisDescriptorHeapDesc {
     WisDescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
     size_t                  descriptor_count; ///< indicates the amount of descriptors, present in the heap.
 } WisDescriptorHeapDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer description for WisBuffer creation.
+ *
+ * */
+typedef struct WisBufferDesc {
+    uint64_t            size_bytes; ///< Size of the buffer in bytes.
+    WisBufferUsageFlags usage_flags; ///< Buffer usage flags. Describe how the buffer will be used.
+    WisMemoryType       memory_type; ///< indicates where the buffer will be allocated.
+    WisMemoryFlags      memory_flags; ///< The flags of the memory to allocate for the buffer.
+} WisBufferDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.

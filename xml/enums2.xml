@@ -262,5 +262,94 @@
       </value>
     </type>
 
+    <type name="MemoryType" category="enum" version="0.7.0" doc="Memory type for resource allocation.">
+      <impl_type for="dx" name="D3D12_HEAP_TYPE"/>
+      <impl_type for="vk" name="VkMemoryPropertyFlags"/>
+      <value name="Default" value="0" doc="Default memory type. Alias for {::DeviceLocal}"/>
+      <value name="DeviceLocal" value="0" doc="Default memory type.
+Local device memory, most efficient for rendering.">
+        <impl name="dx" value="D3D12_HEAP_TYPE_DEFAULT"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT"/>
+      </value>
+      <value name="Upload" value="1" doc="Upload memory type.
+Used for data that is uploaded to the GPU Local memory using copy operations.">
+        <impl name="dx" value="D3D12_HEAP_TYPE_UPLOAD"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"/>
+      </value>
+      <value name="Readback" value="2" doc="Readback memory type.
+Used for data that is read back from the GPU Local memory using copy operations.">
+        <impl name="dx" value="D3D12_HEAP_TYPE_READBACK"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT"/>
+      </value>
+      <value name="GPUUpload" value="3" doc="GPU upload memory type.
+Used for data that is directly uploaded to the GPU Local memory using copy operations.
+Support of this memory must be queried.">
+        <impl name="dx" value="D3D12_HEAP_TYPE_GPU_UPLOAD"/>
+        <impl name="vk" value="VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"/>
+      </value>
+    </type>
+
+    <type name="BufferUsageFlags" category="bitmask" version="0.7.0" doc="Buffer usage flags.
+Determine how the buffer can be used throughout its lifetime.">
+      <impl_type for="vk" name="VkBufferUsageFlags"/>
+      <impl_type for="dx" name="D3D12_RESOURCE_FLAGS"/>
+      <value name="None" value="0" doc="No flags set. Buffer is not used."/>
+      <value name="CopySrc" bit="0" doc="Buffer is used as a source for copy operations.">
+        <impl name="vk" value="VK_BUFFER_USAGE_TRANSFER_SRC_BIT"/>
+      </value>
+      <value name="CopyDst" bit="1" doc="Buffer is used as a destination for copy operations.">
+        <impl name="vk" value="VK_BUFFER_USAGE_TRANSFER_DST_BIT"/>
+      </value>
+      <value name="ConstantBuffer" bit="2" doc="Buffer is used as a constant buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT"/>
+      </value>
+      <value name="IndexBuffer" bit="3" doc="Buffer is used as an index buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_INDEX_BUFFER_BIT"/>
+      </value>
+      <value name="VertexBuffer" bit="4" doc="Buffer is used as a vertex buffer or an instance buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_VERTEX_BUFFER_BIT"/>
+      </value>
+      <value name="IndirectBuffer" bit="5" doc="Buffer is used as an indirect buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT"/>
+      </value>
+      <value name="StorageBuffer" bit="6" doc="Buffer is used as a storage unordered access buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_STORAGE_BUFFER_BIT"/>
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS"/>
+      </value>
+      <value name="AccelerationStructureBuffer" bit="7" doc="Buffer is used as an acceleration structure buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT"/>
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE"/>
+      </value>
+      <value name="AccelerationStructureInput" bit="8" doc="Buffer is used as a read only acceleration instance input buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR"/>
+      </value>
+      <value name="ShaderBindingTable" bit="9" doc="Buffer is used as a shader binding table buffer.">
+        <impl name="vk" value="VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR"/>
+      </value>
+    </type>
+
+    <type name="MemoryFlags" version="0.7.0" category="bitmask" doc="Memory flags.
+Determine optional properties of the memory allocation.">
+      <impl_type for="vk" name="VmaAllocationCreateFlags"/>
+      <impl_type for="dx" name="D3D12MA::ALLOCATION_FLAGS"/>
+      <value name="None" value="0" doc="No flags set. Memory is regular."/>
+      <value name="DedicatedAllocation" bit="0" doc="Memory is dedicated.
+Used for resources that require dedicated memory.
+Useful for big resources that are not shared with other resources.
+E.g. fullscreen textures, big buffers, etc.">
+        <impl name="vk" value="VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT"/>
+        <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_COMMITTED"/>
+      </value>
+      <value name="Mapped" bit="1" doc="Memory is mapped.
+Used in combination with {MemoryType::Upload} or {MemoryType::Readback} to map memory for CPU access.">
+        <impl name="vk" value="VMA_ALLOCATION_CREATE_MAPPED_BIT"/>
+        <impl name="dx" value="D3D12MA::ALLOCATION_FLAG_NONE"/>
+      </value>
+      <value name="Exportable" bit="2" doc="Memory is exportable.
+If set, memory can be exported to other processes or APIs.
+Works only with Device Local memory ({MemoryType::Default}) and only on AllocateXMemory calls.
+Outside of AllocateXMemory the flag is ignored."/>
+    </type>
+
   </types>
 </registry>
