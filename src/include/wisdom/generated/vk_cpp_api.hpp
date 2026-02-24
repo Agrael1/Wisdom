@@ -55,6 +55,15 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+     * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+     *
+     * */
+    WIS_NODISCARD inline void* Map() const noexcept
+    {
+        return (::wisVKBufferMap(&_impl_storage));
+    }
 };
 
 struct VKDescriptorHeapDeleter {
@@ -233,6 +242,54 @@ public:
     {
         return GetView();
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Close() const noexcept
+    {
+        return convert_result(::wisVKCommandListClose(&_impl_storage));
+    }
+};
+
+struct VKCommandAllocatorDeleter {
+    void operator()(WisVKCommandAllocator* handle) noexcept
+    {
+        ::wisVKDestroyCommandAllocator(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
+ *
+ * */
+class VKCommandAllocator : public wis::impl::Implements<wis::impl::VKCommandAllocatorImpl, WisVKCommandAllocator, wis::VKCommandAllocatorDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Reset() const noexcept
+    {
+        return convert_result(::wisVKCommandAllocatorReset(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+     * @param out_result denoting the outcome of operation.
+     * @return list points to wis::CommandList, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKCommandList CreateCommandList(wis::Result& out_result) const noexcept
+    {
+        wis::VKCommandList list;
+        out_result = convert_result(::wisVKCommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage()));
+        return list;
+    }
 };
 
 struct VKCommandQueueDeleter {
@@ -327,20 +384,20 @@ public:
         return queue;
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
-     * @param type defines the type of the command list to create.
+     * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
+     * @param type defines the type of the command list this pool is able to allocate.
      * @param out_result denoting the outcome of operation.
-     * @return list points to wis::CommandList, which is initialized on success.
+     * @return allocator points to wis::CommandAllocator, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKCommandList CreateCommandList(wis::CommandQueueType type,
-                                                              wis::Result&          out_result) const noexcept
+    WIS_NODISCARD inline wis::VKCommandAllocator CreateCommandAllocator(wis::CommandQueueType type,
+                                                                        wis::Result&          out_result) const noexcept
     {
-        wis::VKCommandList list;
-        out_result = convert_result(::wisVKDeviceCreateCommandList(&_impl_storage,
-                                                                   static_cast<WisCommandQueueType>(type),
-                                                                   list.GetStorage()));
-        return list;
+        wis::VKCommandAllocator allocator;
+        out_result = convert_result(::wisVKDeviceCreateCommandAllocator(&_impl_storage,
+                                                                        static_cast<WisCommandQueueType>(type),
+                                                                        allocator.GetStorage()));
+        return allocator;
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.

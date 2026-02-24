@@ -36,6 +36,10 @@
       <impl for="dx" size="1"/>
       <view size="1"/>
     </handle>
+    <handle name="CommandAllocator" version="0.7.0" doc="Class representing a pool allocator for command lists for recording GPU commands.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="3"/>
+    </handle>
     <handle name="CommandQueue" version="0.7.0" doc="Class representing a command queue for submitting command lists to the GPU.">
       <impl for="vk" size="4"/>
       <impl for="dx" size="1"/>
@@ -87,9 +91,9 @@
       <ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
       <arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
     </func>
-    <func name="CreateCommandList" version="0.7.0" for="Device" mod="const" doc="Creates a command list of given type.">
-      <ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
-      <arg type="CommandQueueType" name="type" doc="defines the type of the command list to create."/>
+    <func name="CreateCommandAllocator" version="0.7.0" for="Device" mod="const" doc="Creates a command allocator to allocate command lists with.">
+      <ret type="CommandAllocator" name="allocator" result="true" doc="points to {CommandAllocator::}, which is initialized on success."/>
+      <arg type="CommandQueueType" name="type" doc="defines the type of the command list this pool is able to allocate."/>
     </func>
     <func name="CreateFence" version="0.7.0" for="Device" mod="const"  doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
       <ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
@@ -114,13 +118,11 @@
     <func for="Fence" name="GetCompletedValue" version="0.7.0" mod="const" doc="Get the current value of the fence.">
       <ret type="u64" name="value" doc="Value of the fence."/>
     </func>
-
     <func for="Fence" name="Wait" version="0.7.0" mod="const" doc="Wait on CPU for the fence to reach a certain value.">
       <ret type="Result" name="result" doc="Result of operation."/>
       <arg type="u64" name="value" doc="Value to wait for."/>
       <arg type="u64" name="wait_ns" default="UINT64_MAX" doc="The time to wait for the fence to reach the value in nanoseconds. Default is infinite."/>
     </func>
-
     <func for="Fence" name="Signal" version="0.7.0" mod="const" doc="Signal the fence from CPU.">
       <ret type="Result" name="result" doc="Result of operation."/>
       <arg type="u64" name="value" doc="Value to signal."/>
@@ -132,13 +134,11 @@
       <arg type="CommandListView" name="lists" mod="const,span" doc="The command lists to execute."/>
       <arg type="size" name="count" doc="The number of command lists to execute."/>
     </func>
-
     <func for="CommandQueue" name="SignalFence" version="0.7.0" mod="const" doc="Enqueue the signal to the queue, that gets executed after all the work has been done.">
       <ret type="Result" name="result" doc="Result of operation."/>
       <arg type="FenceView" name="fence" doc="The fence to signal."/>
       <arg type="u64" name="value" doc="The value to signal the fence with."/>
     </func>
-
     <func for="CommandQueue" name="WaitFence" version="0.7.0" mod="const" doc="Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
 Can still be enqueued after the signal.">
       <ret type="Result" name="result" doc="Result of operation."/>
@@ -151,10 +151,29 @@ Can still be enqueued after the signal.">
       <ret type="Buffer" name="buffer" result="true" doc="points to {Buffer::}, which is initialized on success."/>
       <arg type="BufferDesc" name="desc" mod="const,ref" doc="points to {BufferDesc::}, which describes the buffer to create."/>
     </func>
-
     <func for="ResourceAllocator" name="CreateTexture" version="0.7.0" mod="const" doc="Creates a texture with given descriptor.">
       <ret type="Texture" name="texture" result="true" doc="points to {Texture::}, which is initialized on success."/>
       <arg type="TextureDesc" name="desc" mod="const,ref" doc="points to {TextureDesc::}, which describes the texture to create."/>
+    </func>
+    
+    <!-- Buffer Functions -->
+    <func for="Buffer" name="Map" version="0.7.0" mod="const" doc="Maps the buffer memory to CPU accessible address space.">
+      <ret type="void" name="data" mod="ptr" doc="points to the pointer, which is filled with the address of the mapped memory on success."/>
+    </func>
+    
+    <!-- Command Allocator -->
+    <func for="CommandAllocator" name="Reset" version="0.7.0" mod="const" doc="Resets the command allocator, so it can be reused for allocating new command lists.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+    </func>
+    <func for="CommandAllocator" name="CreateCommandList" version="0.7.0" mod="const" doc="Creates a command list of given type.">
+      <ret type="CommandList" name="list" result="true" doc="points to {CommandList::}, which is initialized on success."/>
+    </func>
+      
+    
+    
+    <!-- Command List -->
+    <func for="CommandList" name="Close" version="0.7.0" mod="const" doc="Closes the command list, so it can be executed on the command queue.">
+      <ret type="Result" name="result" doc="Result of operation."/>
     </func>
 
   </functions>

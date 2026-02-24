@@ -55,6 +55,15 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+     * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+     *
+     * */
+    WIS_NODISCARD inline void* Map() const noexcept
+    {
+        return (::wisDX12BufferMap(&_impl_storage));
+    }
 };
 
 struct DX12DescriptorHeapDeleter {
@@ -233,6 +242,54 @@ public:
     {
         return GetView();
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Close() const noexcept
+    {
+        return convert_result(::wisDX12CommandListClose(&_impl_storage));
+    }
+};
+
+struct DX12CommandAllocatorDeleter {
+    void operator()(WisDX12CommandAllocator* handle) noexcept
+    {
+        ::wisDX12DestroyCommandAllocator(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
+ *
+ * */
+class DX12CommandAllocator : public wis::impl::Implements<wis::impl::DX12CommandAllocatorImpl, WisDX12CommandAllocator, wis::DX12CommandAllocatorDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Reset() const noexcept
+    {
+        return convert_result(::wisDX12CommandAllocatorReset(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+     * @param out_result denoting the outcome of operation.
+     * @return list points to wis::CommandList, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12CommandList CreateCommandList(wis::Result& out_result) const noexcept
+    {
+        wis::DX12CommandList list;
+        out_result = convert_result(::wisDX12CommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage()));
+        return list;
+    }
 };
 
 struct DX12CommandQueueDeleter {
@@ -327,20 +384,20 @@ public:
         return queue;
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
-     * @param type defines the type of the command list to create.
+     * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
+     * @param type defines the type of the command list this pool is able to allocate.
      * @param out_result denoting the outcome of operation.
-     * @return list points to wis::CommandList, which is initialized on success.
+     * @return allocator points to wis::CommandAllocator, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12CommandList CreateCommandList(wis::CommandQueueType type,
-                                                                wis::Result&          out_result) const noexcept
+    WIS_NODISCARD inline wis::DX12CommandAllocator CreateCommandAllocator(wis::CommandQueueType type,
+                                                                          wis::Result&          out_result) const noexcept
     {
-        wis::DX12CommandList list;
-        out_result = convert_result(::wisDX12DeviceCreateCommandList(&_impl_storage,
-                                                                     static_cast<WisCommandQueueType>(type),
-                                                                     list.GetStorage()));
-        return list;
+        wis::DX12CommandAllocator allocator;
+        out_result = convert_result(::wisDX12DeviceCreateCommandAllocator(&_impl_storage,
+                                                                          static_cast<WisCommandQueueType>(type),
+                                                                          allocator.GetStorage()));
+        return allocator;
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.

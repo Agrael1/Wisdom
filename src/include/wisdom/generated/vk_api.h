@@ -66,6 +66,12 @@ static inline WisVKCommandListView wisGetVKCommandListView(const WisVKCommandLis
 }
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKCommandAllocator, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
  *
  * */
@@ -164,6 +170,13 @@ WISDOM_API void wisVKDestroyFence(WisVKFence* self);
  *
  * */
 WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandAllocator handle.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
@@ -266,16 +279,16 @@ WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevice*  self,
                                                    WisVKCommandQueue*  queue);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
  * @param self is a pointer to the valid WisDevice instance.
- * @param type defines the type of the command list to create.
- * @param list points to WisCommandList, which is initialized on success.
+ * @param type defines the type of the command list this pool is able to allocate.
+ * @param allocator points to WisCommandAllocator, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice*  self,
-                                                  WisCommandQueueType type,
-                                                  WisVKCommandList*   list);
+WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKDevice*     self,
+                                                       WisCommandQueueType    type,
+                                                       WisVKCommandAllocator* allocator);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
@@ -422,6 +435,40 @@ WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVKResourceAlloc
 WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisVKResourceAllocator* self,
                                                          const WisTextureDesc*         desc,
                                                          WisVKTexture*                 texture);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+ *
+ * */
+WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @param list points to WisCommandList, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self,
+                                                            WisVKCommandList*            list);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandListClose(const WisVKCommandList* self);
 
 #ifdef __cplusplus
 }

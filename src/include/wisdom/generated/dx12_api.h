@@ -66,6 +66,12 @@ static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12Comm
 }
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12CommandAllocator, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
  *
  * */
@@ -164,6 +170,13 @@ WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self);
  *
  * */
 WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandAllocator handle.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
@@ -266,16 +279,16 @@ WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12Device* self,
                                                      WisDX12CommandQueue* queue);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
  * @param self is a pointer to the valid WisDevice instance.
- * @param type defines the type of the command list to create.
- * @param list points to WisCommandList, which is initialized on success.
+ * @param type defines the type of the command list this pool is able to allocate.
+ * @param allocator points to WisCommandAllocator, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12Device* self,
-                                                    WisCommandQueueType  type,
-                                                    WisDX12CommandList*  list);
+WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisDX12Device*     self,
+                                                         WisCommandQueueType      type,
+                                                         WisDX12CommandAllocator* allocator);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
@@ -422,6 +435,40 @@ WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const WisDX12ResourceA
 WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const WisDX12ResourceAllocator* self,
                                                            const WisTextureDesc*           desc,
                                                            WisDX12Texture*                 texture);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+ *
+ * */
+WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @param list points to WisCommandList, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self,
+                                                              WisDX12CommandList*            list);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandListClose(const WisDX12CommandList* self);
 
 #ifdef __cplusplus
 }

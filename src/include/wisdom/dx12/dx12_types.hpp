@@ -49,6 +49,12 @@ struct DX12CommandQueueImpl {
     ID3D12CommandQueue* queue;
 };
 
+struct DX12CommandAllocatorImpl {
+    ID3D12CommandAllocator* allocator;
+    ID3D12Device10*         device;
+    D3D12_COMMAND_LIST_TYPE type;
+};
+
 struct DX12CommandListImpl {
     ID3D12GraphicsCommandList7* list;
 };
@@ -92,7 +98,9 @@ using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we ca
 #include "dx12_fence.cpp"
 #include "dx12_adapter_query.cpp"
 #include "dx12_command_queue.cpp"
+#include "dx12_command_list.cpp"
 #include "dx12_descriptor_heap.cpp"
 #include "dx12_resource_allocator.cpp"
+#include "dx12_command_allocator.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_DX12_TYPES_HPP

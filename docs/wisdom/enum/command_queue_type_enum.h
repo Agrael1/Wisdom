@@ -55,6 +55,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisCommandQueueDesc, wisDeviceCreateCommandQueue, wisDeviceCreateCommandList
+ * @see WisCommandQueueDesc, wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator
  * \endcond
  */

@@ -216,6 +216,15 @@ public:
 struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
 };
 
+struct VKCommandPoolHeader {
+    VkDevice                device;
+    VKDeviceControlBlock*   device_header;
+};
+
+//-----------------------------------------------------------------------------
+struct VKCommandPoolControlBlock : public VKControlBlock<VKCommandPoolHeader> {
+};
+
 //-----------------------------------------------------------------------------
 /**
  * @brief Releases a Vulkan instance, destroying it if this is the last reference. Also destroys the debug messenger if it exists.
@@ -263,6 +272,28 @@ inline void release_vk_device(VkDevice device, VKDeviceControlBlock* header) noe
         release_vk_instance(header->header.instance,
                             header->header.shared_header);
 
+        delete header;
+    }
+}
+
+//-----------------------------------------------------------------------------
+/**
+ * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated device.
+ * @param command_pool The Vulkan command pool to release
+ * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
+ */
+inline void release_vk_command_pool(VkCommandPool command_pool, VKCommandPoolControlBlock* header) noexcept
+{
+    if (header && header->Release() == 1) {
+        // Last reference, destroy command pool
+        std::atomic_thread_fence(std::memory_order_acquire);
+
+        // Destroy command pool
+        auto& table = header->header.device_header->header.device_table;
+        table.vkDestroyCommandPool(header->header.device, command_pool, nullptr);
+
+        release_vk_device(header->header.device,
+                          header->header.device_header);
         delete header;
     }
 }
