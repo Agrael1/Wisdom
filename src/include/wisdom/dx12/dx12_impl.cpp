@@ -47,4 +47,18 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
     resource = nullptr;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
+{
+    auto& [resource, allocation, allocator] = *reinterpret_cast<DX12BufferImpl*>(self);
+    if (!resource) {
+        return;
+    }
+
+    resource->Release();
+    allocation->Release();
+    allocator->Release();
+    resource = nullptr;
+}
+
 #endif // WIS_DX12_IMPL_CPP

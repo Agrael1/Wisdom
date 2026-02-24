@@ -123,6 +123,19 @@
       <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the buffer."/>
     </type>
 
+    <type name="TextureDesc" category="struct" version="0.7.0" doc="Texture description for {Texture::} creation.">
+      <member type="u32" name="width" doc="Texture width in pixels."/>
+      <member type="u32" name="height" doc="Texture height in pixels."/>
+      <member type="u16" name="depth_or_array_size" doc="Texture depth in pixels. Used only for 3D textures."/>
+      <member type="u16" name="mip_levels" doc="Number of mip levels in the texture."/>
+      <member type="DataFormat" name="format" doc="Texture format."/>
+      <member type="SampleCount" name="sample_count" doc="Number of samples per pixel. Used only for multisampled textures."/>
+      <member type="TextureLayout" name="layout" default="Texture2D" doc="Texture layout. Default is {TextureLayout::Texture2D}."/>
+      <member type="TextureUsageFlags" name="usage_flags" doc="Texture usage flags. Describe how the texture will be used."/>
+      <member type="MemoryType" name="memory_type" doc="indicates where the texture will be allocated."/>
+      <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
+    </type>
+
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
       <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
@@ -155,6 +168,14 @@
       <!-- Command Queues -->
       <member type="bool" name="supported_queues" array="5" doc="Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
       <member type="CommandQueuePriority" name="max_queue_priority" array="5" doc="Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
+    </type>
+
+    <type name="DeviceMemoryProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
+      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. @wis_must be {QueryPropertyType::DeviceMemoryProperties}.."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <!-- Memory -->
+      <member type="bool" name="gpu_upload_supported" doc="Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
+      <member type="bool" name="host_image_copy_supported" doc="Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
     </type>
 
 

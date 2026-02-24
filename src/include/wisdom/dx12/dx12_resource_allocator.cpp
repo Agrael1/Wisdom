@@ -5,17 +5,19 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <d3dx12/d3dx12_resource_helpers.h>
 
 using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
 namespace wis::detail {
+//-----------------------------------------------------------------------------
 inline WisResult DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc,
                                     const D3D12_RESOURCE_DESC1&     res_desc,
                                     D3D12_RESOURCE_STATES           state,
                                     D3D12MA::Allocator*             allocator,
-                                    WisDX12Buffer*                  buffer) noexcept
+                                    void*                           buffer) noexcept
 {
     wis::com_ptr<ID3D12Resource>      resource;
     wis::com_ptr<D3D12MA::Allocation> allocation;
@@ -38,6 +40,7 @@ inline WisResult DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc,
     return dx_success;
 }
 
+//-----------------------------------------------------------------------------
 inline WisResult DX12CreateResource2(const D3D12MA::ALLOCATION_DESC& all_desc,
                                      const D3D12_RESOURCE_DESC1&     res_desc,
                                      D3D12_RESOURCE_STATES           state,
@@ -66,6 +69,57 @@ inline WisResult DX12CreateResource2(const D3D12MA::ALLOCATION_DESC& all_desc,
     impl.allocator  = allocator; // store allocator to ensure correct release order
     impl.allocator->AddRef();
     return dx_success;
+}
+
+//-----------------------------------------------------------------------------
+inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noexcept
+{
+    D3D12_RESOURCE_DESC1 out{
+        .Alignment        = 0,
+        .Width            = desc.width,
+        .Height           = desc.height,
+        .DepthOrArraySize = desc.depth_or_array_size,
+        .MipLevels        = desc.mip_levels,
+        .Format           = convert_dx(desc.format),
+        .SampleDesc       = { 1, 0 },
+        .Layout           = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+        .Flags            = convert_dx(desc.usage_flags),
+    };
+    switch (desc.layout) {
+    case WisTextureLayoutTexture1D:
+        out.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE1D;
+        out.Height           = 1;
+        out.DepthOrArraySize = 1;
+        return out;
+    case WisTextureLayoutTexture1DArray:
+        out.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE1D;
+        out.Height    = 1;
+        return out;
+    default:
+    case WisTextureLayoutTexture2D:
+        out.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        out.DepthOrArraySize = 1;
+        return out;
+    case WisTextureLayoutTexture2DArray:
+        out.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        return out;
+    case WisTextureLayoutTexture3D:
+        out.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+        return out;
+    case WisTextureLayoutTexture2DMS:
+        out.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        out.DepthOrArraySize   = 1;
+        out.SampleDesc.Count   = convert_dx(desc.sample_count);
+        out.SampleDesc.Quality = 4;
+        out.MipLevels          = 1;
+        return out;
+    case WisTextureLayoutTexture2DMSArray:
+        out.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        out.SampleDesc.Count   = convert_dx(desc.sample_count);
+        out.SampleDesc.Quality = 4;
+        out.MipLevels          = 1;
+        return out;
+    }
 }
 } // namespace wis::detail
 
@@ -109,6 +163,20 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const Wis
         return DX12CreateResource2(all_desc, buffer_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, allocator, buffer);
     }
     return DX12CreateResource(all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON, allocator, buffer);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const WisDX12ResourceAllocator* self,
+                                                                        const WisTextureDesc*           desc,
+                                                                        WisDX12Texture*                 buffer)
+{
+    auto& [allocator]                 = *reinterpret_cast<const wis::impl::DX12ResourceAllocatorImpl*>(self);
+    D3D12_RESOURCE_DESC1     tex_desc = DX12FillTextureDesc(*desc);
+    D3D12MA::ALLOCATION_DESC all_desc{
+        .Flags    = convert_dx(desc->memory_flags),
+        .HeapType = convert_dx(desc->memory_type),
+    };
+    return DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON, allocator, buffer);
 }
 
 #endif // WIS_DX12_RESOURCE_ALLOCATOR_CPP

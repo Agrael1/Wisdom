@@ -21,6 +21,24 @@ struct DX12DeviceRequirements {
     wis::span<wis::DX12DeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
 };
 
+struct DX12TextureDeleter {
+    void operator()(WisDX12Texture* handle) noexcept
+    {
+        ::wisDX12DestroyTexture(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+class DX12Texture : public wis::impl::Implements<wis::impl::DX12TextureImpl, WisDX12Texture, wis::DX12TextureDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12BufferDeleter {
     void operator()(WisDX12Buffer* handle) noexcept
     {
@@ -106,6 +124,22 @@ public:
                                                                            reinterpret_cast<const WisBufferDesc*>(&desc),
                                                                            buffer.GetStorage()));
         return buffer;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
+     * @param desc points to wis::TextureDesc, which describes the texture to create.
+     * @param out_result denoting the outcome of operation.
+     * @return texture points to wis::Texture, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Texture CreateTexture(const wis::TextureDesc& desc,
+                                                        wis::Result&            out_result) const noexcept
+    {
+        wis::DX12Texture texture;
+        out_result = convert_result(::wisDX12ResourceAllocatorCreateTexture(&_impl_storage,
+                                                                            reinterpret_cast<const WisTextureDesc*>(&desc),
+                                                                            texture.GetStorage()));
+        return texture;
     }
 };
 

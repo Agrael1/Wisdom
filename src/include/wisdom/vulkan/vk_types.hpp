@@ -92,6 +92,12 @@ struct VKBufferImpl {
     void*                         mapped_ptr;
     detail::VKDeviceControlBlock* device_header;
 };
+
+struct VKTextureImpl {
+    VkImage                       image;
+    VmaAllocation                 allocation;
+    detail::VKDeviceControlBlock* device_header;
+};
 } // namespace impl
 } // namespace wis
 

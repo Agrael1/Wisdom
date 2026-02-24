@@ -312,7 +312,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             }
         } break;
         case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
-            auto* props                                = static_cast<WisDeviceDescriptorHeapProperties*>(next);
+            auto* props = static_cast<WisDeviceDescriptorHeapProperties*>(next);
             if (!header.features.descriptor_heap) {
                 break;
             }
@@ -321,6 +321,23 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             props->max_sampler_heap_size_with_embedded = header.features.max_sampler_heap_size_with_embedded / header.features.sampler_desc_size;
             props->descriptor_increment_size           = header.features.resource_desc_size;
             props->sampler_increment_size              = header.features.sampler_desc_size;
+        } break;
+        case WisQueryPropertyTypeDeviceMemoryProperties: {
+            auto* props                      = static_cast<WisDeviceMemoryProperties*>(next);
+            props->host_image_copy_supported = header.features.host_image_copy;
+
+            const VkPhysicalDeviceMemoryProperties* mem_props;
+            vmaGetMemoryProperties(header.allocator, &mem_props);
+
+            for (uint32_t i = 0; i < mem_props->memoryTypeCount; ++i) {
+                const VkMemoryPropertyFlags flags = mem_props->memoryTypes[i].propertyFlags;
+                if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
+                    (flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) &&
+                    (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
+                    props->gpu_upload_supported = true;
+                    break;
+                }
+            }
         } break;
         default:
             break;

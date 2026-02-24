@@ -56,6 +56,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBufferDesc
+ * @see WisBufferDesc, WisTextureDesc
  * \endcond
  */

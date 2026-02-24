@@ -19,6 +19,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12Texture           WisTexture;
 typedef struct WisDX12Buffer            WisBuffer;
 typedef struct WisDX12DescriptorHeap    WisDescriptorHeap;
 typedef struct WisDX12PipelineLayout    WisPipelineLayout;
@@ -44,37 +45,39 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 // Functions
 //==============================================================
 
-#define wisDestroyBuffer                 wisDX12DestroyBuffer
-#define wisDestroyDescriptorHeap         wisDX12DestroyDescriptorHeap
-#define wisDestroyPipelineLayout         wisDX12DestroyPipelineLayout
-#define wisDestroyResourceAllocator      wisDX12DestroyResourceAllocator
-#define wisDestroyFence                  wisDX12DestroyFence
-#define wisDestroyCommandList            wisDX12DestroyCommandList
-#define wisDestroyCommandQueue           wisDX12DestroyCommandQueue
-#define wisDestroyDevice                 wisDX12DestroyDevice
-#define wisDestroyAdapterQuery           wisDX12DestroyAdapterQuery
-#define wisDestroyInstance               wisDX12DestroyInstance
-#define wisCreateInstance                wisDX12CreateInstance
-#define wisInstanceQueryAdapters         wisDX12InstanceQueryAdapters
-#define wisAdapterQueryGetAdapterCount   wisDX12AdapterQueryGetAdapterCount
-#define wisAdapterQueryGetAdapterDesc    wisDX12AdapterQueryGetAdapterDesc
-#define wisAdapterQueryCreateDevice      wisDX12AdapterQueryCreateDevice
-#define wisDeviceCreateCommandQueue      wisDX12DeviceCreateCommandQueue
-#define wisDeviceCreateCommandList       wisDX12DeviceCreateCommandList
-#define wisDeviceCreateFence             wisDX12DeviceCreateFence
-#define wisDeviceGetResourceAllocator    wisDX12DeviceGetResourceAllocator
-#define wisDeviceCreatePipelineLayout    wisDX12DeviceCreatePipelineLayout
-#define wisDeviceCreateDescriptorHeap    wisDX12DeviceCreateDescriptorHeap
-#define wisDeviceQueryProperties         wisDX12DeviceQueryProperties
-#define wisFenceGetCompletedValue        wisDX12FenceGetCompletedValue
-#define wisFenceWait                     wisDX12FenceWait
-#define wisFenceSignal                   wisDX12FenceSignal
-#define wisCommandQueueSubmit            wisDX12CommandQueueSubmit
-#define wisCommandQueueSignalFence       wisDX12CommandQueueSignalFence
-#define wisCommandQueueWaitFence         wisDX12CommandQueueWaitFence
-#define wisResourceAllocatorCreateBuffer wisDX12ResourceAllocatorCreateBuffer
-#define wisGetFenceView                  wisGetDX12FenceView
-#define wisGetCommandListView            wisGetDX12CommandListView
+#define wisDestroyTexture                 wisDX12DestroyTexture
+#define wisDestroyBuffer                  wisDX12DestroyBuffer
+#define wisDestroyDescriptorHeap          wisDX12DestroyDescriptorHeap
+#define wisDestroyPipelineLayout          wisDX12DestroyPipelineLayout
+#define wisDestroyResourceAllocator       wisDX12DestroyResourceAllocator
+#define wisDestroyFence                   wisDX12DestroyFence
+#define wisDestroyCommandList             wisDX12DestroyCommandList
+#define wisDestroyCommandQueue            wisDX12DestroyCommandQueue
+#define wisDestroyDevice                  wisDX12DestroyDevice
+#define wisDestroyAdapterQuery            wisDX12DestroyAdapterQuery
+#define wisDestroyInstance                wisDX12DestroyInstance
+#define wisCreateInstance                 wisDX12CreateInstance
+#define wisInstanceQueryAdapters          wisDX12InstanceQueryAdapters
+#define wisAdapterQueryGetAdapterCount    wisDX12AdapterQueryGetAdapterCount
+#define wisAdapterQueryGetAdapterDesc     wisDX12AdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice       wisDX12AdapterQueryCreateDevice
+#define wisDeviceCreateCommandQueue       wisDX12DeviceCreateCommandQueue
+#define wisDeviceCreateCommandList        wisDX12DeviceCreateCommandList
+#define wisDeviceCreateFence              wisDX12DeviceCreateFence
+#define wisDeviceGetResourceAllocator     wisDX12DeviceGetResourceAllocator
+#define wisDeviceCreatePipelineLayout     wisDX12DeviceCreatePipelineLayout
+#define wisDeviceCreateDescriptorHeap     wisDX12DeviceCreateDescriptorHeap
+#define wisDeviceQueryProperties          wisDX12DeviceQueryProperties
+#define wisFenceGetCompletedValue         wisDX12FenceGetCompletedValue
+#define wisFenceWait                      wisDX12FenceWait
+#define wisFenceSignal                    wisDX12FenceSignal
+#define wisCommandQueueSubmit             wisDX12CommandQueueSubmit
+#define wisCommandQueueSignalFence        wisDX12CommandQueueSignalFence
+#define wisCommandQueueWaitFence          wisDX12CommandQueueWaitFence
+#define wisResourceAllocatorCreateBuffer  wisDX12ResourceAllocatorCreateBuffer
+#define wisResourceAllocatorCreateTexture wisDX12ResourceAllocatorCreateTexture
+#define wisGetFenceView                   wisGetDX12FenceView
+#define wisGetCommandListView             wisGetDX12CommandListView
 
 #define wisGetView(handle)                                        \
     _Generic((handle),                                            \
@@ -90,6 +93,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 // Handles
 //==============================================================
 
+typedef struct WisVKTexture           WisTexture;
 typedef struct WisVKBuffer            WisBuffer;
 typedef struct WisVKDescriptorHeap    WisDescriptorHeap;
 typedef struct WisVKPipelineLayout    WisPipelineLayout;
@@ -115,37 +119,39 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 // Functions
 //==============================================================
 
-#define wisDestroyBuffer                 wisVKDestroyBuffer
-#define wisDestroyDescriptorHeap         wisVKDestroyDescriptorHeap
-#define wisDestroyPipelineLayout         wisVKDestroyPipelineLayout
-#define wisDestroyResourceAllocator      wisVKDestroyResourceAllocator
-#define wisDestroyFence                  wisVKDestroyFence
-#define wisDestroyCommandList            wisVKDestroyCommandList
-#define wisDestroyCommandQueue           wisVKDestroyCommandQueue
-#define wisDestroyDevice                 wisVKDestroyDevice
-#define wisDestroyAdapterQuery           wisVKDestroyAdapterQuery
-#define wisDestroyInstance               wisVKDestroyInstance
-#define wisCreateInstance                wisVKCreateInstance
-#define wisInstanceQueryAdapters         wisVKInstanceQueryAdapters
-#define wisAdapterQueryGetAdapterCount   wisVKAdapterQueryGetAdapterCount
-#define wisAdapterQueryGetAdapterDesc    wisVKAdapterQueryGetAdapterDesc
-#define wisAdapterQueryCreateDevice      wisVKAdapterQueryCreateDevice
-#define wisDeviceCreateCommandQueue      wisVKDeviceCreateCommandQueue
-#define wisDeviceCreateCommandList       wisVKDeviceCreateCommandList
-#define wisDeviceCreateFence             wisVKDeviceCreateFence
-#define wisDeviceGetResourceAllocator    wisVKDeviceGetResourceAllocator
-#define wisDeviceCreatePipelineLayout    wisVKDeviceCreatePipelineLayout
-#define wisDeviceCreateDescriptorHeap    wisVKDeviceCreateDescriptorHeap
-#define wisDeviceQueryProperties         wisVKDeviceQueryProperties
-#define wisFenceGetCompletedValue        wisVKFenceGetCompletedValue
-#define wisFenceWait                     wisVKFenceWait
-#define wisFenceSignal                   wisVKFenceSignal
-#define wisCommandQueueSubmit            wisVKCommandQueueSubmit
-#define wisCommandQueueSignalFence       wisVKCommandQueueSignalFence
-#define wisCommandQueueWaitFence         wisVKCommandQueueWaitFence
-#define wisResourceAllocatorCreateBuffer wisVKResourceAllocatorCreateBuffer
-#define wisGetFenceView                  wisGetVKFenceView
-#define wisGetCommandListView            wisGetVKCommandListView
+#define wisDestroyTexture                 wisVKDestroyTexture
+#define wisDestroyBuffer                  wisVKDestroyBuffer
+#define wisDestroyDescriptorHeap          wisVKDestroyDescriptorHeap
+#define wisDestroyPipelineLayout          wisVKDestroyPipelineLayout
+#define wisDestroyResourceAllocator       wisVKDestroyResourceAllocator
+#define wisDestroyFence                   wisVKDestroyFence
+#define wisDestroyCommandList             wisVKDestroyCommandList
+#define wisDestroyCommandQueue            wisVKDestroyCommandQueue
+#define wisDestroyDevice                  wisVKDestroyDevice
+#define wisDestroyAdapterQuery            wisVKDestroyAdapterQuery
+#define wisDestroyInstance                wisVKDestroyInstance
+#define wisCreateInstance                 wisVKCreateInstance
+#define wisInstanceQueryAdapters          wisVKInstanceQueryAdapters
+#define wisAdapterQueryGetAdapterCount    wisVKAdapterQueryGetAdapterCount
+#define wisAdapterQueryGetAdapterDesc     wisVKAdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice       wisVKAdapterQueryCreateDevice
+#define wisDeviceCreateCommandQueue       wisVKDeviceCreateCommandQueue
+#define wisDeviceCreateCommandList        wisVKDeviceCreateCommandList
+#define wisDeviceCreateFence              wisVKDeviceCreateFence
+#define wisDeviceGetResourceAllocator     wisVKDeviceGetResourceAllocator
+#define wisDeviceCreatePipelineLayout     wisVKDeviceCreatePipelineLayout
+#define wisDeviceCreateDescriptorHeap     wisVKDeviceCreateDescriptorHeap
+#define wisDeviceQueryProperties          wisVKDeviceQueryProperties
+#define wisFenceGetCompletedValue         wisVKFenceGetCompletedValue
+#define wisFenceWait                      wisVKFenceWait
+#define wisFenceSignal                    wisVKFenceSignal
+#define wisCommandQueueSubmit             wisVKCommandQueueSubmit
+#define wisCommandQueueSignalFence        wisVKCommandQueueSignalFence
+#define wisCommandQueueWaitFence          wisVKCommandQueueWaitFence
+#define wisResourceAllocatorCreateBuffer  wisVKResourceAllocatorCreateBuffer
+#define wisResourceAllocatorCreateTexture wisVKResourceAllocatorCreateTexture
+#define wisGetFenceView                   wisGetVKFenceView
+#define wisGetCommandListView             wisGetVKCommandListView
 
 #define wisGetView(handle)                                    \
     _Generic((handle),                                        \

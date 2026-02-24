@@ -128,6 +128,7 @@ struct VKDeviceFeatures {
     bool index_buffer_range                : 1 = false;
     bool descriptor_heap                   : 1 = false;
     bool global_priority                   : 1 = false;
+    bool host_image_copy                   : 1 = false;
 
     // Properties
     uint16_t resource_desc_size                  = 0;

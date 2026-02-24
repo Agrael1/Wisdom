@@ -11,6 +11,72 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
+namespace wis::detail {
+inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
+{
+    VkImageCreateInfo info{
+        .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .pNext         = nullptr,
+        .flags         = 0,
+        .format        = convert_vk(desc.format),
+        .samples       = VK_SAMPLE_COUNT_1_BIT,
+        .usage         = convert_vk(desc.usage_flags),
+        .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+    };
+
+    switch (desc.layout) {
+    case WisTextureLayoutTexture1D:
+        info.imageType   = VK_IMAGE_TYPE_1D;
+        info.extent      = { desc.width, 1, 1 };
+        info.mipLevels   = desc.mip_levels;
+        info.arrayLayers = 1;
+        break;
+    case WisTextureLayoutTexture2D:
+        info.imageType   = VK_IMAGE_TYPE_2D;
+        info.extent      = { desc.width, desc.height, 1 };
+        info.mipLevels   = desc.mip_levels;
+        info.arrayLayers = 1;
+        break;
+    case WisTextureLayoutTexture1DArray:
+        info.imageType   = VK_IMAGE_TYPE_1D;
+        info.extent      = { desc.width, 1, 1 };
+        info.mipLevels   = desc.mip_levels;
+        info.arrayLayers = desc.depth_or_array_size;
+        break;
+    default:
+    case WisTextureLayoutTexture2DArray:
+        info.imageType   = VK_IMAGE_TYPE_2D;
+        info.extent      = { desc.width, desc.height, 1 };
+        info.mipLevels   = desc.mip_levels;
+        info.arrayLayers = desc.depth_or_array_size;
+        break;
+    case WisTextureLayoutTexture3D:
+        info.imageType   = VK_IMAGE_TYPE_3D;
+        info.flags       = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+        info.extent      = { desc.width, desc.height, desc.depth_or_array_size };
+        info.mipLevels   = desc.mip_levels;
+        info.arrayLayers = 1;
+        break;
+    case WisTextureLayoutTexture2DMS:
+        info.imageType   = VK_IMAGE_TYPE_2D;
+        info.extent      = { desc.width, desc.height, 1 };
+        info.mipLevels   = 1;
+        info.arrayLayers = 1;
+        info.samples     = convert_vk(desc.sample_count);
+        break;
+    case WisTextureLayoutTexture2DMSArray:
+        info.imageType   = VK_IMAGE_TYPE_2D;
+        info.extent      = { desc.width, desc.height, 1 };
+        info.mipLevels   = 1;
+        info.arrayLayers = desc.depth_or_array_size;
+        info.samples     = convert_vk(desc.sample_count);
+        break;
+    }
+    return info;
+}
+} // namespace wis::detail
+
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
 {
@@ -91,4 +157,46 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
 
     return vk_success;
 }
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisVKResourceAllocator* self,
+                                                                      const WisTextureDesc*         desc,
+                                                                      WisVKTexture*                 buffer)
+{
+    auto& allocator = *reinterpret_cast<const VKResourceAllocatorImpl*>(self);
+    // Check memory type, you can't create a texture with upload or readback memory types
+    if (desc->memory_type == WisMemoryTypeUpload || desc->memory_type == WisMemoryTypeReadback) {
+        return make_result<Func(), "Invalid memory type for texture creation">(VK_ERROR_UNKNOWN);
+    }
+
+    VkImageCreateInfo image_info = detail::VKFillImageDesc(*desc);
+
+    VmaAllocationCreateFlags flags = convert_vk(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    VmaAllocationCreateInfo  alloc_info{
+         .flags         = flags,
+         .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+         .requiredFlags = convert_vk(desc->memory_type)
+    };
+    VkImage       image_handle      = VK_NULL_HANDLE;
+    VmaAllocation allocation_handle = VK_NULL_HANDLE;
+    VkResult      vr                = vmaCreateImage(
+            allocator.allocator,
+            &image_info,
+            &alloc_info,
+            &image_handle,
+            &allocation_handle,
+            nullptr);
+    if (!succeeded(vr)) {
+        return make_result<Func(), "Buffer creation failed">(vr);
+    }
+
+    auto& impl         = *new (buffer) VKTextureImpl;
+    impl.image         = image_handle;
+    impl.allocation    = allocation_handle;
+    impl.device_header = allocator.device_header;
+    impl.device_header->AddRef();
+
+    return vk_success;
+}
+
 #endif // WIS_VK_RESOURCE_ALLOCATOR_CPP
