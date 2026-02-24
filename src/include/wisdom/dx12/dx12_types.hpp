@@ -75,6 +75,8 @@ struct DX12BufferImpl {
     D3D12MA::Allocation* allocation; // Pointer to the allocation object that manages the memory for this resource
     D3D12MA::Allocator*  allocator; // Pretty dumb, but we need this to correctly ensure release order of allocator
 };
+
+using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we can reuse the same implementation
 } // namespace impl
 } // namespace wis
 

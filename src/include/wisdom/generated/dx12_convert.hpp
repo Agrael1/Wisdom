@@ -13,6 +13,16 @@
 namespace wis {
 namespace detail {
 
+inline DXGI_FORMAT convert_dx(WisDataFormat value) noexcept
+{
+    return static_cast<DXGI_FORMAT>(value);
+}
+
+inline uint32_t convert_dx(WisSampleCount value) noexcept
+{
+    return static_cast<uint32_t>(value);
+}
+
 inline DXGI_GPU_PREFERENCE convert_dx(WisAdapterPreference value) noexcept
 {
     return static_cast<DXGI_GPU_PREFERENCE>(value);
@@ -169,6 +179,33 @@ inline D3D12_RESOURCE_FLAGS convert_dx(WisBufferUsageFlags value) noexcept
     }
     if (value & WisBufferUsageFlagsAccelerationStructureBuffer) {
         result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
+    }
+    return result;
+}
+
+inline D3D12_RESOURCE_FLAGS convert_dx(WisTextureUsageFlags value) noexcept
+{
+    D3D12_RESOURCE_FLAGS result = static_cast<D3D12_RESOURCE_FLAGS>(0);
+    if (value & WisTextureUsageFlagsRenderTarget) {
+        result |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    }
+    if (value & WisTextureUsageFlagsDepthStencil) {
+        result |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    }
+    if (value & WisTextureUsageFlagsCopySrc) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
+    }
+    if (value & WisTextureUsageFlagsCopyDst) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
+    }
+    if (value & WisTextureUsageFlagsShaderResource) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
+    }
+    if (value & WisTextureUsageFlagsUnorderedAccess) {
+        result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    }
+    if (value & WisTextureUsageFlagsHostCopy) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
     }
     return result;
 }

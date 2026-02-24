@@ -21,6 +21,24 @@ struct VKDeviceRequirements {
     wis::span<wis::VKDeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
 };
 
+struct VKTextureDeleter {
+    void operator()(WisVKTexture* handle) noexcept
+    {
+        ::wisVKDestroyTexture(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+class VKTexture : public wis::impl::Implements<wis::impl::VKTextureImpl, WisVKTexture, wis::VKTextureDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKBufferDeleter {
     void operator()(WisVKBuffer* handle) noexcept
     {
@@ -106,6 +124,22 @@ public:
                                                                          reinterpret_cast<const WisBufferDesc*>(&desc),
                                                                          buffer.GetStorage()));
         return buffer;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
+     * @param desc points to wis::TextureDesc, which describes the texture to create.
+     * @param out_result denoting the outcome of operation.
+     * @return texture points to wis::Texture, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKTexture CreateTexture(const wis::TextureDesc& desc,
+                                                      wis::Result&            out_result) const noexcept
+    {
+        wis::VKTexture texture;
+        out_result = convert_result(::wisVKResourceAllocatorCreateTexture(&_impl_storage,
+                                                                          reinterpret_cast<const WisTextureDesc*>(&desc),
+                                                                          texture.GetStorage()));
+        return texture;
     }
 };
 

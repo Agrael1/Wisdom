@@ -50,6 +50,26 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
     }
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
+{
+    auto& impl = *reinterpret_cast<VKTextureImpl*>(self);
+    if (impl.image != VK_NULL_HANDLE) {
+        // get allocator
+        VmaAllocator allocator = impl.device_header->header.allocator;
+        vmaDestroyImage(allocator, impl.image, impl.allocation);
+
+        impl.image = VK_NULL_HANDLE;
+
+        // Get device from allocator
+        VmaAllocatorInfo allocator_info{};
+        vmaGetAllocatorInfo(allocator, &allocator_info);
+
+        detail::release_vk_device(allocator_info.device, impl.device_header);
+        impl.device_header = nullptr;
+    }
+}
+
 ////-----------------------------------------------------------------------------
 // WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDevice*           self,
 //                                                                   const WisPipelineLayoutDesc* desc,

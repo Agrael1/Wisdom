@@ -8,6 +8,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Texture, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
  *
  * */
@@ -109,6 +115,13 @@ typedef struct WisDX12DeviceRequirements {
     WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
     size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice array.
 } WisDX12DeviceRequirements;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
+ * @param self is a pointer to the valid WisTexture instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
@@ -397,6 +410,18 @@ WISDOM_API WisResult wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* sel
 WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const WisDX12ResourceAllocator* self,
                                                           const WisBufferDesc*            desc,
                                                           WisDX12Buffer*                  buffer);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ * @param desc points to WisTextureDesc, which describes the texture to create.
+ * @param texture points to WisTexture, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const WisDX12ResourceAllocator* self,
+                                                           const WisTextureDesc*           desc,
+                                                           WisDX12Texture*                 texture);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,10 @@
   </includes>
 
   <handles>
+    <handle name="Texture" version="0.7.0" doc="Class representing a GPU texture resource.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="3"/>
+    </handle>
     <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
       <impl for="vk" size="4"/>
       <impl for="dx" size="3"/>
@@ -146,6 +150,11 @@ Can still be enqueued after the signal.">
     <func for="ResourceAllocator" name="CreateBuffer" version="0.7.0" mod="const" doc="Creates a buffer with given descriptor.">
       <ret type="Buffer" name="buffer" result="true" doc="points to {Buffer::}, which is initialized on success."/>
       <arg type="BufferDesc" name="desc" mod="const,ref" doc="points to {BufferDesc::}, which describes the buffer to create."/>
+    </func>
+
+    <func for="ResourceAllocator" name="CreateTexture" version="0.7.0" mod="const" doc="Creates a texture with given descriptor.">
+      <ret type="Texture" name="texture" result="true" doc="points to {Texture::}, which is initialized on success."/>
+      <arg type="TextureDesc" name="desc" mod="const,ref" doc="points to {TextureDesc::}, which describes the texture to create."/>
     </func>
 
   </functions>

@@ -32,6 +32,613 @@ typedef enum WisStatus {
 } WisStatus;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Data format for data.
+ * Used as a template for data in several cases.
+ * Can be used to describe:
+ * - Vertex buffer data format
+ * - Texture data format
+ * - Render target data format
+ * - Depth stencil data format
+ *
+ * */
+typedef enum WisDataFormat {
+    WisDataFormatUnknown = 0, ///< Unknown format.
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
+    WisDataFormatRGBA32Float = 2,
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
+    WisDataFormatRGBA32Uint = 3,
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
+    WisDataFormatRGBA32Sint = 4,
+    /**
+     * @brief
+     * 32 bit per channel RGB format.
+     * A three-component, 96-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
+    WisDataFormatRGB32Float = 6,
+    /**
+     * @brief
+     * 32 bit per channel RGB format.
+     * A three-component, 96-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
+    WisDataFormatRGB32Uint = 7,
+    /**
+     * @brief
+     * 32 bit per channel RGB format.
+     * A three-component, 96-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
+    WisDataFormatRGB32Sint = 8,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Float = 10,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Unorm = 11,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Uint = 12,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Snorm = 13,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Sint = 14,
+    /**
+     * @brief
+     * 32 bit per channel RG format.
+     * A two-component, 64-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
+    WisDataFormatRG32Float = 16,
+    /**
+     * @brief
+     * 32 bit per channel RG format.
+     * A two-component, 64-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
+    WisDataFormatRG32Uint = 17,
+    /**
+     * @brief
+     * 32 bit per channel RG format.
+     * A two-component, 64-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
+    WisDataFormatRG32Sint = 18,
+    /**
+     * @brief
+     * 32 bit depth, 8 bit stencil format.
+     * A combined depth/stencil format with a 32-bit depth component in bytes 0..3
+     * and an 8-bit stencil component in bytes 4..4.
+     * */
+    WisDataFormatD32FloatS8Uint = 20,
+    /**
+     * @brief
+     * 10 bit per channel RGB format with 2 bit alpha.
+     * A four-component, 32-bit unsigned normalized format that has
+     * a 10-bit R component in bits 0..9,
+     * a 10-bit G component in bits 10..19,
+     * a 10-bit B component in bits 20..29,
+     * a 2-bit A component in bits 30..31.
+     * */
+    WisDataFormatRGB10A2Unorm = 24,
+    /**
+     * @brief
+     * 10 bit per channel RGB format with 2 bit alpha.
+     * A four-component, 32-bit unsigned integer format that has
+     * a 10-bit R component in bits 0..9,
+     * a 10-bit G component in bits 10..19,
+     * a 10-bit B component in bits 20..29,
+     * a 2-bit A component in bits 30..31.
+     * */
+    WisDataFormatRGB10A2Uint = 25,
+    /**
+     * @brief
+     * 11 bit per channel RG format with 10 bit blue.
+     * A three-component, 32-bit signed floating-point format that has
+     * a 11-bit R component in bits 0..10,
+     * a 11-bit G component in bits 11..21,
+     * a 10-bit B component in bits 22..31.
+     * */
+    WisDataFormatRG11B10Float = 26,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Unorm = 28,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format. SRGB non-linear color space.
+     * A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8UnormSrgb = 29,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Uint = 30,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Snorm = 31,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Sint = 32,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Float = 34,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Unorm = 35,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Uint = 36,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Snorm = 37,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Sint = 38,
+    /**
+     * @brief
+     * 32 bit depth format.
+     * A 32-bit depth format supporting 32-bit floating-point depth values.
+     * */
+    WisDataFormatD32Float = 40,
+    /**
+     * @brief
+     * 32 bit per channel R format.
+     * A one-component, 32-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
+    WisDataFormatR32Float = 41,
+    /**
+     * @brief
+     * 32 bit per channel R format.
+     * A one-component, 32-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
+    WisDataFormatR32Uint = 42,
+    /**
+     * @brief
+     * 32 bit per channel R format.
+     * A one-component, 32-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
+    WisDataFormatR32Sint = 43,
+    /**
+     * @brief
+     * 24 bit depth, 8 bit stencil format.
+     * A combined depth/stencil format with a 24-bit depth component in bytes 0..2
+     * and an 8-bit stencil component in bytes 3..3.
+     * */
+    WisDataFormatD24UnormS8Uint = 45,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Unorm = 49,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Uint = 50,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Snorm = 51,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Sint = 52,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Float = 54,
+    /**
+     * @brief
+     * 16 bit depth format.
+     * A 16-bit depth format supporting 16-bit unsigned normalized depth values.
+     * */
+    WisDataFormatD16Unorm = 55,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Unorm = 56,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Uint = 57,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Snorm = 58,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Sint = 59,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Unorm = 61,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Uint = 62,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Snorm = 63,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Sint = 64,
+    /**
+     * @brief
+     * 9 bit per channel RGB format with shared exponent.
+     * A three-component, 32-bit unsigned floating-point format that has
+     * a 9-bit R component in bits 0..8,
+     * a 9-bit G component in bits 9..17,
+     * a 9-bit B component in bits 18..26,
+     * a shared 5-bit exponent in bits 27..31.
+     * */
+    WisDataFormatRGB9E5UFloat = 67,
+    /**
+     * @brief
+     * BC1/DXT1 compressed format.
+     * A four-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGB texel data, and provides 1 bit of alpha.
+     * */
+    WisDataFormatBC1RGBAUnorm = 71,
+    /**
+     * @brief
+     * BC1/DXT1 compressed format.
+     * A four-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGB texel data with sRGB nonlinear encoding, and provides 1 bit of alpha.
+     * */
+    WisDataFormatBC1RGBAUnormSrgb = 72,
+    /**
+     * @brief
+     * BC2/DXT3 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC2RGBAUnorm = 74,
+    /**
+     * @brief
+     * BC2/DXT3 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC2RGBAUnormSrgb = 75,
+    /**
+     * @brief
+     * BC3/DXT5 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with the first 64 bits encoding alpha values
+     * followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC3RGBAUnorm = 77,
+    /**
+     * @brief
+     * BC3/DXT5 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC3RGBAUnormSrgb = 78,
+    /**
+     * @brief
+     * BC4 compressed format.
+     * A single-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized red texel data
+     * */
+    WisDataFormatBC4RUnorm = 80,
+    /**
+     * @brief
+     * BC4 compressed format.
+     * A single-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed normalized red texel data
+     * */
+    WisDataFormatBC4RSnorm = 81,
+    /**
+     * @brief
+     * BC5 compressed format.
+     * A two-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized red and green texel data
+     * */
+    WisDataFormatBC5RGUnorm = 83,
+    /**
+     * @brief
+     * BC5 compressed format.
+     * A two-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed normalized red and green texel data
+     * */
+    WisDataFormatBC5RGSnorm = 84,
+    /**
+     * @brief
+     * 16 bit per channel RGB format.
+     * A three-component, 16-bit unsigned normalized format that has
+     * a 5-bit B component in bits 0..4,
+     * a 6-bit G component in bits 5..10,
+     * a 5-bit R component in bits 11..15.
+     * */
+    WisDataFormatB5G6R5Unorm = 85,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 16-bit unsigned normalized format that has
+     * a 5-bit B component in bits 0..4,
+     * a 5-bit G component in bits 5..9,
+     * a 5-bit R component in bits 10..14,
+     * a 1-bit A component in bits 15..15.
+     * */
+    WisDataFormatB5G5R5A1Unorm = 86,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned normalized format that has
+     * an 8-bit B component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit R component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatBGRA8Unorm = 87,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format. SRGB non-linear color space.
+     * A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+     * an 8-bit B component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit R component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatBGRA8UnormSrgb = 91,
+    /**
+     * @brief
+     * BC6H compressed format.
+     * A three-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned floating-point RGB texel data
+     * */
+    WisDataFormatBC6HUfloat16 = 95,
+    /**
+     * @brief
+     * BC6H compressed format.
+     * A three-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed floating-point RGB texel data
+     * */
+    WisDataFormatBC6HSfloat16 = 96,
+    /**
+     * @brief
+     * BC7 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data
+     * */
+    WisDataFormatBC7RGBAUnorm = 98,
+    /**
+     * @brief
+     * BC7 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * */
+    WisDataFormatBC7RGBAUnormSrgb = 99,
+    /**
+     * @brief
+     * 4 bit per channel RGB format.
+     * A four-component, 16-bit unsigned normalized format that has
+     * a 4-bit B component in bits 0..3,
+     * a 4-bit G component in bits 4..7,
+     * a 4-bit R component in bits 8..11,
+     * a 4-bit A component in bits 12..15.
+     * */
+    WisDataFormatBGRA4Unorm = 115,
+} WisDataFormat;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sample rate for multisampling.
+ *
+ * */
+typedef enum WisSampleCount {
+    WisSampleCountS1  = 1, ///< 1 sample per pixel.
+    WisSampleCountS2  = 2, ///< 2 samples per pixel.
+    WisSampleCountS4  = 4, ///< 4 samples per pixel.
+    WisSampleCountS8  = 8, ///< 8 samples per pixel.
+    WisSampleCountS16 = 16, ///< 16 samples per pixel.
+} WisSampleCount;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture layout. Determines how texture will be accessed.
+ *
+ * */
+typedef enum WisTextureLayout {
+    WisTextureLayoutTexture1D        = 2, ///< Texture is 1D array of data. Behaves similarly to Buffer.
+    WisTextureLayoutTexture1DArray   = 3, ///< Texture is an array of 1D data.
+    WisTextureLayoutTexture2D        = 4, ///< Texture is 2D image, default texture type.
+    WisTextureLayoutTexture2DArray   = 5, ///< Texture is an array of 2D images. Can also be used for Cube maps.
+    WisTextureLayoutTexture2DMS      = 6, ///< Texture is 2D multisampled image.
+    WisTextureLayoutTexture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
+    WisTextureLayoutTexture3D        = 8, ///< Texture is 3D volume.
+} WisTextureLayout;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Orders the adapters according to preference using builtin heuristics of underlying APIs. For DirectX 12, this translates directly to `DXGI_GPU_PREFERENCE`. For Vulkan, sorting is based on `VkPhysicalDeviceType` heuristics.
  *
  * */
@@ -189,8 +796,9 @@ typedef enum WisDescriptorStorageTier {
  *
  * */
 typedef enum WisQueryPropertyType {
-    WisQueryPropertyTypeDeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a .
-    WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties.
+    WisQueryPropertyTypeDeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a  struct.
+    WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
+    WisQueryPropertyTypeDeviceMemoryProperties         = 2, ///< Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
 } WisQueryPropertyType;
 
 /**
@@ -263,6 +871,22 @@ typedef enum WisBufferUsageFlags {
     WisBufferUsageFlagsAccelerationStructureInput  = (1 << 8), ///< Buffer is used as a read only acceleration instance input buffer.
     WisBufferUsageFlagsShaderBindingTable          = (1 << 9), ///< Buffer is used as a shader binding table buffer.
 } WisBufferUsageFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture usage flags.
+ * Determine how the texture can be used throughout its lifetime.
+ *
+ * */
+typedef enum WisTextureUsageFlags {
+    WisTextureUsageFlagsNone            = 0, ///< No flags set. Texture is not used.
+    WisTextureUsageFlagsRenderTarget    = (1 << 0), ///< Texture is used as a render target.
+    WisTextureUsageFlagsDepthStencil    = (1 << 1), ///< Texture is used as a depth stencil buffer.
+    WisTextureUsageFlagsCopySrc         = (1 << 2), ///< Texture is used as a source for copy operations.
+    WisTextureUsageFlagsCopyDst         = (1 << 3), ///< Texture is used as a destination for copy operations.
+    WisTextureUsageFlagsShaderResource  = (1 << 4), ///< Texture is used as a shader resource.
+    WisTextureUsageFlagsUnorderedAccess = (1 << 5), ///< Texture is used as an unordered access resource.
+    WisTextureUsageFlagsHostCopy        = (1 << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
+} WisTextureUsageFlags;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Memory flags.
@@ -469,6 +1093,23 @@ typedef struct WisBufferDesc {
 } WisBufferDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Texture description for WisTexture creation.
+ *
+ * */
+typedef struct WisTextureDesc {
+    uint32_t             width; ///< Texture width in pixels.
+    uint32_t             height; ///< Texture height in pixels.
+    uint16_t             depth_or_array_size; ///< Texture depth in pixels. Used only for 3D textures.
+    uint16_t             mip_levels; ///< Number of mip levels in the texture.
+    WisDataFormat        format; ///< Texture format.
+    WisSampleCount       sample_count; ///< Number of samples per pixel. Used only for multisampled textures.
+    WisTextureLayout     layout; ///< Texture layout. Default is `WisTextureLayoutTexture2D`.
+    WisTextureUsageFlags usage_flags; ///< Texture usage flags. Describe how the texture will be used.
+    WisMemoryType        memory_type; ///< indicates where the texture will be allocated.
+    WisMemoryFlags       memory_flags; ///< The flags of the memory to allocate for the texture.
+} WisTextureDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -501,6 +1142,17 @@ typedef struct WisDeviceCommandQueuesProperties {
     bool                    supported_queues[5]; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in wis::CommandQueueType enum.
     WisCommandQueuePriority max_queue_priority[5]; ///< Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in wis::CommandQueueType enum.
 } WisDeviceCommandQueuesProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
+ *
+ * */
+typedef struct WisDeviceMemoryProperties {
+    WisQueryPropertyType property_type; ///< Defines the type of the queried property. @wis_must be `WisQueryPropertyTypeDeviceMemoryProperties`..
+    void*                next_in_chain; ///< Pointer to the next queried data struct.
+    bool                 gpu_upload_supported; ///< Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs.
+    bool                 host_image_copy_supported; ///< Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
+} WisDeviceMemoryProperties;
 
 #ifdef __cplusplus
 }

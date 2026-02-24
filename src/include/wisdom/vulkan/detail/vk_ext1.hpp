@@ -118,6 +118,16 @@ public:
             });
         }
 
+        // Host copy support
+        if (collector.IsExtensionPresent(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME)) {
+            features.host_image_copy = true;
+            collector.EnableExtension({
+                    .name                = VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceHostImageCopyFeaturesEXT),
+            });
+        }
+
         return vk_success;
     }
     ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,

@@ -78,8 +78,12 @@ int main()
     wisDestroyAdapterQuery(&adapter_query);
 
     // Query important device features
+    WisDeviceMemoryProperties memory_properties = {
+        .property_type = WisQueryPropertyTypeDeviceMemoryProperties
+    };
     WisDeviceCommandQueuesProperties command_queues_properties = {
-        .property_type = WisQueryPropertyTypeDeviceCommandQueueProperties
+        .property_type = WisQueryPropertyTypeDeviceCommandQueueProperties,
+        .next_in_chain = &memory_properties
     };
     WisDeviceDescriptorHeapProperties descriptor_heap_properties = {
         .property_type = WisQueryPropertyTypeDeviceDescriptorHeapProperties,
@@ -99,6 +103,10 @@ int main()
     printf("- Max sampler heap size with embedded samplers: %zu\n", descriptor_heap_properties.max_sampler_heap_size_with_embedded);
     printf("- Descriptor increment size: %zu\n", descriptor_heap_properties.descriptor_increment_size);
     printf("- Sampler increment size: %zu\n", descriptor_heap_properties.sampler_increment_size);
+
+    printf("Device memory properties:\n");
+    printf("- GPU upload supported: %s\n", memory_properties.gpu_upload_supported ? "Yes" : "No");
+    printf("- Host image copy supported: %s\n", memory_properties.host_image_copy_supported ? "Yes" : "No");
 
     // Create CommandQueue
     WisCommandQueue command_queue = { 0 };
@@ -136,6 +144,23 @@ int main()
     result           = wisResourceAllocatorCreateBuffer(&allocator, &buffer_desc, &buffer);
     printf("CreateBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    WisTextureDesc texture_desc = {
+        .width               = 256,
+        .height              = 256,
+        .depth_or_array_size = 1,
+        .mip_levels          = 1,
+        .format              = WisDataFormatRGBA8Unorm,
+        .sample_count        = WisSampleCountS1,
+        .layout              = WisTextureLayoutTexture2D,
+        .usage_flags         = WisTextureUsageFlagsCopyDst | WisTextureUsageFlagsShaderResource,
+        .memory_type         = WisMemoryTypeDeviceLocal,
+        .memory_flags        = WisMemoryFlagsNone,
+    };
+
+    WisTexture texture = { 0 };
+    result             = wisResourceAllocatorCreateTexture(&allocator, &texture_desc, &texture);
+    printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
     // Enqueue fence signal on command queue
     result = wisCommandQueueSignalFence(&command_queue, wisGetView(&fence), 1);
 
@@ -149,5 +174,6 @@ int main()
     wisDestroyCommandList(&command_list);
     wisDestroyDescriptorHeap(&descriptor_heap);
     wisDestroyBuffer(&buffer);
+    wisDestroyTexture(&texture);
     return 0;
 }

@@ -21,6 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using Texture           = wis::DX12Texture;
 using Buffer            = wis::DX12Buffer;
 using DescriptorHeap    = wis::DX12DescriptorHeap;
 using PipelineLayout    = wis::DX12PipelineLayout;
@@ -77,6 +78,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using Texture           = wis::VKTexture;
 using Buffer            = wis::VKBuffer;
 using DescriptorHeap    = wis::VKDescriptorHeap;
 using PipelineLayout    = wis::VKPipelineLayout;

@@ -369,6 +369,14 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
                 props->sampler_increment_size              = device.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
             }
         } break;
+        case WisQueryPropertyTypeDeviceMemoryProperties: {
+            auto*                              props     = static_cast<WisDeviceMemoryProperties*>(next);
+            D3D12_FEATURE_DATA_D3D12_OPTIONS16 options16 = {};
+            if (succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16)))) {
+                props->gpu_upload_supported = options16.GPUUploadHeapSupported;
+                props->host_image_copy_supported = options16.GPUUploadHeapSupported;
+            }
+        } break;
         default:
             break;
         }
