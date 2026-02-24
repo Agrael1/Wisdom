@@ -21,6 +21,7 @@ namespace detail {
 struct VKInstanceControlBlock;
 struct VKDeviceControlBlock;
 struct VKDescriptorSetLayoutContainer;
+struct VKCommandPoolControlBlock;
 } // namespace detail
 
 namespace impl {
@@ -50,11 +51,17 @@ struct VKCommandQueueImpl {
     detail::VKDeviceControlBlock* device_header;
 };
 
+struct VKCommandAllocatorImpl {
+    VkCommandPool                      command_pool;
+    detail::VKCommandPoolControlBlock* command_pool_header;
+    uint32_t                           queue_family_index;
+};
+
 struct VKCommandListImpl {
-    VkCommandBuffer               command_buffer;
-    VkCommandPool                 command_pool;
-    VkDevice                      device;
-    detail::VKDeviceControlBlock* device_header;
+    VkCommandBuffer                    command_buffer;
+    VkCommandPool                      command_pool;
+    detail::VKCommandPoolControlBlock* command_pool_header;
+    impl::VKMainCommandList*           command_list_table; // local copy of the main command list table for faster access
 };
 
 struct VKFenceImpl {
@@ -114,7 +121,9 @@ struct VKTextureImpl {
 #include "vk_adapter_query.cpp"
 #include "vk_fence.cpp"
 #include "vk_command_queue.cpp"
+#include "vk_command_list.cpp"
 #include "vk_descriptor_heap.cpp"
 #include "vk_resource_allocator.cpp"
+#include "vk_command_allocator.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_VK_TYPES_HPP

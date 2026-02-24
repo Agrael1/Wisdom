@@ -118,6 +118,8 @@ struct VKMainCommandList {
     PFN_vkCmdBindIndexBuffer2     vkCmdBindIndexBuffer2;
     PFN_vkEndCommandBuffer        vkEndCommandBuffer;
 
+    PFN_vkFreeCommandBuffers vkFreeCommandBuffers; // Optional, only used for command list reset when supported
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -144,6 +146,8 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdPushDescriptorSet, "vkCmdPushDescriptorSetKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdBindIndexBuffer2, "vkCmdBindIndexBuffer2KHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkEndCommandBuffer);
+
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkFreeCommandBuffers);
         return true;
     }
 };
@@ -189,6 +193,7 @@ struct VKMainDevice {
     PFN_vkCreateFence                       vkCreateFence;
     PFN_vkDestroyFence                      vkDestroyFence;
     PFN_vkCreateCommandPool                 vkCreateCommandPool;
+    PFN_vkResetCommandPool                  vkResetCommandPool;
     PFN_vkResetFences                       vkResetFences;
     PFN_vkWaitForFences                     vkWaitForFences;
     PFN_vkCreateSemaphore                   vkCreateSemaphore;
@@ -250,6 +255,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateFence);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyFence);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateCommandPool);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkResetCommandPool);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkResetFences);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkWaitForFences);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateSemaphore);

@@ -5,6 +5,7 @@
 #include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>
+#include <bit>
 
 using namespace wis;
 using namespace wis::impl;
@@ -68,12 +69,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice*  self,
-                                                               WisCommandQueueType type,
-                                                               WisVKCommandList*   list)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKDevice*     self,
+                                                                    WisCommandQueueType    type,
+                                                                    WisVKCommandAllocator* allocator)
 {
-    WisResult res    = vk_success;
-    auto&     device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& table  = device.device_header->header.device_table;
 
     // Sanity check: lower and upper bound
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
@@ -88,6 +89,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice
         return make_result<Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
+    std::unique_ptr<detail::VKCommandPoolControlBlock> pool_control_block = wis::make_unique<detail::VKCommandPoolControlBlock>();
+    if (!pool_control_block) {
+        return make_result<Func(), "Failed to allocate memory for command pool control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
     uint8_t queue_family = device.device_header->header.queue_families[queue_family_index].family_index;
 
     // Create command pool
@@ -97,36 +103,20 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandList(const WisVKDevice
         .queueFamilyIndex = static_cast<uint32_t>(queue_family),
     };
     VkCommandPool command_pool = VK_NULL_HANDLE;
-    auto&         table        = device.device_header->header.device_table;
     VkResult      vr           = table.vkCreateCommandPool(device.device, &pool_info, nullptr, &command_pool);
     if (!succeeded(vr)) {
         return make_result<Func(), "Failed to create Vulkan command pool">(vr);
     }
-    // Create command buffer
-    VkCommandBufferAllocateInfo alloc_info{
-        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .pNext              = nullptr,
-        .commandPool        = command_pool,
-        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = 1,
-    };
 
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+    pool_control_block->header.device        = device.device;
+    pool_control_block->header.device_header = device.device_header;
+    pool_control_block->header.device_header->AddRef(); // hold reference to device header for command pool control block
 
-    vr = table.vkAllocateCommandBuffers(device.device, &alloc_info, &command_buffer);
-    if (!succeeded(vr)) {
-        table.vkDestroyCommandPool(device.device, command_pool, nullptr); // cleanup
-        return make_result<Func(), "Failed to allocate Vulkan command buffer">(vr);
-    }
+    auto& allocator_impl               = *new (allocator) VKCommandAllocatorImpl();
+    allocator_impl.command_pool        = command_pool;
+    allocator_impl.command_pool_header = pool_control_block.release();
 
-    // Fill command list impl
-    auto& list_impl          = *new (list) VKCommandListImpl();
-    list_impl.command_pool   = command_pool;
-    list_impl.command_buffer = command_buffer;
-    list_impl.device         = device.device;
-    list_impl.device_header  = device.device_header;
-    list_impl.device_header->AddRef(); // hold reference to device header
-    return res;
+    return vk_success;
 }
 
 WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self,

@@ -92,8 +92,12 @@ TEST_CASE("relaxed_destruction_order")
     result                         = wisDeviceGetResourceAllocator(&device, &allocator);
     REQUIRE(result.status == WisStatusOk);
 
+    WisCommandAllocator command_allocator = { 0 };
+    result                                = wisDeviceCreateCommandAllocator(&device, WisCommandQueueTypeGraphics, &command_allocator);
+    REQUIRE(result.status == WisStatusOk);
+
     WisCommandList command_list = { 0 };
-    result                      = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
+    result                      = wisCommandAllocatorCreateCommandList(&command_allocator, &command_list);
     REQUIRE(result.status == WisStatusOk);
 
     SECTION("Out of order destruction")
@@ -104,11 +108,13 @@ TEST_CASE("relaxed_destruction_order")
         wisDestroyFence(&fence);
         wisDestroyResourceAllocator(&allocator);
         wisDestroyCommandList(&command_list);
+        wisDestroyCommandAllocator(&command_allocator);
     }
 
     SECTION("In order destruction")
     {
         wisDestroyCommandList(&command_list);
+        wisDestroyCommandAllocator(&command_allocator);
         wisDestroyResourceAllocator(&allocator);
         wisDestroyFence(&fence);
         wisDestroyCommandQueue(&command_queue);

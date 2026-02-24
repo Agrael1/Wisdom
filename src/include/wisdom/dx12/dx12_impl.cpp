@@ -10,18 +10,6 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
-
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
-{
-    auto& [list] = *reinterpret_cast<DX12CommandListImpl*>(self);
-    if (!list) {
-        return;
-    }
-
-    list->Release();
-}
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineLayout(WisDX12PipelineLayout* self)
 {
@@ -45,6 +33,16 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
     allocation->Release();
     allocator->Release();
     resource = nullptr;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
+{
+    auto& [resource, allocation, allocator] = *reinterpret_cast<const DX12BufferImpl*>(self);
+    void* mapped_ptr                        = nullptr;
+    auto  hr                                = resource->Map(0, nullptr, &mapped_ptr);
+    (void)hr; // Ignore mapping failure, return nullptr in that case
+    return mapped_ptr;
 }
 
 //-----------------------------------------------------------------------------

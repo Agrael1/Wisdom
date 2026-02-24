@@ -101,7 +101,13 @@ int main()
         return int(result.status);
     }
 
-    wis::CommandList command_list = device.CreateCommandList(wis::CommandQueueType::Graphics, result);
+    wis::CommandAllocator command_allocator = device.CreateCommandAllocator(wis::CommandQueueType::Graphics, result);
+    if (result.status != wis::Status::Ok) {
+        std::cerr << "Failed to create resource allocator: " << result.error << "\n";
+        return int(result.status);
+    }
+
+    wis::CommandList command_list = command_allocator.CreateCommandList(result);
     if (result.status != wis::Status::Ok) {
         std::cerr << "Failed to create command list: " << result.error << "\n";
         return int(result.status);

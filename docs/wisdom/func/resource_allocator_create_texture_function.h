@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisResourceAllocatorCreateTexture(const WisResourceAllocator* self,
@@ -31,26 +31,36 @@
  * 
  * C++ Version:
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * WIS_NODISCARD wis::Texture ResourceAllocator::CreateTexture(const wis::TextureDesc& desc,
+ *                                                             wis::Result&            out_result) const noexcept;
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * WIS_NODISCARD wis::VKTexture VKResourceAllocator::CreateTexture(const wis::TextureDesc& desc,
+ *                                                                 wis::Result&            out_result) const noexcept;
+ * 
+ * // Provided by Wisdom 0.7.0. 
+ * WIS_NODISCARD wis::DX12Texture DX12ResourceAllocator::CreateTexture(const wis::TextureDesc& desc,
+ *                                                                     wis::Result&            out_result) const noexcept;
+ * }
  * ```
  * </details>
- * 
  * \endcond
  *
  * @section wisResourceAllocatorCreateTexture_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - **this** `self` self is a pointer to the valid WisResourceAllocator instance.
+ * - **this** `self` self is a pointer to the valid WisResourceAllocator instance.
  * - `desc` points to WisTextureDesc, which describes the texture to create.
  * - `texture` points to WisTexture, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.
- * 
  * \endcond
  *
  * @section wisResourceAllocatorCreateTexture_descr Description

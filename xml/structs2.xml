@@ -129,7 +129,7 @@
       <member type="u16" name="depth_or_array_size" doc="Texture depth in pixels. Used only for 3D textures."/>
       <member type="u16" name="mip_levels" doc="Number of mip levels in the texture."/>
       <member type="DataFormat" name="format" doc="Texture format."/>
-      <member type="SampleCount" name="sample_count" doc="Number of samples per pixel. Used only for multisampled textures."/>
+      <member type="SampleCount" name="sample_count" default="S1" doc="Number of samples per pixel. Used only for multisampled textures."/>
       <member type="TextureLayout" name="layout" default="Texture2D" doc="Texture layout. Default is {TextureLayout::Texture2D}."/>
       <member type="TextureUsageFlags" name="usage_flags" doc="Texture usage flags. Describe how the texture will be used."/>
       <member type="MemoryType" name="memory_type" doc="indicates where the texture will be allocated."/>

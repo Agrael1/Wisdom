@@ -121,8 +121,11 @@ int main()
     WisResourceAllocator allocator = { 0 };
     result                         = wisDeviceGetResourceAllocator(&device, &allocator);
 
+    WisCommandAllocator command_allocator = { 0 };
+    result                                = wisDeviceCreateCommandAllocator(&device, WisCommandQueueTypeGraphics, &command_allocator);
+
     WisCommandList command_list = { 0 };
-    result                      = wisDeviceCreateCommandList(&device, WisCommandQueueTypeGraphics, &command_list);
+    result                      = wisCommandAllocatorCreateCommandList(&command_allocator, &command_list);
 
     WisCommandListView command_list_view = wisGetView(&command_list);
 
@@ -143,6 +146,8 @@ int main()
     WisBuffer buffer = { 0 };
     result           = wisResourceAllocatorCreateBuffer(&allocator, &buffer_desc, &buffer);
     printf("CreateBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    void* mapped_ptr = wisBufferMap(&buffer);
 
     WisTextureDesc texture_desc = {
         .width               = 256,
@@ -175,5 +180,6 @@ int main()
     wisDestroyDescriptorHeap(&descriptor_heap);
     wisDestroyBuffer(&buffer);
     wisDestroyTexture(&texture);
+    wisDestroyCommandAllocator(&command_allocator);
     return 0;
 }

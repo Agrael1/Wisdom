@@ -7,6 +7,7 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
+#include <bit>
 
 using namespace wis;
 using namespace wis::impl;
@@ -58,26 +59,25 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandList(const WisDX12Device* self,
-                                                                 WisCommandQueueType  type,
-                                                                 WisDX12CommandList*  list)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisDX12Device*     self,
+                                                                      WisCommandQueueType      type,
+                                                                      WisDX12CommandAllocator* list)
 {
-    WisResult result = dx_success;
-    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    WisResult                            result = dx_success;
+    auto&                                device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    wis::com_ptr<ID3D12CommandAllocator> allocator;
 
-    com_ptr<ID3D12GraphicsCommandList7> command_list;
-
-    auto hr = device.device->CreateCommandList1(0,
-                                                convert_dx(type),
-                                                D3D12_COMMAND_LIST_FLAG_NONE,
-                                                IID_ID3D12GraphicsCommandList7,
-                                                command_list.put_void_unchecked());
+    auto hr = device.device->CreateCommandAllocator(convert_dx(type),
+                                                    IID_ID3D12CommandAllocator,
+                                                    allocator.put_void_unchecked());
     if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create command list">(hr);
+        return make_result<Func(), "Failed to create command allocator">(hr);
     }
 
-    auto& internal = *new (list) DX12CommandListImpl();
-    internal.list  = command_list.detach();
+    auto& internal     = *new (list) DX12CommandAllocatorImpl();
+    internal.allocator = allocator.detach();
+    internal.type      = convert_dx(type);
+    internal.device    = device.device; // store device pointer for later use when creating command lists with this allocator (don't refcount)
     return result;
 }
 
@@ -373,7 +373,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
             auto*                              props     = static_cast<WisDeviceMemoryProperties*>(next);
             D3D12_FEATURE_DATA_D3D12_OPTIONS16 options16 = {};
             if (succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16)))) {
-                props->gpu_upload_supported = options16.GPUUploadHeapSupported;
+                props->gpu_upload_supported      = options16.GPUUploadHeapSupported;
                 props->host_image_copy_supported = options16.GPUUploadHeapSupported;
             }
         } break;
