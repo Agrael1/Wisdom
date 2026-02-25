@@ -55,7 +55,7 @@ static inline WisDX12FenceView wisGetDX12FenceView(const WisDX12Fence* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12CommandList, 1);
+WIS_DEFINE_HANDLE(WisDX12CommandList, 2);
 WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList, 1);
 
 static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12CommandList* handle)
@@ -463,12 +463,31 @@ WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const WisDX12Comma
                                                               WisDX12CommandList*            list);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
  * @param self is a pointer to the valid WisCommandList instance.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandListClose(const WisDX12CommandList* self);
+WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param resource_heap points to WisDescriptorHeap with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound.
+ * @param sampler_heap points to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
+ *
+ * */
+WISDOM_API void wisDX12CommandListBindDescriptorHeaps(const WisDX12CommandList*    self,
+                                                      const WisDX12DescriptorHeap* resource_heap,
+                                                      const WisDX12DescriptorHeap* sampler_heap);
 
 #ifdef __cplusplus
 }

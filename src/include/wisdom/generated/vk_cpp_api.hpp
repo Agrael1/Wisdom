@@ -243,13 +243,35 @@ public:
         return GetView();
     }
     /**
+     * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Begin() const noexcept
+    {
+        return convert_result(::wisVKCommandListBegin(&_impl_storage));
+    }
+    /**
      * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
      * @return Result denoting the outcome of operation.
      *
      * */
-    inline wis::Result Close() const noexcept
+    inline wis::Result End() const noexcept
     {
-        return convert_result(::wisVKCommandListClose(&_impl_storage));
+        return convert_result(::wisVKCommandListEnd(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource binding.
+     * @param resource_heap points to wis::DescriptorHeap with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound.
+     * @param sampler_heap points to wis::DescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
+     *
+     * */
+    inline void BindDescriptorHeaps(const wis::VKDescriptorHeap* resource_heap,
+                                    const wis::VKDescriptorHeap* sampler_heap) const noexcept
+    {
+        ::wisVKCommandListBindDescriptorHeaps(&_impl_storage,
+                                              reinterpret_cast<const WisVKDescriptorHeap*>(resource_heap),
+                                              reinterpret_cast<const WisVKDescriptorHeap*>(sampler_heap));
     }
 };
 

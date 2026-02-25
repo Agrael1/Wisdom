@@ -119,27 +119,29 @@ struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
 
 //-----------------------------------------------------------------------------
 struct VKDeviceFeatures {
-    bool has_custom_border_color           : 1 = false;
-    bool dynamic_rendering                 : 1 = false;
-    bool extended_dynamic_state            : 1 = false;
-    bool synchronization_2                 : 1 = false;
-    bool dynamic_render_unused_attachments : 1 = false;
-    bool push_descriptor                   : 1 = false;
-    bool index_buffer_range                : 1 = false;
-    bool descriptor_heap                   : 1 = false;
-    bool global_priority                   : 1 = false;
-    bool host_image_copy                   : 1 = false;
+    uint32_t has_custom_border_color : 1 = false;
+    uint32_t dynamic_rendering       : 1 = false;
+    uint32_t extended_dynamic_state  : 1 = false;
+    uint32_t synchronization_2       : 1 = false;
+
+    uint32_t dynamic_render_unused_attachments : 1 = false;
+    uint32_t push_descriptor                   : 1 = false;
+    uint32_t index_buffer_range                : 1 = false;
+    uint32_t descriptor_heap                   : 1 = false;
+
+    uint32_t global_priority : 1 = false;
+    uint32_t host_image_copy : 1 = false;
 
     // Properties
-    uint16_t resource_desc_size                  = 0;
-    uint16_t sampler_desc_size                   = 0;
-    uint32_t descriptor_heap_alignment           = 0;
-    uint32_t sampler_heap_alignment              = 0;
-    uint32_t min_descriptor_heap_size            = 0;
-    uint32_t min_sampler_heap_size               = 0;
-    uint64_t max_descriptor_heap_size            = 0;
-    uint64_t max_sampler_heap_size               = 0;
-    uint64_t max_sampler_heap_size_with_embedded = 0;
+    uint16_t resource_desc_size                       = 0;
+    uint16_t sampler_desc_size                        = 0;
+    uint32_t descriptor_heap_reserved_size            = 0;
+    uint32_t sampler_heap_reserved_size               = 0;
+    uint32_t sampler_heap_reserved_size_with_embedded = 0;
+    uint32_t descriptor_heap_alignment                = 0;
+    uint32_t sampler_heap_alignment                   = 0;
+    uint64_t max_descriptor_heap_size                 = 0;
+    uint64_t max_sampler_heap_size                    = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -217,8 +219,8 @@ struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
 };
 
 struct VKCommandPoolHeader {
-    VkDevice                device;
-    VKDeviceControlBlock*   device_header;
+    VkDevice              device;
+    VKDeviceControlBlock* device_header;
 };
 
 //-----------------------------------------------------------------------------

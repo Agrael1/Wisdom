@@ -845,6 +845,15 @@ typedef enum WisAdapterFlags {
 } WisAdapterFlags;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Flags for descriptor heap creation.
+ *
+ * */
+typedef enum WisDescriptorHeapFlags {
+    WisDescriptorHeapFlagsNone                     = 0, ///< No flags set.
+    WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1 << 1), ///< Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+} WisDescriptorHeapFlags;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
  *
  * */
@@ -1078,7 +1087,8 @@ typedef struct WisPipelineLayoutDesc {
 typedef struct WisDescriptorHeapDesc {
     WisDescriptorHeapType   type; ///< indicates the type of descriptor heap to create (sampler or descriptor).
     WisDescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
-    size_t                  descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+    uint32_t                descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+    WisDescriptorHeapFlags  flags; ///< describe additional options for the descriptor heap.
 } WisDescriptorHeapDesc;
 
 /**

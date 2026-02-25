@@ -13,7 +13,8 @@
  * typedef struct  WisDescriptorHeapDesc {
  *     WisDescriptorHeapType   type;
  *     WisDescriptorMemoryType memory_type;
- *     size_t                  descriptor_count;
+ *     uint32_t                descriptor_count;
+ *     WisDescriptorHeapFlags  flags;
  * } WisDescriptorHeapDesc;
  * 
  * ```
@@ -24,7 +25,8 @@
  * struct  DescriptorHeapDesc {
  *     wis::DescriptorHeapType   type;
  *     wis::DescriptorMemoryType memory_type;
- *     std::size_t               descriptor_count;
+ *     std::uint32_t             descriptor_count;
+ *     wis::DescriptorHeapFlags  flags;
  * };
  * }
  * ```
@@ -36,6 +38,7 @@
  * - `type` indicates the type of descriptor heap to create (sampler or descriptor).
  * - `memory_type` indicates where the descriptor heap will be allocated.
  * - `descriptor_count` indicates the amount of descriptors, present in the heap.
+ * - `flags` describe additional options for the descriptor heap.
  * \endcond
  *
  * @section WisDescriptorHeapDesc_descr Description

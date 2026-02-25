@@ -117,8 +117,11 @@ struct VKMainCommandList {
     PFN_vkCmdPushDescriptorSet    vkCmdPushDescriptorSet;
     PFN_vkCmdBindIndexBuffer2     vkCmdBindIndexBuffer2;
     PFN_vkEndCommandBuffer        vkEndCommandBuffer;
+    PFN_vkFreeCommandBuffers      vkFreeCommandBuffers;
 
-    PFN_vkFreeCommandBuffers vkFreeCommandBuffers; // Optional, only used for command list reset when supported
+    // Descriptor heap functions
+    PFN_vkCmdBindResourceHeapEXT vkCmdBindResourceHeapEXT;
+    PFN_vkCmdBindSamplerHeapEXT  vkCmdBindSamplerHeapEXT;
 
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
@@ -146,8 +149,11 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdPushDescriptorSet, "vkCmdPushDescriptorSetKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdBindIndexBuffer2, "vkCmdBindIndexBuffer2KHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkEndCommandBuffer);
-
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkFreeCommandBuffers);
+
+        // Descriptor heap functions (optional, since support is not wide)
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindResourceHeapEXT);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindSamplerHeapEXT);
         return true;
     }
 };
@@ -287,6 +293,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkSignalSemaphore, "vkSignalSemaphoreKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetSemaphoreCounterValue, "vkGetSemaphoreCounterValueKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetBufferDeviceAddress, "vkGetBufferDeviceAddressKHR", "vkGetBufferDeviceAddressEXT");
+
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);
 #endif //_WIN32

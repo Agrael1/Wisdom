@@ -842,6 +842,15 @@ enum class AdapterFlags : uint32_t {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Flags for descriptor heap creation.
+ *
+ * */
+enum class DescriptorHeapFlags : uint32_t {
+    None                     = 0, ///< No flags set.
+    DisallowEmbeddedSamplers = (1 << 1), ///< Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
  *
  * */
@@ -1070,7 +1079,8 @@ struct PipelineLayoutDesc {
 struct DescriptorHeapDesc {
     wis::DescriptorHeapType   type; ///< indicates the type of descriptor heap to create (sampler or descriptor).
     wis::DescriptorMemoryType memory_type; ///< indicates where the descriptor heap will be allocated.
-    std::size_t               descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+    std::uint32_t             descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+    wis::DescriptorHeapFlags  flags; ///< describe additional options for the descriptor heap.
 };
 
 /**

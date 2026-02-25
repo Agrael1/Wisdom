@@ -57,6 +57,7 @@ struct DX12CommandAllocatorImpl {
 
 struct DX12CommandListImpl {
     ID3D12GraphicsCommandList7* list;
+    ID3D12CommandAllocator*     allocator;
 };
 
 struct DX12FenceImpl {

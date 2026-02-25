@@ -730,6 +730,11 @@ a 4-bit A component in bits 12..15.">
       <value name="Software" bit="1" doc="Adapter is software. Uses CPU for software rendering."/>
     </type>
 
+    <type name="DescriptorHeapFlags" category="bitmask" version="0.7.0" doc="Flags for descriptor heap creation.">
+      <value name="None" value="0" doc="No flags set."/>
+      <value name="DisallowEmbeddedSamplers" bit="1" doc="Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be."/>
+    </type>
+
     <type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
       <impl_type for="dx" name="D3D12_SAMPLER_FLAGS"/>
       <value name="None" value="0" doc="No flags set."/>

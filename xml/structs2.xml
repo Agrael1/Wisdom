@@ -113,7 +113,8 @@
     <type name="DescriptorHeapDesc" category="struct" version="0.7.0" doc="Descriptor heap description for {DescriptorHeap::} creation.">
       <member type="DescriptorHeapType" name="type" doc="indicates the type of descriptor heap to create (sampler or descriptor)."/>
       <member type="DescriptorMemoryType" name="memory_type" doc="indicates where the descriptor heap will be allocated."/>
-      <member type="size" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
+      <member type="u32" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
+      <member type="DescriptorHeapFlags" name="flags" doc="describe additional options for the descriptor heap."/>
     </type>
 
     <type name="BufferDesc" category="struct" version="0.7.0" doc="Buffer description for {Buffer::} creation.">

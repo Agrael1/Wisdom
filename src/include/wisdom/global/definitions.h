@@ -14,6 +14,10 @@
 #endif
 #endif // WISDOM_EXPORT
 
+#ifndef WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
+#define WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT 0 // Descriptor heap support in Vulkan is still in alpha stage, and the API is subject to change. Enable this at your own risk, and be prepared for breaking changes in future versions of Wisdom and the Vulkan extension itself.
+#endif // WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
+
 // C++ feature detection
 #ifdef __cplusplus
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)

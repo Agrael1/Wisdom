@@ -88,7 +88,10 @@ struct VKDescriptorHeapImpl {
     VkBuffer                      buffer;
     VmaAllocation                 allocation;
     void*                         mapped_ptr;
-    WisDescriptorMemoryType       memory_type;
+    VkDeviceAddress               gpu_address;
+    uint16_t                      descriptor_size;
+    uint16_t                      reserved_size; // in descriptor sizes
+    uint32_t                      heap_size; // in descriptor sizes
     VkDevice                      device;
     detail::VKDeviceControlBlock* device_header;
 };

@@ -23,7 +23,7 @@ WIS_DEFINE_HANDLE(WisVKBuffer, 4);
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 6);
+WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 7);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
@@ -463,12 +463,31 @@ WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAl
                                                             WisVKCommandList*            list);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
  * @param self is a pointer to the valid WisCommandList instance.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandListClose(const WisVKCommandList* self);
+WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param resource_heap points to WisDescriptorHeap with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound.
+ * @param sampler_heap points to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
+ *
+ * */
+WISDOM_API void wisVKCommandListBindDescriptorHeaps(const WisVKCommandList*    self,
+                                                    const WisVKDescriptorHeap* resource_heap,
+                                                    const WisVKDescriptorHeap* sampler_heap);
 
 #ifdef __cplusplus
 }
