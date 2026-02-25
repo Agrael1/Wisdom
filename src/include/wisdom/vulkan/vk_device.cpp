@@ -183,8 +183,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
     }
 
     // 1. Calculate descriptor memory requirements based on desc
-    bool is_shader_heap  = desc->memory_type == WisDescriptorMemoryTypeShaderVisible;
-    bool is_sampler_heap = desc->type == WisDescriptorHeapTypeSampler;
+    bool is_shader_heap    = desc->memory_type == WisDescriptorMemoryTypeShaderVisible;
+    bool is_sampler_heap   = desc->type == WisDescriptorHeapTypeSampler;
+    bool embedded_samplers = !(desc->flags & WisDescriptorHeapFlagsDisallowEmbeddedSamplers);
 
     std::size_t heap_alignment = is_shader_heap ? is_sampler_heap
                     ? features.sampler_heap_alignment
@@ -195,9 +196,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
             ? features.sampler_desc_size
             : features.resource_desc_size;
 
-    std::size_t min_heap_size = is_shader_heap ? is_sampler_heap
-                    ? features.min_sampler_heap_size
-                    : features.min_descriptor_heap_size
+    std::size_t reserved_size = is_shader_heap ? is_sampler_heap
+                    ? embedded_samplers ? features.sampler_heap_reserved_size_with_embedded
+                                        : features.sampler_heap_reserved_size
+                    : features.descriptor_heap_reserved_size
                                                : 0;
 
     std::size_t max_heap_size = is_shader_heap ? is_sampler_heap
@@ -206,7 +208,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
                                                : std::numeric_limits<std::size_t>::max();
 
     std::size_t required_size = wis::aligned_size(
-            std::max(desc->descriptor_count * descriptor_size, min_heap_size),
+            desc->descriptor_count * descriptor_size + reserved_size,
             heap_alignment);
 
     if (is_shader_heap && required_size > max_heap_size) {
@@ -221,13 +223,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         }
 
         // Fill descriptor heap impl
-        auto& heap_impl         = *new (heap) VKDescriptorHeapImpl();
-        heap_impl.buffer        = buffer;
-        heap_impl.allocation    = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
-        heap_impl.memory_type   = desc->memory_type;
-        heap_impl.mapped_ptr    = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
-        heap_impl.device        = device.device;
-        heap_impl.device_header = device.device_header;
+        auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
+        heap_impl.buffer          = buffer;
+        heap_impl.allocation      = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
+        heap_impl.mapped_ptr      = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
+        heap_impl.gpu_address     = 0; // No GPU address for non-shader visible heaps
+        heap_impl.reserved_size   = 0;
+        heap_impl.descriptor_size = descriptor_size;
+        heap_impl.heap_size       = desc->descriptor_count;
+        heap_impl.device          = device.device;
+        heap_impl.device_header   = device.device_header;
         heap_impl.device_header->AddRef(); // hold reference to device header
         return vk_success;
     }
@@ -238,7 +243,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         .pNext = nullptr,
         .flags = 0,
         .size  = required_size,
-        .usage = VK_BUFFER_USAGE_DESCRIPTOR_HEAP_BIT_EXT
+        .usage = VK_BUFFER_USAGE_DESCRIPTOR_HEAP_BIT_EXT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
     };
     VmaAllocationCreateInfo alloc_info{
         .flags          = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
@@ -263,13 +268,23 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         return make_result<Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
     }
 
-    auto& heap_impl         = *new (heap) VKDescriptorHeapImpl();
-    heap_impl.buffer        = buffer;
-    heap_impl.allocation    = allocation;
-    heap_impl.mapped_ptr    = alloc_info_out.pMappedData;
-    heap_impl.memory_type   = desc->memory_type;
-    heap_impl.device        = device.device;
-    heap_impl.device_header = device.device_header;
+    // Get GPU address of the buffer
+    VkBufferDeviceAddressInfo address_info{
+        .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+        .pNext  = nullptr,
+        .buffer = buffer
+    };
+
+    auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
+    heap_impl.buffer          = buffer;
+    heap_impl.allocation      = allocation;
+    heap_impl.mapped_ptr      = alloc_info_out.pMappedData;
+    heap_impl.gpu_address     = table.vkGetBufferDeviceAddress(device.device, &address_info);
+    heap_impl.reserved_size   = reserved_size / descriptor_size;
+    heap_impl.descriptor_size = descriptor_size;
+    heap_impl.heap_size       = desc->descriptor_count;
+    heap_impl.device          = device.device;
+    heap_impl.device_header   = device.device_header;
     heap_impl.device_header->AddRef(); // hold reference to device header
     return vk_success;
 }
@@ -306,9 +321,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             if (!header.features.descriptor_heap) {
                 break;
             }
-            props->max_descriptor_heap_size            = header.features.max_descriptor_heap_size / header.features.resource_desc_size;
-            props->max_sampler_heap_size               = header.features.max_sampler_heap_size / header.features.sampler_desc_size;
-            props->max_sampler_heap_size_with_embedded = header.features.max_sampler_heap_size_with_embedded / header.features.sampler_desc_size;
+
+            auto real_dheap_size               = header.features.max_descriptor_heap_size - header.features.descriptor_heap_reserved_size;
+            auto real_sheap_size               = header.features.max_sampler_heap_size - header.features.sampler_heap_reserved_size;
+            auto real_sheap_size_with_embedded = header.features.max_sampler_heap_size - header.features.sampler_heap_reserved_size_with_embedded;
+
+            props->max_descriptor_heap_size            = real_dheap_size / header.features.resource_desc_size;
+            props->max_sampler_heap_size               = real_sheap_size / header.features.sampler_desc_size;
+            props->max_sampler_heap_size_with_embedded = real_sheap_size_with_embedded / header.features.sampler_desc_size;
             props->descriptor_increment_size           = header.features.resource_desc_size;
             props->sampler_increment_size              = header.features.sampler_desc_size;
         } break;

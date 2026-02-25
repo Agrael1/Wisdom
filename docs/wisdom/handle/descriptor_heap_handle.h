@@ -10,7 +10,7 @@
  * Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisVKDescriptorHeap,6);
+ * WIS_DEFINE_HANDLE(WisVKDescriptorHeap,7);
  * ```
  * DX12 Version:
  * ```c
@@ -22,6 +22,6 @@
  * @section WisDescriptorHeap_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyDescriptorHeap, wisDeviceCreateDescriptorHeap
+ * @see wisDestroyDescriptorHeap, wisDeviceCreateDescriptorHeap, wisCommandListBindDescriptorHeaps, wisCommandListBindDescriptorHeaps
  * \endcond
  */

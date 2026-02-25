@@ -166,6 +166,13 @@ int main()
     result             = wisResourceAllocatorCreateTexture(&allocator, &texture_desc, &texture);
     printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    // Dummy command list
+    wisCommandListBegin(&command_list);
+    wisCommandListBindDescriptorHeaps(&command_list, &descriptor_heap, NULL);
+    wisCommandListEnd(&command_list);
+
+    wisCommandQueueSubmit(&command_queue, &command_list_view, 1);
+
     // Enqueue fence signal on command queue
     result = wisCommandQueueSignalFence(&command_queue, wisGetView(&fence), 1);
 

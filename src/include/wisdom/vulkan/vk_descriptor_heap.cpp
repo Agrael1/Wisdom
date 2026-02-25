@@ -16,7 +16,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
     auto& impl = *reinterpret_cast<VKDescriptorHeapImpl*>(self);
     if (impl.buffer) {
         // Destroy buffer
-        if (impl.memory_type == WisDescriptorMemoryType::WisDescriptorMemoryTypeCpuOnly) {
+        if (impl.gpu_address == 0) {
             std::free(impl.buffer);
         } else {
             vmaUnmapMemory(impl.device_header->header.allocator, impl.allocation);

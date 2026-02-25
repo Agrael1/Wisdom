@@ -81,7 +81,9 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisBufferMap                         wisDX12BufferMap
 #define wisCommandAllocatorReset             wisDX12CommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList wisDX12CommandAllocatorCreateCommandList
-#define wisCommandListClose                  wisDX12CommandListClose
+#define wisCommandListBegin                  wisDX12CommandListBegin
+#define wisCommandListEnd                    wisDX12CommandListEnd
+#define wisCommandListBindDescriptorHeaps    wisDX12CommandListBindDescriptorHeaps
 #define wisGetFenceView                      wisGetDX12FenceView
 #define wisGetCommandListView                wisGetDX12CommandListView
 
@@ -161,7 +163,9 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisBufferMap                         wisVKBufferMap
 #define wisCommandAllocatorReset             wisVKCommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList wisVKCommandAllocatorCreateCommandList
-#define wisCommandListClose                  wisVKCommandListClose
+#define wisCommandListBegin                  wisVKCommandListBegin
+#define wisCommandListEnd                    wisVKCommandListEnd
+#define wisCommandListBindDescriptorHeaps    wisVKCommandListBindDescriptorHeaps
 #define wisGetFenceView                      wisGetVKFenceView
 #define wisGetCommandListView                wisGetVKCommandListView
 

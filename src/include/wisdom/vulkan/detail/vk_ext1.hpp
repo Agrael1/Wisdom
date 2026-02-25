@@ -4,6 +4,7 @@
 #include <wisdom/vulkan/vk_extensions.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <algorithm>
 
 namespace wis::impl {
@@ -142,14 +143,14 @@ public:
             features.resource_desc_size = static_cast<uint16_t>(
                     std::max(descriptor_heap_properties.imageDescriptorAlignment,
                              descriptor_heap_properties.bufferDescriptorAlignment));
-            features.sampler_desc_size                   = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
-            features.descriptor_heap_alignment           = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment);
-            features.sampler_heap_alignment              = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
-            features.min_descriptor_heap_size            = static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange);
-            features.min_sampler_heap_size               = static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded);
-            features.max_descriptor_heap_size            = descriptor_heap_properties.maxResourceHeapSize;
-            features.max_sampler_heap_size               = descriptor_heap_properties.maxSamplerHeapSize;
-            features.max_sampler_heap_size_with_embedded = descriptor_heap_properties.maxSamplerHeapSize - descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded;
+            features.sampler_desc_size                        = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
+            features.descriptor_heap_reserved_size            = wis::aligned_size(static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange), features.resource_desc_size);
+            features.sampler_heap_reserved_size               = wis::aligned_size(static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRange), features.sampler_desc_size);
+            features.sampler_heap_reserved_size_with_embedded = wis::aligned_size(static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded), features.sampler_desc_size);
+            features.descriptor_heap_alignment                = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment);
+            features.sampler_heap_alignment                   = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
+            features.max_descriptor_heap_size                 = descriptor_heap_properties.maxResourceHeapSize;
+            features.max_sampler_heap_size                    = descriptor_heap_properties.maxSamplerHeapSize;
         }
 
         // Nothing to initialize for now

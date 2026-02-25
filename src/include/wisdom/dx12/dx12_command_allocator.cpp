@@ -39,19 +39,20 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const
     auto& [allocator, device, type] = *reinterpret_cast<const DX12CommandAllocatorImpl*>(self);
 
     com_ptr<ID3D12GraphicsCommandList7> command_list;
-    auto                                hr = device->CreateCommandList(0,
-                                        type,
-                                        allocator,
-                                        nullptr,
-                                        IID_ID3D12GraphicsCommandList7,
-                                        command_list.put_void_unchecked());
+    auto                                hr = device->CreateCommandList1(0,
+                                         type,
+                                         D3D12_COMMAND_LIST_FLAG_NONE,
+                                         IID_ID3D12GraphicsCommandList7,
+                                         command_list.put_void_unchecked());
 
     if (!succeeded(hr)) {
         return make_result<Func(), "Failed to create command list">(hr);
     }
 
-    auto& internal = *new (list) DX12CommandListImpl();
-    internal.list  = command_list.detach();
+    auto& internal     = *new (list) DX12CommandListImpl();
+    internal.list      = command_list.detach();
+    internal.allocator = allocator;
+    internal.allocator->AddRef();
 
     return dx_success;
 }
