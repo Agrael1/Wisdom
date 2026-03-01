@@ -26,10 +26,10 @@ WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
 WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 1);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12PipelineLayout, 1);
+WIS_DEFINE_HANDLE(WisDX12RootSignature, 1);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
@@ -144,11 +144,11 @@ WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
 WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineLayout handle.
- * @param self is a pointer to the valid WisPipelineLayout instance.
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisRootSignature handle.
+ * @param self is a pointer to the valid WisRootSignature instance.
  *
  * */
-WISDOM_API void wisDX12DestroyPipelineLayout(WisDX12PipelineLayout* self);
+WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
@@ -315,14 +315,14 @@ WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device*     
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
  * @param self is a pointer to the valid WisDevice instance.
- * @param desc points to WisPipelineLayoutDesc, which describes the pipeline layout to create.
- * @param layout points to WisPipelineLayout, which is initialized on success.
+ * @param desc points to WisRootSignatureDesc, which describes the pipeline layout to create.
+ * @param layout points to WisRootSignature, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX12Device*         self,
-                                                       const WisPipelineLayoutDesc* desc,
-                                                       WisDX12PipelineLayout*       layout);
+WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12Device*        self,
+                                                      const WisRootSignatureDesc* desc,
+                                                      WisDX12RootSignature*       layout);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given descriptor.

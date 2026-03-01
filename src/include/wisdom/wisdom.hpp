@@ -24,7 +24,7 @@ namespace wis {
 using Texture           = wis::DX12Texture;
 using Buffer            = wis::DX12Buffer;
 using DescriptorHeap    = wis::DX12DescriptorHeap;
-using PipelineLayout    = wis::DX12PipelineLayout;
+using RootSignature     = wis::DX12RootSignature;
 using ResourceAllocator = wis::DX12ResourceAllocator;
 using Fence             = wis::DX12Fence;
 using CommandList       = wis::DX12CommandList;
@@ -82,7 +82,7 @@ namespace wis {
 using Texture           = wis::VKTexture;
 using Buffer            = wis::VKBuffer;
 using DescriptorHeap    = wis::VKDescriptorHeap;
-using PipelineLayout    = wis::VKPipelineLayout;
+using RootSignature     = wis::VKRootSignature;
 using ResourceAllocator = wis::VKResourceAllocator;
 using Fence             = wis::VKFence;
 using CommandList       = wis::VKCommandList;

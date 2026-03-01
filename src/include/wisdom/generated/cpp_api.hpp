@@ -684,7 +684,7 @@ enum class CommandQueuePriority {
  * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
  *
  * */
-enum class ShaderStages {
+enum class ShaderVisibility {
     All           = 0, ///< All shader stages.
     Vertex        = 1, ///< Vertex shader stage.
     Hull          = 2, ///< Hull/Tessellation control shader stage.
@@ -1010,24 +1010,24 @@ struct SamplerDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Static sampler description for wis::PipelineLayout creation.
+ * @brief Provided by Wisdom 0.7.0. Static sampler description for  creation.
  *
  * */
 struct StaticSamplerDesc {
-    wis::SamplerDesc  sampler; ///< Sampler description.
-    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the sampler is used.
-    std::uint32_t     bind_register; ///< Bind register number in HLSL.
+    wis::SamplerDesc      sampler; ///< Sampler description.
+    wis::ShaderVisibility visibility; ///< Shader stage visibility. Defines the stage where the sampler is used.
+    std::uint32_t         bind_register; ///< Bind register number in HLSL.
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.
+ * @brief Provided by Wisdom 0.7.0. A set of constants that get read directly from root buffer.
  *
  * */
 struct PushConstant {
-    wis::ShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
-    std::uint32_t     size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
-    std::uint32_t     bind_register; ///< Bind register number in HLSL.
-    std::uint32_t     bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
+    wis::ShaderVisibility visibility; ///< Shader stage visibility for the push constant.
+    std::uint32_t         size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    std::uint32_t         bind_register; ///< Bind register number in HLSL.
+    std::uint32_t         bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
 };
 
 /**
@@ -1035,9 +1035,10 @@ struct PushConstant {
  *
  * */
 struct PushDescriptor {
-    wis::ShaderStages   stage; ///< Shader stage. Defines the stage where the descriptor is used.
-    wis::DescriptorType type; ///< Descriptor type. Works only with buffer bindings.
-    std::uint32_t       bind_register; ///< Bind register number in HLSL.
+    wis::ShaderVisibility visibility; ///< Shader stage visibility for the push descriptor.
+    wis::DescriptorType   type; ///< Descriptor type. Works only with buffer bindings.
+    std::uint32_t         bind_register; ///< Bind register number in HLSL.
+    std::uint32_t         bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
 };
 
 /**
@@ -1047,29 +1048,28 @@ struct PushDescriptor {
 struct DescriptorTableEntry {
     wis::DescriptorType type; ///< Descriptor type.
     std::uint32_t       bind_register; ///< Bind register number in HLSL.
+    std::uint32_t       bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
     std::uint32_t       count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
+    std::uint32_t       descriptor_offset; ///< Offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables.
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Descriptor table for wis::PipelineLayout creation.
+ * @brief Provided by Wisdom 0.7.0. Descriptor table for  creation.
  *
  * */
 struct DescriptorTable {
-    wis::DescriptorHeapType                    type; ///< Descriptor heap type. Either Descriptor or Sampler.
-    wis::ShaderStages                          stage; ///< Shader stage. Defines the stage where the table is used.
+    wis::ShaderVisibility                      visibility; ///< Shader stage. Defines the stage where the table is used.
     wis::span<const wis::DescriptorTableEntry> entries; ///< Descriptor table entries array.
-    std::uint32_t                              space_overlap; ///< If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types.
 };
 
 /**
  * @brief Provided by Wisdom 0.7.0. Pipeline layout description. Defines resource bindings for shaders.
  *
  * */
-struct PipelineLayoutDesc {
-    wis::span<const wis::PushConstant>      push_constants; ///< points to an array of wis::PushConstant.
-    wis::span<const wis::PushDescriptor>    push_descriptors; ///< points to an array of wis::PushDescriptor.
-    wis::span<const wis::StaticSamplerDesc> static_samplers; ///< points to an array of wis::StaticSamplerDesc.
-    wis::span<const wis::DescriptorTable>   descriptor_tables; ///< points to an array of wis::DescriptorTable.
+struct RootSignatureDesc {
+    wis::span<const wis::PushConstant>    push_constants; ///< describes the global shader push data.
+    wis::span<const wis::PushDescriptor>  push_descriptors; ///< points to an array of wis::PushDescriptor.
+    wis::span<const wis::DescriptorTable> descriptor_tables; ///< points to an array of wis::DescriptorTable.
 };
 
 /**
@@ -1127,11 +1127,11 @@ struct QueryStructHeader {
 struct DeviceDescriptorHeapProperties {
     wis::QueryPropertyType property_type; ///< Defines the type of the queried property. Used to determine what struct is passed. @wis_must be `wis::QueryPropertyType::DeviceDescriptorHeapProperties`.
     void*                  next_in_chain; ///< Pointer to the next queried data struct.
-    std::size_t            max_descriptor_heap_size; ///< Maximum number of descriptors in a single descriptor heap.
-    std::size_t            max_sampler_heap_size; ///< Maximum number of samplers in a single descriptor heap.
-    std::size_t            max_sampler_heap_size_with_embedded; ///< Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
-    std::size_t            descriptor_increment_size; ///< Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
-    std::size_t            sampler_increment_size; ///< Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+    std::uint32_t          max_descriptor_heap_size; ///< Maximum number of descriptors in a single descriptor heap.
+    std::uint32_t          max_sampler_heap_size; ///< Maximum number of samplers in a single descriptor heap.
+    std::uint32_t          max_sampler_heap_size_with_embedded; ///< Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
+    std::uint32_t          descriptor_increment_size; ///< Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
+    std::uint32_t          sampler_increment_size; ///< Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
 };
 
 /**

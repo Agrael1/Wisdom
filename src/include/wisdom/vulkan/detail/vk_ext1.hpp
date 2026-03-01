@@ -144,6 +144,7 @@ public:
                     std::max(descriptor_heap_properties.imageDescriptorAlignment,
                              descriptor_heap_properties.bufferDescriptorAlignment));
             features.sampler_desc_size                        = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
+            features.max_root_space                           = static_cast<uint16_t>(descriptor_heap_properties.maxPushDataSize);
             features.descriptor_heap_reserved_size            = wis::aligned_size(static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange), features.resource_desc_size);
             features.sampler_heap_reserved_size               = wis::aligned_size(static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRange), features.sampler_desc_size);
             features.sampler_heap_reserved_size_with_embedded = wis::aligned_size(static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded), features.sampler_desc_size);

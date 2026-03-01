@@ -166,6 +166,11 @@ int main()
     result             = wisResourceAllocatorCreateTexture(&allocator, &texture_desc, &texture);
     printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    WisRootSignatureDesc root_signature_desc = { 0 };
+    WisRootSignature     root_signature      = { 0 };
+    result                                   = wisDeviceCreateRootSignature(&device, &root_signature_desc, &root_signature);
+    printf("CreateRootSignature result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
     // Dummy command list
     wisCommandListBegin(&command_list);
     wisCommandListBindDescriptorHeaps(&command_list, &descriptor_heap, NULL);
@@ -188,5 +193,6 @@ int main()
     wisDestroyBuffer(&buffer);
     wisDestroyTexture(&texture);
     wisDestroyCommandAllocator(&command_allocator);
+    wisDestroyRootSignature(&root_signature);
     return 0;
 }

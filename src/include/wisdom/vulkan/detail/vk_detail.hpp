@@ -135,6 +135,8 @@ struct VKDeviceFeatures {
     // Properties
     uint16_t resource_desc_size                       = 0;
     uint16_t sampler_desc_size                        = 0;
+    uint16_t max_root_space                           = 0;
+    uint16_t reserved                                 = 0;
     uint32_t descriptor_heap_reserved_size            = 0;
     uint32_t sampler_heap_reserved_size               = 0;
     uint32_t sampler_heap_reserved_size_with_embedded = 0;
@@ -225,6 +227,54 @@ struct VKCommandPoolHeader {
 
 //-----------------------------------------------------------------------------
 struct VKCommandPoolControlBlock : public VKControlBlock<VKCommandPoolHeader> {
+};
+
+//-----------------------------------------------------------------------------
+struct alignas(void*) VKRootSignatureControlBlock {
+    constexpr static std::array<uint32_t, WisShaderVisibilityCount> FillInvalid()
+    {
+        std::array<uint32_t, WisShaderVisibilityCount> arr{};
+        std::fill(arr.begin(), arr.end(), std::numeric_limits<uint32_t>::max());
+        return arr;
+    }
+    uint32_t constant_data_size     = 0; // must be aligned to 8 bytes
+    uint32_t mapping_count          = 0;
+    uint32_t embedded_sampler_count = 0;
+
+    // DWORD offset
+    uint16_t root_descriptor_offset = 0;
+    uint16_t root_table_offset      = 0;
+
+    // offset from the start of the control block to the shader visibility mapping for each shader stage, or UINT32_MAX if not used
+    alignas(void*) std::array<uint32_t, WisShaderVisibilityCount> shader_mapping_offset = FillInvalid();
+
+    // aligned to 8 bytes, immediately followed by constant data and then mapping data
+
+    wis::span<uint32_t> GetConstantData() noexcept
+    {
+        return wis::span<uint32_t>{ reinterpret_cast<uint32_t*>(this + 1), constant_data_size };
+    }
+    wis::span<uint32_t> GetRootDescriptors() noexcept
+    {
+        return wis::span<uint32_t>{
+            reinterpret_cast<uint32_t*>(GetConstantData().end()),
+            static_cast<uint32_t>(root_table_offset - root_descriptor_offset)
+        };
+    }
+    wis::span<uint32_t> GetRootTables() noexcept
+    {
+        return wis::span<uint32_t>{
+            reinterpret_cast<uint32_t*>(GetConstantData().end()) + root_table_offset,
+            constant_data_size - root_table_offset
+        };
+    }
+    wis::span<VkDescriptorSetAndBindingMappingEXT> GetMappings() noexcept
+    {
+        return wis::span<VkDescriptorSetAndBindingMappingEXT>{
+            reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(GetConstantData().end()),
+            mapping_count
+        };
+    }
 };
 
 //-----------------------------------------------------------------------------

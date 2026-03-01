@@ -543,7 +543,7 @@ a 4-bit A component in bits 12..15.">
       </value>
     </type>
 
-    <type name="ShaderStages" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
+    <type name="ShaderVisibility" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
       <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
       <impl_type for="vk" name="VkShaderStageFlags" default="VK_SHADER_STAGE_ALL"/>
       <value name="All" value="0" doc="All shader stages.">

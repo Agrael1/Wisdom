@@ -22,6 +22,7 @@ struct VKInstanceControlBlock;
 struct VKDeviceControlBlock;
 struct VKDescriptorSetLayoutContainer;
 struct VKCommandPoolControlBlock;
+struct VKRootSignatureControlBlock;
 } // namespace detail
 
 namespace impl {
@@ -76,12 +77,8 @@ struct VKResourceAllocatorImpl {
     detail::VKDeviceControlBlock* device_header;
 };
 
-struct VKPipelineLayoutImpl {
-    VkPipelineLayout                        layout;
-    VkDescriptorSet                         static_samplers;
-    detail::VKDescriptorSetLayoutContainer* dsl_container;
-    VkDevice                                device;
-    detail::VKDeviceControlBlock*           device_header;
+struct VKRootSignatureImpl {
+    detail::VKRootSignatureControlBlock* root_signature_header;
 };
 
 struct VKDescriptorHeapImpl {

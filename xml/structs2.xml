@@ -68,46 +68,47 @@
 
     <type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {PipelineLayout::} creation.">
       <member type="SamplerDesc" name="sampler" doc="Sampler description."/>
-      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the sampler is used."/>
+      <member type="ShaderVisibility" name="visibility" doc="Shader stage visibility. Defines the stage where the sampler is used."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
     </type>
 
-    <type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.">
-      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the constant is used."/>
+    <type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get read directly from root buffer.">
+      <member type="ShaderVisibility" name="visibility" doc="Shader stage visibility for the push constant."/>
       <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
       <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
     </type>
 
     <type name="PushDescriptor" category="struct" version="0.7.0" doc="Push descriptor. Used to push data directly to pipeline.">
-      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the descriptor is used."/>
+      <member type="ShaderVisibility" name="visibility" doc="Shader stage visibility for the push descriptor."/>
       <member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+      <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
     </type>
 
     <type name="DescriptorTableEntry" category="struct" version="0.7.0" doc="Descriptor table entry for {DescriptorTable::}.">
       <member type="DescriptorType" name="type" doc="Descriptor type."/>
       <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+      <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
       <member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1."/>
+      <member type="u32" name="descriptor_offset" doc="Offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables."/>
     </type>
 
     <type name="DescriptorTable" category="struct" version="0.7.0" doc="Descriptor table for {PipelineLayout::} creation.">
-      <member type="DescriptorHeapType" name="type" doc="Descriptor heap type. Either Descriptor or Sampler."/>
-      <member type="ShaderStages" name="stage" doc="Shader stage. Defines the stage where the table is used."/>
+      <member type="ShaderVisibility" name="visibility" doc="Shader stage. Defines the stage where the table is used."/>
       <member type="DescriptorTableEntry" name="entries" mod="const,span" doc="Descriptor table entries array."/>
       <member type="size" name="entry_count" doc="Descriptor table entries count."/>
-      <member type="u32" name="space_overlap" doc="If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types."/>
     </type>
 
-    <type name="PipelineLayoutDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
-      <member type="PushConstant" name="push_constants" mod="const,span" default="nullptr" doc="points to an array of {PushConstant::}."/>
-      <member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {PipelineLayoutDesc::push_constants} array."/>
+    <type name="RootSignatureDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
+      <member type="PushConstant" name="push_constants" mod="const,span" doc="describes the global shader push data."/>
+      <member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {RootSignatureDesc::push_constants} array."/>
       <member type="PushDescriptor" name="push_descriptors" mod="const,span" default="nullptr" doc="points to an array of {PushDescriptor::}."/>
-      <member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {PipelineLayoutDesc::push_descriptors} array."/>
-      <member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
-      <member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {PipelineLayoutDesc::static_samplers} array."/>
+      <member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {RootSignatureDesc::push_descriptors} array."/>
+      <!--<member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
+      <member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {RootSignatureDesc::static_samplers} array."/> Currently unsupported!-->
       <member type="DescriptorTable" name="descriptor_tables" mod="const,span" default="nullptr" doc="points to an array of {DescriptorTable::}."/>
-      <member type="size" name="descriptor_table_count" default="0" doc="counts the number of descriptor tables in the {PipelineLayoutDesc::descriptor_tables} array."/>
+      <member type="size" name="descriptor_table_count" default="0" doc="counts the number of descriptor tables in the {RootSignatureDesc::descriptor_tables} array."/>
     </type>
 
     <type name="DescriptorHeapDesc" category="struct" version="0.7.0" doc="Descriptor heap description for {DescriptorHeap::} creation.">
@@ -155,11 +156,11 @@
       <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
 
       <!-- Descriptor Heap -->
-      <member type="size" name="max_descriptor_heap_size" doc="Maximum number of descriptors in a single descriptor heap."/>
-      <member type="size" name="max_sampler_heap_size" doc="Maximum number of samplers in a single descriptor heap."/>
-      <member type="size" name="max_sampler_heap_size_with_embedded" doc="Maximum number of samplers in a single descriptor heap, if embedded samplers are used."/>
-      <member type="size" name="descriptor_increment_size" doc="Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets."/>
-      <member type="size" name="sampler_increment_size" doc="Size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
+      <member type="u32" name="max_descriptor_heap_size" doc="Maximum number of descriptors in a single descriptor heap."/>
+      <member type="u32" name="max_sampler_heap_size" doc="Maximum number of samplers in a single descriptor heap."/>
+      <member type="u32" name="max_sampler_heap_size_with_embedded" doc="Maximum number of samplers in a single descriptor heap, if embedded samplers are used."/>
+      <member type="u32" name="descriptor_increment_size" doc="Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets."/>
+      <member type="u32" name="sampler_increment_size" doc="Size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
     </type>
 
     <type name="DeviceCommandQueuesProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">

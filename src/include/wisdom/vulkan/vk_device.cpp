@@ -11,6 +11,100 @@ using namespace wis;
 using namespace wis::impl;
 using namespace wis::detail;
 
+namespace wis::detail {
+struct VKMappingOffsetInfo {
+    uint32_t offset : 31 = 0x7FFFFFF;
+    uint32_t even   : 1  = 1; // After even stages there needs to be "all" maps, after odd stages there doesn't. This is a clever hack to avoid overcounting "all" maps in the total count calculation.
+};
+constexpr static VkSpirvResourceTypeFlagsEXT srv_mask = VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT |
+        VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT |
+        VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT |
+        VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT;
+constexpr static VkSpirvResourceTypeFlagsEXT sampler_mask = VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT;
+constexpr static VkSpirvResourceTypeFlagsEXT uav_mask     = VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT |
+        VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT;
+constexpr static VkSpirvResourceTypeFlagsEXT cbv_mask = VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT;
+
+constexpr VkSpirvResourceTypeFlagsEXT GetResourceTypeFlags(const WisDescriptorType type) noexcept
+{
+    switch (type) {
+    case WisDescriptorTypeSampler:
+        return sampler_mask;
+    case WisDescriptorTypeConstantBuffer:
+        return cbv_mask;
+    case WisDescriptorTypeTexture:
+        return srv_mask;
+    case WisDescriptorTypeRWTexture:
+        return uav_mask;
+    case WisDescriptorTypeRWBuffer:
+        return uav_mask;
+    case WisDescriptorTypeBuffer:
+        return srv_mask;
+    case WisDescriptorTypeAccelerationStructure:
+        return uav_mask;
+    default:
+        return 0;
+    }
+}
+
+inline std::array<uint32_t, WisShaderVisibilityCount>
+GetMapCountPerShaderType(const WisRootSignatureDesc& desc) noexcept
+{
+    std::array<uint32_t, WisShaderVisibilityCount> counts{};
+    // 1. Push constants
+    for (std::size_t i = 0; i < desc.push_constant_count; ++i) {
+        const auto& push_constant = desc.push_constants[i];
+        counts[push_constant.visibility]++; // Convert size in bytes to number of 32-bit constants
+    }
+
+    // 2. Push descriptors
+    for (std::size_t i = 0; i < desc.push_descriptor_count; ++i) {
+        const auto& push_descriptor = desc.push_descriptors[i];
+        counts[push_descriptor.visibility]++;
+    }
+
+    // 3. Descriptor tables
+    for (std::size_t i = 0; i < desc.descriptor_table_count; ++i) {
+        const auto& table = desc.descriptor_tables[i];
+        counts[table.visibility] += table.entry_count;
+    }
+
+    return counts;
+}
+
+std::array<VKMappingOffsetInfo, WisShaderVisibilityCount>
+GetMappingOffsetPerShaderType(wis::span<uint32_t, WisShaderVisibilityCount> map_count, uint32_t& total_count) noexcept
+{
+    total_count = 0;
+    std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> offsets;
+
+    // We have to be smart about this number.
+    // The 0th index of the map count array corresponds to the "all" visibility.
+    // But blindly multiplying will overcount.
+    // There is better approach - place the "all" maps in between 2 shader stages.
+    // This way there will be 2 times less "all" maps, and we won't have to worry about overcounting.
+    uint32_t all_count             = map_count[0];
+    uint32_t non_empty_stage_count = 0;
+    for (uint32_t i = 1; i < map_count.size(); ++i) {
+        if (map_count[i] == 0) {
+            continue;
+        }
+
+        if ((non_empty_stage_count & 1) == 0) {
+            total_count += all_count; // Place "all" maps in between stages
+        }
+
+        offsets[i] = {
+            total_count,
+            (non_empty_stage_count & 1) == 0
+        }; // Store odd/even stage information in the highest bit of the offset
+        total_count += map_count[i];
+        non_empty_stage_count++;
+    }
+    return offsets;
+}
+} // namespace wis::detail
+
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
 {
@@ -286,6 +380,178 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
     heap_impl.device          = device.device;
     heap_impl.device_header   = device.device_header;
     heap_impl.device_header->AddRef(); // hold reference to device header
+    return vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevice*          self,
+                                                                 const WisRootSignatureDesc* desc,
+                                                                 WisVKRootSignature*         layout)
+{
+    auto& device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& header   = device.device_header->header;
+    auto& features = header.features;
+
+    if (!features.descriptor_heap) {
+        return make_result<Func(), "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+    }
+
+    // Use only 64 DWORDs, same as DX12
+    static constexpr std::size_t max_root_parameters = 64;
+    std::size_t                  push_constant_size  = 0;
+    for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
+        const auto& push_constant = desc->push_constants[i];
+        if (push_constant.size_bytes % 4 != 0) {
+            return make_result<Func(), "Push constant size must be divisible by 4 bytes">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+        push_constant_size += push_constant.size_bytes;
+    }
+    push_constant_size /= 4;
+
+    // 1. Count the number of root parameters needed
+    std::size_t total_dwords_needed = push_constant_size + desc->push_descriptor_count * 2 + desc->descriptor_table_count;
+
+    if (total_dwords_needed > max_root_parameters) {
+        return make_result<Func(), "Root signature requires more than 64 DWORDs, which is not supported by this implementation">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    // 2. Count the number of VkDescriptorSetAndBindingMappingEXT structures
+    // Hard part is to pack the tables into a contiguous arrays for each shader type
+    uint32_t                                                  total_table_count        = 0;
+    std::array<uint32_t, WisShaderVisibilityCount>            table_counts_per_shader  = detail::GetMapCountPerShaderType(*desc);
+    std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> table_offsets_per_shader = detail::GetMappingOffsetPerShaderType(table_counts_per_shader, total_table_count);
+    std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> local_offsets_per_shader = table_offsets_per_shader;
+
+    std::size_t root_param_count         = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
+    std::size_t static_sampler_count     = 0;
+    std::size_t aligned_constant_storage = wis::aligned_size(total_dwords_needed, 2u);
+
+    // allocate root signature table
+    std::size_t root_sig_size = sizeof(detail::VKRootSignatureControlBlock) +
+            aligned_constant_storage * sizeof(uint32_t) +
+            total_table_count * sizeof(VkDescriptorSetAndBindingMappingEXT);
+
+    std::unique_ptr<detail::VKRootSignatureControlBlock> root_sig_control_block{
+        reinterpret_cast<detail::VKRootSignatureControlBlock*>(operator new(static_sampler_count, std::nothrow))
+    };
+
+    // start lifetime
+    std::construct_at(root_sig_control_block.get());
+    root_sig_control_block->constant_data_size     = static_cast<uint32_t>(aligned_constant_storage);
+    root_sig_control_block->mapping_count          = static_cast<uint32_t>(total_table_count);
+    root_sig_control_block->embedded_sampler_count = static_cast<uint32_t>(static_sampler_count);
+    root_sig_control_block->root_descriptor_offset = static_cast<uint32_t>(push_constant_size);
+    root_sig_control_block->root_table_offset      = root_sig_control_block->root_descriptor_offset + static_cast<uint32_t>(desc->push_descriptor_count * 2);
+
+    // Fill mapping data
+    for (uint32_t i = 0; i < table_offsets_per_shader.size(); ++i) {
+        if (table_counts_per_shader[i] == 0) {
+            continue;
+        }
+
+        root_sig_control_block->shader_mapping_offset[i] = table_offsets_per_shader[i].offset -
+                        table_offsets_per_shader[i].even
+                ? 0
+                : table_counts_per_shader[0]; // If even, "all" maps are before this stage, if odd, "all" maps are after this stage
+    }
+
+    auto     mappings            = root_sig_control_block->GetMappings();
+    uint32_t push_address_offset = 0;
+
+    // Push constants
+    std::ranges::fill(root_sig_control_block->GetConstantData(), 0); // Zero out the constant data region
+    for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
+        auto& src = desc->push_constants[i];
+
+        mappings[local_offsets_per_shader[src.visibility].offset++] = {
+            .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
+            .pNext         = nullptr,
+            .descriptorSet = src.bind_space,
+            .firstBinding  = src.bind_register,
+            .bindingCount  = 1,
+            .resourceMask  = cbv_mask,
+            .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT,
+            .sourceData    = { .pushAddressOffset = push_address_offset }
+        };
+        push_address_offset += src.size_bytes;
+    }
+
+    // Push descriptors
+    for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
+        WisPushDescriptor src = desc->push_descriptors[i];
+
+        mappings[local_offsets_per_shader[src.visibility].offset++] = {
+            .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
+            .pNext         = nullptr,
+            .descriptorSet = src.bind_space,
+            .firstBinding  = src.bind_register,
+            .bindingCount  = 1,
+            .resourceMask  = GetResourceTypeFlags(src.type), // Push descriptors can be any type
+            .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT,
+            .sourceData    = { .pushAddressOffset = static_cast<uint32_t>(push_address_offset + i * 2 * sizeof(uint32_t)) }
+        };
+    }
+    push_address_offset += desc->push_descriptor_count * 2 * sizeof(uint32_t);
+
+    // Descriptor tables
+    for (std::size_t i = 0; i < desc->descriptor_table_count; ++i) {
+        WisDescriptorTable src              = desc->descriptor_tables[i];
+        auto               visibility       = src.visibility;
+        uint32_t           heap_byte_offset = 0;
+
+        for (std::size_t j = 0; j < src.entry_count; ++j) {
+            auto& entry = src.entries[j];
+
+            uint32_t local_count  = entry.count;
+            uint32_t local_offset = heap_byte_offset;
+            uint32_t heap_stride  = entry.type == WisDescriptorTypeSampler
+                     ? features.sampler_desc_size
+                     : features.resource_desc_size;
+
+            // Check for unbounded array
+            if (entry.count == std::numeric_limits<uint32_t>::max()) {
+                if (j != src.entry_count - 1) {
+                    return make_result<Func(), "Unbounded array descriptor table entry must be the last entry in the table">(VK_ERROR_INITIALIZATION_FAILED);
+                }
+                local_count = 1;
+            }
+
+            if (entry.descriptor_offset != std::numeric_limits<uint32_t>::max()) {
+                // not offset appended, use provided offset
+                local_offset = entry.descriptor_offset * heap_stride;
+            }
+            heap_byte_offset = local_offset + local_count * heap_stride;
+
+            auto& mapping = mappings[local_offsets_per_shader[visibility].offset++] = {
+                .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
+                .pNext         = nullptr,
+                .descriptorSet = entry.bind_space,
+                .firstBinding  = entry.bind_register,
+                .bindingCount  = local_count,
+                .resourceMask  = GetResourceTypeFlags(entry.type),
+                .source        = VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT,
+                .sourceData    = { .pushIndex = {
+                                           .heapOffset      = local_offset,
+                                           .pushOffset      = push_address_offset,
+                                           .heapIndexStride = 1,
+                                           .heapArrayStride = heap_stride,
+                                } }
+            };
+        }
+        push_address_offset += sizeof(uint32_t);
+    }
+
+    // Fill "all" visibility mappings in between stages
+    for (uint32_t i = 1; i < local_offsets_per_shader.size(); ++i) {
+        if (local_offsets_per_shader[i].even) {
+            std::copy_n(mappings.data(), table_counts_per_shader[0], mappings.data() + local_offsets_per_shader[i].offset);
+        }
+    }
+
+    // Fill root signature impl
+    auto& layout_impl                 = *new (layout) VKRootSignatureImpl();
+    layout_impl.root_signature_header = root_sig_control_block.release();
+
     return vk_success;
 }
 
