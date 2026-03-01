@@ -69,7 +69,7 @@ struct DX12ResourceAllocatorImpl {
     D3D12MA::Allocator* allocator;
 };
 
-struct DX12PipelineLayoutImpl {
+struct DX12RootSignatureImpl {
     ID3D12RootSignature* root_signature;
 };
 

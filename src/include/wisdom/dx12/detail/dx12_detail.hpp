@@ -155,51 +155,6 @@ constexpr bool dx12_is_pushable(const WisDescriptorType type) noexcept
         return false;
     }
 }
-
-//-----------------------------------------------------------------------------
-/**
- * @brief Internal helper function to fill a D3D12_DESCRIPTOR_RANGE1 array based on a WisDescriptorTable. This function handles both the normal case and the overlap case where multiple descriptor ranges share the same register space.
- * @param table The WisDescriptorTable containing the descriptor entries to convert.
- * @param space The register space to use for the descriptor ranges.
- * @param mutable_range A span of D3D12_DESCRIPTOR_RANGE1 that will be filled with the converted descriptor ranges. The caller must ensure that this span has enough capacity to hold all the ranges.
- * @return The number of descriptor ranges filled in the mutable_range span.
- */
-inline uint32_t dx12_fill_descriptor_range(const WisDescriptorTable&          table,
-                                           uint32_t                           space,
-                                           wis::span<D3D12_DESCRIPTOR_RANGE1> mutable_range) noexcept
-{
-    // Handle overlap case
-    if (table.space_overlap != 0) {
-        auto&                   src = table.entries[0];
-        D3D12_DESCRIPTOR_RANGE1 range{
-            .RangeType                         = convert_dx(src.type),
-            .NumDescriptors                    = static_cast<UINT>(src.count == 0 ? 1 : src.count),
-            .BaseShaderRegister                = static_cast<UINT>(src.bind_register),
-            .RegisterSpace                     = static_cast<UINT>(space),
-            .Flags                             = src.count > 1 ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
-            .OffsetInDescriptorsFromTableStart = 0,
-        };
-
-        for (size_t i = 0; i < table.space_overlap + 1; ++i) {
-            range.RegisterSpace = static_cast<UINT>(space + i);
-            mutable_range[i]    = range;
-        }
-        return table.space_overlap + 1;
-    } else {
-        for (size_t i = 0; i < table.entry_count; ++i) {
-            auto& src        = table.entries[i];
-            mutable_range[i] = {
-                .RangeType                         = convert_dx(src.type),
-                .NumDescriptors                    = (src.count == 0 ? 1 : src.count),
-                .BaseShaderRegister                = static_cast<UINT>(src.bind_register),
-                .RegisterSpace                     = (space),
-                .Flags                             = src.count > 1 ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
-                .OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,
-            };
-        }
-        return static_cast<uint32_t>(table.entry_count);
-    }
-}
 } // namespace wis::detail
 
 #endif // WIS_DX12_DETAIL_HPP

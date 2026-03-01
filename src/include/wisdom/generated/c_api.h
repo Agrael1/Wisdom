@@ -687,17 +687,17 @@ typedef enum WisCommandQueuePriority {
  * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
  *
  * */
-typedef enum WisShaderStages {
-    WisShaderStagesAll           = 0, ///< All shader stages.
-    WisShaderStagesVertex        = 1, ///< Vertex shader stage.
-    WisShaderStagesHull          = 2, ///< Hull/Tessellation control shader stage.
-    WisShaderStagesDomain        = 3, ///< Domain/Tessellation evaluation shader stage.
-    WisShaderStagesGeometry      = 4, ///< Geometry shader stage.
-    WisShaderStagesPixel         = 5, ///< Pixel/Fragment shader stage.
-    WisShaderStagesAmplification = 6, ///< Amplification shader stage.
-    WisShaderStagesMesh          = 7, ///< Mesh shader stage.
-    WisShaderStagesCount         = 8, ///< Number of stages.
-} WisShaderStages;
+typedef enum WisShaderVisibility {
+    WisShaderVisibilityAll           = 0, ///< All shader stages.
+    WisShaderVisibilityVertex        = 1, ///< Vertex shader stage.
+    WisShaderVisibilityHull          = 2, ///< Hull/Tessellation control shader stage.
+    WisShaderVisibilityDomain        = 3, ///< Domain/Tessellation evaluation shader stage.
+    WisShaderVisibilityGeometry      = 4, ///< Geometry shader stage.
+    WisShaderVisibilityPixel         = 5, ///< Pixel/Fragment shader stage.
+    WisShaderVisibilityAmplification = 6, ///< Amplification shader stage.
+    WisShaderVisibilityMesh          = 7, ///< Mesh shader stage.
+    WisShaderVisibilityCount         = 8, ///< Number of stages.
+} WisShaderVisibility;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Type of the descriptor in the descriptor table.
@@ -1013,24 +1013,24 @@ typedef struct WisSamplerDesc {
 } WisSamplerDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Static sampler description for WisPipelineLayout creation.
+ * @brief Provided by Wisdom 0.7.0. Static sampler description for  creation.
  *
  * */
 typedef struct WisStaticSamplerDesc {
-    WisSamplerDesc  sampler; ///< Sampler description.
-    WisShaderStages stage; ///< Shader stage. Defines the stage where the sampler is used.
-    uint32_t        bind_register; ///< Bind register number in HLSL.
+    WisSamplerDesc      sampler; ///< Sampler description.
+    WisShaderVisibility visibility; ///< Shader stage visibility. Defines the stage where the sampler is used.
+    uint32_t            bind_register; ///< Bind register number in HLSL.
 } WisStaticSamplerDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. A set of constants that get pushed directly to the pipeline. Only one set can be created per shader stage.
+ * @brief Provided by Wisdom 0.7.0. A set of constants that get read directly from root buffer.
  *
  * */
 typedef struct WisPushConstant {
-    WisShaderStages stage; ///< Shader stage. Defines the stage where the constant is used.
-    uint32_t        size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
-    uint32_t        bind_register; ///< Bind register number in HLSL.
-    uint32_t        bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
+    WisShaderVisibility visibility; ///< Shader stage visibility for the push constant.
+    uint32_t            size_bytes; ///< Size of the constant in bytes. Must be divisible by 4.
+    uint32_t            bind_register; ///< Bind register number in HLSL.
+    uint32_t            bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
 } WisPushConstant;
 
 /**
@@ -1038,9 +1038,10 @@ typedef struct WisPushConstant {
  *
  * */
 typedef struct WisPushDescriptor {
-    WisShaderStages   stage; ///< Shader stage. Defines the stage where the descriptor is used.
-    WisDescriptorType type; ///< Descriptor type. Works only with buffer bindings.
-    uint32_t          bind_register; ///< Bind register number in HLSL.
+    WisShaderVisibility visibility; ///< Shader stage visibility for the push descriptor.
+    WisDescriptorType   type; ///< Descriptor type. Works only with buffer bindings.
+    uint32_t            bind_register; ///< Bind register number in HLSL.
+    uint32_t            bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
 } WisPushDescriptor;
 
 /**
@@ -1050,35 +1051,33 @@ typedef struct WisPushDescriptor {
 typedef struct WisDescriptorTableEntry {
     WisDescriptorType type; ///< Descriptor type.
     uint32_t          bind_register; ///< Bind register number in HLSL.
+    uint32_t          bind_space; ///< Bind space number in HLSL. `register(regN, spaceN)`
     uint32_t          count; ///< Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
+    uint32_t          descriptor_offset; ///< Offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables.
 } WisDescriptorTableEntry;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Descriptor table for WisPipelineLayout creation.
+ * @brief Provided by Wisdom 0.7.0. Descriptor table for  creation.
  *
  * */
 typedef struct WisDescriptorTable {
-    WisDescriptorHeapType          type; ///< Descriptor heap type. Either Descriptor or Sampler.
-    WisShaderStages                stage; ///< Shader stage. Defines the stage where the table is used.
+    WisShaderVisibility            visibility; ///< Shader stage. Defines the stage where the table is used.
     const WisDescriptorTableEntry* entries; ///< Descriptor table entries array.
     size_t                         entry_count; ///< Descriptor table entries count.
-    uint32_t                       space_overlap; ///< If this value is not zero, bindings from this table can be bound several times in different spaces. Used for descriptor indexing into unbounded arrays of similar types.
 } WisDescriptorTable;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Pipeline layout description. Defines resource bindings for shaders.
  *
  * */
-typedef struct WisPipelineLayoutDesc {
-    const WisPushConstant*      push_constants; ///< points to an array of WisPushConstant.
-    size_t                      push_constant_count; ///< counts the number of push constants in the `WisPipelineLayoutDesc::push_constants` array.
-    const WisPushDescriptor*    push_descriptors; ///< points to an array of WisPushDescriptor.
-    size_t                      push_descriptor_count; ///< counts the number of push descriptors in the `WisPipelineLayoutDesc::push_descriptors` array.
-    const WisStaticSamplerDesc* static_samplers; ///< points to an array of WisStaticSamplerDesc.
-    size_t                      static_sampler_count; ///< counts the number of static samplers in the `WisPipelineLayoutDesc::static_samplers` array.
-    const WisDescriptorTable*   descriptor_tables; ///< points to an array of WisDescriptorTable.
-    size_t                      descriptor_table_count; ///< counts the number of descriptor tables in the `WisPipelineLayoutDesc::descriptor_tables` array.
-} WisPipelineLayoutDesc;
+typedef struct WisRootSignatureDesc {
+    const WisPushConstant*    push_constants; ///< describes the global shader push data.
+    size_t                    push_constant_count; ///< counts the number of push constants in the `WisRootSignatureDesc::push_constants` array.
+    const WisPushDescriptor*  push_descriptors; ///< points to an array of WisPushDescriptor.
+    size_t                    push_descriptor_count; ///< counts the number of push descriptors in the `WisRootSignatureDesc::push_descriptors` array.
+    const WisDescriptorTable* descriptor_tables; ///< points to an array of WisDescriptorTable.
+    size_t                    descriptor_table_count; ///< counts the number of descriptor tables in the `WisRootSignatureDesc::descriptor_tables` array.
+} WisRootSignatureDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Descriptor heap description for WisDescriptorHeap creation.
@@ -1135,11 +1134,11 @@ typedef struct WisQueryStructHeader {
 typedef struct WisDeviceDescriptorHeapProperties {
     WisQueryPropertyType property_type; ///< Defines the type of the queried property. Used to determine what struct is passed. @wis_must be `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
     void*                next_in_chain; ///< Pointer to the next queried data struct.
-    size_t               max_descriptor_heap_size; ///< Maximum number of descriptors in a single descriptor heap.
-    size_t               max_sampler_heap_size; ///< Maximum number of samplers in a single descriptor heap.
-    size_t               max_sampler_heap_size_with_embedded; ///< Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
-    size_t               descriptor_increment_size; ///< Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
-    size_t               sampler_increment_size; ///< Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+    uint32_t             max_descriptor_heap_size; ///< Maximum number of descriptors in a single descriptor heap.
+    uint32_t             max_sampler_heap_size; ///< Maximum number of samplers in a single descriptor heap.
+    uint32_t             max_sampler_heap_size_with_embedded; ///< Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
+    uint32_t             descriptor_increment_size; ///< Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
+    uint32_t             sampler_increment_size; ///< Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
 } WisDeviceDescriptorHeapProperties;
 
 /**

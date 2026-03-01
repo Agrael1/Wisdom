@@ -60,7 +60,7 @@ inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) no
     }
 }
 
-inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderStages value) noexcept
+inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderVisibility value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }

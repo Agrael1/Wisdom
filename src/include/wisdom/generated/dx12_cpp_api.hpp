@@ -84,17 +84,17 @@ public:
 public:
 };
 
-struct DX12PipelineLayoutDeleter {
-    void operator()(WisDX12PipelineLayout* handle) noexcept
+struct DX12RootSignatureDeleter {
+    void operator()(WisDX12RootSignature* handle) noexcept
     {
-        ::wisDX12DestroyPipelineLayout(handle);
+        ::wisDX12DestroyRootSignature(handle);
     }
 };
 /**
- * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
  * */
-class DX12PipelineLayout : public wis::impl::Implements<wis::impl::DX12PipelineLayoutImpl, WisDX12PipelineLayout, wis::DX12PipelineLayoutDeleter>
+class DX12RootSignature : public wis::impl::Implements<wis::impl::DX12RootSignatureImpl, WisDX12RootSignature, wis::DX12RootSignatureDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -451,18 +451,18 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
-     * @param desc points to wis::PipelineLayoutDesc, which describes the pipeline layout to create.
+     * @param desc points to wis::RootSignatureDesc, which describes the pipeline layout to create.
      * @param out_result denoting the outcome of operation.
-     * @return layout points to wis::PipelineLayout, which is initialized on success.
+     * @return layout points to wis::RootSignature, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12PipelineLayout CreatePipelineLayout(const wis::PipelineLayoutDesc& desc,
-                                                                      wis::Result&                   out_result) const noexcept
+    WIS_NODISCARD inline wis::DX12RootSignature CreateRootSignature(const wis::RootSignatureDesc& desc,
+                                                                    wis::Result&                  out_result) const noexcept
     {
-        wis::DX12PipelineLayout layout;
-        out_result = convert_result(::wisDX12DeviceCreatePipelineLayout(&_impl_storage,
-                                                                        reinterpret_cast<const WisPipelineLayoutDesc*>(&desc),
-                                                                        layout.GetStorage()));
+        wis::DX12RootSignature layout;
+        out_result = convert_result(::wisDX12DeviceCreateRootSignature(&_impl_storage,
+                                                                       reinterpret_cast<const WisRootSignatureDesc*>(&desc),
+                                                                       layout.GetStorage()));
         return layout;
     }
     /**

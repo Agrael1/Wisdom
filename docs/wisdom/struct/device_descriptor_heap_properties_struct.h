@@ -13,11 +13,11 @@
  * typedef struct  WisDeviceDescriptorHeapProperties {
  *     WisQueryPropertyType property_type;
  *     void*                next_in_chain;
- *     size_t               max_descriptor_heap_size;
- *     size_t               max_sampler_heap_size;
- *     size_t               max_sampler_heap_size_with_embedded;
- *     size_t               descriptor_increment_size;
- *     size_t               sampler_increment_size;
+ *     uint32_t             max_descriptor_heap_size;
+ *     uint32_t             max_sampler_heap_size;
+ *     uint32_t             max_sampler_heap_size_with_embedded;
+ *     uint32_t             descriptor_increment_size;
+ *     uint32_t             sampler_increment_size;
  * } WisDeviceDescriptorHeapProperties;
  * 
  * ```
@@ -28,11 +28,11 @@
  * struct  DeviceDescriptorHeapProperties {
  *     wis::QueryPropertyType property_type;
  *     void*                  next_in_chain;
- *     std::size_t            max_descriptor_heap_size;
- *     std::size_t            max_sampler_heap_size;
- *     std::size_t            max_sampler_heap_size_with_embedded;
- *     std::size_t            descriptor_increment_size;
- *     std::size_t            sampler_increment_size;
+ *     std::uint32_t          max_descriptor_heap_size;
+ *     std::uint32_t          max_sampler_heap_size;
+ *     std::uint32_t          max_sampler_heap_size_with_embedded;
+ *     std::uint32_t          descriptor_increment_size;
+ *     std::uint32_t          sampler_increment_size;
  * };
  * }
  * ```

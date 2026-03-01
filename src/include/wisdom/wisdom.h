@@ -22,7 +22,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 typedef struct WisDX12Texture           WisTexture;
 typedef struct WisDX12Buffer            WisBuffer;
 typedef struct WisDX12DescriptorHeap    WisDescriptorHeap;
-typedef struct WisDX12PipelineLayout    WisPipelineLayout;
+typedef struct WisDX12RootSignature     WisRootSignature;
 typedef struct WisDX12ResourceAllocator WisResourceAllocator;
 typedef struct WisDX12Fence             WisFence;
 typedef struct WisDX12CommandList       WisCommandList;
@@ -49,7 +49,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDestroyTexture                    wisDX12DestroyTexture
 #define wisDestroyBuffer                     wisDX12DestroyBuffer
 #define wisDestroyDescriptorHeap             wisDX12DestroyDescriptorHeap
-#define wisDestroyPipelineLayout             wisDX12DestroyPipelineLayout
+#define wisDestroyRootSignature              wisDX12DestroyRootSignature
 #define wisDestroyResourceAllocator          wisDX12DestroyResourceAllocator
 #define wisDestroyFence                      wisDX12DestroyFence
 #define wisDestroyCommandList                wisDX12DestroyCommandList
@@ -67,7 +67,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDeviceCreateCommandAllocator      wisDX12DeviceCreateCommandAllocator
 #define wisDeviceCreateFence                 wisDX12DeviceCreateFence
 #define wisDeviceGetResourceAllocator        wisDX12DeviceGetResourceAllocator
-#define wisDeviceCreatePipelineLayout        wisDX12DeviceCreatePipelineLayout
+#define wisDeviceCreateRootSignature         wisDX12DeviceCreateRootSignature
 #define wisDeviceCreateDescriptorHeap        wisDX12DeviceCreateDescriptorHeap
 #define wisDeviceQueryProperties             wisDX12DeviceQueryProperties
 #define wisFenceGetCompletedValue            wisDX12FenceGetCompletedValue
@@ -104,7 +104,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 typedef struct WisVKTexture           WisTexture;
 typedef struct WisVKBuffer            WisBuffer;
 typedef struct WisVKDescriptorHeap    WisDescriptorHeap;
-typedef struct WisVKPipelineLayout    WisPipelineLayout;
+typedef struct WisVKRootSignature     WisRootSignature;
 typedef struct WisVKResourceAllocator WisResourceAllocator;
 typedef struct WisVKFence             WisFence;
 typedef struct WisVKCommandList       WisCommandList;
@@ -131,7 +131,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDestroyTexture                    wisVKDestroyTexture
 #define wisDestroyBuffer                     wisVKDestroyBuffer
 #define wisDestroyDescriptorHeap             wisVKDestroyDescriptorHeap
-#define wisDestroyPipelineLayout             wisVKDestroyPipelineLayout
+#define wisDestroyRootSignature              wisVKDestroyRootSignature
 #define wisDestroyResourceAllocator          wisVKDestroyResourceAllocator
 #define wisDestroyFence                      wisVKDestroyFence
 #define wisDestroyCommandList                wisVKDestroyCommandList
@@ -149,7 +149,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDeviceCreateCommandAllocator      wisVKDeviceCreateCommandAllocator
 #define wisDeviceCreateFence                 wisVKDeviceCreateFence
 #define wisDeviceGetResourceAllocator        wisVKDeviceGetResourceAllocator
-#define wisDeviceCreatePipelineLayout        wisVKDeviceCreatePipelineLayout
+#define wisDeviceCreateRootSignature         wisVKDeviceCreateRootSignature
 #define wisDeviceCreateDescriptorHeap        wisVKDeviceCreateDescriptorHeap
 #define wisDeviceQueryProperties             wisVKDeviceQueryProperties
 #define wisFenceGetCompletedValue            wisVKFenceGetCompletedValue

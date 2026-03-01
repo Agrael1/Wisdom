@@ -84,17 +84,17 @@ public:
 public:
 };
 
-struct VKPipelineLayoutDeleter {
-    void operator()(WisVKPipelineLayout* handle) noexcept
+struct VKRootSignatureDeleter {
+    void operator()(WisVKRootSignature* handle) noexcept
     {
-        ::wisVKDestroyPipelineLayout(handle);
+        ::wisVKDestroyRootSignature(handle);
     }
 };
 /**
- * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
  * */
-class VKPipelineLayout : public wis::impl::Implements<wis::impl::VKPipelineLayoutImpl, WisVKPipelineLayout, wis::VKPipelineLayoutDeleter>
+class VKRootSignature : public wis::impl::Implements<wis::impl::VKRootSignatureImpl, WisVKRootSignature, wis::VKRootSignatureDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -451,18 +451,18 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
-     * @param desc points to wis::PipelineLayoutDesc, which describes the pipeline layout to create.
+     * @param desc points to wis::RootSignatureDesc, which describes the pipeline layout to create.
      * @param out_result denoting the outcome of operation.
-     * @return layout points to wis::PipelineLayout, which is initialized on success.
+     * @return layout points to wis::RootSignature, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKPipelineLayout CreatePipelineLayout(const wis::PipelineLayoutDesc& desc,
-                                                                    wis::Result&                   out_result) const noexcept
+    WIS_NODISCARD inline wis::VKRootSignature CreateRootSignature(const wis::RootSignatureDesc& desc,
+                                                                  wis::Result&                  out_result) const noexcept
     {
-        wis::VKPipelineLayout layout;
-        out_result = convert_result(::wisVKDeviceCreatePipelineLayout(&_impl_storage,
-                                                                      reinterpret_cast<const WisPipelineLayoutDesc*>(&desc),
-                                                                      layout.GetStorage()));
+        wis::VKRootSignature layout;
+        out_result = convert_result(::wisVKDeviceCreateRootSignature(&_impl_storage,
+                                                                     reinterpret_cast<const WisRootSignatureDesc*>(&desc),
+                                                                     layout.GetStorage()));
         return layout;
     }
     /**

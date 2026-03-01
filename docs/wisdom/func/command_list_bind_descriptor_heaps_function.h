@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * void wisCommandListBindDescriptorHeaps(const WisCommandList* self,
@@ -31,24 +31,34 @@
  * 
  * C++ Version:
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * void CommandList::BindDescriptorHeaps(const wis::DescriptorHeap* resource_heap,
+ *                                       const wis::DescriptorHeap* sampler_heap) const noexcept;
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * void VKCommandList::BindDescriptorHeaps(const wis::VKDescriptorHeap* resource_heap,
+ *                                         const wis::VKDescriptorHeap* sampler_heap) const noexcept;
+ * 
+ * // Provided by Wisdom 0.7.0. 
+ * void DX12CommandList::BindDescriptorHeaps(const wis::DX12DescriptorHeap* resource_heap,
+ *                                           const wis::DX12DescriptorHeap* sampler_heap) const noexcept;
+ * }
  * ```
  * </details>
- * 
  * \endcond
  *
  * @section wisCommandListBindDescriptorHeaps_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - **this** `self` self is a pointer to the valid WisCommandList instance.
+ * - **this** `self` self is a pointer to the valid WisCommandList instance.
  * - `resource_heap` points to WisDescriptorHeap with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound.
  * - `sampler_heap` points to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
- * 
  * \endcond
  *
  * @section wisCommandListBindDescriptorHeaps_descr Description

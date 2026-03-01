@@ -61,4 +61,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
     }
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
+{
+    auto& impl = *reinterpret_cast<VKRootSignatureImpl*>(self);
+    if (impl.root_signature_header != nullptr) {
+        delete impl.root_signature_header;
+        impl.root_signature_header = nullptr;
+    }
+}
+
 #endif // WIS_VK_IMPL_CPP

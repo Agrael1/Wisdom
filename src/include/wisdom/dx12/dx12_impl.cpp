@@ -11,9 +11,9 @@ using namespace wis::impl;
 using namespace wis::detail;
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineLayout(WisDX12PipelineLayout* self)
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self)
 {
-    auto& [root_signature] = *reinterpret_cast<DX12PipelineLayoutImpl*>(self);
+    auto& [root_signature] = *reinterpret_cast<DX12RootSignatureImpl*>(self);
     if (!root_signature) {
         return;
     }

@@ -11,9 +11,10 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisPushDescriptor {
- *     WisShaderStages   stage;
- *     WisDescriptorType type;
- *     uint32_t          bind_register;
+ *     WisShaderVisibility visibility;
+ *     WisDescriptorType   type;
+ *     uint32_t            bind_register;
+ *     uint32_t            bind_space;
  * } WisPushDescriptor;
  * 
  * ```
@@ -22,9 +23,10 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  PushDescriptor {
- *     wis::ShaderStages   stage;
- *     wis::DescriptorType type;
- *     std::uint32_t       bind_register;
+ *     wis::ShaderVisibility visibility;
+ *     wis::DescriptorType   type;
+ *     std::uint32_t         bind_register;
+ *     std::uint32_t         bind_space;
  * };
  * }
  * ```
@@ -33,9 +35,10 @@
  * @section WisPushDescriptor_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `stage` Shader stage. Defines the stage where the descriptor is used.
+ * - `visibility` Shader stage visibility for the push descriptor.
  * - `type` Descriptor type. Works only with buffer bindings.
  * - `bind_register` Bind register number in HLSL.
+ * - `bind_space` Bind space number in HLSL. `register(regN, spaceN)`
  * \endcond
  *
  * @section WisPushDescriptor_descr Description
@@ -47,6 +50,6 @@
  * @section WisPushDescriptor_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisPipelineLayoutDesc
+ * @see WisRootSignatureDesc
  * \endcond
  */

@@ -26,10 +26,10 @@ WIS_DEFINE_HANDLE(WisVKBuffer, 4);
 WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 7);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout, which defines resource bindings for shaders.
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKPipelineLayout, 5);
+WIS_DEFINE_HANDLE(WisVKRootSignature, 1);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
@@ -144,11 +144,11 @@ WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self);
 WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineLayout handle.
- * @param self is a pointer to the valid WisPipelineLayout instance.
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisRootSignature handle.
+ * @param self is a pointer to the valid WisRootSignature instance.
  *
  * */
-WISDOM_API void wisVKDestroyPipelineLayout(WisVKPipelineLayout* self);
+WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
@@ -315,14 +315,14 @@ WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice*      sel
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
  * @param self is a pointer to the valid WisDevice instance.
- * @param desc points to WisPipelineLayoutDesc, which describes the pipeline layout to create.
- * @param layout points to WisPipelineLayout, which is initialized on success.
+ * @param desc points to WisRootSignatureDesc, which describes the pipeline layout to create.
+ * @param layout points to WisRootSignature, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreatePipelineLayout(const WisVKDevice*           self,
-                                                     const WisPipelineLayoutDesc* desc,
-                                                     WisVKPipelineLayout*         layout);
+WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevice*          self,
+                                                    const WisRootSignatureDesc* desc,
+                                                    WisVKRootSignature*         layout);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given descriptor.

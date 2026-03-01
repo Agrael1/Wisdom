@@ -8,6 +8,7 @@
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 #include <bit>
+#include <ranges>
 
 using namespace wis;
 using namespace wis::impl;
@@ -149,41 +150,50 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX12Device*         self,
-                                                                    const WisPipelineLayoutDesc* desc,
-                                                                    WisDX12PipelineLayout*       layout)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12Device*        self,
+                                                                   const WisRootSignatureDesc* desc,
+                                                                   WisDX12RootSignature*       layout)
 {
     auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
     WisResult res    = dx_success;
 
     // https://learn.microsoft.com/en-us/windows/win32/direct3d12/root-signature-limits
     static constexpr std::size_t max_root_parameters = 64;
+    std::size_t                  push_constant_size  = 0;
+    for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
+        const auto& push_constant = desc->push_constants[i];
+        if (push_constant.size_bytes % 4 != 0) {
+            return make_result<Func(), "Push constant size must be divisible by 4 bytes">(E_INVALIDARG);
+        }
+        push_constant_size += push_constant.size_bytes;
+    }
+    push_constant_size /= 4;
 
     // Check limits
-    if (desc->push_constant_count + 2 * desc->push_descriptor_count + desc->descriptor_table_count > max_root_parameters) {
+    if (push_constant_size + 2 * desc->push_descriptor_count + desc->descriptor_table_count > max_root_parameters) {
         return make_result<Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG);
     }
 
     D3D12_ROOT_PARAMETER1            root_parameters[max_root_parameters];
-    std::size_t                      num_root_parameters = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
+    std::size_t                      num_root_parameters = push_constant_size + desc->push_descriptor_count + desc->descriptor_table_count;
     wis::span<D3D12_ROOT_PARAMETER1> root_parameters_span{ root_parameters, num_root_parameters };
 
     // Push constants
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
+        auto& src               = desc->push_constants[i];
         root_parameters_span[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
             .Constants     = {
-                              .ShaderRegister = static_cast<UINT>(desc->push_constants[i].bind_register),
-                              .RegisterSpace  = static_cast<UINT>(desc->push_constants[i].bind_space),
-                              .Num32BitValues = static_cast<UINT>(desc->push_constants[i].size_bytes / 4),
+                              .ShaderRegister = static_cast<UINT>(src.bind_register),
+                              .RegisterSpace  = static_cast<UINT>(src.bind_space),
+                              .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
                               },
-            .ShaderVisibility = detail::convert_dx(desc->push_constants[i].stage),
+            .ShaderVisibility = convert_dx(src.visibility),
         };
     }
     root_parameters_span = root_parameters_span.subspan(desc->push_constant_count);
 
     // Push descriptors
-    uint32_t descriptor_space = 0;
     for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
         auto& src = desc->push_descriptors[i];
 
@@ -195,48 +205,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
             .ParameterType = detail::dx12_root_parameter_type(src.type),
             .Descriptor    = {
                               .ShaderRegister = src.bind_register,
-                              .RegisterSpace  = descriptor_space,
+                              .RegisterSpace  = src.bind_space,
                               .Flags          = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
                               },
-            .ShaderVisibility = detail::convert_dx(src.stage),
+            .ShaderVisibility = convert_dx(src.visibility),
         };
     }
     root_parameters_span = root_parameters_span.subspan(desc->push_descriptor_count);
-    descriptor_space += desc->push_descriptor_count > 0;
-
-    // Static samplers
-    std::unique_ptr<D3D12_STATIC_SAMPLER_DESC1[]> static_samplers;
-    if (desc->static_sampler_count > 0) {
-        static_samplers = make_unique<D3D12_STATIC_SAMPLER_DESC1[]>(desc->static_sampler_count);
-        if (!static_samplers) {
-            return make_result<Func(), "Out of memory while creating static samplers">(E_OUTOFMEMORY);
-        }
-        for (std::size_t i = 0; i < desc->static_sampler_count; ++i) {
-            const auto& src  = desc->static_samplers[i];
-            auto&       samp = src.sampler;
-
-            auto min_filter   = !samp.is_anisotropic ? convert_dx(samp.min_filter) : D3D12_FILTER_TYPE_LINEAR;
-            auto mag_filter   = !samp.is_anisotropic ? convert_dx(samp.mag_filter) : D3D12_FILTER_TYPE_LINEAR;
-            auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, convert_dx(samp.mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
-
-            static_samplers[i] = {
-                .Filter           = D3D12_FILTER(samp.is_anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter),
-                .AddressU         = convert_dx(samp.address_u),
-                .AddressV         = convert_dx(samp.address_v),
-                .AddressW         = convert_dx(samp.address_w),
-                .MipLODBias       = samp.mip_lod_bias,
-                .MaxAnisotropy    = samp.max_anisotropy,
-                .ComparisonFunc   = convert_dx(samp.comparison_op),
-                .BorderColor      = convert_dx(samp.static_border_color),
-                .MinLOD           = samp.min_lod,
-                .MaxLOD           = samp.max_lod,
-                .ShaderRegister   = src.bind_register,
-                .RegisterSpace    = descriptor_space,
-                .ShaderVisibility = detail::convert_dx(src.stage),
-                .Flags            = convert_dx(samp.flags)
-            };
-        }
-    }
 
     // Tables
     std::unique_ptr<D3D12_DESCRIPTOR_RANGE1[]> ranges;
@@ -247,14 +222,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         // Precompute range count
         for (uint32_t i = 0; i < desc->descriptor_table_count; ++i) {
             const auto& src = tables[i];
-            if (src.space_overlap != 0) {
-                // Check if entry is single range
-                if (src.entry_count > 1) {
-                    return make_result<Func(), "Space overlap is only supported for single range descriptor tables">(E_INVALIDARG);
-                }
-                range_count += src.space_overlap + 1;
-                continue;
-            }
             range_count += static_cast<uint32_t>(src.entry_count);
         }
 
@@ -264,22 +231,31 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         }
 
         wis::span<D3D12_DESCRIPTOR_RANGE1> ranges_span{ ranges.get(), range_count };
-        std::size_t                        current_range = 0;
+        std::size_t                        range_offset = 0;
         for (std::size_t i = 0; i < desc->descriptor_table_count; ++i) {
-            const auto& src           = tables[i];
-            uint32_t    filled_ranges = detail::dx12_fill_descriptor_range(src,
-                                                                        descriptor_space,
-                                                                        ranges_span.subspan(current_range));
-            descriptor_space += src.space_overlap != 0 ? src.space_overlap : 1;
+            const auto& table = tables[i];
+
+            for (size_t i = 0; i < table.entry_count; ++i) {
+                auto& src                     = table.entries[i];
+                ranges_span[i + range_offset] = {
+                    .RangeType                         = convert_dx(src.type),
+                    .NumDescriptors                    = (src.count == 0 ? 1 : src.count),
+                    .BaseShaderRegister                = src.bind_register,
+                    .RegisterSpace                     = src.bind_space,
+                    .Flags                             = src.count > 1 ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
+                    .OffsetInDescriptorsFromTableStart = src.descriptor_offset,
+                };
+            }
+
             root_parameters_span[i] = {
                 .ParameterType   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
                 .DescriptorTable = {
-                                    .NumDescriptorRanges = filled_ranges,
-                                    .pDescriptorRanges   = ranges.get() + current_range,
+                                    .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
+                                    .pDescriptorRanges   = ranges.get() + range_offset,
                                     },
-                .ShaderVisibility = detail::convert_dx(src.stage),
+                .ShaderVisibility = detail::convert_dx(table.visibility),
             };
-            current_range += filled_ranges;
+            range_offset += table.entry_count;
         }
     }
 
@@ -288,8 +264,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         .Desc_1_2 = {
                      .NumParameters     = static_cast<UINT>(num_root_parameters),
                      .pParameters       = root_parameters,
-                     .NumStaticSamplers = static_cast<UINT>(desc->static_sampler_count),
-                     .pStaticSamplers   = static_samplers.get(),
+                     .NumStaticSamplers = 0,
+                     .pStaticSamplers   = nullptr,
                      .Flags             = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
                      },
     };
@@ -331,7 +307,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineLayout(const WisDX1
         return make_result<Func(), "Failed to create root signature">(hr);
     }
 
-    auto& layout_impl          = *new (layout) DX12PipelineLayoutImpl();
+    auto& layout_impl          = *new (layout) DX12RootSignatureImpl();
     layout_impl.root_signature = root_signature.detach();
     return res;
 }

@@ -11,10 +11,10 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisPushConstant {
- *     WisShaderStages stage;
- *     uint32_t        size_bytes;
- *     uint32_t        bind_register;
- *     uint32_t        bind_space;
+ *     WisShaderVisibility visibility;
+ *     uint32_t            size_bytes;
+ *     uint32_t            bind_register;
+ *     uint32_t            bind_space;
  * } WisPushConstant;
  * 
  * ```
@@ -23,10 +23,10 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  PushConstant {
- *     wis::ShaderStages stage;
- *     std::uint32_t     size_bytes;
- *     std::uint32_t     bind_register;
- *     std::uint32_t     bind_space;
+ *     wis::ShaderVisibility visibility;
+ *     std::uint32_t         size_bytes;
+ *     std::uint32_t         bind_register;
+ *     std::uint32_t         bind_space;
  * };
  * }
  * ```
@@ -35,7 +35,7 @@
  * @section WisPushConstant_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `stage` Shader stage. Defines the stage where the constant is used.
+ * - `visibility` Shader stage visibility for the push constant.
  * - `size_bytes` Size of the constant in bytes. Must be divisible by 4.
  * - `bind_register` Bind register number in HLSL.
  * - `bind_space` Bind space number in HLSL. `register(regN, spaceN)`
@@ -50,6 +50,6 @@
  * @section WisPushConstant_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisPipelineLayoutDesc
+ * @see WisRootSignatureDesc
  * \endcond
  */

@@ -185,24 +185,24 @@ inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority value) noexce
     }
 }
 
-inline VkShaderStageFlags convert_vk(WisShaderStages value) noexcept
+inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexcept
 {
     switch (value) {
-    case WisShaderStagesAll:
+    case WisShaderVisibilityAll:
         return VK_SHADER_STAGE_ALL;
-    case WisShaderStagesVertex:
+    case WisShaderVisibilityVertex:
         return VK_SHADER_STAGE_VERTEX_BIT;
-    case WisShaderStagesHull:
+    case WisShaderVisibilityHull:
         return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-    case WisShaderStagesDomain:
+    case WisShaderVisibilityDomain:
         return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-    case WisShaderStagesGeometry:
+    case WisShaderVisibilityGeometry:
         return VK_SHADER_STAGE_GEOMETRY_BIT;
-    case WisShaderStagesPixel:
+    case WisShaderVisibilityPixel:
         return VK_SHADER_STAGE_FRAGMENT_BIT;
-    case WisShaderStagesAmplification:
+    case WisShaderVisibilityAmplification:
         return VK_SHADER_STAGE_TASK_BIT_EXT;
-    case WisShaderStagesMesh:
+    case WisShaderVisibilityMesh:
         return VK_SHADER_STAGE_MESH_BIT_EXT;
     default:
         return VK_SHADER_STAGE_ALL;

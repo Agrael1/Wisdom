@@ -13,7 +13,9 @@
  * typedef struct  WisDescriptorTableEntry {
  *     WisDescriptorType type;
  *     uint32_t          bind_register;
+ *     uint32_t          bind_space;
  *     uint32_t          count;
+ *     uint32_t          descriptor_offset;
  * } WisDescriptorTableEntry;
  * 
  * ```
@@ -24,7 +26,9 @@
  * struct  DescriptorTableEntry {
  *     wis::DescriptorType type;
  *     std::uint32_t       bind_register;
+ *     std::uint32_t       bind_space;
  *     std::uint32_t       count;
+ *     std::uint32_t       descriptor_offset;
  * };
  * }
  * ```
@@ -35,7 +39,9 @@
  * \cond WIS_GEN_DESC
  * - `type` Descriptor type.
  * - `bind_register` Bind register number in HLSL.
+ * - `bind_space` Bind space number in HLSL. `register(regN, spaceN)`
  * - `count` Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
+ * - `descriptor_offset` Offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables.
  * \endcond
  *
  * @section WisDescriptorTableEntry_descr Description
