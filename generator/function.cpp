@@ -557,33 +557,14 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         body += "));\n";
     } break;
     case ReturnTypeKind::Void: {
-        body += wis::format("    ::wis{}{}{}({}",
-                            re_impl,
-                            func.this_type,
-                            func.name,
+        body += wis::format("    ::{}({}",
+                            GetCFullTypename(func.name, re_impl),
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
         }
-        for (size_t i = 0; i < func.parameters.size(); ++i) {
-            auto& p = func.parameters[i];
-            if (p.modifier & Modifier::Span) {
-                body += wis::format("reinterpret_cast<{}>({}.data()), {}.size()",
-                                    GetMemberTypeString<Lang::C>(p, re_impl),
-                                    p.name,
-                                    p.name);
-                i++; // skip next parameter (the size)
-                if (i < func.parameters.size() - 1) {
-                    body += arg_prefix;
-                }
-                continue;
-            }
-            body += wis::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, re_impl), p.name);
-            if (i < func.parameters.size() - 1) {
-                body += arg_prefix;
-            }
-        }
+        set_params();
         body += ");\n";
     } break;
     default:

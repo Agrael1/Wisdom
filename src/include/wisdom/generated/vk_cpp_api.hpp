@@ -90,6 +90,7 @@ struct VKRootSignatureDeleter {
         ::wisVKDestroyRootSignature(handle);
     }
 };
+using VKRootSignatureView = WisVKRootSignatureView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
@@ -100,6 +101,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD VKRootSignatureView GetView() const noexcept
+    {
+        VKRootSignatureView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKRootSignatureView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct VKResourceAllocatorDeleter {
@@ -266,12 +277,25 @@ public:
      * @param sampler_heap points to wis::DescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
      *
      * */
-    inline void BindDescriptorHeaps(const wis::VKDescriptorHeap* resource_heap,
-                                    const wis::VKDescriptorHeap* sampler_heap) const noexcept
+    inline void SetDescriptorHeaps(const wis::VKDescriptorHeap* resource_heap,
+                                   const wis::VKDescriptorHeap* sampler_heap) const noexcept
     {
-        ::wisVKCommandListBindDescriptorHeaps(&_impl_storage,
-                                              reinterpret_cast<const WisVKDescriptorHeap*>(resource_heap),
-                                              reinterpret_cast<const WisVKDescriptorHeap*>(sampler_heap));
+        ::wisVKCommandListSetDescriptorHeaps(&_impl_storage,
+                                             reinterpret_cast<const WisVKDescriptorHeap*>(resource_heap),
+                                             reinterpret_cast<const WisVKDescriptorHeap*>(sampler_heap));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the root signature for the command list, so it can be used for resource binding.
+     * @param signature points to wis::RootSignature to set.
+     * @param pipeline defines the pipeline type to set the root signature for.
+     *
+     * */
+    inline void SetRootSignature(wis::VKRootSignatureView signature,
+                                 wis::PipelineType        pipeline) const noexcept
+    {
+        ::wisVKCommandListSetRootSignature(&_impl_storage,
+                                           signature,
+                                           static_cast<WisPipelineType>(pipeline));
     }
 };
 
@@ -489,7 +513,7 @@ public:
     inline void QueryProperties(void* properties) const noexcept
     {
         ::wisVKDeviceQueryProperties(&_impl_storage,
-                                     reinterpret_cast<void*>(properties));
+                                     properties);
     }
 };
 

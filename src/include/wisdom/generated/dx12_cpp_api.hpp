@@ -90,6 +90,7 @@ struct DX12RootSignatureDeleter {
         ::wisDX12DestroyRootSignature(handle);
     }
 };
+using DX12RootSignatureView = WisDX12RootSignatureView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
@@ -100,6 +101,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD DX12RootSignatureView GetView() const noexcept
+    {
+        DX12RootSignatureView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12RootSignatureView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct DX12ResourceAllocatorDeleter {
@@ -266,12 +277,25 @@ public:
      * @param sampler_heap points to wis::DescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
      *
      * */
-    inline void BindDescriptorHeaps(const wis::DX12DescriptorHeap* resource_heap,
-                                    const wis::DX12DescriptorHeap* sampler_heap) const noexcept
+    inline void SetDescriptorHeaps(const wis::DX12DescriptorHeap* resource_heap,
+                                   const wis::DX12DescriptorHeap* sampler_heap) const noexcept
     {
-        ::wisDX12CommandListBindDescriptorHeaps(&_impl_storage,
-                                                reinterpret_cast<const WisDX12DescriptorHeap*>(resource_heap),
-                                                reinterpret_cast<const WisDX12DescriptorHeap*>(sampler_heap));
+        ::wisDX12CommandListSetDescriptorHeaps(&_impl_storage,
+                                               reinterpret_cast<const WisDX12DescriptorHeap*>(resource_heap),
+                                               reinterpret_cast<const WisDX12DescriptorHeap*>(sampler_heap));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the root signature for the command list, so it can be used for resource binding.
+     * @param signature points to wis::RootSignature to set.
+     * @param pipeline defines the pipeline type to set the root signature for.
+     *
+     * */
+    inline void SetRootSignature(wis::DX12RootSignatureView signature,
+                                 wis::PipelineType          pipeline) const noexcept
+    {
+        ::wisDX12CommandListSetRootSignature(&_impl_storage,
+                                             signature,
+                                             static_cast<WisPipelineType>(pipeline));
     }
 };
 
@@ -489,7 +513,7 @@ public:
     inline void QueryProperties(void* properties) const noexcept
     {
         ::wisDX12DeviceQueryProperties(&_impl_storage,
-                                       reinterpret_cast<void*>(properties));
+                                       properties);
     }
 };
 

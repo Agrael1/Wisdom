@@ -543,6 +543,12 @@ a 4-bit A component in bits 12..15.">
       </value>
     </type>
 
+    <type name="PipelineType" category="enum" version="0.7.0" doc="Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
+      <value name="Graphics" value="0" doc="Pipeline for graphics operations, including rendering tasks."/>
+      <value name="Compute" value="1" doc="Pipeline dedicated to compute operations, optimized for parallel processing tasks."/>
+      <value name="RayTracing" value="2" doc="Pipeline for ray tracing operations, optimized for ray tracing workloads."/>
+    </type>
+
     <type name="ShaderVisibility" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
       <impl_type for="dx" name="D3D12_SHADER_VISIBILITY" direct="true"/>
       <impl_type for="vk" name="VkShaderStageFlags" default="VK_SHADER_STAGE_ALL"/>

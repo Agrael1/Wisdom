@@ -22,6 +22,6 @@
  * @section WisDescriptorHeap_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyDescriptorHeap, wisDeviceCreateDescriptorHeap, wisCommandListBindDescriptorHeaps, wisCommandListBindDescriptorHeaps
+ * @see wisDestroyDescriptorHeap, wisDeviceCreateDescriptorHeap, wisCommandListSetDescriptorHeaps, wisCommandListSetDescriptorHeaps
  * \endcond
  */

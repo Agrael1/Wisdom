@@ -681,6 +681,16 @@ enum class CommandQueuePriority {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
+ *
+ * */
+enum class PipelineType {
+    Graphics   = 0, ///< Pipeline for graphics operations, including rendering tasks.
+    Compute    = 1, ///< Pipeline dedicated to compute operations, optimized for parallel processing tasks.
+    RayTracing = 2, ///< Pipeline for ray tracing operations, optimized for ray tracing workloads.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
  *
  * */

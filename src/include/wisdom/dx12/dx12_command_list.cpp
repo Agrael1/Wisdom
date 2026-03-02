@@ -5,6 +5,7 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <bit>
 
 using namespace wis;
 using namespace wis::impl;
@@ -47,21 +48,41 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisDX12CommandListBindDescriptorHeaps(const WisDX12CommandList*    self,
-                                                                   const WisDX12DescriptorHeap* resource_heap,
-                                                                   const WisDX12DescriptorHeap* sampler_heap)
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorHeaps(const WisDX12CommandList*    self,
+                                                                  const WisDX12DescriptorHeap* resource_heap,
+                                                                  const WisDX12DescriptorHeap* sampler_heap)
 {
     auto& [list, all] = *reinterpret_cast<const DX12CommandListImpl*>(self);
 
     uint32_t              heap_offset = (resource_heap == 0);
-    uint32_t              heap_count = (resource_heap != 0) + (sampler_heap != 0);
-    ID3D12DescriptorHeap* heaps[] = {
+    uint32_t              heap_count  = (resource_heap != 0) + (sampler_heap != 0);
+    ID3D12DescriptorHeap* heaps[]     = {
         resource_heap ? reinterpret_cast<const DX12DescriptorHeapImpl*>(resource_heap)->descriptor_heap : nullptr,
         sampler_heap ? reinterpret_cast<const DX12DescriptorHeapImpl*>(sampler_heap)->descriptor_heap : nullptr,
     };
 
     if (heap_count > 0) {
         list->SetDescriptorHeaps(heap_count, heaps + heap_offset);
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12CommandList* self,
+                                                                WisDX12RootSignatureView  signature,
+                                                                WisPipelineType           pipeline)
+{
+    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto* sig  = std::bit_cast<ID3D12RootSignature*>(signature);
+
+    switch (pipeline) {
+    default:
+    case WisPipelineTypeGraphics:
+        impl.list->SetGraphicsRootSignature(sig);
+        break;
+    case WisPipelineTypeRayTracing:
+    case WisPipelineTypeCompute:
+        impl.list->SetComputeRootSignature(sig);
+        break;
     }
 }
 

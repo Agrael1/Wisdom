@@ -21,6 +21,7 @@
     <handle name="RootSignature" version="0.7.0" doc="Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.">
       <impl for="vk" size="1"/>
       <impl for="dx" size="1"/>
+      <view size="1"/>
     </handle>
     <handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">
       <impl for="vk" size="3"/>
@@ -32,7 +33,7 @@
       <view size="1"/>
     </handle>
     <handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
-      <impl for="vk" size="4"/>
+      <impl for="vk" size="5"/>
       <impl for="dx" size="2"/>
       <view size="1"/>
     </handle>
@@ -176,9 +177,13 @@ Can still be enqueued after the signal.">
     <func for="CommandList" name="End" version="0.7.0" mod="const" doc="Closes the command list, so it can be executed on the command queue.">
       <ret type="Result" name="result" doc="Result of operation."/>
     </func>
-    <func for="CommandList" name="BindDescriptorHeaps" version="0.7.0" mod="const" doc="Binds descriptor heaps to the command list, so they can be used for resource binding.">
+    <func for="CommandList" name="SetDescriptorHeaps" version="0.7.0" mod="const" doc="Binds descriptor heaps to the command list, so they can be used for resource binding.">
       <arg type="DescriptorHeap" name="resource_heap" mod="const,ptr" default="nullptr" doc="points to {DescriptorHeap::} with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound."/>
       <arg type="DescriptorHeap" name="sampler_heap" mod="const,ptr" default="nullptr" doc="points to {DescriptorHeap::} with samplers. If `nullptr`, no sampler heap is bound."/>
+    </func>
+    <func for="CommandList" name="SetRootSignature" version="0.7.0" mod="const" doc="Sets the root signature for the command list, so it can be used for resource binding.">
+      <arg type="RootSignatureView" name="signature" doc="points to {RootSignature::} to set."/>
+      <arg type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the root signature for."/>
     </func>
 
   </functions>

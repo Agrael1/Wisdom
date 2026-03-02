@@ -31,6 +31,7 @@ typedef struct WisDX12CommandQueue      WisCommandQueue;
 typedef struct WisDX12Device            WisDevice;
 typedef struct WisDX12AdapterQuery      WisAdapterQuery;
 typedef struct WisDX12Instance          WisInstance;
+typedef struct WisDX12RootSignatureView WisRootSignatureView;
 typedef struct WisDX12FenceView         WisFenceView;
 typedef struct WisDX12CommandListView   WisCommandListView;
 
@@ -83,16 +84,20 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisCommandAllocatorCreateCommandList wisDX12CommandAllocatorCreateCommandList
 #define wisCommandListBegin                  wisDX12CommandListBegin
 #define wisCommandListEnd                    wisDX12CommandListEnd
-#define wisCommandListBindDescriptorHeaps    wisDX12CommandListBindDescriptorHeaps
+#define wisCommandListSetDescriptorHeaps     wisDX12CommandListSetDescriptorHeaps
+#define wisCommandListSetRootSignature       wisDX12CommandListSetRootSignature
+#define wisGetRootSignatureView              wisGetDX12RootSignatureView
 #define wisGetFenceView                      wisGetDX12FenceView
 #define wisGetCommandListView                wisGetDX12CommandListView
 
-#define wisGetView(handle)                                        \
-    _Generic((handle),                                            \
-            const WisDX12Fence*: wisGetDX12FenceView,             \
-            WisDX12Fence*: wisGetDX12FenceView,                   \
-            const WisDX12CommandList*: wisGetDX12CommandListView, \
-            WisDX12CommandList*: wisGetDX12CommandListView,       \
+#define wisGetView(handle)                                            \
+    _Generic((handle),                                                \
+            const WisDX12RootSignature*: wisGetDX12RootSignatureView, \
+            WisDX12RootSignature*: wisGetDX12RootSignatureView,       \
+            const WisDX12Fence*: wisGetDX12FenceView,                 \
+            WisDX12Fence*: wisGetDX12FenceView,                       \
+            const WisDX12CommandList*: wisGetDX12CommandListView,     \
+            WisDX12CommandList*: wisGetDX12CommandListView,           \
             default: (void)0)(handle)
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
@@ -113,6 +118,7 @@ typedef struct WisVKCommandQueue      WisCommandQueue;
 typedef struct WisVKDevice            WisDevice;
 typedef struct WisVKAdapterQuery      WisAdapterQuery;
 typedef struct WisVKInstance          WisInstance;
+typedef struct WisVKRootSignatureView WisRootSignatureView;
 typedef struct WisVKFenceView         WisFenceView;
 typedef struct WisVKCommandListView   WisCommandListView;
 
@@ -165,16 +171,20 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisCommandAllocatorCreateCommandList wisVKCommandAllocatorCreateCommandList
 #define wisCommandListBegin                  wisVKCommandListBegin
 #define wisCommandListEnd                    wisVKCommandListEnd
-#define wisCommandListBindDescriptorHeaps    wisVKCommandListBindDescriptorHeaps
+#define wisCommandListSetDescriptorHeaps     wisVKCommandListSetDescriptorHeaps
+#define wisCommandListSetRootSignature       wisVKCommandListSetRootSignature
+#define wisGetRootSignatureView              wisGetVKRootSignatureView
 #define wisGetFenceView                      wisGetVKFenceView
 #define wisGetCommandListView                wisGetVKCommandListView
 
-#define wisGetView(handle)                                    \
-    _Generic((handle),                                        \
-            const WisVKFence*: wisGetVKFenceView,             \
-            WisVKFence*: wisGetVKFenceView,                   \
-            const WisVKCommandList*: wisGetVKCommandListView, \
-            WisVKCommandList*: wisGetVKCommandListView,       \
+#define wisGetView(handle)                                        \
+    _Generic((handle),                                            \
+            const WisVKRootSignature*: wisGetVKRootSignatureView, \
+            WisVKRootSignature*: wisGetVKRootSignatureView,       \
+            const WisVKFence*: wisGetVKFenceView,                 \
+            WisVKFence*: wisGetVKFenceView,                       \
+            const WisVKCommandList*: wisGetVKCommandListView,     \
+            WisVKCommandList*: wisGetVKCommandListView,           \
             default: (void)0)(handle)
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

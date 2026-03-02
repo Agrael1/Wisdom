@@ -173,7 +173,8 @@ int main()
 
     // Dummy command list
     wisCommandListBegin(&command_list);
-    wisCommandListBindDescriptorHeaps(&command_list, &descriptor_heap, NULL);
+    wisCommandListSetRootSignature(&command_list, wisGetView(&root_signature), WisPipelineTypeGraphics);
+    wisCommandListSetDescriptorHeaps(&command_list, &descriptor_heap, NULL);
     wisCommandListEnd(&command_list);
 
     wisCommandQueueSubmit(&command_queue, &command_list_view, 1);
