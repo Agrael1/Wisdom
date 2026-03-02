@@ -30,6 +30,14 @@ WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 1);
  *
  * */
 WIS_DEFINE_HANDLE(WisDX12RootSignature, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12RootSignature, 1);
+
+static inline WisDX12RootSignatureView wisGetDX12RootSignatureView(const WisDX12RootSignature* handle)
+{
+    WisDX12RootSignatureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
@@ -485,9 +493,20 @@ WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self);
  * @param sampler_heap points to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
  *
  * */
-WISDOM_API void wisDX12CommandListBindDescriptorHeaps(const WisDX12CommandList*    self,
-                                                      const WisDX12DescriptorHeap* resource_heap,
-                                                      const WisDX12DescriptorHeap* sampler_heap);
+WISDOM_API void wisDX12CommandListSetDescriptorHeaps(const WisDX12CommandList*    self,
+                                                     const WisDX12DescriptorHeap* resource_heap,
+                                                     const WisDX12DescriptorHeap* sampler_heap);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the root signature for the command list, so it can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param signature points to WisRootSignature to set.
+ * @param pipeline defines the pipeline type to set the root signature for.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12CommandList* self,
+                                                   WisDX12RootSignatureView  signature,
+                                                   WisPipelineType           pipeline);
 
 #ifdef __cplusplus
 }

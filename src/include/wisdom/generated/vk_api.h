@@ -30,6 +30,14 @@ WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 7);
  *
  * */
 WIS_DEFINE_HANDLE(WisVKRootSignature, 1);
+WIS_DEFINE_HANDLE_VIEW(WisVKRootSignature, 1);
+
+static inline WisVKRootSignatureView wisGetVKRootSignatureView(const WisVKRootSignature* handle)
+{
+    WisVKRootSignatureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
@@ -55,7 +63,7 @@ static inline WisVKFenceView wisGetVKFenceView(const WisVKFence* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKCommandList, 4);
+WIS_DEFINE_HANDLE(WisVKCommandList, 5);
 WIS_DEFINE_HANDLE_VIEW(WisVKCommandList, 1);
 
 static inline WisVKCommandListView wisGetVKCommandListView(const WisVKCommandList* handle)
@@ -485,9 +493,20 @@ WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self);
  * @param sampler_heap points to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
  *
  * */
-WISDOM_API void wisVKCommandListBindDescriptorHeaps(const WisVKCommandList*    self,
-                                                    const WisVKDescriptorHeap* resource_heap,
-                                                    const WisVKDescriptorHeap* sampler_heap);
+WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKCommandList*    self,
+                                                   const WisVKDescriptorHeap* resource_heap,
+                                                   const WisVKDescriptorHeap* sampler_heap);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the root signature for the command list, so it can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param signature points to WisRootSignature to set.
+ * @param pipeline defines the pipeline type to set the root signature for.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommandList* self,
+                                                 WisVKRootSignatureView  signature,
+                                                 WisPipelineType         pipeline);
 
 #ifdef __cplusplus
 }

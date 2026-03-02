@@ -59,10 +59,12 @@ struct VKCommandAllocatorImpl {
 };
 
 struct VKCommandListImpl {
-    VkCommandBuffer                    command_buffer;
+    VkCommandBuffer                              command_buffer;
+    impl::VKMainCommandList*                     command_list_table; // local copy of the main command list table for faster access
+    mutable detail::VKRootSignatureControlBlock* root_signature_header;
+
     VkCommandPool                      command_pool;
     detail::VKCommandPoolControlBlock* command_pool_header;
-    impl::VKMainCommandList*           command_list_table; // local copy of the main command list table for faster access
 };
 
 struct VKFenceImpl {

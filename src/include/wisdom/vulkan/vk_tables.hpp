@@ -122,6 +122,7 @@ struct VKMainCommandList {
     // Descriptor heap functions
     PFN_vkCmdBindResourceHeapEXT vkCmdBindResourceHeapEXT;
     PFN_vkCmdBindSamplerHeapEXT  vkCmdBindSamplerHeapEXT;
+    PFN_vkCmdPushDataEXT         vkCmdPushDataEXT;
 
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
@@ -154,6 +155,7 @@ public:
         // Descriptor heap functions (optional, since support is not wide)
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindResourceHeapEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindSamplerHeapEXT);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdPushDataEXT);
         return true;
     }
 };

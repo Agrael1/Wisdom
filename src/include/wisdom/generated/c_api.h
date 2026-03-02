@@ -684,6 +684,16 @@ typedef enum WisCommandQueuePriority {
 } WisCommandQueuePriority;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
+ *
+ * */
+typedef enum WisPipelineType {
+    WisPipelineTypeGraphics   = 0, ///< Pipeline for graphics operations, including rendering tasks.
+    WisPipelineTypeCompute    = 1, ///< Pipeline dedicated to compute operations, optimized for parallel processing tasks.
+    WisPipelineTypeRayTracing = 2, ///< Pipeline for ray tracing operations, optimized for ray tracing workloads.
+} WisPipelineType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
  *
  * */

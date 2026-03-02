@@ -5,6 +5,7 @@
 #include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>
+#include <bit>
 
 using namespace wis;
 using namespace wis::impl;
@@ -54,9 +55,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* se
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisVKCommandListBindDescriptorHeaps(const WisVKCommandList*    self,
-                                                                 const WisVKDescriptorHeap* resource_heap,
-                                                                 const WisVKDescriptorHeap* sampler_heap)
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKCommandList*    self,
+                                                                const WisVKDescriptorHeap* resource_heap,
+                                                                const WisVKDescriptorHeap* sampler_heap)
 {
 #if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
     return; // Descriptor heap binding is not supported, silently ignore
@@ -91,6 +92,20 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBindDescriptorHeaps(const WisVKComm
         };
         impl.command_list_table->vkCmdBindSamplerHeapEXT(impl.command_buffer, &bind_sampler_info);
     }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommandList* self,
+                                                              WisVKRootSignatureView  signature,
+                                                              WisPipelineType         pipeline)
+{
+#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
+    return; // Descriptor heap binding is not supported, silently ignore
+#endif
+
+    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto* sig  = std::bit_cast<detail::VKRootSignatureControlBlock*>(signature);
+    impl.root_signature_header = sig;
 }
 
 #endif // WIS_VK_COMMAND_LIST_CPP
