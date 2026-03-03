@@ -31,6 +31,7 @@ typedef struct WisDX12CommandQueue      WisCommandQueue;
 typedef struct WisDX12Device            WisDevice;
 typedef struct WisDX12AdapterQuery      WisAdapterQuery;
 typedef struct WisDX12Instance          WisInstance;
+typedef struct WisDX12BufferView        WisBufferView;
 typedef struct WisDX12RootSignatureView WisRootSignatureView;
 typedef struct WisDX12FenceView         WisFenceView;
 typedef struct WisDX12CommandListView   WisCommandListView;
@@ -47,56 +48,62 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 // Functions
 //==============================================================
 
-#define wisDestroyTexture                    wisDX12DestroyTexture
-#define wisDestroyBuffer                     wisDX12DestroyBuffer
-#define wisDestroyDescriptorHeap             wisDX12DestroyDescriptorHeap
-#define wisDestroyRootSignature              wisDX12DestroyRootSignature
-#define wisDestroyResourceAllocator          wisDX12DestroyResourceAllocator
-#define wisDestroyFence                      wisDX12DestroyFence
-#define wisDestroyCommandList                wisDX12DestroyCommandList
-#define wisDestroyCommandAllocator           wisDX12DestroyCommandAllocator
-#define wisDestroyCommandQueue               wisDX12DestroyCommandQueue
-#define wisDestroyDevice                     wisDX12DestroyDevice
-#define wisDestroyAdapterQuery               wisDX12DestroyAdapterQuery
-#define wisDestroyInstance                   wisDX12DestroyInstance
-#define wisCreateInstance                    wisDX12CreateInstance
-#define wisInstanceQueryAdapters             wisDX12InstanceQueryAdapters
-#define wisAdapterQueryGetAdapterCount       wisDX12AdapterQueryGetAdapterCount
-#define wisAdapterQueryGetAdapterDesc        wisDX12AdapterQueryGetAdapterDesc
-#define wisAdapterQueryCreateDevice          wisDX12AdapterQueryCreateDevice
-#define wisDeviceCreateCommandQueue          wisDX12DeviceCreateCommandQueue
-#define wisDeviceCreateCommandAllocator      wisDX12DeviceCreateCommandAllocator
-#define wisDeviceCreateFence                 wisDX12DeviceCreateFence
-#define wisDeviceGetResourceAllocator        wisDX12DeviceGetResourceAllocator
-#define wisDeviceCreateRootSignature         wisDX12DeviceCreateRootSignature
-#define wisDeviceCreateDescriptorHeap        wisDX12DeviceCreateDescriptorHeap
-#define wisDeviceQueryProperties             wisDX12DeviceQueryProperties
-#define wisFenceGetCompletedValue            wisDX12FenceGetCompletedValue
-#define wisFenceWait                         wisDX12FenceWait
-#define wisFenceSignal                       wisDX12FenceSignal
-#define wisCommandQueueSubmit                wisDX12CommandQueueSubmit
-#define wisCommandQueueSignalFence           wisDX12CommandQueueSignalFence
-#define wisCommandQueueWaitFence             wisDX12CommandQueueWaitFence
-#define wisResourceAllocatorCreateBuffer     wisDX12ResourceAllocatorCreateBuffer
-#define wisResourceAllocatorCreateTexture    wisDX12ResourceAllocatorCreateTexture
-#define wisBufferMap                         wisDX12BufferMap
-#define wisBufferGetGPUAddress               wisDX12BufferGetGPUAddress
-#define wisDescriptorHeapGetCPUHandle        wisDX12DescriptorHeapGetCPUHandle
-#define wisCommandAllocatorReset             wisDX12CommandAllocatorReset
-#define wisCommandAllocatorCreateCommandList wisDX12CommandAllocatorCreateCommandList
-#define wisCommandListBegin                  wisDX12CommandListBegin
-#define wisCommandListEnd                    wisDX12CommandListEnd
-#define wisCommandListSetDescriptorHeaps     wisDX12CommandListSetDescriptorHeaps
-#define wisCommandListSetRootSignature       wisDX12CommandListSetRootSignature
-#define wisCommandListSetPushConstants       wisDX12CommandListSetPushConstants
-#define wisCommandListSetPushDescriptor      wisDX12CommandListSetPushDescriptor
-#define wisCommandListSetDescriptorTable     wisDX12CommandListSetDescriptorTable
-#define wisGetRootSignatureView              wisGetDX12RootSignatureView
-#define wisGetFenceView                      wisGetDX12FenceView
-#define wisGetCommandListView                wisGetDX12CommandListView
+#define wisDestroyTexture                        wisDX12DestroyTexture
+#define wisDestroyBuffer                         wisDX12DestroyBuffer
+#define wisDestroyDescriptorHeap                 wisDX12DestroyDescriptorHeap
+#define wisDestroyRootSignature                  wisDX12DestroyRootSignature
+#define wisDestroyResourceAllocator              wisDX12DestroyResourceAllocator
+#define wisDestroyFence                          wisDX12DestroyFence
+#define wisDestroyCommandList                    wisDX12DestroyCommandList
+#define wisDestroyCommandAllocator               wisDX12DestroyCommandAllocator
+#define wisDestroyCommandQueue                   wisDX12DestroyCommandQueue
+#define wisDestroyDevice                         wisDX12DestroyDevice
+#define wisDestroyAdapterQuery                   wisDX12DestroyAdapterQuery
+#define wisDestroyInstance                       wisDX12DestroyInstance
+#define wisCreateInstance                        wisDX12CreateInstance
+#define wisInstanceQueryAdapters                 wisDX12InstanceQueryAdapters
+#define wisAdapterQueryGetAdapterCount           wisDX12AdapterQueryGetAdapterCount
+#define wisAdapterQueryGetAdapterDesc            wisDX12AdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice              wisDX12AdapterQueryCreateDevice
+#define wisDeviceCreateCommandQueue              wisDX12DeviceCreateCommandQueue
+#define wisDeviceCreateCommandAllocator          wisDX12DeviceCreateCommandAllocator
+#define wisDeviceCreateFence                     wisDX12DeviceCreateFence
+#define wisDeviceGetResourceAllocator            wisDX12DeviceGetResourceAllocator
+#define wisDeviceCreateRootSignature             wisDX12DeviceCreateRootSignature
+#define wisDeviceCreateDescriptorHeap            wisDX12DeviceCreateDescriptorHeap
+#define wisDeviceQueryProperties                 wisDX12DeviceQueryProperties
+#define wisFenceGetCompletedValue                wisDX12FenceGetCompletedValue
+#define wisFenceWait                             wisDX12FenceWait
+#define wisFenceSignal                           wisDX12FenceSignal
+#define wisCommandQueueSubmit                    wisDX12CommandQueueSubmit
+#define wisCommandQueueSignalFence               wisDX12CommandQueueSignalFence
+#define wisCommandQueueWaitFence                 wisDX12CommandQueueWaitFence
+#define wisResourceAllocatorCreateBuffer         wisDX12ResourceAllocatorCreateBuffer
+#define wisResourceAllocatorCreateTexture        wisDX12ResourceAllocatorCreateTexture
+#define wisBufferMap                             wisDX12BufferMap
+#define wisBufferGetGPUAddress                   wisDX12BufferGetGPUAddress
+#define wisDescriptorHeapGetCPUHandle            wisDX12DescriptorHeapGetCPUHandle
+#define wisDescriptorHeapWriteConstantBuffer     wisDX12DescriptorHeapWriteConstantBuffer
+#define wisDescriptorHeapWriteStructuredBuffer   wisDX12DescriptorHeapWriteStructuredBuffer
+#define wisDescriptorHeapWriteRWStructuredBuffer wisDX12DescriptorHeapWriteRWStructuredBuffer
+#define wisCommandAllocatorReset                 wisDX12CommandAllocatorReset
+#define wisCommandAllocatorCreateCommandList     wisDX12CommandAllocatorCreateCommandList
+#define wisCommandListBegin                      wisDX12CommandListBegin
+#define wisCommandListEnd                        wisDX12CommandListEnd
+#define wisCommandListSetDescriptorHeaps         wisDX12CommandListSetDescriptorHeaps
+#define wisCommandListSetRootSignature           wisDX12CommandListSetRootSignature
+#define wisCommandListSetPushConstants           wisDX12CommandListSetPushConstants
+#define wisCommandListSetPushDescriptor          wisDX12CommandListSetPushDescriptor
+#define wisCommandListSetDescriptorTable         wisDX12CommandListSetDescriptorTable
+#define wisGetBufferView                         wisGetDX12BufferView
+#define wisGetRootSignatureView                  wisGetDX12RootSignatureView
+#define wisGetFenceView                          wisGetDX12FenceView
+#define wisGetCommandListView                    wisGetDX12CommandListView
 
 #define wisGetView(handle)                                            \
     _Generic((handle),                                                \
+            const WisDX12Buffer*: wisGetDX12BufferView,               \
+            WisDX12Buffer*: wisGetDX12BufferView,                     \
             const WisDX12RootSignature*: wisGetDX12RootSignatureView, \
             WisDX12RootSignature*: wisGetDX12RootSignatureView,       \
             const WisDX12Fence*: wisGetDX12FenceView,                 \
@@ -123,6 +130,7 @@ typedef struct WisVKCommandQueue      WisCommandQueue;
 typedef struct WisVKDevice            WisDevice;
 typedef struct WisVKAdapterQuery      WisAdapterQuery;
 typedef struct WisVKInstance          WisInstance;
+typedef struct WisVKBufferView        WisBufferView;
 typedef struct WisVKRootSignatureView WisRootSignatureView;
 typedef struct WisVKFenceView         WisFenceView;
 typedef struct WisVKCommandListView   WisCommandListView;
@@ -139,56 +147,62 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 // Functions
 //==============================================================
 
-#define wisDestroyTexture                    wisVKDestroyTexture
-#define wisDestroyBuffer                     wisVKDestroyBuffer
-#define wisDestroyDescriptorHeap             wisVKDestroyDescriptorHeap
-#define wisDestroyRootSignature              wisVKDestroyRootSignature
-#define wisDestroyResourceAllocator          wisVKDestroyResourceAllocator
-#define wisDestroyFence                      wisVKDestroyFence
-#define wisDestroyCommandList                wisVKDestroyCommandList
-#define wisDestroyCommandAllocator           wisVKDestroyCommandAllocator
-#define wisDestroyCommandQueue               wisVKDestroyCommandQueue
-#define wisDestroyDevice                     wisVKDestroyDevice
-#define wisDestroyAdapterQuery               wisVKDestroyAdapterQuery
-#define wisDestroyInstance                   wisVKDestroyInstance
-#define wisCreateInstance                    wisVKCreateInstance
-#define wisInstanceQueryAdapters             wisVKInstanceQueryAdapters
-#define wisAdapterQueryGetAdapterCount       wisVKAdapterQueryGetAdapterCount
-#define wisAdapterQueryGetAdapterDesc        wisVKAdapterQueryGetAdapterDesc
-#define wisAdapterQueryCreateDevice          wisVKAdapterQueryCreateDevice
-#define wisDeviceCreateCommandQueue          wisVKDeviceCreateCommandQueue
-#define wisDeviceCreateCommandAllocator      wisVKDeviceCreateCommandAllocator
-#define wisDeviceCreateFence                 wisVKDeviceCreateFence
-#define wisDeviceGetResourceAllocator        wisVKDeviceGetResourceAllocator
-#define wisDeviceCreateRootSignature         wisVKDeviceCreateRootSignature
-#define wisDeviceCreateDescriptorHeap        wisVKDeviceCreateDescriptorHeap
-#define wisDeviceQueryProperties             wisVKDeviceQueryProperties
-#define wisFenceGetCompletedValue            wisVKFenceGetCompletedValue
-#define wisFenceWait                         wisVKFenceWait
-#define wisFenceSignal                       wisVKFenceSignal
-#define wisCommandQueueSubmit                wisVKCommandQueueSubmit
-#define wisCommandQueueSignalFence           wisVKCommandQueueSignalFence
-#define wisCommandQueueWaitFence             wisVKCommandQueueWaitFence
-#define wisResourceAllocatorCreateBuffer     wisVKResourceAllocatorCreateBuffer
-#define wisResourceAllocatorCreateTexture    wisVKResourceAllocatorCreateTexture
-#define wisBufferMap                         wisVKBufferMap
-#define wisBufferGetGPUAddress               wisVKBufferGetGPUAddress
-#define wisDescriptorHeapGetCPUHandle        wisVKDescriptorHeapGetCPUHandle
-#define wisCommandAllocatorReset             wisVKCommandAllocatorReset
-#define wisCommandAllocatorCreateCommandList wisVKCommandAllocatorCreateCommandList
-#define wisCommandListBegin                  wisVKCommandListBegin
-#define wisCommandListEnd                    wisVKCommandListEnd
-#define wisCommandListSetDescriptorHeaps     wisVKCommandListSetDescriptorHeaps
-#define wisCommandListSetRootSignature       wisVKCommandListSetRootSignature
-#define wisCommandListSetPushConstants       wisVKCommandListSetPushConstants
-#define wisCommandListSetPushDescriptor      wisVKCommandListSetPushDescriptor
-#define wisCommandListSetDescriptorTable     wisVKCommandListSetDescriptorTable
-#define wisGetRootSignatureView              wisGetVKRootSignatureView
-#define wisGetFenceView                      wisGetVKFenceView
-#define wisGetCommandListView                wisGetVKCommandListView
+#define wisDestroyTexture                        wisVKDestroyTexture
+#define wisDestroyBuffer                         wisVKDestroyBuffer
+#define wisDestroyDescriptorHeap                 wisVKDestroyDescriptorHeap
+#define wisDestroyRootSignature                  wisVKDestroyRootSignature
+#define wisDestroyResourceAllocator              wisVKDestroyResourceAllocator
+#define wisDestroyFence                          wisVKDestroyFence
+#define wisDestroyCommandList                    wisVKDestroyCommandList
+#define wisDestroyCommandAllocator               wisVKDestroyCommandAllocator
+#define wisDestroyCommandQueue                   wisVKDestroyCommandQueue
+#define wisDestroyDevice                         wisVKDestroyDevice
+#define wisDestroyAdapterQuery                   wisVKDestroyAdapterQuery
+#define wisDestroyInstance                       wisVKDestroyInstance
+#define wisCreateInstance                        wisVKCreateInstance
+#define wisInstanceQueryAdapters                 wisVKInstanceQueryAdapters
+#define wisAdapterQueryGetAdapterCount           wisVKAdapterQueryGetAdapterCount
+#define wisAdapterQueryGetAdapterDesc            wisVKAdapterQueryGetAdapterDesc
+#define wisAdapterQueryCreateDevice              wisVKAdapterQueryCreateDevice
+#define wisDeviceCreateCommandQueue              wisVKDeviceCreateCommandQueue
+#define wisDeviceCreateCommandAllocator          wisVKDeviceCreateCommandAllocator
+#define wisDeviceCreateFence                     wisVKDeviceCreateFence
+#define wisDeviceGetResourceAllocator            wisVKDeviceGetResourceAllocator
+#define wisDeviceCreateRootSignature             wisVKDeviceCreateRootSignature
+#define wisDeviceCreateDescriptorHeap            wisVKDeviceCreateDescriptorHeap
+#define wisDeviceQueryProperties                 wisVKDeviceQueryProperties
+#define wisFenceGetCompletedValue                wisVKFenceGetCompletedValue
+#define wisFenceWait                             wisVKFenceWait
+#define wisFenceSignal                           wisVKFenceSignal
+#define wisCommandQueueSubmit                    wisVKCommandQueueSubmit
+#define wisCommandQueueSignalFence               wisVKCommandQueueSignalFence
+#define wisCommandQueueWaitFence                 wisVKCommandQueueWaitFence
+#define wisResourceAllocatorCreateBuffer         wisVKResourceAllocatorCreateBuffer
+#define wisResourceAllocatorCreateTexture        wisVKResourceAllocatorCreateTexture
+#define wisBufferMap                             wisVKBufferMap
+#define wisBufferGetGPUAddress                   wisVKBufferGetGPUAddress
+#define wisDescriptorHeapGetCPUHandle            wisVKDescriptorHeapGetCPUHandle
+#define wisDescriptorHeapWriteConstantBuffer     wisVKDescriptorHeapWriteConstantBuffer
+#define wisDescriptorHeapWriteStructuredBuffer   wisVKDescriptorHeapWriteStructuredBuffer
+#define wisDescriptorHeapWriteRWStructuredBuffer wisVKDescriptorHeapWriteRWStructuredBuffer
+#define wisCommandAllocatorReset                 wisVKCommandAllocatorReset
+#define wisCommandAllocatorCreateCommandList     wisVKCommandAllocatorCreateCommandList
+#define wisCommandListBegin                      wisVKCommandListBegin
+#define wisCommandListEnd                        wisVKCommandListEnd
+#define wisCommandListSetDescriptorHeaps         wisVKCommandListSetDescriptorHeaps
+#define wisCommandListSetRootSignature           wisVKCommandListSetRootSignature
+#define wisCommandListSetPushConstants           wisVKCommandListSetPushConstants
+#define wisCommandListSetPushDescriptor          wisVKCommandListSetPushDescriptor
+#define wisCommandListSetDescriptorTable         wisVKCommandListSetDescriptorTable
+#define wisGetBufferView                         wisGetVKBufferView
+#define wisGetRootSignatureView                  wisGetVKRootSignatureView
+#define wisGetFenceView                          wisGetVKFenceView
+#define wisGetCommandListView                    wisGetVKCommandListView
 
 #define wisGetView(handle)                                        \
     _Generic((handle),                                            \
+            const WisVKBuffer*: wisGetVKBufferView,               \
+            WisVKBuffer*: wisGetVKBufferView,                     \
             const WisVKRootSignature*: wisGetVKRootSignatureView, \
             WisVKRootSignature*: wisGetVKRootSignatureView,       \
             const WisVKFence*: wisGetVKFenceView,                 \

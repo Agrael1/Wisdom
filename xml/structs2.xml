@@ -160,6 +160,16 @@
       <member type="u32" name="heap_offset" doc="defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables."/>
     </type>
 
+    <type name="ConstantBufferBinding" category="struct" version="0.7.0" doc="Constant buffer binding description for {DescriptorHeap::WriteConstantBuffer}.">
+      <member type="u64" name="buffer_address" doc="defines buffer device address to bind."/>
+      <member type="u32" name="size_bytes" doc="defines the size of the buffer region to bind in bytes."/>
+    </type>
+    <type name="BufferBinding" category="struct" version="0.7.0" doc="Buffer binding description for {DescriptorHeap::WriteStructuredBuffer}.">
+      <member type="u64" name="array_offset" doc="defines offset in buffer in structures."/>
+      <member type="u32" name="stride_bytes" doc="defines the size of the single structure in buffer."/>
+      <member type="u32" name="structure_count" doc="defines the number of structures in the buffer region to bind."/>
+    </type>
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>

@@ -146,7 +146,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
 
     auto& heap_impl           = *new (heap) DX12DescriptorHeapImpl();
     heap_impl.descriptor_heap = descriptor_heap.detach();
+    heap_impl.device          = device.device;
     heap_impl.gpu_handle      = heap_impl.descriptor_heap->GetGPUDescriptorHandleForHeapStart();
+    heap_impl.cpu_handle      = heap_impl.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+    heap_impl.descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type);
     return dx_success;
 }
 

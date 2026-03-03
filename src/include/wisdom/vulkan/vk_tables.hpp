@@ -233,6 +233,8 @@ struct VKMainDevice {
     PFN_vkSignalSemaphore                   vkSignalSemaphore;
     PFN_vkGetSemaphoreCounterValue          vkGetSemaphoreCounterValue;
     PFN_vkGetBufferDeviceAddress            vkGetBufferDeviceAddress;
+    PFN_vkWriteResourceDescriptorsEXT       vkWriteResourceDescriptorsEXT;
+    PFN_vkWriteSamplerDescriptorsEXT        vkWriteSamplerDescriptorsEXT;
 
 #ifdef _WIN32
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
@@ -295,6 +297,9 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkSignalSemaphore, "vkSignalSemaphoreKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetSemaphoreCounterValue, "vkGetSemaphoreCounterValueKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetBufferDeviceAddress, "vkGetBufferDeviceAddressKHR", "vkGetBufferDeviceAddressEXT");
+
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteResourceDescriptorsEXT);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteSamplerDescriptorsEXT);
 
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);

@@ -18,12 +18,20 @@ WIS_DEFINE_HANDLE(WisDX12Texture, 3);
  *
  * */
 WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Buffer, 1);
+
+static inline WisDX12BufferView wisGetDX12BufferView(const WisDX12Buffer* handle)
+{
+    WisDX12BufferView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 2);
+WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 5);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
@@ -467,6 +475,46 @@ WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
  *
  * */
 WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeConstantBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param data points to WisConstantBufferBinding, which describes the constant buffer descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteConstantBuffer(const WisDX12DescriptorHeap*    self,
+                                                              const WisConstantBufferBinding* data,
+                                                              uint32_t                        index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param buffer points to WisBuffer to write the descriptor for.
+ * @param data points to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(const WisDX12DescriptorHeap* self,
+                                                                WisDX12BufferView            buffer,
+                                                                const WisBufferBinding*      data,
+                                                                uint32_t                     index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeRWBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param buffer points to WisBuffer to write the descriptor for.
+ * @param data points to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(const WisDX12DescriptorHeap* self,
+                                                                  WisDX12BufferView            buffer,
+                                                                  const WisBufferBinding*      data,
+                                                                  uint32_t                     index);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
