@@ -15,4 +15,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap*
     heap.descriptor_heap->Release();
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    return reinterpret_cast<void*>(heap.descriptor_heap->GetCPUDescriptorHandleForHeapStart().ptr);
+}
+
 #endif // WIS_DX12_DESCRIPTOR_HEAP_CPP

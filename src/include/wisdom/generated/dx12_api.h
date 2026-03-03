@@ -23,7 +23,7 @@ WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 1);
+WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 2);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
@@ -63,7 +63,7 @@ static inline WisDX12FenceView wisGetDX12FenceView(const WisDX12Fence* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12CommandList, 2);
+WIS_DEFINE_HANDLE(WisDX12CommandList, 5);
 WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList, 1);
 
 static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12CommandList* handle)
@@ -453,6 +453,22 @@ WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const WisDX12Resource
 WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return u64 Address of the buffer on GPU.
+ *
+ * */
+WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @return void CPU descriptor handle for the descriptor heap.
+ *
+ * */
+WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
  * @param self is a pointer to the valid WisCommandAllocator instance.
  * @return Result denoting the outcome of operation.
@@ -507,6 +523,33 @@ WISDOM_API void wisDX12CommandListSetDescriptorHeaps(const WisDX12CommandList*  
 WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12CommandList* self,
                                                    WisDX12RootSignatureView  signature,
                                                    WisPipelineType           pipeline);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push constants for the command list, so they can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data points to , which describes the push constant data to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12CommandList*      self,
+                                                   const WisPushConstantDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data points to , which describes the push descriptors to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12CommandList*        self,
+                                                    const WisPushDescriptorDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data defines the root parameter index to set the descriptor table for.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12CommandList*         self,
+                                                     const WisDescriptorTableDataDesc* data);
 
 #ifdef __cplusplus
 }

@@ -1129,6 +1129,40 @@ typedef struct WisTextureDesc {
 } WisTextureDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Push constant set description for WisCommandList.
+ *
+ * */
+typedef struct WisPushConstantDataDesc {
+    WisPipelineType pipeline; ///< defines the pipeline type to set the push constants for.
+    uint32_t        root_index; ///< defines the root index in the root signature to set the push constants for.
+    const void*     data; ///< points to the data to set as push constants.
+    uint32_t        data_size; ///< defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant size defined by the device and 4-byte aligned.
+    uint32_t        push_offset; ///< defines the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
+} WisPushConstantDataDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for WisCommandList.
+ *
+ * */
+typedef struct WisPushDescriptorDataDesc {
+    WisPipelineType   pipeline; ///< defines the pipeline type to set the push descriptors for.
+    uint32_t          root_index; ///< defines the root index in the root signature to set the push descriptors for.
+    WisDescriptorType descriptor_type; ///< defines the type of the descriptors to push.
+    uint64_t          buffer_address; ///< defines buffer device address to push.
+} WisPushDescriptorDataDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for WisCommandList.
+ *
+ * */
+typedef struct WisDescriptorTableDataDesc {
+    WisPipelineType       pipeline; ///< defines the pipeline type to set the push descriptors for.
+    uint32_t              root_index; ///< defines the root index in the root signature to set the push descriptors for.
+    WisDescriptorHeapType heap_type; ///< defines the type of the descriptor heap to bind.
+    uint32_t              heap_offset; ///< defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables.
+} WisDescriptorTableDataDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */

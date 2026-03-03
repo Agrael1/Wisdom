@@ -44,6 +44,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see wisCommandListSetRootSignature
+ * @see WisPushConstantDataDesc, WisPushDescriptorDataDesc, WisDescriptorTableDataDesc, wisCommandListSetRootSignature
  * \endcond
  */

@@ -98,11 +98,11 @@ int main()
     }
 
     printf("Device descriptor heap properties:\n");
-    printf("- Max descriptor heap size: %zu\n", descriptor_heap_properties.max_descriptor_heap_size);
-    printf("- Max sampler heap size: %zu\n", descriptor_heap_properties.max_sampler_heap_size);
-    printf("- Max sampler heap size with embedded samplers: %zu\n", descriptor_heap_properties.max_sampler_heap_size_with_embedded);
-    printf("- Descriptor increment size: %zu\n", descriptor_heap_properties.descriptor_increment_size);
-    printf("- Sampler increment size: %zu\n", descriptor_heap_properties.sampler_increment_size);
+    printf("- Max descriptor heap size: %u\n", descriptor_heap_properties.max_descriptor_heap_size);
+    printf("- Max sampler heap size: %u\n", descriptor_heap_properties.max_sampler_heap_size);
+    printf("- Max sampler heap size with embedded samplers: %u\n", descriptor_heap_properties.max_sampler_heap_size_with_embedded);
+    printf("- Descriptor increment size: %u\n", descriptor_heap_properties.descriptor_increment_size);
+    printf("- Sampler increment size: %u\n", descriptor_heap_properties.sampler_increment_size);
 
     printf("Device memory properties:\n");
     printf("- GPU upload supported: %s\n", memory_properties.gpu_upload_supported ? "Yes" : "No");
@@ -139,7 +139,7 @@ int main()
 
     WisBufferDesc buffer_desc = {
         .size_bytes   = 1024,
-        .usage_flags  = WisBufferUsageFlagsCopySrc,
+        .usage_flags  = WisBufferUsageFlagsCopyDst | WisBufferUsageFlagsConstantBuffer,
         .memory_type  = WisMemoryTypeUpload,
         .memory_flags = WisMemoryFlagsMapped,
     };
@@ -147,7 +147,8 @@ int main()
     result           = wisResourceAllocatorCreateBuffer(&allocator, &buffer_desc, &buffer);
     printf("CreateBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
-    void* mapped_ptr = wisBufferMap(&buffer);
+    uint64_t buffer_gpu_address = wisBufferGetGPUAddress(&buffer);
+    void*    mapped_ptr         = wisBufferMap(&buffer);
 
     WisTextureDesc texture_desc = {
         .width               = 256,
@@ -166,15 +167,70 @@ int main()
     result             = wisResourceAllocatorCreateTexture(&allocator, &texture_desc, &texture);
     printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
-    WisRootSignatureDesc root_signature_desc = { 0 };
-    WisRootSignature     root_signature      = { 0 };
-    result                                   = wisDeviceCreateRootSignature(&device, &root_signature_desc, &root_signature);
+    WisPushConstant push_constant = {
+        .visibility    = WisShaderVisibilityAll,
+        .bind_register = 0,
+        .bind_space    = 0,
+        .size_bytes    = 16,
+    };
+    WisPushDescriptor push_descriptor = {
+        .visibility    = WisShaderVisibilityAll,
+        .type          = WisDescriptorTypeConstantBuffer,
+        .bind_register = 1,
+        .bind_space    = 0,
+    };
+    WisDescriptorTableEntry descriptor_table_entry = {
+        .type              = WisDescriptorTypeConstantBuffer,
+        .bind_register     = 2,
+        .bind_space        = 0,
+        .count             = 1,
+        .descriptor_offset = 0,
+    };
+    WisDescriptorTable descriptor_table = {
+        .visibility  = WisShaderVisibilityAll,
+        .entries     = &descriptor_table_entry,
+        .entry_count = 1,
+    };
+    WisRootSignatureDesc root_signature_desc = {
+        .push_constants         = &push_constant,
+        .push_constant_count    = 1,
+        .push_descriptors       = &push_descriptor,
+        .push_descriptor_count  = 1,
+        .descriptor_tables      = &descriptor_table,
+        .descriptor_table_count = 1,
+    };
+    WisRootSignature root_signature = { 0 };
+    result                          = wisDeviceCreateRootSignature(&device, &root_signature_desc, &root_signature);
     printf("CreateRootSignature result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     // Dummy command list
+
+    uint32_t                push_data[4]            = { 1, 2, 3, 4 };
+    WisPushConstantDataDesc push_constant_data_desc = {
+        .pipeline   = WisPipelineTypeGraphics,
+        .root_index = 0,
+        .data       = push_data,
+        .data_size  = 16,
+    };
+    WisPushDescriptorDataDesc push_descriptor_data_desc = {
+        .pipeline        = WisPipelineTypeGraphics,
+        .root_index      = 1,
+        .descriptor_type = WisDescriptorTypeConstantBuffer,
+        .buffer_address  = buffer_gpu_address
+    };
+    WisDescriptorTableDataDesc descriptor_table_data_desc = {
+        .pipeline    = WisPipelineTypeGraphics,
+        .root_index  = 2,
+        .heap_type   = WisDescriptorHeapTypeDescriptor,
+        .heap_offset = 0,
+    };
+
     wisCommandListBegin(&command_list);
     wisCommandListSetRootSignature(&command_list, wisGetView(&root_signature), WisPipelineTypeGraphics);
+    wisCommandListSetPushConstants(&command_list, &push_constant_data_desc);
+    wisCommandListSetPushDescriptor(&command_list, &push_descriptor_data_desc);
     wisCommandListSetDescriptorHeaps(&command_list, &descriptor_heap, NULL);
+    wisCommandListSetDescriptorTable(&command_list, &descriptor_table_data_desc);
     wisCommandListEnd(&command_list);
 
     wisCommandQueueSubmit(&command_queue, &command_list_view, 1);

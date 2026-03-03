@@ -28,4 +28,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
     }
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    return heap.mapped_ptr;
+}
+
+
 #endif // WIS_VK_DESCRIPTOR_HEAP_CPP

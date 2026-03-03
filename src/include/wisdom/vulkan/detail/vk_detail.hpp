@@ -240,38 +240,40 @@ struct alignas(void*) VKRootSignatureControlBlock {
     uint32_t constant_data_size     = 0; // must be aligned to 8 bytes
     uint32_t mapping_count          = 0;
     uint32_t embedded_sampler_count = 0;
-
-    // DWORD offset
-    uint16_t root_descriptor_offset = 0;
-    uint16_t root_table_offset      = 0;
+    uint32_t root_parameter_count   = 0;
 
     // offset from the start of the control block to the shader visibility mapping for each shader stage, or UINT32_MAX if not used
     alignas(void*) std::array<uint32_t, WisShaderVisibilityCount> shader_mapping_offset = FillInvalid();
 
-    // aligned to 8 bytes, immediately followed by constant data and then mapping data
+    // aligned to 8 bytes, immediately followed by binding data and then mapping data
 
-    wis::span<uint32_t> GetConstantData() noexcept
+    wis::span<const uint32_t> GetRootBindingOffsets() const noexcept
     {
-        return wis::span<uint32_t>{ reinterpret_cast<uint32_t*>(this + 1), constant_data_size };
-    }
-    wis::span<uint32_t> GetRootDescriptors() noexcept
-    {
-        return wis::span<uint32_t>{
-            reinterpret_cast<uint32_t*>(GetConstantData().end()),
-            static_cast<uint32_t>(root_table_offset - root_descriptor_offset)
+        return wis::span<const uint32_t>{
+            reinterpret_cast<const uint32_t*>(this + 1),
+            root_parameter_count
         };
     }
-    wis::span<uint32_t> GetRootTables() noexcept
+
+    wis::span<uint32_t> GetRootBindingOffsets() noexcept
     {
         return wis::span<uint32_t>{
-            reinterpret_cast<uint32_t*>(GetConstantData().end()) + root_table_offset,
-            constant_data_size - root_table_offset
+            reinterpret_cast<uint32_t*>(this + 1),
+            root_parameter_count
         };
     }
+
     wis::span<VkDescriptorSetAndBindingMappingEXT> GetMappings() noexcept
     {
         return wis::span<VkDescriptorSetAndBindingMappingEXT>{
-            reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(GetConstantData().end()),
+            reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(this + 1),
+            mapping_count
+        };
+    }
+    wis::span<const VkDescriptorSetAndBindingMappingEXT> GetMappings() const noexcept
+    {
+        return wis::span<const VkDescriptorSetAndBindingMappingEXT>{
+            reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(this + 1),
             mapping_count
         };
     }

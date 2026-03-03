@@ -453,6 +453,22 @@ WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisVKResourceAllo
 WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return u64 Address of the buffer on GPU.
+ *
+ * */
+WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @return void CPU descriptor handle for the descriptor heap.
+ *
+ * */
+WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
  * @param self is a pointer to the valid WisCommandAllocator instance.
  * @return Result denoting the outcome of operation.
@@ -507,6 +523,33 @@ WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKCommandList*    se
 WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommandList* self,
                                                  WisVKRootSignatureView  signature,
                                                  WisPipelineType         pipeline);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push constants for the command list, so they can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data points to , which describes the push constant data to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList*        self,
+                                                 const WisPushConstantDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data points to , which describes the push descriptors to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList*          self,
+                                                  const WisPushDescriptorDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data defines the root parameter index to set the descriptor table for.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKCommandList*           self,
+                                                   const WisDescriptorTableDataDesc* data);
 
 #ifdef __cplusplus
 }

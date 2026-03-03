@@ -146,6 +146,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
 
     auto& heap_impl           = *new (heap) DX12DescriptorHeapImpl();
     heap_impl.descriptor_heap = descriptor_heap.detach();
+    heap_impl.gpu_handle      = heap_impl.descriptor_heap->GetGPUDescriptorHandleForHeapStart();
     return dx_success;
 }
 
@@ -175,7 +176,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
     }
 
     D3D12_ROOT_PARAMETER1            root_parameters[max_root_parameters];
-    std::size_t                      num_root_parameters = push_constant_size + desc->push_descriptor_count + desc->descriptor_table_count;
+    std::size_t                      num_root_parameters = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
     wis::span<D3D12_ROOT_PARAMETER1> root_parameters_span{ root_parameters, num_root_parameters };
 
     // Push constants

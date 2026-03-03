@@ -64,6 +64,15 @@ public:
     {
         return (::wisVKBufferMap(&_impl_storage));
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
+     * @return u64 Address of the buffer on GPU.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t GetGPUAddress() const noexcept
+    {
+        return (::wisVKBufferGetGPUAddress(&_impl_storage));
+    }
 };
 
 struct VKDescriptorHeapDeleter {
@@ -82,6 +91,15 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
+     * @return void CPU descriptor handle for the descriptor heap.
+     *
+     * */
+    WIS_NODISCARD inline void* GetCPUHandle() const noexcept
+    {
+        return (::wisVKDescriptorHeapGetCPUHandle(&_impl_storage));
+    }
 };
 
 struct VKRootSignatureDeleter {
@@ -296,6 +314,36 @@ public:
         ::wisVKCommandListSetRootSignature(&_impl_storage,
                                            signature,
                                            static_cast<WisPipelineType>(pipeline));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the push constants for the command list, so they can be used for resource binding.
+     * @param data points to , which describes the push constant data to set.
+     *
+     * */
+    inline void SetPushConstants(const wis::PushConstantDataDesc& data) const noexcept
+    {
+        ::wisVKCommandListSetPushConstants(&_impl_storage,
+                                           reinterpret_cast<const WisPushConstantDataDesc*>(&data));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource binding.
+     * @param data points to , which describes the push descriptors to set.
+     *
+     * */
+    inline void SetPushDescriptor(const wis::PushDescriptorDataDesc& data) const noexcept
+    {
+        ::wisVKCommandListSetPushDescriptor(&_impl_storage,
+                                            reinterpret_cast<const WisPushDescriptorDataDesc*>(&data));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.
+     * @param data defines the root parameter index to set the descriptor table for.
+     *
+     * */
+    inline void SetDescriptorTable(const wis::DescriptorTableDataDesc& data) const noexcept
+    {
+        ::wisVKCommandListSetDescriptorTable(&_impl_storage,
+                                             reinterpret_cast<const WisDescriptorTableDataDesc*>(&data));
     }
 };
 

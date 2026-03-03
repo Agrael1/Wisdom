@@ -422,26 +422,24 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> table_offsets_per_shader = detail::GetMappingOffsetPerShaderType(table_counts_per_shader, total_table_count);
     std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> local_offsets_per_shader = table_offsets_per_shader;
 
-    std::size_t root_param_count         = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
-    std::size_t static_sampler_count     = 0;
-    std::size_t aligned_constant_storage = wis::aligned_size(total_dwords_needed, 2u);
+    std::size_t root_param_count     = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
+    std::size_t static_sampler_count = 0;
 
     // allocate root signature table
     std::size_t root_sig_size = sizeof(detail::VKRootSignatureControlBlock) +
-            aligned_constant_storage * sizeof(uint32_t) +
+            wis::aligned_size(root_param_count, 2u) * sizeof(uint32_t) + // Root parameter binding indices, aligned to 8 bytes
             total_table_count * sizeof(VkDescriptorSetAndBindingMappingEXT);
 
     std::unique_ptr<detail::VKRootSignatureControlBlock> root_sig_control_block{
-        reinterpret_cast<detail::VKRootSignatureControlBlock*>(operator new(static_sampler_count, std::nothrow))
+        reinterpret_cast<detail::VKRootSignatureControlBlock*>(operator new(root_sig_size, std::nothrow))
     };
 
     // start lifetime
     std::construct_at(root_sig_control_block.get());
-    root_sig_control_block->constant_data_size     = static_cast<uint32_t>(aligned_constant_storage);
+    root_sig_control_block->constant_data_size     = static_cast<uint32_t>(total_dwords_needed);
     root_sig_control_block->mapping_count          = static_cast<uint32_t>(total_table_count);
     root_sig_control_block->embedded_sampler_count = static_cast<uint32_t>(static_sampler_count);
-    root_sig_control_block->root_descriptor_offset = static_cast<uint32_t>(push_constant_size);
-    root_sig_control_block->root_table_offset      = root_sig_control_block->root_descriptor_offset + static_cast<uint32_t>(desc->push_descriptor_count * 2);
+    root_sig_control_block->root_parameter_count   = static_cast<uint32_t>(root_param_count);
 
     // Fill mapping data
     for (uint32_t i = 0; i < table_offsets_per_shader.size(); ++i) {
@@ -456,10 +454,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     }
 
     auto     mappings            = root_sig_control_block->GetMappings();
+    auto     root_param_offsets  = root_sig_control_block->GetRootBindingOffsets();
     uint32_t push_address_offset = 0;
+    uint32_t root_param_index   = 0;
 
     // Push constants
-    std::ranges::fill(root_sig_control_block->GetConstantData(), 0); // Zero out the constant data region
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
         auto& src = desc->push_constants[i];
 
@@ -473,6 +472,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT,
             .sourceData    = { .pushAddressOffset = push_address_offset }
         };
+
+        root_param_offsets[root_param_index++] = push_address_offset;
         push_address_offset += src.size_bytes;
     }
 
@@ -480,7 +481,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
         WisPushDescriptor src = desc->push_descriptors[i];
 
-        mappings[local_offsets_per_shader[src.visibility].offset++] = {
+        auto& m = mappings[local_offsets_per_shader[src.visibility].offset++] = {
             .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
             .pNext         = nullptr,
             .descriptorSet = src.bind_space,
@@ -490,6 +491,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT,
             .sourceData    = { .pushAddressOffset = static_cast<uint32_t>(push_address_offset + i * 2 * sizeof(uint32_t)) }
         };
+        root_param_offsets[root_param_index++] = m.sourceData.pushAddressOffset;
     }
     push_address_offset += desc->push_descriptor_count * 2 * sizeof(uint32_t);
 
@@ -538,6 +540,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
                                 } }
             };
         }
+
+        root_param_offsets[root_param_index++] = push_address_offset;
         push_address_offset += sizeof(uint32_t);
     }
 
