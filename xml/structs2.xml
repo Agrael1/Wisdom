@@ -138,12 +138,37 @@
       <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
     </type>
 
+    <type name="PushConstantDataDesc" category="struct" version="0.7.0" doc="Push constant set description for {CommandList::SetPushConstant}.">
+      <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push constants for."/>
+      <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push constants for."/>
+      <member type="void" name="data" mod="const,ptr" doc="points to the data to set as push constants."/>
+      <member type="u32" name="data_size" doc="defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant size defined by the device and 4-byte aligned."/>
+      <member type="u32" name="push_offset" doc="defines the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned."/>
+    </type>
+
+    <type name="PushDescriptorDataDesc" category="struct" version="0.7.0" doc="Push descriptor set description for {CommandList::SetPushDescriptor}.">
+      <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push descriptors for."/>
+      <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push descriptors for."/>
+      <member type="DescriptorType" name="descriptor_type" doc="defines the type of the descriptors to push."/>
+      <member type="u64" name="buffer_address" doc="defines buffer device address to push."/>
+    </type>
+
+    <type name="DescriptorTableDataDesc" category="struct" version="0.7.0" doc="Push descriptor set description for {CommandList::SetPushDescriptor}.">
+      <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push descriptors for."/>
+      <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push descriptors for."/>
+      <member type="DescriptorHeapType" name="heap_type" doc="defines the type of the descriptor heap to bind."/>
+      <member type="u32" name="heap_offset" doc="defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables."/>
+    </type>
+
+    <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
       <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
       <member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
       <member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
     </type>
+
+
 
     <!-- Queries -->
     <type name="QueryStructHeader" category="struct" version="0.7.0" doc="Query struct header. Used as a header for all query structs.">

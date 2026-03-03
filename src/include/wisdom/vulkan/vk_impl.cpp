@@ -42,6 +42,25 @@ WIS_EXTERN_C WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self)
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self)
+{
+    auto& impl   = *reinterpret_cast<const VKBufferImpl*>(self);
+    auto& header = impl.device_header->header;
+    auto& table  = header.device_table;
+
+    VmaAllocator     allocator = impl.device_header->header.allocator;
+    VmaAllocatorInfo allocator_info{};
+    vmaGetAllocatorInfo(allocator, &allocator_info);
+
+    VkBufferDeviceAddressInfo address_info{
+        .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+        .pNext  = nullptr,
+        .buffer = impl.buffer
+    };
+    return table.vkGetBufferDeviceAddress(allocator_info.device, &address_info);
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 {
     auto& impl = *reinterpret_cast<VKTextureImpl*>(self);

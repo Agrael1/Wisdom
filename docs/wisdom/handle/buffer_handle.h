@@ -22,6 +22,6 @@
  * @section WisBuffer_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyBuffer, wisResourceAllocatorCreateBuffer, wisBufferMap
+ * @see wisDestroyBuffer, wisResourceAllocatorCreateBuffer, wisBufferMap, wisBufferGetGPUAddress
  * \endcond
  */

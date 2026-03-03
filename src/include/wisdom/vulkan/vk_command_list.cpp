@@ -103,9 +103,72 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommand
     return; // Descriptor heap binding is not supported, silently ignore
 #endif
 
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
-    auto* sig  = std::bit_cast<detail::VKRootSignatureControlBlock*>(signature);
+    auto& impl                 = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto* sig                  = std::bit_cast<detail::VKRootSignatureControlBlock*>(signature);
     impl.root_signature_header = sig;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList*        self,
+                                                              const WisPushConstantDataDesc* data)
+{
+#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
+    return; // Descriptor heap binding is not supported, silently ignore
+#endif
+
+    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto* sig  = impl.root_signature_header;
+
+    uint32_t          push_constant_offset = sig->GetRootBindingOffsets()[data->root_index] + data->push_offset / 4;
+    VkPushDataInfoEXT push_data_info{
+        .sType  = VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT,
+        .pNext  = nullptr,
+        .offset = push_constant_offset,
+        .data   = { .address = data->data, .size = data->data_size }
+    };
+    impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList*          self,
+                                                               const WisPushDescriptorDataDesc* data)
+{
+#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
+    return; // Descriptor heap binding is not supported, silently ignore
+#endif
+
+    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto* sig  = impl.root_signature_header;
+
+    uint32_t          push_desc_offset = sig->GetRootBindingOffsets()[data->root_index];
+    VkPushDataInfoEXT push_data_info{
+        .sType  = VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT,
+        .pNext  = nullptr,
+        .offset = push_desc_offset,
+        .data   = { .address = &data->buffer_address, .size = sizeof(uint64_t) }
+    };
+    impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKCommandList*           self,
+                                                                const WisDescriptorTableDataDesc* data)
+{
+#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
+    return; // Descriptor heap binding is not supported, silently ignore
+#endif
+
+    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto* sig  = impl.root_signature_header;
+
+    uint32_t          push_desc_offset = sig->GetRootBindingOffsets()[data->root_index];
+    VkPushDataInfoEXT push_data_info{
+        .sType  = VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT,
+        .pNext  = nullptr,
+        .offset = push_desc_offset,
+        .data   = { .address = &data->heap_offset, .size = sizeof(uint32_t) }
+    };
+    impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
 }
 
 #endif // WIS_VK_COMMAND_LIST_CPP

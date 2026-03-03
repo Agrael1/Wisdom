@@ -16,7 +16,7 @@
     </handle>
     <handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
       <impl for="vk" size="7"/>
-      <impl for="dx" size="1"/>
+      <impl for="dx" size="2"/>
     </handle>
     <handle name="RootSignature" version="0.7.0" doc="Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.">
       <impl for="vk" size="1"/>
@@ -34,7 +34,7 @@
     </handle>
     <handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
       <impl for="vk" size="5"/>
-      <impl for="dx" size="2"/>
+      <impl for="dx" size="5"/>
       <view size="1"/>
     </handle>
     <handle name="CommandAllocator" version="0.7.0" doc="Class representing a pool allocator for command lists for recording GPU commands.">
@@ -161,6 +161,14 @@ Can still be enqueued after the signal.">
     <func for="Buffer" name="Map" version="0.7.0" mod="const" doc="Maps the buffer memory to CPU accessible address space.">
       <ret type="void" name="data" mod="ptr" doc="points to the pointer, which is filled with the address of the mapped memory on success."/>
     </func>
+    <func for="Buffer" name="GetGPUAddress" version="0.7.0" mod="const" doc="Unmaps the buffer memory from CPU accessible address space.">
+      <ret type="u64" name="address" doc="Address of the buffer on GPU."/>
+    </func>
+    
+    <!-- Descriptor Heap -->
+    <func for="DescriptorHeap" name="GetCPUHandle" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the descriptor heap.">
+      <ret type="void" name="handle" mod="ptr" doc="CPU descriptor handle for the descriptor heap."/>
+    </func>
 
     <!-- Command Allocator -->
     <func for="CommandAllocator" name="Reset" version="0.7.0" mod="const" doc="Resets the command allocator, so it can be reused for allocating new command lists.">
@@ -185,6 +193,16 @@ Can still be enqueued after the signal.">
       <arg type="RootSignatureView" name="signature" doc="points to {RootSignature::} to set."/>
       <arg type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the root signature for."/>
     </func>
+    <func for="CommandList" name="SetPushConstants" version="0.7.0" mod="const" doc="Sets the push constants for the command list, so they can be used for resource binding.">
+      <arg type="PushConstantDataDesc" name="data" mod="const,ref" doc="points to {PushConstantSetDesc::}, which describes the push constant data to set."/>
+    </func>
+    <func for="CommandList" name="SetPushDescriptor" version="0.7.0" mod="const" doc="Sets the push descriptors for the command list, so they can be used for resource binding.">
+      <arg type="PushDescriptorDataDesc" name="data" mod="const,ref" doc="points to {PushDescriptorSetDesc::}, which describes the push descriptors to set."/>
+    </func>
+    <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
+      <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="defines the root parameter index to set the descriptor table for."/>
+    </func>
+    
 
   </functions>
 

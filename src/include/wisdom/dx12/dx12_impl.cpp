@@ -46,6 +46,13 @@ WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self)
+{
+    auto& [resource, allocation, allocator] = *reinterpret_cast<const DX12BufferImpl*>(self);
+    return resource->GetGPUVirtualAddress();
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
 {
     auto& [resource, allocation, allocator] = *reinterpret_cast<DX12BufferImpl*>(self);

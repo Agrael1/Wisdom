@@ -53,6 +53,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const
     internal.list      = command_list.detach();
     internal.allocator = allocator;
     internal.allocator->AddRef();
+    internal.descriptor_handle.ptr = 0;
+    internal.sampler_handle.ptr    = 0;
+    internal.descriptor_size       = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    internal.sampler_size          = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
     return dx_success;
 }

@@ -1122,6 +1122,40 @@ struct TextureDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Push constant set description for wis::CommandList.
+ *
+ * */
+struct PushConstantDataDesc {
+    wis::PipelineType pipeline; ///< defines the pipeline type to set the push constants for.
+    std::uint32_t     root_index; ///< defines the root index in the root signature to set the push constants for.
+    const void*       data; ///< points to the data to set as push constants.
+    std::uint32_t     data_size; ///< defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant size defined by the device and 4-byte aligned.
+    std::uint32_t     push_offset; ///< defines the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wis::CommandList.
+ *
+ * */
+struct PushDescriptorDataDesc {
+    wis::PipelineType   pipeline; ///< defines the pipeline type to set the push descriptors for.
+    std::uint32_t       root_index; ///< defines the root index in the root signature to set the push descriptors for.
+    wis::DescriptorType descriptor_type; ///< defines the type of the descriptors to push.
+    std::uint64_t       buffer_address; ///< defines buffer device address to push.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wis::CommandList.
+ *
+ * */
+struct DescriptorTableDataDesc {
+    wis::PipelineType       pipeline; ///< defines the pipeline type to set the push descriptors for.
+    std::uint32_t           root_index; ///< defines the root index in the root signature to set the push descriptors for.
+    wis::DescriptorHeapType heap_type; ///< defines the type of the descriptor heap to bind.
+    std::uint32_t           heap_offset; ///< defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */

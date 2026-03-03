@@ -16,7 +16,7 @@
  * DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisDX12CommandList,2);
+ * WIS_DEFINE_HANDLE(WisDX12CommandList,5);
  * WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList,1);
  * ```
  * \endcond
@@ -24,6 +24,6 @@
  * @section WisCommandList_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature
+ * @see wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable
  * \endcond
  */
