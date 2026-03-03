@@ -45,6 +45,7 @@ struct VKBufferDeleter {
         ::wisVKDestroyBuffer(handle);
     }
 };
+using VKBufferView = WisVKBufferView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
  *
@@ -55,6 +56,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD VKBufferView GetView() const noexcept
+    {
+        VKBufferView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKBufferView() const noexcept
+    {
+        return GetView();
+    }
     /**
      * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
      * @return void points to the pointer, which is filled with the address of the mapped memory on success.
@@ -99,6 +110,54 @@ public:
     WIS_NODISCARD inline void* GetCPUHandle() const noexcept
     {
         return (::wisVKDescriptorHeapGetCPUHandle(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::ConstantBuffer` descriptor to the descriptor heap.
+     * @param data points to wis::ConstantBufferBinding, which describes the constant buffer descriptors to write.
+     * @param index defines the index in the descriptor heap to write the descriptors to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteConstantBuffer(const wis::ConstantBufferBinding& data,
+                                           std::uint32_t                     index) const noexcept
+    {
+        return convert_result(::wisVKDescriptorHeapWriteConstantBuffer(&_impl_storage,
+                                                                       reinterpret_cast<const WisConstantBufferBinding*>(&data),
+                                                                       index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::Buffer` descriptor to the descriptor heap.
+     * @param buffer points to wis::Buffer to write the descriptor for.
+     * @param data points to wis::BufferBinding, which describes the shader resource view descriptors to write.
+     * @param index defines the index in the descriptor heap to write the descriptors to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteStructuredBuffer(wis::VKBufferView         buffer,
+                                             const wis::BufferBinding& data,
+                                             std::uint32_t             index) const noexcept
+    {
+        return convert_result(::wisVKDescriptorHeapWriteStructuredBuffer(&_impl_storage,
+                                                                         buffer,
+                                                                         reinterpret_cast<const WisBufferBinding*>(&data),
+                                                                         index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::RWBuffer` descriptor to the descriptor heap.
+     * @param buffer points to wis::Buffer to write the descriptor for.
+     * @param data points to wis::BufferBinding, which describes the shader resource view descriptors to write.
+     * @param index defines the index in the descriptor heap to write the descriptors to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteRWStructuredBuffer(wis::VKBufferView         buffer,
+                                               const wis::BufferBinding& data,
+                                               std::uint32_t             index) const noexcept
+    {
+        return convert_result(::wisVKDescriptorHeapWriteRWStructuredBuffer(&_impl_storage,
+                                                                           buffer,
+                                                                           reinterpret_cast<const WisBufferBinding*>(&data),
+                                                                           index));
     }
 };
 

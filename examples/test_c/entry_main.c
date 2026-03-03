@@ -150,6 +150,12 @@ int main()
     uint64_t buffer_gpu_address = wisBufferGetGPUAddress(&buffer);
     void*    mapped_ptr         = wisBufferMap(&buffer);
 
+    WisConstantBufferBinding cb_binding = {
+        .buffer_address = buffer_gpu_address,
+        .size_bytes     = 1024,
+    };
+    result = wisDescriptorHeapWriteConstantBuffer(&descriptor_heap, &cb_binding, 0);
+
     WisTextureDesc texture_desc = {
         .width               = 256,
         .height              = 256,

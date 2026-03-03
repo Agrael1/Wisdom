@@ -13,10 +13,11 @@
     <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
       <impl for="vk" size="4"/>
       <impl for="dx" size="3"/>
+      <view size="1"/>
     </handle>
     <handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
       <impl for="vk" size="7"/>
-      <impl for="dx" size="2"/>
+      <impl for="dx" size="5"/>
     </handle>
     <handle name="RootSignature" version="0.7.0" doc="Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.">
       <impl for="vk" size="1"/>
@@ -164,10 +165,27 @@ Can still be enqueued after the signal.">
     <func for="Buffer" name="GetGPUAddress" version="0.7.0" mod="const" doc="Unmaps the buffer memory from CPU accessible address space.">
       <ret type="u64" name="address" doc="Address of the buffer on GPU."/>
     </func>
-    
+
     <!-- Descriptor Heap -->
     <func for="DescriptorHeap" name="GetCPUHandle" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the descriptor heap.">
       <ret type="void" name="handle" mod="ptr" doc="CPU descriptor handle for the descriptor heap."/>
+    </func>
+    <func for="DescriptorHeap" name="WriteConstantBuffer" version="0.7.0" mod="const" doc="Writes {DescriptorType::ConstantBuffer} descriptor to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="ConstantBufferBinding" name="data" mod="const,ref" doc="points to {ConstantBufferBinding::}, which describes the constant buffer descriptors to write."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
+    </func>
+    <func for="DescriptorHeap" name="WriteStructuredBuffer" version="0.7.0" mod="const" doc="Writes {DescriptorType::Buffer} descriptor to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="BufferView" name="buffer" doc="points to {Buffer::} to write the descriptor for."/>
+      <arg type="BufferBinding" name="data" mod="const,ref" doc="points to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
+    </func>
+    <func for="DescriptorHeap" name="WriteRWStructuredBuffer" version="0.7.0" mod="const" doc="Writes {DescriptorType::RWBuffer} descriptor to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="BufferView" name="buffer" doc="points to {Buffer::} to write the descriptor for."/>
+      <arg type="BufferBinding" name="data" mod="const,ref" doc="points to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
     </func>
 
     <!-- Command Allocator -->
@@ -202,7 +220,7 @@ Can still be enqueued after the signal.">
     <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
       <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="defines the root parameter index to set the descriptor table for."/>
     </func>
-    
+
 
   </functions>
 

@@ -1156,6 +1156,25 @@ struct DescriptorTableDataDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wis::DescriptorHeap.
+ *
+ * */
+struct ConstantBufferBinding {
+    std::uint64_t buffer_address; ///< defines buffer device address to bind.
+    std::uint32_t size_bytes; ///< defines the size of the buffer region to bind in bytes.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer binding description for wis::DescriptorHeap.
+ *
+ * */
+struct BufferBinding {
+    std::uint64_t array_offset; ///< defines offset in buffer in structures.
+    std::uint32_t stride_bytes; ///< defines the size of the single structure in buffer.
+    std::uint32_t structure_count; ///< defines the number of structures in the buffer region to bind.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
